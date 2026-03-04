@@ -29,7 +29,7 @@ export function SpecGrid({ section }: SpecGridProps) {
       {/* Section Header */}
       {section.title && (
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral">
+          <h2 className="text-3xl md:text-4xl font-bold text-circleTel-navy">
             {section.title}
           </h2>
         </div>
@@ -72,7 +72,7 @@ export function SpecGrid({ section }: SpecGridProps) {
             </h3>
 
             {/* Value */}
-            <p className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral">
+            <p className="text-2xl md:text-3xl font-bold text-circleTel-navy">
               {item.value}
             </p>
           </div>

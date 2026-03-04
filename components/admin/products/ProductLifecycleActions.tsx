@@ -116,7 +116,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
         </PermissionGate>
         <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
           <Button
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             size="sm"
             onClick={onEdit}
           >
@@ -168,7 +168,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
         </PermissionGate>
          <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
           <Button
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             size="sm"
             onClick={onEdit}
           >
@@ -227,7 +227,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
         </Button>
       <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
         <Button
-          className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+          className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           size="sm"
           onClick={onEdit}
         >

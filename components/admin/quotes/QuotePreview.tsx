@@ -101,18 +101,18 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
             <p>PO Box 3895, 2128</p>
             <p className="mt-1">TEL: +27 87 087 6305</p>
             <p>
-              <span className="font-semibold text-[#F5831F]">EMAIL</span>
+              <span className="font-semibold text-circleTel-orange">EMAIL</span>
               <span>contactus@circletel.co.za</span>
             </p>
             <p>
-              <span className="font-semibold text-[#F5831F]">WEB: </span>
+              <span className="font-semibold text-circleTel-orange">WEB: </span>
               <span>www.circletel.co.za</span>
             </p>
           </div>
         </div>
         
         {/* Orange separator line */}
-        <div className="mt-4 h-1 bg-[#F5831F]"></div>
+        <div className="mt-4 h-1 bg-circleTel-orange"></div>
       </div>
 
       {/* Quote Info Bar */}
@@ -137,7 +137,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
         {/* Customer Information */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-[#F5831F]" />
+            <Building2 className="w-6 h-6 text-circleTel-orange" />
             Customer Information
           </h2>
           <Card className="p-6 bg-gray-50">
@@ -158,7 +158,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
               <div>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 text-[#F5831F] mt-0.5" />
+                    <Mail className="w-5 h-5 text-circleTel-orange mt-0.5" />
                     <div>
                       <p className="text-xs text-gray-500">Contact Person</p>
                       <p className="font-semibold text-gray-900">{formData.contact_name}</p>
@@ -166,14 +166,14 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-[#F5831F] mt-0.5" />
+                    <Phone className="w-5 h-5 text-circleTel-orange mt-0.5" />
                     <div>
                       <p className="text-xs text-gray-500">Phone</p>
                       <p className="font-semibold text-gray-900">{formData.contact_phone}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-[#F5831F] mt-0.5" />
+                    <MapPin className="w-5 h-5 text-circleTel-orange mt-0.5" />
                     <div>
                       <p className="text-xs text-gray-500">Service Address</p>
                       <p className="font-semibold text-gray-900">{formData.service_address}</p>
@@ -190,7 +190,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">MTN Business Deals</h2>
             {mtnDeals.map((deal, index) => (
-              <Card key={index} className="p-6 mb-4 border-2 border-[#F5831F] bg-orange-50">
+              <Card key={index} className="p-6 mb-4 border-2 border-circleTel-orange bg-orange-50">
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-bold text-lg text-gray-900">{deal.deal_name}</h3>
@@ -215,7 +215,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
                       )}
                     </div>
                   </div>
-                  <Badge className="bg-[#F5831F] text-white">
+                  <Badge className="bg-circleTel-orange text-white">
                     {deal.contract_term}-Month Contract
                   </Badge>
                 </div>
@@ -314,7 +314,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
                 
                 <div className="flex justify-between text-lg font-bold">
                   <span className="text-gray-900">Total (Incl. VAT):</span>
-                  <span className="text-[#F5831F]">{formatCurrency(pricing.total)}</span>
+                  <span className="text-circleTel-orange">{formatCurrency(pricing.total)}</span>
                 </div>
                 
                 <div className="bg-blue-50 border border-blue-200 rounded p-3 mt-4">
@@ -344,7 +344,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
       </div>
 
       {/* Footer */}
-      <div className="bg-gray-100 border-t-4 border-[#F5831F] p-8">
+      <div className="bg-gray-100 border-t-4 border-circleTel-orange p-8">
         <div className="grid grid-cols-3 gap-8 text-sm text-gray-700">
           <div>
             <h4 className="font-semibold mb-2 text-gray-900">Contact Us</h4>

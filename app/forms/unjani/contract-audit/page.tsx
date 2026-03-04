@@ -98,7 +98,7 @@ const UnjaniContractAuditForm = () => {
         <section className="bg-gradient-to-br from-white to-circleTel-lightNeutral py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-4">
                 Unjani Clinic Network Contract Audit Form
               </h1>
               <p className="text-lg text-circleTel-secondaryNeutral">
@@ -119,7 +119,7 @@ const UnjaniContractAuditForm = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center mb-6">
                       <FileText className="h-6 w-6 text-circleTel-orange mr-3" />
-                      <h2 className="text-xl font-bold text-circleTel-darkNeutral">1. Clinic Identification</h2>
+                      <h2 className="text-xl font-bold text-circleTel-navy">1. Clinic Identification</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -184,7 +184,7 @@ const UnjaniContractAuditForm = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center mb-6">
                       <Shield className="h-6 w-6 text-blue-500 mr-3" />
-                      <h2 className="text-xl font-bold text-circleTel-darkNeutral">2. Current Service Provider Information</h2>
+                      <h2 className="text-xl font-bold text-circleTel-navy">2. Current Service Provider Information</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -259,7 +259,7 @@ const UnjaniContractAuditForm = () => {
                     <div className="flex items-center mb-4">
                       <CheckCircle className="h-6 w-6 text-purple-500 mr-3" />
                       <div>
-                        <h2 className="text-xl font-bold text-circleTel-darkNeutral">3. Contract Details</h2>
+                        <h2 className="text-xl font-bold text-circleTel-navy">3. Contract Details</h2>
                         <p className="text-sm text-circleTel-secondaryNeutral">Critical information for determining migration readiness and rollout priority</p>
                       </div>
                     </div>
@@ -333,7 +333,7 @@ const UnjaniContractAuditForm = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center mb-6">
                       <Calendar className="h-6 w-6 text-green-500 mr-3" />
-                      <h2 className="text-xl font-bold text-circleTel-darkNeutral">4. Migration Readiness & Rollout Priority</h2>
+                      <h2 className="text-xl font-bold text-circleTel-navy">4. Migration Readiness & Rollout Priority</h2>
                     </div>
 
                     <div className={`p-4 rounded-lg mb-6 ${priority === 'HIGH' ? 'bg-red-50 border border-red-200' : priority === 'MEDIUM' ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-50 border border-gray-200'}`}>
@@ -381,7 +381,7 @@ const UnjaniContractAuditForm = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center mb-6">
                       <Users className="h-6 w-6 text-indigo-500 mr-3" />
-                      <h2 className="text-xl font-bold text-circleTel-darkNeutral">5. Contact Person on Site</h2>
+                      <h2 className="text-xl font-bold text-circleTel-navy">5. Contact Person on Site</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -499,7 +499,7 @@ const UnjaniContractAuditForm = () => {
                     <div className="flex items-center mb-4">
                       <Mail className="h-6 w-6 text-pink-500 mr-3" />
                       <div>
-                        <h2 className="text-xl font-bold text-circleTel-darkNeutral">6. Email Notifications</h2>
+                        <h2 className="text-xl font-bold text-circleTel-navy">6. Email Notifications</h2>
                         <p className="text-sm text-circleTel-secondaryNeutral">Configure who should receive notifications about this audit submission</p>
                       </div>
                     </div>
@@ -525,7 +525,7 @@ const UnjaniContractAuditForm = () => {
                           <Users className="h-8 w-8 text-circleTel-orange p-1 bg-circleTel-orange/10 rounded" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-bold text-circleTel-darkNeutral">Team Notification</h4>
+                          <h4 className="font-bold text-circleTel-navy">Team Notification</h4>
                           <p className="text-sm text-circleTel-secondaryNeutral">Notify the CircleTel Unjani rollout team about this audit submission. Includes technical details, priority assessment, and next steps.</p>
                         </div>
                         <input
@@ -541,7 +541,7 @@ const UnjaniContractAuditForm = () => {
                           <Mail className="h-8 w-8 text-blue-500 p-1 bg-blue-100 rounded" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-bold text-circleTel-darkNeutral">Additional Recipients</h4>
+                          <h4 className="font-bold text-circleTel-navy">Additional Recipients</h4>
                           <p className="text-sm text-circleTel-secondaryNeutral mb-2">Send notifications to additional email addresses (optional). Separate multiple emails with commas.</p>
                           <Input
                             name="additionalRecipients"
@@ -571,7 +571,7 @@ const UnjaniContractAuditForm = () => {
                 {/* Audit Summary */}
                 <Card className="bg-circleTel-lightNeutral">
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-4">Audit Summary</h3>
+                    <h3 className="text-lg font-bold text-circleTel-navy mb-4">Audit Summary</h3>
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
                         <div className="text-2xl font-bold text-circleTel-orange">{completionPercentage}%</div>
@@ -596,7 +596,7 @@ const UnjaniContractAuditForm = () => {
                   <Button
                     type="submit"
                     size="lg"
-                    className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-8 py-3"
+                    className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-8 py-3"
                   >
                     Submit Audit
                   </Button>

@@ -1162,7 +1162,7 @@ export default function FeasibilityPage() {
                   size="lg"
                   onClick={checkFeasibility}
                   disabled={!formData.companyName || parseSites(formData.sites).length === 0}
-                  className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white gap-2 px-8"
+                  className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white gap-2 px-8"
                 >
                   <Sparkles className="w-4 h-4" />
                   Check Feasibility
@@ -1212,7 +1212,7 @@ export default function FeasibilityPage() {
                           size="sm"
                           onClick={generateQuotes}
                           disabled={isGenerating}
-                          className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+                          className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
                         >
                           {isGenerating ? (
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1417,7 +1417,7 @@ export default function FeasibilityPage() {
                           <Button
                             onClick={generateQuotes}
                             disabled={selectedSites.size === 0 || isGenerating}
-                            className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white gap-2"
+                            className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white gap-2"
                           >
                             {isGenerating ? (
                               <Loader2 className="w-4 h-4 animate-spin" />

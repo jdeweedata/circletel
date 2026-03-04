@@ -33,7 +33,7 @@ export function FAQAccordion({ section, defaultOpenIndex }: FAQAccordionProps) {
       {/* Section Header */}
       {section.title && (
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral">
+          <h2 className="text-3xl md:text-4xl font-bold text-circleTel-navy">
             {section.title}
           </h2>
         </div>
@@ -63,7 +63,7 @@ export function FAQAccordion({ section, defaultOpenIndex }: FAQAccordionProps) {
                         onClick={() => toggleItem(globalIndex)}
                         className="w-full flex items-center justify-between gap-4 p-5 text-left hover:bg-gray-50 transition-colors"
                       >
-                        <span className="font-semibold text-circleTel-darkNeutral text-lg">
+                        <span className="font-semibold text-circleTel-navy text-lg">
                           {faq.question}
                         </span>
                         <ChevronDown
@@ -106,7 +106,7 @@ export function FAQAccordion({ section, defaultOpenIndex }: FAQAccordionProps) {
                     onClick={() => toggleItem(index)}
                     className="w-full flex items-center justify-between gap-4 p-5 text-left hover:bg-gray-50 transition-colors"
                   >
-                    <span className="font-semibold text-circleTel-darkNeutral text-lg">
+                    <span className="font-semibold text-circleTel-navy text-lg">
                       {faq.question}
                     </span>
                     <ChevronDown

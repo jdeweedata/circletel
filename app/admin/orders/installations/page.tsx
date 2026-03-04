@@ -787,7 +787,7 @@ export default function AdminInstallationsPage() {
                               size="sm"
                               onClick={() => setSchedulingInstallation(installation)}
                               title="Schedule installation and assign technician"
-                              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
                             >
                               <CalendarCheck className="h-4 w-4 mr-1" />
                               Schedule

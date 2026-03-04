@@ -268,7 +268,7 @@ export function JourneyProgressTracker({
         {/* Overall progress */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            <span className="font-semibold text-circleTel-darkNeutral">
+            <span className="font-semibold text-circleTel-navy">
               {progress.progressPercentage}%
             </span>{' '}
             complete •{' '}

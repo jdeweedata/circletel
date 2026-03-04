@@ -30,7 +30,7 @@ const savingsOptions = [
     description: "R619/mo for 12 mos., then R719/mo after. For new DStv subscribers with Business Pro plans.",
     icon: Tv,
     savings: "R1,200 first year",
-    color: "from-circleTel-darkNeutral to-circleTel-secondaryNeutral",
+    color: "from-circleTel-navy to-circleTel-secondaryNeutral",
     cta: "Get started"
   }
 ]
@@ -41,7 +41,7 @@ export function DemoSavingsSection() {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-circleTel-darkNeutral">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-circleTel-navy">
             Discover more ways to save
           </h2>
           <p className="text-xl text-circleTel-secondaryNeutral max-w-2xl mx-auto">
@@ -70,7 +70,7 @@ export function DemoSavingsSection() {
 
                 {/* Content */}
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-3 text-circleTel-darkNeutral group-hover:text-circleTel-orange transition-colors">
+                  <h3 className="text-xl font-bold mb-3 text-circleTel-navy group-hover:text-circleTel-orange transition-colors">
                     {option.title}
                   </h3>
 
@@ -79,7 +79,7 @@ export function DemoSavingsSection() {
                   </p>
 
                   <Button
-                    className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-semibold"
+                    className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-semibold"
                   >
                     {option.cta}
                   </Button>

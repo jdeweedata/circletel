@@ -18,11 +18,20 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // CircleTel CTA variants
+        cta: "bg-circleTel-orange text-white hover:bg-circleTel-orange-dark font-semibold shadow-md hover:shadow-lg",
+        "cta-outline":
+          "border-2 border-circleTel-orange text-circleTel-orange bg-transparent hover:bg-circleTel-orange-light font-semibold",
+        "cta-gradient":
+          "bg-gradient-cta text-white hover:bg-gradient-cta-hover font-semibold shadow-md hover:shadow-lg",
+        "cta-navy":
+          "bg-circleTel-navy text-white hover:bg-circleTel-navy/90 font-semibold shadow-md hover:shadow-lg",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
+        xl: "h-12 rounded-lg px-10 text-base",
         icon: "h-10 w-10",
       },
     },

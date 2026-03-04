@@ -13,7 +13,7 @@ export default function CMSDemo() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-circleTel-darkNeutral mb-4">
+            <h1 className="text-4xl font-bold text-circleTel-navy mb-4">
               Sanity CMS Demo
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -35,7 +35,7 @@ export default function CMSDemo() {
                   <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-circleTel-darkNeutral ml-4">
+              <h2 className="text-xl font-semibold text-circleTel-navy ml-4">
                 CMS Pages
               </h2>
             </div>
@@ -72,7 +72,7 @@ export default function CMSDemo() {
                   <path fillRule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z" clipRule="evenodd" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-circleTel-darkNeutral ml-4">
+              <h2 className="text-xl font-semibold text-circleTel-navy ml-4">
                 Blog Posts
               </h2>
             </div>
@@ -109,7 +109,7 @@ export default function CMSDemo() {
                   <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-circleTel-darkNeutral ml-4">
+              <h2 className="text-xl font-semibold text-circleTel-navy ml-4">
                 Products
               </h2>
             </div>
@@ -132,7 +132,7 @@ export default function CMSDemo() {
                   <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-circleTel-darkNeutral ml-4">
+              <h2 className="text-xl font-semibold text-circleTel-navy ml-4">
                 Sanity Studio
               </h2>
             </div>
@@ -157,7 +157,7 @@ export default function CMSDemo() {
                   <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-circleTel-darkNeutral ml-4">
+              <h2 className="text-xl font-semibold text-circleTel-navy ml-4">
                 Technical Implementation
               </h2>
             </div>

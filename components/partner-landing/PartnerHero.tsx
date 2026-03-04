@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 
 export function PartnerHero() {
   return (
-    <section className="relative min-h-[600px] md:min-h-[700px] overflow-hidden bg-gradient-to-br from-circleTel-darkNeutral via-purple-900 to-circleTel-darkNeutral">
+    <section className="relative min-h-[600px] md:min-h-[700px] overflow-hidden bg-gradient-to-br from-circleTel-navy via-purple-900 to-circleTel-navy">
       {/* Decorative Background Elements - Matching home page */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Large gradient circles */}
@@ -46,7 +46,7 @@ export function PartnerHero() {
         <div className="max-w-4xl mx-auto px-2">
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10">
             <div className="text-center mb-6">
-              <h2 className="text-2xl sm:text-3xl font-bold text-circleTel-darkNeutral mb-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-circleTel-navy mb-2">
                 Start earning today
               </h2>
               <p className="text-circleTel-secondaryNeutral">
@@ -58,7 +58,7 @@ export function PartnerHero() {
               <Link href="/partner/onboarding" className="w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold text-lg px-10 py-6 rounded-xl transition-all shadow-lg hover:shadow-xl w-full"
+                  className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold text-lg px-10 py-6 rounded-xl transition-all shadow-lg hover:shadow-xl w-full"
                 >
                   Sign up now
                   <ArrowRight className="ml-2 h-5 w-5" />

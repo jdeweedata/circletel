@@ -41,7 +41,7 @@ export default function OrderSummary() {
     <div className="space-y-4">
       {/* Pricing Breakdown Section */}
       <div>
-        <h3 className="text-sm font-semibold text-circleTel-darkNeutral mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-circleTel-navy mb-3 flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-circleTel-orange" />
           Pricing Information
         </h3>
@@ -50,14 +50,14 @@ export default function OrderSummary() {
           {/* Monthly Subscription */}
           <div className="bg-circleTel-lightNeutral rounded-lg p-3">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-circleTel-darkNeutral">Monthly Subscription</span>
+              <span className="text-sm font-medium text-circleTel-navy">Monthly Subscription</span>
               {hasPromotion ? (
                 <div className="text-right">
                   <div className="text-xs text-gray-500 line-through">R{basePrice.toFixed(2)}</div>
                   <div className="text-lg font-bold text-circleTel-orange">R{promotionPrice.toFixed(2)}</div>
                 </div>
               ) : (
-                <span className="text-lg font-bold text-circleTel-darkNeutral">R{basePrice.toFixed(2)}</span>
+                <span className="text-lg font-bold text-circleTel-navy">R{basePrice.toFixed(2)}</span>
               )}
             </div>
             {hasPromotion && selectedPackage?.promotion_months && (
@@ -108,7 +108,7 @@ export default function OrderSummary() {
           {deliveryFee > 0 ? (
             <div className="bg-circleTel-orange/10 border-2 border-circleTel-orange rounded-lg p-4">
               <div className="flex justify-between items-center">
-                <span className="font-bold text-circleTel-darkNeutral">Total Due Today</span>
+                <span className="font-bold text-circleTel-navy">Total Due Today</span>
                 <span className="text-2xl font-bold text-circleTel-orange">
                   R{deliveryFee.toFixed(2)}
                 </span>

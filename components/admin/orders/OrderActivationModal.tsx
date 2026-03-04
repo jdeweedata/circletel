@@ -393,7 +393,7 @@ export function OrderActivationModal({
             <Button
               type="submit"
               disabled={isSubmitting || !validation?.canActivate || isValidating}
-              className="bg-[#F5831F] hover:bg-[#d97219] text-white"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
             >
               {isSubmitting ? (
                 <>

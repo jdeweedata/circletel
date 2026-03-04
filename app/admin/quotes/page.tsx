@@ -157,14 +157,14 @@ export default function AdminQuotesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">Business Quotes</h1>
+          <h1 className="text-3xl font-bold text-circleTel-navy">Business Quotes</h1>
           <p className="text-circleTel-secondaryNeutral mt-1">
             Manage and track business quote requests
           </p>
         </div>
         <Button
           onClick={() => router.push('/admin/quotes/new')}
-          className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+          className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
         >
           <Plus className="w-4 h-4 mr-2" />
           New Quote
@@ -211,7 +211,7 @@ export default function AdminQuotesPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-circleTel-darkNeutral">
+            <div className="text-2xl font-bold text-circleTel-navy">
               {quotes.length}
             </div>
             <div className="text-sm text-circleTel-secondaryNeutral">Total Quotes</div>
@@ -269,7 +269,7 @@ export default function AdminQuotesPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold text-circleTel-darkNeutral">
+                      <h3 className="text-lg font-semibold text-circleTel-navy">
                         {quote.quote_number}
                       </h3>
                       <Badge className={`${getStatusColor(quote.status)} text-white`}>
@@ -307,7 +307,7 @@ export default function AdminQuotesPage() {
                   </div>
 
                   <div className="text-right space-y-2">
-                    <div className="text-2xl font-bold text-circleTel-darkNeutral">
+                    <div className="text-2xl font-bold text-circleTel-navy">
                       {formatCurrency(quote.total_monthly)}
                       <span className="text-sm font-normal text-circleTel-secondaryNeutral">/mo</span>
                     </div>

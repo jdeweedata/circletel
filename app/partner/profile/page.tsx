@@ -203,7 +203,7 @@ export default function PartnerProfilePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+          <h1 className="text-3xl font-bold text-circleTel-navy">
             My Profile
           </h1>
           <p className="text-circleTel-secondaryNeutral mt-2">

@@ -58,7 +58,7 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
       )}
 
       {/* Visual Header - Data Amount */}
-      <div className="bg-circleTel-darkNeutral text-white p-8 text-center relative overflow-hidden">
+      <div className="bg-circleTel-navy text-white p-8 text-center relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
@@ -153,7 +153,7 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
         <Link href={`/products/${productSlug}`} className="block">
           <Button
             className={cn(
-              "w-full bg-circleTel-orange hover:bg-circleTel-orange/90 transition-all",
+              "w-full bg-circleTel-orange hover:bg-circleTel-orange-dark transition-all",
               "group-hover:shadow-lg group-hover:scale-[1.02]"
             )}
             onClick={(e) => {

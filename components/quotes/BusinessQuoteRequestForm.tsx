@@ -207,7 +207,7 @@ export default function BusinessQuoteRequestForm({
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
             <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto" />
-            <h2 className="text-2xl font-bold text-circleTel-darkNeutral">Quote Request Submitted!</h2>
+            <h2 className="text-2xl font-bold text-circleTel-navy">Quote Request Submitted!</h2>
             <p className="text-circleTel-secondaryNeutral">
               Your business quote request has been submitted successfully. Our team will review your request and send you a detailed quote within 24 hours.
             </p>
@@ -334,7 +334,7 @@ export default function BusinessQuoteRequestForm({
           <div className="space-y-2">
             <Label>Service Address</Label>
             <div className="px-4 py-3 bg-circleTel-lightNeutral rounded-md">
-              <p className="text-sm text-circleTel-darkNeutral">{serviceAddress}</p>
+              <p className="text-sm text-circleTel-navy">{serviceAddress}</p>
             </div>
           </div>
 

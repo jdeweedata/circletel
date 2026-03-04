@@ -117,7 +117,7 @@ export function MyClientComponent({ initialData }: ComponentProps) {
 **CircleTel Design System**:
 - **Colors**: Use Tailwind classes:
   - Primary: \`text-circleTel-orange\`, \`bg-circleTel-orange\`
-  - Dark text: \`text-circleTel-darkNeutral\`
+  - Dark text: \`text-circleTel-navy\`
   - Light backgrounds: \`bg-circleTel-lightNeutral\`
 - **Typography**: Arial/Helvetica sans-serif (default)
 - **Spacing**: Use Tailwind spacing scale (space-y-4, gap-6, p-4)

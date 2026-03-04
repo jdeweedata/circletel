@@ -339,7 +339,7 @@ export default function PublicPaymentPage() {
             {/* Pay Now Button - Prominent CTA (hidden on mobile, shown in sticky footer) */}
             <div className="hidden md:block">
               <Button
-                className="w-full h-12 text-base bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="w-full h-12 text-base bg-circleTel-orange hover:bg-circleTel-orange-dark"
                 size="lg"
                 onClick={handlePayNow}
                 disabled={initiatingPayment}
@@ -458,7 +458,7 @@ export default function PublicPaymentPage() {
       {/* Sticky Mobile Footer - Pay Now Button */}
       <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-background border-t shadow-lg p-4 md:hidden z-50">
         <Button
-          className="w-full h-12 text-base bg-circleTel-orange hover:bg-circleTel-orange/90"
+          className="w-full h-12 text-base bg-circleTel-orange hover:bg-circleTel-orange-dark"
           size="lg"
           onClick={handlePayNow}
           disabled={initiatingPayment}

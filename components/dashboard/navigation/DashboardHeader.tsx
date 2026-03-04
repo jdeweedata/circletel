@@ -64,7 +64,7 @@ export default function DashboardHeader({
               width={32}
               height={32}
             />
-            <span className="font-semibold text-circleTel-darkNeutral">
+            <span className="font-semibold text-circleTel-navy">
               CircleTel
             </span>
           </Link>

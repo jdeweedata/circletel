@@ -106,7 +106,7 @@ export default function ProfilePage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold text-circleTel-darkNeutral mb-2">Profile</h1>
+        <h1 className="text-3xl font-bold text-circleTel-navy mb-2">Profile</h1>
         <p className="text-circleTel-secondaryNeutral">
           Manage your account information and preferences
         </p>
@@ -122,7 +122,7 @@ export default function ProfilePage() {
           {!isEditing ? (
             <Button
               onClick={() => setIsEditing(true)}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               <Edit2 className="h-4 w-4 mr-2" />
               Edit Profile
@@ -140,7 +140,7 @@ export default function ProfilePage() {
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
                 <Save className="h-4 w-4 mr-2" />
                 {isSaving ? 'Saving...' : 'Save Changes'}

@@ -197,7 +197,7 @@ export default function AdminProductsV2() {
                 Manage your product catalog
               </p>
             </div>
-            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
               <Link href="/admin/products/new">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Product

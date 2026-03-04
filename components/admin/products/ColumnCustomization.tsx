@@ -157,7 +157,7 @@ export function ColumnCustomization({
           </Button>
           <Button
             onClick={handleSave}
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             Apply Changes
           </Button>

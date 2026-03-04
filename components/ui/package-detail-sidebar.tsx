@@ -169,7 +169,7 @@ export function PackageDetailSidebar({
               />
             )}
             {providerName && !providerLogo && (
-              <div className="text-lg font-semibold text-circleTel-darkNeutral">
+              <div className="text-lg font-semibold text-circleTel-navy">
                 {providerName}
               </div>
             )}
@@ -178,7 +178,7 @@ export function PackageDetailSidebar({
 
         {/* Package Name (if provided) */}
         {name && (
-          <div className="text-xl font-bold text-circleTel-darkNeutral mb-2">
+          <div className="text-xl font-bold text-circleTel-navy mb-2">
             {name}
           </div>
         )}
@@ -196,7 +196,7 @@ export function PackageDetailSidebar({
             </div>
           )}
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-5xl font-bold text-circleTel-darkNeutral">
+            <span className="text-5xl font-bold text-circleTel-navy">
               {currency}{promoPrice.toLocaleString()}
             </span>
             <span className="text-xl text-circleTel-secondaryNeutral">
@@ -270,7 +270,7 @@ export function PackageDetailSidebar({
           <div className="mb-6">
             <button
               onClick={() => setIsAdditionalInfoExpanded(!isAdditionalInfoExpanded)}
-              className="flex items-center justify-between w-full text-left font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors"
+              className="flex items-center justify-between w-full text-left font-semibold text-circleTel-navy hover:text-circleTel-orange transition-colors"
               aria-expanded={isAdditionalInfoExpanded}
             >
               <span className="text-sm uppercase tracking-wide text-pink-600">
@@ -314,7 +314,7 @@ export function PackageDetailSidebar({
         {onOrderClick && (
           <Button
             onClick={onOrderClick}
-            className="w-full bg-circleTel-darkNeutral hover:bg-circleTel-darkNeutral/90 text-white font-semibold py-4 rounded-lg transition-colors text-lg shadow-md hover:shadow-lg"
+            className="w-full bg-circleTel-navy hover:bg-circleTel-navy/90 text-white font-semibold py-4 rounded-lg transition-colors text-lg shadow-md hover:shadow-lg"
             size="lg"
           >
             Order Now
@@ -357,7 +357,7 @@ function SpeedRow({
           {label}
         </span>
       </div>
-      <span className="text-lg font-bold text-circleTel-darkNeutral">
+      <span className="text-lg font-bold text-circleTel-navy">
         {speed}{unit}
       </span>
     </div>

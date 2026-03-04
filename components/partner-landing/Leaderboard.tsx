@@ -18,7 +18,7 @@ export function Leaderboard() {
         <div className="max-w-4xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-4">
               2025 Top Earners
             </h2>
             <p className="text-circleTel-secondaryNeutral max-w-2xl mx-auto">
@@ -29,7 +29,7 @@ export function Leaderboard() {
           {/* Leaderboard Card */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-4 gap-4 px-6 py-4 bg-circleTel-darkNeutral text-white text-sm font-bold uppercase tracking-wider">
+            <div className="grid grid-cols-4 gap-4 px-6 py-4 bg-circleTel-navy text-white text-sm font-bold uppercase tracking-wider">
               <div>Rank</div>
               <div>Partner</div>
               <div>Region</div>
@@ -63,7 +63,7 @@ export function Leaderboard() {
                   </div>
 
                   {/* Name */}
-                  <div className="font-semibold text-circleTel-darkNeutral">
+                  <div className="font-semibold text-circleTel-navy">
                     {partner.name}
                   </div>
 

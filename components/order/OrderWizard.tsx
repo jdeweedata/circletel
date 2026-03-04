@@ -154,7 +154,7 @@ export function OrderWizard({
                 size="lg"
                 onClick={onNext}
                 disabled={!canGoNext || isSubmitting}
-                className="min-w-[120px] bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="min-w-[120px] bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
                 {isSubmitting ? (
                   <>

@@ -51,10 +51,10 @@ export default function PaymentTermsPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <FileText className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">1. Payment Gateway & Merchant of Record</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">1. Payment Gateway & Merchant of Record</h2>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">1.1 NetCash Payment Gateway</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">1.1 NetCash Payment Gateway</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             All payments are processed by <strong>NetCash (Pty) Ltd</strong>, an authorized Financial Services Provider (FSP 47350) regulated by the South African Reserve Bank.
           </p>
@@ -66,7 +66,7 @@ export default function PaymentTermsPage() {
             <li><strong>3D Secure:</strong> Card transactions may require 3D Secure (Verified by Visa, Mastercard SecureCode) authentication</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">1.2 Merchant of Record</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">1.2 Merchant of Record</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             <strong>CircleTel (Pty) Ltd</strong> is the merchant of record for all transactions. Your bank statement will show the payment as:
           </p>
@@ -88,7 +88,7 @@ export default function PaymentTermsPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <CreditCard className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">2. Supported Payment Methods</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">2. Supported Payment Methods</h2>
           </div>
 
           <p className="text-gray-700 leading-relaxed mb-6">
@@ -97,7 +97,7 @@ export default function PaymentTermsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-3">Card Payments</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-3">Card Payments</h4>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>✓ Visa Credit & Debit Cards</li>
                 <li>✓ Mastercard Credit & Debit Cards</li>
@@ -107,7 +107,7 @@ export default function PaymentTermsPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-3">Instant EFT</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-3">Instant EFT</h4>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>✓ Ozow Instant EFT</li>
                 <li>✓ Bank EFT</li>
@@ -117,7 +117,7 @@ export default function PaymentTermsPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-3">Digital Wallets</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-3">Digital Wallets</h4>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>✓ Masterpass</li>
                 <li>✓ Visa Click to Pay</li>
@@ -126,7 +126,7 @@ export default function PaymentTermsPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-3">Other Methods</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-3">Other Methods</h4>
               <ul className="space-y-2 text-gray-700 text-sm">
                 <li>✓ Retail Payments (Checkers, Pick n Pay, etc.)</li>
                 <li>✓ Mobicred (Credit facility)</li>
@@ -144,10 +144,10 @@ export default function PaymentTermsPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <Clock className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">3. Payment Processing Timeline</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">3. Payment Processing Timeline</h2>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">3.1 Real-Time Payments</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">3.1 Real-Time Payments</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             The following payment methods are processed in real-time:
           </p>
@@ -158,7 +158,7 @@ export default function PaymentTermsPage() {
             <li><strong>Scan to Pay:</strong> Instant verification</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">3.2 Delayed Payments</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">3.2 Delayed Payments</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             Some payment methods require additional processing time:
           </p>
@@ -177,7 +177,7 @@ export default function PaymentTermsPage() {
 
         {/* Section 4: Payment Verification */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">4. Payment Method Verification</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-6">4. Payment Method Verification</h2>
 
           <p className="text-gray-700 leading-relaxed mb-4">
             When you add a payment method to your CircleTel account, we perform a R1.00 verification charge:
@@ -202,10 +202,10 @@ export default function PaymentTermsPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <Shield className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">5. Payment Security & Data Protection</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">5. Payment Security & Data Protection</h2>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">5.1 PCI DSS Compliance</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">5.1 PCI DSS Compliance</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             NetCash maintains PCI DSS Level 1 certification, ensuring:
           </p>
@@ -217,7 +217,7 @@ export default function PaymentTermsPage() {
             <li>Annual third-party security audits</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">5.2 What CircleTel Stores</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">5.2 What CircleTel Stores</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="bg-red-50 border border-red-300 rounded-lg p-4">
               <h4 className="font-semibold text-red-900 mb-2">❌ NOT Stored</h4>
@@ -240,7 +240,7 @@ export default function PaymentTermsPage() {
             </div>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">5.3 Fraud Prevention</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">5.3 Fraud Prevention</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             NetCash employs advanced fraud detection systems:
           </p>
@@ -257,7 +257,7 @@ export default function PaymentTermsPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <DollarSign className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">6. Transaction Fees</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">6. Transaction Fees</h2>
           </div>
 
           <p className="text-gray-700 leading-relaxed mb-4">
@@ -282,10 +282,10 @@ export default function PaymentTermsPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <AlertTriangle className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">7. Failed Payments & Declined Transactions</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">7. Failed Payments & Declined Transactions</h2>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">7.1 Common Decline Reasons</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">7.1 Common Decline Reasons</h3>
           <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-6">
             <li><strong>Insufficient Funds:</strong> Not enough balance or credit limit</li>
             <li><strong>Card Expired:</strong> Payment card has passed expiry date</li>
@@ -295,7 +295,7 @@ export default function PaymentTermsPage() {
             <li><strong>Daily Limit Exceeded:</strong> Transaction exceeds your daily spending limit</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">7.2 What Happens if Payment Fails</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">7.2 What Happens if Payment Fails</h3>
           <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-6">
             <li>You will be notified immediately of the payment failure</li>
             <li>Your order will remain in "Payment Pending" status</li>
@@ -304,7 +304,7 @@ export default function PaymentTermsPage() {
             <li>Orders are held for 48 hours before automatic cancellation</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">7.3 Recurring Payment Failures (Debit Orders)</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">7.3 Recurring Payment Failures (Debit Orders)</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             For monthly subscription services via debit order:
           </p>
@@ -321,10 +321,10 @@ export default function PaymentTermsPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <Ban className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">8. Chargebacks & Payment Disputes</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">8. Chargebacks & Payment Disputes</h2>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.1 Dispute Process</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.1 Dispute Process</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             If you believe there is an error with a charge on your account:
           </p>
@@ -357,7 +357,7 @@ export default function PaymentTermsPage() {
             </ul>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.2 Legitimate Chargeback Reasons</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.2 Legitimate Chargeback Reasons</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             Valid reasons for initiating a chargeback:
           </p>
@@ -372,9 +372,9 @@ export default function PaymentTermsPage() {
 
         {/* Section 9: Liability Limitations */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">9. Liability Limitations</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-6">9. Liability Limitations</h2>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.1 CircleTel Liability</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.1 CircleTel Liability</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             CircleTel is <strong>not liable</strong> for:
           </p>
@@ -386,7 +386,7 @@ export default function PaymentTermsPage() {
             <li>Lost revenue or business opportunities due to payment delays</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.2 NetCash Liability</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.2 NetCash Liability</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             NetCash payment gateway is provided "as is." NetCash is responsible for:
           </p>
@@ -403,7 +403,7 @@ export default function PaymentTermsPage() {
 
         {/* Section 10: Currency & Exchange Rates */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">10. Currency & Exchange Rates</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-6">10. Currency & Exchange Rates</h2>
 
           <p className="text-gray-700 leading-relaxed mb-4">
             All prices are quoted in South African Rand (ZAR). If you pay with a card issued outside South Africa:
@@ -418,7 +418,7 @@ export default function PaymentTermsPage() {
 
         {/* Section 11: Changes to Payment Terms */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">11. Changes to Payment Terms</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-6">11. Changes to Payment Terms</h2>
 
           <p className="text-gray-700 leading-relaxed mb-4">
             We may update these Payment Terms periodically. Changes will be effective immediately upon posting on our website. For material changes, we will:

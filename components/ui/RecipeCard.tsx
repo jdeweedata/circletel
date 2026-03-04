@@ -33,14 +33,14 @@ const RecipeCard = ({
               {icon}
             </div>
           )}
-          <h3 className="text-xl font-bold text-circleTel-darkNeutral">{title}</h3>
+          <h3 className="text-xl font-bold text-circleTel-navy">{title}</h3>
         </div>
 
         <p className="text-circleTel-secondaryNeutral mb-4">{description}</p>
 
         {specs && specs.length > 0 && (
           <div className="mb-4 flex-grow">
-            <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Ingredients</h4>
+            <h4 className="font-bold text-sm uppercase text-circleTel-navy mb-2">Ingredients</h4>
             <ul className="text-circleTel-secondaryNeutral font-space-mono text-sm space-y-2">
               {specs.map((spec, index) => (
                 <li key={index} className="flex items-start">
@@ -54,7 +54,7 @@ const RecipeCard = ({
 
         {proTips && proTips.length > 0 && (
           <div className="mb-4 bg-circleTel-lightNeutral p-4 rounded-md opacity-80 group-hover:opacity-100 transition-all duration-300">
-            <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Pro Tips</h4>
+            <h4 className="font-bold text-sm uppercase text-circleTel-navy mb-2">Pro Tips</h4>
             <ul className="text-circleTel-secondaryNeutral font-space-mono text-sm space-y-2">
               {proTips.map((tip, index) => (
                 <li key={index} className="flex items-start">

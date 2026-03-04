@@ -124,7 +124,7 @@ export function EnhancedWirelessPackagesSection() {
             className={`w-full font-semibold py-3 rounded-lg group transition-all duration-300 ${
               isInCart
                 ? 'bg-green-500 hover:bg-green-600 text-white'
-                : 'bg-circleTel-orange hover:bg-circleTel-orange/90 text-white'
+                : 'bg-circleTel-orange hover:bg-circleTel-orange-dark text-white'
             }`}
             variant="default"
           >

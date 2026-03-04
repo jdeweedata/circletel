@@ -26,7 +26,7 @@ const BusinessPro = () => {
                     <Wifi className="h-4 w-4 mr-2" />
                     Business Pro Bundle
                   </Badge>
-                  <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-6">
+                  <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-6">
                     High-Speed Connectivity with Complete Power Resilience
                   </h1>
                   <p className="text-xl text-circleTel-secondaryNeutral mb-8">
@@ -34,7 +34,7 @@ const BusinessPro = () => {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                    <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                    <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                       <Link href="/contact">Get Business Pro Bundle</Link>
                     </Button>
                     <Button asChild variant="outline" size="lg">
@@ -62,11 +62,11 @@ const BusinessPro = () => {
                         FROM R1,999/MONTH
                       </div>
 
-                      <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-6 mb-2">Business Pro Bundle Recipe</h3>
+                      <h3 className="text-xl font-bold text-circleTel-navy mt-6 mb-2">Business Pro Bundle Recipe</h3>
                       <div className="bg-circleTel-lightNeutral h-1 w-20 mb-4"></div>
 
                       <div className="mb-6">
-                        <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Ingredients</h4>
+                        <h4 className="font-bold text-sm uppercase text-circleTel-navy mb-2">Ingredients</h4>
                         <ul className="text-circleTel-secondaryNeutral font-space-mono text-sm space-y-3">
                           <li className="flex items-center">
                             <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
@@ -88,7 +88,7 @@ const BusinessPro = () => {
                       </div>
 
                       <div className="bg-circleTel-lightNeutral p-4 rounded-md">
-                        <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Chef&apos;s Notes</h4>
+                        <h4 className="font-bold text-sm uppercase text-circleTel-navy mb-2">Chef&apos;s Notes</h4>
                         <p className="text-circleTel-secondaryNeutral font-space-mono text-sm">
                           Perfect for South African businesses dealing with power outages and connectivity challenges. Keeps your business running during electrical disruptions.
                         </p>
@@ -109,7 +109,7 @@ const BusinessPro = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-12 text-center">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-12 text-center">
                 What&apos;s Included in Business Pro
               </h2>
 
@@ -162,13 +162,13 @@ const BusinessPro = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-12 text-center">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-12 text-center">
                 Complete Bundle Features
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4 flex items-center">
+                  <h3 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center">
                     <Wifi className="h-5 w-5 text-circleTel-orange mr-2" />
                     Connectivity Features
                   </h3>
@@ -190,7 +190,7 @@ const BusinessPro = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4 flex items-center">
+                  <h3 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center">
                     <Server className="h-5 w-5 text-circleTel-orange mr-2" />
                     IT Support Features
                   </h3>
@@ -226,12 +226,12 @@ const BusinessPro = () => {
                     Most Popular for SMEs
                   </Badge>
 
-                  <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">
+                  <h3 className="text-2xl font-bold text-circleTel-navy mb-4">
                     Business Pro Bundle Pricing
                   </h3>
 
                   <div className="mb-6">
-                    <div className="text-4xl font-bold text-circleTel-darkNeutral mb-2">
+                    <div className="text-4xl font-bold text-circleTel-navy mb-2">
                       From R1,999<span className="text-lg font-normal">/month</span>
                     </div>
                     <p className="text-circleTel-secondaryNeutral">
@@ -240,7 +240,7 @@ const BusinessPro = () => {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                    <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                    <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                       <Link href="/contact">Get Started Today</Link>
                     </Button>
                     <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
@@ -263,24 +263,24 @@ const BusinessPro = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-12 text-center">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-12 text-center">
                 Business Pro Bundle FAQ
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <h4 className="font-bold text-circleTel-darkNeutral mb-2">How does the UPS system work?</h4>
+                  <h4 className="font-bold text-circleTel-navy mb-2">How does the UPS system work?</h4>
                   <p className="text-circleTel-secondaryNeutral mb-6">Our managed UPS systems automatically kick in during power outages, keeping your internet connection and critical systems running for hours, not minutes.</p>
 
-                  <h4 className="font-bold text-circleTel-darkNeutral mb-2">What areas do you service?</h4>
+                  <h4 className="font-bold text-circleTel-navy mb-2">What areas do you service?</h4>
                   <p className="text-circleTel-secondaryNeutral mb-6">We serve both urban and rural communities across South Africa, with specialized connectivity solutions for all areas.</p>
                 </div>
 
                 <div>
-                  <h4 className="font-bold text-circleTel-darkNeutral mb-2">Is there a setup fee?</h4>
+                  <h4 className="font-bold text-circleTel-navy mb-2">Is there a setup fee?</h4>
                   <p className="text-circleTel-secondaryNeutral mb-6">No setup fees for Business Pro Bundle customers. We handle all installation and configuration at no extra cost.</p>
 
-                  <h4 className="font-bold text-circleTel-darkNeutral mb-2">Can I upgrade or downgrade?</h4>
+                  <h4 className="font-bold text-circleTel-navy mb-2">Can I upgrade or downgrade?</h4>
                   <p className="text-circleTel-secondaryNeutral mb-6">Yes, we offer flexible month-to-month options with easy upgrades or downgrades as your business needs change.</p>
                 </div>
               </div>

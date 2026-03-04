@@ -75,7 +75,7 @@ export default function ConfirmResetPage() {
             </p>
             <div className="flex justify-center">
               <Link href="/auth/forgot-password">
-                <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                   Request New Link
                 </Button>
               </Link>
@@ -111,7 +111,7 @@ export default function ConfirmResetPage() {
           <Button
             onClick={handleConfirm}
             disabled={isLoading}
-            className="w-full h-12 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-semibold text-base"
+            className="w-full h-12 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-semibold text-base"
           >
             {isLoading ? (
               <>

@@ -225,7 +225,7 @@ export function ProductCard({
 
       <CardFooter>
         <Button
-          className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90"
+          className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
           size="lg"
           onClick={() => onSelect?.(productId)}
         >

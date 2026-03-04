@@ -116,7 +116,7 @@ export function WirelessPackagesSection() {
             e.stopPropagation()
             handlePackageSelect(pkg.id)
           }}
-          className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-semibold py-3 rounded-lg"
+          className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-semibold py-3 rounded-lg"
         >
           <span className="flex items-center justify-center gap-2">
             <span>{pkg.price}</span>
@@ -184,7 +184,7 @@ export function WirelessPackagesSection() {
             <Card className="mb-6 p-6 bg-gradient-to-br from-circleTel-orange/5 to-circleTel-orange/10 border-circleTel-orange/20">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h4 className="font-bold text-lg text-circleTel-darkNeutral">{selectedPackage.speed}</h4>
+                  <h4 className="font-bold text-lg text-circleTel-navy">{selectedPackage.speed}</h4>
                   <p className="text-sm text-circleTel-secondaryNeutral mt-1">{selectedPackage.description}</p>
                 </div>
                 <div className="text-right">
@@ -193,19 +193,19 @@ export function WirelessPackagesSection() {
               </div>
 
               <div className="space-y-3 mb-4">
-                <div className="flex items-center gap-2 text-sm text-circleTel-darkNeutral">
+                <div className="flex items-center gap-2 text-sm text-circleTel-navy">
                   <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
                   <span>Uncapped data usage</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-circleTel-darkNeutral">
+                <div className="flex items-center gap-2 text-sm text-circleTel-navy">
                   <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
                   <span>No throttling or FUP</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-circleTel-darkNeutral">
+                <div className="flex items-center gap-2 text-sm text-circleTel-navy">
                   <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
                   <span>Month-to-month contract</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-circleTel-darkNeutral">
+                <div className="flex items-center gap-2 text-sm text-circleTel-navy">
                   <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
                   <span>24/7 customer support</span>
                 </div>
@@ -213,7 +213,7 @@ export function WirelessPackagesSection() {
 
               <Button
                 onClick={() => handlePackageSelect(selectedPackage.id)}
-                className="w-full bg-circleTel-darkNeutral hover:bg-circleTel-darkNeutral/90 text-white font-semibold py-3 rounded-lg"
+                className="w-full bg-circleTel-navy hover:bg-circleTel-navy/90 text-white font-semibold py-3 rounded-lg"
               >
                 Order Now
               </Button>
@@ -226,7 +226,7 @@ export function WirelessPackagesSection() {
                 <div className="flex items-start gap-3">
                   <feature.icon className="w-6 h-6 text-circleTel-red flex-shrink-0 mt-1" />
                   <div>
-                    <div className="font-semibold text-sm text-circleTel-darkNeutral">{feature.title}</div>
+                    <div className="font-semibold text-sm text-circleTel-navy">{feature.title}</div>
                     <div className="text-sm text-circleTel-secondaryNeutral mt-1">{feature.description}</div>
                   </div>
                 </div>

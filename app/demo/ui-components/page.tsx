@@ -114,7 +114,7 @@ export default function UIComponentsDemoPage() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+          <h1 className="text-3xl font-bold text-circleTel-navy">
             UI Components Demo
           </h1>
           <p className="text-circleTel-secondaryNeutral mt-2">
@@ -127,7 +127,7 @@ export default function UIComponentsDemoPage() {
 
         {/* Section 1: Service Toggle */}
         <section className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-6">
+          <h2 className="text-2xl font-bold text-circleTel-navy mb-6">
             1. Service Toggle Component
           </h2>
           <p className="text-circleTel-secondaryNeutral mb-6">
@@ -167,7 +167,7 @@ export default function UIComponentsDemoPage() {
 
         {/* Section 2: Enhanced Package Cards */}
         <section className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-6">
+          <h2 className="text-2xl font-bold text-circleTel-navy mb-6">
             2. Enhanced Package Card Component
           </h2>
           <p className="text-circleTel-secondaryNeutral mb-6">
@@ -233,7 +233,7 @@ export default function UIComponentsDemoPage() {
 
         {/* Section 3: Package Detail Sidebar */}
         <section className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-6">
+          <h2 className="text-2xl font-bold text-circleTel-navy mb-6">
             3. Package Detail Sidebar Component
           </h2>
           <p className="text-circleTel-secondaryNeutral mb-6">
@@ -257,7 +257,7 @@ export default function UIComponentsDemoPage() {
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <div className="font-semibold text-circleTel-darkNeutral">{pkg.name}</div>
+                  <div className="font-semibold text-circleTel-navy">{pkg.name}</div>
                   <div className="text-sm text-circleTel-secondaryNeutral">
                     R{pkg.promoPrice}pm • {pkg.type}
                   </div>
@@ -318,7 +318,7 @@ export default function UIComponentsDemoPage() {
 
         {/* Section 4: Checkout Progress */}
         <section className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-6">
+          <h2 className="text-2xl font-bold text-circleTel-navy mb-6">
             4. Checkout Progress Component
           </h2>
           <p className="text-circleTel-secondaryNeutral mb-6">
@@ -410,7 +410,7 @@ export default function UIComponentsDemoPage() {
             </p>
             <p>
               <strong>🎨 Design System:</strong> Using CircleTel brand colors (circleTel-orange,
-              circleTel-darkNeutral) with Tailwind CSS
+              circleTel-navy) with Tailwind CSS
             </p>
             <p>
               <strong>♿ Accessibility:</strong> ARIA labels, keyboard navigation, semantic HTML

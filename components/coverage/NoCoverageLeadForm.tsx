@@ -277,7 +277,7 @@ export function NoCoverageLeadForm({
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               {isSubmitting ? (
                 <>

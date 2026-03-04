@@ -252,7 +252,7 @@ export default function BundlesPage() {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-semibold px-8 py-6 text-lg shadow-lg shadow-circleTel-orange/25 hover:shadow-xl hover:shadow-circleTel-orange/30 transition-all"
+                  className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-semibold px-8 py-6 text-lg shadow-lg shadow-circleTel-orange/25 hover:shadow-xl hover:shadow-circleTel-orange/30 transition-all"
                 >
                   <Link href="#bundles">
                     View Bundles
@@ -423,7 +423,7 @@ export default function BundlesPage() {
                         size="lg"
                         className={`w-full font-semibold ${
                           bundle.highlight
-                            ? 'bg-circleTel-orange hover:bg-circleTel-orange/90 shadow-lg shadow-circleTel-orange/25'
+                            ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark shadow-lg shadow-circleTel-orange/25'
                             : 'bg-slate-900 hover:bg-slate-800'
                         }`}
                       >
@@ -638,7 +638,7 @@ export default function BundlesPage() {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-semibold px-8 py-6 text-lg shadow-lg shadow-circleTel-orange/25"
+                  className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-semibold px-8 py-6 text-lg shadow-lg shadow-circleTel-orange/25"
                 >
                   <Link href="/contact">
                     Get Started Today
@@ -671,7 +671,7 @@ export default function BundlesPage() {
         }`}
       >
         <div className="flex gap-3">
-          <Button asChild className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange/90">
+          <Button asChild className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark">
             <Link href="#bundles">View Bundles</Link>
           </Button>
           <Button asChild variant="outline" className="flex-1">

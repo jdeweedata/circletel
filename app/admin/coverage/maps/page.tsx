@@ -231,7 +231,7 @@ export default function CoverageMapsPage() {
           />
           <Button
             onClick={() => fileInputRef.current?.click()}
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             <Upload className="w-4 h-4 mr-2" />
             Upload Map
@@ -316,7 +316,7 @@ export default function CoverageMapsPage() {
               <Button
                 onClick={handleUpload}
                 disabled={uploading || !uploadForm.provider}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
                 {uploading ? (
                   <>

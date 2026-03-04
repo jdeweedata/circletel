@@ -152,7 +152,7 @@ export default function ZohoSyncDashboard() {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">ZOHO Billing Sync</h1>
+          <h1 className="text-3xl font-bold text-circleTel-navy">ZOHO Billing Sync</h1>
           <p className="text-gray-600 mt-2">Monitor and manage ZOHO integration sync status</p>
         </div>
         <button
@@ -303,7 +303,7 @@ function StatusCard({ title, value, icon, color, subtitle }: any) {
           {icon}
         </div>
       </div>
-      <div className="text-3xl font-bold text-circleTel-darkNeutral">{value.toLocaleString()}</div>
+      <div className="text-3xl font-bold text-circleTel-navy">{value.toLocaleString()}</div>
       {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
     </div>
   );

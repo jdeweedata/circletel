@@ -170,7 +170,7 @@ export default function TechniciansPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-circleTel-navy flex items-center gap-2">
             <Wrench className="h-8 w-8" />
             Technicians Management
           </h1>
@@ -189,7 +189,7 @@ export default function TechniciansPage() {
             <CardTitle className="text-sm font-medium text-gray-600">Total Technicians</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-circleTel-darkNeutral flex items-center gap-2">
+            <div className="text-2xl font-bold text-circleTel-navy flex items-center gap-2">
               <Users className="h-5 w-5 text-circleTel-orange" />
               {stats.total}
             </div>
@@ -225,7 +225,7 @@ export default function TechniciansPage() {
             <CardTitle className="text-sm font-medium text-gray-600">Total Installations</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-circleTel-darkNeutral">
+            <div className="text-2xl font-bold text-circleTel-navy">
               {stats.totalInstallations}
             </div>
           </CardContent>
@@ -329,7 +329,7 @@ export default function TechniciansPage() {
                               .slice(0, 2)}
                           </div>
                           <div>
-                            <div className="font-medium text-circleTel-darkNeutral">
+                            <div className="font-medium text-circleTel-navy">
                               {technician.name}
                             </div>
                           </div>
@@ -365,7 +365,7 @@ export default function TechniciansPage() {
 
                       <TableCell className="text-center">
                         <div className="text-sm">
-                          <div className="font-semibold text-circleTel-darkNeutral">
+                          <div className="font-semibold text-circleTel-navy">
                             {technician.completed_installations || 0}
                           </div>
                           <div className="text-xs text-gray-500">

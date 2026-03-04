@@ -7,15 +7,8 @@ export { HowItWorks } from './HowItWorks';
 export { Testimonials } from './Testimonials';
 export { FAQ } from './FAQ';
 
-// Legacy components (kept for backwards compatibility)
-export { HeroWithTabs } from './HeroWithTabs';
-export { ValueProposition } from './ValueProposition';
+// Legacy components (kept for potential future use)
 export { ServicesSnapshot } from './ServicesSnapshot';
 export { SuccessStories } from './SuccessStories';
-export { LeadMagnet } from './LeadMagnet';
 export { BlogPreview } from './BlogPreview';
-
-// Default exports re-exported as named
-export { default as LeadMagnetForm } from './LeadMagnetForm';
-export { default as LeadMagnetSuccess } from './LeadMagnetSuccess';
 export { default as SampleItReport } from './SampleItReport';

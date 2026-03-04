@@ -610,7 +610,7 @@ export default function CustomerDetailPage() {
                 <h3 className="text-sm font-medium text-gray-900">Customer Support Interactions</h3>
                 <Button
                   size="sm"
-                  className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white h-8 text-xs"
+                  className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white h-8 text-xs"
                   onClick={() => router.push(`/admin/support/tickets/new?customerId=${customerId}`)}
                 >
                   <Plus className="w-3 h-3 mr-1" />

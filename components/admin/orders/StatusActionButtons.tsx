@@ -305,7 +305,7 @@ export function StatusActionButtons({
               className={cn(
                 "flex items-center gap-2 px-4 py-2 h-9 text-sm font-medium rounded-md transition-all duration-200 shadow-sm border",
                 // Primary Actions (Orange)
-                action.variant === 'default' && "bg-[#F5831F] hover:bg-[#d97219] text-white border-[#F5831F] hover:border-[#d97219] shadow-md hover:shadow-lg",
+                action.variant === 'default' && "bg-circleTel-orange hover:bg-circleTel-orange-dark text-white border-circleTel-orange hover:border-circleTel-orange-dark shadow-md hover:shadow-lg",
                 // Destructive Actions (Red Outline)
                 action.variant === 'destructive' && "bg-white text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md",
                 // Outline Actions (Gray)

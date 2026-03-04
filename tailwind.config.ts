@@ -180,6 +180,35 @@ export default {
 				// Ivy Design System - Manrope for data-heavy interfaces
 				'display': ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
 				'data': ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+			},
+			// Typography Scale - 1.32× modular (Payfast-inspired)
+			fontSize: {
+				'display-1': ['48px', { lineHeight: '1.2', fontWeight: '700' }],
+				'display-2': ['36px', { lineHeight: '1.25', fontWeight: '700' }],
+				'display-3': ['28px', { lineHeight: '1.3', fontWeight: '600' }],
+				'display-4': ['21px', { lineHeight: '1.4', fontWeight: '600' }],
+				// Mobile scale (0.85× desktop)
+				'display-1-mobile': ['40px', { lineHeight: '1.2', fontWeight: '700' }],
+				'display-2-mobile': ['30px', { lineHeight: '1.25', fontWeight: '700' }],
+				'display-3-mobile': ['24px', { lineHeight: '1.3', fontWeight: '600' }],
+				'display-4-mobile': ['18px', { lineHeight: '1.4', fontWeight: '600' }],
+			},
+			// Gradient Presets for consistent branding
+			backgroundImage: {
+				// Hero gradients
+				'gradient-hero': 'linear-gradient(135deg, #E87A1E 0%, #1B2A4A 100%)',
+				'gradient-hero-light': 'linear-gradient(135deg, #FDF2E9 0%, #E8F0FF 100%)',
+				'gradient-hero-dark': 'linear-gradient(135deg, #1B2A4A 0%, #0F1427 100%)',
+				// CTA gradients
+				'gradient-cta': 'linear-gradient(135deg, #E87A1E 0%, #D76026 100%)',
+				'gradient-cta-hover': 'linear-gradient(135deg, #D76026 0%, #C45A30 100%)',
+				// Card gradients
+				'gradient-card': 'linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%)',
+				'gradient-card-selected': 'linear-gradient(135deg, #1E4B85 0%, #163a6b 100%)',
+				'gradient-card-orange': 'linear-gradient(135deg, #FDF2E9 0%, #FFF5EB 100%)',
+				// Section gradients
+				'gradient-section-light': 'linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%)',
+				'gradient-section-dark': 'linear-gradient(180deg, #1B2A4A 0%, #0F1427 100%)',
 			}
 		}
 	},

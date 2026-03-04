@@ -153,7 +153,7 @@ export default function CronJobsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral dark:text-white">
+          <h1 className="text-3xl font-bold text-circleTel-navy dark:text-white">
             Cron Jobs Management
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">

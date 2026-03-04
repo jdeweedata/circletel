@@ -121,7 +121,7 @@ export default function PartnerOnboardingPage() {
         <div className="max-w-3xl mx-auto">
           {/* Page Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-circleTel-darkNeutral mb-2">
+            <h1 className="text-3xl font-bold text-circleTel-navy mb-2">
               Partner Registration
             </h1>
             <p className="text-circleTel-secondaryNeutral">
@@ -176,7 +176,7 @@ export default function PartnerOnboardingPage() {
                       <div className="w-16 h-16 bg-circleTel-orange/10 rounded-full flex items-center justify-center mx-auto mb-4">
                         <User className="w-8 h-8 text-circleTel-orange" />
                       </div>
-                      <h2 className="text-2xl font-bold text-circleTel-darkNeutral">Let's get to know you</h2>
+                      <h2 className="text-2xl font-bold text-circleTel-navy">Let's get to know you</h2>
                       <p className="text-circleTel-secondaryNeutral mt-2">We'll use this to set up your partner account</p>
                     </div>
                     <div className="space-y-4">
@@ -212,7 +212,7 @@ export default function PartnerOnboardingPage() {
                       <div className="w-16 h-16 bg-circleTel-orange/10 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Building2 className="w-8 h-8 text-circleTel-orange" />
                       </div>
-                      <h2 className="text-2xl font-bold text-circleTel-darkNeutral">Business Information</h2>
+                      <h2 className="text-2xl font-bold text-circleTel-navy">Business Information</h2>
                       <p className="text-circleTel-secondaryNeutral mt-2">Select Individual if you don't have a registered business</p>
                     </div>
                     <div className="space-y-4">
@@ -263,7 +263,7 @@ export default function PartnerOnboardingPage() {
                       <div className="w-16 h-16 bg-circleTel-orange/10 rounded-full flex items-center justify-center mx-auto mb-4">
                         <MapPin className="w-8 h-8 text-circleTel-orange" />
                       </div>
-                      <h2 className="text-2xl font-bold text-circleTel-darkNeutral">Where are you based?</h2>
+                      <h2 className="text-2xl font-bold text-circleTel-navy">Where are you based?</h2>
                       <p className="text-circleTel-secondaryNeutral mt-2">Your address for correspondence</p>
                     </div>
                     <div className="space-y-4">
@@ -321,13 +321,13 @@ export default function PartnerOnboardingPage() {
                       <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Sparkles className="w-8 h-8 text-green-600" />
                       </div>
-                      <h2 className="text-2xl font-bold text-circleTel-darkNeutral">Almost there!</h2>
+                      <h2 className="text-2xl font-bold text-circleTel-navy">Almost there!</h2>
                       <p className="text-circleTel-secondaryNeutral mt-2">Review your details and submit</p>
                     </div>
 
                     <div className="space-y-4">
                       <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold text-circleTel-darkNeutral mb-2">Personal Details</h3>
+                        <h3 className="font-semibold text-circleTel-navy mb-2">Personal Details</h3>
                         <div className="text-sm text-circleTel-secondaryNeutral space-y-1">
                           <p><span className="font-medium">Name:</span> {formValues.contactPerson}</p>
                           <p><span className="font-medium">Email:</span> {formValues.email}</p>
@@ -335,14 +335,14 @@ export default function PartnerOnboardingPage() {
                         </div>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold text-circleTel-darkNeutral mb-2">Business</h3>
+                        <h3 className="font-semibold text-circleTel-navy mb-2">Business</h3>
                         <div className="text-sm text-circleTel-secondaryNeutral space-y-1">
                           <p><span className="font-medium">Name:</span> {formValues.businessName}</p>
                           <p><span className="font-medium">Type:</span> {formValues.businessType}</p>
                         </div>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold text-circleTel-darkNeutral mb-2">Address</h3>
+                        <h3 className="font-semibold text-circleTel-navy mb-2">Address</h3>
                         <div className="text-sm text-circleTel-secondaryNeutral">
                           <p>{formValues.streetAddress}{formValues.suburb ? `, ${formValues.suburb}` : ''}</p>
                           <p>{formValues.city}, {formValues.province}, {formValues.postalCode}</p>
@@ -374,11 +374,11 @@ export default function PartnerOnboardingPage() {
                     <ArrowLeft className="w-4 h-4" /> Back
                   </Button>
                   {currentStep < 4 ? (
-                    <Button type="button" onClick={nextStep} className="bg-circleTel-orange hover:bg-circleTel-orange/90 gap-2">
+                    <Button type="button" onClick={nextStep} className="bg-circleTel-orange hover:bg-circleTel-orange-dark gap-2">
                       Continue <ArrowRight className="w-4 h-4" />
                     </Button>
                   ) : (
-                    <Button type="submit" disabled={isSubmitting} className="bg-circleTel-orange hover:bg-circleTel-orange/90 gap-2 min-w-[180px]">
+                    <Button type="submit" disabled={isSubmitting} className="bg-circleTel-orange hover:bg-circleTel-orange-dark gap-2 min-w-[180px]">
                       {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</> : <>Submit Application <Check className="w-4 h-4" /></>}
                     </Button>
                   )}

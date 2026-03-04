@@ -466,7 +466,7 @@ export default function NewQuotePage() {
               </Button>
             </Link>
           </div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">Create New Quote</h1>
+          <h1 className="text-3xl font-bold text-circleTel-navy">Create New Quote</h1>
           <p className="text-circleTel-secondaryNeutral mt-1">
             Generate a business quote for a potential customer
           </p>
@@ -960,7 +960,7 @@ export default function NewQuotePage() {
                     <Button
                       type="submit"
                       disabled={isSubmitting || selectedItems.length === 0}
-                      className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90"
+                      className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
                     >
                       {isSubmitting ? (
                         <>

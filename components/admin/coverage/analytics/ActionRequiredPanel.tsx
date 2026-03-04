@@ -113,7 +113,7 @@ export function ActionRequiredPanel({ items, onViewAll }: ActionRequiredPanelPro
         <div className="px-5 py-3 border-t border-gray-100">
           <button
             onClick={onViewAll}
-            className="text-sm text-[#F5831F] hover:text-[#D76026] font-medium flex items-center gap-1 transition-colors"
+            className="text-sm text-circleTel-orange hover:text-circleTel-orange-dark font-medium flex items-center gap-1 transition-colors"
           >
             View all alerts
             <ChevronRight className="h-4 w-4" />

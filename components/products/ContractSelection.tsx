@@ -198,7 +198,7 @@ export function ContractSelection({
         className={cn(
           "w-full h-14 text-lg font-bold transition-all",
           allTermsAccepted
-            ? "bg-circleTel-orange hover:bg-circleTel-orange/90 shadow-lg hover:shadow-xl"
+            ? "bg-circleTel-orange hover:bg-circleTel-orange-dark shadow-lg hover:shadow-xl"
             : "bg-gray-300 cursor-not-allowed"
         )}
       >

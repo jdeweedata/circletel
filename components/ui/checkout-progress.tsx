@@ -125,7 +125,7 @@ export function CheckoutProgress({
                   <span
                     className={cn(
                       'text-sm font-medium transition-colors hidden md:inline',
-                      active && 'text-circleTel-darkNeutral font-semibold',
+                      active && 'text-circleTel-navy font-semibold',
                       completed && 'text-green-700',
                       !completed && !active && 'text-gray-500'
                     )}
@@ -163,7 +163,7 @@ export function CheckoutProgress({
               key={`${step.id}-label`}
               className={cn(
                 'text-xs font-medium text-center transition-colors',
-                active && 'text-circleTel-darkNeutral font-semibold',
+                active && 'text-circleTel-navy font-semibold',
                 completed && 'text-green-700',
                 !completed && !active && 'text-gray-500'
               )}
@@ -341,7 +341,7 @@ export function VerticalCheckoutProgress({
                 <div
                   className={cn(
                     'font-semibold transition-colors',
-                    active && 'text-circleTel-darkNeutral',
+                    active && 'text-circleTel-navy',
                     completed && 'text-green-700',
                     !completed && !active && 'text-gray-500'
                   )}

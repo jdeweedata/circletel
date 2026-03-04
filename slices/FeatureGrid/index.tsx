@@ -33,12 +33,12 @@ const FeatureGrid: FC<FeatureGridProps> = ({ slice }) => {
               field={section_title}
               components={{
                 heading2: ({ children }) => (
-                  <h2 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-4">
+                  <h2 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-4">
                     {children}
                   </h2>
                 ),
                 heading3: ({ children }) => (
-                  <h3 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral mb-4">
+                  <h3 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-4">
                     {children}
                   </h3>
                 ),
@@ -75,7 +75,7 @@ const FeatureGrid: FC<FeatureGridProps> = ({ slice }) => {
 
                 {/* Title */}
                 {feature.title && (
-                  <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-4 text-center group-hover:text-circleTel-orange transition-colors duration-300">
+                  <h3 className="text-2xl font-bold text-circleTel-navy mb-4 text-center group-hover:text-circleTel-orange transition-colors duration-300">
                     {feature.title}
                   </h3>
                 )}

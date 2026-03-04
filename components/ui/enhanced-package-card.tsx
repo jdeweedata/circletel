@@ -154,13 +154,13 @@ export function EnhancedPackageCard({
 
         {/* Package Name (if provided) */}
         {name && (
-          <div className="text-lg font-semibold text-circleTel-darkNeutral mb-2">
+          <div className="text-lg font-semibold text-circleTel-navy mb-2">
             {name}
           </div>
         )}
 
         {/* Package Type */}
-        <div className="text-sm font-semibold text-circleTel-darkNeutral mb-3 capitalize">
+        <div className="text-sm font-semibold text-circleTel-navy mb-3 capitalize">
           {type}
         </div>
 
@@ -172,7 +172,7 @@ export function EnhancedPackageCard({
             </div>
           )}
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold text-circleTel-darkNeutral">
+            <span className="text-4xl font-bold text-circleTel-navy">
               {currency}{promoPrice.toLocaleString()}
             </span>
             <span className="text-lg text-circleTel-secondaryNeutral">
@@ -229,7 +229,7 @@ export function EnhancedPackageCard({
               e.stopPropagation();
               onOrderClick();
             }}
-            className="w-full mt-4 bg-circleTel-darkNeutral hover:bg-circleTel-darkNeutral/90 text-white font-semibold py-3 rounded-lg transition-colors"
+            className="w-full mt-4 bg-circleTel-navy hover:bg-circleTel-navy/90 text-white font-semibold py-3 rounded-lg transition-colors"
           >
             Order Now
           </Button>
@@ -268,7 +268,7 @@ function SpeedIndicator({
       aria-label={`${label} speed: ${speed} ${unit}`}
     >
       <Icon className="w-5 h-5 text-blue-600" aria-hidden="true" />
-      <span className="font-semibold text-circleTel-darkNeutral">
+      <span className="font-semibold text-circleTel-navy">
         {speed}{unit}
       </span>
     </div>

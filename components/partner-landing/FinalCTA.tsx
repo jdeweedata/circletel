@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 
 export function FinalCTA() {
   return (
-    <section className="py-16 bg-gradient-to-br from-circleTel-darkNeutral via-purple-900 to-circleTel-darkNeutral text-white relative overflow-hidden">
+    <section className="py-16 bg-gradient-to-br from-circleTel-navy via-purple-900 to-circleTel-navy text-white relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-1/4 w-64 h-64 bg-circleTel-orange rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
@@ -46,7 +46,7 @@ export function FinalCTA() {
           <Link href="/partner/onboarding">
             <Button
               size="lg"
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-10 py-6 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-10 py-6 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
             >
               Sign up now
               <ArrowRight className="ml-2 h-5 w-5" />

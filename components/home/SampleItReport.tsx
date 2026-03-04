@@ -9,32 +9,32 @@ const SampleItReport: React.FC = () => {
         SAMPLE REPORT
       </div>
 
-      <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">IT Health Assessment</h3>
+      <h3 className="text-xl font-bold text-circleTel-navy mb-2">IT Health Assessment</h3>
       <div className="bg-circleTel-lightNeutral h-1 w-16 mb-4"></div>
 
       <div className="flex items-center mb-3">
-        <div className="w-1/3 text-sm font-bold text-circleTel-darkNeutral">Security Score:</div>
+        <div className="w-1/3 text-sm font-bold text-circleTel-navy">Security Score:</div>
         <div className="w-2/3 bg-gray-200 rounded-full h-4">
           <div className="bg-circleTel-orange h-4 rounded-full" style={{ width: '70%' }}></div>
         </div>
       </div>
 
       <div className="flex items-center mb-3">
-        <div className="w-1/3 text-sm font-bold text-circleTel-darkNeutral">Efficiency:</div>
+        <div className="w-1/3 text-sm font-bold text-circleTel-navy">Efficiency:</div>
         <div className="w-2/3 bg-gray-200 rounded-full h-4">
           <div className="bg-circleTel-orange h-4 rounded-full" style={{ width: '60%' }}></div>
         </div>
       </div>
 
       <div className="flex items-center mb-3">
-        <div className="w-1/3 text-sm font-bold text-circleTel-darkNeutral">Reliability:</div>
+        <div className="w-1/3 text-sm font-bold text-circleTel-navy">Reliability:</div>
         <div className="w-2/3 bg-gray-200 rounded-full h-4">
           <div className="bg-circleTel-orange h-4 rounded-full" style={{ width: '85%' }}></div>
         </div>
       </div>
 
       <div className="flex items-center mb-4">
-        <div className="w-1/3 text-sm font-bold text-circleTel-darkNeutral">Scalability:</div>
+        <div className="w-1/3 text-sm font-bold text-circleTel-navy">Scalability:</div>
         <div className="w-2/3 bg-gray-200 rounded-full h-4">
           <div className="bg-circleTel-orange h-4 rounded-full" style={{ width: '50%' }}></div>
         </div>

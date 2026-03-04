@@ -460,7 +460,7 @@ export function CoverageResults({
             <Button
               onClick={onGenerateQuote}
               disabled={!canGenerateQuote}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               Generate Quote
             </Button>
@@ -567,7 +567,7 @@ export function CoverageResults({
                 {onGenerateQuote && (
                   <Button
                     onClick={onGenerateQuote}
-                    className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange/90"
+                    className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark"
                   >
                     <CheckCircle className="w-4 h-4 mr-2" />
                     Generate Quote

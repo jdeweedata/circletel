@@ -279,7 +279,7 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
               type="submit"
               disabled={isLoading || !input.trim()}
               size="icon"
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90 h-9 w-9"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark h-9 w-9"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -317,7 +317,7 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
           'h-14 w-14 rounded-full shadow-lg transition-all hover:scale-105',
           isOpen
             ? 'bg-gray-700 hover:bg-gray-800'
-            : 'bg-circleTel-orange hover:bg-circleTel-orange/90'
+            : 'bg-circleTel-orange hover:bg-circleTel-orange-dark'
         )}
       >
         {isOpen ? (

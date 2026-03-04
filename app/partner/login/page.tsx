@@ -268,7 +268,7 @@ export default function PartnerLoginPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || isGoogleLoading}
-                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold text-sm sm:text-base py-3 rounded-md transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold text-sm sm:text-base py-3 rounded-md transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                   {isSubmitting ? 'Signing in...' : 'Sign in to Partner Portal'}

@@ -55,7 +55,7 @@ export function PackageComparison({
   return (
     <div className="mb-8">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-2">
+        <h2 className="text-2xl font-bold text-circleTel-navy mb-2">
           Package Comparison
         </h2>
         <p className="text-circleTel-secondaryNeutral">
@@ -113,7 +113,7 @@ export function PackageComparison({
                         </span>
                       </>
                     ) : (
-                      <span className="text-3xl font-bold text-circleTel-darkNeutral">
+                      <span className="text-3xl font-bold text-circleTel-navy">
                         R{pkg.price}
                       </span>
                     )}
@@ -132,7 +132,7 @@ export function PackageComparison({
                     <Download className="w-4 h-4 text-green-600" />
                     <div>
                       <p className="text-xs text-gray-600">Download</p>
-                      <p className="font-bold text-circleTel-darkNeutral">
+                      <p className="font-bold text-circleTel-navy">
                         {pkg.speed_down}Mbps
                       </p>
                     </div>
@@ -141,7 +141,7 @@ export function PackageComparison({
                     <Upload className="w-4 h-4 text-blue-600" />
                     <div>
                       <p className="text-xs text-gray-600">Upload</p>
-                      <p className="font-bold text-circleTel-darkNeutral">
+                      <p className="font-bold text-circleTel-navy">
                         {pkg.speed_up}Mbps
                       </p>
                     </div>
@@ -174,7 +174,7 @@ export function PackageComparison({
 
                 {/* Features Checklist */}
                 <div className="pt-4 border-t border-gray-200">
-                  <p className="font-semibold text-sm text-circleTel-darkNeutral mb-3">
+                  <p className="font-semibold text-sm text-circleTel-navy mb-3">
                     Features Included:
                   </p>
                   <div className="space-y-2">
@@ -184,7 +184,7 @@ export function PackageComparison({
                         <div
                           key={feature}
                           className={`flex items-start gap-2 text-sm ${
-                            hasFeature ? 'text-circleTel-darkNeutral' : 'text-gray-400'
+                            hasFeature ? 'text-circleTel-navy' : 'text-gray-400'
                           }`}
                         >
                           {hasFeature ? (
@@ -206,8 +206,8 @@ export function PackageComparison({
                   onClick={() => onSelectPackage(pkg.id)}
                   className={`w-full ${
                     index === 1
-                      ? 'bg-circleTel-orange hover:bg-circleTel-orange/90'
-                      : 'bg-circleTel-darkNeutral hover:bg-circleTel-darkNeutral/90'
+                      ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark'
+                      : 'bg-circleTel-navy hover:bg-circleTel-navy/90'
                   }`}
                   size="lg"
                 >

@@ -212,7 +212,7 @@ export default function SupportPage() {
           <p className="text-sm text-gray-500 mt-1">Manage customer support requests</p>
         </div>
         <Link href="/admin/support/tickets/new">
-          <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+          <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
             <Plus className="w-4 h-4 mr-2" />
             New Ticket
           </Button>

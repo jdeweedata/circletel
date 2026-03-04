@@ -178,7 +178,7 @@ export function ChatAssistant({
             <Button
               onClick={handleSend}
               disabled={!input.trim() || isLoading || disabled}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               <Send className="w-4 h-4" />
             </Button>

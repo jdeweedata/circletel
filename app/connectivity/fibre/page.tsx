@@ -62,7 +62,7 @@ function SpeedTierCard({
 
         {/* Speed */}
         <div className="mb-4">
-          <span className="text-4xl font-bold text-circleTel-darkNeutral">
+          <span className="text-4xl font-bold text-circleTel-navy">
             {speed}
           </span>
           <span className="text-lg text-gray-500 ml-1">
@@ -72,7 +72,7 @@ function SpeedTierCard({
 
         {/* Price */}
         <div className="mb-6 pb-6 border-b border-gray-100">
-          <span className="text-2xl font-bold text-circleTel-darkNeutral">
+          <span className="text-2xl font-bold text-circleTel-navy">
             {formattedPrice}
           </span>
           <span className="text-sm text-gray-500">
@@ -97,7 +97,7 @@ function SpeedTierCard({
             "w-full font-semibold transition-all",
             popular
               ? "bg-circleTel-orange hover:bg-orange-600 text-white"
-              : "bg-circleTel-darkNeutral hover:bg-gray-800 text-white"
+              : "bg-circleTel-navy hover:bg-gray-800 text-white"
           )}
         >
           <Link href="/quotes/request" className="flex items-center justify-center gap-2">
@@ -182,7 +182,7 @@ export default function FibrePage() {
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-circleTel-darkNeutral mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-circleTel-navy mb-6 leading-tight">
               Business Fibre
             </h1>
 
@@ -194,15 +194,15 @@ export default function FibrePage() {
             {/* Key stats - simple */}
             <div className="flex flex-wrap justify-center gap-8 mb-10">
               <div className="text-center">
-                <p className="text-3xl font-bold text-circleTel-darkNeutral">100Mbps</p>
+                <p className="text-3xl font-bold text-circleTel-navy">100Mbps</p>
                 <p className="text-sm text-gray-500">Max Speed</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-circleTel-darkNeutral">Uncapped</p>
+                <p className="text-3xl font-bold text-circleTel-navy">Uncapped</p>
                 <p className="text-sm text-gray-500">Data</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-circleTel-darkNeutral">24/7</p>
+                <p className="text-3xl font-bold text-circleTel-navy">24/7</p>
                 <p className="text-sm text-gray-500">Support</p>
               </div>
             </div>
@@ -223,7 +223,7 @@ export default function FibrePage() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-gray-300 text-circleTel-darkNeutral hover:bg-gray-100"
+                className="border-gray-300 text-circleTel-navy hover:bg-gray-100"
               >
                 <Link href="/contact">Request Quote</Link>
               </Button>
@@ -236,7 +236,7 @@ export default function FibrePage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-circleTel-navy mb-4">
               Perfect For Your Business
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
@@ -253,7 +253,7 @@ export default function FibrePage() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-circleTel-orange/10 mb-4">
                   <useCase.icon className="w-6 h-6 text-circleTel-orange" />
                 </div>
-                <h3 className="font-semibold text-circleTel-darkNeutral mb-1">{useCase.title}</h3>
+                <h3 className="font-semibold text-circleTel-navy mb-1">{useCase.title}</h3>
                 <p className="text-sm text-gray-500">{useCase.desc}</p>
               </div>
             ))}
@@ -266,7 +266,7 @@ export default function FibrePage() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <p className="text-circleTel-orange font-medium mb-2">PRICING</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-4">
               Choose Your Speed
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
@@ -312,7 +312,7 @@ export default function FibrePage() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <p className="text-circleTel-orange font-medium mb-2">WHY BIZFIBRE</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-4">
               Enterprise Features
             </h2>
           </div>
@@ -330,7 +330,7 @@ export default function FibrePage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-circleTel-darkNeutral">{benefit.title}</h3>
+                    <h3 className="font-semibold text-circleTel-navy">{benefit.title}</h3>
                     <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                       {benefit.stat}
                     </span>
@@ -349,7 +349,7 @@ export default function FibrePage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <p className="text-circleTel-orange font-medium mb-2">SPECIFICATIONS</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral">
+              <h2 className="text-3xl md:text-4xl font-bold text-circleTel-navy">
                 Technical Details
               </h2>
             </div>
@@ -372,7 +372,7 @@ export default function FibrePage() {
                   )}
                 >
                   <span className="text-gray-600">{spec.label}</span>
-                  <span className="font-medium text-circleTel-darkNeutral">{spec.value}</span>
+                  <span className="font-medium text-circleTel-navy">{spec.value}</span>
                 </div>
               ))}
             </div>
@@ -385,7 +385,7 @@ export default function FibrePage() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <p className="text-circleTel-orange font-medium mb-2">HOW IT WORKS</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-4">
               Getting Connected
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
@@ -407,7 +407,7 @@ export default function FibrePage() {
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-circleTel-orange/10 border-2 border-circleTel-orange flex items-center justify-center">
                     <span className="text-lg font-bold text-circleTel-orange">{item.step}</span>
                   </div>
-                  <h3 className="font-semibold text-circleTel-darkNeutral mb-1 text-sm">{item.title}</h3>
+                  <h3 className="font-semibold text-circleTel-navy mb-1 text-sm">{item.title}</h3>
                   <p className="text-xs text-gray-500">{item.desc}</p>
                 </div>
               ))}

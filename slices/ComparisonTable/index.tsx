@@ -61,7 +61,7 @@ const ComparisonTable = ({ slice }: ComparisonTableProps): JSX.Element => {
                 field={slice.primary.section_title}
                 components={{
                   heading2: ({ children }) => (
-                    <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">
+                    <h2 className="text-3xl font-bold text-circleTel-navy mb-4">
                       {children}
                     </h2>
                   ),

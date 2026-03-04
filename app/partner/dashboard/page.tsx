@@ -94,7 +94,7 @@ export default function PartnerDashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+        <h1 className="text-3xl font-bold text-circleTel-navy">
           Partner Dashboard
         </h1>
         <p className="text-circleTel-secondaryNeutral mt-2">
@@ -124,7 +124,7 @@ export default function PartnerDashboard() {
                 {loading ? (
                   <Skeleton className="h-9 w-24" />
                 ) : (
-                  <div className="text-3xl font-bold text-circleTel-darkNeutral">
+                  <div className="text-3xl font-bold text-circleTel-navy">
                     {stat.value}
                   </div>
                 )}
@@ -165,7 +165,7 @@ export default function PartnerDashboard() {
                 1
               </div>
               <div>
-                <p className="font-medium text-circleTel-darkNeutral">Complete your profile</p>
+                <p className="font-medium text-circleTel-navy">Complete your profile</p>
                 <p className="text-sm text-circleTel-secondaryNeutral">Update your business information</p>
               </div>
             </div>

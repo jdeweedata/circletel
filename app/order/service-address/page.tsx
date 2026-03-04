@@ -494,7 +494,7 @@ export default function ServiceAddressPage() {
                   type="button"
                   onClick={handleContinue}
                   disabled={authLoading}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {authLoading ? 'Loading...' : 'Create Order'}
                   {!authLoading && <ArrowRight className="w-5 h-5" />}

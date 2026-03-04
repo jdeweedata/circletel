@@ -40,7 +40,7 @@ export function WirelessFeatures() {
   return (
     <div className="container mx-auto px-4">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Why Choose CircleTel Wireless?</h2>
+        <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Why Choose CircleTel Wireless?</h2>
         <p className="text-circleTel-secondaryNeutral text-lg max-w-2xl mx-auto">
           Enterprise-grade wireless solutions designed for South African businesses
         </p>
@@ -53,7 +53,7 @@ export function WirelessFeatures() {
               <div className="w-16 h-16 bg-circleTel-orange/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <feature.icon className="w-8 h-8 text-circleTel-orange" />
               </div>
-              <h3 className="font-bold text-lg text-circleTel-darkNeutral mb-2">{feature.title}</h3>
+              <h3 className="font-bold text-lg text-circleTel-navy mb-2">{feature.title}</h3>
               <p className="text-circleTel-secondaryNeutral">{feature.description}</p>
             </CardContent>
           </Card>

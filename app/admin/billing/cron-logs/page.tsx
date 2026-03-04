@@ -142,7 +142,7 @@ export default function CronLogsPage() {
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                 {runningAction ? (
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                 ) : (

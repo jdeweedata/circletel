@@ -141,7 +141,7 @@ export default function PaymentMonitoringDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">Payment Provider Monitoring</h1>
+          <h1 className="text-3xl font-bold text-circleTel-navy">Payment Provider Monitoring</h1>
           <p className="text-circleTel-secondaryNeutral mt-1">
             Real-time health status and monitoring for payment gateways
           </p>
@@ -156,7 +156,7 @@ export default function PaymentMonitoringDashboard() {
           <Button
             onClick={() => fetchHealthData()}
             disabled={loading}
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             {loading ? (
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -248,7 +248,7 @@ export default function PaymentMonitoringDashboard() {
             <Button
               onClick={() => setAutoRefresh(!autoRefresh)}
               variant={autoRefresh ? 'default' : 'outline'}
-              className={autoRefresh ? 'bg-circleTel-orange hover:bg-circleTel-orange/90' : ''}
+              className={autoRefresh ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark' : ''}
             >
               {autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
             </Button>
@@ -321,7 +321,7 @@ export default function PaymentMonitoringDashboard() {
               {/* Capabilities */}
               {provider.capabilities && (
                 <div className="space-y-3">
-                  <div className="font-semibold text-sm text-circleTel-darkNeutral">Capabilities</div>
+                  <div className="font-semibold text-sm text-circleTel-navy">Capabilities</div>
 
                   <div className="flex flex-wrap gap-2">
                     {provider.capabilities.supports_cards && (
@@ -354,13 +354,13 @@ export default function PaymentMonitoringDashboard() {
                   <div className="grid grid-cols-2 gap-3 text-sm pt-2">
                     <div>
                       <span className="text-circleTel-secondaryNeutral">Currencies:</span>
-                      <div className="font-medium text-circleTel-darkNeutral">
+                      <div className="font-medium text-circleTel-navy">
                         {provider.capabilities.supported_currencies?.join(', ') || 'N/A'}
                       </div>
                     </div>
                     <div>
                       <span className="text-circleTel-secondaryNeutral">Amount Range:</span>
-                      <div className="font-medium text-circleTel-darkNeutral">
+                      <div className="font-medium text-circleTel-navy">
                         R{provider.capabilities.min_amount ?? 0} -
                         {provider.capabilities.max_amount
                           ? ` R${provider.capabilities.max_amount}`

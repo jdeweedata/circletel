@@ -554,7 +554,7 @@ function NewJobModal({
             <Button
               onClick={handleCreateJob}
               disabled={!scheduledDate || creating}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               {creating ? (
                 <>
@@ -654,7 +654,7 @@ export default function FieldOpsPage() {
               Refresh
             </Button>
             <Button
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               onClick={() => setNewJobModalOpen(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -885,7 +885,7 @@ export default function FieldOpsPage() {
                     <p className="text-xs text-gray-500 mt-0.5">{technicians.length} team members</p>
                   </div>
                 </div>
-                <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange/90 shadow-md hover:shadow-lg transition-all">
+                <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange-dark shadow-md hover:shadow-lg transition-all">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Technician
                 </Button>
@@ -1013,7 +1013,7 @@ export default function FieldOpsPage() {
                   </Select>
                   <Button
                     size="sm"
-                    className="bg-circleTel-orange hover:bg-circleTel-orange/90 shadow-md hover:shadow-lg transition-all"
+                    className="bg-circleTel-orange hover:bg-circleTel-orange-dark shadow-md hover:shadow-lg transition-all"
                     onClick={() => setNewJobModalOpen(true)}
                   >
                     <Plus className="h-4 w-4 mr-2" />

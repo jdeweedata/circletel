@@ -58,7 +58,7 @@ function AgentLoginContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-circleTel-darkNeutral via-circleTel-secondaryNeutral to-circleTel-darkNeutral flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-circleTel-navy via-circleTel-secondaryNeutral to-circleTel-navy flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to Home */}
         <Link

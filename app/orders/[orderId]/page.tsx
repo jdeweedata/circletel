@@ -85,7 +85,7 @@ function OrderTrackingContent() {
               We couldn't find the order you're looking for. Please check your order number and try again.
             </p>
             <Link href="/coverage">
-              <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                 <Home className="w-4 h-4 mr-2" />
                 Back to Homepage
               </Button>
@@ -108,7 +108,7 @@ function OrderTrackingContent() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
               <img src="/images/circletel-enclosed-logo.png" alt="CircleTel" className="h-8 w-auto" />
-              <span className="text-xl font-bold text-circleTel-darkNeutral">CircleTel</span>
+              <span className="text-xl font-bold text-circleTel-navy">CircleTel</span>
             </Link>
             <nav className="hidden md:flex items-center space-x-6">
               <Link href="/" className="text-circleTel-secondaryNeutral hover:text-circleTel-orange transition-colors">Home</Link>
@@ -136,7 +136,7 @@ function OrderTrackingContent() {
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-circleTel-darkNeutral mb-2">
+              <h1 className="text-3xl font-bold text-circleTel-navy mb-2">
                 Order Tracking
               </h1>
               <p className="text-lg text-circleTel-secondaryNeutral">

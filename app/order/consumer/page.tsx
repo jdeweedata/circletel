@@ -275,7 +275,7 @@ function ConsumerOrderContent() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
               <img src="/images/circletel-enclosed-logo.png" alt="CircleTel" className="h-8 w-auto" />
-              <span className="text-xl font-bold text-circleTel-darkNeutral">CircleTel</span>
+              <span className="text-xl font-bold text-circleTel-navy">CircleTel</span>
             </Link>
             <nav className="hidden md:flex items-center space-x-6">
               <span className="text-circleTel-orange font-semibold">Checkout</span>
@@ -287,7 +287,7 @@ function ConsumerOrderContent() {
       <main className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Page Title */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-2">
             Complete Your Order
           </h1>
           <p className="text-circleTel-secondaryNeutral">

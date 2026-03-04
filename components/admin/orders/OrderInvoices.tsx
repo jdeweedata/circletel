@@ -235,7 +235,7 @@ export function OrderInvoices({
               size="sm"
               onClick={handleGenerateInvoice}
               disabled={generating}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               {generating ? (
                 <>

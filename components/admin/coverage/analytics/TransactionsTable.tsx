@@ -70,7 +70,7 @@ export function TransactionsTable({
         {onViewAll && (
           <button
             onClick={onViewAll}
-            className="text-sm text-[#F5831F] hover:text-[#D76026] font-medium flex items-center gap-1 transition-colors"
+            className="text-sm text-circleTel-orange hover:text-circleTel-orange-dark font-medium flex items-center gap-1 transition-colors"
           >
             View All
             <ChevronRight className="h-4 w-4" />

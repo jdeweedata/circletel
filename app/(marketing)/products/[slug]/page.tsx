@@ -133,7 +133,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </p>
             <Button
               onClick={() => router.push('/5g-deals')}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               Browse All Deals
             </Button>

@@ -10,14 +10,14 @@ export default function ConnectivityGuide() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="md:w-1/2">
-              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-4">
                 Urban Business Connectivity Guide for South Africa
               </h1>
               <p className="text-xl text-circleTel-secondaryNeutral mb-6">
                 Specialized connectivity solutions for businesses in Johannesburg, Cape Town, Durban, and Pretoria's urban centers and high-density business districts.
               </p>
               <div className="flex flex-wrap gap-4 mb-6">
-                <Button size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
+                <Button size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
                   <Download className="mr-2" size={18} />
                   Download Urban Guide (PDF)
                 </Button>
@@ -44,7 +44,7 @@ export default function ConnectivityGuide() {
       <section className="py-8 bg-white border-y border-gray-200">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="#urban" className="px-4 py-2 bg-circleTel-orange text-white rounded-full hover:bg-circleTel-orange/90 transition-colors">
+            <a href="#urban" className="px-4 py-2 bg-circleTel-orange text-white rounded-full hover:bg-circleTel-orange-dark transition-colors">
               Urban Solutions
             </a>
             <a href="#fibre" className="px-4 py-2 bg-circleTel-lightNeutral rounded-full hover:bg-circleTel-orange hover:text-white transition-colors">
@@ -67,7 +67,7 @@ export default function ConnectivityGuide() {
       <section id="urban" className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">Urban Connectivity Solutions</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-6">Urban Connectivity Solutions</h2>
             <div className="bg-circleTel-orange h-1 w-20 mb-8"></div>
 
             <div className="prose max-w-none">
@@ -79,7 +79,7 @@ export default function ConnectivityGuide() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div className="bg-circleTel-lightNeutral p-6 rounded-lg">
-                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-3">Johannesburg & Pretoria</h3>
+                  <h3 className="text-xl font-bold text-circleTel-navy mb-3">Johannesburg & Pretoria</h3>
                   <ul className="space-y-2">
                     <li className="flex items-start">
                       <div className="mt-1 mr-2 h-4 w-4 bg-circleTel-orange rounded-full flex-shrink-0"></div>
@@ -97,7 +97,7 @@ export default function ConnectivityGuide() {
                 </div>
 
                 <div className="bg-circleTel-lightNeutral p-6 rounded-lg">
-                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-3">Cape Town & Durban</h3>
+                  <h3 className="text-xl font-bold text-circleTel-navy mb-3">Cape Town & Durban</h3>
                   <ul className="space-y-2">
                     <li className="flex items-start">
                       <div className="mt-1 mr-2 h-4 w-4 bg-circleTel-orange rounded-full flex-shrink-0"></div>
@@ -115,7 +115,7 @@ export default function ConnectivityGuide() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-8 mb-4">Urban Business Challenges</h3>
+              <h3 className="text-xl font-bold text-circleTel-navy mt-8 mb-4">Urban Business Challenges</h3>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
                   <div className="mt-1 mr-2 h-4 w-4 bg-circleTel-orange rounded-full flex-shrink-0"></div>
@@ -149,7 +149,7 @@ export default function ConnectivityGuide() {
       <section id="fibre" className="py-16 bg-circleTel-lightNeutral">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">Urban Fibre Connectivity</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-6">Urban Fibre Connectivity</h2>
             <div className="bg-circleTel-orange h-1 w-20 mb-8"></div>
 
             <div className="prose max-w-none">
@@ -158,7 +158,7 @@ export default function ConnectivityGuide() {
                 reliability and performance for demanding enterprise applications.
               </p>
 
-              <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-8 mb-4">Urban Fibre Advantages</h3>
+              <h3 className="text-xl font-bold text-circleTel-navy mt-8 mb-4">Urban Fibre Advantages</h3>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
                   <div className="mt-1 mr-2 h-4 w-4 bg-circleTel-orange rounded-full flex-shrink-0"></div>
@@ -174,7 +174,7 @@ export default function ConnectivityGuide() {
                 </li>
               </ul>
 
-              <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-8 mb-4">Urban Business Parks</h3>
+              <h3 className="text-xl font-bold text-circleTel-navy mt-8 mb-4">Urban Business Parks</h3>
               <p className="mb-4">
                 Many South African business parks and multi-tenant buildings now feature pre-installed fibre infrastructure:
               </p>
@@ -212,7 +212,7 @@ export default function ConnectivityGuide() {
       <section id="5g" className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">5G for Urban Businesses</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-6">5G for Urban Businesses</h2>
             <div className="bg-circleTel-orange h-1 w-20 mb-8"></div>
 
             <div className="prose max-w-none">
@@ -224,7 +224,7 @@ export default function ConnectivityGuide() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-circleTel-lightNeutral p-6 rounded-lg">
                   <Radio size={32} className="text-circleTel-orange mb-4" />
-                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-3">Urban 5G Coverage</h3>
+                  <h3 className="text-xl font-bold text-circleTel-navy mb-3">Urban 5G Coverage</h3>
                   <p>
                     Major South African metros now feature extensive 5G coverage, particularly in business
                     districts and high-density urban areas, with speeds regularly exceeding 500Mbps.
@@ -233,7 +233,7 @@ export default function ConnectivityGuide() {
 
                 <div className="bg-circleTel-lightNeutral p-6 rounded-lg">
                   <Network size={32} className="text-circleTel-orange mb-4" />
-                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-3">Business Applications</h3>
+                  <h3 className="text-xl font-bold text-circleTel-navy mb-3">Business Applications</h3>
                   <p>
                     Urban businesses leverage 5G for primary connectivity, backup solutions, pop-up
                     locations, and to bridge the gap while waiting for fibre installation.
@@ -241,7 +241,7 @@ export default function ConnectivityGuide() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-8 mb-4">Key Urban 5G Benefits</h3>
+              <h3 className="text-xl font-bold text-circleTel-navy mt-8 mb-4">Key Urban 5G Benefits</h3>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
                   <div className="mt-1 mr-2 h-4 w-4 bg-circleTel-orange rounded-full flex-shrink-0"></div>
@@ -298,7 +298,7 @@ export default function ConnectivityGuide() {
       <section id="fixed-wireless" className="py-16 bg-circleTel-lightNeutral">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">Fixed Wireless Access</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-6">Fixed Wireless Access</h2>
             <div className="bg-circleTel-orange h-1 w-20 mb-8"></div>
 
             <div className="prose max-w-none">
@@ -306,7 +306,7 @@ export default function ConnectivityGuide() {
                 Fixed Wireless Access (FWA) offers an excellent alternative in areas where fibre is unavailable or when rapid deployment is required.
               </p>
 
-              <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-8 mb-4">Key Advantages</h3>
+              <h3 className="text-xl font-bold text-circleTel-navy mt-8 mb-4">Key Advantages</h3>
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
                   <div className="mt-1 mr-2 h-4 w-4 bg-circleTel-orange rounded-full flex-shrink-0"></div>
@@ -322,7 +322,7 @@ export default function ConnectivityGuide() {
                 </li>
               </ul>
 
-              <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-8 mb-4">South African Considerations</h3>
+              <h3 className="text-xl font-bold text-circleTel-navy mt-8 mb-4">South African Considerations</h3>
               <p className="mb-4">
                 The quality of Fixed Wireless in South Africa varies dramatically based on provider and location:
               </p>
@@ -357,7 +357,7 @@ export default function ConnectivityGuide() {
       <section id="comparison" className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">Urban Connectivity Comparison</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-6">Urban Connectivity Comparison</h2>
             <div className="bg-circleTel-orange h-1 w-20 mb-8"></div>
 
             <div className="overflow-x-auto">
@@ -426,13 +426,13 @@ export default function ConnectivityGuide() {
       <section className="py-16 bg-circleTel-lightNeutral">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Need urban-specific connectivity advice?</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Need urban-specific connectivity advice?</h2>
             <p className="text-lg text-circleTel-secondaryNeutral mb-8">
               Our urban connectivity specialists can assess your building's infrastructure and recommend the optimal
               solution for your business location in Johannesburg, Cape Town, Durban, or Pretoria.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
+              <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
                 <Link href="/contact">Schedule an Urban Site Survey</Link>
               </Button>
               <Button asChild variant="outline" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">

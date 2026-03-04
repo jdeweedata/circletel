@@ -80,7 +80,7 @@ export default function WebhookLogsPage() {
           <h1 className="text-3xl font-bold">Webhook Logs</h1>
           <p className="text-gray-600 mt-1">Monitor payment provider webhooks</p>
         </div>
-        <Button onClick={fetchWebhooks} disabled={loading} className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+        <Button onClick={fetchWebhooks} disabled={loading} className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>

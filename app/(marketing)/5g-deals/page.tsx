@@ -75,7 +75,7 @@ export default function FiveGDealsPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-circleTel-darkNeutral text-white relative overflow-hidden">
+      <section className="bg-circleTel-navy text-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-circleTel-orange rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
@@ -165,7 +165,7 @@ export default function FiveGDealsPage() {
               <p className="text-gray-600 mb-4">{error}</p>
               <Button
                 onClick={() => window.location.reload()}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
                 Try Again
               </Button>
@@ -222,7 +222,7 @@ export default function FiveGDealsPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 onClick={() => router.push('/coverage')}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
                 Check Coverage
               </Button>

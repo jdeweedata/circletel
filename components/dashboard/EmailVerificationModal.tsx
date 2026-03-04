@@ -138,7 +138,7 @@ export function EmailVerificationModal({
           </Button>
           <Button
             onClick={onClose}
-            className="bg-[#F5831F] hover:bg-[#E67510] text-white"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
           >
             Got it, I&apos;ll check my email
           </Button>

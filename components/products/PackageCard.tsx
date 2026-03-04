@@ -36,7 +36,7 @@ export function PackageCard({ tier, showBadge = true, compact = false }: Package
 
       {/* Tier Name */}
       <div className={`${showBadge && tier.badge ? 'mt-2' : ''}`}>
-        <h3 className={`font-bold text-circleTel-darkNeutral ${compact ? 'text-lg' : 'text-2xl'}`}>
+        <h3 className={`font-bold text-circleTel-navy ${compact ? 'text-lg' : 'text-2xl'}`}>
           {tier.name}
         </h3>
         {tier.description && (
@@ -52,7 +52,7 @@ export function PackageCard({ tier, showBadge = true, compact = false }: Package
               {tier.currency}{tier.originalPrice.toFixed(2)}
             </span>
           )}
-          <span className={`font-bold text-circleTel-darkNeutral ${compact ? 'text-3xl' : 'text-4xl'}`}>
+          <span className={`font-bold text-circleTel-navy ${compact ? 'text-3xl' : 'text-4xl'}`}>
             {tier.currency}{tier.price.toFixed(2)}
           </span>
         </div>
@@ -67,7 +67,7 @@ export function PackageCard({ tier, showBadge = true, compact = false }: Package
           {tier.features.map((feature, index) => (
             <li key={index} className="flex items-start gap-2">
               <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-              <span className="text-sm text-circleTel-darkNeutral">{feature}</span>
+              <span className="text-sm text-circleTel-navy">{feature}</span>
             </li>
           ))}
         </ul>
@@ -81,7 +81,7 @@ export function PackageCard({ tier, showBadge = true, compact = false }: Package
               className={`w-full ${
                 isHighlighted
                   ? 'bg-circleTel-orange hover:bg-orange-600 text-white'
-                  : 'bg-circleTel-darkNeutral hover:bg-gray-800 text-white'
+                  : 'bg-circleTel-navy hover:bg-gray-800 text-white'
               }`}
               size={compact ? 'default' : 'lg'}
             >
@@ -93,7 +93,7 @@ export function PackageCard({ tier, showBadge = true, compact = false }: Package
             className={`w-full ${
               isHighlighted
                 ? 'bg-circleTel-orange hover:bg-orange-600 text-white'
-                : 'bg-circleTel-darkNeutral hover:bg-gray-800 text-white'
+                : 'bg-circleTel-navy hover:bg-gray-800 text-white'
             }`}
             size={compact ? 'default' : 'lg'}
           >

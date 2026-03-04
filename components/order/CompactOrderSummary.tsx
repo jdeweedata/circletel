@@ -32,7 +32,7 @@ export default function CompactOrderSummary() {
     <div className="bg-white rounded-lg border border-circleTel-lightNeutral p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-circleTel-darkNeutral">
+        <h3 className="text-sm font-semibold text-circleTel-navy">
           Order Summary
         </h3>
         <Badge variant="secondary" className="bg-circleTel-orange/10 text-circleTel-orange text-xs">
@@ -47,7 +47,7 @@ export default function CompactOrderSummary() {
         <div className="flex items-start gap-2">
           <Package className="h-4 w-4 text-circleTel-orange mt-0.5 flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm text-circleTel-darkNeutral truncate">
+            <p className="font-medium text-sm text-circleTel-navy truncate">
               {selectedPackage?.name || 'Package Not Selected'}
             </p>
             {selectedPackage?.speed && (
@@ -86,7 +86,7 @@ export default function CompactOrderSummary() {
       <div className="space-y-2">
         <div className="flex items-center gap-2 mb-2">
           <TrendingUp className="h-4 w-4 text-circleTel-orange" />
-          <span className="text-xs font-medium text-circleTel-darkNeutral">Pricing</span>
+          <span className="text-xs font-medium text-circleTel-navy">Pricing</span>
         </div>
 
         <div className="space-y-1.5 text-xs">
@@ -120,7 +120,7 @@ export default function CompactOrderSummary() {
 
           {/* Total */}
           <div className="flex justify-between items-center pt-1">
-            <span className="font-semibold text-circleTel-darkNeutral">Total Due</span>
+            <span className="font-semibold text-circleTel-navy">Total Due</span>
             <span className="text-lg font-bold text-circleTel-orange">
               R{totalAmount.toFixed(2)}
             </span>

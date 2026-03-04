@@ -329,7 +329,7 @@ export default function CreateSupportTicketPage() {
                 Back to Customers
               </Button>
               <Button
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
                 onClick={() => router.push(`/admin/support/tickets/${createdTicketId}`)}
               >
                 View Ticket
@@ -563,7 +563,7 @@ export default function CreateSupportTicketPage() {
               <Button
                 type="submit"
                 disabled={isSubmitting || !selectedCustomer || !subject.trim()}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Ticket'}
               </Button>

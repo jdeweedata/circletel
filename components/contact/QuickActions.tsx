@@ -118,7 +118,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
 
   return (
     <div className={`mt-8 flex flex-col space-y-4 ${className || ''}`}>
-      <h3 className="font-bold text-circleTel-darkNeutral">Quick Actions</h3>
+      <h3 className="font-bold text-circleTel-navy">Quick Actions</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Schedule Consultation Modal */}
         <Dialog>
@@ -130,7 +130,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-circleTel-darkNeutral">Schedule a Consultation</DialogTitle>
+              <DialogTitle className="text-circleTel-navy">Schedule a Consultation</DialogTitle>
               <DialogDescription>
                 Book a free consultation with our IT experts to discuss your business needs.
               </DialogDescription>
@@ -221,7 +221,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
                   rows={3}
                 />
               </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Button type="submit" disabled={isSubmitting} className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark">
                 {isSubmitting ? "Scheduling..." : "Schedule Consultation"}
               </Button>
             </form>
@@ -238,7 +238,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-circleTel-darkNeutral">Request Site Survey</DialogTitle>
+              <DialogTitle className="text-circleTel-navy">Request Site Survey</DialogTitle>
               <DialogDescription>
                 Get a comprehensive on-site assessment of your connectivity and IT infrastructure needs.
               </DialogDescription>
@@ -325,7 +325,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
                   rows={3}
                 />
               </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Button type="submit" disabled={isSubmitting} className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark">
                 {isSubmitting ? "Submitting..." : "Request Site Survey"}
               </Button>
             </form>
@@ -342,7 +342,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-circleTel-darkNeutral">Get Cloud Quote</DialogTitle>
+              <DialogTitle className="text-circleTel-navy">Get Cloud Quote</DialogTitle>
               <DialogDescription>
                 Receive a customized quote for our cloud services including hosting, backup, and virtual desktops.
               </DialogDescription>
@@ -431,7 +431,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
                   rows={3}
                 />
               </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Button type="submit" disabled={isSubmitting} className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark">
                 {isSubmitting ? "Submitting..." : "Get Quote"}
               </Button>
             </form>

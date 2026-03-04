@@ -188,7 +188,7 @@ CircleTel is a B2B/B2C telecommunications platform built with:
 1. **TypeScript**: Strict mode, no \`any\`, all exports typed
 2. **RBAC**: Admin features require permission gates (UI + API + database)
 3. **Design System**:
-   - Colors: circleTel-orange (#F5831F), circleTel-darkNeutral (#1F2937)
+   - Colors: circleTel-orange (#F5831F), circleTel-navy (#1F2937)
    - Components: Use shadcn/ui primitives
    - Spacing: Tailwind scale (4px increments)
 4. **Database**:

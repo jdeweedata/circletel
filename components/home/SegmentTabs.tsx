@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Building2, Briefcase, Home, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type SegmentType = 'business' | 'wfh' | 'home';
@@ -9,7 +9,7 @@ export type SegmentType = 'business' | 'wfh' | 'home';
 interface Segment {
   id: SegmentType;
   label: string;
-  icon: React.ElementType;
+  badge: string;
   shortLabel: string;
   priceFrom: string;
   valueProp: string;
@@ -21,16 +21,16 @@ const SEGMENTS: Segment[] = [
     id: 'business',
     label: 'Business',
     shortLabel: 'Business',
-    icon: Building2,
+    badge: 'SME',
     priceFrom: 'R1,299+',
-    valueProp: '99.9% SLA',
-    description: 'Enterprise-grade connectivity',
+    valueProp: 'Always on',
+    description: 'Zero downtime guarantee',
   },
   {
     id: 'wfh',
     label: 'Work from Home',
     shortLabel: 'SOHO',
-    icon: Briefcase,
+    badge: 'SOHO',
     priceFrom: 'R799+',
     valueProp: 'Zoom-ready',
     description: 'Reliable for remote work',
@@ -39,7 +39,7 @@ const SEGMENTS: Segment[] = [
     id: 'home',
     label: 'Home',
     shortLabel: 'Home',
-    icon: Home,
+    badge: 'HOME',
     priceFrom: 'R799+',
     valueProp: 'Netflix-ready',
     description: 'Stream, game & connect',
@@ -142,7 +142,6 @@ export function SegmentTabs({ activeSegment, onSegmentChange, className, variant
         aria-label="Select your connectivity needs"
       >
         {SEGMENTS.map((segment) => {
-          const Icon = segment.icon;
           const isActive = activeSegment === segment.id;
 
           return (
@@ -169,20 +168,22 @@ export function SegmentTabs({ activeSegment, onSegmentChange, className, variant
                     : 'bg-white text-circleTel-navy shadow-md hover:shadow-lg hover:scale-[1.02] border border-gray-100'
               )}
             >
-              {/* Icon */}
+              {/* Text Badge instead of Icon */}
               <div
                 className={cn(
-                  'w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-2 sm:mb-3',
+                  'w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-2 sm:mb-3',
                   isActive ? 'bg-white/20' : isDark ? 'bg-white/10' : 'bg-circleTel-orange/10'
                 )}
               >
-                <Icon
+                <span
                   className={cn(
-                    'h-5 w-5 sm:h-6 sm:w-6',
+                    'font-data text-sm sm:text-base font-bold',
                     isActive ? 'text-white' : isDark ? 'text-white' : 'text-circleTel-orange'
                   )}
                   aria-hidden="true"
-                />
+                >
+                  {segment.badge}
+                </span>
               </div>
 
               {/* Label */}
@@ -269,10 +270,10 @@ export const SEGMENT_DATA: Record<SegmentType, {
 }> = {
   business: {
     title: 'Enterprise Solutions',
-    subtitle: 'Dedicated lines · SLA guarantee · 24/7 support',
-    tags: ['Dedicated lines', 'SLA guarantee', '24/7 support'],
+    subtitle: 'Always on · Zero downtime · Local support',
+    tags: ['Always on', 'Zero downtime', 'Local support'],
     priceFrom: 1499,
-    badge: '99.9% Uptime SLA',
+    badge: 'Zero downtime',
     technologies: 'Fibre · 5G · LTE options available',
     placeholder: 'Enter your business address',
   },

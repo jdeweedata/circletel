@@ -134,7 +134,7 @@ export default function NotificationHistoryPage() {
     <div className="container mx-auto py-8 max-w-6xl">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-circleTel-darkNeutral">Notifications</h1>
+        <h1 className="text-2xl font-bold text-circleTel-navy">Notifications</h1>
         <p className="text-muted-foreground mt-1">
           View and manage all your notifications
         </p>
@@ -280,7 +280,7 @@ function NotificationItem({ notification, onUpdate }: NotificationItemProps) {
           <div>
             <p
               className={`text-sm font-medium ${
-                !notification.is_read ? 'text-circleTel-darkNeutral' : 'text-muted-foreground'
+                !notification.is_read ? 'text-circleTel-navy' : 'text-muted-foreground'
               }`}
             >
               {notification.title}

@@ -425,7 +425,7 @@ export default function PartnerFeasibilityPage() {
               onClick={handleSubmit}
               disabled={isSubmitting}
               size="lg"
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               {isSubmitting ? (
                 <>

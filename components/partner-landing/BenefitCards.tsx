@@ -47,7 +47,7 @@ export function BenefitCards() {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-4">
             Why Partner With CircleTel?
           </h2>
           <p className="text-circleTel-secondaryNeutral max-w-2xl mx-auto">
@@ -75,7 +75,7 @@ export function BenefitCards() {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-3">
+                <h3 className="text-xl font-bold text-circleTel-navy mb-3">
                   {benefit.title}
                 </h3>
 

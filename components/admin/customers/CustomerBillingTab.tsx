@@ -334,7 +334,7 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
                           actionLoading === `generate-${service.id}` ||
                           service.status !== 'active'
                         }
-                        className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                        className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
                       >
                         {actionLoading === `generate-${service.id}` ? (
                           <RefreshCw className="h-4 w-4 animate-spin mr-1" />

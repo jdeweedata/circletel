@@ -33,7 +33,7 @@ export function PartnershipModels() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-darkNeutral mb-4">
+          <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-navy mb-4">
             Two Ways to Partner
           </h2>
           <p className="text-xl text-circleTel-secondaryNeutral max-w-3xl mx-auto">
@@ -59,7 +59,7 @@ export function PartnershipModels() {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-3">
+                <h3 className="text-2xl font-bold text-circleTel-navy mb-3">
                   {partnership.title}
                 </h3>
 
@@ -88,7 +88,7 @@ export function PartnershipModels() {
                 <div className="mt-8">
                   <a
                     href="/partner/onboarding"
-                    className="inline-flex items-center justify-center w-full px-6 py-3 text-base font-semibold text-white bg-circleTel-orange rounded-lg shadow-md hover:bg-circleTel-orange/90 hover:shadow-lg transition-all duration-300 hover:scale-105"
+                    className="inline-flex items-center justify-center w-full px-6 py-3 text-base font-semibold text-white bg-circleTel-orange rounded-lg shadow-md hover:bg-circleTel-orange-dark hover:shadow-lg transition-all duration-300 hover:scale-105"
                   >
                     Learn More
                     <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

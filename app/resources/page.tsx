@@ -111,14 +111,14 @@ const Resources = () => {
         <section className="bg-gradient-to-br from-white to-circleTel-lightNeutral py-20">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-6">
+              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-6">
                 IT <span className="text-circleTel-orange">Resources Hub</span>
               </h1>
               <p className="text-xl text-circleTel-secondaryNeutral mb-8">
                 Free tools, guides, and assessments to help you make informed IT decisions for your business. Get expert insights without the cost.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                   <Link href="/resources/it-health">Start IT Assessment</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
@@ -157,7 +157,7 @@ const Resources = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Featured Resources</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Featured Resources</h2>
               <p className="text-lg text-circleTel-secondaryNeutral max-w-3xl mx-auto">
                 Comprehensive tools and guides created by our IT experts to help you make better technology decisions
               </p>
@@ -197,7 +197,7 @@ const Resources = () => {
 
                   <CardContent>
                     <div className="mb-6">
-                      <h4 className="font-semibold text-circleTel-darkNeutral mb-3">What's Included:</h4>
+                      <h4 className="font-semibold text-circleTel-navy mb-3">What's Included:</h4>
                       <ul className="space-y-2">
                         {resource.features.map((feature, featureIndex) => (
                           <li key={featureIndex} className="flex items-center text-sm">
@@ -210,7 +210,7 @@ const Resources = () => {
 
                     <Button
                       asChild
-                      className={resource.popular ? 'w-full bg-circleTel-orange hover:bg-circleTel-orange/90' : 'w-full'}
+                      className={resource.popular ? 'w-full bg-circleTel-orange hover:bg-circleTel-orange-dark' : 'w-full'}
                       variant={resource.popular ? 'default' : 'outline'}
                     >
                       <Link href={resource.link}>
@@ -228,7 +228,7 @@ const Resources = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Quick Downloads</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Quick Downloads</h2>
               <p className="text-lg text-circleTel-secondaryNeutral">
                 Useful templates and checklists you can download and use immediately
               </p>
@@ -243,7 +243,7 @@ const Resources = () => {
                         {item.icon}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-circleTel-darkNeutral mb-1">{item.title}</h4>
+                        <h4 className="font-semibold text-circleTel-navy mb-1">{item.title}</h4>
                         <Badge variant="secondary" className="text-xs mb-2">{item.type}</Badge>
                       </div>
                     </div>
@@ -267,14 +267,14 @@ const Resources = () => {
               <Card className="bg-gradient-to-r from-circleTel-orange/10 to-circleTel-orange/5 border border-circleTel-orange/20">
                 <CardContent className="p-8 text-center">
                   <Users className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">
+                  <h3 className="text-2xl font-bold text-circleTel-navy mb-4">
                     Need Expert Guidance?
                   </h3>
                   <p className="text-circleTel-secondaryNeutral mb-6 max-w-2xl mx-auto">
                     While our resources are comprehensive, sometimes you need personalized advice. Our IT experts are available to discuss your specific situation and provide tailored recommendations.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                    <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                       <Link href="/contact">Book Free Consultation</Link>
                     </Button>
                     <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">

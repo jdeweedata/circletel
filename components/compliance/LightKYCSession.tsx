@@ -122,7 +122,7 @@ export function LightKYCSession({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-circleTel-darkNeutral">
+        <CardTitle className="text-circleTel-navy">
           Complete Verification
         </CardTitle>
         <CardDescription>
@@ -137,7 +137,7 @@ export function LightKYCSession({
       <CardContent className="space-y-6">
         {/* Progress Steps */}
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-circleTel-darkNeutral">
+          <h4 className="text-sm font-semibold text-circleTel-navy">
             Verification Steps
           </h4>
 
@@ -193,7 +193,7 @@ export function LightKYCSession({
           <Button
             onClick={handleStartVerification}
             disabled={verificationStarted}
-            className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white h-12 text-base font-semibold"
+            className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white h-12 text-base font-semibold"
           >
             {verificationStarted ? (
               <>

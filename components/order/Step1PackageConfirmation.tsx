@@ -181,7 +181,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
                     </span>
                   </>
                 ) : (
-                  <span className="text-3xl font-bold text-circleTel-darkNeutral">
+                  <span className="text-3xl font-bold text-circleTel-navy">
                     R{monthlyPrice.toFixed(2)}
                   </span>
                 )}

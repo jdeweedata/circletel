@@ -7,7 +7,7 @@ import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 
 export const Footer = () => {
   return (
-    <footer className="bg-circleTel-darkNeutral text-white py-12">
+    <footer className="bg-circleTel-navy text-white py-12">
       <div className="container mx-auto px-4">
         {/* Contact Bar */}
         <div className="bg-circleTel-secondaryNeutral bg-opacity-20 rounded-lg p-4 mb-8 flex flex-col md:flex-row justify-between items-center">

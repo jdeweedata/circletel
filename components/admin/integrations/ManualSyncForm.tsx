@@ -71,7 +71,7 @@ export function ManualSyncForm({
         <Button
           type="submit"
           disabled={isSubmitting || isRetrying || !entityId.trim()}
-          className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+          className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
         >
           {isSubmitting ? (
             <>

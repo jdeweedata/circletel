@@ -1,8 +1,23 @@
 'use client';
 
 import React from 'react';
-import { Star } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import type { SegmentType } from './SegmentTabs';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.12 }
+  }
+} as const;
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+} as const;
 
 interface Testimonial {
   id: string;
@@ -10,8 +25,15 @@ interface Testimonial {
   author: string;
   role?: string;
   location: string;
-  stars: number;
+  segment: 'home' | 'wfh' | 'business';
 }
+
+// Segment badge config - replaces generic star ratings
+const SEGMENT_BADGES: Record<string, { label: string; bgColor: string; textColor: string }> = {
+  home: { label: 'Home', bgColor: 'bg-emerald-100', textColor: 'text-emerald-700' },
+  wfh: { label: 'SOHO', bgColor: 'bg-purple-100', textColor: 'text-purple-700' },
+  business: { label: 'Business', bgColor: 'bg-circleTel-orange/10', textColor: 'text-circleTel-orange' },
+};
 
 // Home/Consumer testimonials
 const HOME_TESTIMONIALS: Testimonial[] = [
@@ -20,21 +42,21 @@ const HOME_TESTIMONIALS: Testimonial[] = [
     quote: "Finally, internet that just works. My kids game, I stream, my wife works — all at the same time.",
     author: 'Thandi M.',
     location: 'Sandton',
-    stars: 5,
+    segment: 'home',
   },
   {
     id: 'h2',
     quote: "Netflix in 4K on 3 TVs and nobody complains. Best switch we ever made.",
     author: 'Johan V.',
     location: 'Centurion',
-    stars: 5,
+    segment: 'home',
   },
   {
     id: 'h3',
     quote: "Free installation and no contracts? I was skeptical, but 8 months in and not a single issue.",
     author: 'Naledi P.',
     location: 'Pretoria',
-    stars: 5,
+    segment: 'home',
   },
 ];
 
@@ -46,15 +68,15 @@ const WFH_TESTIMONIALS: Testimonial[] = [
     author: 'Sipho K.',
     role: 'Freelance Developer',
     location: 'Cape Town',
-    stars: 5,
+    segment: 'wfh',
   },
   {
     id: 'w2',
-    quote: "Video calls never drop, even during load shedding with their 5G backup option. Essential for my consulting work.",
+    quote: "Video calls never drop. The 5G backup kicks in automatically if anything goes wrong. Essential for my consulting work.",
     author: 'Thabo M.',
     role: 'Business Consultant',
     location: 'Johannesburg',
-    stars: 5,
+    segment: 'wfh',
   },
   {
     id: 'w3',
@@ -62,7 +84,7 @@ const WFH_TESTIMONIALS: Testimonial[] = [
     author: 'Lerato N.',
     role: 'Agency Owner',
     location: 'Durban',
-    stars: 5,
+    segment: 'wfh',
   },
 ];
 
@@ -74,7 +96,7 @@ const BUSINESS_TESTIMONIALS: Testimonial[] = [
     author: 'Rebecca S.',
     role: 'Operations Director',
     location: 'Sandton',
-    stars: 5,
+    segment: 'business',
   },
   {
     id: 'b2',
@@ -82,7 +104,7 @@ const BUSINESS_TESTIMONIALS: Testimonial[] = [
     author: 'Michael C.',
     role: 'IT Manager',
     location: 'Rosebank',
-    stars: 5,
+    segment: 'business',
   },
   {
     id: 'b3',
@@ -90,44 +112,36 @@ const BUSINESS_TESTIMONIALS: Testimonial[] = [
     author: 'Pieter V.',
     role: 'CTO',
     location: 'Cape Town',
-    stars: 5,
+    segment: 'business',
   },
 ];
 
-// Segment-specific trust metrics
-const TRUST_METRICS: Record<SegmentType, string[]> = {
+// Segment-specific trust metrics - use deliverable promises, not fake customer counts
+const TRUST_METRICS: Record<SegmentType, { value: string; label: string }[]> = {
   home: [
-    '10,000+ homes connected',
-    '99.9% uptime',
-    'Free installation',
+    { value: 'R0', label: 'setup fees' },
+    { value: '7 days', label: 'to get online' },
+    { value: 'No', label: 'contracts' },
   ],
   wfh: [
-    '2,500+ remote workers',
-    'HD video optimized',
-    '4.8★ Google rating',
+    { value: 'R0', label: 'setup fees' },
+    { value: '7 days', label: 'to get online' },
+    { value: 'No', label: 'contracts' },
   ],
   business: [
-    '500+ businesses connected',
-    '99.9% SLA guaranteed',
-    '4-hour response time',
+    { value: 'R0', label: 'setup fees' },
+    { value: '4hr', label: 'response time' },
+    { value: 'No', label: 'contracts' },
   ],
 };
-
-function StarRating({ count }: { count: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: count }).map((_, i) => (
-        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-      ))}
-    </div>
-  );
-}
 
 interface TestimonialsProps {
   activeSegment?: SegmentType;
 }
 
 export function Testimonials({ activeSegment = 'home' }: TestimonialsProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   // Select testimonials based on segment
   const testimonials = activeSegment === 'business'
     ? BUSINESS_TESTIMONIALS
@@ -136,68 +150,106 @@ export function Testimonials({ activeSegment = 'home' }: TestimonialsProps) {
     : HOME_TESTIMONIALS;
 
   const trustMetrics = TRUST_METRICS[activeSegment];
+
   return (
     <section className="bg-white py-12 md:py-20">
       <div className="container mx-auto px-4">
         {/* Heading */}
-        <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-circleTel-navy text-center mb-12">
+        <motion.h2
+          className="font-heading text-display-2-mobile md:text-display-2 text-circleTel-navy text-center mb-12"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: -10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+        >
           What our customers say
-        </h2>
+        </motion.h2>
 
-        {/* Testimonial Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100"
-            >
-              {/* Stars */}
-              <StarRating count={testimonial.stars} />
+        {/* Testimonial Cards - Quote-Forward Design */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"
+          variants={prefersReducedMotion ? undefined : containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          {testimonials.map((testimonial) => {
+            const badge = SEGMENT_BADGES[testimonial.segment];
 
-              {/* Quote */}
-              <p className="font-body text-circleTel-navy italic mt-4 mb-6 text-sm md:text-base leading-relaxed">
-                &ldquo;{testimonial.quote}&rdquo;
-              </p>
+            return (
+              <motion.div
+                key={testimonial.id}
+                variants={prefersReducedMotion ? undefined : cardVariants}
+                whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+                className="relative bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-circleTel-grey200 hover:shadow-xl transition-shadow"
+              >
+                {/* Large Decorative Quote Mark */}
+                <span className="absolute -top-2 left-4 text-6xl text-circleTel-orange/20 font-serif leading-none select-none">
+                  &ldquo;
+                </span>
 
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                {/* Avatar placeholder */}
-                <div className="w-10 h-10 bg-circleTel-grey200 rounded-full flex items-center justify-center">
-                  <span className="font-heading text-sm font-semibold text-circleTel-navy">
-                    {testimonial.author.charAt(0)}
+                {/* Segment Badge - replaces star rating */}
+                <div className="flex justify-end mb-4">
+                  <span className={cn(
+                    'px-2 py-0.5 rounded-md text-xs font-medium',
+                    badge.bgColor,
+                    badge.textColor
+                  )}>
+                    {badge.label}
                   </span>
                 </div>
-                <div>
-                  <p className="font-heading text-sm font-semibold text-circleTel-navy">
-                    {testimonial.author}
-                  </p>
-                  {testimonial.role && (
-                    <p className="font-body text-xs text-circleTel-orange">
-                      {testimonial.role}
+
+                {/* Quote */}
+                <p className="font-body text-circleTel-navy text-sm md:text-base leading-relaxed mb-6 relative z-10">
+                  {testimonial.quote}
+                </p>
+
+                {/* Author */}
+                <div className="flex items-center gap-3">
+                  {/* Avatar with gradient background */}
+                  <div className="w-10 h-10 bg-gradient-to-br from-circleTel-orange/20 to-circleTel-orange/5 rounded-full flex items-center justify-center">
+                    <span className="font-data text-sm font-bold text-circleTel-orange">
+                      {testimonial.author.charAt(0)}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-heading text-sm font-semibold text-circleTel-navy">
+                      {testimonial.author}
                     </p>
-                  )}
-                  <p className="font-body text-xs text-circleTel-grey600">
-                    {testimonial.location}
-                  </p>
+                    {testimonial.role && (
+                      <p className="font-body text-xs text-circleTel-orange">
+                        {testimonial.role}
+                      </p>
+                    )}
+                    <p className="font-body text-xs text-circleTel-grey600">
+                      {testimonial.location}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Trust Metrics Bar - Data-Forward Design */}
+        <motion.div
+          className="mt-12 flex flex-wrap items-center justify-center gap-6 md:gap-10"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
+          {trustMetrics.map((metric, index) => (
+            <div key={index} className="text-center">
+              <span className="font-data text-xl md:text-2xl font-bold text-circleTel-orange">
+                {metric.value}
+              </span>
+              <span className="block text-xs text-circleTel-grey600 mt-0.5">
+                {metric.label}
+              </span>
             </div>
           ))}
-        </div>
-
-        {/* Trust Metrics Bar */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-4 md:gap-8">
-          {trustMetrics.map((metric, index) => (
-            <React.Fragment key={metric}>
-              <span className="font-body text-sm md:text-base font-medium text-circleTel-navy">
-                {metric}
-              </span>
-              {index < trustMetrics.length - 1 && (
-                <span className="hidden md:inline text-gray-300">·</span>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

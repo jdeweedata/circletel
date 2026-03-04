@@ -50,7 +50,7 @@ const CaseStudy = ({ slice }: CaseStudyProps): JSX.Element => {
     >
       <div className={backgroundClass}>
         {slice.primary.title && (
-          <h4 className="font-bold mb-2 text-circleTel-darkNeutral">
+          <h4 className="font-bold mb-2 text-circleTel-navy">
             {slice.primary.title}
           </h4>
         )}
@@ -62,7 +62,7 @@ const CaseStudy = ({ slice }: CaseStudyProps): JSX.Element => {
         )}
 
         {(slice.primary.author || slice.primary.company) && (
-          <p className="text-sm font-bold text-circleTel-darkNeutral">
+          <p className="text-sm font-bold text-circleTel-navy">
             {slice.primary.author && `- ${slice.primary.author}`}
             {slice.primary.author && slice.primary.company && ", "}
             {slice.primary.company}

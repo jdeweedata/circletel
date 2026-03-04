@@ -147,7 +147,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </Button>
               <Button
                 variant="default"
-                className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark"
                 onClick={this.handleGoHome}
               >
                 <Home className="h-4 w-4 mr-2" />

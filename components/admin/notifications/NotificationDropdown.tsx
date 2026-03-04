@@ -104,7 +104,7 @@ export function NotificationDropdown({
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
           <Bell className="h-5 w-5 text-circleTel-orange" />
-          <h3 className="font-semibold text-circleTel-darkNeutral">Notifications</h3>
+          <h3 className="font-semibold text-circleTel-navy">Notifications</h3>
           {unreadCount > 0 && (
             <span className="text-xs text-muted-foreground">
               ({unreadCount} unread)
@@ -210,7 +210,7 @@ function NotificationItem({ notification, onClick, onDismiss }: NotificationItem
           <p
             className={`text-sm font-medium ${
               !notification.is_read
-                ? 'text-circleTel-darkNeutral'
+                ? 'text-circleTel-navy'
                 : 'text-muted-foreground'
             }`}
           >

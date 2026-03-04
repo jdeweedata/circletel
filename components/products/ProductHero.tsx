@@ -74,7 +74,7 @@ export function ProductHero({ product, onClose }: ProductHeroProps) {
                 </div>
 
                 <div className="flex items-baseline">
-                  <span className="text-8xl md:text-9xl font-bold text-circleTel-darkNeutral leading-none">
+                  <span className="text-8xl md:text-9xl font-bold text-circleTel-navy leading-none">
                     {displayData}
                   </span>
                   {!isUncapped && (
@@ -87,7 +87,7 @@ export function ProductHero({ product, onClose }: ProductHeroProps) {
                 </p>
 
                 {product.metadata?.router_included && (
-                  <div className="mt-6 inline-block bg-circleTel-darkNeutral text-white px-5 py-2.5 rounded-lg">
+                  <div className="mt-6 inline-block bg-circleTel-navy text-white px-5 py-2.5 rounded-lg">
                     <span className="text-circleTel-orange font-bold">FREE</span>
                     <span className="ml-2">to use {product.service_type || '5G'} router</span>
                   </div>

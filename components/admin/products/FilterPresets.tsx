@@ -204,7 +204,7 @@ export function FilterPresets({ currentFilters, onApplyPreset }: FilterPresetsPr
             <Button
               onClick={handleSavePreset}
               disabled={!newPresetName.trim()}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               Save Preset
             </Button>

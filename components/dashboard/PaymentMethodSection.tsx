@@ -402,7 +402,7 @@ export function PaymentMethodSection({
                     <Button
                       onClick={handleAddPaymentMethod}
                       disabled={isProcessing}
-                      className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-base px-6 py-5 h-auto shadow-md"
+                      className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-base px-6 py-5 h-auto shadow-md"
                     >
                       {isProcessing ? (
                         <>

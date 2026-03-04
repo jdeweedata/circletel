@@ -27,7 +27,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-16 bg-gradient-to-br from-circleTel-darkNeutral via-purple-900 to-circleTel-darkNeutral text-white relative overflow-hidden">
+    <section id="how-it-works" className="py-16 bg-gradient-to-br from-circleTel-navy via-purple-900 to-circleTel-navy text-white relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
@@ -83,7 +83,7 @@ export function HowItWorks() {
           <Link href="/partner/onboarding">
             <Button
               size="lg"
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold px-10 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold px-10 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
               Start earning today
               <ArrowRight className="ml-2 h-5 w-5" />

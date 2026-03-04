@@ -127,7 +127,7 @@ export default function CustomerDetailsSidebar({
           {/* Actions */}
           <div className="pt-4 border-t border-gray-200">
             <div className="space-y-3">
-              <Button className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Button className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark">
                 Edit Customer Details
               </Button>
               <Button variant="outline" className="w-full">

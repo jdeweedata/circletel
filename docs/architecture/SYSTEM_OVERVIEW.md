@@ -1,9 +1,9 @@
 ---
 type: architecture
 domain: [platform, all]
-tags: [overview, database, api, components, agent-os, integrations, inngest, skills]
+tags: [overview, database, api, components, agent-os, integrations, inngest, skills, design-system, typography]
 status: current
-last_updated: 2026-03-02
+last_updated: 2026-03-03
 dependencies: []
 priority: high
 description: Main hub document for understanding the CircleTel platform architecture
@@ -13,8 +13,8 @@ description: Main hub document for understanding the CircleTel platform architec
 
 Comprehensive reference for the CircleTel platform architecture, features, and codebase structure.
 
-**Last Updated**: 2026-03-02
-**Version**: 2.0
+**Last Updated**: 2026-03-03
+**Version**: 2.1
 
 ---
 
@@ -66,6 +66,59 @@ Comprehensive reference for the CircleTel platform architecture, features, and c
 |-------------|-----|--------|
 | Production | https://www.circletel.co.za | main |
 | Staging | https://circletel-staging.vercel.app | staging |
+
+### Design System
+
+**Documentation**: `docs/design-system/README.md`
+
+#### Typography Scale (1.32× modular)
+
+| Token | Desktop | Mobile | Weight | Usage |
+|-------|---------|--------|--------|-------|
+| `display-1` | 48px | 40px | 700 | H1, hero titles |
+| `display-2` | 36px | 30px | 700 | H2, section headings |
+| `display-3` | 28px | 24px | 600 | H3, card titles |
+| `display-4` | 21px | 18px | 600 | H4, minor headings |
+| Body | 16px | 16px | 400 | Paragraphs |
+
+**CSS Classes**: `.page-title`, `.section-heading`, `.card-title`
+**Tailwind**: `text-display-1`, `text-display-2`, `text-display-3`, `text-display-4`
+
+#### Font Families
+
+| Family | Variable | Tailwind | Usage |
+|--------|----------|----------|-------|
+| Poppins | `--font-poppins` | `font-heading` | Headings, nav, buttons |
+| Montserrat | `--font-montserrat` | `font-body` | Body text |
+| Manrope | `--font-manrope` | `font-data` | Data-heavy interfaces |
+| Space Mono | `--font-space-mono` | `font-mono` | Code, technical |
+
+#### Color Tokens
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `circleTel-orange` | #E87A1E | Primary brand, CTAs |
+| `circleTel-orange-dark` | #C45A30 | Hover states |
+| `circleTel-navy` | #1B2A4A | Headlines, dark UI |
+| `circleTel-charcoal` | #2D3436 | Footer, dark sections |
+
+#### Gradient Presets
+
+| Token | Usage |
+|-------|-------|
+| `gradient-hero` | Orange to navy diagonal |
+| `gradient-cta` | Orange to burnt orange |
+| `gradient-card` | White to light gray |
+| `gradient-card-selected` | Navy gradient (selected state) |
+
+#### CTA Button Variants
+
+```tsx
+<Button variant="cta">Primary CTA</Button>
+<Button variant="cta-outline">Secondary CTA</Button>
+<Button variant="cta-gradient">Gradient CTA</Button>
+<Button variant="cta-navy">Navy CTA</Button>
+```
 
 ---
 
@@ -729,12 +782,15 @@ pending → in_progress → completed → approved
 ## Recent Updates (2026)
 
 ### March 2026
+- **Design System v1.0**: Typography scale (1.32× modular), color tokens, gradient presets, CTA button variants
 - Platform stabilization: TypeScript errors reduced from 1,005 → 336 (67%)
 - Added B2B Sales Feasibility Portal (`/admin/sales/feasibility`)
 - Homepage CRO optimizations (Cell C-inspired patterns)
 - Segment-aware homepage (business/wfh/home tabs)
 - SkyFibre Home residential products added
 - 13+ Claude Code skills documented
+- Legacy components cleanup: Deleted Hero.tsx, HeroWithTabs.tsx, package-card.tsx
+- Token migration: darkNeutral → navy (157+ files)
 
 ### February 2026
 - Miro/Nology supplier integrations
@@ -749,5 +805,6 @@ pending → in_progress → completed → approved
 
 ---
 
-**Document Version**: 2.0
+**Document Version**: 2.1
+**Last Updated**: 2026-03-03
 **Maintained By**: Development Team + Claude Code

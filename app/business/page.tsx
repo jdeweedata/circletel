@@ -11,7 +11,7 @@ export default function BusinessPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-circleTel-darkNeutral via-circleTel-secondaryNeutral to-circleTel-darkNeutral text-white py-20 px-4">
+      <section className="relative bg-gradient-to-br from-circleTel-navy via-circleTel-secondaryNeutral to-circleTel-navy text-white py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -246,7 +246,7 @@ export default function BusinessPage() {
 
               <Link
                 href="/connectivity/fixed-wireless"
-                className="block w-full bg-circleTel-darkNeutral hover:bg-circleTel-secondaryNeutral text-white px-6 py-3 rounded-lg font-semibold text-center transition-colors"
+                className="block w-full bg-circleTel-navy hover:bg-circleTel-secondaryNeutral text-white px-6 py-3 rounded-lg font-semibold text-center transition-colors"
               >
                 Learn More
               </Link>
@@ -275,14 +275,14 @@ export default function BusinessPage() {
             </Link>
             <Link
               href="/connectivity/fibre"
-              className="bg-circleTel-darkNeutral hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
+              className="bg-circleTel-navy hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
             >
               Check Coverage
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <a
               href="https://wa.me/27824873900"
-              className="bg-circleTel-darkNeutral hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
+              className="bg-circleTel-navy hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
             >
               <Phone className="mr-2 h-5 w-5" />
               082 487 3900

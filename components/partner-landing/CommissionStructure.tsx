@@ -18,7 +18,7 @@ export function CommissionStructure() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-darkNeutral mb-4">
+          <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-navy mb-4">
             Commission Structure
           </h2>
           <p className="text-xl text-circleTel-secondaryNeutral max-w-3xl mx-auto">
@@ -50,7 +50,7 @@ export function CommissionStructure() {
               </div>
 
               {/* Tier Name */}
-              <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">
+              <h3 className="text-xl font-bold text-circleTel-navy mb-2">
                 {tier.name}
               </h3>
 
@@ -69,7 +69,7 @@ export function CommissionStructure() {
                 <div className="text-xs font-semibold text-circleTel-secondaryNeutral mb-1">
                   Monthly Value
                 </div>
-                <div className="text-lg font-bold text-circleTel-darkNeutral">
+                <div className="text-lg font-bold text-circleTel-navy">
                   {tier.monthly}
                 </div>
               </div>
@@ -99,7 +99,7 @@ export function CommissionStructure() {
 
         {/* Example Calculation */}
         <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border-2 border-gray-200">
-          <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-6 text-center">
+          <h3 className="text-2xl font-bold text-circleTel-navy mb-6 text-center">
             Example Calculation
           </h3>
           <div className="grid md:grid-cols-3 gap-6">
@@ -107,7 +107,7 @@ export function CommissionStructure() {
               <div className="text-sm font-semibold text-circleTel-secondaryNeutral mb-2">
                 Monthly Package Value
               </div>
-              <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              <div className="text-3xl font-bold text-circleTel-navy">
                 R799
               </div>
             </div>

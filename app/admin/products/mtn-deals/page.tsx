@@ -189,7 +189,7 @@ export default function MTNDealsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">MTN Business Deals</h1>
+          <h1 className="text-3xl font-bold text-circleTel-navy">MTN Business Deals</h1>
           <p className="text-circleTel-secondaryNeutral mt-1">
             Device + Service bundles from Helios & iLula platforms
           </p>

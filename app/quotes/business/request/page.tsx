@@ -120,7 +120,7 @@ export default function BusinessQuoteRequestPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-2">Error</h2>
+          <h2 className="text-2xl font-bold text-circleTel-navy mb-2">Error</h2>
           <p className="text-circleTel-secondaryNeutral">{error}</p>
         </div>
       </div>
@@ -131,7 +131,7 @@ export default function BusinessQuoteRequestPage() {
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral mb-2">
+          <h1 className="text-3xl font-bold text-circleTel-navy mb-2">
             Business Quote Request
           </h1>
           <p className="text-circleTel-secondaryNeutral">

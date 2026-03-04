@@ -16,7 +16,7 @@ export function WhatIsSection() {
                   <Handshake className="h-6 w-6 text-circleTel-orange" />
                 </div>
               </div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-circleTel-darkNeutral mb-4">
+              <h2 className="text-3xl lg:text-4xl font-bold text-circleTel-navy mb-4">
                 What is the CircleTel{' '}
                 <span className="text-circleTel-orange">EarnMore Partner</span>{' '}
                 Programme?
@@ -35,7 +35,7 @@ export function WhatIsSection() {
                   <TrendingUp className="text-circleTel-orange" size={24} />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Recurring Income</h4>
+                  <h4 className="text-xl font-bold text-circleTel-navy mb-2">Recurring Income</h4>
                   <p className="text-circleTel-secondaryNeutral">
                     Share your unique link. When someone signs up, you earn commission every month for as long as they stay connected.
                   </p>
@@ -47,7 +47,7 @@ export function WhatIsSection() {
                   <Users className="text-circleTel-orange" size={24} />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-circleTel-darkNeutral mb-2">No Barriers to Entry</h4>
+                  <h4 className="text-xl font-bold text-circleTel-navy mb-2">No Barriers to Entry</h4>
                   <p className="text-circleTel-secondaryNeutral">
                     No experience needed. No upfront costs. Just your network and a smartphone. Sign up in 5 minutes.
                   </p>

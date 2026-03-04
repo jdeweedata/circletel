@@ -61,14 +61,14 @@ const FixedWireless = () => {
             <div className="flex flex-col lg:flex-row items-center gap-12">
               <div className="lg:w-1/2">
                 <Badge className="mb-4 bg-blue-600">Fast Deployment</Badge>
-                <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-6">
+                <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-6">
                   Fixed Wireless Internet
                 </h1>
                 <p className="text-xl text-circleTel-secondaryNeutral mb-8">
                   High-speed wireless internet connectivity with business-grade reliability. Quick deployment without the wait for fibre infrastructure.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                  <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                     <Link href="/contact">Get Quote</Link>
                   </Button>
                   <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
@@ -80,22 +80,22 @@ const FixedWireless = () => {
                 <div className="grid grid-cols-2 gap-6">
                   <Card className="p-6 text-center">
                     <Signal className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                    <h3 className="font-bold text-circleTel-darkNeutral mb-2">Fast Setup</h3>
+                    <h3 className="font-bold text-circleTel-navy mb-2">Fast Setup</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Install in 24-48 hours</p>
                   </Card>
                   <Card className="p-6 text-center">
                     <Zap className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                    <h3 className="font-bold text-circleTel-darkNeutral mb-2">High Speed</h3>
+                    <h3 className="font-bold text-circleTel-navy mb-2">High Speed</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Up to 100Mbps speeds</p>
                   </Card>
                   <Card className="p-6 text-center">
                     <Shield className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                    <h3 className="font-bold text-circleTel-darkNeutral mb-2">Business Grade</h3>
+                    <h3 className="font-bold text-circleTel-navy mb-2">Business Grade</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">99.9% uptime SLA</p>
                   </Card>
                   <Card className="p-6 text-center">
                     <Clock className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-                    <h3 className="font-bold text-circleTel-darkNeutral mb-2">24/7 Support</h3>
+                    <h3 className="font-bold text-circleTel-navy mb-2">24/7 Support</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Round-the-clock monitoring</p>
                   </Card>
                 </div>
@@ -108,7 +108,7 @@ const FixedWireless = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Why Choose Fixed Wireless?</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Why Choose Fixed Wireless?</h2>
               <p className="text-lg text-circleTel-secondaryNeutral max-w-3xl mx-auto">
                 Get business-grade internet without waiting for fibre infrastructure
               </p>
@@ -117,25 +117,25 @@ const FixedWireless = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="text-center p-6">
                 <Network className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="font-bold text-circleTel-darkNeutral mb-3">Rapid Deployment</h3>
+                <h3 className="font-bold text-circleTel-navy mb-3">Rapid Deployment</h3>
                 <p className="text-circleTel-secondaryNeutral">Installation within 24-48 hours of site survey completion</p>
               </Card>
 
               <Card className="text-center p-6">
                 <TrendingUp className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <h3 className="font-bold text-circleTel-darkNeutral mb-3">Scalable Bandwidth</h3>
+                <h3 className="font-bold text-circleTel-navy mb-3">Scalable Bandwidth</h3>
                 <p className="text-circleTel-secondaryNeutral">Easily upgrade speeds as your business grows</p>
               </Card>
 
               <Card className="text-center p-6">
                 <Shield className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                <h3 className="font-bold text-circleTel-darkNeutral mb-3">Business SLAs</h3>
+                <h3 className="font-bold text-circleTel-navy mb-3">Business SLAs</h3>
                 <p className="text-circleTel-secondaryNeutral">Guaranteed uptime with service level agreements</p>
               </Card>
 
               <Card className="text-center p-6">
                 <Clock className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-                <h3 className="font-bold text-circleTel-darkNeutral mb-3">Dedicated Support</h3>
+                <h3 className="font-bold text-circleTel-navy mb-3">Dedicated Support</h3>
                 <p className="text-circleTel-secondaryNeutral">Business-focused support with priority response</p>
               </Card>
             </div>
@@ -146,7 +146,7 @@ const FixedWireless = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Fixed Wireless Plans</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Fixed Wireless Plans</h2>
               <p className="text-lg text-circleTel-secondaryNeutral">
                 Choose the right speed and support level for your business needs
               </p>
@@ -169,7 +169,7 @@ const FixedWireless = () => {
                   <CardHeader className={plan.popular ? 'pt-8' : ''}>
                     <CardTitle className="text-center text-xl">{plan.name}</CardTitle>
                     <div className="text-center">
-                      <div className="text-4xl font-bold text-circleTel-darkNeutral">
+                      <div className="text-4xl font-bold text-circleTel-navy">
                         {plan.price}
                         <span className="text-base font-normal text-circleTel-secondaryNeutral">/month</span>
                       </div>
@@ -189,7 +189,7 @@ const FixedWireless = () => {
 
                     <Button
                       asChild
-                      className={plan.popular ? 'w-full bg-circleTel-orange hover:bg-circleTel-orange/90' : 'w-full'}
+                      className={plan.popular ? 'w-full bg-circleTel-orange hover:bg-circleTel-orange-dark' : 'w-full'}
                       variant={plan.popular ? 'default' : 'outline'}
                     >
                       <Link href="/contact">Get {plan.name}</Link>
@@ -205,7 +205,7 @@ const FixedWireless = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-8 text-center">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-8 text-center">
                 Technical Specifications
               </h2>
 
@@ -276,14 +276,14 @@ const FixedWireless = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6">
                 Ready to Get Connected?
               </h2>
               <p className="text-lg text-circleTel-secondaryNeutral mb-8">
                 Fast deployment, business-grade reliability, and dedicated support. Get your business connected in 48 hours.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                   <Link href="/contact">Get Quote & Coverage Check</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">

@@ -25,7 +25,7 @@ export function Navbar() {
             <Button asChild variant="outline" className="ml-4 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
               <Link href="/quotes/request">Request Quote</Link>
             </Button>
-            <Button asChild className="ml-2 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
+            <Button asChild className="ml-2 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
               <Link href="/auth/login">Customer Login</Link>
             </Button>
           </div>
@@ -36,7 +36,7 @@ export function Navbar() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-expanded={isMenuOpen}
               aria-label="Toggle menu"
-              className="text-circleTel-darkNeutral focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary p-2 rounded-md"
+              className="text-circleTel-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary p-2 rounded-md"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>

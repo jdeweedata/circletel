@@ -128,7 +128,7 @@ export default function PartnerLeadsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+        <h1 className="text-3xl font-bold text-circleTel-navy">
           My Leads
         </h1>
         <p className="text-circleTel-secondaryNeutral mt-2">
@@ -145,7 +145,7 @@ export default function PartnerLeadsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-circleTel-darkNeutral">
+            <div className="text-2xl font-bold text-circleTel-navy">
               {pagination.total}
             </div>
           </CardContent>
@@ -279,7 +279,7 @@ export default function PartnerLeadsPage() {
                       <TableRow key={lead.id} className="hover:bg-gray-50">
                         <TableCell>
                           <div>
-                            <div className="font-medium text-circleTel-darkNeutral">
+                            <div className="font-medium text-circleTel-navy">
                               {lead.first_name} {lead.last_name}
                             </div>
                             {lead.company_name && (

@@ -10,7 +10,7 @@ export default function NotificationSettingsPage() {
   return (
     <div className="container mx-auto py-8 max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-circleTel-darkNeutral">
+        <h1 className="text-2xl font-bold text-circleTel-navy">
           Notification Settings
         </h1>
         <p className="text-muted-foreground mt-1">

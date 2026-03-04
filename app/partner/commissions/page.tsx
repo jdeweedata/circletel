@@ -156,7 +156,7 @@ export default function PartnerCommissionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+          <h1 className="text-3xl font-bold text-circleTel-navy">
             Commissions
           </h1>
           <p className="text-circleTel-secondaryNeutral mt-2">

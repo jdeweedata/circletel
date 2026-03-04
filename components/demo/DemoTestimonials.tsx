@@ -48,7 +48,7 @@ export function DemoTestimonials() {
             Customer Success Stories
           </Badge>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-circleTel-darkNeutral">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-circleTel-navy">
             South African businesses trust CircleTel
           </h2>
 
@@ -58,7 +58,7 @@ export function DemoTestimonials() {
                 <Star key={i} className="w-6 h-6 fill-circleTel-orange text-circleTel-orange" />
               ))}
             </div>
-            <span className="text-2xl font-bold text-circleTel-darkNeutral">4.9</span>
+            <span className="text-2xl font-bold text-circleTel-navy">4.9</span>
           </div>
 
           <p className="text-lg text-circleTel-secondaryNeutral max-w-2xl mx-auto">
@@ -84,7 +84,7 @@ export function DemoTestimonials() {
                 </div>
 
                 {/* Quote */}
-                <blockquote className="text-circleTel-darkNeutral mb-6 leading-relaxed italic">
+                <blockquote className="text-circleTel-navy mb-6 leading-relaxed italic">
                   "{testimonial.quote}"
                 </blockquote>
 
@@ -98,7 +98,7 @@ export function DemoTestimonials() {
                   </Avatar>
 
                   <div className="flex-1">
-                    <div className="font-semibold text-circleTel-darkNeutral">
+                    <div className="font-semibold text-circleTel-navy">
                       {testimonial.name}
                     </div>
                     <div className="text-sm text-circleTel-secondaryNeutral">

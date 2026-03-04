@@ -354,7 +354,7 @@ export default function PartnerComplianceVerificationPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Shield className="w-8 h-8 text-circleTel-orange" />
-            <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+            <h1 className="text-3xl font-bold text-circleTel-navy">
               FICA/CIPC Compliance Verification
             </h1>
           </div>
@@ -411,7 +411,7 @@ export default function PartnerComplianceVerificationPage() {
         {/* Required Documents */}
         {requiredDocs.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-circleTel-darkNeutral mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-circleTel-orange" />
               Required Documents
             </h2>
@@ -424,7 +424,7 @@ export default function PartnerComplianceVerificationPage() {
         {/* Optional Documents */}
         {optionalDocs.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-circleTel-darkNeutral mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-gray-400" />
               Optional Documents (Recommended)
             </h2>

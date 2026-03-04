@@ -42,7 +42,7 @@ export function WirelessFAQ() {
     <div className="container mx-auto px-4">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Frequently Asked Questions</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Frequently Asked Questions</h2>
           <p className="text-circleTel-secondaryNeutral text-lg">
             Everything you need to know about CircleTel wireless services
           </p>
@@ -68,7 +68,7 @@ export function WirelessFAQ() {
         <div className="mt-12 text-center">
           <div className="bg-circleTel-orange/5 rounded-lg p-6 border border-circleTel-orange/20">
             <h3 className="font-semibold text-circleTel-orange mb-2">Need more help?</h3>
-            <p className="text-circleTel-darkNeutral mb-4">
+            <p className="text-circleTel-navy mb-4">
               Our technical team is available 24/7 to answer your questions and help with setup.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">

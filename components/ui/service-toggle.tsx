@@ -67,8 +67,8 @@ export function ServiceToggle({
             'focus:outline-none focus:ring-4 focus:ring-circleTel-orange/30',
             'hover:shadow-md active:scale-95',
             activeService === service.value
-              ? 'bg-circleTel-darkNeutral text-white shadow-lg'
-              : 'bg-white text-circleTel-darkNeutral border-2 border-circleTel-darkNeutral hover:bg-gray-50'
+              ? 'bg-circleTel-navy text-white shadow-lg'
+              : 'bg-white text-circleTel-navy border-2 border-circleTel-navy hover:bg-gray-50'
           )}
           onClick={() => onServiceChange(service.value)}
         >
@@ -135,8 +135,8 @@ export function SubToggle<T extends string>({
             'focus:outline-none focus:ring-2 focus:ring-circleTel-orange/50',
             'hover:shadow-sm active:scale-95',
             activeOption === option.value
-              ? 'bg-circleTel-darkNeutral text-white'
-              : 'bg-white text-circleTel-darkNeutral border-2 border-circleTel-secondaryNeutral hover:border-circleTel-darkNeutral'
+              ? 'bg-circleTel-navy text-white'
+              : 'bg-white text-circleTel-navy border-2 border-circleTel-secondaryNeutral hover:border-circleTel-navy'
           )}
           onClick={() => onOptionChange(option.value)}
         >

@@ -153,7 +153,7 @@ export default function VerifyEmailPage() {
               </Alert>
 
               <div className="space-y-4">
-                <h3 className="font-semibold text-circleTel-darkNeutral text-lg flex items-center gap-2">
+                <h3 className="font-semibold text-circleTel-navy text-lg flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                   What to do:
                 </h3>
@@ -163,7 +163,7 @@ export default function VerifyEmailPage() {
                       1
                     </div>
                     <div className="flex-1 pt-1">
-                      <p className="font-semibold text-circleTel-darkNeutral">Open your email inbox</p>
+                      <p className="font-semibold text-circleTel-navy">Open your email inbox</p>
                       <p className="text-sm text-circleTel-secondaryNeutral mt-1">
                         Look for an email from CircleTel (check spam folder if you don't see it)
                       </p>
@@ -174,7 +174,7 @@ export default function VerifyEmailPage() {
                       2
                     </div>
                     <div className="flex-1 pt-1">
-                      <p className="font-semibold text-circleTel-darkNeutral">Click the verification link</p>
+                      <p className="font-semibold text-circleTel-navy">Click the verification link</p>
                       <p className="text-sm text-circleTel-secondaryNeutral mt-1">
                         This will confirm your email address and activate your account
                       </p>
@@ -185,7 +185,7 @@ export default function VerifyEmailPage() {
                       3
                     </div>
                     <div className="flex-1 pt-1">
-                      <p className="font-semibold text-circleTel-darkNeutral">Access your dashboard</p>
+                      <p className="font-semibold text-circleTel-navy">Access your dashboard</p>
                       <p className="text-sm text-circleTel-secondaryNeutral mt-1">
                         You'll be redirected to your customer dashboard to complete your order
                       </p>

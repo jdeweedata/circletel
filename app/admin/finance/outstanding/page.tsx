@@ -226,7 +226,7 @@ export default function OutstandingInvoicesPage() {
           <Button
             onClick={handleVerifyPayments}
             disabled={selectedInvoices.size === 0 || verifying}
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             {verifying ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />

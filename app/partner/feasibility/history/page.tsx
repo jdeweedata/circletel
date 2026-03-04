@@ -101,7 +101,7 @@ export default function FeasibilityHistoryPage() {
           </div>
         </div>
         <Link href="/partner/feasibility">
-          <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+          <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
             <Plus className="w-4 h-4 mr-2" />
             New Request
           </Button>
@@ -131,7 +131,7 @@ export default function FeasibilityHistoryPage() {
               <Building2 className="w-12 h-12 mx-auto text-gray-300 mb-4" />
               <p className="text-gray-500">No feasibility requests yet</p>
               <Link href="/partner/feasibility">
-                <Button className="mt-4 bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <Button className="mt-4 bg-circleTel-orange hover:bg-circleTel-orange-dark">
                   Create Your First Request
                 </Button>
               </Link>

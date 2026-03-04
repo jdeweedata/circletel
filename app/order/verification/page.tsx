@@ -178,7 +178,7 @@ export default function KycVerificationPage() {
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 md:py-10 lg:py-12">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral flex items-center justify-center gap-2">
+          <h1 className="text-3xl font-bold text-circleTel-navy flex items-center justify-center gap-2">
             <Shield className="w-8 h-8 text-circleTel-orange" />
             KYC Verification
           </h1>
@@ -380,7 +380,7 @@ export default function KycVerificationPage() {
             <Button
               onClick={handleSubmitForReview}
               disabled={!canSubmit || isSubmitting}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90 flex items-center gap-2"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark flex items-center gap-2"
             >
               {isSubmitting ? (
                 <>Submitting...</>

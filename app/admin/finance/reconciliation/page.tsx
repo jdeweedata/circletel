@@ -218,7 +218,7 @@ export default function ReconciliationPage() {
             <Button
               onClick={runReconciliation}
               disabled={reconciling}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               {reconciling ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

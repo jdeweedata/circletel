@@ -26,7 +26,7 @@ export default function DashboardTabs({ className }: DashboardTabsProps) {
             className={cn(
               'relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors',
               isActive
-                ? 'text-circleTel-darkNeutral'
+                ? 'text-circleTel-navy'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
             )}
           >

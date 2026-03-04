@@ -133,7 +133,7 @@ export default function ContactPage() {
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 md:py-10 lg:py-12">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral mb-2">
+          <h1 className="text-3xl font-bold text-circleTel-navy mb-2">
             Contact & Billing Information
           </h1>
           <p className="text-lg text-circleTel-secondaryNeutral">
@@ -150,7 +150,7 @@ export default function ContactPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-circleTel-darkNeutral">
+                  <p className="font-semibold text-circleTel-navy">
                     {state.orderData.coverage.selectedPackage.name}
                   </p>
                   <p className="text-sm text-circleTel-secondaryNeutral">
@@ -277,7 +277,7 @@ export default function ContactPage() {
               {/* Business Fields (conditional) */}
               {customerType === 'business' && (
                 <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <h3 className="font-semibold text-circleTel-darkNeutral flex items-center gap-2">
+                  <h3 className="font-semibold text-circleTel-navy flex items-center gap-2">
                     <Building2 className="h-5 w-5" />
                     Business Details
                   </h3>
@@ -318,7 +318,7 @@ export default function ContactPage() {
 
               {/* Billing Address */}
               <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <h3 className="font-semibold text-circleTel-darkNeutral flex items-center gap-2">
+                <h3 className="font-semibold text-circleTel-navy flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
                   Billing Address
                 </h3>

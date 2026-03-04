@@ -381,7 +381,7 @@ export default function OrderPackagesPage() {
                         onClick={handleContinue}
                         className={`w-full h-12 text-base font-semibold ${
                           isSelected
-                            ? 'bg-circleTel-orange hover:bg-circleTel-orange/90'
+                            ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark'
                             : 'bg-gray-900 hover:bg-gray-800'
                         }`}
                         disabled={!isSelected}
@@ -453,7 +453,7 @@ export default function OrderPackagesPage() {
                         onClick={handleContinue}
                         className={`w-full h-12 text-base font-semibold ${
                           isSelected
-                            ? 'bg-circleTel-orange hover:bg-circleTel-orange/90'
+                            ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark'
                             : 'bg-gray-900 hover:bg-gray-800'
                         }`}
                         disabled={!isSelected}

@@ -39,7 +39,7 @@ const promotionalOffers = [
     title: "Plus, get a R1,000 Account Credit",
     description: "Applied to your first bill when you sign up for select business plans.",
     icon: CreditCard,
-    color: "bg-gradient-to-br from-circleTel-darkNeutral to-circleTel-secondaryNeutral",
+    color: "bg-gradient-to-br from-circleTel-navy to-circleTel-secondaryNeutral",
     badge: "Online Only",
     cta: "Claim Now"
   }
@@ -61,7 +61,7 @@ export function DemoPromotionalCarousel() {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-circleTel-darkNeutral">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-circleTel-navy">
             The internet you want offers you more.
           </h2>
           <p className="text-xl text-circleTel-secondaryNeutral max-w-3xl mx-auto">
@@ -113,7 +113,7 @@ export function DemoPromotionalCarousel() {
                             <Button
                               size="lg"
                               variant="secondary"
-                              className="bg-white text-circleTel-darkNeutral hover:bg-white/90 px-8 py-3 text-lg font-semibold"
+                              className="bg-white text-circleTel-navy hover:bg-white/90 px-8 py-3 text-lg font-semibold"
                             >
                               {offer.cta}
                             </Button>
@@ -134,7 +134,7 @@ export function DemoPromotionalCarousel() {
             className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg border border-circleTel-gray-200 w-12 h-12"
             onClick={prevSlide}
           >
-            <ChevronLeft className="w-6 h-6 text-circleTel-darkNeutral" />
+            <ChevronLeft className="w-6 h-6 text-circleTel-navy" />
           </Button>
 
           <Button
@@ -143,7 +143,7 @@ export function DemoPromotionalCarousel() {
             className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg border border-circleTel-gray-200 w-12 h-12"
             onClick={nextSlide}
           >
-            <ChevronRight className="w-6 h-6 text-circleTel-darkNeutral" />
+            <ChevronRight className="w-6 h-6 text-circleTel-navy" />
           </Button>
 
           {/* Dots Indicator */}
@@ -166,7 +166,7 @@ export function DemoPromotionalCarousel() {
         <div className="text-center mt-12">
           <Button
             size="lg"
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-8 py-3 text-lg font-semibold"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-8 py-3 text-lg font-semibold"
           >
             Check availability in your area
           </Button>

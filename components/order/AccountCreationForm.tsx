@@ -216,7 +216,7 @@ export default function AccountCreationForm({
           <Button
             type="submit"
             disabled={!formData.acceptTerms || isLoading}
-            className="w-full bg-circleTel-orange hover:bg-[#E67510] text-white font-bold text-sm sm:text-base py-3 transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold text-sm sm:text-base py-3 transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
           >
             <Lock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             {isLoading ? 'Creating account...' : 'Create account'}

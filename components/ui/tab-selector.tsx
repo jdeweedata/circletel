@@ -29,8 +29,8 @@ export function TabSelector({ options, value, onChange, className }: TabSelector
             "relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md",
             "hover:bg-white/50",
             value === option.value
-              ? "bg-white text-circleTel-darkNeutral shadow-sm"
-              : "text-circleTel-secondaryNeutral hover:text-circleTel-darkNeutral"
+              ? "bg-white text-circleTel-navy shadow-sm"
+              : "text-circleTel-secondaryNeutral hover:text-circleTel-navy"
           )}
         >
           {option.label}

@@ -7,7 +7,7 @@ const VirtualDesktopsFeatures = () => {
     <section className="py-16 bg-circleTel-lightNeutral">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Powerful Virtual Desktop Features</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Powerful Virtual Desktop Features</h2>
           <p className="text-circleTel-secondaryNeutral max-w-2xl mx-auto">
             Our virtual desktop solutions are designed to enhance productivity, improve security, and reduce costs for businesses of all sizes.
           </p>

@@ -72,7 +72,7 @@ const Services = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto text-center">
               <div className="mb-8">
-                <h1 className="text-5xl md:text-6xl font-bold text-circleTel-darkNeutral mb-6 leading-tight">
+                <h1 className="text-5xl md:text-6xl font-bold text-circleTel-navy mb-6 leading-tight">
                   Explore Our <span className="text-circleTel-orange">IT Recipes</span>
                 </h1>
                 <p className="text-xl text-circleTel-secondaryNeutral mb-4 max-w-3xl mx-auto">
@@ -94,7 +94,7 @@ const Services = () => {
                           <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
                             <Server className="h-10 w-10 text-blue-600" />
                           </div>
-                          <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Basic IT</h3>
+                          <h3 className="text-xl font-bold text-circleTel-navy mb-2">Basic IT</h3>
                           <p className="text-sm text-circleTel-secondaryNeutral">Essential support & security</p>
                           <div className="mt-4 flex justify-center space-x-2">
                             <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
@@ -112,7 +112,7 @@ const Services = () => {
                           <div className="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
                             <Zap className="h-10 w-10 text-purple-600" />
                           </div>
-                          <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Advanced IT</h3>
+                          <h3 className="text-xl font-bold text-circleTel-navy mb-2">Advanced IT</h3>
                           <p className="text-sm text-circleTel-secondaryNeutral">Enhanced solutions & monitoring</p>
                           <div className="mt-4 flex justify-center space-x-2">
                             <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
@@ -130,7 +130,7 @@ const Services = () => {
                           <div className="bg-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
                             <TrendingUp className="h-10 w-10 text-emerald-600" />
                           </div>
-                          <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Scale IT</h3>
+                          <h3 className="text-xl font-bold text-circleTel-navy mb-2">Scale IT</h3>
                           <p className="text-sm text-circleTel-secondaryNeutral">Enterprise-grade scalability</p>
                           <div className="mt-4 flex justify-center space-x-2">
                             <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
@@ -165,7 +165,7 @@ const Services = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-8 py-4 text-lg">
+                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-8 py-4 text-lg">
                   <Link href="/pricing">Get a Custom Quote</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white px-8 py-4 text-lg">
@@ -182,25 +182,25 @@ const Services = () => {
             <div className="flex flex-wrap justify-center gap-4">
               <button
                 onClick={() => setSelectedBusinessType('all')}
-                className={`circle-button px-6 py-2 ${selectedBusinessType === 'all' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-darkNeutral'}`}
+                className={`circle-button px-6 py-2 ${selectedBusinessType === 'all' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-navy'}`}
               >
                 All Recipes
               </button>
               <button
                 onClick={() => setSelectedBusinessType('small')}
-                className={`circle-button px-6 py-2 ${selectedBusinessType === 'small' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-darkNeutral'}`}
+                className={`circle-button px-6 py-2 ${selectedBusinessType === 'small' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-navy'}`}
               >
                 Small Business
               </button>
               <button
                 onClick={() => setSelectedBusinessType('mid')}
-                className={`circle-button px-6 py-2 ${selectedBusinessType === 'mid' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-darkNeutral'}`}
+                className={`circle-button px-6 py-2 ${selectedBusinessType === 'mid' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-navy'}`}
               >
                 Mid-Size Business
               </button>
               <button
                 onClick={() => setSelectedBusinessType('growth')}
-                className={`circle-button px-6 py-2 ${selectedBusinessType === 'growth' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-darkNeutral'}`}
+                className={`circle-button px-6 py-2 ${selectedBusinessType === 'growth' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-navy'}`}
               >
                 Growth-Ready
               </button>
@@ -211,7 +211,7 @@ const Services = () => {
         {/* Small Business Recipes */}
         <section className={`py-16 ${selectedBusinessType !== 'all' && selectedBusinessType !== 'small' ? 'hidden' : ''}`}>
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-8 text-center">Simple IT for Small Businesses</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-8 text-center">Simple IT for Small Businesses</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <RecipeCard
                 title="Basic IT Recipe"
@@ -275,7 +275,7 @@ const Services = () => {
         {/* Mid-Size Business Recipes */}
         <section className={`py-16 bg-circleTel-lightNeutral ${selectedBusinessType !== 'all' && selectedBusinessType !== 'mid' ? 'hidden' : ''}`}>
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-8 text-center">Proactive IT for Mid-Sized Firms</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-8 text-center">Proactive IT for Mid-Sized Firms</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <RecipeCard
                 title="Core IT Recipe"
@@ -339,7 +339,7 @@ const Services = () => {
         {/* Growth-Ready Recipes */}
         <section className={`py-16 ${selectedBusinessType !== 'all' && selectedBusinessType !== 'growth' ? 'hidden' : ''}`}>
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-8 text-center">Scalable IT for Growing SMEs</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-8 text-center">Scalable IT for Growing SMEs</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <RecipeCard
                 title="Startup IT Recipe"
@@ -404,7 +404,7 @@ const Services = () => {
         <section className="py-16 bg-circleTel-lightNeutral">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-8 text-center">Build Your Own IT Recipe</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-8 text-center">Build Your Own IT Recipe</h2>
 
               <div className="bg-white p-8 rounded-lg shadow-md">
                 <p className="text-circleTel-secondaryNeutral mb-6 text-center">
@@ -421,7 +421,7 @@ const Services = () => {
                         <SecurityIcon />
                       </div>
                       <div>
-                        <h3 className="font-bold text-circleTel-darkNeutral">Cybersecurity</h3>
+                        <h3 className="font-bold text-circleTel-navy">Cybersecurity</h3>
                         <p className="text-sm text-circleTel-secondaryNeutral">Advanced protection for your business</p>
                       </div>
                       <div className="ml-auto">
@@ -442,7 +442,7 @@ const Services = () => {
                         <CloudIcon />
                       </div>
                       <div>
-                        <h3 className="font-bold text-circleTel-darkNeutral">Cloud Services</h3>
+                        <h3 className="font-bold text-circleTel-navy">Cloud Services</h3>
                         <p className="text-sm text-circleTel-secondaryNeutral">Flexible and scalable cloud solutions</p>
                       </div>
                       <div className="ml-auto">
@@ -463,7 +463,7 @@ const Services = () => {
                         <SupportIcon />
                       </div>
                       <div>
-                        <h3 className="font-bold text-circleTel-darkNeutral">Help Desk</h3>
+                        <h3 className="font-bold text-circleTel-navy">Help Desk</h3>
                         <p className="text-sm text-circleTel-secondaryNeutral">24/7 technical support for your team</p>
                       </div>
                       <div className="ml-auto">
@@ -484,7 +484,7 @@ const Services = () => {
                         <HardDrive className="h-6 w-6" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-circleTel-darkNeutral">Data Backup</h3>
+                        <h3 className="font-bold text-circleTel-navy">Data Backup</h3>
                         <p className="text-sm text-circleTel-secondaryNeutral">Secure backup and disaster recovery</p>
                       </div>
                       <div className="ml-auto">
@@ -505,7 +505,7 @@ const Services = () => {
                         <Network className="h-6 w-6" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-circleTel-darkNeutral">Network Management</h3>
+                        <h3 className="font-bold text-circleTel-navy">Network Management</h3>
                         <p className="text-sm text-circleTel-secondaryNeutral">Proactive network monitoring and maintenance</p>
                       </div>
                       <div className="ml-auto">
@@ -519,7 +519,7 @@ const Services = () => {
                 </div>
 
                 <div className="bg-circleTel-lightNeutral p-6 rounded-lg mb-8">
-                  <h3 className="font-bold text-circleTel-darkNeutral mb-2">Your Recipe Summary</h3>
+                  <h3 className="font-bold text-circleTel-navy mb-2">Your Recipe Summary</h3>
                   <ul className="space-y-2 mb-4 font-space-mono text-sm text-circleTel-secondaryNeutral">
                     {Object.entries(selectedRecipe).map(([key, value]) => value && (
                       <li key={key} className="flex items-center">

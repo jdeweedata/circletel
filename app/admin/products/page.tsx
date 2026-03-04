@@ -878,7 +878,7 @@ export default function AdminProducts() {
             Refresh
           </Button>
           <PermissionGate permissions={[PERMISSIONS.PRODUCTS.CREATE]}>
-            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
               <Link href="/admin/products/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Product
@@ -906,7 +906,7 @@ export default function AdminProducts() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+            <div className="text-3xl font-bold text-circleTel-navy">
               {productStats.total}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">
@@ -1270,7 +1270,7 @@ export default function AdminProducts() {
               variant={managementTab === 'all' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setManagementTab('all')}
-              className={managementTab === 'all' ? 'bg-circleTel-orange hover:bg-circleTel-orange/90' : ''}
+              className={managementTab === 'all' ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark' : ''}
             >
               <PackageBundle className="h-4 w-4 mr-1.5" />
               All Products

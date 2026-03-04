@@ -33,7 +33,7 @@ const HeroSection: FC<HeroSectionProps> = ({ slice }) => {
             priority
             alt=""
           />
-          <div className="absolute inset-0 bg-circleTel-darkNeutral/70" />
+          <div className="absolute inset-0 bg-circleTel-navy/70" />
         </div>
       )}
 
@@ -86,7 +86,7 @@ const HeroSection: FC<HeroSectionProps> = ({ slice }) => {
           <div className="mt-10">
             <PrismicLink
               field={cta_button_link}
-              className="inline-block bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold text-lg px-10 py-4 rounded-lg shadow-lg shadow-circleTel-orange/50 hover:shadow-xl hover:shadow-circleTel-orange/60 transition-all duration-300 transform hover:scale-105"
+              className="inline-block bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold text-lg px-10 py-4 rounded-lg shadow-lg shadow-circleTel-orange/50 hover:shadow-xl hover:shadow-circleTel-orange/60 transition-all duration-300 transform hover:scale-105"
             >
               {cta_button_text}
             </PrismicLink>

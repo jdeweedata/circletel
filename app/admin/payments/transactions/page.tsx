@@ -245,7 +245,7 @@ export default function PaymentTransactionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">Payment Transactions</h1>
+          <h1 className="text-3xl font-bold text-circleTel-navy">Payment Transactions</h1>
           <p className="text-circleTel-secondaryNeutral mt-1">
             View and manage all payment transactions across all providers
           </p>
@@ -262,7 +262,7 @@ export default function PaymentTransactionsPage() {
           <Button
             onClick={fetchTransactions}
             disabled={loading}
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             {loading ? (
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />

@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
                 <Button
                   asChild
                   size="lg"
-                  className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold px-8 py-6 text-lg"
+                  className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold px-8 py-6 text-lg"
                 >
                   <Link href={prismic.asLink(hero_cta_link) || "#"}>
                     {hero_cta_text}

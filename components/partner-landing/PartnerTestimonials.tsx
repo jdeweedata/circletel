@@ -20,7 +20,7 @@ export function PartnerTestimonials() {
     <section className="py-16 bg-circleTel-lightNeutral">
       <div className="container mx-auto px-4">
         <div className="bg-white rounded-lg p-6 md:p-10 shadow-lg">
-          <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-6 text-center">
+          <h3 className="text-2xl font-bold text-circleTel-navy mb-6 text-center">
             What Our Partners Say
           </h3>
 
@@ -35,7 +35,7 @@ export function PartnerTestimonials() {
                     {testimonial.name.charAt(0)}
                   </div>
                   <div className="ml-3">
-                    <p className="font-bold text-circleTel-darkNeutral">{testimonial.name}</p>
+                    <p className="font-bold text-circleTel-navy">{testimonial.name}</p>
                     <p className="text-sm text-circleTel-secondaryNeutral">
                       {testimonial.position}, {testimonial.company}
                     </p>

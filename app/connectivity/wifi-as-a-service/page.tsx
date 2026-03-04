@@ -78,14 +78,14 @@ const WifiAsAService = () => {
             <div className="flex flex-col lg:flex-row items-center gap-12">
               <div className="lg:w-1/2">
                 <Badge className="mb-4 bg-circleTel-orange">Enterprise Wi-Fi</Badge>
-                <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-6">
+                <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-6">
                   Wi-Fi as a Service
                 </h1>
                 <p className="text-xl text-circleTel-secondaryNeutral mb-8">
                   Enterprise-grade Wi-Fi infrastructure delivered as a service. No capital expenditure, just reliable, managed connectivity that scales with your business.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                  <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                     <Link href="/contact">Get Quote</Link>
                   </Button>
                   <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
@@ -97,22 +97,22 @@ const WifiAsAService = () => {
                 <div className="grid grid-cols-2 gap-6">
                   <Card className="p-6 text-center">
                     <Wifi className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
-                    <h3 className="font-bold text-circleTel-darkNeutral mb-2">99.9% Uptime</h3>
+                    <h3 className="font-bold text-circleTel-navy mb-2">99.9% Uptime</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Guaranteed reliability</p>
                   </Card>
                   <Card className="p-6 text-center">
                     <Zap className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                    <h3 className="font-bold text-circleTel-darkNeutral mb-2">Gigabit Speeds</h3>
+                    <h3 className="font-bold text-circleTel-navy mb-2">Gigabit Speeds</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">High-performance connectivity</p>
                   </Card>
                   <Card className="p-6 text-center">
                     <Shield className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                    <h3 className="font-bold text-circleTel-darkNeutral mb-2">Bank-Grade Security</h3>
+                    <h3 className="font-bold text-circleTel-navy mb-2">Bank-Grade Security</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">WPA3 & network isolation</p>
                   </Card>
                   <Card className="p-6 text-center">
                     <Settings className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                    <h3 className="font-bold text-circleTel-darkNeutral mb-2">Zero Maintenance</h3>
+                    <h3 className="font-bold text-circleTel-navy mb-2">Zero Maintenance</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Fully managed solution</p>
                   </Card>
                 </div>
@@ -125,7 +125,7 @@ const WifiAsAService = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Why Choose Wi-Fi as a Service?</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Why Choose Wi-Fi as a Service?</h2>
               <p className="text-lg text-circleTel-secondaryNeutral max-w-3xl mx-auto">
                 Transform your business connectivity with a solution that eliminates capital expenditure and ongoing IT headaches
               </p>
@@ -137,7 +137,7 @@ const WifiAsAService = () => {
                   <div className="mx-auto w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                     {benefit.icon}
                   </div>
-                  <h3 className="font-bold text-circleTel-darkNeutral mb-3">{benefit.title}</h3>
+                  <h3 className="font-bold text-circleTel-navy mb-3">{benefit.title}</h3>
                   <p className="text-circleTel-secondaryNeutral">{benefit.description}</p>
                 </Card>
               ))}
@@ -150,7 +150,7 @@ const WifiAsAService = () => {
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">
+                <h2 className="text-3xl font-bold text-circleTel-navy mb-6">
                   Everything You Need for Enterprise Wi-Fi
                 </h2>
                 <p className="text-circleTel-secondaryNeutral mb-8">
@@ -161,7 +161,7 @@ const WifiAsAService = () => {
                   {features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <Check className="h-6 w-6 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-circleTel-darkNeutral">{feature}</span>
+                      <span className="text-circleTel-navy">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -171,24 +171,24 @@ const WifiAsAService = () => {
                 <div className="space-y-6">
                   <Card className="p-6">
                     <Users className="h-8 w-8 text-circleTel-orange mb-4" />
-                    <h4 className="font-bold text-circleTel-darkNeutral mb-2">500+ Concurrent Users</h4>
+                    <h4 className="font-bold text-circleTel-navy mb-2">500+ Concurrent Users</h4>
                     <p className="text-sm text-circleTel-secondaryNeutral">Support for high-density environments</p>
                   </Card>
                   <Card className="p-6">
                     <Shield className="h-8 w-8 text-blue-600 mb-4" />
-                    <h4 className="font-bold text-circleTel-darkNeutral mb-2">Guest Network Isolation</h4>
+                    <h4 className="font-bold text-circleTel-navy mb-2">Guest Network Isolation</h4>
                     <p className="text-sm text-circleTel-secondaryNeutral">Secure guest access separate from corporate network</p>
                   </Card>
                 </div>
                 <div className="space-y-6 sm:mt-12">
                   <Card className="p-6">
                     <Clock className="h-8 w-8 text-green-600 mb-4" />
-                    <h4 className="font-bold text-circleTel-darkNeutral mb-2">Real-time Analytics</h4>
+                    <h4 className="font-bold text-circleTel-navy mb-2">Real-time Analytics</h4>
                     <p className="text-sm text-circleTel-secondaryNeutral">Detailed usage and performance insights</p>
                   </Card>
                   <Card className="p-6">
                     <TrendingUp className="h-8 w-8 text-purple-600 mb-4" />
-                    <h4 className="font-bold text-circleTel-darkNeutral mb-2">Automatic Scaling</h4>
+                    <h4 className="font-bold text-circleTel-navy mb-2">Automatic Scaling</h4>
                     <p className="text-sm text-circleTel-secondaryNeutral">Add capacity as your business grows</p>
                   </Card>
                 </div>
@@ -201,7 +201,7 @@ const WifiAsAService = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Our Implementation Process</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Our Implementation Process</h2>
               <p className="text-lg text-circleTel-secondaryNeutral max-w-3xl mx-auto">
                 From initial assessment to ongoing management, we handle every aspect of your Wi-Fi deployment
               </p>
@@ -234,7 +234,7 @@ const WifiAsAService = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Simple, Transparent Pricing</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Simple, Transparent Pricing</h2>
               <p className="text-lg text-circleTel-secondaryNeutral">
                 No surprise fees, no hidden costs. Just reliable Wi-Fi at a predictable monthly rate.
               </p>
@@ -244,7 +244,7 @@ const WifiAsAService = () => {
               <Card className="text-center">
                 <CardHeader>
                   <CardTitle>Small Office</CardTitle>
-                  <div className="text-3xl font-bold text-circleTel-darkNeutral">R2,500<span className="text-base font-normal text-circleTel-secondaryNeutral">/month</span></div>
+                  <div className="text-3xl font-bold text-circleTel-navy">R2,500<span className="text-base font-normal text-circleTel-secondaryNeutral">/month</span></div>
                   <p className="text-circleTel-secondaryNeutral">Up to 50 users</p>
                 </CardHeader>
                 <CardContent>
@@ -261,7 +261,7 @@ const WifiAsAService = () => {
                 <CardHeader>
                   <Badge className="mx-auto mb-2 bg-circleTel-orange">Most Popular</Badge>
                   <CardTitle>Medium Business</CardTitle>
-                  <div className="text-3xl font-bold text-circleTel-darkNeutral">R5,500<span className="text-base font-normal text-circleTel-secondaryNeutral">/month</span></div>
+                  <div className="text-3xl font-bold text-circleTel-navy">R5,500<span className="text-base font-normal text-circleTel-secondaryNeutral">/month</span></div>
                   <p className="text-circleTel-secondaryNeutral">Up to 200 users</p>
                 </CardHeader>
                 <CardContent>
@@ -277,7 +277,7 @@ const WifiAsAService = () => {
               <Card className="text-center">
                 <CardHeader>
                   <CardTitle>Enterprise</CardTitle>
-                  <div className="text-3xl font-bold text-circleTel-darkNeutral">R12,000<span className="text-base font-normal text-circleTel-secondaryNeutral">/month</span></div>
+                  <div className="text-3xl font-bold text-circleTel-navy">R12,000<span className="text-base font-normal text-circleTel-secondaryNeutral">/month</span></div>
                   <p className="text-circleTel-secondaryNeutral">500+ users</p>
                 </CardHeader>
                 <CardContent>
@@ -297,14 +297,14 @@ const WifiAsAService = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6">
                 Ready to Upgrade Your Wi-Fi?
               </h2>
               <p className="text-lg text-circleTel-secondaryNeutral mb-8">
                 Get enterprise-grade Wi-Fi without the capital expenditure. Let's discuss your requirements and provide a custom quote.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                   <Link href="/contact">Get Custom Quote</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">

@@ -217,7 +217,7 @@ export default function KYCPage({ params }: KYCPageProps) {
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-circleTel-darkNeutral mb-2">
+            <h1 className="text-3xl font-bold text-circleTel-navy mb-2">
               KYC Verification
             </h1>
             <p className="text-circleTel-secondaryNeutral">
@@ -236,7 +236,7 @@ export default function KYCPage({ params }: KYCPageProps) {
           {/* Retry Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-circleTel-darkNeutral">
+              <CardTitle className="text-circleTel-navy">
                 Verification Unsuccessful
               </CardTitle>
               <CardDescription>
@@ -256,7 +256,7 @@ export default function KYCPage({ params }: KYCPageProps) {
               <Button
                 onClick={retryKYC}
                 disabled={isCreatingSession}
-                className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white h-12"
+                className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white h-12"
               >
                 {isCreatingSession ? (
                   <>
@@ -283,7 +283,7 @@ export default function KYCPage({ params }: KYCPageProps) {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral mb-2">
+          <h1 className="text-3xl font-bold text-circleTel-navy mb-2">
             KYC Verification
           </h1>
           <p className="text-circleTel-secondaryNeutral">

@@ -43,7 +43,7 @@ export function DemoHero() {
 
           {/* Main Headline - Verizon style */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-circleTel-darkNeutral via-circleTel-secondaryNeutral to-circleTel-darkNeutral bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-circleTel-navy via-circleTel-secondaryNeutral to-circleTel-navy bg-clip-text text-transparent">
               CircleTel Business Internet
             </span>
           </h1>
@@ -62,7 +62,7 @@ export function DemoHero() {
             <div className="mb-6">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <MapPin className="w-5 h-5 text-circleTel-orange" />
-                <span className="text-lg font-semibold text-circleTel-darkNeutral">Enter street address</span>
+                <span className="text-lg font-semibold text-circleTel-navy">Enter street address</span>
               </div>
               <p className="text-sm text-circleTel-secondaryNeutral">
                 <Button
@@ -92,7 +92,7 @@ export function DemoHero() {
 
               <Button
                 size="lg"
-                className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white py-6 text-lg font-semibold"
+                className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white py-6 text-lg font-semibold"
                 disabled={!address.trim()}
               >
                 Get started

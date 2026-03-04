@@ -81,7 +81,7 @@ const Recipe = ({ slice }: RecipeProps): JSX.Element => {
               </Badge>
             )}
 
-            <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">
+            <h3 className="text-2xl font-bold text-circleTel-navy mb-4">
               {slice.primary.title}
             </h3>
 
@@ -91,7 +91,7 @@ const Recipe = ({ slice }: RecipeProps): JSX.Element => {
 
             {/* Ingredients */}
             <div className="mb-6">
-              <h4 className="font-bold text-circleTel-darkNeutral mb-3">
+              <h4 className="font-bold text-circleTel-navy mb-3">
                 {slice.primary.ingredients_title || "Ingredients:"}
               </h4>
               <div className="space-y-2">
@@ -118,7 +118,7 @@ const Recipe = ({ slice }: RecipeProps): JSX.Element => {
 
             {/* CTA Button */}
             {slice.primary.cta_text && slice.primary.cta_link && (
-              <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                 <PrismicNextLink field={slice.primary.cta_link}>
                   {slice.primary.cta_text}
                 </PrismicNextLink>
@@ -139,7 +139,7 @@ const Recipe = ({ slice }: RecipeProps): JSX.Element => {
                   </div>
                   <div>
                     {slice.primary.testimonial_author && (
-                      <div className="font-bold text-circleTel-darkNeutral">
+                      <div className="font-bold text-circleTel-navy">
                         {slice.primary.testimonial_author}
                       </div>
                     )}

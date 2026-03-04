@@ -191,7 +191,7 @@ export function NotificationPreferences() {
                   <div key={pref.notification_type}>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-medium text-circleTel-darkNeutral">
+                        <h4 className="font-medium text-circleTel-navy">
                           {info.title}
                         </h4>
                         <p className="text-sm text-muted-foreground">{info.description}</p>
@@ -245,7 +245,7 @@ export function NotificationPreferences() {
               <Button
                 onClick={() => saveMutation.mutate()}
                 disabled={saveMutation.isPending}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
                 <Save className="h-4 w-4 mr-2" />
                 {saveMutation.isPending ? 'Saving...' : 'Save Preferences'}

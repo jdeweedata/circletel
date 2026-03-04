@@ -61,7 +61,7 @@ export default function TermsPage() {
 
           {/* Table of Contents */}
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 mb-8">
-            <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-6">Table of Contents</h2>
+            <h2 className="text-2xl font-bold text-circleTel-navy mb-6">Table of Contents</h2>
             <nav className="space-y-2">
               <a href="#section-1" className="block text-circleTel-orange hover:underline">1. General Terms and Conditions</a>
               <a href="#section-2" className="block text-circleTel-orange hover:underline">2. Definitions and Interpretation</a>
@@ -80,29 +80,29 @@ export default function TermsPage() {
 
             {/* Section 1: General Terms */}
             <section id="section-1" className="mb-12 scroll-mt-20">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6 pb-3 border-b-2 border-circleTel-orange">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6 pb-3 border-b-2 border-circleTel-orange">
                 1. General Terms and Conditions
               </h2>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">1.1 Agreement Scope</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">1.1 Agreement Scope</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 This is an agreement between you ("Customer", "you", "your") and CircleTel (Pty) Ltd ("CircleTel", "we", "us", "our")
                 regarding your use of CircleTel's telecommunications products, services, connectivity solutions, and IT management services.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">1.2 Agreement Applicability</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">1.2 Agreement Applicability</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 This Agreement applies to all accounts, sub-accounts, and alternative account names associated with your principal account.
                 The Account Holder is responsible for the use of each account.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">1.3 Consumer Protection Act Compliance</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">1.3 Consumer Protection Act Compliance</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 In circumstances where the Consumer Protection Act, 2008 ("the CPA") applies to this Agreement, the provisions of the CPA
                 shall prevail in the event of a conflict between any provision of this Agreement and the provisions of the CPA.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">1.4 Service Provision</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">1.4 Service Provision</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 CircleTel provides telecommunications services including but not limited to:
               </p>
@@ -118,34 +118,34 @@ export default function TermsPage() {
 
             {/* Section 2: Definitions */}
             <section id="section-2" className="mb-12 scroll-mt-20">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6 pb-3 border-b-2 border-circleTel-orange">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6 pb-3 border-b-2 border-circleTel-orange">
                 2. Definitions and Interpretation
               </h2>
 
               <div className="bg-gray-50 rounded-lg p-6 mb-4">
                 <dl className="space-y-4">
                   <div>
-                    <dt className="font-semibold text-circleTel-darkNeutral">Account Holder</dt>
+                    <dt className="font-semibold text-circleTel-navy">Account Holder</dt>
                     <dd className="text-gray-700 ml-4">The person or entity who has registered for CircleTel services and is responsible for all usage and payments.</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-circleTel-darkNeutral">Services</dt>
+                    <dt className="font-semibold text-circleTel-navy">Services</dt>
                     <dd className="text-gray-700 ml-4">All telecommunications, connectivity, hosting, and IT management services provided by CircleTel.</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-circleTel-darkNeutral">FNO (Fibre Network Operator)</dt>
+                    <dt className="font-semibold text-circleTel-navy">FNO (Fibre Network Operator)</dt>
                     <dd className="text-gray-700 ml-4">Third-party infrastructure providers such as Vumatel, Openserve, DFA, Frogfoot, and MetroFibre who own and operate fibre networks.</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-circleTel-darkNeutral">Due Date</dt>
+                    <dt className="font-semibold text-circleTel-navy">Due Date</dt>
                     <dd className="text-gray-700 ml-4">The date by which payment for services is due as specified on your invoice.</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-circleTel-darkNeutral">CGNAT (Carrier-Grade NAT)</dt>
+                    <dt className="font-semibold text-circleTel-navy">CGNAT (Carrier-Grade NAT)</dt>
                     <dd className="text-gray-700 ml-4">A network address translation mechanism used to manage IPv4 address limitations.</dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-circleTel-darkNeutral">RICA</dt>
+                    <dt className="font-semibold text-circleTel-navy">RICA</dt>
                     <dd className="text-gray-700 ml-4">Regulation of Interception of Communications and Provision of Communication-Related Information Act, governing the registration of telecommunications services.</dd>
                   </div>
                 </dl>
@@ -154,17 +154,17 @@ export default function TermsPage() {
 
             {/* Section 3: Acceptable Use Policy */}
             <section id="section-3" className="mb-12 scroll-mt-20">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6 pb-3 border-b-2 border-circleTel-orange">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6 pb-3 border-b-2 border-circleTel-orange">
                 3. Acceptable Use Policy (AUP)
               </h2>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">3.1 General Acceptable Use</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">3.1 General Acceptable Use</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 You are expected to use the Internet and other networks and services accessed through CircleTel services with respect,
                 courtesy, and responsibility, giving due regard to the rights of other Internet users.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">3.2 Prohibited Activities</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">3.2 Prohibited Activities</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 The following activities are strictly prohibited and may result in immediate service suspension or termination:
               </p>
@@ -203,13 +203,13 @@ export default function TermsPage() {
                 </ul>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">3.3 Enforcement and Penalties</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">3.3 Enforcement and Penalties</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 CircleTel takes violations of this Acceptable Use Policy seriously. Upon receiving notice of an alleged violation:
               </p>
 
               <div className="bg-gray-100 rounded-lg p-6 mb-4">
-                <h4 className="font-semibold text-circleTel-darkNeutral mb-3">Investigation Process</h4>
+                <h4 className="font-semibold text-circleTel-navy mb-3">Investigation Process</h4>
                 <ol className="list-decimal pl-6 space-y-2 text-gray-700">
                   <li>CircleTel will investigate alleged violations within 24-48 hours</li>
                   <li>Services may be restricted or suspended during the investigation</li>
@@ -219,88 +219,88 @@ export default function TermsPage() {
               </div>
 
               <div className="bg-gray-100 rounded-lg p-6 mb-4">
-                <h4 className="font-semibold text-circleTel-darkNeutral mb-3">Violation Penalties</h4>
+                <h4 className="font-semibold text-circleTel-navy mb-3">Violation Penalties</h4>
                 <ul className="space-y-3 text-gray-700">
                   <li>
-                    <strong className="text-circleTel-darkNeutral">First Violation:</strong>
+                    <strong className="text-circleTel-navy">First Violation:</strong>
                     <span className="ml-2">R2,000 cleanup fee + account review for potential termination</span>
                   </li>
                   <li>
-                    <strong className="text-circleTel-darkNeutral">Second Violation:</strong>
+                    <strong className="text-circleTel-navy">Second Violation:</strong>
                     <span className="ml-2">R5,000 cleanup fee + immediate service termination</span>
                   </li>
                   <li>
-                    <strong className="text-circleTel-darkNeutral">Investigation Fees:</strong>
+                    <strong className="text-circleTel-navy">Investigation Fees:</strong>
                     <span className="ml-2">Up to R2,000 per hour for violation investigation</span>
                   </li>
                   <li>
-                    <strong className="text-circleTel-darkNeutral">Legal Costs:</strong>
+                    <strong className="text-circleTel-navy">Legal Costs:</strong>
                     <span className="ml-2">Customer liable for all attorney fees and legal expenses</span>
                   </li>
                 </ul>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">3.4 Abuse Reporting</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">3.4 Abuse Reporting</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 To report violations of this Acceptable Use Policy, please contact:
               </p>
               <div className="bg-circleTel-orange bg-opacity-10 rounded-lg p-4 mb-4">
-                <p className="font-semibold text-circleTel-darkNeutral">Email: <a href="mailto:abuse@circletel.co.za" className="text-circleTel-orange hover:underline">abuse@circletel.co.za</a></p>
+                <p className="font-semibold text-circleTel-navy">Email: <a href="mailto:abuse@circletel.co.za" className="text-circleTel-orange hover:underline">abuse@circletel.co.za</a></p>
                 <p className="text-gray-700 mt-2">Please include all relevant details, evidence, and timestamps in your report.</p>
               </div>
             </section>
 
             {/* Section 4: Billing Terms */}
             <section id="section-4" className="mb-12 scroll-mt-20">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6 pb-3 border-b-2 border-circleTel-orange">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6 pb-3 border-b-2 border-circleTel-orange">
                 4. Billing Terms
               </h2>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">4.1 General Billing</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">4.1 General Billing</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 CircleTel provides itemized bills/invoices in your Customer Portal. All accounts are due on the invoice presentation
                 date ("Due Date"). Payment must be received by the Due Date to avoid service interruption.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">4.2 Payment Methods</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">4.2 Payment Methods</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 CircleTel accepts the following payment methods:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Card Payments</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Card Payments</h4>
                   <p className="text-sm text-gray-700">Visa, Mastercard, American Express, Diners Club via NetCash Pay Now (3D Secure)</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Debit Order</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Debit Order</h4>
                   <p className="text-sm text-gray-700">Automatic monthly deduction from your bank account</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Instant EFT</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Instant EFT</h4>
                   <p className="text-sm text-gray-700">Real-time bank payments via Ozow</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Manual EFT</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Manual EFT</h4>
                   <p className="text-sm text-gray-700">Traditional online banking transfers (proof of payment required)</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Cash Options</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Cash Options</h4>
                   <p className="text-sm text-gray-700">1Voucher, paymyway, SCode at retail outlets</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Buy Now Pay Later</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Buy Now Pay Later</h4>
                   <p className="text-sm text-gray-700">Payflex (4 interest-free installments)</p>
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">4.3 Failed Payments</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">4.3 Failed Payments</h3>
               <div className="bg-red-50 border-l-4 border-red-500 p-6 mb-6">
                 <p className="text-red-900">
                   <strong>Failed Payment Fee:</strong> R65.00 (incl. VAT) will be charged for all returned debit orders or failed payments.
                 </p>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">4.4 Effect of Non-Payment</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">4.4 Effect of Non-Payment</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 If payment is not received by the Due Date, the following consequences apply:
               </p>
@@ -323,7 +323,7 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">4.5 Refunds and Money-Back Guarantee</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">4.5 Refunds and Money-Back Guarantee</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 CircleTel offers a 30-day money-back guarantee on select services, subject to the following conditions:
               </p>
@@ -346,7 +346,7 @@ export default function TermsPage() {
                 </ul>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">4.6 Cancellations and Notice Period</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">4.6 Cancellations and Notice Period</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 Cancellations must be submitted through your Customer Portal or in writing. The following notice periods apply:
               </p>
@@ -360,11 +360,11 @@ export default function TermsPage() {
 
             {/* Section 5: Dispute Resolution */}
             <section id="section-5" className="mb-12 scroll-mt-20">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6 pb-3 border-b-2 border-circleTel-orange">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6 pb-3 border-b-2 border-circleTel-orange">
                 5. Dispute Resolution
               </h2>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">5.1 General Dispute Resolution</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">5.1 General Dispute Resolution</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 CircleTel is committed to resolving disputes fairly and efficiently. If you have a complaint or dispute:
               </p>
@@ -401,7 +401,7 @@ export default function TermsPage() {
                 </ul>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">5.2 Escalation to ICASA</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">5.2 Escalation to ICASA</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 If you are not satisfied with CircleTel's resolution, you may escalate the matter to the Independent Communications
                 Authority of South Africa (ICASA) after allowing the 14-day resolution period.
@@ -417,14 +417,14 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">5.3 Billing Dispute Resolution</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">5.3 Billing Dispute Resolution</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 Billing disputes follow a specific procedure to protect both parties:
               </p>
 
               <div className="space-y-4 mb-6">
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Time Limits</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Time Limits</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Billing disputes must be submitted within 60 days of invoice date</li>
                     <li>Disputes must be received 5 business days before Due Date to withhold disputed amount</li>
@@ -432,7 +432,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Required Information</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Required Information</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Invoice number and date</li>
                     <li>Disputed amount (specific charges)</li>
@@ -442,7 +442,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Service Continuity During Dispute</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Service Continuity During Dispute</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>CircleTel will not suspend service during the dispute resolution period</li>
                     <li>No late payment penalties will be imposed during resolution</li>
@@ -451,7 +451,7 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">5.4 Investigation Fees</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">5.4 Investigation Fees</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 If an investigation proves the billing was accurate (within 5% tolerance), the following fees apply:
               </p>
@@ -464,11 +464,11 @@ export default function TermsPage() {
 
             {/* Section 6: Product-Specific Terms */}
             <section id="section-6" className="mb-12 scroll-mt-20">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6 pb-3 border-b-2 border-circleTel-orange">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6 pb-3 border-b-2 border-circleTel-orange">
                 6. Product-Specific Terms
               </h2>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">6.1 Fibre Internet Services</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">6.1 Fibre Internet Services</h3>
 
               <div className="bg-blue-50 rounded-lg p-6 mb-6">
                 <h4 className="font-semibold text-blue-900 mb-3">Network Operators</h4>
@@ -486,7 +486,7 @@ export default function TermsPage() {
 
               <div className="space-y-4 mb-6">
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Installation</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Installation</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Installation fees range from R0 to R2,000 depending on FNO and promotions</li>
                     <li>Installation typically takes 5-15 business days from order confirmation</li>
@@ -496,7 +496,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Service Level Agreement (SLA)</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Service Level Agreement (SLA)</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li><strong>Uptime Target:</strong> 99.5% monthly uptime (excluding planned maintenance)</li>
                     <li><strong>Fault Response:</strong> 24-48 hours for residential, 4-24 hours for business</li>
@@ -505,7 +505,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Router Options</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Router Options</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Optional router purchase: R899 - R2,499 depending on model</li>
                     <li>Use your own router (must support PPPoE configuration)</li>
@@ -514,7 +514,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Fair Usage Policy (Uncapped Packages)</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Fair Usage Policy (Uncapped Packages)</h4>
                   <p className="text-gray-700 mb-2">Uncapped packages are subject to fair usage limits to ensure network quality for all users:</p>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li><strong>Uncapped Packages:</strong> 1TB - 2TB monthly threshold (speed-based)</li>
@@ -525,11 +525,11 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">6.2 Fixed Wireless (5G/LTE) Services</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">6.2 Fixed Wireless (5G/LTE) Services</h3>
 
               <div className="space-y-4 mb-6">
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Installation Options</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Installation Options</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li><strong>Self-Installation:</strong> Free - DIY kit with router and SIM card</li>
                     <li><strong>Professional Installation:</strong> R750 - Includes site survey, antenna installation, and configuration</li>
@@ -551,7 +551,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">CGNAT (Carrier-Grade NAT)</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">CGNAT (Carrier-Grade NAT)</h4>
                   <p className="text-gray-700 mb-2">
                     Wireless services use CGNAT due to IPv4 address limitations. This may affect:
                   </p>
@@ -568,7 +568,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">RICA Compliance</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">RICA Compliance</h4>
                   <p className="text-gray-700 mb-2">
                     All wireless services must be RICA registered as required by South African law. Required documents:
                   </p>
@@ -580,7 +580,7 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <h4 className="text-lg font-semibold text-circleTel-darkNeutral mt-8 mb-4 bg-orange-50 p-4 rounded-lg border-l-4 border-circleTel-orange">
+              <h4 className="text-lg font-semibold text-circleTel-navy mt-8 mb-4 bg-orange-50 p-4 rounded-lg border-l-4 border-circleTel-orange">
                 6.2.5 MTN Network Services - Specific Terms
               </h4>
 
@@ -595,7 +595,7 @@ export default function TermsPage() {
 
               <div className="space-y-4 mb-6">
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">MTN Network Infrastructure</h5>
+                  <h5 className="font-semibold text-circleTel-navy mb-2">MTN Network Infrastructure</h5>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li><strong>Network Provider:</strong> MTN South Africa (Pty) Ltd operates the underlying mobile network infrastructure</li>
                     <li><strong>Service Relationship:</strong> CircleTel is an independent service provider; MTN is not responsible for CircleTel's billing, customer service, or contractual obligations</li>
@@ -605,7 +605,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">Coverage and Network Performance</h5>
+                  <h5 className="font-semibold text-circleTel-navy mb-2">Coverage and Network Performance</h5>
                   <p className="text-gray-700 mb-2">
                     Service availability and performance depend on MTN's network coverage:
                   </p>
@@ -632,7 +632,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">MTN Network Maintenance and Upgrades</h5>
+                  <h5 className="font-semibold text-circleTel-navy mb-2">MTN Network Maintenance and Upgrades</h5>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li><strong>Scheduled Maintenance:</strong> MTN performs regular network maintenance which may cause temporary service interruptions</li>
                     <li><strong>Notice Period:</strong> CircleTel will communicate planned MTN maintenance where possible, typically 48-72 hours advance notice</li>
@@ -642,7 +642,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">MTN Acceptable Use Policy Compliance</h5>
+                  <h5 className="font-semibold text-circleTel-navy mb-2">MTN Acceptable Use Policy Compliance</h5>
                   <p className="text-gray-700 mb-2">
                     In addition to CircleTel's AUP (Section 3), you must comply with MTN's network usage policies:
                   </p>
@@ -682,7 +682,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">RICA and MTN SIM Compliance</h5>
+                  <h5 className="font-semibold text-circleTel-navy mb-2">RICA and MTN SIM Compliance</h5>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li><strong>RICA Registration:</strong> Mandatory for all MTN SIM cards as per South African law</li>
                     <li><strong>MTN SIM Ownership:</strong> SIM cards remain property of MTN South Africa</li>
@@ -704,7 +704,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">Customer Responsibilities</h5>
+                  <h5 className="font-semibold text-circleTel-navy mb-2">Customer Responsibilities</h5>
                   <p className="text-gray-700 mb-2">
                     When using CircleTel services over MTN's network, you agree to:
                   </p>
@@ -737,11 +737,11 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">6.3 VoIP Telephony Services</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">6.3 VoIP Telephony Services</h3>
 
               <div className="space-y-4 mb-6">
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Service Features</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Service Features</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Geographic and non-geographic number options</li>
                     <li>Call forwarding, voicemail, call waiting</li>
@@ -760,7 +760,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Number Portability</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Number Portability</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Port existing landline numbers to CircleTel VoIP</li>
                     <li>Porting takes 7-15 business days</li>
@@ -770,14 +770,14 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">RICA Compliance</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">RICA Compliance</h4>
                   <p className="text-gray-700">
                     VoIP services must be RICA registered. Registration completed during account setup using your provided identification documents.
                   </p>
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">6.4 Business Services</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">6.4 Business Services</h3>
 
               <div className="space-y-4 mb-6">
                 <div className="bg-blue-50 rounded-lg p-4">
@@ -810,11 +810,11 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">6.5 Cloud Services</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">6.5 Cloud Services</h3>
 
               <div className="space-y-4 mb-6">
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Cloud Hosting</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Cloud Hosting</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Virtual servers (VPS) with scalable resources</li>
                     <li>Dedicated servers for high-performance needs</li>
@@ -824,7 +824,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Backup and Recovery</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Backup and Recovery</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Daily automated backups (retained for 7-30 days based on package)</li>
                     <li>Off-site backup storage</li>
@@ -834,7 +834,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-100 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Cloud Migration Services</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Cloud Migration Services</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Assessment and planning phase (free consultation)</li>
                     <li>Data migration with minimal downtime</li>
@@ -847,11 +847,11 @@ export default function TermsPage() {
 
             {/* Section 7: Liability and Indemnity */}
             <section id="section-7" className="mb-12 scroll-mt-20">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6 pb-3 border-b-2 border-circleTel-orange">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6 pb-3 border-b-2 border-circleTel-orange">
                 7. Liability and Indemnity
               </h2>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">7.1 Limitation of Liability</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">7.1 Limitation of Liability</h3>
 
               <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6 mb-6">
                 <p className="text-yellow-900 mb-3">
@@ -864,14 +864,14 @@ export default function TermsPage() {
                 </p>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">7.2 Exclusions from Liability</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">7.2 Exclusions from Liability</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 CircleTel shall not be liable for:
               </p>
 
               <div className="space-y-3 mb-6">
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Service Interruptions</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Service Interruptions</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Access delays or interruptions to services</li>
                     <li>Data non-delivery, mis-delivery, corruption, or loss</li>
@@ -880,7 +880,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Force Majeure Events</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Force Majeure Events</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Acts of God (floods, earthquakes, storms)</li>
                     <li>Utility interruptions (power outages, grid failures)</li>
@@ -891,7 +891,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Customer Responsibilities</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Customer Responsibilities</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Unauthorized use of your account credentials</li>
                     <li>Customer equipment failure or misconfiguration</li>
@@ -901,7 +901,7 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Third-Party Services</h4>
+                  <h4 className="font-semibold text-circleTel-navy mb-2">Third-Party Services</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>FNO (Fibre Network Operator) installation delays or faults</li>
                     <li>Third-party equipment failures</li>
@@ -910,7 +910,7 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">7.3 Service Provision "As Is"</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">7.3 Service Provision "As Is"</h3>
               <div className="bg-orange-50 border-l-4 border-circleTel-orange p-6 mb-6">
                 <p className="text-orange-900 mb-3">
                   Services are provided <strong>"as is, as available"</strong> without warranties of any kind, either express or implied, including but not limited to:
@@ -923,7 +923,7 @@ export default function TermsPage() {
                 </ul>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">7.4 Customer Indemnity</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">7.4 Customer Indemnity</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 You agree to indemnify and hold CircleTel harmless from any claims, damages, losses, liabilities, and expenses
                 (including attorney fees) arising from:
@@ -936,7 +936,7 @@ export default function TermsPage() {
                 <li>Actions of anyone using your account with or without your authorization</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">7.5 Password Security</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">7.5 Password Security</h3>
               <div className="bg-red-50 border-l-4 border-red-500 p-6 mb-6">
                 <p className="text-red-900 mb-3">
                   <strong>You are responsible</strong> for maintaining the confidentiality of your account password and for all activities
@@ -960,11 +960,11 @@ export default function TermsPage() {
 
             {/* Section 8: Termination and Suspension */}
             <section id="section-8" className="mb-12 scroll-mt-20">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6 pb-3 border-b-2 border-circleTel-orange">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6 pb-3 border-b-2 border-circleTel-orange">
                 8. Termination and Suspension
               </h2>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.1 Termination by Customer</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.1 Termination by Customer</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 You may terminate this Agreement at any time by:
               </p>
@@ -977,7 +977,7 @@ export default function TermsPage() {
                 Contract services continue until the end of the contract term unless early termination fees are paid.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.2 Termination by CircleTel</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.2 Termination by CircleTel</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 CircleTel may terminate or suspend your services immediately if you:
               </p>
@@ -1012,7 +1012,7 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.3 Effect of Termination</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.3 Effect of Termination</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 Upon termination of this Agreement:
               </p>
@@ -1025,7 +1025,7 @@ export default function TermsPage() {
                 <li>You remain liable for any charges incurred before termination</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.4 Service Suspension</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.4 Service Suspension</h3>
               <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6 mb-6">
                 <p className="text-yellow-900 mb-3">
                   <strong>CircleTel may suspend</strong> (rather than terminate) your services for:
@@ -1041,7 +1041,7 @@ export default function TermsPage() {
                 </p>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.5 Data Retention After Termination</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.5 Data Retention After Termination</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 After service termination:
               </p>
@@ -1055,17 +1055,17 @@ export default function TermsPage() {
 
             {/* Section 9: General Provisions */}
             <section id="section-9" className="mb-12 scroll-mt-20">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6 pb-3 border-b-2 border-circleTel-orange">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6 pb-3 border-b-2 border-circleTel-orange">
                 9. General Provisions
               </h2>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.1 Entire Agreement</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.1 Entire Agreement</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 This Agreement constitutes the entire agreement between you and CircleTel regarding the use of our services and supersedes
                 all prior agreements, whether written or oral, relating to the same subject matter.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.2 Amendment of Terms</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.2 Amendment of Terms</h3>
               <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6">
                 <p className="text-blue-900 mb-3">
                   CircleTel may amend this Agreement from time to time. We will:
@@ -1081,7 +1081,7 @@ export default function TermsPage() {
                 </p>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.3 Governing Law and Jurisdiction</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.3 Governing Law and Jurisdiction</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 This Agreement is governed by the laws of the Republic of South Africa. You consent to the exclusive jurisdiction of the
                 South African courts for any disputes arising out of or relating to this Agreement.
@@ -1090,7 +1090,7 @@ export default function TermsPage() {
                 For legal purposes, this Agreement is deemed to have been entered into in Johannesburg, South Africa.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.4 Notices</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.4 Notices</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 All notices under this Agreement must be in writing and delivered via:
               </p>
@@ -1112,27 +1112,27 @@ export default function TermsPage() {
                 </ul>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.5 Non-Transferability</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.5 Non-Transferability</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 Your rights and privileges under this Agreement cannot be sold, assigned, or transferred to any third party without
                 CircleTel's prior written consent. CircleTel may assign this Agreement to any successor or affiliate without your consent.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.6 Severability</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.6 Severability</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 If any provision of this Agreement is found to be invalid, illegal, or unenforceable, the remaining provisions shall
                 continue in full force and effect. The invalid provision shall be replaced with a valid provision that most closely
                 approximates the intent and economic effect of the invalid provision.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.7 Waiver</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.7 Waiver</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 No waiver of any term or condition of this Agreement shall be deemed a further or continuing waiver of such term or
                 condition or any other term or condition. CircleTel's failure to assert any right or provision under this Agreement
                 shall not constitute a waiver of such right or provision.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.8 Use of Customer Information</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.8 Use of Customer Information</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 CircleTel may:
               </p>
@@ -1150,7 +1150,7 @@ export default function TermsPage() {
                 <Link href="/privacy-policy" className="text-circleTel-orange hover:underline"> Privacy Policy</Link>.
               </p>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.9 Protection of Personal Information</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.9 Protection of Personal Information</h3>
               <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6">
                 <p className="text-blue-900 mb-3">
                   CircleTel complies with the Protection of Personal Information Act (POPIA), 2013. We are committed to:
@@ -1167,7 +1167,7 @@ export default function TermsPage() {
                 </p>
               </div>
 
-              <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">9.10 Electronic Communications and Transactions</h3>
+              <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">9.10 Electronic Communications and Transactions</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
                 This Agreement complies with the Electronic Communications and Transactions Act (ECTA), 2002. By using CircleTel services, you:
               </p>

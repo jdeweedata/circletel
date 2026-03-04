@@ -45,7 +45,7 @@ export function StageNavigation({
       <Button
         onClick={onNext}
         disabled={!canProceed || isLoading}
-        className="flex items-center gap-2 bg-circleTel-orange hover:bg-circleTel-orange/90"
+        className="flex items-center gap-2 bg-circleTel-orange hover:bg-circleTel-orange-dark"
       >
         {isLoading ? (
           <>

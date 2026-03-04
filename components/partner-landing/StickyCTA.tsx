@@ -38,7 +38,7 @@ export function StickyCTA() {
             <Link href="/partner/onboarding" className="flex-1 sm:flex-none">
               <Button
                 size="sm"
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-semibold w-full sm:w-auto"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-semibold w-full sm:w-auto"
               >
                 Start Now
                 <ArrowRight className="ml-2 h-4 w-4" />

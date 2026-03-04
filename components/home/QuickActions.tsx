@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Package, Calculator, Phone } from 'lucide-react';
+import { Package, Calculator, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface QuickAction {
@@ -15,28 +15,20 @@ interface QuickAction {
 
 const QUICK_ACTIONS: QuickAction[] = [
   {
-    icon: MapPin,
-    label: 'Check Coverage',
-    description: 'See what\u0027s available',
-    href: '#coverage',
-    color: 'text-green-600',
-    bgColor: 'bg-green-50 hover:bg-green-100',
-  },
-  {
     icon: Package,
     label: 'View Packages',
     description: 'Compare plans',
     href: '/pricing',
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50 hover:bg-blue-100',
+    color: 'text-circleTel-navy',
+    bgColor: 'bg-circleTel-grey200 hover:bg-circleTel-orange-light',
   },
   {
     icon: Calculator,
     label: 'Get Quote',
     description: 'Business pricing',
     href: '/business',
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50 hover:bg-purple-100',
+    color: 'text-circleTel-orange',
+    bgColor: 'bg-circleTel-orange-light hover:bg-circleTel-orange/20',
   },
   {
     icon: Phone,
@@ -44,7 +36,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: 'Speak to sales',
     href: '/contact',
     color: 'text-circleTel-orange',
-    bgColor: 'bg-orange-50 hover:bg-orange-100',
+    bgColor: 'bg-circleTel-orange-light hover:bg-circleTel-orange/20',
   },
 ];
 
@@ -63,7 +55,7 @@ export function QuickActions({ className }: QuickActionsProps) {
   };
 
   return (
-    <section className={cn('py-4 bg-gray-50 border-b border-gray-100', className)}>
+    <section className={cn('py-4 bg-circleTel-grey200 border-b border-circleTel-grey200', className)}>
       <div className="container mx-auto px-4">
         {/* Compact Quick Action Row */}
         <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto scrollbar-hide">

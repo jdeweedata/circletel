@@ -82,17 +82,17 @@ export function CoverageCheckBanner({
     return (
       <div className={cn("bg-amber-400 rounded-xl p-6", className)}>
         <div className="flex items-start gap-3">
-          <CheckCircle className="h-6 w-6 text-circleTel-darkNeutral flex-shrink-0 mt-0.5" />
+          <CheckCircle className="h-6 w-6 text-circleTel-navy flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h3 className="font-bold text-circleTel-darkNeutral text-lg">
+            <h3 className="font-bold text-circleTel-navy text-lg">
               Great! You have both {servicesList} Home Internet in your area.
             </h3>
-            <p className="text-circleTel-darkNeutral/80 mt-1 flex items-center gap-1">
+            <p className="text-circleTel-navy/80 mt-1 flex items-center gap-1">
               <MapPin className="h-4 w-4" />
               {coverageResult.address}
             </p>
             <button
-              className="text-circleTel-darkNeutral font-semibold underline mt-3 text-sm hover:no-underline"
+              className="text-circleTel-navy font-semibold underline mt-3 text-sm hover:no-underline"
               onClick={resetCheck}
             >
               Check a different address
@@ -147,7 +147,7 @@ export function CoverageCheckBanner({
         <Button
           onClick={checkCoverage}
           disabled={coverageStatus === 'checking' || !address.trim()}
-          className="bg-circleTel-orange hover:bg-circleTel-orange/90 h-12 px-6"
+          className="bg-circleTel-orange hover:bg-circleTel-orange-dark h-12 px-6"
         >
           {coverageStatus === 'checking' ? (
             <>

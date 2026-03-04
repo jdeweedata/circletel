@@ -21,24 +21,34 @@ const FAQ_ITEMS: FAQItem[] = [
     answer: 'Enter your address in our coverage checker at the top of this page. You\'ll see all available plans and technologies (Fibre, 5G, LTE) for your location within seconds.',
   },
   {
-    id: 'support',
-    question: 'What support is included?',
-    answer: 'All plans include 24/7 technical support via phone, email, and WhatsApp. Our local support team is based in South Africa for faster response times. Business plans also include dedicated account managers and priority SLA response.',
+    id: 'video-calls',
+    question: 'Is this fast enough for video conferencing?',
+    answer: 'Absolutely. Even our entry-level 50Mbps plans handle HD video calls with room to spare. For back-to-back Zoom or Teams meetings, we recommend 100Mbps or higher for the smoothest experience. All our plans are uncapped, so you\'ll never run out of data mid-call.',
+  },
+  {
+    id: 'multiple-devices',
+    question: 'Can this handle multiple streaming devices?',
+    answer: 'Yes! Our 100Mbps plans support 4+ devices streaming HD simultaneously. For households with gamers, multiple 4K TVs, and remote workers, we recommend 200Mbps. No throttling, no fair-usage caps — just fast internet for everyone.',
+  },
+  {
+    id: 'downtime',
+    question: 'What happens if my connection goes down?',
+    answer: 'For home users, our 24/7 support team will troubleshoot and dispatch a technician if needed. Business customers get priority response with a 4-hour fix guarantee. For critical operations, add our 5G Failover — it automatically switches to 5G backup so you never go offline.',
   },
   {
     id: 'contract',
     question: 'Is there a contract or lock-in period?',
-    answer: 'No! All our residential plans are month-to-month. You can cancel anytime with 30 days notice. For business plans with SLA guarantees, we offer 12-month agreements with discounted rates.',
-  },
-  {
-    id: 'speeds',
-    question: 'What speeds can I expect?',
-    answer: 'Speeds depend on your location and the technology available. Fibre typically delivers 25-1000Mbps, 5G delivers 50-500Mbps, and LTE delivers 10-50Mbps. Use our coverage checker to see exactly what\'s available at your address.',
+    answer: 'No contracts on residential plans — cancel anytime with 30 days notice. No hidden fees, no early termination penalties. For businesses wanting SLA guarantees, we offer flexible 12-month agreements with discounted rates.',
   },
   {
     id: 'installation',
     question: 'How long does installation take?',
-    answer: 'For Fibre: 7-14 days depending on whether your area is already trenched. For 5G/LTE: 3-5 days as it only requires router delivery and setup. All installations are free and performed by our certified technicians.',
+    answer: 'For Fixed Wireless and 5G: 3-7 days. For Fibre: 7-14 days depending on whether your area is already trenched. All installations are free and performed by our certified technicians. We\'ll confirm your installation date before you commit.',
+  },
+  {
+    id: 'support',
+    question: 'What support is included?',
+    answer: 'All plans include 24/7 technical support via phone, email, and WhatsApp. Our support team is based in South Africa — no overseas call centres. Business plans include dedicated account managers and priority response.',
   },
 ];
 
@@ -47,7 +57,7 @@ export function FAQ() {
     <section className="bg-circleTel-grey200 py-12 md:py-20">
       <div className="container mx-auto px-4">
         {/* Heading */}
-        <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-circleTel-navy text-center mb-8 md:mb-12">
+        <h2 className="font-heading text-display-2-mobile md:text-display-2 text-circleTel-navy text-center mb-8 md:mb-12">
           Frequently asked questions
         </h2>
 

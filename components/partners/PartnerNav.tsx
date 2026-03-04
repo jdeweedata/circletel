@@ -65,7 +65,7 @@ export function PartnerNav() {
             <Handshake className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-circleTel-darkNeutral">
+            <h2 className="text-lg font-bold text-circleTel-navy">
               Partner Portal
             </h2>
             <p className="text-xs text-circleTel-secondaryNeutral">
@@ -91,7 +91,7 @@ export function PartnerNav() {
                 'flex items-center px-4 py-3 rounded-lg transition-all duration-200 group',
                 isActive
                   ? 'bg-circleTel-orange text-white shadow-md'
-                  : 'text-circleTel-secondaryNeutral hover:bg-gray-100 hover:text-circleTel-darkNeutral'
+                  : 'text-circleTel-secondaryNeutral hover:bg-gray-100 hover:text-circleTel-navy'
               )}
             >
               <Icon

@@ -153,7 +153,7 @@ export default function CommissionTiersPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+        <h1 className="text-3xl font-bold text-circleTel-navy">
           Commission Tier Structure
         </h1>
         <p className="text-circleTel-secondaryNeutral mt-2">
@@ -242,7 +242,7 @@ export default function CommissionTiersPage() {
 
                 <div>
                   <p className="text-sm text-gray-600">Total Contract Value</p>
-                  <p className="text-2xl font-bold text-circleTel-darkNeutral mt-1">
+                  <p className="text-2xl font-bold text-circleTel-navy mt-1">
                     {formatCurrency(calculation.totalContractValue)}
                   </p>
                 </div>

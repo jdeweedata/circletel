@@ -159,7 +159,7 @@ export default function BillingDashboard() {
             Refresh
           </Button>
           <Link href="/admin/billing/invoices">
-            <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+            <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
               <FileText className="h-4 w-4 mr-2" />
               View All Invoices
             </Button>

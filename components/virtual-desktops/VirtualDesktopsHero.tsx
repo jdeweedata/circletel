@@ -10,7 +10,7 @@ const VirtualDesktopsHero = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="md:w-1/2">
-            <h1 className="text-4xl font-bold text-circleTel-darkNeutral mb-4">Virtual Desktop Solutions</h1>
+            <h1 className="text-4xl font-bold text-circleTel-navy mb-4">Virtual Desktop Solutions</h1>
             <p className="text-lg text-circleTel-secondaryNeutral mb-6">
               Access your workspace from anywhere with secure, high-performance virtual desktops that enhance productivity and reduce IT costs.
             </p>

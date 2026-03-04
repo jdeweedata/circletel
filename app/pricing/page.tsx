@@ -18,13 +18,13 @@ const Pricing = () => {
         <section className="bg-gradient-to-br from-white to-circleTel-lightNeutral py-20">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-6">
+              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-6">
                 Transparent <span className="text-circleTel-orange">IT Pricing</span>
               </h1>
               <p className="text-xl text-circleTel-secondaryNeutral mb-8">
                 Choose the right IT recipe for your business. No hidden fees, no surprises.
               </p>
-              <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                 <Link href="/contact">Get Custom Quote</Link>
               </Button>
             </div>
@@ -35,7 +35,7 @@ const Pricing = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">IT Service Plans</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">IT Service Plans</h2>
               <p className="text-lg text-circleTel-secondaryNeutral">
                 Flexible pricing based on your business size and needs
               </p>
@@ -45,7 +45,7 @@ const Pricing = () => {
               {/* Basic Plan */}
               <Card className="relative border-2 border-blue-200 hover:border-blue-400 transition-colors">
                 <CardHeader className="text-center">
-                  <CardTitle className="text-xl font-bold text-circleTel-darkNeutral">Basic IT</CardTitle>
+                  <CardTitle className="text-xl font-bold text-circleTel-navy">Basic IT</CardTitle>
                   <div className="text-3xl font-bold text-blue-600 mb-2">From R2,500</div>
                   <p className="text-sm text-circleTel-secondaryNeutral">per month</p>
                   <Badge variant="secondary" className="mx-auto">1-10 Users</Badge>
@@ -88,7 +88,7 @@ const Pricing = () => {
                   </Badge>
                 </div>
                 <CardHeader className="text-center pt-8">
-                  <CardTitle className="text-xl font-bold text-circleTel-darkNeutral">Advanced IT</CardTitle>
+                  <CardTitle className="text-xl font-bold text-circleTel-navy">Advanced IT</CardTitle>
                   <div className="text-3xl font-bold text-circleTel-orange mb-2">From R5,500</div>
                   <p className="text-sm text-circleTel-secondaryNeutral">per month</p>
                   <Badge variant="secondary" className="mx-auto">25-50 Users</Badge>
@@ -120,7 +120,7 @@ const Pricing = () => {
                       <span className="text-sm">Quarterly IT Reviews</span>
                     </li>
                   </ul>
-                  <Button asChild className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
+                  <Button asChild className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark">
                     <Link href="/services/mid-size">Get Started</Link>
                   </Button>
                 </CardContent>
@@ -129,7 +129,7 @@ const Pricing = () => {
               {/* Scale Plan */}
               <Card className="relative border-2 border-emerald-200 hover:border-emerald-400 transition-colors">
                 <CardHeader className="text-center">
-                  <CardTitle className="text-xl font-bold text-circleTel-darkNeutral">Scale IT</CardTitle>
+                  <CardTitle className="text-xl font-bold text-circleTel-navy">Scale IT</CardTitle>
                   <div className="text-3xl font-bold text-emerald-600 mb-2">From R12,000</div>
                   <p className="text-sm text-circleTel-secondaryNeutral">per month</p>
                   <Badge variant="secondary" className="mx-auto">100+ Users</Badge>
@@ -174,14 +174,14 @@ const Pricing = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6">
                 Ready to Get Started?
               </h2>
               <p className="text-lg text-circleTel-secondaryNeutral mb-8">
                 Get a personalized quote based on your specific business needs and requirements.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                   <Link href="/contact">Get Custom Quote</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">

@@ -20,7 +20,7 @@ export function WirelessHero() {
 
           {/* Main Headline */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-circleTel-darkNeutral via-circleTel-secondaryNeutral to-circleTel-darkNeutral bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-circleTel-navy via-circleTel-secondaryNeutral to-circleTel-navy bg-clip-text text-transparent">
               Empowering SMEs with
             </span>
             <br />
@@ -53,7 +53,7 @@ export function WirelessHero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-circleTel-white px-8 py-3 text-lg font-semibold">
+            <Button size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-circleTel-white px-8 py-3 text-lg font-semibold">
               Check Coverage & Pricing
             </Button>
             <Button variant="outline" size="lg" className="border-circleTel-red text-circleTel-red hover:bg-circleTel-red hover:text-circleTel-white px-8 py-3 text-lg font-semibold">
@@ -76,7 +76,7 @@ export function WirelessHero() {
               <div className="text-sm text-circleTel-secondaryNeutral">Setup Time</div>
             </div>
             <div className="bg-circleTel-white/90 backdrop-blur-sm rounded-lg p-4 border border-circleTel-gray-200 shadow-sm">
-              <div className="text-2xl font-bold text-circleTel-darkNeutral">R299</div>
+              <div className="text-2xl font-bold text-circleTel-navy">R299</div>
               <div className="text-sm text-circleTel-secondaryNeutral">Starting From</div>
             </div>
           </div>

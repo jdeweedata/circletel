@@ -10,11 +10,11 @@ export default function CloudMigration() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="md:w-1/2">
-              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-4">Cloud Migration Services</h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-4">Cloud Migration Services</h1>
               <p className="text-xl text-circleTel-secondaryNeutral mb-6">
                 Seamlessly move your business to the cloud with our expert migration services designed for South African businesses.
               </p>
-              <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
+              <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
                 <Link href="/contact">Get Migration Assessment</Link>
               </Button>
             </div>
@@ -38,11 +38,11 @@ export default function CloudMigration() {
       {/* Content Placeholder */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-8">Coming Soon</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-8">Coming Soon</h2>
           <p className="text-xl text-circleTel-secondaryNeutral mb-8 max-w-2xl mx-auto">
             Our detailed cloud migration services page is under construction. Contact us today to learn how we can help move your business to the cloud.
           </p>
-          <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
+          <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
             <Link href="/contact">Contact Us</Link>
           </Button>
         </div>

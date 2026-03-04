@@ -666,7 +666,7 @@ export function PaymentMethodStatus({
               <Button
                 size="sm"
                 variant="default"
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
                 onClick={resendMandate}
                 disabled={resendingMandate}
               >

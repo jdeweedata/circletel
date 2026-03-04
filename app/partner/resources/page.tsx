@@ -155,7 +155,7 @@ export default function PartnerResourcesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+        <h1 className="text-3xl font-bold text-circleTel-navy">
           Resources
         </h1>
         <p className="text-circleTel-secondaryNeutral mt-2">
@@ -236,7 +236,7 @@ export default function PartnerResourcesPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
-                            <h3 className="font-semibold text-sm text-circleTel-darkNeutral line-clamp-2">
+                            <h3 className="font-semibold text-sm text-circleTel-navy line-clamp-2">
                               {resource.title}
                             </h3>
                             {resource.badge && (

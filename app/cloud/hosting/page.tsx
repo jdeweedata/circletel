@@ -10,11 +10,11 @@ export default function CloudHosting() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="md:w-1/2">
-              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-4">Reliable Hosting Solutions</h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-4">Reliable Hosting Solutions</h1>
               <p className="text-xl text-circleTel-secondaryNeutral mb-6">
                 Secure, high-performance hosting for your business applications and websites, with South African and global infrastructure options.
               </p>
-              <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
+              <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
                 <Link href="/contact">Explore Hosting Options</Link>
               </Button>
             </div>
@@ -32,11 +32,11 @@ export default function CloudHosting() {
       {/* Content Placeholder */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-8">Coming Soon</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-8">Coming Soon</h2>
           <p className="text-xl text-circleTel-secondaryNeutral mb-8 max-w-2xl mx-auto">
             Our detailed hosting services page is under construction. Contact us today to learn about our reliable hosting solutions for South African businesses.
           </p>
-          <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
+          <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
             <Link href="/contact">Contact Us</Link>
           </Button>
         </div>

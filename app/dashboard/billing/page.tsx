@@ -397,7 +397,7 @@ export default function BillingPage() {
                             {invoice.status !== 'paid' && invoice.amount_due > 0 && (
                               <Button
                                 size="sm"
-                                className="gap-2 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+                                className="gap-2 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
                                 onClick={() => handlePayInvoice(invoice.id, invoice.invoice_number)}
                                 disabled={payingInvoiceId === invoice.id}
                               >

@@ -117,14 +117,14 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
 
   return (
     <div className={`bg-white rounded-xl p-6 shadow-lg ${className}`}>
-      <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">
+      <h3 className="text-xl font-bold text-circleTel-navy mb-4">
         Get Your {bundleName} Quote
       </h3>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+            <label htmlFor="name" className="block text-sm font-medium text-circleTel-navy mb-1">
               Your Name *
             </label>
             <input
@@ -139,7 +139,7 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
           </div>
           
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-circleTel-navy mb-1">
               Email Address *
             </label>
             <input
@@ -156,7 +156,7 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="company" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+            <label htmlFor="company" className="block text-sm font-medium text-circleTel-navy mb-1">
               Company Name *
             </label>
             <input
@@ -171,7 +171,7 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+            <label htmlFor="phone" className="block text-sm font-medium text-circleTel-navy mb-1">
               Phone Number
             </label>
             <input
@@ -187,7 +187,7 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="employees" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+            <label htmlFor="employees" className="block text-sm font-medium text-circleTel-navy mb-1">
               Number of Employees
             </label>
             <select
@@ -207,7 +207,7 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
           </div>
 
           <div>
-            <label htmlFor="province" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+            <label htmlFor="province" className="block text-sm font-medium text-circleTel-navy mb-1">
               Province
             </label>
             <select
@@ -225,7 +225,7 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
           </div>
 
           <div>
-            <label htmlFor="city" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+            <label htmlFor="city" className="block text-sm font-medium text-circleTel-navy mb-1">
               City/Town
             </label>
             <input
@@ -240,7 +240,7 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
         </div>
         
         <div>
-          <label htmlFor="serviceInterest" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+          <label htmlFor="serviceInterest" className="block text-sm font-medium text-circleTel-navy mb-1">
             Primary Service Interest
           </label>
           <select
@@ -258,7 +258,7 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
         </div>
         
         <div>
-          <label htmlFor="challenges" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+          <label htmlFor="challenges" className="block text-sm font-medium text-circleTel-navy mb-1">
             Current IT/Connectivity Challenges (Optional)
           </label>
           <textarea

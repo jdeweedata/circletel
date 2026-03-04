@@ -311,7 +311,7 @@ export function CompactPackageCard({
               'focus:ring-orange-500'
             ],
             !selected && [
-              'bg-white/95 text-[#F5831F]',
+              'bg-white/95 text-circleTel-orange',
               'hover:bg-white',
               'focus:ring-white'
             ]

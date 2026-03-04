@@ -9,7 +9,7 @@ const VirtualDesktopsCTA = () => {
     <section className="py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Ready to transform your workspace?</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Ready to transform your workspace?</h2>
           <p className="text-lg text-circleTel-secondaryNeutral mb-6">
             Take your business operations to the next level with our secure, flexible virtual desktop solutions.
           </p>

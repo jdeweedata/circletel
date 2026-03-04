@@ -105,7 +105,7 @@ function AnimatedCounter({
 
 export function SuccessMetrics() {
   return (
-    <section className="py-16 bg-gradient-to-br from-circleTel-darkNeutral to-gray-800 text-white">
+    <section className="py-16 bg-gradient-to-br from-circleTel-navy to-gray-800 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">

@@ -18,14 +18,14 @@ const Connectivity = () => {
         <section className="bg-gradient-to-br from-white to-circleTel-lightNeutral py-20">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-6">
+              <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-6">
                 <span className="text-circleTel-orange">Wi-Fi as a Service</span>
               </h1>
               <p className="text-xl text-circleTel-secondaryNeutral mb-8">
                 Enterprise-grade Wi-Fi connectivity without the capital expense. Managed, monitored, and maintained for optimal performance.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                   <Link href="/contact">Get Quote</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
@@ -40,7 +40,7 @@ const Connectivity = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Why Choose Wi-Fi as a Service?</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Why Choose Wi-Fi as a Service?</h2>
               <p className="text-lg text-circleTel-secondaryNeutral max-w-3xl mx-auto">
                 Transform your connectivity with enterprise-grade Wi-Fi that scales with your business
               </p>
@@ -110,7 +110,7 @@ const Connectivity = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Connectivity Solutions</h2>
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Connectivity Solutions</h2>
               <p className="text-lg text-circleTel-secondaryNeutral">
                 Choose from our range of connectivity options
               </p>
@@ -145,7 +145,7 @@ const Connectivity = () => {
                       <span className="text-sm">Regular upgrades included</span>
                     </li>
                   </ul>
-                  <Button asChild className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
+                  <Button asChild className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark">
                     <Link href="/connectivity/wifi-as-a-service">Learn More</Link>
                   </Button>
                 </CardContent>
@@ -224,14 +224,14 @@ const Connectivity = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6">
                 Ready to Upgrade Your Connectivity?
               </h2>
               <p className="text-lg text-circleTel-secondaryNeutral mb-8">
                 Let us design a connectivity solution that meets your business needs and budget.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                   <Link href="/contact">Get Started</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">

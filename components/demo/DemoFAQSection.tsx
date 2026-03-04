@@ -52,7 +52,7 @@ export function DemoFAQSection() {
               Support Center
             </Badge>
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-circleTel-darkNeutral">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-circleTel-navy">
               Have questions? We've got answers.
             </h2>
 
@@ -70,7 +70,7 @@ export function DemoFAQSection() {
                   value={`item-${index}`}
                   className="bg-white border border-circleTel-gray-200 rounded-xl px-6 shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <AccordionTrigger className="text-left hover:no-underline font-semibold text-circleTel-darkNeutral py-6">
+                  <AccordionTrigger className="text-left hover:no-underline font-semibold text-circleTel-navy py-6">
                     {faq.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-circleTel-secondaryNeutral pb-6 leading-relaxed">
@@ -84,7 +84,7 @@ export function DemoFAQSection() {
           {/* Contact Support */}
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-circleTel-gray-200">
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-2">
+              <h3 className="text-2xl font-bold text-circleTel-navy mb-2">
                 Need more help?
               </h3>
               <p className="text-circleTel-secondaryNeutral">
@@ -96,7 +96,7 @@ export function DemoFAQSection() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-6 rounded-xl bg-circleTel-orange/5 border border-circleTel-orange/20 hover:bg-circleTel-orange/10 transition-colors">
                 <Phone className="w-8 h-8 text-circleTel-orange mx-auto mb-3" />
-                <div className="font-semibold text-circleTel-darkNeutral mb-1">Phone Support</div>
+                <div className="font-semibold text-circleTel-navy mb-1">Phone Support</div>
                 <div className="text-sm text-circleTel-secondaryNeutral mb-3">24/7 Business Line</div>
                 <Button variant="outline" size="sm" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
                   087 073 0000
@@ -105,7 +105,7 @@ export function DemoFAQSection() {
 
               <div className="text-center p-6 rounded-xl bg-circleTel-blue-600/5 border border-circleTel-blue-600/20 hover:bg-circleTel-blue-600/10 transition-colors">
                 <Mail className="w-8 h-8 text-circleTel-blue-600 mx-auto mb-3" />
-                <div className="font-semibold text-circleTel-darkNeutral mb-1">Email Support</div>
+                <div className="font-semibold text-circleTel-navy mb-1">Email Support</div>
                 <div className="text-sm text-circleTel-secondaryNeutral mb-3">Business Priority</div>
                 <Button variant="outline" size="sm" className="border-circleTel-blue-600 text-circleTel-blue-600 hover:bg-circleTel-blue-600 hover:text-white">
                   business@circletel.co.za
@@ -114,7 +114,7 @@ export function DemoFAQSection() {
 
               <div className="text-center p-6 rounded-xl bg-circleTel-red/5 border border-circleTel-red/20 hover:bg-circleTel-red/10 transition-colors">
                 <MessageCircle className="w-8 h-8 text-circleTel-red mx-auto mb-3" />
-                <div className="font-semibold text-circleTel-darkNeutral mb-1">WhatsApp Business</div>
+                <div className="font-semibold text-circleTel-navy mb-1">WhatsApp Business</div>
                 <div className="text-sm text-circleTel-secondaryNeutral mb-3">Instant Support</div>
                 <Button variant="outline" size="sm" className="border-circleTel-red text-circleTel-red hover:bg-circleTel-red hover:text-white">
                   082 487 3900

@@ -203,7 +203,7 @@ export default function EditQuotePage({ params }: Props) {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+            <h1 className="text-3xl font-bold text-circleTel-navy">
               Edit Quote: {quote.quote_number}
             </h1>
             <p className="text-circleTel-secondaryNeutral mt-1">

@@ -174,7 +174,7 @@ Thank you for choosing CircleTel!
                 {/* Contact Form */}
                 <Card className="mb-8">
                   <CardHeader>
-                    <CardTitle className="text-circleTel-darkNeutral">Get in Touch</CardTitle>
+                    <CardTitle className="text-circleTel-navy">Get in Touch</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <form className="space-y-4" onSubmit={handleSubmit}>
@@ -250,7 +250,7 @@ Thank you for choosing CircleTel!
                       </div>
                       <Button
                         type="submit"
-                        className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90"
+                        className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? 'Sending...' : 'Send Message'}
@@ -262,7 +262,7 @@ Thank you for choosing CircleTel!
                 {/* Quick Actions */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-circleTel-darkNeutral">Quick Actions</CardTitle>
+                    <CardTitle className="text-circleTel-navy">Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -293,28 +293,28 @@ Thank you for choosing CircleTel!
                 {/* Contact Information */}
                 <Card className="mb-8">
                   <CardHeader>
-                    <CardTitle className="text-circleTel-darkNeutral">Contact Information</CardTitle>
+                    <CardTitle className="text-circleTel-navy">Contact Information</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div className="flex items-start">
                         <Phone className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
                         <div>
-                          <p className="font-semibold text-circleTel-darkNeutral">Phone</p>
+                          <p className="font-semibold text-circleTel-navy">Phone</p>
                           <p className="text-circleTel-secondaryNeutral">082 487 3900</p>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <Mail className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
                         <div>
-                          <p className="font-semibold text-circleTel-darkNeutral">Email</p>
+                          <p className="font-semibold text-circleTel-navy">Email</p>
                           <p className="text-circleTel-secondaryNeutral">contactus@circletel.co.za</p>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <MapPin className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
                         <div>
-                          <p className="font-semibold text-circleTel-darkNeutral">Address</p>
+                          <p className="font-semibold text-circleTel-navy">Address</p>
                           <p className="text-circleTel-secondaryNeutral">
                             West House, 7 Autumn Road<br />
                             Rivonia, Johannesburg, 2128
@@ -328,7 +328,7 @@ Thank you for choosing CircleTel!
                 {/* Support Hours */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-circleTel-darkNeutral flex items-center">
+                    <CardTitle className="text-circleTel-navy flex items-center">
                       <Clock className="h-5 w-5 mr-2" />
                       Support Hours
                     </CardTitle>
@@ -337,15 +337,15 @@ Thank you for choosing CircleTel!
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-circleTel-secondaryNeutral">Monday - Friday</span>
-                        <span className="font-semibold text-circleTel-darkNeutral">8:00 AM - 5:00 PM</span>
+                        <span className="font-semibold text-circleTel-navy">8:00 AM - 5:00 PM</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-circleTel-secondaryNeutral">Saturday</span>
-                        <span className="font-semibold text-circleTel-darkNeutral">9:00 AM - 1:00 PM</span>
+                        <span className="font-semibold text-circleTel-navy">9:00 AM - 1:00 PM</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-circleTel-secondaryNeutral">Sunday</span>
-                        <span className="font-semibold text-circleTel-darkNeutral">Closed</span>
+                        <span className="font-semibold text-circleTel-navy">Closed</span>
                       </div>
                       <div className="pt-3 border-t">
                         <p className="text-sm text-circleTel-secondaryNeutral">
@@ -432,7 +432,7 @@ Thank you for choosing CircleTel!
               </Button>
               <Button
                 onClick={() => setShowSuccessModal(false)}
-                className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
                 Close
               </Button>

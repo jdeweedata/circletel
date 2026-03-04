@@ -340,7 +340,7 @@ export default function QuotePreviewPage({ params }: Props) {
           <CardContent className="pt-6">
             <div className="text-center">
               <FileText className="w-12 h-12 mx-auto text-red-500 mb-4" />
-              <h2 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Quote Not Found</h2>
+              <h2 className="text-xl font-bold text-circleTel-navy mb-2">Quote Not Found</h2>
               <p className="text-circleTel-secondaryNeutral">{error || 'This quote could not be found or has been removed.'}</p>
             </div>
           </CardContent>
@@ -417,7 +417,7 @@ export default function QuotePreviewPage({ params }: Props) {
       {showEmailDialog && (
         <div className="print:hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">Email Quote</h3>
+            <h3 className="text-xl font-bold text-circleTel-navy mb-4">Email Quote</h3>
 
             <div className="space-y-4">
               <div>
@@ -676,7 +676,7 @@ export default function QuotePreviewPage({ params }: Props) {
             {/* Installation Costs */}
             {(pricing.subtotal_installation > 0 || pricing.total_installation > 0) && (
               <div className="mb-6">
-                <h4 className="font-medium text-circleTel-darkNeutral mb-3 text-sm uppercase tracking-wide">
+                <h4 className="font-medium text-circleTel-navy mb-3 text-sm uppercase tracking-wide">
                   One-time Installation Costs
                 </h4>
                 <div className="bg-gray-50 p-4 space-y-2 text-sm">
@@ -745,7 +745,7 @@ export default function QuotePreviewPage({ params }: Props) {
 
         {/* Terms and Conditions */}
         <div className="mb-8 terms-section">
-          <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-4 border-b border-gray-300 pb-2">
+          <h3 className="text-lg font-bold text-circleTel-navy mb-4 border-b border-gray-300 pb-2">
             TERMS AND CONDITIONS
           </h3>
           <div className="grid grid-cols-2 gap-8 text-xs leading-relaxed">
@@ -800,7 +800,7 @@ export default function QuotePreviewPage({ params }: Props) {
 
         {/* Customer Acceptance Section */}
         <div className="bg-gray-50 border-2 border-circleTel-orange p-6 mb-8 customer-acceptance">
-          <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-6 text-center">
+          <h3 className="text-lg font-bold text-circleTel-navy mb-6 text-center">
             CUSTOMER ACCEPTANCE
           </h3>
           

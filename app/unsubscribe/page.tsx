@@ -204,7 +204,7 @@ function UnsubscribeContent() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-circleTel-orange/10 mb-4">
                 <Mail className="h-8 w-8 text-circleTel-orange" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral mb-2">
+              <h1 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-2">
                 Email Preferences
               </h1>
               <p className="text-circleTel-secondaryNeutral">
@@ -247,7 +247,7 @@ function UnsubscribeContent() {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90"
+                      className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
                       disabled={loading}
                     >
                       {loading ? (
@@ -291,7 +291,7 @@ function UnsubscribeContent() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-circleTel-secondaryNeutral">Managing preferences for:</p>
-                        <p className="font-medium text-circleTel-darkNeutral">{email}</p>
+                        <p className="font-medium text-circleTel-navy">{email}</p>
                       </div>
                       <Button
                         variant="outline"
@@ -437,7 +437,7 @@ function UnsubscribeContent() {
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <h3 className="font-medium text-circleTel-darkNeutral flex items-center gap-2">
+                          <h3 className="font-medium text-circleTel-navy flex items-center gap-2">
                             <MailX className="h-5 w-5 text-red-500" />
                             Unsubscribe from All Marketing
                           </h3>
@@ -482,7 +482,7 @@ function UnsubscribeContent() {
 
                 {/* Save Button */}
                 <Button
-                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90"
+                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
                   size="lg"
                   onClick={handleSave}
                   disabled={saving}

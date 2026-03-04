@@ -141,7 +141,7 @@ export default function CardPaymentPage() {
             <Button
               onClick={handleAddPaymentMethod}
               disabled={isProcessing}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white text-base px-8 py-6 h-auto shadow-md"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white text-base px-8 py-6 h-auto shadow-md"
               size="lg"
             >
               {isProcessing ? (

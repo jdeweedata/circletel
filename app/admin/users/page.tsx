@@ -386,7 +386,7 @@ export default function AdminUsersPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+            <div className="text-3xl font-bold text-circleTel-navy">
               {users.length}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">
@@ -405,7 +405,7 @@ export default function AdminUsersPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+            <div className="text-3xl font-bold text-circleTel-navy">
               {users.filter(u => u.is_active).length}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">
@@ -425,7 +425,7 @@ export default function AdminUsersPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              <div className="text-3xl font-bold text-circleTel-navy">
                 {pendingCount}
               </div>
               {pendingCount > 0 && (
@@ -450,7 +450,7 @@ export default function AdminUsersPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+            <div className="text-3xl font-bold text-circleTel-navy">
               {users.filter(u => u.role === 'super_admin' || u.role_template_id === 'super_admin').length}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">

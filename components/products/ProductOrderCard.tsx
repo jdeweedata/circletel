@@ -77,7 +77,7 @@ export function ProductOrderCard({
         {/* Plan Details */}
         <div className="p-4 md:p-6 border-b">
           <div className="flex items-center gap-2 mb-3">
-            <Badge className="bg-amber-400 text-circleTel-darkNeutral font-bold text-xs px-3 py-1">
+            <Badge className="bg-amber-400 text-circleTel-navy font-bold text-xs px-3 py-1">
               PLAN
             </Badge>
           </div>
@@ -160,7 +160,7 @@ export function ProductOrderCard({
         )}
 
         {/* Total / Pay Monthly Footer */}
-        <div className="p-4 md:p-6 bg-circleTel-darkNeutral text-white">
+        <div className="p-4 md:p-6 bg-circleTel-navy text-white">
           <div className="flex justify-between items-center">
             <span className="font-bold text-lg">Pay monthly</span>
             <div className="text-right">

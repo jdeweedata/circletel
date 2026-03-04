@@ -580,7 +580,7 @@ export default function NewProduct() {
           <Button
             type="submit"
             disabled={isLoading || !formData.name || !formData.category}
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             {isLoading ? (
               <>

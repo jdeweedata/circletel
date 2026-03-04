@@ -15,7 +15,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
       {/* Section Header */}
       {section.title && (
         <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral mb-2">
+          <h2 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-2">
             {section.title}
           </h2>
           {section.description && (
@@ -43,13 +43,13 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
               >
                 {/* Column Header */}
                 <div className={`p-6 ${column.highlighted ? 'bg-gradient-to-br from-circleTel-orange to-orange-600' : 'bg-gray-50'}`}>
-                  <h3 className={`text-2xl font-bold ${column.highlighted ? 'text-white' : 'text-circleTel-darkNeutral'}`}>
+                  <h3 className={`text-2xl font-bold ${column.highlighted ? 'text-white' : 'text-circleTel-navy'}`}>
                     {column.title}
                   </h3>
                   {column.price !== undefined && (
                     <div className="mt-4">
                       <div className="flex items-baseline gap-1">
-                        <span className={`text-4xl font-bold ${column.highlighted ? 'text-white' : 'text-circleTel-darkNeutral'}`}>
+                        <span className={`text-4xl font-bold ${column.highlighted ? 'text-white' : 'text-circleTel-navy'}`}>
                           {column.currency || 'R'}{column.price.toFixed(2)}
                         </span>
                       </div>
@@ -70,7 +70,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                         {feature.startsWith('✓') || feature.startsWith('✔') ? (
                           <>
                             <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-sm text-circleTel-darkNeutral">{feature.replace(/^[✓✔]\s*/, '')}</span>
+                            <span className="text-sm text-circleTel-navy">{feature.replace(/^[✓✔]\s*/, '')}</span>
                           </>
                         ) : feature.startsWith('✗') || feature.startsWith('×') ? (
                           <>
@@ -80,7 +80,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                         ) : (
                           <>
                             <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-sm text-circleTel-darkNeutral">{feature}</span>
+                            <span className="text-sm text-circleTel-navy">{feature}</span>
                           </>
                         )}
                       </li>
@@ -97,7 +97,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                           className={`w-full ${
                             column.highlighted
                               ? 'bg-circleTel-orange hover:bg-orange-600 text-white'
-                              : 'bg-circleTel-darkNeutral hover:bg-gray-800 text-white'
+                              : 'bg-circleTel-navy hover:bg-gray-800 text-white'
                           }`}
                           size="lg"
                         >
@@ -109,7 +109,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                         className={`w-full ${
                           column.highlighted
                             ? 'bg-circleTel-orange hover:bg-orange-600 text-white'
-                            : 'bg-circleTel-darkNeutral hover:bg-gray-800 text-white'
+                            : 'bg-circleTel-navy hover:bg-gray-800 text-white'
                         }`}
                         size="lg"
                       >
@@ -139,13 +139,13 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
           >
             {/* Column Header */}
             <div className={`p-4 ${column.highlighted ? 'bg-gradient-to-br from-circleTel-orange to-orange-600' : 'bg-gray-50'}`}>
-              <h3 className={`text-xl font-bold ${column.highlighted ? 'text-white' : 'text-circleTel-darkNeutral'}`}>
+              <h3 className={`text-xl font-bold ${column.highlighted ? 'text-white' : 'text-circleTel-navy'}`}>
                 {column.title}
               </h3>
               {column.price !== undefined && (
                 <div className="mt-3">
                   <div className="flex items-baseline gap-1">
-                    <span className={`text-3xl font-bold ${column.highlighted ? 'text-white' : 'text-circleTel-darkNeutral'}`}>
+                    <span className={`text-3xl font-bold ${column.highlighted ? 'text-white' : 'text-circleTel-navy'}`}>
                       {column.currency || 'R'}{column.price.toFixed(2)}
                     </span>
                   </div>
@@ -166,7 +166,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                     {feature.startsWith('✓') || feature.startsWith('✔') ? (
                       <>
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-circleTel-darkNeutral">{feature.replace(/^[✓✔]\s*/, '')}</span>
+                        <span className="text-sm text-circleTel-navy">{feature.replace(/^[✓✔]\s*/, '')}</span>
                       </>
                     ) : feature.startsWith('✗') || feature.startsWith('×') ? (
                       <>
@@ -176,7 +176,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                     ) : (
                       <>
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-circleTel-darkNeutral">{feature}</span>
+                        <span className="text-sm text-circleTel-navy">{feature}</span>
                       </>
                     )}
                   </li>
@@ -193,7 +193,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                       className={`w-full ${
                         column.highlighted
                           ? 'bg-circleTel-orange hover:bg-orange-600 text-white'
-                          : 'bg-circleTel-darkNeutral hover:bg-gray-800 text-white'
+                          : 'bg-circleTel-navy hover:bg-gray-800 text-white'
                       }`}
                     >
                       {column.ctaText}
@@ -204,7 +204,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                     className={`w-full ${
                       column.highlighted
                         ? 'bg-circleTel-orange hover:bg-orange-600 text-white'
-                        : 'bg-circleTel-darkNeutral hover:bg-gray-800 text-white'
+                        : 'bg-circleTel-navy hover:bg-gray-800 text-white'
                     }`}
                   >
                     {column.ctaText}

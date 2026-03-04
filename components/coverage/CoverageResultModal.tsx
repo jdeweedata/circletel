@@ -196,7 +196,7 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
               </Button>
               <Button
                 onClick={handleContactSales}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
               >
                 <Phone className="h-4 w-4 mr-2" />
                 Contact Sales
@@ -209,7 +209,7 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
               </Button>
               <Button
                 onClick={handleExploreAlternatives}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Explore Alternatives

@@ -189,7 +189,7 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
           <Button asChild variant="outline" className="w-full border-circleTel-orange text-circleTel-orange" onClick={() => setIsMenuOpen(false)}>
             <Link href="/quotes/request">Request Quote</Link>
           </Button>
-          <Button asChild className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90" onClick={() => setIsMenuOpen(false)}>
+          <Button asChild className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark" onClick={() => setIsMenuOpen(false)}>
             <Link href="/auth/login">Customer Login</Link>
           </Button>
         </div>

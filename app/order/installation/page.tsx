@@ -128,7 +128,7 @@ export default function InstallationPage() {
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 md:py-10 lg:py-12">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral mb-2">
+          <h1 className="text-3xl font-bold text-circleTel-navy mb-2">
             Installation Scheduling
           </h1>
           <p className="text-lg text-circleTel-secondaryNeutral">
@@ -146,7 +146,7 @@ export default function InstallationPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-circleTel-darkNeutral">
+                    <p className="font-semibold text-circleTel-navy">
                       {state.orderData.coverage.selectedPackage.name}
                     </p>
                     <p className="text-sm text-circleTel-secondaryNeutral">
@@ -184,7 +184,7 @@ export default function InstallationPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Installation Dates */}
               <div className="space-y-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-                <div className="flex items-center gap-2 text-circleTel-darkNeutral">
+                <div className="flex items-center gap-2 text-circleTel-navy">
                   <Calendar className="h-5 w-5 text-blue-600" />
                   <h3 className="font-semibold">Select Installation Dates</h3>
                 </div>
@@ -243,7 +243,7 @@ export default function InstallationPage() {
 
               {/* Onsite Contact */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-circleTel-darkNeutral">Onsite Contact</h3>
+                <h3 className="font-semibold text-circleTel-navy">Onsite Contact</h3>
                 <p className="text-sm text-gray-600">
                   Who will be available during the installation?
                 </p>
@@ -316,7 +316,7 @@ export default function InstallationPage() {
 
               {/* Terms and Conditions */}
               <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <h3 className="font-semibold text-circleTel-darkNeutral">Terms & Conditions</h3>
+                <h3 className="font-semibold text-circleTel-navy">Terms & Conditions</h3>
 
                 <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-start gap-2">

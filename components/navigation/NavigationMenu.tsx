@@ -66,7 +66,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                       isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                     )}
                   >
-                    <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
+                    <div className="text-sm font-semibold text-circleTel-navy hover:text-circleTel-orange transition-colors">{item.name}</div>
                     <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                       {item.description}
                     </p>
@@ -99,7 +99,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                       isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-circleTel-orange/10' : ''
                     )}
                   >
-                    <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">Connectivity Overview</div>
+                    <div className="text-sm font-semibold text-circleTel-navy hover:text-circleTel-orange transition-colors">Connectivity Overview</div>
                     <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                       Explore all our connectivity solutions
                     </p>
@@ -117,7 +117,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                         isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                       )}
                     >
-                      <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
+                      <div className="text-sm font-semibold text-circleTel-navy hover:text-circleTel-orange transition-colors">{item.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
@@ -152,7 +152,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                         isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                       )}
                     >
-                      <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
+                      <div className="text-sm font-semibold text-circleTel-navy hover:text-circleTel-orange transition-colors">{item.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
@@ -187,7 +187,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                         isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                       )}
                     >
-                      <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
+                      <div className="text-sm font-semibold text-circleTel-navy hover:text-circleTel-orange transition-colors">{item.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
@@ -222,7 +222,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                         isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                       )}
                     >
-                      <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
+                      <div className="text-sm font-semibold text-circleTel-navy hover:text-circleTel-orange transition-colors">{item.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>

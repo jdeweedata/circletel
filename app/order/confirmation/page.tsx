@@ -91,7 +91,7 @@ function ConfirmationContent() {
         <div className="space-y-4">
           <Button
             onClick={() => router.push('/')}
-            className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             Return to Homepage
           </Button>

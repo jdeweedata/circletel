@@ -292,7 +292,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
             Back
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-circleTel-darkNeutral flex items-center gap-2">
+            <h1 className="text-3xl font-bold text-circleTel-navy flex items-center gap-2">
               <BarChart3 className="w-8 h-8 text-circleTel-orange" />
               Quote Analytics
             </h1>
@@ -331,7 +331,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                 <Eye className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-circleTel-darkNeutral">
+                <p className="text-3xl font-bold text-circleTel-navy">
                   {analytics.total_views}
                 </p>
                 <p className="text-xs text-circleTel-secondaryNeutral">
@@ -354,7 +354,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                 <Clock className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-circleTel-darkNeutral">
+                <p className="text-3xl font-bold text-circleTel-navy">
                   {formatDuration(analytics.total_time_spent_seconds)}
                 </p>
                 <p className="text-xs text-circleTel-secondaryNeutral">
@@ -377,7 +377,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                 <Share2 className="w-6 h-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-circleTel-darkNeutral">
+                <p className="text-3xl font-bold text-circleTel-navy">
                   {analytics.shares}
                 </p>
                 <p className="text-xs text-circleTel-secondaryNeutral">
@@ -400,7 +400,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                 <TrendingUp className="w-6 h-6 text-orange-600" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-circleTel-darkNeutral">
+                <p className="text-3xl font-bold text-circleTel-navy">
                   {engagementRate}%
                 </p>
                 <p className="text-xs text-circleTel-secondaryNeutral">

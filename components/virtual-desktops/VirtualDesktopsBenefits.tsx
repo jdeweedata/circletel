@@ -7,7 +7,7 @@ const VirtualDesktopsBenefits = () => {
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Business Benefits</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-4">Business Benefits</h2>
           <p className="text-circleTel-secondaryNeutral max-w-2xl mx-auto">
             Virtual desktops deliver significant advantages for South African businesses looking to optimize their IT infrastructure.
           </p>

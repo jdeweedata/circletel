@@ -175,7 +175,7 @@ export function QuickEditModal({
           <Button
             onClick={handleSave}
             disabled={!updates.change_reason || isProcessing}
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             {isProcessing ? 'Saving...' : `Apply to ${products.length} Product${products.length > 1 ? 's' : ''}`}
           </Button>

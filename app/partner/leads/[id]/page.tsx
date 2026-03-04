@@ -213,7 +213,7 @@ export default function LeadDetailPage({
             Back to Leads
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+            <h1 className="text-3xl font-bold text-circleTel-navy">
               {lead.first_name} {lead.last_name}
             </h1>
             <p className="text-circleTel-secondaryNeutral mt-1">

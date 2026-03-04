@@ -108,14 +108,14 @@ const SmallBusinessServices = () => {
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="md:w-1/2">
-                <h1 className="text-4xl font-bold text-circleTel-darkNeutral mb-4">
+                <h1 className="text-4xl font-bold text-circleTel-navy mb-4">
                   Simple IT Recipes for Small Businesses
                 </h1>
                 <p className="text-lg text-circleTel-secondaryNeutral mb-6">
                   Reliable, affordable IT solutions designed specifically for small businesses with 1-25 employees. No technical jargon, just simple recipes for success.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                  <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                     <Link href="/contact">Get a Quote</Link>
                   </Button>
                   <Button asChild variant="outline" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
@@ -144,7 +144,7 @@ const SmallBusinessServices = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-4">
                 Why Small Businesses Choose CircleTel
               </h2>
               <p className="text-lg text-circleTel-secondaryNeutral max-w-3xl mx-auto">
@@ -201,7 +201,7 @@ const SmallBusinessServices = () => {
         {/* Recipe Details */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-12 text-center">
+            <h2 className="text-3xl font-bold text-circleTel-navy mb-12 text-center">
               Our Small Business IT Recipes
             </h2>
 
@@ -210,11 +210,11 @@ const SmallBusinessServices = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div>
                   <Badge className="bg-blue-100 text-blue-800 mb-4">Most Popular for Startups</Badge>
-                  <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">{basicRecipe.title}</h3>
+                  <h3 className="text-2xl font-bold text-circleTel-navy mb-4">{basicRecipe.title}</h3>
                   <p className="text-circleTel-secondaryNeutral mb-6">{basicRecipe.description}</p>
 
                   <div className="mb-6">
-                    <h4 className="font-bold text-circleTel-darkNeutral mb-3">Ingredients:</h4>
+                    <h4 className="font-bold text-circleTel-navy mb-3">Ingredients:</h4>
                     <ul className="space-y-2">
                       {basicRecipe.ingredients.map((ingredient, index) => (
                         <li key={index} className="flex items-start">
@@ -238,7 +238,7 @@ const SmallBusinessServices = () => {
                         SB
                       </div>
                       <div>
-                        <div className="font-bold text-circleTel-darkNeutral">{basicRecipe.testimonial.author}</div>
+                        <div className="font-bold text-circleTel-navy">{basicRecipe.testimonial.author}</div>
                         <div className="text-sm text-circleTel-secondaryNeutral">{basicRecipe.testimonial.company}</div>
                       </div>
                     </div>
@@ -251,11 +251,11 @@ const SmallBusinessServices = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                   <div>
                     <Badge className="bg-purple-100 text-purple-800 mb-4">Best for Growth</Badge>
-                    <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">{growthRecipe.title}</h3>
+                    <h3 className="text-2xl font-bold text-circleTel-navy mb-4">{growthRecipe.title}</h3>
                     <p className="text-circleTel-secondaryNeutral mb-6">{growthRecipe.description}</p>
 
                     <div className="mb-6">
-                      <h4 className="font-bold text-circleTel-darkNeutral mb-3">Ingredients:</h4>
+                      <h4 className="font-bold text-circleTel-navy mb-3">Ingredients:</h4>
                       <ul className="space-y-2">
                         {growthRecipe.ingredients.map((ingredient, index) => (
                           <li key={index} className="flex items-start">
@@ -279,7 +279,7 @@ const SmallBusinessServices = () => {
                           MT
                         </div>
                         <div>
-                          <div className="font-bold text-circleTel-darkNeutral">{growthRecipe.testimonial.author}</div>
+                          <div className="font-bold text-circleTel-navy">{growthRecipe.testimonial.author}</div>
                           <div className="text-sm text-circleTel-secondaryNeutral">{growthRecipe.testimonial.company}</div>
                         </div>
                       </div>
@@ -292,11 +292,11 @@ const SmallBusinessServices = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div>
                   <Badge className="bg-red-100 text-red-800 mb-4">Maximum Security</Badge>
-                  <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">{secureRecipe.title}</h3>
+                  <h3 className="text-2xl font-bold text-circleTel-navy mb-4">{secureRecipe.title}</h3>
                   <p className="text-circleTel-secondaryNeutral mb-6">{secureRecipe.description}</p>
 
                   <div className="mb-6">
-                    <h4 className="font-bold text-circleTel-darkNeutral mb-3">Ingredients:</h4>
+                    <h4 className="font-bold text-circleTel-navy mb-3">Ingredients:</h4>
                     <ul className="space-y-2">
                       {secureRecipe.ingredients.map((ingredient, index) => (
                         <li key={index} className="flex items-start">
@@ -320,7 +320,7 @@ const SmallBusinessServices = () => {
                         TM
                       </div>
                       <div>
-                        <div className="font-bold text-circleTel-darkNeutral">{secureRecipe.testimonial.author}</div>
+                        <div className="font-bold text-circleTel-navy">{secureRecipe.testimonial.author}</div>
                         <div className="text-sm text-circleTel-secondaryNeutral">{secureRecipe.testimonial.company}</div>
                       </div>
                     </div>
@@ -335,7 +335,7 @@ const SmallBusinessServices = () => {
         <section className="bg-circleTel-lightNeutral py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-12 text-center">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-12 text-center">
                 Frequently Asked Questions
               </h2>
 
@@ -355,14 +355,14 @@ const SmallBusinessServices = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">
+              <h2 className="text-3xl font-bold text-circleTel-navy mb-6">
                 Ready to Get Started?
               </h2>
               <p className="text-lg text-circleTel-secondaryNeutral mb-8">
                 Let's discuss which IT recipe is perfect for your small business needs and budget.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                   <Link href="/contact">Get Your Custom Quote</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">

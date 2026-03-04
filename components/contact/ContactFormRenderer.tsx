@@ -28,7 +28,7 @@ const ContactFormRenderer: React.FC<ContactFormRendererProps> = ({
 }) => {
   return (
     <div className={`bg-white p-8 rounded-lg shadow-md ${className || ''}`}>
-      <h2 className="text-xl font-bold text-circleTel-darkNeutral mb-6">
+      <h2 className="text-xl font-bold text-circleTel-navy mb-6">
         Get in Touch
       </h2>
       
@@ -93,7 +93,7 @@ const FormField: React.FC<FormFieldProps> = ({
   id, label, type, placeholder, value, onChange
 }) => (
   <div>
-    <label htmlFor={id} className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+    <label htmlFor={id} className="block text-sm font-medium text-circleTel-navy mb-1">
       {label}
     </label>
     <Input 
@@ -115,7 +115,7 @@ interface ServiceSelectFieldProps {
 
 const ServiceSelectField: React.FC<ServiceSelectFieldProps> = ({ value, onChange }) => (
   <div>
-    <label htmlFor="serviceInterest" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+    <label htmlFor="serviceInterest" className="block text-sm font-medium text-circleTel-navy mb-1">
       Service Interest
     </label>
     <Select onValueChange={onChange} value={value}>

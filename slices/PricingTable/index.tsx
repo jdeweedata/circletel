@@ -56,17 +56,17 @@ const PricingTable = ({ slice }: PricingTableProps): JSX.Element => {
             field={slice.primary.title}
             components={{
               heading1: ({ children }) => (
-                <h1 className="text-4xl md:text-5xl font-extrabold text-circleTel-darkNeutral mb-4">
+                <h1 className="text-4xl md:text-5xl font-extrabold text-circleTel-navy mb-4">
                   {children}
                 </h1>
               ),
               heading2: ({ children }) => (
-                <h2 className="text-3xl md:text-4xl font-bold text-circleTel-darkNeutral mb-4">
+                <h2 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-4">
                   {children}
                 </h2>
               ),
               paragraph: ({ children }) => (
-                <p className="text-xl font-semibold text-circleTel-darkNeutral mb-4">
+                <p className="text-xl font-semibold text-circleTel-navy mb-4">
                   {children}
                 </p>
               ),
@@ -95,7 +95,7 @@ const PricingTable = ({ slice }: PricingTableProps): JSX.Element => {
                 ${
                   tier.is_featured
                     ? "bg-gradient-to-br from-circleTel-orange to-orange-600 text-white shadow-2xl transform scale-105 border-4 border-circleTel-orange"
-                    : "bg-white text-circleTel-darkNeutral shadow-lg hover:shadow-xl border border-gray-200"
+                    : "bg-white text-circleTel-navy shadow-lg hover:shadow-xl border border-gray-200"
                 }
               `}
             >
@@ -110,7 +110,7 @@ const PricingTable = ({ slice }: PricingTableProps): JSX.Element => {
                 {/* Tier Name */}
                 <h3
                   className={`text-2xl font-bold mb-2 ${
-                    tier.is_featured ? "text-white" : "text-circleTel-darkNeutral"
+                    tier.is_featured ? "text-white" : "text-circleTel-navy"
                   }`}
                 >
                   {tier.tier_name}

@@ -349,7 +349,7 @@ export default function WebhookMonitorPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral dark:text-white">
+          <h1 className="text-3xl font-bold text-circleTel-navy dark:text-white">
             Webhook Monitor
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -382,7 +382,7 @@ export default function WebhookMonitorPage() {
             variant="default"
             size="sm"
             onClick={() => setTestDialogOpen(true)}
-            className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             <TestTube className="w-4 h-4 mr-2" />
             Test Webhook
@@ -681,7 +681,7 @@ export default function WebhookMonitorPage() {
             <AlertDialogAction
               onClick={handleReplayWebhook}
               disabled={isReplaying}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               {isReplaying ? (
                 <>
@@ -753,7 +753,7 @@ export default function WebhookMonitorPage() {
             <Button
               onClick={handleTestWebhook}
               disabled={isTesting || !testIntegration}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               {isTesting ? (
                 <>

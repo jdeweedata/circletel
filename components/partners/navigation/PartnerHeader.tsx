@@ -47,7 +47,7 @@ export default function PartnerHeader({
             <div className="w-8 h-8 rounded-full bg-circleTel-orange flex items-center justify-center">
               <Handshake className="h-4 w-4 text-white" />
             </div>
-            <span className="font-semibold text-sm text-circleTel-darkNeutral">
+            <span className="font-semibold text-sm text-circleTel-navy">
               Partner Portal
             </span>
           </Link>
@@ -60,7 +60,7 @@ export default function PartnerHeader({
               <Handshake className="h-4 w-4 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-circleTel-darkNeutral leading-tight">
+              <span className="font-semibold text-circleTel-navy leading-tight">
                 Partner Portal
               </span>
               <span className="text-xs text-gray-500 leading-tight">

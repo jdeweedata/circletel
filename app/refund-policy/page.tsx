@@ -53,7 +53,7 @@ export default function RefundPolicyPage() {
 
         {/* Section 1: Refund Eligibility */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">1. Refund Eligibility</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-6">1. Refund Eligibility</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {/* Eligible for Refund */}
@@ -133,10 +133,10 @@ export default function RefundPolicyPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <Calendar className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">2. 30-Day Money-Back Guarantee</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">2. 30-Day Money-Back Guarantee</h2>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">2.1 How It Works</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">2.1 How It Works</h3>
           <ol className="list-decimal pl-6 space-y-3 text-gray-700 mb-6">
             <li>
               <strong>Activate Service:</strong> Your CircleTel Internet service is installed and activated
@@ -152,7 +152,7 @@ export default function RefundPolicyPage() {
             </li>
           </ol>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">2.2 Conditions</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">2.2 Conditions</h3>
           <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-6">
             <li>Money-back guarantee applies only to monthly recurring service charges</li>
             <li>Installation fees, router purchases, and third-party charges are non-refundable</li>
@@ -171,22 +171,22 @@ export default function RefundPolicyPage() {
 
         {/* Section 3: Cancellation Procedures */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">3. Cancellation Procedures</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-6">3. Cancellation Procedures</h2>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">3.1 How to Cancel</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">3.1 How to Cancel</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             You can cancel your CircleTel service through the following methods:
           </p>
 
           <div className="space-y-4 mb-6">
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">✓ Recommended: Customer Portal</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">✓ Recommended: Customer Portal</h4>
               <p className="text-gray-700">Log in to your account → Manage Services → Request Cancellation</p>
               <p className="text-sm text-gray-600 mt-2">Fastest method with instant confirmation email</p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">✓ Email Request</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">✓ Email Request</h4>
               <p className="text-gray-700">
                 Send cancellation request to: <a href="mailto:support@circletel.co.za" className="text-circleTel-orange hover:underline">support@circletel.co.za</a>
               </p>
@@ -194,7 +194,7 @@ export default function RefundPolicyPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">✓ Phone Support</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">✓ Phone Support</h4>
               <p className="text-gray-700">WhatsApp 082 487 3900 (Mon-Fri, 8am-5pm)</p>
               <p className="text-sm text-gray-600 mt-2">Verbal cancellations must be confirmed via email</p>
             </div>
@@ -211,7 +211,7 @@ export default function RefundPolicyPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <Clock className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">4. Notice Periods & Effective Dates</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">4. Notice Periods & Effective Dates</h2>
           </div>
 
           <table className="w-full border-collapse border border-gray-300 mb-6">
@@ -246,7 +246,7 @@ export default function RefundPolicyPage() {
             </tbody>
           </table>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">4.1 Calendar Month Notice Example</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">4.1 Calendar Month Notice Example</h3>
           <div className="bg-blue-50 border border-blue-300 rounded-lg p-6 mb-6">
             <p className="text-blue-900 mb-3">
               <strong>Scenario:</strong> You request cancellation on 15 March 2025
@@ -262,9 +262,9 @@ export default function RefundPolicyPage() {
 
         {/* Section 5: Cancellation Fees */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">5. Cancellation Fees</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-6">5. Cancellation Fees</h2>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">5.1 Early Contract Termination Fees</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">5.1 Early Contract Termination Fees</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             If you cancel a contract service before the contract end date, you will be charged:
           </p>
@@ -274,7 +274,7 @@ export default function RefundPolicyPage() {
             <li><strong>Clawback Fee:</strong> If installation fees were waived as promotion (varies by provider)</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">5.2 Other Fees</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">5.2 Other Fees</h3>
           <table className="w-full border-collapse border border-gray-300 mb-6">
             <thead>
               <tr className="bg-gray-100">
@@ -307,10 +307,10 @@ export default function RefundPolicyPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <DollarSign className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">6. Refund Processing</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">6. Refund Processing</h2>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">6.1 Processing Timeline</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">6.1 Processing Timeline</h3>
           <ol className="list-decimal pl-6 space-y-3 text-gray-700 mb-6">
             <li>
               <strong>Cancellation Request Received:</strong> We confirm cancellation via email within 24 hours
@@ -332,7 +332,7 @@ export default function RefundPolicyPage() {
             </p>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">6.2 Refund Method</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">6.2 Refund Method</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             Refunds are processed to the <strong>original payment method</strong>:
           </p>
@@ -350,7 +350,7 @@ export default function RefundPolicyPage() {
 
         {/* Section 7: Equipment Return */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">7. Equipment Return Procedure</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-6">7. Equipment Return Procedure</h2>
 
           <p className="text-gray-700 leading-relaxed mb-4">
             If you have CircleTel-owned equipment (router, ONT, etc.), you must return it within <strong>14 days</strong> of cancellation:
@@ -358,22 +358,22 @@ export default function RefundPolicyPage() {
 
           <div className="space-y-4 mb-6">
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Step 1: Request Return Label</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">Step 1: Request Return Label</h4>
               <p className="text-gray-700">Email support@circletel.co.za to request a prepaid shipping label</p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Step 2: Package Equipment</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">Step 2: Package Equipment</h4>
               <p className="text-gray-700">Include router, power adapter, cables, and original packaging (if available)</p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Step 3: Ship Equipment</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">Step 3: Ship Equipment</h4>
               <p className="text-gray-700">Drop off at courier location or schedule pickup</p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Step 4: Receive Confirmation</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">Step 4: Receive Confirmation</h4>
               <p className="text-gray-700">We confirm receipt and inspect equipment condition</p>
             </div>
           </div>
@@ -389,10 +389,10 @@ export default function RefundPolicyPage() {
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <AlertCircle className="h-8 w-8 text-circleTel-orange" />
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral">8. Exceptions and Special Cases</h2>
+            <h2 className="text-3xl font-bold text-circleTel-navy">8. Exceptions and Special Cases</h2>
           </div>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.1 Service Not Available After Payment</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.1 Service Not Available After Payment</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             If we are unable to activate your service due to lack of infrastructure coverage:
           </p>
@@ -402,7 +402,7 @@ export default function RefundPolicyPage() {
             <li>No cancellation fees apply</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.2 Service Quality Issues</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.2 Service Quality Issues</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             If you experience ongoing service quality issues that we cannot resolve:
           </p>
@@ -412,7 +412,7 @@ export default function RefundPolicyPage() {
             <li>If unresolved, you may be eligible for cancellation without early termination fees</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-circleTel-darkNeutral mt-6 mb-4">8.3 Death or Permanent Disability</h3>
+          <h3 className="text-xl font-semibold text-circleTel-navy mt-6 mb-4">8.3 Death or Permanent Disability</h3>
           <p className="text-gray-700 leading-relaxed mb-4">
             In cases of customer death or permanent disability:
           </p>
@@ -425,7 +425,7 @@ export default function RefundPolicyPage() {
 
         {/* Section 9: Dispute Resolution */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-6">9. Refund Disputes</h2>
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-6">9. Refund Disputes</h2>
 
           <p className="text-gray-700 leading-relaxed mb-4">
             If you disagree with a refund decision or amount:
@@ -433,7 +433,7 @@ export default function RefundPolicyPage() {
 
           <div className="space-y-4">
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Step 1: Contact Billing Department</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">Step 1: Contact Billing Department</h4>
               <p className="text-gray-700">
                 Email: billing@circletel.co.za<br />
                 WhatsApp: 082 487 3900<br />
@@ -442,14 +442,14 @@ export default function RefundPolicyPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Step 2: Formal Complaint</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">Step 2: Formal Complaint</h4>
               <p className="text-gray-700">
                 If not resolved within 5 business days, escalate to: complaints@circletel.co.za
               </p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Step 3: External Dispute Resolution</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">Step 3: External Dispute Resolution</h4>
               <p className="text-gray-700">
                 File complaint with ICASA (Independent Communications Authority of South Africa)<br />
                 Website: <a href="https://www.icasa.org.za" className="text-circleTel-orange hover:underline">www.icasa.org.za</a>

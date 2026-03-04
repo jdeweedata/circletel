@@ -150,7 +150,7 @@ export default function InvoicesPage() {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90" disabled>
+          <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark" disabled>
             <Plus className="h-4 w-4 mr-2" />
             Create Invoice
           </Button>

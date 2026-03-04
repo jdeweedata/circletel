@@ -139,7 +139,7 @@ export default function PaymentCallbackPage() {
                 </div>
                 <Button
                   onClick={handleGoToBilling}
-                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90"
+                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
                 >
                   Go to Billing Now
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -155,7 +155,7 @@ export default function PaymentCallbackPage() {
                 </div>
                 <Button
                   onClick={handleGoToBilling}
-                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90"
+                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
                 >
                   <LogIn className="w-4 h-4 mr-2" />
                   Log In to Continue

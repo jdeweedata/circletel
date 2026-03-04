@@ -328,7 +328,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           </Button>
           <div className="flex flex-col md:flex-row md:items-center md:gap-6">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral">
+              <h1 className="text-2xl md:text-3xl font-bold text-circleTel-navy">
                 Quote Details
               </h1>
               <p className="mt-1 text-sm md:text-base text-circleTel-secondaryNeutral">
@@ -450,7 +450,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm text-circleTel-secondaryNeutral mb-1">Monthly total</p>
-              <p className="text-2xl md:text-3xl font-semibold text-circleTel-darkNeutral">
+              <p className="text-2xl md:text-3xl font-semibold text-circleTel-navy">
                 {formatCurrency(pricing.total_monthly)}
               </p>
             </div>
@@ -461,7 +461,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm text-circleTel-secondaryNeutral mb-1">Contract value</p>
-              <p className="text-2xl md:text-3xl font-semibold text-circleTel-darkNeutral">
+              <p className="text-2xl md:text-3xl font-semibold text-circleTel-navy">
                 {formatCurrency(pricing.total_monthly * quote.contract_term + pricing.total_installation)}
               </p>
             </div>
@@ -472,7 +472,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm text-circleTel-secondaryNeutral mb-1">Valid until</p>
-              <p className="text-xl md:text-2xl font-semibold text-circleTel-darkNeutral">
+              <p className="text-xl md:text-2xl font-semibold text-circleTel-navy">
                 {new Date(quote.valid_until).toLocaleDateString('en-ZA', {
                   day: '2-digit',
                   month: 'short',
@@ -485,7 +485,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
         </Card>
       </div>
 
-      <h2 className="text-xl font-semibold text-circleTel-darkNeutral">Quote summary</h2>
+      <h2 className="text-xl font-semibold text-circleTel-navy">Quote summary</h2>
 
       {/* Error Alert */}
       {error && (

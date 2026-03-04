@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h1 className="text-4xl font-bold text-circleTel-darkNeutral mb-8">Privacy Policy</h1>
+              <h1 className="text-4xl font-bold text-circleTel-navy mb-8">Privacy Policy</h1>
 
               <div className="prose max-w-none">
                 <p className="text-lg text-circleTel-secondaryNeutral mb-8">
@@ -34,10 +34,10 @@ const PrivacyPolicy = () => {
 
                 <div className="space-y-8">
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">1. Information We Collect</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">1. Information We Collect</h2>
                     <div className="space-y-4">
                       <div>
-                        <h3 className="text-xl font-semibold text-circleTel-darkNeutral mb-2">Personal Information</h3>
+                        <h3 className="text-xl font-semibold text-circleTel-navy mb-2">Personal Information</h3>
                         <p className="text-circleTel-secondaryNeutral mb-2">We may collect personal information that you voluntarily provide, including:</p>
                         <ul className="list-disc list-inside text-circleTel-secondaryNeutral space-y-1 ml-4">
                           <li>Name, email address, and phone number</li>
@@ -49,7 +49,7 @@ const PrivacyPolicy = () => {
                       </div>
 
                       <div>
-                        <h3 className="text-xl font-semibold text-circleTel-darkNeutral mb-2">Technical Information</h3>
+                        <h3 className="text-xl font-semibold text-circleTel-navy mb-2">Technical Information</h3>
                         <p className="text-circleTel-secondaryNeutral mb-2">We automatically collect certain technical information, including:</p>
                         <ul className="list-disc list-inside text-circleTel-secondaryNeutral space-y-1 ml-4">
                           <li>IP addresses and device information</li>
@@ -62,7 +62,7 @@ const PrivacyPolicy = () => {
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">2. How We Use Your Information</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">2. How We Use Your Information</h2>
                     <p className="text-circleTel-secondaryNeutral mb-4">We use the information we collect for the following purposes:</p>
                     <ul className="list-disc list-inside text-circleTel-secondaryNeutral space-y-2 ml-4">
                       <li>Providing and maintaining our IT services and connectivity solutions</li>
@@ -76,7 +76,7 @@ const PrivacyPolicy = () => {
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">3. Information Sharing and Disclosure</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">3. Information Sharing and Disclosure</h2>
                     <p className="text-circleTel-secondaryNeutral mb-4">We may share your information in the following circumstances:</p>
                     <ul className="list-disc list-inside text-circleTel-secondaryNeutral space-y-2 ml-4">
                       <li><strong>Service Providers:</strong> With third-party vendors who help us provide our services</li>
@@ -88,7 +88,7 @@ const PrivacyPolicy = () => {
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">4. Data Security</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">4. Data Security</h2>
                     <p className="text-circleTel-secondaryNeutral mb-4">
                       We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. These measures include:
                     </p>
@@ -102,7 +102,7 @@ const PrivacyPolicy = () => {
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">5. Your Rights Under POPI Act</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">5. Your Rights Under POPI Act</h2>
                     <p className="text-circleTel-secondaryNeutral mb-4">
                       Under South Africa's Protection of Personal Information Act (POPI Act), you have the following rights:
                     </p>
@@ -117,13 +117,13 @@ const PrivacyPolicy = () => {
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">6. Third-Party Services</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">6. Third-Party Services</h2>
                     <p className="text-circleTel-secondaryNeutral mb-4">
                       We use trusted third-party services to provide and improve our platform. These services may process your data as described below:
                     </p>
                     <div className="space-y-4">
                       <div>
-                        <h3 className="text-xl font-semibold text-circleTel-darkNeutral mb-2">Google Services</h3>
+                        <h3 className="text-xl font-semibold text-circleTel-navy mb-2">Google Services</h3>
                         <p className="text-circleTel-secondaryNeutral mb-2">
                           CircleTel's use and transfer of information received from Google APIs adheres to the{' '}
                           <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-circleTel-orange hover:underline">
@@ -147,14 +147,14 @@ const PrivacyPolicy = () => {
                       </div>
 
                       <div>
-                        <h3 className="text-xl font-semibold text-circleTel-darkNeutral mb-2">Payment Processing</h3>
+                        <h3 className="text-xl font-semibold text-circleTel-navy mb-2">Payment Processing</h3>
                         <p className="text-circleTel-secondaryNeutral">
                           We use NetCash, a South African payment gateway, to process payments securely. Your payment information is transmitted directly to NetCash and is not stored on our servers. NetCash is PCI-DSS compliant.
                         </p>
                       </div>
 
                       <div>
-                        <h3 className="text-xl font-semibold text-circleTel-darkNeutral mb-2">Authentication &amp; Database</h3>
+                        <h3 className="text-xl font-semibold text-circleTel-navy mb-2">Authentication &amp; Database</h3>
                         <p className="text-circleTel-secondaryNeutral">
                           We use Supabase for secure user authentication and data storage. Your account credentials are encrypted and stored securely in compliance with industry standards.
                         </p>
@@ -163,35 +163,35 @@ const PrivacyPolicy = () => {
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">7. Cookies and Tracking Technologies</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">7. Cookies and Tracking Technologies</h2>
                     <p className="text-circleTel-secondaryNeutral mb-4">
                       We use cookies and similar technologies to improve your browsing experience, analyze website traffic, and personalize content. You can control cookie preferences through your browser settings.
                     </p>
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">8. Data Retention</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">8. Data Retention</h2>
                     <p className="text-circleTel-secondaryNeutral">
                       We retain your personal information for as long as necessary to fulfill the purposes outlined in this policy, comply with legal obligations, resolve disputes, and enforce our agreements. Specific retention periods may vary based on the type of information and applicable legal requirements.
                     </p>
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">9. International Data Transfers</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">9. International Data Transfers</h2>
                     <p className="text-circleTel-secondaryNeutral">
                       Your information may be transferred to and processed in countries other than South Africa. We ensure appropriate safeguards are in place to protect your information in accordance with applicable data protection laws.
                     </p>
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">10. Changes to This Policy</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">10. Changes to This Policy</h2>
                     <p className="text-circleTel-secondaryNeutral">
                       We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new policy on our website and updating the "Last updated" date. Your continued use of our services after such changes constitutes acceptance of the updated policy.
                     </p>
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">11. Contact Information</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-navy mb-4">11. Contact Information</h2>
                     <Card>
                       <CardContent className="p-6">
                         <p className="text-circleTel-secondaryNeutral mb-4">

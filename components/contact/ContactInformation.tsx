@@ -11,7 +11,7 @@ interface ContactInformationProps {
 const ContactInformation: React.FC<ContactInformationProps> = ({ className }) => {
   return (
     <div className={`bg-white p-8 rounded-lg shadow-md mb-8 ${className || ''}`}>
-      <h2 className="text-xl font-bold text-circleTel-darkNeutral mb-6">
+      <h2 className="text-xl font-bold text-circleTel-navy mb-6">
         Contact Information
       </h2>
       
@@ -26,7 +26,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({ className }) =>
             <FaWhatsapp size={20} />
           </div>
           <div>
-            <h3 className="font-bold text-circleTel-darkNeutral">WhatsApp</h3>
+            <h3 className="font-bold text-circleTel-navy">WhatsApp</h3>
             <p className="text-circleTel-secondaryNeutral">{CONTACT.WHATSAPP_NUMBER}</p>
           </div>
         </a>
@@ -36,7 +36,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({ className }) =>
             <Mail size={20} />
           </div>
           <div>
-            <h3 className="font-bold text-circleTel-darkNeutral">Email</h3>
+            <h3 className="font-bold text-circleTel-navy">Email</h3>
             <p className="text-circleTel-secondaryNeutral">contactus@circletel.co.za</p>
           </div>
         </div>
@@ -46,7 +46,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({ className }) =>
             <MapPin size={20} />
           </div>
           <div>
-            <h3 className="font-bold text-circleTel-darkNeutral">Address</h3>
+            <h3 className="font-bold text-circleTel-navy">Address</h3>
             <p className="text-circleTel-secondaryNeutral">
               West House, 7 Autumn Road<br />
               Rivonia, Johannesburg<br />

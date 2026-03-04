@@ -51,14 +51,14 @@ export function SharedEmptyState({
         <div className="mt-4">
           {ctaHref ? (
             <Link href={ctaHref}>
-              <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
+              <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
                 {ctaText}
               </Button>
             </Link>
           ) : (
             <Button
               onClick={ctaOnClick}
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
             >
               {ctaText}
             </Button>

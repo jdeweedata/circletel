@@ -22,14 +22,14 @@ const RegisterInterestForm = () => {
 
   return (
     <div className="bg-circleTel-lightNeutral rounded-lg p-6 shadow-lg">
-      <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">Stay Updated on Our New Services</h3>
+      <h3 className="text-xl font-bold text-circleTel-navy mb-4">Stay Updated on Our New Services</h3>
       <p className="mb-4 text-circleTel-secondaryNeutral">
         Be the first to know when our Fibre and Wireless solutions launch. Register your interest below.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+          <label htmlFor="name" className="block text-sm font-medium text-circleTel-navy mb-1">
             Full Name
           </label>
           <Input
@@ -41,7 +41,7 @@ const RegisterInterestForm = () => {
         </div>
 
         <div>
-          <label htmlFor="company" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+          <label htmlFor="company" className="block text-sm font-medium text-circleTel-navy mb-1">
             Company Name
           </label>
           <Input
@@ -53,7 +53,7 @@ const RegisterInterestForm = () => {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-circleTel-navy mb-1">
             Email Address
           </label>
           <Input
@@ -66,7 +66,7 @@ const RegisterInterestForm = () => {
         </div>
 
         <div>
-          <label htmlFor="services" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+          <label htmlFor="services" className="block text-sm font-medium text-circleTel-navy mb-1">
             Services of Interest
           </label>
           <select
@@ -83,7 +83,7 @@ const RegisterInterestForm = () => {
 
         <Button
           type="submit"
-          className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+          className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
         >
           Register Interest
         </Button>

@@ -10,7 +10,7 @@ export default function OrchestratorPage() {
       <div className="space-y-6">
         {/* Page Header */}
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+          <h1 className="text-3xl font-bold text-circleTel-navy">
             Orchestrator Dashboard
           </h1>
           <p className="mt-2 text-circleTel-secondaryNeutral">
