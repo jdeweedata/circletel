@@ -83,10 +83,17 @@ const nextConfig = {
       '@radix-ui/react-icons',
       'react-icons',
       'lucide-react',
-      '@phosphor-icons/react'
+      '@phosphor-icons/react',
+      'date-fns',
+      '@tanstack/react-table',
+      'recharts',
+      'zod',
+      '@hookform/resolvers'
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
+    // Reduce memory by limiting parallel routes compilation
+    cpus: 1,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports
