@@ -1,17 +1,15 @@
 'use client';
 
 import {
-  PiUserBold,
   PiEnvelopeBold,
   PiPhoneBold,
+  PiBellBold,
   PiMapPinBold,
-  PiPackageBold,
-  PiTrendUpBold,
-  PiShieldBold,
-  PiNotePencilBold,
+  PiCheckCircleBold,
+  PiTargetBold,
+  PiFireBold,
 } from 'react-icons/pi';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { OrderProgressTimeline } from './OrderProgressTimeline';
 
@@ -43,6 +41,7 @@ interface Order {
   installation_fee: number;
   router_included: boolean;
   router_rental_fee?: number;
+  contract_term?: number;
   status: string;
   contact_preference: string;
   marketing_opt_in: boolean;
@@ -65,28 +64,23 @@ interface OrderOverviewTabProps {
 }
 
 function SectionCard({
-  icon: Icon,
   title,
-  badge,
+  action,
   children,
   className,
 }: {
-  icon: React.ElementType;
   title: string;
-  badge?: React.ReactNode;
+  action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }) {
   return (
-    <div className={cn('bg-white rounded-xl border border-slate-200', className)}>
-      <div className="flex items-center justify-between p-4 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4 text-slate-500" />
-          <h3 className="font-bold text-slate-900 text-sm">{title}</h3>
-        </div>
-        {badge}
+    <div className={cn('bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm', className)}>
+      <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+        <h3 className="font-bold text-slate-900">{title}</h3>
+        {action}
       </div>
-      <div className="p-4">{children}</div>
+      <div className="p-6">{children}</div>
     </div>
   );
 }
@@ -119,7 +113,7 @@ function formatCurrency(amount: number): string {
 
 function formatLeadSource(source: string): string {
   const mapping: Record<string, string> = {
-    organic: 'Organic',
+    organic: 'Organic Search',
     google_ads: 'Google Ads',
     facebook: 'Facebook',
     referral: 'Referral',
@@ -130,235 +124,206 @@ function formatLeadSource(source: string): string {
   return mapping[source] || source.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
+function getInitials(firstName: string, lastName: string): string {
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+}
+
 export function OrderOverviewTab({ order, onViewHistory }: OrderOverviewTabProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mt-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mt-6">
       {/* Left Column - Customer & Address */}
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-8">
         {/* Customer Information */}
-        <SectionCard icon={PiUserBold} title="Customer Information">
-          <div className="space-y-4">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Full Name</p>
-              <p className="font-semibold text-slate-900">{order.first_name} {order.last_name}</p>
+        <SectionCard title="Customer Information">
+          <div className="space-y-5">
+            {/* Avatar + Name + Account */}
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
+                {getInitials(order.first_name, order.last_name)}
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900">{order.first_name} {order.last_name}</p>
+                {order.account_number && (
+                  <p className="text-sm text-slate-500 font-mono">{order.account_number}</p>
+                )}
+              </div>
             </div>
 
-            {order.account_number && (
-              <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Account Number</p>
-                <p className="font-mono font-bold text-primary">{order.account_number}</p>
+            {/* Contact Info */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <PiEnvelopeBold className="h-4 w-4 text-blue-600" />
+                </div>
+                <a href={`mailto:${order.email}`} className="text-sm text-blue-600 hover:underline truncate">
+                  {order.email}
+                </a>
               </div>
-            )}
 
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                <PiEnvelopeBold className="h-4 w-4 text-blue-600" />
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                  <PiPhoneBold className="h-4 w-4 text-emerald-600" />
+                </div>
+                <a href={`tel:${order.phone}`} className="text-sm text-slate-700 hover:text-slate-900">
+                  {order.phone}
+                </a>
               </div>
-              <a href={`mailto:${order.email}`} className="text-sm text-blue-600 hover:underline truncate">
-                {order.email}
-              </a>
+
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <PiBellBold className="h-4 w-4 text-purple-600" />
+                </div>
+                <span className="text-sm text-slate-700 capitalize">{order.contact_preference}</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <PiPhoneBold className="h-4 w-4 text-emerald-600" />
-              </div>
-              <a href={`tel:${order.phone}`} className="text-sm text-slate-700 hover:text-slate-900">
-                {order.phone}
-              </a>
-            </div>
-
-            <Separator />
-
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-xs text-slate-500 mb-1">Contact</p>
-                <p className="text-sm font-medium capitalize">{order.contact_preference}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-1">Marketing</p>
-                <p className="text-sm font-medium">{order.marketing_opt_in ? 'Yes' : 'No'}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-1">WhatsApp</p>
-                <p className="text-sm font-medium">{order.whatsapp_opt_in ? 'Yes' : 'No'}</p>
-              </div>
+            {/* Preferences as Badges */}
+            <div className="flex flex-wrap gap-2 pt-2">
+              {order.marketing_opt_in && (
+                <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-600">
+                  Marketing
+                </Badge>
+              )}
+              {order.whatsapp_opt_in && (
+                <Badge variant="secondary" className="text-xs bg-emerald-50 text-emerald-700">
+                  WhatsApp
+                </Badge>
+              )}
+              {!order.marketing_opt_in && !order.whatsapp_opt_in && (
+                <Badge variant="secondary" className="text-xs bg-slate-50 text-slate-400">
+                  No marketing preferences
+                </Badge>
+              )}
             </div>
           </div>
         </SectionCard>
 
         {/* Installation Address */}
-        <SectionCard icon={PiMapPinBold} title="Installation Address">
-          <div className="space-y-3">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Street Address</p>
-              <p className="text-slate-900">{order.installation_address}</p>
+        <SectionCard title="Installation Address">
+          <div className="flex gap-4">
+            <div className="size-16 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <PiMapPinBold className="h-7 w-7 text-slate-500" />
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {order.suburb && (
-                <div>
-                  <p className="text-xs text-slate-500 mb-0.5">Suburb</p>
-                  <p className="text-sm font-medium">{order.suburb}</p>
-                </div>
-              )}
-              {order.city && (
-                <div>
-                  <p className="text-xs text-slate-500 mb-0.5">City</p>
-                  <p className="text-sm font-medium">{order.city}</p>
-                </div>
-              )}
-              {order.province && (
-                <div>
-                  <p className="text-xs text-slate-500 mb-0.5">Province</p>
-                  <p className="text-sm font-medium">{order.province}</p>
-                </div>
-              )}
-              {order.postal_code && (
-                <div>
-                  <p className="text-xs text-slate-500 mb-0.5">Postal Code</p>
-                  <p className="text-sm font-medium">{order.postal_code}</p>
-                </div>
-              )}
+            <div className="space-y-1">
+              <p className="font-medium text-slate-900">{order.installation_address}</p>
+              {order.suburb && <p className="text-sm text-slate-600">{order.suburb}</p>}
+              <p className="text-sm text-slate-600">
+                {[order.city, order.province, order.postal_code].filter(Boolean).join(', ')}
+              </p>
             </div>
-
-            {order.special_instructions && (
-              <>
-                <Separator />
-                <div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Special Instructions</p>
-                  <p className="text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-lg p-3">
-                    {order.special_instructions}
-                  </p>
-                </div>
-              </>
-            )}
           </div>
+
+          {order.special_instructions && (
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Special Instructions</p>
+              <p className="text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-lg p-3">
+                {order.special_instructions}
+              </p>
+            </div>
+          )}
         </SectionCard>
       </div>
 
-      {/* Middle Column - Package & Lead Source */}
-      <div className="space-y-4 md:space-y-6">
+      {/* Middle Column - Package & Marketing */}
+      <div className="space-y-8">
         {/* Package Details */}
-        <SectionCard icon={PiPackageBold} title="Package Details">
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Package</p>
-                <p className="font-semibold text-slate-900">{order.package_name}</p>
+        <SectionCard title="Package Details">
+          <div className="space-y-4">
+            {/* Highlighted Package Box */}
+            <div className="bg-primary/5 border border-primary/10 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="font-bold text-slate-900">{order.package_name}</p>
+                <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0 h-5 gap-0.5">
+                  <PiFireBold className="h-3 w-3" />
+                  HOT
+                </Badge>
               </div>
-              <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Speed</p>
-                <p className="text-sm text-slate-700">{order.package_speed}</p>
-              </div>
-            </div>
 
-            <Separator />
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Monthly Price</p>
-                <p className="text-xl font-bold text-slate-900">{formatCurrency(order.package_price)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Installation Fee</p>
-                <p className="text-sm font-medium">{formatCurrency(order.installation_fee)}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Router Included</p>
-                <p className="text-sm font-medium">{order.router_included ? 'Yes' : 'No'}</p>
-              </div>
-              {order.router_rental_fee && order.router_rental_fee > 0 && (
+              {/* Speed + Price Grid */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-slate-500 mb-0.5">Router Rental</p>
-                  <p className="text-sm font-medium">{formatCurrency(order.router_rental_fee)}/mo</p>
+                  <p className="text-xs text-slate-500 mb-1">Speed</p>
+                  <p className="text-lg font-bold text-primary">{order.package_speed}</p>
                 </div>
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Monthly Price</p>
+                  <p className="text-lg font-bold text-slate-900">{formatCurrency(order.package_price)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Info Rows */}
+            <div className="space-y-0">
+              <InfoRow
+                label="Router Status"
+                value={
+                  order.router_included ? (
+                    <span className="flex items-center gap-1.5 text-emerald-600">
+                      <PiCheckCircleBold className="h-4 w-4" />
+                      Included
+                    </span>
+                  ) : order.router_rental_fee && order.router_rental_fee > 0 ? (
+                    `Rental ${formatCurrency(order.router_rental_fee)}/mo`
+                  ) : (
+                    'Customer provides'
+                  )
+                }
+              />
+              <InfoRow
+                label="Contract Term"
+                value={order.contract_term ? `${order.contract_term} months` : 'Month-to-month'}
+              />
+              <InfoRow
+                label="Installation Fee"
+                value={order.installation_fee === 0 ? (
+                  <span className="text-emerald-600 font-semibold">FREE</span>
+                ) : (
+                  formatCurrency(order.installation_fee)
+                )}
+              />
+            </div>
+          </div>
+        </SectionCard>
+
+        {/* Marketing & Attribution */}
+        <SectionCard title="Marketing & Attribution">
+          <div className="space-y-4">
+            {/* Lead Source */}
+            <div className="flex items-center gap-4">
+              <div className="size-12 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <PiTargetBold className="h-6 w-6 text-indigo-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Lead Type</p>
+                <p className="font-semibold text-slate-900">{formatLeadSource(order.lead_source)}</p>
+              </div>
+            </div>
+
+            {/* Attribution Details */}
+            <div className="space-y-0">
+              {order.source_campaign && (
+                <InfoRow label="Campaign" value={order.source_campaign} />
+              )}
+              {order.referral_code && (
+                <InfoRow
+                  label="Referral Code"
+                  value={<span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-xs">{order.referral_code}</span>}
+                />
+              )}
+              {order.referred_by && (
+                <InfoRow label="Referred By" value={order.referred_by} />
+              )}
+              {!order.source_campaign && !order.referral_code && !order.referred_by && (
+                <p className="text-sm text-slate-400 py-2">No additional attribution data</p>
               )}
             </div>
           </div>
         </SectionCard>
-
-        {/* Lead Source */}
-        <SectionCard icon={PiTrendUpBold} title="Lead Source">
-          <div className="space-y-1">
-            <InfoRow label="Source" value={formatLeadSource(order.lead_source)} />
-            {order.source_campaign && <InfoRow label="Campaign" value={order.source_campaign} />}
-            {order.referral_code && (
-              <InfoRow
-                label="Referral Code"
-                value={<span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-xs">{order.referral_code}</span>}
-              />
-            )}
-            {order.referred_by && <InfoRow label="Referred By" value={order.referred_by} />}
-          </div>
-        </SectionCard>
-
-        {/* Residential Address (KYC) */}
-        {order.residential_address && (
-          <SectionCard
-            icon={PiMapPinBold}
-            title="Current Address"
-            badge={
-              order.kyc_address_verified && (
-                <Badge className="bg-emerald-50 text-emerald-700 border-0 gap-1 text-xs">
-                  <PiShieldBold className="h-3 w-3" />
-                  KYC Verified
-                </Badge>
-              )
-            }
-          >
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Street Address</p>
-                <p className="text-slate-900">{order.residential_address}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {order.residential_suburb && (
-                  <div>
-                    <p className="text-xs text-slate-500 mb-0.5">Suburb</p>
-                    <p className="text-sm font-medium">{order.residential_suburb}</p>
-                  </div>
-                )}
-                {order.residential_city && (
-                  <div>
-                    <p className="text-xs text-slate-500 mb-0.5">City</p>
-                    <p className="text-sm font-medium">{order.residential_city}</p>
-                  </div>
-                )}
-                {order.residential_province && (
-                  <div>
-                    <p className="text-xs text-slate-500 mb-0.5">Province</p>
-                    <p className="text-sm font-medium">{order.residential_province}</p>
-                  </div>
-                )}
-                {order.residential_postal_code && (
-                  <div>
-                    <p className="text-xs text-slate-500 mb-0.5">Postal Code</p>
-                    <p className="text-sm font-medium">{order.residential_postal_code}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </SectionCard>
-        )}
       </div>
 
-      {/* Right Column - Progress & Notes (full width on tablet) */}
-      <div className="space-y-4 md:space-y-6 md:col-span-2 xl:col-span-1">
-        {/* Order Progress Timeline */}
+      {/* Right Column - Timeline */}
+      <div className="h-full">
         <OrderProgressTimeline order={order} onViewHistory={onViewHistory} />
-
-        {/* Admin Notes */}
-        {order.internal_notes && (
-          <SectionCard icon={PiNotePencilBold} title="Admin Notes">
-            <p className="text-sm text-slate-700 whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-lg p-3">
-              {order.internal_notes}
-            </p>
-          </SectionCard>
-        )}
       </div>
     </div>
   );
