@@ -1,5 +1,6 @@
-import { PiCheckCircleBold, PiCreditCardBold, PiLockBold, PiShieldBold } from 'react-icons/pi';
 "use client"
+
+import { PiCheckCircleBold, PiCreditCardBold, PiLockBold, PiShieldBold } from 'react-icons/pi';
 
 
 export function SecureCheckoutBadges() {

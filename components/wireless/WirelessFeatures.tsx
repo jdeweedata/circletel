@@ -1,6 +1,6 @@
-import { PiClockBold, PiHeadphonesBold, PiLightningBold, PiShieldBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 "use client"
 
+import { PiClockBold, PiHeadphonesBold, PiLightningBold, PiShieldBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 import { Card, CardContent } from "@/components/ui/card"
 
 export function WirelessFeatures() {

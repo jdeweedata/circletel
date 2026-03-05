@@ -1,5 +1,6 @@
-import { PiArrowLeftBold} from 'react-icons/pi';
 "use client"
+
+import { PiArrowLeftBold} from 'react-icons/pi';
 
 import { Suspense } from "react"
 import { NetcashCheckoutForm } from "@/components/wireless/checkout/NetcashCheckoutForm"

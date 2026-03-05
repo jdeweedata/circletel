@@ -1,5 +1,6 @@
-import { PiCheckCircleBold, PiClockBold, PiInfoBold, PiWifiHighBold, PiShieldCheckBold, PiTagBold, PiTruckBold } from 'react-icons/pi';
 "use client"
+
+import { PiCheckCircleBold, PiClockBold, PiInfoBold, PiWifiHighBold, PiShieldCheckBold, PiTagBold, PiTruckBold } from 'react-icons/pi';
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"

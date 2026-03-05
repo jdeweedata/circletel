@@ -1,6 +1,6 @@
-import { PiHeadphonesBold, PiShieldBold, PiStarBold, PiTruckBold } from 'react-icons/pi';
 "use client"
 
+import { PiHeadphonesBold, PiShieldBold, PiStarBold, PiTruckBold } from 'react-icons/pi';
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 

@@ -1,6 +1,6 @@
-import { PiCheckBold, PiClockBold, PiGearBold, PiShoppingCartBold, PiStarBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 "use client"
 
+import { PiCheckBold, PiClockBold, PiGearBold, PiShoppingCartBold, PiStarBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"

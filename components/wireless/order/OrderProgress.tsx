@@ -1,5 +1,6 @@
-import { PiCheckCircleBold } from 'react-icons/pi';
 "use client"
+
+import { PiCheckCircleBold } from 'react-icons/pi';
 
 
 interface OrderProgressProps {

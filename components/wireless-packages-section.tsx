@@ -1,5 +1,6 @@
-import { PiGaugeBold, PiGearBold, PiShoppingCartBold, PiStarBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 "use client"
+
+import { PiGaugeBold, PiGearBold, PiShoppingCartBold, PiStarBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { Button } from "@/components/ui/button"
 import {

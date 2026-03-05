@@ -1,5 +1,6 @@
-import { PiBuildingsBold, PiCheckBold, PiCreditCardBold, PiTagBold, PiTruckBold, PiWalletBold } from 'react-icons/pi';
 "use client";
+
+import { PiBuildingsBold, PiCheckBold, PiCreditCardBold, PiTagBold, PiTruckBold, PiWalletBold } from 'react-icons/pi';
 
 import * as React from "react";
 import { useState } from "react";

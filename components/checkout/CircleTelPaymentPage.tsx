@@ -1,6 +1,6 @@
-import { PiCheckCircleBold, PiInfoBold, PiLockBold, PiShieldCheckBold } from 'react-icons/pi';
 "use client"
 
+import { PiCheckCircleBold, PiInfoBold, PiLockBold, PiShieldCheckBold } from 'react-icons/pi';
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useOrderContext } from "@/components/order/context/OrderContext"

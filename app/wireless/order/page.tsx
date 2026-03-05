@@ -1,5 +1,6 @@
-import { PiArrowLeftBold} from 'react-icons/pi';
 "use client"
+
+import { PiArrowLeftBold} from 'react-icons/pi';
 
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
