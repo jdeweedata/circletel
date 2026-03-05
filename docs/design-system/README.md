@@ -121,6 +121,67 @@ Based on 1.32× modular scale (adopted from Payfast analysis). Uses Poppins for 
 
 ---
 
+## Icon Library
+
+**Library**: Phosphor Icons Bold (via `react-icons/pi`)
+**Migration Date**: 2026-03-05
+
+### Import Pattern
+
+```tsx
+import { PiCheckBold, PiXBold, PiUserBold, PiGearBold } from 'react-icons/pi';
+
+// Usage
+<PiCheckBold className="w-5 h-5 text-green-600" />
+<PiXBold className="w-4 h-4" />
+```
+
+### Common Icons
+
+| Use Case | Icon | Import |
+|----------|------|--------|
+| Close/Dismiss | ✕ | `PiXBold` |
+| Confirm/Check | ✓ | `PiCheckBold` |
+| Loading | ○ | `PiSpinnerBold` |
+| Search | 🔍 | `PiMagnifyingGlassBold` |
+| Settings | ⚙ | `PiGearBold` |
+| User/Profile | 👤 | `PiUserBold` |
+| Location | 📍 | `PiMapPinBold` |
+| Home | 🏠 | `PiHouseBold` |
+| WiFi | 📶 | `PiWifiHighBold` |
+| Security | 🛡 | `PiShieldBold` |
+| Link | 🔗 | `PiLinkBold` |
+| File/Document | 📄 | `PiFileTextBold` |
+| Calendar | 📅 | `PiCalendarBold` |
+| Package | 📦 | `PiPackageBold` |
+| Arrow Right | → | `PiArrowRightBold` |
+| Arrow Up Right | ↗ | `PiArrowUpRightBold` |
+| Currency | $ | `PiCurrencyDollarBold` |
+| Trend Up | 📈 | `PiTrendUpBold` |
+| Shopping Cart | 🛒 | `PiShoppingCartBold` |
+
+### Naming Convention
+
+All icons follow the `PiXxxBold` pattern:
+- `Pi` prefix (Phosphor Icons)
+- Icon name in PascalCase
+- `Bold` suffix (weight variant)
+
+### Sizing Guidelines
+
+| Context | Class | Size |
+|---------|-------|------|
+| Inline with text | `w-4 h-4` | 16px |
+| Buttons/Actions | `w-5 h-5` | 20px |
+| Cards/Headers | `w-6 h-6` | 24px |
+| Feature icons | `w-8 h-8` to `w-12 h-12` | 32-48px |
+
+### Full Reference
+
+See `docs/design-system/ICON_MAPPING.md` for complete icon mapping from Lucide/Heroicons to Phosphor.
+
+---
+
 ## Component Patterns
 
 ### Package Cards
@@ -233,4 +294,4 @@ interface PackageCardBaseProps {
 
 ---
 
-**Version**: 1.0 | **Updated**: 2026-03-03
+**Version**: 1.1 | **Updated**: 2026-03-05

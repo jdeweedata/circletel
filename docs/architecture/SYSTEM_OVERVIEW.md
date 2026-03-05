@@ -3,7 +3,7 @@ type: architecture
 domain: [platform, all]
 tags: [overview, database, api, components, agent-os, integrations, inngest, skills, design-system, typography]
 status: current
-last_updated: 2026-03-03
+last_updated: 2026-03-05
 dependencies: []
 priority: high
 description: Main hub document for understanding the CircleTel platform architecture
@@ -13,8 +13,8 @@ description: Main hub document for understanding the CircleTel platform architec
 
 Comprehensive reference for the CircleTel platform architecture, features, and codebase structure.
 
-**Last Updated**: 2026-03-03
-**Version**: 2.1
+**Last Updated**: 2026-03-05
+**Version**: 2.2
 
 ---
 
@@ -101,6 +101,42 @@ Comprehensive reference for the CircleTel platform architecture, features, and c
 | `circleTel-orange-dark` | #C45A30 | Hover states |
 | `circleTel-navy` | #1B2A4A | Headlines, dark UI |
 | `circleTel-charcoal` | #2D3436 | Footer, dark sections |
+
+#### Icon Library (Phosphor Icons)
+
+**Status**: Migration completed 2026-03-05
+**Package**: `react-icons/pi` (Phosphor Icons Bold weight)
+**Convention**: All icons use `PiXxxBold` naming pattern
+
+```tsx
+// Import pattern
+import { PiCheckBold, PiXBold, PiUserBold } from 'react-icons/pi';
+
+// Usage
+<PiCheckBold className="w-5 h-5 text-green-600" />
+```
+
+| Use Case | Icon |
+|----------|------|
+| Close/Dismiss | `PiXBold` |
+| Confirm/Check | `PiCheckBold` |
+| Loading | `PiSpinnerBold` |
+| Search | `PiMagnifyingGlassBold` |
+| Settings | `PiGearBold` |
+| User/Profile | `PiUserBold` |
+| Location/Map | `PiMapPinBold` |
+| Home | `PiHouseBold` |
+| WiFi/Signal | `PiWifiHighBold` |
+| Security/Shield | `PiShieldBold` |
+| Link | `PiLinkBold` |
+| File/Document | `PiFileTextBold` |
+| Calendar | `PiCalendarBold` |
+| Package | `PiPackageBold` |
+
+**Full mapping**: `docs/design-system/ICON_MAPPING.md`
+**Migration scripts**: `scripts/migrate-to-phosphor.js`, `scripts/final-icon-fix.js`
+
+**Note**: Previous libraries (Lucide React, Heroicons) have been removed from dependencies.
 
 #### Gradient Presets
 
@@ -782,8 +818,9 @@ pending → in_progress → completed → approved
 ## Recent Updates (2026)
 
 ### March 2026
+- **Phosphor Icons Migration** (2026-03-05): Migrated all icons from Lucide React/Heroicons to Phosphor Icons Bold (`react-icons/pi`). Removed `lucide-react` and `@heroicons/react` dependencies. ~300 files updated, 0 type errors.
 - **Design System v1.0**: Typography scale (1.32× modular), color tokens, gradient presets, CTA button variants
-- Platform stabilization: TypeScript errors reduced from 1,005 → 336 (67%)
+- Platform stabilization: TypeScript errors reduced from 1,005 → 0
 - Added B2B Sales Feasibility Portal (`/admin/sales/feasibility`)
 - Homepage CRO optimizations (Cell C-inspired patterns)
 - Segment-aware homepage (business/wfh/home tabs)
@@ -805,6 +842,6 @@ pending → in_progress → completed → approved
 
 ---
 
-**Document Version**: 2.1
-**Last Updated**: 2026-03-03
+**Document Version**: 2.2
+**Last Updated**: 2026-03-05
 **Maintained By**: Development Team + Claude Code
