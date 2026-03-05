@@ -68,6 +68,8 @@ const withPWA = require('next-pwa')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // Disable source maps in production to reduce memory
+  productionBrowserSourceMaps: false,
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
