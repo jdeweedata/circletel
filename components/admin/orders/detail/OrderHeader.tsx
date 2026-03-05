@@ -1,11 +1,17 @@
 'use client';
 
-import { PiArrowLeftBold, PiCaretRightBold, PiPrinterBold, PiDownloadSimpleBold } from 'react-icons/pi';
+import {
+  PiCaretRightBold,
+  PiPauseBold,
+  PiXCircleBold,
+  PiEnvelopeBold,
+  PiPrinterBold,
+  PiDownloadSimpleBold,
+} from 'react-icons/pi';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { StatusActionButtons } from '@/components/admin/orders/StatusActionButtons';
 import { SendEmailDialog } from '@/components/admin/support/SendEmailDialog';
 
 interface Order {
@@ -24,7 +30,6 @@ interface Order {
 
 interface OrderHeaderProps {
   order: Order;
-  onRefresh: () => void;
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
@@ -49,89 +54,101 @@ function getStatusConfig(status: string) {
   };
 }
 
-export function OrderHeader({ order, onRefresh }: OrderHeaderProps) {
+export function OrderHeader({ order }: OrderHeaderProps) {
   const statusConfig = getStatusConfig(order.status);
-  const createdDate = new Date(order.created_at).toLocaleDateString('en-ZA', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
 
   return (
     <div className="bg-white border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm mb-3 sm:mb-4 overflow-x-auto">
-          <Link
-            href="/admin/orders"
-            className="text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1 flex-shrink-0"
-          >
-            <PiArrowLeftBold className="w-4 h-4" />
-            <span className="hidden sm:inline">Orders</span>
-          </Link>
-          <PiCaretRightBold className="w-3 h-3 text-slate-400 flex-shrink-0" />
-          <span className="text-slate-500 hidden md:inline flex-shrink-0">Active Orders</span>
-          <PiCaretRightBold className="w-3 h-3 text-slate-400 hidden md:block flex-shrink-0" />
-          <span className="font-medium text-slate-900 truncate">{order.order_number}</span>
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+          <Link href="/admin/orders" className="hover:text-primary">Orders</Link>
+          <PiCaretRightBold className="w-3 h-3" />
+          <Link href="/admin/orders" className="hover:text-primary">Active Orders</Link>
+          <PiCaretRightBold className="w-3 h-3" />
+          <span className="text-slate-900">{order.order_number}</span>
         </div>
 
         {/* Title Row */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
-          <div className="min-w-0">
-            <p className="text-xs sm:text-sm text-slate-500 mb-1">Order Details</p>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-900 font-heading truncate">
-                {order.order_number}
-              </h1>
-              <Badge className={cn(statusConfig.bg, statusConfig.text, "border-0 font-semibold px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm flex-shrink-0")}>
-                {statusConfig.label}
-              </Badge>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-500">
-              <span className="hidden sm:inline">Placed on </span>{createdDate} • <span className="hidden md:inline">{order.package_name}</span><span className="md:hidden truncate">{order.package_name.split(' ')[0]}</span>
-              {order.account_number && (
-                <span className="hidden sm:inline ml-2">
-                  • Account: <span className="font-mono font-semibold text-primary">{order.account_number}</span>
-                </span>
-              )}
-            </p>
+        <div className="flex flex-wrap items-center justify-between gap-6 mt-4">
+          <div className="flex items-center gap-4">
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+              {order.order_number}
+            </h2>
+            <Badge className={cn(statusConfig.bg, statusConfig.text, 'border-0')}>
+              <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
+              {statusConfig.label}
+            </Badge>
           </div>
 
-          {/* Action Buttons - Stack on mobile, wrap on desktop */}
-          <div className="flex flex-col gap-3 w-full lg:w-auto">
-            {/* Primary Actions - Allow wrap */}
-            <div className="flex flex-wrap items-center gap-2">
-              <StatusActionButtons
-                currentStatus={order.status}
-                orderId={order.id}
-                orderNumber={order.order_number}
-                packagePrice={order.package_price}
-                firstName={order.first_name}
-                lastName={order.last_name}
-                onStatusUpdate={onRefresh}
-              />
-            </div>
-
-            {/* Utility Actions - Allow wrap */}
-            <div className="flex flex-wrap items-center gap-2">
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Grouped icon buttons */}
+            <div className="flex border border-slate-200 rounded-lg overflow-hidden bg-white">
+              <button
+                type="button"
+                className="p-2.5 text-slate-600 hover:bg-slate-50 transition-colors"
+                title="Suspend Order"
+                aria-label="Suspend Order"
+                onClick={() => {
+                  // TODO: Implement suspend functionality
+                  console.log('Suspend order:', order.id);
+                }}
+              >
+                <PiPauseBold className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                className="p-2.5 text-slate-600 hover:bg-slate-50 transition-colors border-l border-slate-200"
+                title="Cancel Order"
+                aria-label="Cancel Order"
+                onClick={() => {
+                  // TODO: Implement cancel functionality
+                  console.log('Cancel order:', order.id);
+                }}
+              >
+                <PiXCircleBold className="w-5 h-5" />
+              </button>
               <SendEmailDialog
                 defaultTo={order.email}
                 defaultSubject={`RE: Order ${order.order_number}`}
                 defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
                 customerId={order.customer_id}
                 orderId={order.id}
+                trigger={
+                  <button
+                    type="button"
+                    className="p-2.5 text-slate-600 hover:bg-slate-50 transition-colors border-l border-slate-200"
+                    title="Send Email"
+                    aria-label="Send Email"
+                  >
+                    <PiEnvelopeBold className="w-5 h-5" />
+                  </button>
+                }
               />
-
-              <Button variant="outline" size="sm" className="gap-2">
-                <PiPrinterBold className="w-4 h-4" />
-                <span className="hidden lg:inline">Print</span>
-              </Button>
-
-              <Button variant="outline" size="sm" className="gap-2">
-                <PiDownloadSimpleBold className="w-4 h-4" />
-                <span className="hidden lg:inline">Export</span>
-              </Button>
+              <button
+                type="button"
+                className="p-2.5 text-slate-600 hover:bg-slate-50 transition-colors border-l border-slate-200"
+                title="Print Details"
+                aria-label="Print Details"
+                onClick={() => window.print()}
+              >
+                <PiPrinterBold className="w-5 h-5" />
+              </button>
             </div>
+
+            {/* Export button */}
+            <Button
+              type="button"
+              onClick={() => {
+                // TODO: Implement export functionality
+                console.log('Export order:', order.id);
+              }}
+              className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-primary/20"
+            >
+              <PiDownloadSimpleBold className="w-5 h-5" />
+              Export Order
+            </Button>
           </div>
         </div>
       </div>
