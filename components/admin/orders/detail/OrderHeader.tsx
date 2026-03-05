@@ -59,38 +59,38 @@ export function OrderHeader({ order, onRefresh }: OrderHeaderProps) {
 
   return (
     <div className="bg-white border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-sm mb-4">
+        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm mb-3 sm:mb-4 overflow-x-auto">
           <Link
             href="/admin/orders"
-            className="text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1"
+            className="text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1 flex-shrink-0"
           >
             <PiArrowLeftBold className="w-4 h-4" />
-            <span>Orders</span>
+            <span className="hidden sm:inline">Orders</span>
           </Link>
-          <PiCaretRightBold className="w-3 h-3 text-slate-400" />
-          <span className="text-slate-500">Active Orders</span>
-          <PiCaretRightBold className="w-3 h-3 text-slate-400" />
-          <span className="font-medium text-slate-900">{order.order_number}</span>
+          <PiCaretRightBold className="w-3 h-3 text-slate-400 flex-shrink-0" />
+          <span className="text-slate-500 hidden md:inline flex-shrink-0">Active Orders</span>
+          <PiCaretRightBold className="w-3 h-3 text-slate-400 hidden md:block flex-shrink-0" />
+          <span className="font-medium text-slate-900 truncate">{order.order_number}</span>
         </div>
 
         {/* Title Row */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div>
-            <p className="text-sm text-slate-500 mb-1">Order Details</p>
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-3xl font-black tracking-tight text-slate-900 font-heading">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm text-slate-500 mb-1">Order Details</p>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-900 font-heading truncate">
                 {order.order_number}
               </h1>
-              <Badge className={cn(statusConfig.bg, statusConfig.text, "border-0 font-semibold px-3 py-1")}>
+              <Badge className={cn(statusConfig.bg, statusConfig.text, "border-0 font-semibold px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm flex-shrink-0")}>
                 {statusConfig.label}
               </Badge>
             </div>
-            <p className="text-sm text-slate-500">
-              Placed on {createdDate} • {order.package_name}
+            <p className="text-xs sm:text-sm text-slate-500">
+              <span className="hidden sm:inline">Placed on </span>{createdDate} • <span className="hidden md:inline">{order.package_name}</span><span className="md:hidden truncate">{order.package_name.split(' ')[0]}</span>
               {order.account_number && (
-                <span className="ml-2">
+                <span className="hidden sm:inline ml-2">
                   • Account: <span className="font-mono font-semibold text-primary">{order.account_number}</span>
                 </span>
               )}

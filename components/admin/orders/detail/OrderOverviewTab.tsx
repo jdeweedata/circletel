@@ -132,9 +132,9 @@ function formatLeadSource(source: string): string {
 
 export function OrderOverviewTab({ order, onViewHistory }: OrderOverviewTabProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-      {/* Left Column */}
-      <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mt-6">
+      {/* Left Column - Customer & Address */}
+      <div className="space-y-4 md:space-y-6">
         {/* Customer Information */}
         <SectionCard icon={PiUserBold} title="Customer Information">
           <div className="space-y-4">
@@ -237,8 +237,8 @@ export function OrderOverviewTab({ order, onViewHistory }: OrderOverviewTabProps
         </SectionCard>
       </div>
 
-      {/* Middle Column */}
-      <div className="space-y-6">
+      {/* Middle Column - Package & Lead Source */}
+      <div className="space-y-4 md:space-y-6">
         {/* Package Details */}
         <SectionCard icon={PiPackageBold} title="Package Details">
           <div className="space-y-3">
@@ -346,8 +346,8 @@ export function OrderOverviewTab({ order, onViewHistory }: OrderOverviewTabProps
         )}
       </div>
 
-      {/* Right Column */}
-      <div className="space-y-6">
+      {/* Right Column - Progress & Notes (full width on tablet) */}
+      <div className="space-y-4 md:space-y-6 md:col-span-2 xl:col-span-1">
         {/* Order Progress Timeline */}
         <OrderProgressTimeline order={order} onViewHistory={onViewHistory} />
 
