@@ -2,7 +2,7 @@
  * CircleTel Multi-Agent Orchestration System - Database Worker
  *
  * Purpose: Specialized worker for database schema design, migrations, and RLS policies
- * Domain: Database
+ * Domain: PiDatabaseBold
  *
  * Responsibilities:
  * - Design database schemas

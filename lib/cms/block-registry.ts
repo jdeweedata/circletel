@@ -1,5 +1,5 @@
 import { IconType } from 'react-icons';
-import { PiCursorBold, PiGridNineBold, PiImagesBold, PiLayoutBold, PiSelectionBold, PiTextAaBold, PiTextboxBold, PiVideoCameraBold } from 'react-icons/pi';
+import { PiCurrencyDollarBold, PiCursorBold, PiGridNineBold, PiImageBold, PiImagesBold, PiLayoutBold, PiMinusBold, PiQuotesBold, PiSelectionBold, PiTextAaBold, PiTextboxBold, PiVideoCameraBold } from 'react-icons/pi';
 /**
  * CMS Page Builder - Block Registry
  *

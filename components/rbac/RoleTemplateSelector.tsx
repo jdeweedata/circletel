@@ -5,7 +5,36 @@
  */
 
 'use client'
-import { PiBookBold, PiCalculatorBold, PiChatCircleBold, PiClipboardTextBold, PiCpuBold, PiCurrencyDollarBold, PiEyeBold, PiGearBold, PiHandshakeBold, PiHeadphonesBold, PiMagnifyingGlassBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiDesktopTowerBold, PiShieldBold, PiSparkleBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUsersBold } from 'react-icons/pi';
+import {
+  PiBookBold,
+  PiBriefcaseBold,
+  PiCalculatorBold,
+  PiChartBarBold,
+  PiChatCircleBold,
+  PiClipboardTextBold,
+  PiCpuBold,
+  PiCrownBold,
+  PiCurrencyDollarBold,
+  PiEyeBold,
+  PiFlowArrowBold,
+  PiGearBold,
+  PiHandshakeBold,
+  PiHeadphonesBold,
+  PiMagnifyingGlassBold,
+  PiMapTrifoldBold,
+  PiMegaphoneBold,
+  PiPackageBold,
+  PiPencilSimpleBold,
+  PiReceiptBold,
+  PiDesktopTowerBold,
+  PiShieldBold,
+  PiSparkleBold,
+  PiTargetBold,
+  PiTrendUpBold,
+  PiTruckBold,
+  PiUserCheckBold,
+  PiUsersBold
+} from 'react-icons/pi';
 
 import { useState } from 'react'
 import { RoleTemplate, ROLE_TEMPLATES, DEPARTMENTS } from '@/lib/rbac/role-templates'
@@ -23,33 +52,33 @@ import {
 import { Input } from '@/components/ui/input'
 
 const ICON_MAP: Record<string, React.ComponentType<{className?: string}>> = {
-  Shield,
-  Crown,
-  Package,
-  Target,
-  TrendingUp,
-  Headphones,
-  FileEdit,
-  Book,
-  Cpu,
-  Sparkles,
-  Briefcase,
-  Users,
-  Map,
-  Settings,
-  DollarSign,
-  BarChart,
-  Workflow,
-  UserCheck,
-  Handshake,
-  Megaphone,
-  MessageCircle,
-  Server,
-  Eye,
-  Calculator,
-  Receipt,
-  Truck,
-  ClipboardList
+  Shield: PiShieldBold,
+  Crown: PiCrownBold,
+  Package: PiPackageBold,
+  Target: PiTargetBold,
+  TrendingUp: PiTrendUpBold,
+  Headphones: PiHeadphonesBold,
+  FileEdit: PiPencilSimpleBold,
+  Book: PiBookBold,
+  Cpu: PiCpuBold,
+  Sparkles: PiSparkleBold,
+  Briefcase: PiBriefcaseBold,
+  Users: PiUsersBold,
+  Map: PiMapTrifoldBold,
+  Settings: PiGearBold,
+  DollarSign: PiCurrencyDollarBold,
+  BarChart: PiChartBarBold,
+  Workflow: PiFlowArrowBold,
+  UserCheck: PiUserCheckBold,
+  Handshake: PiHandshakeBold,
+  Megaphone: PiMegaphoneBold,
+  MessageCircle: PiChatCircleBold,
+  Server: PiDesktopTowerBold,
+  Eye: PiEyeBold,
+  Calculator: PiCalculatorBold,
+  Receipt: PiReceiptBold,
+  Truck: PiTruckBold,
+  ClipboardList: PiClipboardTextBold
 }
 
 interface RoleTemplateSelectorProps {
@@ -107,8 +136,8 @@ export function RoleTemplateSelector({
   }
 
   const getIcon = (iconName: string | undefined) => {
-    if (!iconName) return Shield
-    return ICON_MAP[iconName] || Shield
+    if (!iconName) return PiShieldBold
+    return ICON_MAP[iconName] || PiShieldBold
   }
 
   return (

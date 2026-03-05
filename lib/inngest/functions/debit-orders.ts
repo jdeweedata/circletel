@@ -165,7 +165,7 @@ export const debitOrdersFunction = inngest.createFunction(
       return newLog.id;
     });
 
-    // Step 2: Check NetCash configuration
+    // Step 2: PiCheckBold NetCash configuration
     const isNetCashConfigured = await step.run('check-netcash-config', async () => {
       const configured = netcashDebitBatchService.isConfigured();
       if (!configured) {
@@ -627,7 +627,7 @@ export const debitOrdersFunction = inngest.createFunction(
       );
     });
 
-    // Step 13: Send completion event
+    // Step 13: PiPaperPlaneRightBold completion event
     await step.run('send-completion-event', async () => {
       await inngest.send({
         name: 'billing/debit-orders.completed',
@@ -758,7 +758,7 @@ export const debitOrdersFailedFunction = inngest.createFunction(
         })
         .eq('id', batch_log_id);
 
-      // TODO: Send alert notification for batch failures
+      // TODO: PiPaperPlaneRightBold alert notification for batch failures
       // TODO: Log to error tracking service (Sentry, etc.)
     });
 

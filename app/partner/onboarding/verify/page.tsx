@@ -1,5 +1,5 @@
 'use client';
-import { PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiFileCheckBold, PiFileTextBold, PiShieldBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiFileBold, PiFileTextBold, PiShieldBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -289,7 +289,7 @@ export default function PartnerComplianceVerificationPage() {
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <PiFileCheckBold className="w-5 h-5 text-green-600" />
+                    <PiFileTextBold className="w-5 h-5 text-green-600" />
                     <div>
                       <p className="text-sm font-medium text-green-900">{uploadedDoc.fileName}</p>
                       <p className="text-xs text-green-700">
@@ -443,7 +443,7 @@ export default function PartnerComplianceVerificationPage() {
               </>
             ) : (
               <>
-                <PiFileCheckBold className="w-4 h-4 mr-2" />
+                <PiFileTextBold className="w-4 h-4 mr-2" />
                 Submit for Review
               </>
             )}

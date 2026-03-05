@@ -12,11 +12,11 @@ interface BusinessPackageCardProps {
 
 const getTechIcon = (serviceType: string) => {
   const type = serviceType?.toLowerCase() || '';
-  if (type.includes('fibre') || type.includes('fiber')) return Cable;
-  if (type.includes('tarana') || type.includes('sky') || type.includes('wireless')) return Radio;
-  if (type.includes('5g')) return Signal;
-  if (type.includes('lte')) return Signal;
-  return Wifi;
+  if (type.includes('fibre') || type.includes('fiber')) return PiPlugBold;
+  if (type.includes('tarana') || type.includes('sky') || type.includes('wireless')) return PiRadioBold;
+  if (type.includes('5g')) return PiCellSignalFullBold;
+  if (type.includes('lte')) return PiCellSignalFullBold;
+  return PiWifiHighBold;
 };
 
 const getTechLabel = (serviceType: string) => {

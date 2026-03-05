@@ -1042,7 +1042,7 @@ export default function AdminProducts() {
         <CardContent>
           <div className="w-full space-y-4">
           <div className="space-y-4">
-            {/* Row 1: Search (Full Width) */}
+            {/* Row 1: PiMagnifyingGlassBold (Full Width) */}
             <div className="relative">
               <PiMagnifyingGlassBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input

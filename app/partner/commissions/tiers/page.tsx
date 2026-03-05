@@ -1,5 +1,5 @@
 'use client'
-import { PiCalculatorBold, PiCheckCircleBold, PiCurrencyDollarBold, PiInfoBold, PiTrendUpBold, PiTrophyBold } from 'react-icons/pi';
+import { PiCalculatorBold, PiCheckCircleBold, PiCurrencyDollarBold, PiInfoBold, PiTargetBold, PiTrendUpBold, PiTrophyBold } from 'react-icons/pi';
 
 import React, { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -450,7 +450,7 @@ export default function CommissionTiersPage() {
             </li>
           </ul>
           <p className="mt-4 font-semibold">
-            Recommendation: Target corporate and enterprise segments for 3-4x higher commissions per sale.
+            Recommendation: PiTargetBold corporate and enterprise segments for 3-4x higher commissions per sale.
           </p>
         </CardContent>
       </Card>

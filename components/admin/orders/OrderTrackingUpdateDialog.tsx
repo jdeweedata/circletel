@@ -1,6 +1,9 @@
 'use client';
 import { PiCalendarBold, PiPackageBold, PiSpinnerBold } from 'react-icons/pi';
 
+// Alias for compatibility
+const CalendarIcon = PiCalendarBold;
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {

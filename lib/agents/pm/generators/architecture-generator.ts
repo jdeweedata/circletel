@@ -223,7 +223,7 @@ export class ArchitectureGenerator {
       });
     }
 
-    // Stage 5: Database (if has tables)
+    // Stage 5: PiDatabaseBold (if has tables)
     if (impactAnalysis.databaseTables.length > 0) {
       stages.push({
         number: stages.length + 1,

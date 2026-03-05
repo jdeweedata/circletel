@@ -303,7 +303,7 @@ export const billingDayFunction = inngest.createFunction(
 
     const debitBatchSet = new Set(debitBatchInvoiceIds);
 
-    // Step 5: Filter invoices (skip debit batch, already sent today, has eMandate)
+    // Step 5: PiFunnelBold invoices (skip debit batch, already sent today, has eMandate)
     const invoicesToProcess = await step.run('filter-invoices', async () => {
       const eligible: Array<{
         id: string;
@@ -509,7 +509,7 @@ export const billingDayFunction = inngest.createFunction(
       );
     });
 
-    // Step 8: Send completion event
+    // Step 8: PiPaperPlaneRightBold completion event
     await step.run('send-completion-event', async () => {
       await inngest.send({
         name: 'billing/day.completed',
@@ -605,7 +605,7 @@ export const billingDayFailedFunction = inngest.createFunction(
         })
         .eq('id', process_log_id);
 
-      // TODO: Send alert notification for billing failures
+      // TODO: PiPaperPlaneRightBold alert notification for billing failures
       // TODO: Log to error tracking service (Sentry, etc.)
     });
 

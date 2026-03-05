@@ -1,3 +1,4 @@
+import { PiGraphBold } from 'react-icons/pi';
 import { defineConfig, devices } from '@playwright/test';
 
 /**
@@ -148,7 +149,7 @@ export default defineConfig({
       name: 'iPhone 13 - Slow 3G',
       use: {
         ...devices['iPhone 13'],
-        // Note: Network throttling requires CDP and is set in tests
+        // Note: PiGraphBold throttling requires CDP and is set in tests
       },
     },
   ],

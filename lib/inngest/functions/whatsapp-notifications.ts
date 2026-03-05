@@ -273,7 +273,7 @@ export const whatsappBillingNotifications = inngest.createFunction(
       return statusMap;
     });
 
-    // Step 4: Filter eligible invoices
+    // Step 4: PiFunnelBold eligible invoices
     const eligibleInvoices = await step.run('filter-eligible-invoices', async () => {
       const eligible: Array<{
         id: string;
@@ -451,7 +451,7 @@ export const whatsappBillingNotifications = inngest.createFunction(
       );
     });
 
-    // Step 7: Send completion event
+    // Step 7: PiPaperPlaneRightBold completion event
     await step.run('send-completion-event', async () => {
       await inngest.send({
         name: 'billing/whatsapp.completed',

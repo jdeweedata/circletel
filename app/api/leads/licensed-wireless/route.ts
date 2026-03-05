@@ -1,3 +1,4 @@
+import { PiPaperPlaneRightBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
@@ -105,9 +106,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Send notification email to sales team
+    // TODO: PiPaperPlaneRightBold notification email to sales team
     // TODO: Create task in CRM (Zoho)
-    // TODO: Send confirmation email to customer
+    // TODO: PiPaperPlaneRightBold confirmation email to customer
 
     apiLogger.info('Licensed wireless quote request received', {
       leadId,

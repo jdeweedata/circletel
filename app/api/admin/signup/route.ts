@@ -1,3 +1,4 @@
+import { PiPaperPlaneRightBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { apiLogger } from '@/lib/logging'
@@ -156,7 +157,7 @@ export async function POST(request: NextRequest) {
     }
     apiLogger.info('[Admin Signup] Pending request created successfully:', pendingUser.id)
 
-    // TODO: Send notification email to super admins about new access request
+    // TODO: PiPaperPlaneRightBold notification email to super admins about new access request
     // This can be implemented later when email service is set up
 
     return NextResponse.json({

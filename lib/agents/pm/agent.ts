@@ -217,7 +217,7 @@ export class PMAgent extends BaseAgent {
         })),
       });
 
-      // Step 7: Save files (if autoSave enabled)
+      // Step 7: PiFloppyDiskBold files (if autoSave enabled)
       let specPath = '';
       if (this.pmConfig.autoSave) {
         specPath = await this.saveSpec({

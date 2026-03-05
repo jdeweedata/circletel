@@ -1,5 +1,5 @@
 /**
- * API Routes: Quote Operations
+ * API Routes: PiQuotesBold Operations
  *
  * GET /api/quotes/business/[id] - Get quote details (admin only)
  * PUT /api/quotes/business/[id] - Update quote (admin only)
@@ -34,7 +34,7 @@ export async function GET(
 
     const { adminUser } = authResult;
 
-    // ✅ SECURITY: Check permission
+    // ✅ SECURITY: PiCheckBold permission
     const permissionError = requirePermission(adminUser, 'quotes:read');
     if (permissionError) {
       return permissionError;
@@ -103,7 +103,7 @@ export async function PUT(
 
     const { adminUser } = authResult;
 
-    // ✅ SECURITY: Check permission
+    // ✅ SECURITY: PiCheckBold permission
     const permissionError = requirePermission(adminUser, 'quotes:write');
     if (permissionError) {
       return permissionError;
@@ -242,7 +242,7 @@ export async function DELETE(
 
     const { adminUser } = authResult;
 
-    // ✅ SECURITY: Check permission
+    // ✅ SECURITY: PiCheckBold permission
     const permissionError = requirePermission(adminUser, 'quotes:write');
     if (permissionError) {
       return permissionError;

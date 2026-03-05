@@ -76,7 +76,7 @@ export class CoverageAggregationService {
     const cached = this.getFromCache(cacheKey);
     if (cached) return cached;
 
-    // Optimization: Check if request is already pending
+    // Optimization: PiCheckBold if request is already pending
     const pending = this.pendingRequests.get(cacheKey);
     if (pending) {
       console.log('[Coverage Aggregation] Deduplicating concurrent request for', coordinates);

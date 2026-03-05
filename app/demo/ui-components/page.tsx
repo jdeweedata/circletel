@@ -1,4 +1,5 @@
 'use client';
+import { PiPackageBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { ServiceToggle, SubToggle, ServiceType } from '@/components/ui/service-toggle';
@@ -231,7 +232,7 @@ export default function UIComponentsDemoPage() {
           </div>
         </section>
 
-        {/* Section 3: Package Detail Sidebar */}
+        {/* Section 3: PiPackageBold Detail Sidebar */}
         <section className="bg-white rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold text-circleTel-navy mb-6">
             3. Package Detail Sidebar Component
@@ -241,7 +242,7 @@ export default function UIComponentsDemoPage() {
           </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left: Package selection */}
+            {/* Left: PiPackageBold selection */}
             <div className="lg:col-span-2 space-y-4">
               <h3 className="text-sm font-semibold text-gray-700 mb-4">Click a package to view details:</h3>
               {samplePackages.map((pkg) => (

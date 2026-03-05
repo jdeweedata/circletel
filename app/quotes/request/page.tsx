@@ -8,7 +8,7 @@
  */
 
 'use client';
-import { PiBuildingsBold, PiCheckCircleBold, PiEnvelopeBold, PiFileTextBold, PiMapPinBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiCheckBold, PiCheckCircleBold, PiEnvelopeBold, PiFileTextBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -307,7 +307,7 @@ function QuoteRequestFormContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <PiMapPinBold className="h-5 w-5" />
-                Step 1: Check Coverage
+                Step 1: PiCheckBold Coverage
               </CardTitle>
               <CardDescription>
                 Enter your service address to check availability
@@ -487,7 +487,7 @@ function QuoteRequestFormContent() {
           </Card>
         )}
 
-        {/* Step: Package Selection */}
+        {/* Step: PiPackageBold Selection */}
         {step === 'packages' && (
           <Card>
             <CardHeader>

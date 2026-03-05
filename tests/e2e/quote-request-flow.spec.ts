@@ -1,3 +1,4 @@
+import { PiCheckBold } from 'react-icons/pi';
 import { test, expect, type Page } from '@playwright/test';
 
 /**
@@ -63,7 +64,7 @@ test.describe('Quote Request Flow', () => {
 
     console.log('✓ Address entered');
 
-    // Step 4: Check coverage
+    // Step 4: PiCheckBold coverage
     console.log('Checking coverage...');
     const checkCoverageButton = page.locator('button').filter({ hasText: /Check.*Coverage/i }).first();
     if (await checkCoverageButton.isVisible({ timeout: 5000 })) {
@@ -71,7 +72,7 @@ test.describe('Quote Request Flow', () => {
       await page.waitForTimeout(3000); // Wait for coverage check API
       console.log('✓ Coverage checked');
 
-      // Step 5: Check if coverage unavailable prompt appears
+      // Step 5: PiCheckBold if coverage unavailable prompt appears
       const coverageUnavailablePrompt = page.locator('text=/coverage.*unavailable/i, text=/no.*coverage/i').first();
       if (await coverageUnavailablePrompt.isVisible({ timeout: 5000 })) {
         console.log('Coverage unavailable - opening map modal...');

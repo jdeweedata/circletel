@@ -1,8 +1,7 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiLightningBold, PiMapPinBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiLightningBold, PiMapPinBold, PiHouseBold, PiBriefcaseBold } from 'react-icons/pi';
 
 import React from 'react';
-import { PiHouseBold, PiBuildingsBold, PiBriefcaseBold } from 'react-icons/pi';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
 import { Button } from '@/components/ui/button';

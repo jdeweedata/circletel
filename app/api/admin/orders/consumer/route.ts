@@ -1,3 +1,4 @@
+import { PiPaperPlaneRightBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
@@ -127,7 +128,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // TODO: Send notification email to customer about status change
+    // TODO: PiPaperPlaneRightBold notification email to customer about status change
 
     return NextResponse.json({
       success: true,

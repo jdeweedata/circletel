@@ -1,4 +1,5 @@
 "use client"
+import { PiDeviceMobileBold, PiHeartBold, PiInfoBold, PiTelevisionBold } from 'react-icons/pi';
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"

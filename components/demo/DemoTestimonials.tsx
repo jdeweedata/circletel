@@ -1,4 +1,5 @@
 "use client"
+import { PiQuotesBold, PiStarBold } from 'react-icons/pi';
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"

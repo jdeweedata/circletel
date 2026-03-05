@@ -59,13 +59,13 @@ interface StageIndicatorProps {
 function getStatusIcon(status: JourneyStageStatus): IconType {
   switch (status) {
     case 'completed':
-      return CheckCircle2;
+      return PiCheckCircleBold;
     case 'in_progress':
-      return Clock;
+      return PiClockBold;
     case 'blocked':
-      return AlertCircle;
+      return PiWarningCircleBold;
     default:
-      return Circle;
+      return PiCircleBold;
   }
 }
 

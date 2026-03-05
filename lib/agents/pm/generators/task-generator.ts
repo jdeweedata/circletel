@@ -735,7 +735,7 @@ ${group.filesToCreate.map(f => `- \`${f}\``).join('\n')}`;
 
 Use this checklist to track overall progress:
 
-- [ ] Task Group 1: Database Schema
+- [ ] Task Group 1: PiDatabaseBold Schema
 - [ ] Task Group 2: Backend API
 - [ ] Task Group 3: Frontend UI
 - [ ] Task Group 4: Testing & QA

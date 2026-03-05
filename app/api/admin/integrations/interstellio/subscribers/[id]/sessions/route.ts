@@ -1,7 +1,7 @@
 /**
  * API Route: /api/admin/integrations/interstellio/subscribers/[id]/sessions
  *
- * GET: List active sessions for subscriber
+ * GET: PiListBold active sessions for subscriber
  * DELETE: Disconnect all sessions for subscriber
  */
 

@@ -9,12 +9,12 @@ interface SpecGridProps {
 
 // Icon mapping for common spec types
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  wifi: Wifi,
-  speed: Zap,
-  time: Clock,
-  security: Shield,
-  award: Award,
-  check: CheckCircle,
+  wifi: PiWifiHighBold,
+  speed: PiLightningBold,
+  time: PiClockBold,
+  security: PiShieldBold,
+  award: PiTrophyBold,
+  check: PiCheckCircleBold,
 }
 
 export function SpecGrid({ section }: SpecGridProps) {

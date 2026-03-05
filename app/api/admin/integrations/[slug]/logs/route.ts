@@ -9,11 +9,11 @@
  * - zoho_sync_logs (for Zoho integrations)
  *
  * Query parameters:
- * - log_type: Filter by log type (all, activity, webhook, sync)
- * - status: Filter by status (success, failed, pending, etc.)
+ * - log_type: PiFunnelBold by log type (all, activity, webhook, sync)
+ * - status: PiFunnelBold by status (success, failed, pending, etc.)
  * - date_from: Start date (ISO string)
  * - date_to: End date (ISO string)
- * - search: Search in messages/descriptions
+ * - search: PiMagnifyingGlassBold in messages/descriptions
  * - limit: Number of records (default: 50, max: 100)
  * - offset: Pagination offset (default: 0)
  *

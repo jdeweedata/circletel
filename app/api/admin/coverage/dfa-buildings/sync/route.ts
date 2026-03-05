@@ -201,7 +201,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     apiLogger.info('[DFA Sync API] Created sync log', { syncLogId: syncLog.id });
 
     // =========================================================================
-    // Step 5: Send Inngest Event
+    // Step 5: PiPaperPlaneRightBold Inngest Event
     // =========================================================================
     try {
       await inngest.send({

@@ -1,5 +1,5 @@
 'use client';
-import { PiCheckCircleBold, PiEyeBold, PiEyeSlashBold, PiLockBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiCheckBold, PiCheckCircleBold, PiEyeBold, PiEyeSlashBold, PiLockBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
       const supabase = createIsolatedClient();
       supabaseRef.current = supabase;
 
-      // IMPORTANT: Check for existing session FIRST
+      // IMPORTANT: PiCheckBold for existing session FIRST
       // This handles the case where user arrives via /auth/confirm redirect
       // which already verified the token and set session cookies
       console.log('[Reset Password] Checking for existing session...');

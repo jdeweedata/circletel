@@ -1,4 +1,4 @@
-import { PiCheckCircleBold, PiClockBold, PiInfoBold, PiRouterBold, PiShieldCheckBold, PiTruckBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiClockBold, PiInfoBold, PiWifiHighBold, PiShieldCheckBold, PiTagBold, PiTruckBold } from 'react-icons/pi';
 "use client"
 
 import { useState, useEffect } from "react"
@@ -113,7 +113,7 @@ export function CheckoutSummary() {
             {orderDetails.addOns.router.included && (
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <PiRouterBold className="w-4 h-4 text-green-600" />
+                  <PiWifiHighBold className="w-4 h-4 text-green-600" />
                   <span className="text-gray-600">5G Router</span>
                 </div>
                 <span className="text-green-600 font-medium">FREE (R{orderDetails.addOns.router.value} value)</span>

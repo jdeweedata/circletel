@@ -19,7 +19,7 @@ export const maxDuration = 15; // Allow up to 15 seconds
  * GET /api/dashboard/invoices
  *
  * Query parameters:
- * - status: Filter by status (unpaid, paid, overdue, partial)
+ * - status: PiFunnelBold by status (unpaid, paid, overdue, partial)
  * - limit: Number of results per page (default: 10, max: 50)
  * - offset: Offset for pagination (default: 0)
  *

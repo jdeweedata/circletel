@@ -1,5 +1,5 @@
-import { PiInfoBold, PiRouterBold, PiShieldCheckBold, PiTruckBold } from 'react-icons/pi';
 "use client"
+import { PiInfoBold, PiShieldCheckBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -157,7 +157,7 @@ export function OrderSummary({ packageId }: OrderSummaryProps) {
                 className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
                 disabled={selectedPackage.id === "premium"}
               />
-              <PiRouterBold className="w-5 h-5 text-gray-400" />
+              <PiWifiHighBold className="w-5 h-5 text-gray-400" />
               <div>
                 <div className="font-medium text-sm text-gray-900">5G Router</div>
                 <div className="text-xs text-gray-500">High-speed wireless router</div>

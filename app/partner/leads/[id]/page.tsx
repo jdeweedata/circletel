@@ -67,12 +67,12 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 const ACTIVITY_ICONS: Record<ActivityType, any> = {
-  call: Phone,
-  email: Mail,
-  meeting: User,
-  quote_sent: Building2,
-  follow_up: Clock,
-  note: MessageSquare,
+  call: PiPhoneBold,
+  email: PiEnvelopeBold,
+  meeting: PiUserBold,
+  quote_sent: PiBuildingsBold,
+  follow_up: PiClockBold,
+  note: PiChatBold,
 }
 
 export default function LeadDetailPage({

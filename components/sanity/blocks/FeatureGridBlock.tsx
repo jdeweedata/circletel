@@ -5,14 +5,14 @@ import { PiClockBold, PiGlobeBold, PiHeadphonesBold, PiLightningBold, PiDesktopT
 
 // Icon mapping for dynamic icon selection
 const iconMap: Record<string, IconType> = {
-  wifi: Wifi,
-  shield: Shield,
-  clock: Clock,
-  headphones: Headphones,
-  zap: Zap,
-  globe: Globe,
-  server: Server,
-  users: Users,
+  wifi: PiWifiHighBold,
+  shield: PiShieldBold,
+  clock: PiClockBold,
+  headphones: PiHeadphonesBold,
+  zap: PiLightningBold,
+  globe: PiGlobeBold,
+  server: PiDesktopTowerBold,
+  users: PiUsersBold,
 };
 
 interface Feature {
@@ -65,7 +65,7 @@ export function FeatureGridBlock({
         {/* Feature Grid */}
         <div className={`grid grid-cols-1 ${columnClasses[columns]} gap-6 md:gap-8`}>
           {features?.map((feature) => {
-            const Icon = feature.icon ? iconMap[feature.icon] || Zap : Zap;
+            const Icon = feature.icon ? iconMap[feature.icon] || PiLightningBold : PiLightningBold;
 
             if (variant === 'minimal') {
               return (

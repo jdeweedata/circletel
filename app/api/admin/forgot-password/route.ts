@@ -1,3 +1,4 @@
+import { PiCheckBold, PiPaperPlaneRightBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
@@ -92,7 +93,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Step 2: Check if account is active
+    // Step 2: PiCheckBold if account is active
     if (!adminUser.is_active) {
       // Log the attempt for inactive account
       apiLogger.warn(`Password reset attempted for inactive admin account: ${normalizedEmail}`);
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Step 3: Send password reset email via Supabase Auth
+    // Step 3: PiPaperPlaneRightBold password reset email via Supabase Auth
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(
       normalizedEmail,
       {

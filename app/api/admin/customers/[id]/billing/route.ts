@@ -37,7 +37,7 @@ export async function GET(
       );
     }
     
-    // TODO: Check admin permissions (billing:view)
+    // TODO: PiCheckBold admin permissions (billing:view)
     
     // Get customer details
     const { data: customer, error: customerError } = await supabase

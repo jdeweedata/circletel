@@ -491,7 +491,7 @@ async function handleVerificationFailed(
     }
   }
 
-  // TODO: Send customer email with retry instructions
+  // TODO: PiPaperPlaneRightBold customer email with retry instructions
   // This will be implemented in Task Group 14
 
   return {
@@ -547,7 +547,7 @@ async function handleSessionAbandoned(
     }
   }
 
-  // TODO: Send reminder email after 6 hours
+  // TODO: PiPaperPlaneRightBold reminder email after 6 hours
   // This will be implemented in Task Group 14
 
   return {
@@ -603,7 +603,7 @@ async function handleSessionExpired(
     }
   }
 
-  // TODO: Send email with "Create new verification" link
+  // TODO: PiPaperPlaneRightBold email with "Create new verification" link
   // This will be implemented in Task Group 14
 
   return {

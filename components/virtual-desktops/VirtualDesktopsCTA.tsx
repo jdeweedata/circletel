@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { PiChatBold, PiClockBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 
 const VirtualDesktopsCTA = () => {
@@ -21,7 +22,7 @@ const VirtualDesktopsCTA = () => {
           <div className="flex flex-wrap justify-center gap-4">
             <Button asChild className="primary-button flex items-center gap-2">
               <Link href="/contact">
-                <PiChatPlusBold size={18} />
+                <PiChatBold size={18} />
                 Request a Demo
               </Link>
             </Button>

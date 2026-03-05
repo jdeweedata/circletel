@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowCounterClockwiseBold, PiArrowSquareOutBold, PiArrowsDownUpBold, PiBroadcastBold, PiBuildingsBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckCircleBold, PiClipboardTextBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiFunnelBold, PiGaugeBold, PiGlobeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiRouterBold, PiShieldBold, PiShieldCheckBold, PiSlidersHorizontalBold, PiSparkleBold, PiSpinnerBold, PiUserBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowCounterClockwiseBold, PiArrowSquareOutBold, PiArrowsDownUpBold, PiBroadcastBold, PiBuildingsBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckCircleBold, PiClipboardTextBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiFunnelBold, PiGaugeBold, PiGlobeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiShieldBold, PiShieldCheckBold, PiSlidersHorizontalBold, PiSparkleBold, PiSpinnerBold, PiUserBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -969,7 +969,7 @@ export function SingleSiteStepper() {
               </motion.div>
             )}
 
-            {/* Step 3: Package Confirmation */}
+            {/* Step 3: PiPackageBold Confirmation */}
             {currentStep === 3 && (
               <motion.div
                 key="step3"

@@ -46,9 +46,9 @@ interface CoverageResult {
 }
 
 const serviceIcons: Record<string, any> = {
-  'SkyFibre': Wifi,
-  'HomeFibreConnect': Home,
-  'BizFibreConnect': Building,
+  'SkyFibre': PiWifiHighBold,
+  'HomeFibreConnect': PiHouseBold,
+  'BizFibreConnect': PiBuildingBold,
 };
 
 const serviceDescriptions: Record<string, string> = {
@@ -348,7 +348,7 @@ export function CoverageChecker({
 
             <div className="space-y-3">
               {results.services.map((service) => {
-                const Icon = serviceIcons[service] || Wifi;
+                const Icon = serviceIcons[service] || PiWifiHighBold;
                 const activationDays = results.areas?.find(a => a.service_type === service)?.activation_days || 3;
 
                 return (

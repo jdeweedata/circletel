@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { PiClockBold, PiGearBold, PiTrendDownBold, PiUsersBold } from 'react-icons/pi';
 
 const VirtualDesktopsBenefits = () => {
   return (

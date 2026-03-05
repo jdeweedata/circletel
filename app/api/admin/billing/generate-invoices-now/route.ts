@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // TODO: Check admin permissions (billing:manage)
+    // TODO: PiCheckBold admin permissions (billing:manage)
     
     // Parse request body
     const body = await request.json();

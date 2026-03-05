@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiDotsThreeBold, PiDownloadSimpleBold, PiEyeBold, PiEyeSlashBold, PiFileTextBold, PiFunnelBold, PiImageBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiUploadSimpleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiDotsThreeBold, PiDownloadSimpleBold, PiEyeBold, PiEyeSlashBold, PiFileTextBold, PiFunnelBold, PiImageBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiUploadSimpleBold, PiVideoCameraBold } from 'react-icons/pi';
 
 /**
  * Admin Marketing Assets Page
@@ -94,15 +94,15 @@ const visibilityOptions: { value: AssetVisibility; label: string }[] = [
   { value: 'internal', label: 'Internal Only' },
 ];
 
-const categoryIcons: Record<AssetCategory, typeof Image> = {
-  logo: Image,
-  banner: Image,
-  social: Image,
-  flyer: FileText,
-  video: Video,
-  document: FileText,
-  template: FileText,
-  other: FileText,
+const categoryIcons: Record<AssetCategory, React.ComponentType<any>> = {
+  logo: PiImageBold,
+  banner: PiImageBold,
+  social: PiImageBold,
+  flyer: PiFileTextBold,
+  video: PiVideoCameraBold,
+  document: PiFileTextBold,
+  template: PiFileTextBold,
+  other: PiFileTextBold,
 };
 
 export default function AdminAssetsPage() {
@@ -395,7 +395,7 @@ export default function AdminAssetsPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {assets.map((asset) => {
-            const Icon = categoryIcons[asset.category] || FileText;
+            const Icon = categoryIcons[asset.category] || PiFileTextBold;
             const isImage = asset.mime_type?.startsWith('image/');
 
             return (

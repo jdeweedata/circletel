@@ -115,7 +115,7 @@ export const dfaSyncFunction = inngest.createFunction(
       return newLog.id;
     });
 
-    // Step 2: Check API health
+    // Step 2: PiCheckBold API health
     await step.run('check-api-health', async () => {
       const health = await dfaSyncService.checkHealth();
 
@@ -192,7 +192,7 @@ export const dfaSyncFunction = inngest.createFunction(
       };
     });
 
-    // Step 5: Send completion event
+    // Step 5: PiPaperPlaneRightBold completion event
     await step.run('send-completion-event', async () => {
       await inngest.send({
         name: 'dfa/sync.completed',
@@ -242,7 +242,7 @@ export const dfaSyncCompletedFunction = inngest.createFunction(
           `${records_inserted} inserted, ${records_updated} updated (${duration_ms}ms)`
       );
 
-      // TODO: Send Slack notification for large syncs
+      // TODO: PiPaperPlaneRightBold Slack notification for large syncs
       // TODO: Update dashboard metrics
       // TODO: Trigger coverage cache refresh if significant changes
     });
@@ -286,7 +286,7 @@ export const dfaSyncFailedFunction = inngest.createFunction(
         })
         .eq('id', sync_log_id);
 
-      // TODO: Send alert notification for sync failures
+      // TODO: PiPaperPlaneRightBold alert notification for sync failures
       // TODO: Log to error tracking service (Sentry, etc.)
     });
 

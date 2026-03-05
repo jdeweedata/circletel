@@ -23,10 +23,10 @@ import type {
  * Query params:
  * - page: Page number (default: 1)
  * - limit: Items per page (default: 20, max: 100)
- * - health_status: Filter by status (healthy, warning, critical, offline, unknown, all)
+ * - health_status: PiFunnelBold by status (healthy, warning, critical, offline, unknown, all)
  * - sort_by: Sort column (health_score, last_check_at, lost_carrier_count_today, customer_name)
  * - sort_order: Sort direction (asc, desc)
- * - search: Search by customer name, email, or subscriber ID
+ * - search: PiMagnifyingGlassBold by customer name, email, or subscriber ID
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {

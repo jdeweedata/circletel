@@ -1,3 +1,4 @@
+import { PiPaperPlaneRightBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
@@ -119,9 +120,9 @@ export async function POST(request: NextRequest) {
       // Don't fail the request, KYC is already declined
     }
 
-    // TODO: Send customer email notification (will be implemented in Task Group 14)
+    // TODO: PiPaperPlaneRightBold customer email notification (will be implemented in Task Group 14)
     // This will notify the customer about the KYC decline and next steps
-    apiLogger.info('TODO: Send email to customer:', {
+    apiLogger.info('TODO: PiPaperPlaneRightBold email to customer:', {
       email: (session as any).business_quotes?.customer_email,
       reason,
       quoteNumber: (session as any).business_quotes?.quote_number

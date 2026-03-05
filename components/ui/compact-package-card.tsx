@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowDownBold, PiArrowUpBold, PiCheckBold, PiInfinityBold, PiInfoBold } from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowUpBold, PiCheckBold, PiInfinityBold, PiInfoBold, PiPackageBold } from 'react-icons/pi';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -207,7 +207,7 @@ export function CompactPackageCard({
         </div>
       )}
 
-      {/* Phase 3: Package Type Label with Infinity Icon & Green Color + Tooltip */}
+      {/* Phase 3: PiPackageBold Type Label with Infinity Icon & Green Color + Tooltip */}
       <div className="h-6 pt-2 px-4">
         <TooltipProvider>
           <Tooltip>
@@ -222,7 +222,7 @@ export function CompactPackageCard({
                   ? 'text-white drop-shadow-sm'
                   : 'text-white drop-shadow-sm'
               )}>
-                {/* Phase 3: Infinity icon for uncapped */}
+                {/* Phase 3: PiInfinityBold icon for uncapped */}
                 {type === 'uncapped' ? (
                   <PiInfinityBold className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
                 ) : (

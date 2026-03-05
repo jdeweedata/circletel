@@ -1,7 +1,7 @@
 /**
  * API Route: /api/admin/integrations/interstellio/subscribers
  *
- * GET: List all Interstellio subscribers with status
+ * GET: PiListBold all Interstellio subscribers with status
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic'
  * Query params:
  * - page: Page number (default: 1)
  * - limit: Items per page (default: 20, max: 50)
- * - search: Search by username
+ * - search: PiMagnifyingGlassBold by username
  */
 export async function GET(request: NextRequest) {
   try {

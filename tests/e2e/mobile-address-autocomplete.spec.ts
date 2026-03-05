@@ -398,7 +398,7 @@ test.describe('Mobile Address Selection Flow - End to End', () => {
     await page.screenshot({ path: 'test-results/mobile-flow-2-typed.png' });
 
     // Step 4: Wait for and interact with suggestions
-    console.log('\nStep 4: Check for suggestions...');
+    console.log('\nStep 4: PiCheckBold for suggestions...');
     
     // Try to find Google Places autocomplete
     const pacContainer = page.locator('.pac-container');
@@ -441,7 +441,7 @@ test.describe('Mobile Address Selection Flow - End to End', () => {
     }
 
     // Step 6: Test Check Coverage button
-    console.log('\nStep 6: Check Coverage button state...');
+    console.log('\nStep 6: PiCheckBold Coverage button state...');
     const checkCoverageBtn = page.locator('button:has-text("Check coverage")').first();
     
     if (await checkCoverageBtn.isVisible()) {

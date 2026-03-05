@@ -107,7 +107,7 @@ const TEMPLATE_SUBJECTS: Record<EmailTemplateId, string> = {
   installation_scheduled: 'Installation Scheduled: {{installationDate}}',
   installation_reminder: 'Installation Reminder: Tomorrow at {{installationTime}}',
   service_activated: 'Welcome to CircleTel - Service Activated',
-  kyc_upload_request: 'Action Required: Upload KYC Documents - {{orderNumber}}',
+  kyc_upload_request: 'Action Required: PiUploadSimpleBold KYC Documents - {{orderNumber}}',
   kyc_approved: '✅ Documents Approved - {{orderNumber}}',
   kyc_rejected: '⚠️ Documents Need Revision - {{orderNumber}}',
 
@@ -304,7 +304,7 @@ const html = await EmailRenderer.previewTemplate('quote_sent', {
   quoteUrl: 'https://www.circletel.co.za/quotes/123',
 });
 
-// Example 3: Check if template exists
+// Example 3: PiCheckBold if template exists
 if (EmailRenderer.templateExists('order_confirmation')) {
   const info = EmailRenderer.getTemplateInfo('order_confirmation');
   console.log(info);

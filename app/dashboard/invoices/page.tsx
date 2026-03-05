@@ -7,6 +7,7 @@
 
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { PiCreditCardBold, PiEyeBold, PiFileTextBold } from 'react-icons/pi';
 import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

@@ -42,14 +42,14 @@ const SPEED_FILTERS = [
   { value: 200, label: '200+ Mbps' },
 ];
 
-const TECH_ICONS: Record<string, typeof Wifi> = {
-  fibre: Cable,
-  fiber: Cable,
-  tarana: Radio,
-  skyfibre: Radio,
-  lte: Signal,
-  '5g': Signal,
-  default: Wifi,
+const TECH_ICONS: Record<string, typeof PiWifiHighBold> = {
+  fibre: PiPlugBold,
+  fiber: PiPlugBold,
+  tarana: PiRadioBold,
+  skyfibre: PiRadioBold,
+  lte: PiCellSignalFullBold,
+  '5g': PiCellSignalFullBold,
+  default: PiWifiHighBold,
 };
 
 const getTechIcon = (tech: string) => {

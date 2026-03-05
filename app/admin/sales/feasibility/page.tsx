@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowsCounterClockwiseBold, PiBroadcastBold, PiBuildingsBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCurrencyDollarBold, PiCursorBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiGlobeBold, PiGridFourBold, PiLightningBold, PiListBold, PiMapPinBold, PiNavigationArrowBold, PiPackageBold, PiPhoneBold, PiRouterBold, PiShieldBold, PiShieldCheckBold, PiShieldWarningBold, PiSparkleBold, PiSpinnerBold, PiStackBold, PiUserBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowsCounterClockwiseBold, PiBroadcastBold, PiBuildingsBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCurrencyDollarBold, PiCursorBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiGlobeBold, PiGridFourBold, PiLightningBold, PiListBold, PiMapPinBold, PiNavigationArrowBold, PiPackageBold, PiPhoneBold, PiShieldBold, PiShieldCheckBold, PiShieldWarningBold, PiSparkleBold, PiSpinnerBold, PiStackBold, PiUserBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -108,7 +108,7 @@ export type { CoverageDetail, DetailedCoverage, MatchingProduct, SiteResult };
 const speedOptions = [
   { value: 100, label: '100 Mbps', icon: PiWifiHighBold },
   { value: 200, label: '200 Mbps', icon: PiCellSignalFullBold },
-  { value: 500, label: '500 Mbps', icon: PiRouterBold },
+  { value: 500, label: '500 Mbps', icon: PiWifiHighBold },
   { value: 1000, label: '1 Gbps', icon: PiLightningBold },
 ];
 

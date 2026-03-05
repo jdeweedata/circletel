@@ -1,3 +1,4 @@
+import { PiDatabaseBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     apiLogger.info('[Health Check] Starting...');
 
-    // Test 1: Database connection
+    // Test 1: PiDatabaseBold connection
     const supabase = await createClient();
 
     apiLogger.info('[Health Check] Testing database connection...');

@@ -224,7 +224,7 @@ export class ZohoActivationService {
         }
       }
 
-      // Step 5: Send Invoice via Zoho Mail
+      // Step 5: PiPaperPlaneRightBold Invoice via Zoho Mail
       if (result.invoicePdfUrl) {
         try {
           await this.sendInvoiceEmail(input, result.invoicePdfUrl);

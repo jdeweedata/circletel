@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiDesktopTowerBold, PiEnvelopeBold, PiGaugeBold, PiHeadphonesBold, PiMapPinBold, PiPhoneBold, PiRadioBold, PiShieldBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiDesktopTowerBold, PiEnvelopeBold, PiGaugeBold, PiHeadphonesBold, PiInfoBold, PiMapPinBold, PiPhoneBold, PiRadioBold, PiShieldBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -354,7 +354,7 @@ export default function EnterprisePage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {/* Left: Info */}
+              {/* Left: PiInfoBold */}
               <div>
                 <h2 className="font-heading text-2xl md:text-3xl font-bold text-circleTel-navy mb-4">
                   Let&apos;s Discuss Your Requirements

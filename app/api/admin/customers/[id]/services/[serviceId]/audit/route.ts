@@ -35,7 +35,7 @@ export async function GET(
       );
     }
     
-    // TODO: Check admin permissions (services:view_audit)
+    // TODO: PiCheckBold admin permissions (services:view_audit)
     
     // Verify service belongs to customer
     const { data: service, error: serviceError } = await supabase

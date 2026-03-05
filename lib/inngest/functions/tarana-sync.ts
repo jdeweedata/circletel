@@ -339,7 +339,7 @@ export const taranaSyncFunction = inngest.createFunction(
       };
     });
 
-    // Step 8: Send completion event
+    // Step 8: PiPaperPlaneRightBold completion event
     await step.run('send-completion-event', async () => {
       await inngest.send({
         name: 'tarana/sync.completed',
@@ -380,7 +380,7 @@ export const taranaSyncCompletedFunction = inngest.createFunction(
           `${inserted} inserted, ${updated} updated, ${deleted} deleted (${duration_ms}ms)`
       );
 
-      // TODO: Send Slack notification for large syncs
+      // TODO: PiPaperPlaneRightBold Slack notification for large syncs
       // TODO: Update dashboard metrics
       // TODO: Trigger coverage cache refresh if significant changes
     });
@@ -422,7 +422,7 @@ export const taranaSyncFailedFunction = inngest.createFunction(
         })
         .eq('id', sync_log_id);
 
-      // TODO: Send alert notification for sync failures
+      // TODO: PiPaperPlaneRightBold alert notification for sync failures
       // TODO: Log to error tracking service (Sentry, etc.)
     });
 

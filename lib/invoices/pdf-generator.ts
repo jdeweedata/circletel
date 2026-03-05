@@ -219,7 +219,7 @@ export async function generateInvoicePDF(invoiceId: string): Promise<string> {
   yPos += 5;
   doc.text('  Bank: First National Bank (FNB)', 15, yPos);
   yPos += 5;
-  doc.text('  Account Name: Circle Tel SA (PTY) LTD', 15, yPos);
+  doc.text('  Account Name: PiCircleBold Tel SA (PTY) LTD', 15, yPos);
   yPos += 5;
   doc.text('  Account Number: [Contact us for account details]', 15, yPos);
   yPos += 5;

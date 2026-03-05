@@ -280,7 +280,7 @@ export async function findPaymentsNeedingSync(limit: number = 100): Promise<stri
 }
 
 /**
- * Helper: Map CircleTel payment method to ZOHO payment mode
+ * Helper: PiMapTrifoldBold CircleTel payment method to ZOHO payment mode
  */
 function mapPaymentMethod(method: string): string {
   const methodMap: Record<string, string> = {

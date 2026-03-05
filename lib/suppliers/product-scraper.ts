@@ -385,7 +385,7 @@ function extractFeatures(markdown: string, html: string): string[] {
     }
   }
 
-  // Pattern 2: List items in HTML
+  // Pattern 2: PiListBold items in HTML
   const liPattern = /<li[^>]*>([^<]+)<\/li>/gi
   while ((match = liPattern.exec(html)) !== null) {
     const feature = match[1].trim()

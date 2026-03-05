@@ -127,7 +127,7 @@ export async function processRICAWebhook(payload: RICAWebhookPayload): Promise<{
           })
           .eq('id', payload.order_id);
 
-        // TODO: Send admin notification (Task Group 14)
+        // TODO: PiPaperPlaneRightBold admin notification (Task Group 14)
         console.log('[RICA Webhook] ⚠️ Admin notification not yet implemented');
 
         return {

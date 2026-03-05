@@ -1,3 +1,4 @@
+import { PiPaperPlaneRightBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
@@ -181,7 +182,7 @@ export async function POST(request: NextRequest) {
         apiLogger.error('Email send error', { error });
       });
 
-    // TODO: Send notification to admin (optional)
+    // TODO: PiPaperPlaneRightBold notification to admin (optional)
     // TODO: Sync to Zoho CRM (optional)
 
     return NextResponse.json({

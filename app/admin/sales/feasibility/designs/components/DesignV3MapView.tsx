@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiCheckBold, PiCrosshairBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiNavigationArrowBold, PiPhoneBold, PiShieldBold, PiUserBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckBold, PiCrosshairBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiMapTrifoldBold, PiNavigationArrowBold, PiPhoneBold, PiShieldBold, PiUserBold } from 'react-icons/pi';
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
@@ -221,7 +221,7 @@ export function DesignV3MapView() {
         </div>
       </div>
 
-      {/* Right Panel: Map */}
+      {/* Right Panel: PiMapTrifoldBold */}
       <div className="flex-1 relative bg-gray-100">
         {/* Map Placeholder with South Africa styling */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50">

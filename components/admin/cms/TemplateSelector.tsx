@@ -1,5 +1,5 @@
 'use client';
-import { PiClockBold, PiFileTextBold, PiSparkleBold, PiSpinnerBold, PiXBold } from 'react-icons/pi';
+import { PiClockBold, PiFileTextBold, PiLayoutBold, PiNewspaperBold, PiShoppingBagBold, PiSparkleBold, PiSpinnerBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Template Selector Modal
@@ -20,11 +20,11 @@ interface TemplateSelectorProps {
 
 // Template icons mapping
 const templateIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  blank: FileText,
-  landing: Layout,
-  blog: Newspaper,
-  product: ShoppingBag,
-  coming_soon: Clock,
+  blank: PiFileTextBold,
+  landing: PiLayoutBold,
+  blog: PiNewspaperBold,
+  product: PiShoppingBagBold,
+  coming_soon: PiClockBold,
 };
 
 export function TemplateSelector({ isOpen, onClose, onSelect }: TemplateSelectorProps) {
@@ -146,7 +146,7 @@ export function TemplateSelector({ isOpen, onClose, onSelect }: TemplateSelector
 
               {/* Template Options */}
               {templates.map((template) => {
-                const Icon = templateIcons[template.slug] || Layout;
+                const Icon = templateIcons[template.slug] || PiLayoutBold;
                 const isSelected = selectedTemplate?.id === template.id;
 
                 return (

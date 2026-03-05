@@ -155,7 +155,7 @@ export function buildOrderDescription(order: OrderData): string {
     parts.push(abbreviateOrderNumber(order.order_number))
   }
 
-  // Priority 2: Package name
+  // Priority 2: PiPackageBold name
   if (order.package_name) {
     parts.push(abbreviatePackage(order.package_name))
   }

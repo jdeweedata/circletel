@@ -2,7 +2,7 @@
 import { PiArrowsDownUpBold, PiCheckCircleBold, PiFunnelBold, PiPackageBold, PiSparkleBold, PiSpinnerBold, PiStarBold } from 'react-icons/pi';
 
 /**
- * Step 3: Package Selection
+ * Step 3: PiPackageBold Selection
  *
  * AI-powered package recommendations and selection
  */

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiLightningBold, PiRouterBold, PiUploadSimpleBold, PiWrenchBold, PiXBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiLightningBold, PiWifiHighBold, PiUploadSimpleBold, PiWrenchBold, PiXBold } from 'react-icons/pi';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -152,7 +152,7 @@ export function PackageComparison({
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-2 text-gray-600">
-                      <PiRouterBold className="w-4 h-4" />
+                      <PiWifiHighBold className="w-4 h-4" />
                       Router
                     </span>
                     <span className="font-semibold">

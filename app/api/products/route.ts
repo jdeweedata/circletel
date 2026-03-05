@@ -1,3 +1,4 @@
+import { PiFunnelBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
@@ -7,8 +8,8 @@ import { apiLogger } from '@/lib/logging/logger';
  * Fetch products with optional filtering by service type
  *
  * Query params:
- * - service_type: Filter by service type (5G, Fibre, LTE, etc.)
- * - category: Filter by product_category
+ * - service_type: PiFunnelBold by service type (5G, Fibre, LTE, etc.)
+ * - category: PiFunnelBold by product_category
  * - featured: Only featured products (true/false)
  * - limit: Max number of results
  */

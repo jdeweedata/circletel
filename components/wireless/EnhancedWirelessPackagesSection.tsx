@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { PiClockBold, PiGearBold, PiShoppingCartBold, PiStarBold, PiTruckBold, PiWifiHighBold } from "react-icons/pi"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useRouter } from "next/navigation"
@@ -9,11 +10,11 @@ import { WirelessPackage, WirelessPackagesConfig } from "@/lib/types/wireless-pa
 import packagesConfig from "@/lib/wireless-packages-config.json"
 
 const iconMap = {
-  star: Star,
-  router: Wifi,
-  truck: Truck,
-  plug: Settings,
-  clock: Clock
+  star: PiStarBold,
+  router: PiWifiHighBold,
+  truck: PiTruckBold,
+  plug: PiGearBold,
+  clock: PiClockBold
 }
 
 export function EnhancedWirelessPackagesSection() {
@@ -138,7 +139,7 @@ export function EnhancedWirelessPackagesSection() {
   }
 
   const FeatureItem = ({ feature, index }: { feature: any; index: number }) => {
-    const IconComponent = iconMap[feature.icon as keyof typeof iconMap] || Star
+    const IconComponent = iconMap[feature.icon as keyof typeof iconMap] || PiStarBold
 
     return (
       <div

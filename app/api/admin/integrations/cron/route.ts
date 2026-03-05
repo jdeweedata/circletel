@@ -6,8 +6,8 @@
  * List all scheduled cron jobs across integrations
  *
  * Query Parameters:
- * - integration_slug: Filter by specific integration
- * - is_active: Filter by active/inactive status (true/false)
+ * - integration_slug: PiFunnelBold by specific integration
+ * - is_active: PiFunnelBold by active/inactive status (true/false)
  * - limit: Number of results (default 50, max 100)
  * - offset: Pagination offset
  *

@@ -216,7 +216,7 @@ export const feasibilityCheckFunction = inngest.createFunction(
       );
     });
 
-    // Step 5: Send completion event
+    // Step 5: PiPaperPlaneRightBold completion event
     await step.run('send-completion-event', async () => {
       await inngest.send({
         name: 'feasibility/check.completed',
@@ -447,7 +447,7 @@ export const feasibilityCheckCompletedFunction = inngest.createFunction(
           `feasible=${is_feasible}, best=${best_technology}, duration=${duration_ms}ms`
       );
 
-      // TODO: Send notification if high-value lead
+      // TODO: PiPaperPlaneRightBold notification if high-value lead
       // TODO: Trigger quote generation if auto-quote enabled
     });
 

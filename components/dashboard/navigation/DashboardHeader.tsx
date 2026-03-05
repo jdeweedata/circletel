@@ -1,5 +1,5 @@
 'use client';
-import { PiBellBold, PiCaretDownBold, PiListBold, PiMagnifyingGlassBold, PiSignOutBold } from 'react-icons/pi';
+import { PiBellBold, PiCaretDownBold, PiListBold, PiMagnifyingGlassBold, PiNavigationArrowBold, PiSignOutBold } from 'react-icons/pi';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -32,7 +32,7 @@ export default function DashboardHeader({
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="flex items-center h-14 px-4 sm:px-6 lg:px-8">
-        {/* Mobile: Menu toggle + Logo */}
+        {/* Mobile: PiListBold toggle + Logo */}
         <div className="flex items-center gap-3 lg:hidden">
           {onMobileMenuToggle && (
             <Button
@@ -70,7 +70,7 @@ export default function DashboardHeader({
           </Link>
         </div>
 
-        {/* Desktop: Navigation Tabs */}
+        {/* Desktop: PiNavigationArrowBold Tabs */}
         <div className="hidden lg:flex flex-1 justify-center">
           <DashboardTabs />
         </div>

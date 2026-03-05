@@ -6,8 +6,8 @@
  * Returns recent sync activity logs with filtering and pagination
  *
  * Query parameters:
- * - entity_type: Filter by entity type (customer, subscription, invoice, payment)
- * - status: Filter by status (success, failed, pending, retrying)
+ * - entity_type: PiFunnelBold by entity type (customer, subscription, invoice, payment)
+ * - status: PiFunnelBold by status (success, failed, pending, retrying)
  * - limit: Number of records to return (default: 50, max: 100)
  * - offset: Pagination offset (default: 0)
  *

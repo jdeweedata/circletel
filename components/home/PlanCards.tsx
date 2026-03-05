@@ -200,10 +200,10 @@ const SEGMENT_CONFIG: Record<SegmentType, { title: string; viewAllText: string; 
 };
 
 const TYPE_ICONS: Record<string, React.ElementType> = {
-  fibre: Wifi,
-  '5g': Signal,
-  lte: BatteryCharging,
-  fwa: Building2,
+  fibre: PiWifiHighBold,
+  '5g': PiCellSignalFullBold,
+  lte: PiBatteryChargingBold,
+  fwa: PiBuildingsBold,
 };
 
 const TYPE_LABELS: Record<string, string> = {

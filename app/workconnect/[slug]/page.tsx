@@ -48,12 +48,12 @@ interface WorkConnectProduct {
 
 // Icon mapping
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  wifi: Wifi,
-  cloud: Cloud,
-  mail: Mail,
-  headphones: Headphones,
-  shield: Shield,
-  zap: Zap,
+  wifi: PiWifiHighBold,
+  cloud: PiCloudBold,
+  mail: PiEnvelopeBold,
+  headphones: PiHeadphonesBold,
+  shield: PiShieldBold,
+  zap: PiLightningBold,
 };
 
 export async function generateStaticParams() {
@@ -193,7 +193,7 @@ export default async function WorkConnectProductPage({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {product.keyFeatures.map((feature, idx) => {
-              const IconComponent = feature.icon ? iconMap[feature.icon] || Zap : Zap;
+              const IconComponent = feature.icon ? iconMap[feature.icon] || PiLightningBold : PiLightningBold;
               return (
                 <div
                   key={idx}

@@ -236,7 +236,7 @@ export const supplierSyncFunction = inngest.createFunction(
       }
     })
 
-    // Step 6: Send completion event
+    // Step 6: PiPaperPlaneRightBold completion event
     await step.run('send-completion-event', async () => {
       const hasErrors = errors.length > 0
       const eventName = hasErrors ? 'supplier/sync.completed_with_errors' : 'supplier/sync.completed'
@@ -334,8 +334,8 @@ export const supplierSyncCompletedFunction = inngest.createFunction(
         console.error('[SupplierSync] Errors:', errors.join('; '))
       }
 
-      // TODO: Send Slack notification for daily sync summary
-      // TODO: Send alert if sync fails
+      // TODO: PiPaperPlaneRightBold Slack notification for daily sync summary
+      // TODO: PiPaperPlaneRightBold alert if sync fails
       // TODO: Update dashboard metrics
     })
 
@@ -369,7 +369,7 @@ export const supplierSyncFailedFunction = inngest.createFunction(
         `[SupplierSync] Sync failed for ${supplier_code} (attempt ${attempt}): ${error}`
       )
 
-      // TODO: Send alert notification
+      // TODO: PiPaperPlaneRightBold alert notification
       // TODO: Log to error tracking service (Sentry, etc.)
     })
 

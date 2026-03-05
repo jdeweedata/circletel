@@ -1,3 +1,4 @@
+import { PiPaperPlaneRightBold } from 'react-icons/pi';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
 
@@ -145,7 +146,7 @@ serve(async (req) => {
         )
       }
 
-      // TODO: Send notification email to super admins about new access request
+      // TODO: PiPaperPlaneRightBold notification email to super admins about new access request
 
       return new Response(
         JSON.stringify({

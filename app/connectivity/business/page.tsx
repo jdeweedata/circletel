@@ -1,4 +1,4 @@
-import { PiChartLineUpBold, PiChatPlusBold, PiCheckCircleBold, PiLaptopBold, PiLightningBold, PiPlugBold, PiRadioBold, PiShieldCheckBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiChartLineUpBold, PiChatBold, PiCheckCircleBold, PiLaptopBold, PiLightningBold, PiPlugBold, PiRadioBold, PiShieldCheckBold, PiWifiHighBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -34,7 +34,7 @@ export default function BusinessConnectivity() {
               </div>
               <Button asChild className="primary-button flex items-center gap-2">
                 <Link href="/contact">
-                  <PiChatPlusBold size={18} />
+                  <PiChatBold size={18} />
                   Explore Connectivity Options
                 </Link>
               </Button>
@@ -346,7 +346,7 @@ export default function BusinessConnectivity() {
           <div className="text-center mt-12">
             <Button asChild className="primary-button flex items-center gap-2">
               <Link href="/contact">
-                <PiChatPlusBold size={18} />
+                <PiChatBold size={18} />
                 Get Started Today
               </Link>
             </Button>

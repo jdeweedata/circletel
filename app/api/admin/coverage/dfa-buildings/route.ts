@@ -5,7 +5,7 @@
  * Query Parameters:
  * - page: Page number (default: 1)
  * - pageSize: Items per page (default: 25, max: 100)
- * - search: Search by building name, ID, or address
+ * - search: PiMagnifyingGlassBold by building name, ID, or address
  * - type: Coverage type filter ('connected' | 'near-net')
  * - precinct: Precinct filter
  * - ftth: FTTH filter ('Yes' | 'No')

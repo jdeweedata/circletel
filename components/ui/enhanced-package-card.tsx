@@ -258,7 +258,7 @@ function SpeedIndicator({
   unit = 'Mbps',
   className,
 }: SpeedIndicatorProps) {
-  const Icon = direction === 'download' ? ArrowDown : ArrowUp;
+  const Icon = direction === 'download' ? PiArrowDownBold : PiArrowUpBold;
   const label = direction === 'download' ? 'Download' : 'Upload';
 
   return (

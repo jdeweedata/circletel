@@ -255,7 +255,7 @@ When generating specs, follow the CircleTel format:
 - Testing Requirements
 
 OUTPUT LOCATION:
-Save specs to: agent-os/specs/[YYYYMMDD]-[feature-name]/
+PiFloppyDiskBold specs to: agent-os/specs/[YYYYMMDD]-[feature-name]/
 
 CONTEXT SOURCES:
 - lib/agents/pm/context/product-map.ts - Product map and sitemap reference
@@ -317,7 +317,7 @@ ENVIRONMENT:
 
   database: `${SYSTEM_PROMPT_BASE}
 
-YOUR ROLE: Database Engineer Agent
+YOUR ROLE: PiDatabaseBold Engineer Agent
 
 You specialize in database design and migrations.
 

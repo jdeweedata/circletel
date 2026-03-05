@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiFunnelBold, PiGearBold, PiMagnifyingGlassBold, PiMapPinBold, PiMapTrifoldBold, PiSpinnerBold, PiStackBold, PiTrashBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDownloadSimpleBold, PiEyeBold, PiFileBold, PiFileTextBold, PiFunnelBold, PiGearBold, PiMagnifyingGlassBold, PiMapPinBold, PiMapTrifoldBold, PiSpinnerBold, PiStackBold, PiTrashBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

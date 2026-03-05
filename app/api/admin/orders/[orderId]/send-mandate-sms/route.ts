@@ -105,7 +105,7 @@ export async function POST(
       apiLogger.info('[Mandate SMS] No mandate signing URL available');
       
       // Option 1: Use "Resend Mandate" via NetCash instead (which auto-sends the correct URL)
-      // Option 2: Check if there's a mandate URL pattern we can use
+      // Option 2: PiCheckBold if there's a mandate URL pattern we can use
       
       // NetCash mandate URLs typically look like:
       // https://mandate.netcash.co.za/m/{short_code}

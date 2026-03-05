@@ -63,20 +63,20 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
   const getIcon = (event: TimelineEvent) => {
     // Map icon strings to components
     const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-      status: CheckCircle,
-      email: Mail,
-      sms: MessageSquare,
-      whatsapp: MessageSquare,
-      call: Phone,
-      calendar: Calendar,
-      tool: Wrench,
-      check: CheckCircle,
-      create: FileText,
-      internal_note: FileText,
-      system_notification: AlertCircle,
+      status: PiCheckCircleBold,
+      email: PiEnvelopeBold,
+      sms: PiChatBold,
+      whatsapp: PiChatBold,
+      call: PiPhoneBold,
+      calendar: PiCalendarBold,
+      tool: PiWrenchBold,
+      check: PiCheckCircleBold,
+      create: PiFileTextBold,
+      internal_note: PiFileTextBold,
+      system_notification: PiWarningCircleBold,
     };
 
-    const IconComponent = iconMap[event.icon || event.type] || AlertCircle;
+    const IconComponent = iconMap[event.icon || event.type] || PiWarningCircleBold;
     return IconComponent;
   };
 

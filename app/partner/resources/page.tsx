@@ -1,5 +1,5 @@
 'use client'
-import { PiArrowSquareOutBold, PiBookOpenBold, PiDownloadSimpleBold, PiFileTextBold, PiImageBold } from 'react-icons/pi';
+import { PiArrowSquareOutBold, PiBookOpenBold, PiDownloadSimpleBold, PiFileTextBold, PiFileXlsBold, PiImageBold, PiPresentationChartBold, PiVideoCameraBold } from 'react-icons/pi';
 
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,11 +19,11 @@ interface Resource {
 }
 
 const RESOURCE_ICONS = {
-  pdf: FileText,
-  image: ImageIcon,
-  video: Video,
-  spreadsheet: FileSpreadsheet,
-  presentation: Presentation,
+  pdf: PiFileTextBold,
+  image: PiImageBold,
+  video: PiVideoCameraBold,
+  spreadsheet: PiFileXlsBold,
+  presentation: PiPresentationChartBold,
 }
 
 const CATEGORY_COLORS = {

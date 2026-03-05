@@ -1,4 +1,5 @@
 "use client"
+import { PiChatCircleBold, PiEnvelopeBold, PiPhoneBold, PiQuestionBold } from 'react-icons/pi';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"

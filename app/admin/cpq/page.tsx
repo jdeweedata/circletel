@@ -29,7 +29,7 @@ import type { CPQSession, CPQSessionStatus } from '@/lib/cpq/types';
 
 const STATUS_CONFIG: Record<
   CPQSessionStatus,
-  { label: string; color: string; icon: typeof CheckCircle2 }
+  { label: string; color: string; icon: typeof PiCheckCircleBold }
 > = {
   draft: { label: 'Draft', color: 'text-gray-500 bg-gray-100', icon: PiFileTextBold },
   in_progress: { label: 'In Progress', color: 'text-blue-700 bg-blue-100', icon: PiClockBold },

@@ -1,5 +1,5 @@
 'use client';
-import { PiCheckCircleBold, PiFileTextBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiFileBold, PiFileTextBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useRef } from 'react';
 import {

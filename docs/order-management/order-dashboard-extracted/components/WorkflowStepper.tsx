@@ -17,7 +17,7 @@ export const WorkflowStepper: React.FC<Props> = ({ steps, onStepClick }) => {
           const isActive = step.status === 'active';
           const isPending = step.status === 'pending';
           
-          const Icon = step.icon || Circle;
+          const Icon = step.icon || PiCircleBold;
 
           return (
             <div 

@@ -1,3 +1,4 @@
+import { PiCheckBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServiceClient } from '@/lib/supabase/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
@@ -139,8 +140,8 @@ YOUR CAPABILITIES:
 TROUBLESHOOTING GUIDANCE:
 - For OAuth integrations (Zoho): Suggest re-authenticating if token expired, check Zoho API console
 - For API Key integrations: Verify key is valid, check rate limits, test endpoint manually
-- For Webhook integrations: Check webhook URL accessibility, verify signature validation
-- For consecutive failures: Check logs, verify credentials, test connectivity
+- For Webhook integrations: PiCheckBold webhook URL accessibility, verify signature validation
+- For consecutive failures: PiCheckBold logs, verify credentials, test connectivity
 
 RESPONSE STYLE:
 - Be concise and professional

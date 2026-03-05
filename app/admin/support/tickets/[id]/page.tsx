@@ -38,7 +38,7 @@ export default function TicketDetailPage() {
   const router = useRouter();
   const ticketId = params.id as string;
 
-  const [ticket, setTicket] = useState<PiTicketBold | null>(null);
+  const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

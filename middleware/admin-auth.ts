@@ -1,4 +1,3 @@
-import { PiUserBold } from 'react-icons/pi';
 /**
  * Admin Authentication Handler
  *
@@ -44,7 +43,7 @@ export function isAdminRoute(pathname: string): boolean {
  */
 export async function getSessionUser(
   supabase: SupabaseClient
-): Promise<PiUserBold | null> {
+): Promise<User | null> {
   const { data: { session }, error } = await supabase.auth.getSession();
 
   if (error) {

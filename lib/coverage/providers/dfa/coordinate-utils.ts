@@ -91,7 +91,7 @@ export function webMercatorToLatLng(
 
 /**
  * Create a bounding box (envelope) in Web Mercator coordinates
- * Used for: Map viewport queries, area-based coverage checks
+ * Used for: PiMapTrifoldBold viewport queries, area-based coverage checks
  *
  * @param centerLat - Center latitude
  * @param centerLng - Center longitude

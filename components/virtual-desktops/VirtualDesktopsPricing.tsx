@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { PiCheckBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 
 const VirtualDesktopsPricing = () => {

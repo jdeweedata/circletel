@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { FaWhatsapp } from 'react-icons/fa';
+import { PiEnvelopeBold, PiMapPinBold } from 'react-icons/pi';
 import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 
 interface ContactInformationProps {

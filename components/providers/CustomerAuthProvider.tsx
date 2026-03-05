@@ -1,5 +1,4 @@
 'use client';
-import { PiUserBold } from 'react-icons/pi';
 
 /**
  * CustomerAuthProvider
@@ -59,7 +58,7 @@ const CustomerAuthContext = createContext<CustomerAuthContextType | undefined>(u
 
 export function CustomerAuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [user, setUser] = useState<PiUserBold | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);

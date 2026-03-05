@@ -214,7 +214,7 @@ export default function AdminProductsV2() {
           <StatCard
             label="Archived"
             value={stats.archived}
-            icon={Archive}
+            icon={PiArchiveBold}
             color="bg-red-100 text-red-600"
             filterKey="archived"
           />

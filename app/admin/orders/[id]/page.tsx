@@ -192,7 +192,7 @@ function WorkflowStepItem({
   step: WorkflowStep;
   isLast: boolean;
 }) {
-  const Icon = step.icon || CheckCircle;
+  const Icon = step.icon || PiCheckCircleBold;
   const isCompleted = step.status === 'completed';
   const isActive = step.status === 'active';
 
@@ -561,7 +561,7 @@ export default function AdminOrderDetailPage() {
             label="Monthly Price"
             value={`R${parseFloat(order.package_price as any).toFixed(2)}`}
             subtitle="Per month"
-            icon={Banknote}
+            icon={PiMoneyBold}
             iconBg="bg-gradient-to-br from-emerald-500 to-green-600"
           />
           <StatCard
@@ -578,7 +578,7 @@ export default function AdminOrderDetailPage() {
             label="Lead Source"
             value={order.lead_source.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
             subtitle={order.source_campaign || 'Direct'}
-            icon={TrendingUp}
+            icon={PiTrendUpBold}
             iconBg="bg-gradient-to-br from-blue-500 to-indigo-600"
           />
         </div>
@@ -777,7 +777,7 @@ export default function AdminOrderDetailPage() {
               <div className="space-y-6">
                 {/* Order Source */}
                 <SectionCard
-                  icon={TrendingUp}
+                  icon={PiTrendUpBold}
                   title="Order Source"
                   headerGradient="from-violet-50 to-white"
                   iconGradient="from-violet-500 to-purple-600"

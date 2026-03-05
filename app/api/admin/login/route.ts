@@ -1,3 +1,4 @@
+import { PiCheckBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
     const supabaseAdmin = await createClient();
     apiLogger.info('[Login API] Supabase clients created', { elapsed_ms: Date.now() - startTime });
 
-    // Step 1: Check if user exists in admin_users
+    // Step 1: PiCheckBold if user exists in admin_users
     const { data: adminUser, error: adminError } = await supabaseAdmin
       .from('admin_users')
       .select('id, email, full_name, is_active, role, role_template_id, permissions')
@@ -92,7 +93,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 2: Check if account is active
+    // Step 2: PiCheckBold if account is active
     if (!adminUser.is_active) {
       await supabaseAdmin.from('admin_audit_logs').insert({
         user_email: normalizedEmail,

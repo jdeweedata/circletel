@@ -1,5 +1,5 @@
 'use client';
-import { PiCheckBold, PiCheckCircleBold, PiCopyBold } from 'react-icons/pi';
+import { PiCheckBold, PiCheckCircleBold, PiCopyBold, PiUsersBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useState } from 'react';
@@ -15,7 +15,7 @@ interface OrderCreatedBannerProps {
 /**
  * OrderCreatedBanner - Shows order number immediately after order creation
  *
- * CX Improvement: Users see their order number before payment redirect,
+ * CX Improvement: PiUsersBold see their order number before payment redirect,
  * allowing them to reference it if they need to contact support.
  */
 export function OrderCreatedBanner({

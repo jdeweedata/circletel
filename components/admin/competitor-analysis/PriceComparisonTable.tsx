@@ -1,5 +1,10 @@
 'use client';
-import { PiBuildingOfficeBold } from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowUpBold, PiBuildingOfficeBold, PiMinusBold } from 'react-icons/pi';
+
+// Aliases for compatibility
+const ArrowUpIcon = PiArrowUpBold;
+const ArrowDownIcon = PiArrowDownBold;
+const MinusIcon = PiMinusBold;
 
 /**
  * Price Comparison Table Component

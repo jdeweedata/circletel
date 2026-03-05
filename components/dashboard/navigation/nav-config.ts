@@ -1,5 +1,5 @@
 import { IconType } from 'react-icons';
-import { PiArrowDownBold, PiArrowUpBold, PiChartBarBold, PiChatBold, PiCreditCardBold, PiFileCheckBold, PiHouseBold, PiPackageBold, PiQuestionBold, PiReceiptBold, PiShieldBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowUpBold, PiChartBarBold, PiChatBold, PiCreditCardBold, PiFileTextBold, PiHouseBold, PiPackageBold, PiQuestionBold, PiReceiptBold, PiShieldBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
 
 export interface DashboardTab {
   id: string;
@@ -88,7 +88,7 @@ export const sidebarConfig: Record<string, SidebarItem[]> = {
   ],
   account: [
     { label: 'Profile', href: '/dashboard/profile', icon: PiUserBold },
-    { label: 'KYC Documents', href: '/dashboard/kyc', icon: PiFileCheckBold },
+    { label: 'KYC Documents', href: '/dashboard/kyc', icon: PiFileTextBold },
     { label: 'Compliance', href: '/dashboard/compliance', icon: PiShieldBold },
   ],
   help: [

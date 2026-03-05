@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiChatCircleBold, PiCheckCircleBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFacebookLogoBold, PiMapPinBold, PiPhoneBold, PiShareBold } from 'react-icons/pi';
+import { PiCalendarBold, PiChatCircleBold, PiCheckCircleBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFacebookLogoBold, PiMapPinBold, PiPhoneBold, PiShareBold, PiTwitterLogoBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -258,7 +258,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
                   onClick={() => handleShare('twitter')}
                   className="flex-1"
                 >
-                  <Twitter className="h-4 w-4 mr-2" />
+                  <PiTwitterLogoBold className="h-4 w-4 mr-2" />
                   Twitter
                 </Button>
                 <Button

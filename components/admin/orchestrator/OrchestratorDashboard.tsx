@@ -144,10 +144,10 @@ const StatusBadge: React.FC<{ status: WorkflowStatus['status'] }> = ({ status })
   } as const;
 
   const icons = {
-    pending: Clock,
-    in_progress: Activity,
-    completed: CheckCircle2,
-    failed: AlertCircle,
+    pending: PiClockBold,
+    in_progress: PiPulseBold,
+    completed: PiCheckCircleBold,
+    failed: PiWarningCircleBold,
   };
 
   const Icon = icons[status];

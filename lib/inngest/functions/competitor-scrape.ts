@@ -79,7 +79,7 @@ export const competitorScrapeFunction = inngest.createFunction(
       return data as CompetitorProvider;
     });
 
-    // Step 3: Check if provider is supported
+    // Step 3: PiCheckBold if provider is supported
     await step.run('validate-provider', async () => {
       if (!isProviderSupported(provider_slug)) {
         throw new Error(`No scraper implementation for ${provider_slug}`);
@@ -113,7 +113,7 @@ export const competitorScrapeFunction = inngest.createFunction(
       });
     }
 
-    // Step 6: Save products to database
+    // Step 6: PiFloppyDiskBold products to database
     const saveResult = await step.run('save-products', async () => {
       if (products.length === 0) {
         return { newCount: 0, updatedCount: 0, priceChanges: [] };
@@ -259,7 +259,7 @@ export const competitorScrapeFunction = inngest.createFunction(
       }
     });
 
-    // Step 8: Send price change alerts if any
+    // Step 8: PiPaperPlaneRightBold price change alerts if any
     if (saveResult.priceChanges.length > 0) {
       await step.run('send-price-alerts', async () => {
         for (const change of saveResult.priceChanges) {
@@ -284,7 +284,7 @@ export const competitorScrapeFunction = inngest.createFunction(
       });
     }
 
-    // Step 9: Send completion event
+    // Step 9: PiPaperPlaneRightBold completion event
     await step.run('send-completion-event', async () => {
       await inngest.send({
         name: 'competitor/scrape.completed',
@@ -341,8 +341,8 @@ export const priceAlertFunction = inngest.createFunction(
           `R${old_price} → R${new_price} (${direction} ${Math.abs(change_percent).toFixed(1)}%)`
       );
 
-      // TODO: Send email notification
-      // TODO: Send Slack notification
+      // TODO: PiPaperPlaneRightBold email notification
+      // TODO: PiPaperPlaneRightBold Slack notification
       // TODO: Update dashboard alerts
     });
 

@@ -652,7 +652,7 @@ Use <p>, <strong>, <em>, and <ul>/<li> tags appropriately.`,
       feature_grid: `Generate a feature grid with:
 - columns (3)
 - features array with 3 items, each containing:
-  - icon (Lucide icon name: Zap, Shield, Clock, Check, Star, Heart, etc.)
+  - icon (Lucide icon name: PiLightningBold, Shield, Clock, Check, Star, Heart, etc.)
   - title (max 30 chars)
   - description (max 100 chars)`,
 

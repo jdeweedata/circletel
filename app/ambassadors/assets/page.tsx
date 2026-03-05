@@ -39,11 +39,11 @@ const categoryIcons: Record<string, any> = {
   logo: Image,
   banner: Image,
   social: Image,
-  flyer: FileText,
-  video: Video,
-  document: FileText,
-  template: FileText,
-  other: FileText,
+  flyer: PiFileTextBold,
+  video: PiVideoCameraBold,
+  document: PiFileTextBold,
+  template: PiFileTextBold,
+  other: PiFileTextBold,
 };
 
 const categoryLabels: Record<string, string> = {
@@ -228,7 +228,7 @@ export default function AmbassadorAssetsPage() {
         // Grouped view
         <div className="space-y-8">
           {Object.entries(groupedAssets).map(([category, categoryAssets]) => {
-            const Icon = categoryIcons[category] || FileText;
+            const Icon = categoryIcons[category] || PiFileTextBold;
             return (
               <div key={category}>
                 <div className="flex items-center gap-2 mb-4">
@@ -404,7 +404,7 @@ function AssetListItem({
   onDownload: (asset: MarketingAsset) => void;
   formatFileSize: (bytes: number | null) => string;
 }) {
-  const Icon = categoryIcons[asset.category] || FileText;
+  const Icon = categoryIcons[asset.category] || PiFileTextBold;
 
   return (
     <div className="bg-white rounded-lg border p-4 flex items-center gap-4">

@@ -1,4 +1,4 @@
-import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiPackageBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 import Link from 'next/link';
 
 export const metadata = {
@@ -363,7 +363,7 @@ export default function RefundPolicyPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-circleTel-navy mb-2">Step 2: Package Equipment</h4>
+              <h4 className="font-semibold text-circleTel-navy mb-2">Step 2: PiPackageBold Equipment</h4>
               <p className="text-gray-700">Include router, power adapter, cables, and original packaging (if available)</p>
             </div>
 

@@ -1,4 +1,4 @@
-import { PiCaretRightBold, PiClockBold, PiCreditCardBold, PiHouseBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiRouterBold, PiShieldBold } from 'react-icons/pi';
+import { PiCaretRightBold, PiClockBold, PiCreditCardBold, PiHouseBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiWifiHighBold, PiShieldBold } from 'react-icons/pi';
 "use client"
 
 import { useState } from "react"
@@ -123,7 +123,7 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
               className="rounded-none rounded-tl-xl py-4 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <div className="flex items-center gap-2">
-                <PiRouterBold className="w-4 h-4" />
+                <PiWifiHighBold className="w-4 h-4" />
                 <span className="hidden sm:inline">Device</span>
               </div>
             </TabsTrigger>

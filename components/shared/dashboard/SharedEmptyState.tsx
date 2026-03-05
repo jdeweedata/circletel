@@ -27,7 +27,7 @@ import type { SharedEmptyStateProps } from './types';
 export function SharedEmptyState({
   title,
   description,
-  icon: Icon = Package,
+  icon: Icon = PiPackageBold,
   ctaText,
   ctaHref,
   ctaOnClick,
@@ -85,7 +85,7 @@ export function SharedEmptyState({
 export function SharedEmptyStateInline({
   title,
   description,
-  icon: Icon = Package,
+  icon: Icon = PiPackageBold,
   className,
 }: Omit<SharedEmptyStateProps, 'ctaText' | 'ctaHref' | 'ctaOnClick'>) {
   return (

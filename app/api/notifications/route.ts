@@ -327,7 +327,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Send email notification if user preferences allow
+    // TODO: PiPaperPlaneRightBold email notification if user preferences allow
     // TODO: Trigger real-time notification via WebSocket/Supabase Realtime
 
     return NextResponse.json(

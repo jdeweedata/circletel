@@ -265,7 +265,7 @@ function extractStockLevels($el: cheerio.Cheerio<Element>): MiRoStockLevels {
     }
   })
 
-  // Alternative: Check for generic in-stock indicator
+  // Alternative: PiCheckBold for generic in-stock indicator
   const availabilityText = $el.find('.availability, .stock-status').first().text().toLowerCase()
 
   if (

@@ -234,7 +234,7 @@ export class EmailNotificationService {
   ): Promise<NotificationResult> {
     return this.send({
       to: email,
-      subject: `Action Required: Upload KYC Documents - ${orderNumber}`,
+      subject: `Action Required: PiUploadSimpleBold KYC Documents - ${orderNumber}`,
       template: 'kyc_upload_request',
       data: {
         customer_name: name,
@@ -727,7 +727,7 @@ export class EmailNotificationService {
       case 'kyc_upload_request':
         content = `
           <div class="header">
-            <h1>Action Required: Upload Documents</h1>
+            <h1>Action Required: PiUploadSimpleBold Documents</h1>
           </div>
           <div class="content">
             <h2>Hello ${data.customer_name},</h2>

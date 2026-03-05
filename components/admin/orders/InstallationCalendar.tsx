@@ -1,5 +1,9 @@
 'use client';
-import { PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiEyeBold, PiMapPinBold, PiPackageBold, PiUserBold, PiWrenchBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCalendarCheckBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiEyeBold, PiMapPinBold, PiPackageBold, PiUserBold, PiWrenchBold } from 'react-icons/pi';
+
+// Aliases for compatibility
+const CalendarIcon = PiCalendarBold;
+const CalendarCheck = PiCalendarCheckBold;
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -98,11 +102,11 @@ export function InstallationCalendar({ installations, onDateClick }: Installatio
   const getStatusIcon = (status: string) => {
     const icons: Record<string, any> = {
       installation_scheduled: CalendarCheck,
-      installation_in_progress: Wrench,
-      installation_completed: CheckCircle,
-      active: CheckCircle,
+      installation_in_progress: PiWrenchBold,
+      installation_completed: PiCheckCircleBold,
+      active: PiCheckCircleBold,
     };
-    return icons[status] || Clock;
+    return icons[status] || PiClockBold;
   };
 
   // Calculate month stats

@@ -1,3 +1,4 @@
+import { PiPaperPlaneRightBold } from 'react-icons/pi';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
 
@@ -174,7 +175,7 @@ serve(async (req) => {
         timestamp: new Date().toISOString()
       })
 
-      // Step 5: Send welcome email notification
+      // Step 5: PiPaperPlaneRightBold welcome email notification
       try {
         await supabaseAdmin.functions.invoke('send-admin-notification', {
           body: {

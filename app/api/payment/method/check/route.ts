@@ -1,3 +1,4 @@
+import { PiCheckBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Fallback: Check payment_methods table (for eMandate/debit order)
+    // Fallback: PiCheckBold payment_methods table (for eMandate/debit order)
     const { data: paymentMethods, error: paymentError } = await supabaseService
       .from('payment_methods')
       .select(`

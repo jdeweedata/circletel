@@ -148,9 +148,9 @@ test.describe('Customer Order Journey - Full Flow', () => {
     console.log('✓ Landing page loaded');
 
     // ============================================
-    // STEP 2: Package Selection
+    // STEP 2: PiPackageBold Selection
     // ============================================
-    console.log('\n--- STEP 2: Package Selection ---');
+    console.log('\n--- STEP 2: PiPackageBold Selection ---');
     await setupConsoleMonitoring(page, 'Step 2: Packages');
     await checkApiResponse(page, 'Step 2: Packages');
 

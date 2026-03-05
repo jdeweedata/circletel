@@ -1,3 +1,4 @@
+import { PiCheckBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Step 1: Check if user exists in admin_users (using service role to bypass RLS)
+    // Step 1: PiCheckBold if user exists in admin_users (using service role to bypass RLS)
     const { data: adminUser, error: adminError } = await supabase
       .from('admin_users')
       .select('id, email, full_name, is_active, role, role_template_id')
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 2: Check if account is active
+    // Step 2: PiCheckBold if account is active
     if (!adminUser.is_active) {
       // Log inactive account login attempt
       await supabase.from('admin_audit_logs').insert({

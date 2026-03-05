@@ -1,3 +1,4 @@
+import { PiPackageBold } from 'react-icons/pi';
 import { test, expect } from '@playwright/test';
 
 /**
@@ -8,7 +9,7 @@ import { test, expect } from '@playwright/test';
  * 2. Create new session
  * 3. Complete Step 1: Needs Assessment (AI parsing)
  * 4. Complete Step 2: Location & Coverage
- * 5. Complete Step 3: Package Selection
+ * 5. Complete Step 3: PiPackageBold Selection
  * 6. Complete Step 4: Configuration
  * 7. Complete Step 5: Pricing & Discounts
  * 8. Complete Step 6: Customer Details
@@ -392,7 +393,7 @@ test.describe('CPQ Wizard Step Details', () => {
     console.log('Multi-site location test completed');
   });
 
-  test('Step 3: Package Selection with AI Recommendations', async ({ page }) => {
+  test('Step 3: PiPackageBold Selection with AI Recommendations', async ({ page }) => {
     console.log('Testing package selection...');
 
     // Navigate to Step 3 (skip Steps 1-2)

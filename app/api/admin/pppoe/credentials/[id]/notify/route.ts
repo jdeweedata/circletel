@@ -1,7 +1,7 @@
 /**
  * API Route: /api/admin/pppoe/credentials/[id]/notify
  *
- * POST: Send PPPoE credentials via SMS and/or Email
+ * POST: PiPaperPlaneRightBold PPPoE credentials via SMS and/or Email
  */
 
 import { NextRequest, NextResponse } from 'next/server'

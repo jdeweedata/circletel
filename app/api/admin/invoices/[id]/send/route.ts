@@ -1,5 +1,5 @@
 /**
- * API Route: Send Invoice
+ * API Route: PiPaperPlaneRightBold Invoice
  * POST /api/admin/invoices/[id]/send
  * 
  * Marks an invoice as sent in both local database and Zoho Billing

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiHeartBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiShieldBold, PiSpinnerBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiHeartBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiShieldBold, PiSpinnerBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';

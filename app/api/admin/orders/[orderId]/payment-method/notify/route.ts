@@ -1,5 +1,5 @@
 /**
- * API Route: Send Payment Method Registration Notification
+ * API Route: PiPaperPlaneRightBold Payment Method Registration Notification
  * POST /api/admin/orders/:orderId/payment-method/notify
  *
  * Sends email and SMS to customer with NetCash eMandate registration link

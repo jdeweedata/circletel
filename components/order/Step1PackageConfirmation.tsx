@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiCheckCircleBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiLightningBold, PiPencilSimpleBold, PiRouterBold, PiUploadSimpleBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCheckCircleBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiLightningBold, PiPencilSimpleBold, PiUploadSimpleBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -132,7 +132,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
 
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-gray-600">
-                  <PiRouterBold className="w-4 h-4" />
+                  <PiWifiHighBold className="w-4 h-4" />
                   Router
                 </span>
                 {pkg.router_included ? (

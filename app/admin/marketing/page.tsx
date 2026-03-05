@@ -254,14 +254,14 @@ export default function MarketingDashboardPage() {
           <StatCard
             title="Active Promotions"
             value={stats?.activePromotions || 0}
-            icon={Megaphone}
+            icon={PiMegaphoneBold}
             description="Currently running"
             href="/admin/marketing/promotions?status=active"
           />
           <StatCard
             title="Total Redemptions"
             value={stats?.totalRedemptions || 0}
-            icon={Gift}
+            icon={PiGiftBold}
             description="This month"
             trend={{ value: 12, positive: true }}
           />
@@ -275,7 +275,7 @@ export default function MarketingDashboardPage() {
           <StatCard
             title="Revenue Impact"
             value={`R${(stats?.revenueFromPromotions || 0).toLocaleString()}`}
-            icon={BarChart3}
+            icon={PiChartBarBold}
             description="From promotions"
           />
         </div>
@@ -289,25 +289,25 @@ export default function MarketingDashboardPage() {
             <QuickAction
               title="Create Promotion"
               description="Set up a new discount or promo code"
-              icon={Plus}
+              icon={PiPlusBold}
               href="/admin/marketing/promotions/new"
             />
             <QuickAction
               title="View All Promotions"
               description="Manage existing promotions"
-              icon={Percent}
+              icon={PiPercentBold}
               href="/admin/marketing/promotions"
             />
             <QuickAction
               title="Campaign Analytics"
               description="View performance metrics"
-              icon={BarChart3}
+              icon={PiChartBarBold}
               href="/admin/marketing/analytics"
             />
             <QuickAction
               title="Schedule Campaign"
               description="Plan future promotions"
-              icon={Calendar}
+              icon={PiCalendarBold}
               href="/admin/marketing/campaigns"
             />
           </div>

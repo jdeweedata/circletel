@@ -4,9 +4,9 @@
  * List all integrations with health status
  *
  * Query Parameters:
- * - category: Filter by integration type (oauth, api_key, webhook_only)
- * - health_status: Filter by health status (healthy, degraded, down, unknown)
- * - is_active: Filter by active status (true/false)
+ * - category: PiFunnelBold by integration type (oauth, api_key, webhook_only)
+ * - health_status: PiFunnelBold by health status (healthy, degraded, down, unknown)
+ * - is_active: PiFunnelBold by active status (true/false)
  *
  * Returns:
  * {

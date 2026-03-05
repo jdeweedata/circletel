@@ -39,7 +39,7 @@ export async function POST(
       );
     }
     
-    // TODO: Check admin permissions (services:activate)
+    // TODO: PiCheckBold admin permissions (services:activate)
     // For now, assume service_role or authenticated user is admin
     
     // Parse request body

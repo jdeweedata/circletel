@@ -260,7 +260,7 @@ export class WhatsAppPayNowService {
       }
 
       if (!sendResult.success) {
-        billingLogger.error('WhatsApp PayNow: Send failed', {
+        billingLogger.error('WhatsApp PayNow: PiPaperPlaneRightBold failed', {
           invoiceId,
           error: sendResult.error,
         });

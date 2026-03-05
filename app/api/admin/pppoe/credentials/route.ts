@@ -1,7 +1,7 @@
 /**
  * API Route: /api/admin/pppoe/credentials
  *
- * GET: List all PPPoE credentials with pagination and filters
+ * GET: PiListBold all PPPoE credentials with pagination and filters
  * POST: Create new PPPoE credentials for a service
  */
 
@@ -19,8 +19,8 @@ export const dynamic = 'force-dynamic'
  * Query params:
  * - page: Page number (default: 1)
  * - limit: Items per page (default: 20, max: 50)
- * - status: Filter by provisioning status
- * - search: Search by username
+ * - status: PiFunnelBold by provisioning status
+ * - search: PiMagnifyingGlassBold by username
  */
 export async function GET(request: NextRequest) {
   try {

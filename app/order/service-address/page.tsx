@@ -33,7 +33,7 @@ type PropertyType =
 interface PropertyTypeOption {
   value: PropertyType;
   label: string;
-  icon: typeof Home;
+  icon: typeof PiHouseBold;
 }
 
 const residentialOptions: PropertyTypeOption[] = [

@@ -1,4 +1,4 @@
-import { PiClockBold, PiLightningBold, PiShieldBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiClockBold, PiHeadphonesBold, PiLightningBold, PiShieldBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"

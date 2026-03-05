@@ -5,7 +5,7 @@
  * Tests the workflow when KYC verification returns high-risk results
  * that require manual admin review and approval
  * 
- * Flow: Quote → High-Risk KYC → Admin Queue → Manual Approval → Continue Workflow
+ * Flow: PiQuotesBold → High-Risk KYC → Admin Queue → Manual Approval → Continue Workflow
  */
 
 import { test, expect, Page } from '@playwright/test';
@@ -233,7 +233,7 @@ test.describe('High-Risk KYC Manual Review Flow', () => {
     console.log('✅ Customer notified of KYC approval');
   });
 
-  test('Step 8: Workflow continues after manual approval', async () => {
+  test('Step 8: PiFlowArrowBold continues after manual approval', async () => {
     // Navigate to quote details
     await adminPage.goto(`/admin/quotes/${quoteId}`);
     

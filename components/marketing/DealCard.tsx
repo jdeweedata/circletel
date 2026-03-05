@@ -1,5 +1,5 @@
 'use client'
-import { PiArrowRightBold, PiCheckBold, PiClockBold, PiCopyBold, PiTagBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiCopyBold, PiTagBold, PiTimerBold } from 'react-icons/pi';
 
 import React, { useState } from 'react'
 import Image from 'next/image'
@@ -233,7 +233,7 @@ export function DealCard({
           </button>
         )}
 
-        {/* Footer: Timer + CTA */}
+        {/* Footer: PiTimerBold + CTA */}
         <div className="flex items-center justify-between">
           {/* Countdown Timer */}
           {timeRemaining ? (

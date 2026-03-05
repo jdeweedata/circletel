@@ -1,4 +1,5 @@
 "use client"
+import { PiXBold } from 'react-icons/pi';
 
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"

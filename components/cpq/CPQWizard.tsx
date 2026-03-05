@@ -32,13 +32,13 @@ import { ReviewSubmitStep } from './steps/ReviewSubmitStep';
 
 // Step icons mapping
 const STEP_ICONS = [
-  ClipboardList, // Needs Assessment
-  MapPin,        // Location & Coverage
-  Package,       // Package Selection
-  Settings,      // Configure
-  DollarSign,    // Pricing & Discounts
-  Users,         // Customer Details
-  FileText,      // Review & Submit
+  PiClipboardTextBold, // Needs Assessment
+  PiMapPinBold,        // Location & Coverage
+  PiPackageBold,       // Package Selection
+  PiGearBold,          // Configure
+  PiCurrencyDollarBold, // Pricing & Discounts
+  PiUsersBold,         // Customer Details
+  PiFileTextBold,      // Review & Submit
 ];
 
 // Animation variants

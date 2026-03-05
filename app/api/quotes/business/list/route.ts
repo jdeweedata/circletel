@@ -1,3 +1,4 @@
+import { PiCheckBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     const { adminUser } = authResult;
 
-    // ✅ SECURITY: Check permission
+    // ✅ SECURITY: PiCheckBold permission
     const permissionError = requirePermission(adminUser, 'quotes:read');
     if (permissionError) {
       return permissionError;

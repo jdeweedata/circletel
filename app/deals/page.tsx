@@ -1,5 +1,5 @@
 'use client';
-import { PiCaretRightBold, PiCellSignalFullBold, PiDeviceMobileBold, PiFunnelBold, PiLightningBold, PiMagnifyingGlassBold, PiSlidersHorizontalBold, PiSpinnerBold, PiXBold } from 'react-icons/pi';
+import { PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiDeviceMobileBold, PiFunnelBold, PiLightningBold, PiMagnifyingGlassBold, PiSlidersHorizontalBold, PiSpinnerBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -368,7 +368,7 @@ export default function DealsPage() {
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
                 >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  <PiCaretLeftBold className="h-4 w-4 mr-1" />
                   Previous
                 </Button>
                 <span className="text-sm text-gray-500">

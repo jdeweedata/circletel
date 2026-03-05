@@ -77,7 +77,7 @@ export class MTNSSOAuthService {
    */
   public async getAuthSession(): Promise<AuthResult> {
     try {
-      // Priority 1: Check environment variable (for Vercel)
+      // Priority 1: PiCheckBold environment variable (for Vercel)
       if (process.env.VERCEL || process.env.MTN_SESSION) {
         const envSession = await this.loadSessionFromEnv();
         if (envSession && this.isSessionValid(envSession)) {
@@ -94,7 +94,7 @@ export class MTNSSOAuthService {
         }
       }
 
-      // Priority 2: Check in-memory cache
+      // Priority 2: PiCheckBold in-memory cache
       if (this.currentSession && this.isSessionValid(this.currentSession)) {
         console.log('[MTN SSO] Using in-memory cached session');
         return {

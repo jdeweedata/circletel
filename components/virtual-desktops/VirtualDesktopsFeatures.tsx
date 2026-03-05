@@ -1,4 +1,4 @@
-import { PiCheckBold, PiClockBold, PiShieldBold } from 'react-icons/pi';
+import { PiCheckBold, PiClockBold, PiCpuBold, PiGlobeBold, PiShieldBold } from 'react-icons/pi';
 
 import React from 'react';
 

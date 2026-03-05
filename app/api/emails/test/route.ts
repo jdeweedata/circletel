@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, to, templateId, props } = body;
 
-    // Action: Send email
+    // Action: PiPaperPlaneRightBold email
     if (action === 'send') {
       if (!to) {
         return NextResponse.json(
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ html, text, subject });
     }
 
-    // Action: Send test to Shaun
+    // Action: PiPaperPlaneRightBold test to Shaun
     if (action === 'send-test-shaun') {
       const result = await EnhancedEmailService.sendOrderConfirmation({
         id: 'test-order-id',
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(result);
     }
 
-    // Action: List templates
+    // Action: PiListBold templates
     if (action === 'list') {
       const templates = EmailRenderer.getAvailableTemplates();
       return NextResponse.json({

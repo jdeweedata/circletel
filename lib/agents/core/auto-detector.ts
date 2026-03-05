@@ -165,7 +165,7 @@ export class AutoDetector {
   detect(userPrompt: string): DetectionResult {
     const prompt = userPrompt.toLowerCase();
 
-    // Step 1: Check for exclusion keywords (quick exit)
+    // Step 1: PiCheckBold for exclusion keywords (quick exit)
     const hasExclusionKeyword = EXCLUSION_KEYWORDS.some((keyword) =>
       prompt.includes(keyword)
     );

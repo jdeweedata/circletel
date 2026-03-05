@@ -484,7 +484,7 @@ export class NetCashEMandateBatchService {
             message: parts[1] || 'Unknown error',
           });
         } else if (!line.startsWith('###') && line.trim()) {
-          // Error line format: AccountRef \t Line:X \t Error message
+          // Error line format: AccountRef \t Line:PiXBold \t Error message
           const parts = line.split('\t');
           if (parts.length >= 3) {
             const lineMatch = parts[1]?.match(/Line\s*:\s*(\d+)/);

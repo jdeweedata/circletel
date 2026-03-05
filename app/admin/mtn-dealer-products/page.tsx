@@ -368,7 +368,7 @@ export default function MTNDealerProductsPage() {
             <StatsCard
               title="Current Deals"
               value={stats?.stats?.current_deals || 0}
-              icon={Calendar}
+              icon={PiCalendarBold}
               description="Within promo period"
             />
             <StatsCard
@@ -380,7 +380,7 @@ export default function MTNDealerProductsPage() {
             <StatsCard
               title="Price Range"
               value={stats?.stats?.price_range ? `${formatCurrency(stats.stats.price_range.min)} - ${formatCurrency(stats.stats.price_range.max)}` : '-'}
-              icon={DollarSign}
+              icon={PiCurrencyDollarBold}
               description={stats?.stats?.price_range ? `Avg: ${formatCurrency(stats.stats.price_range.avg)}` : ''}
             />
           </div>

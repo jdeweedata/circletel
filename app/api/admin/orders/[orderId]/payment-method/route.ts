@@ -1,3 +1,4 @@
+import { PiCheckBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { NetCashEMandateBatchService, EMandateBatchRequest } from '@/lib/payments/netcash-emandate-batch-service';
@@ -472,7 +473,7 @@ export async function GET(
       });
     }
 
-    // Fallback: Check customer_payment_methods table
+    // Fallback: PiCheckBold customer_payment_methods table
     const { data: paymentMethod, error: pmError } = await supabase
       .from('customer_payment_methods')
       .select('*')

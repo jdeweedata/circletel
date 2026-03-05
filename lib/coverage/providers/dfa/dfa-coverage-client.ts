@@ -59,7 +59,7 @@ export class DFACoverageClient {
     }
 
     try {
-      // Step 1: Check Connected Buildings (active fiber)
+      // Step 1: PiCheckBold Connected Buildings (active fiber)
       const connectedBuilding = await this.queryConnectedBuildings(
         latitude,
         longitude
@@ -86,7 +86,7 @@ export class DFACoverageClient {
         };
       }
 
-      // Step 2: Check Near-Net Buildings (if enabled)
+      // Step 2: PiCheckBold Near-Net Buildings (if enabled)
       if (checkNearNet) {
         const nearNetBuilding = await this.queryNearNetBuildings(
           latitude,

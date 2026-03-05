@@ -119,7 +119,7 @@ export async function sendCoverageLeadAlert(
       result.errors?.push(`Zoho CRM sync failed: ${zohoResult.error}`);
     }
 
-    // Step 2: Send Email Alert to Sales Team
+    // Step 2: PiPaperPlaneRightBold Email Alert to Sales Team
     try {
       const emailResult = await EmailNotificationService.send({
         to: SALES_TEAM_EMAIL,
@@ -161,7 +161,7 @@ export async function sendCoverageLeadAlert(
       result.errors?.push(`Email exception: ${errorMessage}`);
     }
 
-    // Step 3: Send SMS Alert (if configured)
+    // Step 3: PiPaperPlaneRightBold SMS Alert (if configured)
     if (SALES_TEAM_PHONE && SALES_TEAM_PHONE !== '+27123456789') {
       try {
         const customerTypeLabel = getCustomerTypeLabel(leadData.customer_type);
@@ -187,7 +187,7 @@ export async function sendCoverageLeadAlert(
       }
     }
 
-    // Step 4: Send Slack Notification (if configured)
+    // Step 4: PiPaperPlaneRightBold Slack Notification (if configured)
     if (SLACK_WEBHOOK_URL) {
       try {
         await sendSlackNotification({
