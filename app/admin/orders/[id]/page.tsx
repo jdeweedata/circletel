@@ -4,10 +4,6 @@ import {
   PiPackageBold,
   PiWarningCircleBold,
   PiArrowLeftBold,
-  PiEyeBold,
-  PiGearBold,
-  PiMoneyBold,
-  PiClockCounterClockwiseBold,
   PiCreditCardBold,
   PiMapPinBold,
   PiFileTextBold,
@@ -20,7 +16,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { InstallationSection } from '@/components/admin/orders/InstallationSection';
@@ -98,6 +94,15 @@ interface Order {
   installation_completed_at?: string;
 }
 
+const TAB_CONFIG = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'installation', label: 'Installation' },
+  { id: 'financials', label: 'Financials' },
+  { id: 'history', label: 'History' },
+] as const;
+
+type TabId = typeof TAB_CONFIG[number]['id'];
+
 const PAYMENT_STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
   pending: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
   paid: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Paid' },
@@ -143,7 +148,7 @@ export default function AdminOrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paymentMethodModal, setPaymentMethodModal] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   const orderId = Array.isArray(params.id) ? params.id[0] : params.id;
 
@@ -235,53 +240,43 @@ export default function AdminOrderDetailPage() {
         <OrderStatCards order={order} />
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-white border border-slate-200 p-1 rounded-xl w-full grid grid-cols-2 md:grid-cols-4 gap-1">
-            <TabsTrigger
-              value="overview"
-              unstyled
-              className="rounded-lg font-medium text-xs sm:text-sm text-slate-600 data-[state=active]:bg-[#F77B00] data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
-            >
-              <PiEyeBold className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="installation"
-              unstyled
-              className="rounded-lg font-medium text-xs sm:text-sm text-slate-600 data-[state=active]:bg-[#F77B00] data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
-            >
-              <PiGearBold className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Installation</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="financials"
-              unstyled
-              className="rounded-lg font-medium text-xs sm:text-sm text-slate-600 data-[state=active]:bg-[#F77B00] data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
-            >
-              <PiMoneyBold className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Financials</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="history"
-              unstyled
-              className="rounded-lg font-medium text-xs sm:text-sm text-slate-600 data-[state=active]:bg-[#F77B00] data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
-            >
-              <PiClockCounterClockwiseBold className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">History</span>
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabId)}>
+          <div className="border-b border-slate-200">
+            <div role="tablist" className="flex gap-8">
+              {TAB_CONFIG.map((tab) => (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={`${tab.id}-panel`}
+                  id={`${tab.id}-tab`}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    'pb-4 border-b-2 text-sm font-medium transition-colors',
+                    activeTab === tab.id
+                      ? 'border-primary text-primary font-bold'
+                      : 'border-transparent text-slate-500 hover:text-slate-700'
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* OVERVIEW TAB */}
-          <TabsContent value="overview">
-            <OrderOverviewTab
-              order={order}
-              onViewHistory={() => setActiveTab('history')}
-            />
-          </TabsContent>
+          {activeTab === 'overview' && (
+            <div id="overview-panel" role="tabpanel" aria-labelledby="overview-tab" className="mt-6">
+              <OrderOverviewTab
+                order={order}
+                onViewHistory={() => setActiveTab('history')}
+              />
+            </div>
+          )}
 
           {/* INSTALLATION TAB */}
-          <TabsContent value="installation" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {activeTab === 'installation' && (
+            <div id="installation-panel" role="tabpanel" aria-labelledby="installation-tab" className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <InstallationSection orderId={order.id} className="border border-slate-200 rounded-xl" />
 
               <div className="space-y-6">
@@ -368,11 +363,11 @@ export default function AdminOrderDetailPage() {
                 )}
               </div>
             </div>
-          </TabsContent>
+          )}
 
           {/* FINANCIALS TAB */}
-          <TabsContent value="financials" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {activeTab === 'financials' && (
+            <div id="financials-panel" role="tabpanel" aria-labelledby="financials-tab" className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-6">
                 {/* Payment Information */}
                 <SectionCard icon={PiCreditCardBold} title="Payment Information" badge={getPaymentBadge(order.payment_status)}>
@@ -458,11 +453,11 @@ export default function AdminOrderDetailPage() {
                 )}
               </div>
             </div>
-          </TabsContent>
+          )}
 
           {/* HISTORY TAB */}
-          <TabsContent value="history" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {activeTab === 'history' && (
+            <div id="history-panel" role="tabpanel" aria-labelledby="history-tab" className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CommunicationTimeline orderId={order.id} />
 
               {/* Notes */}
@@ -492,7 +487,7 @@ export default function AdminOrderDetailPage() {
                 </SectionCard>
               )}
             </div>
-          </TabsContent>
+          )}
         </Tabs>
       </div>
 
