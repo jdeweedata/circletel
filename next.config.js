@@ -1,6 +1,7 @@
 const withPWA = require('next-pwa')({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
+  // Disable PWA during development AND Vercel builds (saves ~2GB RAM)
+  disable: process.env.NODE_ENV === 'development' || process.env.VERCEL === '1',
   register: true,
   skipWaiting: true,
   buildExcludes: [/app-build-manifest\.json$/],
@@ -83,7 +84,9 @@ const nextConfig = {
       'react-icons',
       'lucide-react',
       '@phosphor-icons/react'
-    ]
+    ],
+    // Reduce memory usage during builds by disabling worker threads
+    workerThreads: false,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports
