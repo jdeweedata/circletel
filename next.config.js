@@ -77,7 +77,12 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   experimental: {
-    optimizePackageImports: ['@radix-ui/react-icons']
+    optimizePackageImports: [
+      '@radix-ui/react-icons',
+      'react-icons',
+      'lucide-react',
+      '@phosphor-icons/react'
+    ]
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports
