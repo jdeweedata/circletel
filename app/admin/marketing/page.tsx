@@ -30,56 +30,7 @@ interface Promotion {
   valid_until: string | null;
 }
 
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  description,
-  trend,
-  href,
-}: {
-  title: string;
-  value: string | number;
-  icon: React.ElementType;
-  description?: string;
-  trend?: { value: number; positive: boolean };
-  href?: string;
-}) {
-  const content = (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between">
-        <div className="p-2 bg-circleTel-orange/10 rounded-lg">
-          <Icon className="h-5 w-5 text-circleTel-orange" />
-        </div>
-        {trend && (
-          <span
-            className={cn(
-              'text-sm font-medium flex items-center gap-1',
-              trend.positive ? 'text-green-600' : 'text-red-600'
-            )}
-          >
-            <PiTrendUpBold
-              className={cn('h-4 w-4', !trend.positive && 'rotate-180')}
-            />
-            {trend.value}%
-          </span>
-        )}
-      </div>
-      <div className="mt-4">
-        <p className="text-sm text-gray-500">{title}</p>
-        <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-        {description && (
-          <p className="text-xs text-gray-400 mt-1">{description}</p>
-        )}
-      </div>
-    </div>
-  );
-
-  if (href) {
-    return <Link href={href}>{content}</Link>;
-  }
-  return content;
-}
+import { StatCard } from '@/components/admin/shared';
 
 function QuickAction({
   title,
@@ -252,31 +203,39 @@ export default function MarketingDashboardPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
-            title="Active Promotions"
+            label="Active Promotions"
             value={stats?.activePromotions || 0}
-            icon={PiMegaphoneBold}
-            description="Currently running"
+            icon={<PiMegaphoneBold className="h-5 w-5" />}
+            iconBgColor="bg-orange-100"
+            iconColor="text-circleTel-orange"
+            subtitle="Currently running"
             href="/admin/marketing/promotions?status=active"
           />
           <StatCard
-            title="Total Redemptions"
+            label="Total Redemptions"
             value={stats?.totalRedemptions || 0}
-            icon={PiGiftBold}
-            description="This month"
-            trend={{ value: 12, positive: true }}
+            icon={<PiGiftBold className="h-5 w-5" />}
+            iconBgColor="bg-orange-100"
+            iconColor="text-circleTel-orange"
+            subtitle="This month"
+            trend={{ value: 12, isPositive: true }}
           />
           <StatCard
-            title="Conversion Rate"
+            label="Conversion Rate"
             value={`${stats?.conversionRate || 0}%`}
-            icon={PiTargetBold}
-            description="Promo to purchase"
-            trend={{ value: 3.2, positive: true }}
+            icon={<PiTargetBold className="h-5 w-5" />}
+            iconBgColor="bg-orange-100"
+            iconColor="text-circleTel-orange"
+            subtitle="Promo to purchase"
+            trend={{ value: 3.2, isPositive: true }}
           />
           <StatCard
-            title="Revenue Impact"
+            label="Revenue Impact"
             value={`R${(stats?.revenueFromPromotions || 0).toLocaleString()}`}
-            icon={PiChartBarBold}
-            description="From promotions"
+            icon={<PiChartBarBold className="h-5 w-5" />}
+            iconBgColor="bg-orange-100"
+            iconColor="text-circleTel-orange"
+            subtitle="From promotions"
           />
         </div>
       )}

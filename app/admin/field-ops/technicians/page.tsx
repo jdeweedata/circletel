@@ -3,6 +3,7 @@ import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDotsThreeBold, PiEnvelopeBo
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { StatCard } from '@/components/admin/shared';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -57,39 +58,6 @@ const SKILL_OPTIONS: { value: TechnicianSkill; label: string }[] = [
   { value: 'network_testing', label: 'Network Testing' },
   { value: 'cpe_install', label: 'CPE Installation' },
 ];
-
-function TechnicianStatCard({
-  title,
-  value,
-  subtitle,
-  icon,
-  iconBgColor,
-  iconColor,
-}: {
-  title: string;
-  value: number;
-  subtitle?: string;
-  icon: React.ReactNode;
-  iconBgColor: string;
-  iconColor: string;
-}) {
-  return (
-    <Card className="relative overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-lg hover:scale-[1.02]">
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className={cn("p-3 rounded-xl", iconBgColor)}>
-            <div className={iconColor}>{icon}</div>
-          </div>
-        </div>
-        <div className="mb-1">
-          <p className="text-3xl font-bold text-gray-900 tracking-tight tabular-nums">{value}</p>
-        </div>
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-        {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
-      </div>
-    </Card>
-  );
-}
 
 function TechnicianAvatar({ name, status }: { name: string; status: string }) {
   const initials = name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
@@ -377,10 +345,10 @@ export default function TechniciansPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <TechnicianStatCard title="Total Technicians" value={stats.total} subtitle="Active team members" icon={<PiUsersBold className="h-5 w-5" />} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
-        <TechnicianStatCard title="Available" value={stats.available} subtitle="Ready for assignment" icon={<PiUserCheckBold className="h-5 w-5" />} iconBgColor="bg-green-100" iconColor="text-green-600" />
-        <TechnicianStatCard title="On Job" value={stats.onJob} subtitle="Currently working" icon={<PiWrenchBold className="h-5 w-5" />} iconBgColor="bg-orange-100" iconColor="text-circleTel-orange" />
-        <TechnicianStatCard title="Offline" value={stats.offline} subtitle="Not on duty" icon={<PiUserMinusBold className="h-5 w-5" />} iconBgColor="bg-gray-100" iconColor="text-gray-600" />
+        <StatCard label="Total Technicians" value={stats.total} subtitle="Active team members" icon={<PiUsersBold className="h-5 w-5" />} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
+        <StatCard label="Available" value={stats.available} subtitle="Ready for assignment" icon={<PiUserCheckBold className="h-5 w-5" />} iconBgColor="bg-green-100" iconColor="text-green-600" />
+        <StatCard label="On Job" value={stats.onJob} subtitle="Currently working" icon={<PiWrenchBold className="h-5 w-5" />} iconBgColor="bg-orange-100" iconColor="text-circleTel-orange" />
+        <StatCard label="Offline" value={stats.offline} subtitle="Not on duty" icon={<PiUserMinusBold className="h-5 w-5" />} iconBgColor="bg-gray-100" iconColor="text-gray-600" />
       </div>
 
       <Card className="border border-gray-200 shadow-sm">

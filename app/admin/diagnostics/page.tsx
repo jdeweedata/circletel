@@ -30,70 +30,7 @@ import type {
   HealthStatus,
 } from '@/lib/diagnostics/types'
 
-// Modern stat card component matching dashboard design
-interface DiagnosticsStatCardProps {
-  title: string
-  value: number
-  icon: React.ReactNode
-  iconBgColor: string
-  iconColor: string
-  trend?: { value: number; isPositive: boolean }
-  subtitle?: string
-  onClick?: () => void
-  isActive?: boolean
-}
-
-function DiagnosticsStatCard({
-  title,
-  value,
-  icon,
-  iconBgColor,
-  iconColor,
-  trend,
-  subtitle,
-  onClick,
-  isActive,
-}: DiagnosticsStatCardProps) {
-  return (
-    <div
-      onClick={onClick}
-      className={cn(
-        'relative overflow-hidden border bg-white shadow-sm rounded-lg transition-all duration-200 cursor-pointer',
-        isActive
-          ? 'border-circleTel-orange ring-2 ring-circleTel-orange/20'
-          : 'border-gray-200 hover:shadow-md hover:border-circleTel-orange/30'
-      )}
-    >
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
-          <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center', iconBgColor)}>
-            <div className={iconColor}>{icon}</div>
-          </div>
-          {trend && (
-            <div
-              className={cn(
-                'flex items-center gap-1 text-sm font-semibold',
-                trend.isPositive ? 'text-green-600' : 'text-red-600'
-              )}
-            >
-              {trend.isPositive ? (
-                <PiTrendUpBold className="h-4 w-4" />
-              ) : (
-                <PiTrendDownBold className="h-4 w-4" />
-              )}
-              <span>{trend.value}%</span>
-            </div>
-          )}
-        </div>
-
-        <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
-        <p className="text-3xl font-bold text-gray-900 tracking-tight">{value}</p>
-
-        {subtitle && <p className="text-xs text-gray-500 mt-2">{subtitle}</p>}
-      </div>
-    </div>
-  )
-}
+import { StatCard } from '@/components/admin/shared';
 
 export default function DiagnosticsPage() {
   const router = useRouter()
@@ -262,8 +199,8 @@ export default function DiagnosticsPage() {
       {/* Modern Stats Grid - 4 columns like dashboard */}
       {data?.stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <DiagnosticsStatCard
-            title="Total Subscribers"
+          <StatCard
+            label="Total Subscribers"
             value={data.stats.total}
             icon={<PiPulseBold className="h-5 w-5" />}
             iconBgColor="bg-blue-100"
@@ -273,8 +210,8 @@ export default function DiagnosticsPage() {
             isActive={statusFilter === 'all'}
           />
 
-          <DiagnosticsStatCard
-            title="Healthy"
+          <StatCard
+            label="Healthy"
             value={data.stats.healthy}
             icon={<PiCheckCircleBold className="h-5 w-5" />}
             iconBgColor="bg-green-100"
@@ -284,8 +221,8 @@ export default function DiagnosticsPage() {
             isActive={statusFilter === 'healthy'}
           />
 
-          <DiagnosticsStatCard
-            title="Needs Attention"
+          <StatCard
+            label="Needs Attention"
             value={data.stats.warning + data.stats.critical}
             icon={<PiWarningBold className="h-5 w-5" />}
             iconBgColor="bg-amber-100"
@@ -295,8 +232,8 @@ export default function DiagnosticsPage() {
             isActive={statusFilter === 'warning' || statusFilter === 'critical'}
           />
 
-          <DiagnosticsStatCard
-            title="Offline"
+          <StatCard
+            label="Offline"
             value={data.stats.offline}
             icon={<PiWifiSlashBold className="h-5 w-5" />}
             iconBgColor="bg-gray-100"

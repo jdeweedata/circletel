@@ -9,9 +9,8 @@ import {
   PiDownloadSimpleBold,
 } from 'react-icons/pi';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { StatusBadge } from '@/components/admin/shared';
 import { SendEmailDialog } from '@/components/admin/support/SendEmailDialog';
 
 interface Order {
@@ -32,24 +31,23 @@ interface OrderHeaderProps {
   order: Order;
 }
 
-const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
-  active: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Active' },
-  completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Completed' },
-  installation_completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Installation Complete' },
-  installation_scheduled: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Installation Scheduled' },
-  installation_in_progress: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'In Progress' },
-  payment_method_registered: { bg: 'bg-cyan-50', text: 'text-cyan-700', label: 'Payment Registered' },
-  payment_method_pending: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Payment Pending' },
-  pending: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
-  cancelled: { bg: 'bg-red-50', text: 'text-red-700', label: 'Cancelled' },
-  failed: { bg: 'bg-red-50', text: 'text-red-700', label: 'Failed' },
-  suspended: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Suspended' },
+const STATUS_CONFIG: Record<string, { className: string; label: string }> = {
+  active: { className: 'bg-emerald-50 text-emerald-700', label: 'Active' },
+  completed: { className: 'bg-emerald-50 text-emerald-700', label: 'Completed' },
+  installation_completed: { className: 'bg-emerald-50 text-emerald-700', label: 'Installation Complete' },
+  installation_scheduled: { className: 'bg-blue-50 text-blue-700', label: 'Installation Scheduled' },
+  installation_in_progress: { className: 'bg-blue-50 text-blue-700', label: 'In Progress' },
+  payment_method_registered: { className: 'bg-cyan-50 text-cyan-700', label: 'Payment Registered' },
+  payment_method_pending: { className: 'bg-amber-50 text-amber-700', label: 'Payment Pending' },
+  pending: { className: 'bg-amber-50 text-amber-700', label: 'Pending' },
+  cancelled: { className: 'bg-red-50 text-red-700', label: 'Cancelled' },
+  failed: { className: 'bg-red-50 text-red-700', label: 'Failed' },
+  suspended: { className: 'bg-slate-100 text-slate-600', label: 'Suspended' },
 };
 
 function getStatusConfig(status: string) {
   return STATUS_CONFIG[status] || {
-    bg: 'bg-slate-100',
-    text: 'text-slate-600',
+    className: 'bg-slate-100 text-slate-600',
     label: status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
   };
 }
@@ -75,10 +73,7 @@ export function OrderHeader({ order }: OrderHeaderProps) {
             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
               {order.order_number}
             </h2>
-            <Badge className={cn(statusConfig.bg, statusConfig.text, 'border-0')}>
-              <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
-              {statusConfig.label}
-            </Badge>
+            <StatusBadge status={statusConfig.label} className={statusConfig.className} />
           </div>
 
           {/* Action Buttons */}

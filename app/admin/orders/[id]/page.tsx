@@ -16,8 +16,8 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Tabs } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { UnderlineTabs, TabPanel, SectionCard } from '@/components/admin/shared';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { InstallationSection } from '@/components/admin/orders/InstallationSection';
 import { PaymentMethodStatus } from '@/components/admin/orders/PaymentMethodStatus';
@@ -116,30 +116,6 @@ function getPaymentBadge(status: string) {
   return <Badge className={cn(config.bg, config.text, 'border-0 font-medium')}>{config.label}</Badge>;
 }
 
-function SectionCard({
-  icon: Icon,
-  title,
-  badge,
-  children,
-}: {
-  icon: React.ElementType;
-  title: string;
-  badge?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="bg-white rounded-xl border border-slate-200">
-      <div className="flex items-center justify-between p-4 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4 text-slate-500" />
-          <h3 className="font-bold text-slate-900 text-sm">{title}</h3>
-        </div>
-        {badge}
-      </div>
-      <div className="p-4">{children}</div>
-    </div>
-  );
-}
 
 export default function AdminOrderDetailPage() {
   const params = useParams();
@@ -240,48 +216,28 @@ export default function AdminOrderDetailPage() {
         <OrderStatCards order={order} />
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabId)}>
-          <div className="border-b border-slate-200">
-            <div role="tablist" className="flex gap-8">
-              {TAB_CONFIG.map((tab) => (
-                <button
-                  key={tab.id}
-                  role="tab"
-                  aria-selected={activeTab === tab.id}
-                  aria-controls={`${tab.id}-panel`}
-                  id={`${tab.id}-tab`}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    'pb-4 border-b-2 text-sm font-medium transition-colors',
-                    activeTab === tab.id
-                      ? 'border-primary text-primary font-bold'
-                      : 'border-transparent text-slate-500 hover:text-slate-700'
-                  )}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
+        <UnderlineTabs
+          tabs={TAB_CONFIG}
+          activeTab={activeTab}
+          onTabChange={(id) => setActiveTab(id as TabId)}
+        />
 
-          {/* OVERVIEW TAB */}
-          {activeTab === 'overview' && (
-            <div id="overview-panel" role="tabpanel" aria-labelledby="overview-tab" className="mt-6">
-              <OrderOverviewTab
-                order={order}
-                onViewHistory={() => setActiveTab('history')}
-              />
-            </div>
-          )}
+        {/* OVERVIEW TAB */}
+        <TabPanel id="overview" activeTab={activeTab} className="mt-6">
+          <OrderOverviewTab
+            order={order}
+            onViewHistory={() => setActiveTab('history')}
+          />
+        </TabPanel>
 
-          {/* INSTALLATION TAB */}
-          {activeTab === 'installation' && (
-            <div id="installation-panel" role="tabpanel" aria-labelledby="installation-tab" className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* INSTALLATION TAB */}
+        <TabPanel id="installation" activeTab={activeTab} className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <InstallationSection orderId={order.id} className="border border-slate-200 rounded-xl" />
 
               <div className="space-y-6">
                 {/* Installation Address */}
-                <SectionCard icon={PiMapPinBold} title="Installation Address">
+                <SectionCard icon={PiMapPinBold} title="Installation Address" compact>
                   <div className="space-y-3">
                     <div>
                       <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Street Address</p>
@@ -329,7 +285,7 @@ export default function AdminOrderDetailPage() {
 
                 {/* Installation Documentation */}
                 {order.installation_document_url && (
-                  <SectionCard icon={PiFileTextBold} title="Installation Documentation">
+                  <SectionCard icon={PiFileTextBold} title="Installation Documentation" compact>
                     <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-slate-50">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center">
@@ -361,16 +317,16 @@ export default function AdminOrderDetailPage() {
                     </div>
                   </SectionCard>
                 )}
-              </div>
             </div>
-          )}
+          </div>
+        </TabPanel>
 
-          {/* FINANCIALS TAB */}
-          {activeTab === 'financials' && (
-            <div id="financials-panel" role="tabpanel" aria-labelledby="financials-tab" className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* FINANCIALS TAB */}
+        <TabPanel id="financials" activeTab={activeTab} className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-6">
                 {/* Payment Information */}
-                <SectionCard icon={PiCreditCardBold} title="Payment Information" badge={getPaymentBadge(order.payment_status)}>
+                <SectionCard icon={PiCreditCardBold} title="Payment Information" action={getPaymentBadge(order.payment_status)} compact>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Payment Method</p>
@@ -416,7 +372,7 @@ export default function AdminOrderDetailPage() {
 
                 {/* Billing Address */}
                 {!order.billing_same_as_installation && order.billing_address && (
-                  <SectionCard icon={PiFileTextBold} title="Billing Address">
+                  <SectionCard icon={PiFileTextBold} title="Billing Address" compact>
                     <div className="space-y-3">
                       <div>
                         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Street Address</p>
@@ -451,44 +407,43 @@ export default function AdminOrderDetailPage() {
                     </div>
                   </SectionCard>
                 )}
-              </div>
             </div>
-          )}
+          </div>
+        </TabPanel>
 
-          {/* HISTORY TAB */}
-          {activeTab === 'history' && (
-            <div id="history-panel" role="tabpanel" aria-labelledby="history-tab" className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <CommunicationTimeline orderId={order.id} />
+        {/* HISTORY TAB */}
+        <TabPanel id="history" activeTab={activeTab} className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CommunicationTimeline orderId={order.id} />
 
-              {/* Notes */}
-              {(order.technician_notes || order.internal_notes) && (
-                <SectionCard icon={PiFileTextBold} title="Notes">
-                  <div className="space-y-4">
-                    {order.technician_notes && (
+            {/* Notes */}
+            {(order.technician_notes || order.internal_notes) && (
+              <SectionCard icon={PiFileTextBold} title="Notes" compact>
+                <div className="space-y-4">
+                  {order.technician_notes && (
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Technician Notes</p>
+                      <p className="text-sm text-blue-800 whitespace-pre-wrap bg-blue-50 border border-blue-100 rounded-lg p-3">
+                        {order.technician_notes}
+                      </p>
+                    </div>
+                  )}
+                  {order.internal_notes && (
+                    <>
+                      {order.technician_notes && <Separator />}
                       <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Technician Notes</p>
-                        <p className="text-sm text-blue-800 whitespace-pre-wrap bg-blue-50 border border-blue-100 rounded-lg p-3">
-                          {order.technician_notes}
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Internal Notes</p>
+                        <p className="text-sm whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-lg p-3">
+                          {order.internal_notes}
                         </p>
                       </div>
-                    )}
-                    {order.internal_notes && (
-                      <>
-                        {order.technician_notes && <Separator />}
-                        <div>
-                          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Internal Notes</p>
-                          <p className="text-sm whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-lg p-3">
-                            {order.internal_notes}
-                          </p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </SectionCard>
-              )}
-            </div>
-          )}
-        </Tabs>
+                    </>
+                  )}
+                </div>
+              </SectionCard>
+            )}
+          </div>
+        </TabPanel>
       </div>
 
       {/* Payment Method Registration Modal */}

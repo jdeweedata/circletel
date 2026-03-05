@@ -9,6 +9,7 @@ import { PiArchiveBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiEyeBol
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { StatusBadge } from '@/components/admin/shared';
 import type { PageStatus } from '@/lib/cms/types';
 
 // ============================================
@@ -25,7 +26,7 @@ interface PublishingWorkflowProps {
 }
 
 // ============================================
-// Status Badge Component
+// Status Config (maps PageStatus to badge props)
 // ============================================
 
 const statusConfig: Record<
@@ -34,45 +35,42 @@ const statusConfig: Record<
 > = {
   draft: {
     label: 'Draft',
-    color: 'bg-gray-100 text-gray-700 border-gray-200',
+    color: 'bg-gray-100 text-gray-700 border border-gray-200',
     icon: PiEyeBold,
   },
   in_review: {
     label: 'In Review',
-    color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    color: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
     icon: PiClockBold,
   },
   scheduled: {
     label: 'Scheduled',
-    color: 'bg-blue-100 text-blue-700 border-blue-200',
+    color: 'bg-blue-100 text-blue-700 border border-blue-200',
     icon: PiCalendarBold,
   },
   published: {
     label: 'Published',
-    color: 'bg-green-100 text-green-700 border-green-200',
+    color: 'bg-green-100 text-green-700 border border-green-200',
     icon: PiCheckCircleBold,
   },
   archived: {
     label: 'Archived',
-    color: 'bg-red-100 text-red-700 border-red-200',
+    color: 'bg-red-100 text-red-700 border border-red-200',
     icon: PiArchiveBold,
   },
 };
 
-function StatusBadge({ status }: { status: PageStatus }) {
+function PageStatusBadge({ status }: { status: PageStatus }) {
   const config = statusConfig[status];
   const Icon = config.icon;
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border',
-        config.color
-      )}
-    >
-      <Icon className="w-3.5 h-3.5" />
-      {config.label}
-    </span>
+    <StatusBadge
+      status={config.label}
+      showDot={false}
+      icon={<Icon className="w-3.5 h-3.5" />}
+      className={config.color}
+    />
   );
 }
 
@@ -299,7 +297,7 @@ export function PublishingWorkflow({
       {/* Current Status */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Status</span>
-        <StatusBadge status={currentStatus} />
+        <PageStatusBadge status={currentStatus} />
       </div>
 
       {/* Scheduled Info */}

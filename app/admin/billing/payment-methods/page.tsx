@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/admin/shared';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -162,10 +162,12 @@ export default function AdminPaymentMethodsPage() {
   const getStatusBadge = (status: string) => {
     const config = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
     return (
-      <Badge className={`${config.color} flex items-center gap-1`}>
-        {config.icon}
-        {config.label}
-      </Badge>
+      <StatusBadge
+        status={config.label}
+        showDot={false}
+        icon={config.icon}
+        className={config.color}
+      />
     );
   };
 
@@ -404,15 +406,19 @@ export default function AdminPaymentMethodsPage() {
                       <TableCell>{getStatusBadge(pm.status)}</TableCell>
                       <TableCell>
                         {pm.is_verified ? (
-                          <Badge className="bg-green-100 text-green-800 flex items-center gap-1 w-fit">
-                            <PiShieldBold className="w-3 h-3" />
-                            Verified
-                          </Badge>
+                          <StatusBadge
+                            status="Verified"
+                            showDot={false}
+                            icon={<PiShieldBold className="w-3 h-3" />}
+                            className="bg-green-100 text-green-800"
+                          />
                         ) : (
-                          <Badge className="bg-gray-100 text-gray-600 flex items-center gap-1 w-fit">
-                            <PiClockBold className="w-3 h-3" />
-                            Pending
-                          </Badge>
+                          <StatusBadge
+                            status="Pending"
+                            showDot={false}
+                            icon={<PiClockBold className="w-3 h-3" />}
+                            className="bg-gray-100 text-gray-600"
+                          />
                         )}
                       </TableCell>
                       <TableCell>

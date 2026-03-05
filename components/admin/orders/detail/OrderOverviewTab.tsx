@@ -10,7 +10,7 @@ import {
   PiFireBold,
 } from 'react-icons/pi';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { SectionCard, InfoRow } from '@/components/admin/shared';
 import { OrderProgressTimeline } from './OrderProgressTimeline';
 
 interface Order {
@@ -61,45 +61,6 @@ interface Order {
 interface OrderOverviewTabProps {
   order: Order;
   onViewHistory?: () => void;
-}
-
-function SectionCard({
-  title,
-  action,
-  children,
-  className,
-}: {
-  title: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn('bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm', className)}>
-      <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-        <h3 className="font-bold text-slate-900">{title}</h3>
-        {action}
-      </div>
-      <div className="p-6">{children}</div>
-    </div>
-  );
-}
-
-function InfoRow({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn('flex justify-between items-center py-2 border-b border-slate-50 last:border-0', className)}>
-      <span className="text-sm text-slate-500">{label}</span>
-      <span className="text-sm font-medium text-slate-900 text-right">{value || '—'}</span>
-    </div>
-  );
 }
 
 function formatCurrency(amount: number): string {

@@ -1,6 +1,7 @@
 'use client';
 
 import { PiLightningBold } from 'react-icons/pi';
+import { StatCard } from '@/components/admin/shared';
 
 interface Order {
   package_name: string;
@@ -55,38 +56,6 @@ function getPaymentSubtitle(status: string): string {
     failed: 'Payment failed',
   };
   return subtitles[status] || '';
-}
-
-function StatCard({
-  label,
-  value,
-  subtitle,
-  subtitleIcon,
-  indicator,
-}: {
-  label: string;
-  value: string;
-  subtitle: string;
-  subtitleIcon?: React.ReactNode;
-  indicator?: 'pulse' | 'none';
-}) {
-  return (
-    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-        {label}
-      </p>
-      <div className="flex items-center gap-2">
-        <p className="text-lg font-bold text-slate-900">{value}</p>
-        {indicator === 'pulse' && (
-          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-        )}
-      </div>
-      <div className="mt-2 text-xs text-slate-500 font-medium flex items-center gap-1">
-        {subtitleIcon}
-        {subtitle}
-      </div>
-    </div>
-  );
 }
 
 export function OrderStatCards({ order }: OrderStatCardsProps) {
