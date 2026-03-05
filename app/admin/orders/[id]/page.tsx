@@ -239,28 +239,28 @@ export default function AdminOrderDetailPage() {
           <TabsList className="bg-white border border-slate-200 p-1 rounded-xl w-full grid grid-cols-2 md:grid-cols-4 gap-1">
             <TabsTrigger
               value="overview"
-              className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white transition-all"
+              className="rounded-lg font-medium data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
             >
               <PiEyeBold className="w-4 h-4 mr-2" />
               Overview
             </TabsTrigger>
             <TabsTrigger
               value="installation"
-              className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white transition-all"
+              className="rounded-lg font-medium data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
             >
               <PiGearBold className="w-4 h-4 mr-2" />
               Installation
             </TabsTrigger>
             <TabsTrigger
               value="financials"
-              className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white transition-all"
+              className="rounded-lg font-medium data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
             >
               <PiMoneyBold className="w-4 h-4 mr-2" />
               Financials
             </TabsTrigger>
             <TabsTrigger
               value="history"
-              className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white transition-all"
+              className="rounded-lg font-medium data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
             >
               <PiClockCounterClockwiseBold className="w-4 h-4 mr-2" />
               History

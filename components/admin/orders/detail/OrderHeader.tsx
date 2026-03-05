@@ -78,9 +78,10 @@ export function OrderHeader({ order, onRefresh }: OrderHeaderProps) {
         {/* Title Row */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
+            <p className="text-sm text-slate-500 mb-1">Order Details</p>
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                Order #{order.order_number}
+              <h1 className="text-3xl font-black tracking-tight text-slate-900 font-heading">
+                {order.order_number}
               </h1>
               <Badge className={cn(statusConfig.bg, statusConfig.text, "border-0 font-semibold px-3 py-1")}>
                 {statusConfig.label}
@@ -96,37 +97,44 @@ export function OrderHeader({ order, onRefresh }: OrderHeaderProps) {
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusActionButtons
-              currentStatus={order.status}
-              orderId={order.id}
-              orderNumber={order.order_number}
-              packagePrice={order.package_price}
-              firstName={order.first_name}
-              lastName={order.last_name}
-              onStatusUpdate={onRefresh}
-            />
+          {/* Action Buttons - Two Row Layout */}
+          <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+            {/* Primary Actions */}
+            <div className="flex items-center gap-2">
+              <StatusActionButtons
+                currentStatus={order.status}
+                orderId={order.id}
+                orderNumber={order.order_number}
+                packagePrice={order.package_price}
+                firstName={order.first_name}
+                lastName={order.last_name}
+                onStatusUpdate={onRefresh}
+              />
+            </div>
 
-            <div className="h-6 w-px bg-slate-200 mx-1 hidden lg:block" />
+            {/* Divider */}
+            <div className="hidden lg:block h-8 w-px bg-slate-200" />
 
-            <SendEmailDialog
-              defaultTo={order.email}
-              defaultSubject={`RE: Order ${order.order_number}`}
-              defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
-              customerId={order.customer_id}
-              orderId={order.id}
-            />
+            {/* Utility Actions */}
+            <div className="flex items-center gap-2">
+              <SendEmailDialog
+                defaultTo={order.email}
+                defaultSubject={`RE: Order ${order.order_number}`}
+                defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
+                customerId={order.customer_id}
+                orderId={order.id}
+              />
 
-            <Button variant="outline" size="sm" className="gap-2">
-              <PiPrinterBold className="w-4 h-4" />
-              <span className="hidden lg:inline">Print</span>
-            </Button>
+              <Button variant="outline" size="sm" className="gap-2">
+                <PiPrinterBold className="w-4 h-4" />
+                <span className="hidden lg:inline">Print</span>
+              </Button>
 
-            <Button variant="outline" size="sm" className="gap-2">
-              <PiDownloadSimpleBold className="w-4 h-4" />
-              <span className="hidden lg:inline">Export</span>
-            </Button>
+              <Button variant="outline" size="sm" className="gap-2">
+                <PiDownloadSimpleBold className="w-4 h-4" />
+                <span className="hidden lg:inline">Export</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
