@@ -28,11 +28,9 @@ import { PaymentMethodStatus } from '@/components/admin/orders/PaymentMethodStat
 import { PaymentMethodRegistrationModal } from '@/components/admin/orders/PaymentMethodRegistrationModal';
 import { OrderInvoices } from '@/components/admin/orders/OrderInvoices';
 import { CommunicationTimeline } from '@/components/admin/orders/CommunicationTimeline';
-import {
-  OrderHeader,
-  OrderStatCards,
-  OrderOverviewTab,
-} from '@/components/admin/orders/detail';
+import { OrderHeader } from '@/components/admin/orders/detail/OrderHeader';
+import { OrderStatCards } from '@/components/admin/orders/detail/OrderStatCards';
+import { OrderOverviewTab } from '@/components/admin/orders/detail/OrderOverviewTab';
 
 interface Order {
   id: string;
