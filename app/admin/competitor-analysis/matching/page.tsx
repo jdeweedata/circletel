@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiCheckCircleBold, PiFunnelBold, PiMagnifyingGlassBold, PiXBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiCheckCircleBold, PiFunnelBold, PiLinkBold, PiMagnifyingGlassBold, PiXBold } from 'react-icons/pi';
 
 /**
  * Product Matching Page
@@ -153,7 +153,7 @@ export default function MatchingPage() {
           onClick={() => setShowCreateModal(true)}
           className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
         >
-          <Link className="w-5 h-5" />
+          <PiLinkBold className="w-5 h-5" />
           Create Match
         </button>
       </div>
@@ -293,7 +293,7 @@ function MatchCard({ match, onDelete }: MatchCardProps) {
           </div>
 
           {/* Arrow */}
-          <Link className="w-5 h-5 text-gray-400" />
+          <PiLinkBold className="w-5 h-5 text-gray-400" />
 
           {/* Competitor Product */}
           <div className="flex items-center gap-3">

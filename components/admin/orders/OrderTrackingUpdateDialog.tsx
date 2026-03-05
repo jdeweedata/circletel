@@ -305,7 +305,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <PiCalendarBold
+                    <Calendar
                       mode="single"
                       selected={deliveryDate}
                       onSelect={setDeliveryDate}
@@ -345,7 +345,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <PiCalendarBold
+                    <Calendar
                       mode="single"
                       selected={surveyScheduledDate}
                       onSelect={setSurveyScheduledDate}
@@ -370,7 +370,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <PiCalendarBold
+                    <Calendar
                       mode="single"
                       selected={surveyCompletedDate}
                       onSelect={setSurveyCompletedDate}
@@ -425,7 +425,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <PiCalendarBold
+                    <Calendar
                       mode="single"
                       selected={installationScheduledDate}
                       onSelect={setInstallationScheduledDate}
@@ -450,7 +450,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <PiCalendarBold
+                    <Calendar
                       mode="single"
                       selected={installationCompletedDate}
                       onSelect={setInstallationCompletedDate}
@@ -498,7 +498,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <PiCalendarBold
+                    <Calendar
                       mode="single"
                       selected={activationDate}
                       onSelect={setActivationDate}
@@ -523,7 +523,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <PiCalendarBold
+                    <Calendar
                       mode="single"
                       selected={billingStartDate}
                       onSelect={setBillingStartDate}

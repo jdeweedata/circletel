@@ -82,6 +82,26 @@ const SECTIONS = [
   { id: 'contract', title: 'Contract', icon: PiSignatureBold, required: false },
 ];
 
+// Wrapper component for Input with label support
+interface LabeledInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+  hint?: string;
+}
+
+const LabeledInput = React.forwardRef<HTMLInputElement, LabeledInputProps>(
+  ({ label, hint, className, required, ...props }, ref) => (
+    <div className="space-y-1.5">
+      <Label className="text-sm font-medium text-slate-700">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </Label>
+      <Input ref={ref} className={className} {...props} />
+      {hint && <p className="text-xs text-gray-500">{hint}</p>}
+    </div>
+  )
+);
+LabeledInput.displayName = 'LabeledInput';
+
 // Styled form input component
 function FormInput({
   label,
@@ -435,7 +455,7 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.company}
             defaultOpen={true}
           >
-            <Input
+            <LabeledInput
               label="Corporate Code"
               required
               placeholder="UNJ"
@@ -445,14 +465,14 @@ export default function NewCorporatePage() {
               className="uppercase font-mono text-lg tracking-wider"
               hint="Used in account numbers: CT-UNJ-001"
             />
-            <Input
+            <LabeledInput
               label="Company Name"
               required
               placeholder="Unjani Clinics NPC"
               value={formData.companyName}
               onChange={(e) => handleInputChange('companyName', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="Trading Name"
               placeholder="Unjani Clinics"
               value={formData.tradingName}
@@ -476,13 +496,13 @@ export default function NewCorporatePage() {
                 </SelectContent>
               </Select>
             </div>
-            <Input
+            <LabeledInput
               label="CIPC Registration Number"
               placeholder="2014/089277/08"
               value={formData.registrationNumber}
               onChange={(e) => handleInputChange('registrationNumber', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="VAT Number"
               placeholder="4123456789"
               value={formData.vatNumber}
@@ -501,20 +521,20 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.primary}
             defaultOpen={true}
           >
-            <Input
+            <LabeledInput
               label="Full Name"
               required
               placeholder="Lynda Toussaint"
               value={formData.primaryContactName}
               onChange={(e) => handleInputChange('primaryContactName', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="Position / Title"
               placeholder="Chief Executive Officer"
               value={formData.primaryContactPosition}
               onChange={(e) => handleInputChange('primaryContactPosition', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="Email Address"
               required
               type="email"
@@ -522,7 +542,7 @@ export default function NewCorporatePage() {
               value={formData.primaryContactEmail}
               onChange={(e) => handleInputChange('primaryContactEmail', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="Phone Number"
               type="tel"
               placeholder="082 123 4567"
@@ -542,20 +562,20 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.billing}
             defaultOpen={false}
           >
-            <Input
+            <LabeledInput
               label="Contact Name"
               placeholder="Finance Manager"
               value={formData.billingContactName}
               onChange={(e) => handleInputChange('billingContactName', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="Email Address"
               type="email"
               placeholder="finance@company.co.za"
               value={formData.billingContactEmail}
               onChange={(e) => handleInputChange('billingContactEmail', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="Phone Number"
               type="tel"
               placeholder="082 123 4567"
@@ -575,20 +595,20 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.technical}
             defaultOpen={false}
           >
-            <Input
+            <LabeledInput
               label="Contact Name"
               placeholder="IT Manager"
               value={formData.technicalContactName}
               onChange={(e) => handleInputChange('technicalContactName', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="Email Address"
               type="email"
               placeholder="it@company.co.za"
               value={formData.technicalContactEmail}
               onChange={(e) => handleInputChange('technicalContactEmail', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="Phone Number"
               type="tel"
               placeholder="082 123 4567"
@@ -609,14 +629,14 @@ export default function NewCorporatePage() {
             defaultOpen={false}
           >
             <div className="md:col-span-2">
-              <Input
+              <LabeledInput
                 label="Street Address"
                 placeholder="123 Main Road, Building A"
                 value={formData.physicalAddress.street}
                 onChange={(e) => handleInputChange('physicalAddress.street', e.target.value)}
               />
             </div>
-            <Input
+            <LabeledInput
               label="City"
               placeholder="Midrand"
               value={formData.physicalAddress.city}
@@ -640,7 +660,7 @@ export default function NewCorporatePage() {
                 </SelectContent>
               </Select>
             </div>
-            <Input
+            <LabeledInput
               label="Postal Code"
               placeholder="1685"
               value={formData.physicalAddress.postal_code}
@@ -659,7 +679,7 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.contract}
             defaultOpen={false}
           >
-            <Input
+            <LabeledInput
               label="Expected Sites"
               type="number"
               placeholder="252"
@@ -668,13 +688,13 @@ export default function NewCorporatePage() {
               hint="Total number of sites to deploy"
             />
             <div /> {/* Spacer */}
-            <Input
+            <LabeledInput
               label="Contract Start Date"
               type="date"
               value={formData.contractStartDate}
               onChange={(e) => handleInputChange('contractStartDate', e.target.value)}
             />
-            <Input
+            <LabeledInput
               label="Contract End Date"
               type="date"
               value={formData.contractEndDate}

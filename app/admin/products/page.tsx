@@ -431,7 +431,7 @@ export default function AdminProducts() {
     bundles: {
       label: 'Bundles',
       description: 'Combined product packages',
-      icon: <PackageBundle className="h-5 w-5" />,
+      icon: <PiPackageBold className="h-5 w-5" />,
       color: 'gray' as const,
     },
   };
@@ -838,7 +838,7 @@ export default function AdminProducts() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <PackageBundle className="h-8 w-8 text-circleTel-orange" />
+            <PiPackageBold className="h-8 w-8 text-circleTel-orange" />
             Product Catalogue
           </h1>
           <p className="text-gray-600 mt-2">
@@ -882,7 +882,7 @@ export default function AdminProducts() {
               Total Products
             </CardTitle>
             <div className="p-2 rounded-lg bg-gray-100">
-              <PackageBundle className="h-5 w-5 text-gray-600" />
+              <PiPackageBold className="h-5 w-5 text-gray-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -1252,7 +1252,7 @@ export default function AdminProducts() {
               onClick={() => setManagementTab('all')}
               className={managementTab === 'all' ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark' : ''}
             >
-              <PackageBundle className="h-4 w-4 mr-1.5" />
+              <PiPackageBold className="h-4 w-4 mr-1.5" />
               All Products
               <Badge variant="secondary" className="ml-2 bg-gray-100">{products.length}</Badge>
             </Button>
@@ -1395,7 +1395,7 @@ export default function AdminProducts() {
                 const config = categoryConfig[category as keyof typeof categoryConfig] || {
                   label: category,
                   description: '',
-                  icon: <PackageBundle className="h-5 w-5" />,
+                  icon: <PiPackageBold className="h-5 w-5" />,
                   color: 'gray' as const,
                 };
 

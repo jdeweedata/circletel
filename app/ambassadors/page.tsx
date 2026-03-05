@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowSquareOutBold, PiArrowUpRightBold, PiCopyBold, PiCurrencyDollarBold, PiCursorClickBold, PiPlusBold, PiShoppingCartBold, PiTrendUpBold } from 'react-icons/pi';
+import { PiArrowSquareOutBold, PiArrowUpRightBold, PiCopyBold, PiCurrencyDollarBold, PiCursorClickBold, PiLinkBold, PiPlusBold, PiShoppingCartBold, PiTrendUpBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -356,7 +356,7 @@ export default function AmbassadorDashboard() {
             className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <div className="p-2 bg-blue-100 rounded-lg">
-              <Link className="w-5 h-5 text-blue-600" />
+              <PiLinkBold className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <p className="font-medium text-gray-900">Create New Code</p>
