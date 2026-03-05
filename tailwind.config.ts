@@ -173,13 +173,12 @@ export default {
 				'6000': '6s'
 			},
 			fontFamily: {
-				'sans': ['var(--font-poppins)', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
-				'heading': ['var(--font-poppins)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-				'body': ['var(--font-montserrat)', 'var(--font-poppins)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-				'mono': ['var(--font-space-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-				// Ivy Design System - Manrope for data-heavy interfaces
+				'sans': ['var(--font-inter)', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+				'heading': ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'body': ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'mono': ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
 				'display': ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-				'data': ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'data': ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],  // Inter for data (better number legibility)
 			},
 			// Typography Scale - 1.32× modular (Payfast-inspired)
 			fontSize: {

@@ -4,7 +4,7 @@
 
 ## Typography Scale
 
-Based on 1.32× modular scale (adopted from Payfast analysis). Uses Poppins for headings, Montserrat for body text.
+Based on 1.32× modular scale (adopted from Payfast analysis). Uses Manrope for headings, Inter for body text.
 
 ### Desktop Scale
 
@@ -105,18 +105,23 @@ Based on 1.32× modular scale (adopted from Payfast analysis). Uses Poppins for 
 
 | Family | Variable | Usage |
 |--------|----------|-------|
-| Poppins | `--font-poppins` | Headings, nav, buttons |
-| Montserrat | `--font-montserrat` | Body text |
-| Manrope | `--font-manrope` | Data-heavy interfaces |
-| Space Mono | `--font-space-mono` | Code, technical |
+| Inter | `--font-inter` | Body text, UI, labels, nav |
+| Manrope | `--font-manrope` | Headings, hero, sections |
+| JetBrains Mono | `--font-mono` | Code, API keys, data |
+
+### Why This Stack
+
+- **Inter**: Optimized for screen readability and UI, excellent number legibility
+- **Manrope**: Strong geometric character for headings, modern feel
+- **JetBrains Mono**: Developer-focused monospace, clear code blocks
 
 ### Tailwind Usage
 
 ```tsx
-<h1 className="font-heading">Heading</h1>
-<p className="font-body">Body text</p>
-<span className="font-data">123,456</span>
-<code className="font-mono">code</code>
+<h1 className="font-heading">Heading</h1>   {/* Manrope */}
+<p className="font-body">Body text</p>       {/* Inter */}
+<span className="font-data">123,456</span>   {/* Inter */}
+<code className="font-mono">code</code>      {/* JetBrains Mono */}
 ```
 
 ---
