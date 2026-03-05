@@ -97,10 +97,10 @@ export function OrderHeader({ order, onRefresh }: OrderHeaderProps) {
             </p>
           </div>
 
-          {/* Action Buttons - Two Row Layout */}
-          <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-            {/* Primary Actions */}
-            <div className="flex items-center gap-2">
+          {/* Action Buttons - Stack on mobile, wrap on desktop */}
+          <div className="flex flex-col gap-3 w-full lg:w-auto">
+            {/* Primary Actions - Allow wrap */}
+            <div className="flex flex-wrap items-center gap-2">
               <StatusActionButtons
                 currentStatus={order.status}
                 orderId={order.id}
@@ -112,11 +112,8 @@ export function OrderHeader({ order, onRefresh }: OrderHeaderProps) {
               />
             </div>
 
-            {/* Divider */}
-            <div className="hidden lg:block h-8 w-px bg-slate-200" />
-
-            {/* Utility Actions */}
-            <div className="flex items-center gap-2">
+            {/* Utility Actions - Allow wrap */}
+            <div className="flex flex-wrap items-center gap-2">
               <SendEmailDialog
                 defaultTo={order.email}
                 defaultSubject={`RE: Order ${order.order_number}`}

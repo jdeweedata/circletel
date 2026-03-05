@@ -284,7 +284,7 @@ export function StatusActionButtons({
 
   return (
     <>
-      <div className="flex flex-wrap lg:flex-nowrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-2">
         {actions.map((action) => {
           const Icon = action.icon;
           return (
