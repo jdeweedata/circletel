@@ -240,7 +240,7 @@ export default function AdminOrderDetailPage() {
             <TabsTrigger
               value="overview"
               unstyled
-              className="rounded-lg font-medium text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
+              className="rounded-lg font-medium text-xs sm:text-sm text-slate-600 data-[state=active]:bg-[#F77B00] data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
             >
               <PiEyeBold className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Overview</span>
@@ -248,7 +248,7 @@ export default function AdminOrderDetailPage() {
             <TabsTrigger
               value="installation"
               unstyled
-              className="rounded-lg font-medium text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
+              className="rounded-lg font-medium text-xs sm:text-sm text-slate-600 data-[state=active]:bg-[#F77B00] data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
             >
               <PiGearBold className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Installation</span>
@@ -256,7 +256,7 @@ export default function AdminOrderDetailPage() {
             <TabsTrigger
               value="financials"
               unstyled
-              className="rounded-lg font-medium text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
+              className="rounded-lg font-medium text-xs sm:text-sm text-slate-600 data-[state=active]:bg-[#F77B00] data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
             >
               <PiMoneyBold className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Financials</span>
@@ -264,7 +264,7 @@ export default function AdminOrderDetailPage() {
             <TabsTrigger
               value="history"
               unstyled
-              className="rounded-lg font-medium text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
+              className="rounded-lg font-medium text-xs sm:text-sm text-slate-600 data-[state=active]:bg-[#F77B00] data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:hover:bg-slate-100 transition-all"
             >
               <PiClockCounterClockwiseBold className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">History</span>
