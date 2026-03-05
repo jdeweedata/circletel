@@ -1,10 +1,10 @@
 'use client';
 
-import { PiPackageBold, PiCurrencyCircleDollarBold, PiCheckCircleBold, PiClockBold, PiMegaphoneBold } from 'react-icons/pi';
-import { cn } from '@/lib/utils';
+import { PiLightningBold } from 'react-icons/pi';
 
 interface Order {
   package_name: string;
+  package_speed: string;
   package_price: number;
   payment_status: string;
   lead_source: string;
@@ -13,18 +13,6 @@ interface Order {
 
 interface OrderStatCardsProps {
   order: Order;
-}
-
-const PAYMENT_STATUS_CONFIG: Record<string, { color: string; label: string }> = {
-  pending: { color: 'text-amber-600', label: 'Pending' },
-  paid: { color: 'text-emerald-600', label: 'Paid' },
-  partial: { color: 'text-blue-600', label: 'Partial' },
-  failed: { color: 'text-red-600', label: 'Failed' },
-  refunded: { color: 'text-slate-600', label: 'Refunded' },
-};
-
-function getPaymentStatusConfig(status: string) {
-  return PAYMENT_STATUS_CONFIG[status] || { color: 'text-slate-600', label: status };
 }
 
 function formatCurrency(amount: number): string {
@@ -49,78 +37,83 @@ function formatLeadSource(source: string): string {
   return mapping[source] || source.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
-export function OrderStatCards({ order }: OrderStatCardsProps) {
-  const paymentConfig = getPaymentStatusConfig(order.payment_status);
+function getPaymentStatusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    pending: 'Pending',
+    paid: 'Paid',
+    partial: 'Partial',
+    failed: 'Failed',
+  };
+  return labels[status] || status;
+}
 
-  const stats = [
-    {
-      label: 'PACKAGE',
-      value: order.package_name,
-      icon: PiPackageBold,
-      iconBg: 'bg-blue-500',
-    },
-    {
-      label: 'MONTHLY',
-      value: formatCurrency(order.package_price),
-      suffix: '/ month',
-      icon: PiCurrencyCircleDollarBold,
-      iconBg: 'bg-emerald-500',
-    },
-    {
-      label: 'PAYMENT',
-      value: paymentConfig.label,
-      valueColor: paymentConfig.color,
-      icon: order.payment_status === 'paid' ? PiCheckCircleBold : PiClockBold,
-      iconBg: order.payment_status === 'paid' ? 'bg-emerald-500' : 'bg-amber-500',
-      showDot: true,
-      dotColor: order.payment_status === 'paid' ? 'bg-emerald-500' : 'bg-amber-500',
-    },
-    {
-      label: 'SOURCE',
-      value: formatLeadSource(order.lead_source),
-      subtitle: order.source_campaign,
-      icon: PiMegaphoneBold,
-      iconBg: 'bg-purple-500',
-    },
-  ];
+function getPaymentSubtitle(status: string): string {
+  const subtitles: Record<string, string> = {
+    pending: 'Awaiting clearing',
+    paid: 'Payment received',
+    partial: 'Partial payment',
+    failed: 'Payment failed',
+  };
+  return subtitles[status] || '';
+}
 
+function StatCard({
+  label,
+  value,
+  subtitle,
+  subtitleIcon,
+  indicator,
+}: {
+  label: string;
+  value: string;
+  subtitle: string;
+  subtitleIcon?: React.ReactNode;
+  indicator?: 'pulse' | 'none';
+}) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat) => (
-        <div
-          key={stat.label}
-          className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-sm transition-shadow"
-        >
-          <div className="flex items-start justify-between mb-2">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              {stat.label}
-            </span>
-            <div className={cn(
-              "w-8 h-8 rounded-lg flex items-center justify-center",
-              stat.iconBg
-            )}>
-              <stat.icon className="w-4 h-4 text-white" />
-            </div>
-          </div>
-          <div className="flex items-baseline gap-1">
-            {stat.showDot && (
-              <span className={cn("w-2 h-2 rounded-full mr-1", stat.dotColor)} />
-            )}
-            <span className={cn(
-              "text-lg font-bold truncate",
-              stat.valueColor || 'text-slate-900'
-            )}>
-              {stat.value}
-            </span>
-            {stat.suffix && (
-              <span className="text-xs text-slate-400 font-medium">{stat.suffix}</span>
-            )}
-          </div>
-          {stat.subtitle && (
-            <p className="text-xs text-slate-500 mt-1 truncate">{stat.subtitle}</p>
-          )}
-        </div>
-      ))}
+    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+        {label}
+      </p>
+      <div className="flex items-center gap-2">
+        <p className="text-lg font-bold text-slate-900">{value}</p>
+        {indicator === 'pulse' && (
+          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+        )}
+      </div>
+      <div className="mt-2 text-xs text-slate-500 font-medium flex items-center gap-1">
+        {subtitleIcon}
+        {subtitle}
+      </div>
+    </div>
+  );
+}
+
+export function OrderStatCards({ order }: OrderStatCardsProps) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <StatCard
+        label="Package"
+        value={order.package_name}
+        subtitle={order.package_speed}
+        subtitleIcon={<PiLightningBold className="w-3 h-3 text-primary" />}
+      />
+      <StatCard
+        label="Monthly Price"
+        value={formatCurrency(order.package_price)}
+        subtitle="VAT Inclusive"
+      />
+      <StatCard
+        label="Payment Status"
+        value={getPaymentStatusLabel(order.payment_status)}
+        subtitle={getPaymentSubtitle(order.payment_status)}
+        indicator={order.payment_status === 'pending' ? 'pulse' : 'none'}
+      />
+      <StatCard
+        label="Lead Source"
+        value={formatLeadSource(order.lead_source)}
+        subtitle={order.source_campaign || 'Direct'}
+      />
     </div>
   );
 }
