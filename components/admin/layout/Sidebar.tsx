@@ -1,5 +1,5 @@
 'use client';
-import { PiArchiveBold, PiArrowsClockwiseBold, PiBellBold, PiBriefcaseBold, PiBuildingsBold, PiCalendarBold, PiCaretDownBold, PiCaretLeftBold, PiCaretRightBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiImageBold, PiLightningBold, PiLinkBold, PiListBold, PiMapPinBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiPercentBold, PiPlusBold, PiPulseBold, PiRadioBold, PiReceiptBold, PiShieldCheckBold, PiShoppingCartBold, PiSidebarSimpleBold, PiSparkleBold, PiSquaresFourBold, PiTargetBold, PiTestTubeBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUserPlusBold, PiUsersBold, PiWarningCircleBold, PiWrenchBold } from 'react-icons/pi';
+import { PiArchiveBold, PiArrowsClockwiseBold, PiBellBold, PiBriefcaseBold, PiBuildingsBold, PiCalendarBold, PiCaretDownBold, PiCaretLeftBold, PiCaretRightBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiImageBold, PiLightningBold, PiLinkBold, PiListBold, PiMapPinBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiPercentBold, PiPlusBold, PiPulseBold, PiRadioBold, PiReceiptBold, PiShieldCheckBold, PiShoppingCartBold, PiSidebarSimpleBold, PiSparkleBold, PiSquaresFourBold, PiTargetBold, PiTestTubeBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUserPlusBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -241,6 +241,12 @@ const navigationSections: NavSection[] = [
         href: '/admin/diagnostics',
         icon: PiPulseBold,
         description: 'Monitor subscriber connection health'
+      },
+      {
+        name: 'Devices',
+        href: '/admin/network/devices',
+        icon: PiWifiHighBold,
+        description: 'Ruijie Cloud device management'
       },
     ]
   },
