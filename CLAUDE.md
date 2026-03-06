@@ -13,7 +13,7 @@ Guidance for Claude Code when working with CircleTel codebase.
 | Auth patterns | [Rules](#rules) | See `.claude/rules/auth-patterns.md` |
 | Database schema | [Database](#database-schema) | `customer_invoices` (not `invoices`) |
 | File placement | [Rules](#rules) | See `.claude/rules/file-organization.md` |
-| Skills | [Superpowers](#superpowers-skills) | `/skill superpowers:brainstorming` |
+| Skills | [Superpowers Pipeline](#superpowers-pipeline-mandatory) | See mandatory pipeline stages |
 
 ---
 
@@ -24,7 +24,7 @@ NEVER write placeholder code, stub functions, or TODO items
 NEVER invent file paths, function names, or variable names — check first
 NEVER make changes outside the scope of the current task
 NEVER claim a task is complete without running /skill superpowers:verification-before-completion
-ALWAYS invoke the relevant superpowers skill before writing code
+ALWAYS follow the Superpowers Pipeline (6 stages) — invoke every applicable skill gate before proceeding
 ALWAYS ask before modifying more than 3 files at once
 ```
 
@@ -99,6 +99,7 @@ All detailed patterns are in `.claude/rules/`:
 | `anti-patterns.md` | NEVERs, hallucination prevention, scope discipline |
 | `auth-patterns.md` | Three-context auth, header+cookie checks, RBAC |
 | `workflow.md` | Planning protocol, blast radius, confirmation gates |
+| `compound-learnings.md` | Learning capture triggers, RSI, pattern extraction |
 | `verify-schema-first.md` | Check DB schema before coding |
 | `type-guards-optionals.md` | Safe access to optional/nested properties |
 | `api-param-documentation.md` | Document API params with Wrong vs Correct tables |
@@ -144,23 +145,62 @@ See `.env.example` for complete list.
 
 ---
 
-## Superpowers Skills
+## Superpowers Pipeline (MANDATORY)
 
-**⚠️ CRITICAL: Invoke via `Skill` tool when trigger keywords appear.**
+**Every task flows through this pipeline. Skills are gates — you MUST invoke each applicable skill via the `Skill` tool before proceeding to the next stage. Skipping a skill is a rule violation.**
 
-| Skill | Trigger | When to Use |
-|-------|---------|-------------|
-| `superpowers:brainstorming` 🧠 | "create", "build", "add feature" | BEFORE any creative work |
-| `superpowers:systematic-debugging` 🐛 | "bug", "error", "not working" | When encountering ANY bug |
-| `superpowers:test-driven-development` 🧪 | "implement", "feature" | BEFORE writing implementation |
-| `superpowers:writing-plans` 📝 | "spec", "requirements" | Multi-step task planning |
-| `superpowers:executing-plans` ⚡ | "execute plan" | Implementing a written plan |
-| `superpowers:verification-before-completion` ✅ | "done", "complete" | BEFORE claiming work is done |
-| `superpowers:requesting-code-review` 🔍 | "review" | After completing features |
-| `superpowers:dispatching-parallel-agents` 🚀 | 2+ independent tasks | Tasks with no shared state |
-| `superpowers:finishing-a-development-branch` 🏁 | "ready to merge" | Implementation complete |
+### Stage 1: START — Understand & Design
 
-**Rule**: If even 1% chance a skill applies, invoke it.
+| Skill | Gate |
+|-------|------|
+| `superpowers:brainstorming` | MUST invoke before any new feature, page, component, or creative work |
+| `superpowers:systematic-debugging` | MUST invoke when encountering any bug, error, or unexpected behavior |
+
+### Stage 2: PLAN — Break Down the Work
+
+| Skill | Gate |
+|-------|------|
+| `superpowers:writing-plans` | MUST invoke for any multi-step task (2+ files or stages) |
+| `superpowers:executing-plans` | MUST invoke when a written plan exists and implementation begins |
+
+### Stage 3: IMPLEMENT — Write the Code
+
+| Skill | Gate |
+|-------|------|
+| `superpowers:test-driven-development` | MUST invoke before writing any feature implementation |
+| `superpowers:dispatching-parallel-agents` | MUST invoke when 2+ independent tasks can run simultaneously |
+| `superpowers:subagent-driven-development` | MUST invoke when executing a plan with independent implementation steps |
+
+### Stage 4: VERIFY — Confirm Quality
+
+| Skill | Gate |
+|-------|------|
+| `superpowers:verification-before-completion` | MUST invoke before claiming ANY work is done — no exceptions |
+| `superpowers:requesting-code-review` | MUST invoke after completing any feature or significant change |
+
+### Stage 5: SHIP — Merge & Deploy
+
+| Skill | Gate |
+|-------|------|
+| `superpowers:finishing-a-development-branch` | MUST invoke when implementation is complete and ready to merge |
+
+### Stage 6: LEARN — Capture Knowledge
+
+| Skill | Gate |
+|-------|------|
+| `compound:compound` | MUST invoke when: task >30min, pattern found, correction received, tricky debug |
+
+See `.claude/rules/compound-learnings.md` for triggers and templates.
+
+### Context-Triggered Skills (invoke when context arises)
+
+| Skill | Context |
+|-------|---------|
+| `superpowers:receiving-code-review` | When PR feedback or review comments are received |
+| `superpowers:using-git-worktrees` | When feature work needs isolation from main branch |
+| `superpowers:writing-skills` | When creating or editing Claude Code skills |
+
+**Rule**: Never skip a gate. If unsure whether a skill applies, invoke it — the skill will tell you if it's not needed.
 
 ---
 
@@ -192,4 +232,4 @@ npm run type-check:memory
 
 ---
 
-**Version**: 7.0 | **Updated**: 2026-03-03 | **Lines**: ~140
+**Version**: 8.0 | **Updated**: 2026-03-06 | **Lines**: ~170

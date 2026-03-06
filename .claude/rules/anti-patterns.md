@@ -10,8 +10,12 @@ Scope: Things Claude must NEVER do
 NEVER write placeholder code, stub functions, or TODO items
 NEVER invent file paths, function names, or variable names — check first
 NEVER make changes outside the scope of the current task
-NEVER claim a task is complete without running /skill superpowers:verification-before-completion
-ALWAYS invoke the relevant superpowers skill before writing code
+NEVER skip a Superpowers Pipeline gate — every applicable skill MUST be invoked
+NEVER claim a task is complete without invoking superpowers:verification-before-completion
+NEVER start implementation without invoking superpowers:brainstorming (new work) or superpowers:systematic-debugging (bugs)
+NEVER write feature code without invoking superpowers:test-driven-development
+NEVER end a session without capturing learnings when triggers are met (>30min task, pattern found, correction received)
+ALWAYS follow the full Superpowers Pipeline: START -> PLAN -> IMPLEMENT -> VERIFY -> SHIP -> LEARN
 ALWAYS ask before modifying more than 3 files at once
 ```
 
@@ -48,6 +52,19 @@ ALWAYS ask before modifying more than 3 files at once
 - **Never rush** when context window is filling up
 - **Never skip the verification skill** before claiming done
 
+## Superpowers Pipeline Violations
+
+| Violation | Consequence | Prevention |
+|-----------|-------------|------------|
+| Skipped brainstorming | Unvetted design, rework | Invoke `superpowers:brainstorming` at START |
+| Skipped debugging skill | Shotgun fixes, root cause missed | Invoke `superpowers:systematic-debugging` on any error |
+| Skipped writing-plans | Disorganized multi-file changes | Invoke `superpowers:writing-plans` for 2+ file tasks |
+| Skipped TDD | Untested code shipped | Invoke `superpowers:test-driven-development` before features |
+| Skipped verification | Broken deployment | Invoke `superpowers:verification-before-completion` before done |
+| Skipped code review | Quality issues missed | Invoke `superpowers:requesting-code-review` after features |
+| Skipped finishing-branch | Incomplete merge prep | Invoke `superpowers:finishing-a-development-branch` before merge |
+| Skipped compound learnings | Lost knowledge, repeat mistakes | Invoke `compound:compound` when triggers met |
+
 ## Common Violations
 
 | Violation | Consequence | Prevention |
@@ -56,4 +73,3 @@ ALWAYS ask before modifying more than 3 files at once
 | Wrong API param | Silent failure | Check working implementation first |
 | Root-level file dump | Cluttered repo | Always use subdirectories |
 | Assumed function exists | Runtime error | Grep for function before calling |
-| Skipped verification | Broken deployment | Run `/skill superpowers:verification-before-completion` |
