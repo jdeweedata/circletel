@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import {
   PiArrowLeftBold,
-  PiPhoneBold,
   PiEnvelopeBold,
   PiWhatsappLogoBold,
   PiMapPinBold,
@@ -238,13 +237,6 @@ export default function FAQPage() {
                     >
                       <PiWhatsappLogoBold className="w-4 h-4" />
                       <span>082 487 3900</span>
-                    </a>
-                    <a
-                      href="tel:+27870730000"
-                      className="flex items-center gap-2 text-sm hover:text-circleTel-orange transition-colors"
-                    >
-                      <PiPhoneBold className="w-4 h-4" />
-                      <span>087 073 0000</span>
                     </a>
                     <a
                       href="mailto:contactus@circletel.co.za"
