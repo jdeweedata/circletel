@@ -2,11 +2,13 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import {
   PiArrowLeftBold,
-  PiQuestionBold,
   PiPhoneBold,
   PiEnvelopeBold,
   PiWhatsappLogoBold,
   PiMapPinBold,
+  PiCheckCircleBold,
+  PiClockBold,
+  PiShieldCheckBold,
 } from 'react-icons/pi';
 import {
   Accordion,
@@ -16,8 +18,6 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { faqCategories, getAllFAQs } from './faq-data';
-import { CategoryNav } from '@/components/faq/CategoryNav';
-import { StatCallouts } from '@/components/faq/StatCallouts';
 
 // =============================================================================
 // Metadata
@@ -103,6 +103,9 @@ function generateSpeakableSchema() {
 // =============================================================================
 
 export default function FAQPage() {
+  // Flatten all FAQs with global numbering
+  let globalIndex = 0;
+
   return (
     <>
       {/* JSON-LD Structured Data - Safe: generated from static FAQ data, not user input */}
@@ -123,153 +126,211 @@ export default function FAQPage() {
         }}
       />
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-circleTel-orange to-orange-600 text-white py-16 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb */}
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors mb-6"
-          >
-            <PiArrowLeftBold className="w-4 h-4" />
-            <span>Back to Home</span>
-          </Link>
+      {/* Clean Header */}
+      <section className="bg-gradient-to-br from-circleTel-orange via-circleTel-orange to-orange-500 text-white">
+        {/* Decorative curve */}
+        <div className="relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+            {/* Breadcrumb */}
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm mb-8"
+            >
+              <PiArrowLeftBold className="w-4 h-4" />
+              <span>Back to Home</span>
+            </Link>
 
-          <div className="flex items-start gap-4 mb-4">
-            <div className="p-3 bg-white/20 rounded-xl">
-              <PiQuestionBold className="w-8 h-8" />
-            </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading">
-                Frequently Asked Questions
-              </h1>
-              <p className="mt-4 text-lg md:text-xl text-white/90 max-w-2xl">
-                Everything you need to know about CircleTel fibre, 5G, and LTE
-                internet in South Africa. Find answers about coverage, pricing,
-                installation, and support.
-              </p>
-            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading">
+              Frequently Asked Questions
+            </h1>
           </div>
+
+          {/* Curved bottom edge */}
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gray-50 rounded-t-[2rem]" />
         </div>
       </section>
 
-      {/* Stat Callouts - Overlapping Hero */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10">
-        <StatCallouts />
-      </div>
+      {/* Main Content - Two Column Layout */}
+      <main className="bg-gray-50 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
 
-      {/* Category Navigation - Sticky */}
-      <CategoryNav />
+            {/* Left Sidebar - Sticky */}
+            <aside className="lg:w-80 flex-shrink-0">
+              <div className="lg:sticky lg:top-24 space-y-6">
 
-      {/* FAQ Sections */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="space-y-16">
-          {faqCategories.map((category) => {
-            const Icon = category.icon;
+                {/* Intro Text */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <p className="text-circleTel-navy font-medium mb-4">
+                    Find answers to common questions about CircleTel internet services.
+                  </p>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    By using our website and services, you agree to the terms outlined
+                    in our service agreement. If you have additional questions, our
+                    support team is ready to help.
+                  </p>
+                </div>
 
-            return (
-              <section
-                key={category.id}
-                id={`faq-${category.id}`}
-                className="scroll-mt-36"
-              >
-                {/* Category Header */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-circleTel-orange/10 rounded-lg">
-                    <Icon className="w-6 h-6 text-circleTel-orange" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-circleTel-navy font-heading">
-                      {category.title}
-                    </h2>
-                    <p className="text-gray-600 text-sm">{category.description}</p>
+                {/* Quick Navigation */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <h3 className="font-semibold text-circleTel-navy mb-4 text-sm uppercase tracking-wide">
+                    Jump to section
+                  </h3>
+                  <nav className="space-y-1">
+                    {faqCategories.map((category) => {
+                      const Icon = category.icon;
+                      return (
+                        <a
+                          key={category.id}
+                          href={`#faq-${category.id}`}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-circleTel-orange/5 hover:text-circleTel-orange transition-colors group"
+                        >
+                          <Icon className="w-4 h-4 text-gray-400 group-hover:text-circleTel-orange transition-colors" />
+                          <span className="text-sm font-medium">{category.title}</span>
+                        </a>
+                      );
+                    })}
+                  </nav>
+                </div>
+
+                {/* Key Facts */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <h3 className="font-semibold text-circleTel-navy mb-4 text-sm uppercase tracking-wide">
+                    Quick facts
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="stat-callout flex items-start gap-3">
+                      <PiClockBold className="w-5 h-5 text-circleTel-orange flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-circleTel-navy text-sm">3-7 days installation</p>
+                        <p className="text-gray-500 text-xs">Free standard installation</p>
+                      </div>
+                    </div>
+                    <div className="stat-callout flex items-start gap-3">
+                      <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-circleTel-navy text-sm">No contracts</p>
+                        <p className="text-gray-500 text-xs">Cancel anytime, 30 days notice</p>
+                      </div>
+                    </div>
+                    <div className="stat-callout flex items-start gap-3">
+                      <PiShieldCheckBold className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-circleTel-navy text-sm">99.5% uptime SLA</p>
+                        <p className="text-gray-500 text-xs">Business plans with guarantees</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Accordion */}
-                <Accordion type="single" collapsible className="space-y-3">
-                  {category.faqs.map((faq) => (
-                    <AccordionItem
-                      key={faq.id}
-                      value={faq.id}
-                      className="bg-white border border-gray-200 rounded-lg px-4 shadow-sm"
+                {/* Need Help CTA */}
+                <div className="bg-circleTel-navy rounded-2xl p-6 text-white">
+                  <h3 className="font-semibold mb-2">Need more help?</h3>
+                  <p className="text-white/70 text-sm mb-4">
+                    Our support team is available Mon-Fri, 8am-5pm.
+                  </p>
+                  <div className="space-y-2">
+                    <a
+                      href="https://wa.me/27870730000"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm hover:text-green-400 transition-colors"
                     >
-                      <AccordionTrigger className="text-left text-circleTel-navy hover:no-underline">
-                        {faq.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="faq-answer text-gray-700 leading-relaxed">
-                        {faq.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </section>
-            );
-          })}
-        </div>
-      </main>
-
-      {/* CTA Section */}
-      <section className="bg-circleTel-navy text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold font-heading mb-4">
-            Still have questions?
-          </h2>
-          <p className="text-white/80 mb-8 max-w-xl mx-auto">
-            Check your coverage or get in touch with our friendly support team.
-            We are here to help.
-          </p>
-
-          {/* Primary CTA */}
-          <Link href="/">
-            <Button variant="cta" size="xl" className="mb-8">
-              <PiMapPinBold className="w-5 h-5" />
-              Check Your Coverage
-            </Button>
-          </Link>
-
-          {/* Contact Options */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            {/* WhatsApp */}
-            <a
-              href="https://wa.me/27870730000"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 p-4 bg-white/10 hover:bg-white/20 rounded-xl transition-colors"
-            >
-              <PiWhatsappLogoBold className="w-6 h-6 text-green-400" />
-              <div className="text-left">
-                <p className="font-semibold">WhatsApp</p>
-                <p className="text-sm text-white/70">Quick responses</p>
+                      <PiWhatsappLogoBold className="w-4 h-4" />
+                      <span>WhatsApp us</span>
+                    </a>
+                    <a
+                      href="tel:+27870730000"
+                      className="flex items-center gap-2 text-sm hover:text-circleTel-orange transition-colors"
+                    >
+                      <PiPhoneBold className="w-4 h-4" />
+                      <span>087 073 0000</span>
+                    </a>
+                    <a
+                      href="mailto:support@circletel.co.za"
+                      className="flex items-center gap-2 text-sm hover:text-blue-400 transition-colors"
+                    >
+                      <PiEnvelopeBold className="w-4 h-4" />
+                      <span>support@circletel.co.za</span>
+                    </a>
+                  </div>
+                </div>
               </div>
-            </a>
+            </aside>
 
-            {/* Phone */}
-            <a
-              href="tel:+27870730000"
-              className="flex items-center justify-center gap-3 p-4 bg-white/10 hover:bg-white/20 rounded-xl transition-colors"
-            >
-              <PiPhoneBold className="w-6 h-6 text-circleTel-orange" />
-              <div className="text-left">
-                <p className="font-semibold">087 073 0000</p>
-                <p className="text-sm text-white/70">Mon-Fri 8am-5pm</p>
-              </div>
-            </a>
+            {/* Right Content - FAQ List */}
+            <div className="flex-1 min-w-0">
+              <div className="space-y-8">
+                {faqCategories.map((category) => {
+                  const Icon = category.icon;
 
-            {/* Email */}
-            <a
-              href="mailto:support@circletel.co.za"
-              className="flex items-center justify-center gap-3 p-4 bg-white/10 hover:bg-white/20 rounded-xl transition-colors"
-            >
-              <PiEnvelopeBold className="w-6 h-6 text-blue-400" />
-              <div className="text-left">
-                <p className="font-semibold">Email Us</p>
-                <p className="text-sm text-white/70">support@circletel.co.za</p>
+                  return (
+                    <section
+                      key={category.id}
+                      id={`faq-${category.id}`}
+                      className="scroll-mt-24"
+                    >
+                      {/* Category Header */}
+                      <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-200">
+                        <Icon className="w-5 h-5 text-circleTel-orange" />
+                        <h2 className="text-lg font-bold text-circleTel-navy font-heading">
+                          {category.title}
+                        </h2>
+                      </div>
+
+                      {/* FAQ Items */}
+                      <Accordion type="single" collapsible className="space-y-0">
+                        {category.faqs.map((faq) => {
+                          globalIndex++;
+                          const questionNumber = String(globalIndex).padStart(2, '0');
+
+                          return (
+                            <AccordionItem
+                              key={faq.id}
+                              value={faq.id}
+                              className="border-b border-gray-100 last:border-b-0"
+                            >
+                              <AccordionTrigger className="text-left text-circleTel-navy hover:no-underline py-5 gap-4 [&[data-state=open]]:text-circleTel-orange">
+                                <div className="flex items-start gap-4 flex-1">
+                                  <span className="text-gray-400 text-sm font-mono flex-shrink-0 mt-0.5">
+                                    {questionNumber}.
+                                  </span>
+                                  <span className="font-medium text-[15px] leading-relaxed">
+                                    {faq.question}
+                                  </span>
+                                </div>
+                              </AccordionTrigger>
+                              <AccordionContent className="faq-answer text-gray-600 leading-relaxed pl-12 pr-4 pb-5">
+                                {faq.answer}
+                              </AccordionContent>
+                            </AccordionItem>
+                          );
+                        })}
+                      </Accordion>
+                    </section>
+                  );
+                })}
               </div>
-            </a>
+
+              {/* Bottom CTA */}
+              <div className="mt-12 bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
+                <h3 className="text-xl font-bold text-circleTel-navy mb-2">
+                  Ready to get started?
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Check if CircleTel is available at your address.
+                </p>
+                <Link href="/">
+                  <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-8">
+                    <PiMapPinBold className="w-5 h-5 mr-2" />
+                    Check Coverage
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </main>
     </>
   );
 }
