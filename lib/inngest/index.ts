@@ -56,6 +56,15 @@ export {
   supplierSyncFailedFunction,
 } from './functions/supplier-sync';
 
+export {
+  ruijieSyncFunction,
+  ruijieSyncCompletedFunction,
+} from './functions/ruijie-sync';
+
+export {
+  ruijieTunnelCleanupFunction,
+} from './functions/ruijie-tunnel-cleanup';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -105,6 +114,15 @@ import {
   supplierSyncFailedFunction,
 } from './functions/supplier-sync';
 
+import {
+  ruijieSyncFunction,
+  ruijieSyncCompletedFunction,
+} from './functions/ruijie-sync';
+
+import {
+  ruijieTunnelCleanupFunction,
+} from './functions/ruijie-tunnel-cleanup';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -138,4 +156,9 @@ export const functions = [
   supplierSyncFunction,
   supplierSyncCompletedFunction,
   supplierSyncFailedFunction,
+  // Ruijie Cloud device sync
+  ruijieSyncFunction,
+  ruijieSyncCompletedFunction,
+  // Ruijie tunnel cleanup
+  ruijieTunnelCleanupFunction,
 ];
