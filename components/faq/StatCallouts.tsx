@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { PiLightningBold, PiCheckCircleBold } from 'react-icons/pi';
-import { FaWhatsapp } from 'react-icons/fa';
+import { PiLightningBold, PiCheckCircleBold, PiWhatsappLogoBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 
 export interface StatItem {
@@ -23,7 +22,7 @@ const DEFAULT_STATS: StatItem[] = [
     label: 'Installation',
   },
   {
-    icon: <FaWhatsapp className="w-6 h-6 text-green-600" />,
+    icon: <PiWhatsappLogoBold className="w-6 h-6 text-green-600" />,
     value: 'WhatsApp Support',
     label: '+ AI assistance',
   },
