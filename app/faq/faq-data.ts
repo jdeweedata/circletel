@@ -213,7 +213,7 @@ export const faqCategories: FAQCategory[] = [
         id: 'contracts-2',
         question: 'How do I cancel my CircleTel service?',
         answer:
-          'To cancel, simply submit a cancellation request through your online account dashboard or email support@circletel.co.za with your account number. We require 30 days notice for cancellations. Your final bill will be pro-rated to the cancellation date. Equipment (router, ONT, antenna) must be returned within 14 days of cancellation, or a replacement fee applies. Our team will arrange collection or provide a drop-off location.',
+          'To cancel, simply submit a cancellation request through your online account dashboard or email contactus@circletel.co.za with your account number. We require 30 days notice for cancellations. Your final bill will be pro-rated to the cancellation date. Equipment (router, ONT, antenna) must be returned within 14 days of cancellation, or a replacement fee applies. Our team will arrange collection or provide a drop-off location.',
       },
       {
         id: 'contracts-3',
@@ -243,7 +243,7 @@ export const faqCategories: FAQCategory[] = [
         id: 'support-1',
         question: 'How do I contact CircleTel support?',
         answer:
-          'The fastest way to reach us is via WhatsApp at our support number - simply send a message and our team will respond promptly. You can also email support@circletel.co.za or call our support line during business hours. Our support team operates Monday to Friday, 8am to 5pm South African time. For urgent after-hours issues affecting your connection, WhatsApp messages are monitored and critical outages are escalated to our on-call team.',
+          'The fastest way to reach us is via WhatsApp at our support number - simply send a message and our team will respond promptly. You can also email contactus@circletel.co.za or call our support line during business hours. Our support team operates Monday to Friday, 8am to 5pm South African time. For urgent after-hours issues affecting your connection, WhatsApp messages are monitored and critical outages are escalated to our on-call team.',
       },
       {
         id: 'support-2',

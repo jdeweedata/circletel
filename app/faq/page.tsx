@@ -231,13 +231,13 @@ export default function FAQPage() {
                   </p>
                   <div className="space-y-2">
                     <a
-                      href="https://wa.me/27870730000"
+                      href="https://wa.me/27824873900"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm hover:text-green-400 transition-colors"
                     >
                       <PiWhatsappLogoBold className="w-4 h-4" />
-                      <span>WhatsApp us</span>
+                      <span>082 487 3900</span>
                     </a>
                     <a
                       href="tel:+27870730000"
@@ -247,11 +247,11 @@ export default function FAQPage() {
                       <span>087 073 0000</span>
                     </a>
                     <a
-                      href="mailto:support@circletel.co.za"
+                      href="mailto:contactus@circletel.co.za"
                       className="flex items-center gap-2 text-sm hover:text-blue-400 transition-colors"
                     >
                       <PiEnvelopeBold className="w-4 h-4" />
-                      <span>support@circletel.co.za</span>
+                      <span>contactus@circletel.co.za</span>
                     </a>
                   </div>
                 </div>
