@@ -1,6 +1,5 @@
 import {
   PiMapPinBold,
-  PiCurrencyCircleDollarBold,
   PiWrenchBold,
   PiRocketBold,
   PiFileTextBold,
@@ -8,6 +7,7 @@ import {
   PiBuildingsBold,
 } from 'react-icons/pi';
 import type { IconType } from 'react-icons';
+import { RandIconBold } from '@/components/icons/RandIcon';
 
 // =============================================================================
 // Types
@@ -75,7 +75,7 @@ export const faqCategories: FAQCategory[] = [
     id: 'pricing',
     title: 'Pricing & Billing',
     description: 'Transparent pricing with no hidden fees',
-    icon: PiCurrencyCircleDollarBold,
+    icon: RandIconBold as unknown as IconType, // Custom ZAR icon
     faqs: [
       {
         id: 'pricing-1',
