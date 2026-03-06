@@ -26,7 +26,17 @@ export function ContentSection({
         </h2>
       </div>
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div className="prose prose-gray max-w-none prose-headings:text-circleTel-navy prose-headings:font-semibold prose-h3:text-base prose-h3:mt-6 prose-h3:mb-3 prose-p:text-gray-600 prose-p:leading-relaxed prose-ul:list-disc prose-ul:pl-6 prose-ul:my-4 prose-ul:space-y-2 prose-li:text-gray-600 prose-li:leading-relaxed prose-strong:text-circleTel-navy prose-a:text-circleTel-orange prose-a:no-underline hover:prose-a:underline">
+        <div className="
+          prose prose-gray max-w-none
+          prose-headings:text-circleTel-navy prose-headings:font-bold
+          prose-h3:text-lg prose-h3:mt-8 prose-h3:mb-4 first:prose-h3:mt-0
+          prose-p:text-gray-600 prose-p:leading-relaxed prose-p:mb-4
+          prose-ul:list-disc prose-ul:pl-6 prose-ul:my-4 prose-ul:space-y-2
+          prose-li:text-gray-600 prose-li:leading-relaxed prose-li:pl-1
+          prose-strong:text-circleTel-navy prose-strong:font-semibold
+          prose-a:text-circleTel-orange prose-a:no-underline hover:prose-a:underline
+          [&>p:first-child]:mt-0 [&>h3:first-child]:mt-0
+        ">
           {children}
         </div>
       </div>
