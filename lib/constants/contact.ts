@@ -15,7 +15,8 @@ export const CONTACT = {
   PHONE_SALES: '010 880 3663',
 
   // Email addresses
-  EMAIL_SUPPORT: 'support@circletel.co.za',
+  EMAIL_PRIMARY: 'contactus@circletel.co.za', // Use this for all public-facing contact
+  EMAIL_SUPPORT: 'contactus@circletel.co.za', // Alias for backward compatibility
   EMAIL_SALES: 'sales@circletel.co.za',
   EMAIL_BILLING: 'billing@circletel.co.za',
   EMAIL_LEGAL: 'legal@circletelsa.co.za',
@@ -23,7 +24,7 @@ export const CONTACT = {
 
   // Business hours
   BUSINESS_HOURS: 'Monday - Friday: 08:00 - 17:00 SAST',
-  SUPPORT_HOURS: '24/7 WhatsApp support',
+  SUPPORT_HOURS: 'Mon-Fri, 8am-5pm', // NOT 24/7 - WhatsApp + AI assistance during business hours
 
   // Physical address
   PHYSICAL_ADDRESS: {

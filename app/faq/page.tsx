@@ -16,6 +16,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
+import { CONTACT } from '@/lib/constants/contact';
 import { faqCategories, getAllFAQs } from './faq-data';
 
 // =============================================================================
@@ -226,24 +227,24 @@ export default function FAQPage() {
                 <div className="bg-circleTel-navy rounded-2xl p-6 text-white">
                   <h3 className="font-semibold mb-2">Need more help?</h3>
                   <p className="text-white/70 text-sm mb-4">
-                    Our support team is available Mon-Fri, 8am-5pm.
+                    Our support team is available {CONTACT.SUPPORT_HOURS}.
                   </p>
                   <div className="space-y-2">
                     <a
-                      href="https://wa.me/27824873900"
+                      href={CONTACT.WHATSAPP_LINK}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm hover:text-green-400 transition-colors"
                     >
                       <PiWhatsappLogoBold className="w-4 h-4" />
-                      <span>082 487 3900</span>
+                      <span>{CONTACT.WHATSAPP_NUMBER}</span>
                     </a>
                     <a
-                      href="mailto:contactus@circletel.co.za"
+                      href={`mailto:${CONTACT.EMAIL_PRIMARY}`}
                       className="flex items-center gap-2 text-sm hover:text-blue-400 transition-colors"
                     >
                       <PiEnvelopeBold className="w-4 h-4" />
-                      <span>contactus@circletel.co.za</span>
+                      <span>{CONTACT.EMAIL_PRIMARY}</span>
                     </a>
                   </div>
                 </div>
