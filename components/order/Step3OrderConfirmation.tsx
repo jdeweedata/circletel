@@ -344,7 +344,7 @@ export function Step3OrderConfirmation({
               <ul className="space-y-1 list-disc list-inside">
                 <li>
                   By submitting this order, you agree to our{' '}
-                  <Link href="/terms" target="_blank" className="text-blue-700 hover:underline font-medium">
+                  <Link href="/terms-of-service" target="_blank" className="text-blue-700 hover:underline font-medium">
                     terms and conditions
                   </Link>
                 </li>

@@ -584,7 +584,7 @@ export function CircleTelPaymentPage({ variant = "home-internet" }: PaymentPageP
               />
               <Label htmlFor="acceptTerms" className="text-sm cursor-pointer">
                 I have read and agree to the{" "}
-                <a href="/legal/terms" target="_blank" className="text-circleTel-orange hover:underline">
+                <a href="/terms-of-service" target="_blank" className="text-circleTel-orange hover:underline">
                   Terms & Conditions
                 </a>
               </Label>

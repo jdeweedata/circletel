@@ -605,7 +605,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
             <div className="pt-4 space-y-3">
               <p className="text-xs text-center text-gray-600">
                 By proceeding, you agree to{' '}
-                <a href="/terms" className="text-circleTel-orange hover:underline font-bold transition-colors">
+                <a href="/terms-of-service" className="text-circleTel-orange hover:underline font-bold transition-colors">
                   Terms & Conditions
                 </a>{' '}
                 and{' '}

@@ -358,7 +358,7 @@ export default function PartnerOnboardingPage() {
                         <Checkbox checked={field.value} onCheckedChange={field.onChange} id="terms" />
                       )} />
                       <label htmlFor="terms" className="text-sm text-circleTel-secondaryNeutral">
-                        I agree to the <Link href="/terms" className="text-circleTel-orange hover:underline">Terms & Conditions</Link> and <Link href="/privacy" className="text-circleTel-orange hover:underline">Privacy Policy</Link>
+                        I agree to the <Link href="/terms-of-service" className="text-circleTel-orange hover:underline">Terms & Conditions</Link> and <Link href="/privacy" className="text-circleTel-orange hover:underline">Privacy Policy</Link>
                       </label>
                     </div>
                     {errors.agreeToTerms && <p className="text-xs text-red-600">{errors.agreeToTerms.message}</p>}

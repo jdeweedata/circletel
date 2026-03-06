@@ -43,7 +43,7 @@ export default function PaymentTermsPage() {
           </div>
 
           <p className="text-gray-700 leading-relaxed mb-4">
-            These Payment Terms govern all financial transactions between you and CircleTel (Pty) Ltd. For general service terms, please refer to our <Link href="/terms" className="text-circleTel-orange hover:underline">Terms & Conditions</Link>.
+            These Payment Terms govern all financial transactions between you and CircleTel (Pty) Ltd. For general service terms, please refer to our <Link href="/terms-of-service" className="text-circleTel-orange hover:underline">Terms & Conditions</Link>.
           </p>
         </section>
 
@@ -450,7 +450,7 @@ export default function PaymentTermsPage() {
             <div>
               <h4 className="font-semibold mb-3">Related Policies</h4>
               <p className="mb-2">
-                <Link href="/terms" className="underline hover:opacity-80">Terms & Conditions</Link>
+                <Link href="/terms-of-service" className="underline hover:opacity-80">Terms & Conditions</Link>
               </p>
               <p className="mb-2">
                 <Link href="/privacy-policy" className="underline hover:opacity-80">Privacy Policy</Link>

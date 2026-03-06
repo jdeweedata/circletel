@@ -334,7 +334,7 @@ function ConsumerOrderContent() {
           <p>🔒 Your information is secure and encrypted</p>
           <p className="mt-1">
             By completing this order, you agree to our{' '}
-            <Link href="/terms" className="text-circleTel-orange hover:underline">
+            <Link href="/terms-of-service" className="text-circleTel-orange hover:underline">
               Terms of Service
             </Link>{' '}
             and{' '}

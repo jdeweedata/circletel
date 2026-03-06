@@ -351,7 +351,7 @@ export default function InstallationPage() {
                     >
                       I accept the{' '}
                       <a
-                        href="/terms"
+                        href="/terms-of-service"
                         target="_blank"
                         className="text-circleTel-orange hover:underline"
                       >

@@ -47,7 +47,7 @@ export default function RefundPolicyPage() {
           </p>
 
           <p className="text-gray-700 leading-relaxed">
-            For general service terms, refer to our <Link href="/terms" className="text-circleTel-orange hover:underline">Terms & Conditions</Link>.
+            For general service terms, refer to our <Link href="/terms-of-service" className="text-circleTel-orange hover:underline">Terms & Conditions</Link>.
           </p>
         </section>
 
@@ -474,7 +474,7 @@ export default function RefundPolicyPage() {
             <div>
               <h4 className="font-semibold mb-3">Related Policies</h4>
               <p className="mb-2">
-                <Link href="/terms" className="underline hover:opacity-80">Terms & Conditions</Link>
+                <Link href="/terms-of-service" className="underline hover:opacity-80">Terms & Conditions</Link>
               </p>
               <p className="mb-2">
                 <Link href="/privacy-policy" className="underline hover:opacity-80">Privacy Policy</Link>

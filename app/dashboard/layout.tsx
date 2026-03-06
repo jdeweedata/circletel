@@ -181,7 +181,7 @@ export default function DashboardLayout({
                   Privacy Policy
                 </Link>
                 <Link
-                  href="/terms"
+                  href="/terms-of-service"
                   className="hover:text-circleTel-orange transition-colors"
                 >
                   Terms of Service

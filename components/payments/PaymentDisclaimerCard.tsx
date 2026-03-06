@@ -121,7 +121,7 @@ export function PaymentDisclaimerCard({
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/terms"
+              href="/terms-of-service"
               target="_blank"
               className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline"
             >

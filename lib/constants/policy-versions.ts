@@ -13,10 +13,10 @@
 export const POLICY_VERSIONS = {
   /**
    * Terms & Conditions version
-   * Last updated: 2025-01-20
-   * Location: /terms
+   * Last updated: 2026-03-06
+   * Location: /terms-of-service
    */
-  TERMS: '2025-01-20',
+  TERMS: '2026-03-06',
 
   /**
    * Privacy Policy version
@@ -44,7 +44,7 @@ export const POLICY_VERSIONS = {
  * Policy URLs for linking in consent forms
  */
 export const POLICY_URLS = {
-  TERMS: '/terms',
+  TERMS: '/terms-of-service',
   PRIVACY: '/privacy-policy',
   PAYMENT_TERMS: '/payment-terms',
   REFUND_POLICY: '/refund-policy',

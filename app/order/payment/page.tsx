@@ -559,7 +559,7 @@ export default function PaymentPage() {
               <div className="pt-4">
                 <p className="text-xs text-center text-gray-600">
                   By proceeding, you agree to{' '}
-                  <a href="/terms" className="text-circleTel-orange hover:underline font-medium">
+                  <a href="/terms-of-service" className="text-circleTel-orange hover:underline font-medium">
                     Terms & Conditions
                   </a>{' '}
                   and{' '}

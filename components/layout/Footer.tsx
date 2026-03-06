@@ -91,7 +91,7 @@ export const Footer = () => {
               <li><Link href="/become-a-partner" className="hover:text-circleTel-orange transition-colors">Become a Partner</Link></li>
               <li><Link href="/partner/login" className="hover:text-circleTel-orange transition-colors">Partner Login</Link></li>
               <li><Link href="/privacy-policy" className="hover:text-circleTel-orange transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="hover:text-circleTel-orange transition-colors">Terms & Conditions</Link></li>
+              <li><Link href="/terms-of-service" className="hover:text-circleTel-orange transition-colors">Terms & Conditions</Link></li>
             </ul>
           </div>
         </div>

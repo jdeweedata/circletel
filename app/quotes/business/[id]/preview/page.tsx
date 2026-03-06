@@ -772,7 +772,7 @@ export default function QuotePreviewPage({ params }: Props) {
                 <p>
                   This agreement is governed by South African law. Full terms and conditions available at{' '}
                   <a
-                    href="https://www.circletel.co.za/terms"
+                    href="https://www.circletel.co.za/terms-of-service"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-circleTel-orange hover:underline font-medium"

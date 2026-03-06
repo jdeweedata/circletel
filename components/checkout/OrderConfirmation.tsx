@@ -331,7 +331,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
               </Button>
 
               <Button variant="outline" className="w-full justify-start" asChild>
-                <a href="/terms" target="_blank">
+                <a href="/terms-of-service" target="_blank">
                   <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
                   Terms & Conditions
                 </a>
