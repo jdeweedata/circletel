@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/server';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { NotificationTrackingService } from '@/lib/billing/notification-tracking-service';
 import { billingLogger } from '@/lib/logging';
+import { getEmailReminderDays } from '@/lib/billing/billing-settings-service';
 
 // =============================================================================
 // Types
@@ -375,7 +376,11 @@ export class InvoiceReminderService {
    */
   static async processReminders(options: ProcessRemindersOptions = {}): Promise<BatchReminderResult> {
     const startTime = Date.now();
-    const { daysBeforeDue = 5, invoiceIds, dryRun = false } = options;
+
+    // Get default days from settings
+    const defaultDaysBeforeDue = await getEmailReminderDays();
+
+    const { daysBeforeDue = defaultDaysBeforeDue, invoiceIds, dryRun = false } = options;
 
     const results: ReminderResult[] = [];
     let sent = 0;

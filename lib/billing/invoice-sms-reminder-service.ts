@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import { ClickatellService } from '@/lib/integrations/clickatell/sms-service';
 import { NotificationTrackingService } from '@/lib/billing/notification-tracking-service';
 import { billingLogger } from '@/lib/logging';
+import { getSmsReminderMax, getBillingSetting } from '@/lib/billing/billing-settings-service';
 
 // =============================================================================
 // Types
@@ -133,6 +134,9 @@ export class InvoiceSmsReminderService {
   ): Promise<InvoiceForSmsReminder[]> {
     const supabase = await createClient();
 
+    // Get max reminders from settings
+    const maxReminders = await getSmsReminderMax();
+
     // Calculate date range
     const today = new Date();
     const maxOverdueDate = new Date(today);
@@ -164,7 +168,7 @@ export class InvoiceSmsReminderService {
       .in('status', ['overdue', 'unpaid', 'partial'])
       .lte('due_date', maxOverdueDate.toISOString().split('T')[0])
       .gte('due_date', minOverdueDate.toISOString().split('T')[0])
-      .lt('sms_reminder_count', 3) // Max 3 SMS reminders
+      .lt('sms_reminder_count', maxReminders)
       .or(`sms_reminder_sent_at.is.null,sms_reminder_sent_at.lt.${twentyFourHoursAgo.toISOString()}`);
 
     if (error) {
@@ -218,6 +222,9 @@ export class InvoiceSmsReminderService {
    */
   static async sendSmsReminder(invoiceId: string): Promise<SmsReminderResult> {
     const supabase = await createClient();
+
+    // Get max reminders from settings
+    const maxReminders = await getSmsReminderMax();
 
     // Fetch invoice with customer data
     const { data: invoice, error: fetchError } = await supabase
@@ -282,13 +289,13 @@ export class InvoiceSmsReminderService {
 
     // Check max reminders
     const reminderCount = invoice.sms_reminder_count || 0;
-    if (reminderCount >= 3) {
+    if (reminderCount >= maxReminders) {
       return {
         invoice_id: invoiceId,
         invoice_number: invoice.invoice_number,
         customer_phone: customer.phone,
         success: false,
-        error: 'Maximum SMS reminders (3) already sent',
+        error: `Maximum SMS reminders (${maxReminders}) already sent`,
       };
     }
 
@@ -429,12 +436,16 @@ export class InvoiceSmsReminderService {
     options: ProcessSmsRemindersOptions = {}
   ): Promise<BatchSmsReminderResult> {
     const startTime = Date.now();
+
+    // Get default max reminders from settings
+    const defaultMaxReminders = await getSmsReminderMax();
+
     const {
       minDaysOverdue = 1,
       maxDaysOverdue = 30,
       invoiceIds,
       dryRun = false,
-      maxReminders = 3,
+      maxReminders = defaultMaxReminders,
     } = options;
 
     const results: SmsReminderResult[] = [];

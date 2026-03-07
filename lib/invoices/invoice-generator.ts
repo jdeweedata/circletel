@@ -9,6 +9,11 @@
 import { createClient } from '@/lib/supabase/server';
 import type { InvoiceLineItem as BillingLineItem, InvoiceType } from '@/lib/billing/types';
 import { syncInvoiceToZohoBilling } from '@/lib/integrations/zoho/invoice-sync-service';
+import {
+  getVatRate,
+  getInvoiceDueDays,
+  getRouterPrice,
+} from '@/lib/billing/billing-settings-service';
 
 export interface InvoiceLineItem {
   description: string;
@@ -65,13 +70,20 @@ export async function createInvoiceFromContract(
     }
   ];
 
+  // Fetch billing settings
+  const [routerPrice, vatRate, dueDays] = await Promise.all([
+    getRouterPrice(),
+    getVatRate(),
+    getInvoiceDueDays(true), // B2B invoice
+  ]);
+
   // Add router if included
   if (contract.router_included) {
     items.push({
       description: 'Router',
       quantity: 1,
-      unit_price: 99.00,
-      total: 99.00
+      unit_price: routerPrice,
+      total: routerPrice
     });
   }
 
@@ -85,14 +97,13 @@ export async function createInvoiceFromContract(
 
   // 3. Calculate totals
   const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-  const vatRate = 15.00;
   const vatAmount = Number((subtotal * (vatRate / 100)).toFixed(2));
   const totalAmount = Number((subtotal + vatAmount).toFixed(2));
 
-  // 4. Set due_date = invoice_date + 7 days
+  // 4. Set due_date = invoice_date + configured days
   const invoiceDate = new Date();
   const dueDate = new Date(invoiceDate);
-  dueDate.setDate(dueDate.getDate() + 7);
+  dueDate.setDate(dueDate.getDate() + dueDays);
 
   // 5. Insert invoice record
   const { data: invoice, error: invoiceError } = await supabase
@@ -271,9 +282,9 @@ export async function generateCustomerInvoice(
   
   // Calculate subtotal from line items
   const subtotal = line_items.reduce((sum, item) => sum + item.amount, 0);
-  
-  // Calculate VAT (15% South African rate)
-  const vat_rate = 15.00;
+
+  // Calculate VAT (from billing settings)
+  const vat_rate = await getVatRate();
   const vat_amount = Math.round(subtotal * (vat_rate / 100) * 100) / 100;
   const total_amount = Math.round((subtotal + vat_amount) * 100) / 100;
   

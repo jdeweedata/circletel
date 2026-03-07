@@ -1,4 +1,4 @@
-import { PiBellBold, PiCodeBold, PiDatabaseBold, PiEnvelopeBold, PiGearBold, PiShieldBold } from 'react-icons/pi';
+import { PiBellBold, PiCodeBold, PiCurrencyDollarBold, PiDatabaseBold, PiEnvelopeBold, PiGearBold, PiShieldBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,13 @@ const settingsCategories = [
     description: 'Email templates and notification logs',
     icon: PiBellBold,
     href: '/admin/settings/notifications',
+    available: true
+  },
+  {
+    title: 'Finance',
+    description: 'Billing rules, fees, and reminder schedules',
+    icon: PiCurrencyDollarBold,
+    href: '/admin/settings/finance',
     available: true
   },
   {
