@@ -9,12 +9,12 @@ import resourcePage from './documents/resourcePage'
 import testimonial from './documents/testimonial'
 import siteSettings from './documents/siteSettings'
 
-// New document types (will be added in later tasks)
-// import post from './documents/post'
-// import teamMember from './documents/teamMember'
-// import campaign from './documents/campaign'
-// import resource from './documents/resource'
-// import category from './documents/category'
+// New document types
+import post from './documents/post'
+import teamMember from './documents/teamMember'
+import campaign from './documents/campaign'
+import resource from './documents/resource'
+import category from './documents/category'
 
 // Block types
 import heroBlock from './blocks/heroBlock'
@@ -47,6 +47,11 @@ export const schemaTypes = [
   resourcePage,
   testimonial,
   siteSettings,
+  post,
+  teamMember,
+  campaign,
+  resource,
+  category,
 
   // Blocks
   heroBlock,
