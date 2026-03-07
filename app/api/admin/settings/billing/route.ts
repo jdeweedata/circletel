@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession } from '@/lib/supabase/server';
 import {
   getBillingSettingsByCategory,
   updateBillingSettings,
@@ -21,7 +21,7 @@ import { billingLogger } from '@/lib/logging';
 // Auth Helper
 // =============================================================================
 
-async function verifySuperAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
+async function verifySuperAdmin(supabase: Awaited<ReturnType<typeof createClientWithSession>>) {
   const {
     data: { user },
     error: authError,
@@ -62,7 +62,7 @@ async function verifySuperAdmin(supabase: Awaited<ReturnType<typeof createClient
 
 export async function GET() {
   try {
-    const supabase = await createClient();
+    const supabase = await createClientWithSession();
     const authResult = await verifySuperAdmin(supabase);
 
     if ('error' in authResult) {
@@ -105,7 +105,7 @@ interface UpdateSettingsBody {
 
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const supabase = await createClientWithSession();
     const authResult = await verifySuperAdmin(supabase);
 
     if ('error' in authResult) {
