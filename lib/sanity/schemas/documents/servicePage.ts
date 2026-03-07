@@ -80,11 +80,20 @@ export default defineType({
       title: 'Page Sections',
       type: 'array',
       of: [
+        // Core blocks
         defineArrayMember({ type: 'heroBlock' }),
         defineArrayMember({ type: 'featureGridBlock' }),
         defineArrayMember({ type: 'pricingBlock' }),
         defineArrayMember({ type: 'faqBlock' }),
+        defineArrayMember({ type: 'comparisonBlock' }),
         defineArrayMember({ type: 'testimonialBlock' }),
+        // Content blocks
+        defineArrayMember({ type: 'textBlock' }),
+        defineArrayMember({ type: 'imageBlock' }),
+        defineArrayMember({ type: 'ctaBlock' }),
+        defineArrayMember({ type: 'formBlock' }),
+        defineArrayMember({ type: 'separatorBlock' }),
+        defineArrayMember({ type: 'galleryBlock' }),
       ],
     }),
   ],
