@@ -1,28 +1,18 @@
 'use client';
-import { PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCalendarCheckBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiCreditCardBold, PiDotsThreeVerticalBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiLightningBold, PiMagnifyingGlassBold, PiPackageBold, PiPencilSimpleBold, PiShoppingCartBold, PiTrashBold, PiWarningCircleBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { PiCheckSquareBold, PiTrashBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Card, CardContent } from '@/components/ui/card';
 import { StatusUpdateModal } from '@/components/admin/orders/StatusUpdateModal';
+import { UnderlineTabs, TabPanel } from '@/components/admin/shared/UnderlineTabs';
+import {
+  OrdersListHeader,
+  OrdersListStatCards,
+  OrdersFilters,
+  OrdersTable,
+  QuickActionsPanel,
+} from '@/components/admin/orders/list';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface Order {
@@ -53,7 +43,12 @@ interface OrderStats {
 type SortField = 'order_number' | 'customer' | 'package_price' | 'created_at';
 type SortDirection = 'asc' | 'desc';
 
-export default function AdminOrdersPageEnhanced() {
+const TAB_CONFIG = [
+  { id: 'all-orders', label: 'All Orders' },
+  { id: 'quick-actions', label: 'Quick Actions' },
+] as const;
+
+export default function AdminOrdersPage() {
   const { user } = useAdminAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -62,19 +57,20 @@ export default function AdminOrdersPageEnhanced() {
     pending: 0,
     active: 0,
     cancelled: 0,
-    totalRevenue: 0
+    totalRevenue: 0,
   });
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
-  const [quickFilter, setQuickFilter] = useState<string | null>(null);
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
+  const [activeTab, setActiveTab] = useState<string>('all-orders');
+  const [activeStatFilter, setActiveStatFilter] = useState<'all' | 'pending' | 'active' | null>(null);
   const [statusUpdateModal, setStatusUpdateModal] = useState<{
     open: boolean;
     order: Order | null;
@@ -86,13 +82,11 @@ export default function AdminOrdersPageEnhanced() {
 
   useEffect(() => {
     filterOrders();
-  }, [orders, searchQuery, statusFilter, paymentStatusFilter, quickFilter, sortField, sortDirection]);
+  }, [orders, searchQuery, statusFilter, paymentStatusFilter, sortField, sortDirection]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-
-      // Use API endpoint to bypass RLS
       const response = await fetch('/api/admin/orders');
       const result = await response.json();
 
@@ -104,14 +98,13 @@ export default function AdminOrdersPageEnhanced() {
       setOrders(ordersData);
       setLastRefreshed(new Date());
 
-      // Calculate stats
       const total = ordersData.length;
-      const pending = ordersData.filter(o => o.status === 'pending').length;
-      const active = ordersData.filter(o => o.status === 'active').length;
-      const cancelled = ordersData.filter(o => o.status === 'cancelled').length;
+      const pending = ordersData.filter((o) => o.status === 'pending').length;
+      const active = ordersData.filter((o) => o.status === 'active').length;
+      const cancelled = ordersData.filter((o) => o.status === 'cancelled').length;
       const totalRevenue = ordersData
-        .filter(o => o.status === 'active')
-        .reduce((sum, o) => sum + (parseFloat(o.package_price as any) || 0), 0);
+        .filter((o) => o.status === 'active')
+        .reduce((sum, o) => sum + (parseFloat(o.package_price as unknown as string) || 0), 0);
 
       setStats({ total, pending, active, cancelled, totalRevenue });
     } catch (error) {
@@ -124,11 +117,10 @@ export default function AdminOrdersPageEnhanced() {
   const filterOrders = () => {
     let filtered = [...orders];
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        order =>
+        (order) =>
           order.order_number.toLowerCase().includes(query) ||
           order.first_name.toLowerCase().includes(query) ||
           order.last_name.toLowerCase().includes(query) ||
@@ -137,49 +129,17 @@ export default function AdminOrdersPageEnhanced() {
       );
     }
 
-    // Quick filter (takes precedence)
-    if (quickFilter) {
-      switch (quickFilter) {
-        case 'needs_payment':
-          filtered = filtered.filter(order =>
-            order.status === 'pending' ||
-            order.status === 'payment_method_pending' ||
-            order.status === 'installation_scheduled' ||
-            order.status === 'installation_in_progress'
-          );
-          break;
-        case 'ready_to_schedule':
-          filtered = filtered.filter(order =>
-            order.status === 'pending' ||
-            order.status === 'payment_method_pending' ||
-            order.status === 'payment_method_registered'
-          );
-          break;
-        case 'installation_today':
-          // This would need installation_scheduled_date in the Order interface
-          // For now, filter by installation_scheduled status
-          filtered = filtered.filter(order => order.status === 'installation_scheduled');
-          break;
-        case 'in_progress':
-          filtered = filtered.filter(order => order.status === 'installation_in_progress');
-          break;
-      }
-    } else {
-      // Status filter (only if no quick filter)
-      if (statusFilter !== 'all') {
-        filtered = filtered.filter(order => order.status === statusFilter);
-      }
-
-      // Payment status filter
-      if (paymentStatusFilter !== 'all') {
-        filtered = filtered.filter(order => order.payment_status === paymentStatusFilter);
-      }
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((order) => order.status === statusFilter);
     }
 
-    // Sorting
+    if (paymentStatusFilter !== 'all') {
+      filtered = filtered.filter((order) => order.payment_status === paymentStatusFilter);
+    }
+
     filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+      let aValue: string | number;
+      let bValue: string | number;
 
       switch (sortField) {
         case 'customer':
@@ -191,8 +151,8 @@ export default function AdminOrdersPageEnhanced() {
           bValue = b.order_number;
           break;
         case 'package_price':
-          aValue = parseFloat(a.package_price as any) || 0;
-          bValue = parseFloat(b.package_price as any) || 0;
+          aValue = parseFloat(a.package_price as unknown as string) || 0;
+          bValue = parseFloat(b.package_price as unknown as string) || 0;
           break;
         case 'created_at':
           aValue = new Date(a.created_at).getTime();
@@ -210,7 +170,7 @@ export default function AdminOrdersPageEnhanced() {
     });
 
     setFilteredOrders(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   const handleSort = (field: SortField) => {
@@ -222,20 +182,11 @@ export default function AdminOrdersPageEnhanced() {
     }
   };
 
-  const getSortIcon = (field: SortField) => {
-    if (sortField !== field) {
-      return <PiArrowsDownUpBold className="h-3 w-3 ml-1 inline opacity-50" />;
-    }
-    return sortDirection === 'asc'
-      ? <PiArrowUpBold className="h-3 w-3 ml-1 inline text-circleTel-orange" />
-      : <PiArrowDownBold className="h-3 w-3 ml-1 inline text-circleTel-orange" />;
-  };
-
   const toggleSelectAll = () => {
     if (selectedOrders.size === paginatedOrders.length) {
       setSelectedOrders(new Set());
     } else {
-      setSelectedOrders(new Set(paginatedOrders.map(o => o.id)));
+      setSelectedOrders(new Set(paginatedOrders.map((o) => o.id)));
     }
   };
 
@@ -250,7 +201,6 @@ export default function AdminOrdersPageEnhanced() {
   };
 
   const handleBulkDelete = () => {
-    // Implement bulk delete logic
     console.log('Delete orders:', Array.from(selectedOrders));
     setSelectedOrders(new Set());
   };
@@ -258,16 +208,18 @@ export default function AdminOrdersPageEnhanced() {
   const handleExport = () => {
     const csvContent = [
       ['Order Number', 'Customer', 'Email', 'Package', 'Price', 'Status', 'Payment', 'Date'].join(','),
-      ...filteredOrders.map(order => [
-        order.order_number,
-        `${order.first_name} ${order.last_name}`,
-        order.email,
-        order.package_name,
-        order.package_price,
-        order.status,
-        order.payment_status,
-        new Date(order.created_at).toLocaleDateString()
-      ].join(','))
+      ...filteredOrders.map((order) =>
+        [
+          order.order_number,
+          `"${order.first_name} ${order.last_name}"`,
+          order.email,
+          `"${order.package_name}"`,
+          order.package_price,
+          order.status,
+          order.payment_status,
+          new Date(order.created_at).toLocaleDateString(),
+        ].join(',')
+      ),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -278,49 +230,8 @@ export default function AdminOrdersPageEnhanced() {
     link.click();
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; className: string; icon: any }> = {
-      pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: PiClockBold },
-      payment_method_pending: { label: 'Payment Pending', className: 'bg-orange-100 text-orange-800 border-orange-200', icon: PiCreditCardBold },
-      payment_method_registered: { label: 'Payment Ready', className: 'bg-blue-100 text-blue-800 border-blue-200', icon: PiCheckCircleBold },
-      installation_scheduled: { label: 'Installation Scheduled', className: 'bg-purple-100 text-purple-800 border-purple-200', icon: PiCalendarCheckBold },
-      installation_in_progress: { label: 'Installing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200', icon: PiWrenchBold },
-      installation_completed: { label: 'Installation Done', className: 'bg-teal-100 text-teal-800 border-teal-200', icon: PiCheckCircleBold },
-      active: { label: 'Active', className: 'bg-green-100 text-green-800 border-green-200', icon: PiLightningBold },
-      cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800 border-red-200', icon: PiXCircleBold },
-      completed: { label: 'Completed', className: 'bg-gray-100 text-gray-800 border-gray-200', icon: PiPackageBold }
-    };
-
-    const config = statusConfig[status] || statusConfig.pending;
-    const Icon = config.icon;
-
-    return (
-      <Badge className={`${config.className} border`}>
-        <Icon className="h-3 w-3 mr-1" />
-        {config.label}
-      </Badge>
-    );
-  };
-
-  const getPaymentBadge = (status: string) => {
-    const paymentConfig: Record<string, { label: string; className: string }> = {
-      pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-      paid: { label: 'Paid', className: 'bg-green-100 text-green-800 border-green-200' },
-      partial: { label: 'Partial', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-      failed: { label: 'Failed', className: 'bg-red-100 text-red-800 border-red-200' },
-      refunded: { label: 'Refunded', className: 'bg-gray-100 text-gray-800 border-gray-200' }
-    };
-
-    const config = paymentConfig[status] || paymentConfig.pending;
-
-    return (
-      <Badge className={`${config.className} border`}>
-        {config.label}
-      </Badge>
-    );
-  };
-
   const handleStatCardClick = (filterType: 'all' | 'pending' | 'active') => {
+    setActiveStatFilter(filterType);
     if (filterType === 'all') {
       setStatusFilter('all');
     } else {
@@ -328,70 +239,18 @@ export default function AdminOrdersPageEnhanced() {
     }
     setSearchQuery('');
     setPaymentStatusFilter('all');
-    setQuickFilter(null);
   };
 
-  const handleQuickFilter = (filter: string) => {
-    setQuickFilter(quickFilter === filter ? null : filter);
+  const clearAllFilters = () => {
+    setSearchQuery('');
     setStatusFilter('all');
     setPaymentStatusFilter('all');
-    setSearchQuery('');
+    setActiveStatFilter(null);
   };
 
-  const getQuickFilterCounts = () => {
-    return {
-      needsPayment: orders.filter(o =>
-        o.status === 'pending' || o.status === 'payment_method_pending'
-      ).length,
-      readyToSchedule: orders.filter(o => o.status === 'payment_method_registered').length,
-      installationToday: orders.filter(o => o.status === 'installation_scheduled').length,
-      inProgress: orders.filter(o => o.status === 'installation_in_progress').length,
-    };
-  };
+  const hasActiveFilters =
+    searchQuery !== '' || statusFilter !== 'all' || paymentStatusFilter !== 'all';
 
-  const quickFilterCounts = getQuickFilterCounts();
-
-  const handleQuickAction = (order: Order, action: string) => {
-    // Open status update modal with appropriate defaults
-    setStatusUpdateModal({ open: true, order });
-  };
-
-  const statsCards = [
-    {
-      title: 'Total Orders',
-      value: stats.total,
-      icon: PiShoppingCartBold,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      onClick: () => handleStatCardClick('all')
-    },
-    {
-      title: 'Pending',
-      value: stats.pending,
-      icon: PiClockBold,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-      onClick: () => handleStatCardClick('pending')
-    },
-    {
-      title: 'Active',
-      value: stats.active,
-      icon: PiCheckCircleBold,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      onClick: () => handleStatCardClick('active')
-    },
-    {
-      title: 'Total Revenue',
-      value: `R${stats.totalRevenue.toLocaleString()}`,
-      icon: PiPackageBold,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-      onClick: () => setStatusFilter('active')
-    }
-  ];
-
-  // Pagination
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -399,511 +258,120 @@ export default function AdminOrdersPageEnhanced() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="page-title">Orders</h1>
-            <p className="muted-text mt-1">Loading orders...</p>
+      <div className="min-h-screen bg-slate-50">
+        <div className="bg-white border-b border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="h-6 bg-slate-200 rounded w-32 animate-pulse mb-2" />
+            <div className="h-9 bg-slate-200 rounded w-48 animate-pulse" />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="animate-pulse bg-ui-card border-ui-border">
-              <CardContent className="p-6">
-                <div className="h-4 bg-ui-bg rounded w-3/4 mb-4"></div>
-                <div className="h-8 bg-ui-bg rounded w-1/2"></div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardContent className="p-6">
+                  <div className="h-10 w-10 bg-slate-200 rounded-lg mb-3" />
+                  <div className="h-4 bg-slate-200 rounded w-3/4 mb-2" />
+                  <div className="h-8 bg-slate-200 rounded w-1/2" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="page-title">Customer Orders</h1>
-          <p className="muted-text mt-1">
-            Manage and track all customer orders
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="muted-text-sm mr-2">
-            Last updated: {lastRefreshed.toLocaleTimeString()}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchOrders}
-            className="flex items-center gap-2"
-          >
-            <PiArrowsClockwiseBold className="h-4 w-4" />
-            Refresh
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExport}
-            className="flex items-center gap-2"
-          >
-            <PiDownloadSimpleBold className="h-4 w-4" />
-            Export CSV
-          </Button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50">
+      <OrdersListHeader
+        lastRefreshed={lastRefreshed}
+        onRefresh={fetchOrders}
+        onExport={handleExport}
+        isLoading={loading}
+      />
 
-      {/* Stats Cards - Now Clickable */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsCards.map((stat, index) => (
-          <Card
-            key={index}
-            className="bg-ui-card border-ui-border hover:shadow-lg transition-all cursor-pointer hover:scale-105 duration-200"
-            onClick={stat.onClick}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="card-title">{stat.title}</p>
-                  <p className="text-2xl font-bold text-ui-text-primary mt-2">{stat.value}</p>
-                </div>
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4">
+        <OrdersListStatCards
+          stats={stats}
+          activeFilter={activeStatFilter}
+          onFilterChange={handleStatCardClick}
+        />
 
-      {/* Quick Action Filters */}
-      <Card className="bg-ui-card border-ui-border">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold text-ui-text-primary flex items-center gap-2">
-            <PiFunnelBold className="h-4 w-4 text-circleTel-orange" />
-            Quick Filters - Orders Requiring Action
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={quickFilter === 'needs_payment' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleQuickFilter('needs_payment')}
-              className="flex items-center gap-2"
-            >
-              <PiCreditCardBold className="h-4 w-4" />
-              Needs Payment Method
-              {quickFilterCounts.needsPayment > 0 && (
-                <Badge className="ml-1 bg-orange-100 text-orange-800 border-orange-200">
-                  {quickFilterCounts.needsPayment}
-                </Badge>
-              )}
-            </Button>
+        <UnderlineTabs tabs={TAB_CONFIG} activeTab={activeTab} onTabChange={setActiveTab} />
 
-            <Button
-              variant={quickFilter === 'ready_to_schedule' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleQuickFilter('ready_to_schedule')}
-              className="flex items-center gap-2"
-            >
-              <PiCalendarCheckBold className="h-4 w-4" />
-              Ready to Schedule
-              {quickFilterCounts.readyToSchedule > 0 && (
-                <Badge className="ml-1 bg-blue-100 text-blue-800 border-blue-200">
-                  {quickFilterCounts.readyToSchedule}
-                </Badge>
-              )}
-            </Button>
+        <TabPanel id="all-orders" activeTab={activeTab} className="space-y-4">
+          <OrdersFilters
+            searchQuery={searchQuery}
+            statusFilter={statusFilter}
+            paymentStatusFilter={paymentStatusFilter}
+            onSearchChange={setSearchQuery}
+            onStatusChange={setStatusFilter}
+            onPaymentStatusChange={setPaymentStatusFilter}
+            onClearAll={clearAllFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
 
-            <Button
-              variant={quickFilter === 'installation_today' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleQuickFilter('installation_today')}
-              className="flex items-center gap-2"
-            >
-              <PiClockBold className="h-4 w-4" />
-              Installation Scheduled
-              {quickFilterCounts.installationToday > 0 && (
-                <Badge className="ml-1 bg-purple-100 text-purple-800 border-purple-200">
-                  {quickFilterCounts.installationToday}
-                </Badge>
-              )}
-            </Button>
-
-            <Button
-              variant={quickFilter === 'in_progress' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleQuickFilter('in_progress')}
-              className="flex items-center gap-2"
-            >
-              <PiWrenchBold className="h-4 w-4" />
-              In Progress
-              {quickFilterCounts.inProgress > 0 && (
-                <Badge className="ml-1 bg-green-100 text-green-800 border-green-200">
-                  {quickFilterCounts.inProgress}
-                </Badge>
-              )}
-            </Button>
-
-            {quickFilter && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setQuickFilter(null)}
-                className="text-ui-text-muted hover:text-ui-text-primary"
-              >
-                Clear Filter
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Filters */}
-      <Card className="bg-ui-card border-ui-border">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ui-text-muted" />
-                <Input
-                  placeholder="Search by order number, name, email, or phone..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Order Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="payment_method_pending">Payment Method Pending</SelectItem>
-                <SelectItem value="payment_method_registered">Payment Method Registered</SelectItem>
-                <SelectItem value="installation_scheduled">Installation Scheduled</SelectItem>
-                <SelectItem value="installation_in_progress">Installation In Progress</SelectItem>
-                <SelectItem value="installation_completed">Installation Completed</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Payment Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Payments</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="partial">Partial</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Bulk Actions */}
-      {selectedOrders.size > 0 && (
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <PiCheckSquareBold className="h-5 w-5 text-blue-600" />
-                <span className="font-medium text-blue-900">
-                  {selectedOrders.size} order{selectedOrders.size > 1 ? 's' : ''} selected
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedOrders(new Set())}
-                >
-                  Clear Selection
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleBulkDelete}
-                  className="flex items-center gap-2"
-                >
-                  <PiTrashBold className="h-4 w-4" />
-                  Delete Selected
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Orders Table */}
-      <Card className="bg-ui-card border-ui-border">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between text-ui-text-primary">
-            <span className="body-text font-medium">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredOrders.length)} of {filteredOrders.length} orders
-            </span>
-            {(searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all' || quickFilter) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchQuery('');
-                  setStatusFilter('all');
-                  setPaymentStatusFilter('all');
-                  setQuickFilter(null);
-                }}
-                className="text-sm text-circleTel-orange hover:text-circleTel-orange/90"
-              >
-                Clear All Filters
-              </Button>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredOrders.length === 0 ? (
-            <div className="text-center py-12">
-              <PiWarningCircleBold className="h-12 w-12 text-ui-text-muted mx-auto mb-4" />
-              <p className="body-text font-medium">No orders found</p>
-              <p className="muted-text-sm mt-1">
-                {searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all' || quickFilter
-                  ? 'Try adjusting your filters or search terms'
-                  : 'No orders have been placed yet'}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b-2 border-ui-border bg-ui-bg">
-                      <th className="px-4 py-3 text-left">
-                        <Checkbox
-                          checked={selectedOrders.size === paginatedOrders.length && paginatedOrders.length > 0}
-                          onCheckedChange={toggleSelectAll}
-                        />
-                      </th>
-                      <th
-                        className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider cursor-pointer hover:bg-slate-100"
-                        onClick={() => handleSort('order_number')}
-                      >
-                        Order {getSortIcon('order_number')}
-                      </th>
-                      <th
-                        className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider cursor-pointer hover:bg-slate-100"
-                        onClick={() => handleSort('customer')}
-                      >
-                        Customer {getSortIcon('customer')}
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider">
-                        Package
-                      </th>
-                      <th
-                        className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider cursor-pointer hover:bg-slate-100"
-                        onClick={() => handleSort('package_price')}
-                      >
-                        Amount {getSortIcon('package_price')}
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider">
-                        Payment
-                      </th>
-                      <th
-                        className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider cursor-pointer hover:bg-slate-100"
-                        onClick={() => handleSort('created_at')}
-                      >
-                        Date {getSortIcon('created_at')}
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-ui-text-secondary uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-ui-border">
-                    {paginatedOrders.map((order, index) => (
-                      <tr
-                        key={order.id}
-                        className={`hover:bg-ui-bg transition-colors ${index % 2 === 0 ? 'bg-ui-card' : 'bg-ui-bg/30'}`}
-                      >
-                        <td className="px-4 py-4">
-                          <Checkbox
-                            checked={selectedOrders.has(order.id)}
-                            onCheckedChange={() => toggleSelectOrder(order.id)}
-                          />
-                        </td>
-                        <td className="px-4 py-4">
-                          <div className="font-bold text-ui-text-primary text-base">{order.order_number}</div>
-                        </td>
-                        <td className="px-4 py-4">
-                          <div className="font-medium text-ui-text-primary">
-                            {order.first_name} {order.last_name}
-                          </div>
-                          <div className="muted-text-sm">{order.email}</div>
-                        </td>
-                        <td className="px-4 py-4">
-                          <div className="body-text">{order.package_name}</div>
-                        </td>
-                        <td className="px-4 py-4">
-                          <div className="font-semibold text-ui-text-primary">
-                            R{parseFloat(order.package_price as any).toFixed(2)}/mo
-                          </div>
-                        </td>
-                        <td className="px-4 py-4">
-                          {getStatusBadge(order.status)}
-                        </td>
-                        <td className="px-4 py-4">
-                          {getPaymentBadge(order.payment_status)}
-                        </td>
-                        <td className="px-4 py-4">
-                          <div className="muted-text">
-                            {new Date(order.created_at).toLocaleDateString('en-ZA', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Link href={`/admin/orders/${order.id}`}>
-                              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                                <PiEyeBold className="h-3 w-3" />
-                                View
-                              </Button>
-                            </Link>
-
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                  <PiDotsThreeVerticalBold className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleQuickAction(order, 'view')}>
-                                  <PiEyeBold className="h-4 w-4 mr-2" />
-                                  View Details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleQuickAction(order, 'status')}>
-                                  <PiPencilSimpleBold className="h-4 w-4 mr-2" />
-                                  Update Status
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                {order.status === 'pending' && (
-                                  <DropdownMenuItem onClick={() => handleQuickAction(order, 'payment')}>
-                                    <PiCreditCardBold className="h-4 w-4 mr-2" />
-                                    Request Payment Method
-                                  </DropdownMenuItem>
-                                )}
-                                {order.status === 'payment_method_registered' && (
-                                  <DropdownMenuItem onClick={() => handleQuickAction(order, 'schedule')}>
-                                    <PiCalendarCheckBold className="h-4 w-4 mr-2" />
-                                    Schedule Installation
-                                  </DropdownMenuItem>
-                                )}
-                                {order.status === 'installation_completed' && (
-                                  <DropdownMenuItem onClick={() => handleQuickAction(order, 'activate')}>
-                                    <PiLightningBold className="h-4 w-4 mr-2" />
-                                    Activate Service
-                                  </DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-ui-border">
+          {selectedOrders.size > 0 && (
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="muted-text">Rows per page:</span>
-                    <Select
-                      value={itemsPerPage.toString()}
-                      onValueChange={(value) => {
-                        setItemsPerPage(parseInt(value));
-                        setCurrentPage(1);
-                      }}
-                    >
-                      <SelectTrigger className="w-20 h-8">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="5">5</SelectItem>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="20">20</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <PiCheckSquareBold className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium text-blue-900">
+                      {selectedOrders.size} order{selectedOrders.size > 1 ? 's' : ''} selected
+                    </span>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      <PiCaretLeftBold className="h-4 w-4" />
-                      Previous
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setSelectedOrders(new Set())}>
+                      Clear Selection
                     </Button>
-
-                    <div className="flex items-center gap-1">
-                      {[...Array(totalPages)].map((_, i) => {
-                        const page = i + 1;
-                        if (
-                          page === 1 ||
-                          page === totalPages ||
-                          (page >= currentPage - 1 && page <= currentPage + 1)
-                        ) {
-                          return (
-                            <Button
-                              key={page}
-                              variant={currentPage === page ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => setCurrentPage(page)}
-                              className="w-8 h-8 p-0"
-                            >
-                              {page}
-                            </Button>
-                          );
-                        } else if (page === currentPage - 2 || page === currentPage + 2) {
-                          return <span key={page} className="px-1">...</span>;
-                        }
-                        return null;
-                      })}
-                    </div>
-
                     <Button
-                      variant="outline"
+                      variant="destructive"
                       size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
+                      onClick={handleBulkDelete}
+                      className="gap-2"
                     >
-                      Next
-                      <PiCaretRightBold className="h-4 w-4" />
+                      <PiTrashBold className="h-4 w-4" />
+                      Delete Selected
                     </Button>
                   </div>
                 </div>
-              )}
-            </>
+              </CardContent>
+            </Card>
           )}
-        </CardContent>
-      </Card>
 
-      {/* Status Update Modal */}
+          <OrdersTable
+            orders={filteredOrders}
+            paginatedOrders={paginatedOrders}
+            selectedOrders={selectedOrders}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            totalPages={totalPages}
+            startIndex={startIndex}
+            endIndex={endIndex}
+            onSort={handleSort}
+            onSelectAll={toggleSelectAll}
+            onSelectOrder={toggleSelectOrder}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={(value) => {
+              setItemsPerPage(value);
+              setCurrentPage(1);
+            }}
+            onOpenStatusModal={(order) => setStatusUpdateModal({ open: true, order })}
+          />
+        </TabPanel>
+
+        <TabPanel id="quick-actions" activeTab={activeTab}>
+          <QuickActionsPanel
+            orders={orders}
+            onOpenStatusModal={(order) => setStatusUpdateModal({ open: true, order })}
+          />
+        </TabPanel>
+      </div>
+
       {statusUpdateModal.order && (
         <StatusUpdateModal
           open={statusUpdateModal.open}
