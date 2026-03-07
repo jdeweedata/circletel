@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession, createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
 import { rebootDevice } from '@/lib/ruijie';
 
@@ -16,7 +16,9 @@ export async function POST(
 ) {
   try {
     const { sn } = await context.params;
-    const supabase = await createClient();
+
+    // Use session client for authentication (reads cookies)
+    const supabase = await createClientWithSession();
 
     // Verify admin access
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -24,10 +26,13 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: adminUser } = await supabase
+    // Use service role client for admin check and DB queries (bypasses RLS)
+    const supabaseAdmin = await createClient();
+    const { data: adminUser } = await supabaseAdmin
       .from('admin_users')
       .select('id, role')
-      .eq('email', user.email)
+      .eq('id', user.id)
+      .eq('is_active', true)
       .single();
 
     if (!adminUser) {
@@ -35,7 +40,7 @@ export async function POST(
     }
 
     // Get device info for audit
-    const { data: device } = await supabase
+    const { data: device } = await supabaseAdmin
       .from('ruijie_device_cache')
       .select('device_name, model')
       .eq('sn', sn)
@@ -48,7 +53,7 @@ export async function POST(
       const result = await rebootDevice(sn);
 
       // Audit log - success
-      await supabase.from('ruijie_audit_log').insert({
+      await supabaseAdmin.from('ruijie_audit_log').insert({
         admin_user_id: adminUser.id,
         device_sn: sn,
         action: 'reboot',
@@ -61,7 +66,7 @@ export async function POST(
 
     } catch (rebootError) {
       // Audit log - failure
-      await supabase.from('ruijie_audit_log').insert({
+      await supabaseAdmin.from('ruijie_audit_log').insert({
         admin_user_id: adminUser.id,
         device_sn: sn,
         action: 'reboot',

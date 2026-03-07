@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession, createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +15,9 @@ export async function GET(
 ) {
   try {
     const { sn } = await context.params;
-    const supabase = await createClient();
+
+    // Use session client for authentication (reads cookies)
+    const supabase = await createClientWithSession();
 
     // Verify admin access
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -23,10 +25,13 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: adminUser } = await supabase
+    // Use service role client for admin check and DB queries (bypasses RLS)
+    const supabaseAdmin = await createClient();
+    const { data: adminUser } = await supabaseAdmin
       .from('admin_users')
       .select('id, role')
-      .eq('email', user.email)
+      .eq('id', user.id)
+      .eq('is_active', true)
       .single();
 
     if (!adminUser) {
@@ -34,7 +39,7 @@ export async function GET(
     }
 
     // Get audit log entries with admin name
-    const { data: actions, error } = await supabase
+    const { data: actions, error } = await supabaseAdmin
       .from('ruijie_audit_log')
       .select(`
         id,
