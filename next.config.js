@@ -80,6 +80,8 @@ const nextConfig = {
     // your project has TypeScript errors.
     ignoreBuildErrors: true,
   },
+  // Exclude Sanity from bundling (large package, causes Turbopack issues)
+  serverExternalPackages: ['sanity'],
   experimental: {
     optimizePackageImports: [
       '@radix-ui/react-icons',
