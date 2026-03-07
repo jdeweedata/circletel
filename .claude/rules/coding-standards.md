@@ -145,11 +145,14 @@ const headers = {
 
 ```json
 // vercel.json
-// ✅ CORRECT: Only memory flag
-"buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' next build"
+// ✅ CORRECT: 8GB heap (this project requires it)
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=8192' next build"
 
 // ❌ WRONG: gc-interval is NOT allowed in NODE_OPTIONS
-"buildCommand": "NODE_OPTIONS='--max-old-space-size=4096 --gc-interval=100' next build"
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=8192 --gc-interval=100' next build"
+
+// ❌ WRONG: 4GB causes OOM on this project
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' next build"
 ```
 
 **Allowed in NODE_OPTIONS**:
@@ -171,6 +174,19 @@ experimental: {
   workerThreads: false,
   cpus: 1,
 }
+```
+
+### Package Conflicts
+
+**NEVER** add a package to `optimizePackageImports` if it's in `serverExternalPackages`:
+
+```javascript
+// ❌ WRONG: sanity is in serverExternalPackages
+optimizePackageImports: ['sanity'],  // Will fail with conflict error
+serverExternalPackages: ['sanity'],
+
+// ✅ CORRECT: Only in one list
+serverExternalPackages: ['sanity'],  // Keep here for server-side exclusion
 ```
 
 ## Template
