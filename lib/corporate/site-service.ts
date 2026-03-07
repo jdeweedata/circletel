@@ -179,6 +179,24 @@ export class CorporateSiteService {
       if (params.installedBy !== undefined) updateData.installed_by = params.installedBy
       if (params.routerSerial !== undefined) updateData.router_serial = params.routerSerial
       if (params.routerModel !== undefined) updateData.router_model = params.routerModel
+      // Network Infrastructure
+      if (params.networkPath !== undefined) updateData.network_path = params.networkPath
+      if (params.technology !== undefined) updateData.technology = params.technology
+      if (params.taranaRnSerial !== undefined) updateData.tarana_rn_serial = params.taranaRnSerial
+      if (params.ruijieApSerial !== undefined) updateData.ruijie_ap_serial = params.ruijieApSerial
+      if (params.ruijieApModel !== undefined) updateData.ruijie_ap_model = params.ruijieApModel
+      if (params.mikrotikSerial !== undefined) updateData.mikrotik_serial = params.mikrotikSerial
+      if (params.mtnRouterImei !== undefined) updateData.mtn_router_imei = params.mtnRouterImei
+      if (params.mtnRouterMac !== undefined) updateData.mtn_router_mac = params.mtnRouterMac
+      if (params.mtnStaticIp !== undefined) updateData.mtn_static_ip = params.mtnStaticIp
+      if (params.mtnSimNumber !== undefined) updateData.mtn_sim_number = params.mtnSimNumber
+      if (params.mtnMsisdn !== undefined) updateData.mtn_msisdn = params.mtnMsisdn
+      if (params.interstellioSubscriberId !== undefined)
+        updateData.interstellio_subscriber_id = params.interstellioSubscriberId
+      if (params.interstellioStatus !== undefined) updateData.interstellio_status = params.interstellioStatus
+      if (params.ruijieDeviceSn !== undefined) updateData.ruijie_device_sn = params.ruijieDeviceSn
+      if (params.ruijieEgressIp !== undefined) updateData.ruijie_egress_ip = params.ruijieEgressIp
+      if (params.jobCardNumber !== undefined) updateData.job_card_number = params.jobCardNumber
 
       const { data, error } = await supabase
         .from('corporate_sites')
@@ -507,6 +525,23 @@ export class CorporateSiteService {
       installedBy: row.installed_by as string | null,
       routerSerial: row.router_serial as string | null,
       routerModel: row.router_model as string | null,
+      // Network Infrastructure
+      networkPath: row.network_path as CorporateSite['networkPath'],
+      technology: row.technology as CorporateSite['technology'],
+      taranaRnSerial: row.tarana_rn_serial as string | null,
+      ruijieApSerial: row.ruijie_ap_serial as string | null,
+      ruijieApModel: row.ruijie_ap_model as string | null,
+      mikrotikSerial: row.mikrotik_serial as string | null,
+      mtnRouterImei: row.mtn_router_imei as string | null,
+      mtnRouterMac: row.mtn_router_mac as string | null,
+      mtnStaticIp: row.mtn_static_ip as string | null,
+      mtnSimNumber: row.mtn_sim_number as string | null,
+      mtnMsisdn: row.mtn_msisdn as string | null,
+      interstellioSubscriberId: row.interstellio_subscriber_id as string | null,
+      interstellioStatus: row.interstellio_status as string | null,
+      ruijieDeviceSn: row.ruijie_device_sn as string | null,
+      ruijieEgressIp: row.ruijie_egress_ip as string | null,
+      jobCardNumber: row.job_card_number as string | null,
       createdAt: row.created_at as string,
       updatedAt: row.updated_at as string,
     }

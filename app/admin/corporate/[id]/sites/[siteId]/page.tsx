@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiBuildingsBold, PiCheckBold, PiClipboardTextBold, PiFloppyDiskBold, PiMapPinBold, PiTrashBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiBuildingsBold, PiCheckBold, PiClipboardTextBold, PiFloppyDiskBold, PiMapPinBold, PiTrashBold, PiUserBold, PiWifiHighBold, PiNetworkBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -50,6 +50,17 @@ interface CorporateSite {
   installedBy?: string | null;
   routerSerial?: string | null;
   routerModel?: string | null;
+  // Network Infrastructure
+  networkPath?: 'circletel_bng' | 'mtn_breakout' | null;
+  technology?: 'tarana_fwb' | 'lte_5g' | 'ftth' | 'fwa' | null;
+  taranaRnSerial?: string | null;
+  ruijieApSerial?: string | null;
+  ruijieApModel?: string | null;
+  mikrotikSerial?: string | null;
+  mtnRouterImei?: string | null;
+  mtnRouterMac?: string | null;
+  mtnStaticIp?: string | null;
+  jobCardNumber?: string | null;
 }
 
 interface CorporateAccount {
@@ -89,6 +100,18 @@ const RFI_STATUSES = [
   { value: 'not_ready', label: 'Not Ready' },
   { value: 'pending', label: 'Pending Review' },
   { value: 'approved', label: 'Approved' },
+];
+
+const NETWORK_PATHS = [
+  { value: 'circletel_bng', label: 'CircleTel BNG', description: 'PPPoE via CircleTel ECHO SP (Interstellio RADIUS)' },
+  { value: 'mtn_breakout', label: 'MTN Breakout', description: 'Direct MTN LTE/5G internet' },
+];
+
+const TECHNOLOGIES = [
+  { value: 'tarana_fwb', label: 'Tarana FWB', description: 'Fixed Wireless Broadband' },
+  { value: 'lte_5g', label: 'LTE/5G', description: 'MTN LTE or 5G connection' },
+  { value: 'ftth', label: 'FTTH', description: 'Fiber to the Home' },
+  { value: 'fwa', label: 'FWA', description: 'Fixed Wireless Access' },
 ];
 
 // Section component
@@ -172,6 +195,17 @@ export default function SiteEditPage() {
     installedBy: '',
     routerSerial: '',
     routerModel: '',
+    // Network Infrastructure
+    networkPath: '' as '' | 'circletel_bng' | 'mtn_breakout',
+    technology: '' as '' | 'tarana_fwb' | 'lte_5g' | 'ftth' | 'fwa',
+    taranaRnSerial: '',
+    ruijieApSerial: '',
+    ruijieApModel: '',
+    mikrotikSerial: '',
+    mtnRouterImei: '',
+    mtnRouterMac: '',
+    mtnStaticIp: '',
+    jobCardNumber: '',
   });
 
   React.useEffect(() => {
@@ -220,6 +254,17 @@ export default function SiteEditPage() {
         installedBy: siteData.installedBy || '',
         routerSerial: siteData.routerSerial || '',
         routerModel: siteData.routerModel || '',
+        // Network Infrastructure
+        networkPath: siteData.networkPath || '',
+        technology: siteData.technology || '',
+        taranaRnSerial: siteData.taranaRnSerial || '',
+        ruijieApSerial: siteData.ruijieApSerial || '',
+        ruijieApModel: siteData.ruijieApModel || '',
+        mikrotikSerial: siteData.mikrotikSerial || '',
+        mtnRouterImei: siteData.mtnRouterImei || '',
+        mtnRouterMac: siteData.mtnRouterMac || '',
+        mtnStaticIp: siteData.mtnStaticIp || '',
+        jobCardNumber: siteData.jobCardNumber || '',
       });
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -259,6 +304,17 @@ export default function SiteEditPage() {
         installedBy: formData.installedBy || null,
         routerSerial: formData.routerSerial || null,
         routerModel: formData.routerModel || null,
+        // Network Infrastructure
+        networkPath: formData.networkPath || null,
+        technology: formData.technology || null,
+        taranaRnSerial: formData.taranaRnSerial || null,
+        ruijieApSerial: formData.ruijieApSerial || null,
+        ruijieApModel: formData.ruijieApModel || null,
+        mikrotikSerial: formData.mikrotikSerial || null,
+        mtnRouterImei: formData.mtnRouterImei || null,
+        mtnRouterMac: formData.mtnRouterMac || null,
+        mtnStaticIp: formData.mtnStaticIp || null,
+        jobCardNumber: formData.jobCardNumber || null,
       };
 
       const response = await fetch(
@@ -664,6 +720,152 @@ export default function SiteEditPage() {
                 <p className="text-xs text-emerald-600 mt-1">Auto-generated, read-only</p>
               </div>
             )}
+          </FormSection>
+
+          {/* Section 6: Network Infrastructure */}
+          <FormSection
+            number={6}
+            title="Network Infrastructure"
+            description="Network path, technology, and hardware details"
+            icon={PiNetworkBold}
+            isComplete={!!formData.networkPath && !!formData.technology}
+          >
+            <div>
+              <Label className="text-sm font-medium text-slate-700 mb-3 block">Network Path</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {NETWORK_PATHS.map((path) => (
+                  <button
+                    key={path.value}
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, networkPath: path.value as 'circletel_bng' | 'mtn_breakout' }))}
+                    className={cn(
+                      "p-3 rounded-xl border-2 text-left transition-all",
+                      formData.networkPath === path.value
+                        ? "border-orange-500 bg-orange-50"
+                        : "border-slate-200 hover:border-slate-300 bg-white"
+                    )}
+                  >
+                    <p className="font-medium text-slate-900">{path.label}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{path.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-slate-700 mb-3 block">Technology</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {TECHNOLOGIES.map((tech) => (
+                  <button
+                    key={tech.value}
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, technology: tech.value as 'tarana_fwb' | 'lte_5g' | 'ftth' | 'fwa' }))}
+                    className={cn(
+                      "p-3 rounded-xl border-2 text-left transition-all",
+                      formData.technology === tech.value
+                        ? "border-orange-500 bg-orange-50"
+                        : "border-slate-200 hover:border-slate-300 bg-white"
+                    )}
+                  >
+                    <p className="font-medium text-slate-900">{tech.label}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{tech.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Hardware Serial Numbers - show conditionally based on technology */}
+            {formData.technology === 'tarana_fwb' && (
+              <div>
+                <Label htmlFor="taranaRnSerial">Tarana RN Serial</Label>
+                <Input
+                  id="taranaRnSerial"
+                  value={formData.taranaRnSerial}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, taranaRnSerial: e.target.value }))}
+                  placeholder="e.g., S150F2224001002"
+                  className="mt-1.5 font-mono"
+                />
+              </div>
+            )}
+
+            <div>
+              <Label htmlFor="mikrotikSerial">MikroTik Serial</Label>
+              <Input
+                id="mikrotikSerial"
+                value={formData.mikrotikSerial}
+                onChange={(e) => setFormData((prev) => ({ ...prev, mikrotikSerial: e.target.value }))}
+                placeholder="e.g., HJX0AHJVY9V"
+                className="mt-1.5 font-mono"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="ruijieApSerial">Ruijie AP Serial</Label>
+              <Input
+                id="ruijieApSerial"
+                value={formData.ruijieApSerial}
+                onChange={(e) => setFormData((prev) => ({ ...prev, ruijieApSerial: e.target.value }))}
+                placeholder="e.g., G1U52HL002532"
+                className="mt-1.5 font-mono"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="ruijieApModel">Ruijie AP Model</Label>
+              <Input
+                id="ruijieApModel"
+                value={formData.ruijieApModel}
+                onChange={(e) => setFormData((prev) => ({ ...prev, ruijieApModel: e.target.value }))}
+                placeholder="e.g., RAP62-OD"
+                className="mt-1.5"
+              />
+            </div>
+
+            {/* MTN LTE/5G specific fields */}
+            {formData.networkPath === 'mtn_breakout' && (
+              <>
+                <div>
+                  <Label htmlFor="mtnRouterImei">MTN Router IMEI</Label>
+                  <Input
+                    id="mtnRouterImei"
+                    value={formData.mtnRouterImei}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, mtnRouterImei: e.target.value }))}
+                    placeholder="e.g., 862378060205728"
+                    className="mt-1.5 font-mono"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="mtnRouterMac">MTN Router MAC</Label>
+                  <Input
+                    id="mtnRouterMac"
+                    value={formData.mtnRouterMac}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, mtnRouterMac: e.target.value }))}
+                    placeholder="e.g., 98A942D75353"
+                    className="mt-1.5 font-mono"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="mtnStaticIp">MTN Static IP</Label>
+                  <Input
+                    id="mtnStaticIp"
+                    value={formData.mtnStaticIp}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, mtnStaticIp: e.target.value }))}
+                    placeholder="e.g., 41.119.15.199"
+                    className="mt-1.5 font-mono"
+                  />
+                </div>
+              </>
+            )}
+
+            <div>
+              <Label htmlFor="jobCardNumber">Job Card Number</Label>
+              <Input
+                id="jobCardNumber"
+                value={formData.jobCardNumber}
+                onChange={(e) => setFormData((prev) => ({ ...prev, jobCardNumber: e.target.value }))}
+                placeholder="e.g., JOB000168"
+                className="mt-1.5 font-mono"
+              />
+            </div>
           </FormSection>
 
           {/* Submit Area */}

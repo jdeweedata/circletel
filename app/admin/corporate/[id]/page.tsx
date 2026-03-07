@@ -62,6 +62,13 @@ interface CorporateSite {
   pppoeCredentialId?: string | null;
   installedAt?: string | null;
   createdAt: string;
+  // Network infrastructure fields
+  networkPath?: 'circletel_bng' | 'mtn_breakout' | null;
+  technology?: 'tarana_fwb' | 'lte_5g' | 'ftth' | 'fwa' | null;
+  mtnStaticIp?: string | null;
+  taranaRnSerial?: string | null;
+  ruijieApSerial?: string | null;
+  mikrotikSerial?: string | null;
 }
 
 interface CredentialStats {
@@ -740,9 +747,9 @@ export default function CorporateDetailPage() {
                         <TableHead className="font-semibold text-ui-text-secondary">#</TableHead>
                         <TableHead className="font-semibold text-ui-text-secondary">Account Number</TableHead>
                         <TableHead className="font-semibold text-ui-text-secondary">Site Name</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">Technology</TableHead>
                         <TableHead className="font-semibold text-ui-text-secondary">Province</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">Contact</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">PPPoE</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">Network</TableHead>
                         <TableHead className="font-semibold text-ui-text-secondary">Status</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
@@ -761,27 +768,50 @@ export default function CorporateDetailPage() {
                             </span>
                           </TableCell>
                           <TableCell className="font-medium text-ui-text-primary">{site.siteName}</TableCell>
+                          <TableCell>
+                            {site.technology === 'tarana_fwb' && (
+                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                Tarana FWB
+                              </Badge>
+                            )}
+                            {site.technology === 'lte_5g' && (
+                              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                                LTE/5G
+                              </Badge>
+                            )}
+                            {site.technology === 'ftth' && (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                FTTH
+                              </Badge>
+                            )}
+                            {site.technology === 'fwa' && (
+                              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                                FWA
+                              </Badge>
+                            )}
+                            {!site.technology && <span className="text-ui-text-muted">—</span>}
+                          </TableCell>
                           <TableCell className="text-ui-text-secondary">{site.province || '—'}</TableCell>
                           <TableCell>
-                            {site.siteContactName ? (
+                            {site.networkPath === 'circletel_bng' && (
                               <div className="text-sm">
-                                <p className="font-medium text-ui-text-primary">{site.siteContactName}</p>
-                                {site.siteContactPhone && (
-                                  <p className="muted-text">{site.siteContactPhone}</p>
+                                <span className="text-emerald-600 font-medium">CircleTel BNG</span>
+                                {site.pppoeUsername && (
+                                  <p className="font-mono text-xs text-gray-500 truncate max-w-[120px]">
+                                    {site.pppoeUsername.split('@')[0]}
+                                  </p>
                                 )}
                               </div>
-                            ) : (
-                              <span className="text-ui-text-muted">—</span>
                             )}
-                          </TableCell>
-                          <TableCell>
-                            {site.pppoeUsername ? (
-                              <span className="font-mono text-sm text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
-                                {site.pppoeUsername}
-                              </span>
-                            ) : (
-                              <span className="muted-text text-sm">Not generated</span>
+                            {site.networkPath === 'mtn_breakout' && (
+                              <div className="text-sm">
+                                <span className="text-purple-600 font-medium">MTN Breakout</span>
+                                {site.mtnStaticIp && (
+                                  <p className="font-mono text-xs text-gray-500">{site.mtnStaticIp}</p>
+                                )}
+                              </div>
                             )}
+                            {!site.networkPath && <span className="text-ui-text-muted">—</span>}
                           </TableCell>
                           <TableCell>{getStatusBadge(site.status)}</TableCell>
                           <TableCell>

@@ -70,6 +70,11 @@ export {
   ruijieTokenRefreshFailedFunction,
 } from './functions/ruijie-token-refresh';
 
+export {
+  mikrotikSyncFunction,
+  mikrotikSyncCompletedFunction,
+} from './functions/mikrotik-sync';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -133,6 +138,11 @@ import {
   ruijieTokenRefreshFailedFunction,
 } from './functions/ruijie-token-refresh';
 
+import {
+  mikrotikSyncFunction,
+  mikrotikSyncCompletedFunction,
+} from './functions/mikrotik-sync';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -174,4 +184,7 @@ export const functions = [
   // Ruijie token refresh (weekly, before 30-day expiry)
   ruijieTokenRefreshFunction,
   ruijieTokenRefreshFailedFunction,
+  // MikroTik router sync
+  mikrotikSyncFunction,
+  mikrotikSyncCompletedFunction,
 ];

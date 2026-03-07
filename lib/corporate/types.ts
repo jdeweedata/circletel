@@ -23,6 +23,12 @@ export type RFIStatus = 'not_ready' | 'pending' | 'approved'
 
 export type AccessType = 'business_hours' | '24_7' | 'appointment'
 
+// Network path type
+export type NetworkPathType = 'circletel_bng' | 'mtn_breakout'
+
+// Technology type
+export type SiteTechnologyType = 'tarana_fwb' | 'lte_5g' | 'ftth' | 'fwa'
+
 // ============================================================================
 // Address Types
 // ============================================================================
@@ -213,6 +219,34 @@ export interface CorporateSite {
   routerSerial?: string | null
   routerModel?: string | null
 
+  // Network Infrastructure
+  networkPath?: NetworkPathType | null
+  technology?: SiteTechnologyType | null
+
+  // Hardware Serial Numbers
+  taranaRnSerial?: string | null
+  ruijieApSerial?: string | null
+  ruijieApModel?: string | null
+  mikrotikSerial?: string | null
+
+  // MTN LTE/5G Specific
+  mtnRouterImei?: string | null
+  mtnRouterMac?: string | null
+  mtnStaticIp?: string | null
+  mtnSimNumber?: string | null
+  mtnMsisdn?: string | null
+
+  // Interstellio Integration
+  interstellioSubscriberId?: string | null
+  interstellioStatus?: string | null
+
+  // Ruijie Cloud Integration
+  ruijieDeviceSn?: string | null
+  ruijieEgressIp?: string | null
+
+  // Job Reference
+  jobCardNumber?: string | null
+
   // Timestamps
   createdAt: string
   updatedAt: string
@@ -266,6 +300,23 @@ export interface UpdateCorporateSiteParams {
   installedBy?: string
   routerSerial?: string
   routerModel?: string
+  // Network Infrastructure
+  networkPath?: NetworkPathType
+  technology?: SiteTechnologyType
+  taranaRnSerial?: string
+  ruijieApSerial?: string
+  ruijieApModel?: string
+  mikrotikSerial?: string
+  mtnRouterImei?: string
+  mtnRouterMac?: string
+  mtnStaticIp?: string
+  mtnSimNumber?: string
+  mtnMsisdn?: string
+  interstellioSubscriberId?: string
+  interstellioStatus?: string
+  ruijieDeviceSn?: string
+  ruijieEgressIp?: string
+  jobCardNumber?: string
 }
 
 // ============================================================================

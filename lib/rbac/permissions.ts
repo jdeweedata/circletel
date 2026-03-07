@@ -184,6 +184,16 @@ export const PERMISSIONS = {
     MANAGE_PRODUCTS: 'suppliers:manage_products',
     VIEW_SYNC_LOGS: 'suppliers:view_sync_logs',
   },
+
+  // Network Management (MikroTik, Ruijie)
+  NETWORK: {
+    VIEW: 'network:view',
+    MIKROTIK_READ: 'network:mikrotik:read',
+    MIKROTIK_WRITE: 'network:mikrotik:write',
+    MIKROTIK_ADMIN: 'network:mikrotik:admin',
+    RUIJIE_READ: 'network:ruijie:read',
+    RUIJIE_WRITE: 'network:ruijie:write',
+  },
 } as const
 
 // Flatten permissions for easy iteration
@@ -212,6 +222,7 @@ export const PERMISSION_CATEGORIES = {
   'Sales Partners': PERMISSIONS.PARTNERS,
   'Partner Administration': PERMISSIONS.PARTNERS_ADMIN,
   'Supplier Management': PERMISSIONS.SUPPLIERS,
+  'Network Management': PERMISSIONS.NETWORK,
 } as const
 
 // Helper type for permission strings
