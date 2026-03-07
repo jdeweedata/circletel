@@ -7,6 +7,7 @@
 
 import { Metadata } from 'next';
 import { FinanceSettingsPage } from '@/components/admin/settings/finance/FinanceSettingsPage';
+import { DetailPageHeader } from '@/components/admin/shared/DetailPageHeader';
 
 export const metadata: Metadata = {
   title: 'Finance Settings - CircleTel Admin',
@@ -15,15 +16,17 @@ export const metadata: Metadata = {
 
 export default function FinanceSettingsRoute() {
   return (
-    <div className="container mx-auto py-8 max-w-5xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-circleTel-navy">Finance Settings</h1>
-        <p className="text-muted-foreground mt-1">
-          Configure billing rules, fees, payment methods, and reminder schedules
-        </p>
-      </div>
-
-      <FinanceSettingsPage />
+    <div className="min-h-screen bg-slate-50">
+      <DetailPageHeader
+        breadcrumbs={[
+          { label: 'Settings', href: '/admin/settings' },
+          { label: 'Finance Settings' },
+        ]}
+        title="Finance Settings"
+      />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <FinanceSettingsPage />
+      </main>
     </div>
   );
 }

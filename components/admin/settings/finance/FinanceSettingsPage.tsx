@@ -13,11 +13,10 @@ import {
   PiWarningCircleBold,
   PiCurrencyDollarBold,
   PiReceiptBold,
-  PiCreditCardBold,
   PiBellRingingBold,
 } from 'react-icons/pi';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { UnderlineTabs, TabPanel } from '@/components/admin/shared/UnderlineTabs';
+import { SectionCard } from '@/components/admin/shared/SectionCard';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +24,16 @@ import { BillingRulesTab } from './BillingRulesTab';
 import { FeesChargesTab } from './FeesChargesTab';
 import { RemindersTab } from './RemindersTab';
 import type { BillingSetting } from '@/lib/billing/billing-settings-service';
+
+// =============================================================================
+// Tab Configuration
+// =============================================================================
+
+const TABS = [
+  { id: 'billing_rules', label: 'Billing Rules' },
+  { id: 'fees_charges', label: 'Fees & Charges' },
+  { id: 'reminders', label: 'Reminders' },
+] as const;
 
 // =============================================================================
 // Types
@@ -174,11 +183,9 @@ export function FinanceSettingsPage() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="py-12">
-          <div className="text-center text-muted-foreground">Loading settings...</div>
-        </CardContent>
-      </Card>
+      <SectionCard title="Loading">
+        <div className="py-8 text-center text-slate-500">Loading settings...</div>
+      </SectionCard>
     );
   }
 
@@ -195,73 +202,40 @@ export function FinanceSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="billing_rules" className="flex items-center gap-2">
-            <PiReceiptBold className="h-4 w-4" />
-            <span className="hidden sm:inline">Billing Rules</span>
-          </TabsTrigger>
-          <TabsTrigger value="fees_charges" className="flex items-center gap-2">
-            <PiCurrencyDollarBold className="h-4 w-4" />
-            <span className="hidden sm:inline">Fees & Charges</span>
-          </TabsTrigger>
-          <TabsTrigger value="reminders" className="flex items-center gap-2">
-            <PiBellRingingBold className="h-4 w-4" />
-            <span className="hidden sm:inline">Reminders</span>
-          </TabsTrigger>
-        </TabsList>
+      <UnderlineTabs
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-        <TabsContent value="billing_rules">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PiReceiptBold className="h-5 w-5 text-circleTel-orange" />
-                Billing Rules
-              </CardTitle>
-              <CardDescription>
-                Configure VAT rate, payment terms, and billing cycles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <BillingRulesTab values={formValues} onChange={updateValue} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+      <div className="mt-6">
+        <TabPanel id="billing_rules" activeTab={activeTab}>
+          <SectionCard title="Billing Rules" icon={PiReceiptBold}>
+            <p className="text-sm text-slate-500 mb-6">
+              Configure VAT rate, payment terms, and billing cycles
+            </p>
+            <BillingRulesTab values={formValues} onChange={updateValue} />
+          </SectionCard>
+        </TabPanel>
 
-        <TabsContent value="fees_charges">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PiCurrencyDollarBold className="h-5 w-5 text-circleTel-orange" />
-                Fees & Charges
-              </CardTitle>
-              <CardDescription>
-                Configure late fees, reconnection charges, and equipment costs
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FeesChargesTab values={formValues} onChange={updateValue} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <TabPanel id="fees_charges" activeTab={activeTab}>
+          <SectionCard title="Fees & Charges" icon={PiCurrencyDollarBold}>
+            <p className="text-sm text-slate-500 mb-6">
+              Configure late fees, reconnection charges, and equipment costs
+            </p>
+            <FeesChargesTab values={formValues} onChange={updateValue} />
+          </SectionCard>
+        </TabPanel>
 
-        <TabsContent value="reminders">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PiBellRingingBold className="h-5 w-5 text-circleTel-orange" />
-                Reminder Settings
-              </CardTitle>
-              <CardDescription>
-                Configure email and SMS reminder timing and limits
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RemindersTab values={formValues} onChange={updateValue} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        <TabPanel id="reminders" activeTab={activeTab}>
+          <SectionCard title="Reminder Settings" icon={PiBellRingingBold}>
+            <p className="text-sm text-slate-500 mb-6">
+              Configure email and SMS reminder timing and limits
+            </p>
+            <RemindersTab values={formValues} onChange={updateValue} />
+          </SectionCard>
+        </TabPanel>
+      </div>
 
       {/* Save Button */}
       <div className="flex items-center justify-between">
