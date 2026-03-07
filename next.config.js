@@ -92,7 +92,10 @@ const nextConfig = {
       '@tanstack/react-table',
       'recharts',
       'zod',
-      '@hookform/resolvers'
+      '@hookform/resolvers',
+      'sanity',
+      '@sanity/client',
+      '@sanity/image-url'
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
