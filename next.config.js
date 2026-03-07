@@ -1,3 +1,7 @@
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 const withPWA = require('next-pwa')({
   dest: 'public',
   // Disable PWA during development AND Vercel builds (saves ~2GB RAM)
@@ -151,4 +155,4 @@ const nextConfig = {
   }
 };
 
-module.exports = withPWA(nextConfig);
+module.exports = withBundleAnalyzer(withPWA(nextConfig));

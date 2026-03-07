@@ -1,35 +1,36 @@
 /**
  * Notification Module
  *
- * Centralized notification system for CircleTel
+ * Centralized notification system for CircleTel.
+ *
+ * IMPORT GUIDE (for tree-shaking):
+ *
+ * 1. Types only (0 runtime deps):
+ *    import type { NotificationEvent } from '@/lib/notifications/core';
+ *
+ * 2. Channels only (Resend/SMS deps):
+ *    import { EmailChannel } from '@/lib/notifications/channels';
+ *
+ * 3. Services (full deps):
+ *    import { EmailNotificationService } from '@/lib/notifications/services';
+ *
+ * 4. Everything (backward compat - pulls all deps):
+ *    import { ... } from '@/lib/notifications';
  *
  * Architecture:
- * - channels/       - Low-level channel implementations (email, SMS)
- * - templates/      - Email/SMS template utilities and base templates
- * - notification-service.ts   - High-level service with convenience methods
- * - notification-router.ts    - Unified routing to multiple channels
- * - types.ts                  - Shared types for notification system
+ * - core/         - Types and pure template utilities (no runtime deps)
+ * - channels/     - Low-level channel implementations (email, SMS)
+ * - templates/    - Email/SMS template utilities
+ * - services/     - High-level notification services
  */
 
 // ============================================================================
-// TYPES
+// CORE (types + pure utilities)
 // ============================================================================
-export type {
-  NotificationType,
-  NotificationStatus,
-  NotificationEvent,
-  NotificationTemplate,
-  Notification,
-  NotificationPreference,
-  NotificationContext,
-  SendNotificationRequest,
-  SendNotificationResponse,
-  SendBatchNotificationsRequest,
-  SendBatchNotificationsResponse,
-} from './types';
+export * from './core';
 
 // ============================================================================
-// CHANNELS
+// CHANNELS (low-level, pulls Resend/SMS deps)
 // ============================================================================
 export {
   EmailChannel,
@@ -47,50 +48,6 @@ export {
 } from './channels/sms-channel';
 
 // ============================================================================
-// TEMPLATES
+// SERVICES (high-level, full deps)
 // ============================================================================
-export {
-  wrapEmailContent,
-  createHeader,
-  createGradientHeader,
-  createFooter,
-  createInfoBox,
-  createButton,
-  formatCurrency,
-  getOrdinalSuffix,
-  BRAND_COLORS,
-  type BaseTemplateOptions,
-} from './templates/base-template';
-
-// ============================================================================
-// ROUTER
-// ============================================================================
-export {
-  NotificationRouter,
-  getChannelStatus,
-  type NotificationMethod,
-  type NotificationRequest,
-  type NotificationResults,
-  type ChannelStatus,
-} from './notification-router';
-
-// ============================================================================
-// HIGH-LEVEL SERVICES (backward compatibility)
-// ============================================================================
-export {
-  EmailNotificationService,
-  SmsNotificationService,
-  NotificationService,
-  type EmailNotificationInput,
-  type SmsNotificationInput,
-  type EmailTemplate,
-  type NotificationResult as ServiceNotificationResult,
-} from './notification-service';
-
-// ============================================================================
-// SPECIALIZED NOTIFICATION SERVICES
-// ============================================================================
-export * from './admin-notifications';
-export * from './sales-alerts';
-export * from './quote-notifications';
-export * from './workflow-notifications';
+export * from './services';
