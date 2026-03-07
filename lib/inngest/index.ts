@@ -65,6 +65,11 @@ export {
   ruijieTunnelCleanupFunction,
 } from './functions/ruijie-tunnel-cleanup';
 
+export {
+  ruijieTokenRefreshFunction,
+  ruijieTokenRefreshFailedFunction,
+} from './functions/ruijie-token-refresh';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -123,6 +128,11 @@ import {
   ruijieTunnelCleanupFunction,
 } from './functions/ruijie-tunnel-cleanup';
 
+import {
+  ruijieTokenRefreshFunction,
+  ruijieTokenRefreshFailedFunction,
+} from './functions/ruijie-token-refresh';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -161,4 +171,7 @@ export const functions = [
   ruijieSyncCompletedFunction,
   // Ruijie tunnel cleanup
   ruijieTunnelCleanupFunction,
+  // Ruijie token refresh (weekly, before 30-day expiry)
+  ruijieTokenRefreshFunction,
+  ruijieTokenRefreshFailedFunction,
 ];

@@ -7,10 +7,11 @@
 export * from './types';
 
 // Auth
-export { getAccessToken, clearRuijieAuth, hasRuijieAuth } from './auth';
+export { authenticateRuijie, getAccessToken, clearRuijieAuth, hasRuijieAuth } from './auth';
 
 // Client
 export {
+  getAllGroups,
   getAllDevices,
   getDevice,
   createTunnel,

@@ -134,47 +134,107 @@ function mapApiDevice(api: RuijieApiDevice): RuijieDevice {
 }
 
 // =============================================================================
+// GROUP OPERATIONS
+// =============================================================================
+
+interface RuijieGroupNode {
+  id: number;
+  name: string;
+  devicesNum?: number;
+  children?: RuijieGroupNode[];
+}
+
+interface GroupsResponse {
+  code: number;
+  msg?: string;
+  groupTree: RuijieGroupNode;
+}
+
+/**
+ * Recursively extract all group IDs from the tree
+ */
+function extractGroupIds(node: RuijieGroupNode): number[] {
+  const ids: number[] = [];
+  // Skip the root "dumy" node
+  if (node.id && node.name !== 'dumy') {
+    ids.push(node.id);
+  }
+  if (node.children) {
+    for (const child of node.children) {
+      ids.push(...extractGroupIds(child));
+    }
+  }
+  return ids;
+}
+
+/**
+ * Get all network groups
+ * Endpoint: /service/api/maint/groups
+ */
+export async function getAllGroups(): Promise<number[]> {
+  if (MOCK_MODE) {
+    return [1, 2]; // Mock group IDs
+  }
+
+  try {
+    const response = await ruijieFetch<GroupsResponse>('/maint/groups');
+    if (response.code === 0 && response.groupTree) {
+      return extractGroupIds(response.groupTree);
+    }
+  } catch (error) {
+    console.error('[Ruijie] Failed to fetch groups:', error);
+  }
+  return [];
+}
+
+// =============================================================================
 // DEVICE OPERATIONS
 // =============================================================================
 
 /**
  * Get all devices from Ruijie Cloud
- * Endpoint: /service/api/maint/devices (v2.0.3)
- *
- * Note: Requires group_id. We fetch all device types (AP, Switch, Gateway).
- * In production, you may want to get group_id from account info first.
+ * Fetches from all groups and deduplicates by serial number
  */
 export async function getAllDevices(groupId?: number): Promise<RuijieDevice[]> {
   if (MOCK_MODE) {
     return getMockDevices();
   }
 
-  const devices: RuijieDevice[] = [];
-  const deviceTypes = ['AP', 'Switch', 'Gateway'];
+  const deviceMap = new Map<string, RuijieDevice>();
 
-  for (const commonType of deviceTypes) {
+  // If specific group provided, fetch from that group only
+  const groupIds = groupId ? [groupId] : await getAllGroups();
+
+  if (groupIds.length === 0) {
+    console.warn('[Ruijie] No groups found, cannot fetch devices');
+    return [];
+  }
+
+  // Fetch devices from each group
+  for (const gid of groupIds) {
     try {
-      // Pagination: get up to 500 devices per type
       const params = new URLSearchParams({
-        common_type: commonType,
+        group_id: String(gid),
         page: '0',
         per_page: '500',
       });
-      if (groupId) {
-        params.set('group_id', String(groupId));
-      }
 
       const response = await ruijieFetch<DeviceListResponse>(`/maint/devices?${params}`);
 
       if (response.code === 0 && response.deviceList) {
-        devices.push(...response.deviceList.map(mapApiDevice));
+        for (const device of response.deviceList) {
+          // Deduplicate by serial number (devices appear in parent and child groups)
+          if (!deviceMap.has(device.serialNumber)) {
+            deviceMap.set(device.serialNumber, mapApiDevice(device));
+          }
+        }
       }
     } catch (error) {
-      console.error(`Failed to fetch ${commonType} devices:`, error);
+      console.error(`[Ruijie] Failed to fetch devices from group ${gid}:`, error);
     }
   }
 
-  return devices;
+  return Array.from(deviceMap.values());
 }
 
 /**
