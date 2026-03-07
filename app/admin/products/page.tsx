@@ -203,28 +203,32 @@ export default function AdminProducts() {
     }
   };
 
-  // Fetch stats
-  const fetchStats = async () => {
-    try {
-      const response = await fetch('/api/admin/products/stats');
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setProductStats({
-          total: data.stats.total || 0,
-          active: data.stats.active || 0,
-          draft: data.stats.draft || 0,
-          archived: data.stats.archived || 0,
-          lowMargin: data.stats.lowMargin || 0,
-        });
-      }
-    } catch {
-      // Use local calculation as fallback
-    }
-  };
+  // Calculate stats from products
+  useEffect(() => {
+    if (products.length === 0) return;
+
+    const active = products.filter((p) => p.status === 'active').length;
+    const draft = products.filter((p) => p.status === 'draft').length;
+    const archived = products.filter((p) => p.status === 'archived').length;
+    const lowMargin = products.filter((p) => {
+      const price = parseFloat(p.base_price_zar || '0');
+      const cost = parseFloat(p.cost_price_zar || '0');
+      if (price <= 0 || cost <= 0) return false;
+      const margin = ((price - cost) / price) * 100;
+      return margin < 25;
+    }).length;
+
+    setProductStats({
+      total: products.length,
+      active,
+      draft,
+      archived,
+      lowMargin,
+    });
+  }, [products]);
 
   useEffect(() => {
     fetchProducts();
-    fetchStats();
   }, [pagination.page, pagination.per_page, filters]);
 
   // Computed: filtered products based on management tab
@@ -282,7 +286,6 @@ export default function AdminProducts() {
   // Handlers
   const handleRefresh = () => {
     fetchProducts();
-    fetchStats();
   };
 
   const handleViewModeChange = (mode: ViewMode) => {
@@ -355,7 +358,6 @@ export default function AdminProducts() {
       });
       if (response.ok) {
         fetchProducts();
-        fetchStats();
       }
     } catch (err) {
       console.error('Toggle failed:', err);
@@ -391,7 +393,6 @@ export default function AdminProducts() {
       });
       if (response.ok) {
         fetchProducts();
-        fetchStats();
       }
     } catch (err) {
       console.error('Archive failed:', err);
@@ -471,7 +472,6 @@ export default function AdminProducts() {
       )
     );
     fetchProducts();
-    fetchStats();
     setSelectedProductIds([]);
   };
 
@@ -486,7 +486,6 @@ export default function AdminProducts() {
       )
     );
     fetchProducts();
-    fetchStats();
     setSelectedProductIds([]);
   };
 
@@ -501,7 +500,6 @@ export default function AdminProducts() {
       )
     );
     fetchProducts();
-    fetchStats();
     setSelectedProductIds([]);
   };
 
