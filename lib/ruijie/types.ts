@@ -7,37 +7,41 @@
 // API RESPONSE TYPES
 // =============================================================================
 
+/**
+ * RuijieDevice - Internal format using snake_case to match DB schema
+ * All optional fields may be undefined when fetched from list vs detail APIs
+ */
 export interface RuijieDevice {
   sn: string;
-  deviceName: string;
-  model: string;
-  groupId: string;
-  groupName: string;
-  managementIp: string;
-  wanIp: string;
-  egressIp: string;
-  onlineClients: number;
+  device_name: string;
+  model: string | undefined;
+  group_id: string | undefined;
+  group_name: string | undefined;
+  management_ip: string | undefined;
+  wan_ip: string | undefined;
+  egress_ip: string | undefined;
+  online_clients: number;
   status: 'online' | 'offline' | 'unknown';
-  configStatus: 'Synced' | 'Failed' | 'Pending';
-  firmwareVersion: string;
-  macAddress: string;
-  cpuUsage: number;
-  memoryUsage: number;
-  uptimeSeconds: number;
-  radio2gChannel: number;
-  radio5gChannel: number;
-  radio2gUtilization: number;
-  radio5gUtilization: number;
-  projectId: string;
-  lastSeenAt: string;
+  config_status: string | undefined;
+  firmware_version: string | undefined;
+  mac_address: string | undefined;
+  cpu_usage: number | undefined;
+  memory_usage: number | undefined;
+  uptime_seconds: number | undefined;
+  radio_2g_channel: number | undefined;
+  radio_5g_channel: number | undefined;
+  radio_2g_utilization: number | undefined;
+  radio_5g_utilization: number | undefined;
+  project_id: string | undefined;
+  last_seen_at: string | undefined;
 }
 
 export interface RuijieTunnel {
-  tunnelId: string;
-  deviceSn: string;
-  openDomainUrl: string;
-  openIpUrl: string;
-  expiresAt: string;
+  tunnel_id: string;
+  device_sn: string;
+  open_domain_url: string;
+  open_ip_url: string;
+  expires_at: string;
 }
 
 export interface RuijieAuthResponse {

@@ -83,11 +83,11 @@ export async function POST(request: NextRequest) {
       .insert({
         device_sn: sn,
         tunnel_type: tunnelType,
-        tunnel_url: tunnel.openDomainUrl,
-        open_domain_url: tunnel.openDomainUrl,
-        open_ip_url: tunnel.openIpUrl,
+        tunnel_url: tunnel.open_domain_url,
+        open_domain_url: tunnel.open_domain_url,
+        open_ip_url: tunnel.open_ip_url,
         status: 'active',
-        expires_at: tunnel.expiresAt || expiresAt,
+        expires_at: tunnel.expires_at || expiresAt,
         created_by: adminUser.id,
       })
       .select()
@@ -110,11 +110,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       tunnel: {
-        tunnelId: dbTunnel?.id || tunnel.tunnelId,
+        tunnelId: dbTunnel?.id || tunnel.tunnel_id,
         deviceSn: sn,
-        openDomainUrl: tunnel.openDomainUrl,
-        openIpUrl: tunnel.openIpUrl,
-        expiresAt: tunnel.expiresAt || expiresAt,
+        openDomainUrl: tunnel.open_domain_url,
+        openIpUrl: tunnel.open_ip_url,
+        expiresAt: tunnel.expires_at || expiresAt,
       },
       reused: false,
       active: activeCount + 1,

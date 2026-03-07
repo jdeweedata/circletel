@@ -19,6 +19,7 @@ import {
   seedMockData,
   isCacheEmpty,
   isMockMode,
+  RuijieDevice,
 } from '@/lib/ruijie';
 
 // =============================================================================
@@ -95,7 +96,8 @@ export const ruijieSyncFunction = inngest.createFunction(
     // Step 4: Upsert devices
     const syncResult = await step.run('upsert-devices', async () => {
       console.log('[RuijieSync] Upserting devices to cache...');
-      const result = await upsertDevices(devices, isMockMode());
+      // Cast needed because Inngest's JsonifyObject type wrapper differs from RuijieDevice
+      const result = await upsertDevices(devices as unknown as RuijieDevice[], isMockMode());
       console.log(`[RuijieSync] Upserted: ${result.added} added, ${result.updated} updated`);
       return result;
     });
