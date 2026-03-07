@@ -8,14 +8,15 @@ import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger
+  AccordionTrigger,
 } from '@/components/ui/accordion';
+import { cn } from '@/lib/utils';
 import {
   managedITItems,
   connectivityItems,
   cloudHostingItems,
   resourcesItems,
-  partnerItems
+  partnerItems,
 } from './NavigationData';
 
 interface MobileMenuProps {
@@ -27,18 +28,19 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
   const pathname = usePathname();
   const currentPath = pathname;
 
-  // Helper to check if a path is currently active
   const isActive = (path: string) => {
-    return currentPath === path ||
-           (path !== '/' && currentPath.startsWith(path));
+    return currentPath === path || (path !== '/' && currentPath.startsWith(path));
   };
 
-  // Helper to determine which accordion items should be defaultOpen
   const getDefaultValue = (): string[] => {
     const openSections = [];
 
-    if (currentPath.includes('/services/') || currentPath === '/services' ||
-        currentPath === '/pricing' || currentPath === '/bundles') {
+    if (
+      currentPath.includes('/services/') ||
+      currentPath === '/services' ||
+      currentPath === '/pricing' ||
+      currentPath === '/bundles'
+    ) {
       openSections.push('managed-it');
     }
 
@@ -63,13 +65,25 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
 
   if (!isMenuOpen) return null;
 
+  const triggerClass = 'py-2.5 px-3 nav-mobile-trigger hover:bg-circleTel-orange/10 hover:no-underline rounded-md';
+  const itemClass = (active: boolean) =>
+    cn(
+      'py-2 px-3 rounded-md nav-mobile-item',
+      active ? 'bg-circleTel-orange/10 text-circleTel-navy font-medium' : 'hover:bg-circleTel-orange/10'
+    );
+
   return (
     <nav className="mt-4 bg-white animate-fade-in px-1">
       <div className="flex flex-col gap-2">
         {/* Single links */}
         <Link
           href="/services"
-          className={`py-2.5 px-3 font-medium rounded-md text-base md:text-lg lg:text-xl ${isActive('/services') && !currentPath.includes('/services/') ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+          className={cn(
+            'py-2.5 px-3 nav-mobile-trigger rounded-md',
+            isActive('/services') && !currentPath.includes('/services/')
+              ? 'bg-circleTel-orange/10 text-circleTel-navy'
+              : 'hover:bg-circleTel-orange/10'
+          )}
           onClick={() => setIsMenuOpen(false)}
         >
           Managed IT
@@ -78,16 +92,14 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
         {/* Accordion menus */}
         <Accordion type="multiple" defaultValue={getDefaultValue()} className="w-full">
           <AccordionItem value="managed-it" className="border-0">
-            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
-              IT Solutions
-            </AccordionTrigger>
+            <AccordionTrigger className={triggerClass}>IT Solutions</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col space-y-1 pl-4">
                 {managedITItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`py-2 px-3 rounded-md text-sm ${isActive(item.href) ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+                    className={itemClass(isActive(item.href))}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -98,14 +110,14 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
           </AccordionItem>
 
           <AccordionItem value="connectivity" className="border-0">
-            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
-              Connectivity
-            </AccordionTrigger>
+            <AccordionTrigger className={triggerClass}>Connectivity</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col space-y-1 pl-4">
                 <Link
                   href="/connectivity"
-                  className={`py-2 px-3 rounded-md text-sm ${isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+                  className={itemClass(
+                    isActive('/connectivity') && !currentPath.includes('/connectivity/')
+                  )}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Connectivity Overview
@@ -114,7 +126,7 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`py-2 px-3 rounded-md text-sm ${isActive(item.href) ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+                    className={itemClass(isActive(item.href))}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -125,16 +137,14 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
           </AccordionItem>
 
           <AccordionItem value="cloud-hosting" className="border-0">
-            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
-              Cloud & Hosting
-            </AccordionTrigger>
+            <AccordionTrigger className={triggerClass}>Cloud & Hosting</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col space-y-1 pl-4">
                 {cloudHostingItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`py-2 px-3 rounded-md text-sm ${isActive(item.href) ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+                    className={itemClass(isActive(item.href))}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -145,16 +155,14 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
           </AccordionItem>
 
           <AccordionItem value="resources" className="border-0">
-            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
-              Resources
-            </AccordionTrigger>
+            <AccordionTrigger className={triggerClass}>Resources</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col space-y-1 pl-4">
                 {resourcesItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`py-2 px-3 rounded-md text-sm ${isActive(item.href) ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+                    className={itemClass(isActive(item.href))}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -165,16 +173,14 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
           </AccordionItem>
 
           <AccordionItem value="partners" className="border-0">
-            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
-              Partners
-            </AccordionTrigger>
+            <AccordionTrigger className={triggerClass}>Partners</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col space-y-1 pl-4">
                 {partnerItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`py-2 px-3 rounded-md text-sm ${isActive(item.href) ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+                    className={itemClass(isActive(item.href))}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -186,10 +192,19 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
         </Accordion>
 
         <div className="pt-2 flex flex-col gap-2">
-          <Button asChild variant="outline" className="w-full border-circleTel-orange text-circleTel-orange" onClick={() => setIsMenuOpen(false)}>
+          <Button
+            asChild
+            variant="outline"
+            className="w-full border-circleTel-orange text-circleTel-orange"
+            onClick={() => setIsMenuOpen(false)}
+          >
             <Link href="/quotes/request">Request Quote</Link>
           </Button>
-          <Button asChild className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark" onClick={() => setIsMenuOpen(false)}>
+          <Button
+            asChild
+            className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
+            onClick={() => setIsMenuOpen(false)}
+          >
             <Link href="/auth/login">Customer Login</Link>
           </Button>
         </div>

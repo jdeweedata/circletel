@@ -304,6 +304,55 @@
     color: rgb(107, 114, 128); /* #6B7280 */
   }
 
+  /* ===========================================
+     Navigation Typography Tokens
+     =========================================== */
+
+  /* Desktop menu trigger - 16px/500 Inter */
+  .nav-trigger {
+    font-family: var(--font-inter), ui-sans-serif, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: rgb(27, 42, 74); /* circleTel-navy #1B2A4A */
+  }
+
+  /* Dropdown item title - 14px/600 Inter */
+  .nav-item-title {
+    font-family: var(--font-inter), ui-sans-serif, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: rgb(27, 42, 74); /* circleTel-navy #1B2A4A */
+  }
+
+  /* Dropdown item description - 12px/400 muted */
+  .nav-item-description {
+    font-family: var(--font-inter), ui-sans-serif, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: rgb(107, 114, 128); /* #6B7280 */
+  }
+
+  /* Mobile accordion trigger - 16px/500 */
+  .nav-mobile-trigger {
+    font-family: var(--font-inter), ui-sans-serif, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: rgb(27, 42, 74); /* circleTel-navy #1B2A4A */
+  }
+
+  /* Mobile menu item - 14px/400 */
+  .nav-mobile-item {
+    font-family: var(--font-inter), ui-sans-serif, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: rgb(55, 65, 81); /* #374151 */
+  }
+
   /* Mobile Typography Scale (0.85× desktop) */
   @media (max-width: 768px) {
     .page-title {
