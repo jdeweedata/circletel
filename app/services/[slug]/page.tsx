@@ -1,55 +1,106 @@
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { SliceZone } from "@prismicio/react";
-import { createClient } from "@/lib/prismicio";
-import { components } from "@/slices";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { sanityFetch } from '@/lib/sanity/fetch'
+import { BlockRenderer } from '@/components/sanity/BlockRenderer'
+import { SanitySection } from '@/lib/sanity/types'
+import { Navbar } from '@/components/layout/Navbar'
+import { Footer } from '@/components/layout/Footer'
 
-type Params = { slug: string };
+/**
+ * Sanity Service Page Route
+ *
+ * Renders service pages with hero, benefits, and content blocks
+ */
 
-export default async function Page({ params }: { params: Promise<Params> }) {
-  const { slug } = await params;
-  const client = createClient();
+interface ServicePageData {
+  _id: string
+  name: string
+  slug: string
+  category?: string
+  tagline?: string
+  heroImage?: { asset?: { url?: string }; alt?: string }
+  benefits?: Array<{ title: string; description: string; icon?: string }>
+  seo?: {
+    metaTitle?: string
+    metaDescription?: string
+  }
+  blocks?: SanitySection[]
+}
 
-  const page = await client
-    .getByUID("service_page" as "page", slug)
-    .catch(() => notFound());
+type Params = { slug: string }
+
+const SERVICE_PAGE_QUERY = `*[_type == "servicePage" && slug.current == $slug][0]{
+  _id,
+  name,
+  "slug": slug.current,
+  category,
+  tagline,
+  heroImage {
+    asset->{url},
+    alt
+  },
+  benefits,
+  seo,
+  blocks[]{
+    _key,
+    _type,
+    ...
+  }
+}`
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>
+}): Promise<Metadata> {
+  const { slug } = await params
+
+  const page = await sanityFetch<ServicePageData | null>({
+    query: SERVICE_PAGE_QUERY,
+    params: { slug },
+    tags: [`service:${slug}`, 'services'],
+  })
+
+  if (!page) {
+    return { title: 'Service Not Found' }
+  }
+
+  return {
+    title: page.seo?.metaTitle || `${page.name} | CircleTel`,
+    description: page.seo?.metaDescription || page.tagline || 'CircleTel Services',
+  }
+}
+
+export async function generateStaticParams() {
+  const pages = await sanityFetch<{ slug: string }[]>({
+    query: `*[_type == "servicePage" && defined(slug.current)]{ "slug": slug.current }`,
+    params: {},
+    tags: ['services'],
+  })
+
+  return pages.map((page) => ({ slug: page.slug }))
+}
+
+export default async function ServicePage({ params }: { params: Promise<Params> }) {
+  const { slug } = await params
+
+  const page = await sanityFetch<ServicePageData | null>({
+    query: SERVICE_PAGE_QUERY,
+    params: { slug },
+    tags: [`service:${slug}`, 'services'],
+  })
+
+  if (!page) {
+    notFound()
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1">
-        <SliceZone slices={page.data.slices} components={components} />
+        <BlockRenderer sections={page.blocks || []} />
       </main>
       <Footer />
     </div>
-  );
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const client = createClient();
-
-  const page = await client
-    .getByUID("service_page" as "page", slug)
-    .catch(() => notFound());
-
-  return {
-    title: page.data.meta_title || "CircleTel Services",
-    description: page.data.meta_description || "IT services and solutions from CircleTel",
-  };
-}
-
-export async function generateStaticParams() {
-  const client = createClient();
-  const pages = await client.getAllByType("service_page" as "page");
-
-  return pages.map((page) => {
-    return { slug: page.uid };
-  });
+  )
 }

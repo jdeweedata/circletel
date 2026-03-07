@@ -57,8 +57,7 @@
     "vscode:force-cleanup": "powershell -File scripts/force-cleanup-vscode.ps1",
     "clean": "powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\" && powershell -Command \"Remove-Item -Recurse -Force node_modules/.cache -ErrorAction SilentlyContinue\"",
     "analyze": "cross-env ANALYZE=true npm run build:memory",
-    "orchestrate": "npx tsx scripts/run-orchestrator.ts",
-    "slicemachine": "npx slice-machine-ui --port 9999"
+    "orchestrate": "npx tsx scripts/run-orchestrator.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -72,9 +71,6 @@
     "@mendable/firecrawl-js": "^4.8.0",
     "@modelcontextprotocol/sdk": "^1.18.2",
     "@portabletext/react": "^6.0.3",
-    "@prismicio/client": "^7.21.0",
-    "@prismicio/next": "^2.0.2",
-    "@prismicio/react": "^3.2.2",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -172,7 +168,6 @@
     "@eslint/js": "^9.9.0",
     "@netlify/plugin-nextjs": "^5.14.0",
     "@playwright/test": "^1.55.1",
-    "@slicemachine/adapter-next": "^0.3.87",
     "@tailwindcss/typography": "^0.5.15",
     "@types/adm-zip": "^0.5.7",
     "@types/canvas-confetti": "^1.9.0",
@@ -192,7 +187,6 @@
     "postcss": "^8.4.47",
     "react-test-renderer": "^18.3.1",
     "shadcn": "^3.3.1",
-    "slice-machine-ui": "^2.20.0",
     "supabase": "^2.45.5",
     "tailwindcss": "^3.4.11",
     "ts-jest": "^29.4.5",

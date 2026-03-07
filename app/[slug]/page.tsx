@@ -1,85 +1,102 @@
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { SliceZone } from '@prismicio/react';
-import { asText } from '@prismicio/client';
-
-import { createClient } from '@/lib/prismicio';
-import { components } from '@/slices';
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { sanityFetch } from '@/lib/sanity/fetch'
+import { BlockRenderer } from '@/components/sanity/BlockRenderer'
+import { SanitySection } from '@/lib/sanity/types'
 
 /**
- * Prismic Dynamic Page Route
+ * Sanity Dynamic Page Route
  *
- * Renders pages built with Prismic Slice Machine
+ * Renders pages built with Sanity page builder
  * Features:
- * - Dynamic routing by UID
- * - SEO metadata from Prismic
- * - SliceZone for modular content
- * - Live preview support
+ * - Dynamic routing by slug
+ * - SEO metadata from Sanity
+ * - BlockRenderer for modular content
+ * - ISR with tag-based revalidation
  */
 
-type Params = { slug: string };
+interface PageData {
+  _id: string
+  title: string
+  slug: string
+  seo?: {
+    metaTitle?: string
+    metaDescription?: string
+    ogImage?: { asset?: { url?: string } }
+  }
+  blocks?: SanitySection[]
+}
 
-// Generate metadata for SEO
+type Params = { slug: string }
+
+const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
+  _id,
+  title,
+  "slug": slug.current,
+  seo,
+  blocks[]{
+    _key,
+    _type,
+    ...
+  }
+}`
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<Params>;
+  params: Promise<Params>
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const client = createClient();
+  const { slug } = await params
 
-  try {
-    const page = await client.getByUID('page', slug);
+  const page = await sanityFetch<PageData | null>({
+    query: PAGE_QUERY,
+    params: { slug },
+    tags: [`page:${slug}`, 'pages'],
+  })
 
-    return {
-      title: page.data.meta_title || asText(page.data.title) || 'CircleTel',
-      description: page.data.meta_description || '',
-      openGraph: {
-        title: page.data.meta_title || asText(page.data.title) || 'CircleTel',
-        description: page.data.meta_description || '',
-        images: page.data.meta_image?.url
-          ? [
-              {
-                url: page.data.meta_image.url,
-                width: 1200,
-                height: 630,
-              },
-            ]
-          : [],
-      },
-    };
-  } catch {
-    return {
-      title: 'Page Not Found',
-    };
+  if (!page) {
+    return { title: 'Page Not Found' }
+  }
+
+  return {
+    title: page.seo?.metaTitle || page.title || 'CircleTel',
+    description: page.seo?.metaDescription || '',
+    openGraph: {
+      title: page.seo?.metaTitle || page.title || 'CircleTel',
+      description: page.seo?.metaDescription || '',
+      images: page.seo?.ogImage?.asset?.url
+        ? [{ url: page.seo.ogImage.asset.url, width: 1200, height: 630 }]
+        : [],
+    },
   }
 }
 
-// Generate static paths for all pages
 export async function generateStaticParams() {
-  const client = createClient();
+  const pages = await sanityFetch<{ slug: string }[]>({
+    query: `*[_type == "page" && defined(slug.current)]{ "slug": slug.current }`,
+    params: {},
+    tags: ['pages'],
+  })
 
-  const pages = await client.getAllByType('page');
-
-  return pages.map((page) => {
-    return { slug: page.uid };
-  });
+  return pages.map((page) => ({ slug: page.slug }))
 }
 
-// Main page component
 export default async function Page({ params }: { params: Promise<Params> }) {
-  const { slug } = await params;
-  const client = createClient();
+  const { slug } = await params
 
-  try {
-    const page = await client.getByUID('page', slug);
+  const page = await sanityFetch<PageData | null>({
+    query: PAGE_QUERY,
+    params: { slug },
+    tags: [`page:${slug}`, 'pages'],
+  })
 
-    return (
-      <div className="min-h-screen">
-        <SliceZone slices={page.data.slices} components={components} />
-      </div>
-    );
-  } catch {
-    notFound();
+  if (!page) {
+    notFound()
   }
+
+  return (
+    <main className="min-h-screen">
+      <BlockRenderer sections={page.blocks || []} />
+    </main>
+  )
 }

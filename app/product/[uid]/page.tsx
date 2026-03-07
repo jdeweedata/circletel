@@ -1,42 +1,119 @@
-import { PiArrowRightBold} from 'react-icons/pi';
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import { SliceZone } from "@prismicio/react";
-import * as prismic from "@prismicio/client";
-import { createClient } from "@/lib/prismicio";
-import { components } from "@/slices";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
+import { PiArrowRightBold } from 'react-icons/pi'
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
+import { sanityFetch } from '@/lib/sanity/fetch'
+import { urlFor } from '@/lib/sanity/image'
+import { BlockRenderer } from '@/components/sanity/BlockRenderer'
+import { SanitySection } from '@/lib/sanity/types'
+import { Navbar } from '@/components/layout/Navbar'
+import { Footer } from '@/components/layout/Footer'
+import { Button } from '@/components/ui/button'
 
-type Params = { uid: string };
+/**
+ * Sanity Product Page Route
+ *
+ * Renders product pages with hero, features, pricing, and content blocks
+ */
 
-// Product page data interface (until types are synced with Prismic)
 interface ProductPageData {
-  product_name?: string;
-  tagline?: string;
-  hero_image?: prismic.ImageField;
-  hero_cta_text?: string;
-  hero_cta_link?: prismic.LinkField;
-  meta_title?: string;
-  meta_description?: string;
-  meta_image?: prismic.ImageField;
-  slices?: prismic.SliceZone;
+  _id: string
+  name: string
+  slug: string
+  category?: string
+  tagline?: string
+  heroImage?: { asset?: { url?: string }; alt?: string }
+  pricing?: {
+    startingPrice?: number
+    priceNote?: string
+    showContactForPricing?: boolean
+  }
+  keyFeatures?: Array<{ title: string; description: string; icon?: string }>
+  seo?: {
+    metaTitle?: string
+    metaDescription?: string
+    ogImage?: { asset?: { url?: string } }
+  }
+  blocks?: SanitySection[]
+}
+
+type Params = { uid: string }
+
+const PRODUCT_PAGE_QUERY = `*[_type == "productPage" && slug.current == $slug][0]{
+  _id,
+  name,
+  "slug": slug.current,
+  category,
+  tagline,
+  heroImage {
+    asset->{url},
+    alt
+  },
+  pricing,
+  keyFeatures,
+  seo,
+  blocks[]{
+    _key,
+    _type,
+    ...
+  }
+}`
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>
+}): Promise<Metadata> {
+  const { uid } = await params
+
+  const page = await sanityFetch<ProductPageData | null>({
+    query: PRODUCT_PAGE_QUERY,
+    params: { slug: uid },
+    tags: [`product:${uid}`, 'products'],
+  })
+
+  if (!page) {
+    return { title: 'Product Not Found' }
+  }
+
+  return {
+    title: page.seo?.metaTitle || `${page.name} | CircleTel`,
+    description: page.seo?.metaDescription || page.tagline || 'CircleTel connectivity products',
+    openGraph: page.seo?.ogImage?.asset?.url
+      ? {
+          images: [{ url: page.seo.ogImage.asset.url }],
+        }
+      : undefined,
+  }
+}
+
+export async function generateStaticParams() {
+  const pages = await sanityFetch<{ slug: string }[]>({
+    query: `*[_type == "productPage" && defined(slug.current)]{ "slug": slug.current }`,
+    params: {},
+    tags: ['products'],
+  })
+
+  return pages.map((page) => ({ uid: page.slug }))
 }
 
 export default async function ProductPage({ params }: { params: Promise<Params> }) {
-  const { uid } = await params;
-  const client = createClient();
+  const { uid } = await params
 
-  // Use type assertion until Prismic types are synced
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const page = await client
-    .getByUID("product_page" as any, uid)
-    .catch(() => notFound()) as { data: ProductPageData; uid: string };
+  const page = await sanityFetch<ProductPageData | null>({
+    query: PRODUCT_PAGE_QUERY,
+    params: { slug: uid },
+    tags: [`product:${uid}`, 'products'],
+  })
 
-  const { product_name, tagline, hero_image, hero_cta_text, hero_cta_link } = page.data;
+  if (!page) {
+    notFound()
+  }
+
+  const heroImageUrl = page.heroImage?.asset?.url
+    ? urlFor(page.heroImage).width(1920).height(1080).url()
+    : null
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -45,11 +122,11 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
         {/* Hero Section */}
         <section className="relative h-[60vh] min-h-[500px] flex items-center">
           {/* Background Image */}
-          {hero_image?.url && (
+          {heroImageUrl && (
             <div className="absolute inset-0 z-0">
               <Image
-                src={hero_image.url}
-                alt={hero_image.alt || product_name || "Product hero"}
+                src={heroImageUrl}
+                alt={page.heroImage?.alt || page.name || 'Product hero'}
                 fill
                 className="object-cover"
                 priority
@@ -62,73 +139,63 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
           {/* Hero Content */}
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-2xl">
-              {product_name && (
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4">
-                  {product_name}
-                </h1>
+              {page.category && (
+                <span className="text-sm font-medium text-circleTel-orange uppercase tracking-wide">
+                  {page.category}
+                </span>
               )}
-              {tagline && (
-                <p className="text-xl md:text-2xl text-white/90 mb-8">
-                  {tagline}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4">
+                {page.name}
+              </h1>
+              {page.tagline && (
+                <p className="text-xl md:text-2xl text-white/90 mb-8">{page.tagline}</p>
+              )}
+              {page.pricing && !page.pricing.showContactForPricing && page.pricing.startingPrice && (
+                <p className="text-2xl text-white font-bold mb-6">
+                  From R{page.pricing.startingPrice.toLocaleString()}
+                  {page.pricing.priceNote && (
+                    <span className="text-lg font-normal text-white/80">
+                      {' '}
+                      {page.pricing.priceNote}
+                    </span>
+                  )}
                 </p>
               )}
-              {hero_cta_text && hero_cta_link && prismic.isFilled.link(hero_cta_link) && (
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold px-8 py-6 text-lg"
-                >
-                  <Link href={prismic.asLink(hero_cta_link) || "#"}>
-                    {hero_cta_text}
-                    <PiArrowRightBold className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              )}
+              <Button
+                asChild
+                size="lg"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold px-8 py-6 text-lg"
+              >
+                <Link href="/coverage">
+                  Check Coverage
+                  <PiArrowRightBold className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
             </div>
           </div>
         </section>
 
-        {/* Slices (Pricing Table, FAQ, etc.) */}
-        <SliceZone slices={page.data.slices} components={components} />
+        {/* Key Features */}
+        {page.keyFeatures && page.keyFeatures.length > 0 && (
+          <section className="py-16 bg-gray-50">
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {page.keyFeatures.map((feature, index) => (
+                  <div key={index} className="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Additional Blocks */}
+        <BlockRenderer sections={page.blocks || []} />
       </main>
       <Footer />
     </div>
-  );
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>;
-}): Promise<Metadata> {
-  const { uid } = await params;
-  const client = createClient();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const page = await client
-    .getByUID("product_page" as any, uid)
-    .catch(() => notFound()) as { data: ProductPageData; uid: string };
-
-  return {
-    title: page.data.meta_title || `${page.data.product_name} | CircleTel`,
-    description: page.data.meta_description || page.data.tagline || "CircleTel connectivity products",
-    openGraph: page.data.meta_image?.url
-      ? {
-          images: [{ url: page.data.meta_image.url }],
-        }
-      : undefined,
-  };
-}
-
-export async function generateStaticParams() {
-  const client = createClient();
-
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pages = await client.getAllByType("product_page" as any);
-    return pages.map((page: { uid: string }) => ({ uid: page.uid }));
-  } catch {
-    // No product pages yet
-    return [];
-  }
+  )
 }
