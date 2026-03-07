@@ -3,16 +3,16 @@ import Image from 'next/image'
 import { urlFor } from '@/lib/sanity/image'
 
 interface SanityImageAsset {
-  _type: 'image'
+  _type?: 'image'
   asset: {
     _ref: string
-    _type: 'reference'
+    _type?: 'reference'
   }
   hotspot?: {
     x: number
     y: number
-    width: number
-    height: number
+    width?: number
+    height?: number
   }
   crop?: {
     top: number
