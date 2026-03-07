@@ -20,7 +20,13 @@ export async function sanityFetch<T>({
   tags = [],
   revalidate = false,
 }: FetchOptions): Promise<T> {
-  const isDraft = (await draftMode()).isEnabled
+  // draftMode() throws outside request context (e.g., generateStaticParams)
+  let isDraft = false
+  try {
+    isDraft = (await draftMode()).isEnabled
+  } catch {
+    // Not in request context (build time) - use production client
+  }
 
   // In draft mode, use preview client (no caching)
   if (isDraft) {
