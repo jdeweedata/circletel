@@ -148,7 +148,9 @@ export default function RuijieDeviceDetailPage({
 
   const fetchDevice = useCallback(async () => {
     try {
-      const response = await fetch(`/api/ruijie/devices/${sn}`);
+      const response = await fetch(`/api/ruijie/devices/${sn}`, {
+        credentials: 'include',
+      });
       if (!response.ok) throw new Error('Failed to fetch device');
       const data = await response.json();
       setDevice(data.device);
@@ -164,7 +166,9 @@ export default function RuijieDeviceDetailPage({
 
   const fetchAuditLog = useCallback(async () => {
     try {
-      const response = await fetch(`/api/ruijie/audit/${sn}`);
+      const response = await fetch(`/api/ruijie/audit/${sn}`, {
+        credentials: 'include',
+      });
       if (!response.ok) return;
       const data = await response.json();
       setAuditLog(data.actions || []);
@@ -211,6 +215,7 @@ export default function RuijieDeviceDetailPage({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sn, tunnelType: 'eweb' }),
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -246,7 +251,7 @@ export default function RuijieDeviceDetailPage({
   const handleCloseTunnel = async () => {
     setTunnelLoading(true);
     try {
-      await fetch(`/api/ruijie/tunnel/${sn}`, { method: 'DELETE' });
+      await fetch(`/api/ruijie/tunnel/${sn}`, { method: 'DELETE', credentials: 'include' });
       setTunnels([]);
       fetchAuditLog();
     } catch (err) {
@@ -259,7 +264,7 @@ export default function RuijieDeviceDetailPage({
   const handleReboot = async () => {
     setRebooting(true);
     try {
-      await fetch(`/api/ruijie/reboot/${sn}`, { method: 'POST' });
+      await fetch(`/api/ruijie/reboot/${sn}`, { method: 'POST', credentials: 'include' });
       setRebootDialogOpen(false);
       fetchAuditLog();
     } catch (err) {

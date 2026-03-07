@@ -147,7 +147,9 @@ export default function RuijieDevicesPage() {
       if (groupFilter) params.set('group', groupFilter);
       if (modelFilter) params.set('model', modelFilter);
 
-      const response = await fetch(`/api/ruijie/devices?${params.toString()}`);
+      const response = await fetch(`/api/ruijie/devices?${params.toString()}`, {
+        credentials: 'include',
+      });
       if (!response.ok) throw new Error('Failed to fetch devices');
 
       const result = await response.json();
@@ -183,7 +185,7 @@ export default function RuijieDevicesPage() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await fetch('/api/ruijie/sync', { method: 'POST' });
+      await fetch('/api/ruijie/sync', { method: 'POST', credentials: 'include' });
       // Wait a moment for sync to start, then fetch fresh data
       await new Promise(r => setTimeout(r, 2000));
       await fetchDevices(true);
@@ -198,7 +200,10 @@ export default function RuijieDevicesPage() {
     if (!rebootDevice) return;
     setRebooting(true);
     try {
-      const response = await fetch(`/api/ruijie/reboot/${rebootDevice.sn}`, { method: 'POST' });
+      const response = await fetch(`/api/ruijie/reboot/${rebootDevice.sn}`, {
+        method: 'POST',
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Reboot failed');
       setRebootDevice(null);
       // Show success feedback
@@ -333,12 +338,12 @@ export default function RuijieDevicesPage() {
               </div>
               <div className="w-40">
                 <label className="text-sm font-medium text-gray-700 mb-1 block">Status</label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select value={statusFilter || 'all'} onValueChange={(v) => setStatusFilter(v === 'all' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="All" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                     <SelectItem value="online">Online</SelectItem>
                     <SelectItem value="offline">Offline</SelectItem>
                   </SelectContent>
@@ -346,12 +351,12 @@ export default function RuijieDevicesPage() {
               </div>
               <div className="w-48">
                 <label className="text-sm font-medium text-gray-700 mb-1 block">Group</label>
-                <Select value={groupFilter} onValueChange={setGroupFilter}>
+                <Select value={groupFilter || 'all'} onValueChange={(v) => setGroupFilter(v === 'all' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="All Groups" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Groups</SelectItem>
+                    <SelectItem value="all">All Groups</SelectItem>
                     {data?.filters.groups.map(g => (
                       <SelectItem key={g} value={g}>{g}</SelectItem>
                     ))}
@@ -360,12 +365,12 @@ export default function RuijieDevicesPage() {
               </div>
               <div className="w-48">
                 <label className="text-sm font-medium text-gray-700 mb-1 block">Model</label>
-                <Select value={modelFilter} onValueChange={setModelFilter}>
+                <Select value={modelFilter || 'all'} onValueChange={(v) => setModelFilter(v === 'all' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="All Models" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Models</SelectItem>
+                    <SelectItem value="all">All Models</SelectItem>
                     {data?.filters.models.map(m => (
                       <SelectItem key={m} value={m}>{m}</SelectItem>
                     ))}
