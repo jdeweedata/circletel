@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import {
   getBillingSettingsByCategory,
   updateBillingSettings,
@@ -21,18 +21,19 @@ import { billingLogger } from '@/lib/logging';
 // Auth Helper
 // =============================================================================
 
-async function verifySuperAdmin(supabase: Awaited<ReturnType<typeof createClientWithSession>>) {
+async function verifySuperAdmin(sessionClient: Awaited<ReturnType<typeof createClientWithSession>>) {
   const {
     data: { user },
     error: authError,
-  } = await supabase.auth.getUser();
+  } = await sessionClient.auth.getUser();
 
   if (authError || !user) {
     return { error: 'Unauthorized', status: 401 };
   }
 
-  // Check if user is Super Admin
-  const { data: adminUser, error: adminError } = await supabase
+  // Use service role client to bypass RLS for admin_users lookup
+  const serviceClient = await createClient();
+  const { data: adminUser, error: adminError } = await serviceClient
     .from('admin_users')
     .select(`
       id,
