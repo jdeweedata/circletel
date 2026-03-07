@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity';
 import { TagIcon } from '@sanity/icons';
+import { blockFields } from '../objects/blockFields';
 
 export default defineType({
   name: 'pricingBlock',
@@ -77,6 +78,7 @@ export default defineType({
       rows: 2,
       description: 'Additional info (e.g., "All prices exclude VAT")',
     }),
+    ...blockFields,
   ],
   preview: {
     select: {

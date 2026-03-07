@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity';
 import { UsersIcon } from '@sanity/icons';
+import { blockFields } from '../objects/blockFields';
 
 export default defineType({
   name: 'testimonialBlock',
@@ -48,6 +49,7 @@ export default defineType({
       type: 'boolean',
       initialValue: true,
     }),
+    ...blockFields,
   ],
   preview: {
     select: {

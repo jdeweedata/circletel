@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity';
 import { PackageIcon } from '@sanity/icons';
+import { blockFields } from '../objects/blockFields';
 
 export default defineType({
   name: 'productShowcaseBlock',
@@ -53,6 +54,7 @@ export default defineType({
       title: 'View All CTA',
       type: 'cta',
     }),
+    ...blockFields,
   ],
   preview: {
     select: {

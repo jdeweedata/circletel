@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity';
 import { ThListIcon } from '@sanity/icons';
+import { blockFields } from '../objects/blockFields';
 
 export default defineType({
   name: 'comparisonBlock',
@@ -100,6 +101,7 @@ export default defineType({
       type: 'text',
       rows: 2,
     }),
+    ...blockFields,
   ],
   preview: {
     select: {

@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity';
 import { ComponentIcon } from '@sanity/icons';
+import { blockFields } from '../objects/blockFields';
 
 export default defineType({
   name: 'featureGridBlock',
@@ -65,6 +66,7 @@ export default defineType({
       title: 'Call to Action',
       type: 'cta',
     }),
+    ...blockFields,
   ],
   preview: {
     select: {

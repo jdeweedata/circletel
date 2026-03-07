@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity';
 import { HomeIcon } from '@sanity/icons';
+import { blockFields } from '../objects/blockFields';
 
 export default defineType({
   name: 'heroBlock',
@@ -71,6 +72,7 @@ export default defineType({
       },
       initialValue: 'fullWidth',
     }),
+    ...blockFields,
   ],
   preview: {
     select: {

@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity';
 import { HelpCircleIcon } from '@sanity/icons';
+import { blockFields } from '../objects/blockFields';
 
 export default defineType({
   name: 'faqBlock',
@@ -75,6 +76,7 @@ export default defineType({
       title: 'Still Have Questions CTA',
       type: 'cta',
     }),
+    ...blockFields,
   ],
   preview: {
     select: {
