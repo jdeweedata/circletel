@@ -137,6 +137,42 @@ const headers = {
 }
 ```
 
+## Vercel Build Configuration
+
+### NODE_OPTIONS Restrictions
+
+**CRITICAL**: Only certain flags are allowed in NODE_OPTIONS on Vercel:
+
+```json
+// vercel.json
+// ✅ CORRECT: Only memory flag
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' next build"
+
+// ❌ WRONG: gc-interval is NOT allowed in NODE_OPTIONS
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=4096 --gc-interval=100' next build"
+```
+
+**Allowed in NODE_OPTIONS**:
+- `--max-old-space-size=<MB>` - Set heap memory limit
+- `--max-semi-space-size=<MB>` - Set young generation size
+
+**NOT allowed (will cause exit code 9)**:
+- `--gc-interval`
+- `--expose-gc`
+- Most V8 flags
+
+### Memory Optimization
+
+For large Next.js projects, use these in `next.config.js`:
+
+```javascript
+experimental: {
+  optimizePackageImports: ['large-lib1', 'large-lib2'],
+  workerThreads: false,
+  cpus: 1,
+}
+```
+
 ## Template
 
 **Inngest Template**: `.claude/templates/inngest-function.ts.template`
