@@ -71,6 +71,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@mendable/firecrawl-js": "^4.8.0",
     "@modelcontextprotocol/sdk": "^1.18.2",
+    "@portabletext/react": "^6.0.3",
     "@prismicio/client": "^7.21.0",
     "@prismicio/next": "^2.0.2",
     "@prismicio/react": "^3.2.2",
