@@ -1,4 +1,5 @@
 import { groq } from 'next-sanity';
+import { sanityFetch } from './fetch';
 
 // Page queries
 export const pageBySlugQuery = groq`
@@ -193,4 +194,168 @@ export async function getAllServicePages(client: any) {
 
 export async function getHomepage(client: any) {
   return client.fetch(homepageQuery);
+}
+
+// ============================================
+// Cache-Tagged Query Functions (ISR)
+// ============================================
+
+const PAGE_FIELDS = `
+  _id,
+  title,
+  "slug": slug.current,
+  seo,
+  blocks[]{
+    _key,
+    _type,
+    ...
+  }
+`;
+
+const POST_FIELDS = `
+  _id,
+  title,
+  "slug": slug.current,
+  excerpt,
+  featuredImage,
+  "author": author->{name, slug, photo},
+  "categories": categories[]->{title, slug},
+  publishedAt,
+  body
+`;
+
+export async function getPageWithTags(slug: string) {
+  return sanityFetch({
+    query: `*[_type == "page" && slug.current == $slug][0]{${PAGE_FIELDS}}`,
+    params: { slug },
+    tags: [`page:${slug}`, 'pages'],
+  });
+}
+
+export async function getHomepageWithTags() {
+  return sanityFetch({
+    query: `*[_type == "homepage"][0]{${PAGE_FIELDS}}`,
+    params: {},
+    tags: ['homepage'],
+  });
+}
+
+export async function getProductPageWithTags(slug: string) {
+  return sanityFetch({
+    query: `*[_type == "productPage" && slug.current == $slug][0]{${PAGE_FIELDS}}`,
+    params: { slug },
+    tags: [`product:${slug}`, 'products'],
+  });
+}
+
+export async function getPost(slug: string) {
+  return sanityFetch({
+    query: `*[_type == "post" && slug.current == $slug][0]{${POST_FIELDS}}`,
+    params: { slug },
+    tags: [`post:${slug}`, 'posts'],
+  });
+}
+
+export async function getBlogPosts(limit = 10) {
+  return sanityFetch({
+    query: `*[_type == "post"] | order(publishedAt desc)[0...$limit]{
+      _id,
+      title,
+      "slug": slug.current,
+      excerpt,
+      featuredImage,
+      "author": author->{name, photo},
+      publishedAt
+    }`,
+    params: { limit },
+    tags: ['posts', 'blog'],
+  });
+}
+
+export async function getActiveCampaigns(audience: string = 'all') {
+  const now = new Date().toISOString();
+
+  return sanityFetch({
+    query: `*[_type == "campaign"
+      && isEnabled == true
+      && startDate <= $now
+      && (endDate == null || endDate > $now)
+      && (targetAudience == "all" || targetAudience == $audience)
+    ] | order(priority desc){
+      _id,
+      title,
+      campaignType,
+      headline,
+      description,
+      image,
+      cta,
+      placement,
+      isDismissible,
+      backgroundColor,
+      targetPages
+    }`,
+    params: { now, audience },
+    tags: ['campaigns', 'active-campaigns'],
+  });
+}
+
+export async function getResources(limit = 20) {
+  return sanityFetch({
+    query: `*[_type == "resource" && isEnabled == true] | order(publishedAt desc)[0...$limit]{
+      _id,
+      title,
+      "slug": slug.current,
+      resourceType,
+      description,
+      thumbnail,
+      accessLevel
+    }`,
+    params: { limit },
+    tags: ['resources', 'resource-library'],
+  });
+}
+
+export async function getResource(slug: string) {
+  return sanityFetch({
+    query: `*[_type == "resource" && slug.current == $slug][0]{
+      _id,
+      title,
+      "slug": slug.current,
+      resourceType,
+      description,
+      thumbnail,
+      accessLevel,
+      file,
+      externalUrl,
+      body,
+      "products": products[]->{title, slug},
+      seo
+    }`,
+    params: { slug },
+    tags: [`resource:${slug}`, 'resources'],
+  });
+}
+
+export async function getTeamMembers() {
+  return sanityFetch({
+    query: `*[_type == "teamMember"] | order(order asc){
+      _id,
+      name,
+      "slug": slug.current,
+      role,
+      department,
+      photo,
+      bio
+    }`,
+    params: {},
+    tags: ['team'],
+  });
+}
+
+export async function getSiteSettings() {
+  return sanityFetch({
+    query: `*[_type == "siteSettings"][0]`,
+    params: {},
+    tags: ['site-settings', 'navigation'],
+  });
 }
