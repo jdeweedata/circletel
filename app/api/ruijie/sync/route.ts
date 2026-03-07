@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession, createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
 import { inngest } from '@/lib/inngest/client';
 
@@ -12,18 +12,22 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Use session client for authentication (reads cookies)
+    const supabase = await createClientWithSession();
 
-    // Verify admin access
+    // Verify user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: adminUser } = await supabase
+    // Use service role client to check admin_users (bypasses RLS)
+    const supabaseAdmin = await createClient();
+    const { data: adminUser } = await supabaseAdmin
       .from('admin_users')
       .select('id, role')
-      .eq('email', user.email)
+      .eq('id', user.id)
+      .eq('is_active', true)
       .single();
 
     if (!adminUser) {
@@ -41,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // Audit log
     const clientIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    await supabase.from('ruijie_audit_log').insert({
+    await supabaseAdmin.from('ruijie_audit_log').insert({
       admin_user_id: adminUser.id,
       device_sn: null,
       action: 'refresh',

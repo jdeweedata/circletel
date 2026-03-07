@@ -4,25 +4,29 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession, createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Use session client for authentication (reads cookies)
+    const supabase = await createClientWithSession();
 
-    // Verify admin access
+    // Verify user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: adminUser } = await supabase
+    // Use service role client to check admin_users (bypasses RLS)
+    const supabaseAdmin = await createClient();
+    const { data: adminUser } = await supabaseAdmin
       .from('admin_users')
       .select('id, role')
-      .eq('email', user.email)
+      .eq('id', user.id)
+      .eq('is_active', true)
       .single();
 
     if (!adminUser) {
@@ -36,8 +40,8 @@ export async function GET(request: NextRequest) {
     const group = searchParams.get('group') || '';
     const model = searchParams.get('model') || '';
 
-    // Build query
-    let query = supabase
+    // Build query (use admin client to bypass RLS)
+    let query = supabaseAdmin
       .from('ruijie_device_cache')
       .select('*')
       .order('status', { ascending: true })
@@ -67,7 +71,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get last sync time
-    const { data: lastSync } = await supabase
+    const { data: lastSync } = await supabaseAdmin
       .from('ruijie_sync_logs')
       .select('completed_at')
       .eq('status', 'completed')
