@@ -20,8 +20,15 @@ interface TokenCache {
 // On cold start, simply re-fetches — acceptable cost at our scale
 let tokenCache: TokenCache | null = null;
 
+// Fixed token from Ruijie docs (required query param)
+const AUTH_TOKEN_PARAM = 'd63dss0a81e4415a889ac5b78fsc904a';
+
+// Token expires in 30 days per docs (2592000 seconds)
+const TOKEN_EXPIRY_SECONDS = 30 * 24 * 60 * 60;
+
 /**
  * Authenticate with Ruijie Cloud and get access token
+ * Endpoint: /service/api/oauth20/client/access_token?token=d63dss0a81e4415a889ac5b78fsc904a
  */
 export async function authenticateRuijie(): Promise<RuijieAuthResponse> {
   if (!RUIJIE_APP_ID || !RUIJIE_SECRET) {
@@ -30,14 +37,18 @@ export async function authenticateRuijie(): Promise<RuijieAuthResponse> {
     );
   }
 
-  const response = await fetch(`${RUIJIE_BASE_URL}/maint/token/login`, {
+  // Note: RUIJIE_BASE_URL should be https://cloud.ruijienetworks.com/service/api
+  // The endpoint is /oauth20/client/access_token with required token param
+  const url = `${RUIJIE_BASE_URL}/oauth20/client/access_token?token=${AUTH_TOKEN_PARAM}`;
+
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
     body: JSON.stringify({
-      appId: RUIJIE_APP_ID,
+      appid: RUIJIE_APP_ID,  // lowercase per API spec
       secret: RUIJIE_SECRET,
     }),
   });
@@ -52,15 +63,21 @@ export async function authenticateRuijie(): Promise<RuijieAuthResponse> {
 
   const data = await response.json();
 
-  // Cache the token with 60s buffer before expiry
+  // Check for API error response (code != 0 means failure)
+  if (data.code !== 0) {
+    clearRuijieAuth();
+    throw new Error(`Ruijie auth failed: ${data.msg || 'Unknown error'}`);
+  }
+
+  // Cache the token - 30 day expiry per docs, with 1 hour buffer
   tokenCache = {
-    accessToken: data.access_token || data.accessToken,
-    expiresAt: Date.now() + ((data.expires_in || data.expiresIn || 3600) * 1000) - 60000,
+    accessToken: data.accessToken,
+    expiresAt: Date.now() + (TOKEN_EXPIRY_SECONDS * 1000) - (60 * 60 * 1000),
   };
 
   return {
     accessToken: tokenCache.accessToken,
-    expiresIn: data.expires_in || data.expiresIn || 3600,
+    expiresIn: TOKEN_EXPIRY_SECONDS,
     tokenType: 'Bearer',
   };
 }
