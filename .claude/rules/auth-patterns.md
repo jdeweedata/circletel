@@ -12,6 +12,27 @@ Scope: Three-context auth system, header+cookie checks, RBAC
 | **Partner** | httpOnly cookies + FICA/CIPC docs | RLS-protected queries |
 | **Admin** | RBAC (17 roles, 100+ permissions) | Service role bypasses RLS |
 
+## Supabase Client Selection (CRITICAL)
+
+**Rule**: If your API calls `supabase.auth.getUser()`, you MUST use `createClientWithSession()`.
+
+| Client | Location | Reads Cookies | Use Case |
+|--------|----------|---------------|----------|
+| `createClient()` | `lib/supabase/server.ts` | No (service role) | Background jobs, cron, migrations |
+| `createClientWithSession()` | `lib/supabase/server.ts` | Yes | User-facing APIs needing auth |
+
+```typescript
+// WRONG - getUser() always returns null
+import { createClient } from '@/lib/supabase/server';
+const supabase = await createClient();
+await supabase.auth.getUser(); // null!
+
+// CORRECT - reads session from cookies
+import { createClientWithSession } from '@/lib/supabase/server';
+const supabase = await createClientWithSession();
+await supabase.auth.getUser(); // returns logged-in user
+```
+
 ## Critical Pattern: Auth Provider Exclusions
 
 ```typescript
@@ -56,6 +77,7 @@ if (authHeader?.startsWith('Bearer ')) {
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | 401 on valid session | Only checking cookies | Check header AND cookies |
+| 401 with getUser() null | Using `createClient()` | Use `createClientWithSession()` |
 | Infinite loading | Wrong auth provider context | Add pathname exclusions |
 | RLS blocks query | Using anon key for admin | Use service role |
 
