@@ -1,7 +1,6 @@
 // sanity.config.ts
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
-import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './lib/sanity/schemas'
 import { structure } from './lib/sanity/structure'
 
@@ -16,7 +15,7 @@ export default defineConfig({
 
   plugins: [
     structureTool({ structure }),
-    visionTool(),
+    // visionTool() - requires React 19, add when upgrading
   ],
 
   schema: {

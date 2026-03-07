@@ -25,18 +25,19 @@ import comparisonBlock from './blocks/comparisonBlock'
 import testimonialBlock from './blocks/testimonialBlock'
 import productShowcaseBlock from './blocks/productShowcaseBlock'
 
-// New block types (will be added in later tasks)
-// import textBlock from './blocks/textBlock'
-// import imageBlock from './blocks/imageBlock'
-// import ctaBlock from './blocks/ctaBlock'
-// import formBlock from './blocks/formBlock'
-// import separatorBlock from './blocks/separatorBlock'
-// import galleryBlock from './blocks/galleryBlock'
+// New block types
+import textBlock from './blocks/textBlock'
+import imageBlock from './blocks/imageBlock'
+import ctaBlock from './blocks/ctaBlock'
+import formBlock from './blocks/formBlock'
+import separatorBlock from './blocks/separatorBlock'
+import galleryBlock from './blocks/galleryBlock'
 
 // Object types
 import seo from './objects/seo'
 import cta from './objects/cta'
 import portableText from './objects/portableText'
+import link from './objects/link'
 
 export const schemaTypes = [
   // Documents
@@ -61,9 +62,16 @@ export const schemaTypes = [
   comparisonBlock,
   testimonialBlock,
   productShowcaseBlock,
+  textBlock,
+  imageBlock,
+  ctaBlock,
+  formBlock,
+  separatorBlock,
+  galleryBlock,
 
   // Objects
   seo,
   cta,
   portableText,
+  link,
 ]
