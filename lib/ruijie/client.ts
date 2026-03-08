@@ -482,6 +482,111 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
 }
 
 // =============================================================================
+// DEVICE LOGS (AP Management Logs)
+// =============================================================================
+
+/**
+ * Log entry from Ruijie AP Management Logs API
+ */
+export interface RuijieLogEntry {
+  id: number;
+  sn: string;
+  logType: 'reboot' | 'onoffline' | 'config' | string;
+  logDetail: string;
+  operateTime: number; // timestamp in milliseconds
+}
+
+/**
+ * API response for device management logs
+ */
+interface DeviceLogsResponse {
+  code: number;
+  msg?: string;
+  data?: {
+    count: number;
+    list: Array<{
+      id: number;
+      sn: string;
+      logType: string;
+      logDetail: string;
+      operateTime: number;
+    }>;
+  };
+}
+
+/**
+ * Get AP management logs (reboots, online/offline events, config changes)
+ * Endpoint: /service/api/apmgt/apinfo/{sn}/devicemgtlogs
+ *
+ * @param sn - Device serial number
+ * @returns Array of log entries
+ */
+export async function getDeviceLogs(sn: string): Promise<RuijieLogEntry[]> {
+  if (MOCK_MODE) {
+    const now = Date.now();
+    return [
+      {
+        id: 1,
+        sn,
+        logType: 'onoffline',
+        logDetail: 'Device online',
+        operateTime: now - 1000 * 60 * 30, // 30 min ago
+      },
+      {
+        id: 2,
+        sn,
+        logType: 'config',
+        logDetail: 'Configuration synchronized',
+        operateTime: now - 1000 * 60 * 60 * 2, // 2 hours ago
+      },
+      {
+        id: 3,
+        sn,
+        logType: 'reboot',
+        logDetail: 'Device restart',
+        operateTime: now - 1000 * 60 * 60 * 24, // 1 day ago
+      },
+      {
+        id: 4,
+        sn,
+        logType: 'onoffline',
+        logDetail: 'Device offline',
+        operateTime: now - 1000 * 60 * 60 * 24 - 1000 * 60 * 5, // 1 day + 5 min ago
+      },
+      {
+        id: 5,
+        sn,
+        logType: 'onoffline',
+        logDetail: 'Device online',
+        operateTime: now - 1000 * 60 * 60 * 48, // 2 days ago
+      },
+    ];
+  }
+
+  try {
+    const response = await ruijieFetch<DeviceLogsResponse>(
+      `/apmgt/apinfo/${sn}/devicemgtlogs`
+    );
+
+    if (response.code !== 0 || !response.data?.list) {
+      console.error(`[Ruijie] Failed to fetch logs for ${sn}:`, response.msg);
+      return [];
+    }
+
+    return response.data.list.map((log) => ({
+      id: log.id,
+      sn: log.sn,
+      logType: log.logType,
+      logDetail: log.logDetail,
+      operateTime: log.operateTime,
+    }));
+  } catch (error) {
+    console.error(`[Ruijie] Failed to fetch device logs for ${sn}:`, error);
+    return [];
+  }
+}
+
+// =============================================================================
 // TUNNEL OPERATIONS
 // =============================================================================
 
