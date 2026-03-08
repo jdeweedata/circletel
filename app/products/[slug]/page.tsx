@@ -125,12 +125,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <p className="text-xl md:text-2xl text-white/95 mb-8 drop-shadow-md">
               {product.tagline}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" asChild>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <Button size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white" asChild>
                 <Link href={`/order/coverage?product=${product.slug}`}>Get Started</Link>
               </Button>
-              <Button size="lg" className="bg-[#25D366] hover:bg-[#1da851] text-white border-0" asChild>
-                <Link href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+              <Button size="lg" className="bg-[#25D366] hover:bg-[#1da851] text-white" asChild>
+                <Link href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                   <PiWhatsappLogoBold className="w-5 h-5" />
                   WhatsApp Us
                 </Link>
