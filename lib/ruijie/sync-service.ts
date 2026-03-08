@@ -6,8 +6,40 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { RuijieDevice, SyncResult, RuijieDeviceCacheRow } from './types';
+import { RuijieDevice, SyncResult } from './types';
 import { getMockDevicesForSeeding } from './mock';
+
+/**
+ * Sync-only fields - excludes customer linking fields which are managed separately
+ * This prevents sync from overwriting customer links
+ */
+type RuijieSyncRow = {
+  sn: string;
+  device_name: string;
+  model: string | null;
+  group_id: string | null;
+  group_name: string | null;
+  management_ip: string | null;
+  wan_ip: string | null;
+  egress_ip: string | null;
+  online_clients: number;
+  status: string;
+  config_status: string | null;
+  firmware_version: string | null;
+  mac_address: string | null;
+  cpu_usage: number | null;
+  memory_usage: number | null;
+  uptime_seconds: number | null;
+  radio_2g_channel: number | null;
+  radio_5g_channel: number | null;
+  radio_2g_utilization: number | null;
+  radio_5g_utilization: number | null;
+  project_id: string | null;
+  last_seen_at: string | null;
+  synced_at: string;
+  raw_json: Record<string, unknown> | null;
+  mock_data: boolean;
+};
 
 // =============================================================================
 // DEVICE TO ROW CONVERSION
@@ -15,11 +47,12 @@ import { getMockDevicesForSeeding } from './mock';
 
 /**
  * Convert API device to database row format
+ * NOTE: Excludes customer linking fields to prevent sync from overwriting them
  */
 function deviceToRow(
   device: RuijieDevice,
   mockData: boolean = false
-): Omit<RuijieDeviceCacheRow, 'created_at' | 'updated_at'> {
+): RuijieSyncRow {
   return {
     sn: device.sn,
     device_name: device.device_name,
