@@ -97,6 +97,7 @@ function getHealthLabel(score: number): string {
 }
 
 // Create SVG marker icon for devices
+// Note: google.maps.SymbolPath.CIRCLE = 0
 function createMarkerIcon(status: string, healthScore: number): google.maps.Symbol {
   // Determine color based on status and health
   let fillColor: string;
@@ -111,7 +112,7 @@ function createMarkerIcon(status: string, healthScore: number): google.maps.Symb
   }
 
   return {
-    path: google.maps.SymbolPath.CIRCLE,
+    path: 0, // google.maps.SymbolPath.CIRCLE
     scale: 10,
     fillColor,
     fillOpacity: 0.9,
@@ -227,7 +228,7 @@ export function NetworkMap({
           onMouseOut={() => setHoveredDevice(null)}
           title={device.device_name}
           animation={
-            hoveredDevice === device.sn ? google.maps.Animation.BOUNCE : undefined
+            hoveredDevice === device.sn ? 1 : undefined // 1 = google.maps.Animation.BOUNCE
           }
         />
       ))}
