@@ -23,7 +23,10 @@ import {
   PiChartBarBold,
   PiSimCardBold,
   PiCheckCircleBold,
+  PiWhatsappLogoBold,
 } from 'react-icons/pi';
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -94,6 +97,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="min-h-screen bg-white">
+      <Navbar />
+
       {/* Hero Section */}
       <section className="relative h-[60vh] min-h-[500px] flex items-center">
         {product.heroImage && (
@@ -122,7 +127,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <Link href={`/order/coverage?product=${product.slug}`}>Get Started</Link>
               </Button>
               <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20" asChild>
-                <Link href="https://wa.me/27824873900">WhatsApp Us</Link>
+                <Link href="https://wa.me/27824873900" className="flex items-center gap-2">
+                  <PiWhatsappLogoBold className="w-5 h-5" />
+                  WhatsApp Us
+                </Link>
               </Button>
             </div>
           </div>
@@ -248,7 +256,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <Link href={`/order/coverage?product=${product.slug}`}>Check Coverage</Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
-              <Link href="https://wa.me/27824873900">Talk to Sales</Link>
+              <Link href="https://wa.me/27824873900" className="flex items-center gap-2">
+                <PiWhatsappLogoBold className="w-5 h-5" />
+                Talk to Sales
+              </Link>
             </Button>
           </div>
         </div>
@@ -309,6 +320,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </section>
       )}
+
+      <Footer />
     </div>
   );
 }
