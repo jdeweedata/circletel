@@ -38,10 +38,10 @@ export async function GET(
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    // Verify device exists in cache
+    // Verify device exists in cache and get group_id for STA query
     const { data: device } = await supabaseAdmin
       .from('ruijie_device_cache')
-      .select('sn, status')
+      .select('sn, status, group_id')
       .eq('sn', sn)
       .single();
 
@@ -65,7 +65,8 @@ export async function GET(
         radio_5g_utilization: null,
       };
     } else {
-      metrics = await getDeviceMetrics(sn);
+      // Pass group_id for STA query to count online clients
+      metrics = await getDeviceMetrics(sn, device.group_id || undefined);
     }
 
     // Update cache with new metrics (fire and forget)

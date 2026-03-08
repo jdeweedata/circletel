@@ -3,37 +3,28 @@
 import {
   PiWifiHighBold,
   PiUsersBold,
-  PiCpuBold,
-  PiTimerBold,
+  PiGearBold,
+  PiLinkBold,
 } from 'react-icons/pi';
 import { StatCard } from '@/components/admin/shared';
 
 interface Device {
+  sn: string;
   status: string;
   online_clients: number;
-  cpu_usage: number | null;
-  memory_usage: number | null;
-  uptime_seconds: number | null;
   config_status: string | null;
+  model: string | null;
+  group_name: string | null;
 }
 
 interface DeviceStatCardsProps {
   device: Device;
 }
 
-function formatUptime(seconds: number | null): string {
-  if (!seconds) return '-';
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
-  if (days > 0) return `${days}d ${hours}h`;
-  if (hours > 0) return `${hours}h`;
-  const mins = Math.floor((seconds % 3600) / 60);
-  return `${mins}m`;
-}
-
 function getConfigStatusLabel(status: string | null): string {
   if (!status) return 'Unknown';
-  return status === 'Synced' ? 'Config Synced' : 'Config ' + status;
+  if (status === 'UP_TO_DATE' || status === 'Synced') return 'Config synced';
+  return status.replace(/_/g, ' ');
 }
 
 export function DeviceStatCards({ device }: DeviceStatCardsProps) {
@@ -58,18 +49,18 @@ export function DeviceStatCards({ device }: DeviceStatCardsProps) {
         iconColor="text-blue-600"
       />
       <StatCard
-        label="Resource Usage"
-        value={device.cpu_usage !== null ? `${device.cpu_usage}%` : '-'}
-        subtitle={device.memory_usage !== null ? `Memory: ${device.memory_usage}%` : 'Memory: -'}
-        icon={<PiCpuBold className="w-5 h-5" />}
+        label="Model"
+        value={device.model || '-'}
+        subtitle="Device type"
+        icon={<PiGearBold className="w-5 h-5" />}
         iconBgColor="bg-purple-100"
         iconColor="text-purple-600"
       />
       <StatCard
-        label="Uptime"
-        value={formatUptime(device.uptime_seconds)}
-        subtitle="Since last reboot"
-        icon={<PiTimerBold className="w-5 h-5" />}
+        label="Network Group"
+        value={device.group_name || '-'}
+        subtitle="Ruijie Cloud group"
+        icon={<PiLinkBold className="w-5 h-5" />}
         iconBgColor="bg-amber-100"
         iconColor="text-amber-600"
       />

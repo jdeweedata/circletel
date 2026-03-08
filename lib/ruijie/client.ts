@@ -282,17 +282,23 @@ export async function getDevice(sn: string): Promise<RuijieDevice> {
 // DEVICE METRICS
 // =============================================================================
 
-interface DeviceMetricsResponse {
+/**
+ * Online STA (station/client) response from Ruijie Cloud
+ * Endpoint: /logbizagent/logbiz/api/sta/sta_users
+ */
+interface StaUsersResponse {
   code: number;
   msg?: string;
-  cpuUsage?: number;
-  memUsage?: number;
-  uptime?: number;
-  onlineClients?: number;
-  radio2gChannel?: number;
-  radio5gChannel?: number;
-  radio2gUtilization?: number;
-  radio5gUtilization?: number;
+  list?: Array<{
+    mac: string;
+    userIp: string;
+    ssid: string;
+    rssi: string;
+    band: string;
+    channel: string;
+    sn: string; // AP serial number
+  }>;
+  count?: number;
 }
 
 export interface DeviceMetrics {
@@ -307,32 +313,43 @@ export interface DeviceMetrics {
 }
 
 /**
- * Get device performance metrics
- * Endpoint: /service/api/device/{sn}/performance (v2.0.3)
+ * Get device metrics (client count from STA API)
+ *
+ * NOTE: Ruijie Cloud API limitations:
+ * - CPU/memory metrics are only available at network level, not per-device
+ * - Uptime is not exposed via API
+ * - Radio channel/utilization requires eWeb tunnel access
+ * - Only online_clients can be derived from the STA (station) API
+ *
+ * Per-device performance data requires direct eWeb tunnel access.
  */
-export async function getDeviceMetrics(sn: string): Promise<DeviceMetrics> {
-  try {
-    const response = await ruijieFetch<DeviceMetricsResponse>(`/device/${sn}/performance`);
+export async function getDeviceMetrics(sn: string, groupId?: string): Promise<DeviceMetrics> {
+  const metrics = getEmptyMetrics();
 
-    if (response.code !== 0) {
-      console.warn(`[Ruijie] Metrics API returned code ${response.code}: ${response.msg}`);
-      return getEmptyMetrics();
+  // Get online client count from STA API
+  if (groupId) {
+    try {
+      const response = await ruijieFetch<StaUsersResponse>(
+        '/logbizagent/logbiz/api/sta/sta_users',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            groupId: parseInt(groupId, 10),
+            pageIndex: 0,
+          }),
+        }
+      );
+
+      if (response.code === 0 && response.list) {
+        // Count clients connected to this specific AP
+        metrics.online_clients = response.list.filter(sta => sta.sn === sn).length;
+      }
+    } catch (error) {
+      console.error(`[Ruijie] Failed to fetch STA list for ${sn}:`, error);
     }
-
-    return {
-      cpu_usage: response.cpuUsage ?? null,
-      memory_usage: response.memUsage ?? null,
-      uptime_seconds: response.uptime ?? null,
-      online_clients: response.onlineClients ?? 0,
-      radio_2g_channel: response.radio2gChannel ?? null,
-      radio_5g_channel: response.radio5gChannel ?? null,
-      radio_2g_utilization: response.radio2gUtilization ?? null,
-      radio_5g_utilization: response.radio5gUtilization ?? null,
-    };
-  } catch (error) {
-    console.error(`[Ruijie] Failed to fetch metrics for ${sn}:`, error);
-    return getEmptyMetrics();
   }
+
+  return metrics;
 }
 
 function getEmptyMetrics(): DeviceMetrics {
