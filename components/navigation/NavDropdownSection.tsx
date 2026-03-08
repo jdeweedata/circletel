@@ -8,7 +8,6 @@ interface NavDropdownSectionProps {
   columns?: 1 | 2;
   align?: 'left' | 'right';
   isActive: (path: string) => boolean;
-  onNavigate: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
   /** Optional: Extra items to prepend (like "Overview" links) */
   prependItems?: NavItem[];
 }
@@ -18,7 +17,6 @@ export function NavDropdownSection({
   columns = 2,
   align = 'left',
   isActive,
-  onNavigate,
   prependItems,
 }: NavDropdownSectionProps) {
   const widthClass = columns === 2
@@ -44,7 +42,6 @@ export function NavDropdownSection({
           key={item.href}
           item={item}
           isActive={isActive(item.href)}
-          onClick={(e) => onNavigate(e, item.href)}
         />
       ))}
     </ul>

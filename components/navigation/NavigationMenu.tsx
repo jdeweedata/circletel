@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -24,16 +24,10 @@ interface DesktopNavigationProps {
 
 export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
   const pathname = usePathname();
-  const router = useRouter();
   const currentPath = pathname;
 
   const isActive = (path: string) => {
     return currentPath === path || (path !== '/' && currentPath.startsWith(path));
-  };
-
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    router.push(href);
   };
 
   const dropdownContentClass =
@@ -58,7 +52,6 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
               items={managedITItems}
               columns={2}
               isActive={isActive}
-              onNavigate={handleNavClick}
             />
           </NavigationMenuContent>
         </NavigationMenuItem>
@@ -82,7 +75,6 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                   ? isActive('/connectivity') && !currentPath.includes('/connectivity/')
                   : isActive(path)
               }
-              onNavigate={handleNavClick}
               prependItems={[
                 {
                   name: 'Connectivity Overview',
@@ -109,7 +101,6 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
               items={cloudHostingItems}
               columns={2}
               isActive={isActive}
-              onNavigate={handleNavClick}
             />
           </NavigationMenuContent>
         </NavigationMenuItem>
@@ -129,7 +120,6 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
               items={resourcesItems}
               columns={2}
               isActive={isActive}
-              onNavigate={handleNavClick}
             />
           </NavigationMenuContent>
         </NavigationMenuItem>
@@ -154,7 +144,6 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
               columns={1}
               align="right"
               isActive={isActive}
-              onNavigate={handleNavClick}
             />
           </NavigationMenuContent>
         </NavigationMenuItem>
