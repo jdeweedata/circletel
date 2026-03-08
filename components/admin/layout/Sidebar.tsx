@@ -244,10 +244,25 @@ const navigationSections: NavSection[] = [
         description: 'Monitor subscriber connection health'
       },
       {
-        name: 'Devices',
-        href: '/admin/network/devices',
+        name: 'Network Management',
         icon: PiWifiHighBold,
-        description: 'Ruijie Cloud device management'
+        children: [
+          { name: 'Devices', href: '/admin/network/devices', icon: PiWifiHighBold },
+          { name: 'Health Monitor', href: '/admin/network/health', icon: PiPulseBold },
+          { name: 'Analytics', href: '/admin/network/analytics', icon: PiChartBarBold },
+          { name: 'Network Map', href: '/admin/network/map', icon: PiMapTrifoldBold },
+        ]
+      },
+    ]
+  },
+  {
+    label: 'Support',
+    items: [
+      {
+        name: 'Customer Devices',
+        href: '/admin/support/devices',
+        icon: PiUsersBold,
+        description: 'Look up customer linked devices'
       },
     ]
   },
