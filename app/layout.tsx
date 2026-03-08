@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { draftMode } from "next/headers";
 import "./globals.css";
 import { Inter, Manrope, JetBrains_Mono } from "next/font/google";
 
@@ -14,6 +15,7 @@ import { GoogleMapsProvider } from "@/components/providers/GoogleMapsProvider";
 import { OrderContextProvider } from "@/components/order/context/OrderContext";
 import { CustomerAuthProvider } from "@/components/providers/CustomerAuthProvider";
 import { WhatsAppFloatingButton } from "@/components/common/WhatsAppFloatingButton";
+import { DraftModeIndicator } from "@/components/sanity/DraftModeIndicator";
 
 export const metadata: Metadata = {
   title: "CircleTel - Reliable Tech Solutions",
@@ -98,11 +100,12 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { isEnabled: isDraftMode } = await draftMode();
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable} ${jetbrainsMono.variable} font-sans`}>
       <head>
@@ -128,6 +131,7 @@ export default function RootLayout({
                       <Toaster />
                       <Sonner />
                       <WhatsAppFloatingButton />
+                      {isDraftMode && <DraftModeIndicator />}
                       {children}
                       <Analytics />
                     </OrderContextProvider>

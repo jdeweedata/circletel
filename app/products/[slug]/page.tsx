@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
+import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { client } from '@/lib/sanity/client';
+import { client, previewClient } from '@/lib/sanity/client';
 import {
   PRODUCT_BY_SLUG_QUERY,
   PRODUCT_SLUGS_QUERY,
@@ -74,7 +75,11 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = await client.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
+  const { isEnabled: isDraftMode } = await draftMode();
+
+  // Use preview client when in draft mode to see unpublished changes
+  const sanityClient = isDraftMode ? previewClient : client;
+  const product = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
 
   if (!product) {
     notFound();

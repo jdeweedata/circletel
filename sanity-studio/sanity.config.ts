@@ -1,8 +1,12 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
+import { presentationTool } from 'sanity/presentation';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './schemas';
 import { structure } from './structure';
+
+// Preview URL for live editing
+const PREVIEW_URL = process.env.SANITY_STUDIO_PREVIEW_URL || 'https://www.circletel.co.za';
 
 export default defineConfig({
   name: 'circletel',
@@ -13,6 +17,21 @@ export default defineConfig({
 
   plugins: [
     structureTool({ structure }),
+    presentationTool({
+      previewUrl: {
+        draftMode: {
+          enable: `${PREVIEW_URL}/api/sanity/preview`,
+        },
+      },
+      resolve: {
+        mainDocuments: [
+          {
+            route: '/products/:slug',
+            filter: '_type == "productPage" && slug.current == $slug',
+          },
+        ],
+      },
+    }),
     visionTool(), // GROQ query playground
   ],
 
