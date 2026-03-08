@@ -1,26 +1,41 @@
 'use client';
-import { PiChatBold, PiEnvelopeBold, PiHouseBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiTrendUpBold, PiUserBold } from 'react-icons/pi';
+import { PiChatBold, PiEnvelopeBold, PiGlobeBold, PiHeadsetBold, PiHouseBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiPlusBold, PiTrendUpBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useOrderContext } from './context/OrderContext';
 
+const ADDON_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  globe: PiGlobeBold,
+  headset: PiHeadsetBold,
+  wifi: PiWifiHighBold,
+};
+
 export default function OrderSummary() {
   const { state } = useOrderContext();
   const { coverage, package: packageData, account, contact, installation } = state.orderData;
 
   const selectedPackage = packageData?.selectedPackage;
+  const selectedAddons = packageData?.selectedAddons || [];
   const pricing = packageData?.pricing;
 
-  // Calculate pricing
-  const basePrice = pricing?.monthly || selectedPackage?.monthlyPrice || 0;
-  const promotionPrice = selectedPackage?.promotion_price 
+  // Calculate base pricing (without addons for display)
+  const basePriceFromBreakdown = pricing?.breakdown?.find(b => b.name === selectedPackage?.name)?.amount;
+  const basePrice = basePriceFromBreakdown || pricing?.monthly || selectedPackage?.monthlyPrice || 0;
+  const promotionPrice = selectedPackage?.promotion_price
     ? (typeof selectedPackage.promotion_price === 'string' ? parseFloat(selectedPackage.promotion_price) : selectedPackage.promotion_price)
     : null;
   const hasPromotion = promotionPrice !== null && promotionPrice < basePrice;
   const deliveryFee = selectedPackage?.delivery_fee || 0;
   const activationFee = selectedPackage?.activation_fee || 0;
+
+  // Calculate add-ons total
+  const addonsTotal = selectedAddons.reduce(
+    (sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity,
+    0
+  );
+  const totalMonthly = basePrice + addonsTotal;
 
   // Format customer name
   const customerName = contact?.contactName ||
@@ -37,10 +52,10 @@ export default function OrderSummary() {
         </h3>
 
         <div className="space-y-3">
-          {/* Monthly Subscription */}
+          {/* Base Package */}
           <div className="bg-circleTel-lightNeutral rounded-lg p-3">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-circleTel-navy">Monthly Subscription</span>
+              <span className="text-sm font-medium text-circleTel-navy">{selectedPackage?.name || 'Monthly Subscription'}</span>
               {hasPromotion ? (
                 <div className="text-right">
                   <div className="text-xs text-gray-500 line-through">R{basePrice.toFixed(2)}</div>
@@ -56,6 +71,40 @@ export default function OrderSummary() {
               </Badge>
             )}
           </div>
+
+          {/* Selected Add-ons */}
+          {selectedAddons.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-circleTel-navy">
+                <PiPlusBold className="h-4 w-4 text-circleTel-orange" />
+                Add-ons
+              </div>
+              {selectedAddons.map((sa) => {
+                const IconComponent = ADDON_ICON_MAP[sa.addon.icon || ''] || PiPlusBold;
+                return (
+                  <div key={sa.addon.id} className="flex items-center justify-between bg-orange-50 rounded-lg p-2.5">
+                    <div className="flex items-center gap-2">
+                      <IconComponent className="h-4 w-4 text-circleTel-orange" />
+                      <span className="text-sm text-gray-700">{sa.addon.name}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-circleTel-orange">
+                      +R{sa.addon.price_incl_vat.toFixed(2)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Monthly Total (if add-ons present) */}
+          {selectedAddons.length > 0 && (
+            <div className="bg-circleTel-navy/5 border border-circleTel-navy/20 rounded-lg p-3">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-circleTel-navy">Total Monthly</span>
+                <span className="text-lg font-bold text-circleTel-navy">R{totalMonthly.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
 
           {/* Activation Fee */}
           {activationFee > 0 && (

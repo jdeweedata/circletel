@@ -14,7 +14,8 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
-import type { PackageDetails } from '@/lib/order/types';
+import type { PackageDetails, SelectedAddon } from '@/lib/order/types';
+import { AddonsSelection } from '@/components/order/AddonsSelection';
 import { NoCoverageLeadCapture } from '@/components/coverage/NoCoverageLeadCapture';
 import { LicensedWirelessLeadCapture } from '@/components/coverage/LicensedWirelessLeadCapture';
 import {
@@ -80,6 +81,7 @@ function PackagesContent() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [hasLicensedWireless, setHasLicensedWireless] = useState(false);
   const [requiresQuote, setRequiresQuote] = useState(false);
+  const [selectedAddons, setSelectedAddons] = useState<SelectedAddon[]>([]);
 
   // Phase 3: Pagination state - show 8 packages initially
   const [showAllPackages, setShowAllPackages] = useState(false);
@@ -256,22 +258,38 @@ function PackagesContent() {
         speed: `${selectedPackage.speed_down}/${selectedPackage.speed_up} Mbps`,
       };
 
-      // Save selected package to OrderContext (prices include VAT for customer display)
-      const priceInclVAT = addVAT(selectedPackage.promotion_price || selectedPackage.price);
+      // Calculate pricing including add-ons
+      const basePriceInclVAT = addVAT(selectedPackage.promotion_price || selectedPackage.price);
+      const addonsTotal = selectedAddons.reduce(
+        (sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity,
+        0
+      );
+      const totalMonthly = basePriceInclVAT + addonsTotal;
+
+      // Build breakdown including add-ons
+      const breakdown = [
+        {
+          name: selectedPackage.name,
+          amount: basePriceInclVAT,
+          type: 'monthly' as const,
+        },
+        ...selectedAddons.map((sa) => ({
+          name: sa.addon.name,
+          amount: sa.addon.price_incl_vat * sa.quantity,
+          type: 'monthly' as const,
+        })),
+      ];
+
+      // Save selected package and addons to OrderContext
       actions.updateOrderData({
         package: {
           selectedPackage: packageDetails,
+          selectedAddons: selectedAddons,
           pricing: {
-            monthly: priceInclVAT,
+            monthly: totalMonthly,
             onceOff: 0,
             vatIncluded: true,
-            breakdown: [
-              {
-                name: selectedPackage.name,
-                amount: priceInclVAT,
-                type: 'monthly',
-              },
-            ],
+            breakdown,
           },
         },
       });
@@ -696,11 +714,11 @@ function PackagesContent() {
 
               {/* Right Column: Sticky Detail Sidebar (Desktop Only) */}
               {selectedPackage && (
-                <div className="hidden lg:block lg:w-[400px]">
+                <div className="hidden lg:block lg:w-[400px] space-y-4">
                   <PackageDetailSidebar
-                    promoPrice={addVAT(selectedPackage.promotion_price || selectedPackage.price)}
+                    promoPrice={addVAT(selectedPackage.promotion_price || selectedPackage.price) + selectedAddons.reduce((sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity, 0)}
                     originalPrice={selectedPackage.promotion_price ? addVAT(selectedPackage.price) : undefined}
-                    promoDescription={selectedPackage.promotion_months ? `first ${selectedPackage.promotion_months} months` : undefined}
+                    promoDescription={selectedPackage.promotion_months ? `first ${selectedPackage.promotion_months} months` : selectedAddons.length > 0 ? `incl. ${selectedAddons.length} add-on${selectedAddons.length > 1 ? 's' : ''}` : undefined}
                     name={selectedPackage.name}
                     type={selectedPackage.description?.toLowerCase().includes('uncapped') || selectedPackage.name?.toLowerCase().includes('uncapped') ? 'uncapped' : undefined}
                     downloadSpeed={selectedPackage.speed_down}
@@ -713,6 +731,13 @@ function PackagesContent() {
                     }}
                     recommended={filteredPackages.indexOf(selectedPackage) === 0}
                     onOrderClick={handleContinue}
+                  />
+
+                  {/* Add-ons Selection */}
+                  <AddonsSelection
+                    productCategory={selectedPackage.product_category}
+                    selectedAddons={selectedAddons}
+                    onAddonsChange={setSelectedAddons}
                   />
                 </div>
               )}
@@ -813,7 +838,8 @@ function PackagesContent() {
               <div className="text-left flex-1">
                 <h3 className="font-bold text-base text-gray-900 truncate">{selectedPackage.name}</h3>
                 <p className="text-sm text-gray-600">
-                  R{addVAT(selectedPackage.promotion_price || selectedPackage.price).toLocaleString()}/month
+                  R{(addVAT(selectedPackage.promotion_price || selectedPackage.price) + selectedAddons.reduce((sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity, 0)).toLocaleString()}/month
+                  {selectedAddons.length > 0 && <span className="text-circleTel-orange"> +{selectedAddons.length} add-on{selectedAddons.length > 1 ? 's' : ''}</span>}
                 </p>
               </div>
             </div>

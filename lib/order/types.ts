@@ -21,11 +21,43 @@ export interface CoverageData {
   coverageType?: string;
   // Selected package stored with coverage (legacy pattern)
   selectedPackage?: PackageDetails;
+  // Bundle product preselection (from product page CTA)
+  selectedBundle?: BundleProduct;
+}
+
+// Arlan bundle products
+export type BundleProductSlug = 'business-complete' | 'remote-plus' | 'venue-plus';
+
+export interface BundleProduct {
+  slug: BundleProductSlug;
+  name: string;
+  category: 'business' | 'soho';
 }
 
 export interface PackageSelectionData {
   selectedPackage?: PackageDetails;
   pricing?: PricingDetails;
+  selectedAddons?: SelectedAddon[];
+}
+
+// Product add-on types
+export interface ProductAddon {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  short_description: string | null;
+  price: number;
+  price_incl_vat: number;
+  price_type: 'monthly' | 'once-off';
+  compatible_product_categories: string[];
+  icon: string | null;
+  sort_order: number;
+}
+
+export interface SelectedAddon {
+  addon: ProductAddon;
+  quantity: number;
 }
 
 export interface AccountData {
