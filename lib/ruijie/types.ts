@@ -111,6 +111,15 @@ export interface RuijieDeviceCacheRow {
   mock_data: boolean;
   created_at: string;
   updated_at: string;
+  // Customer linking (Phase 1 - Task 1.1)
+  customer_order_id: string | null;
+  corporate_site_id: string | null;
+  customer_name: string | null;
+  customer_email: string | null;
+  customer_phone: string | null;
+  support_notes: string | null;
+  support_notes_updated_at: string | null;
+  support_notes_updated_by: string | null;
 }
 
 export interface RuijieTunnelRow {
