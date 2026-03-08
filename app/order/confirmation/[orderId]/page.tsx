@@ -286,38 +286,53 @@ export default async function OrderConfirmationPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Next Steps Card */}
+        {/* Next Steps Card - Dynamic based on KYC status */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
             <h2 className="text-xl font-bold text-gray-900">What Happens Next?</h2>
           </div>
           <div className="px-6 py-6">
             <ol className="space-y-4">
+              {/* Show document verification step only if KYC is not yet approved */}
+              {kycStatus !== 'approved' && (
+                <li className="flex gap-4">
+                  <div className="flex-shrink-0 h-8 w-8 bg-circleTel-orange text-white rounded-full flex items-center justify-center font-bold">
+                    1
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {kycStatus === 'under_review' ? 'Document Review In Progress' : 'Document Verification'}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      {kycStatus === 'under_review'
+                        ? 'Our team is currently reviewing your documents. This typically takes 1-2 business days.'
+                        : kycStatus === 'rejected'
+                        ? 'Please resubmit the required documents to proceed with your order.'
+                        : hasKycDocuments
+                        ? 'Your documents have been received and are pending review.'
+                        : 'Please upload your verification documents to proceed with your order.'}
+                    </p>
+                  </div>
+                </li>
+              )}
+
               <li className="flex gap-4">
                 <div className="flex-shrink-0 h-8 w-8 bg-circleTel-orange text-white rounded-full flex items-center justify-center font-bold">
-                  1
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Document Verification</h3>
-                  <p className="text-gray-600 text-sm">
-                    Our team will review your documents within 1-2 business days.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-4">
-                <div className="flex-shrink-0 h-8 w-8 bg-circleTel-orange text-white rounded-full flex items-center justify-center font-bold">
-                  2
+                  {kycStatus === 'approved' ? '1' : '2'}
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Installation Scheduling</h3>
                   <p className="text-gray-600 text-sm">
-                    Once approved, we'll contact you to confirm your installation date.
+                    {kycStatus === 'approved'
+                      ? "We'll contact you shortly to confirm your preferred installation date."
+                      : "Once approved, we'll contact you to confirm your installation date."}
                   </p>
                 </div>
               </li>
+
               <li className="flex gap-4">
                 <div className="flex-shrink-0 h-8 w-8 bg-circleTel-orange text-white rounded-full flex items-center justify-center font-bold">
-                  3
+                  {kycStatus === 'approved' ? '2' : '3'}
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Professional Installation</h3>
@@ -326,9 +341,10 @@ export default async function OrderConfirmationPage({ params }: Props) {
                   </p>
                 </div>
               </li>
+
               <li className="flex gap-4">
                 <div className="flex-shrink-0 h-8 w-8 bg-circleTel-orange text-white rounded-full flex items-center justify-center font-bold">
-                  4
+                  {kycStatus === 'approved' ? '3' : '4'}
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Enjoy Your Service</h3>

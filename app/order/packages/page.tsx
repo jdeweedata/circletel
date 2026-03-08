@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SecureSignupProgress } from '@/components/ui/secure-signup-progress';
+import { CheckoutProgressBar } from '@/components/order/CheckoutProgressBar';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 
@@ -128,14 +128,32 @@ export default function OrderPackagesPage() {
     fetchPackages();
   }, [leadId]);
 
-  // Set default selected package when filteredPackages or selectedType changes
+  // Pre-select package from order context (for returning users) or default to first
   useEffect(() => {
-    if (!loading && filteredPackages.length > 0) {
-      setSelectedPackageId(filteredPackages[0].id);
-    } else {
-      setSelectedPackageId(null);
+    if (!loading && packages.length > 0) {
+      // Check if there's a saved selection in order context
+      const savedPackageId = orderState.orderData.package?.selectedPackage?.id;
+      const savedPackageType = orderState.orderData.package?.selectedPackage?.type;
+
+      if (savedPackageId) {
+        // Try to find the saved package in our list
+        const savedPackage = packages.find(pkg => pkg.id === savedPackageId);
+        if (savedPackage) {
+          setSelectedPackageId(savedPackageId);
+          setSelectedType(savedPackage.type);
+          return;
+        }
+      }
+
+      // Default to first package of current type
+      const filteredByType = packages.filter(pkg => pkg.type === selectedType);
+      if (filteredByType.length > 0) {
+        setSelectedPackageId(filteredByType[0].id);
+      } else {
+        setSelectedPackageId(null);
+      }
     }
-  }, [loading, selectedType, packages]);
+  }, [loading, packages]);
 
   // Save selected package to order context when it changes
   useEffect(() => {
@@ -251,12 +269,8 @@ export default function OrderPackagesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-6">
-          <SecureSignupProgress currentStep="package" variant="full" />
-        </div>
-      </div>
+      {/* Progress Bar */}
+      <CheckoutProgressBar currentStage="package" />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 md:py-12">

@@ -205,11 +205,20 @@ export function ErrorRecoveryBanner({
               </p>
             )}
 
-            {/* Retry count warning */}
-            {retryCount >= 2 && (
-              <p className="text-xs text-red-600 mt-2 font-medium">
-                Multiple attempts failed. Consider contacting support or trying a different payment method.
-              </p>
+            {/* Retry count warning - Progressive urgency */}
+            {retryCount === 2 && (
+              <div className="bg-amber-100 border border-amber-300 rounded-md p-2 mt-3">
+                <p className="text-xs text-amber-800 font-medium">
+                  ⚠️ This is your last automatic retry. If this fails, please contact support.
+                </p>
+              </div>
+            )}
+            {retryCount >= 3 && (
+              <div className="bg-red-100 border border-red-300 rounded-md p-2 mt-3">
+                <p className="text-xs text-red-800 font-medium">
+                  Maximum retries reached. Please contact support or try a different payment method.
+                </p>
+              </div>
             )}
           </div>
         </div>

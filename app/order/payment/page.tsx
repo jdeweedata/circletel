@@ -4,7 +4,7 @@ import { PiArrowLeftBold, PiArrowRightBold, PiCheckCircleBold, PiCreditCardBold,
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOrderContext } from '@/components/order/context/OrderContext';
-import { TopProgressBar } from '@/components/order/TopProgressBar';
+import { CheckoutProgressBar } from '@/components/order/CheckoutProgressBar';
 import { PackageSummary } from '@/components/order/PackageSummary';
 import { OrderCreatedBanner } from '@/components/order/OrderCreatedBanner';
 import { ErrorRecoveryBanner, ErrorType } from '@/components/order/ErrorRecoveryBanner';
@@ -12,6 +12,16 @@ import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   saveOrderData,
   recordPaymentAttempt,
@@ -27,6 +37,7 @@ export default function PaymentPage() {
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<ErrorType | undefined>(undefined);
   const [retryCount, setRetryCount] = useState(0);
+  const [showRedirectModal, setShowRedirectModal] = useState(false);
 
   // Track created order for display
   const [createdOrder, setCreatedOrder] = useState<{
@@ -226,16 +237,11 @@ export default function PaymentPage() {
 
       const { paymentUrl } = await paymentResponse.json();
 
-      // Step 3: Redirect to Netcash payment page
-      toast.success('Redirecting to secure payment...');
-
-      // Mark step as complete
+      // Step 3: Mark step as complete and redirect
       actions.markStepComplete(3);
 
-      // Small delay for user to see toast
-      setTimeout(() => {
-        window.location.href = paymentUrl;
-      }, 1000);
+      // Redirect to Netcash payment page
+      window.location.href = paymentUrl;
 
     } catch (err) {
       console.error('Payment initiation error:', err);
@@ -326,7 +332,7 @@ export default function PaymentPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       {/* Progress Bar */}
-      <TopProgressBar currentStep={3} />
+      <CheckoutProgressBar currentStage="payment" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Header */}
@@ -335,10 +341,10 @@ export default function PaymentPage() {
             <PiCreditCardBold className="w-8 h-8 text-circleTel-orange" />
           </div>
           <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
-            Complete Your Payment
+            Verify Your Payment Method
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            You're one step away from high-speed connectivity
+            A small validation charge confirms your card. Your first bill is processed after activation.
           </p>
         </div>
 
@@ -353,6 +359,23 @@ export default function PaymentPage() {
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 lg:p-8">
+              {/* Validation Only Banner - Prominent */}
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="bg-amber-100 rounded-full p-2">
+                    <PiCheckCircleBold className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-bold text-amber-900 uppercase tracking-wide">
+                      Validation Only — R1.00
+                    </p>
+                    <p className="text-xs text-amber-700">
+                      Your first bill of <strong className="text-amber-900">R{basePrice.toFixed(2)}/month</strong> will be processed after activation
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Security Badge */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                 <div className="flex items-start gap-3">
@@ -537,7 +560,7 @@ export default function PaymentPage() {
 
                 <button
                   type="button"
-                  onClick={handlePayment}
+                  onClick={() => setShowRedirectModal(true)}
                   disabled={isProcessing}
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -582,6 +605,51 @@ export default function PaymentPage() {
           </div>
         </div>
       </div>
+
+      {/* Payment Redirect Confirmation Modal */}
+      <AlertDialog open={showRedirectModal} onOpenChange={setShowRedirectModal}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-circleTel-orange/10 rounded-full">
+              <PiShieldBold className="w-6 h-6 text-circleTel-orange" />
+            </div>
+            <AlertDialogTitle className="text-center">
+              Redirecting to Secure Payment
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              You'll be redirected to NetCash's secure payment gateway to complete a{' '}
+              <strong className="text-gray-900">R1.00 validation charge</strong>.
+              This amount will be credited to your account.
+              <br /><br />
+              <span className="text-gray-700">
+                Your monthly subscription of <strong className="text-circleTel-orange">R{basePrice.toFixed(2)}/month</strong>{' '}
+                will be billed separately after service activation.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:flex-row gap-2">
+            <AlertDialogCancel className="flex-1">
+              Go Back
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handlePayment}
+              className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+            >
+              {isProcessing ? (
+                <>
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <PiLockBold className="w-4 h-4 mr-2" />
+                  Continue to Payment
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

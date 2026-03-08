@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { CheckoutProgressBar } from '@/components/order/CheckoutProgressBar';
 
 export default function VerifyOTPPage() {
   const router = useRouter();
@@ -37,9 +38,16 @@ export default function VerifyOTPPage() {
     }
   }, [phone, router]);
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  // Auto-submit when 6 digits entered
+  useEffect(() => {
+    if (otp.length === 6 && !isVerifying) {
+      handleVerify();
+    }
+  }, [otp]);
+
+  const handleVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
     if (otp.length !== 6) {
       toast.error('Please enter a valid 6-digit code');
       return;
@@ -115,7 +123,11 @@ export default function VerifyOTPPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50">
+      {/* Progress Bar */}
+      <CheckoutProgressBar currentStage="verify" />
+
+      <div className="flex items-center justify-center p-4 pt-8">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           {/* Icon */}
@@ -136,26 +148,24 @@ export default function VerifyOTPPage() {
             </p>
           </div>
 
-          {/* Email Verification Notice */}
+          {/* Email Verification Notice - More Urgent */}
           {email && (
-            <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="mb-6 bg-amber-50 border-2 border-amber-300 rounded-lg p-4">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
-                  <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                  <svg className="w-5 h-5 text-amber-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-blue-900 mb-1">
-                    Email Verification Required
+                  <h3 className="text-sm font-bold text-amber-900 mb-1">
+                    Action Required: Verify Your Email
                   </h3>
-                  <p className="text-xs text-blue-800 leading-relaxed mb-2">
+                  <p className="text-xs text-amber-800 leading-relaxed mb-2">
                     We've sent a verification link to <strong>{email}</strong>
                   </p>
-                  <p className="text-xs text-blue-700">
-                    Please check your inbox and click the link to verify your email address before logging in.
-                    Don't forget to check your spam folder!
+                  <p className="text-xs text-amber-700 font-medium">
+                    You must verify your email before you can log in to your account. Check your inbox and spam folder now!
                   </p>
                 </div>
               </div>
@@ -183,7 +193,7 @@ export default function VerifyOTPPage() {
                 required
               />
               <p className="text-xs text-gray-500 text-center">
-                Enter the 6-digit code sent to your phone
+                Enter the 6-digit code sent to your phone — auto-verifies when complete
               </p>
             </div>
 
@@ -234,6 +244,7 @@ export default function VerifyOTPPage() {
             </div>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );

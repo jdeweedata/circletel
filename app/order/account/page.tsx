@@ -3,7 +3,7 @@ import { PiArrowLeftBold, PiEyeBold, PiEyeSlashBold, PiInfoBold, PiLockBold } fr
 
 import React from 'react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
-import { TopProgressBar } from '@/components/order/TopProgressBar';
+import { CheckoutProgressBar } from '@/components/order/CheckoutProgressBar';
 import { PackageSummary } from '@/components/order/PackageSummary';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
@@ -293,7 +293,7 @@ export default function AccountPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         {/* Progress Bar */}
-        <TopProgressBar currentStep={1} />
+        <CheckoutProgressBar currentStage="account" />
 
         <div className="w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           <div className="max-w-7xl mx-auto">

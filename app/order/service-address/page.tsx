@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
-import { TopProgressBar } from '@/components/order/TopProgressBar';
+import { CheckoutProgressBar } from '@/components/order/CheckoutProgressBar';
 import { PackageSummary } from '@/components/order/PackageSummary';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
@@ -352,7 +352,7 @@ export default function ServiceAddressPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         {/* Progress Bar */}
-        <TopProgressBar currentStep={2} />
+        <CheckoutProgressBar currentStage="address" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Header */}
@@ -430,13 +430,20 @@ export default function ServiceAddressPage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                   <div className="flex items-start gap-3">
                     <PiMapPinBold className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div>
+                    <div className="flex-1">
                       <p className="text-sm font-medium text-blue-900 mb-1">
                         Service Address (from Coverage Check)
                       </p>
-                      <p className="text-xs text-blue-700">
-                        This address cannot be changed. If you need to check a different address, please start a new coverage check.
+                      <p className="text-xs text-blue-700 mb-2">
+                        This address was confirmed during your coverage check.
                       </p>
+                      <button
+                        type="button"
+                        onClick={() => router.push('/order/coverage')}
+                        className="text-xs font-medium text-circleTel-orange hover:text-circleTel-orange-dark hover:underline transition-colors"
+                      >
+                        Check a different address →
+                      </button>
                     </div>
                   </div>
                 </div>
