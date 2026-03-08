@@ -75,6 +75,10 @@ export {
 } from './functions/ruijie-offline-alerts';
 
 export {
+  ruijieHealthMonitorFunction,
+} from './functions/ruijie-health-monitor';
+
+export {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -147,6 +151,10 @@ import {
 } from './functions/ruijie-offline-alerts';
 
 import {
+  ruijieHealthMonitorFunction,
+} from './functions/ruijie-health-monitor';
+
+import {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -194,6 +202,8 @@ export const functions = [
   ruijieTokenRefreshFailedFunction,
   // Ruijie offline device alerts
   ruijieOfflineAlertsFunction,
+  // Ruijie health monitoring
+  ruijieHealthMonitorFunction,
   // MikroTik router sync
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
