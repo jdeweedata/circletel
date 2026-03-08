@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { UnderlineTabs, TabPanel, SectionCard } from '@/components/admin/shared';
-import { DeviceHeader, DeviceStatCards, DeviceSupportNotes, DeviceCustomerLink } from '@/components/admin/network/detail';
+import { DeviceHeader, DeviceStatCards, DeviceSupportNotes, DeviceCustomerLink, DeviceClientList } from '@/components/admin/network/detail';
 
 interface RuijieDevice {
   sn: string;
@@ -82,6 +82,7 @@ interface AuditEntry {
 
 const TAB_CONFIG = [
   { id: 'overview', label: 'Overview' },
+  { id: 'clients', label: 'Clients' },
   { id: 'radio', label: 'Radio' },
   { id: 'tunnel', label: 'Tunnel' },
   { id: 'history', label: 'History' },
@@ -448,6 +449,11 @@ export default function RuijieDeviceDetailPage({
               <DeviceSupportNotes sn={sn} />
             </div>
           </div>
+        </TabPanel>
+
+        {/* CLIENTS TAB */}
+        <TabPanel id="clients" activeTab={activeTab} className="mt-6">
+          <DeviceClientList sn={sn} />
         </TabPanel>
 
         {/* RADIO TAB */}

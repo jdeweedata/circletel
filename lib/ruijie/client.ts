@@ -366,6 +366,122 @@ function getEmptyMetrics(): DeviceMetrics {
 }
 
 // =============================================================================
+// CONNECTED CLIENTS (STA API)
+// =============================================================================
+
+/**
+ * Client/Station information from Ruijie STA API
+ */
+export interface RuijieClient {
+  mac: string;
+  userIp: string;
+  ssid: string;
+  rssi: number;
+  band: string;
+  channel: number;
+  sn: string; // AP serial number this client is connected to
+  signalQuality: 'excellent' | 'good' | 'fair' | 'poor';
+}
+
+/**
+ * Get RSSI quality classification
+ * Based on industry standards:
+ * - Excellent: > -50 dBm
+ * - Good: -50 to -60 dBm
+ * - Fair: -60 to -70 dBm
+ * - Poor: < -70 dBm
+ */
+function getSignalQuality(rssi: number): 'excellent' | 'good' | 'fair' | 'poor' {
+  if (rssi > -50) return 'excellent';
+  if (rssi > -60) return 'good';
+  if (rssi > -70) return 'fair';
+  return 'poor';
+}
+
+/**
+ * Get connected clients for a specific device
+ * Calls the STA (station) API and filters by device serial number
+ *
+ * @param sn - Device serial number
+ * @param groupId - Group ID (required for STA API)
+ * @returns Array of connected clients with signal quality
+ */
+export async function getDeviceClients(sn: string, groupId: string): Promise<RuijieClient[]> {
+  if (MOCK_MODE) {
+    // Return mock clients for testing
+    return [
+      {
+        mac: '00:1A:2B:3C:4D:5E',
+        userIp: '192.168.1.101',
+        ssid: 'CircleTel-WiFi',
+        rssi: -45,
+        band: '5G',
+        channel: 36,
+        sn,
+        signalQuality: 'excellent',
+      },
+      {
+        mac: '00:1A:2B:3C:4D:5F',
+        userIp: '192.168.1.102',
+        ssid: 'CircleTel-WiFi',
+        rssi: -58,
+        band: '5G',
+        channel: 36,
+        sn,
+        signalQuality: 'good',
+      },
+      {
+        mac: 'AA:BB:CC:DD:EE:FF',
+        userIp: '192.168.1.103',
+        ssid: 'CircleTel-Guest',
+        rssi: -67,
+        band: '2.4G',
+        channel: 6,
+        sn,
+        signalQuality: 'fair',
+      },
+    ];
+  }
+
+  try {
+    const response = await ruijieFetch<StaUsersResponse>(
+      '/logbizagent/logbiz/api/sta/sta_users',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          groupId: parseInt(groupId, 10),
+          pageIndex: 0,
+        }),
+      }
+    );
+
+    if (response.code !== 0 || !response.list) {
+      return [];
+    }
+
+    // Filter clients connected to this specific AP and transform
+    return response.list
+      .filter(sta => sta.sn === sn)
+      .map(sta => {
+        const rssi = parseInt(sta.rssi, 10) || -80;
+        return {
+          mac: sta.mac,
+          userIp: sta.userIp,
+          ssid: sta.ssid,
+          rssi,
+          band: sta.band,
+          channel: parseInt(sta.channel, 10) || 0,
+          sn: sta.sn,
+          signalQuality: getSignalQuality(rssi),
+        };
+      });
+  } catch (error) {
+    console.error(`[Ruijie] Failed to fetch clients for ${sn}:`, error);
+    return [];
+  }
+}
+
+// =============================================================================
 // TUNNEL OPERATIONS
 // =============================================================================
 
