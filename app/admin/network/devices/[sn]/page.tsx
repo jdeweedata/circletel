@@ -145,12 +145,29 @@ export default function RuijieDeviceDetailPage({
       setDevice(data.device);
       setTunnels(data.tunnels || []);
       setError(null);
+      return data.device;
     } catch (err) {
       setError('Failed to load device');
       console.error(err);
+      return null;
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  }, [sn]);
+
+  const fetchMetrics = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/ruijie/devices/${sn}/metrics`, {
+        credentials: 'include',
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data.metrics) {
+        setDevice(prev => prev ? { ...prev, ...data.metrics } : prev);
+      }
+    } catch (err) {
+      console.error('Failed to fetch metrics:', err);
     }
   }, [sn]);
 
@@ -168,9 +185,16 @@ export default function RuijieDeviceDetailPage({
   }, [sn]);
 
   useEffect(() => {
-    fetchDevice();
-    fetchAuditLog();
-  }, [fetchDevice, fetchAuditLog]);
+    const loadData = async () => {
+      const deviceData = await fetchDevice();
+      // Fetch live metrics if device is online
+      if (deviceData?.status === 'online') {
+        fetchMetrics();
+      }
+      fetchAuditLog();
+    };
+    loadData();
+  }, [fetchDevice, fetchMetrics, fetchAuditLog]);
 
   // Update countdown timer
   useEffect(() => {
@@ -198,7 +222,10 @@ export default function RuijieDeviceDetailPage({
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchDevice();
+    const deviceData = await fetchDevice();
+    if (deviceData?.status === 'online') {
+      await fetchMetrics();
+    }
     await fetchAuditLog();
   };
 

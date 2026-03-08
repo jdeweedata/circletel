@@ -279,6 +279,76 @@ export async function getDevice(sn: string): Promise<RuijieDevice> {
 }
 
 // =============================================================================
+// DEVICE METRICS
+// =============================================================================
+
+interface DeviceMetricsResponse {
+  code: number;
+  msg?: string;
+  cpuUsage?: number;
+  memUsage?: number;
+  uptime?: number;
+  onlineClients?: number;
+  radio2gChannel?: number;
+  radio5gChannel?: number;
+  radio2gUtilization?: number;
+  radio5gUtilization?: number;
+}
+
+export interface DeviceMetrics {
+  cpu_usage: number | null;
+  memory_usage: number | null;
+  uptime_seconds: number | null;
+  online_clients: number;
+  radio_2g_channel: number | null;
+  radio_5g_channel: number | null;
+  radio_2g_utilization: number | null;
+  radio_5g_utilization: number | null;
+}
+
+/**
+ * Get device performance metrics
+ * Endpoint: /service/api/device/{sn}/performance (v2.0.3)
+ */
+export async function getDeviceMetrics(sn: string): Promise<DeviceMetrics> {
+  try {
+    const response = await ruijieFetch<DeviceMetricsResponse>(`/device/${sn}/performance`);
+
+    if (response.code !== 0) {
+      console.warn(`[Ruijie] Metrics API returned code ${response.code}: ${response.msg}`);
+      return getEmptyMetrics();
+    }
+
+    return {
+      cpu_usage: response.cpuUsage ?? null,
+      memory_usage: response.memUsage ?? null,
+      uptime_seconds: response.uptime ?? null,
+      online_clients: response.onlineClients ?? 0,
+      radio_2g_channel: response.radio2gChannel ?? null,
+      radio_5g_channel: response.radio5gChannel ?? null,
+      radio_2g_utilization: response.radio2gUtilization ?? null,
+      radio_5g_utilization: response.radio5gUtilization ?? null,
+    };
+  } catch (error) {
+    console.error(`[Ruijie] Failed to fetch metrics for ${sn}:`, error);
+    return getEmptyMetrics();
+  }
+}
+
+function getEmptyMetrics(): DeviceMetrics {
+  return {
+    cpu_usage: null,
+    memory_usage: null,
+    uptime_seconds: null,
+    online_clients: 0,
+    radio_2g_channel: null,
+    radio_5g_channel: null,
+    radio_2g_utilization: null,
+    radio_5g_utilization: null,
+  };
+}
+
+// =============================================================================
 // TUNNEL OPERATIONS
 // =============================================================================
 
