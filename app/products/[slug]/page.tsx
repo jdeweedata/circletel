@@ -27,6 +27,8 @@ import {
 } from 'react-icons/pi';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { ProductHowItWorks } from '@/components/products/ProductHowItWorks';
+import { WhyCircleTel } from '@/components/products/WhyCircleTel';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -209,9 +211,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </section>
       )}
 
+      {/* How It Works */}
+      <ProductHowItWorks productSlug={product.slug} />
+
       {/* Specifications */}
       {product.specifications && product.specifications.length > 0 && (
-        <section className="py-16 md:py-24 bg-slate-50">
+        <section className="py-16 md:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-center mb-12">
               Technical Specifications
@@ -243,6 +248,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </section>
       )}
+
+      {/* Why CircleTel */}
+      <WhyCircleTel />
 
       {/* CTA Section */}
       <section className="py-16 md:py-24 bg-primary text-white">

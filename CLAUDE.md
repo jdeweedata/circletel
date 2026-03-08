@@ -103,6 +103,7 @@ All detailed patterns are in `.claude/rules/`:
 | `verify-schema-first.md` | Check DB schema before coding |
 | `type-guards-optionals.md` | Safe access to optional/nested properties |
 | `api-param-documentation.md` | Document API params with Wrong vs Correct tables |
+| `product-management.md` | Product skills triggers, suppliers, wholesale providers |
 
 ---
 
@@ -112,6 +113,7 @@ All detailed patterns are in `.claude/rules/`:
 - **Orders**: 3-stage flow (Coverage → Package → Account) via Zustand store
 - **Payments**: NetCash Pay Now (20+ methods) — See `components/checkout/InlinePaymentForm.tsx`
 - **B2B KYC**: 7-stage workflow — See `docs/architecture/ADMIN_SUPABASE_ZOHO_INTEGRATION.md`
+- **Product Pages**: CRO-optimized structure — See `components/products/ProductHowItWorks.tsx`, `WhyCircleTel.tsx`
 
 Full docs: `docs/architecture/SYSTEM_OVERVIEW.md`
 
@@ -200,6 +202,19 @@ See `.claude/rules/compound-learnings.md` for triggers and templates.
 | `superpowers:using-git-worktrees` | When feature work needs isolation from main branch |
 | `superpowers:writing-skills` | When creating or editing Claude Code skills |
 
+### Product Management Skills (invoke for product work)
+
+| Skill | Trigger |
+|-------|---------|
+| `product-management:product` | Product strategy questions, overview menu |
+| `product-management:browse-suppliers` | Hardware from Scoop, MiRO, Nology |
+| `product-management:wholesale-providers` | MTN, Echo SP, DFA, Arlan services/pricing |
+| `product-management:market-fit` | Evaluating viability, margin calc, GO/NO-GO |
+| `product-management:generate-docs` | Creating CPS, BRD, FSD documentation |
+| `product-management:product-lifecycle` | Tracking IDEA → DRAFT → ACTIVE → ARCHIVED |
+
+See `.claude/rules/product-management.md` for detailed triggers.
+
 **Rule**: Never skip a gate. If unsure whether a skill applies, invoke it — the skill will tell you if it's not needed.
 
 ---
@@ -232,4 +247,4 @@ npm run type-check:memory
 
 ---
 
-**Version**: 8.0 | **Updated**: 2026-03-06 | **Lines**: ~170
+**Version**: 8.1 | **Updated**: 2026-03-08 | **Lines**: ~185

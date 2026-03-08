@@ -573,6 +573,8 @@ components/
 │
 ├── products/                   # Product display
 │   ├── ProductCard.tsx         # Product card
+│   ├── ProductHowItWorks.tsx   # 3-step process section (CRO)
+│   ├── WhyCircleTel.tsx        # Value props section (CRO)
 │   ├── PricingTable.tsx        # Pricing display
 │   └── FeatureList.tsx         # Feature listing
 │
