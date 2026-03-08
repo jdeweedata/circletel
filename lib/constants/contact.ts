@@ -11,8 +11,9 @@ export const CONTACT = {
   WHATSAPP_LINK: 'https://wa.me/27824873900',
   WHATSAPP_INTERNATIONAL: '+27 82 487 3900',
 
-  // Sales phone (for B2B inquiries only)
-  PHONE_SALES: '010 880 3663',
+  // Sales phone (OUTBOUND only - not for public display)
+  // Inbound sales: WhatsApp or sales@circletel.co.za → ZOHO Desk
+  PHONE_SALES_OUTBOUND: '010 880 3663',
 
   // Email addresses
   EMAIL_PRIMARY: 'contactus@circletel.co.za', // Use this for all public-facing contact

@@ -15,6 +15,7 @@ import { GoogleMapsProvider } from "@/components/providers/GoogleMapsProvider";
 import { OrderContextProvider } from "@/components/order/context/OrderContext";
 import { CustomerAuthProvider } from "@/components/providers/CustomerAuthProvider";
 import { WhatsAppFloatingButton } from "@/components/common/WhatsAppFloatingButton";
+import { StickyMobileCTA } from "@/components/navigation/StickyMobileCTA";
 import { DraftModeIndicator } from "@/components/sanity/DraftModeIndicator";
 
 export const metadata: Metadata = {
@@ -131,6 +132,7 @@ export default async function RootLayout({
                       <Toaster />
                       <Sonner />
                       <WhatsAppFloatingButton />
+                      <StickyMobileCTA />
                       {isDraftMode && <DraftModeIndicator />}
                       {children}
                       <Analytics />
