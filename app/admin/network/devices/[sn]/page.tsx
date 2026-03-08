@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { UnderlineTabs, TabPanel, SectionCard } from '@/components/admin/shared';
-import { DeviceHeader, DeviceStatCards } from '@/components/admin/network/detail';
+import { DeviceHeader, DeviceStatCards, DeviceSupportNotes } from '@/components/admin/network/detail';
 
 interface RuijieDevice {
   sn: string;
@@ -433,6 +433,11 @@ export default function RuijieDeviceDetailPage({
                 </div>
               </div>
             </SectionCard>
+
+            {/* Support Notes - spans full width */}
+            <div className="lg:col-span-2">
+              <DeviceSupportNotes sn={sn} />
+            </div>
           </div>
         </TabPanel>
 
