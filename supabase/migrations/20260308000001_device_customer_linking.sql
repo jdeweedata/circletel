@@ -4,19 +4,19 @@
 
 -- Add customer linking columns to ruijie_device_cache
 ALTER TABLE ruijie_device_cache
-ADD COLUMN customer_order_id UUID REFERENCES consumer_orders(id) ON DELETE SET NULL,
-ADD COLUMN corporate_site_id UUID REFERENCES corporate_sites(id) ON DELETE SET NULL,
-ADD COLUMN customer_name TEXT,
-ADD COLUMN customer_email TEXT,
-ADD COLUMN customer_phone TEXT,
-ADD COLUMN support_notes TEXT,
-ADD COLUMN support_notes_updated_at TIMESTAMPTZ,
-ADD COLUMN support_notes_updated_by UUID REFERENCES admin_users(id);
+ADD COLUMN IF NOT EXISTS customer_order_id UUID REFERENCES consumer_orders(id) ON DELETE SET NULL,
+ADD COLUMN IF NOT EXISTS corporate_site_id UUID REFERENCES corporate_sites(id) ON DELETE SET NULL,
+ADD COLUMN IF NOT EXISTS customer_name TEXT,
+ADD COLUMN IF NOT EXISTS customer_email TEXT,
+ADD COLUMN IF NOT EXISTS customer_phone TEXT,
+ADD COLUMN IF NOT EXISTS support_notes TEXT,
+ADD COLUMN IF NOT EXISTS support_notes_updated_at TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS support_notes_updated_by UUID REFERENCES admin_users(id);
 
 -- Index for customer lookups
-CREATE INDEX idx_ruijie_device_cache_customer_order ON ruijie_device_cache(customer_order_id) WHERE customer_order_id IS NOT NULL;
-CREATE INDEX idx_ruijie_device_cache_corporate_site ON ruijie_device_cache(corporate_site_id) WHERE corporate_site_id IS NOT NULL;
-CREATE INDEX idx_ruijie_device_cache_customer_email ON ruijie_device_cache(customer_email) WHERE customer_email IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_ruijie_device_cache_customer_order ON ruijie_device_cache(customer_order_id) WHERE customer_order_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_ruijie_device_cache_corporate_site ON ruijie_device_cache(corporate_site_id) WHERE corporate_site_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_ruijie_device_cache_customer_email ON ruijie_device_cache(customer_email) WHERE customer_email IS NOT NULL;
 
 -- Comments for documentation
 COMMENT ON COLUMN ruijie_device_cache.customer_order_id IS 'Link to consumer_orders for residential customers';
