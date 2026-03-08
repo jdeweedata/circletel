@@ -640,6 +640,289 @@ export async function rebootDevice(sn: string): Promise<{ success: boolean }> {
 }
 
 // =============================================================================
+// TRAFFIC / BANDWIDTH ANALYTICS
+// =============================================================================
+
+/**
+ * Traffic data point from Ruijie hourly flow API
+ */
+export interface TrafficDataPoint {
+  timestamp: number;       // Unix timestamp in milliseconds
+  timeString: string;      // Human readable: "2021-09-23 03:30:00"
+  rxBytes: number;         // Download bytes
+  txBytes: number;         // Upload bytes
+  rxPkts: number;          // Download packets
+  txPkts: number;          // Upload packets
+  buildingId: number;      // Group/building ID
+}
+
+/**
+ * Application flow data from Ruijie App Flow API
+ */
+export interface AppFlowData {
+  appGroupName: string;    // e.g., "Streaming", "Social", "Other"
+  appName: string;         // e.g., "TikTok", "YouTube"
+  downFlow: number;        // Download bytes
+  upFlow: number;          // Upload bytes
+  upDownFlow: number;      // Total bytes
+}
+
+/**
+ * Aggregated traffic summary
+ */
+export interface TrafficSummary {
+  totalRxBytes: number;
+  totalTxBytes: number;
+  totalBytes: number;
+  avgRxRate: number;       // Average download rate in bps
+  avgTxRate: number;       // Average upload rate in bps
+  peakRxBytes: number;     // Highest hourly download
+  peakTxBytes: number;     // Highest hourly upload
+  dataPoints: TrafficDataPoint[];
+}
+
+/**
+ * API response for hourly traffic
+ * Endpoint: /logbizagent/logbiz/api/flow/show/hour
+ */
+interface HourlyTrafficResponse {
+  code: number;
+  msg?: string;
+  count?: number;
+  list?: Array<{
+    buildingId: number;
+    rxBytes: number;
+    rxPkts: number;
+    txBytes: number;
+    txPkts: number;
+    timeString: string;
+    timeStamp: number;
+  }>;
+}
+
+/**
+ * API response for application flow
+ * Endpoint: /logbizagent/logbiz/api/flow/app
+ */
+interface AppFlowResponse {
+  code: number;
+  msg?: string;
+  totalCount?: number;
+  list?: Array<{
+    appGroupName: string;
+    appName: string;
+    downFlow: number;
+    upFlow: number;
+    upDownFlow: number;
+  }>;
+}
+
+/**
+ * Generate mock traffic data for testing
+ */
+function generateMockTrafficData(hours: number): TrafficDataPoint[] {
+  const now = Date.now();
+  const dataPoints: TrafficDataPoint[] = [];
+
+  for (let i = hours; i >= 0; i--) {
+    const timestamp = now - (i * 60 * 60 * 1000);
+    const date = new Date(timestamp);
+    const hour = date.getHours();
+
+    // Simulate realistic traffic patterns (higher during business hours)
+    const baseMultiplier = (hour >= 8 && hour <= 18) ? 1.5 : 0.7;
+    const randomFactor = 0.8 + Math.random() * 0.4;
+
+    dataPoints.push({
+      timestamp,
+      timeString: date.toISOString().replace('T', ' ').substring(0, 19),
+      rxBytes: Math.floor(50_000_000 * baseMultiplier * randomFactor),  // ~50MB base
+      txBytes: Math.floor(15_000_000 * baseMultiplier * randomFactor),  // ~15MB base (asymmetric)
+      rxPkts: Math.floor(50000 * baseMultiplier * randomFactor),
+      txPkts: Math.floor(15000 * baseMultiplier * randomFactor),
+      buildingId: 1,
+    });
+  }
+
+  return dataPoints;
+}
+
+/**
+ * Generate mock app flow data for testing
+ */
+function generateMockAppFlowData(): AppFlowData[] {
+  const apps = [
+    { appGroupName: 'Streaming', appName: 'YouTube', factor: 0.25 },
+    { appGroupName: 'Streaming', appName: 'Netflix', factor: 0.15 },
+    { appGroupName: 'Social', appName: 'TikTok', factor: 0.12 },
+    { appGroupName: 'Social', appName: 'WhatsApp', factor: 0.08 },
+    { appGroupName: 'Social', appName: 'Facebook', factor: 0.07 },
+    { appGroupName: 'Work', appName: 'Microsoft Teams', factor: 0.10 },
+    { appGroupName: 'Work', appName: 'Google Meet', factor: 0.05 },
+    { appGroupName: 'Gaming', appName: 'Steam', factor: 0.08 },
+    { appGroupName: 'Other', appName: 'System Updates', factor: 0.06 },
+    { appGroupName: 'Other', appName: 'Unknown', factor: 0.04 },
+  ];
+
+  const totalTraffic = 500_000_000; // 500MB total
+
+  return apps.map(app => {
+    const total = Math.floor(totalTraffic * app.factor);
+    const down = Math.floor(total * 0.75); // 75% download
+    return {
+      appGroupName: app.appGroupName,
+      appName: app.appName,
+      downFlow: down,
+      upFlow: total - down,
+      upDownFlow: total,
+    };
+  });
+}
+
+/**
+ * Get network-wide traffic data (hourly)
+ *
+ * @param groupId - Network group ID
+ * @param hours - Number of hours of data to fetch (default 24)
+ * @returns Traffic summary with data points
+ */
+export async function getNetworkTraffic(groupId: string, hours: number = 24): Promise<TrafficSummary> {
+  if (MOCK_MODE) {
+    const dataPoints = generateMockTrafficData(hours);
+    return calculateTrafficSummary(dataPoints);
+  }
+
+  try {
+    const response = await ruijieFetch<HourlyTrafficResponse>(
+      '/logbizagent/logbiz/api/flow/show/hour',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          groupId: parseInt(groupId, 10),
+        }),
+      }
+    );
+
+    if (response.code !== 0 || !response.list) {
+      console.error(`[Ruijie] Failed to fetch traffic data:`, response.msg);
+      return getEmptyTrafficSummary();
+    }
+
+    // Filter to requested time range
+    const cutoffTime = Date.now() - (hours * 60 * 60 * 1000);
+    const filteredData = response.list
+      .filter(item => item.timeStamp >= cutoffTime)
+      .map(item => ({
+        timestamp: item.timeStamp,
+        timeString: item.timeString,
+        rxBytes: item.rxBytes,
+        txBytes: item.txBytes,
+        rxPkts: item.rxPkts,
+        txPkts: item.txPkts,
+        buildingId: item.buildingId,
+      }));
+
+    return calculateTrafficSummary(filteredData);
+  } catch (error) {
+    console.error(`[Ruijie] Error fetching network traffic:`, error);
+    return getEmptyTrafficSummary();
+  }
+}
+
+/**
+ * Get application flow breakdown
+ *
+ * @param groupId - Network group ID
+ * @returns Array of application flow data
+ */
+export async function getAppFlow(groupId: string): Promise<AppFlowData[]> {
+  if (MOCK_MODE) {
+    return generateMockAppFlowData();
+  }
+
+  try {
+    const response = await ruijieFetch<AppFlowResponse>(
+      '/logbizagent/logbiz/api/flow/app',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          groupId: parseInt(groupId, 10),
+        }),
+      }
+    );
+
+    if (response.code !== 0 || !response.list) {
+      console.error(`[Ruijie] Failed to fetch app flow data:`, response.msg);
+      return [];
+    }
+
+    return response.list.map(item => ({
+      appGroupName: item.appGroupName,
+      appName: item.appName,
+      downFlow: item.downFlow,
+      upFlow: item.upFlow,
+      upDownFlow: item.upDownFlow,
+    }));
+  } catch (error) {
+    console.error(`[Ruijie] Error fetching app flow:`, error);
+    return [];
+  }
+}
+
+/**
+ * Calculate traffic summary from data points
+ */
+function calculateTrafficSummary(dataPoints: TrafficDataPoint[]): TrafficSummary {
+  if (dataPoints.length === 0) {
+    return getEmptyTrafficSummary();
+  }
+
+  let totalRxBytes = 0;
+  let totalTxBytes = 0;
+  let peakRxBytes = 0;
+  let peakTxBytes = 0;
+
+  for (const point of dataPoints) {
+    totalRxBytes += point.rxBytes;
+    totalTxBytes += point.txBytes;
+    if (point.rxBytes > peakRxBytes) peakRxBytes = point.rxBytes;
+    if (point.txBytes > peakTxBytes) peakTxBytes = point.txBytes;
+  }
+
+  // Calculate average rate (bytes per second)
+  const timeSpanSeconds = dataPoints.length * 60 * 60; // hours to seconds
+  const avgRxRate = timeSpanSeconds > 0 ? (totalRxBytes * 8) / timeSpanSeconds : 0; // bps
+  const avgTxRate = timeSpanSeconds > 0 ? (totalTxBytes * 8) / timeSpanSeconds : 0;
+
+  return {
+    totalRxBytes,
+    totalTxBytes,
+    totalBytes: totalRxBytes + totalTxBytes,
+    avgRxRate,
+    avgTxRate,
+    peakRxBytes,
+    peakTxBytes,
+    dataPoints: dataPoints.sort((a, b) => a.timestamp - b.timestamp),
+  };
+}
+
+/**
+ * Get empty traffic summary
+ */
+function getEmptyTrafficSummary(): TrafficSummary {
+  return {
+    totalRxBytes: 0,
+    totalTxBytes: 0,
+    totalBytes: 0,
+    avgRxRate: 0,
+    avgTxRate: 0,
+    peakRxBytes: 0,
+    peakTxBytes: 0,
+    dataPoints: [],
+  };
+}
+
+// =============================================================================
 // UTILITY
 // =============================================================================
 
