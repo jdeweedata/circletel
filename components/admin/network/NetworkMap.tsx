@@ -59,23 +59,26 @@ const SOUTH_AFRICA_BOUNDS = {
   west: 16.0,
 };
 
-const mapOptions: google.maps.MapOptions = {
-  restriction: {
-    latLngBounds: SOUTH_AFRICA_BOUNDS,
-    strictBounds: false,
-  },
-  mapTypeControl: true,
-  streetViewControl: false,
-  fullscreenControl: true,
-  zoomControl: true,
-  styles: [
-    {
-      featureType: 'poi',
-      elementType: 'labels',
-      stylers: [{ visibility: 'off' }],
+// Map options created as a function to avoid referencing google.maps at module load time
+function getMapOptions(): google.maps.MapOptions {
+  return {
+    restriction: {
+      latLngBounds: SOUTH_AFRICA_BOUNDS,
+      strictBounds: false,
     },
-  ],
-};
+    mapTypeControl: true,
+    streetViewControl: false,
+    fullscreenControl: true,
+    zoomControl: true,
+    styles: [
+      {
+        featureType: 'poi',
+        elementType: 'labels',
+        stylers: [{ visibility: 'off' }],
+      },
+    ],
+  };
+}
 
 // =============================================================================
 // HELPERS
@@ -212,7 +215,7 @@ export function NetworkMap({
       center={SOUTH_AFRICA_CENTER}
       zoom={6}
       onLoad={setMap}
-      options={mapOptions}
+      options={getMapOptions()}
     >
       {filteredDevices.map((device) => (
         <Marker
