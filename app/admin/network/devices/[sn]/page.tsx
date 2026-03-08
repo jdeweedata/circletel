@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { UnderlineTabs, TabPanel, SectionCard } from '@/components/admin/shared';
-import { DeviceHeader, DeviceStatCards, DeviceSupportNotes } from '@/components/admin/network/detail';
+import { DeviceHeader, DeviceStatCards, DeviceSupportNotes, DeviceCustomerLink } from '@/components/admin/network/detail';
 
 interface RuijieDevice {
   sn: string;
@@ -55,6 +55,12 @@ interface RuijieDevice {
   radio_5g_utilization: number | null;
   synced_at: string;
   mock_data: boolean;
+  // Customer link fields
+  customer_name: string | null;
+  customer_email: string | null;
+  customer_phone: string | null;
+  customer_order_id: string | null;
+  corporate_site_id: string | null;
 }
 
 interface RuijieTunnel {
@@ -433,6 +439,9 @@ export default function RuijieDeviceDetailPage({
                 </div>
               </div>
             </SectionCard>
+
+            {/* Customer Assignment */}
+            <DeviceCustomerLink device={device} onUpdate={handleRefresh} />
 
             {/* Support Notes - spans full width */}
             <div className="lg:col-span-2">
