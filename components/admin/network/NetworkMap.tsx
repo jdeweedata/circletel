@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
-import { useGoogleMaps } from '@/components/providers/GoogleMapsProvider';
+import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import {
   PiWifiHighBold,
   PiWifiSlashBold,
@@ -131,7 +130,11 @@ export function NetworkMap({
   onDeviceSelect,
   selectedStatus = 'all',
 }: NetworkMapProps) {
-  const { isLoaded, loadError } = useGoogleMaps();
+  const { isLoaded, loadError } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    libraries: ['places'],
+  });
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedDevice, setSelectedDevice] = useState<DeviceLocation | null>(null);
   const [hoveredDevice, setHoveredDevice] = useState<string | null>(null);
