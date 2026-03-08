@@ -1,28 +1,24 @@
 'use client';
 
 import { useState, useEffect, useCallback, use } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
-  PiArrowLeftBold,
   PiArrowsClockwiseBold,
-  PiCheckCircleBold,
-  PiClockBold,
-  PiCpuBold,
-  PiLinkBold,
-  PiMemoryBold,
-  PiPowerBold,
-  PiRadioBold,
-  PiTimerBold,
-  PiUsersBold,
-  PiWarningBold,
+  PiWarningCircleBold,
+  PiArrowLeftBold,
   PiWifiHighBold,
-  PiWifiSlashBold,
+  PiRadioBold,
+  PiLinkBold,
+  PiClockBold,
+  PiClockCountdownBold,
+  PiCheckCircleBold,
   PiXCircleBold,
+  PiInfoBold,
+  PiGearBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import {
   AlertDialog,
@@ -34,6 +30,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { UnderlineTabs, TabPanel, SectionCard } from '@/components/admin/shared';
+import { DeviceHeader, DeviceStatCards } from '@/components/admin/network/detail';
 
 interface RuijieDevice {
   sn: string;
@@ -76,15 +74,14 @@ interface AuditEntry {
   createdAt: string;
 }
 
-function formatUptime(seconds: number | null): string {
-  if (!seconds) return '-';
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  if (days > 0) return `${days}d ${hours}h ${mins}m`;
-  if (hours > 0) return `${hours}h ${mins}m`;
-  return `${mins}m`;
-}
+const TAB_CONFIG = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'radio', label: 'Radio' },
+  { id: 'tunnel', label: 'Tunnel' },
+  { id: 'history', label: 'History' },
+] as const;
+
+type TabId = typeof TAB_CONFIG[number]['id'];
 
 function formatTimeRemaining(expiresAt: string): string {
   const remaining = new Date(expiresAt).getTime() - Date.now();
@@ -94,27 +91,18 @@ function formatTimeRemaining(expiresAt: string): string {
   return `${hours}h ${mins}m`;
 }
 
-function MetricGauge({ label, value, max = 100, unit = '%', color = 'bg-circleTel-orange' }: {
-  label: string;
-  value: number | null;
-  max?: number;
-  unit?: string;
-  color?: string;
-}) {
-  const percentage = value ? Math.min((value / max) * 100, 100) : 0;
-  const isHigh = percentage > 80;
+function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
 
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between text-sm">
-        <span className="text-gray-600">{label}</span>
-        <span className={`font-medium ${isHigh ? 'text-red-600' : 'text-gray-900'}`}>
-          {value ?? '-'}{value !== null && unit}
-        </span>
-      </div>
-      <Progress value={percentage} className={`h-2 ${isHigh ? '[&>div]:bg-red-500' : `[&>div]:${color}`}`} />
-    </div>
-  );
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d ago`;
 }
 
 export default function RuijieDeviceDetailPage({
@@ -123,7 +111,6 @@ export default function RuijieDeviceDetailPage({
   params: Promise<{ sn: string }>;
 }) {
   const { sn } = use(params);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const autoLaunchTunnel = searchParams.get('action') === 'tunnel';
 
@@ -131,7 +118,9 @@ export default function RuijieDeviceDetailPage({
   const [tunnels, setTunnels] = useState<RuijieTunnel[]>([]);
   const [auditLog, setAuditLog] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   // Tunnel state
   const [tunnelLoading, setTunnelLoading] = useState(false);
@@ -161,6 +150,7 @@ export default function RuijieDeviceDetailPage({
       console.error(err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, [sn]);
 
@@ -195,7 +185,7 @@ export default function RuijieDeviceDetailPage({
     };
 
     updateTimer();
-    const interval = setInterval(updateTimer, 60000); // Update every minute
+    const interval = setInterval(updateTimer, 60000);
     return () => clearInterval(interval);
   }, [tunnels]);
 
@@ -205,6 +195,12 @@ export default function RuijieDeviceDetailPage({
       handleLaunchTunnel();
     }
   }, [autoLaunchTunnel, device, tunnels.length, tunnelLoading]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchDevice();
+    await fetchAuditLog();
+  };
 
   const handleLaunchTunnel = async () => {
     setTunnelLoading(true);
@@ -231,15 +227,12 @@ export default function RuijieDeviceDetailPage({
 
       setActiveTunnelCount(data.active);
 
-      // Open tunnel in new tab
       if (data.tunnel.openDomainUrl) {
         window.open(data.tunnel.openDomainUrl, '_blank');
       }
 
-      // Refresh to show active tunnel
       fetchDevice();
       fetchAuditLog();
-
     } catch (err) {
       setTunnelError('Failed to create tunnel');
       console.error(err);
@@ -274,22 +267,42 @@ export default function RuijieDeviceDetailPage({
     }
   };
 
+  // Loading State
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <PiArrowsClockwiseBold className="w-8 h-8 animate-spin text-circleTel-orange" />
+      <div className="min-h-screen bg-slate-50">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
+              <PiWifiHighBold className="w-6 h-6 text-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            </div>
+            <p className="text-slate-500 mt-6 font-medium">Loading device details...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
+  // Error State
   if (error || !device) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <PiWarningBold className="w-12 h-12 text-red-500" />
-        <p className="text-gray-600">{error || 'Device not found'}</p>
-        <Link href="/admin/network/devices">
-          <Button variant="outline">Back to Devices</Button>
-        </Link>
+      <div className="min-h-screen bg-slate-50">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <PiWarningCircleBold className="h-10 w-10 text-red-400" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Device Not Found</h2>
+            <p className="text-slate-500 mb-6">{error || 'The device you are looking for does not exist.'}</p>
+            <Link href="/admin/network/devices">
+              <Button className="bg-primary hover:bg-primary/90">
+                <PiArrowLeftBold className="h-4 w-4 mr-2" />
+                Back to Devices
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -298,257 +311,286 @@ export default function RuijieDeviceDetailPage({
   const hasActiveTunnel = tunnels.length > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-slate-50 overflow-x-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/network/devices">
-            <Button variant="ghost" size="sm">
-              <PiArrowLeftBold className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-          </Link>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{device.device_name}</h1>
-              {device.mock_data && (
-                <Badge variant="outline" className="bg-purple-50 text-purple-600 border-purple-200">
-                  MOCK
-                </Badge>
-              )}
-              <Badge
-                variant="outline"
-                className={isOnline
-                  ? 'bg-green-50 text-green-700 border-green-200'
-                  : 'bg-red-50 text-red-700 border-red-200'
-                }
-              >
-                {isOnline ? <PiWifiHighBold className="w-3 h-3 mr-1" /> : <PiWifiSlashBold className="w-3 h-3 mr-1" />}
-                {device.status}
-              </Badge>
-            </div>
-            <p className="text-gray-500">{device.model} | {device.sn}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setRebootDialogOpen(true)}
-            disabled={!isOnline}
-          >
-            <PiPowerBold className="w-4 h-4 mr-2" />
-            Reboot
-          </Button>
-        </div>
-      </div>
+      <DeviceHeader
+        device={device}
+        isOnline={isOnline}
+        hasActiveTunnel={hasActiveTunnel}
+        tunnelLoading={tunnelLoading}
+        onReboot={() => setRebootDialogOpen(true)}
+        onLaunchTunnel={handleLaunchTunnel}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Device Info */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-lg">Device Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-gray-500">Group</label>
-                <p className="font-medium">{device.group_name || '-'}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Firmware</label>
-                <p className="font-medium">{device.firmware_version || '-'}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Management IP</label>
-                <p className="font-mono text-sm">{device.management_ip || '-'}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">WAN IP</label>
-                <p className="font-mono text-sm">{device.wan_ip || '-'}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Egress IP</label>
-                <p className="font-mono text-sm">{device.egress_ip || '-'}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">MAC Address</label>
-                <p className="font-mono text-sm">{device.mac_address || '-'}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Uptime</label>
-                <p className="font-medium flex items-center gap-1">
-                  <PiTimerBold className="w-4 h-4 text-gray-400" />
-                  {formatUptime(device.uptime_seconds)}
-                </p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Config Status</label>
-                <p>
-                  {device.config_status === 'Synced' && (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        {/* Stat Cards */}
+        <DeviceStatCards device={device} />
+
+        {/* Tabs */}
+        <UnderlineTabs
+          tabs={TAB_CONFIG}
+          activeTab={activeTab}
+          onTabChange={(id) => setActiveTab(id as TabId)}
+        />
+
+        {/* OVERVIEW TAB */}
+        <TabPanel id="overview" activeTab={activeTab} className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Device Information */}
+            <SectionCard icon={PiInfoBold} title="Device Information" compact>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Serial Number</p>
+                  <p className="font-mono text-sm">{device.sn}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Model</p>
+                  <p className="text-sm font-medium">{device.model || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Group</p>
+                  <p className="text-sm font-medium">{device.group_name || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Firmware</p>
+                  <p className="text-sm font-medium">{device.firmware_version || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">MAC Address</p>
+                  <p className="font-mono text-sm">{device.mac_address || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Config Status</p>
+                  {device.config_status === 'Synced' ? (
+                    <Badge className="bg-emerald-50 text-emerald-700 border-0">
                       <PiCheckCircleBold className="w-3 h-3 mr-1" /> Synced
                     </Badge>
-                  )}
-                  {device.config_status === 'Failed' && (
-                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                  ) : device.config_status === 'Failed' ? (
+                    <Badge className="bg-red-50 text-red-700 border-0">
                       <PiXCircleBold className="w-3 h-3 mr-1" /> Failed
                     </Badge>
+                  ) : (
+                    <span className="text-sm">-</span>
                   )}
-                  {!device.config_status && '-'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Metrics */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <PiCpuBold className="w-5 h-5" />
-              Metrics
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <MetricGauge label="CPU Usage" value={device.cpu_usage} />
-            <MetricGauge label="Memory Usage" value={device.memory_usage} />
-            <div className="pt-2 border-t">
-              <div className="flex items-center gap-2 mb-3">
-                <PiUsersBold className="w-4 h-4 text-gray-400" />
-                <span className="text-sm text-gray-600">Online Clients</span>
-                <span className="ml-auto font-bold text-lg">{device.online_clients}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Radio Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <PiRadioBold className="w-5 h-5" />
-              Radio Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">2.4 GHz (Ch {device.radio_2g_channel || '-'})</span>
-                  <span className="font-medium">{device.radio_2g_utilization ?? '-'}%</span>
                 </div>
-                <Progress value={device.radio_2g_utilization || 0} className="h-2" />
               </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">5 GHz (Ch {device.radio_5g_channel || '-'})</span>
-                  <span className="font-medium">{device.radio_5g_utilization ?? '-'}%</span>
+            </SectionCard>
+
+            {/* Network Information */}
+            <SectionCard icon={PiGearBold} title="Network Configuration" compact>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Management IP</p>
+                  <p className="font-mono text-sm bg-slate-100 px-2 py-1 rounded inline-block">
+                    {device.management_ip || '-'}
+                  </p>
                 </div>
-                <Progress value={device.radio_5g_utilization || 0} className="h-2" />
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">WAN IP</p>
+                  <p className="font-mono text-sm bg-slate-100 px-2 py-1 rounded inline-block">
+                    {device.wan_ip || '-'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Egress IP</p>
+                  <p className="font-mono text-sm bg-slate-100 px-2 py-1 rounded inline-block">
+                    {device.egress_ip || '-'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Last Synced</p>
+                  <p className="text-sm text-slate-600">{formatRelativeTime(device.synced_at)}</p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </SectionCard>
+          </div>
+        </TabPanel>
 
-        {/* eWeb Tunnel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <PiLinkBold className="w-5 h-5" />
-              eWeb Tunnel
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {tunnelError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-                {tunnelError}
-              </div>
-            )}
-
-            {hasActiveTunnel ? (
+        {/* RADIO TAB */}
+        <TabPanel id="radio" activeTab={activeTab} className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 2.4 GHz Radio */}
+            <SectionCard icon={PiRadioBold} title="2.4 GHz Radio" compact>
               <div className="space-y-4">
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-green-800">Session Active</span>
-                    <Badge variant="outline" className="bg-white text-green-700">
-                      <PiClockBold className="w-3 h-3 mr-1" />
-                      {timeRemaining}
-                    </Badge>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Channel</span>
+                  <span className="font-bold text-lg">{device.radio_2g_channel || '-'}</span>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-slate-600">Channel Utilization</span>
+                    <span className="font-medium">{device.radio_2g_utilization ?? '-'}%</span>
+                  </div>
+                  <Progress value={device.radio_2g_utilization || 0} className="h-3" />
+                </div>
+              </div>
+            </SectionCard>
+
+            {/* 5 GHz Radio */}
+            <SectionCard icon={PiRadioBold} title="5 GHz Radio" compact>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Channel</span>
+                  <span className="font-bold text-lg">{device.radio_5g_channel || '-'}</span>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-slate-600">Channel Utilization</span>
+                    <span className="font-medium">{device.radio_5g_utilization ?? '-'}%</span>
+                  </div>
+                  <Progress value={device.radio_5g_utilization || 0} className="h-3" />
+                </div>
+              </div>
+            </SectionCard>
+          </div>
+        </TabPanel>
+
+        {/* TUNNEL TAB */}
+        <TabPanel id="tunnel" activeTab={activeTab} className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* eWeb Tunnel */}
+            <SectionCard
+              icon={PiLinkBold}
+              title="eWeb Tunnel"
+              action={
+                hasActiveTunnel ? (
+                  <Badge className="bg-emerald-50 text-emerald-700 border-0">
+                    <PiClockCountdownBold className="w-3 h-3 mr-1" />
+                    {timeRemaining}
+                  </Badge>
+                ) : null
+              }
+              compact
+            >
+              {tunnelError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                  {tunnelError}
+                </div>
+              )}
+
+              {hasActiveTunnel ? (
+                <div className="space-y-4">
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <PiCheckCircleBold className="w-5 h-5" />
+                      <span className="font-medium">Tunnel session is active</span>
+                    </div>
+                    <p className="text-sm text-emerald-600 mt-1">
+                      Expires in {timeRemaining}. The tunnel will auto-close after 3 hours.
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      className="flex-1 bg-primary hover:bg-primary/90"
+                      onClick={() => window.open(tunnels[0].open_domain_url || '', '_blank')}
+                    >
+                      <PiLinkBold className="w-4 h-4 mr-2" />
+                      Open eWeb Interface
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleCloseTunnel}
+                      disabled={tunnelLoading}
+                    >
+                      Disconnect
+                    </Button>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => window.open(tunnels[0].open_domain_url || '', '_blank')}
-                  >
-                    <PiLinkBold className="w-4 h-4 mr-2" />
-                    Open eWeb
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleCloseTunnel}
-                    disabled={tunnelLoading}
-                  >
-                    Disconnect
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-sm text-gray-500">
-                  Launch an eWeb session to access the device management interface.
-                </p>
-                <Button
-                  className="w-full bg-circleTel-orange hover:bg-orange-600"
-                  onClick={handleLaunchTunnel}
-                  disabled={tunnelLoading || !isOnline}
-                >
-                  {tunnelLoading ? (
-                    <PiArrowsClockwiseBold className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <PiLinkBold className="w-4 h-4 mr-2" />
-                  )}
-                  Launch eWeb
-                  {activeTunnelCount > 0 && ` (${activeTunnelCount}/${TUNNEL_LIMIT} slots)`}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Audit Log */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Recent Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {auditLog.length === 0 ? (
-              <p className="text-sm text-gray-500">No actions recorded</p>
-            ) : (
-              <div className="space-y-3">
-                {auditLog.slice(0, 5).map((entry) => (
-                  <div key={entry.id} className="flex items-start justify-between text-sm">
-                    <div>
-                      <span className="font-medium capitalize">{entry.action.replace('_', ' ')}</span>
-                      <span className="text-gray-500"> by {entry.adminName}</span>
-                    </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-slate-500">
+                    Launch an eWeb session to access the device&apos;s management interface remotely.
+                    Tunnels auto-expire after 3 hours.
+                  </p>
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                      Tunnel Slots
+                    </p>
                     <div className="flex items-center gap-2">
-                      {entry.status === 'success' ? (
-                        <PiCheckCircleBold className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <PiXCircleBold className="w-4 h-4 text-red-500" />
-                      )}
-                      <span className="text-gray-400 text-xs">
-                        {new Date(entry.createdAt).toLocaleTimeString()}
+                      <Progress value={(activeTunnelCount / TUNNEL_LIMIT) * 100} className="h-2 flex-1" />
+                      <span className="text-sm font-medium text-slate-600">
+                        {activeTunnelCount}/{TUNNEL_LIMIT}
                       </span>
                     </div>
+                  </div>
+                  <Button
+                    className="w-full bg-primary hover:bg-primary/90"
+                    onClick={handleLaunchTunnel}
+                    disabled={tunnelLoading || !isOnline}
+                  >
+                    {tunnelLoading ? (
+                      <PiArrowsClockwiseBold className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <PiLinkBold className="w-4 h-4 mr-2" />
+                    )}
+                    Launch eWeb Tunnel
+                  </Button>
+                </div>
+              )}
+            </SectionCard>
+
+            {/* Tunnel Info */}
+            <SectionCard icon={PiClockBold} title="Tunnel Information" compact>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Max Duration</p>
+                    <p className="text-sm font-medium">3 hours</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Tenant Limit</p>
+                    <p className="text-sm font-medium">10 concurrent</p>
+                  </div>
+                </div>
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                  Tunnels provide secure remote access to the device web interface via Ruijie Cloud.
+                </div>
+              </div>
+            </SectionCard>
+          </div>
+        </TabPanel>
+
+        {/* HISTORY TAB */}
+        <TabPanel id="history" activeTab={activeTab} className="mt-6">
+          <SectionCard icon={PiClockBold} title="Recent Actions" compact>
+            {auditLog.length === 0 ? (
+              <div className="text-center py-8">
+                <PiClockBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500">No actions recorded for this device</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {auditLog.map((entry) => (
+                  <div key={entry.id} className="py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        entry.status === 'success' ? 'bg-emerald-100' : 'bg-red-100'
+                      }`}>
+                        {entry.status === 'success' ? (
+                          <PiCheckCircleBold className="w-4 h-4 text-emerald-600" />
+                        ) : (
+                          <PiXCircleBold className="w-4 h-4 text-red-600" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-900 capitalize">
+                          {entry.action.replace(/_/g, ' ')}
+                        </p>
+                        <p className="text-sm text-slate-500">by {entry.adminName}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm text-slate-400">
+                      {new Date(entry.createdAt).toLocaleString()}
+                    </span>
                   </div>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </SectionCard>
+        </TabPanel>
       </div>
 
       {/* Reboot Confirmation Dialog */}
