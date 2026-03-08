@@ -71,6 +71,10 @@ export {
 } from './functions/ruijie-token-refresh';
 
 export {
+  ruijieOfflineAlertsFunction,
+} from './functions/ruijie-offline-alerts';
+
+export {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -139,6 +143,10 @@ import {
 } from './functions/ruijie-token-refresh';
 
 import {
+  ruijieOfflineAlertsFunction,
+} from './functions/ruijie-offline-alerts';
+
+import {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -184,6 +192,8 @@ export const functions = [
   // Ruijie token refresh (weekly, before 30-day expiry)
   ruijieTokenRefreshFunction,
   ruijieTokenRefreshFailedFunction,
+  // Ruijie offline device alerts
+  ruijieOfflineAlertsFunction,
   // MikroTik router sync
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
