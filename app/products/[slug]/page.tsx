@@ -110,24 +110,27 @@ export default async function ProductPage({ params }: ProductPageProps) {
             priority
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl">
-            <span className="inline-block px-3 py-1 text-sm font-medium text-white bg-primary/80 rounded-full mb-4">
+        {/* Strong gradient overlay for text contrast - darker on left where text sits */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-xl lg:max-w-2xl">
+            <span className="inline-block px-3 py-1 text-sm font-medium text-white bg-white/20 backdrop-blur-sm rounded-full mb-4 border border-white/30">
               {categoryLabels[product.category] || product.category}
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
               {product.name}
             </h1>
-            <p className="text-xl md:text-2xl text-white/90 mb-8">
+            <p className="text-xl md:text-2xl text-white/95 mb-8 drop-shadow-md">
               {product.tagline}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" asChild>
                 <Link href={`/order/coverage?product=${product.slug}`}>Get Started</Link>
               </Button>
-              <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20" asChild>
-                <Link href="https://wa.me/27824873900" className="flex items-center gap-2">
+              <Button size="lg" className="bg-[#25D366] hover:bg-[#1da851] text-white border-0" asChild>
+                <Link href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   <PiWhatsappLogoBold className="w-5 h-5" />
                   WhatsApp Us
                 </Link>
