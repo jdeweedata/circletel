@@ -66,17 +66,16 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Connectivity & Cloud */}
+          {/* Connectivity */}
           <div className="col-span-1">
-            <h3 className="font-bold text-lg mb-4">Connectivity & Cloud</h3>
+            <h3 className="font-bold text-lg mb-4">Connectivity</h3>
             <ul className="space-y-2">
-              <li><Link href="/connectivity/wifi-as-a-service" className="hover:text-circleTel-orange transition-colors">Wi-Fi as a Service</Link></li>
-              <li><Link href="/connectivity/fixed-wireless" className="hover:text-circleTel-orange transition-colors">Fixed Wireless</Link></li>
-              <li><Link href="/connectivity/fibre" className="hover:text-circleTel-orange transition-colors">Fibre</Link></li>
+              <li><Link href="/products/skyfibre-smb" className="hover:text-circleTel-orange transition-colors">SkyFibre SMB</Link></li>
+              <li><Link href="/products/workconnect-soho" className="hover:text-circleTel-orange transition-colors">WorkConnect SOHO</Link></li>
+              <li><Link href="/products/cloudwifi" className="hover:text-circleTel-orange transition-colors">CloudWiFi</Link></li>
+              <li><Link href="/products/bizfibreconnect" className="hover:text-circleTel-orange transition-colors">BizFibreConnect</Link></li>
+              <li><Link href="/connectivity/fibre" className="hover:text-circleTel-orange transition-colors">Consumer Fibre</Link></li>
               <li><Link href="/bundles" className="hover:text-circleTel-orange transition-colors">Service Bundles</Link></li>
-              <li><Link href="/cloud/migration" className="hover:text-circleTel-orange transition-colors">Cloud Migration</Link></li>
-              <li><Link href="/cloud/hosting" className="hover:text-circleTel-orange transition-colors">Hosting Solutions</Link></li>
-              <li><Link href="/cloud/backup" className="hover:text-circleTel-orange transition-colors">Backup & Recovery</Link></li>
             </ul>
           </div>
 

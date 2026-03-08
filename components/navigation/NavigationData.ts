@@ -95,25 +95,31 @@ export const itSolutionsItems: NavigationItem[] = [
   }
 ];
 
-// Connectivity section
+// Connectivity section - Product pages for SME/B2B offerings
 export const connectivityItems: NavigationItem[] = [
   {
-    name: "Wi-Fi as a Service",
-    href: "/connectivity/wifi-as-a-service",
-    icon: PiWifiHighBold,
-    description: "Enterprise-grade Wi-Fi without capital expense"
-  },
-  {
-    name: "Fixed Wireless",
-    href: "/connectivity/fixed-wireless",
+    name: "SkyFibre SMB",
+    href: "/products/skyfibre-smb",
     icon: PiGraphBold,
-    description: "Fast and reliable wireless internet connectivity"
+    description: "Fixed Wireless Broadband for SMEs (50-200 Mbps)"
   },
   {
-    name: "Fibre",
-    href: "/connectivity/fibre",
+    name: "WorkConnect SOHO",
+    href: "/products/workconnect-soho",
+    icon: PiLaptopBold,
+    description: "Internet for home workers and freelancers"
+  },
+  {
+    name: "CloudWiFi",
+    href: "/products/cloudwifi",
+    icon: PiWifiHighBold,
+    description: "Managed WiFi as a Service for venues"
+  },
+  {
+    name: "BizFibreConnect",
+    href: "/products/bizfibreconnect",
     icon: PiGlobeBold,
-    description: "High-speed fibre internet solutions"
+    description: "Enterprise fibre solutions"
   },
   {
     name: "Mobile Deals",
