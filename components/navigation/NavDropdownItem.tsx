@@ -18,9 +18,8 @@ interface NavDropdownItemProps {
 export function NavDropdownItem({ item, isActive }: NavDropdownItemProps) {
   return (
     <li>
-      <NavigationMenuLink asChild>
-        <Link
-          href={item.href}
+      <Link href={item.href} legacyBehavior passHref>
+        <NavigationMenuLink
           className={cn(
             'block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150',
             'hover:bg-circleTel-orange/10 focus:bg-circleTel-orange/10 cursor-pointer',
@@ -35,8 +34,8 @@ export function NavDropdownItem({ item, isActive }: NavDropdownItemProps) {
               {item.description}
             </p>
           )}
-        </Link>
-      </NavigationMenuLink>
+        </NavigationMenuLink>
+      </Link>
     </li>
   );
 }
