@@ -111,8 +111,18 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             <NavDropdownSection
               items={cloudHostingItems}
               columns={2}
-              isActive={isActive}
-            />
+              isActive={(path) =>
+                path === '/cloud'
+                  ? isActive('/cloud') && !currentPath.includes('/cloud/')
+                  : isActive(path)
+              }
+              prependItems={[
+                {
+                  name: 'Cloud Overview',
+                  href: '/cloud',
+                  description: 'Explore all our cloud & hosting solutions',
+                },
+              ]}/>
           </NavigationMenuContent>
         </NavigationMenuItem>
 
