@@ -51,7 +51,18 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             <NavDropdownSection
               items={managedITItems}
               columns={2}
-              isActive={isActive}
+              isActive={(path) =>
+                path === '/services'
+                  ? isActive('/services') && !currentPath.includes('/services/')
+                  : isActive(path)
+              }
+              prependItems={[
+                {
+                  name: 'Services Overview',
+                  href: '/services',
+                  description: 'Explore all our managed IT services',
+                },
+              ]}
             />
           </NavigationMenuContent>
         </NavigationMenuItem>
@@ -119,8 +130,18 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             <NavDropdownSection
               items={resourcesItems}
               columns={2}
-              isActive={isActive}
-            />
+              isActive={(path) =>
+                path === '/resources'
+                  ? isActive('/resources') && !currentPath.includes('/resources/')
+                  : isActive(path)
+              }
+              prependItems={[
+                {
+                  name: 'Resources Overview',
+                  href: '/resources',
+                  description: 'Guides, tools and support resources',
+                },
+              ]}/>
           </NavigationMenuContent>
         </NavigationMenuItem>
 
