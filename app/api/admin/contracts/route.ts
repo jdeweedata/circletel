@@ -17,6 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 // Valid contract statuses
 const VALID_STATUSES = [
@@ -32,6 +33,12 @@ const VALID_STATUSES = [
 type ContractStatus = (typeof VALID_STATUSES)[number];
 
 export async function GET(request: NextRequest) {
+  // Authenticate admin
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   const supabase = await createClient();
 
   try {
