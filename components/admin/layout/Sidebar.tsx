@@ -312,16 +312,12 @@ const navigationSections: NavSection[] = [
         description: 'Email templates and notification logs'
       },
       {
-        name: 'Zoho Integration',
-        href: '/admin/zoho',
-        icon: PiLightningBold,
-        description: 'Manage Zoho CRM, Mail, and Calendar'
-      },
-      {
         name: 'Integrations',
         icon: PiLinkBold,
         children: [
           { name: 'Overview', href: '/admin/integrations', icon: PiSquaresFourBold },
+          { name: 'Zoho CRM', href: '/admin/zoho', icon: PiLightningBold },
+          { name: 'Zoho Sign', href: '/admin/integrations/zoho-sign', icon: PiFileTextBold },
           { name: 'Interstellio RADIUS', href: '/admin/integrations/interstellio', icon: PiRadioBold },
           { name: 'OAuth Tokens', href: '/admin/integrations/oauth', icon: PiGearBold },
           { name: 'Webhooks', href: '/admin/integrations/webhooks', icon: PiLightningBold },
