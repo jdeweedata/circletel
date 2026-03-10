@@ -99,6 +99,15 @@ const navigationSections: NavSection[] = [
         ]
       },
       {
+        name: 'Contracts',
+        icon: PiReceiptBold,
+        children: [
+          { name: 'All Contracts', href: '/admin/contracts', icon: PiListBold },
+          { name: 'Pending Signature', href: '/admin/contracts?status=pending_signature', icon: PiClockBold },
+          { name: 'Active', href: '/admin/contracts?status=active', icon: PiCheckCircleBold }
+        ]
+      },
+      {
         name: 'Orders',
         href: '/admin/orders',
         icon: PiShoppingCartBold,
