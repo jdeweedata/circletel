@@ -160,6 +160,13 @@ function buildInitialState(flow: WizardFlow = 'scratch'): ContractWizardState {
 }
 
 // ---------------------------------------------------------------------------
+// Step count constants
+// ---------------------------------------------------------------------------
+
+const SCRATCH_STEPS = 6
+const QUOTE_STEPS = 5
+
+// ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
 
@@ -215,12 +222,12 @@ export function useContractWizard(flow: WizardFlow = 'scratch'): ContractWizardH
   // Navigation
   // -------------------------------------------------------------------------
   const getTotalSteps = useCallback((): number => {
-    return state.flow === 'quote' ? 5 : 6
+    return state.flow === 'quote' ? QUOTE_STEPS : SCRATCH_STEPS
   }, [state.flow])
 
   const goToStep = useCallback(
     (step: number) => {
-      const total = state.flow === 'quote' ? 5 : 6
+      const total = state.flow === 'quote' ? QUOTE_STEPS : SCRATCH_STEPS
       if (step >= 1 && step <= total) {
         setCurrentStep(step)
       }
@@ -229,7 +236,7 @@ export function useContractWizard(flow: WizardFlow = 'scratch'): ContractWizardH
   )
 
   const nextStep = useCallback(() => {
-    const total = state.flow === 'quote' ? 5 : 6
+    const total = state.flow === 'quote' ? QUOTE_STEPS : SCRATCH_STEPS
     setCurrentStep((prev) => Math.min(prev + 1, total))
   }, [state.flow])
 
@@ -282,8 +289,8 @@ export function useContractWizard(flow: WizardFlow = 'scratch'): ContractWizardH
           ? ({
               ...prev.selectedPackage,
               id: (typeof quote.package_id === 'string' ? quote.package_id : ''),
-              monthlyFee: pricing.monthlyFee ?? prev.pricing.monthlyFee,
-              installationFee: pricing.installationFee ?? prev.pricing.installationFee,
+              monthlyFee: pricing.monthlyFee ?? 0,
+              installationFee: pricing.installationFee ?? 0,
               ...selectedPackage,
             } as SelectedPackage)
           : prev.selectedPackage,
