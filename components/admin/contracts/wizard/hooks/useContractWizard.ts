@@ -72,6 +72,7 @@ export type WizardFlow = 'scratch' | 'quote'
 export interface ContractWizardState {
   flow: WizardFlow
   // Step data
+  selectedQuoteId: string | null
   coverage: CoverageResult | null
   selectedPackage: SelectedPackage | null
   customer: CustomerDetails
@@ -150,6 +151,7 @@ const initialPricing: PricingOverrides = {
 function buildInitialState(flow: WizardFlow = 'scratch'): ContractWizardState {
   return {
     flow,
+    selectedQuoteId: null,
     coverage: null,
     selectedPackage: null,
     customer: { ...initialCustomer },
@@ -264,8 +266,12 @@ export function useContractWizard(flow: WizardFlow = 'scratch'): ContractWizardH
 
     if (typeof quote.company_name === 'string') customer.companyName = quote.company_name
     if (typeof quote.contact_person === 'string') customer.contactPerson = quote.contact_person
+    // contact_name is the field name used by the business quotes API
+    if (typeof quote.contact_name === 'string') customer.contactPerson = quote.contact_name
     if (typeof quote.email === 'string') customer.email = quote.email
+    if (typeof quote.contact_email === 'string') customer.email = quote.contact_email
     if (typeof quote.phone === 'string') customer.phone = quote.phone
+    if (typeof quote.contact_phone === 'string') customer.phone = quote.contact_phone
     if (typeof quote.installation_address === 'string') customer.address = quote.installation_address
     if (typeof quote.registration_number === 'string') customer.registrationNumber = quote.registration_number
     if (typeof quote.vat_number === 'string') customer.vatNumber = quote.vat_number
@@ -273,6 +279,8 @@ export function useContractWizard(flow: WizardFlow = 'scratch'): ContractWizardH
     if (typeof quote.customer_id === 'string') customer.customerId = quote.customer_id
 
     if (typeof quote.monthly_recurring === 'number') pricing.monthlyFee = quote.monthly_recurring
+    // monthly_total is the field name used by the business quotes API
+    if (typeof quote.monthly_total === 'number') pricing.monthlyFee = quote.monthly_total
     if (typeof quote.installation_fee === 'number') pricing.installationFee = quote.installation_fee
 
     if (typeof quote.package_name === 'string') selectedPackage.name = quote.package_name
