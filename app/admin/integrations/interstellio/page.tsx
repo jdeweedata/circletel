@@ -1,18 +1,17 @@
-'use client'
-import { PiArrowsClockwiseBold, PiGearBold, PiRadioBold } from 'react-icons/pi';
+'use client';
 
-import { useState, useEffect, useCallback } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+import { PiUsersBold, PiWifiHighBold, PiChartLineBold } from 'react-icons/pi';
+import { useState, useEffect, useCallback } from 'react';
+import { UnderlineTabs, TabPanel, SectionCard } from '@/components/admin/shared';
 import {
+  InterstellioHeader,
   InterstellioStatsCards,
   SubscriberTable,
   ActiveSessionsTable,
   UsageChart,
-} from '@/components/admin/interstellio'
-import { toast } from 'sonner'
+} from '@/components/admin/interstellio';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 interface DashboardStats {
   totalSubscribers: number
@@ -91,6 +90,14 @@ interface UsageSummary {
   dataPoints: number
 }
 
+const TAB_CONFIG = [
+  { id: 'subscribers', label: 'Subscribers' },
+  { id: 'sessions', label: 'Active Sessions' },
+  { id: 'usage', label: 'Usage Analytics' },
+] as const;
+
+type TabId = typeof TAB_CONFIG[number]['id'];
+
 export default function InterstellioDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [subscribers, setSubscribers] = useState<Subscriber[]>([])
@@ -102,6 +109,7 @@ export default function InterstellioDashboardPage() {
   const [autoRefresh, setAutoRefresh] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [selectedSubscriberId, setSelectedSubscriberId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<TabId>('subscribers')
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -283,117 +291,104 @@ export default function InterstellioDashboardPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <PiRadioBold className="h-8 w-8 text-orange-500" />
-          <div>
-            <h1 className="text-2xl font-bold">Interstellio RADIUS</h1>
-            <p className="text-sm text-gray-500">
-              Monitor subscribers, sessions, and usage
-              {lastRefresh && (
-                <span className="ml-2">
-                  - Last updated: {lastRefresh.toLocaleTimeString()}
-                </span>
-              )}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Switch
-              id="auto-refresh"
-              checked={autoRefresh}
-              onCheckedChange={setAutoRefresh}
+      <InterstellioHeader
+        healthStatus={stats?.health?.status ?? 'healthy'}
+        lastRefresh={lastRefresh}
+        autoRefresh={autoRefresh}
+        onAutoRefreshChange={setAutoRefresh}
+        onRefresh={fetchDashboardData}
+        isLoading={isLoading}
+      />
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Stat Cards */}
+        <InterstellioStatsCards
+          stats={stats}
+          linkedServices={stats?.linkedServices ?? 0}
+          isLoading={isLoading}
+        />
+
+        {/* Tabs */}
+        <UnderlineTabs
+          tabs={TAB_CONFIG.map(tab => ({
+            ...tab,
+            label: tab.id === 'subscribers'
+              ? `Subscribers (${subscribers.length})`
+              : tab.id === 'sessions'
+                ? `Active Sessions (${sessions.length})`
+                : tab.label
+          }))}
+          activeTab={activeTab}
+          onTabChange={(id) => setActiveTab(id as TabId)}
+        />
+
+        {/* SUBSCRIBERS TAB */}
+        <TabPanel id="subscribers" activeTab={activeTab} className="mt-6">
+          <SectionCard icon={PiUsersBold} title="All Subscribers">
+            <SubscriberTable
+              subscribers={subscribers}
+              isLoading={isLoading}
+              onRefresh={fetchDashboardData}
+              onDisconnectAll={handleDisconnectAllSessions}
+              onViewDetails={handleViewSubscriberDetails}
             />
-            <Label htmlFor="auto-refresh" className="text-sm">
-              Auto-refresh (30s)
-            </Label>
-          </div>
-          <Button variant="outline" onClick={fetchDashboardData} disabled={isLoading}>
-            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button variant="outline" asChild>
-            <a href="/admin/integrations" className="flex items-center gap-2">
-              <PiGearBold className="h-4 w-4" />
-              Integrations
-            </a>
-          </Button>
-        </div>
-      </div>
+          </SectionCard>
+        </TabPanel>
 
-      {/* Stats Cards */}
-      <InterstellioStatsCards stats={stats} linkedServices={stats?.linkedServices ?? 0} isLoading={isLoading} />
+        {/* SESSIONS TAB */}
+        <TabPanel id="sessions" activeTab={activeTab} className="mt-6">
+          <SectionCard icon={PiWifiHighBold} title="Active Sessions">
+            <ActiveSessionsTable
+              sessions={sessions}
+              isLoading={isLoading}
+              onRefresh={fetchDashboardData}
+              onDisconnect={handleDisconnectSession}
+            />
+          </SectionCard>
+        </TabPanel>
 
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="subscribers" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="subscribers">
-            Subscribers ({subscribers.length})
-          </TabsTrigger>
-          <TabsTrigger value="sessions">
-            Active Sessions ({sessions.length})
-          </TabsTrigger>
-          <TabsTrigger value="usage">Usage Analytics</TabsTrigger>
-        </TabsList>
+        {/* USAGE TAB */}
+        <TabPanel id="usage" activeTab={activeTab} className="mt-6">
+          <SectionCard icon={PiChartLineBold} title="Usage Analytics">
+            <div className="space-y-4">
+              {/* Subscriber selector */}
+              <div className="flex items-center gap-4">
+                <Label className="text-sm font-medium">View usage for:</Label>
+                <select
+                  className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  value={selectedSubscriberId || 'all'}
+                  onChange={(e) =>
+                    setSelectedSubscriberId(e.target.value === 'all' ? null : e.target.value)
+                  }
+                >
+                  <option value="all">All Subscribers (Top 5)</option>
+                  {subscribers.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.username} {sub.linkedCustomerName ? `(${sub.linkedCustomerName})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        <TabsContent value="subscribers">
-          <SubscriberTable
-            subscribers={subscribers}
-            isLoading={isLoading}
-            onRefresh={fetchDashboardData}
-            onDisconnectAll={handleDisconnectAllSessions}
-            onViewDetails={handleViewSubscriberDetails}
-          />
-        </TabsContent>
-
-        <TabsContent value="sessions">
-          <ActiveSessionsTable
-            sessions={sessions}
-            isLoading={isLoading}
-            onRefresh={fetchDashboardData}
-            onDisconnect={handleDisconnectSession}
-          />
-        </TabsContent>
-
-        <TabsContent value="usage">
-          <div className="space-y-4">
-            {/* Subscriber selector for usage */}
-            <div className="flex items-center gap-4">
-              <Label>View usage for:</Label>
-              <select
-                className="border rounded px-3 py-2 text-sm"
-                value={selectedSubscriberId || 'all'}
-                onChange={(e) =>
-                  setSelectedSubscriberId(e.target.value === 'all' ? null : e.target.value)
+              <UsageChart
+                data={usageData}
+                summary={usageSummary}
+                aggregation={aggregation}
+                onAggregationChange={setAggregation}
+                onRefresh={fetchUsageData}
+                title={
+                  selectedSubscriberId
+                    ? `Usage - ${subscribers.find((s) => s.id === selectedSubscriberId)?.username || 'Selected'}`
+                    : 'Aggregate Usage (Top 5 Subscribers)'
                 }
-              >
-                <option value="all">All Subscribers (Top 5)</option>
-                {subscribers.map((sub) => (
-                  <option key={sub.id} value={sub.id}>
-                    {sub.username} {sub.linkedCustomerName ? `(${sub.linkedCustomerName})` : ''}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
-
-            <UsageChart
-              data={usageData}
-              summary={usageSummary}
-              aggregation={aggregation}
-              onAggregationChange={setAggregation}
-              onRefresh={fetchUsageData}
-              title={
-                selectedSubscriberId
-                  ? `Usage - ${subscribers.find((s) => s.id === selectedSubscriberId)?.username || 'Selected'}`
-                  : 'Aggregate Usage (Top 5 Subscribers)'
-              }
-            />
-          </div>
-        </TabsContent>
-      </Tabs>
+          </SectionCard>
+        </TabPanel>
+      </div>
     </div>
-  )
+  );
 }
