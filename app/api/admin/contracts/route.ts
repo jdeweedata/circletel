@@ -97,9 +97,9 @@ export async function GET(request: NextRequest) {
           id,
           quote_number,
           company_name,
-          contact_person,
-          email,
-          phone,
+          contact_name,
+          contact_email,
+          contact_phone,
           status
         )
       `,
@@ -203,9 +203,9 @@ export async function GET(request: NextRequest) {
             id: contract.business_quotes.id,
             quoteNumber: contract.business_quotes.quote_number,
             companyName: contract.business_quotes.company_name,
-            contactPerson: contract.business_quotes.contact_person,
-            email: contract.business_quotes.email,
-            phone: contract.business_quotes.phone,
+            contactPerson: contract.business_quotes.contact_name,
+            email: contract.business_quotes.contact_email,
+            phone: contract.business_quotes.contact_phone,
             status: contract.business_quotes.status,
           }
         : null,

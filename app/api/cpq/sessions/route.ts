@@ -6,22 +6,24 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { CreateSessionRequest, CPQSession } from '@/lib/cpq/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Get current user
+    // Use session client for auth (reads cookies)
+    const supabaseSession = await createClientWithSession();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabaseSession.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Use service role client for database operations (bypasses RLS)
+    const supabase = await createClient();
 
     const body: CreateSessionRequest = await request.json();
 
@@ -119,17 +121,19 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Get current user
+    // Use session client for auth (reads cookies)
+    const supabaseSession = await createClientWithSession();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabaseSession.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Use service role client for database operations (bypasses RLS)
+    const supabase = await createClient();
 
     // Parse query params
     const { searchParams } = new URL(request.url);

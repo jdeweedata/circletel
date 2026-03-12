@@ -172,6 +172,13 @@ docs/emandate/
 skills-lock.json
 __pycache__/
 
+# PWA generated files (next-pwa auto-generates these with build-specific IDs)
+# They become stale after deployments and cause 404 precache errors
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+
 # Sanity Studio
 sanity-studio/.sanity/
 sanity-studio/dist/
