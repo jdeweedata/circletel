@@ -1,7 +1,6 @@
 'use client'
 import { PiProhibitBold, PiWifiHighBold, PiWifiSlashBold } from 'react-icons/pi';
 
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 interface SubscriberStatusBadgeProps {
@@ -19,20 +18,20 @@ export function SubscriberStatusBadge({
     online: {
       label: 'Online',
       icon: PiWifiHighBold,
-      variant: 'default' as const,
-      className: 'bg-green-500 hover:bg-green-600 text-white',
+      bgColor: 'bg-emerald-500',
+      textColor: 'text-white',
     },
     offline: {
       label: 'Offline',
       icon: PiWifiSlashBold,
-      variant: 'secondary' as const,
-      className: 'bg-gray-400 hover:bg-gray-500 text-white',
+      bgColor: 'bg-slate-400',
+      textColor: 'text-white',
     },
     disabled: {
       label: 'Disabled',
       icon: PiProhibitBold,
-      variant: 'destructive' as const,
-      className: 'bg-red-500 hover:bg-red-600 text-white',
+      bgColor: 'bg-red-500',
+      textColor: 'text-white',
     },
   }
 
@@ -40,12 +39,16 @@ export function SubscriberStatusBadge({
   const Icon = config.icon
 
   return (
-    <Badge
-      variant={config.variant}
-      className={cn(config.className, className)}
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md',
+        config.bgColor,
+        config.textColor,
+        className
+      )}
     >
-      {showIcon && <Icon className="w-3 h-3 mr-1" />}
+      {showIcon && <Icon className="w-3.5 h-3.5 flex-shrink-0" />}
       {config.label}
-    </Badge>
+    </span>
   )
 }
