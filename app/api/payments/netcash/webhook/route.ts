@@ -18,6 +18,7 @@ import { updateOrderFromPayment } from '@/lib/orders/payment-order-updater';
 import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service';
 import { formatPaymentMethod } from '@/lib/payments/types';
 import { webhookLogger } from '@/lib/logging';
+import { matchInvoiceByReference } from '@/lib/billing/invoice-matcher';
 
 /**
  * Verify NetCash webhook signature
@@ -458,94 +459,90 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Check if this is an invoice payment (reference starts with INV-)
-        if (reference.startsWith('INV-')) {
-          // Update invoice status to paid
-          webhookLogger.info('[Invoice Payment] Updating invoice', { reference });
+        // Use invoice matcher to handle CT-INV... and legacy INV-... references
+        const invoiceMatch = await matchInvoiceByReference(reference, supabase);
 
-          // Get invoice and customer data for email
-          const { data: invoice, error: invoiceFetchError } = await supabase
-            .from('customer_invoices')
-            .select(`
-              id,
-              invoice_number,
-              total_amount,
-              amount_paid,
-              amount_due,
-              customer:customers(
-                id,
-                email,
-                first_name,
-                last_name
-              )
-            `)
-            .eq('invoice_number', reference)
+        if (invoiceMatch.matched && invoiceMatch.invoice) {
+          const invoice = invoiceMatch.invoice;
+          webhookLogger.info('[Invoice Payment] Invoice matched', {
+            reference,
+            matchMethod: invoiceMatch.matchMethod,
+            invoiceId: invoice.id,
+            invoiceNumber: invoice.invoice_number
+          });
+
+          // Get customer data for email
+          const { data: customerData } = await supabase
+            .from('customers')
+            .select('id, email, first_name, last_name')
+            .eq('id', invoice.customer_id)
             .single();
 
-          if (invoiceFetchError || !invoice) {
-            webhookLogger.error('[Invoice Payment] Invoice not found', { reference });
+          // Calculate new amounts
+          const newAmountPaid = (Number(invoice.amount_paid) || 0) + amount;
+          const newAmountDue = Math.max(0, (Number(invoice.total_amount) || 0) - newAmountPaid);
+          const newStatus = newAmountDue <= 0 ? 'paid' : 'partial';
+
+          // Update invoice
+          const { error: invoiceUpdateError } = await supabase
+            .from('customer_invoices')
+            .update({
+              status: newStatus,
+              amount_paid: newAmountPaid,
+              amount_due: newAmountDue,
+              paid_at: newStatus === 'paid' ? new Date().toISOString() : null,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', invoice.id);
+
+          if (invoiceUpdateError) {
+            webhookLogger.error('[Invoice Payment] Failed to update invoice', { error: invoiceUpdateError.message });
           } else {
-            // Extract customer from relationship (Supabase returns array for relations)
-            const customer = Array.isArray(invoice.customer) ? invoice.customer[0] : invoice.customer;
+            webhookLogger.info('[Invoice Payment] Invoice updated', {
+              invoice_number: invoice.invoice_number,
+              status: newStatus,
+              amount_paid: newAmountPaid,
+              amount_due: newAmountDue
+            });
 
-            // Calculate new amount paid and remaining balance
-            const newAmountPaid = (invoice.amount_paid || 0) + amount;
-            const newAmountDue = Math.max(0, invoice.total_amount - newAmountPaid);
-            const newStatus = newAmountDue <= 0 ? 'paid' : 'partial';
+            // Link payment transaction to invoice
+            if (paymentTransaction?.id) {
+              await supabase
+                .from('payment_transactions')
+                .update({ invoice_id: invoice.id })
+                .eq('id', paymentTransaction.id);
+            }
 
-            // Update invoice
-            const { error: invoiceUpdateError } = await supabase
-              .from('customer_invoices')
-              .update({
-                status: newStatus,
-                amount_paid: newAmountPaid,
-                amount_due: newAmountDue,
-                paid_at: newStatus === 'paid' ? new Date().toISOString() : null,
-                updated_at: new Date().toISOString()
+            // Send payment receipt email
+            if (customerData?.email) {
+              const paymentMethod = String(bodyParsed.PaymentMethod || bodyParsed.payment_method || 'Online Payment');
+
+              EnhancedEmailService.sendPaymentReceipt({
+                invoice_id: invoice.id,
+                customer_id: customerData.id,
+                email: customerData.email,
+                customer_name: `${customerData.first_name} ${customerData.last_name}`,
+                invoice_number: invoice.invoice_number,
+                payment_amount: amount,
+                payment_date: new Date().toISOString(),
+                payment_method: formatPaymentMethod(paymentMethod),
+                payment_reference: transactionId,
+                remaining_balance: newAmountDue,
               })
-              .eq('invoice_number', reference);
-
-            if (invoiceUpdateError) {
-              webhookLogger.error('[Invoice Payment] Failed to update invoice', { error: invoiceUpdateError.message });
-            } else {
-              webhookLogger.info('[Invoice Payment] Invoice updated:', {
-                invoice_number: reference,
-                status: newStatus,
-                amount_paid: newAmountPaid,
-                amount_due: newAmountDue
-              });
-
-              // Send payment receipt email
-              if (customer?.email) {
-                const paymentMethod = String(bodyParsed.PaymentMethod || bodyParsed.payment_method || 'Online Payment');
-
-                EnhancedEmailService.sendPaymentReceipt({
-                  invoice_id: invoice.id,
-                  customer_id: customer.id,
-                  email: customer.email,
-                  customer_name: `${customer.first_name} ${customer.last_name}`,
-                  invoice_number: invoice.invoice_number,
-                  payment_amount: amount,
-                  payment_date: new Date().toISOString(),
-                  payment_method: formatPaymentMethod(paymentMethod),
-                  payment_reference: transactionId,
-                  remaining_balance: newAmountDue,
+                .then((result) => {
+                  if (result.success) {
+                    webhookLogger.info('[Invoice Payment] Payment receipt email sent', { message_id: result.message_id });
+                  } else {
+                    webhookLogger.error('[Invoice Payment] Payment receipt email failed', { error: result.error });
+                  }
                 })
-                  .then((result) => {
-                    if (result.success) {
-                      webhookLogger.info('[Invoice Payment] Payment receipt email sent', { message_id: result.message_id });
-                    } else {
-                      webhookLogger.error('[Invoice Payment] Payment receipt email failed', { error: result.error });
-                    }
-                  })
-                  .catch((error) => {
-                    webhookLogger.error('[Invoice Payment] Payment receipt email error', { error: error instanceof Error ? error.message : String(error) });
-                  });
-              }
+                .catch((emailError) => {
+                  webhookLogger.error('[Invoice Payment] Payment receipt email error', { error: emailError instanceof Error ? emailError.message : String(emailError) });
+                });
             }
           }
-        } else {
-          // 1. Update associated order (if any)
+        } else if (reference && /^CT-\d{8}-/i.test(reference)) {
+          // Order payment (date-based reference format)
           webhookLogger.info('[Payment Processing] Updating order for reference', { reference });
           updateOrderFromPayment(reference, paymentTransaction.id, amount)
             .then((orderResult) => {
@@ -558,9 +555,17 @@ export async function POST(request: NextRequest) {
                 webhookLogger.info('[Order Update] No order update needed', { error: orderResult.error });
               }
             })
-            .catch((error) => {
-              webhookLogger.error('[Order Update] Error updating order', { error: error instanceof Error ? error.message : String(error) });
+            .catch((orderError) => {
+              webhookLogger.error('[Order Update] Error updating order', { error: orderError instanceof Error ? orderError.message : String(orderError) });
             });
+        } else {
+          // No invoice or order matched — log for manual review
+          webhookLogger.warn('[Payment Processing] No invoice or order matched for reference — manual review required', {
+            reference,
+            transactionId,
+            amount,
+            matchError: invoiceMatch.error
+          });
         }
 
         // 2. Sync to ZOHO Billing (async, non-blocking)
