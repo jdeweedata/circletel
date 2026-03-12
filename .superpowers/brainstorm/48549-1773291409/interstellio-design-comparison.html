@@ -1,0 +1,173 @@
+<h2>Interstellio Page Refactor</h2>
+<p class="subtitle">Comparing current design vs Orders detail page pattern</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">Current: Interstellio Page</div>
+    <div class="mockup-body" style="background: #f8fafc; padding: 0;">
+      <!-- Current header -->
+      <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; background: #f97316; border-radius: 6px;"></div>
+          <div>
+            <div style="font-weight: bold; font-size: 18px;">Interstellio RADIUS</div>
+            <div style="font-size: 11px; color: #64748b;">Monitor subscribers, sessions, usage</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <div style="padding: 6px 12px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px;">Auto-refresh</div>
+          <div style="padding: 6px 12px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px;">Refresh</div>
+        </div>
+      </div>
+
+      <!-- Current stats - custom cards -->
+      <div style="padding: 0 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; color: #64748b;">Total Subscribers</div>
+          <div style="font-size: 24px; font-weight: bold;">42</div>
+        </div>
+        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; color: #64748b;">Active Sessions</div>
+          <div style="font-size: 24px; font-weight: bold;">28</div>
+        </div>
+        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; color: #64748b;">Online Now</div>
+          <div style="font-size: 24px; font-weight: bold;">35</div>
+        </div>
+      </div>
+
+      <!-- Current tabs - boxed style -->
+      <div style="padding: 16px;">
+        <div style="display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 8px; width: fit-content;">
+          <div style="padding: 6px 16px; background: white; border-radius: 6px; font-size: 12px; font-weight: 500;">Subscribers</div>
+          <div style="padding: 6px 16px; font-size: 12px; color: #64748b;">Sessions</div>
+          <div style="padding: 6px 16px; font-size: 12px; color: #64748b;">Usage</div>
+        </div>
+      </div>
+
+      <!-- Current content - no section cards -->
+      <div style="padding: 0 16px 16px;">
+        <div style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; padding: 12px;">
+          <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">Table rows without section wrapper...</div>
+          <div style="height: 60px; background: #f8fafc; border-radius: 4px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">Proposed: Orders Detail Pattern</div>
+    <div class="mockup-body" style="background: #f8fafc; padding: 0;">
+      <!-- New header - white with border -->
+      <div style="background: white; border-bottom: 1px solid #e2e8f0; padding: 16px;">
+        <!-- Breadcrumbs -->
+        <div style="font-size: 10px; color: #64748b; margin-bottom: 12px;">
+          Integrations > Interstellio RADIUS
+        </div>
+        <!-- Title row -->
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 24px; font-weight: 800;">Interstellio RADIUS</div>
+            <div style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 500;">Healthy</div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <div style="display: flex; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+              <div style="padding: 8px 10px; border-right: 1px solid #e2e8f0;">icon</div>
+              <div style="padding: 8px 10px; border-right: 1px solid #e2e8f0;">icon</div>
+              <div style="padding: 8px 10px;">icon</div>
+            </div>
+            <div style="padding: 8px 16px; background: #f97316; color: white; border-radius: 8px; font-size: 12px; font-weight: 600;">Sync Now</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- New stats - 4-column grid, shared StatCard -->
+      <div style="padding: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+        <div style="background: white; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Total Subscribers</div>
+          <div style="font-size: 16px; font-weight: bold;">42</div>
+          <div style="font-size: 10px; color: #64748b; margin-top: 6px;">12 online</div>
+        </div>
+        <div style="background: white; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Active Sessions</div>
+          <div style="font-size: 16px; font-weight: bold;">28</div>
+          <div style="font-size: 10px; color: #64748b; margin-top: 6px;">Across 12 subscribers</div>
+        </div>
+        <div style="background: white; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Linked Services</div>
+          <div style="font-size: 16px; font-weight: bold;">38</div>
+          <div style="font-size: 10px; color: #64748b; margin-top: 6px;">4 unlinked</div>
+        </div>
+        <div style="background: white; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Total Usage</div>
+          <div style="font-size: 16px; font-weight: bold;">1.2 TB</div>
+          <div style="font-size: 10px; color: #64748b; margin-top: 6px;">This month</div>
+        </div>
+      </div>
+
+      <!-- New tabs - underline style -->
+      <div style="padding: 0 16px;">
+        <div style="display: flex; gap: 24px; border-bottom: 1px solid #e2e8f0;">
+          <div style="padding: 12px 0; border-bottom: 2px solid #f97316; font-size: 13px; font-weight: 500; color: #0f172a;">Subscribers</div>
+          <div style="padding: 12px 0; font-size: 13px; color: #64748b;">Active Sessions</div>
+          <div style="padding: 12px 0; font-size: 13px; color: #64748b;">Usage Analytics</div>
+        </div>
+      </div>
+
+      <!-- New content - with SectionCard -->
+      <div style="padding: 16px;">
+        <div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
+          <div style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;">
+            <div style="width: 16px; height: 16px; background: #dbeafe; border-radius: 4px;"></div>
+            <div style="font-size: 13px; font-weight: 600;">All Subscribers</div>
+          </div>
+          <div style="padding: 16px;">
+            <div style="height: 60px; background: #f8fafc; border-radius: 4px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>Key Changes</h3>
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>What Changes</h4>
+      <ul>
+        <li>White header with breadcrumbs + StatusBadge</li>
+        <li>4-column StatCard grid (shared component)</li>
+        <li>Underline tabs instead of boxed tabs</li>
+        <li>SectionCard wrappers with icon headers</li>
+        <li>Consistent spacing and typography</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>What Stays</h4>
+      <ul>
+        <li>Same data and functionality</li>
+        <li>Same tables (SubscriberTable, ActiveSessionsTable)</li>
+        <li>Same usage charts</li>
+        <li>Auto-refresh toggle (moved to header actions)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top: 24px;">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Approve This Design</h3>
+      <p>Proceed with refactoring to match Orders detail page pattern</p>
+    </div>
+  </div>
+  <div class="option" data-choice="modify" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Modify Design</h3>
+      <p>I have specific changes or concerns to discuss</p>
+    </div>
+  </div>
+</div>

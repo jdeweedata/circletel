@@ -51,7 +51,7 @@ export function PricingBlock({
   const displayPlans = plans || tiers || [];
 
   return (
-    <section className="py-16 md:py-20 bg-circleTel-grey200">
+    <section className="py-12 md:py-16 bg-circleTel-grey200">
       <div className="container mx-auto px-4">
         {/* Header */}
         {(displayTitle || displaySubtitle) && (

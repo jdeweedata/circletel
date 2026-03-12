@@ -1,13 +1,14 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiHouseBold, PiMapPinBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiHouseBold, PiMapPinBold, PiPackageBold } from 'react-icons/pi';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { getBundleProduct, isValidBundleSlug } from '@/lib/products/bundles';
 
 type CoverageType = 'residential' | 'business';
 
@@ -26,6 +27,7 @@ interface AddressData {
 
 export default function CoveragePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { state, actions } = useOrderContext();
 
   const [address, setAddress] = useState('');
@@ -34,12 +36,36 @@ export default function CoveragePage() {
   const [coverageType, setCoverageType] = useState<CoverageType>('residential');
   const [isChecking, setIsChecking] = useState(false);
 
+  // Check for preselected bundle product from query params
+  const productSlug = searchParams.get('product');
+  const bundleProduct = productSlug && isValidBundleSlug(productSlug)
+    ? getBundleProduct(productSlug)
+    : null;
+
   // Set current stage to 1 when this page loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (state.currentStage !== 1) {
       actions.setCurrentStage(1);
     }
   }, [state.currentStage, actions]);
+
+  // Auto-select coverage type based on bundle product
+  useEffect(() => {
+    if (bundleProduct) {
+      setCoverageType(bundleProduct.coverageType);
+      // Store selected bundle in context
+      actions.updateOrderData({
+        coverage: {
+          ...state.orderData.coverage,
+          selectedBundle: {
+            slug: bundleProduct.slug,
+            name: bundleProduct.name,
+            category: bundleProduct.category,
+          },
+        },
+      });
+    }
+  }, [bundleProduct]);
 
   const handleLocationSelect = (data: AddressData) => {
     setAddress(data.address);
@@ -104,8 +130,14 @@ export default function CoveragePage() {
       // Mark coverage step as complete
       actions.markStepComplete(1);
 
-      // Redirect to packages page with leadId and type
-      router.push(`/packages/${data.leadId}?type=${coverageType}`);
+      // Redirect based on whether a bundle product was preselected
+      if (bundleProduct) {
+        // Go to bundle tier selection
+        router.push(`/order/bundle/${bundleProduct.slug}`);
+      } else {
+        // Go to generic packages page
+        router.push(`/packages/${data.leadId}?type=${coverageType}`);
+      }
     } catch (error) {
       console.error('Coverage check failed:', error);
       toast.error('Coverage check failed. Please try again.');
@@ -129,6 +161,25 @@ export default function CoveragePage() {
           </div>
         </div>
       </div>
+
+      {/* Bundle Product Banner */}
+      {bundleProduct && (
+        <div className="bg-gradient-to-r from-circleTel-orange/10 to-orange-50 border-b border-orange-100">
+          <div className="max-w-4xl mx-auto px-4 py-3">
+            <div className="flex items-center gap-3">
+              <PiPackageBold className="h-5 w-5 text-circleTel-orange" />
+              <div>
+                <span className="font-medium text-gray-900">
+                  Ordering: {bundleProduct.name}
+                </span>
+                <span className="text-gray-600 ml-2">
+                  — {bundleProduct.tagline}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-4 py-8">

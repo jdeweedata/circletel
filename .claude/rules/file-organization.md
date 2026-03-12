@@ -67,3 +67,19 @@ Config files only: `package.json`, `tsconfig.json`, `next.config.js`, `.env*`, `
 2. If not, create the folder first
 3. Use descriptive folder names
 4. Follow naming conventions above
+
+## Monorepo Skills Discovery
+
+Skills in nested directories are auto-discovered when editing files in that path:
+
+| Working in... | Also loads skills from... |
+|---------------|---------------------------|
+| `packages/frontend/src/` | `packages/frontend/.claude/skills/` |
+| `packages/backend/src/` | `packages/backend/.claude/skills/` |
+| `apps/admin/` | `apps/admin/.claude/skills/` |
+
+**Key difference from CLAUDE.md**:
+- CLAUDE.md uses **ancestor loading** (walks UP the tree)
+- Skills use **descendant discovery** (loads from nested paths you're working in)
+
+This supports monorepo setups where packages have their own domain-specific skills.

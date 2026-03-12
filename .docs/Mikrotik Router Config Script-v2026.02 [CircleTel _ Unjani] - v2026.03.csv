@@ -1,0 +1,125 @@
+"Variables
+
+Enter Details In Grey Cells Only","Terminal Commands ThinkWiFi Venue Router Config Script-v2026.02
+0) Ensure the Unjani Mikrotik Router is factory reset with no default configuration
+1) Enter the required Site Name, Router's Ether1 MAC address & CircleTEl PPPOE details in the Grey cells on left in Column A (Rows in Pink will update automatically)
+2) Select rows B2:B125, copy & paste into the Mikrotik terminal"
+ENTER SITE NAME,/system identity set name=TDX-CIRCL-UNJAN-SOWET-JABULANI-ND-1
+TDX-CIRCL-UNJAN-SOWET-JABULANI,
+,/interface ethernet set [ find default-name=ether1 ] name=ether1-www
+ETHER1 MAC ADDRESS,/interface ethernet set [ find default-name=ether2 ] name=ether2-ap
+EE:F4:1C:59:71:60,
+,/interface vlan add interface=ether2-ap name=HOTSPOT-VLAN20 vlan-id=20
+ENTER PPPOE USERNAME,/interface vlan add interface=ether2-ap name=UNJANI-CLINIC-VLAN10 vlan-id=10
+CT-UNJ-015@circletel.co.za,
+,/interface bridge add auto-mac=no name=think-hs-bridge admin-mac=EE:F4:1C:59:71:60
+ENTER PPPOE PASSWORD,/interface bridge port add bridge=think-hs-bridge interface=HOTSPOT-VLAN20
+CT-UNJ-015,
+,/ip dhcp-client/add interface=ether1-www add-default-route=yes use-peer-dns=no
+,/interface pppoe-client add add-default-route=yes disabled=no interface=ether1-www name=CIRCLETEL-PPPOE password=CT-UNJ-015 user=CT-UNJ-015@circletel.co.za
+,/interface l2tp-client add connect-to=34.35.85.28 name=L2TP-THINK-JHBGC-CORE1 password=PP!PAcc3ss disabled=no user=TDX-CIRCL-UNJAN-SOWET-JABULANI-ND-1
+,
+,/user add group=full name=thinkadmin password=R3mot3Acc3ss2026!
+,/user set admin disabled=yes
+,
+,/ip address add address=192.168.77.1/24 interface=think-hs-bridge network=192.168.77.0
+,/ip address add address=192.168.10.1/24 interface=UNJANI-CLINIC-VLAN10 network=192.168.10.0
+,/ip address add address=192.168.250.1/30 interface=ether2-ap network=192.168.250.0
+,
+,
+,
+,/ip pool add name=think-hs-pool77 ranges=192.168.77.10-192.168.77.110
+,/ip pool add name=unjani-clinic-pool ranges=192.168.10.2-192.168.10.254
+,/ip pool add name=unjani-ap-mgmt-pool ranges=192.168.250.2
+,
+,/ip dhcp-server add address-pool=think-hs-pool77 interface=think-hs-bridge lease-time=5m name=think-hs-dhcp-server
+,/ip dhcp-server add address-pool=unjani-clinic-pool interface=UNJANI-CLINIC-VLAN10 name=unjani-clinic-dhcp-server
+,/ip dhcp-server add address-pool=unjani-ap-mgmt-pool interface=ether2-ap name=unjani-ap-mgmt-dhcp-server
+,
+,"/ip dhcp-server network add address=192.168.10.0/24 dns-server=9.9.9.9,149.112.112.112 gateway=192.168.10.1"
+,"/ip dhcp-server network add address=192.168.77.0/24 dns-server=9.9.9.9,149.112.112.112 gateway=192.168.77.1"
+,/ip dhcp-server network add address=192.168.250.0/30 gateway=192.168.250.1
+,
+,/queue simple add max-limit=25M/25M name=unjani-clinic-queue target=192.168.10.0/24
+,/queue simple add max-limit=25M/25M name=think-hotspot-queue target=192.168.77.0/24
+,
+,"/ip dns set allow-remote-requests=yes cache-max-ttl=10m cache-size=4096KiB max-concurrent-queries=50 max-concurrent-tcp-sessions=50 query-server-timeout=10s servers=9.9.9.9,149.112.112.112 verify-doh-cert=yes"
+,
+,/ip firewall connection tracking set udp-timeout=10s
+,
+,/ip service set telnet disabled=yes
+,/ip service set ftp disabled=yes
+,/ip service set www disabled=yes
+,/ip service set ssh disabled=yes
+,/ip service set api disabled=yes
+,/ip service set api address=10.125.0.0/24 disabled=no
+,
+,/system clock set time-zone-name=Africa/Johannesburg
+,
+,/snmp community add addresses=::/0 authentication-password=thinkmonitor13579 authentication-protocol=SHA1 encryption-password=thinkmonitor13579 encryption-protocol=AES name=THINKSNMPMONITOR security=authorized
+,/snmp set contact=help@tdx.media enabled=yes location=<EnterPhysicalAddressHere> trap-community=THINKSNMPMONITOR trap-generators=interfaces trap-interfaces=L2TP-THINK-JHBGC-CORE1 trap-version=3
+,
+,"/ip hotspot profile set [ find default=yes ] login-by="""" name=default-not-in-use"
+,"/ip hotspot profile add login-by=http-chap,http-pap name=think-hs-prof use-radius=yes"
+,/ip hotspot add addresses-per-mac=1 disabled=no idle-timeout=1m interface=think-hs-bridge name=eef41c597160 profile=think-hs-prof
+,/ip hotspot user profile set [ find default=yes ] add-mac-cookie=no idle-timeout=3m rate-limit=7M/7M session-timeout=5m status-autorefresh=5s
+,/ip hotspot ip-binding add mac-address=AA:BB:CC:DD:EE:FF type=bypassed
+,/ip hotspot user set [ find default=yes ] limit-uptime=20m
+,
+,/system logging action set 0 memory-lines=65535
+,/system logging action set 1 disk-lines-per-file=65535
+,
+,"/ip dns set allow-remote-requests=yes cache-max-ttl=10m cache-size=4096KiB max-concurrent-queries=50 max-concurrent-tcp-sessions=50 query-server-timeout=10s servers=9.9.9.9,149.112.112.112 verify-doh-cert=yes"
+,
+,/radius add address=34.79.51.25 comment=think-hs-radius require-message-auth=no secret=thinkzone service=hotspot timeout=8s
+,
+,"/system logging add topics=debug,hotspot,radius"
+,/system note set show-at-login=no
+,
+,/ip firewall nat add action=masquerade chain=srcnat out-interface=CIRCLETEL-PPPOE
+,/ip firewall nat add action=masquerade chain=srcnat out-interface=L2TP-THINK-JHBGC-CORE1
+,
+,"/system scheduler add interval=1d name=twurl on-event=""/system script run twurl"" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2026-01-01 start-time=02:00:00"
+,
+,"/system script add dont-require-permissions=no name=twurl owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="":local checkUrl \""storage.googleapis.com\""\"
+,\n:local testResult\
+,\n\
+,\n# Test internet connectivity to the required URL\
+,\n:set testResult [/ping count=10 \$checkUrl]\
+,\n\
+,\n# Check if the ping was successful (received at least one response)\
+,\n:if (\$testResult > 9) do={\
+,\n\
+,\n    # --- Commands that run only if the URL is accessible ---\
+,\n\
+,\n    # Cleanup commands (address-list and walled-garden entries)\
+,\n    # These commands remove non-dynamic entries from the lists.\
+,\n    /ip firewall address-list remove [find dynamic=no]\
+,\n    /ip hotspot/walled-garden/remove [find dynamic=no]\
+,\n    /ip hotspot/walled-garden/ip remove [find disabled=no]\
+,\n\
+,\n    # Check if 'twurl.rsc' exists before attempting to remove it.\
+,\n    # This prevents the script from stopping if the file is missing.\
+,"\n    :if ([:len [/file find name=\""twurl.rsc\""]] > 0) do={\"
+,\n        /file/remove twurl.rsc\
+,\n    }\
+,\n\
+,\n    # Fetch the new script file\
+,\n    /tool fetch url=https://storage.googleapis.com/twurl/twurl.rsc\
+,\n\
+,\n    # Wait 3 seconds for the download to complete\
+,\n    :delay 3s\
+,\n\
+,\n    # Import the fetched script\
+,\n    /import file-name=twurl.rsc\
+,\n\
+,\n    # Wait 5 seconds for the import to finish execution\
+,\n    :delay 5s\
+,\n\
+,\n} else={\
+,\n    # Optional: Log a message if the connection test fails\
+,"\n    :log warning \""Internet connectivity test to \$checkUrl failed. Script not run.\""\"
+,"\n}"""
+,
+,/system device-mode update mode=advanced 
+,#NOTE THAT ROUTER WILL REQUEST YOU TO PRESS THE PHYSICAL MODE BUTTON OR REBOOT AFTER THIS IS RUN

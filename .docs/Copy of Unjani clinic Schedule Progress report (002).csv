@@ -1,0 +1,58 @@
+Site Name;Province;Area;Technology;Technicians required;Travel ;Accommodation + LOA (check company );Schedule;existing devices;address;Assigned BN;PPPOE username;Password;Router/RN SN;CPE SN;AP SN;Status
+Chloorkop;Gauteng;Ekurhuleni;Tarana FWB;Full Team;Vehicle (normal site trip expense);20Km's between sites ;11-Feb;;3430 Successor St, Phomolong;;CT-UNJ-006@circletel.co.za;CT-UNJ-006;S150F2224001002;HHU0AENHM6W;G1U52HL002532;Activated
+Alexandra;Gauteng;Johannesburg;Tarana FWB;Full Team;Vehicle (normal site trip expense);;11-Feb;already configed (Source connection change);47 Third St, Wynberg;X4672-BN-45;CT-UNJ-002@circletel.co.za;CT-UNJ-002;S150F2224000967;On site devices;On site devices;Activated
+Cosmo City;Gauteng;Johannesburg;Tarana FWB;Full Team;Vehicle (normal site trip expense);27Km's between;12-Feb;;35 Massachussets Cres;X6582-BN-45;CT-UNJ-007@circletel.co.za;CT-UNJ-007;S150F2224000981;;;Activated
+Fleurhof;Gauteng;Johannesburg;Tarana FWB;Full Team;Vehicle (normal site trip expense);;12-Feb;;Ext 26, Cnr Lavender &, Drumstick St, Fleurhof;X0064-BN-315/X7615-BN-135;CT-UNJ-008@circletel.co.za;CT-UNJ-008;S150F2224000953;;;Activated
+Sky City;Gauteng;Klipwater;Tarana FWB;Full Team;Vehicle (normal site trip expense);12Km's between sites;13-Feb;;22 Heidelberg Rd, Garthdale AH;X10706-BN-225;CT-UNJ-009@circletel.co.za;CT-UNJ-009;S150F2224000963;;;Activated
+Sicelo;Gauteng;Meyerton;5G/LTE/FWA;One technician;Vehicle (normal site trip expense);;16-Feb;;;;CT-UNJ-011@circletel.co.za;CT-UNJ-011;;;;Activated
+Heidelberg;Gauteng;Heidelberg;Tarana FWB;Full Team;Vehicle (normal site trip expense);;16-Feb;;Unnamed Road, Military Base, Heidelberg , heidelberg mall;X6837-BN-45;CT-UNJ-012@circletel.co.za;CT-UNJ-012;S150F2224001003;;;Activated
+Tokoza;Gauteng;Ekurhuleni;Tarana FWB;Full Team;Vehicle (normal site trip expense);;18-Feb;;263 Khumalo St, Thokoza,;X0339-BN-3/X339-BN-135;CT-UNJ-010@circletel.co.za;CT-UNJ-010;S150F2224000983;HJX0AV8GD3S;G1U52HL044467;Activated
+Soshanguve (Block P);Gauteng;Pretoria;Tarana FWB;Full Team;Vehicle (normal site trip expense);;25-Feb;;;;CT-UNJ-025@circletel.co.za;CT-UNJ-025;S150F2224000982;;;Activated
+Barcelona;Gauteng;Springs;LTE/5G;One technician;Vehicle (normal site trip expense);;26-Feb;already configed (Source connection change);;;CT-UNJ-013@circletel.co.za;CT-UNJ-013;;On site devices;On site devices;Activated
+Lens ext 10;Gauteng;Johannesburg;Tarana FWB;Full Team;Vehicle (normal site trip expense);;26-Feb;;22 Karasberg St, Lenasia South, Lenasia, 1835;X3555-BN-45;CT-UNJ-016@circletel.co.za;CT-UNJ-016;S150F2224000947;;;Activated
+Oukasie;North West;Brits;Tarana FWB;Full Team;Vehicle (normal site trip expense);;27-Feb;;Oukasie sports grounds, Oukasie, Brits;X11752-BN-135;CT-UNJ-014@circletel.co.za;CT-UNJ-014;;;;Connection issues 
+Nokaneng;Limpopo;Greater Tubatse;LTE Uncapped;One technician;Vehicle (312KM's from JHB);312Km (accomodation required);02-Mar;;;;CT-UNJ-017@circletel.co.za;CT-UNJ-017;;;;Activated
+Phoenix (27 km to durban clinic);KwaZulu-Natal;Durban;Tarana FWB;Full Team;Vehicle (584 KM's From JHB );584Km accomodation required;03-Mar;;28 Corkbrook Cl, Brookdale, Phoenix;;CT-UNJ-021@circletel.co.za;CT-UNJ-021;;;;Connection issues  ( In resolution with MTN)
+Sweetwaters;KwaZulu-Natal;Pietermaritzburg;LTE/5G;One technician / Team;Vehicle (site trip from accomodation);(KZN teams to assist) accomodation required;03-Mar;;;;CT-UNJ-020@circletel.co.za;CT-UNJ-020;;;;Activated
+New Hanover;KwaZulu-Natal;New Hanover;LTE/5G;One technician / Team;Vehicle (site trip from accomodation);(KZN teams to assist) accomodation required;04-Mar;;;;CT-UNJ-023@circletel.co.za;CT-UNJ-023;;;;Activated
+(Changed to Jabulani);Gauteng;Soweto;5G/LTE/FWA;One technician;Vehicle (normal site trip expense);;06-Mar;;;;CT-UNJ-015@circletel.co.za;CT-UNJ-015;;;;
+Durban;KwaZulu-Natal;Durban;LTE;One technician / Team;Vehicle (site trip from accomodation);27km  accomodation required;06-Mar;;;;CT-UNJ-022@circletel.co.za;CT-UNJ-022;;;;
+Zamdela;Free state;Sasolburg;5G/LTE/FWA;One technician;Vehicle (normal site trip expense);;09-Mar;;;;CT-UNJ-019@circletel.co.za;CT-UNJ-019;;;;
+Kayamandi;Western Cape;Stellenbosch;5G/LTE;One technician;Vehicle (normal site trip expense);(WC team to attend);10-Mar;;;;CT-UNJ-018@circletel.co.za;CT-UNJ-018;;;;
+Umsinga;KwaZulu-Natal;Tugela Ferry;LTE/5G;One technician / Team;Vehicle (site trip from accomodation);(KZN teams to assist) accomodation required;10-Mar;;;;CT-UNJ-024@circletel.co.za;CT-UNJ-024;;;;
+;;;;;;;;;;;;;;;;
+;;;;;;  ;;;;;;;;;;
+;;;;;Collect boards  ;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+;;;;;; ;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+;;;;;#;Account Number;Site Name;Province;PPPoE Username;;Technology;;;;;
+;;;;;1;CT-UNJ-001;Unjani Clinic - Soweto (Diepkloof);Gauteng;CT-UNJ-001@circletel.co.za;;-;;;;;
+;;;;;2;CT-UNJ-002;Unjani Clinic - Alexandra;Gauteng;CT-UNJ-002@circletel.co.za;;-;;;;;
+;;;;;3;CT-UNJ-003;Unjani Clinic - Khayelitsha;Western Cape;CT-UNJ-003@circletel.co.za;;-;;;;;
+;;;;;4;CT-UNJ-004;Unjani Clinic - Mamelodi;Gauteng;CT-UNJ-004@circletel.co.za;;-;;;;;
+;;;;;5;CT-UNJ-005;Unjani Clinic - Umlazi;KwaZulu-Natal;CT-UNJ-005@circletel.co.za;;-;;;;;
+;;;;;6;CT-UNJ-006;Unjani Clinic - Chloorkop;Gauteng;CT-UNJ-006@circletel.co.za;;Tarana FWB;;;;;
+;;;;;7;CT-UNJ-007;Unjani Clinic - Cosmo City;Gauteng;CT-UNJ-007@circletel.co.za;;Tarana FWB;;;;;
+;;;;;8;CT-UNJ-008;Unjani Clinic - Fleurhof;Gauteng;CT-UNJ-008@circletel.co.za;;Tarana FWB;;;;;
+;;;;;9;CT-UNJ-009;Unjani Clinic - Sky City;Gauteng;CT-UNJ-009@circletel.co.za;;Tarana FWB;;;;;
+;;;;;10;CT-UNJ-010;Unjani Clinic - Tokoza;Gauteng;CT-UNJ-010@circletel.co.za;;Tarana FWB;;;;;
+;;;;;11;CT-UNJ-011;Unjani Clinic - Sicelo;Gauteng;CT-UNJ-011@circletel.co.za;;5G/LTE/FWA;;;;;
+;;;;;12;CT-UNJ-012;Unjani Clinic - Heidelberg;Gauteng;CT-UNJ-012@circletel.co.za;;Tarana FWB;;;;;
+;;;;;13;CT-UNJ-013;Unjani Clinic - Barcelona;Gauteng;CT-UNJ-013@circletel.co.za;;LTE/5G;;;;;
+;;;;;14;CT-UNJ-014;Unjani Clinic - Oukasie;North West;CT-UNJ-014@circletel.co.za;;Tarana FWB;;;;;
+;;;;;15;CT-UNJ-015;Unjani Clinic - Jabulani;Gauteng;CT-UNJ-015@circletel.co.za;;5G/LTE/FWA;;;;;
+;;;;;16;CT-UNJ-016;Unjani Clinic - Lens ext 10;Gauteng;CT-UNJ-016@circletel.co.za;;Tarana FWB;;;;;
+;;;;;17;CT-UNJ-017;Unjani Clinic - Nokaneng;Limpopo;CT-UNJ-017@circletel.co.za;;LTE Uncapped;;;;;
+;;;;;18;CT-UNJ-018;Unjani Clinic - Kayamandi;Western Cape;CT-UNJ-018@circletel.co.za;;5G/LTE;;;;;
+;;;;;19;CT-UNJ-019;Unjani Clinic - Zamdela;Free State;CT-UNJ-019@circletel.co.za;;5G/LTE/FWA;;;;;
+;;;;;20;CT-UNJ-020;Unjani Clinic - Sweetwaters;KwaZulu-Natal;CT-UNJ-020@circletel.co.za;;LTE/5G;;;;;
+;;;;;21;CT-UNJ-021;Unjani Clinic - Phoenix;KwaZulu-Natal;CT-UNJ-021@circletel.co.za;;Tarana FWB;;;;;
+;;;;;22;CT-UNJ-022;Unjani Clinic - Durban;KwaZulu-Natal;CT-UNJ-022@circletel.co.za;;LTE;;;;;
+;;;;;23;CT-UNJ-023;Unjani Clinic - New Hanover;KwaZulu-Natal;CT-UNJ-023@circletel.co.za;;LTE/5G;;;;;
+;;;;;24;CT-UNJ-024;Unjani Clinic - Umsinga;KwaZulu-Natal;CT-UNJ-024@circletel.co.za;;LTE/5G;;;;;
+;;;;;25;CT-UNJ-025;Unjani Clinic - Soshanguve (Block P);Gauteng;CT-UNJ-025@circletel.co.za;;Tarana FWB;;;;;
+;;;;;;;;;;;;;;;;

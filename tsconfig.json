@@ -43,6 +43,7 @@
     "**/__tests__/**/*",
     "tests/**/*",
     "docs/**/*",
-    "sanity-studio/**/*"
+    "sanity-studio/**/*",
+    "edge-proxy/**/*"
   ]
 }

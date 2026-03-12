@@ -52,6 +52,16 @@ IT services, bundles, and pricing for SME customers.
 |----------|-------------|
 | [CircleCloud Hosting Product Spec](cloud-hosting/CircleCloud_Hosting_Commercial_Product_Spec_v1_0.md) | Web hosting via NameHero CloudShield |
 
+### Bundles (CircleTel + Arlan MTN)
+Combined connectivity + mobile/voice/IoT bundles leveraging Arlan MTN partnership.
+
+| Product | Target | Document | Status |
+|---------|--------|----------|--------|
+| **Business Complete** | SME 5-50 staff | [CPS v1.0](bundles/BusinessComplete_Commercial_Product_Spec_v1_0.md) | ACTIVE |
+| **Remote+** | SOHO 1-5 people | [CPS v1.0](bundles/RemotePlus_Commercial_Product_Spec_v1_0.md) | ACTIVE |
+| **Venue+** | Commercial venues | [CPS v1.0](bundles/VenuePlus_Commercial_Product_Spec_v1_0.md) | ACTIVE |
+| **FleetConnect** | Fleet/logistics | *Pending* | DRAFT |
+
 ---
 
 ## Wholesale / Vendor Agreements
@@ -106,4 +116,4 @@ IT services, bundles, and pricing for SME customers.
 - Resources (external)
 - Partners (external)
 
-**Last Updated:** 2026-03-01
+**Last Updated:** 2026-03-08
