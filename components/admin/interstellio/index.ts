@@ -1,3 +1,4 @@
+export { InterstellioHeader } from './InterstellioHeader'
 export { SubscriberStatusBadge } from './SubscriberStatusBadge'
 export { InterstellioStatsCards } from './InterstellioStatsCards'
 export { SubscriberTable } from './SubscriberTable'
