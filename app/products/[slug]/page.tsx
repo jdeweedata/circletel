@@ -259,7 +259,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <WhyCircleTel />
 
       {/* CTA Section */}
-      <section className="py-12 md:py-16 bg-primary text-white">
+      <section className="py-12 md:py-16 bg-[#F5831F] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Get Connected?
