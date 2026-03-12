@@ -116,7 +116,7 @@ export class CompliantBillingService {
         period_end,
         subtotal,
         vat_rate: vatRate,
-        vat_amount: vatAmount,
+        tax_amount: vatAmount,
         total_amount: totalAmount,
         amount_paid: 0,
         line_items,

@@ -210,7 +210,7 @@ export class BillingService {
         period_end: period_end?.toISOString().split('T')[0],
         subtotal,
         vat_rate,
-        vat_amount,
+        tax_amount: vat_amount,
         total_amount,
         amount_paid: 0,
         line_items: line_items,

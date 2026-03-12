@@ -123,17 +123,13 @@ serve(async (req) => {
       .select(`
         id,
         customer_id,
-        product_id,
-        service_name,
+        package_id,
+        package_name,
         monthly_price,
         status,
         billing_day,
-        next_billing_date,
         customer:customers(
           id, first_name, last_name, email, account_number
-        ),
-        product:products(
-          id, name, price
         )
       `)
       .eq('status', 'active')
@@ -202,10 +198,10 @@ serve(async (req) => {
             month: 'long',
             year: 'numeric'
           });
-          const price = service.monthly_price || service.product?.price || 0;
-          
+          const price = Number(service.monthly_price) || 0;
+
           return {
-            description: `${service.service_name || service.product?.name} - ${monthName}`,
+            description: `${service.package_name || 'Service'} - ${monthName}`,
             quantity: 1,
             unit_price: price,
             amount: price,
@@ -245,7 +241,7 @@ serve(async (req) => {
             period_end: periodEnd.toISOString().split('T')[0],
             subtotal,
             vat_rate: VAT_RATE,
-            vat_amount: vatAmount,
+            tax_amount: vatAmount,
             total_amount: totalAmount,
             amount_paid: 0,
             line_items: lineItems,
@@ -272,7 +268,7 @@ serve(async (req) => {
             .from('customer_services')
             .update({
               next_billing_date: nextBillingDate.toISOString().split('T')[0],
-              last_billed_date: today.toISOString().split('T')[0]
+              last_invoice_date: today.toISOString().split('T')[0]
             })
             .eq('id', service.id);
         }

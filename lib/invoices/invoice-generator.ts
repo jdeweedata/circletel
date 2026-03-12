@@ -330,7 +330,7 @@ export async function generateCustomerInvoice(
       period_end,
       subtotal,
       vat_rate,
-      vat_amount,
+      tax_amount: vat_amount,
       total_amount,
       amount_paid: 0,
       line_items: line_items,
@@ -364,7 +364,7 @@ export async function generateCustomerInvoice(
     invoice_id: invoice.id,
     invoice_number: invoice.invoice_number,
     total_amount: invoice.total_amount,
-    vat_amount: invoice.vat_amount,
+    vat_amount: invoice.tax_amount,  // Map tax_amount column to vat_amount for interface
     due_date: invoice.due_date,
     pdf_url: invoice.pdf_url || undefined
   };

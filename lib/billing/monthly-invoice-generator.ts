@@ -509,7 +509,7 @@ export class MonthlyInvoiceGenerator {
         period_end: periodEnd,
         subtotal,
         vat_rate: vatRate,
-        vat_amount: vatAmount,
+        tax_amount: vatAmount,
         total_amount: totalAmount,
         line_items: lineItems,
         invoice_type: 'recurring',
