@@ -15,6 +15,7 @@ import {
 } from 'react-icons/pi';
 import { StatCard } from '@/components/admin/shared/StatCard';
 import { SectionCard } from '@/components/admin/shared/SectionCard';
+import { ReconciliationStatusCard } from '@/components/admin/billing/ReconciliationStatusCard';
 
 interface CheckResult {
   status: 'pass' | 'fail';
@@ -209,6 +210,11 @@ export default function ZohoBillingPage() {
               <p className="text-slate-500 text-sm">Scopes will appear once connected</p>
             )}
           </SectionCard>
+        </div>
+
+        {/* PayNow Reconciliation Status */}
+        <div className="mt-6">
+          <ReconciliationStatusCard />
         </div>
 
         {/* Details Section */}
