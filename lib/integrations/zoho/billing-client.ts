@@ -67,10 +67,14 @@ export class ZohoBillingClient extends ZohoAPIClient {
   /**
    * Build full URL with organization ID
    */
-  private buildUrl(endpoint: string): string {
+  private buildUrl(endpoint: string, additionalParams?: Record<string, string>): string {
     const baseUrl = this.getBillingBaseUrl();
+    const params = new URLSearchParams({
+      organization_id: this.organizationId,
+      ...additionalParams,
+    });
     const separator = endpoint.includes('?') ? '&' : '?';
-    return `${baseUrl}${endpoint}${separator}organization_id=${this.organizationId}`;
+    return `${baseUrl}${endpoint}${separator}${params.toString()}`;
   }
 
   /**
@@ -79,10 +83,11 @@ export class ZohoBillingClient extends ZohoAPIClient {
   private async request<T>(
     endpoint: string,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
-    body?: any
+    body?: any,
+    queryParams?: Record<string, string>
   ): Promise<T> {
     const accessToken = await this.getAccessToken();
-    const url = this.buildUrl(endpoint);
+    const url = this.buildUrl(endpoint, queryParams);
 
     const headers: Record<string, string> = {
       Authorization: `Zoho-oauthtoken ${accessToken}`,
@@ -865,10 +870,16 @@ export class ZohoBillingClient extends ZohoAPIClient {
         delete (zohoPayload as any).line_items;
       }
 
+      // Use ignore_auto_number_generation to preserve our invoice number
+      const queryParams = payload.invoice_number
+        ? { ignore_auto_number_generation: 'true' }
+        : undefined;
+
       const response = await this.request<any>(
         '/invoices',
         'POST',
-        zohoPayload
+        zohoPayload,
+        queryParams
       );
 
       // Response structure: { code, message, invoice: {...} }
