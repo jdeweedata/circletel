@@ -107,6 +107,7 @@ export default defineType({
       of: [
         // Core blocks
         defineArrayMember({ type: 'featureGridBlock' }),
+        defineArrayMember({ type: 'pricingBlock' }),
         defineArrayMember({ type: 'faqBlock' }),
         defineArrayMember({ type: 'comparisonBlock' }),
         defineArrayMember({ type: 'testimonialBlock' }),
