@@ -29,6 +29,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ProductHowItWorks } from '@/components/products/ProductHowItWorks';
 import { WhyCircleTel } from '@/components/products/WhyCircleTel';
+import { BlockRenderer } from '@/components/sanity/BlockRenderer';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -247,6 +248,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           </div>
         </section>
+      )}
+
+      {/* Additional Blocks (Pricing Tiers, etc.) */}
+      {product.blocks && product.blocks.length > 0 && (
+        <BlockRenderer sections={product.blocks} />
       )}
 
       {/* Why CircleTel */}
