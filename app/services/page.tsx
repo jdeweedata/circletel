@@ -1,552 +1,326 @@
-'use client';
-import { PiArrowRightBold, PiCheckCircleBold, PiCloudBold, PiDatabaseBold, PiDesktopTowerBold, PiGraphBold, PiHardDriveBold, PiHeadphonesBold, PiLightningBold, PiShieldBold, PiTrendUpBold } from 'react-icons/pi';
-
-import React, { useState } from 'react';
+import { Metadata } from 'next';
+import { draftMode } from 'next/headers';
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
-import { Footer } from '@/components/layout/Footer';
-import { Navbar } from '@/components/layout/Navbar';
+import { client, previewClient } from '@/lib/sanity/client';
+import { PRODUCT_BY_SLUG_QUERY } from '@/lib/sanity/queries/products';
 import { Button } from '@/components/ui/button';
-import RecipeCard from '@/components/ui/RecipeCard';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  PiShieldCheckBold,
+  PiPhoneBold,
+  PiGlobeBold,
+  PiChatCircleBold,
+  PiWifiHighBold,
+  PiHardDrivesBold,
+  PiReceiptBold,
+  PiArrowUpBold,
+  PiLayoutBold,
+  PiChartBarBold,
+  PiSimCardBold,
+  PiCheckCircleBold,
+  PiWhatsappLogoBold,
+} from 'react-icons/pi';
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
+import { ManagedITHowItWorks } from '@/components/products/ManagedITHowItWorks';
+import { WhyCircleTel } from '@/components/products/WhyCircleTel';
+import { BlockRenderer } from '@/components/sanity/BlockRenderer';
 
-// Icons for recipe cards
-const BasicIcon = () => (
-  <div className="h-6 w-6 flex items-center justify-center">
-    <PiDesktopTowerBold className="h-6 w-6" />
-  </div>
-);
+const PRODUCT_SLUG = 'managed-it-services';
 
-const AdvancedIcon = () => (
-  <div className="h-6 w-6 flex items-center justify-center">
-    <PiLightningBold className="h-6 w-6" />
-  </div>
-);
+// Icon mapping
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  shield: PiShieldCheckBold,
+  phone: PiPhoneBold,
+  globe: PiGlobeBold,
+  'message-circle': PiChatCircleBold,
+  wifi: PiWifiHighBold,
+  router: PiHardDrivesBold,
+  receipt: PiReceiptBold,
+  'arrow-up': PiArrowUpBold,
+  layout: PiLayoutBold,
+  chart: PiChartBarBold,
+  'sim-card': PiSimCardBold,
+};
 
-const ScaleIcon = () => (
-  <div className="h-6 w-6 flex items-center justify-center">
-    <PiTrendUpBold className="h-6 w-6" />
-  </div>
-);
+export async function generateMetadata(): Promise<Metadata> {
+  const product = await client.fetch(PRODUCT_BY_SLUG_QUERY, { slug: PRODUCT_SLUG });
 
-const CloudIcon = () => (
-  <div className="h-6 w-6 flex items-center justify-center">
-    <PiCloudBold className="h-6 w-6" />
-  </div>
-);
+  if (!product) {
+    return { title: 'Managed IT Services | CircleTel' };
+  }
 
-const SecurityIcon = () => (
-  <div className="h-6 w-6 flex items-center justify-center">
-    <PiShieldBold className="h-6 w-6" />
-  </div>
-);
+  return {
+    title: product.seo?.title || `${product.name} | CircleTel`,
+    description:
+      product.seo?.description ||
+      product.tagline ||
+      'Complete IT solutions from CircleTel',
+    openGraph: {
+      title: product.seo?.title || product.name,
+      description: product.seo?.description || product.tagline,
+      images: product.heroImage ? [{ url: product.heroImage }] : [],
+    },
+  };
+}
 
-const SupportIcon = () => (
-  <div className="h-6 w-6 flex items-center justify-center">
-    <PiHeadphonesBold className="h-6 w-6" />
-  </div>
-);
+export default async function ServicesPage() {
+  const { isEnabled: isDraftMode } = await draftMode();
+  const sanityClient = isDraftMode ? previewClient : client;
+  const product = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug: PRODUCT_SLUG });
 
-const Services = () => {
-  const [selectedBusinessType, setSelectedBusinessType] = useState('all');
-  const [selectedRecipe, setSelectedRecipe] = useState({
-    cybersecurity: false,
-    cloudServices: false,
-    helpdesk: false,
-    dataBackup: false,
-    networkManagement: false,
-  });
+  if (!product) {
+    notFound();
+  }
 
-  const handleRecipeSelection = (recipe: string) => {
-    setSelectedRecipe(prev => ({
-      ...prev,
-      [recipe]: !prev[recipe as keyof typeof prev]
-    }));
+  const categoryLabels: Record<string, string> = {
+    consumer: 'Consumer',
+    soho: 'Work From Home',
+    business: 'Business',
+    enterprise: 'Enterprise',
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-white">
       <Navbar />
 
-      <main>
-        {/* Hero Section */}
-        <section className="bg-gradient-to-br from-white to-circleTel-lightNeutral py-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto text-center">
-              <div className="mb-8">
-                <h1 className="text-5xl md:text-6xl font-bold text-circleTel-navy mb-6 leading-tight">
-                  Explore Our <span className="text-circleTel-orange">IT Recipes</span>
-                </h1>
-                <p className="text-xl text-circleTel-secondaryNeutral mb-4 max-w-3xl mx-auto">
-                  Tailored IT solutions for small businesses, mid-sized firms, and growing startups
-                </p>
-                <p className="text-lg text-circleTel-secondaryNeutral/80">
-                  Choose your perfect blend of technology, support, and security
-                </p>
-              </div>
+      {/* Hero Section */}
+      <section className="relative h-[60vh] min-h-[500px] flex items-center">
+        {product.heroImage && (
+          <Image
+            src={product.heroImage}
+            alt={product.name}
+            fill
+            className="object-cover"
+            priority
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
-              {/* Enhanced Recipe Cards */}
-              <div className="mb-16">
-                <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-circleTel-orange/20">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {/* Basic IT Card */}
-                    <div className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
-                      <div className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-xl shadow-md border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl">
-                        <div className="text-center">
-                          <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                            <PiDesktopTowerBold className="h-10 w-10 text-blue-600" />
-                          </div>
-                          <h3 className="text-xl font-bold text-circleTel-navy mb-2">Basic IT</h3>
-                          <p className="text-sm text-circleTel-secondaryNeutral">Essential support & security</p>
-                          <div className="mt-4 flex justify-center space-x-2">
-                            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-xl lg:max-w-2xl">
+            <span className="inline-block px-3 py-1 text-sm font-medium text-white bg-white/20 backdrop-blur-sm rounded-full mb-4 border border-white/30">
+              {categoryLabels[product.category] || product.category}
+            </span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+              {product.name}
+            </h1>
+            <p className="text-xl md:text-2xl text-white/95 mb-8 drop-shadow-md">
+              {product.tagline}
+            </p>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <Button size="lg" className="bg-[#F5831F] hover:bg-[#e0721a] text-white" asChild>
+                <Link href={`/order/coverage?product=${product.slug}`}>Get a Quote</Link>
+              </Button>
+              <Button size="lg" className="bg-[#25D366] hover:bg-[#1da851] text-white" asChild>
+                <Link href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                  <PiWhatsappLogoBold className="w-5 h-5" />
+                  WhatsApp Us
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-                    {/* Advanced IT Card */}
-                    <div className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
-                      <div className="bg-gradient-to-br from-white to-purple-50 p-8 rounded-xl shadow-md border-2 border-purple-200 hover:border-purple-400 hover:shadow-xl">
-                        <div className="text-center">
-                          <div className="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
-                            <PiLightningBold className="h-10 w-10 text-purple-600" />
-                          </div>
-                          <h3 className="text-xl font-bold text-circleTel-navy mb-2">Advanced IT</h3>
-                          <p className="text-sm text-circleTel-secondaryNeutral">Enhanced solutions & monitoring</p>
-                          <div className="mt-4 flex justify-center space-x-2">
-                            <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                            <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Scale IT Card */}
-                    <div className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
-                      <div className="bg-gradient-to-br from-white to-emerald-50 p-8 rounded-xl shadow-md border-2 border-emerald-200 hover:border-emerald-400 hover:shadow-xl">
-                        <div className="text-center">
-                          <div className="bg-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
-                            <PiTrendUpBold className="h-10 w-10 text-emerald-600" />
-                          </div>
-                          <h3 className="text-xl font-bold text-circleTel-navy mb-2">Scale IT</h3>
-                          <p className="text-sm text-circleTel-secondaryNeutral">Enterprise-grade scalability</p>
-                          <div className="mt-4 flex justify-center space-x-2">
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Recipe Features */}
-                  <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div className="flex flex-col items-center">
-                      <PiShieldBold className="h-8 w-8 text-circleTel-orange mb-2" />
-                      <span className="text-sm text-circleTel-secondaryNeutral">Security First</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <PiHeadphonesBold className="h-8 w-8 text-circleTel-orange mb-2" />
-                      <span className="text-sm text-circleTel-secondaryNeutral">24/7 Support</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <PiCloudBold className="h-8 w-8 text-circleTel-orange mb-2" />
-                      <span className="text-sm text-circleTel-secondaryNeutral">Cloud Ready</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <PiTrendUpBold className="h-8 w-8 text-circleTel-orange mb-2" />
-                      <span className="text-sm text-circleTel-secondaryNeutral">Scalable</span>
-                    </div>
-                  </div>
+      {/* Pricing Bar */}
+      {product.pricing && !product.pricing.showContactForPricing && (
+        <section className="bg-slate-900 text-white py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="text-center md:text-left">
+                <span className="text-slate-400 text-sm">Starting from</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold">
+                    R{product.pricing.startingPrice?.toLocaleString()}
+                  </span>
+                  <span className="text-slate-400">
+                    {product.pricing.priceNote}
+                  </span>
                 </div>
               </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-8 py-4 text-lg">
-                  <Link href="/pricing">Get a Custom Quote</Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white px-8 py-4 text-lg">
-                  <Link href="/contact">Schedule Consultation</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Filter Buttons */}
-        <section className="bg-circleTel-lightNeutral py-8">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-center gap-4">
-              <button
-                onClick={() => setSelectedBusinessType('all')}
-                className={`circle-button px-6 py-2 ${selectedBusinessType === 'all' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-navy'}`}
-              >
-                All Recipes
-              </button>
-              <button
-                onClick={() => setSelectedBusinessType('small')}
-                className={`circle-button px-6 py-2 ${selectedBusinessType === 'small' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-navy'}`}
-              >
-                Small Business
-              </button>
-              <button
-                onClick={() => setSelectedBusinessType('mid')}
-                className={`circle-button px-6 py-2 ${selectedBusinessType === 'mid' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-navy'}`}
-              >
-                Mid-Size Business
-              </button>
-              <button
-                onClick={() => setSelectedBusinessType('growth')}
-                className={`circle-button px-6 py-2 ${selectedBusinessType === 'growth' ? 'bg-circleTel-orange text-white' : 'bg-white text-circleTel-navy'}`}
-              >
-                Growth-Ready
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* Small Business Recipes */}
-        <section className={`py-16 ${selectedBusinessType !== 'all' && selectedBusinessType !== 'small' ? 'hidden' : ''}`}>
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-circleTel-navy mb-8 text-center">Simple IT for Small Businesses</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <RecipeCard
-                title="Basic IT Recipe"
-                description="Essential support and security for small teams without dedicated IT staff."
-                icon={<BasicIcon />}
-                specs={[
-                  "Help Desk Support (8/5)",
-                  "Basic Security Suite",
-                  "Cloud Email Setup",
-                  "Data Backup Solutions"
-                ]}
-                proTips={[
-                  "Perfect for businesses with 1-10 employees",
-                  "Add weekly maintenance for optimal performance"
-                ]}
-                link="/services/small-business"
-              />
-
-              <RecipeCard
-                title="Growth IT Recipe"
-                description="Balanced IT services for small businesses looking to scale operations."
-                icon={<CloudIcon />}
-                specs={[
-                  "Help Desk Support (10/5)",
-                  "Advanced Security Suite",
-                  "Cloud Migration Services",
-                  "Disaster Recovery Planning"
-                ]}
-                proTips={[
-                  "Ideal for businesses with 10-25 employees",
-                  "Consider adding employee security training"
-                ]}
-                link="/services/small-business"
-              />
-
-              <RecipeCard
-                title="Secure IT Recipe"
-                description="Security-focused IT services for small businesses handling sensitive data."
-                icon={<SecurityIcon />}
-                specs={[
-                  "Help Desk Support (8/5)",
-                  "Premium Security Stack",
-                  "Compliance Management",
-                  "Regular Security Audits"
-                ]}
-                proTips={[
-                  "Essential for businesses with regulatory requirements",
-                  "Add quarterly security reviews for best protection"
-                ]}
-                link="/services/small-business"
-              />
-            </div>
-            <div className="mt-8 text-center">
-              <Button asChild className="outline-button">
-                <Link href="/services/small-business">See Details <PiArrowRightBold size={16} /></Link>
+              <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent rounded-lg hover:bg-white hover:text-slate-900 transition-all duration-200" asChild>
+                <Link href={`/order/coverage?product=${product.slug}`}>Get a Custom Quote</Link>
               </Button>
             </div>
           </div>
         </section>
+      )}
 
-        {/* Mid-Size Business Recipes */}
-        <section className={`py-16 bg-circleTel-lightNeutral ${selectedBusinessType !== 'all' && selectedBusinessType !== 'mid' ? 'hidden' : ''}`}>
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-circleTel-navy mb-8 text-center">Proactive IT for Mid-Sized Firms</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <RecipeCard
-                title="Core IT Recipe"
-                description="Comprehensive IT management for established mid-size businesses."
-                icon={<SupportIcon />}
-                specs={[
-                  "24/7 Help Desk Support",
-                  "Enhanced Security Suite",
-                  "Hybrid Cloud Management",
-                  "IT Asset Management"
-                ]}
-                proTips={[
-                  "Designed for businesses with 25-50 employees",
-                  "Includes quarterly IT strategy sessions"
-                ]}
-                link="/services/mid-size"
-              />
-
-              <RecipeCard
-                title="Advanced IT Recipe"
-                description="Premium IT services with strategic planning for mid-size operations."
-                icon={<AdvancedIcon />}
-                specs={[
-                  "24/7 Priority Support",
-                  "Enterprise Security Stack",
-                  "Full Cloud Integration",
-                  "Business Continuity Planning"
-                ]}
-                proTips={[
-                  "Optimal for businesses with 50-100 employees",
-                  "Includes dedicated account manager"
-                ]}
-                link="/services/mid-size"
-              />
-
-              <RecipeCard
-                title="Enterprise IT Recipe"
-                description="Enterprise-grade IT solutions for larger mid-size businesses."
-                icon={<CloudIcon />}
-                specs={[
-                  "24/7 VIP Support",
-                  "Custom Security Architecture",
-                  "Multi-site Management",
-                  "IT Governance Framework"
-                ]}
-                proTips={[
-                  "Designed for businesses with 100+ employees",
-                  "Includes monthly executive briefings"
-                ]}
-                link="/services/mid-size"
-              />
-            </div>
-            <div className="mt-8 text-center">
-              <Button asChild className="outline-button">
-                <Link href="/services/mid-size">See Details <PiArrowRightBold size={16} /></Link>
-              </Button>
+      {/* Key Features */}
+      {product.keyFeatures && product.keyFeatures.length > 0 && (
+        <section className="py-16 md:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center mb-12">
+              Why Choose {product.name}?
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {product.keyFeatures.map(
+                (
+                  feature: {
+                    _key: string;
+                    title: string;
+                    description: string;
+                    icon?: string;
+                  },
+                  index: number
+                ) => {
+                  const IconComponent = feature.icon
+                    ? iconMap[feature.icon]
+                    : PiCheckCircleBold;
+                  return (
+                    <Card key={feature._key || index} className="border-0 shadow-lg">
+                      <CardContent className="p-6">
+                        {IconComponent && (
+                          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                            <IconComponent className="w-6 h-6 text-primary" />
+                          </div>
+                        )}
+                        <h3 className="text-lg font-semibold mb-2">
+                          {feature.title}
+                        </h3>
+                        <p className="text-slate-600 text-sm">
+                          {feature.description}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  );
+                }
+              )}
             </div>
           </div>
         </section>
+      )}
 
-        {/* Growth-Ready Recipes */}
-        <section className={`py-16 ${selectedBusinessType !== 'all' && selectedBusinessType !== 'growth' ? 'hidden' : ''}`}>
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-circleTel-navy mb-8 text-center">Scalable IT for Growing SMEs</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <RecipeCard
-                title="Startup IT Recipe"
-                description="Flexible IT solutions for early-stage startups with rapid growth needs."
-                icon={<BasicIcon />}
-                specs={[
-                  "Scalable Help Desk Support",
-                  "Cloud-First Architecture",
-                  "Agile Security Framework",
-                  "Pay-As-You-Grow Model"
-                ]}
-                proTips={[
-                  "Perfect for newly funded startups",
-                  "Designed to scale with minimal disruption"
-                ]}
-                link="/services/growth-ready"
-              />
+      {/* Pricing Tiers (from blocks) */}
+      {product.blocks && product.blocks.length > 0 && (
+        <BlockRenderer sections={product.blocks} />
+      )}
 
-              <RecipeCard
-                title="Scale IT Recipe"
-                description="IT infrastructure designed to handle rapid user and data growth."
-                icon={<ScaleIcon />}
-                specs={[
-                  "24/7 International Support",
-                  "DevOps Integration",
-                  "Multi-Region Cloud Setup",
-                  "Automated Scaling Tools"
-                ]}
-                proTips={[
-                  "Ideal for businesses in rapid expansion phase",
-                  "Includes monthly scaling assessments"
-                ]}
-                link="/services/growth-ready"
-              />
+      {/* How It Works */}
+      <ManagedITHowItWorks productSlug={product.slug} />
 
-              <RecipeCard
-                title="Hypergrowth IT Recipe"
-                description="Enterprise solutions for businesses experiencing exponential growth."
-                icon={<AdvancedIcon />}
-                specs={[
-                  "Dedicated Support Team",
-                  "Custom API Integrations",
-                  "Enterprise Architecture",
-                  "Advanced Analytics Platform"
-                ]}
-                proTips={[
-                  "Designed for post-Series B startups",
-                  "Prepares infrastructure for 10x growth"
-                ]}
-                link="/services/growth-ready"
-              />
-            </div>
-            <div className="mt-8 text-center">
-              <Button asChild className="outline-button">
-                <Link href="/services/growth-ready">See Details <PiArrowRightBold size={16} /></Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Interactive Tool */}
-        <section className="py-16 bg-circleTel-lightNeutral">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-circleTel-navy mb-8 text-center">Build Your Own IT Recipe</h2>
-
-              <div className="bg-white p-8 rounded-lg shadow-md">
-                <p className="text-circleTel-secondaryNeutral mb-6 text-center">
-                  Select the ingredients you need in your custom IT solution:
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                  <div
-                    className={`p-4 rounded-lg cursor-pointer border ${selectedRecipe.cybersecurity ? 'bg-circleTel-lightNeutral border-circleTel-orange' : 'bg-white border-gray-200'}`}
-                    onClick={() => handleRecipeSelection('cybersecurity')}
-                  >
-                    <div className="flex items-center">
-                      <div className={`mr-4 rounded-full p-2 ${selectedRecipe.cybersecurity ? 'text-circleTel-orange' : 'text-circleTel-secondaryNeutral'}`}>
-                        <SecurityIcon />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-circleTel-navy">Cybersecurity</h3>
-                        <p className="text-sm text-circleTel-secondaryNeutral">Advanced protection for your business</p>
-                      </div>
-                      <div className="ml-auto">
-                        <PiCheckCircleBold
-                          size={24}
-                          className={`${selectedRecipe.cybersecurity ? 'text-circleTel-orange' : 'text-gray-200'}`}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`p-4 rounded-lg cursor-pointer border ${selectedRecipe.cloudServices ? 'bg-circleTel-lightNeutral border-circleTel-orange' : 'bg-white border-gray-200'}`}
-                    onClick={() => handleRecipeSelection('cloudServices')}
-                  >
-                    <div className="flex items-center">
-                      <div className={`mr-4 rounded-full p-2 ${selectedRecipe.cloudServices ? 'text-circleTel-orange' : 'text-circleTel-secondaryNeutral'}`}>
-                        <CloudIcon />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-circleTel-navy">Cloud Services</h3>
-                        <p className="text-sm text-circleTel-secondaryNeutral">Flexible and scalable cloud solutions</p>
-                      </div>
-                      <div className="ml-auto">
-                        <PiCheckCircleBold
-                          size={24}
-                          className={`${selectedRecipe.cloudServices ? 'text-circleTel-orange' : 'text-gray-200'}`}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`p-4 rounded-lg cursor-pointer border ${selectedRecipe.helpdesk ? 'bg-circleTel-lightNeutral border-circleTel-orange' : 'bg-white border-gray-200'}`}
-                    onClick={() => handleRecipeSelection('helpdesk')}
-                  >
-                    <div className="flex items-center">
-                      <div className={`mr-4 rounded-full p-2 ${selectedRecipe.helpdesk ? 'text-circleTel-orange' : 'text-circleTel-secondaryNeutral'}`}>
-                        <SupportIcon />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-circleTel-navy">Help Desk</h3>
-                        <p className="text-sm text-circleTel-secondaryNeutral">24/7 technical support for your team</p>
-                      </div>
-                      <div className="ml-auto">
-                        <PiCheckCircleBold
-                          size={24}
-                          className={`${selectedRecipe.helpdesk ? 'text-circleTel-orange' : 'text-gray-200'}`}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`p-4 rounded-lg cursor-pointer border ${selectedRecipe.dataBackup ? 'bg-circleTel-lightNeutral border-circleTel-orange' : 'bg-white border-gray-200'}`}
-                    onClick={() => handleRecipeSelection('dataBackup')}
-                  >
-                    <div className="flex items-center">
-                      <div className={`mr-4 rounded-full p-2 ${selectedRecipe.dataBackup ? 'text-circleTel-orange' : 'text-circleTel-secondaryNeutral'}`}>
-                        <PiHardDriveBold className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-circleTel-navy">Data Backup</h3>
-                        <p className="text-sm text-circleTel-secondaryNeutral">Secure backup and disaster recovery</p>
-                      </div>
-                      <div className="ml-auto">
-                        <PiCheckCircleBold
-                          size={24}
-                          className={`${selectedRecipe.dataBackup ? 'text-circleTel-orange' : 'text-gray-200'}`}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`p-4 rounded-lg cursor-pointer border ${selectedRecipe.networkManagement ? 'bg-circleTel-lightNeutral border-circleTel-orange' : 'bg-white border-gray-200'}`}
-                    onClick={() => handleRecipeSelection('networkManagement')}
-                  >
-                    <div className="flex items-center">
-                      <div className={`mr-4 rounded-full p-2 ${selectedRecipe.networkManagement ? 'text-circleTel-orange' : 'text-circleTel-secondaryNeutral'}`}>
-                        <PiGraphBold className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-circleTel-navy">Network Management</h3>
-                        <p className="text-sm text-circleTel-secondaryNeutral">Proactive network monitoring and maintenance</p>
-                      </div>
-                      <div className="ml-auto">
-                        <PiCheckCircleBold
-                          size={24}
-                          className={`${selectedRecipe.networkManagement ? 'text-circleTel-orange' : 'text-gray-200'}`}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-circleTel-lightNeutral p-6 rounded-lg mb-8">
-                  <h3 className="font-bold text-circleTel-navy mb-2">Your Recipe Summary</h3>
-                  <ul className="space-y-2 mb-4 font-space-mono text-sm text-circleTel-secondaryNeutral">
-                    {Object.entries(selectedRecipe).map(([key, value]) => value && (
-                      <li key={key} className="flex items-center">
-                        <PiCheckCircleBold size={16} className="text-circleTel-orange mr-2" />
-                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                      </li>
-                    ))}
-                    {Object.values(selectedRecipe).every(v => !v) && (
-                      <li>Select at least one ingredient to create your custom recipe</li>
+      {/* Specifications */}
+      {product.specifications && product.specifications.length > 0 && (
+        <section className="py-16 md:py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center mb-12">
+              Service Details
+            </h2>
+            <div className="max-w-2xl mx-auto">
+              <Card>
+                <CardContent className="p-0">
+                  <dl className="divide-y divide-slate-100">
+                    {product.specifications.map(
+                      (
+                        spec: { _key: string; label: string; value: string },
+                        index: number
+                      ) => (
+                        <div
+                          key={spec._key || index}
+                          className="flex justify-between py-4 px-6"
+                        >
+                          <dt className="font-medium text-slate-900">
+                            {spec.label}
+                          </dt>
+                          <dd className="text-slate-600">{spec.value}</dd>
+                        </div>
+                      )
                     )}
-                  </ul>
-                </div>
-
-                <div className="text-center">
-                  <Button className="primary-button">
-                    Get Your Custom Recipe
-                  </Button>
-                </div>
-              </div>
+                  </dl>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
-      </main>
+      )}
+
+      {/* Why CircleTel */}
+      <WhyCircleTel />
+
+      {/* CTA Section */}
+      <section className="py-12 md:py-16 bg-[#F5831F] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Ready to Simplify Your IT?
+          </h2>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            Get connectivity + IT services from one provider. Save 30-40% vs separate vendors.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 hover:scale-105 transition-all duration-200" asChild>
+              <Link href={`/order/coverage?product=${product.slug}`}>Get a Custom Quote</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent hover:bg-white/20 hover:scale-105 transition-all duration-200" asChild>
+              <Link href="https://wa.me/27824873900" className="flex items-center gap-2">
+                <PiWhatsappLogoBold className="w-5 h-5" />
+                Talk to Sales
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Related Products */}
+      {product.relatedProducts && product.relatedProducts.length > 0 && (
+        <section className="py-16 md:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center mb-12">
+              You Might Also Like
+            </h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {product.relatedProducts.map(
+                (related: {
+                  _id: string;
+                  name: string;
+                  slug: string;
+                  tagline: string;
+                  heroImage: string;
+                  pricing: { startingPrice: number; priceNote: string };
+                }) => (
+                  <Link
+                    key={related._id}
+                    href={`/products/${related.slug}`}
+                    className="group"
+                  >
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                      {related.heroImage && (
+                        <div className="relative h-48">
+                          <Image
+                            src={related.heroImage}
+                            alt={related.name}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                      )}
+                      <CardContent className="p-6">
+                        <h3 className="font-semibold text-lg mb-1">
+                          {related.name}
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-2">
+                          {related.tagline}
+                        </p>
+                        {related.pricing && (
+                          <p className="text-primary font-medium">
+                            From R{related.pricing.startingPrice?.toLocaleString()}
+                            /mo
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                )
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </div>
   );
-};
-
-export default Services;
+}

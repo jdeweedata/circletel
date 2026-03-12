@@ -17,8 +17,8 @@ export interface ZohoToken {
 }
 
 export type SyncStatus = 'pending' | 'success' | 'failed' | 'retrying';
-export type CircleTelEntityType = 'quote' | 'contract' | 'invoice' | 'customer';
-export type ZohoEntityType = 'Estimates' | 'Deals' | 'Invoices' | 'Contacts';
+export type CircleTelEntityType = 'quote' | 'contract' | 'invoice' | 'customer' | 'lead';
+export type ZohoEntityType = 'Estimates' | 'Deals' | 'Invoices' | 'Contacts' | 'Leads';
 
 export interface ZohoSyncLog {
   id: string;
@@ -105,6 +105,23 @@ export interface ZohoContactData {
   Mailing_State?: string;
   Mailing_Code?: string;
   Mailing_Country?: string;
+}
+
+export interface ZohoLeadData {
+  Last_Name: string;
+  First_Name?: string;
+  Email?: string;
+  Phone?: string;
+  Company?: string;
+  No_of_Employees?: number | string;
+  Description?: string;
+  Lead_Source?: string;
+  Lead_Status?: string;
+  Designation?: string;
+  // Custom Scoring Fields
+  Lead_Score?: number;
+  Lead_Intent?: string;
+  Product_Category?: string;
 }
 
 export interface ZohoInvoiceData {

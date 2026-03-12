@@ -13,6 +13,11 @@
 | **Prepared By** | CircleTel Product Team |
 | **Source Document** | Managed_IT_Services_Product_Portfolio_CircleTel_v4_0.md |
 | **Review Date** | February 2026 |
+| **Companion Documents** | CT-MITS-CPS-2026-002 (Commercial Spec v2.0), CT-MITS-BRD-2026-001 (Business Rules v1.0), CT-MITS-FSD-2026-001 (Functional Spec v1.0) |
+
+> **NOTE:** This is the marketing overview document. For detailed unit economics, wholesale costs, margin analysis, and partner commissions, see **CT-CPS-MITS-2026-002** (Commercial Product Specification v2.0).
+>
+> **PRICING UPDATE (March 2026):** Premium tier increased to R12,999. Enterprise tier now POA (min R35,000). See CPS v2.0 for details.
 
 ---
 

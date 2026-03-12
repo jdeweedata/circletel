@@ -44,21 +44,29 @@ export function ComparisonBlock({
   subtitle,
   columns,
   rows,
-}: ComparisonBlockProps) {
+  // Add support for alternate field names used in Sanity
+  headline,
+  description,
+}: ComparisonBlockProps & { headline?: string; description?: string }) {
+  const displayTitle = title || headline;
+  const displaySubtitle = subtitle || description;
+
+  if (!columns?.length && !rows?.length) return null;
+
   return (
     <section className="py-16 md:py-20 bg-white">
       <div className="container mx-auto px-4">
         {/* Header */}
-        {(title || subtitle) && (
+        {(displayTitle || displaySubtitle) && (
           <div className="text-center mb-12">
-            {title && (
+            {displayTitle && (
               <h2 className="font-heading text-display-2 text-circleTel-navy mb-4">
-                {title}
+                {displayTitle}
               </h2>
             )}
-            {subtitle && (
+            {displaySubtitle && (
               <p className="font-body text-lg text-circleTel-grey600 max-w-2xl mx-auto">
-                {subtitle}
+                {displaySubtitle}
               </p>
             )}
           </div>

@@ -8,6 +8,7 @@ import type {
   ZohoEstimateData,
   ZohoDealData,
   ZohoContactData,
+  ZohoLeadData,
   ZohoInvoiceData,
   ZohoCreateResponse,
   ZohoUpdateResponse,
@@ -218,6 +219,43 @@ export class ZohoCRMService {
       }
     } catch (error) {
       zohoLogger.error('[ZohoCRM] Failed to create Contact', { error: error instanceof Error ? error.message : String(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Create Lead in ZOHO CRM
+   */
+  async createLead(leadData: ZohoLeadData): Promise<string> {
+    try {
+      const accessToken = await this.auth.getAccessToken();
+
+      zohoLogger.debug('[ZohoCRM] Creating Lead', { email: leadData.Email });
+
+      const response = await fetch(`${this.baseUrl}/Leads`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Zoho-oauthtoken ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: [leadData] }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`ZOHO API error: ${response.status} ${response.statusText}`);
+      }
+
+      const result: ZohoCreateResponse = await response.json();
+
+      if (result.data[0].code === 'SUCCESS') {
+        const zohoId = result.data[0].details.id;
+        zohoLogger.debug('[ZohoCRM] Lead created successfully', { zohoId });
+        return zohoId;
+      } else {
+        throw new Error(`ZOHO API error: ${result.data[0].message}`);
+      }
+    } catch (error) {
+      zohoLogger.error('[ZohoCRM] Failed to create Lead', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }

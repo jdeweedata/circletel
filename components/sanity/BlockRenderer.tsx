@@ -42,6 +42,17 @@ export function BlockRenderer({ sections, className }: BlockRendererProps) {
           return null
         }
 
+        // Prevent rendering empty wrapper sections for blocks that have no content
+        const isEmpty = (section: any) => {
+          if (section._type === 'comparisonBlock' && !section.columns?.length && !section.rows?.length) return true;
+          if (section._type === 'featureGridBlock' && !section.features?.length) return true;
+          if (section._type === 'pricingBlock' && !section.tiers?.length && !section.plans?.length) return true;
+          // Add more block types here if they can be empty
+          return false;
+        };
+
+        if (isEmpty(section)) return null;
+
         const paddingTop = paddingClasses[section.paddingTop || 'md']
         const paddingBottom = paddingClasses[section.paddingBottom || 'md']
         const visibility = visibilityClasses[section.hideOn || 'none']
