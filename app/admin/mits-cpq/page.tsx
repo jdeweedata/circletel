@@ -83,7 +83,7 @@ export default function MITSCPQDashboard() {
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
         const monthlyRevenue = fetchedSessions
           .filter((s: CPQSession) => new Date(s.created_at) >= monthStart)
-          .reduce((sum, s) => sum + (s.step_data?.pricing?.total_annual_cost || 0), 0);
+          .reduce((sum: number, s: CPQSession) => sum + (s.step_data?.pricing?.total_annual_cost || 0), 0);
 
         setStats({
           total,
