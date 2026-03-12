@@ -109,12 +109,24 @@
       "maxDuration": 300,
       "memory": 1024
     },
+    "app/api/cron/paynow-reconciliation/route.ts": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
     "app/api/admin/sales/feasibility/parse-email/route.ts": {
       "maxDuration": 60,
       "memory": 512
     },
     "app/api/partners/feasibility/chat/route.ts": {
       "maxDuration": 60,
+      "memory": 512
+    },
+    "app/api/cron/zoho-books-sync/route.ts": {
+      "maxDuration": 600,
+      "memory": 1024
+    },
+    "app/api/cron/zoho-books-retry/route.ts": {
+      "maxDuration": 300,
       "memory": 512
     },
     "app/api/partners/feasibility/create/route.ts": {
@@ -202,6 +214,18 @@
     {
       "path": "/api/cron/generate-monthly-invoices",
       "schedule": "0 4 1 * *"
+    },
+    {
+      "path": "/api/cron/paynow-reconciliation",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/zoho-books-sync",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/zoho-books-retry",
+      "schedule": "*/15 * * * *"
     }
   ]
 }
