@@ -141,7 +141,7 @@ export class ZohoBooksSyncOrchestrator {
   // Customer Sync
   // ============================================================================
 
-  private async syncCustomers(
+  async syncCustomers(
     options: OrchestratorOptions
   ): Promise<{ processed: number; succeeded: number; failed: number }> {
     const supabase = await createClient();
@@ -311,7 +311,7 @@ export class ZohoBooksSyncOrchestrator {
   // Invoice Sync (ALL types - no exclusion)
   // ============================================================================
 
-  private async syncInvoices(
+  async syncInvoices(
     options: OrchestratorOptions
   ): Promise<{ processed: number; succeeded: number; failed: number }> {
     const supabase = await createClient();
@@ -530,7 +530,7 @@ export class ZohoBooksSyncOrchestrator {
   // Payment Sync
   // ============================================================================
 
-  private async syncPayments(
+  async syncPayments(
     options: OrchestratorOptions
   ): Promise<{ processed: number; succeeded: number; failed: number }> {
     const supabase = await createClient();
