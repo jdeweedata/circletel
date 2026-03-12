@@ -269,10 +269,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
             on 24-month contracts.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" asChild>
+            <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 hover:scale-105 transition-all duration-200" asChild>
               <Link href={`/order/coverage?product=${product.slug}`}>Check Coverage</Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20 hover:scale-105 transition-all duration-200" asChild>
               <Link href="https://wa.me/27824873900" className="flex items-center gap-2">
                 <PiWhatsappLogoBold className="w-5 h-5" />
                 Talk to Sales
