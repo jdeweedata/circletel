@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { CPQSession, UpdateSessionRequest } from '@/lib/cpq/types';
 
 export async function GET(
@@ -16,17 +16,20 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    const supabase = await createClient();
 
-    // Get current user
+    // Use session client for auth (reads cookies)
+    const supabaseSession = await createClientWithSession();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabaseSession.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Use service role client for database operations (bypasses RLS)
+    const supabase = await createClient();
 
     // Get session
     const { data: session, error } = await supabase
@@ -72,17 +75,20 @@ export async function PUT(
 ) {
   try {
     const { id } = await context.params;
-    const supabase = await createClient();
 
-    // Get current user
+    // Use session client for auth (reads cookies)
+    const supabaseSession = await createClientWithSession();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabaseSession.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Use service role client for database operations (bypasses RLS)
+    const supabase = await createClient();
 
     const body: UpdateSessionRequest = await request.json();
 
@@ -234,17 +240,20 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    const supabase = await createClient();
 
-    // Get current user
+    // Use session client for auth (reads cookies)
+    const supabaseSession = await createClientWithSession();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabaseSession.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Use service role client for database operations (bypasses RLS)
+    const supabase = await createClient();
 
     // Get existing session
     const { data: existingSession, error: fetchError } = await supabase
