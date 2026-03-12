@@ -83,6 +83,12 @@ export {
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
 
+export {
+  paynowReconciliationFunction,
+  paynowReconciliationCompletedFunction,
+  paynowReconciliationFailedFunction,
+} from './functions/paynow-reconciliation';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -159,6 +165,12 @@ import {
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
 
+import {
+  paynowReconciliationFunction,
+  paynowReconciliationCompletedFunction,
+  paynowReconciliationFailedFunction,
+} from './functions/paynow-reconciliation';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -207,4 +219,8 @@ export const functions = [
   // MikroTik router sync
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
+  // PayNow daily reconciliation
+  paynowReconciliationFunction,
+  paynowReconciliationCompletedFunction,
+  paynowReconciliationFailedFunction,
 ];

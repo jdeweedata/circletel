@@ -404,6 +404,47 @@ export type WhatsAppNotificationCancelledEvent = {
 };
 
 // =============================================================================
+// PAYNOW RECONCILIATION EVENTS
+// =============================================================================
+
+export type PayNowReconciliationRequestedEvent = {
+  name: 'paynow/reconciliation.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    reconciliation_date?: string;
+    admin_user_id?: string;
+    process_log_id: string;
+    options?: {
+      dryRun?: boolean;
+    };
+  };
+};
+
+export type PayNowReconciliationCompletedEvent = {
+  name: 'paynow/reconciliation.completed';
+  data: {
+    process_log_id: string;
+    reconciliation_date: string;
+    total_transactions: number;
+    matched: number;
+    newly_matched: number;
+    already_paid: number;
+    unmatched: number;
+    errors: string[];
+    duration_ms: number;
+  };
+};
+
+export type PayNowReconciliationFailedEvent = {
+  name: 'paynow/reconciliation.failed';
+  data: {
+    process_log_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
+// =============================================================================
 // SUPPLIER SYNC EVENTS
 // =============================================================================
 
@@ -517,4 +558,8 @@ export type InngestEvents = {
   'supplier/sync.completed_with_errors': SupplierSyncCompletedWithErrorsEvent;
   'supplier/sync.failed': SupplierSyncFailedEvent;
   'supplier/sync.cancelled': SupplierSyncCancelledEvent;
+  // PayNow reconciliation events
+  'paynow/reconciliation.requested': PayNowReconciliationRequestedEvent;
+  'paynow/reconciliation.completed': PayNowReconciliationCompletedEvent;
+  'paynow/reconciliation.failed': PayNowReconciliationFailedEvent;
 };
