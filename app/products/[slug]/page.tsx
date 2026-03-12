@@ -159,7 +159,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   </span>
                 </div>
               </div>
-              <Button size="lg" asChild>
+              <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent rounded-lg hover:bg-white hover:text-slate-900 transition-all duration-200" asChild>
                 <Link href={`/order/coverage?product=${product.slug}`}>Check Coverage & Order</Link>
               </Button>
             </div>

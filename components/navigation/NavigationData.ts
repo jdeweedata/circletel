@@ -16,13 +16,8 @@ export type NavigationSection = {
 };
 
 // Updated managedITItems - now includes items from itSolutionsItems
+// Note: "/services" overview link is added via prependItems in NavigationMenu.tsx
 export const managedITItems: NavigationItem[] = [
-  {
-    name: "Complete IT Management",
-    href: "/services",
-    icon: PiDesktopTowerBold,
-    description: "Full-service IT management and support for your business"
-  },
   {
     name: "Small Business IT",
     href: "/services/small-business",
@@ -167,13 +162,8 @@ export const cloudHostingItems: NavigationItem[] = [
 export const aboutItems: NavigationItem[] = [];
 
 // Resources section (removed blog references)
+// Note: "/resources" overview link is added via prependItems in NavigationMenu.tsx
 export const resourcesItems: NavigationItem[] = [
-  {
-    name: "Resources Hub",
-    href: "/resources",
-    icon: PiBookBold,
-    description: "Helpful guides and resources"
-  },
   {
     name: "Client Forms",
     href: "/forms",
