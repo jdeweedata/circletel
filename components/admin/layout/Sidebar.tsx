@@ -203,6 +203,8 @@ const navigationSections: NavSection[] = [
           { name: 'Dashboard', href: '/admin/marketing', icon: PiSquaresFourBold },
           { name: 'Promotions', href: '/admin/marketing/promotions', icon: PiPercentBold },
           { name: 'Campaigns', href: '/admin/marketing/campaigns', icon: PiTargetBold },
+          { name: 'No Coverage Leads', href: '/admin/marketing/no-coverage-leads', icon: PiMapPinBold },
+          { name: 'Campaign Builder', href: '/admin/marketing/campaign-builder', icon: PiTargetBold },
           { name: 'Analytics', href: '/admin/marketing/analytics', icon: PiChartBarBold }
         ]
       },
