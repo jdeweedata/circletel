@@ -89,6 +89,11 @@ export {
   paynowReconciliationFailedFunction,
 } from './functions/paynow-reconciliation';
 
+export {
+  marketingDfaLeadMatchFunction,
+  marketingDemandThresholdFunction,
+} from './functions/marketing-triggers';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -171,6 +176,11 @@ import {
   paynowReconciliationFailedFunction,
 } from './functions/paynow-reconciliation';
 
+import {
+  marketingDfaLeadMatchFunction,
+  marketingDemandThresholdFunction,
+} from './functions/marketing-triggers';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -223,4 +233,7 @@ export const functions = [
   paynowReconciliationFunction,
   paynowReconciliationCompletedFunction,
   paynowReconciliationFailedFunction,
+  // Marketing campaign triggers
+  marketingDfaLeadMatchFunction,
+  marketingDemandThresholdFunction,
 ];
