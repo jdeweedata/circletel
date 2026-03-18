@@ -86,7 +86,7 @@ function addHeader(doc: jsPDF, pageWidth: number): number {
 
   const rightX = pageWidth - 20;
   doc.text('Tel: +27 87 087 6305', rightX, 25, { align: 'right' });
-  doc.text('Email: quotes@circletel.co.za', rightX, 32, { align: 'right' });
+  doc.text('Email: sales@circletel.co.za', rightX, 32, { align: 'right' });
   doc.text('Web: www.circletel.co.za', rightX, 39, { align: 'right' });
 
   // Orange underline below header
@@ -134,7 +134,7 @@ function addFooter(doc: jsPDF, pageWidth: number, pageHeight: number, pageNum: n
   doc.setFontSize(8);
   doc.setTextColor(...COLORS.mutedText);
   doc.text('Tel: +27 87 087 6305', col2Center, footerY + 5, { align: 'center' });
-  doc.text('Email: quotes@circletel.co.za', col2Center, footerY + 10, { align: 'center' });
+  doc.text('Email: sales@circletel.co.za', col2Center, footerY + 10, { align: 'center' });
   doc.text('Web: www.circletel.co.za', col2Center, footerY + 15, { align: 'center' });
 
   // Column 3: Support (centered)

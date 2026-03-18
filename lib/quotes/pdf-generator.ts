@@ -512,7 +512,7 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
         'To accept this quote:',
         '1. Complete the fields above',
         '2. Sign in the designated area',
-        '3. Email the signed quote to quotes@circletel.co.za',
+        '3. Email the signed quote to sales@circletel.co.za',
         'OR visit www.circletel.co.za/quotes to accept online'
       ];
       

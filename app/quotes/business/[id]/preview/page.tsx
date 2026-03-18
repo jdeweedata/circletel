@@ -484,7 +484,7 @@ export default function QuotePreviewPage({ params }: Props) {
             </div>
             <div className="text-right text-sm text-gray-600">
               <div>Tel: +27 87 087 6305</div>
-              <div>Email: quotes@circletel.co.za</div>
+              <div>Email: sales@circletel.co.za</div>
               <div>Web: www.circletel.co.za</div>
             </div>
           </div>
@@ -861,7 +861,7 @@ export default function QuotePreviewPage({ params }: Props) {
             <div>
               <h4 className="font-medium mb-2">CONTACT</h4>
               <p>Tel: +27 87 087 6305<br />
-              Email: quotes@circletel.co.za<br />
+              Email: sales@circletel.co.za<br />
               Web: www.circletel.co.za</p>
             </div>
             <div>

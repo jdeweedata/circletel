@@ -85,7 +85,7 @@ export default function ShareableQuotePage({ params }: Props) {
             This quote link may have expired or been revoked. Please contact CircleTel for assistance.
           </p>
           <div className="space-y-2 text-sm text-gray-600">
-            <p><strong>Email:</strong> quotes@circletel.co.za</p>
+            <p><strong>Email:</strong> sales@circletel.co.za</p>
             <p><strong>Phone:</strong> +27 87 087 6305</p>
           </div>
         </div>

@@ -273,7 +273,7 @@ export async function POST(
             <p>
               <strong>CircleTel (Pty) Ltd</strong><br>
               Tel: +27 87 087 6305<br>
-              Email: quotes@circletel.co.za<br>
+              Email: sales@circletel.co.za<br>
               Web: www.circletel.co.za
             </p>
             <p style="margin-top: 15px; color: #999;">

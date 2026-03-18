@@ -1852,7 +1852,7 @@ NEXT_PUBLIC_ADMIN_URL=https://circletel.co.za/admin
 - [ ] Verify domain: `circletel.co.za`
 - [ ] Configure SPF/DKIM records
 - [ ] Test email deliverability
-- [ ] Add sending addresses: `quotes@circletel.co.za`, `invoices@circletel.co.za`, `kyc@circletel.co.za`
+- [ ] Add sending addresses: `sales@circletel.co.za`, `invoices@circletel.co.za`, `kyc@circletel.co.za`
 
 **RICA System**:
 - [ ] Identify RICA API provider (ICASA direct or vendor)
