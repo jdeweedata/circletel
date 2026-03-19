@@ -17,11 +17,12 @@ import { apiLogger } from '@/lib/logging';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Use Resend sandbox in development, verified domain in production
-const isDev = process.env.NODE_ENV === 'development';
-const FROM_EMAIL = isDev
-  ? 'CircleTel Quotes <onboarding@resend.dev>'  // Resend sandbox for testing
-  : 'CircleTel Quotes <quotes@notifications.circletelsa.co.za>'; // Production verified domain
+// Use configured Resend from email, fallback to verified domain
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL
+  ? `CircleTel Quotes <${process.env.RESEND_FROM_EMAIL}>`
+  : process.env.NODE_ENV === 'development'
+    ? 'CircleTel Quotes <onboarding@resend.dev>'
+    : 'CircleTel Quotes <notifications@notify.circletel.co.za>';
 
 interface EmailRequest {
   recipientEmail: string;
