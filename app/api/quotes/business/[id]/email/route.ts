@@ -68,7 +68,8 @@ export async function POST(
     // Generate PDF by rendering the actual preview page with Puppeteer
     // This ensures the PDF matches the preview page exactly
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.circletel.co.za';
-    const previewUrl = `${baseUrl}/quotes/business/${id}/preview`;
+    // Use ?shared=true so the preview page uses the public API (no auth needed)
+    const previewUrl = `${baseUrl}/quotes/business/${id}/preview?shared=true`;
 
     let pdfBuffer: Buffer;
 
@@ -316,13 +317,15 @@ export async function POST(
       throw new Error(emailResult.error?.message || 'Failed to send email');
     }
 
-    // Update quote status if draft
+    // Update quote status and ensure sharing is enabled for the PDF renderer
+    const statusUpdate: Record<string, any> = { share_enabled: true };
     if (quote.status === 'draft') {
-      await supabase
-        .from('business_quotes')
-        .update({ status: 'sent' })
-        .eq('id', id);
+      statusUpdate.status = 'sent';
     }
+    await supabase
+      .from('business_quotes')
+      .update(statusUpdate)
+      .eq('id', id);
 
     // Track email sent event in the tracking system
     await supabase
