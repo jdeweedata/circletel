@@ -388,9 +388,8 @@ Business Development
 Email: melvinw@newgengroup.co.za
 
 **Address**:  
-West House, Devcon Park  
-7 Autumn Road, Rivonia  
-Johannesburg, 2128
+8a Mellis Rd
+Rivonia, Sandton, 2128
 
 ---
 

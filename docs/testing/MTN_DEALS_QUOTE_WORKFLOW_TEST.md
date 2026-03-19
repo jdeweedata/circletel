@@ -94,7 +94,7 @@ VAT Number: 4220987654
 Contact Name: Jane Smith
 Contact Email: jane@acmebusiness.co.za
 Contact Phone: 0823456789
-Service Address: West House, 7 Autumn Road, Rivonia, 2128
+Service Address: 8a Mellis Rd, Rivonia, Sandton, 2128
 Contract Term: 24 months
 ```
 

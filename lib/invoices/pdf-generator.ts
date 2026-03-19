@@ -79,8 +79,8 @@ export async function generateInvoicePDF(invoiceId: string): Promise<string> {
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(75, 75, 75);
   const rightX = pageWidth - 15;
-  doc.text('West House | Devcon Park | 7', rightX, 12, { align: 'right' });
-  doc.text('Autumn Road | Rivonia | 2128', rightX, 17, { align: 'right' });
+  doc.text('8a Mellis Rd | Rivonia', rightX, 12, { align: 'right' });
+  doc.text('Sandton | 2128', rightX, 17, { align: 'right' });
   doc.text('PO Box 3895, 2128', rightX, 22, { align: 'right' });
   doc.text('TEL: +27 87 087 6307', rightX, 27, { align: 'right' });
   doc.setTextColor(245, 131, 31);

@@ -221,7 +221,7 @@ function generateVerificationEmail(firstName: string, verificationLink: string):
       </div>
       <div class="footer">
         <p>© ${new Date().getFullYear()} CircleTel. All rights reserved.</p>
-        <p>West House, 7 Autumn Road, Rivonia, Johannesburg, 2128</p>
+        <p>8a Mellis Rd, Rivonia, Sandton, 2128</p>
         <p>Need help? Call us at 087 067 6305</p>
       </div>
     </body>

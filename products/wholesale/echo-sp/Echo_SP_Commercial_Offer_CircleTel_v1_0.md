@@ -57,7 +57,7 @@
 |-------|---------|
 | **Legal Name** | Circle Tel SA (Pty) Ltd |
 | **Registration Number** | 2008/026404/07 |
-| **Physical Address** | West House, 7 Autumn Road, Rivonia, Gauteng, 2128, South Africa |
+| **Physical Address** | 8a Mellis Rd, Rivonia, Sandton, 2128, South Africa |
 | **Telephone** | +27 87 087 6307 |
 | **Contact Person** | Mr Jeffrey De Wee |
 | **Email** | jeffrey@newgengroup.co.za |

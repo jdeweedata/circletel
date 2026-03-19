@@ -228,7 +228,7 @@ Analysis of 252 sites shows diverse provider landscape:
 |------|---------|
 | Legal Notices | legal@circletelsa.co.za |
 | Attention | Contracts and Commercial Manager |
-| Physical Address | Devcon Park West House, 7 Autumn Road, Rivonia, Gauteng |
+| Physical Address | 8a Mellis Rd, Rivonia, Sandton, Gauteng |
 
 ### Unjani Clinics
 

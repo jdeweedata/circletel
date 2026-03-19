@@ -96,8 +96,8 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
           
           {/* Company Contact Information */}
           <div className="text-right text-sm text-gray-700" style={{ lineHeight: '1.6' }}>
-            <p>West House | Devcon Park | 7</p>
-            <p>Autumn Road | Rivonia | 2128</p>
+            <p>8a Mellis Rd | Rivonia</p>
+            <p>Sandton | 2128</p>
             <p>PO Box 3895, 2128</p>
             <p className="mt-1">TEL: +27 87 087 6305</p>
             <p>
@@ -354,8 +354,8 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
           </div>
           <div>
             <h4 className="font-semibold mb-2 text-gray-900">Physical Address</h4>
-            <p>West House, Devcon Park</p>
-            <p>7 Autumn Road, Rivonia</p>
+            <p>8a Mellis Rd</p>
+            <p>Rivonia, Sandton, 2128</p>
             <p>2128, South Africa</p>
           </div>
           <div>

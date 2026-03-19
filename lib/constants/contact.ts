@@ -31,11 +31,11 @@ export const CONTACT = {
   PHYSICAL_ADDRESS: {
     name: 'CircleTel (Pty) Ltd',
     attention: 'Contracts and Commercial Manager',
-    street: 'Devcon Park West House, 7 Autumn Road',
+    street: '8a Mellis Rd',
     suburb: 'Rivonia',
-    city: 'Johannesburg',
+    city: 'Sandton',
     province: 'Gauteng',
-    postalCode: '2191',
+    postalCode: '2128',
     country: 'South Africa',
   },
 

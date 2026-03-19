@@ -316,8 +316,8 @@ Thank you for choosing CircleTel!
                         <div>
                           <p className="font-semibold text-circleTel-navy">Address</p>
                           <p className="text-circleTel-secondaryNeutral">
-                            West House, 7 Autumn Road<br />
-                            Rivonia, Johannesburg, 2128
+                            8a Mellis Rd<br />
+                            Rivonia, Sandton, 2128
                           </p>
                         </div>
                       </div>

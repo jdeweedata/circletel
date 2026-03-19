@@ -103,7 +103,7 @@ export const Footer = () => {
             <div className="flex items-center">
               <PiMapPinBold size={16} className="mr-2 text-circleTel-orange" />
               <p className="text-sm text-circleTel-lightNeutral">
-                West House, 7 Autumn Road, Rivonia, Johannesburg, 2128
+                8a Mellis Rd, Rivonia, Sandton, 2128
               </p>
             </div>
           </div>

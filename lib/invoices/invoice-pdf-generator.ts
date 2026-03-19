@@ -21,8 +21,8 @@ export const COMPANY_DETAILS = {
   vatNumber: '4380269318',
   registrationNumber: '2008/026404/07',
   address: {
-    line1: 'West House, 7 Autumn Road',
-    line2: 'Rivonia, Johannesburg',
+    line1: '8a Mellis Rd, Rivonia',
+    line2: 'Sandton',
     province: 'Gauteng',
     postalCode: '2128',
     country: 'South Africa'

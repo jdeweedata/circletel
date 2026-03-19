@@ -538,9 +538,8 @@ Phone: 087 087 6307
 Email: support@newgengroup.co.za
 
 **Physical Address:**  
-West House, Devcon Park  
-7 Autumn Road, Rivonia  
-Johannesburg, 2128
+8a Mellis Rd
+Rivonia, Sandton, 2128
 
 ---
 

@@ -48,8 +48,8 @@ const ContactInformation: React.FC<ContactInformationProps> = ({ className }) =>
           <div>
             <h3 className="font-bold text-circleTel-navy">Address</h3>
             <p className="text-circleTel-secondaryNeutral">
-              West House, 7 Autumn Road<br />
-              Rivonia, Johannesburg<br />
+              8a Mellis Rd<br />
+              Rivonia, Sandton<br />
               2128<br />
               South Africa
             </p>

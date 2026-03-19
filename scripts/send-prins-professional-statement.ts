@@ -35,7 +35,7 @@ const COMPANY = {
   name: 'Circle Tel SA (Pty) Ltd',
   vatNumber: '4380269318',
   regNumber: '2008/026404/07',
-  address: 'West House, 7 Autumn Road, Rivonia, 2128',
+  address: '8a Mellis Rd, Rivonia, Sandton, 2128',
   phone: '+27 87 087 6307',
   email: 'contactus@circletel.co.za',
   website: 'www.circletel.co.za',

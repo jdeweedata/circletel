@@ -104,8 +104,8 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   doc.setFontSize(7.5);
   const headerRight = pageWidth - 20;
   
-  doc.text('West House | Devcon Park | 7', headerRight, 10, { align: 'right' });
-  doc.text('Autumn Road | Rivonia | 2128', headerRight, 14, { align: 'right' });
+  doc.text('8a Mellis Rd | Rivonia', headerRight, 10, { align: 'right' });
+  doc.text('Sandton | 2128', headerRight, 14, { align: 'right' });
   doc.text('PO Box 3895, 2128', headerRight, 18, { align: 'right' });
   doc.text('TEL: +27 87 087 6305', headerRight, 22, { align: 'right' });
   doc.text('EMAIL: contactus@circletel.co.za', headerRight, 26, { align: 'right' });
@@ -588,7 +588,7 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   doc.setFontSize(7.5);
   doc.setTextColor(150, 150, 150);
   doc.setFont('helvetica', 'normal');
-  doc.text('CircleTel (Pty) Ltd | West House, Devcon Park, 7 Autumn Road, Rivonia, 2128 | PO Box 3895, 2128', pageWidth / 2, footerY, { align: 'center' });
+  doc.text('CircleTel (Pty) Ltd | 8a Mellis Rd, Rivonia, Sandton, 2128 | PO Box 3895, 2128', pageWidth / 2, footerY, { align: 'center' });
   doc.text('www.circletel.co.za | contactus@circletel.co.za | TEL: +27 87 087 6305', pageWidth / 2, footerY + 4, { align: 'center' });
 
   return doc;
