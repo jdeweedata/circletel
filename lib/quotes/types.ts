@@ -23,7 +23,7 @@ export type QuoteItemType = 'primary' | 'secondary' | 'additional';
 
 export type SignatureType = 'drawn' | 'typed';
 
-export type CustomerType = 'smme' | 'enterprise';
+export type CustomerType = 'smme' | 'enterprise' | 'soho';
 
 export type ContractTerm = 12 | 24 | 36;
 
