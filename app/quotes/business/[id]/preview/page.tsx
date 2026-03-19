@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import type { QuoteDetails } from '@/lib/quotes/types';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
+import { buildQuoteBenefits } from '@/lib/quotes/quote-benefits';
+import type { QuoteTermsSection } from '@/lib/quotes/quote-terms';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -23,6 +25,7 @@ export default function QuotePreviewPage({ params }: Props) {
   const [emailMessage, setEmailMessage] = useState('');
   const [emailSending, setEmailSending] = useState(false);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [terms, setTerms] = useState<QuoteTermsSection[]>([]);
 
   // Add print-specific styles
   useEffect(() => {
@@ -157,6 +160,7 @@ export default function QuotePreviewPage({ params }: Props) {
 
       if (data.success) {
         setQuote(data.quote);
+        setTerms(data.terms || []);
       } else {
         setError(data.error || 'Failed to load quote');
       }
@@ -250,65 +254,6 @@ export default function QuotePreviewPage({ params }: Props) {
     }
   };
 
-  // Generate dynamic benefits based on quote items
-  const generateInclusiveBenefits = (items: any[]) => {
-    const benefits = new Set<string>();
-    
-    // Base benefits for all CircleTel services
-    benefits.add('South African-based customer support');
-    benefits.add('24/7 Network Operations Centre (NOC) monitoring');
-    benefits.add('Professional installation and configuration');
-    
-    // Add service-specific benefits
-    items.forEach(item => {
-      const serviceType = item.item_type?.toLowerCase();
-      const serviceName = item.service_name?.toLowerCase();
-      
-      if (serviceType === 'fibre' || serviceName?.includes('fibre')) {
-        benefits.add('99.9% Service Level Agreement (SLA)');
-        benefits.add('Unlimited data usage');
-        benefits.add('Symmetric upload/download speeds');
-        benefits.add('Static IP address allocation');
-        benefits.add('No fair usage policy restrictions');
-      }
-      
-      if (serviceType === 'wireless' || serviceName?.includes('wireless')) {
-        benefits.add('99.5% Service Level Agreement (SLA)');
-        benefits.add('Weather-resistant equipment');
-        benefits.add('Line-of-sight installation assessment');
-      }
-      
-      if (serviceType === 'cloud' || serviceName?.includes('cloud') || serviceName?.includes('hosting')) {
-        benefits.add('99.9% uptime guarantee');
-        benefits.add('Daily automated backups');
-        benefits.add('24/7 server monitoring');
-        benefits.add('DDoS protection included');
-        benefits.add('Free SSL certificates');
-      }
-      
-      if (serviceType === 'voice' || serviceName?.includes('voice') || serviceName?.includes('pbx')) {
-        benefits.add('HD voice quality');
-        benefits.add('Call recording capabilities');
-        benefits.add('Auto-attendant features');
-        benefits.add('Mobile app integration');
-      }
-      
-      // Business-specific benefits (all quote types get these since it's a business quote)
-      if (quote && (quote.customer_type === 'smme' || quote.customer_type === 'enterprise')) {
-        benefits.add('Dedicated account manager');
-        benefits.add('Priority technical support');
-        benefits.add('Service level reporting');
-        benefits.add('Equipment maintenance and replacement');
-        benefits.add('Monthly usage reporting and analytics');
-      }
-    });
-    
-    // Always include basic support
-    benefits.add('Free technical support during business hours');
-    
-    return Array.from(benefits).sort();
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-circleTel-lightNeutral">
@@ -366,6 +311,8 @@ export default function QuotePreviewPage({ params }: Props) {
       total_installation: calculated.total_installation,
     };
   }
+
+  const quoteBenefits = quote ? buildQuoteBenefits(quote.items) : { perItem: [], global: [] };
 
   return (
     <div className="min-h-screen bg-white print:bg-white">
@@ -707,13 +654,38 @@ export default function QuotePreviewPage({ params }: Props) {
             <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               INCLUSIVE BENEFITS
             </h3>
-            <div className="space-y-2 text-sm">
-              {generateInclusiveBenefits(quote.items).map((benefit, index) => (
-                <div key={index} className="flex items-start gap-2">
-                  <PiCheckBold className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700">{benefit}</span>
+            <div className="space-y-4 text-sm">
+              {/* Per-product benefits */}
+              {quoteBenefits.perItem.map((itemBenefits, idx) => (
+                <div key={idx}>
+                  <h4 className="font-medium text-gray-900 mb-2 text-xs uppercase">
+                    {itemBenefits.serviceName}
+                  </h4>
+                  <div className="space-y-1.5">
+                    {itemBenefits.benefits.map((benefit, bIdx) => (
+                      <div key={bIdx} className="flex items-start gap-2">
+                        <PiCheckBold className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
+
+              {/* Global CircleTel benefits */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2 text-xs uppercase">
+                  All CircleTel Business Services
+                </h4>
+                <div className="space-y-1.5">
+                  {quoteBenefits.global.map((benefit, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <PiCheckBold className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Additional Notes */}
@@ -735,54 +707,73 @@ export default function QuotePreviewPage({ params }: Props) {
           <h3 className="text-lg font-bold text-circleTel-navy mb-4 border-b border-gray-300 pb-2">
             TERMS AND CONDITIONS
           </h3>
-          <div className="grid grid-cols-2 gap-8 text-xs leading-relaxed">
-            <div className="space-y-3">
-              <div>
-                <h4 className="font-medium mb-1">1. CONTRACT TERMS</h4>
-                <p>This quote is valid for 30 days from the date issued. Pricing is subject to change after this period. Contract term as specified above.</p>
+          {terms.length > 0 ? (
+            <div className="grid grid-cols-2 gap-8 text-xs leading-relaxed">
+              <div className="space-y-3">
+                {terms.filter((_, i) => i < Math.ceil(terms.length / 2)).map((term, index) => (
+                  <div key={index}>
+                    <h4 className="font-medium mb-1">{index + 1}. {term.title.toUpperCase()}</h4>
+                    <p>{term.text}</p>
+                  </div>
+                ))}
               </div>
-              <div>
-                <h4 className="font-medium mb-1">2. INSTALLATION</h4>
-                <p>Installation will be scheduled within 7-14 business days of order confirmation, subject to site readiness and third-party provider availability.</p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-1">3. PAYMENT TERMS</h4>
-                <p>Monthly charges are payable in advance. Installation fees are due on completion of installation. All amounts are inclusive of VAT where applicable.</p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-1">4. SERVICE LEVEL AGREEMENT</h4>
-                <p>CircleTel provides a 99.5% uptime SLA measured monthly. Service credits apply for verified outages exceeding SLA thresholds.</p>
-              </div>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <h4 className="font-medium mb-1">5. CANCELLATION</h4>
-                <p>30 days written notice required for cancellation. Early termination fees may apply for contract term commitments.</p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-1">6. EQUIPMENT</h4>
-                <p>Customer Premises Equipment (CPE) remains CircleTel property and must be returned in good condition upon service termination.</p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-1">7. FAIR USAGE</h4>
-                <p>While data is unlimited, CircleTel reserves the right to manage traffic during peak periods to ensure fair usage across all customers.</p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-1">8. GOVERNING LAW</h4>
-                <p>
-                  This agreement is governed by South African law. Full terms and conditions available at{' '}
-                  <a
-                    href="https://www.circletel.co.za/terms-of-service"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-circleTel-orange hover:underline font-medium"
-                  >
-                    www.circletel.co.za/terms
-                  </a>
-                </p>
+              <div className="space-y-3">
+                {terms.filter((_, i) => i >= Math.ceil(terms.length / 2)).map((term, index) => {
+                  const globalIndex = Math.ceil(terms.length / 2) + index;
+                  return (
+                    <div key={index}>
+                      <h4 className="font-medium mb-1">{globalIndex + 1}. {term.title.toUpperCase()}</h4>
+                      <p>{term.text}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-8 text-xs leading-relaxed">
+              <div className="space-y-3">
+                <div>
+                  <h4 className="font-medium mb-1">1. CONTRACT TERMS</h4>
+                  <p>This quote is valid for 30 days from the date issued. Pricing is subject to change after this period. Contract term as specified above.</p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">2. INSTALLATION</h4>
+                  <p>Installation will be scheduled within 7-14 business days of order confirmation, subject to site readiness and third-party provider availability.</p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">3. PAYMENT TERMS</h4>
+                  <p>Monthly charges are payable in advance. Installation fees are due on completion of installation. All amounts are inclusive of VAT where applicable.</p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">4. SERVICE LEVEL AGREEMENT</h4>
+                  <p>CircleTel provides a 99.5% uptime SLA measured monthly. Service credits apply for verified outages exceeding SLA thresholds.</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <h4 className="font-medium mb-1">5. CANCELLATION</h4>
+                  <p>30 days written notice required for cancellation. Early termination fees may apply for contract term commitments.</p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">6. EQUIPMENT</h4>
+                  <p>Customer Premises Equipment (CPE) remains CircleTel property and must be returned in good condition upon service termination.</p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">7. FAIR USAGE</h4>
+                  <p>While data is unlimited, CircleTel reserves the right to manage traffic during peak periods to ensure fair usage across all customers.</p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">8. GOVERNING LAW</h4>
+                  <p>
+                    This agreement is governed by South African law. Full terms and conditions available at{' '}
+                    <a href="https://www.circletel.co.za/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-circleTel-orange hover:underline font-medium">
+                      www.circletel.co.za/terms
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Customer Acceptance Section */}
