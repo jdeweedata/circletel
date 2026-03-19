@@ -9,11 +9,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
-import { generateQuotePDFBlob } from '@/lib/quotes/pdf-generator';
-import { fetchQuoteTerms } from '@/lib/quotes/quote-terms';
-import { buildQuoteBenefits } from '@/lib/quotes/quote-benefits';
-import type { QuoteDetails } from '@/lib/quotes/types';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium-min';
 import { apiLogger } from '@/lib/logging';
+
+// Vercel serverless config — allow longer execution for PDF rendering
+export const maxDuration = 60;
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -64,42 +65,49 @@ export async function POST(
       );
     }
 
-    // Fetch quote items
-    const { data: items, error: itemsError } = await supabase
-      .from('business_quote_items')
-      .select('*')
-      .eq('quote_id', id)
-      .order('display_order', { ascending: true });
+    // Generate PDF by rendering the actual preview page with Puppeteer
+    // This ensures the PDF matches the preview page exactly
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.circletel.co.za';
+    const previewUrl = `${baseUrl}/quotes/business/${id}/preview`;
 
-    if (itemsError) {
-      return NextResponse.json(
-        { success: false, error: 'Failed to fetch quote items' },
-        { status: 500 }
-      );
-    }
+    let pdfBuffer: Buffer;
 
-    // Build quote details for PDF generation
-    const quoteDetails: QuoteDetails = {
-      ...quote,
-      items: items || []
-    };
+    const isLocal = process.env.NODE_ENV === 'development';
 
-    // Fetch product-linked terms and benefits
-    const serviceTypes = [...new Set((items || []).map((item: any) => item.service_type))];
-    const terms = await fetchQuoteTerms(serviceTypes, quote.contract_term);
-    const benefits = buildQuoteBenefits(quoteDetails.items);
-
-    // Generate PDF using jsPDF (no Playwright/Chromium needed)
-    const pdfBlob = generateQuotePDFBlob(quoteDetails, {
-      includeTerms: true,
-      includeSignature: true,
-      terms,
-      benefits
+    const browser = await puppeteer.launch({
+      args: isLocal ? [] : chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: isLocal
+        ? '/usr/bin/google-chrome'
+        : await chromium.executablePath(
+            'https://github.com/nichochar/chromium-binaries/releases/download/v131.0.0/chromium-v131.0.0-pack.tar'
+          ),
+      headless: true,
     });
 
-    // Convert Blob to Buffer for email attachment
-    const pdfArrayBuffer = await pdfBlob.arrayBuffer();
-    const pdfBuffer = Buffer.from(pdfArrayBuffer);
+    try {
+      const page = await browser.newPage();
+
+      // Navigate to the preview page and wait for content to render
+      await page.goto(previewUrl, { waitUntil: 'networkidle0', timeout: 30000 });
+
+      // Wait for the quote content to fully render
+      await page.waitForSelector('.customer-acceptance, .terms-section', { timeout: 10000 }).catch(() => {
+        // If selectors not found, page likely rendered — continue anyway
+      });
+
+      // Generate PDF matching print layout (A4)
+      const pdf = await page.pdf({
+        format: 'A4',
+        margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' },
+        printBackground: true,
+        preferCSSPageSize: true,
+      });
+
+      pdfBuffer = Buffer.from(pdf);
+    } finally {
+      await browser.close();
+    }
 
     // Format currency
     const formatCurrency = (amount: number) => {
