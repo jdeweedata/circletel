@@ -13,9 +13,21 @@ export interface QuoteBenefits {
 }
 
 /**
- * Global benefits shown on ALL CircleTel business quotes
+ * SOHO benefits — for WorkConnect and consumer-grade products
  */
-const GLOBAL_BENEFITS = [
+const SOHO_BENEFITS = [
+  'South African-based customer support',
+  'Professional installation and configuration',
+  'Extended support hours (Mon-Sat 07:00-19:00)',
+  'Month-to-month flexibility available',
+  'VoIP quality of service included',
+  'Free-to-use business router',
+];
+
+/**
+ * Business/Enterprise benefits — for SkyFibre SME, BizFibreConnect, etc.
+ */
+const BUSINESS_BENEFITS = [
   'South African-based customer support',
   '24/7 Network Operations Centre (NOC) monitoring',
   'Professional installation and configuration',
@@ -23,6 +35,42 @@ const GLOBAL_BENEFITS = [
   'Priority technical support',
   'Monthly usage reporting and analytics',
 ];
+
+/**
+ * Determine the appropriate global benefits based on quote items.
+ * SOHO products get SOHO benefits. Business products get business benefits.
+ * Mixed quotes default to business benefits (higher tier wins).
+ */
+function getGlobalBenefits(items: BusinessQuoteItem[]): string[] {
+  const hasBusinessItems = items.some((item) => {
+    const type = item.service_type?.toLowerCase() || '';
+    const category = item.product_category?.toLowerCase() || '';
+    const name = item.service_name?.toLowerCase() || '';
+    return (
+      (type.includes('skyfibre') && (name.includes('sme') || name.includes('enterprise'))) ||
+      type === 'bizfibreconnect' ||
+      category === 'fibre_business'
+    );
+  });
+
+  // If any item is business-grade, use business benefits (higher tier wins)
+  if (hasBusinessItems) {
+    return BUSINESS_BENEFITS;
+  }
+
+  const hasSohoItems = items.some((item) => {
+    const type = item.service_type?.toLowerCase() || '';
+    const category = item.product_category?.toLowerCase() || '';
+    return type === 'workconnect' || category === 'soho';
+  });
+
+  if (hasSohoItems) {
+    return SOHO_BENEFITS;
+  }
+
+  // Default to business benefits for unknown product types
+  return BUSINESS_BENEFITS;
+}
 
 /**
  * Build benefits list from quote items.
@@ -75,13 +123,12 @@ export function buildQuoteBenefits(items: BusinessQuoteItem[]): QuoteBenefits {
 
   return {
     perItem,
-    global: GLOBAL_BENEFITS,
+    global: getGlobalBenefits(items),
   };
 }
 
 /**
  * Legacy fallback: generate basic benefits from service type when no snapshot exists.
- * Mirrors the old generateInclusiveBenefits() logic from preview/page.tsx.
  */
 function getLegacyBenefits(serviceType: string, serviceName: string): string[] {
   const type = serviceType?.toLowerCase() || '';
@@ -95,6 +142,9 @@ function getLegacyBenefits(serviceType: string, serviceName: string): string[] {
   }
   if (type === '5g' || name.includes('5g') || name.includes('lte')) {
     return ['Coverage-optimised connectivity', 'Self-install or professional installation', 'Flexible data options'];
+  }
+  if (type === 'workconnect' || name.includes('workconnect')) {
+    return ['VoIP QoS included', 'Extended support Mon-Sat 07:00-19:00', 'Free-to-use business router'];
   }
   return [];
 }
