@@ -10,6 +10,7 @@ import type { QuoteDetails } from '@/lib/quotes/types';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
 import { buildQuoteBenefits } from '@/lib/quotes/quote-benefits';
 import type { QuoteTermsSection } from '@/lib/quotes/quote-terms';
+import { QuoteAcceptanceForm } from '@/components/quotes/QuoteAcceptanceForm';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -776,35 +777,32 @@ export default function QuotePreviewPage({ params }: Props) {
           )}
         </div>
 
-        {/* Customer Acceptance Section */}
-        <div className="bg-gray-50 border-2 border-circleTel-orange p-6 mb-8 customer-acceptance">
+        {/* Customer Acceptance Section - Digital Form */}
+        <div className="mb-8 customer-acceptance print:hidden">
+          <QuoteAcceptanceForm
+            quoteId={quote.id}
+            quote={quote}
+            onAccepted={() => {
+              window.location.reload();
+            }}
+          />
+        </div>
+
+        {/* Print-only acceptance section (static for printed quotes) */}
+        <div className="hidden print:block bg-gray-50 border-2 border-circleTel-orange p-6 mb-8">
           <h3 className="text-lg font-bold text-circleTel-navy mb-6 text-center">
             CUSTOMER ACCEPTANCE
           </h3>
-          
           <div className="grid grid-cols-2 gap-8">
             <div>
               <h4 className="font-medium mb-4">ACCEPTANCE DECLARATION</h4>
               <div className="space-y-3 text-sm">
-                <label className="flex items-start gap-2">
-                  <input type="checkbox" className="mt-1" disabled />
-                  <span>I accept the terms and conditions as outlined above</span>
-                </label>
-                <label className="flex items-start gap-2">
-                  <input type="checkbox" className="mt-1" disabled />
-                  <span>I confirm the service address and technical requirements are correct</span>
-                </label>
-                <label className="flex items-start gap-2">
-                  <input type="checkbox" className="mt-1" disabled />
-                  <span>I authorize CircleTel to proceed with installation</span>
-                </label>
-                <label className="flex items-start gap-2">
-                  <input type="checkbox" className="mt-1" disabled />
-                  <span>I have authority to sign on behalf of the company</span>
-                </label>
+                <p>&#9744; I accept the terms and conditions as outlined above</p>
+                <p>&#9744; I confirm the service address and technical requirements are correct</p>
+                <p>&#9744; I authorize CircleTel to proceed with installation</p>
+                <p>&#9744; I have authority to sign on behalf of the company</p>
               </div>
             </div>
-            
             <div>
               <h4 className="font-medium mb-4">SIGNATURE</h4>
               <div className="space-y-4">
@@ -829,14 +827,8 @@ export default function QuotePreviewPage({ params }: Props) {
               </div>
             </div>
           </div>
-          
-          <div className="mt-6 pt-4 border-t border-gray-300 text-center">
-            <button className="bg-circleTel-orange text-white px-8 py-3 rounded font-medium hover:bg-orange-600 transition-colors print:hidden">
-              ACCEPT QUOTE & PROCEED TO ORDER
-            </button>
-            <div className="hidden print:block text-sm text-gray-600">
-              This quote can be accepted digitally via the online portal or manually signed and returned.
-            </div>
+          <div className="mt-6 pt-4 border-t border-gray-300 text-center text-sm text-gray-600">
+            This quote can be accepted digitally via the online portal or manually signed and returned.
           </div>
         </div>
 
