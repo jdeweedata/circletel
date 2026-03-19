@@ -258,16 +258,16 @@ export default function MarketingDashboardPage() {
               href="/admin/marketing/promotions"
             />
             <QuickAction
+              title="Campaign Builder"
+              description="Coverage demand hotspots & targeting"
+              icon={PiTargetBold}
+              href="/admin/marketing/campaign-builder"
+            />
+            <QuickAction
               title="Campaign Analytics"
               description="View performance metrics"
               icon={PiChartBarBold}
               href="/admin/marketing/analytics"
-            />
-            <QuickAction
-              title="Schedule Campaign"
-              description="Plan future promotions"
-              icon={PiCalendarBold}
-              href="/admin/marketing/campaigns"
             />
           </div>
         </div>

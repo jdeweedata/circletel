@@ -87,10 +87,19 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       console.log('PWA: App was installed');
     };
 
-    // Register service worker
+    // Register service worker only if sw.js exists (next-pwa is disabled on Vercel builds)
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
+          // Check if sw.js actually exists before registering (it won't on Vercel
+          // since next-pwa is disabled to save build RAM)
+          const swResponse = await fetch('/sw.js', { method: 'HEAD' });
+          const contentType = swResponse.headers.get('content-type') || '';
+          if (!swResponse.ok || !contentType.includes('javascript')) {
+            console.log('PWA: sw.js not available (content-type:', contentType, '), skipping registration');
+            return;
+          }
+
           const registration = await navigator.serviceWorker.register('/sw.js');
           console.log('PWA: Service Worker registered:', registration);
 
