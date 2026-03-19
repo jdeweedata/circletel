@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiCalculatorBold, PiCurrencyDollarBold, PiFileTextBold, PiFloppyDiskBold, PiGearBold, PiPercentBold, PiSpinnerBold, PiStackBold, PiTagBold, PiTrendUpBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiCurrencyDollarBold, PiFileTextBold, PiFloppyDiskBold, PiGearBold, PiSpinnerBold, PiTagBold, PiTrendUpBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import {
   Select,
@@ -38,7 +37,7 @@ const productEditSchema = z.object({
   sku: z.string().optional(),
   category: z.string().min(1, 'Category is required'),
   service: z.string().min(1, 'Service is required'),
-  customer_type: z.enum(['consumer', 'smme', 'enterprise']),
+  customer_type: z.enum(['consumer', 'smme', 'enterprise', 'soho']),
   // Root-level pricing fields (legacy/backward compatibility)
   base_price_zar: z.number().min(0, 'Price must be positive').nullable(),
   cost_price_zar: z.number().min(0, 'Cost must be positive').nullable(),
@@ -312,641 +311,581 @@ export default function EditProductPage() {
       <div className="min-h-screen bg-gray-50/50">
         {/* Header with Breadcrumb */}
         <div className="bg-white border-b sticky top-0 z-10">
-          <div className="max-w-5xl mx-auto px-6 py-4">
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm mb-3">
-              <Link href="/admin/products" className="text-gray-500 hover:text-circleTel-orange transition-colors">
-                Products
-              </Link>
-              <span className="text-gray-300">/</span>
-              <Link href={`/admin/products/${params.id}`} className="text-gray-500 hover:text-circleTel-orange transition-colors truncate max-w-[200px]">
-                {product?.name || 'Product'}
-              </Link>
-              <span className="text-gray-300">/</span>
-              <span className="text-gray-900 font-medium">Edit</span>
-            </nav>
+          <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+              {/* Breadcrumb */}
+              <nav className="flex items-center gap-2 text-sm mb-2">
+                <Link href="/admin/products" className="text-gray-500 hover:text-circleTel-orange transition-colors">
+                  Products
+                </Link>
+                <span className="text-gray-300">/</span>
+                <Link href={`/admin/products/${params.id}`} className="text-gray-500 hover:text-circleTel-orange transition-colors truncate max-w-[200px]">
+                  {product?.name || 'Product'}
+                </Link>
+                <span className="text-gray-300">/</span>
+                <span className="text-gray-900 font-medium">Edit</span>
+              </nav>
 
-            {/* Title */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Edit Product</h1>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  {product?.sku && <span className="font-mono">{product.sku}</span>}
-                </p>
-              </div>
+              {/* Title */}
+              <h1 className="text-xl font-bold text-gray-900">Edit Product</h1>
             </div>
+            {product?.sku && (
+              <Badge variant="outline" className="text-gray-600 bg-gray-50 border-gray-200 uppercase px-3 py-1 text-xs tracking-wider">
+                {product.sku}
+              </Badge>
+            )}
           </div>
         </div>
 
         <div className="max-w-5xl mx-auto px-6 py-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <Tabs defaultValue="basic" className="space-y-6">
-            <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto flex flex-wrap gap-1">
-              <TabsTrigger value="basic" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
-                Basic Info
-              </TabsTrigger>
-              <TabsTrigger value="pricing" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
-                Pricing
-              </TabsTrigger>
-              <TabsTrigger value="cost-breakdown" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
-                Cost Breakdown
-              </TabsTrigger>
-              <TabsTrigger value="connectivity" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
-                Connectivity
-              </TabsTrigger>
-              <TabsTrigger value="features" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
-                Features
-              </TabsTrigger>
-              <TabsTrigger value="status" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
-                Status
-              </TabsTrigger>
-            </TabsList>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            
+            {/* 2-Column Grid Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              {/* Main Column (Left - 2/3 width) */}
+              <div className="lg:col-span-2 space-y-6">
+                
+                {/* Basic Information */}
+                <Card className="shadow-sm border-gray-200">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Basic Information</CardTitle>
+                    <CardDescription>
+                      Product name, SKU, and classification
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Product Name *</Label>
+                        <Input
+                          id="name"
+                          {...register('name')}
+                          placeholder="e.g., SkyFibre Starter"
+                        />
+                        {errors.name && (
+                          <p className="text-sm text-destructive">{errors.name.message}</p>
+                        )}
+                      </div>
 
-            {/* Basic Information Tab */}
-            <TabsContent value="basic" className="space-y-6">
-              <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-              <CardDescription>
-                Product name, SKU, and classification
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Product Name *</Label>
-                  <Input
-                    id="name"
-                    {...register('name')}
-                    placeholder="e.g., SkyFibre Starter"
-                  />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name.message}</p>
-                  )}
-                </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="sku">SKU</Label>
+                        <Input
+                          id="sku"
+                          {...register('sku')}
+                          placeholder="e.g., SKY-RES-START"
+                        />
+                        {errors.sku && (
+                          <p className="text-sm text-destructive">{errors.sku.message}</p>
+                        )}
+                      </div>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="sku">SKU</Label>
-                  <Input
-                    id="sku"
-                    {...register('sku')}
-                    placeholder="e.g., SKY-RES-START"
-                  />
-                  {errors.sku && (
-                    <p className="text-sm text-destructive">{errors.sku.message}</p>
-                  )}
-                </div>
-              </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="category">Category *</Label>
+                        <Select
+                          value={watch('category')}
+                          onValueChange={(value) => setValue('category', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="connectivity">Connectivity</SelectItem>
+                            <SelectItem value="it_services">IT Services</SelectItem>
+                            <SelectItem value="bundle">Bundle</SelectItem>
+                            <SelectItem value="add_on">Add-on</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.category && (
+                          <p className="text-sm text-destructive">{errors.category.message}</p>
+                        )}
+                      </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
-                  <Select
-                    value={watch('category')}
-                    onValueChange={(value) => setValue('category', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="connectivity">Connectivity</SelectItem>
-                      <SelectItem value="it_services">IT Services</SelectItem>
-                      <SelectItem value="bundle">Bundle</SelectItem>
-                      <SelectItem value="add_on">Add-on</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.category && (
-                    <p className="text-sm text-destructive">{errors.category.message}</p>
-                  )}
-                </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="service">Service *</Label>
+                        <Select
+                          value={watch('service')}
+                          onValueChange={(value) => setValue('service', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select service" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SkyFibre">SkyFibre</SelectItem>
+                            <SelectItem value="HomeFibreConnect">Home Fibre Connect</SelectItem>
+                            <SelectItem value="BizFibreConnect">Biz Fibre Connect</SelectItem>
+                            <SelectItem value="5G">5G</SelectItem>
+                            <SelectItem value="LTE">LTE</SelectItem>
+                            <SelectItem value="VoIP">VoIP</SelectItem>
+                            <SelectItem value="Hosting">Hosting</SelectItem>
+                            <SelectItem value="Security">Security</SelectItem>
+                            <SelectItem value="IT_Support">IT Support</SelectItem>
+                            <SelectItem value="Cloud_Services">Cloud Services</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.service && (
+                          <p className="text-sm text-destructive">{errors.service.message}</p>
+                        )}
+                      </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="service">Service *</Label>
-                  <Select
-                    value={watch('service')}
-                    onValueChange={(value) => setValue('service', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select service" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SkyFibre">SkyFibre</SelectItem>
-                      <SelectItem value="HomeFibreConnect">Home Fibre Connect</SelectItem>
-                      <SelectItem value="BizFibreConnect">Biz Fibre Connect</SelectItem>
-                      <SelectItem value="5G">5G</SelectItem>
-                      <SelectItem value="LTE">LTE</SelectItem>
-                      <SelectItem value="VoIP">VoIP</SelectItem>
-                      <SelectItem value="Hosting">Hosting</SelectItem>
-                      <SelectItem value="Security">Security</SelectItem>
-                      <SelectItem value="IT_Support">IT Support</SelectItem>
-                      <SelectItem value="Cloud_Services">Cloud Services</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.service && (
-                    <p className="text-sm text-destructive">{errors.service.message}</p>
-                  )}
-                </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="customer_type">Customer Type *</Label>
+                        <Select
+                          value={watch('customer_type')}
+                          onValueChange={(value) => setValue('customer_type', value as any)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="consumer">Consumer</SelectItem>
+                            <SelectItem value="soho">SOHO</SelectItem>
+                            <SelectItem value="smme">SME/SMME</SelectItem>
+                            <SelectItem value="enterprise">Enterprise</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.customer_type && (
+                          <p className="text-sm text-destructive">{errors.customer_type.message}</p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-                <div className="space-y-2">
-                  <Label htmlFor="customer_type">Customer Type *</Label>
-                  <Select
-                    value={watch('customer_type')}
-                    onValueChange={(value) => setValue('customer_type', value as any)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="consumer">Consumer</SelectItem>
-                      <SelectItem value="smme">SME/SMME</SelectItem>
-                      <SelectItem value="enterprise">Enterprise</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.customer_type && (
-                    <p className="text-sm text-destructive">{errors.customer_type.message}</p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-            </TabsContent>
-
-            {/* Pricing & Costs Tab */}
-            <TabsContent value="pricing" className="space-y-6">
-              {/* Margin Calculator Summary - Compact */}
-              <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="pb-2 pt-4 px-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <PiTrendUpBold className="h-4 w-4 text-green-600" />
-                      Cost & Margin Analysis
-                      {priceCalculations.usingBreakdown && (
-                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600 border-blue-200">
-                          Cost Breakdown Active
-                        </Badge>
-                      )}
+                {/* Description & Features */}
+                <Card className="shadow-sm border-gray-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <PiFileTextBold className="h-5 w-5 text-purple-600" />
+                      Description & Features
                     </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-2 px-4 pb-4">
-                  <div className="grid grid-cols-5 gap-3">
-                    <div className="text-center p-3 bg-red-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-1">Total Cost</p>
-                      <p className="text-lg font-bold text-red-600">{formatCurrency(priceCalculations.cost)}</p>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-1">Selling Price</p>
-                      <p className="text-lg font-bold text-gray-900">{formatCurrency(priceCalculations.sellingPriceExclVat)}</p>
-                    </div>
-                    <div className="text-center p-3 bg-orange-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-1">Incl. VAT</p>
-                      <p className="text-lg font-bold text-circleTel-orange">{formatCurrency(priceCalculations.sellingPriceInclVat)}</p>
-                    </div>
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-1">Margin %</p>
-                      <p className={`text-lg font-bold ${priceCalculations.marginPercentage >= 30 ? 'text-green-600' : priceCalculations.marginPercentage >= 20 ? 'text-yellow-600' : 'text-red-600'}`}>
-                        {priceCalculations.marginPercentage.toFixed(1)}%
-                      </p>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-1">Once-off Costs</p>
-                      <p className="text-lg font-bold text-gray-900">{formatCurrency(0)}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Cost Input - Legacy/Simple Mode */}
-              <Card className={priceCalculations.usingBreakdown ? 'opacity-60' : ''}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PiCurrencyDollarBold className="h-5 w-5 text-red-500" />
-                    Simple Wholesale Cost
-                  </CardTitle>
-                  <CardDescription>
-                    {priceCalculations.usingBreakdown 
-                      ? 'Cost breakdown is active - this field is overridden. Go to Cost Breakdown tab to manage detailed costs.'
-                      : 'Enter a single wholesale cost, or use the Cost Breakdown tab for detailed cost components.'
-                    }
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <Label htmlFor="wholesale_cost">Wholesale Cost (Monthly)</Label>
-                    <Input
-                      id="wholesale_cost"
-                      type="number"
-                      step="0.01"
-                      {...register('wholesale_cost', { valueAsNumber: true })}
-                      placeholder="e.g., 450.00"
-                      className="font-semibold text-lg"
-                      disabled={priceCalculations.usingBreakdown}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Enter the monthly cost you pay to the provider
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Selling Price */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PiCurrencyDollarBold className="h-5 w-5 text-circleTel-orange" />
-                    Selling Price
-                  </CardTitle>
-                  <CardDescription>
-                    Monthly recurring fee (incl. VAT)
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <CardDescription>
+                      Product description and feature list
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="pricing_monthly" className="text-base font-semibold">
-                        Monthly Fee (Excl. VAT) *
-                      </Label>
-                      <Input
-                        id="pricing_monthly"
-                        type="number"
-                        step="0.01"
-                        {...register('pricing_monthly', { valueAsNumber: true })}
-                        placeholder="e.g., 749.00"
-                        className="font-semibold text-lg"
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        {...register('description')}
+                        placeholder="Product description..."
+                        rows={4}
                       />
-                      {errors.pricing_monthly && (
-                        <p className="text-sm text-destructive">{errors.pricing_monthly.message}</p>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-2">
+                      <FeaturesEditor
+                        features={features}
+                        onChange={(newFeatures) => setValue('features', newFeatures)}
+                      />
+                      {errors.features && (
+                        <p className="text-sm text-destructive">{errors.features.message}</p>
                       )}
                     </div>
+                  </CardContent>
+                </Card>
 
-                    <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                      <p className="text-sm text-gray-600 mb-1">Price Incl. VAT (15%)</p>
-                      <p className="text-2xl font-bold text-circleTel-orange">
-                        {formatCurrency(priceCalculations.sellingPriceInclVat)}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        VAT Amount: {formatCurrency(priceCalculations.vatAmount)}
-                      </p>
-                    </div>
-                  </div>
+                {/* Pricing & Costs */}
+                <Card className="shadow-sm border-gray-200">
+                  <CardHeader className="pb-3 border-b">
+                    <CardTitle className="text-lg">Pricing & Costs</CardTitle>
+                    <CardDescription>Setup monthly and upfront pricing, promotional thresholds, and cost tracking</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-6">
 
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <Label htmlFor="pricing_setup">Setup Fee (Once-off)</Label>
-                    <Input
-                      id="pricing_setup"
-                      type="number"
-                      step="0.01"
-                      {...register('pricing_setup', { valueAsNumber: true })}
-                      placeholder="e.g., 2500.00"
-                    />
-                    {errors.pricing_setup && (
-                      <p className="text-sm text-destructive">{errors.pricing_setup.message}</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Promotional Pricing */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PiTagBold className="h-5 w-5 text-circleTel-orange" />
-                    Promotional Pricing
-                  </CardTitle>
-                  <CardDescription>
-                    Configure special deals and promotional offers
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Enable Promotion Toggle */}
-                  <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg border border-orange-100">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="is_promotional" className="text-base font-medium">
-                        Enable Promotional Pricing
-                      </Label>
-                      <div className="text-sm text-muted-foreground">
-                        Activate a special deal for this product
-                      </div>
-                    </div>
-                    <Switch
-                      id="is_promotional"
-                      checked={isPromotional}
-                      onCheckedChange={(checked) => setValue('is_promotional', checked)}
-                      className="h-7 w-14 data-[state=checked]:bg-circleTel-orange data-[state=unchecked]:bg-gray-300 transition-colors shadow-inner"
-                    />
-                  </div>
-
-                  {/* Promotional Fields (shown when enabled) */}
-                  {isPromotional && (
-                    <div className="space-y-4 animate-in fade-in duration-200">
-                      {/* Discount Type Selection */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Discount Type</Label>
-                          <Select
-                            value={promoDiscountType || 'percentage'}
-                            onValueChange={(value) => setValue('promo_discount_type', value as 'percentage' | 'fixed')}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="percentage">Percentage Off</SelectItem>
-                              <SelectItem value="fixed">Fixed Amount Off</SelectItem>
-                            </SelectContent>
-                          </Select>
+                    {/* Margin Calculator Summary - Compact */}
+                    <div className="border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-6">
+                      <div className="bg-gray-50 border-b border-gray-200 pb-2 pt-3 px-4 flex items-center justify-between">
+                        <div className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <PiTrendUpBold className="h-4 w-4 text-green-600" />
+                          Cost & Margin Analysis
                         </div>
-                        <div className="space-y-2">
-                          <Label>
-                            Discount Value {promoDiscountType === 'percentage' ? '(%)' : '(R)'}
-                          </Label>
-                          <Input
-                            type="number"
-                            {...register('promo_discount_value', { valueAsNumber: true })}
-                            placeholder={promoDiscountType === 'percentage' ? 'e.g., 20' : 'e.g., 100'}
-                          />
-                        </div>
+                        {priceCalculations.usingBreakdown && (
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600 border-blue-200">
+                            Cost Breakdown Active
+                          </Badge>
+                        )}
                       </div>
-
-                      {/* Promo Price Display */}
-                      <div className="space-y-2">
-                        <Label>Promotional Price (ZAR)</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          {...register('promo_price', { valueAsNumber: true })}
-                          placeholder="Final promotional price (leave blank to auto-calculate)"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Leave blank to auto-calculate from discount
-                        </p>
-                      </div>
-
-                      {/* Promo Code */}
-                      <div className="space-y-2">
-                        <Label>Promo Code (Optional)</Label>
-                        <Input
-                          {...register('promo_code')}
-                          placeholder="e.g., SUMMER25"
-                        />
-                      </div>
-
-                      {/* Date Range */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Start Date</Label>
-                          <Input
-                            type="date"
-                            {...register('promo_start_date')}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>End Date</Label>
-                          <Input
-                            type="date"
-                            {...register('promo_end_date')}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Live Preview */}
-                      {pricingMonthly && promoDiscountValue && (
-                        <div className="p-4 bg-slate-50 rounded-lg border">
-                          <p className="text-sm font-medium mb-2">Preview</p>
-                          <div className="flex items-baseline gap-2 flex-wrap">
-                            <span className="text-2xl font-bold text-circleTel-orange">
-                              R {calculatedPromoPrice}
-                            </span>
-                            <span className="text-lg text-muted-foreground line-through">
-                              R {Math.round(pricingMonthly)}
-                            </span>
-                            <Badge className="bg-red-500 text-white">
-                              {promoDiscountType === 'percentage'
-                                ? `${promoDiscountValue}% OFF`
-                                : `R${promoDiscountValue} OFF`
-                              }
-                            </Badge>
+                      <div className="pt-3 px-4 pb-4">
+                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                          <div className="text-center p-2.5 bg-red-50 rounded text-red-700">
+                            <p className="text-[10px] uppercase font-bold tracking-wider opacity-70 mb-0.5">Total Cost</p>
+                            <p className="text-base font-bold">{formatCurrency(priceCalculations.cost)}</p>
+                          </div>
+                          <div className="text-center p-2.5 bg-gray-50 rounded">
+                            <p className="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-0.5">Selling Price</p>
+                            <p className="text-base font-bold text-gray-900">{formatCurrency(priceCalculations.sellingPriceExclVat)}</p>
+                          </div>
+                          <div className="text-center p-2.5 bg-orange-50 rounded text-circleTel-orange">
+                            <p className="text-[10px] uppercase font-bold tracking-wider opacity-80 mb-0.5">Incl. VAT</p>
+                            <p className="text-base font-bold">{formatCurrency(priceCalculations.sellingPriceInclVat)}</p>
+                          </div>
+                          <div className={`text-center p-2.5 rounded ${priceCalculations.marginPercentage >= 30 ? 'bg-green-50 text-green-700' : priceCalculations.marginPercentage >= 20 ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700'}`}>
+                            <p className="text-[10px] uppercase font-bold tracking-wider opacity-80 mb-0.5">Margin %</p>
+                            <p className="text-base font-bold">
+                              {priceCalculations.marginPercentage.toFixed(1)}%
+                            </p>
+                          </div>
+                          <div className="text-center p-2.5 bg-gray-50 rounded">
+                            <p className="text-[10px] uppercase font-bold text-gray-500 tracking-wider mb-0.5">Once-off</p>
+                            <p className="text-base font-bold text-gray-900">{formatCurrency(0)}</p>
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
 
-            {/* Cost Breakdown Tab */}
-            <TabsContent value="cost-breakdown" className="space-y-6">
-              {params.id && typeof params.id === 'string' && (
-                <ProductCostBreakdown
-                  packageId={params.id}
-                  sellingPriceExclVat={priceCalculations.sellingPriceExclVat}
-                  onTotalCostChange={setTotalCostFromBreakdown}
-                />
-              )}
-            </TabsContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Selling Price */}
+                      <div className="space-y-5">
+                        <div className="flex items-center gap-2">
+                          <PiCurrencyDollarBold className="h-5 w-5 text-circleTel-orange" />
+                          <h4 className="font-semibold text-gray-900">Selling Price</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="pricing_monthly" className="text-sm font-semibold">
+                              Monthly Fee (Excl. VAT) *
+                            </Label>
+                            <Input
+                              id="pricing_monthly"
+                              type="number"
+                              step="0.01"
+                              {...register('pricing_monthly', { valueAsNumber: true })}
+                              placeholder="e.g., 749.00"
+                            />
+                            {errors.pricing_monthly && (
+                              <p className="text-sm text-destructive">{errors.pricing_monthly.message}</p>
+                            )}
+                          </div>
 
-            {/* Connectivity Tab */}
-            <TabsContent value="connectivity" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PiWifiHighBold className="h-5 w-5 text-blue-600" />
-                    Connectivity Specifications
-                  </CardTitle>
-                  <CardDescription>
-                    Speed, data limits, and contract terms
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="pricing_download_speed">Download Speed (Mbps) *</Label>
-                      <Input
-                        id="pricing_download_speed"
-                        type="number"
-                        {...register('pricing_download_speed', { valueAsNumber: true })}
-                        placeholder="e.g., 50"
-                        className="font-semibold text-lg"
+                          <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+                            <p className="text-[10px] font-bold text-orange-600 uppercase tracking-widest mb-0.5">Price Incl. VAT</p>
+                            <p className="text-xl font-bold text-circleTel-orange">
+                              {formatCurrency(priceCalculations.sellingPriceInclVat)}
+                            </p>
+                            <p className="text-[11px] text-gray-500 mt-1">
+                              VAT: {formatCurrency(priceCalculations.vatAmount)}
+                            </p>
+                          </div>
+
+                          <div className="space-y-1.5 pt-2">
+                            <Label htmlFor="pricing_setup" className="text-sm">Setup Fee (Once-off)</Label>
+                            <Input
+                              id="pricing_setup"
+                              type="number"
+                              step="0.01"
+                              {...register('pricing_setup', { valueAsNumber: true })}
+                              placeholder="e.g., 2500.00"
+                            />
+                            {errors.pricing_setup && (
+                              <p className="text-sm text-destructive">{errors.pricing_setup.message}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Cost Input & Promos */}
+                      <div className="space-y-6">
+                        <div className={`space-y-4 ${priceCalculations.usingBreakdown ? 'opacity-60 grayscale' : ''}`}>
+                          <div className="flex items-center gap-2">
+                            <PiCurrencyDollarBold className="h-5 w-5 text-red-500" />
+                            <h4 className="font-semibold text-gray-900">Base Wholesale Cost</h4>
+                          </div>
+                          
+                          <div className="space-y-1.5">
+                            <Label htmlFor="wholesale_cost" className="text-sm">Monthly Cost (ZAR)</Label>
+                            <Input
+                              id="wholesale_cost"
+                              type="number"
+                              step="0.01"
+                              {...register('wholesale_cost', { valueAsNumber: true })}
+                              placeholder="e.g., 450.00"
+                              disabled={priceCalculations.usingBreakdown}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              {priceCalculations.usingBreakdown 
+                                ? 'Overridden by breakdown below.'
+                                : 'Enter your total monthly wholesale amount.'
+                              }
+                            </p>
+                          </div>
+                        </div>
+
+                        <Separator />
+
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <PiTagBold className="h-5 w-5 text-circleTel-orange" />
+                              <Label htmlFor="is_promotional" className="font-semibold cursor-pointer text-base">
+                                Special Promotion
+                              </Label>
+                            </div>
+                            <Switch
+                              id="is_promotional"
+                              checked={isPromotional}
+                              onCheckedChange={(checked) => setValue('is_promotional', checked)}
+                              className="data-[state=checked]:bg-circleTel-orange"
+                            />
+                          </div>
+
+                          {isPromotional && (
+                            <div className="space-y-4 pt-1 animate-in fade-in duration-200">
+                              <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div className="space-y-1.5">
+                                  <Label>Type</Label>
+                                  <Select
+                                    value={promoDiscountType || 'percentage'}
+                                    onValueChange={(value) => setValue('promo_discount_type', value as 'percentage' | 'fixed')}
+                                  >
+                                    <SelectTrigger className="h-9">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="percentage">% Off</SelectItem>
+                                      <SelectItem value="fixed">ZAR Off</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="space-y-1.5">
+                                  <Label>Value</Label>
+                                  <Input
+                                    type="number"
+                                    className="h-9"
+                                    {...register('promo_discount_value', { valueAsNumber: true })}
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-1.5">
+                                <Label className="text-xs">Override Promo Price (ZAR)</Label>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  className="h-9"
+                                  {...register('promo_price', { valueAsNumber: true })}
+                                  placeholder="Auto-calculates if blank"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs">Start Date</Label>
+                                  <Input type="date" className="h-9 text-xs" {...register('promo_start_date')} />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs">End Date</Label>
+                                  <Input type="date" className="h-9 text-xs" {...register('promo_end_date')} />
+                                </div>
+                              </div>
+
+                              <div className="space-y-1.5">
+                                <Label className="text-xs">Promo Code</Label>
+                                <Input className="h-9" {...register('promo_code')} placeholder="e.g. SUMMER25" />
+                              </div>
+
+                              {pricingMonthly && promoDiscountValue && (
+                                <div className="p-3 bg-slate-50 flex items-center justify-between rounded border">
+                                  <div>
+                                    <span className="font-bold text-circleTel-orange mr-2">R {calculatedPromoPrice}</span>
+                                    <span className="text-muted-foreground line-through text-xs mr-2">R {Math.round(pricingMonthly)}</span>
+                                  </div>
+                                  <Badge className="bg-red-500 text-white text-[10px]">
+                                    {promoDiscountType === 'percentage' ? `${promoDiscountValue}% OFF` : `R${promoDiscountValue} OFF`}
+                                  </Badge>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Cost Breakdown Manager */}
+                {params.id && typeof params.id === 'string' && (
+                  <ProductCostBreakdown
+                    packageId={params.id}
+                    sellingPriceExclVat={priceCalculations.sellingPriceExclVat}
+                    onTotalCostChange={setTotalCostFromBreakdown}
+                  />
+                )}
+
+              </div>
+
+
+              {/* Sidebar Column (Right - 1/3 width) */}
+              <div className="space-y-6">
+                
+                {/* Status & Visibility */}
+                <Card className="shadow-sm border-gray-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <PiGearBold className="h-5 w-5 text-gray-600" />
+                      Status & Visibility
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-emerald-50/50 rounded-lg border border-emerald-100">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="is_active" className="text-sm font-semibold text-emerald-900 cursor-pointer">Active Product</Label>
+                        <div className="text-xs text-emerald-700/80">
+                          Available for purchase
+                        </div>
+                      </div>
+                      <Switch
+                        id="is_active"
+                        checked={isActive}
+                        onCheckedChange={(checked) => setValue('is_active', checked)}
+                        className="data-[state=checked]:bg-emerald-500 shadow-sm"
                       />
-                      {errors.pricing_download_speed && (
-                        <p className="text-sm text-destructive">{errors.pricing_download_speed.message}</p>
-                      )}
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="pricing_upload_speed">Upload Speed (Mbps) *</Label>
-                      <Input
-                        id="pricing_upload_speed"
-                        type="number"
-                        {...register('pricing_upload_speed', { valueAsNumber: true })}
-                        placeholder="e.g., 25"
-                        className="font-semibold text-lg"
-                      />
-                      {errors.pricing_upload_speed && (
-                        <p className="text-sm text-destructive">{errors.pricing_upload_speed.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="data_limit">Data Limit</Label>
-                      <Input
-                        id="data_limit"
-                        {...register('data_limit')}
-                        placeholder="e.g., Unlimited, 100GB"
+                    <div className="flex items-center justify-between p-3 bg-amber-50/50 rounded-lg border border-amber-100">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="featured" className="text-sm font-semibold text-amber-900 cursor-pointer">Featured</Label>
+                        <div className="text-xs text-amber-700/80">
+                          Highlight in top results
+                        </div>
+                      </div>
+                      <Switch
+                        id="featured"
+                        checked={featured}
+                        onCheckedChange={(checked) => setValue('featured', checked)}
+                        className="data-[state=checked]:bg-amber-500 shadow-sm"
                       />
                     </div>
+                  </CardContent>
+                </Card>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="contract_duration">Contract Duration</Label>
-                      <Input
-                        id="contract_duration"
-                        {...register('contract_duration')}
-                        placeholder="e.g., Month-to-Month, 12 Months"
-                      />
+                {/* Connectivity Specifications */}
+                <Card className="shadow-sm border-gray-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <PiWifiHighBold className="h-5 w-5 text-blue-600" />
+                      Connectivity Specs
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="pricing_download_speed" className="text-xs font-semibold text-gray-600">Download (Mbps)</Label>
+                        <Input
+                          id="pricing_download_speed"
+                          type="number"
+                          {...register('pricing_download_speed', { valueAsNumber: true })}
+                          placeholder="e.g., 50"
+                          className="h-9"
+                        />
+                        {errors.pricing_download_speed && (
+                          <p className="text-[10px] text-destructive">{errors.pricing_download_speed.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="pricing_upload_speed" className="text-xs font-semibold text-gray-600">Upload (Mbps)</Label>
+                        <Input
+                          id="pricing_upload_speed"
+                          type="number"
+                          {...register('pricing_upload_speed', { valueAsNumber: true })}
+                          placeholder="e.g., 25"
+                          className="h-9"
+                        />
+                        {errors.pricing_upload_speed && (
+                          <p className="text-[10px] text-destructive">{errors.pricing_upload_speed.message}</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
-            {/* Features Tab */}
-            <TabsContent value="features" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PiFileTextBold className="h-5 w-5 text-purple-600" />
-                    Description & Features
-                  </CardTitle>
-                  <CardDescription>
-                    Product description and feature list
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Separator className="bg-gray-100" />
+
+                    <div className="space-y-3">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="data_limit" className="text-xs font-semibold text-gray-600">Data Limit</Label>
+                        <Input
+                          id="data_limit"
+                          {...register('data_limit')}
+                          placeholder="e.g., Unlimited, 100GB"
+                          className="h-9"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="contract_duration" className="text-xs font-semibold text-gray-600">Contract Duration</Label>
+                        <Input
+                          id="contract_duration"
+                          {...register('contract_duration')}
+                          placeholder="e.g., Month-to-Month, 12 Months"
+                          className="h-9"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Change Reason (Audit Log) */}
+                <Card className="border-2 border-orange-200 bg-orange-50/30 shadow-sm overflow-hidden">
+                  <div className="h-1 w-full bg-circleTel-orange"></div>
+                  <CardHeader className="py-4">
+                    <CardTitle className="text-base text-gray-900">Change Reason *</CardTitle>
+                    <CardDescription className="text-xs">
+                      Required for your audit log.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
                     <Textarea
-                      id="description"
-                      {...register('description')}
-                      placeholder="Product description..."
-                      rows={4}
+                      {...register('change_reason')}
+                      placeholder="e.g., Pricing updated per wholesale change"
+                      rows={3}
+                      className="resize-none text-sm"
                     />
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <FeaturesEditor
-                      features={features}
-                      onChange={(newFeatures) => setValue('features', newFeatures)}
-                    />
-                    {errors.features && (
-                      <p className="text-sm text-destructive">{errors.features.message}</p>
+                    {errors.change_reason && (
+                      <p className="text-xs text-destructive mt-1.5 font-medium">{errors.change_reason.message}</p>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  </CardContent>
+                </Card>
+              </div>
 
-            {/* Status Tab */}
-            <TabsContent value="status" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PiGearBold className="h-5 w-5 text-gray-600" />
-                    Status & Visibility
-                  </CardTitle>
-                  <CardDescription>
-                    Control product visibility and featuring
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="is_active" className="text-base font-medium">Active</Label>
-                      <div className="text-sm text-muted-foreground">
-                        Make this product available for sale
-                      </div>
-                    </div>
-                    <Switch
-                      id="is_active"
-                      checked={isActive}
-                      onCheckedChange={(checked) => setValue('is_active', checked)}
-                      className="h-7 w-14 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-gray-300 transition-colors shadow-inner"
-                    />
-                  </div>
+            </div>
 
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="featured" className="text-base font-medium">Featured</Label>
-                      <div className="text-sm text-muted-foreground">
-                        Highlight this product on the homepage
-                      </div>
-                    </div>
-                    <Switch
-                      id="featured"
-                      checked={featured}
-                      onCheckedChange={(checked) => setValue('featured', checked)}
-                      className="h-7 w-14 data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-gray-300 transition-colors shadow-inner"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-
-          {/* Change Reason - Always visible outside tabs */}
-          <Card className="border-2 border-amber-200 bg-amber-50/50">
-            <CardHeader>
-              <CardTitle>Change Reason *</CardTitle>
-              <CardDescription>
-                Explain why you&apos;re making these changes (for audit log)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                {...register('change_reason')}
-                placeholder="e.g., Updated pricing for Q1 2025, Added new features, Fixed description typo"
-                rows={2}
-              />
-              {errors.change_reason && (
-                <p className="text-sm text-destructive mt-2">{errors.change_reason.message}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Actions - Always visible */}
-          <div className="flex justify-end gap-4 sticky bottom-4 bg-white/80 backdrop-blur-sm p-4 rounded-lg border shadow-lg">
-            <Link href="/admin/products">
-              <Button variant="outline" type="button">
-                Cancel
-              </Button>
-            </Link>
-            <Button
-              type="submit"
-              disabled={saving}
-              className="bg-circleTel-orange text-white font-semibold px-6 py-2.5 rounded-lg shadow-md hover:bg-[#e07018] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-md"
-            >
-              {saving ? (
-                <>
-                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <PiFloppyDiskBold className="h-4 w-4 mr-2" />
-                  Save Changes
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
+            {/* Actions - Sticky Footer */}
+            <div className="flex justify-between items-center sticky bottom-4 bg-white/90 backdrop-blur border border-gray-200 p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-20 transition-all">
+              <div className="text-sm text-gray-500 font-medium hidden sm:block">
+                Please ensure all fields are verified before saving.
+              </div>
+              <div className="flex justify-end gap-3 w-full sm:w-auto">
+                <Link href="/admin/products">
+                  <Button variant="outline" type="button" className="px-6 border-gray-300">
+                    Cancel
+                  </Button>
+                </Link>
+                <Button
+                  type="submit"
+                  disabled={saving}
+                  className="bg-circleTel-orange text-white font-semibold px-8 hover:bg-[#e07018] shadow text-sm group"
+                >
+                  {saving ? (
+                    <>
+                      <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <PiFloppyDiskBold className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+                      Save Product
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </PermissionGate>

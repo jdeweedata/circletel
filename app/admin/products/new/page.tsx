@@ -318,6 +318,7 @@ export default function NewProduct() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="residential">Residential</SelectItem>
+                    <SelectItem value="soho">SOHO</SelectItem>
                     <SelectItem value="business">Business</SelectItem>
                     <SelectItem value="enterprise">Enterprise</SelectItem>
                     <SelectItem value="wholesale">Wholesale</SelectItem>
@@ -336,6 +337,7 @@ export default function NewProduct() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="home-users">Home Users</SelectItem>
+                    <SelectItem value="soho">SOHO / Work from Home</SelectItem>
                     <SelectItem value="small-business">Small Business</SelectItem>
                     <SelectItem value="medium-business">Medium Business</SelectItem>
                     <SelectItem value="large-enterprise">Large Enterprise</SelectItem>
