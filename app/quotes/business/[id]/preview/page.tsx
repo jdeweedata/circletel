@@ -689,13 +689,13 @@ export default function QuotePreviewPage({ params }: Props) {
             </div>
 
             {/* Additional Notes */}
-            {quote.notes && (
+            {quote.customer_notes && (
               <div className="mt-6">
                 <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase">
                   Additional Notes
                 </h4>
                 <div className="bg-blue-50 border border-blue-200 p-3 text-sm">
-                  <p className="text-gray-700 whitespace-pre-wrap">{quote.notes}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap">{quote.customer_notes}</p>
                 </div>
               </div>
             )}
