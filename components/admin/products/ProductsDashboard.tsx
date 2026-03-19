@@ -728,6 +728,7 @@ export function ProductsDashboard({ defaultStatus }: { defaultStatus?: StatFilte
                                       hasPricingPermission={hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING)}
                                       hasCreatePermission={hasPermission(PERMISSIONS.PRODUCTS.CREATE)}
                                       dragHandleProps={provided.dragHandleProps}
+                                      hideCategoryBadge={true}
                                     />
                                   </div>
                                 )}

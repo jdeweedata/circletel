@@ -57,6 +57,7 @@ export interface AdminProductCardProps {
     lastRetryAt?: string | null;
     errorDetails?: any;
   };
+  hideCategoryBadge?: boolean;
 }
 
 /**
@@ -89,6 +90,7 @@ export function AdminProductCard({
   isDragging = false,
   dragHandleProps,
   integrationStatus,
+  hideCategoryBadge = false,
 }: AdminProductCardProps) {
   // Get sync status indicator
   const getSyncStatus = () => {
@@ -221,14 +223,14 @@ export function AdminProductCard({
       </div>
 
       {/* Card Content */}
-      <div className="p-5">
+      <div className="p-4">
         {/* Category Badge - Top Left */}
-        {product.category && (
-          <div className="mb-4">
+        {product.category && !hideCategoryBadge && (
+          <div className="mb-3">
             <Badge
               className={cn(
                 'text-[10px] font-bold uppercase tracking-wider border-0',
-                'px-2.5 py-1 rounded',
+                'px-2 py-0.5 rounded',
                 theme.bg,
                 theme.color
               )}
@@ -238,69 +240,59 @@ export function AdminProductCard({
           </div>
         )}
 
-        {/* Product Icon + Name + SKU */}
-        <div className="flex flex-col items-center text-center mb-4">
+        {/* Product Icon + Name + SKU + Price (Horizontal) */}
+        <div className="flex items-start gap-4 mb-3">
           {/* Product Icon */}
-          <div className="h-12 w-12 bg-slate-100 rounded-xl flex items-center justify-center mb-3">
-            <CategoryIcon className="h-6 w-6 text-slate-600" />
+          <div className="h-10 w-10 shrink-0 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center">
+            <CategoryIcon className="h-5 w-5 text-slate-500" />
           </div>
 
-          {/* Product Name */}
-          <h3 className="font-semibold text-gray-900 text-base leading-tight mb-1 line-clamp-2">
-            {product.name}
-          </h3>
-
-          {/* SKU */}
-          <span className="text-xs text-gray-400 font-mono">
-            {product.sku}
-          </span>
-        </div>
-
-        {/* Price Display */}
-        <div className="text-center mb-5">
-          <div className="flex items-baseline justify-center gap-1">
-            <span className="text-sm text-gray-500">R</span>
-            <span className="text-3xl font-bold text-gray-900">
-              {Math.round(parseFloat(String(product.base_price_zar)))}
-            </span>
-            <span className="text-sm text-gray-400">/ month</span>
-          </div>
-        </div>
-
-        {/* Speed Specs Grid */}
-        {(product.pricing?.download_speed || product.pricing?.upload_speed) && (
-          <div className="bg-slate-50 rounded-xl p-4 mb-4">
-            <div className="grid grid-cols-2 gap-4">
-              {/* Download Speed */}
-              {product.pricing?.download_speed && (
-                <div className="flex items-center gap-2">
-                  <PiArrowDownBold className="h-4 w-4 text-emerald-500" />
-                  <div>
-                    <div className="text-[10px] text-slate-400 uppercase font-semibold tracking-wide">
-                      DOWN
-                    </div>
-                    <div className="text-sm font-semibold text-slate-700">
-                      {product.pricing.download_speed}Mbps
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Upload Speed */}
-              {product.pricing?.upload_speed && (
-                <div className="flex items-center gap-2">
-                  <PiArrowUpBold className="h-4 w-4 text-blue-500" />
-                  <div>
-                    <div className="text-[10px] text-slate-400 uppercase font-semibold tracking-wide">
-                      UP
-                    </div>
-                    <div className="text-sm font-semibold text-slate-700">
-                      {product.pricing.upload_speed}Mbps
-                    </div>
-                  </div>
-                </div>
-              )}
+          <div className="flex-1 min-w-0">
+            {/* Product Name & SKU */}
+            <div className="flex flex-col mb-1">
+              <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
+                {product.name}
+              </h3>
+              <span className="text-[11px] text-gray-500 font-mono truncate mt-0.5">
+                {product.sku}
+              </span>
             </div>
+            
+            {/* Price Display */}
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-xs text-gray-500">R</span>
+              <span className="text-lg font-bold text-gray-900">
+                {Math.round(parseFloat(String(product.base_price_zar)))}
+              </span>
+              <span className="text-[10px] text-gray-400">/ mo</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Speed Specs Inline */}
+        {(product.pricing?.download_speed || product.pricing?.upload_speed) && (
+          <div className="flex items-center gap-4 bg-slate-50/80 rounded-lg px-3 py-2 mb-3 border border-slate-100">
+            {/* Download Speed */}
+            {product.pricing?.download_speed && (
+              <div className="flex items-center gap-1.5 text-slate-700">
+                <PiArrowDownBold className="h-3 w-3 text-emerald-500" />
+                <div className="flex items-baseline gap-1">
+                  <span className="text-[13px] font-semibold">{product.pricing.download_speed}</span>
+                  <span className="text-[10px] text-slate-400 font-medium">Mbps</span>
+                </div>
+              </div>
+            )}
+
+            {/* Upload Speed */}
+            {product.pricing?.upload_speed && (
+              <div className="flex items-center gap-1.5 text-slate-700">
+                <PiArrowUpBold className="h-3 w-3 text-blue-500" />
+                <div className="flex items-baseline gap-1">
+                  <span className="text-[13px] font-semibold">{product.pricing.upload_speed}</span>
+                  <span className="text-[10px] text-slate-400 font-medium">Mbps</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

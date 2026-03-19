@@ -61,39 +61,39 @@ export function CategorySection({
 
   const colorClasses = {
     blue: {
-      bg: 'bg-blue-50 hover:bg-blue-100',
-      text: 'text-blue-900',
-      icon: 'text-blue-600',
-      badge: 'bg-blue-100 text-blue-800',
-      border: 'border-blue-200',
+      bg: 'hover:bg-slate-50',
+      text: 'text-slate-900',
+      icon: 'text-blue-500',
+      badge: 'bg-blue-50 text-blue-700 border-blue-100',
+      border: 'border-slate-200',
     },
     green: {
-      bg: 'bg-green-50 hover:bg-green-100',
-      text: 'text-green-900',
-      icon: 'text-green-600',
-      badge: 'bg-green-100 text-green-800',
-      border: 'border-green-200',
+      bg: 'hover:bg-slate-50',
+      text: 'text-slate-900',
+      icon: 'text-emerald-500',
+      badge: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+      border: 'border-slate-200',
     },
     orange: {
-      bg: 'bg-orange-50 hover:bg-orange-100',
-      text: 'text-orange-900',
-      icon: 'text-orange-600',
-      badge: 'bg-orange-100 text-orange-800',
-      border: 'border-orange-200',
+      bg: 'hover:bg-slate-50',
+      text: 'text-slate-900',
+      icon: 'text-orange-500',
+      badge: 'bg-orange-50 text-orange-700 border-orange-100',
+      border: 'border-slate-200',
     },
     purple: {
-      bg: 'bg-purple-50 hover:bg-purple-100',
-      text: 'text-purple-900',
-      icon: 'text-purple-600',
-      badge: 'bg-purple-100 text-purple-800',
-      border: 'border-purple-200',
+      bg: 'hover:bg-slate-50',
+      text: 'text-slate-900',
+      icon: 'text-purple-500',
+      badge: 'bg-purple-50 text-purple-700 border-purple-100',
+      border: 'border-slate-200',
     },
     gray: {
-      bg: 'bg-gray-50 hover:bg-gray-100',
-      text: 'text-gray-900',
-      icon: 'text-gray-600',
-      badge: 'bg-gray-100 text-gray-800',
-      border: 'border-gray-200',
+      bg: 'hover:bg-slate-50',
+      text: 'text-slate-900',
+      icon: 'text-slate-500',
+      badge: 'bg-slate-100 text-slate-700 border-slate-200',
+      border: 'border-slate-200',
     },
   };
 
@@ -105,7 +105,7 @@ export function CategorySection({
       <button
         onClick={handleToggle}
         className={cn(
-          'w-full flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200',
+          'w-full flex items-center justify-between p-3 border-b transition-colors duration-200 rounded-t-lg',
           colors.bg,
           colors.border,
           'focus:outline-none focus:ring-2 focus:ring-circleTel-orange focus:ring-offset-2'
@@ -128,9 +128,9 @@ export function CategorySection({
 
           {/* Title and Description */}
           <div className="text-left">
-            <h3 className={cn('text-lg font-bold', colors.text)}>{title}</h3>
+            <h3 className={cn('text-base font-semibold', colors.text)}>{title}</h3>
             {description && (
-              <p className="text-sm text-gray-600 mt-0.5">{description}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{description}</p>
             )}
           </div>
         </div>
