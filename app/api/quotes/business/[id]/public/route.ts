@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
+import { fetchQuoteTerms } from '@/lib/quotes/quote-terms';
 
 export async function GET(
   request: NextRequest,
@@ -59,12 +60,17 @@ export async function GET(
       );
     }
 
+    // Fetch applicable terms based on service types in this quote
+    const serviceTypes = [...new Set((items || []).map((item: any) => item.service_type))];
+    const terms = await fetchQuoteTerms(serviceTypes, quote.contract_term);
+
     return NextResponse.json({
       success: true,
       quote: {
         ...quote,
         items: items || []
-      }
+      },
+      terms
     });
   } catch (error: any) {
     apiLogger.error('Get public quote error', { error: error instanceof Error ? error.message : String(error) });
