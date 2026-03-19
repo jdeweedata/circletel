@@ -12,6 +12,11 @@ import { calculatePricingBreakdown } from './quote-calculator';
 interface PDFOptions {
   includeTerms?: boolean;
   includeSignature?: boolean;
+  terms?: Array<{ title: string; text: string; serviceType: string; displayOrder: number }>;
+  benefits?: {
+    perItem: Array<{ serviceName: string; serviceType: string; benefits: string[] }>;
+    global: string[];
+  };
 }
 
 /**
@@ -354,6 +359,55 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   }
 
   // ===================================
+  // INCLUSIVE BENEFITS
+  // ===================================
+  if (options.benefits) {
+    if (yPos > pageHeight - 80) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    doc.setFillColor(230, 233, 239);
+    doc.rect(20, yPos - 5, pageWidth - 40, 8, 'F');
+    doc.setTextColor(31, 41, 55);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('INCLUSIVE BENEFITS', 22, yPos);
+    yPos += 10;
+
+    doc.setFontSize(8);
+    doc.setTextColor(75, 85, 99);
+
+    // Per-item benefits
+    for (const itemBenefits of options.benefits.perItem) {
+      doc.setFont('helvetica', 'bold');
+      doc.text(itemBenefits.serviceName, 22, yPos);
+      yPos += 5;
+      doc.setFont('helvetica', 'normal');
+
+      for (const benefit of itemBenefits.benefits) {
+        if (yPos > pageHeight - 20) { doc.addPage(); yPos = 20; }
+        doc.text(`  •  ${benefit}`, 24, yPos);
+        yPos += 4;
+      }
+      yPos += 3;
+    }
+
+    // Global benefits
+    doc.setFont('helvetica', 'bold');
+    doc.text('All CircleTel Business Services', 22, yPos);
+    yPos += 5;
+    doc.setFont('helvetica', 'normal');
+
+    for (const benefit of options.benefits.global) {
+      if (yPos > pageHeight - 20) { doc.addPage(); yPos = 20; }
+      doc.text(`  •  ${benefit}`, 24, yPos);
+      yPos += 4;
+    }
+    yPos += 10;
+  }
+
+  // ===================================
   // TERMS & CONDITIONS
   // ===================================
 
@@ -377,23 +431,25 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
     doc.setFontSize(8);
     doc.setTextColor(75, 85, 99);
 
-    const terms = [
-      '1. This quote is valid for 30 days from the date of issue.',
-      '2. Prices are quoted in South African Rands (ZAR) and include 15% VAT.',
-      '3. Installation is subject to a successful site survey and feasibility assessment.',
-      '4. Services are provided subject to network availability at the specified address.',
-      '5. Contract terms are binding for the specified duration. Early termination fees may apply.',
-      '6. Monthly fees are billed in advance and are due on the 1st of each month.',
-      '7. Installation fees are payable upon contract signing or before installation commences.',
-      '8. Customer is responsible for providing suitable infrastructure and access for installation.',
-      '9. Service Level Agreements (SLAs) are detailed in the full service agreement.',
-      '10. CircleTel reserves the right to amend pricing subject to 30 days written notice.'
-    ];
+    const termsLines = options.terms && options.terms.length > 0
+      ? options.terms.map((t, i) => `${i + 1}. ${t.title}: ${t.text}`)
+      : [
+          '1. This quote is valid for 30 days from the date of issue.',
+          '2. Prices are quoted in South African Rands (ZAR) and include 15% VAT.',
+          '3. Installation is subject to a successful site survey and feasibility assessment.',
+          '4. Services are provided subject to network availability at the specified address.',
+          '5. Contract terms are binding for the specified duration. Early termination fees may apply.',
+          '6. Monthly fees are billed in advance and are due on the 1st of each month.',
+          '7. Installation fees are payable upon contract signing or before installation commences.',
+          '8. Customer is responsible for providing suitable infrastructure and access for installation.',
+          '9. Service Level Agreements (SLAs) are detailed in the full service agreement.',
+          '10. CircleTel reserves the right to amend pricing subject to 30 days written notice.'
+        ];
 
-    terms.forEach(term => {
-      const termLines = doc.splitTextToSize(term, pageWidth - 45);
-      doc.text(termLines, 22, yPos);
-      yPos += 5 * termLines.length;
+    termsLines.forEach(term => {
+      const termTextLines = doc.splitTextToSize(term, pageWidth - 45);
+      doc.text(termTextLines, 22, yPos);
+      yPos += 5 * termTextLines.length;
     });
 
     yPos += 10;
