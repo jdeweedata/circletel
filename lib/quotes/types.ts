@@ -131,6 +131,15 @@ export interface BusinessQuoteItem {
   notes: string | null;
   display_order: number;
 
+  // Product benefits snapshot (captured at quote creation)
+  benefits_snapshot?: {
+    features: string[];
+    formatted_benefits: Array<{
+      text: string;
+      category?: 'benefit' | 'technical' | 'contract' | 'support';
+    }>;
+  } | null;
+
   // Audit
   created_at: string;
   updated_at: string;
@@ -198,6 +207,7 @@ export interface BusinessQuoteTerms {
   terms_text: string;
   version: number;
   active: boolean;
+  display_order: number;
   created_at: string;
   updated_at: string;
   created_by: string | null;
