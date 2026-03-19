@@ -9,8 +9,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
-import { chromium } from 'playwright-core';
-import chromiumPkg from '@sparticuz/chromium';
+import { generateQuotePDFBlob } from '@/lib/quotes/pdf-generator';
+import { fetchQuoteTerms } from '@/lib/quotes/quote-terms';
+import { buildQuoteBenefits } from '@/lib/quotes/quote-benefits';
+import type { QuoteDetails } from '@/lib/quotes/types';
 import { apiLogger } from '@/lib/logging';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -61,56 +63,42 @@ export async function POST(
       );
     }
 
-    // Generate PDF using Playwright by rendering the actual preview page
-    // This ensures the PDF matches the preview page exactly
-    // Use localhost in development, otherwise use the configured app URL
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    const baseUrl = isDevelopment
-      ? 'http://localhost:3001'  // Dev server port
-      : (process.env.NEXT_PUBLIC_APP_URL || 'https://www.circletel.co.za');
-    const previewUrl = `${baseUrl}/quotes/business/${id}/preview`;
+    // Fetch quote items
+    const { data: items, error: itemsError } = await supabase
+      .from('business_quote_items')
+      .select('*')
+      .eq('quote_id', id)
+      .order('display_order', { ascending: true });
 
-    let pdfBuffer: Buffer;
+    if (itemsError) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to fetch quote items' },
+        { status: 500 }
+      );
+    }
 
-    // Use serverless-optimized Chromium in production, regular Playwright in development
-    const browser = await chromium.launch({
-      headless: true,
-      ...(isDevelopment ? {} : {
-        executablePath: await chromiumPkg.executablePath(),
-        args: chromiumPkg.args,
-      })
+    // Build quote details for PDF generation
+    const quoteDetails: QuoteDetails = {
+      ...quote,
+      items: items || []
+    };
+
+    // Fetch product-linked terms and benefits
+    const serviceTypes = [...new Set((items || []).map((item: any) => item.service_type))];
+    const terms = await fetchQuoteTerms(serviceTypes, quote.contract_term);
+    const benefits = buildQuoteBenefits(quoteDetails.items);
+
+    // Generate PDF using jsPDF (no Playwright/Chromium needed)
+    const pdfBlob = generateQuotePDFBlob(quoteDetails, {
+      includeTerms: true,
+      includeSignature: true,
+      terms,
+      benefits
     });
 
-    try {
-      const context = await browser.newContext();
-      const page = await context.newPage();
-
-      // Navigate to the preview page
-      // Use 'domcontentloaded' instead of 'networkidle' to avoid timeouts with tracking scripts
-      await page.goto(previewUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-
-      // Wait for the page to render (fixed timeout is more reliable than waiting for specific elements)
-      await page.waitForTimeout(3000);
-
-      // Generate PDF with proper page settings
-      const pdf = await page.pdf({
-        format: 'A4',
-        margin: {
-          top: '0.5in',
-          right: '0.5in',
-          bottom: '0.5in',
-          left: '0.5in'
-        },
-        printBackground: true,
-        preferCSSPageSize: true
-      });
-
-      pdfBuffer = Buffer.from(pdf);
-
-      await context.close();
-    } finally {
-      await browser.close();
-    }
+    // Convert Blob to Buffer for email attachment
+    const pdfArrayBuffer = await pdfBlob.arrayBuffer();
+    const pdfBuffer = Buffer.from(pdfArrayBuffer);
 
     // Format currency
     const formatCurrency = (amount: number) => {
