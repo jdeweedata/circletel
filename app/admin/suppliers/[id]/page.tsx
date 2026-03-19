@@ -320,306 +320,308 @@ export default function SupplierDetailPage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Products</CardDescription>
-            <CardTitle className="text-3xl">{supplier.stats.total_products.toLocaleString()}</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Active Products</CardDescription>
-            <CardTitle className="text-3xl">{supplier.stats.active_products.toLocaleString()}</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>In Stock</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{supplier.stats.in_stock_products.toLocaleString()}</CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Sync Status</CardDescription>
-            <CardTitle className="flex items-center gap-2">
-              {getSyncStatusBadge(supplier.sync_status as SyncStatus, supplier.sync_error)}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="text-xs text-gray-500">
-              Last sync: {formatDate(supplier.last_synced_at)}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Enrichment Stats Card */}
-      {enrichmentStats && (
-        <Card className="mb-6 border-purple-200 bg-purple-50/50">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <PiSparkleBold className="w-4 h-4 text-purple-600" />
-                <CardTitle className="text-lg">AI Enrichment Status</CardTitle>
-              </div>
-              {enrichmentStats.pending > 0 && enrichmentStats.cost_estimate && (
-                <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300">
-                  Est. ${enrichmentStats.cost_estimate.estimated_cost_usd.toFixed(2)} USD
-                </Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <p className="text-sm text-gray-500">Enriched</p>
-                <p className="text-2xl font-bold text-green-600">{enrichmentStats.enriched}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Pending</p>
-                <p className="text-2xl font-bold text-orange-600">{enrichmentStats.pending}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Progress</p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {enrichmentStats.total > 0
-                    ? Math.round((enrichmentStats.enriched / enrichmentStats.total) * 100)
-                    : 0}%
-                </p>
-              </div>
-            </div>
-            {enrichmentStats.total > 0 && (
-              <div className="mt-3">
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-purple-600 h-2 rounded-full transition-all"
-                    style={{ width: `${(enrichmentStats.enriched / enrichmentStats.total) * 100}%` }}
-                  />
+      {/* 2-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        {/* Main Content Column (Left - 75%) */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Products Table */}
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <CardTitle>Products</CardTitle>
+                  <CardDescription>
+                    {totalProducts.toLocaleString()} products from {supplier.name}
+                  </CardDescription>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <div className="relative">
+                    <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      placeholder="Search products..."
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                        setPage(1)
+                      }}
+                      className="pl-9 w-64"
+                    />
+                  </div>
+                  <Select value={stockFilter} onValueChange={(v) => { setStockFilter(v); setPage(1) }}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue placeholder="Stock" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Stock</SelectItem>
+                      <SelectItem value="true">In Stock</SelectItem>
+                      <SelectItem value="false">Out of Stock</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={manufacturerFilter} onValueChange={(v) => { setManufacturerFilter(v); setPage(1) }}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Manufacturer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Manufacturers</SelectItem>
+                      {manufacturers.map(m => (
+                        <SelectItem key={m} value={m}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Products Table */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <CardTitle>Products</CardTitle>
-              <CardDescription>
-                {totalProducts.toLocaleString()} products from {supplier.name}
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <div className="relative">
-                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    setPage(1)
-                  }}
-                  className="pl-9 w-64"
-                />
-              </div>
-              <Select value={stockFilter} onValueChange={(v) => { setStockFilter(v); setPage(1) }}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Stock" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Stock</SelectItem>
-                  <SelectItem value="true">In Stock</SelectItem>
-                  <SelectItem value="false">Out of Stock</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={manufacturerFilter} onValueChange={(v) => { setManufacturerFilter(v); setPage(1) }}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Manufacturer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Manufacturers</SelectItem>
-                  {manufacturers.map(m => (
-                    <SelectItem key={m} value={m}>{m}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {productsLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <PiArrowsClockwiseBold className="w-6 h-6 animate-spin text-gray-400" />
-              <span className="ml-2 text-gray-500">Loading products...</span>
-            </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-12">
-              <PiPackageBold className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">No products found</p>
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Manufacturer</TableHead>
-                    <TableHead className="text-right">Cost Price</TableHead>
-                    <TableHead className="text-right">Retail Price</TableHead>
-                    <TableHead>Stock</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {products.map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          {product.cached_image_path || product.source_image_url ? (
-                            <img
-                              src={product.cached_image_path
-                                ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/supplier-images/${product.cached_image_path}`
-                                : product.source_image_url || ''}
-                              alt={product.name}
-                              className="w-10 h-10 object-contain rounded bg-gray-100"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/placeholder-product.png'
-                              }}
-                            />
-                          ) : (
-                            <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-                              <PiCubeBold className="w-5 h-5 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              {productsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <PiArrowsClockwiseBold className="w-6 h-6 animate-spin text-gray-400" />
+                  <span className="ml-2 text-gray-500">Loading products...</span>
+                </div>
+              ) : products.length === 0 ? (
+                <div className="text-center py-12">
+                  <PiPackageBold className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-500">No products found</p>
+                </div>
+              ) : (
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>SKU</TableHead>
+                        <TableHead>Manufacturer</TableHead>
+                        <TableHead className="text-right">Cost Price</TableHead>
+                        <TableHead className="text-right">Retail Price</TableHead>
+                        <TableHead>Stock</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {products.map((product) => (
+                        <TableRow key={product.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              {product.cached_image_path || product.source_image_url ? (
+                                <img
+                                  src={product.cached_image_path
+                                    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/supplier-images/${product.cached_image_path}`
+                                    : product.source_image_url || ''}
+                                  alt={product.name}
+                                  className="w-10 h-10 object-contain rounded bg-gray-100"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/placeholder-product.png'
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
+                                  <PiCubeBold className="w-5 h-5 text-gray-400" />
+                                </div>
+                              )}
+                              <div className="max-w-[300px]">
+                                <div className="font-medium truncate">{product.name}</div>
+                                {product.category && (
+                                  <div className="text-xs text-gray-500">{product.category}</div>
+                                )}
+                              </div>
                             </div>
-                          )}
-                          <div className="max-w-[300px]">
-                            <div className="font-medium truncate">{product.name}</div>
-                            {product.category && (
-                              <div className="text-xs text-gray-500">{product.category}</div>
+                          </TableCell>
+                          <TableCell>
+                            <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">{product.sku}</code>
+                          </TableCell>
+                          <TableCell>{product.manufacturer || '-'}</TableCell>
+                          <TableCell className="text-right font-medium">
+                            {formatPrice(product.cost_price)}
+                            {product.previous_cost_price && product.cost_price !== product.previous_cost_price && (
+                              <span className={`ml-1 text-xs ${product.cost_price! > product.previous_cost_price ? 'text-red-500' : 'text-green-500'}`}>
+                                {product.cost_price! > product.previous_cost_price ? <PiTrendUpBold className="w-3 h-3 inline" /> : <PiTrendDownBold className="w-3 h-3 inline" />}
+                              </span>
                             )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">{product.sku}</code>
-                      </TableCell>
-                      <TableCell>{product.manufacturer || '-'}</TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatPrice(product.cost_price)}
-                        {product.previous_cost_price && product.cost_price !== product.previous_cost_price && (
-                          <span className={`ml-1 text-xs ${product.cost_price! > product.previous_cost_price ? 'text-red-500' : 'text-green-500'}`}>
-                            {product.cost_price! > product.previous_cost_price ? <PiTrendUpBold className="w-3 h-3 inline" /> : <PiTrendDownBold className="w-3 h-3 inline" />}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">{formatPrice(product.retail_price)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {product.in_stock ? (
-                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                              {product.stock_total}
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                              Out
-                            </Badge>
-                          )}
-                          <div className="text-xs text-gray-400" title="CPT / JHB / DBN">
-                            <PiMapPinBold className="w-3 h-3 inline mr-0.5" />
-                            {product.stock_cpt}/{product.stock_jhb}/{product.stock_dbn}
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                          </TableCell>
+                          <TableCell className="text-right">{formatPrice(product.retail_price)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {product.in_stock ? (
+                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                  {product.stock_total}
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                                  Out
+                                </Badge>
+                              )}
+                              <div className="text-xs text-gray-400" title="CPT / JHB / DBN">
+                                <PiMapPinBold className="w-3 h-3 inline mr-0.5" />
+                                {product.stock_cpt}/{product.stock_jhb}/{product.stock_dbn}
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <div className="text-sm text-gray-500">
-                    Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, totalProducts)} of {totalProducts}
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                      <div className="text-sm text-gray-500">
+                        Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, totalProducts)} of {totalProducts}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={page === 1}
+                          onClick={() => setPage(p => p - 1)}
+                        >
+                          Previous
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={page >= totalPages}
+                          onClick={() => setPage(p => p + 1)}
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Sync Logs */}
+          {supplier.recent_sync_logs && supplier.recent_sync_logs.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Sync History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Found</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Updated</TableHead>
+                      <TableHead>Duration</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {supplier.recent_sync_logs.map((log) => (
+                      <TableRow key={log.id}>
+                        <TableCell>{formatDate(log.started_at)}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={
+                              log.status === 'completed'
+                                ? 'bg-green-50 text-green-700 border-green-200'
+                                : log.status === 'failed'
+                                ? 'bg-red-50 text-red-700 border-red-200'
+                                : 'bg-blue-50 text-blue-700 border-blue-200'
+                            }
+                          >
+                            {log.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{log.products_found}</TableCell>
+                        <TableCell className="text-green-600">+{log.products_created}</TableCell>
+                        <TableCell className="text-blue-600">{log.products_updated}</TableCell>
+                        <TableCell>{log.duration_ms ? `${(log.duration_ms / 1000).toFixed(1)}s` : '-'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Sidebar Column (Right - 25%) */}
+        <div className="space-y-6">
+          {/* Supplier Overview Card */}
+          <Card>
+             <CardHeader className="pb-4">
+               <CardTitle>Overview</CardTitle>
+             </CardHeader>
+             <CardContent className="space-y-4">
+               <div>
+                 <p className="text-sm text-gray-500">Total Products</p>
+                 <p className="text-2xl font-bold">{supplier.stats.total_products.toLocaleString()}</p>
+               </div>
+               <div>
+                 <p className="text-sm text-gray-500">Active Products</p>
+                 <p className="text-2xl font-bold">{supplier.stats.active_products.toLocaleString()}</p>
+               </div>
+               <div>
+                 <p className="text-sm text-gray-500">In Stock</p>
+                 <p className="text-2xl font-bold text-green-600">{supplier.stats.in_stock_products.toLocaleString()}</p>
+               </div>
+               <div className="pt-4 border-t border-gray-100">
+                 <p className="text-sm text-gray-500 mb-2">Sync Status</p>
+                 <div className="flex flex-col gap-1">
+                   <div>{getSyncStatusBadge(supplier.sync_status as SyncStatus, supplier.sync_error)}</div>
+                   <span className="text-xs text-gray-400">Last sync: {formatDate(supplier.last_synced_at)}</span>
+                 </div>
+               </div>
+             </CardContent>
+          </Card>
+
+          {/* Enrichment Stats Card */}
+          {enrichmentStats && (
+            <Card className="border-purple-200 bg-purple-50/50">
+              <CardHeader className="pb-3">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <PiSparkleBold className="w-5 h-5 text-purple-600" />
+                      <CardTitle className="text-lg">AI Enrichment</CardTitle>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={page === 1}
-                      onClick={() => setPage(p => p - 1)}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={page >= totalPages}
-                      onClick={() => setPage(p => p + 1)}
-                    >
-                      Next
-                    </Button>
+                  {enrichmentStats.pending > 0 && enrichmentStats.cost_estimate && (
+                    <Badge variant="outline" className="w-fit bg-purple-100 text-purple-700 border-purple-300">
+                      Est. ${enrichmentStats.cost_estimate.estimated_cost_usd.toFixed(2)} USD
+                    </Badge>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 border-b border-purple-200/50 pb-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Enriched</p>
+                    <p className="text-2xl font-bold text-green-600">{enrichmentStats.enriched}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Pending</p>
+                    <p className="text-2xl font-bold text-orange-600">{enrichmentStats.pending}</p>
                   </div>
                 </div>
-              )}
-            </>
+                <div>
+                  <div className="flex justify-between text-sm mb-1.5">
+                    <span className="text-gray-500 font-medium">Global Progress</span>
+                    <span className="font-bold text-purple-600">
+                      {enrichmentStats.total > 0
+                        ? Math.round((enrichmentStats.enriched / enrichmentStats.total) * 100)
+                        : 0}%
+                    </span>
+                  </div>
+                  {enrichmentStats.total > 0 && (
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                      <div
+                        className="bg-purple-600 h-full rounded-full transition-all duration-500 ease-in-out"
+                        style={{ width: `${(enrichmentStats.enriched / enrichmentStats.total) * 100}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Recent Sync Logs */}
-      {supplier.recent_sync_logs && supplier.recent_sync_logs.length > 0 && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Recent Sync History</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Found</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Updated</TableHead>
-                  <TableHead>Duration</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {supplier.recent_sync_logs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell>{formatDate(log.started_at)}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={
-                          log.status === 'completed'
-                            ? 'bg-green-50 text-green-700 border-green-200'
-                            : log.status === 'failed'
-                            ? 'bg-red-50 text-red-700 border-red-200'
-                            : 'bg-blue-50 text-blue-700 border-blue-200'
-                        }
-                      >
-                        {log.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{log.products_found}</TableCell>
-                    <TableCell className="text-green-600">+{log.products_created}</TableCell>
-                    <TableCell className="text-blue-600">{log.products_updated}</TableCell>
-                    <TableCell>{log.duration_ms ? `${(log.duration_ms / 1000).toFixed(1)}s` : '-'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+        </div>
+      </div>
     </div>
   )
 }
