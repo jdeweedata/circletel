@@ -36,8 +36,8 @@ export function ProductsStatCards({
         label="Total Products"
         value={stats.total}
         icon={<PiPackageBold className="h-5 w-5" />}
-        iconBgColor="bg-blue-100"
-        iconColor="text-blue-600"
+        iconBgColor="bg-blue-50"
+        iconColor="text-blue-500"
         onClick={() => onFilterChange(activeFilter === 'all' ? null : 'all')}
         isActive={activeFilter === 'all'}
         subtitle="All products"
@@ -46,8 +46,8 @@ export function ProductsStatCards({
         label="Active"
         value={stats.active}
         icon={<PiCheckCircleBold className="h-5 w-5" />}
-        iconBgColor="bg-emerald-100"
-        iconColor="text-emerald-600"
+        iconBgColor="bg-emerald-50"
+        iconColor="text-emerald-500"
         onClick={() => onFilterChange(activeFilter === 'active' ? null : 'active')}
         isActive={activeFilter === 'active'}
         subtitle="Live in catalogue"
@@ -56,8 +56,8 @@ export function ProductsStatCards({
         label="Draft"
         value={stats.draft}
         icon={<PiPencilSimpleBold className="h-5 w-5" />}
-        iconBgColor="bg-amber-100"
-        iconColor="text-amber-600"
+        iconBgColor="bg-amber-50"
+        iconColor="text-amber-500"
         onClick={() => onFilterChange(activeFilter === 'draft' ? null : 'draft')}
         isActive={activeFilter === 'draft'}
         subtitle="In progress"
@@ -66,8 +66,8 @@ export function ProductsStatCards({
         label="Archived"
         value={stats.archived}
         icon={<PiArchiveBold className="h-5 w-5" />}
-        iconBgColor="bg-slate-100"
-        iconColor="text-slate-600"
+        iconBgColor="bg-slate-50"
+        iconColor="text-slate-500"
         onClick={() => onFilterChange(activeFilter === 'archived' ? null : 'archived')}
         isActive={activeFilter === 'archived'}
         subtitle="Discontinued"
@@ -76,8 +76,8 @@ export function ProductsStatCards({
         label="Low Margin"
         value={stats.lowMargin}
         icon={<PiWarningBold className="h-5 w-5" />}
-        iconBgColor="bg-red-100"
-        iconColor="text-red-600"
+        iconBgColor="bg-red-50"
+        iconColor="text-red-500"
         onClick={() => onFilterChange(activeFilter === 'lowMargin' ? null : 'lowMargin')}
         isActive={activeFilter === 'lowMargin'}
         subtitle="Below 25% margin"

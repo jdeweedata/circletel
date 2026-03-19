@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { SectionCard } from '@/components/admin/shared/SectionCard';
 import { ProductFilters } from '@/lib/types/products';
 import { FilterPresets } from '@/components/admin/products/FilterPresets';
 
@@ -62,45 +61,41 @@ export function ProductsFilters({
   ].filter(Boolean).length;
 
   return (
-    <SectionCard
-      title="Filter Products"
-      icon={PiSlidersHorizontalBold}
-      compact
-      action={
-        hasActiveFilters ? (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onClearAll}
-            className="text-circleTel-orange border-circleTel-orange hover:bg-circleTel-orange hover:text-white"
-          >
-            <PiXBold className="mr-2 h-4 w-4" />
-            Clear All
-          </Button>
-        ) : undefined
-      }
-    >
-      <div className="space-y-4">
-        {/* Search */}
-        <div className="relative">
-          <PiMagnifyingGlassBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 flex flex-col gap-4">
+      {/* Search Line & Top Actions */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="relative flex-1 w-full sm:max-w-md">
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
           <Input
             placeholder="Search by name, SKU, category, or description..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 pr-10"
+            className="pl-10 pr-10 h-10 border-slate-200 focus:ring-primary focus:border-primary shadow-sm rounded-lg w-full"
           />
           {searchQuery && (
             <Button
               variant="ghost"
               size="sm"
-              className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-gray-100"
+              className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-slate-100 text-slate-500"
               onClick={() => onSearchChange('')}
             >
               <PiXBold className="h-4 w-4" />
             </Button>
           )}
         </div>
+
+        {hasActiveFilters && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onClearAll}
+            className="text-slate-600 border-slate-200 hover:bg-slate-50 gap-2 shrink-0 h-10"
+          >
+            <PiXBold className="h-4 w-4" />
+            Clear All Filters
+          </Button>
+        )}
+      </div>
 
         {/* Primary Filters */}
         <div className="flex gap-3 flex-wrap items-center">
@@ -251,7 +246,6 @@ export function ProductsFilters({
             </SelectContent>
           </Select>
         </div>
-      </div>
-    </SectionCard>
+    </div>
   );
 }
