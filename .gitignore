@@ -42,6 +42,7 @@ test-results/*webkit/
 *.pem
 
 # Debug
+ts_errs.txt
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
