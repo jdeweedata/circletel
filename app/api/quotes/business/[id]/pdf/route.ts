@@ -11,6 +11,8 @@ import { createClient } from '@/lib/supabase/server';
 import { generateQuotePDFBlob } from '@/lib/quotes/pdf-generator';
 import type { QuoteDetails } from '@/lib/quotes/types';
 import { apiLogger } from '@/lib/logging';
+import { fetchQuoteTerms } from '@/lib/quotes/quote-terms';
+import { buildQuoteBenefits } from '@/lib/quotes/quote-benefits';
 
 export async function GET(
   request: NextRequest,
@@ -54,10 +56,17 @@ export async function GET(
       items: items || []
     };
 
+    // Fetch terms and build benefits for the PDF
+    const serviceTypes = [...new Set((items || []).map((item: any) => item.service_type))];
+    const terms = await fetchQuoteTerms(serviceTypes, quote.contract_term);
+    const benefits = buildQuoteBenefits(quoteDetails.items);
+
     // Generate PDF blob
     const pdfBlob = generateQuotePDFBlob(quoteDetails, {
       includeTerms: true,
-      includeSignature: true
+      includeSignature: true,
+      terms,
+      benefits
     });
 
     // Convert blob to buffer for NextResponse
