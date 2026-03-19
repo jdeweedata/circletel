@@ -118,6 +118,19 @@ export async function POST(
       }).format(amount);
     };
 
+    // Escape HTML to prevent template injection
+    const escapeHtml = (str: string) => {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    };
+
+    // Safely format the message for HTML
+    const safeMessage = message ? escapeHtml(message).replace(/\n/g, '<br>') : null;
+
     // Prepare email content
     const emailHtml = `
       <!DOCTYPE html>
@@ -214,10 +227,10 @@ export async function POST(
 
             <p>Thank you for your interest in CircleTel's services. Please find attached your personalized quote.</p>
 
-            ${message ? `
+            ${safeMessage ? `
               <div class="message-box">
                 <strong>Message from CircleTel:</strong><br>
-                ${message.replace(/\n/g, '<br>')}
+                ${safeMessage}
               </div>
             ` : ''}
 
@@ -333,12 +346,13 @@ export async function POST(
     });
 
   } catch (error: any) {
-    apiLogger.error('Email sending error', { error: error instanceof Error ? error.message : String(error) });
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    apiLogger.error('Email sending error', { error: errorMsg });
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to send email',
-        details: error.message
+        details: errorMsg
       },
       { status: 500 }
     );
