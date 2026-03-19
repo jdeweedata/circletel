@@ -101,8 +101,8 @@ const nextConfig = {
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
-    // Reduce memory by limiting parallel routes compilation
-    cpus: 1,
+    // Use 2 cores for faster builds (8GB machine can handle it)
+    cpus: 2,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports
