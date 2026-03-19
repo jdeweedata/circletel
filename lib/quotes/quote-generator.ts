@@ -14,6 +14,7 @@ import type {
 } from './types';
 import { validateCreateQuoteRequest, validateUpdateQuoteRequest } from './quote-validator';
 import { calculatePricingBreakdown } from './quote-calculator';
+import { formatFeatures } from '@/lib/products/feature-formatter';
 
 export class QuoteGenerationError extends Error {
   constructor(message: string, public code: string) {
@@ -104,6 +105,10 @@ export async function createBusinessQuote(
         );
       }
 
+      // Snapshot product features at quote creation time
+      const features: string[] = Array.isArray(pkg.features) ? pkg.features : [];
+      const formattedBenefits = formatFeatures(features);
+
       return {
         quote_id: quote.id,
         package_id: item.package_id,
@@ -119,7 +124,11 @@ export async function createBusinessQuote(
         speed_up: pkg.speed_up,
         data_cap_gb: pkg.data_cap_gb,
         notes: item.notes || null,
-        display_order: index
+        display_order: index,
+        benefits_snapshot: {
+          features,
+          formatted_benefits: formattedBenefits,
+        },
       };
     });
 
