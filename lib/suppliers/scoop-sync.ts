@@ -288,26 +288,26 @@ function parseXmlProduct(xmlProduct: any): ParsedScoopProduct | null {
       return isNaN(num) ? 0 : num
     }
 
-    const stockCpt = parseInt(getValue('CPT') || getValue('StockCPT') || '0')
-    const stockJhb = parseInt(getValue('JHB') || getValue('StockJHB') || '0')
-    const stockDbn = parseInt(getValue('DBN') || getValue('StockDBN') || '0')
-    const stockTotal = parseInt(getValue('TotalStock') || getValue('Stock') || '0') ||
+    const stockCpt = parseInt(getValue('CPT') || getValue('cpt') || getValue('StockCPT') || '0')
+    const stockJhb = parseInt(getValue('JHB') || getValue('jhb') || getValue('StockJHB') || '0')
+    const stockDbn = parseInt(getValue('DBN') || getValue('dbn') || getValue('StockDBN') || '0')
+    const stockTotal = parseInt(getValue('TotalStock') || getValue('total_stock') || getValue('Stock') || '0') ||
       (stockCpt + stockJhb + stockDbn)
 
     return {
       sku: sku.trim(),
       name: name.trim(),
-      description: getValue('LongDescription') || null,
-      manufacturer: getValue('Manufacturer') || getValue('Brand') || 'Unknown',
-      cost_price: parseNumber(getValue('DealerPrice') || getValue('CostPrice') || '0'),
-      retail_price: parseNumber(getValue('RetailPrice') || getValue('RRP') || '0'),
-      source_image_url: getValue('ImageURL') || getValue('Image') || '',
+      description: getValue('LongDescription') || getValue('long_description') || null,
+      manufacturer: getValue('Manufacturer') || getValue('manufacturer') || getValue('Brand') || 'Unknown',
+      cost_price: parseNumber(getValue('DealerPrice') || getValue('dealer_price') || getValue('CostPrice') || '0'),
+      retail_price: parseNumber(getValue('RetailPrice') || getValue('retail_price') || getValue('RRP') || '0'),
+      source_image_url: getValue('ImageURL') || getValue('image_url') || getValue('Image') || '',
       stock_cpt: stockCpt,
       stock_jhb: stockJhb,
       stock_dbn: stockDbn,
       stock_total: stockTotal,
-      product_url: getValue('ProductURL') || getValue('URL') || null,
-      category: getValue('Category') || null,
+      product_url: getValue('ProductURL') || getValue('product_url') || getValue('URL') || null,
+      category: getValue('Category') || getValue('category') || null,
     }
   } catch (error) {
     console.warn('[ScoopSync] Failed to parse product:', error, xmlProduct)
