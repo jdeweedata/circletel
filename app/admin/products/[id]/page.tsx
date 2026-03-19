@@ -242,25 +242,27 @@ export default function ProductDetailPage() {
             </Link>
 
             {/* Product ID and Status */}
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {product.name}
-                </h1>
-                {getStatusBadge()}
+            <div className="flex-1 flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {product.name}
+                  </h1>
+                  {getStatusBadge()}
+                </div>
+                <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                  SKU: <span className="font-mono text-gray-700">{product.sku}</span>
+                  <span className="text-gray-300">|</span>
+                  Created {new Date(product.created_at).toLocaleDateString('en-ZA', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
               </div>
-              <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-                SKU: <span className="font-mono text-gray-700">{product.sku}</span>
-                <span className="text-gray-300">|</span>
-                Created {new Date(product.created_at).toLocaleDateString('en-ZA', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
 
               {/* Action Buttons */}
-              <div className="mt-4">
+              <div className="flex-shrink-0 pt-1">
                 <ProductLifecycleActions
                   product={product}
                   onStatusChange={handleStatusChange}
@@ -280,74 +282,7 @@ export default function ProductDetailPage() {
           </div>
         </Card>
 
-        {/* Status Cards Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="shadow-sm border-gray-200">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Status</p>
-                  <div className="mt-2">{getStatusBadge()}</div>
-                </div>
-                {product.is_active ? (
-                  <div className="p-2 bg-green-100 rounded-full">
-                    <PiCheckCircleBold className="h-5 w-5 text-green-600" />
-                  </div>
-                ) : (
-                  <div className="p-2 bg-gray-100 rounded-full">
-                    <PiXCircleBold className="h-5 w-5 text-gray-400" />
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm border-gray-200">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Category</p>
-                  <p className="text-lg font-bold text-gray-900 capitalize mt-1">{product.category}</p>
-                </div>
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <PiPackageBold className="h-5 w-5 text-blue-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {product.is_featured && (
-            <Card className="shadow-sm border-yellow-200 bg-yellow-50/50">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-yellow-800">Featured</p>
-                    <p className="text-lg font-bold text-yellow-900 mt-1">Yes</p>
-                  </div>
-                  <div className="p-2 bg-yellow-100 rounded-full">
-                    <PiStarBold className="h-5 w-5 text-yellow-600 fill-current" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {product.is_popular && (
-            <Card className="shadow-sm border-green-200 bg-green-50/50">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-green-800">Popular</p>
-                    <p className="text-lg font-bold text-green-900 mt-1">Yes</p>
-                  </div>
-                  <div className="p-2 bg-green-100 rounded-full">
-                    <PiTrendUpBold className="h-5 w-5 text-green-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+        {/* Removed redundant 4-column Status Cards Grid */}
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
@@ -412,24 +347,40 @@ export default function ProductDetailPage() {
             </Card>
 
             {/* Quick Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Stats</CardTitle>
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="pb-3 border-b">
+                <CardTitle className="text-sm font-bold uppercase tracking-wide text-slate-500">Product Snapshot</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="pt-4 space-y-4">
                 <div>
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-                    <PiCalendarBold className="h-4 w-4" />
-                    Created
+                    <PiPackageBold className="h-4 w-4" />
+                    Category
                   </div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {new Date(product.created_at).toLocaleDateString('en-ZA', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </p>
+                  <Badge variant="secondary" className="font-semibold text-slate-700 bg-slate-100 border-slate-200 uppercase tracking-wide text-xs">
+                    {product.category}
+                  </Badge>
                 </div>
+
+                {(product.is_featured || product.is_popular) && (
+                  <>
+                    <Separator />
+                    <div className="flex flex-wrap gap-2">
+                      {product.is_featured && (
+                        <Badge className="bg-yellow-50 text-yellow-800 border-yellow-200 uppercase text-xs">
+                          <PiStarBold className="mr-1 h-3 w-3 fill-current" />
+                          Featured
+                        </Badge>
+                      )}
+                      {product.is_popular && (
+                        <Badge className="bg-emerald-50 text-emerald-800 border-emerald-200 uppercase text-xs">
+                          <PiTrendUpBold className="mr-1 h-3 w-3" />
+                          Popular
+                        </Badge>
+                      )}
+                    </div>
+                  </>
+                )}
 
                 <Separator />
 
@@ -506,6 +457,52 @@ export default function ProductDetailPage() {
                     {((parseFloat(product.base_price_zar) - parseFloat(product.cost_price_zar)) / parseFloat(product.base_price_zar) * 100).toFixed(1)}% margin
                   </p>
                 </div>
+
+                {/* Detailed Cost Breakdown from metadata */}
+                {product.metadata?.cost_breakdown && (
+                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <p className="text-sm font-medium text-gray-900 mb-3">Cost Breakdown (Monthly)</p>
+                    <div className="space-y-2 text-sm">
+                      {Object.entries(product.metadata.cost_breakdown as Record<string, number>).map(([key, value]) => (
+                        <div key={key} className="flex justify-between">
+                          <span className="text-gray-600 capitalize">{key.replace(/_/g, ' ')}</span>
+                          <span className="font-mono text-gray-900">{formatPrice(value)}</span>
+                        </div>
+                      ))}
+                      <div className="border-t border-slate-300 pt-2 flex justify-between font-medium">
+                        <span className="text-gray-900">Total Monthly Cost</span>
+                        <span className="font-mono text-gray-900">{formatPrice(product.cost_price_zar)}</span>
+                      </div>
+                    </div>
+                    {product.metadata?.installation_fee !== undefined && (
+                      <div className="mt-3 pt-2 border-t border-slate-200 flex justify-between text-sm">
+                        <span className="text-gray-600">Installation Fee (once-off)</span>
+                        <span className="font-mono text-gray-900">
+                          {product.metadata.installation_fee === 0 ? 'FREE' : formatPrice(product.metadata.installation_fee as number)}
+                        </span>
+                      </div>
+                    )}
+                    {product.metadata?.margin_percent && (
+                      <div className="mt-1 flex justify-between text-sm">
+                        <span className="text-gray-600">Documented Margin</span>
+                        <span className="font-mono text-green-700">{product.metadata.margin_percent}%</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Commission-only products (5G/Arlan) */}
+                {product.metadata?.margin_type === 'commission_only' && (
+                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <p className="text-sm font-medium text-amber-900 mb-1">Commission-Only Product</p>
+                    <p className="text-xs text-amber-700">{product.metadata?.cost_note}</p>
+                    {product.metadata?.estimated_commission_monthly && (
+                      <p className="text-sm font-medium text-amber-900 mt-2">
+                        Est. commission: {formatPrice(product.metadata.estimated_commission_monthly as number)}/mo
+                      </p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
