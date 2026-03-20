@@ -317,12 +317,12 @@ export default function QuotePreviewPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white print:bg-white">
-      <div className="max-w-4xl mx-auto p-8 print:p-0 print:max-w-none print-container">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:p-6 md:p-8 print:p-0 print:max-w-none print-container">
         {/* Action Buttons - Centered above quote */}
-        <div className="print:hidden flex justify-center gap-3 mb-6">
+        <div className="print:hidden flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
           <button
             onClick={() => window.print()}
-            className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2"
+            className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-4 py-2 sm:px-6 sm:py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2 text-sm sm:text-base"
           >
             <PiPrinterBold className="w-4 h-4" />
             Print
@@ -330,7 +330,7 @@ export default function QuotePreviewPage({ params }: Props) {
           <button
             onClick={handleDownloadPDF}
             disabled={downloadingPDF}
-            className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-4 py-2 sm:px-6 sm:py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
             {downloadingPDF ? (
               <PiSpinnerBold className="w-4 h-4 animate-spin" />
@@ -341,7 +341,7 @@ export default function QuotePreviewPage({ params }: Props) {
           </button>
           <button
             onClick={openEmailDialog}
-            className="bg-circleTel-orange text-white px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-600 transition-colors flex items-center gap-2"
+            className="bg-circleTel-orange text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-lg shadow-md hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm sm:text-base"
           >
             <PiPaperPlaneRightBold className="w-4 h-4" />
             Email Quote
@@ -419,18 +419,18 @@ export default function QuotePreviewPage({ params }: Props) {
         {/* Professional Header - Matching PDF */}
         <div className="bg-white mb-8 quote-header">
           {/* Official CircleTel Header */}
-          <div className="flex justify-between items-center mb-4 pb-2 border-b-4 border-circleTel-orange">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-4 pb-2 border-b-4 border-circleTel-orange gap-2 sm:gap-0">
             <div className="flex items-center">
               <Image
                 src="/images/circletel-enclosed-logo.png"
                 alt="CircleTel Logo"
                 width={540}
                 height={180}
-                className="h-48 w-auto"
+                className="h-24 sm:h-36 md:h-48 w-auto"
                 priority
               />
             </div>
-            <div className="text-right text-sm text-gray-600">
+            <div className="text-center sm:text-right text-xs sm:text-sm text-gray-600">
               <div>Tel: +27 87 087 6305</div>
               <div>Email: sales@circletel.co.za</div>
               <div>Web: www.circletel.co.za</div>
@@ -438,9 +438,9 @@ export default function QuotePreviewPage({ params }: Props) {
           </div>
 
           {/* Quote Header - Match Official Format */}
-          <div className="grid grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-8">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">QUOTE</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">QUOTE</h2>
               <div className="space-y-1 text-sm">
                 <div className="grid grid-cols-2 gap-4">
                   <span className="text-gray-600">Quote No:</span>
@@ -464,7 +464,7 @@ export default function QuotePreviewPage({ params }: Props) {
                 </div>
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-left md:text-right">
               <div className="bg-gray-50 p-4 rounded border">
                 <p className="text-xs text-gray-500 mb-2 uppercase">PREPARED FOR:</p>
                 <p className="font-bold text-lg text-gray-900">{quote.company_name}</p>
@@ -477,8 +477,8 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Customer Details and Service Summary - Official Layout */}
-        <div className="grid grid-cols-2 gap-12 mb-8 customer-details">
-          <div className="pr-6 border-r border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-8 customer-details">
+          <div className="md:pr-6 md:border-r border-gray-200">
             <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               CUSTOMER DETAILS
             </h3>
@@ -506,7 +506,7 @@ export default function QuotePreviewPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="pl-6">
+          <div className="md:pl-6">
             <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               SERVICE SUMMARY
             </h3>
@@ -540,37 +540,45 @@ export default function QuotePreviewPage({ params }: Props) {
           </h3>
           
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-300 text-sm">
+            <table className="w-full border-collapse border border-gray-300 text-xs sm:text-sm">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-3 py-2 text-left font-medium">Service Description</th>
-                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Qty</th>
-                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Speed</th>
-                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Data</th>
-                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Monthly (Excl. VAT)</th>
-                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Installation (Excl. VAT)</th>
+                  <th className="border border-gray-300 px-2 sm:px-3 py-2 text-left font-medium">Service Description</th>
+                  <th className="border border-gray-300 px-2 sm:px-3 py-2 text-center font-medium">Qty</th>
+                  <th className="border border-gray-300 px-2 sm:px-3 py-2 text-center font-medium hidden sm:table-cell">Speed</th>
+                  <th className="border border-gray-300 px-2 sm:px-3 py-2 text-center font-medium hidden sm:table-cell">Data</th>
+                  <th className="border border-gray-300 px-2 sm:px-3 py-2 text-center font-medium">Monthly (Excl. VAT)</th>
+                  <th className="border border-gray-300 px-2 sm:px-3 py-2 text-center font-medium hidden md:table-cell">Installation (Excl. VAT)</th>
                 </tr>
               </thead>
               <tbody>
                 {quote.items.map((item, index) => (
                   <tr key={index} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 px-3 py-3">
+                    <td className="border border-gray-300 px-2 sm:px-3 py-2 sm:py-3">
                       <div>
                         <div className="font-medium text-gray-900">{item.service_name}</div>
                         <div className="text-xs text-gray-500 capitalize italic">{item.item_type}</div>
+                        {/* Show speed/data inline on mobile */}
+                        <div className="sm:hidden text-xs text-gray-500 mt-1">
+                          {item.speed_down}↓/{item.speed_up}↑ Mbps · {item.data_cap_gb ? `${item.data_cap_gb}GB` : 'Unlimited'}
+                        </div>
+                        {/* Show installation on mobile */}
+                        <div className="md:hidden text-xs text-gray-500 mt-0.5">
+                          Install: {formatCurrency(item.installation_price * item.quantity)}
+                        </div>
                       </div>
                     </td>
-                    <td className="border border-gray-300 px-3 py-3 text-center font-medium">{item.quantity}</td>
-                    <td className="border border-gray-300 px-3 py-3 text-center">
+                    <td className="border border-gray-300 px-2 sm:px-3 py-2 sm:py-3 text-center font-medium">{item.quantity}</td>
+                    <td className="border border-gray-300 px-2 sm:px-3 py-2 sm:py-3 text-center hidden sm:table-cell">
                       {item.speed_down}↓/{item.speed_up}↑ Mbps
                     </td>
-                    <td className="border border-gray-300 px-3 py-3 text-center">
+                    <td className="border border-gray-300 px-2 sm:px-3 py-2 sm:py-3 text-center hidden sm:table-cell">
                       {item.data_cap_gb ? `${item.data_cap_gb}GB` : 'Unlimited'}
                     </td>
-                    <td className="border border-gray-300 px-3 py-3 text-center font-medium">
+                    <td className="border border-gray-300 px-2 sm:px-3 py-2 sm:py-3 text-center font-medium">
                       {formatCurrency(item.monthly_price * item.quantity)}
                     </td>
-                    <td className="border border-gray-300 px-3 py-3 text-center font-medium">
+                    <td className="border border-gray-300 px-2 sm:px-3 py-2 sm:py-3 text-center font-medium hidden md:table-cell">
                       {formatCurrency(item.installation_price * item.quantity)}
                     </td>
                   </tr>
@@ -581,7 +589,7 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Pricing Breakdown and Inclusive Benefits */}
-        <div className="grid grid-cols-2 gap-8 mb-8 pricing-breakdown">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pricing-breakdown">
           <div>
             <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               PRICING BREAKDOWN
@@ -636,14 +644,14 @@ export default function QuotePreviewPage({ params }: Props) {
               <h4 className="font-bold text-gray-900 mb-3 text-base uppercase">
                 CONTRACT SUMMARY
               </h4>
-              <div className="bg-red-50 border-2 border-red-500 p-6 space-y-3">
+              <div className="bg-red-50 border-2 border-red-500 p-4 sm:p-6 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-800 font-medium">Contract Term:</span>
-                  <span className="font-bold text-lg">{quote.contract_term} months</span>
+                  <span className="text-gray-800 font-medium text-sm sm:text-base">Contract Term:</span>
+                  <span className="font-bold text-base sm:text-lg">{quote.contract_term} months</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-800 font-medium">Total Contract Value:</span>
-                  <span className="font-bold text-2xl text-circleTel-orange">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                  <span className="text-gray-800 font-medium text-sm sm:text-base">Total Contract Value:</span>
+                  <span className="font-bold text-xl sm:text-2xl text-circleTel-orange">
                     {formatCurrency(pricing.total_monthly * quote.contract_term + pricing.total_installation)}
                   </span>
                 </div>
@@ -709,7 +717,7 @@ export default function QuotePreviewPage({ params }: Props) {
             TERMS AND CONDITIONS
           </h3>
           {terms.length > 0 ? (
-            <div className="grid grid-cols-2 gap-8 text-xs leading-relaxed">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 text-xs leading-relaxed">
               <div className="space-y-3">
                 {terms.filter((_, i) => i < Math.ceil(terms.length / 2)).map((term, index) => (
                   <div key={index}>
@@ -731,7 +739,7 @@ export default function QuotePreviewPage({ params }: Props) {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-8 text-xs leading-relaxed">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 text-xs leading-relaxed">
               <div className="space-y-3">
                 <div>
                   <h4 className="font-medium mb-1">1. CONTRACT TERMS</h4>
@@ -789,11 +797,11 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Print-only acceptance section (static for printed quotes) */}
-        <div className="hidden print:block bg-gray-50 border-2 border-circleTel-orange p-6 mb-8">
+        <div className="hidden print:block bg-gray-50 border-2 border-circleTel-orange p-4 sm:p-6 mb-8">
           <h3 className="text-lg font-bold text-circleTel-navy mb-6 text-center">
             CUSTOMER ACCEPTANCE
           </h3>
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             <div>
               <h4 className="font-medium mb-4">ACCEPTANCE DECLARATION</h4>
               <div className="space-y-3 text-sm">
@@ -833,8 +841,8 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Professional Footer */}
-        <div className="border-t-2 border-circleTel-orange pt-6 text-center footer-section">
-          <div className="grid grid-cols-3 gap-8 text-xs">
+        <div className="border-t-2 border-circleTel-orange pt-4 sm:pt-6 text-center footer-section">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 text-xs">
             <div>
               <h4 className="font-medium mb-2">HEAD OFFICE</h4>
               <p>CircleTel (Pty) Ltd<br />

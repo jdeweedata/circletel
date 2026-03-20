@@ -197,8 +197,8 @@ export function QuoteAcceptanceForm({ quoteId, quote, onAccepted }: QuoteAccepta
     'mt-1 h-4 w-4 rounded border-gray-300 text-circleTel-orange focus:ring-circleTel-orange';
 
   return (
-    <div className="bg-gray-50 border-2 border-circleTel-orange p-6 rounded-lg">
-      <h3 className="text-xl font-bold text-circleTel-navy text-center mb-6">
+    <div className="bg-gray-50 border-2 border-circleTel-orange p-4 sm:p-6 rounded-lg">
+      <h3 className="text-lg sm:text-xl font-bold text-circleTel-navy text-center mb-6">
         CUSTOMER ACCEPTANCE
       </h3>
 
