@@ -104,6 +104,9 @@ All detailed patterns are in `.claude/rules/`:
 | `type-guards-optionals.md` | Safe access to optional/nested properties |
 | `api-param-documentation.md` | Document API params with Wrong vs Correct tables |
 | `product-management.md` | Product skills triggers, suppliers, wholesale providers |
+| `execution-targets.md` | 12-month milestones, MSC schedule, channel targets, capital budget |
+| `product-economics.md` | Unit economics, channel comparison, COS floor, commission tiers |
+| `margin-guardrails.md` | Min margins, discount approval, pricing rules, MSC-aware pricing |
 
 ---
 
