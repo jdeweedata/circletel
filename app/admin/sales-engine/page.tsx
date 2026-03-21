@@ -231,6 +231,20 @@ export default function SalesEngineDashboard() {
             Heat Map
           </Link>
           <Link
+            href="/admin/sales-engine/execution-plan"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <PiChartBarBold className="h-4 w-4" />
+            Execution Plan
+          </Link>
+          <Link
+            href="/admin/sales-engine/zone-discovery"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <PiMegaphoneBold className="h-4 w-4" />
+            Zone Discovery
+          </Link>
+          <Link
             href="/admin/sales-engine/zones"
             className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange text-white rounded-lg text-sm font-medium hover:bg-circleTel-orange/90"
           >

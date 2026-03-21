@@ -9,6 +9,8 @@ import type {
   PipelineStage,
   RecommendedAction,
   MarketAlert,
+  CompetitorIntelligenceSummary,
+  ExecutionSnapshot,
 } from './types';
 import {
   PIPELINE_STAGE_DAY_TARGETS,
@@ -80,6 +82,15 @@ export interface DailyBriefing {
   zone_alerts: ZoneAlert[];
   msc_snapshot: MSCSnapshot | null;
   market_context: MarketContext | null;
+  competitor_intelligence: CompetitorIntelligenceSummary | null;
+  execution_status: {
+    current_mrr: number;
+    target_mrr: number;
+    attainment_pct: number;
+    msc_coverage_ratio: number;
+    phase: string;
+    alerts_count: number;
+  } | null;
   summary: {
     calls_needed: number;
     pipeline_mrr: number;
@@ -377,6 +388,42 @@ export async function getDailyBriefing(): Promise<{
       // Market context is supplementary — don't fail the briefing
     }
 
+    // -----------------------------------------------------------------------
+    // 7. Competitor Intelligence — recent price changes and positions
+    // -----------------------------------------------------------------------
+    let competitorIntelligence: CompetitorIntelligenceSummary | null = null;
+    try {
+      const { getCompetitorAlertsSummary } = await import('./competitor-intelligence-service');
+      const ciResult = await getCompetitorAlertsSummary();
+      if (ciResult.data) {
+        competitorIntelligence = ciResult.data;
+      }
+    } catch {
+      // Competitor intelligence is supplementary — don't fail the briefing
+    }
+
+    // -----------------------------------------------------------------------
+    // 8. Execution Plan Status — MRR vs targets
+    // -----------------------------------------------------------------------
+    let executionStatus: DailyBriefing['execution_status'] = null;
+    try {
+      const { getExecutionSnapshot } = await import('./execution-plan-service');
+      const epResult = await getExecutionSnapshot();
+      if (epResult.data) {
+        const snap = epResult.data;
+        executionStatus = {
+          current_mrr: snap.total_mrr,
+          target_mrr: snap.target_mrr,
+          attainment_pct: snap.mrr_attainment_pct,
+          msc_coverage_ratio: snap.msc_coverage_ratio,
+          phase: snap.current_phase,
+          alerts_count: snap.alerts.length,
+        };
+      }
+    } catch {
+      // Execution status is supplementary — don't fail the briefing
+    }
+
     const briefing: DailyBriefing = {
       priority_calls: priorityCalls,
       stalled_deals: stalledDeals,
@@ -384,6 +431,8 @@ export async function getDailyBriefing(): Promise<{
       zone_alerts: zoneAlerts,
       msc_snapshot: mscSnapshot,
       market_context: marketContext,
+      competitor_intelligence: competitorIntelligence,
+      execution_status: executionStatus,
       summary: {
         calls_needed: priorityCalls.length,
         pipeline_mrr: pipelineMrr,

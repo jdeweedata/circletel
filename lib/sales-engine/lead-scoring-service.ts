@@ -7,7 +7,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import type { LeadScore, ScoreLeadInput, OutreachTrack } from './types';
+import type { LeadScore, ScoreLeadInput, OutreachTrack, DynamicScoringConfig } from './types';
 import { enrichLeadCoverage, getAutoProductRecommendation } from './coverage-enrichment-service';
 
 // =============================================================================
@@ -114,6 +114,48 @@ const ESTIMATED_MRR: Record<string, number> = {
 };
 
 // =============================================================================
+// Dynamic Scoring Config (reads from sales_engine_config table)
+// =============================================================================
+
+let _cachedDynamicConfig: DynamicScoringConfig | null | undefined = undefined;
+let _cacheTimestamp = 0;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Load dynamic scoring config from the database. Falls back to null
+ * (which means hardcoded constants are used). Cached for 5 minutes.
+ */
+async function getDynamicScoringConfig(): Promise<DynamicScoringConfig | null> {
+  const now = Date.now();
+  if (_cachedDynamicConfig !== undefined && now - _cacheTimestamp < CACHE_TTL_MS) {
+    return _cachedDynamicConfig;
+  }
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('sales_engine_config')
+      .select('config_value')
+      .eq('config_key', 'scoring_constants')
+      .single();
+
+    if (error || !data) {
+      _cachedDynamicConfig = null;
+      _cacheTimestamp = now;
+      return null;
+    }
+
+    _cachedDynamicConfig = data.config_value as unknown as DynamicScoringConfig;
+    _cacheTimestamp = now;
+    return _cachedDynamicConfig;
+  } catch {
+    _cachedDynamicConfig = null;
+    _cacheTimestamp = now;
+    return null;
+  }
+}
+
+// =============================================================================
 // Manual Scoring
 // =============================================================================
 
@@ -198,16 +240,24 @@ export async function autoScoreLead(
     const customerType = (lead.customer_type ?? '').toLowerCase().trim();
     const competitor = (lead.competitor_identified ?? '').toLowerCase().trim();
 
-    // Calculate individual scores
-    const productFitScore = PRODUCT_FIT_SCORES[customerType] ?? 50;
-    const revenuePotentialScore = REVENUE_POTENTIAL_SCORES[customerType] ?? 40;
+    // Load dynamic scoring config (falls back to hardcoded if unavailable)
+    const dynamicConfig = await getDynamicScoringConfig();
+
+    // Calculate individual scores — dynamic config overrides hardcoded values
+    const productFitScores = dynamicConfig?.product_fit_scores ?? PRODUCT_FIT_SCORES;
+    const revenuePotentialScores = dynamicConfig?.revenue_potential_scores ?? REVENUE_POTENTIAL_SCORES;
+    const recommendedProducts = dynamicConfig?.recommended_products ?? RECOMMENDED_PRODUCTS;
+    const estimatedMrrMap = dynamicConfig?.estimated_mrr ?? ESTIMATED_MRR;
+
+    const productFitScore = productFitScores[customerType] ?? PRODUCT_FIT_SCORES[customerType] ?? 50;
+    const revenuePotentialScore = revenuePotentialScores[customerType] ?? REVENUE_POTENTIAL_SCORES[customerType] ?? 40;
     const competitiveVulnScore = getCompetitiveVulnScore(competitor);
     const conversionSpeedScore = CONVERSION_SPEED_SCORES[customerType] ?? 60;
 
     // Determine recommendations
-    const recommendedProduct = RECOMMENDED_PRODUCTS[customerType] ?? 'WorkConnect SOHO';
+    const recommendedProduct = recommendedProducts[customerType] ?? RECOMMENDED_PRODUCTS[customerType] ?? 'WorkConnect SOHO';
     const recommendedTrack = RECOMMENDED_TRACKS[customerType] ?? 'sme_strip';
-    const estimatedMrr = ESTIMATED_MRR[recommendedProduct] ?? 599;
+    const estimatedMrr = estimatedMrrMap[recommendedProduct] ?? ESTIMATED_MRR[recommendedProduct] ?? 599;
 
     // Delegate to scoreAddress for persistence
     const scoreResult = await scoreAddress({

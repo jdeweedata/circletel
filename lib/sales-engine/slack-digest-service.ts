@@ -113,12 +113,53 @@ export async function sendDailyDigest(): Promise<{ success: boolean; error: stri
     });
   }
 
+  // Execution Plan Status
+  if (b.execution_status) {
+    const es = b.execution_status;
+    const attainmentEmoji = es.attainment_pct >= 100 ? '[OK]' : es.attainment_pct >= 70 ? '[WARN]' : '[RISK]';
+    const mscEmoji = es.msc_coverage_ratio >= 1.5 ? '[OK]' : es.msc_coverage_ratio >= 1.0 ? '[WARN]' : '[RISK]';
+
+    blocks.push({ type: 'divider' } as SlackBlock);
+    blocks.push({
+      type: 'section',
+      text: { type: 'mrkdwn', text: '*Execution Plan Status*' },
+    });
+    blocks.push({
+      type: 'section',
+      fields: [
+        { type: 'mrkdwn', text: `*Current MRR:* R${Number(es.current_mrr).toLocaleString()}` },
+        { type: 'mrkdwn', text: `*Target MRR:* R${Number(es.target_mrr).toLocaleString()}` },
+        { type: 'mrkdwn', text: `${attainmentEmoji} *Attainment:* ${es.attainment_pct}%` },
+        { type: 'mrkdwn', text: `${mscEmoji} *MSC Coverage:* ${es.msc_coverage_ratio.toFixed(1)}x` },
+      ],
+    });
+  }
+
+  // Competitor Intelligence
+  if (b.competitor_intelligence && b.competitor_intelligence.price_changes_7d.length > 0) {
+    const ci = b.competitor_intelligence;
+    blocks.push({ type: 'divider' } as SlackBlock);
+    blocks.push({
+      type: 'section',
+      text: { type: 'mrkdwn', text: `*Competitor Intelligence (${ci.price_changes_7d.length} price changes this week)*` },
+    });
+    const changeLines = ci.price_changes_7d.slice(0, 5).map((c: { provider_name: string; product_name: string; direction: string; change_pct: number }) => {
+      const arrow = c.direction === 'increase' ? '[UP]' : '[DOWN]';
+      const impact = c.direction === 'increase' ? '(opportunity)' : '(threat)';
+      return `${arrow} *${c.provider_name}* ${c.product_name}: ${c.change_pct > 0 ? '+' : ''}${c.change_pct.toFixed(1)}% ${impact}`;
+    });
+    blocks.push({
+      type: 'section',
+      text: { type: 'mrkdwn', text: changeLines.join('\n') },
+    });
+  }
+
   // Footer
   blocks.push({ type: 'divider' } as SlackBlock);
   blocks.push({
     type: 'context',
     elements: [
-      { type: 'mrkdwn', text: `Generated ${new Date().toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })} | <https://www.circletel.co.za/admin/sales-engine/briefing|View Full Briefing>` },
+      { type: 'mrkdwn', text: `Generated ${new Date().toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })} | <https://www.circletel.co.za/admin/sales-engine/briefing|View Full Briefing> | <https://www.circletel.co.za/admin/sales-engine/execution-plan|Execution Plan>` },
     ],
   });
 

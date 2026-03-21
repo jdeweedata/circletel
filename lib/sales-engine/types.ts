@@ -478,6 +478,81 @@ export interface ZoneSuggestion {
 }
 
 // =============================================================================
+// Zone Discovery Types
+// =============================================================================
+
+export type ZoneDiscoveryStatus = 'pending' | 'approved' | 'rejected' | 'expired';
+
+export interface ZoneDiscoveryCandidate {
+  id: string;
+  ward_code: string;
+  ward_name: string | null;
+  municipality: string | null;
+  province: string;
+  center_lat: number;
+  center_lng: number;
+  // Scores
+  demographic_fit_score: number;
+  coverage_score: number;
+  product_alignment_score: number;
+  market_opportunity_score: number;
+  composite_score: number;
+  // Coverage infrastructure
+  base_station_count: number;
+  base_station_connections: number;
+  dfa_connected_count: number;
+  dfa_near_net_count: number;
+  // POI composition
+  business_poi_count: number;
+  office_poi_count: number;
+  healthcare_poi_count: number;
+  // Demographics snapshot
+  total_population: number;
+  total_households: number;
+  pct_no_internet: number;
+  pct_income_above_r12800: number;
+  // Suggestions
+  suggested_zone_type: ZoneType;
+  suggested_zone_name: string;
+  eligible_products: string[];
+  // Execution alignment
+  milestone_month: number | null;
+  milestone_target_products: string[];
+  // Admin workflow
+  status: ZoneDiscoveryStatus;
+  approved_by: string | null;
+  approved_at: string | null;
+  created_zone_id: string | null;
+  rejection_reason: string | null;
+  // Batch
+  discovery_batch_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ZoneDiscoveryParams {
+  province?: string;
+  min_fit_score?: number;
+  limit?: number;
+}
+
+export interface ZoneDiscoveryResult {
+  batch_id: string;
+  candidates: ZoneDiscoveryCandidate[];
+  total_wards_scanned: number;
+  milestone_month: number | null;
+  milestone_target_products: string[];
+}
+
+export interface ProductCoverageRequirement {
+  product_name: string;
+  needs_base_stations: boolean;
+  needs_dfa: boolean;
+  needs_office_pois: boolean;
+  needs_healthcare_pois: boolean;
+}
+
+// =============================================================================
 // Market Indicators Types
 // =============================================================================
 
@@ -518,4 +593,146 @@ export interface MarketAlert {
   detail: string;
   impact: 'positive' | 'negative' | 'neutral';
   recommendation: string;
+}
+
+// =============================================================================
+// Execution Plan Types
+// =============================================================================
+
+export type ExecutionPhase = 'bootstrap' | 'scale' | 'expand';
+export type MilestoneStatus = 'upcoming' | 'active' | 'met' | 'at_risk' | 'missed';
+
+export interface ExecutionMilestone {
+  id: string;
+  phase: ExecutionPhase;
+  month_number: number;
+  label: string;
+  target_mrr: number;
+  target_customers: number;
+  target_products: string[];
+  actual_mrr: number;
+  actual_customers: number;
+  msc_commitment: number;
+  status: MilestoneStatus;
+  hiring_trigger: string | null;
+  notes: string | null;
+  period_start: string;
+  period_end: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExecutionSnapshot {
+  current_phase: ExecutionPhase;
+  current_month: number;
+  total_mrr: number;
+  target_mrr: number;
+  mrr_gap: number;
+  mrr_attainment_pct: number;
+  total_customers: number;
+  msc_current: number;
+  msc_coverage_ratio: number;
+  active_milestones: ExecutionMilestone[];
+  next_milestone: ExecutionMilestone | null;
+  hiring_triggers_met: string[];
+  alerts: ExecutionAlert[];
+  monthly_trend: Array<{
+    month: number;
+    target_mrr: number;
+    actual_mrr: number;
+  }>;
+}
+
+export type ExecutionAlertType = 'mrr_behind' | 'msc_risk' | 'phase_gate' | 'hiring_trigger' | 'product_gap';
+export type ExecutionAlertSeverity = 'info' | 'warning' | 'critical';
+
+export interface ExecutionAlert {
+  type: ExecutionAlertType;
+  severity: ExecutionAlertSeverity;
+  message: string;
+  recommendation: string;
+}
+
+// =============================================================================
+// Product Wholesale Cost Types
+// =============================================================================
+
+export interface ProductWholesaleCost {
+  id: string;
+  product_name: string;
+  service_package_id: string | null;
+  wholesale_provider: string;
+  wholesale_mrc: number;
+  wholesale_nrc: number;
+  retail_price: number;
+  gross_margin_pct: number;
+  notes: string | null;
+  effective_date: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductMarginSummary {
+  product_name: string;
+  wholesale_provider: string;
+  wholesale_mrc: number;
+  retail_price: number;
+  gross_margin_pct: number;
+  monthly_contribution: number;
+}
+
+// =============================================================================
+// Sales Engine Config Types
+// =============================================================================
+
+export interface SalesEngineConfig {
+  id: string;
+  config_key: string;
+  config_value: Record<string, unknown>;
+  updated_at: string;
+  updated_by: string;
+}
+
+export interface DynamicScoringConfig {
+  estimated_mrr: Record<string, number>;
+  product_fit_scores: Record<string, number>;
+  revenue_potential_scores: Record<string, number>;
+  recommended_products: Record<string, string>;
+}
+
+// =============================================================================
+// Competitor Intelligence Types
+// =============================================================================
+
+export interface CompetitorPriceChange {
+  provider_name: string;
+  product_name: string;
+  old_price: number;
+  new_price: number;
+  change_pct: number;
+  direction: 'increase' | 'decrease';
+  detected_at: string;
+}
+
+export interface CompetitivePosition {
+  product_name: string;
+  circletel_price: number;
+  avg_competitor_price: number;
+  position: 'below' | 'competitive' | 'above';
+  gap_pct: number;
+  competitors: Array<{
+    name: string;
+    price: number;
+  }>;
+}
+
+export interface CompetitorIntelligenceSummary {
+  price_changes_7d: CompetitorPriceChange[];
+  zones_affected: Array<{
+    zone_id: string;
+    zone_name: string;
+    competitor: string;
+    change: string;
+  }>;
+  competitive_positions: CompetitivePosition[];
 }

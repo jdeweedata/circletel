@@ -104,6 +104,12 @@ export {
   osmPoiSyncFunction,
 } from './functions/osm-poi-sync';
 
+export {
+  salesEngineDailyOrchestrator,
+  salesEngineWeeklyReview,
+  salesEngineOrchestratorCompleted,
+} from './functions/sales-engine-orchestrator';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -201,6 +207,12 @@ import {
   osmPoiSyncFunction,
 } from './functions/osm-poi-sync';
 
+import {
+  salesEngineDailyOrchestrator,
+  salesEngineWeeklyReview,
+  salesEngineOrchestratorCompleted,
+} from './functions/sales-engine-orchestrator';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -262,4 +274,8 @@ export const functions = [
   zoneDemographicEnrichmentFailedFunction,
   // OSM POI sync
   osmPoiSyncFunction,
+  // Sales engine orchestrator (daily + weekly)
+  salesEngineDailyOrchestrator,
+  salesEngineWeeklyReview,
+  salesEngineOrchestratorCompleted,
 ];

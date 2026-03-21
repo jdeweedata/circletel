@@ -559,6 +559,72 @@ export type ZoneDemographicEnrichmentCancelledEvent = {
   };
 };
 
+// =============================================================================
+// ZONE DISCOVERY EVENTS
+// =============================================================================
+
+export type ZoneDiscoveryRequestedEvent = {
+  name: 'sales-engine/zone-discovery.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+    province?: string;
+    min_fit_score?: number;
+  };
+};
+
+export type ZoneDiscoveryCompletedEvent = {
+  name: 'sales-engine/zone-discovery.completed';
+  data: {
+    candidates_found: number;
+    batch_id: string;
+    duration_ms: number;
+  };
+};
+
+// =============================================================================
+// SALES ENGINE ORCHESTRATOR EVENTS
+// =============================================================================
+
+export type SalesEngineOrchestratorRequestedEvent = {
+  name: 'sales-engine/orchestrator.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+  };
+};
+
+export type SalesEngineOrchestratorCompletedEvent = {
+  name: 'sales-engine/orchestrator.completed';
+  data: {
+    competitor_changes: number;
+    products_synced: boolean;
+    milestones_updated: number;
+    briefing_generated: boolean;
+    slack_sent: boolean;
+    duration_ms: number;
+  };
+};
+
+export type SalesEngineWeeklyReviewRequestedEvent = {
+  name: 'sales-engine/weekly-review.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+  };
+};
+
+export type SalesEngineWeeklyReviewCompletedEvent = {
+  name: 'sales-engine/weekly-review.completed';
+  data: {
+    current_mrr: number;
+    target_mrr: number;
+    attainment_pct: number;
+    hiring_triggers_ready: string[];
+    duration_ms: number;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -612,4 +678,12 @@ export type InngestEvents = {
   'zone/demographics.enrichment.completed': ZoneDemographicEnrichmentCompletedEvent;
   'zone/demographics.enrichment.failed': ZoneDemographicEnrichmentFailedEvent;
   'zone/demographics.enrichment.cancelled': ZoneDemographicEnrichmentCancelledEvent;
+  // Zone discovery events
+  'sales-engine/zone-discovery.requested': ZoneDiscoveryRequestedEvent;
+  'sales-engine/zone-discovery.completed': ZoneDiscoveryCompletedEvent;
+  // Sales engine orchestrator events
+  'sales-engine/orchestrator.requested': SalesEngineOrchestratorRequestedEvent;
+  'sales-engine/orchestrator.completed': SalesEngineOrchestratorCompletedEvent;
+  'sales-engine/weekly-review.requested': SalesEngineWeeklyReviewRequestedEvent;
+  'sales-engine/weekly-review.completed': SalesEngineWeeklyReviewCompletedEvent;
 };
