@@ -8,6 +8,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import type { LeadScore, ScoreLeadInput, OutreachTrack } from './types';
+import { enrichLeadCoverage, getAutoProductRecommendation } from './coverage-enrichment-service';
 
 // =============================================================================
 // Types
@@ -209,7 +210,7 @@ export async function autoScoreLead(
     const estimatedMrr = ESTIMATED_MRR[recommendedProduct] ?? 599;
 
     // Delegate to scoreAddress for persistence
-    return scoreAddress({
+    const scoreResult = await scoreAddress({
       coverage_lead_id: coverageLeadId,
       zone_id: zoneId,
       product_fit_score: productFitScore,
@@ -222,10 +223,58 @@ export async function autoScoreLead(
       competitor_identified: competitor || null,
       scored_by: 'auto',
     });
+
+    // Enrich with coverage data (non-blocking — if it fails, scoring still succeeds)
+    if (scoreResult.data?.id) {
+      const enrichResult = await enrichLeadCoverage(scoreResult.data.id);
+      if (enrichResult.data) {
+        // Apply coverage bonus to product_fit_score
+        const coverageBonus = getCoverageBonus(
+          enrichResult.data.skyfibre_confidence,
+          enrichResult.data.dfa_coverage_type
+        );
+
+        if (coverageBonus > 0) {
+          const boostedFit = Math.min(productFitScore + coverageBonus, 100);
+          const coverageProduct = enrichResult.data.recommended_product;
+
+          // Re-persist with coverage-adjusted scores
+          const supabaseUpdate = await createClient();
+          await supabaseUpdate
+            .from('lead_scores')
+            .update({
+              product_fit_score: boostedFit,
+              recommended_product: coverageProduct,
+              estimated_mrr: ESTIMATED_MRR[coverageProduct] ?? estimatedMrr,
+            })
+            .eq('id', scoreResult.data.id);
+
+          // Update the returned data
+          scoreResult.data.product_fit_score = boostedFit;
+          scoreResult.data.recommended_product = coverageProduct;
+        }
+      }
+    }
+
+    return scoreResult;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return { data: null, error: `Failed to auto-score lead ${coverageLeadId}: ${message}` };
   }
+}
+
+/**
+ * Get product_fit bonus based on coverage availability.
+ * +10 for high confidence SkyFibre or connected DFA.
+ * +5 for medium confidence or near-net.
+ */
+function getCoverageBonus(
+  skyfibreConfidence: string,
+  dfaCoverageType: string
+): number {
+  if (skyfibreConfidence === 'high' || dfaCoverageType === 'connected') return 10;
+  if (skyfibreConfidence === 'medium' || dfaCoverageType === 'near-net') return 5;
+  return 0;
 }
 
 /**

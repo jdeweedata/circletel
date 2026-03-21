@@ -175,6 +175,9 @@ export default function LeadScoringPage() {
                   <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Revenue</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Competition</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Speed</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase">SkyFibre</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase">DFA</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Eligible</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Product</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Track</th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Est. MRR</th>
@@ -213,6 +216,46 @@ export default function LeadScoringPage() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <ScoreBar value={lead.conversion_speed_score} weight={15} />
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {lead.skyfibre_confidence ? (
+                        <span className={`inline-flex px-1.5 py-0.5 rounded text-xs font-medium ${
+                          lead.skyfibre_confidence === 'high' ? 'bg-green-100 text-green-700' :
+                          lead.skyfibre_confidence === 'medium' ? 'bg-amber-100 text-amber-700' :
+                          lead.skyfibre_confidence === 'low' ? 'bg-orange-100 text-orange-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {lead.skyfibre_confidence}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400">--</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {lead.dfa_coverage_type ? (
+                        <span className={`inline-flex px-1.5 py-0.5 rounded text-xs font-medium ${
+                          lead.dfa_coverage_type === 'connected' ? 'bg-purple-100 text-purple-700' :
+                          lead.dfa_coverage_type === 'near-net' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-500'
+                        }`}>
+                          {lead.dfa_coverage_type}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400">--</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {lead.coverage_product_eligible && lead.coverage_product_eligible.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {lead.coverage_product_eligible.map((product) => (
+                            <span key={product} className="inline-flex px-1.5 py-0.5 rounded text-xs bg-blue-50 text-blue-700">
+                              {product}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">--</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700">
                       {lead.recommended_product || '—'}

@@ -1,13 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ZoneHeatMap } from '@/components/admin/sales-engine/ZoneHeatMap';
+import type { BaseStationLayer, DFABuildingLayer } from '@/components/admin/sales-engine/ZoneHeatMap';
 import type { SalesZone } from '@/lib/sales-engine/types';
 
 export default function SalesEngineMapPage() {
   const [zones, setZones] = useState<SalesZone[]>([]);
   const [selectedZone, setSelectedZone] = useState<SalesZone | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Infrastructure layer state
+  const [baseStations, setBaseStations] = useState<BaseStationLayer[]>([]);
+  const [dfaBuildings, setDfaBuildings] = useState<DFABuildingLayer[]>([]);
+  const [showBaseStations, setShowBaseStations] = useState(false);
+  const [showDFABuildings, setShowDFABuildings] = useState(false);
+  const [layersLoading, setLayersLoading] = useState(false);
 
   useEffect(() => {
     async function fetchZones() {
@@ -24,11 +32,86 @@ export default function SalesEngineMapPage() {
     fetchZones();
   }, []);
 
+  // Fetch coverage layers when toggled on
+  const fetchCoverageLayers = useCallback(async (layers: string[]) => {
+    if (layers.length === 0) return;
+    try {
+      setLayersLoading(true);
+      const params = new URLSearchParams({
+        layers: layers.join(','),
+        dfa_limit: '2000',
+      });
+      const res = await fetch(`/api/admin/sales-engine/map/coverage-layers?${params}`);
+      const json = await res.json();
+
+      if (json.data?.base_stations) {
+        setBaseStations(json.data.base_stations);
+      }
+      if (json.data?.dfa_buildings) {
+        setDfaBuildings(json.data.dfa_buildings);
+      }
+    } catch (error) {
+      console.error('Failed to fetch coverage layers:', error);
+    } finally {
+      setLayersLoading(false);
+    }
+  }, []);
+
+  function handleToggleBaseStations() {
+    const newState = !showBaseStations;
+    setShowBaseStations(newState);
+    if (newState && baseStations.length === 0) {
+      fetchCoverageLayers(['base_stations']);
+    }
+  }
+
+  function handleToggleDFABuildings() {
+    const newState = !showDFABuildings;
+    setShowDFABuildings(newState);
+    if (newState && dfaBuildings.length === 0) {
+      fetchCoverageLayers(['dfa_buildings']);
+    }
+  }
+
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Territory Heat Map</h1>
-        <p className="text-gray-500 mt-1">Geographic visualization of sales zones and penetration</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Territory Heat Map</h1>
+          <p className="text-gray-500 mt-1">Geographic visualization of sales zones, coverage infrastructure, and penetration</p>
+        </div>
+
+        {/* Layer toggle buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={handleToggleBaseStations}
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+              showBaseStations
+                ? 'bg-orange-100 text-orange-700 border-orange-300'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            <div className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+            Base Stations {baseStations.length > 0 && `(${baseStations.length})`}
+          </button>
+          <button
+            onClick={handleToggleDFABuildings}
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+              showDFABuildings
+                ? 'bg-purple-100 text-purple-700 border-purple-300'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            <div className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+            DFA Buildings {dfaBuildings.length > 0 && `(${dfaBuildings.length})`}
+          </button>
+          {layersLoading && (
+            <div className="flex items-center text-xs text-gray-400">
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-400 mr-1" />
+              Loading...
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -44,6 +127,10 @@ export default function SalesEngineMapPage() {
               onZoneSelect={setSelectedZone}
               selectedZoneId={selectedZone?.id}
               height="600px"
+              baseStations={baseStations}
+              dfaBuildings={dfaBuildings}
+              showBaseStations={showBaseStations}
+              showDFABuildings={showDFABuildings}
             />
           )}
         </div>
@@ -89,6 +176,44 @@ export default function SalesEngineMapPage() {
                 </div>
               </div>
 
+              {/* Coverage Data */}
+              {selectedZone.coverage_confidence && (
+                <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                  <p className="text-xs font-semibold text-gray-500 uppercase">Coverage Intelligence</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Confidence</span>
+                    <span className={`font-bold px-1.5 py-0.5 rounded text-xs ${
+                      selectedZone.coverage_confidence === 'high' ? 'bg-green-100 text-green-700' :
+                      selectedZone.coverage_confidence === 'medium' ? 'bg-amber-100 text-amber-700' :
+                      selectedZone.coverage_confidence === 'low' ? 'bg-orange-100 text-orange-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {selectedZone.coverage_confidence}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Base Stations</span>
+                    <span className="font-medium text-gray-900">
+                      {selectedZone.base_station_count} ({selectedZone.base_station_connections} conn.)
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">DFA Connected</span>
+                    <span className="font-medium text-gray-900">{selectedZone.dfa_connected_count}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">DFA Near-Net</span>
+                    <span className="font-medium text-gray-900">{selectedZone.dfa_near_net_count}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Enriched Score</span>
+                    <span className="font-bold text-gray-900">
+                      {Number(selectedZone.enriched_zone_score).toFixed(0)}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {selectedZone.notes && (
                 <p className="mt-3 text-xs text-gray-500 border-t border-gray-100 pt-3">{selectedZone.notes}</p>
               )}
@@ -118,7 +243,10 @@ export default function SalesEngineMapPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-900">{zone.name}</p>
-                      <p className="text-xs text-gray-400">{zone.active_customers} customers</p>
+                      <p className="text-xs text-gray-400">
+                        {zone.active_customers} customers
+                        {zone.coverage_confidence && ` · ${zone.coverage_confidence} coverage`}
+                      </p>
                     </div>
                     <span className={`text-xs font-bold px-2 py-0.5 rounded ${
                       Number(zone.zone_score) >= 70 ? 'bg-green-100 text-green-700' :
