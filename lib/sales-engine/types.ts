@@ -515,6 +515,9 @@ export interface ZoneDiscoveryCandidate {
   suggested_zone_type: ZoneType;
   suggested_zone_name: string;
   eligible_products: string[];
+  // Arlan opportunity (nationally available via LTE/5G)
+  estimated_arlan_mrr: number;
+  arlan_upsell_use_cases: string[];
   // Execution alignment
   milestone_month: number | null;
   milestone_target_products: string[];
@@ -641,6 +644,9 @@ export interface ExecutionSnapshot {
     target_mrr: number;
     actual_mrr: number;
   }>;
+  // Arlan MRR breakdown (separate line item)
+  arlan_mrr?: ArlanMRRSnapshot | null;
+  connectivity_mrr?: number;  // CircleTel connectivity products only (total_mrr - arlan markup)
 }
 
 export type ExecutionAlertType = 'mrr_behind' | 'msc_risk' | 'phase_gate' | 'hiring_trigger' | 'product_gap';
@@ -698,6 +704,50 @@ export interface DynamicScoringConfig {
   product_fit_scores: Record<string, number>;
   revenue_potential_scores: Record<string, number>;
   recommended_products: Record<string, string>;
+  arlan_recommended_deals?: Record<string, string[]>;  // customer_type → deal_ids
+}
+
+// =============================================================================
+// Arlan MRR Types
+// =============================================================================
+
+export interface ArlanMRRSnapshot {
+  total_arlan_mrr: number;
+  commission_mrr: number;
+  markup_mrr: number;
+  curated_deals_count: number;
+  deals_by_use_case: Record<string, { count: number; avg_price: number; avg_markup: number }>;
+  msc_commitment: number;
+  msc_coverage_ratio: number;
+  avg_monthly_commission_per_deal: number;
+  avg_monthly_markup_per_deal: number;
+  avg_total_revenue_per_deal: number;
+  projected_mrr_10_deals: number;
+  projected_mrr_50_deals: number;
+}
+
+export interface ArlanRevenueProjection {
+  deal_count: number;
+  monthly_commission: number;
+  monthly_markup: number;
+  total_monthly_mrr: number;
+  annual_commission: number;
+  annual_markup: number;
+  total_annual: number;
+  avg_contract_value: number;
+  avg_circletel_commission_per_contract: number;
+}
+
+export interface ArlanUseCaseSummary {
+  use_case: string;
+  deal_count: number;
+  avg_mtn_price: number;
+  avg_selling_price: number;
+  avg_markup_pct: number;
+  avg_monthly_commission: number;
+  avg_monthly_markup: number;
+  avg_total_monthly_revenue: number;
+  top_deals: Array<{ deal_id: string; device_name: string | null; price_plan: string; selling_price: number }>;
 }
 
 // =============================================================================

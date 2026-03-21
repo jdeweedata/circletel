@@ -16,6 +16,7 @@ import type {
   ExecutionAlertType,
   ExecutionAlertSeverity,
 } from './types';
+import { getArlanMRRSnapshot } from './arlan-mrr-tracker-service';
 
 // =============================================================================
 // Types
@@ -264,6 +265,15 @@ export async function getExecutionSnapshot(): Promise<ServiceResult<ExecutionSna
       actual_mrr: m.actual_mrr,
     }));
 
+    // Fetch Arlan MRR as separate line item
+    const arlanResult = await getArlanMRRSnapshot();
+    const arlanMRR = arlanResult.data ?? null;
+
+    // Connectivity MRR = total MRR minus Arlan markup (commission is separate income)
+    const connectivityMRR = arlanMRR
+      ? totalMRR - arlanMRR.markup_mrr
+      : totalMRR;
+
     const snapshot: ExecutionSnapshot = {
       current_phase: currentMilestone.phase,
       current_month: currentMilestone.month_number,
@@ -279,6 +289,8 @@ export async function getExecutionSnapshot(): Promise<ServiceResult<ExecutionSna
       hiring_triggers_met: hiringTriggersMet,
       alerts,
       monthly_trend: monthlyTrend,
+      arlan_mrr: arlanMRR,
+      connectivity_mrr: connectivityMRR,
     };
 
     return { data: snapshot, error: null };

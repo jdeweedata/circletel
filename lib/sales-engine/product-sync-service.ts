@@ -35,6 +35,17 @@ const CUSTOMER_PRODUCT_MAP: Record<string, string> = {
   soho: 'WorkConnect SOHO',
 };
 
+// Customer type → recommended Arlan upsell deals by business_use_case
+const ARLAN_UPSELL_MAP: Record<string, string[]> = {
+  business: ['voice_comms', 'backup_connectivity', 'device_upgrade'],
+  enterprise: ['voice_comms', 'fleet_management', 'data_connectivity'],
+  office_park: ['voice_comms', 'backup_connectivity'],
+  clinic: ['backup_connectivity', 'data_connectivity'],
+  healthcare: ['backup_connectivity', 'data_connectivity'],
+  soho: ['backup_connectivity', 'device_upgrade'],
+  residential: ['device_upgrade'],
+};
+
 // =============================================================================
 // Product Margins
 // =============================================================================
@@ -286,4 +297,97 @@ export async function getDynamicScoringConfig(): Promise<DynamicScoringConfig | 
   } catch {
     return null;
   }
+}
+
+// =============================================================================
+// Arlan Product Scoring
+// =============================================================================
+
+/**
+ * Build Arlan-specific scoring data from curated MTN deals.
+ * Arlan products are always nationally available (LTE/5G coverage),
+ * so they can be recommended in every zone as upsell opportunities.
+ */
+export async function getArlanProductScoring(): Promise<ServiceResult<{
+  arlan_estimated_mrr: Record<string, number>;
+  arlan_upsell_by_customer_type: Record<string, string[]>;
+  curated_deal_count: number;
+}>> {
+  try {
+    const supabase = await createClient();
+
+    const { data: deals, error: queryError } = await supabase
+      .from('mtn_dealer_products')
+      .select('business_use_case, selling_price_incl_vat, mtn_price_excl_vat, markup_value')
+      .eq('status', 'active')
+      .in('curation_status', ['recommended', 'featured']);
+
+    if (queryError) {
+      return { data: null, error: `Failed to fetch curated deals: ${queryError.message}` };
+    }
+
+    if (!deals || deals.length === 0) {
+      return { data: { arlan_estimated_mrr: {}, arlan_upsell_by_customer_type: ARLAN_UPSELL_MAP, curated_deal_count: 0 }, error: null };
+    }
+
+    // Average selling price by use case
+    const useCaseAgg: Record<string, { total: number; count: number }> = {};
+    for (const d of deals) {
+      const uc = d.business_use_case ?? 'data_connectivity';
+      if (!useCaseAgg[uc]) useCaseAgg[uc] = { total: 0, count: 0 };
+      useCaseAgg[uc].total += Number(d.selling_price_incl_vat) || 0;
+      useCaseAgg[uc].count += 1;
+    }
+
+    const arlan_estimated_mrr: Record<string, number> = {};
+    for (const [uc, agg] of Object.entries(useCaseAgg)) {
+      arlan_estimated_mrr[`Arlan ${uc}`] = Math.round(agg.total / agg.count);
+    }
+
+    return {
+      data: {
+        arlan_estimated_mrr,
+        arlan_upsell_by_customer_type: ARLAN_UPSELL_MAP,
+        curated_deal_count: deals.length,
+      },
+      error: null,
+    };
+  } catch (error) {
+    return { data: null, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+/**
+ * Extends getProductAvailabilityByZone by adding Arlan products.
+ * Arlan MTN deals are always nationally available via LTE/5G,
+ * so every zone gets Arlan upsell opportunities.
+ */
+export async function getProductAvailabilityWithArlan(
+  zoneId: string
+): Promise<ServiceResult<{ circletel_products: string[]; arlan_use_cases: string[] }>> {
+  const circletelResult = await getProductAvailabilityByZone(zoneId);
+
+  if (circletelResult.error || !circletelResult.data) {
+    return { data: null, error: circletelResult.error };
+  }
+
+  // Arlan products are always available nationally
+  const arlan_use_cases = [
+    'voice_comms',
+    'data_connectivity',
+    'device_upgrade',
+    'backup_connectivity',
+    'fleet_management',
+    'iot_m2m',
+    'mobile_workforce',
+    'venue_wifi',
+  ];
+
+  return {
+    data: {
+      circletel_products: circletelResult.data,
+      arlan_use_cases,
+    },
+    error: null,
+  };
 }

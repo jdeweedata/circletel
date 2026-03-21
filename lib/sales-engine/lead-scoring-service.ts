@@ -512,3 +512,89 @@ function getCompetitiveVulnScore(competitor: string): number {
   // Unknown competitor — moderate opportunity
   return 60;
 }
+
+// =============================================================================
+// Arlan Upsell Recommendations
+// =============================================================================
+
+/** Arlan upsell use cases by customer type */
+const ARLAN_UPSELL_BY_CUSTOMER_TYPE: Record<string, string[]> = {
+  business: ['voice_comms', 'backup_connectivity', 'device_upgrade'],
+  enterprise: ['voice_comms', 'fleet_management', 'data_connectivity'],
+  office_park: ['voice_comms', 'backup_connectivity'],
+  clinic: ['backup_connectivity', 'data_connectivity'],
+  healthcare: ['backup_connectivity', 'data_connectivity'],
+  soho: ['backup_connectivity', 'device_upgrade'],
+  residential: ['device_upgrade'],
+};
+
+export interface ArlanUpsellRecommendation {
+  coverage_lead_id: string;
+  customer_type: string;
+  recommended_product: string;
+  arlan_upsell_use_cases: string[];
+  estimated_arlan_mrr: number;
+  total_estimated_mrr: number;
+}
+
+/**
+ * Get Arlan upsell recommendations for a lead based on its customer type.
+ * Returns the connectivity product recommendation plus matching Arlan add-on
+ * categories and estimated combined MRR.
+ */
+export async function getArlanUpsellForLead(
+  coverageLeadId: string
+): Promise<ServiceResult<ArlanUpsellRecommendation>> {
+  try {
+    const supabase = await createClient();
+
+    // Get the lead's score and customer type
+    const { data: lead, error: leadError } = await supabase
+      .from('coverage_leads')
+      .select('id, customer_type')
+      .eq('id', coverageLeadId)
+      .single();
+
+    if (leadError || !lead) {
+      return { data: null, error: `Lead not found: ${leadError?.message ?? 'no data'}` };
+    }
+
+    const customerType = (lead.customer_type ?? '').toLowerCase().trim();
+    const upsellUseCases = ARLAN_UPSELL_BY_CUSTOMER_TYPE[customerType] ?? ['backup_connectivity'];
+
+    // Get average Arlan deal price by recommended use cases
+    const { data: arlanDeals, error: arlanError } = await supabase
+      .from('mtn_dealer_products')
+      .select('selling_price_incl_vat, business_use_case')
+      .eq('status', 'active')
+      .in('curation_status', ['recommended', 'featured'])
+      .in('business_use_case', upsellUseCases);
+
+    let estimatedArlanMRR = 0;
+    if (!arlanError && arlanDeals && arlanDeals.length > 0) {
+      const totalPrice = arlanDeals.reduce(
+        (sum, d) => sum + (Number(d.selling_price_incl_vat) || 0),
+        0
+      );
+      estimatedArlanMRR = Math.round(totalPrice / arlanDeals.length);
+    }
+
+    const recommendedProduct = RECOMMENDED_PRODUCTS[customerType] ?? 'WorkConnect SOHO';
+    const connectivityMRR = ESTIMATED_MRR[recommendedProduct] ?? 599;
+
+    return {
+      data: {
+        coverage_lead_id: coverageLeadId,
+        customer_type: customerType,
+        recommended_product: recommendedProduct,
+        arlan_upsell_use_cases: upsellUseCases,
+        estimated_arlan_mrr: estimatedArlanMRR,
+        total_estimated_mrr: connectivityMRR + estimatedArlanMRR,
+      },
+      error: null,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { data: null, error: `Failed to get Arlan upsell: ${message}` };
+  }
+}

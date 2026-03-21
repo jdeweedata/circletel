@@ -73,6 +73,57 @@ const PRODUCT_COVERAGE_MAP: ProductCoverageRequirement[] = [
 // =============================================================================
 
 /**
+ * Determine which Arlan upsell use cases are relevant for a zone
+ * based on its type and POI composition. Arlan products are always
+ * nationally available via MTN LTE/5G.
+ */
+function getArlanUseCasesForZone(
+  zoneType: ZoneType,
+  businessPoiCount: number,
+  healthcarePoiCount: number
+): string[] {
+  // Base use cases available in every zone
+  const useCases = ['voice_comms', 'backup_connectivity', 'device_upgrade'];
+
+  // Add zone-specific use cases
+  if (zoneType === 'office_park' || businessPoiCount >= 5) {
+    useCases.push('fleet_management', 'data_connectivity');
+  }
+  if (zoneType === 'clinic_cluster' || healthcarePoiCount >= 2) {
+    useCases.push('data_connectivity');
+  }
+  if (zoneType === 'commercial_strip') {
+    useCases.push('iot_m2m', 'venue_wifi');
+  }
+
+  return [...new Set(useCases)];
+}
+
+/**
+ * Estimate potential Arlan MRR for a zone based on business density.
+ * Uses avg curated deal revenue (~R100/deal/month in commission + markup)
+ * multiplied by estimated sellable deals (fraction of business POIs).
+ */
+function estimateArlanMRR(businessPoiCount: number, zoneType: ZoneType): number {
+  // Avg combined monthly revenue per Arlan deal (commission + markup)
+  const AVG_REVENUE_PER_DEAL = 140; // R100 markup + R40 commission approx
+
+  // Penetration estimate: % of businesses likely to buy an Arlan deal
+  const penetrationRates: Record<ZoneType, number> = {
+    office_park: 0.15,      // 15% of businesses
+    commercial_strip: 0.10,
+    clinic_cluster: 0.08,
+    residential_estate: 0.03,
+    mixed: 0.05,
+  };
+
+  const penetration = penetrationRates[zoneType] ?? 0.05;
+  const estimatedDeals = Math.max(1, Math.round(businessPoiCount * penetration));
+
+  return Math.round(estimatedDeals * AVG_REVENUE_PER_DEAL);
+}
+
+/**
  * Compute coverage score from infrastructure counts (0-100).
  * Reuses the same formula as coverage-enrichment-service.
  */
@@ -303,6 +354,11 @@ export async function runZoneDiscovery(
         marketOpportunityScore * 0.25
       );
 
+      // Arlan opportunity: every zone gets MTN deals (nationally available via LTE/5G)
+      // Estimate based on business POI count × avg deal revenue
+      const arlanUseCases = getArlanUseCasesForZone(zoneType, row.business_poi_count, row.healthcare_poi_count);
+      const estimatedArlanMRR = estimateArlanMRR(row.business_poi_count, zoneType);
+
       const candidate: ZoneDiscoveryCandidate = {
         id: '', // Will be set by DB
         ward_code: row.ward_code,
@@ -330,6 +386,8 @@ export async function runZoneDiscovery(
         suggested_zone_type: zoneType,
         suggested_zone_name: zoneName,
         eligible_products: eligibleProducts,
+        estimated_arlan_mrr: estimatedArlanMRR,
+        arlan_upsell_use_cases: arlanUseCases,
         milestone_month: milestoneMonth,
         milestone_target_products: targetProducts,
         status: 'pending',
@@ -375,6 +433,8 @@ export async function runZoneDiscovery(
       suggested_zone_type: c.suggested_zone_type,
       suggested_zone_name: c.suggested_zone_name,
       eligible_products: c.eligible_products,
+      estimated_arlan_mrr: c.estimated_arlan_mrr,
+      arlan_upsell_use_cases: c.arlan_upsell_use_cases,
       milestone_month: c.milestone_month,
       milestone_target_products: c.milestone_target_products,
       status: 'pending' as const,
