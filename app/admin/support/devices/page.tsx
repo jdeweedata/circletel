@@ -750,85 +750,105 @@ export default function NetworkInventoryPage() {
       {/* ============================================================= */}
       <TabPanel id="search" activeTab={activeTab} className="space-y-6">
         {/* Search Input */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <Input
-                  placeholder="Search by customer name, email, or phone number..."
-                  value={custQuery}
-                  onChange={(e) => setCustQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCustSearch()}
-                  className="pl-10 h-11"
-                />
-              </div>
-              <Button onClick={handleCustSearch} disabled={custLoading || !custQuery.trim()} className="h-11 px-6">
-                {custLoading ? (
-                  <PiArrowsClockwiseBold className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <PiMagnifyingGlassBold className="w-4 h-4 mr-2" />
-                )}
-                Search
-              </Button>
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Input
+                placeholder="Search by customer name, email, or phone number..."
+                value={custQuery}
+                onChange={(e) => setCustQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCustSearch()}
+                className="pl-10 h-11"
+              />
             </div>
-          </CardContent>
-        </Card>
+            <Button onClick={handleCustSearch} disabled={custLoading || !custQuery.trim()} className="h-11 px-6">
+              {custLoading ? (
+                <PiArrowsClockwiseBold className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <PiMagnifyingGlassBold className="w-4 h-4 mr-2" />
+              )}
+              Search
+            </Button>
+          </div>
+          {custSearchPerformed && (
+            <div className="flex items-center gap-4 mt-3 text-sm text-slate-500">
+              <span>{customers.length} customer{customers.length !== 1 ? 's' : ''} found</span>
+              {selectedCustomer && (
+                <>
+                  <span className="text-slate-300">|</span>
+                  <span className="flex items-center gap-1">
+                    <PiUserBold className="w-3.5 h-3.5" />
+                    <span className="font-medium text-slate-700">{selectedCustomer.name}</span>
+                  </span>
+                  <span className="text-slate-300">|</span>
+                  <span>{custDevices.length} device{custDevices.length !== 1 ? 's' : ''} linked</span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
-        {/* Customer + Device Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Customer List */}
-          <div className="lg:col-span-1">
-            <Card>
-              <div className="p-4 border-b border-slate-100">
-                <h2 className="font-semibold text-slate-900 flex items-center gap-2">
-                  <PiUserBold className="w-5 h-5 text-slate-600" />
-                  Customers
-                  {customers.length > 0 && <Badge variant="secondary" className="ml-auto">{customers.length}</Badge>}
-                </h2>
-              </div>
-              <CardContent className="p-0">
-                {!custSearchPerformed ? (
+        {!custSearchPerformed ? (
+          <div className="bg-white rounded-xl border border-slate-200 p-16 text-center">
+            <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+              <PiMagnifyingGlassBold className="w-10 h-10 text-slate-300" />
+            </div>
+            <p className="text-slate-500 font-medium text-lg">Search for a customer</p>
+            <p className="text-sm text-slate-400 mt-1">Enter a name, email, or phone number to find their linked devices</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Customer List — Left Panel */}
+            <div className="lg:col-span-4">
+              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                  <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+                    <PiUserBold className="w-4 h-4 text-slate-500" />
+                    Customers
+                  </h3>
+                  {customers.length > 0 && (
+                    <Badge variant="secondary" className="text-xs">{customers.length}</Badge>
+                  )}
+                </div>
+                {customers.length === 0 ? (
                   <div className="p-8 text-center">
-                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                      <PiMagnifyingGlassBold className="w-8 h-8 text-slate-400" />
-                    </div>
-                    <p className="text-slate-500 font-medium">Search for a customer</p>
-                    <p className="text-sm text-slate-400 mt-1">Enter a name, email, or phone number above</p>
-                  </div>
-                ) : customers.length === 0 ? (
-                  <div className="p-8 text-center">
-                    <p className="text-slate-500 font-medium">No customers found</p>
+                    <p className="text-slate-500 text-sm">No customers found</p>
+                    <p className="text-xs text-slate-400 mt-1">Try a different search term</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
+                  <div className="divide-y divide-slate-100 max-h-[520px] overflow-y-auto">
                     {customers.map((customer) => (
                       <button
                         key={customer.id}
                         onClick={() => handleSelectCustomer(customer)}
-                        className={`w-full text-left p-4 transition-colors ${
-                          selectedCustomer?.id === customer.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : 'hover:bg-slate-50'
+                        className={`w-full text-left p-3.5 transition-colors ${
+                          selectedCustomer?.id === customer.id
+                            ? 'bg-blue-50 border-l-3 border-l-blue-500'
+                            : 'hover:bg-slate-50'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
-                            <p className="font-medium text-slate-900 truncate">{customer.name}</p>
+                            <p className="font-medium text-slate-900 text-sm truncate">{customer.name}</p>
                             {customer.email && (
                               <div className="flex items-center gap-1.5 mt-1">
-                                <PiEnvelopeBold className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                                <span className="text-sm text-slate-500 truncate">{customer.email}</span>
+                                <PiEnvelopeBold className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                <span className="text-xs text-slate-500 truncate">{customer.email}</span>
                               </div>
                             )}
                             {customer.phone && (
                               <div className="flex items-center gap-1.5 mt-0.5">
-                                <PiPhoneBold className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                                <span className="text-sm text-slate-500">{customer.phone}</span>
+                                <PiPhoneBold className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                <span className="text-xs text-slate-500">{customer.phone}</span>
                               </div>
                             )}
                           </div>
-                          <Badge variant="outline" className={
-                            customer.type === 'corporate' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-purple-50 text-purple-700 border-purple-200'
-                          }>
+                          <Badge variant="outline" className={`text-[10px] px-1.5 py-0.5 ${
+                            customer.type === 'corporate'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : 'bg-purple-50 text-purple-700 border-purple-200'
+                          }`}>
                             {customer.type === 'consumer' ? 'Consumer' : 'Corporate'}
                           </Badge>
                         </div>
@@ -836,79 +856,220 @@ export default function NetworkInventoryPage() {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Device List */}
-          <div className="lg:col-span-2">
-            <Card>
-              <div className="p-4 border-b border-slate-100">
-                <h2 className="font-semibold text-slate-900 flex items-center gap-2">
-                  <PiWifiHighBold className="w-5 h-5 text-slate-600" />
-                  Linked Devices
-                  {selectedCustomer && custDevices.length > 0 && <Badge variant="secondary">{custDevices.length}</Badge>}
-                </h2>
-                {selectedCustomer && (
-                  <p className="text-sm text-slate-500 mt-1">
-                    Devices for <span className="font-medium text-slate-700">{selectedCustomer.name}</span>
-                  </p>
-                )}
               </div>
-              <CardContent className="p-0">
-                {!selectedCustomer ? (
-                  <div className="p-12 text-center">
-                    <PiDevicesBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-500 font-medium">Select a customer</p>
-                    <p className="text-sm text-slate-400 mt-1">Choose from the list to view linked devices</p>
-                  </div>
-                ) : custDevices.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <PiWifiSlashBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-500 font-medium">No devices found</p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-100">
-                    {custDevices.map((device) => (
-                      <Link
-                        key={device.sn}
-                        href={`/admin/network/devices/${device.sn}`}
-                        className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            device.status === 'online' ? 'bg-emerald-100' : 'bg-slate-100'
-                          }`}>
-                            {device.status === 'online' ? (
-                              <PiWifiHighBold className="w-5 h-5 text-emerald-600" />
-                            ) : (
-                              <PiWifiSlashBold className="w-5 h-5 text-slate-400" />
-                            )}
-                          </div>
+            </div>
+
+            {/* Right Panel — Customer Details + Devices Table */}
+            <div className="lg:col-span-8 space-y-4">
+              {!selectedCustomer ? (
+                <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                  <PiCaretRightBold className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500 font-medium">Select a customer</p>
+                  <p className="text-sm text-slate-400 mt-1">Choose from the list to view details and devices</p>
+                </div>
+              ) : (
+                <>
+                  {/* Customer Info Card */}
+                  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                      <h3 className="font-semibold text-slate-900 text-sm">Customer Details</h3>
+                      <Badge variant="outline" className={
+                        selectedCustomer.type === 'corporate'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-purple-50 text-purple-700 border-purple-200'
+                      }>
+                        {selectedCustomer.type === 'consumer' ? (
+                          <PiUserCircleBold className="w-3 h-3 mr-1" />
+                        ) : (
+                          <PiBuildingsBold className="w-3 h-3 mr-1" />
+                        )}
+                        {selectedCustomer.type === 'consumer' ? 'Consumer' : 'Corporate'}
+                      </Badge>
+                    </div>
+                    <div className="p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Name</p>
+                          <p className="text-sm font-medium text-slate-900">{selectedCustomer.name}</p>
+                        </div>
+                        {selectedCustomer.email && (
                           <div>
-                            <p className="font-medium text-slate-900 group-hover:text-blue-600">{device.device_name}</p>
-                            <p className="text-sm text-slate-500">{device.model || 'Unknown'} · {device.sn}</p>
+                            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Email</p>
+                            <a href={`mailto:${selectedCustomer.email}`} className="text-sm text-blue-600 hover:underline">
+                              {selectedCustomer.email}
+                            </a>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <Badge variant="outline" className={
-                              device.status === 'online' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-600 border-slate-200'
-                            }>
-                              {device.status}
-                            </Badge>
-                            <p className="text-xs text-slate-400 mt-1">{device.online_clients} clients · {formatRelativeTime(device.synced_at)}</p>
+                        )}
+                        {selectedCustomer.phone && (
+                          <div>
+                            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Phone</p>
+                            <p className="text-sm font-medium text-slate-900">{selectedCustomer.phone}</p>
                           </div>
-                          <PiCaretRightBold className="w-5 h-5 text-slate-300 group-hover:text-slate-500" />
-                        </div>
-                      </Link>
-                    ))}
+                        )}
+                        {selectedCustomer.address && (
+                          <div className="sm:col-span-3">
+                            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Address</p>
+                            <p className="text-sm text-slate-700">{selectedCustomer.address}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+
+                  {/* Devices Table */}
+                  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                      <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+                        <PiWifiHighBold className="w-4 h-4 text-slate-500" />
+                        Linked Devices
+                      </h3>
+                      <div className="flex items-center gap-3 text-xs">
+                        {custDevices.length > 0 && (
+                          <>
+                            <span className="flex items-center gap-1 text-emerald-600">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              {custDevices.filter(d => d.status === 'online').length} online
+                            </span>
+                            <span className="flex items-center gap-1 text-slate-500">
+                              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                              {custDevices.filter(d => d.status !== 'online').length} offline
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {custLoading ? (
+                      <div className="p-4 space-y-3">
+                        {[1, 2].map((i) => (
+                          <div key={i} className="h-14 bg-slate-100 rounded animate-pulse" />
+                        ))}
+                      </div>
+                    ) : custDevices.length === 0 ? (
+                      <div className="p-10 text-center">
+                        <PiWifiSlashBold className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                        <p className="text-slate-500 text-sm font-medium">No devices linked</p>
+                        <p className="text-xs text-slate-400 mt-1">This customer has no Ruijie APs assigned</p>
+                      </div>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-white">
+                            <TableHead className="w-10"></TableHead>
+                            <TableHead>Device</TableHead>
+                            <TableHead>Model</TableHead>
+                            <TableHead>Serial Number</TableHead>
+                            <TableHead>Group</TableHead>
+                            <TableHead className="text-center">Clients</TableHead>
+                            <TableHead>Last Sync</TableHead>
+                            <TableHead className="w-10"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {custDevices.map((device) => (
+                            <TableRow key={device.sn} className="group cursor-pointer" onClick={() => window.location.href = `/admin/network/devices/${device.sn}`}>
+                              <TableCell>
+                                <span className={`w-2.5 h-2.5 rounded-full inline-block ${
+                                  device.status === 'online' ? 'bg-emerald-500' : 'bg-slate-400'
+                                }`} />
+                              </TableCell>
+                              <TableCell>
+                                <span className="font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
+                                  {device.device_name}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-slate-600">{device.model || 'Unknown'}</TableCell>
+                              <TableCell>
+                                <span className="font-mono text-xs text-slate-500">{device.sn}</span>
+                              </TableCell>
+                              <TableCell className="text-slate-600 text-xs">{device.group_name || '—'}</TableCell>
+                              <TableCell className="text-center">
+                                <Badge variant="outline" className={
+                                  device.online_clients > 0
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                    : 'bg-slate-50 text-slate-500 border-slate-200'
+                                }>
+                                  {device.online_clients}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-xs text-slate-400">{formatRelativeTime(device.synced_at)}</TableCell>
+                              <TableCell>
+                                <Link href={`/admin/network/devices/${device.sn}`} className="text-slate-400 group-hover:text-blue-600">
+                                  <PiCaretRightBold className="w-4 h-4" />
+                                </Link>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </div>
+
+                  {/* Network Inventory Devices (from network_devices table) */}
+                  {selectedCustomer && (() => {
+                    const inventoryDevices = devices.filter(d =>
+                      d.customer_name?.toLowerCase().includes(selectedCustomer.name.toLowerCase())
+                    );
+                    if (inventoryDevices.length === 0) return null;
+                    return (
+                      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
+                          <h3 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+                            <PiDevicesBold className="w-4 h-4 text-slate-500" />
+                            Network Inventory
+                            <Badge variant="secondary" className="text-xs">{inventoryDevices.length}</Badge>
+                          </h3>
+                          <p className="text-xs text-slate-400 mt-0.5">Tarana routers, Tozed CPEs, and SIMs linked to this customer</p>
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-white">
+                              <TableHead className="w-10"></TableHead>
+                              <TableHead>Device</TableHead>
+                              <TableHead>Type</TableHead>
+                              <TableHead>Site</TableHead>
+                              <TableHead>PPPoE / SIM</TableHead>
+                              <TableHead className="text-right">Cost</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {inventoryDevices.map((device) => (
+                              <TableRow key={device.id}>
+                                <TableCell>
+                                  <span className={`w-2.5 h-2.5 rounded-full inline-block ${statusDotColor(device.status)}`} />
+                                </TableCell>
+                                <TableCell>
+                                  <div className="font-medium text-slate-800 text-sm">{device.device_name}</div>
+                                  <div className="text-xs font-mono text-slate-400">{device.serial_number}</div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className={`text-xs ${DEVICE_TYPE_COLORS[device.device_type]}`}>
+                                    {DEVICE_TYPE_LABELS[device.device_type]}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-slate-600 text-sm">{device.site_name || '—'}</TableCell>
+                                <TableCell>
+                                  <span className="font-mono text-xs text-slate-500">
+                                    {device.pppoe_username
+                                      ? device.pppoe_username.replace('@circletel.co.za', '')
+                                      : device.sim_number || '—'}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-right text-slate-700 text-sm">
+                                  {device.monthly_cost ? formatCurrency(device.monthly_cost) : '—'}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    );
+                  })()}
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </TabPanel>
     </div>
   );
