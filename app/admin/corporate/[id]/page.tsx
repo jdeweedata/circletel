@@ -1,22 +1,47 @@
 'use client';
-import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiGlobeBold, PiKeyBold, PiMagnifyingGlassBold, PiMapPinBold, PiPencilBold, PiPhoneBold, PiPlusBold, PiShieldBold, PiSparkleBold, PiTargetBold, PiTrendUpBold, PiUploadSimpleBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  PiArrowLeftBold,
+  PiArrowsClockwiseBold,
+  PiBuildingsBold,
+  PiCalendarBold,
+  PiCheckCircleBold,
+  PiClockBold,
+  PiDownloadSimpleBold,
+  PiEnvelopeBold,
+  PiFileTextBold,
+  PiGlobeBold,
+  PiKeyBold,
+  PiMagnifyingGlassBold,
+  PiMapPinBold,
+  PiPencilBold,
+  PiPhoneBold,
+  PiPlusBold,
+  PiShieldBold,
+  PiSparkleBold,
+  PiTargetBold,
+  PiUploadSimpleBold,
+  PiUsersBold,
+  PiWarningCircleBold,
+} from 'react-icons/pi';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table';
+import { StatCard } from '@/components/admin/shared/StatCard';
+import { SectionCard } from '@/components/admin/shared/SectionCard';
+import { UnderlineTabs, TabPanel } from '@/components/admin/shared/UnderlineTabs';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+
+// =============================================================================
+// Types
+// =============================================================================
 
 interface CorporateAccount {
   id: string;
@@ -62,7 +87,6 @@ interface CorporateSite {
   pppoeCredentialId?: string | null;
   installedAt?: string | null;
   createdAt: string;
-  // Network infrastructure fields
   networkPath?: 'circletel_bng' | 'mtn_breakout' | null;
   technology?: 'tarana_fwb' | 'lte_5g' | 'ftth' | 'fwa' | null;
   mtnStaticIp?: string | null;
@@ -79,141 +103,69 @@ interface CredentialStats {
   failed: number;
 }
 
-// Stat Card Component with gradient styling
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  iconBg,
-  iconColor,
-  trend,
-}: {
-  label: string;
-  value: string | number;
-  icon: React.ElementType;
-  iconBg: string;
-  iconColor: string;
-  trend?: string;
-}) {
-  return (
-    <div className="group relative bg-ui-card rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-ui-border overflow-hidden">
-      {/* Subtle gradient overlay on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-circleTel-orange/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+// =============================================================================
+// Constants
+// =============================================================================
 
-      <div className="relative flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="card-title">{label}</p>
-          <p className="text-3xl font-bold text-ui-text-primary tracking-tight">{value}</p>
-          {trend && (
-            <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1">
-              <PiTrendUpBold className="w-3 h-3" />
-              {trend}
-            </p>
-          )}
-        </div>
-        <div className={`w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
-          <Icon className={`w-6 h-6 ${iconColor}`} />
-        </div>
-      </div>
-    </div>
-  );
-}
+const STATUS_CONFIG: Record<string, { color: string; dot: string }> = {
+  active: { color: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
+  provisioned: { color: 'bg-blue-100 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
+  ready: { color: 'bg-cyan-100 text-cyan-700 border-cyan-200', dot: 'bg-cyan-500' },
+  pending: { color: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+  suspended: { color: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' },
+  decommissioned: { color: 'bg-slate-100 text-slate-600 border-slate-200', dot: 'bg-slate-400' },
+  archived: { color: 'bg-slate-100 text-slate-600 border-slate-200', dot: 'bg-slate-400' },
+};
 
-// Contact Card Component
-function ContactCard({
-  type,
-  name,
-  position,
-  email,
-  phone,
-  icon: Icon,
-  accentColor,
-}: {
-  type: string;
-  name: string;
-  position?: string | null;
-  email?: string | null;
-  phone?: string | null;
-  icon: React.ElementType;
-  accentColor: string;
-}) {
-  return (
-    <div className="group relative bg-ui-card rounded-xl p-5 border border-ui-border hover:border-ui-text-muted/30 hover:shadow-md transition-all duration-300 overflow-hidden">
-      {/* Accent line */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${accentColor} opacity-60 group-hover:opacity-100 transition-opacity`} />
+const TABS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'sites', label: 'Sites' },
+  { id: 'pppoe', label: 'PPPoE Credentials' },
+] as const;
 
-      <div className="flex items-start gap-4">
-        <div className={`w-10 h-10 rounded-lg ${accentColor.replace('bg-', 'bg-').replace('-500', '-100')} flex items-center justify-center flex-shrink-0`}>
-          <Icon className={`w-5 h-5 ${accentColor.replace('bg-', 'text-')}`} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">{type}</p>
-          <p className="font-semibold text-ui-text-primary truncate">{name}</p>
-          {position && <p className="muted-text">{position}</p>}
-          <div className="flex flex-col gap-1 mt-3">
-            {email && (
-              <a
-                href={`mailto:${email}`}
-                className="inline-flex items-center gap-1.5 text-sm text-circleTel-orange hover:text-circleTel-warm-orange hover:underline transition-colors"
-              >
-                <PiEnvelopeBold className="w-3.5 h-3.5" />
-                <span className="truncate">{email}</span>
-              </a>
-            )}
-            {phone && (
-              <a
-                href={`tel:${phone}`}
-                className="inline-flex items-center gap-1.5 body-text hover:text-ui-text-primary transition-colors"
-              >
-                <PiPhoneBold className="w-3.5 h-3.5" />
-                {phone}
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const TECH_BADGES: Record<string, string> = {
+  tarana_fwb: 'bg-orange-100 text-orange-700 border-orange-200',
+  lte_5g: 'bg-purple-100 text-purple-700 border-purple-200',
+  ftth: 'bg-green-100 text-green-700 border-green-200',
+  fwa: 'bg-amber-100 text-amber-700 border-amber-200',
+};
 
-// Info Row Component
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex justify-between items-center py-3 border-b border-ui-border last:border-0">
-      <span className="muted-text">{label}</span>
-      <span className="font-medium text-ui-text-primary text-right">{value || '—'}</span>
-    </div>
-  );
-}
+const TECH_LABELS: Record<string, string> = {
+  tarana_fwb: 'Tarana FWB',
+  lte_5g: 'LTE/5G',
+  ftth: 'FTTH',
+  fwa: 'FWA',
+};
+
+// =============================================================================
+// Page Component
+// =============================================================================
 
 export default function CorporateDetailPage() {
   const params = useParams();
   const router = useRouter();
   const corporateId = params.id as string;
 
-  const [corporate, setCorporate] = React.useState<CorporateAccount | null>(null);
-  const [sites, setSites] = React.useState<CorporateSite[]>([]);
-  const [credentialStats, setCredentialStats] = React.useState<CredentialStats | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [sitesLoading, setSitesLoading] = React.useState(false);
-  const [generatingCredentials, setGeneratingCredentials] = React.useState(false);
-  const [exportingCredentials, setExportingCredentials] = React.useState(false);
-  const [siteSearch, setSiteSearch] = React.useState('');
-  const [activeTab, setActiveTab] = React.useState('overview');
+  const [corporate, setCorporate] = useState<CorporateAccount | null>(null);
+  const [sites, setSites] = useState<CorporateSite[]>([]);
+  const [credentialStats, setCredentialStats] = useState<CredentialStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [sitesLoading, setSitesLoading] = useState(false);
+  const [generatingCredentials, setGeneratingCredentials] = useState(false);
+  const [exportingCredentials, setExportingCredentials] = useState(false);
+  const [siteSearch, setSiteSearch] = useState('');
+  const [activeTab, setActiveTab] = useState('overview');
 
-  React.useEffect(() => {
-    if (corporateId) {
-      fetchCorporate();
-    }
+  useEffect(() => {
+    if (corporateId) fetchCorporate();
   }, [corporateId]);
 
-  React.useEffect(() => {
-    if (corporateId && activeTab === 'sites') {
+  useEffect(() => {
+    if (corporateId && (activeTab === 'sites' || activeTab === 'pppoe')) {
       fetchSites();
     }
     if (corporateId && activeTab === 'pppoe') {
       fetchCredentialStats();
-      fetchSites();
     }
   }, [corporateId, activeTab]);
 
@@ -222,8 +174,7 @@ export default function CorporateDetailPage() {
       setLoading(true);
       const response = await fetch(`/api/admin/corporate/${corporateId}`);
       if (!response.ok) throw new Error('Failed to fetch corporate');
-      const data = await response.json();
-      setCorporate(data);
+      setCorporate(await response.json());
     } catch (error) {
       console.error('Error fetching corporate:', error);
       toast.error('Failed to load corporate details');
@@ -235,10 +186,9 @@ export default function CorporateDetailPage() {
   const fetchSites = async () => {
     try {
       setSitesLoading(true);
-      const params = new URLSearchParams({ limit: '100' });
-      if (siteSearch) params.set('search', siteSearch);
-
-      const response = await fetch(`/api/admin/corporate/${corporateId}/sites?${params}`);
+      const p = new URLSearchParams({ limit: '100' });
+      if (siteSearch) p.set('search', siteSearch);
+      const response = await fetch(`/api/admin/corporate/${corporateId}/sites?${p}`);
       if (!response.ok) throw new Error('Failed to fetch sites');
       const data = await response.json();
       setSites(data.data || []);
@@ -269,10 +219,8 @@ export default function CorporateDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ generateAll: true }),
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to generate credentials');
-
       toast.success(`Generated ${data.generatedCount} credentials`);
       fetchCredentialStats();
       fetchSites();
@@ -288,12 +236,9 @@ export default function CorporateDetailPage() {
     try {
       setExportingCredentials(true);
       const response = await fetch(`/api/admin/corporate/${corporateId}/pppoe/export`);
-
       if (!response.ok) throw new Error('Failed to export credentials');
-
       const contentDisposition = response.headers.get('content-disposition');
       const filename = contentDisposition?.match(/filename="(.+)"/)?.[1] || 'credentials.csv';
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -303,7 +248,6 @@ export default function CorporateDetailPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-
       toast.success('Credentials exported successfully');
     } catch (error) {
       console.error('Error exporting credentials:', error);
@@ -313,57 +257,45 @@ export default function CorporateDetailPage() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const configs: Record<string, { bg: string; text: string; label: string }> = {
-      active: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Active' },
-      provisioned: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Provisioned' },
-      ready: { bg: 'bg-cyan-50', text: 'text-cyan-700', label: 'Ready' },
-      pending: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
-      suspended: { bg: 'bg-red-50', text: 'text-red-700', label: 'Suspended' },
-      decommissioned: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Decommissioned' },
-      archived: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Archived' },
-    };
-    const config = configs[status] || { bg: 'bg-slate-100', text: 'text-slate-600', label: status };
+  const statusBadge = (status: string) => {
+    const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.archived;
     return (
-      <Badge className={`${config.bg} ${config.text} border-0 font-medium`}>
-        {config.label}
+      <Badge variant="outline" className={cn('text-xs border', cfg.color)}>
+        <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', cfg.dot)} />
+        {status}
       </Badge>
     );
   };
 
-  // Loading State
+  // Loading
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
-              <PiBuildingsBold className="w-6 h-6 text-orange-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+      <div className="min-h-screen bg-slate-50 -m-6 p-6 space-y-6">
+        <div className="h-8 w-64 bg-slate-200 rounded animate-pulse" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+              <div className="h-4 w-20 bg-slate-200 rounded animate-pulse" />
+              <div className="h-8 w-16 bg-slate-200 rounded animate-pulse" />
             </div>
-            <p className="text-slate-500 mt-6 font-medium">Loading corporate details...</p>
-          </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  // Not Found State
+  // Not Found
   if (!corporate) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <PiWarningCircleBold className="h-10 w-10 text-red-400" />
-            </div>
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">Corporate Not Found</h2>
-            <p className="text-slate-500 mb-6">The corporate account you're looking for doesn't exist.</p>
-            <Button onClick={() => router.push('/admin/corporate')} className="bg-orange-500 hover:bg-orange-600">
-              <PiArrowLeftBold className="h-4 w-4 mr-2" />
-              Back to Corporates
-            </Button>
-          </div>
+      <div className="min-h-screen bg-slate-50 -m-6 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <PiWarningCircleBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <p className="font-semibold text-slate-900 mb-1">Corporate Not Found</p>
+          <p className="text-slate-500 text-sm mb-6">The corporate account doesn&apos;t exist.</p>
+          <Button variant="outline" onClick={() => router.push('/admin/corporate')}>
+            <PiArrowLeftBold className="w-4 h-4 mr-2" />
+            Back to Corporates
+          </Button>
         </div>
       </div>
     );
@@ -374,617 +306,482 @@ export default function CorporateDetailPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30 relative">
-      {/* Subtle crosshatch pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.015] pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-      />
-
-      <div className="relative z-10 p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push('/admin/corporate')}
-              className="rounded-xl hover:bg-white/80 shadow-sm border border-slate-100"
-            >
-              <PiArrowLeftBold className="h-5 w-5 text-slate-600" />
+    <div className="min-h-screen bg-slate-50 -m-6 p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
+          <Link href="/admin" className="hover:text-slate-700">Admin</Link>
+          <PiMapPinBold className="w-3 h-3" />
+          <Link href="/admin/corporate" className="hover:text-slate-700">Corporate</Link>
+          <PiMapPinBold className="w-3 h-3" />
+          <span className="text-slate-900">{corporate.companyName}</span>
+        </div>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/admin/corporate" className="text-slate-400 hover:text-slate-600">
+              <PiArrowLeftBold className="w-5 h-5" />
+            </Link>
+            <h1 className="text-2xl font-bold text-slate-900">{corporate.companyName}</h1>
+            <span className="font-mono text-sm font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded border border-orange-200">
+              {corporate.corporateCode}
+            </span>
+            {statusBadge(corporate.accountStatus)}
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => router.push(`/admin/corporate/${corporateId}/edit`)}>
+              <PiPencilBold className="w-4 h-4 mr-2" />
+              Edit Details
             </Button>
-            <div>
-              <div className="flex flex-wrap items-center gap-3 mb-2">
-                <h1 className="page-title">
-                  {corporate.companyName}
-                </h1>
-                <span className="font-mono text-sm font-bold text-circleTel-orange bg-circleTel-orange/10 px-3 py-1.5 rounded-lg border border-circleTel-orange/20">
-                  {corporate.corporateCode}
-                </span>
-                {getStatusBadge(corporate.accountStatus)}
+            <Button onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}>
+              <PiPlusBold className="w-4 h-4 mr-2" />
+              Add Site
+            </Button>
+          </div>
+        </div>
+        {corporate.tradingName && (
+          <p className="text-slate-500 mt-1 ml-8">Trading as: {corporate.tradingName}</p>
+        )}
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <StatCard
+          label="Total Sites"
+          value={String(corporate.totalSites)}
+          icon={<PiMapPinBold className="w-5 h-5" />}
+          iconBgColor="bg-violet-100"
+          iconColor="text-violet-600"
+        />
+        <StatCard
+          label="Active Sites"
+          value={String(corporate.activeSites)}
+          icon={<PiCheckCircleBold className="w-5 h-5" />}
+          iconBgColor="bg-emerald-100"
+          iconColor="text-emerald-600"
+          subtitle={corporate.totalSites > 0 ? `${Math.round((corporate.activeSites / corporate.totalSites) * 100)}% of total` : undefined}
+        />
+        <StatCard
+          label="Pending Sites"
+          value={String(corporate.pendingSites)}
+          icon={<PiClockBold className="w-5 h-5" />}
+          iconBgColor="bg-amber-100"
+          iconColor="text-amber-600"
+        />
+        <StatCard
+          label="Target Sites"
+          value={String(corporate.expectedSites ?? '—')}
+          icon={<PiTargetBold className="w-5 h-5" />}
+          iconBgColor="bg-blue-100"
+          iconColor="text-blue-600"
+          subtitle={corporate.expectedSites ? `${deploymentProgress}% deployed` : undefined}
+        />
+      </div>
+
+      {/* Tabs */}
+      <UnderlineTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
+
+      {/* ============================================================= */}
+      {/* OVERVIEW TAB */}
+      {/* ============================================================= */}
+      <TabPanel id="overview" activeTab={activeTab} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Company Details */}
+          <div className="lg:col-span-2">
+            <SectionCard title="Company Details" icon={PiBuildingsBold}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                <InfoRow label="Registration Number" value={corporate.registrationNumber} />
+                <InfoRow label="VAT Number" value={corporate.vatNumber} />
+                <InfoRow label="Industry" value={corporate.industry} />
+                <InfoRow label="Status" value={statusBadge(corporate.accountStatus)} />
+                <InfoRow label="Created" value={new Date(corporate.createdAt).toLocaleDateString('en-ZA')} />
+                <InfoRow label="Last Updated" value={new Date(corporate.updatedAt).toLocaleDateString('en-ZA')} />
               </div>
-              {corporate.tradingName && (
-                <p className="muted-text">Trading as: {corporate.tradingName}</p>
+              {corporate.physicalAddress?.city && (
+                <div className="mt-4 pt-4 border-t border-slate-100 flex items-start gap-3">
+                  <PiMapPinBold className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Headquarters</p>
+                    <p className="text-sm text-slate-900">
+                      {[
+                        corporate.physicalAddress.street,
+                        corporate.physicalAddress.city,
+                        corporate.physicalAddress.province,
+                        corporate.physicalAddress.postal_code,
+                      ].filter(Boolean).join(', ')}
+                    </p>
+                  </div>
+                </div>
               )}
-              {corporate.industry && (
-                <div className="flex items-center gap-2 mt-2">
-                  <PiGlobeBold className="w-4 h-4 text-ui-text-muted" />
-                  <span className="muted-text">{corporate.industry}</span>
+            </SectionCard>
+          </div>
+
+          {/* Contract */}
+          <SectionCard title="Contract" icon={PiFileTextBold}>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                <PiCalendarBold className="w-5 h-5 text-slate-400" />
+                <div>
+                  <p className="text-xs text-slate-500">Contract Period</p>
+                  <p className="text-sm font-medium text-slate-900">
+                    {corporate.contractStartDate ? new Date(corporate.contractStartDate).toLocaleDateString('en-ZA') : 'Not set'}
+                    {' — '}
+                    {corporate.contractEndDate ? new Date(corporate.contractEndDate).toLocaleDateString('en-ZA') : 'Ongoing'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                <PiTargetBold className="w-5 h-5 text-slate-400" />
+                <div>
+                  <p className="text-xs text-slate-500">Target Deployment</p>
+                  <p className="text-sm font-medium text-slate-900">{corporate.expectedSites ?? '—'} sites</p>
+                </div>
+              </div>
+              {corporate.expectedSites && (
+                <div>
+                  <div className="flex justify-between text-sm mb-1.5">
+                    <span className="text-slate-500">Progress</span>
+                    <span className="font-semibold text-slate-900">{deploymentProgress}%</span>
+                  </div>
+                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 rounded-full transition-all"
+                      style={{ width: `${Math.min(deploymentProgress, 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1.5">
+                    {corporate.totalSites} of {corporate.expectedSites} sites deployed
+                  </p>
                 </div>
               )}
             </div>
-          </div>
+          </SectionCard>
+        </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/admin/corporate/${corporateId}/edit`)}
-              className="bg-white hover:bg-slate-50 border-slate-200"
-            >
-              <PiPencilBold className="h-4 w-4 mr-2" />
-              Edit Details
+        {/* Contacts */}
+        <SectionCard title="Contacts" icon={PiUsersBold}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <ContactCard
+              type="Primary Contact"
+              name={corporate.primaryContactName}
+              position={corporate.primaryContactPosition}
+              email={corporate.primaryContactEmail}
+              phone={corporate.primaryContactPhone}
+              color="orange"
+            />
+            {corporate.billingContactName && (
+              <ContactCard
+                type="Billing Contact"
+                name={corporate.billingContactName}
+                email={corporate.billingContactEmail}
+                phone={corporate.billingContactPhone}
+                color="emerald"
+              />
+            )}
+            {corporate.technicalContactName && (
+              <ContactCard
+                type="Technical Contact"
+                name={corporate.technicalContactName}
+                email={corporate.technicalContactEmail}
+                phone={corporate.technicalContactPhone}
+                color="blue"
+              />
+            )}
+          </div>
+        </SectionCard>
+
+        {/* Notes */}
+        {corporate.notes && (
+          <SectionCard title="Notes" icon={PiFileTextBold}>
+            <p className="text-sm text-slate-700 whitespace-pre-wrap">{corporate.notes}</p>
+          </SectionCard>
+        )}
+      </TabPanel>
+
+      {/* ============================================================= */}
+      {/* SITES TAB */}
+      {/* ============================================================= */}
+      <TabPanel id="sites" activeTab={activeTab} className="space-y-4">
+        {/* Search + Actions */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px]">
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Search sites..."
+              value={siteSearch}
+              onChange={(e) => setSiteSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && fetchSites()}
+              className="pl-9 h-9 text-sm"
+            />
+          </div>
+          <span className="text-sm text-slate-500">{sites.length} site{sites.length !== 1 ? 's' : ''}</span>
+          <div className="ml-auto flex gap-3">
+            <Button variant="outline" size="sm" onClick={() => router.push(`/admin/corporate/${corporateId}/sites/bulk`)}>
+              <PiUploadSimpleBold className="w-4 h-4 mr-2" />
+              Bulk Import
             </Button>
-            <Button
-              onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
-              className="bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/25"
-            >
-              <PiPlusBold className="h-4 w-4 mr-2" />
+            <Button size="sm" onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}>
+              <PiPlusBold className="w-4 h-4 mr-2" />
               Add Site
             </Button>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            label="Total Sites"
-            value={corporate.totalSites}
-            icon={PiMapPinBold}
-            iconBg="bg-gradient-to-br from-violet-500 to-purple-600"
-            iconColor="text-white"
-          />
-          <StatCard
-            label="Active Sites"
-            value={corporate.activeSites}
-            icon={PiCheckCircleBold}
-            iconBg="bg-gradient-to-br from-emerald-500 to-green-600"
-            iconColor="text-white"
-            trend={corporate.activeSites > 0 ? `${Math.round((corporate.activeSites / corporate.totalSites) * 100)}% of total` : undefined}
-          />
-          <StatCard
-            label="Pending Sites"
-            value={corporate.pendingSites}
-            icon={PiClockBold}
-            iconBg="bg-gradient-to-br from-amber-500 to-orange-500"
-            iconColor="text-white"
-          />
-          <StatCard
-            label="Target Sites"
-            value={corporate.expectedSites || '—'}
-            icon={PiTargetBold}
-            iconBg="bg-gradient-to-br from-blue-500 to-indigo-600"
-            iconColor="text-white"
-            trend={corporate.expectedSites ? `${deploymentProgress}% deployed` : undefined}
-          />
-        </div>
-
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-ui-card shadow-sm border border-ui-border p-1 rounded-xl">
-            <TabsTrigger
-              value="overview"
-              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
-            >
-              <PiBuildingsBold className="w-4 h-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger
-              value="sites"
-              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
-            >
-              <PiMapPinBold className="w-4 h-4 mr-2" />
-              Sites ({corporate.totalSites})
-            </TabsTrigger>
-            <TabsTrigger
-              value="pppoe"
-              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
-            >
-              <PiKeyBold className="w-4 h-4 mr-2" />
-              PPPoE Credentials
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Company Details Card */}
-              <div className="lg:col-span-2 bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
-                <div className="p-6 border-b border-ui-border bg-gradient-to-r from-ui-bg to-white">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ui-sidebar to-ui-text-primary flex items-center justify-center">
-                      <PiBuildingsBold className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="section-heading text-lg">Company Details</h3>
-                      <p className="muted-text">Corporate registration and business info</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-1">
-                      <InfoRow label="Registration Number" value={corporate.registrationNumber} />
-                      <InfoRow label="VAT Number" value={corporate.vatNumber} />
-                      <InfoRow label="Industry" value={corporate.industry} />
-                      <InfoRow label="Account Status" value={getStatusBadge(corporate.accountStatus)} />
-                    </div>
-                    <div className="space-y-1">
-                      <InfoRow label="Created" value={new Date(corporate.createdAt).toLocaleDateString()} />
-                      <InfoRow label="Last Updated" value={new Date(corporate.updatedAt).toLocaleDateString()} />
-                      <InfoRow label="Total Sites" value={corporate.totalSites} />
-                      <InfoRow label="Active Sites" value={corporate.activeSites} />
-                    </div>
-                  </div>
-
-                  {corporate.physicalAddress?.city && (
-                    <div className="mt-6 pt-6 border-t border-ui-border">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-circleTel-orange/10 flex items-center justify-center flex-shrink-0">
-                          <PiMapPinBold className="w-4 h-4 text-circleTel-orange" />
-                        </div>
+        {/* Sites Table */}
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          {sitesLoading ? (
+            <div className="p-4 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-12 bg-slate-100 rounded animate-pulse" />
+              ))}
+            </div>
+          ) : sites.length === 0 ? (
+            <div className="p-12 text-center">
+              <PiMapPinBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <p className="font-medium text-slate-900 mb-1">No sites found</p>
+              <p className="text-sm text-slate-500 mb-4">Start by adding your first site</p>
+              <Button onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}>
+                <PiPlusBold className="w-4 h-4 mr-2" />
+                Add Site
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-50">
+                  <TableHead>#</TableHead>
+                  <TableHead>Account</TableHead>
+                  <TableHead>Site Name</TableHead>
+                  <TableHead>Technology</TableHead>
+                  <TableHead>Province</TableHead>
+                  <TableHead>Network</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-10"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sites.map((site) => (
+                  <TableRow
+                    key={site.id}
+                    className="cursor-pointer group"
+                    onClick={() => router.push(`/admin/corporate/${corporateId}/sites/${site.id}`)}
+                  >
+                    <TableCell className="text-slate-400">{site.siteNumber}</TableCell>
+                    <TableCell>
+                      <span className="font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded text-sm">
+                        {site.accountNumber}
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {site.siteName}
+                    </TableCell>
+                    <TableCell>
+                      {site.technology ? (
+                        <Badge variant="outline" className={TECH_BADGES[site.technology] ?? ''}>
+                          {TECH_LABELS[site.technology] ?? site.technology}
+                        </Badge>
+                      ) : <span className="text-slate-400">—</span>}
+                    </TableCell>
+                    <TableCell className="text-slate-600">{site.province || '—'}</TableCell>
+                    <TableCell>
+                      {site.networkPath === 'circletel_bng' && (
                         <div>
-                          <p className="card-title mb-1">Headquarters</p>
-                          <p className="text-ui-text-primary">
-                            {[
-                              corporate.physicalAddress.street,
-                              corporate.physicalAddress.city,
-                              corporate.physicalAddress.province,
-                              corporate.physicalAddress.postal_code,
-                            ]
-                              .filter(Boolean)
-                              .join(', ')}
-                          </p>
+                          <span className="text-sm text-emerald-600 font-medium">CircleTel BNG</span>
+                          {site.pppoeUsername && (
+                            <p className="font-mono text-xs text-slate-400 truncate max-w-[120px]">
+                              {site.pppoeUsername.split('@')[0]}
+                            </p>
+                          )}
                         </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+                      )}
+                      {site.networkPath === 'mtn_breakout' && (
+                        <div>
+                          <span className="text-sm text-purple-600 font-medium">MTN Breakout</span>
+                          {site.mtnStaticIp && (
+                            <p className="font-mono text-xs text-slate-400">{site.mtnStaticIp}</p>
+                          )}
+                        </div>
+                      )}
+                      {!site.networkPath && <span className="text-slate-400">—</span>}
+                    </TableCell>
+                    <TableCell>{statusBadge(site.status)}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-slate-400 hover:text-blue-600"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/admin/corporate/${corporateId}/sites/${site.id}`);
+                        }}
+                      >
+                        <PiPencilBold className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </TabPanel>
 
-              {/* Contract Info Card */}
-              <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
-                <div className="p-6 border-b border-ui-border bg-gradient-to-r from-circleTel-orange/10 to-white">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-circleTel-orange to-circleTel-warm-orange flex items-center justify-center">
-                      <PiFileTextBold className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="section-heading text-lg">Contract</h3>
-                      <p className="muted-text">Agreement details</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
-                    <PiCalendarBold className="w-5 h-5 text-ui-text-muted" />
-                    <div>
-                      <p className="muted-text-sm">Contract Period</p>
-                      <p className="font-medium text-ui-text-primary">
-                        {corporate.contractStartDate
-                          ? new Date(corporate.contractStartDate).toLocaleDateString()
-                          : 'Not set'}
-                        {' — '}
-                        {corporate.contractEndDate
-                          ? new Date(corporate.contractEndDate).toLocaleDateString()
-                          : 'Ongoing'}
-                      </p>
-                    </div>
-                  </div>
+      {/* ============================================================= */}
+      {/* PPPOE TAB */}
+      {/* ============================================================= */}
+      <TabPanel id="pppoe" activeTab={activeTab} className="space-y-6">
+        {/* Credential Stats */}
+        {credentialStats && (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <StatCard label="Total Sites" value={String(credentialStats.totalSites)} icon={<PiMapPinBold className="w-5 h-5" />} iconBgColor="bg-slate-100" iconColor="text-slate-600" />
+            <StatCard label="With Credentials" value={String(credentialStats.withCredentials)} icon={<PiKeyBold className="w-5 h-5" />} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
+            <StatCard label="Provisioned" value={String(credentialStats.provisioned)} icon={<PiCheckCircleBold className="w-5 h-5" />} iconBgColor="bg-emerald-100" iconColor="text-emerald-600" />
+            <StatCard label="Pending" value={String(credentialStats.pending)} icon={<PiClockBold className="w-5 h-5" />} iconBgColor="bg-amber-100" iconColor="text-amber-600" />
+            <StatCard label="Failed" value={String(credentialStats.failed)} icon={<PiWarningCircleBold className="w-5 h-5" />} iconBgColor="bg-red-100" iconColor="text-red-600" />
+          </div>
+        )}
 
-                  <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
-                    <PiTargetBold className="w-5 h-5 text-ui-text-muted" />
-                    <div>
-                      <p className="muted-text-sm">Target Deployment</p>
-                      <p className="font-medium text-ui-text-primary">
-                        {corporate.expectedSites || '—'} sites
-                      </p>
-                    </div>
-                  </div>
-
-                  {corporate.expectedSites && (
-                    <div className="pt-2">
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="muted-text">Deployment Progress</span>
-                        <span className="font-semibold text-circleTel-orange">{deploymentProgress}%</span>
-                      </div>
-                      <div className="h-2 bg-ui-border rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-circleTel-orange to-circleTel-warm-orange rounded-full transition-all duration-500"
-                          style={{ width: `${Math.min(deploymentProgress, 100)}%` }}
-                        />
-                      </div>
-                      <p className="muted-text-sm mt-2">
-                        {corporate.totalSites} of {corporate.expectedSites} sites deployed
-                      </p>
-                    </div>
-                  )}
-                </div>
+        {/* Actions */}
+        <SectionCard title="PPPoE Credential Management" icon={PiKeyBold}>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={handleGenerateCredentials} disabled={generatingCredentials}>
+                {generatingCredentials ? (
+                  <><PiArrowsClockwiseBold className="w-4 h-4 mr-2 animate-spin" />Generating...</>
+                ) : (
+                  <><PiSparkleBold className="w-4 h-4 mr-2" />Generate Missing Credentials</>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleExportCredentials}
+                disabled={exportingCredentials || !credentialStats?.withCredentials}
+              >
+                {exportingCredentials ? (
+                  <><PiArrowsClockwiseBold className="w-4 h-4 mr-2 animate-spin" />Exporting...</>
+                ) : (
+                  <><PiDownloadSimpleBold className="w-4 h-4 mr-2" />Export Credentials CSV</>
+                )}
+              </Button>
+            </div>
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
+              <PiWarningCircleBold className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-amber-800 text-sm">Security Notice</p>
+                <p className="text-sm text-amber-700 mt-0.5">
+                  Exported CSV contains decrypted passwords. Handle securely and delete after use.
+                </p>
               </div>
             </div>
+          </div>
+        </SectionCard>
 
-            {/* Contacts Section */}
-            <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
-              <div className="p-6 border-b border-ui-border bg-gradient-to-r from-blue-50 to-white">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                    <PiUsersBold className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="section-heading text-lg">Contacts</h3>
-                    <p className="muted-text">Key personnel for this corporate account</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <ContactCard
-                    type="Primary Contact"
-                    name={corporate.primaryContactName}
-                    position={corporate.primaryContactPosition}
-                    email={corporate.primaryContactEmail}
-                    phone={corporate.primaryContactPhone}
-                    icon={PiShieldBold}
-                    accentColor="bg-orange-500"
-                  />
-                  {corporate.billingContactName && (
-                    <ContactCard
-                      type="Billing Contact"
-                      name={corporate.billingContactName}
-                      email={corporate.billingContactEmail}
-                      phone={corporate.billingContactPhone}
-                      icon={PiFileTextBold}
-                      accentColor="bg-emerald-500"
-                    />
-                  )}
-                  {corporate.technicalContactName && (
-                    <ContactCard
-                      type="Technical Contact"
-                      name={corporate.technicalContactName}
-                      email={corporate.technicalContactEmail}
-                      phone={corporate.technicalContactPhone}
-                      icon={PiKeyBold}
-                      accentColor="bg-blue-500"
-                    />
-                  )}
-                </div>
-              </div>
+        {/* Credential Status Table */}
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
+            <h3 className="font-semibold text-slate-900 text-sm">Credential Status by Site</h3>
+          </div>
+          {sitesLoading ? (
+            <div className="p-4 space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-10 bg-slate-100 rounded animate-pulse" />
+              ))}
             </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-white">
+                  <TableHead>Account Number</TableHead>
+                  <TableHead>Site Name</TableHead>
+                  <TableHead>PPPoE Username</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sites.map((site) => (
+                  <TableRow key={site.id}>
+                    <TableCell>
+                      <span className="font-mono font-bold text-orange-600">{site.accountNumber}</span>
+                    </TableCell>
+                    <TableCell className="font-medium text-slate-900">{site.siteName}</TableCell>
+                    <TableCell>
+                      {site.pppoeUsername ? (
+                        <span className="font-mono text-sm text-slate-600">{site.pppoeUsername}</span>
+                      ) : (
+                        <span className="text-slate-400 italic text-sm">Not generated</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {site.pppoeCredentialId ? (
+                        <Badge variant="outline" className="bg-emerald-100 text-emerald-700 border-emerald-200">
+                          <PiCheckCircleBold className="w-3 h-3 mr-1" />
+                          Generated
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-slate-100 text-slate-600 border-slate-200">
+                          <PiClockBold className="w-3 h-3 mr-1" />
+                          Pending
+                        </Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </TabPanel>
+    </div>
+  );
+}
 
-            {/* Notes Section */}
-            {corporate.notes && (
-              <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
-                <div className="p-6 border-b border-ui-border">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ui-text-muted to-ui-text-secondary flex items-center justify-center">
-                      <PiFileTextBold className="w-5 h-5 text-white" />
-                    </div>
-                    <h3 className="section-heading text-lg">Notes</h3>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <p className="body-text whitespace-pre-wrap">{corporate.notes}</p>
-                </div>
-              </div>
-            )}
-          </TabsContent>
+// =============================================================================
+// Sub-components
+// =============================================================================
 
-          {/* Sites Tab */}
-          <TabsContent value="sites" className="space-y-4">
-            <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
-              <div className="p-6 border-b border-ui-border">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                  <div>
-                    <h3 className="section-heading">Sites Directory</h3>
-                    <p className="muted-text">{sites.length} sites registered</p>
-                  </div>
-                  <div className="flex flex-wrap gap-3">
-                    <div className="relative">
-                      <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input
-                        placeholder="Search sites..."
-                        value={siteSearch}
-                        onChange={(e) => setSiteSearch(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && fetchSites()}
-                        className="pl-10 w-64 bg-slate-50 border-slate-200 focus:bg-white"
-                      />
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => router.push(`/admin/corporate/${corporateId}/sites/bulk`)}
-                      className="bg-white"
-                    >
-                      <PiUploadSimpleBold className="h-4 w-4 mr-2" />
-                      Bulk Import
-                    </Button>
-                    <Button
-                      onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
-                      className="bg-orange-500 hover:bg-orange-600"
-                    >
-                      <PiPlusBold className="h-4 w-4 mr-2" />
-                      Add Site
-                    </Button>
-                  </div>
-                </div>
-              </div>
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex justify-between items-center py-2.5 border-b border-slate-100 last:border-0">
+      <span className="text-sm text-slate-500">{label}</span>
+      <span className="text-sm font-medium text-slate-900 text-right">{value || '—'}</span>
+    </div>
+  );
+}
 
-              {sitesLoading ? (
-                <div className="text-center py-16">
-                  <div className="w-10 h-10 border-3 border-circleTel-orange/30 border-t-circleTel-orange rounded-full animate-spin mx-auto"></div>
-                  <p className="muted-text mt-4">Loading sites...</p>
-                </div>
-              ) : sites.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="w-16 h-16 bg-ui-bg rounded-full flex items-center justify-center mx-auto mb-4">
-                    <PiMapPinBold className="h-8 w-8 text-ui-text-muted" />
-                  </div>
-                  <h3 className="font-medium text-ui-text-primary mb-1">No sites found</h3>
-                  <p className="muted-text mb-4">Start by adding your first site</p>
-                  <Button
-                    onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
-                    className="bg-orange-500 hover:bg-orange-600"
-                  >
-                    <PiPlusBold className="h-4 w-4 mr-2" />
-                    Add Site
-                  </Button>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-ui-bg/50">
-                        <TableHead className="font-semibold text-ui-text-secondary">#</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">Account Number</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">Site Name</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">Technology</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">Province</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">Network</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">Status</TableHead>
-                        <TableHead className="w-12"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sites.map((site) => (
-                        <TableRow
-                          key={site.id}
-                          className="hover:bg-circleTel-orange/5 cursor-pointer transition-colors"
-                          onClick={() => router.push(`/admin/corporate/${corporateId}/sites/${site.id}`)}
-                        >
-                          <TableCell className="font-medium text-ui-text-muted">{site.siteNumber}</TableCell>
-                          <TableCell>
-                            <span className="font-mono font-bold text-circleTel-orange bg-circleTel-orange/10 px-2 py-1 rounded">
-                              {site.accountNumber}
-                            </span>
-                          </TableCell>
-                          <TableCell className="font-medium text-ui-text-primary">{site.siteName}</TableCell>
-                          <TableCell>
-                            {site.technology === 'tarana_fwb' && (
-                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                                Tarana FWB
-                              </Badge>
-                            )}
-                            {site.technology === 'lte_5g' && (
-                              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                                LTE/5G
-                              </Badge>
-                            )}
-                            {site.technology === 'ftth' && (
-                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                FTTH
-                              </Badge>
-                            )}
-                            {site.technology === 'fwa' && (
-                              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                                FWA
-                              </Badge>
-                            )}
-                            {!site.technology && <span className="text-ui-text-muted">—</span>}
-                          </TableCell>
-                          <TableCell className="text-ui-text-secondary">{site.province || '—'}</TableCell>
-                          <TableCell>
-                            {site.networkPath === 'circletel_bng' && (
-                              <div className="text-sm">
-                                <span className="text-emerald-600 font-medium">CircleTel BNG</span>
-                                {site.pppoeUsername && (
-                                  <p className="font-mono text-xs text-gray-500 truncate max-w-[120px]">
-                                    {site.pppoeUsername.split('@')[0]}
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                            {site.networkPath === 'mtn_breakout' && (
-                              <div className="text-sm">
-                                <span className="text-purple-600 font-medium">MTN Breakout</span>
-                                {site.mtnStaticIp && (
-                                  <p className="font-mono text-xs text-gray-500">{site.mtnStaticIp}</p>
-                                )}
-                              </div>
-                            )}
-                            {!site.networkPath && <span className="text-ui-text-muted">—</span>}
-                          </TableCell>
-                          <TableCell>{getStatusBadge(site.status)}</TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="hover:bg-circleTel-orange/10"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/admin/corporate/${corporateId}/sites/${site.id}`);
-                              }}
-                            >
-                              <PiPencilBold className="h-4 w-4 text-ui-text-muted" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </div>
-          </TabsContent>
+function ContactCard({
+  type, name, position, email, phone, color,
+}: {
+  type: string;
+  name: string;
+  position?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  color: 'orange' | 'emerald' | 'blue';
+}) {
+  const colors = {
+    orange: { border: 'border-l-orange-500', bg: 'bg-orange-100', text: 'text-orange-600' },
+    emerald: { border: 'border-l-emerald-500', bg: 'bg-emerald-100', text: 'text-emerald-600' },
+    blue: { border: 'border-l-blue-500', bg: 'bg-blue-100', text: 'text-blue-600' },
+  };
+  const c = colors[color];
 
-          {/* PPPoE Tab */}
-          <TabsContent value="pppoe" className="space-y-6">
-            {/* Credential Stats */}
-            {credentialStats && (
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
-                  <p className="card-title mb-1">Total Sites</p>
-                  <p className="text-2xl font-bold text-ui-text-primary">{credentialStats.totalSites}</p>
-                </div>
-                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
-                  <p className="card-title mb-1">With Credentials</p>
-                  <p className="text-2xl font-bold text-blue-600">{credentialStats.withCredentials}</p>
-                </div>
-                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
-                  <p className="card-title mb-1">Provisioned</p>
-                  <p className="text-2xl font-bold text-emerald-600">{credentialStats.provisioned}</p>
-                </div>
-                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
-                  <p className="card-title mb-1">Pending</p>
-                  <p className="text-2xl font-bold text-amber-600">{credentialStats.pending}</p>
-                </div>
-                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
-                  <p className="card-title mb-1">Failed</p>
-                  <p className="text-2xl font-bold text-red-600">{credentialStats.failed}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Actions Card */}
-            <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
-              <div className="p-6 border-b border-ui-border bg-gradient-to-r from-green-50 to-white">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                    <PiKeyBold className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="section-heading text-lg">PPPoE Credential Management</h3>
-                    <p className="muted-text">Generate and export credentials for router configuration</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="flex flex-wrap gap-4">
-                  <Button
-                    onClick={handleGenerateCredentials}
-                    disabled={generatingCredentials}
-                    className="bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/25"
-                  >
-                    {generatingCredentials ? (
-                      <>
-                        <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <PiSparkleBold className="h-4 w-4 mr-2" />
-                        Generate Missing Credentials
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleExportCredentials}
-                    disabled={exportingCredentials || !credentialStats?.withCredentials}
-                    className="bg-white"
-                  >
-                    {exportingCredentials ? (
-                      <>
-                        <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
-                        Exporting...
-                      </>
-                    ) : (
-                      <>
-                        <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
-                        Export Credentials CSV
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                  <PiWarningCircleBold className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-amber-800 text-sm">Security Notice</p>
-                    <p className="text-sm text-amber-700 mt-1">
-                      Exported CSV contains decrypted passwords for router pre-configuration.
-                      Handle this file securely and delete after use.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Sites with Credentials Table */}
-            <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
-              <div className="p-6 border-b border-ui-border">
-                <h3 className="section-heading">Credential Status by Site</h3>
-              </div>
-              {sitesLoading ? (
-                <div className="text-center py-12">
-                  <div className="w-8 h-8 border-2 border-circleTel-orange/30 border-t-circleTel-orange rounded-full animate-spin mx-auto"></div>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-ui-bg/50">
-                        <TableHead className="font-semibold text-ui-text-secondary">Account Number</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">Site Name</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">PPPoE Username</TableHead>
-                        <TableHead className="font-semibold text-ui-text-secondary">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sites.map((site) => (
-                        <TableRow key={site.id} className="hover:bg-ui-bg/50">
-                          <TableCell>
-                            <span className="font-mono font-bold text-circleTel-orange">{site.accountNumber}</span>
-                          </TableCell>
-                          <TableCell className="font-medium text-ui-text-primary">{site.siteName}</TableCell>
-                          <TableCell>
-                            {site.pppoeUsername ? (
-                              <span className="font-mono text-sm text-ui-text-secondary">{site.pppoeUsername}</span>
-                            ) : (
-                              <span className="text-ui-text-muted italic">Not generated</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {site.pppoeCredentialId ? (
-                              <Badge className="bg-emerald-50 text-emerald-700 border-0">
-                                <PiCheckCircleBold className="h-3 w-3 mr-1" />
-                                Generated
-                              </Badge>
-                            ) : (
-                              <Badge className="bg-slate-100 text-slate-600 border-0">
-                                <PiClockBold className="h-3 w-3 mr-1" />
-                                Pending
-                              </Badge>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
+  return (
+    <div className={`bg-white rounded-lg border border-slate-200 ${c.border} border-l-3 p-4`}>
+      <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">{type}</p>
+      <p className="font-semibold text-slate-900">{name}</p>
+      {position && <p className="text-sm text-slate-500">{position}</p>}
+      <div className="flex flex-col gap-1 mt-3">
+        {email && (
+          <a href={`mailto:${email}`} className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline">
+            <PiEnvelopeBold className="w-3.5 h-3.5" />
+            <span className="truncate">{email}</span>
+          </a>
+        )}
+        {phone && (
+          <a href={`tel:${phone}`} className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900">
+            <PiPhoneBold className="w-3.5 h-3.5" />
+            {phone}
+          </a>
+        )}
       </div>
     </div>
   );
