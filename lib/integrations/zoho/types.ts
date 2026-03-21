@@ -59,6 +59,12 @@ export interface ZohoCRMCustomFields {
   RICA_Status?: RICAStatus;
   Contract_Number?: string;
   Contract_Signed_Date?: string;
+  // Sales Engine fields (create in ZOHO CRM as custom fields)
+  Coverage_Zone_ID?: string;
+  Coverage_Zone_Name?: string;
+  Pipeline_Stage?: string;
+  Loss_Reason_Geo?: string;
+  Lead_Score?: number;
 }
 
 // ============================================================================
