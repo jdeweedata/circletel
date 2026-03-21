@@ -1,6 +1,6 @@
 'use client';
 
-import { PiChartBarBold, PiMapPinBold, PiTargetBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
+import { PiChartBarBold, PiMapPinBold, PiTargetBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
@@ -251,7 +251,7 @@ export default function SalesEngineDashboard() {
       {data?.coverage_analysis && (
         <div className="space-y-4">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-            <PiWifiBold className="h-4 w-4" />
+            <PiWifiHighBold className="h-4 w-4" />
             Coverage Intelligence
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

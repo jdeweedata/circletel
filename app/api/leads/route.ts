@@ -2,9 +2,12 @@ import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { createZohoCRMService } from '@/lib/integrations/zoho/crm-service';
 
-// Initialize Gemini SDK
-// It will automatically use process.env.GEMINI_API_KEY
-const ai = new GoogleGenAI({});
+// Lazy-initialize Gemini SDK to avoid build-time crash when env var is missing
+let _ai: GoogleGenAI | null = null;
+function getAI() {
+  if (!_ai) _ai = new GoogleGenAI({});
+  return _ai;
+}
 const zohoService = createZohoCRMService();
 
 export async function POST(req: Request) {
@@ -33,7 +36,7 @@ export async function POST(req: Request) {
         let aiResult = { leadScore: 50, intent: 'Medium', category: 'General Inquiry', summary: 'Failed to generate summary' };
 
         try {
-            const response = await ai.models.generateContent({
+            const response = await getAI().models.generateContent({
                 model: 'gemini-3-flash-preview',
                 contents: prompt,
                 config: {
