@@ -41,6 +41,13 @@ export interface SalesZone {
   radius_km: number;
   coverage_score: number;
   enriched_zone_score: number;
+  // Demographic enrichment fields
+  demographic_fit_score: number;
+  business_poi_density: number;
+  pct_no_internet: number;
+  pct_income_target: number;
+  propensity_score: number;
+  demographic_enriched_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -375,4 +382,97 @@ export interface CoverageGapAnalysis {
     none: number;
     not_enriched: number;
   };
+}
+
+// =============================================================================
+// Ward Demographic Types
+// =============================================================================
+
+export interface WardDemographic {
+  id: string;
+  ward_code: string;
+  ward_name: string | null;
+  municipality: string | null;
+  province: string;
+  boundary?: unknown; // PostGIS GEOGRAPHY(MULTIPOLYGON, 4326)
+  centroid_lat: number | null;
+  centroid_lng: number | null;
+  total_population: number;
+  total_households: number;
+  pct_income_above_r12800: number;
+  pct_income_r6400_12800: number;
+  pct_no_internet: number;
+  pct_cellphone_internet: number;
+  pct_fixed_internet: number;
+  pct_employed: number;
+  pct_formal_dwelling: number;
+  business_poi_count: number;
+  office_poi_count: number;
+  healthcare_poi_count: number;
+  demographic_fit_score: number;
+  data_source: string;
+  imported_at: string;
+  updated_at: string;
+}
+
+export interface WardDemographicImportRow {
+  ward_code: string;
+  ward_name?: string;
+  municipality?: string;
+  province: string;
+  centroid_lat?: number;
+  centroid_lng?: number;
+  total_population?: number;
+  total_households?: number;
+  pct_income_above_r12800?: number;
+  pct_income_r6400_12800?: number;
+  pct_no_internet?: number;
+  pct_cellphone_internet?: number;
+  pct_fixed_internet?: number;
+  pct_employed?: number;
+  pct_formal_dwelling?: number;
+}
+
+export interface ZoneDemographicEnrichment {
+  zone_id: string;
+  demographic_fit_score: number;
+  business_poi_density: number;
+  pct_no_internet: number;
+  pct_income_target: number;
+  propensity_score: number;
+  ward_count: number;
+  total_population: number;
+}
+
+export interface DemographicsInRadius {
+  ward_count: number;
+  total_population: number;
+  total_households: number;
+  avg_pct_no_internet: number;
+  avg_pct_cellphone_internet: number;
+  avg_pct_fixed_internet: number;
+  avg_pct_income_above_r12800: number;
+  avg_pct_income_r6400_12800: number;
+  avg_pct_employed: number;
+  avg_pct_formal_dwelling: number;
+  total_business_pois: number;
+  total_office_pois: number;
+  total_healthcare_pois: number;
+  avg_demographic_fit_score: number;
+}
+
+export interface ZoneSuggestion {
+  ward_code: string;
+  ward_name: string | null;
+  municipality: string | null;
+  province: string;
+  centroid_lat: number;
+  centroid_lng: number;
+  demographic_fit_score: number;
+  pct_no_internet: number;
+  pct_income_above_r12800: number;
+  total_population: number;
+  total_households: number;
+  business_poi_count: number;
+  nearby_base_stations: number;
 }

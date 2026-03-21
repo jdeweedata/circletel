@@ -514,6 +514,51 @@ export type SupplierSyncCancelledEvent = {
   };
 };
 
+// =============================================================================
+// ZONE DEMOGRAPHIC ENRICHMENT EVENTS
+// =============================================================================
+
+export type ZoneDemographicEnrichmentRequestedEvent = {
+  name: 'zone/demographics.enrichment.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+    enrichment_log_id?: string;
+  };
+};
+
+export type ZoneDemographicEnrichmentCompletedEvent = {
+  name: 'zone/demographics.enrichment.completed';
+  data: {
+    enrichment_log_id: string;
+    triggered_by: 'cron' | 'manual';
+    enriched: number;
+    errors_count?: number;
+    total_zones?: number;
+    ward_count?: number;
+    skipped_reason?: string;
+    duration_ms: number;
+  };
+};
+
+export type ZoneDemographicEnrichmentFailedEvent = {
+  name: 'zone/demographics.enrichment.failed';
+  data: {
+    enrichment_log_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
+export type ZoneDemographicEnrichmentCancelledEvent = {
+  name: 'zone/demographics.enrichment.cancelled';
+  data: {
+    enrichment_log_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -562,4 +607,9 @@ export type InngestEvents = {
   'paynow/reconciliation.requested': PayNowReconciliationRequestedEvent;
   'paynow/reconciliation.completed': PayNowReconciliationCompletedEvent;
   'paynow/reconciliation.failed': PayNowReconciliationFailedEvent;
+  // Zone demographic enrichment events
+  'zone/demographics.enrichment.requested': ZoneDemographicEnrichmentRequestedEvent;
+  'zone/demographics.enrichment.completed': ZoneDemographicEnrichmentCompletedEvent;
+  'zone/demographics.enrichment.failed': ZoneDemographicEnrichmentFailedEvent;
+  'zone/demographics.enrichment.cancelled': ZoneDemographicEnrichmentCancelledEvent;
 };

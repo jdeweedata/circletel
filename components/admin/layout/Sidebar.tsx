@@ -171,6 +171,7 @@ const navigationSections: NavSection[] = [
           { name: 'Zones', href: '/admin/sales-engine/zones', icon: PiTargetBold },
           { name: 'Lead Scoring', href: '/admin/sales-engine/leads', icon: PiChartBarBold },
           { name: 'Pipeline', href: '/admin/sales-engine/pipeline', icon: PiTrendUpBold },
+          { name: 'Demographics', href: '/admin/sales-engine/demographics', icon: PiUsersBold },
           { name: 'Heat Map', href: '/admin/sales-engine/map', icon: PiMapPinBold },
         ]
       },

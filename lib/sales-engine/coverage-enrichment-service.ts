@@ -14,6 +14,7 @@ import type {
   LeadCoverageEnrichment,
   CoverageGapAnalysis,
 } from './types';
+import { enrichZoneDemographics } from './demographic-enrichment-service';
 
 // =============================================================================
 // Types
@@ -138,6 +139,13 @@ export async function enrichZoneCoverage(
       coverage_score: coverageScore,
       enriched_zone_score: enrichedZoneScore,
     };
+
+    // Also run demographic enrichment if ward data exists (non-blocking)
+    try {
+      await enrichZoneDemographics(zoneId);
+    } catch {
+      // Demographic enrichment is supplementary — don't fail coverage enrichment
+    }
 
     return { data: enrichment, error: null };
   } catch (err) {

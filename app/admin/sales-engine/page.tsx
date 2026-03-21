@@ -23,14 +23,17 @@ import { PIPELINE_STAGE_ORDER, PIPELINE_STAGE_LABELS } from '@/lib/sales-engine/
 interface ZoneRecommendation {
   zone_id: string;
   zone_name: string;
-  type: 'focus' | 'infrastructure' | 'park';
+  type: 'focus' | 'infrastructure' | 'park' | 'demographic_opportunity';
   reason: string;
   metrics: {
     unworked_leads?: number;
     enriched_zone_score?: number;
+    propensity_score?: number;
     avg_close_rate?: number;
     coverage_confidence?: string;
     lead_demand?: number;
+    pct_no_internet?: number;
+    demographic_fit_score?: number;
   };
 }
 
@@ -38,6 +41,7 @@ interface WeeklyRecommendations {
   focus_zones: ZoneRecommendation[];
   infrastructure_priorities: ZoneRecommendation[];
   park_candidates: ZoneRecommendation[];
+  demographic_opportunities: ZoneRecommendation[];
 }
 
 interface ChannelPerformance {
@@ -530,6 +534,24 @@ export default function SalesEngineDashboard() {
                 </div>
               )}
             </div>
+
+            {/* Demographic Opportunities */}
+            {Array.isArray(data.recommendations.demographic_opportunities) && data.recommendations.demographic_opportunities.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-purple-600 mb-3 flex items-center gap-1.5">
+                  <PiUsersBold className="h-4 w-4" />
+                  Demographic Opportunities ({data.recommendations.demographic_opportunities.length})
+                </h3>
+                <div className="space-y-2">
+                  {data.recommendations.demographic_opportunities.slice(0, 5).map((rec) => (
+                    <div key={rec.zone_id} className="text-sm">
+                      <p className="font-medium text-gray-900">{rec.zone_name}</p>
+                      <p className="text-xs text-gray-500">{rec.reason}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

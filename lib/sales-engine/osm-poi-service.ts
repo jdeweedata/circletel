@@ -1,0 +1,218 @@
+/**
+ * OSM POI Service
+ * Parses OpenStreetMap GeoJSON data and aggregates business POI counts per ward.
+ * Used to enhance ward_demographics with real business density data.
+ *
+ * @module lib/sales-engine/osm-poi-service
+ */
+
+import { createClient } from '@/lib/supabase/server';
+
+// =============================================================================
+// Types
+// =============================================================================
+
+interface ServiceResult<T> {
+  data: T | null;
+  error: string | null;
+}
+
+interface GeoJSONFeature {
+  type: 'Feature';
+  geometry: {
+    type: string;
+    coordinates: number[] | number[][] | number[][][];
+  };
+  properties: Record<string, string | undefined>;
+}
+
+interface GeoJSONCollection {
+  type: 'FeatureCollection';
+  features: GeoJSONFeature[];
+}
+
+interface POICategory {
+  business: number;
+  office: number;
+  healthcare: number;
+}
+
+interface WardPOICounts {
+  ward_code: string;
+  business_poi_count: number;
+  office_poi_count: number;
+  healthcare_poi_count: number;
+}
+
+// =============================================================================
+// POI Classification
+// =============================================================================
+
+/**
+ * Classify an OSM feature into a POI category based on its tags.
+ */
+function classifyPOI(properties: Record<string, string | undefined>): keyof POICategory | null {
+  const amenity = properties.amenity;
+  const office = properties.office;
+  const shop = properties.shop;
+  const landuse = properties.landuse;
+  const building = properties.building;
+
+  // Healthcare
+  if (amenity === 'clinic' || amenity === 'hospital' || amenity === 'doctors' || amenity === 'pharmacy') {
+    return 'healthcare';
+  }
+
+  // Office
+  if (office) {
+    return 'office';
+  }
+
+  // Business (shops, commercial areas, restaurants, etc.)
+  if (shop || landuse === 'commercial' || landuse === 'retail') {
+    return 'business';
+  }
+  if (amenity === 'restaurant' || amenity === 'bank' || amenity === 'fuel' || amenity === 'cafe') {
+    return 'business';
+  }
+  if (building === 'commercial' || building === 'retail' || building === 'office') {
+    return 'business';
+  }
+
+  return null;
+}
+
+/**
+ * Get the centroid point from a GeoJSON geometry.
+ */
+function getFeaturePoint(geometry: GeoJSONFeature['geometry']): { lat: number; lng: number } | null {
+  if (geometry.type === 'Point') {
+    const coords = geometry.coordinates as number[];
+    return { lat: coords[1], lng: coords[0] };
+  }
+  if (geometry.type === 'Polygon') {
+    const ring = (geometry.coordinates as number[][][])[0];
+    if (!ring || ring.length === 0) return null;
+    const sumLat = ring.reduce((s, c) => s + c[1], 0);
+    const sumLng = ring.reduce((s, c) => s + c[0], 0);
+    return { lat: sumLat / ring.length, lng: sumLng / ring.length };
+  }
+  if (geometry.type === 'MultiPolygon') {
+    const coords = geometry.coordinates as unknown as number[][][][];
+    const firstRing = coords[0]?.[0];
+    if (!firstRing || firstRing.length === 0) return null;
+    const sumLat = firstRing.reduce((s, c) => s + c[1], 0);
+    const sumLng = firstRing.reduce((s, c) => s + c[0], 0);
+    return { lat: sumLat / firstRing.length, lng: sumLng / firstRing.length };
+  }
+  return null;
+}
+
+// =============================================================================
+// Import & Aggregation
+// =============================================================================
+
+/**
+ * Parse GeoJSON and aggregate POI counts per ward.
+ * Each POI is assigned to the nearest ward based on centroid proximity.
+ */
+export async function importOsmPois(
+  geojson: GeoJSONCollection
+): Promise<ServiceResult<{ total_pois: number; wards_updated: number; errors: string[] }>> {
+  try {
+    const supabase = await createClient();
+    const errors: string[] = [];
+
+    // Classify all features
+    const classifiedPois: Array<{ lat: number; lng: number; category: keyof POICategory }> = [];
+
+    for (const feature of geojson.features) {
+      const category = classifyPOI(feature.properties);
+      if (!category) continue;
+
+      const point = getFeaturePoint(feature.geometry);
+      if (!point) continue;
+
+      classifiedPois.push({ ...point, category });
+    }
+
+    if (classifiedPois.length === 0) {
+      return { data: { total_pois: 0, wards_updated: 0, errors: ['No classifiable POIs found in GeoJSON'] }, error: null };
+    }
+
+    // Fetch all wards with centroids
+    const { data: wards, error: wardsError } = await supabase
+      .from('ward_demographics')
+      .select('ward_code, centroid_lat, centroid_lng')
+      .not('centroid_lat', 'is', null)
+      .not('centroid_lng', 'is', null);
+
+    if (wardsError || !wards || wards.length === 0) {
+      return { data: null, error: `No wards with coordinates found: ${wardsError?.message ?? 'empty'}` };
+    }
+
+    // Simple nearest-ward assignment using Euclidean distance on lat/lng
+    // (sufficient for South Africa's scale, not crossing date line)
+    const wardCounts: Record<string, POICategory> = {};
+
+    for (const poi of classifiedPois) {
+      let nearestWard = '';
+      let nearestDist = Infinity;
+
+      for (const ward of wards) {
+        const dlat = poi.lat - ward.centroid_lat;
+        const dlng = poi.lng - ward.centroid_lng;
+        const dist = dlat * dlat + dlng * dlng;
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearestWard = ward.ward_code;
+        }
+      }
+
+      if (nearestWard) {
+        if (!wardCounts[nearestWard]) {
+          wardCounts[nearestWard] = { business: 0, office: 0, healthcare: 0 };
+        }
+        wardCounts[nearestWard][poi.category]++;
+      }
+    }
+
+    // Batch update ward_demographics
+    let wardsUpdated = 0;
+    const wardCodes = Object.keys(wardCounts);
+
+    for (let i = 0; i < wardCodes.length; i += 50) {
+      const batch = wardCodes.slice(i, i + 50);
+
+      for (const wardCode of batch) {
+        const counts = wardCounts[wardCode];
+        const { error: updateError } = await supabase
+          .from('ward_demographics')
+          .update({
+            business_poi_count: counts.business,
+            office_poi_count: counts.office,
+            healthcare_poi_count: counts.healthcare,
+          })
+          .eq('ward_code', wardCode);
+
+        if (updateError) {
+          errors.push(`Ward ${wardCode}: ${updateError.message}`);
+        } else {
+          wardsUpdated++;
+        }
+      }
+    }
+
+    return {
+      data: {
+        total_pois: classifiedPois.length,
+        wards_updated: wardsUpdated,
+        errors,
+      },
+      error: null,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { data: null, error: `OSM POI import failed: ${message}` };
+  }
+}

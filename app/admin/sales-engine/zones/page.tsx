@@ -170,6 +170,7 @@ export default function ZonesPage() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Zone</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Type</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Score</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Propensity</th>
                 <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Coverage</th>
                 <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Infrastructure</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Penetration</th>
@@ -198,6 +199,19 @@ export default function ZonesPage() {
                     }`}>
                       {Number(zone.zone_score).toFixed(0)}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {(zone.propensity_score ?? 0) > 0 ? (
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${
+                        Number(zone.propensity_score) >= 60 ? 'bg-purple-100 text-purple-700' :
+                        Number(zone.propensity_score) >= 35 ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-600'
+                      }`}>
+                        {Number(zone.propensity_score).toFixed(0)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">--</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-center">
                     {zone.coverage_confidence ? (

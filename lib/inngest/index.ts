@@ -94,6 +94,16 @@ export {
   marketingDemandThresholdFunction,
 } from './functions/marketing-triggers';
 
+export {
+  zoneDemographicEnrichmentFunction,
+  zoneDemographicEnrichmentCompletedFunction,
+  zoneDemographicEnrichmentFailedFunction,
+} from './functions/zone-demographic-enrichment';
+
+export {
+  osmPoiSyncFunction,
+} from './functions/osm-poi-sync';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -181,6 +191,16 @@ import {
   marketingDemandThresholdFunction,
 } from './functions/marketing-triggers';
 
+import {
+  zoneDemographicEnrichmentFunction,
+  zoneDemographicEnrichmentCompletedFunction,
+  zoneDemographicEnrichmentFailedFunction,
+} from './functions/zone-demographic-enrichment';
+
+import {
+  osmPoiSyncFunction,
+} from './functions/osm-poi-sync';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -236,4 +256,10 @@ export const functions = [
   // Marketing campaign triggers
   marketingDfaLeadMatchFunction,
   marketingDemandThresholdFunction,
+  // Zone demographic enrichment
+  zoneDemographicEnrichmentFunction,
+  zoneDemographicEnrichmentCompletedFunction,
+  zoneDemographicEnrichmentFailedFunction,
+  // OSM POI sync
+  osmPoiSyncFunction,
 ];
