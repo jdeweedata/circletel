@@ -6,6 +6,16 @@ export type MTNDealerContractTerm = 0 | 12 | 24 | 36;
 export type MTNDealerDeviceStatus = 'Available' | 'Out of Stock' | 'EOL' | 'CTB';
 export type MTNDealerProductStatus = 'draft' | 'active' | 'inactive' | 'archived';
 export type MTNDealerMarkupType = 'percentage' | 'fixed';
+export type MTNDealerCurationStatus = 'uncurated' | 'recommended' | 'featured' | 'hidden';
+export type MTNDealerBusinessUseCase =
+  | 'mobile_workforce'
+  | 'fleet_management'
+  | 'voice_comms'
+  | 'data_connectivity'
+  | 'iot_m2m'
+  | 'device_upgrade'
+  | 'backup_connectivity'
+  | 'venue_wifi';
 
 export interface MTNDealerProduct {
   id: string;
@@ -83,12 +93,23 @@ export interface MTNDealerProduct {
   // Status
   status: MTNDealerProductStatus;
   inventory_status: string;
-  
+
+  // Curation
+  curation_status: MTNDealerCurationStatus;
+  business_use_case: MTNDealerBusinessUseCase | null;
+  auto_curated: boolean;
+  is_visible_on_frontend: boolean;
+
+  // Totals (from March 2026+ spreadsheets)
+  total_data: string | null;
+  total_minutes: string | null;
+  freebie_inventory_status: string | null;
+
   // Metadata
   metadata: Record<string, unknown>;
   import_batch_id: string | null;
   source_file: string | null;
-  
+
   // Audit
   created_at: string;
   updated_at: string;
@@ -293,3 +314,79 @@ export const PRODUCT_STATUS_OPTIONS = [
   { value: 'inactive', label: 'Inactive' },
   { value: 'archived', label: 'Archived' },
 ] as const;
+
+// Curation status options for UI
+export const CURATION_STATUS_OPTIONS = [
+  { value: 'uncurated', label: 'Uncurated' },
+  { value: 'recommended', label: 'Recommended' },
+  { value: 'featured', label: 'Featured' },
+  { value: 'hidden', label: 'Hidden' },
+] as const;
+
+// Business use case options for UI
+export const BUSINESS_USE_CASE_OPTIONS = [
+  { value: 'mobile_workforce', label: 'Mobile Workforce' },
+  { value: 'fleet_management', label: 'Fleet Management' },
+  { value: 'voice_comms', label: 'Voice Communications' },
+  { value: 'data_connectivity', label: 'Data Connectivity' },
+  { value: 'iot_m2m', label: 'IoT / M2M' },
+  { value: 'device_upgrade', label: 'Device Upgrade' },
+  { value: 'backup_connectivity', label: 'Backup Connectivity' },
+  { value: 'venue_wifi', label: 'Venue WiFi' },
+] as const;
+
+// Default markup rules by business use case
+export const MARKUP_RULES: Record<MTNDealerBusinessUseCase, { markup_pct: number; rationale: string }> = {
+  iot_m2m: { markup_pct: 20, rationale: 'Price-insensitive B2B' },
+  fleet_management: { markup_pct: 18, rationale: 'Value-add bundling' },
+  voice_comms: { markup_pct: 10, rationale: 'Moderate competition' },
+  data_connectivity: { markup_pct: 15, rationale: 'Standard B2B data' },
+  device_upgrade: { markup_pct: 8, rationale: 'Highly competitive' },
+  mobile_workforce: { markup_pct: 15, rationale: 'PoS/mobile solutions' },
+  backup_connectivity: { markup_pct: 15, rationale: 'Add-on to connectivity' },
+  venue_wifi: { markup_pct: 20, rationale: 'Bundled value' },
+};
+
+// Auto-curation filter rules
+export interface AutoCurationRules {
+  device_statuses: MTNDealerDeviceStatus[];
+  contract_terms: MTNDealerContractTerm[];
+  min_price_incl_vat: number;
+  max_price_incl_vat: number;
+  require_current_promo: boolean;
+  require_helios_or_ilula: boolean;
+}
+
+export const DEFAULT_CURATION_RULES: AutoCurationRules = {
+  device_statuses: ['Available', 'CTB'],
+  contract_terms: [24, 36],
+  min_price_incl_vat: 300,
+  max_price_incl_vat: 2000,
+  require_current_promo: true,
+  require_helios_or_ilula: true,
+};
+
+// Curated deal view type (from v_mtn_curated_deals)
+export interface MTNDealerCuratedDeal extends MTNDealerProduct {
+  mtn_commission_to_arlan: number;
+  circletel_commission: number;
+  effective_commission_rate: number;
+  monthly_markup_revenue: number;
+  is_current_deal: boolean;
+}
+
+// Auto-curation result
+export interface AutoCurationResult {
+  total_processed: number;
+  recommended: number;
+  hidden: number;
+  unchanged: number;
+  classified_by_use_case: Record<string, number>;
+}
+
+// Markup application result
+export interface MarkupApplicationResult {
+  total_updated: number;
+  by_use_case: Record<string, { count: number; avg_markup_pct: number }>;
+  margin_violations: number;
+}
