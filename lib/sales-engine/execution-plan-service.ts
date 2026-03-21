@@ -47,13 +47,22 @@ function findCurrentMilestone(milestones: ExecutionMilestone[]): ExecutionMilest
 
   const today = todayISO();
 
+  // Check for milestone whose period contains today
   const current = milestones.find(
     (m) => m.period_start <= today && m.period_end >= today
   );
 
   if (current) return current;
 
-  // Fallback: latest milestone by month_number
+  // Check for explicitly active milestone
+  const activeMilestone = milestones.find((m) => m.status === 'active');
+  if (activeMilestone) return activeMilestone;
+
+  // Fallback: first upcoming milestone (nearest future period)
+  const upcoming = milestones.find((m) => m.period_start > today);
+  if (upcoming) return upcoming;
+
+  // Final fallback: latest milestone by month_number
   return milestones[milestones.length - 1];
 }
 
@@ -253,10 +262,8 @@ export async function getExecutionSnapshot(): Promise<ServiceResult<ExecutionSna
       allMilestones
     );
 
-    // Active milestones (status = 'active' or 'at_risk')
-    const activeMilestones = allMilestones.filter(
-      (m) => m.status === 'active' || m.status === 'at_risk'
-    );
+    // All milestones for dashboard display (active + at_risk + upcoming + met)
+    const activeMilestones = allMilestones;
 
     // Monthly trend
     const monthlyTrend = allMilestones.map((m) => ({
