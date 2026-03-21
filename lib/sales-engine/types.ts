@@ -10,6 +10,7 @@
 export type ZoneType = 'office_park' | 'commercial_strip' | 'clinic_cluster' | 'residential_estate' | 'mixed';
 export type ZoneStatus = 'active' | 'parked' | 'saturated';
 export type ZonePriority = 'high' | 'medium' | 'low';
+export type CoverageConfidenceLevel = 'high' | 'medium' | 'low' | 'none';
 
 export interface SalesZone {
   id: string;
@@ -30,6 +31,16 @@ export interface SalesZone {
   province: string;
   suburb: string | null;
   notes: string | null;
+  // Coverage enrichment fields
+  base_station_count: number;
+  base_station_connections: number;
+  dfa_connected_count: number;
+  dfa_near_net_count: number;
+  coverage_confidence: CoverageConfidenceLevel | null;
+  coverage_enriched_at: string | null;
+  radius_km: number;
+  coverage_score: number;
+  enriched_zone_score: number;
   created_at: string;
   updated_at: string;
 }
@@ -77,6 +88,12 @@ export interface LeadScore {
   competitor_identified: string | null;
   scoring_date: string;
   scored_by: string;
+  // Coverage enrichment fields
+  nearest_base_station_km: number | null;
+  skyfibre_confidence: CoverageConfidenceLevel | null;
+  nearest_dfa_building_km: number | null;
+  dfa_coverage_type: 'connected' | 'near-net' | 'none' | null;
+  coverage_product_eligible: string[] | null;
   created_at: string;
   updated_at: string;
   // Joined fields
@@ -313,4 +330,49 @@ export interface PipelineStageSummary {
   label: string;
   count: number;
   total_mrr: number;
+}
+
+// =============================================================================
+// Coverage Enrichment Types
+// =============================================================================
+
+export interface ZoneCoverageEnrichment {
+  zone_id: string;
+  base_station_count: number;
+  base_station_connections: number;
+  dfa_connected_count: number;
+  dfa_near_net_count: number;
+  coverage_confidence: CoverageConfidenceLevel;
+  coverage_score: number;
+  enriched_zone_score: number;
+}
+
+export interface LeadCoverageEnrichment {
+  lead_score_id: string;
+  nearest_base_station_km: number | null;
+  skyfibre_confidence: CoverageConfidenceLevel;
+  nearest_dfa_building_km: number | null;
+  dfa_coverage_type: 'connected' | 'near-net' | 'none';
+  coverage_product_eligible: string[];
+  recommended_product: string;
+}
+
+export interface CoverageGapAnalysis {
+  investment_needed: Array<{
+    zone: SalesZone;
+    lead_count: number;
+    coverage_confidence: CoverageConfidenceLevel | null;
+  }>;
+  untapped_opportunity: Array<{
+    zone: SalesZone;
+    base_station_count: number;
+    dfa_count: number;
+  }>;
+  coverage_summary: {
+    high: number;
+    medium: number;
+    low: number;
+    none: number;
+    not_enriched: number;
+  };
 }
