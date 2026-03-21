@@ -1,6 +1,6 @@
 'use client';
 
-import { PiChartBarBold, PiMapPinBold, PiTargetBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiChartBarBold, PiLightningBold, PiMapPinBold, PiMegaphoneBold, PiPulseBold, PiTargetBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
@@ -20,6 +20,48 @@ import type { SalesZone, ZoneMetric, MSCPeriod, PipelineStageSummary } from '@/l
 import type { CoverageGapAnalysis } from '@/lib/sales-engine/types';
 import { PIPELINE_STAGE_ORDER, PIPELINE_STAGE_LABELS } from '@/lib/sales-engine/types';
 
+interface ZoneRecommendation {
+  zone_id: string;
+  zone_name: string;
+  type: 'focus' | 'infrastructure' | 'park';
+  reason: string;
+  metrics: {
+    unworked_leads?: number;
+    enriched_zone_score?: number;
+    avg_close_rate?: number;
+    coverage_confidence?: string;
+    lead_demand?: number;
+  };
+}
+
+interface WeeklyRecommendations {
+  focus_zones: ZoneRecommendation[];
+  infrastructure_priorities: ZoneRecommendation[];
+  park_candidates: ZoneRecommendation[];
+}
+
+interface ChannelPerformance {
+  channel: string;
+  total_deals: number;
+  won: number;
+  conversion_rate: number;
+  total_mrr: number;
+}
+
+interface BestChannelPerZone {
+  zone_id: string;
+  zone_name: string;
+  best_channel: string;
+  conversion_rate: number;
+  total_deals: number;
+}
+
+interface ChannelData {
+  channel_performance: ChannelPerformance[];
+  best_channel_per_zone: BestChannelPerZone[];
+  activity_totals: { linkedin: number; whatsapp: number; walk_ins: number; referrals: number };
+}
+
 interface ScorecardData {
   zones: Array<SalesZone & { metrics: ZoneMetric | null }>;
   msc_periods: MSCPeriod[];
@@ -37,6 +79,8 @@ interface ScorecardData {
   };
   pipeline_summary: PipelineStageSummary[];
   coverage_analysis: CoverageGapAnalysis | null;
+  recommendations: WeeklyRecommendations | null;
+  channel_data: ChannelData | null;
 }
 
 export default function SalesEngineDashboard() {
@@ -50,20 +94,24 @@ export default function SalesEngineDashboard() {
   async function fetchDashboardData() {
     try {
       setLoading(true);
-      const [scorecardRes, pipelineRes, mscRes, zonesRes, coverageAnalysisRes] = await Promise.all([
+      const [scorecardRes, pipelineRes, mscRes, zonesRes, coverageAnalysisRes, recommendationsRes, channelRes] = await Promise.all([
         fetch('/api/admin/sales-engine/scorecard'),
         fetch('/api/admin/sales-engine/pipeline?limit=0'),
         fetch('/api/admin/sales-engine/msc'),
         fetch('/api/admin/sales-engine/zones'),
         fetch('/api/admin/sales-engine/coverage-analysis'),
+        fetch('/api/admin/sales-engine/zones/recommendations'),
+        fetch('/api/admin/sales-engine/scorecard/channel-analysis'),
       ]);
 
-      const [scorecardJson, pipelineJson, mscJson, zonesJson, coverageAnalysisJson] = await Promise.all([
+      const [scorecardJson, pipelineJson, mscJson, zonesJson, coverageAnalysisJson, recommendationsJson, channelJson] = await Promise.all([
         scorecardRes.json(),
         pipelineRes.json(),
         mscRes.json(),
         zonesRes.json(),
         coverageAnalysisRes.json(),
+        recommendationsRes.json(),
+        channelRes.json(),
       ]);
 
       // Build pipeline summary from stage counts
@@ -117,6 +165,8 @@ export default function SalesEngineDashboard() {
         },
         pipeline_summary: pipelineSummary,
         coverage_analysis: coverageAnalysisJson.data ?? null,
+        recommendations: recommendationsJson.data ?? null,
+        channel_data: channelJson.data ?? null,
       });
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
@@ -413,9 +463,160 @@ export default function SalesEngineDashboard() {
         </div>
       </div>
 
+      {/* Weekly Zone Recommendations */}
+      {data?.recommendations && (
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+            <PiLightningBold className="h-4 w-4" />
+            Weekly Recommendations
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Focus Zones */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <h3 className="text-sm font-semibold text-green-600 mb-3 flex items-center gap-1.5">
+                <PiTargetBold className="h-4 w-4" />
+                Focus Zones ({data.recommendations.focus_zones.length})
+              </h3>
+              {data.recommendations.focus_zones.length === 0 ? (
+                <p className="text-xs text-gray-400">No focus zones this week</p>
+              ) : (
+                <div className="space-y-2">
+                  {data.recommendations.focus_zones.slice(0, 5).map((rec) => (
+                    <div key={rec.zone_id} className="text-sm">
+                      <p className="font-medium text-gray-900">{rec.zone_name}</p>
+                      <p className="text-xs text-gray-500">{rec.reason}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Infrastructure Priorities */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <h3 className="text-sm font-semibold text-amber-600 mb-3 flex items-center gap-1.5">
+                <PiWifiHighBold className="h-4 w-4" />
+                Infrastructure Priorities ({data.recommendations.infrastructure_priorities.length})
+              </h3>
+              {data.recommendations.infrastructure_priorities.length === 0 ? (
+                <p className="text-xs text-gray-400">No infrastructure needs identified</p>
+              ) : (
+                <div className="space-y-2">
+                  {data.recommendations.infrastructure_priorities.slice(0, 5).map((rec) => (
+                    <div key={rec.zone_id} className="text-sm">
+                      <p className="font-medium text-gray-900">{rec.zone_name}</p>
+                      <p className="text-xs text-gray-500">{rec.reason}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Park Candidates */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <h3 className="text-sm font-semibold text-red-600 mb-3 flex items-center gap-1.5">
+                <PiWarningCircleBold className="h-4 w-4" />
+                Park Candidates ({data.recommendations.park_candidates.length})
+              </h3>
+              {data.recommendations.park_candidates.length === 0 ? (
+                <p className="text-xs text-gray-400">No zones to park</p>
+              ) : (
+                <div className="space-y-2">
+                  {data.recommendations.park_candidates.slice(0, 5).map((rec) => (
+                    <div key={rec.zone_id} className="text-sm">
+                      <p className="font-medium text-gray-900">{rec.zone_name}</p>
+                      <p className="text-xs text-gray-500">{rec.reason}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Channel Performance */}
+      {data?.channel_data && data.channel_data.channel_performance.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+            <PiMegaphoneBold className="h-4 w-4" />
+            Channel Performance
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Channel Conversion Table */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Conversion by Channel</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-gray-500 border-b border-gray-100">
+                      <th className="pb-2 font-medium">Channel</th>
+                      <th className="pb-2 font-medium text-right">Deals</th>
+                      <th className="pb-2 font-medium text-right">Won</th>
+                      <th className="pb-2 font-medium text-right">Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.channel_data.channel_performance.map((ch) => (
+                      <tr key={ch.channel} className="border-b border-gray-50">
+                        <td className="py-2 capitalize font-medium text-gray-900">{ch.channel.replace('_', ' ')}</td>
+                        <td className="py-2 text-right text-gray-700">{ch.total_deals}</td>
+                        <td className="py-2 text-right text-gray-700">{ch.won}</td>
+                        <td className="py-2 text-right">
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-semibold ${
+                            ch.conversion_rate >= 50 ? 'bg-green-100 text-green-700' :
+                            ch.conversion_rate >= 25 ? 'bg-amber-100 text-amber-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {ch.conversion_rate}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Best Channel per Zone */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Best Channel per Zone</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-gray-500 border-b border-gray-100">
+                      <th className="pb-2 font-medium">Zone</th>
+                      <th className="pb-2 font-medium">Best Channel</th>
+                      <th className="pb-2 font-medium text-right">Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.channel_data.best_channel_per_zone.slice(0, 8).map((item) => (
+                      <tr key={item.zone_id} className="border-b border-gray-50">
+                        <td className="py-2 font-medium text-gray-900">{item.zone_name}</td>
+                        <td className="py-2 capitalize text-gray-700">{item.best_channel.replace('_', ' ')}</td>
+                        <td className="py-2 text-right">
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-semibold ${
+                            item.conversion_rate >= 50 ? 'bg-green-100 text-green-700' :
+                            item.conversion_rate >= 25 ? 'bg-amber-100 text-amber-700' :
+                            'bg-gray-100 text-gray-600'
+                          }`}>
+                            {item.conversion_rate}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Quick Navigation */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {[
+          { name: 'Briefing', href: '/admin/sales-engine/briefing', icon: PiPulseBold, desc: 'Daily action plan', color: 'orange' },
           { name: 'Zones', href: '/admin/sales-engine/zones', icon: PiTargetBold, desc: 'Manage sales territories', color: 'blue' },
           { name: 'Lead Scoring', href: '/admin/sales-engine/leads', icon: PiChartBarBold, desc: 'Score & prioritize leads', color: 'green' },
           { name: 'Pipeline', href: '/admin/sales-engine/pipeline', icon: PiTrendUpBold, desc: '7-day close cycle', color: 'purple' },

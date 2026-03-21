@@ -1,6 +1,6 @@
 'use client';
 
-import { PiChartBarBold, PiFunnelBold, PiTargetBold } from 'react-icons/pi';
+import { PiChartBarBold, PiDownloadBold, PiFunnelBold, PiTargetBold } from 'react-icons/pi';
 import React, { useState, useEffect, useCallback } from 'react';
 import { StatCard } from '@/components/admin/shared/StatCard';
 import type { LeadScore, SalesZone, OutreachTrack } from '@/lib/sales-engine/types';
@@ -75,9 +75,25 @@ export default function LeadScoringPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Lead Scoring</h1>
-        <p className="text-gray-500 mt-1">Address-level scoring with 4-dimension model (Product Fit, Revenue, Competition, Speed)</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Lead Scoring</h1>
+          <p className="text-gray-500 mt-1">Address-level scoring with 4-dimension model (Product Fit, Revenue, Competition, Speed)</p>
+        </div>
+        <button
+          onClick={() => {
+            const params = new URLSearchParams();
+            if (selectedZone !== 'all') params.set('zone_id', selectedZone);
+            if (selectedTrack !== 'all') params.set('track', selectedTrack);
+            if (minScore > 0) params.set('min_score', String(minScore));
+            params.set('exclude_in_pipeline', 'true');
+            window.open(`/api/admin/sales-engine/leads/export?${params}`, '_blank');
+          }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          <PiDownloadBold className="h-4 w-4" />
+          Export CSV
+        </button>
       </div>
 
       {/* Stats */}

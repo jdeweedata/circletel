@@ -167,6 +167,7 @@ const navigationSections: NavSection[] = [
         icon: PiGraphBold,
         children: [
           { name: 'Dashboard', href: '/admin/sales-engine', icon: PiSquaresFourBold },
+          { name: 'Briefing', href: '/admin/sales-engine/briefing', icon: PiPulseBold },
           { name: 'Zones', href: '/admin/sales-engine/zones', icon: PiTargetBold },
           { name: 'Lead Scoring', href: '/admin/sales-engine/leads', icon: PiChartBarBold },
           { name: 'Pipeline', href: '/admin/sales-engine/pipeline', icon: PiTrendUpBold },

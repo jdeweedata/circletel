@@ -1,7 +1,8 @@
 'use client';
 
-import { PiCheckCircleBold, PiFunnelBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiFunnelBold, PiHeartbeatBold, PiTrendDownBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { StatCard } from '@/components/admin/shared/StatCard';
 import type { PipelineEntry, PipelineStage, SalesZone } from '@/lib/sales-engine/types';
 import { PIPELINE_STAGE_ORDER, PIPELINE_STAGE_LABELS } from '@/lib/sales-engine/types';
@@ -90,6 +91,20 @@ export default function PipelinePage() {
           <p className="text-gray-500 mt-1">7-day close cycle — zone-aware pipeline management</p>
         </div>
         <div className="flex gap-2">
+          <Link
+            href="/admin/sales-engine/pipeline/health"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+          >
+            <PiHeartbeatBold className="h-4 w-4" />
+            Health
+          </Link>
+          <Link
+            href="/admin/sales-engine/pipeline/loss-analysis"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+          >
+            <PiTrendDownBold className="h-4 w-4" />
+            Loss Analysis
+          </Link>
           <button
             onClick={() => setViewMode('kanban')}
             className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
