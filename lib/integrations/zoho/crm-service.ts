@@ -27,6 +27,11 @@ import type {
  * - RICA_Status (Picklist: Pending, Submitted, Approved, Rejected)
  * - Contract_Number (Text)
  * - Contract_Signed_Date (Date)
+ * - Coverage_Zone_ID (Text) — Sales Engine zone ID
+ * - Coverage_Zone_Name (Text) — Sales Engine zone name
+ * - Pipeline_Stage (Picklist) — Sales Engine pipeline stage
+ * - Loss_Reason_Geo (Text) — Geo-tagged loss reason
+ * - Lead_Score (Number) — Composite lead score (0-100)
  */
 export class ZohoCRMService {
   private auth = createZohoAuthService();

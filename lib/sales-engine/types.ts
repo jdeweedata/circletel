@@ -1,0 +1,316 @@
+/**
+ * Sales Engine Types
+ * Shared types for the data-driven sales strategy system
+ */
+
+// =============================================================================
+// Zone Types (Layer 1)
+// =============================================================================
+
+export type ZoneType = 'office_park' | 'commercial_strip' | 'clinic_cluster' | 'residential_estate' | 'mixed';
+export type ZoneStatus = 'active' | 'parked' | 'saturated';
+export type ZonePriority = 'high' | 'medium' | 'low';
+
+export interface SalesZone {
+  id: string;
+  name: string;
+  zone_type: ZoneType;
+  description: string | null;
+  center_lat: number;
+  center_lng: number;
+  boundary?: unknown; // PostGIS GEOGRAPHY
+  sme_density_score: number;
+  penetration_rate: number;
+  competitor_weakness_score: number;
+  serviceable_addresses: number;
+  active_customers: number;
+  zone_score: number; // Computed column
+  status: ZoneStatus;
+  priority: ZonePriority;
+  province: string;
+  suburb: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateZoneInput {
+  name: string;
+  zone_type: ZoneType;
+  description?: string;
+  center_lat: number;
+  center_lng: number;
+  sme_density_score?: number;
+  penetration_rate?: number;
+  competitor_weakness_score?: number;
+  serviceable_addresses?: number;
+  active_customers?: number;
+  status?: ZoneStatus;
+  priority?: ZonePriority;
+  province?: string;
+  suburb?: string;
+  notes?: string;
+}
+
+export interface UpdateZoneInput extends Partial<CreateZoneInput> {
+  id: string;
+}
+
+// =============================================================================
+// Lead Scoring Types (Layer 2)
+// =============================================================================
+
+export type OutreachTrack = 'office_park' | 'sme_strip' | 'clinic' | 'referral' | 'residential';
+
+export interface LeadScore {
+  id: string;
+  coverage_lead_id: string;
+  zone_id: string | null;
+  product_fit_score: number;
+  revenue_potential_score: number;
+  competitive_vuln_score: number;
+  conversion_speed_score: number;
+  composite_score: number; // Computed column
+  recommended_product: string | null;
+  recommended_track: OutreachTrack | null;
+  estimated_mrr: number | null;
+  competitor_identified: string | null;
+  scoring_date: string;
+  scored_by: string;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  coverage_lead?: CoverageLeadBasic;
+}
+
+export interface ScoreLeadInput {
+  coverage_lead_id: string;
+  zone_id?: string;
+  product_fit_score: number;
+  revenue_potential_score: number;
+  competitive_vuln_score: number;
+  conversion_speed_score: number;
+  recommended_product?: string;
+  recommended_track?: OutreachTrack;
+  estimated_mrr?: number;
+  competitor_identified?: string;
+  scored_by?: string;
+}
+
+export interface CoverageLeadBasic {
+  id: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  status: string;
+  customer_type?: string;
+  company_name?: string;
+  phone?: string;
+  created_at: string;
+}
+
+// =============================================================================
+// Pipeline Types (Layers 3-4)
+// =============================================================================
+
+export type PipelineStage =
+  | 'coverage_confirmed'
+  | 'contact_made'
+  | 'site_survey_booked'
+  | 'quote_sent'
+  | 'objection_stage'
+  | 'contract_signed'
+  | 'installed_active';
+
+export type ContactMethod = 'linkedin' | 'whatsapp' | 'walk_in' | 'referral' | 'phone' | 'email';
+export type ContractType = 'month_to_month' | '12_month' | '24_month' | '36_month';
+export type ObjectionCategory = 'price' | 'competitor_lock_in' | 'trust' | 'need_to_think' | 'technical' | 'budget' | 'timing' | 'none';
+export type PipelineOutcome = 'open' | 'won' | 'lost' | 'parked';
+
+export interface PipelineEntry {
+  id: string;
+  coverage_lead_id: string;
+  zone_id: string | null;
+  lead_score_id: string | null;
+  stage: PipelineStage;
+  stage_entered_at: string;
+  day_target: number | null;
+  contact_method: ContactMethod | null;
+  decision_maker_confirmed: boolean;
+  quote_mrr: number | null;
+  product_tier: string | null;
+  contract_type: ContractType | null;
+  objection_category: ObjectionCategory | null;
+  outcome: PipelineOutcome;
+  loss_reason: string | null;
+  loss_competitor: string | null;
+  zoho_deal_id: string | null;
+  zoho_synced: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  coverage_lead?: CoverageLeadBasic;
+  lead_score?: LeadScore;
+  zone?: SalesZone;
+}
+
+export interface CreatePipelineInput {
+  coverage_lead_id: string;
+  zone_id?: string;
+  lead_score_id?: string;
+  stage?: PipelineStage;
+  contact_method?: ContactMethod;
+  day_target?: number;
+}
+
+export interface AdvanceStageInput {
+  id: string;
+  stage: PipelineStage;
+  contact_method?: ContactMethod;
+  decision_maker_confirmed?: boolean;
+  quote_mrr?: number;
+  product_tier?: string;
+  contract_type?: ContractType;
+  objection_category?: ObjectionCategory;
+  outcome?: PipelineOutcome;
+  loss_reason?: string;
+  loss_competitor?: string;
+}
+
+export const PIPELINE_STAGE_ORDER: PipelineStage[] = [
+  'coverage_confirmed',
+  'contact_made',
+  'site_survey_booked',
+  'quote_sent',
+  'objection_stage',
+  'contract_signed',
+  'installed_active',
+];
+
+export const PIPELINE_STAGE_LABELS: Record<PipelineStage, string> = {
+  coverage_confirmed: 'Coverage Confirmed',
+  contact_made: 'Contact Made',
+  site_survey_booked: 'Site Survey Booked',
+  quote_sent: 'Quote Sent',
+  objection_stage: 'Objection Stage',
+  contract_signed: 'Contract Signed',
+  installed_active: 'Installed & Active',
+};
+
+export const PIPELINE_STAGE_DAY_TARGETS: Record<PipelineStage, number> = {
+  coverage_confirmed: 0,
+  contact_made: 1,
+  site_survey_booked: 3,
+  quote_sent: 4,
+  objection_stage: 5,
+  contract_signed: 6,
+  installed_active: 7,
+};
+
+// =============================================================================
+// Scorecard Types (Layer 5)
+// =============================================================================
+
+export type ConversionTrend = 'improving' | 'stable' | 'declining';
+export type RecommendedAction = 'increase_effort' | 'change_message' | 'park_zone' | 'maintain';
+
+export interface ZoneMetric {
+  id: string;
+  zone_id: string;
+  week_start: string;
+  serviceable_addresses: number;
+  active_customers: number;
+  penetration_rate: number;
+  addresses_canvassed: number;
+  leads_generated: number;
+  coverage_to_lead_rate: number;
+  qualified_leads: number;
+  closed_deals: number;
+  lead_to_close_rate: number;
+  new_mrr_added: number;
+  total_zone_mrr: number;
+  cost_per_activation: number;
+  avg_arpu: number;
+  active_rns: number;
+  linkedin_contacts: number;
+  whatsapp_contacts: number;
+  walk_ins: number;
+  referrals_generated: number;
+  conversion_rate_trend: ConversionTrend | null;
+  recommended_action: RecommendedAction | null;
+  created_at: string;
+  // Joined fields
+  zone?: SalesZone;
+}
+
+export interface RecordMetricsInput {
+  zone_id: string;
+  week_start: string;
+  serviceable_addresses?: number;
+  active_customers?: number;
+  addresses_canvassed?: number;
+  leads_generated?: number;
+  qualified_leads?: number;
+  closed_deals?: number;
+  new_mrr_added?: number;
+  total_zone_mrr?: number;
+  cost_per_activation?: number;
+  active_rns?: number;
+  linkedin_contacts?: number;
+  whatsapp_contacts?: number;
+  walk_ins?: number;
+  referrals_generated?: number;
+}
+
+// =============================================================================
+// MSC Types
+// =============================================================================
+
+export type MSCStatus = 'upcoming' | 'active' | 'met' | 'at_risk' | 'missed';
+
+export interface MSCPeriod {
+  id: string;
+  period_label: string;
+  period_start: string;
+  period_end: string;
+  msc_amount: number;
+  required_rns: number;
+  actual_rns: number;
+  actual_spend: number;
+  status: MSCStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+// =============================================================================
+// Dashboard Summary Types
+// =============================================================================
+
+export interface SalesEngineSummary {
+  total_zones: number;
+  active_zones: number;
+  total_leads_scored: number;
+  avg_lead_score: number;
+  pipeline_open: number;
+  pipeline_won: number;
+  pipeline_lost: number;
+  total_pipeline_mrr: number;
+  overall_penetration_rate: number;
+  total_active_rns: number;
+  msc_current: MSCPeriod | null;
+}
+
+export interface ZoneScorecardRow {
+  zone: SalesZone;
+  metrics: ZoneMetric | null;
+  pipeline_count: number;
+  won_count: number;
+  lost_count: number;
+}
+
+export interface PipelineStageSummary {
+  stage: PipelineStage;
+  label: string;
+  count: number;
+  total_mrr: number;
+}
