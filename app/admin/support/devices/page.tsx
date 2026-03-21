@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import {
   PiMagnifyingGlassBold,
   PiUserBold,
@@ -14,12 +15,25 @@ import {
   PiCaretRightBold,
   PiDevicesBold,
   PiArrowsClockwiseBold,
+  PiWarningCircleBold,
+  PiCurrencyDollarBold,
+  PiFunnelBold,
+  PiXBold,
+  PiCaretDownBold,
 } from 'react-icons/pi';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
+import { StatCard } from '@/components/admin/shared/StatCard';
+import { SectionCard } from '@/components/admin/shared/SectionCard';
+import { UnderlineTabs, TabPanel } from '@/components/admin/shared/UnderlineTabs';
+import type { NetworkDevice, NetworkDeviceStats, DeviceType, DeviceChannel, DeviceStatus } from '@/lib/network/types';
+import { DEVICE_TYPE_LABELS, DEVICE_TYPE_COLORS, CHANNEL_LABELS, STATUS_COLORS } from '@/lib/network/types';
+
+// =============================================================================
+// Customer Search Types (kept from original page)
+// =============================================================================
 
 interface Customer {
   id: string;
@@ -30,7 +44,7 @@ interface Customer {
   address: string | null;
 }
 
-interface Device {
+interface CustomerDevice {
   sn: string;
   device_name: string;
   model: string | null;
@@ -40,12 +54,15 @@ interface Device {
   synced_at: string;
 }
 
+// =============================================================================
+// Helpers
+// =============================================================================
+
 function formatRelativeTime(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
-
   if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
   const diffHours = Math.floor(diffMins / 60);
@@ -54,459 +71,636 @@ function formatRelativeTime(dateString: string): string {
   return `${diffDays}d ago`;
 }
 
-export default function SupportDevicesPage() {
-  const [query, setQuery] = useState('');
+const formatCurrency = (value: number) => `R${Number(value).toLocaleString()}`;
+
+const TABS = [
+  { id: 'inventory', label: 'All Devices' },
+  { id: 'sites', label: 'By Site' },
+  { id: 'search', label: 'Customer Search' },
+] as const;
+
+function getEffectiveStatus(device: NetworkDevice): string {
+  if (device.device_type === 'ruijie_ap' && device.ruijie_status) {
+    return device.ruijie_status;
+  }
+  return device.status;
+}
+
+function statusDotColor(status: string): string {
+  switch (status) {
+    case 'active': case 'online': case 'deployed': return 'bg-emerald-500';
+    case 'signal_issues': return 'bg-amber-500';
+    case 'offline': return 'bg-slate-400';
+    case 'pending': return 'bg-yellow-500';
+    case 'reserved': return 'bg-indigo-400';
+    default: return 'bg-red-400';
+  }
+}
+
+// =============================================================================
+// Page Component
+// =============================================================================
+
+export default function NetworkInventoryPage() {
+  const [activeTab, setActiveTab] = useState('inventory');
+  const [devices, setDevices] = useState<NetworkDevice[]>([]);
+  const [stats, setStats] = useState<NetworkDeviceStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Filters
+  const [filterType, setFilterType] = useState('');
+  const [filterChannel, setFilterChannel] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Customer search state (tab 3)
+  const [custQuery, setCustQuery] = useState('');
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searchPerformed, setSearchPerformed] = useState(false);
+  const [custDevices, setCustDevices] = useState<CustomerDevice[]>([]);
+  const [custLoading, setCustLoading] = useState(false);
+  const [custSearchPerformed, setCustSearchPerformed] = useState(false);
 
-  const handleSearch = async () => {
-    if (!query.trim()) return;
-    setLoading(true);
-    setSearchPerformed(true);
+  useEffect(() => {
+    fetchDevices();
+  }, []);
+
+  async function fetchDevices() {
     try {
-      const response = await fetch(`/api/admin/search/customers?q=${encodeURIComponent(query)}`, {
-        credentials: 'include',
-      });
-      const data = await response.json();
-      setCustomers(data.results || []);
-      setSelectedCustomer(null);
-      setDevices([]);
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (filterType) params.set('type', filterType);
+      if (filterChannel) params.set('channel', filterChannel);
+      if (filterStatus) params.set('status', filterStatus);
+      if (searchQuery) params.set('search', searchQuery);
+
+      const res = await fetch(`/api/admin/network/devices?${params}`, { credentials: 'include' });
+      const json = await res.json();
+      if (json.success) {
+        setDevices(json.devices ?? []);
+        setStats(json.stats ?? null);
+      }
+    } catch (error) {
+      console.error('Failed to fetch devices:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  // Re-fetch when filters change
+  useEffect(() => {
+    fetchDevices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterType, filterChannel, filterStatus]);
+
+  const handleSearch = () => {
+    fetchDevices();
+  };
+
+  const clearFilters = () => {
+    setFilterType('');
+    setFilterChannel('');
+    setFilterStatus('');
+    setSearchQuery('');
+  };
+
+  const hasActiveFilters = filterType || filterChannel || filterStatus || searchQuery;
+
+  // Group devices by site
+  const devicesBySite = useMemo(() => {
+    const grouped: Record<string, NetworkDevice[]> = {};
+    for (const d of devices) {
+      const site = d.site_name || 'Unassigned';
+      if (!grouped[site]) grouped[site] = [];
+      grouped[site].push(d);
+    }
+    return Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b));
+  }, [devices]);
+
+  // Customer search handlers
+  const handleCustSearch = async () => {
+    if (!custQuery.trim()) return;
+    setCustLoading(true);
+    setCustSearchPerformed(true);
+    try {
+      const res = await fetch(`/api/admin/search/customers?q=${encodeURIComponent(custQuery)}`, { credentials: 'include' });
+      const data = await res.json();
+      setCustomers(data.results || []);
+      setSelectedCustomer(null);
+      setCustDevices([]);
+    } finally {
+      setCustLoading(false);
     }
   };
 
   const handleSelectCustomer = async (customer: Customer) => {
     setSelectedCustomer(customer);
-    setLoading(true);
+    setCustLoading(true);
     try {
-      const response = await fetch(
-        `/api/admin/customers/${customer.id}/devices?type=${customer.type}`,
-        { credentials: 'include' }
-      );
-      const data = await response.json();
-      setDevices(data.devices || []);
+      const res = await fetch(`/api/admin/customers/${customer.id}/devices?type=${customer.type}`, { credentials: 'include' });
+      const data = await res.json();
+      setCustDevices(data.devices || []);
     } finally {
-      setLoading(false);
+      setCustLoading(false);
     }
   };
 
-  const consumerCount = customers.filter((c) => c.type === 'consumer').length;
-  const corporateCount = customers.filter((c) => c.type === 'corporate').length;
-  const onlineDevices = devices.filter((d) => d.status === 'online').length;
-  const offlineDevices = devices.filter((d) => d.status === 'offline').length;
+  // Stat computations
+  const onlineCount = stats ? (stats.by_status['active'] ?? 0) + (stats.by_status['deployed'] ?? 0) : 0;
+  const issueCount = stats?.by_status['signal_issues'] ?? 0;
 
   return (
     <div className="min-h-screen bg-slate-50 -m-6 p-6">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
-          <Link href="/admin" className="hover:text-slate-700">
-            Admin
-          </Link>
+          <Link href="/admin" className="hover:text-slate-700">Admin</Link>
           <PiCaretRightBold className="w-3 h-3" />
-          <Link href="/admin/support" className="hover:text-slate-700">
-            Support
-          </Link>
+          <Link href="/admin/support" className="hover:text-slate-700">Support</Link>
           <PiCaretRightBold className="w-3 h-3" />
-          <span className="text-slate-900">Device Lookup</span>
+          <span className="text-slate-900">Network Inventory</span>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">Customer Device Lookup</h1>
-        <p className="text-slate-500 mt-1">
-          Search for customers by name, email, or phone to view their linked network devices
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Network Inventory</h1>
+            <p className="text-slate-500 mt-1">All deployed devices across Tarana FWB, Arlan 5G/LTE, and Ruijie WiFi</p>
+          </div>
+          <Button variant="outline" onClick={fetchDevices} disabled={loading}>
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
-      {/* Search Section */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input
-                placeholder="Search by customer name, email, or phone number..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="pl-10 h-11"
-              />
-            </div>
-            <Button
-              onClick={handleSearch}
-              disabled={loading || !query.trim()}
-              className="h-11 px-6"
-            >
-              {loading ? (
-                <PiArrowsClockwiseBold className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <PiMagnifyingGlassBold className="w-4 h-4 mr-2" />
-              )}
-              Search
-            </Button>
-          </div>
-          <p className="text-xs text-slate-400 mt-2">
-            Press Enter to search
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Stats Row - Show after search */}
-      {searchPerformed && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">Results</p>
-                  <p className="text-2xl font-bold text-slate-900">{customers.length}</p>
-                </div>
-                <div className="p-3 bg-blue-50 rounded-full">
-                  <PiUserBold className="w-5 h-5 text-blue-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">Consumers</p>
-                  <p className="text-2xl font-bold text-slate-900">{consumerCount}</p>
-                </div>
-                <div className="p-3 bg-purple-50 rounded-full">
-                  <PiUserCircleBold className="w-5 h-5 text-purple-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">Corporate</p>
-                  <p className="text-2xl font-bold text-slate-900">{corporateCount}</p>
-                </div>
-                <div className="p-3 bg-amber-50 rounded-full">
-                  <PiBuildingsBold className="w-5 h-5 text-amber-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">Devices Found</p>
-                  <p className="text-2xl font-bold text-slate-900">{devices.length}</p>
-                </div>
-                <div className="p-3 bg-emerald-50 rounded-full">
-                  <PiDevicesBold className="w-5 h-5 text-emerald-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Stats Row */}
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <StatCard
+            label="Total Devices"
+            value={String(stats.total)}
+            icon={<PiDevicesBold className="w-5 h-5" />}
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            subtitle={`${stats.by_type['tarana_router'] ?? 0} Tarana, ${stats.by_type['tozed_cpe'] ?? 0} Tozed, ${stats.by_type['ruijie_ap'] ?? 0} AP`}
+          />
+          <StatCard
+            label="Online / Active"
+            value={String(onlineCount)}
+            icon={<PiWifiHighBold className="w-5 h-5" />}
+            iconBgColor="bg-emerald-100"
+            iconColor="text-emerald-600"
+          />
+          <StatCard
+            label="Signal Issues"
+            value={String(issueCount)}
+            icon={<PiWarningCircleBold className="w-5 h-5" />}
+            iconBgColor={issueCount > 0 ? 'bg-amber-100' : 'bg-slate-100'}
+            iconColor={issueCount > 0 ? 'text-amber-600' : 'text-slate-400'}
+          />
+          <StatCard
+            label="Monthly Cost"
+            value={formatCurrency(stats.total_monthly_cost)}
+            icon={<PiCurrencyDollarBold className="w-5 h-5" />}
+            iconBgColor="bg-purple-100"
+            iconColor="text-purple-600"
+            subtitle="Wholesale + Arlan lines"
+          />
         </div>
       )}
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Customer List */}
-        <div className="lg:col-span-1">
-          <Card>
-            <div className="p-4 border-b border-slate-100">
-              <h2 className="font-semibold text-slate-900 flex items-center gap-2">
-                <PiUserBold className="w-5 h-5 text-slate-600" />
-                Customers
-                {customers.length > 0 && (
-                  <Badge variant="secondary" className="ml-auto">
-                    {customers.length}
-                  </Badge>
-                )}
-              </h2>
+      {/* Tabs */}
+      <UnderlineTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
+
+      {/* ============================================================= */}
+      {/* ALL DEVICES TAB */}
+      {/* ============================================================= */}
+      <TabPanel id="inventory" activeTab={activeTab} className="space-y-4">
+        {/* Filters Bar */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1 text-sm text-slate-500">
+            <PiFunnelBold className="w-4 h-4" />
+            Filters:
+          </div>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white"
+          >
+            <option value="">All Types</option>
+            <option value="tarana_router">Tarana Router</option>
+            <option value="tozed_cpe">Tozed 5G CPE</option>
+            <option value="ruijie_ap">Ruijie AP</option>
+            <option value="sim_card">SIM Card</option>
+          </select>
+          <select
+            value={filterChannel}
+            onChange={(e) => setFilterChannel(e.target.value)}
+            className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white"
+          >
+            <option value="">All Channels</option>
+            <option value="mtn_wholesale">MTN Wholesale</option>
+            <option value="arlan">Arlan MTN</option>
+            <option value="internal">Internal</option>
+          </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white"
+          >
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="deployed">Deployed</option>
+            <option value="offline">Offline</option>
+            <option value="signal_issues">Signal Issues</option>
+            <option value="pending">Pending</option>
+            <option value="reserved">Reserved</option>
+          </select>
+          <div className="flex-1 min-w-[200px]">
+            <div className="relative">
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search serial, name, site, PPPoE..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="pl-9 h-9 text-sm"
+              />
             </div>
-            <CardContent className="p-0">
-              {!searchPerformed ? (
-                <div className="p-8 text-center">
-                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                    <PiMagnifyingGlassBold className="w-8 h-8 text-slate-400" />
-                  </div>
-                  <p className="text-slate-500 font-medium">Search for a customer</p>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Enter a name, email, or phone number above
-                  </p>
-                </div>
-              ) : loading && !selectedCustomer ? (
-                <div className="p-4 space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="h-20 bg-slate-100 rounded-lg" />
-                    </div>
-                  ))}
-                </div>
-              ) : customers.length === 0 ? (
-                <div className="p-8 text-center">
-                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                    <PiUserBold className="w-8 h-8 text-slate-400" />
-                  </div>
-                  <p className="text-slate-500 font-medium">No customers found</p>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Try a different search term
-                  </p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
-                  {customers.map((customer) => (
-                    <button
-                      key={customer.id}
-                      onClick={() => handleSelectCustomer(customer)}
-                      className={`w-full text-left p-4 transition-colors ${
-                        selectedCustomer?.id === customer.id
-                          ? 'bg-blue-50 border-l-4 border-l-blue-500'
-                          : 'hover:bg-slate-50'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-slate-900 truncate">
-                            {customer.name}
-                          </p>
-                          {customer.email && (
-                            <div className="flex items-center gap-1.5 mt-1">
-                              <PiEnvelopeBold className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                              <span className="text-sm text-slate-500 truncate">
-                                {customer.email}
-                              </span>
-                            </div>
-                          )}
-                          {customer.phone && (
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <PiPhoneBold className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                              <span className="text-sm text-slate-500">
-                                {customer.phone}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className={
-                            customer.type === 'corporate'
-                              ? 'bg-amber-50 text-amber-700 border-amber-200'
-                              : 'bg-purple-50 text-purple-700 border-purple-200'
-                          }
-                        >
-                          {customer.type === 'consumer' ? (
-                            <PiUserCircleBold className="w-3 h-3 mr-1" />
-                          ) : (
-                            <PiBuildingsBold className="w-3 h-3 mr-1" />
-                          )}
-                          {customer.type === 'consumer' ? 'Consumer' : 'Corporate'}
-                        </Badge>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          </div>
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <PiXBold className="w-3 h-3 mr-1" /> Clear
+            </Button>
+          )}
         </div>
 
-        {/* Device List */}
-        <div className="lg:col-span-2">
-          <Card>
-            <div className="p-4 border-b border-slate-100">
-              <div className="flex items-center justify-between">
+        {/* Device Table */}
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          {loading ? (
+            <div className="p-4 space-y-3">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-12 bg-slate-100 rounded animate-pulse" />
+              ))}
+            </div>
+          ) : devices.length === 0 ? (
+            <div className="p-12 text-center">
+              <PiDevicesBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-slate-500 font-medium">No devices found</p>
+              {hasActiveFilters && (
+                <Button variant="link" onClick={clearFilters} className="mt-2">Clear filters</Button>
+              )}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-slate-50 text-left">
+                    <th className="px-4 py-3 text-slate-500 font-medium w-8"></th>
+                    <th className="px-4 py-3 text-slate-500 font-medium">Device</th>
+                    <th className="px-4 py-3 text-slate-500 font-medium">Type</th>
+                    <th className="px-4 py-3 text-slate-500 font-medium">Serial Number</th>
+                    <th className="px-4 py-3 text-slate-500 font-medium">Site</th>
+                    <th className="px-4 py-3 text-slate-500 font-medium">Channel</th>
+                    <th className="px-4 py-3 text-slate-500 font-medium">PPPoE / SIM</th>
+                    <th className="px-4 py-3 text-slate-500 font-medium">Customer</th>
+                    <th className="px-4 py-3 text-slate-500 font-medium text-right">Cost</th>
+                    <th className="px-4 py-3 text-slate-500 font-medium w-8"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {devices.map((device) => {
+                    const effectiveStatus = getEffectiveStatus(device);
+                    const detailHref = device.ruijie_device_sn
+                      ? `/admin/network/devices/${device.ruijie_device_sn}`
+                      : undefined;
+                    return (
+                      <tr key={device.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-4 py-3">
+                          <span className={`w-2.5 h-2.5 rounded-full inline-block ${statusDotColor(effectiveStatus)}`}
+                            title={effectiveStatus} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-slate-900">{device.device_name}</div>
+                          {device.signal_notes && (
+                            <div className="text-xs text-amber-600 mt-0.5">{device.signal_notes}</div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge variant="outline" className={DEVICE_TYPE_COLORS[device.device_type]}>
+                            {DEVICE_TYPE_LABELS[device.device_type]}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-mono text-xs text-slate-600">
+                            {device.serial_number.length > 20
+                              ? device.serial_number.slice(0, 20) + '...'
+                              : device.serial_number}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-700">{device.site_name || '—'}</td>
+                        <td className="px-4 py-3">
+                          {device.channel ? (
+                            <span className="text-xs text-slate-600">{CHANNEL_LABELS[device.channel]}</span>
+                          ) : '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-mono text-xs text-slate-500">
+                            {device.pppoe_username
+                              ? device.pppoe_username.replace('@circletel.co.za', '')
+                              : device.sim_number || '—'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {device.customer_name ? (
+                            <Link
+                              href={`/admin/orders/${device.consumer_order_id}`}
+                              className="text-blue-600 hover:underline text-sm"
+                            >
+                              {device.customer_name}
+                            </Link>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right text-slate-700">
+                          {device.monthly_cost ? formatCurrency(device.monthly_cost) : '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          {detailHref ? (
+                            <Link href={detailHref} className="text-slate-400 hover:text-slate-600">
+                              <PiCaretRightBold className="w-4 h-4" />
+                            </Link>
+                          ) : null}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {!loading && devices.length > 0 && (
+            <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 text-sm text-slate-500">
+              Showing {devices.length} device{devices.length !== 1 ? 's' : ''}
+              {hasActiveFilters ? ' (filtered)' : ''}
+            </div>
+          )}
+        </div>
+      </TabPanel>
+
+      {/* ============================================================= */}
+      {/* BY SITE TAB */}
+      {/* ============================================================= */}
+      <TabPanel id="sites" activeTab={activeTab} className="space-y-4">
+        {loading ? (
+          <div className="space-y-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-white rounded-xl border border-slate-200 animate-pulse" />
+            ))}
+          </div>
+        ) : devicesBySite.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+            <p className="text-slate-500">No sites found</p>
+          </div>
+        ) : (
+          devicesBySite.map(([siteName, siteDevices]) => {
+            const hasIssues = siteDevices.some(d => d.status === 'signal_issues');
+            const siteProvince = siteDevices[0]?.province;
+            const siteTech = [...new Set(siteDevices.map(d => d.technology).filter(Boolean))].join(', ');
+            const siteCost = siteDevices.reduce((sum, d) => sum + (Number(d.monthly_cost) || 0), 0);
+
+            return (
+              <div key={siteName} className={`bg-white rounded-xl border ${hasIssues ? 'border-amber-200' : 'border-slate-200'} overflow-hidden`}>
+                <div className={`px-4 py-3 flex items-center justify-between ${hasIssues ? 'bg-amber-50' : 'bg-slate-50'} border-b border-slate-100`}>
+                  <div className="flex items-center gap-3">
+                    <PiMapPinBold className={`w-5 h-5 ${hasIssues ? 'text-amber-600' : 'text-slate-500'}`} />
+                    <div>
+                      <h3 className="font-semibold text-slate-900">{siteName}</h3>
+                      <p className="text-xs text-slate-500">
+                        {siteProvince}{siteTech ? ` · ${siteTech}` : ''}
+                        {' · '}{siteDevices.length} device{siteDevices.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                    {hasIssues && (
+                      <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
+                        <PiWarningCircleBold className="w-3 h-3 mr-1" />
+                        Signal Issues
+                      </Badge>
+                    )}
+                  </div>
+                  {siteCost > 0 && (
+                    <span className="text-sm text-slate-500">{formatCurrency(siteCost)}/mo</span>
+                  )}
+                </div>
+                <div className="divide-y divide-slate-50">
+                  {siteDevices.map((device) => {
+                    const effectiveStatus = getEffectiveStatus(device);
+                    return (
+                      <div key={device.id} className="px-4 py-2.5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className={`w-2 h-2 rounded-full ${statusDotColor(effectiveStatus)}`} />
+                          <div>
+                            <span className="text-sm font-medium text-slate-700">{device.device_name}</span>
+                            {device.signal_notes && (
+                              <span className="text-xs text-amber-600 ml-2">{device.signal_notes}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline" className={`text-xs ${DEVICE_TYPE_COLORS[device.device_type]}`}>
+                            {DEVICE_TYPE_LABELS[device.device_type]}
+                          </Badge>
+                          <span className="text-xs font-mono text-slate-400">
+                            {device.pppoe_username
+                              ? device.pppoe_username.replace('@circletel.co.za', '')
+                              : device.sim_number
+                              ? `SIM ${device.sim_number.slice(-4)}`
+                              : device.serial_number.slice(0, 12)}
+                          </span>
+                          {device.ruijie_device_sn && (
+                            <Link
+                              href={`/admin/network/devices/${device.ruijie_device_sn}`}
+                              className="text-slate-400 hover:text-blue-600"
+                            >
+                              <PiCaretRightBold className="w-4 h-4" />
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </TabPanel>
+
+      {/* ============================================================= */}
+      {/* CUSTOMER SEARCH TAB (preserved from original page) */}
+      {/* ============================================================= */}
+      <TabPanel id="search" activeTab={activeTab} className="space-y-6">
+        {/* Search Input */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  placeholder="Search by customer name, email, or phone number..."
+                  value={custQuery}
+                  onChange={(e) => setCustQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCustSearch()}
+                  className="pl-10 h-11"
+                />
+              </div>
+              <Button onClick={handleCustSearch} disabled={custLoading || !custQuery.trim()} className="h-11 px-6">
+                {custLoading ? (
+                  <PiArrowsClockwiseBold className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <PiMagnifyingGlassBold className="w-4 h-4 mr-2" />
+                )}
+                Search
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Customer + Device Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Customer List */}
+          <div className="lg:col-span-1">
+            <Card>
+              <div className="p-4 border-b border-slate-100">
+                <h2 className="font-semibold text-slate-900 flex items-center gap-2">
+                  <PiUserBold className="w-5 h-5 text-slate-600" />
+                  Customers
+                  {customers.length > 0 && <Badge variant="secondary" className="ml-auto">{customers.length}</Badge>}
+                </h2>
+              </div>
+              <CardContent className="p-0">
+                {!custSearchPerformed ? (
+                  <div className="p-8 text-center">
+                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                      <PiMagnifyingGlassBold className="w-8 h-8 text-slate-400" />
+                    </div>
+                    <p className="text-slate-500 font-medium">Search for a customer</p>
+                    <p className="text-sm text-slate-400 mt-1">Enter a name, email, or phone number above</p>
+                  </div>
+                ) : customers.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <p className="text-slate-500 font-medium">No customers found</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
+                    {customers.map((customer) => (
+                      <button
+                        key={customer.id}
+                        onClick={() => handleSelectCustomer(customer)}
+                        className={`w-full text-left p-4 transition-colors ${
+                          selectedCustomer?.id === customer.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : 'hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-slate-900 truncate">{customer.name}</p>
+                            {customer.email && (
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <PiEnvelopeBold className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                <span className="text-sm text-slate-500 truncate">{customer.email}</span>
+                              </div>
+                            )}
+                            {customer.phone && (
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <PiPhoneBold className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                                <span className="text-sm text-slate-500">{customer.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                          <Badge variant="outline" className={
+                            customer.type === 'corporate' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-purple-50 text-purple-700 border-purple-200'
+                          }>
+                            {customer.type === 'consumer' ? 'Consumer' : 'Corporate'}
+                          </Badge>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Device List */}
+          <div className="lg:col-span-2">
+            <Card>
+              <div className="p-4 border-b border-slate-100">
                 <h2 className="font-semibold text-slate-900 flex items-center gap-2">
                   <PiWifiHighBold className="w-5 h-5 text-slate-600" />
                   Linked Devices
-                  {selectedCustomer && devices.length > 0 && (
-                    <Badge variant="secondary">{devices.length}</Badge>
-                  )}
+                  {selectedCustomer && custDevices.length > 0 && <Badge variant="secondary">{custDevices.length}</Badge>}
                 </h2>
-                {selectedCustomer && devices.length > 0 && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <span className="flex items-center gap-1 text-emerald-600">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      {onlineDevices} online
-                    </span>
-                    <span className="flex items-center gap-1 text-slate-500">
-                      <span className="w-2 h-2 rounded-full bg-slate-400" />
-                      {offlineDevices} offline
-                    </span>
-                  </div>
+                {selectedCustomer && (
+                  <p className="text-sm text-slate-500 mt-1">
+                    Devices for <span className="font-medium text-slate-700">{selectedCustomer.name}</span>
+                  </p>
                 )}
               </div>
-              {selectedCustomer && (
-                <p className="text-sm text-slate-500 mt-1">
-                  Showing devices for{' '}
-                  <span className="font-medium text-slate-700">{selectedCustomer.name}</span>
-                </p>
-              )}
-            </div>
-            <CardContent className="p-0">
-              {!selectedCustomer ? (
-                <div className="p-12 text-center">
-                  <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                    <PiDevicesBold className="w-10 h-10 text-slate-400" />
+              <CardContent className="p-0">
+                {!selectedCustomer ? (
+                  <div className="p-12 text-center">
+                    <PiDevicesBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-500 font-medium">Select a customer</p>
+                    <p className="text-sm text-slate-400 mt-1">Choose from the list to view linked devices</p>
                   </div>
-                  <p className="text-slate-500 font-medium">Select a customer</p>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Choose a customer from the list to view their linked devices
-                  </p>
-                </div>
-              ) : loading ? (
-                <div className="p-4 space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="h-24 bg-slate-100 rounded-lg" />
-                    </div>
-                  ))}
-                </div>
-              ) : devices.length === 0 ? (
-                <div className="p-12 text-center">
-                  <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                    <PiWifiSlashBold className="w-10 h-10 text-slate-400" />
+                ) : custDevices.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <PiWifiSlashBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-500 font-medium">No devices found</p>
                   </div>
-                  <p className="text-slate-500 font-medium">No devices found</p>
-                  <p className="text-sm text-slate-400 mt-1">
-                    This customer doesn't have any linked devices
-                  </p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {devices.map((device) => (
-                    <Link
-                      key={device.sn}
-                      href={`/admin/network/devices/${device.sn}`}
-                      className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            device.status === 'online'
-                              ? 'bg-emerald-100'
-                              : 'bg-slate-100'
-                          }`}
-                        >
-                          {device.status === 'online' ? (
-                            <PiWifiHighBold className="w-5 h-5 text-emerald-600" />
-                          ) : (
-                            <PiWifiSlashBold className="w-5 h-5 text-slate-400" />
-                          )}
+                ) : (
+                  <div className="divide-y divide-slate-100">
+                    {custDevices.map((device) => (
+                      <Link
+                        key={device.sn}
+                        href={`/admin/network/devices/${device.sn}`}
+                        className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            device.status === 'online' ? 'bg-emerald-100' : 'bg-slate-100'
+                          }`}>
+                            {device.status === 'online' ? (
+                              <PiWifiHighBold className="w-5 h-5 text-emerald-600" />
+                            ) : (
+                              <PiWifiSlashBold className="w-5 h-5 text-slate-400" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate-900 group-hover:text-blue-600">{device.device_name}</p>
+                            <p className="text-sm text-slate-500">{device.model || 'Unknown'} · {device.sn}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
-                            {device.device_name}
-                          </p>
-                          <p className="text-sm text-slate-500">
-                            {device.model || 'Unknown model'} • {device.sn}
-                          </p>
-                          {device.group_name && (
-                            <p className="text-xs text-slate-400 mt-0.5">
-                              Group: {device.group_name}
-                            </p>
-                          )}
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <Badge variant="outline" className={
+                              device.status === 'online' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-600 border-slate-200'
+                            }>
+                              {device.status}
+                            </Badge>
+                            <p className="text-xs text-slate-400 mt-1">{device.online_clients} clients · {formatRelativeTime(device.synced_at)}</p>
+                          </div>
+                          <PiCaretRightBold className="w-5 h-5 text-slate-300 group-hover:text-slate-500" />
                         </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <Badge
-                            variant="outline"
-                            className={
-                              device.status === 'online'
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-slate-50 text-slate-600 border-slate-200'
-                            }
-                          >
-                            {device.status}
-                          </Badge>
-                          <p className="text-xs text-slate-400 mt-1">
-                            {device.online_clients} clients • {formatRelativeTime(device.synced_at)}
-                          </p>
-                        </div>
-                        <PiCaretRightBold className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Customer Details Card - Show when customer selected */}
-          {selectedCustomer && (
-            <Card className="mt-6">
-              <div className="p-4 border-b border-slate-100">
-                <h2 className="font-semibold text-slate-900">Customer Details</h2>
-              </div>
-              <CardContent className="p-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                      <PiUserBold className="w-4 h-4 text-slate-600" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 uppercase tracking-wide">Name</p>
-                      <p className="text-sm font-medium text-slate-900">{selectedCustomer.name}</p>
-                    </div>
+                      </Link>
+                    ))}
                   </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                      {selectedCustomer.type === 'corporate' ? (
-                        <PiBuildingsBold className="w-4 h-4 text-slate-600" />
-                      ) : (
-                        <PiUserCircleBold className="w-4 h-4 text-slate-600" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 uppercase tracking-wide">Type</p>
-                      <p className="text-sm font-medium text-slate-900 capitalize">
-                        {selectedCustomer.type}
-                      </p>
-                    </div>
-                  </div>
-                  {selectedCustomer.email && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                        <PiEnvelopeBold className="w-4 h-4 text-slate-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500 uppercase tracking-wide">Email</p>
-                        <p className="text-sm font-medium text-slate-900">{selectedCustomer.email}</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedCustomer.phone && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                        <PiPhoneBold className="w-4 h-4 text-slate-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500 uppercase tracking-wide">Phone</p>
-                        <p className="text-sm font-medium text-slate-900">{selectedCustomer.phone}</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedCustomer.address && (
-                    <div className="flex items-start gap-3 sm:col-span-2">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                        <PiMapPinBold className="w-4 h-4 text-slate-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-slate-500 uppercase tracking-wide">Address</p>
-                        <p className="text-sm font-medium text-slate-900">{selectedCustomer.address}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
               </CardContent>
             </Card>
-          )}
+          </div>
         </div>
-      </div>
+      </TabPanel>
     </div>
   );
 }
