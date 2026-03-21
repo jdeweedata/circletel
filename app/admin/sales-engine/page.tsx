@@ -16,14 +16,15 @@ import {
   Legend,
 } from 'recharts';
 import { StatCard } from '@/components/admin/shared/StatCard';
-import type { SalesZone, ZoneMetric, MSCPeriod, PipelineStageSummary } from '@/lib/sales-engine/types';
+import { ProvinceMarketCard } from '@/components/admin/sales-engine/ProvinceMarketCard';
+import type { SalesZone, ZoneMetric, MSCPeriod, PipelineStageSummary, ProvinceMarketContext } from '@/lib/sales-engine/types';
 import type { CoverageGapAnalysis } from '@/lib/sales-engine/types';
 import { PIPELINE_STAGE_ORDER, PIPELINE_STAGE_LABELS } from '@/lib/sales-engine/types';
 
 interface ZoneRecommendation {
   zone_id: string;
   zone_name: string;
-  type: 'focus' | 'infrastructure' | 'park' | 'demographic_opportunity';
+  type: 'focus' | 'infrastructure' | 'park' | 'demographic_opportunity' | 'market_opportunity';
   reason: string;
   metrics: {
     unworked_leads?: number;
@@ -42,6 +43,7 @@ interface WeeklyRecommendations {
   infrastructure_priorities: ZoneRecommendation[];
   park_candidates: ZoneRecommendation[];
   demographic_opportunities: ZoneRecommendation[];
+  market_opportunities: ZoneRecommendation[];
 }
 
 interface ChannelPerformance {
@@ -89,6 +91,7 @@ interface ScorecardData {
 
 export default function SalesEngineDashboard() {
   const [data, setData] = useState<ScorecardData | null>(null);
+  const [marketContexts, setMarketContexts] = useState<ProvinceMarketContext[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -98,7 +101,7 @@ export default function SalesEngineDashboard() {
   async function fetchDashboardData() {
     try {
       setLoading(true);
-      const [scorecardRes, pipelineRes, mscRes, zonesRes, coverageAnalysisRes, recommendationsRes, channelRes] = await Promise.all([
+      const [scorecardRes, pipelineRes, mscRes, zonesRes, coverageAnalysisRes, recommendationsRes, channelRes, marketRes] = await Promise.all([
         fetch('/api/admin/sales-engine/scorecard'),
         fetch('/api/admin/sales-engine/pipeline?limit=0'),
         fetch('/api/admin/sales-engine/msc'),
@@ -106,9 +109,10 @@ export default function SalesEngineDashboard() {
         fetch('/api/admin/sales-engine/coverage-analysis'),
         fetch('/api/admin/sales-engine/zones/recommendations'),
         fetch('/api/admin/sales-engine/scorecard/channel-analysis'),
+        fetch('/api/admin/sales-engine/market-context'),
       ]);
 
-      const [scorecardJson, pipelineJson, mscJson, zonesJson, coverageAnalysisJson, recommendationsJson, channelJson] = await Promise.all([
+      const [scorecardJson, pipelineJson, mscJson, zonesJson, coverageAnalysisJson, recommendationsJson, channelJson, marketJson] = await Promise.all([
         scorecardRes.json(),
         pipelineRes.json(),
         mscRes.json(),
@@ -116,7 +120,13 @@ export default function SalesEngineDashboard() {
         coverageAnalysisRes.json(),
         recommendationsRes.json(),
         channelRes.json(),
+        marketRes.json(),
       ]);
+
+      // Set market contexts
+      if (marketJson.success && marketJson.data?.provinces) {
+        setMarketContexts(marketJson.data.provinces);
+      }
 
       // Build pipeline summary from stage counts
       const pipelineEntries = Array.isArray(pipelineJson.data) ? pipelineJson.data : [];
@@ -375,6 +385,33 @@ export default function SalesEngineDashboard() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Provincial Market Intelligence */}
+      {marketContexts.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+            <PiPulseBold className="h-4 w-4" />
+            Provincial Market Intelligence
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {marketContexts
+              .filter((c) => c.home_internet_pct !== null || c.employment_change !== null || c.five_g_coverage_pct !== null)
+              .slice(0, 9)
+              .map((ctx) => (
+                <ProvinceMarketCard
+                  key={ctx.province}
+                  province={ctx.province}
+                  homeInternetPct={ctx.home_internet_pct}
+                  fiveGCoveragePct={ctx.five_g_coverage_pct}
+                  employmentChange={ctx.employment_change}
+                  employmentTrend={ctx.employment_trend}
+                  avgHhExpenditure={ctx.avg_hh_expenditure}
+                  electricityAccessPct={ctx.electricity_access_pct}
+                />
+              ))}
           </div>
         </div>
       )}

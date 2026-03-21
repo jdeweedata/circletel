@@ -476,3 +476,46 @@ export interface ZoneSuggestion {
   business_poi_count: number;
   nearby_base_stations: number;
 }
+
+// =============================================================================
+// Market Indicators Types
+// =============================================================================
+
+export interface ProvinceMarketContext {
+  province: string;
+  home_internet_pct: number | null;
+  internet_access_pct: number | null;
+  five_g_coverage_pct: number | null;
+  employment_change: number | null;
+  employment_trend: 'growing' | 'shrinking' | 'stable' | null;
+  avg_hh_expenditure: number | null;
+  electricity_access_pct: number | null;
+  water_access_pct: number | null;
+  sassa_recipients_m: number | null;
+  ftth_homes_passed: number | null;
+}
+
+export interface NationalMarketContext {
+  ftth_subscribers_m: number | null;
+  broadband_coverage_pct: number | null;
+  smartphone_penetration_pct: number | null;
+  five_g_national_pct: number | null;
+  internet_users_m: number | null;
+  offline_population_m: number | null;
+  prepaid_cost_per_gb: number | null;
+  contract_cost_per_gb: number | null;
+}
+
+export interface MarketAdjustment {
+  signal: string;
+  adjustment: number;
+  reason: string;
+}
+
+export interface MarketAlert {
+  province: string;
+  signal: string;
+  detail: string;
+  impact: 'positive' | 'negative' | 'neutral';
+  recommendation: string;
+}

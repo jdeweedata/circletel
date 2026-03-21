@@ -1,11 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { getReallocationRecommendations } from './scorecard-service';
 import type { RecommendedAction } from './types';
+import { getAllProvinceMarketContexts } from './market-indicators-service';
+import type { ProvinceMarketContext } from './types';
 
 export interface ZoneRecommendation {
   zone_id: string;
   zone_name: string;
-  type: 'focus' | 'infrastructure' | 'park' | 'demographic_opportunity';
+  type: 'focus' | 'infrastructure' | 'park' | 'demographic_opportunity' | 'market_opportunity';
   reason: string;
   metrics: {
     unworked_leads?: number;
@@ -24,6 +26,7 @@ export interface WeeklyRecommendations {
   infrastructure_priorities: ZoneRecommendation[];
   park_candidates: ZoneRecommendation[];
   demographic_opportunities: ZoneRecommendation[];
+  market_opportunities: ZoneRecommendation[];
   generated_at: string;
 }
 
@@ -70,10 +73,22 @@ export async function getWeeklyRecommendations(): Promise<{ data: WeeklyRecommen
       (reallocResult.data ?? []).map((r) => [r.zone_id, r])
     );
 
+    // Get provincial market context for market opportunity recommendations
+    let provinceContextMap: Record<string, ProvinceMarketContext> = {};
+    try {
+      const mcResult = await getAllProvinceMarketContexts();
+      if (mcResult.data) {
+        provinceContextMap = Object.fromEntries(mcResult.data.map((c) => [c.province, c]));
+      }
+    } catch {
+      // Market context is supplementary
+    }
+
     const focus_zones: ZoneRecommendation[] = [];
     const infrastructure_priorities: ZoneRecommendation[] = [];
     const park_candidates: ZoneRecommendation[] = [];
     const demographic_opportunities: ZoneRecommendation[] = [];
+    const market_opportunities: ZoneRecommendation[] = [];
 
     for (const zone of activeZones) {
       const realloc = reallocMap.get(zone.id);
@@ -137,6 +152,28 @@ export async function getWeeklyRecommendations(): Promise<{ data: WeeklyRecommen
         });
       }
 
+      // Market opportunities: province has low home internet + zone has coverage
+      const provinceCtx = zone.province ? provinceContextMap[zone.province] : null;
+      if (
+        provinceCtx &&
+        provinceCtx.home_internet_pct !== null &&
+        provinceCtx.home_internet_pct < 20 &&
+        (zone.coverage_score ?? 0) >= 40 &&
+        !focus_zones.some((f) => f.zone_id === zone.id)
+      ) {
+        market_opportunities.push({
+          zone_id: zone.id,
+          zone_name: zone.name,
+          type: 'market_opportunity',
+          reason: `${zone.province} has only ${provinceCtx.home_internet_pct}% home internet + zone has coverage — prime territory`,
+          metrics: {
+            propensity_score: zone.propensity_score,
+            coverage_confidence: zone.coverage_confidence || 'unknown',
+            pct_no_internet: zone.pct_no_internet,
+          },
+        });
+      }
+
       // Park candidates: from reallocation recommendations
       if (realloc?.action === 'park_zone') {
         park_candidates.push({
@@ -155,6 +192,7 @@ export async function getWeeklyRecommendations(): Promise<{ data: WeeklyRecommen
     focus_zones.sort((a, b) => (b.metrics.propensity_score ?? b.metrics.unworked_leads ?? 0) - (a.metrics.propensity_score ?? a.metrics.unworked_leads ?? 0));
     infrastructure_priorities.sort((a, b) => (b.metrics.lead_demand ?? 0) - (a.metrics.lead_demand ?? 0));
     demographic_opportunities.sort((a, b) => (b.metrics.pct_no_internet ?? 0) - (a.metrics.pct_no_internet ?? 0));
+    market_opportunities.sort((a, b) => (b.metrics.propensity_score ?? 0) - (a.metrics.propensity_score ?? 0));
 
     return {
       data: {
@@ -162,6 +200,7 @@ export async function getWeeklyRecommendations(): Promise<{ data: WeeklyRecommen
         infrastructure_priorities,
         park_candidates,
         demographic_opportunities,
+        market_opportunities,
         generated_at: new Date().toISOString(),
       },
       error: null,

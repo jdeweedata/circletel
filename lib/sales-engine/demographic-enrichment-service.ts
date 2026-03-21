@@ -14,7 +14,10 @@ import type {
   ZoneDemographicEnrichment,
   DemographicsInRadius,
   ZoneSuggestion,
+  ProvinceMarketContext,
+  MarketAdjustment,
 } from './types';
+import { getProvinceMarketContext } from './market-indicators-service';
 
 // =============================================================================
 // Types
@@ -81,6 +84,71 @@ export function computePropensityScore(params: {
     marketOpportunity * 0.25;
 
   return Math.round(Math.min(Math.max(score, 0), 100) * 100) / 100;
+}
+
+/**
+ * Compute market-adjusted propensity score.
+ * Takes the base propensity score and applies provincial market signal adjustments.
+ * Adjustments are additive, capped at 0-100.
+ */
+export function computeMarketAdjustedPropensityScore(
+  basePropensityScore: number,
+  provinceContext: ProvinceMarketContext | null
+): { score: number; adjustments: MarketAdjustment[] } {
+  if (!provinceContext) {
+    return { score: basePropensityScore, adjustments: [] };
+  }
+
+  const adjustments: MarketAdjustment[] = [];
+  let adjusted = basePropensityScore;
+
+  // Home internet penetration — low = greenfield opportunity
+  if (provinceContext.home_internet_pct !== null) {
+    if (provinceContext.home_internet_pct < 15) {
+      adjustments.push({ signal: 'Low home internet', adjustment: 5, reason: `Only ${provinceContext.home_internet_pct}% have home internet — greenfield opportunity` });
+      adjusted += 5;
+    } else if (provinceContext.home_internet_pct > 35) {
+      adjustments.push({ signal: 'High home internet', adjustment: -3, reason: `${provinceContext.home_internet_pct}% have home internet — saturated market` });
+      adjusted -= 3;
+    }
+  }
+
+  // Employment trend
+  if (provinceContext.employment_trend === 'growing') {
+    adjustments.push({ signal: 'Job growth', adjustment: 3, reason: `+${provinceContext.employment_change?.toLocaleString()} jobs — growing budget for connectivity` });
+    adjusted += 3;
+  } else if (provinceContext.employment_trend === 'shrinking') {
+    adjustments.push({ signal: 'Job losses', adjustment: -5, reason: `${provinceContext.employment_change?.toLocaleString()} jobs lost — budget pressure, churn risk` });
+    adjusted -= 5;
+  }
+
+  // 5G coverage — strong mobile = substitution threat
+  if (provinceContext.five_g_coverage_pct !== null) {
+    if (provinceContext.five_g_coverage_pct > 60) {
+      adjustments.push({ signal: 'Strong 5G', adjustment: -2, reason: `${provinceContext.five_g_coverage_pct}% 5G coverage — mobile substitution threat` });
+      adjusted -= 2;
+    } else if (provinceContext.five_g_coverage_pct < 20) {
+      adjustments.push({ signal: 'Weak 5G', adjustment: 3, reason: `Only ${provinceContext.five_g_coverage_pct}% 5G — FWA/FTTH more competitive` });
+      adjusted += 3;
+    }
+  }
+
+  // Household expenditure — spending capacity
+  if (provinceContext.avg_hh_expenditure !== null) {
+    if (provinceContext.avg_hh_expenditure > 200000) {
+      adjustments.push({ signal: 'High spending', adjustment: 3, reason: `R${Math.round(provinceContext.avg_hh_expenditure).toLocaleString()}/yr household expenditure` });
+      adjusted += 3;
+    }
+  }
+
+  // Electricity access — infrastructure readiness
+  if (provinceContext.electricity_access_pct !== null && provinceContext.electricity_access_pct < 85) {
+    adjustments.push({ signal: 'Low electricity', adjustment: -3, reason: `${provinceContext.electricity_access_pct}% electricity access — installation challenges` });
+    adjusted -= 3;
+  }
+
+  const finalScore = Math.round(Math.min(Math.max(adjusted, 0), 100) * 100) / 100;
+  return { score: finalScore, adjustments };
 }
 
 // =============================================================================
@@ -170,7 +238,7 @@ export async function enrichZoneDemographics(
     // Fetch zone with existing scores
     const { data: zone, error: zoneError } = await supabase
       .from('sales_zones')
-      .select('id, center_lat, center_lng, radius_km, sme_density_score, penetration_rate, competitor_weakness_score, coverage_score')
+      .select('id, center_lat, center_lng, radius_km, sme_density_score, penetration_rate, competitor_weakness_score, coverage_score, province')
       .eq('id', zoneId)
       .single();
 
@@ -227,6 +295,20 @@ export async function enrichZoneDemographics(
       competitorWeaknessScore: zone.competitor_weakness_score ?? 0,
     });
 
+    // Get provincial market context for market-adjusted scoring
+    let marketAdjustedPropensity: number | null = null;
+    if (zone.province) {
+      try {
+        const provinceResult = await getProvinceMarketContext(zone.province);
+        if (provinceResult.data) {
+          const adjusted = computeMarketAdjustedPropensityScore(propensityScore, provinceResult.data);
+          marketAdjustedPropensity = adjusted.score;
+        }
+      } catch {
+        // Market context is supplementary — don't fail enrichment
+      }
+    }
+
     // Persist to sales_zones
     const { error: updateError } = await supabase
       .from('sales_zones')
@@ -236,6 +318,7 @@ export async function enrichZoneDemographics(
         pct_no_internet: result.avg_pct_no_internet ?? 0,
         pct_income_target: result.avg_pct_income_above_r12800 ?? 0,
         propensity_score: propensityScore,
+        market_adjusted_propensity: marketAdjustedPropensity,
         demographic_enriched_at: new Date().toISOString(),
       })
       .eq('id', zoneId);

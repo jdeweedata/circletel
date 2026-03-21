@@ -66,12 +66,24 @@ interface MSCSnapshot {
   status: string;
 }
 
+interface MarketAlertItem {
+  province: string;
+  signal: string;
+  detail: string;
+  impact: 'positive' | 'negative' | 'neutral';
+  recommendation: string;
+}
+
 interface DailyBriefing {
   priority_calls: BriefingLead[];
   stalled_deals: StalledDeal[];
   follow_ups: FollowUp[];
   zone_alerts: ZoneAlert[];
   msc_snapshot: MSCSnapshot | null;
+  market_context: {
+    alerts: MarketAlertItem[];
+    province_summary: string;
+  } | null;
   summary: {
     calls_needed: number;
     pipeline_mrr: number;
@@ -485,6 +497,42 @@ export default function DailyBriefingPage() {
           </div>
         )}
       </div>
+
+      {/* Section 5: Market Alerts */}
+      {data?.market_context && data.market_context.alerts.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+            <PiCurrencyDollarBold className="h-4 w-4" />
+            Market Intelligence
+          </h2>
+          <p className="text-xs text-gray-400 mb-4">{data.market_context.province_summary}</p>
+          <div className="space-y-3">
+            {data.market_context.alerts.map((alert, idx) => (
+              <div
+                key={`${alert.province}-${idx}`}
+                className={`py-3 px-4 rounded-lg border ${
+                  alert.impact === 'positive' ? 'bg-green-50 border-green-200' :
+                  alert.impact === 'negative' ? 'bg-red-50 border-red-200' :
+                  'bg-gray-50 border-gray-200'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium text-gray-900">{alert.province}</span>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                    alert.impact === 'positive' ? 'bg-green-100 text-green-700' :
+                    alert.impact === 'negative' ? 'bg-red-100 text-red-700' :
+                    'bg-gray-100 text-gray-600'
+                  }`}>
+                    {alert.signal}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600">{alert.detail}</p>
+                <p className="text-xs text-gray-500 mt-1 italic">{alert.recommendation}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,12 +8,14 @@ import { createClient } from '@/lib/supabase/server';
 import type {
   PipelineStage,
   RecommendedAction,
+  MarketAlert,
 } from './types';
 import {
   PIPELINE_STAGE_DAY_TARGETS,
   PIPELINE_STAGE_LABELS,
 } from './types';
 import { getMSCStatus, getReallocationRecommendations } from './scorecard-service';
+import { getAllProvinceMarketContexts } from './market-indicators-service';
 
 // =============================================================================
 // Briefing Types
@@ -66,12 +68,18 @@ export interface MSCSnapshot {
   status: string;
 }
 
+export interface MarketContext {
+  alerts: MarketAlert[];
+  province_summary: string;
+}
+
 export interface DailyBriefing {
   priority_calls: BriefingLead[];
   stalled_deals: StalledDeal[];
   follow_ups: FollowUp[];
   zone_alerts: ZoneAlert[];
   msc_snapshot: MSCSnapshot | null;
+  market_context: MarketContext | null;
   summary: {
     calls_needed: number;
     pipeline_mrr: number;
@@ -292,12 +300,90 @@ export async function getDailyBriefing(): Promise<{
       (d) => d.stage === 'quote_sent' || d.stage === 'contract_signed'
     ).length;
 
+    // -----------------------------------------------------------------------
+    // 6. Market Context — provincial economic signals for active zones
+    // -----------------------------------------------------------------------
+    let marketContext: MarketContext | null = null;
+    try {
+      const { data: activeZones } = await supabase
+        .from('sales_zones')
+        .select('province')
+        .eq('status', 'active');
+
+      const provinces = [...new Set((activeZones ?? []).map((z) => z.province).filter(Boolean))];
+
+      if (provinces.length > 0) {
+        const mcResult = await getAllProvinceMarketContexts();
+        if (mcResult.data) {
+          const relevantContexts = mcResult.data.filter((c) => provinces.includes(c.province));
+          const alerts: MarketAlert[] = [];
+
+          for (const ctx of relevantContexts) {
+            if (ctx.employment_change !== null && ctx.employment_change < -40000) {
+              alerts.push({
+                province: ctx.province,
+                signal: 'Employment declining',
+                detail: `${ctx.province} lost ${Math.abs(ctx.employment_change).toLocaleString()} jobs in Q1 2025`,
+                impact: 'negative',
+                recommendation: 'Expect longer sales cycles — emphasize cost savings and ROI',
+              });
+            }
+            if (ctx.home_internet_pct !== null && ctx.home_internet_pct < 10) {
+              alerts.push({
+                province: ctx.province,
+                signal: 'Greenfield territory',
+                detail: `Only ${ctx.home_internet_pct}% have home internet in ${ctx.province}`,
+                impact: 'positive',
+                recommendation: 'Lead with coverage advantage — minimal competition',
+              });
+            }
+            if (ctx.home_internet_pct !== null && ctx.home_internet_pct < 20 && ctx.home_internet_pct >= 10) {
+              alerts.push({
+                province: ctx.province,
+                signal: 'Low broadband penetration',
+                detail: `${ctx.home_internet_pct}% home internet in ${ctx.province}`,
+                impact: 'positive',
+                recommendation: 'Prime territory for canvassing — low fixed broadband competition',
+              });
+            }
+            if (ctx.five_g_coverage_pct !== null && ctx.five_g_coverage_pct > 70) {
+              alerts.push({
+                province: ctx.province,
+                signal: 'Strong 5G competition',
+                detail: `${ctx.five_g_coverage_pct}% 5G coverage in ${ctx.province}`,
+                impact: 'neutral',
+                recommendation: 'Emphasize reliability, SLA guarantees, and dedicated bandwidth vs shared 5G',
+              });
+            }
+            if (ctx.employment_trend === 'growing') {
+              alerts.push({
+                province: ctx.province,
+                signal: 'Job growth',
+                detail: `${ctx.province} added ${ctx.employment_change?.toLocaleString()} jobs`,
+                impact: 'positive',
+                recommendation: 'Growing market — expand zone coverage and increase canvassing',
+              });
+            }
+          }
+
+          const positiveCount = alerts.filter((a) => a.impact === 'positive').length;
+          const negativeCount = alerts.filter((a) => a.impact === 'negative').length;
+          const provinceSummary = `${positiveCount} positive and ${negativeCount} negative market signals across ${provinces.length} zone province${provinces.length > 1 ? 's' : ''}`;
+
+          marketContext = { alerts, province_summary: provinceSummary };
+        }
+      }
+    } catch {
+      // Market context is supplementary — don't fail the briefing
+    }
+
     const briefing: DailyBriefing = {
       priority_calls: priorityCalls,
       stalled_deals: stalledDeals,
       follow_ups: followUps,
       zone_alerts: zoneAlerts,
       msc_snapshot: mscSnapshot,
+      market_context: marketContext,
       summary: {
         calls_needed: priorityCalls.length,
         pipeline_mrr: pipelineMrr,

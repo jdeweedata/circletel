@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ZoneHeatMap } from '@/components/admin/sales-engine/ZoneHeatMap';
 import type { BaseStationLayer, DFABuildingLayer } from '@/components/admin/sales-engine/ZoneHeatMap';
-import type { SalesZone } from '@/lib/sales-engine/types';
+import type { SalesZone, ProvinceMarketContext } from '@/lib/sales-engine/types';
 
 export default function SalesEngineMapPage() {
   const [zones, setZones] = useState<SalesZone[]>([]);
@@ -16,6 +16,7 @@ export default function SalesEngineMapPage() {
   const [showBaseStations, setShowBaseStations] = useState(false);
   const [showDFABuildings, setShowDFABuildings] = useState(false);
   const [layersLoading, setLayersLoading] = useState(false);
+  const [marketContext, setMarketContext] = useState<ProvinceMarketContext | null>(null);
 
   useEffect(() => {
     async function fetchZones() {
@@ -31,6 +32,24 @@ export default function SalesEngineMapPage() {
     }
     fetchZones();
   }, []);
+
+  // Fetch market context when zone is selected
+  useEffect(() => {
+    if (!selectedZone?.province) {
+      setMarketContext(null);
+      return;
+    }
+    fetch(`/api/admin/sales-engine/market-context?province=${encodeURIComponent(selectedZone.province)}`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success && json.data?.provinces?.[0]) {
+          setMarketContext(json.data.provinces[0]);
+        } else {
+          setMarketContext(null);
+        }
+      })
+      .catch(() => setMarketContext(null));
+  }, [selectedZone?.province]);
 
   // Fetch coverage layers when toggled on
   const fetchCoverageLayers = useCallback(async (layers: string[]) => {
@@ -211,6 +230,41 @@ export default function SalesEngineMapPage() {
                       {Number(selectedZone.enriched_zone_score).toFixed(0)}
                     </span>
                   </div>
+                </div>
+              )}
+
+              {/* Market Context */}
+              {marketContext && (
+                <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                  <p className="text-xs font-semibold text-gray-500 uppercase">Market Context ({selectedZone.province})</p>
+                  {marketContext.home_internet_pct !== null && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Home Internet</span>
+                      <span className={`font-medium ${marketContext.home_internet_pct < 15 ? 'text-green-600' : marketContext.home_internet_pct > 35 ? 'text-amber-600' : 'text-gray-900'}`}>
+                        {marketContext.home_internet_pct.toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
+                  {marketContext.five_g_coverage_pct !== null && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">5G Coverage</span>
+                      <span className="font-medium text-gray-900">{marketContext.five_g_coverage_pct.toFixed(0)}%</span>
+                    </div>
+                  )}
+                  {marketContext.employment_change !== null && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Employment</span>
+                      <span className={`font-medium ${marketContext.employment_trend === 'growing' ? 'text-green-600' : marketContext.employment_trend === 'shrinking' ? 'text-red-600' : 'text-gray-900'}`}>
+                        {marketContext.employment_change > 0 ? '+' : ''}{marketContext.employment_change.toLocaleString()} jobs
+                      </span>
+                    </div>
+                  )}
+                  {marketContext.avg_hh_expenditure !== null && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">HH Expenditure</span>
+                      <span className="font-medium text-gray-900">R{Math.round(marketContext.avg_hh_expenditure).toLocaleString()}/yr</span>
+                    </div>
+                  )}
                 </div>
               )}
 

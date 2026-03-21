@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
 import { enrichZoneDemographics } from '@/lib/sales-engine/demographic-enrichment-service';
+import { getProvinceMarketContext } from '@/lib/sales-engine/market-indicators-service';
 
 export const runtime = 'nodejs';
 export const maxDuration = 15;
@@ -20,7 +21,7 @@ export async function GET(
 
     const { data: zone, error: zoneError } = await supabase
       .from('sales_zones')
-      .select('id, name, center_lat, center_lng, radius_km, demographic_fit_score, business_poi_density, pct_no_internet, pct_income_target, propensity_score, demographic_enriched_at')
+      .select('id, name, center_lat, center_lng, radius_km, province, demographic_fit_score, business_poi_density, pct_no_internet, pct_income_target, propensity_score, market_adjusted_propensity, demographic_enriched_at')
       .eq('id', id)
       .single();
 
@@ -41,6 +42,15 @@ export async function GET(
 
     const demographics = Array.isArray(demoData) ? demoData[0] : demoData;
 
+    // Fetch provincial market context
+    let marketContext = null;
+    if (zone.province) {
+      const mcResult = await getProvinceMarketContext(zone.province);
+      if (mcResult.data) {
+        marketContext = mcResult.data;
+      }
+    }
+
     return NextResponse.json({
       data: {
         zone: {
@@ -49,14 +59,17 @@ export async function GET(
           center_lat: zone.center_lat,
           center_lng: zone.center_lng,
           radius_km: radiusKm,
+          province: zone.province,
           demographic_fit_score: zone.demographic_fit_score,
           business_poi_density: zone.business_poi_density,
           pct_no_internet: zone.pct_no_internet,
           pct_income_target: zone.pct_income_target,
           propensity_score: zone.propensity_score,
+          market_adjusted_propensity: zone.market_adjusted_propensity,
           demographic_enriched_at: zone.demographic_enriched_at,
         },
         demographics: demographics ?? null,
+        market_context: marketContext,
       },
       success: true,
     });
