@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
+import { enrichAllZones } from '@/lib/sales-engine/coverage-enrichment-service';
 
 export const runtime = 'nodejs';
-export const maxDuration = 15;
+export const maxDuration = 30;
 
 /**
  * GET /api/admin/sales-engine/zones
- * List sales zones with optional filtering and sorting
+ * List sales zones with optional filtering and sorting.
+ * Pass ?enrich=true to refresh coverage data from base stations & DFA buildings before returning.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -17,6 +19,20 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const priority = searchParams.get('priority');
     const sortBy = searchParams.get('sort_by') || 'zone_score';
+    const enrich = searchParams.get('enrich') === 'true';
+
+    // Optionally enrich all zones with coverage data before returning
+    if (enrich) {
+      const enrichResult = await enrichAllZones();
+      if (enrichResult.error) {
+        apiLogger.error('[Sales Engine] Zone enrichment failed', { error: enrichResult.error });
+      } else {
+        apiLogger.info('[Sales Engine] Zones enriched', {
+          enriched: enrichResult.data?.enriched,
+          errors: enrichResult.data?.errors?.length ?? 0,
+        });
+      }
+    }
 
     let query = supabase
       .from('sales_zones')

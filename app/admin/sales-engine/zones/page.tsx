@@ -1,6 +1,6 @@
 'use client';
 
-import { PiMapPinBold, PiPlusBold, PiTargetBold, PiXBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiMapPinBold, PiPlusBold, PiTargetBold, PiXBold } from 'react-icons/pi';
 import React, { useState, useEffect, useCallback } from 'react';
 import { StatCard } from '@/components/admin/shared/StatCard';
 import type { SalesZone, CreateZoneInput, ZoneType, ZonePriority } from '@/lib/sales-engine/types';
@@ -20,6 +20,7 @@ export default function ZonesPage() {
   const [editingZone, setEditingZone] = useState<SalesZone | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [saving, setSaving] = useState(false);
+  const [enriching, setEnriching] = useState(false);
 
   const fetchZones = useCallback(async () => {
     try {
@@ -69,6 +70,18 @@ export default function ZonesPage() {
     }
   }
 
+  async function handleEnrichAll() {
+    try {
+      setEnriching(true);
+      await fetch('/api/admin/sales-engine/zones?enrich=true');
+      fetchZones();
+    } catch (error) {
+      console.error('Failed to enrich zones:', error);
+    } finally {
+      setEnriching(false);
+    }
+  }
+
   async function handleDeleteZone(id: string) {
     if (!confirm('Park this zone? It will be marked as inactive.')) return;
     try {
@@ -95,13 +108,23 @@ export default function ZonesPage() {
           <h1 className="text-3xl font-bold text-gray-900">Sales Zones</h1>
           <p className="text-gray-500 mt-1">Territory intelligence map — manage and score your sales zones</p>
         </div>
-        <button
-          onClick={() => { setEditingZone(null); setShowCreateModal(true); }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange text-white rounded-lg text-sm font-medium hover:bg-circleTel-orange/90"
-        >
-          <PiPlusBold className="h-4 w-4" />
-          Add Zone
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleEnrichAll}
+            disabled={enriching}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            <PiArrowsClockwiseBold className={`h-4 w-4 ${enriching ? 'animate-spin' : ''}`} />
+            {enriching ? 'Enriching...' : 'Enrich Coverage'}
+          </button>
+          <button
+            onClick={() => { setEditingZone(null); setShowCreateModal(true); }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange text-white rounded-lg text-sm font-medium hover:bg-circleTel-orange/90"
+          >
+            <PiPlusBold className="h-4 w-4" />
+            Add Zone
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -147,6 +170,8 @@ export default function ZonesPage() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Zone</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Type</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Score</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Coverage</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Infrastructure</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Penetration</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Customers</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Addresses</th>
@@ -173,6 +198,27 @@ export default function ZonesPage() {
                     }`}>
                       {Number(zone.zone_score).toFixed(0)}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {zone.coverage_confidence ? (
+                      <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                        zone.coverage_confidence === 'high' ? 'bg-green-100 text-green-700' :
+                        zone.coverage_confidence === 'medium' ? 'bg-amber-100 text-amber-700' :
+                        zone.coverage_confidence === 'low' ? 'bg-orange-100 text-orange-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {zone.coverage_confidence}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">--</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-center text-xs text-gray-600">
+                    {zone.base_station_count > 0 || zone.dfa_connected_count > 0 ? (
+                      <span>{zone.base_station_count} BS / {zone.dfa_connected_count + zone.dfa_near_net_count} DFA</span>
+                    ) : (
+                      <span className="text-gray-400">--</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right text-sm text-gray-700">
                     {Number(zone.penetration_rate).toFixed(1)}%

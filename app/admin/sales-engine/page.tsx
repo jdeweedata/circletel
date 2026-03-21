@@ -1,6 +1,6 @@
 'use client';
 
-import { PiChartBarBold, PiMapPinBold, PiTargetBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiChartBarBold, PiMapPinBold, PiTargetBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
@@ -17,6 +17,7 @@ import {
 } from 'recharts';
 import { StatCard } from '@/components/admin/shared/StatCard';
 import type { SalesZone, ZoneMetric, MSCPeriod, PipelineStageSummary } from '@/lib/sales-engine/types';
+import type { CoverageGapAnalysis } from '@/lib/sales-engine/types';
 import { PIPELINE_STAGE_ORDER, PIPELINE_STAGE_LABELS } from '@/lib/sales-engine/types';
 
 interface ScorecardData {
@@ -35,6 +36,7 @@ interface ScorecardData {
     total_active_rns: number;
   };
   pipeline_summary: PipelineStageSummary[];
+  coverage_analysis: CoverageGapAnalysis | null;
 }
 
 export default function SalesEngineDashboard() {
@@ -48,18 +50,20 @@ export default function SalesEngineDashboard() {
   async function fetchDashboardData() {
     try {
       setLoading(true);
-      const [scorecardRes, pipelineRes, mscRes, zonesRes] = await Promise.all([
+      const [scorecardRes, pipelineRes, mscRes, zonesRes, coverageAnalysisRes] = await Promise.all([
         fetch('/api/admin/sales-engine/scorecard'),
         fetch('/api/admin/sales-engine/pipeline?limit=0'),
         fetch('/api/admin/sales-engine/msc'),
         fetch('/api/admin/sales-engine/zones'),
+        fetch('/api/admin/sales-engine/coverage-analysis'),
       ]);
 
-      const [scorecardJson, pipelineJson, mscJson, zonesJson] = await Promise.all([
+      const [scorecardJson, pipelineJson, mscJson, zonesJson, coverageAnalysisJson] = await Promise.all([
         scorecardRes.json(),
         pipelineRes.json(),
         mscRes.json(),
         zonesRes.json(),
+        coverageAnalysisRes.json(),
       ]);
 
       // Build pipeline summary from stage counts
@@ -112,6 +116,7 @@ export default function SalesEngineDashboard() {
           total_active_rns: activeZones.reduce((sum: number, z: SalesZone) => sum + (z.active_customers || 0), 0),
         },
         pipeline_summary: pipelineSummary,
+        coverage_analysis: coverageAnalysisJson.data ?? null,
       });
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
@@ -241,6 +246,84 @@ export default function SalesEngineDashboard() {
           subtitle={currentMSC ? `Target: ${currentMSC.required_rns} RNs` : undefined}
         />
       </div>
+
+      {/* Coverage Intelligence */}
+      {data?.coverage_analysis && (
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+            <PiWifiBold className="h-4 w-4" />
+            Coverage Intelligence
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              label="High Coverage Zones"
+              value={data.coverage_analysis.coverage_summary.high}
+              iconBgColor="bg-green-100"
+              iconColor="text-green-600"
+            />
+            <StatCard
+              label="Coverage Gaps"
+              value={data.coverage_analysis.coverage_summary.none + data.coverage_analysis.coverage_summary.low}
+              iconBgColor="bg-red-100"
+              iconColor="text-red-600"
+            />
+            <StatCard
+              label="Investment Needed"
+              value={data.coverage_analysis.investment_needed.length}
+              subtitle="Zones with leads but poor coverage"
+              iconBgColor="bg-amber-100"
+              iconColor="text-amber-600"
+            />
+            <StatCard
+              label="Untapped Opportunity"
+              value={data.coverage_analysis.untapped_opportunity.length}
+              subtitle="Good coverage, few leads"
+              iconBgColor="bg-blue-100"
+              iconColor="text-blue-600"
+            />
+          </div>
+
+          {/* Gap Analysis Details */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {data.coverage_analysis.investment_needed.length > 0 && (
+              <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-red-600 mb-3">Coverage Investment Needed</h3>
+                <div className="space-y-2">
+                  {data.coverage_analysis.investment_needed.slice(0, 5).map((item) => (
+                    <div key={item.zone.id} className="flex justify-between items-center text-sm">
+                      <span className="text-gray-700">{item.zone.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-500">{item.lead_count} leads</span>
+                        <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                          item.coverage_confidence === 'none' ? 'bg-red-100 text-red-700' :
+                          item.coverage_confidence === 'low' ? 'bg-amber-100 text-amber-700' :
+                          'bg-gray-100 text-gray-500'
+                        }`}>
+                          {item.coverage_confidence ?? 'not enriched'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data.coverage_analysis.untapped_opportunity.length > 0 && (
+              <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                <h3 className="text-sm font-semibold text-blue-600 mb-3">Untapped Opportunity</h3>
+                <div className="space-y-2">
+                  {data.coverage_analysis.untapped_opportunity.slice(0, 5).map((item) => (
+                    <div key={item.zone.id} className="flex justify-between items-center text-sm">
+                      <span className="text-gray-700">{item.zone.name}</span>
+                      <span className="text-gray-500">{item.base_station_count} BS / {item.dfa_count} DFA</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Pipeline Funnel + Zone Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
