@@ -116,6 +116,168 @@ function getFeaturePoint(geometry: GeoJSONFeature['geometry']): { lat: number; l
  * Parse GeoJSON and aggregate POI counts per ward.
  * Each POI is assigned to the nearest ward based on centroid proximity.
  */
+// =============================================================================
+// Overpass API Types
+// =============================================================================
+
+interface OverpassElement {
+  type: string;
+  id: number;
+  lat?: number;
+  lon?: number;
+  tags?: Record<string, string | undefined>;
+}
+
+interface OverpassResponse {
+  elements: OverpassElement[];
+}
+
+// =============================================================================
+// Overpass API Constants
+// =============================================================================
+
+const OVERPASS_API = 'https://overpass-api.de/api/interpreter';
+
+function buildOverpassQuery(lat: number, lng: number, radiusM: number): string {
+  return `
+    [out:json][timeout:25];
+    (
+      node["amenity"~"clinic|hospital|doctors|pharmacy|restaurant|bank|fuel|cafe"](around:${radiusM},${lat},${lng});
+      node["office"](around:${radiusM},${lat},${lng});
+      node["shop"](around:${radiusM},${lat},${lng});
+    );
+    out body;
+  `;
+}
+
+// =============================================================================
+// Overpass Live Refresh
+// =============================================================================
+
+/**
+ * Query OSM Overpass API for POIs near a coordinate and update ward_demographics.
+ */
+export async function refreshPoisFromOverpass(
+  centerLat: number,
+  centerLng: number,
+  radiusKm: number = 5,
+  wardCode?: string
+): Promise<ServiceResult<POICategory>> {
+  try {
+    const radiusM = radiusKm * 1000;
+    const query = buildOverpassQuery(centerLat, centerLng, radiusM);
+
+    const response = await fetch(OVERPASS_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `data=${encodeURIComponent(query)}`,
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      return { data: null, error: `Overpass API returned ${response.status}: ${body.slice(0, 200)}` };
+    }
+
+    const json = (await response.json()) as OverpassResponse;
+    const elements = Array.isArray(json.elements) ? json.elements : [];
+
+    const counts: POICategory = { business: 0, office: 0, healthcare: 0 };
+
+    for (const element of elements) {
+      if (!element.tags) continue;
+      const category = classifyPOI(element.tags);
+      if (category) {
+        counts[category]++;
+      }
+    }
+
+    // Update ward_demographics if wardCode provided
+    if (wardCode) {
+      const supabase = await createClient();
+      const { error: updateError } = await supabase
+        .from('ward_demographics')
+        .update({
+          business_poi_count: counts.business,
+          office_poi_count: counts.office,
+          healthcare_poi_count: counts.healthcare,
+        })
+        .eq('ward_code', wardCode);
+
+      if (updateError) {
+        console.error(`[OSM POI] Failed to update ward ${wardCode}: ${updateError.message}`);
+      }
+    }
+
+    return { data: counts, error: null };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { data: null, error: `Overpass refresh failed: ${message}` };
+  }
+}
+
+/**
+ * Refresh POI data for the top-scoring wards using the Overpass API.
+ * Adds a 1.5s delay between requests to respect Overpass rate limits.
+ */
+export async function refreshTopWardPois(
+  limit: number = 20
+): Promise<ServiceResult<{ wards_refreshed: number; errors: string[] }>> {
+  try {
+    const supabase = await createClient();
+
+    const { data: wards, error: wardsError } = await supabase
+      .from('ward_demographics')
+      .select('ward_code, centroid_lat, centroid_lng')
+      .not('centroid_lat', 'is', null)
+      .not('centroid_lng', 'is', null)
+      .order('demographic_fit_score', { ascending: false })
+      .limit(limit);
+
+    if (wardsError || !wards || wards.length === 0) {
+      return {
+        data: null,
+        error: `No wards found for refresh: ${wardsError?.message ?? 'empty result'}`,
+      };
+    }
+
+    let wardsRefreshed = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < wards.length; i++) {
+      const ward = wards[i];
+      const result = await refreshPoisFromOverpass(
+        ward.centroid_lat,
+        ward.centroid_lng,
+        5,
+        ward.ward_code
+      );
+
+      if (result.error) {
+        errors.push(`Ward ${ward.ward_code}: ${result.error}`);
+      } else {
+        wardsRefreshed++;
+      }
+
+      // Rate limit: 1.5s delay between requests (skip after last)
+      if (i < wards.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+    }
+
+    return {
+      data: { wards_refreshed: wardsRefreshed, errors },
+      error: null,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { data: null, error: `Top ward refresh failed: ${message}` };
+  }
+}
+
+// =============================================================================
+// Import & Aggregation
+// =============================================================================
+
 export async function importOsmPois(
   geojson: GeoJSONCollection
 ): Promise<ServiceResult<{ total_pois: number; wards_updated: number; errors: string[] }>> {

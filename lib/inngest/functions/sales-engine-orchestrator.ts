@@ -363,6 +363,25 @@ export const salesEngineWeeklyReview = inngest.createFunction(
     });
 
     // =========================================================================
+    // Step 3e: Refresh OSM POI data for top-scoring wards
+    // =========================================================================
+    await step.run('refresh-osm-pois', async () => {
+      try {
+        const { refreshTopWardPois } = await import(
+          '@/lib/sales-engine/osm-poi-service'
+        );
+        const result = await refreshTopWardPois(30);
+        if (result.error) {
+          console.error(`[Sales Engine Weekly] OSM refresh failed: ${result.error}`);
+        }
+        return { refreshed: result.data?.wards_refreshed ?? 0 };
+      } catch (err) {
+        console.error('[Sales Engine Weekly] OSM refresh error:', err);
+        return { refreshed: 0 };
+      }
+    });
+
+    // =========================================================================
     // Step 4: Send weekly Slack report
     // =========================================================================
     await step.run('send-weekly-slack-report', async () => {
