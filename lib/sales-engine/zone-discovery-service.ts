@@ -81,7 +81,8 @@ const PRODUCT_COVERAGE_MAP: ProductCoverageRequirement[] = [
 function getArlanUseCasesForZone(
   zoneType: ZoneType,
   businessPoiCount: number,
-  healthcarePoiCount: number
+  healthcarePoiCount: number,
+  verticals?: { fleet_logistics: number; security: number; hospitality: number; retail_chain: number; industrial: number }
 ): string[] {
   // Base use cases available in every zone
   const useCases = ['voice_comms', 'backup_connectivity', 'device_upgrade'];
@@ -95,6 +96,22 @@ function getArlanUseCasesForZone(
   }
   if (zoneType === 'commercial_strip') {
     useCases.push('iot_m2m', 'venue_wifi');
+  }
+
+  // Vertical-specific use cases (when enrichment data is available)
+  if (verticals) {
+    if (verticals.fleet_logistics >= 3) {
+      useCases.push('fleet_management', 'iot_m2m');
+    }
+    if (verticals.security >= 2) {
+      useCases.push('iot_m2m'); // CCTV/alarm SIMs
+    }
+    if (verticals.hospitality >= 3) {
+      useCases.push('venue_wifi', 'data_connectivity');
+    }
+    if (verticals.industrial >= 3) {
+      useCases.push('iot_m2m', 'fleet_management');
+    }
   }
 
   return [...new Set(useCases)];

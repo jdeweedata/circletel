@@ -37,6 +37,28 @@ interface POICategory {
   healthcare: number;
 }
 
+export type POICategoryKey = 'business' | 'office' | 'healthcare';
+
+export type VerticalCategory =
+  | 'fleet_logistics'
+  | 'security'
+  | 'hospitality'
+  | 'retail_chain'
+  | 'industrial';
+
+export interface VerticalCounts {
+  fleet_logistics: number;
+  security: number;
+  hospitality: number;
+  retail_chain: number;
+  industrial: number;
+}
+
+interface ClassifiedPOI {
+  category: POICategoryKey | null;
+  vertical: VerticalCategory | null;
+}
+
 interface WardPOICounts {
   ward_code: string;
   business_poi_count: number;
@@ -80,6 +102,78 @@ function classifyPOI(properties: Record<string, string | undefined>): keyof POIC
   }
 
   return null;
+}
+
+/**
+ * Classify an OSM feature into both a broad POI category and a granular vertical.
+ * A POI can have BOTH a category AND a vertical (e.g., amenity=restaurant → business + hospitality).
+ */
+function classifyPOIDetailed(properties: Record<string, string | undefined>): ClassifiedPOI {
+  const category = classifyPOI(properties);
+
+  const amenity = properties.amenity;
+  const office = properties.office;
+  const shop = properties.shop;
+  const building = properties.building;
+  const landuse = properties.landuse;
+  const tourism = properties.tourism;
+
+  let vertical: VerticalCategory | null = null;
+
+  // Fleet & logistics
+  if (
+    amenity === 'fuel' ||
+    shop === 'car' ||
+    shop === 'car_repair' ||
+    office === 'logistics' ||
+    office === 'transport' ||
+    office === 'courier'
+  ) {
+    vertical = 'fleet_logistics';
+  }
+
+  // Security
+  if (!vertical && (office === 'security' || shop === 'security')) {
+    vertical = 'security';
+  }
+
+  // Hospitality
+  if (
+    !vertical &&
+    (amenity === 'restaurant' ||
+      amenity === 'cafe' ||
+      amenity === 'bar' ||
+      amenity === 'hotel' ||
+      amenity === 'fast_food' ||
+      tourism === 'hotel' ||
+      tourism === 'guest_house')
+  ) {
+    vertical = 'hospitality';
+  }
+
+  // Retail chain
+  if (
+    !vertical &&
+    (shop === 'supermarket' ||
+      shop === 'department_store' ||
+      shop === 'mall' ||
+      shop === 'wholesale')
+  ) {
+    vertical = 'retail_chain';
+  }
+
+  // Industrial
+  if (
+    !vertical &&
+    (building === 'industrial' ||
+      building === 'warehouse' ||
+      landuse === 'industrial' ||
+      office === 'industrial')
+  ) {
+    vertical = 'industrial';
+  }
+
+  return { category, vertical };
 }
 
 /**
@@ -142,9 +236,11 @@ function buildOverpassQuery(lat: number, lng: number, radiusM: number): string {
   return `
     [out:json][timeout:25];
     (
-      node["amenity"~"clinic|hospital|doctors|pharmacy|restaurant|bank|fuel|cafe"](around:${radiusM},${lat},${lng});
+      node["amenity"~"clinic|hospital|doctors|pharmacy|restaurant|bank|fuel|cafe|bar|hotel|fast_food"](around:${radiusM},${lat},${lng});
       node["office"](around:${radiusM},${lat},${lng});
       node["shop"](around:${radiusM},${lat},${lng});
+      node["tourism"~"hotel|guest_house"](around:${radiusM},${lat},${lng});
+      node["building"~"industrial|warehouse"](around:${radiusM},${lat},${lng});
     );
     out body;
   `;
@@ -162,7 +258,7 @@ export async function refreshPoisFromOverpass(
   centerLng: number,
   radiusKm: number = 5,
   wardCode?: string
-): Promise<ServiceResult<POICategory>> {
+): Promise<ServiceResult<POICategory & { verticals: VerticalCounts }>> {
   try {
     const radiusM = radiusKm * 1000;
     const query = buildOverpassQuery(centerLat, centerLng, radiusM);
@@ -182,12 +278,22 @@ export async function refreshPoisFromOverpass(
     const elements = Array.isArray(json.elements) ? json.elements : [];
 
     const counts: POICategory = { business: 0, office: 0, healthcare: 0 };
+    const verticals: VerticalCounts = {
+      fleet_logistics: 0,
+      security: 0,
+      hospitality: 0,
+      retail_chain: 0,
+      industrial: 0,
+    };
 
     for (const element of elements) {
       if (!element.tags) continue;
-      const category = classifyPOI(element.tags);
-      if (category) {
-        counts[category]++;
+      const classified = classifyPOIDetailed(element.tags);
+      if (classified.category) {
+        counts[classified.category]++;
+      }
+      if (classified.vertical) {
+        verticals[classified.vertical]++;
       }
     }
 
@@ -200,6 +306,11 @@ export async function refreshPoisFromOverpass(
           business_poi_count: counts.business,
           office_poi_count: counts.office,
           healthcare_poi_count: counts.healthcare,
+          fleet_logistics_poi_count: verticals.fleet_logistics,
+          security_poi_count: verticals.security,
+          hospitality_poi_count: verticals.hospitality,
+          retail_chain_poi_count: verticals.retail_chain,
+          industrial_poi_count: verticals.industrial,
         })
         .eq('ward_code', wardCode);
 
@@ -208,7 +319,7 @@ export async function refreshPoisFromOverpass(
       }
     }
 
-    return { data: counts, error: null };
+    return { data: { ...counts, verticals }, error: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return { data: null, error: `Overpass refresh failed: ${message}` };

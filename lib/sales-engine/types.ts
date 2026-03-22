@@ -54,6 +54,7 @@ export interface SalesZone {
   arlan_routing: 'tarana_primary' | 'arlan_primary' | 'dual_funnel';
   seo_slug: string | null;
   demand_signal_count: number;
+  vertical_composition: Record<string, number> | null;
   created_at: string;
   updated_at: string;
 }
