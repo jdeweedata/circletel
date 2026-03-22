@@ -279,6 +279,90 @@ export const salesEngineWeeklyReview = inngest.createFunction(
     });
 
     // =========================================================================
+    // Step 3b: Aggregate coverage demand signals
+    // =========================================================================
+    const demandResult = await step.run('aggregate-demand-signals', async () => {
+      try {
+        const { aggregateDemandSignals } = await import(
+          '@/lib/sales-engine/demand-signal-service'
+        );
+        const result = await aggregateDemandSignals(30);
+        if (result.error) {
+          console.error(`[Sales Engine Weekly] Demand signal aggregation failed: ${result.error}`);
+          return { success: false, wards_updated: 0, error: result.error };
+        }
+        return { success: true, wards_updated: result.data?.wards_updated ?? 0, error: null };
+      } catch (err) {
+        console.error('[Sales Engine Weekly] Demand signals error:', err);
+        return { success: false, wards_updated: 0, error: String(err) };
+      }
+    });
+
+    // =========================================================================
+    // Step 3c: Auto-approve discovery candidates
+    // =========================================================================
+    const autoApprovalResult = await step.run('auto-approve-candidates', async () => {
+      if (!discoveryResult.success || discoveryResult.candidates_found === 0) {
+        return { skipped: true, reason: 'No candidates to process' };
+      }
+
+      try {
+        const { autoProcessDiscoveryCandidates } = await import(
+          '@/lib/sales-engine/zone-discovery-service'
+        );
+        const supabase = await (await import('@/lib/supabase/server')).createClient();
+
+        // Get the latest pending batch
+        const { data: latestBatch } = await supabase
+          .from('zone_discovery_candidates')
+          .select('discovery_batch_id')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (!latestBatch?.discovery_batch_id) {
+          return { skipped: true, reason: 'No pending batch found' };
+        }
+
+        const result = await autoProcessDiscoveryCandidates(latestBatch.discovery_batch_id);
+        if (result.error) {
+          console.error(`[Sales Engine Weekly] Auto-approval failed: ${result.error}`);
+          return { skipped: false, error: result.error };
+        }
+
+        return {
+          skipped: false,
+          auto_approved_high: result.data?.auto_approved_high ?? 0,
+          auto_approved_passive: result.data?.auto_approved_passive ?? 0,
+          auto_rejected: result.data?.auto_rejected ?? 0,
+        };
+      } catch (err) {
+        console.error('[Sales Engine Weekly] Auto-approval error:', err);
+        return { skipped: false, error: String(err) };
+      }
+    });
+
+    // =========================================================================
+    // Step 3d: Tag zones with campaign metadata
+    // =========================================================================
+    await step.run('tag-zone-campaigns', async () => {
+      try {
+        const { tagAllActiveZones } = await import(
+          '@/lib/sales-engine/campaign-service'
+        );
+        const result = await tagAllActiveZones();
+        if (result.error) {
+          console.error(`[Sales Engine Weekly] Campaign tagging failed: ${result.error}`);
+        }
+        return { tagged: result.data?.tagged ?? 0 };
+      } catch (err) {
+        console.error('[Sales Engine Weekly] Campaign tagging error:', err);
+        return { tagged: 0 };
+      }
+    });
+
+    // =========================================================================
     // Step 4: Send weekly Slack report
     // =========================================================================
     await step.run('send-weekly-slack-report', async () => {
