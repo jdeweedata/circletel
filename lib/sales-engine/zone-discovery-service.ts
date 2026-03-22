@@ -396,6 +396,10 @@ export async function runZoneDiscovery(
         created_zone_id: null,
         rejection_reason: null,
         discovery_batch_id: batchId,
+        auto_decision: null,
+        auto_decided_at: null,
+        campaign_tag: null,
+        arlan_only_zone: false,
         created_at: '',
         updated_at: '',
       };
