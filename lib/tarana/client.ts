@@ -184,6 +184,31 @@ export async function getAllBaseNodes(): Promise<TaranaRadio[]> {
 }
 
 /**
+ * Get all Remote Nodes (RN) for South Africa
+ * Paginates through all results since RN fleet may exceed 5,000 devices
+ */
+export async function getAllRemoteNodes(): Promise<TaranaRadio[]> {
+  const limit = 5000;
+  let offset = 0;
+  const allRadios: TaranaRadio[] = [];
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const result = await searchRadios('RN', { limit, offset });
+    allRadios.push(...result.radios);
+
+    // Stop if we got fewer than the limit (last page)
+    if (result.radios.length < limit) {
+      break;
+    }
+
+    offset += limit;
+  }
+
+  return allRadios;
+}
+
+/**
  * Get device counts by status
  */
 export async function getDeviceCounts(): Promise<{
