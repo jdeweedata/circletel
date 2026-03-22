@@ -55,6 +55,7 @@ export interface SalesZone {
   seo_slug: string | null;
   demand_signal_count: number;
   vertical_composition: Record<string, number> | null;
+  commercial_property_count: number;
   created_at: string;
   updated_at: string;
 }
