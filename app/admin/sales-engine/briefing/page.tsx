@@ -12,8 +12,11 @@ import {
   PiCurrencyDollarBold,
 } from 'react-icons/pi';
 import { StatCard } from '@/components/admin/shared/StatCard';
+import { SniperTargetCard } from '@/components/admin/sales-engine/SniperTargetCard';
+import { ArlanWeeklyTargetsCard } from '@/components/admin/sales-engine/ArlanWeeklyTargets';
 import { PIPELINE_STAGE_LABELS } from '@/lib/sales-engine/types';
 import type { PipelineStage } from '@/lib/sales-engine/types';
+import type { WeeklyBriefing } from '@/lib/sales-engine/briefing-service';
 
 // =============================================================================
 // Types (matching API response shape)
@@ -74,22 +77,8 @@ interface MarketAlertItem {
   recommendation: string;
 }
 
-interface DailyBriefing {
-  priority_calls: BriefingLead[];
-  stalled_deals: StalledDeal[];
-  follow_ups: FollowUp[];
-  zone_alerts: ZoneAlert[];
-  msc_snapshot: MSCSnapshot | null;
-  market_context: {
-    alerts: MarketAlertItem[];
-    province_summary: string;
-  } | null;
-  summary: {
-    calls_needed: number;
-    pipeline_mrr: number;
-    deals_to_close: number;
-  };
-}
+// DailyBriefing fields are inherited via WeeklyBriefing from briefing-service.ts
+// Local interfaces above are used for rendering type hints only.
 
 // =============================================================================
 // Helpers
@@ -131,14 +120,14 @@ function getActionBadge(action: string): { label: string; classes: string } {
 // =============================================================================
 
 export default function DailyBriefingPage() {
-  const [data, setData] = useState<DailyBriefing | null>(null);
+  const [data, setData] = useState<WeeklyBriefing | null>(null);
   const [loading, setLoading] = useState(true);
   const [addingToPipeline, setAddingToPipeline] = useState<string | null>(null);
 
   const fetchBriefing = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/sales-engine/briefing');
+      const res = await fetch('/api/admin/sales-engine/briefing/weekly');
       const json = await res.json();
       if (json.success && json.data) {
         setData(json.data);
@@ -275,6 +264,33 @@ export default function DailyBriefingPage() {
           subtitle="At quote or contract stage"
         />
       </div>
+
+      {/* Weekly Focus Summary */}
+      {data?.weekly_focus_summary && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+          <h2 className="text-sm font-semibold text-orange-800 mb-1">WEEKLY FOCUS</h2>
+          <p className="text-slate-800">{data.weekly_focus_summary}</p>
+        </div>
+      )}
+
+      {/* Sniper Targets */}
+      {data?.sniper_targets && data.sniper_targets.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-3">Sniper Targets</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {data.sniper_targets.map((target, i) => (
+              <SniperTargetCard key={target.zone_id} target={target} rank={i + 1} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Arlan Weekly Targets */}
+      {data?.arlan_weekly_targets && (
+        <div className="mb-6">
+          <ArlanWeeklyTargetsCard targets={data.arlan_weekly_targets} />
+        </div>
+      )}
 
       {/* Section 1: Priority Calls */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
