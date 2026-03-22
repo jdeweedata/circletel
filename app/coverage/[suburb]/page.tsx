@@ -5,7 +5,16 @@ import { createClient } from '@/lib/supabase/server';
 import { JsonLd } from '@/lib/seo/json-ld';
 import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 import { Button } from '@/components/ui/button';
-import { PiWhatsappLogoBold, PiMapPinBold, PiShieldCheckBold, PiWifiHighBold } from 'react-icons/pi';
+import {
+  PiWhatsappLogoBold,
+  PiMapPinBold,
+  PiShieldCheckBold,
+  PiWifiHighBold,
+  PiBuildingsBold,
+  PiUsersBold,
+  PiChartBarBold,
+  PiCheckCircleBold,
+} from 'react-icons/pi';
 
 export const revalidate = 86400; // ISR: revalidate daily
 
@@ -162,7 +171,10 @@ export default async function SuburbCoveragePage({
   const { data: zone } = await supabase
     .from('sales_zones')
     .select(
-      'name, suburb, province, coverage_confidence, base_station_count, dfa_connected_count, seo_slug'
+      `name, suburb, province, coverage_confidence, base_station_count, dfa_connected_count, seo_slug,
+       center_lat, center_lng, business_poi_density, pct_no_internet, pct_income_target,
+       commercial_property_count, vertical_composition, competitor_weakness_score,
+       campaign_tag, arlan_routing`
     )
     .eq('seo_slug', suburb)
     .eq('status', 'active')
@@ -175,22 +187,65 @@ export default async function SuburbCoveragePage({
   const readableName = zone.name || zone.suburb || slugToReadable(suburb);
   const serviceCards = buildServiceCards(zone);
 
+  // Fetch nearby commercial properties for local context
+  let commercialProperties: Array<{ name: string; property_type: string; gla_sqm: number | null }> = [];
+  if (zone.center_lat && zone.center_lng) {
+    const latDelta = 5 / 111; // ~5km radius
+    const lngDelta = 5 / (111 * Math.cos((zone.center_lat as number) * Math.PI / 180));
+    const { data: props } = await supabase
+      .from('commercial_properties')
+      .select('name, property_type, gla_sqm')
+      .gte('center_lat', (zone.center_lat as number) - latDelta)
+      .lte('center_lat', (zone.center_lat as number) + latDelta)
+      .gte('center_lng', (zone.center_lng as number) - lngDelta)
+      .lte('center_lng', (zone.center_lng as number) + lngDelta)
+      .limit(10);
+    commercialProperties = props ?? [];
+  }
+
+  // Fetch competitor presence for this zone
+  let competitorCount = 0;
+  if (zone.competitor_weakness_score != null) {
+    competitorCount = Math.round((100 - (zone.competitor_weakness_score as number)) / 15);
+  }
+
+  // Parse vertical composition
+  const verticals = (zone.vertical_composition as Record<string, number>) ?? {};
+  const businessCount = (zone.business_poi_density as number) ?? 0;
+  const pctNoInternet = (zone.pct_no_internet as number) ?? 0;
+
+  // Build data-driven local context
+  const hasLocalData = businessCount > 0 || commercialProperties.length > 0 || pctNoInternet > 0;
+
   const jsonLdData = {
     '@context': 'https://schema.org',
     '@type': 'Service',
     name: `Internet Service in ${readableName}`,
     provider: {
-      '@type': 'Organization',
+      '@type': 'LocalBusiness',
       name: 'CircleTel',
       url: CONTACT.WEBSITE,
+      telephone: CONTACT.WHATSAPP_NUMBER,
+      email: CONTACT.EMAIL_PRIMARY,
+      address: {
+        '@type': 'PostalAddress',
+        addressRegion: 'Gauteng',
+        addressCountry: 'ZA',
+      },
     },
     serviceType: 'Internet Service Provider',
     areaServed: {
       '@type': 'Place',
       name: readableName,
-      ...(zone.province ? { address: { '@type': 'PostalAddress', addressRegion: zone.province } } : {}),
+      ...(zone.province ? { address: { '@type': 'PostalAddress', addressRegion: zone.province, addressCountry: 'ZA' } } : {}),
     },
-    description: `Business internet coverage in ${readableName}${zone.province ? `, ${zone.province}` : ''}. Fixed wireless, fibre, and 5G/LTE options available.`,
+    description: `Business internet coverage in ${readableName}${zone.province ? `, ${zone.province}` : ''}. Fixed wireless, fibre, and 5G/LTE options available.${businessCount > 0 ? ` Serving ${businessCount}+ businesses in the area.` : ''}`,
+    offers: serviceCards.map((card) => ({
+      '@type': 'Offer',
+      name: card.title,
+      description: card.description,
+      priceCurrency: 'ZAR',
+    })),
   };
 
   return (
@@ -323,6 +378,157 @@ export default async function SuburbCoveragePage({
                 </ul>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Local Business Landscape — data-driven from Phases 0-3 */}
+      {hasLocalData && (
+        <section className="py-16 md:py-20 bg-slate-50">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-4">
+              Business Landscape in {readableName}
+            </h2>
+            <p className="text-gray-600 text-center max-w-2xl mx-auto mb-12">
+              {readableName} is a {businessCount > 50 ? 'major' : businessCount > 10 ? 'growing' : ''} business hub
+              {zone.province ? ` in ${zone.province}` : ''}.
+              {pctNoInternet > 20
+                ? ` ${pctNoInternet.toFixed(0)}% of businesses in this area still lack fixed internet connectivity — a significant opportunity for reliable service.`
+                : pctNoInternet > 0
+                  ? ` Most businesses here are connected, but many are underserved by slow or unreliable providers.`
+                  : ''}
+            </p>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+              {businessCount > 0 && (
+                <div className="bg-white rounded-xl p-5 text-center border border-gray-100">
+                  <PiBuildingsBold className="w-6 h-6 text-circleTel-orange mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-gray-900">{businessCount.toLocaleString()}</p>
+                  <p className="text-sm text-gray-500">Businesses Nearby</p>
+                </div>
+              )}
+              {commercialProperties.length > 0 && (
+                <div className="bg-white rounded-xl p-5 text-center border border-gray-100">
+                  <PiChartBarBold className="w-6 h-6 text-circleTel-orange mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-gray-900">{commercialProperties.length}</p>
+                  <p className="text-sm text-gray-500">Commercial Properties</p>
+                </div>
+              )}
+              {pctNoInternet > 0 && (
+                <div className="bg-white rounded-xl p-5 text-center border border-gray-100">
+                  <PiWifiHighBold className="w-6 h-6 text-circleTel-orange mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-gray-900">{pctNoInternet.toFixed(0)}%</p>
+                  <p className="text-sm text-gray-500">Without Fixed Internet</p>
+                </div>
+              )}
+              {competitorCount > 0 && (
+                <div className="bg-white rounded-xl p-5 text-center border border-gray-100">
+                  <PiUsersBold className="w-6 h-6 text-circleTel-orange mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-gray-900">{competitorCount}</p>
+                  <p className="text-sm text-gray-500">ISP Competitors</p>
+                </div>
+              )}
+            </div>
+
+            {/* Vertical breakdown */}
+            {Object.keys(verticals).length > 0 && (
+              <div className="bg-white rounded-xl p-6 border border-gray-100 mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Industry Sectors in {readableName}</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {Object.entries(verticals)
+                    .filter(([, count]) => (count as number) > 0)
+                    .sort(([, a], [, b]) => (b as number) - (a as number))
+                    .map(([vertical, count]) => {
+                      const labels: Record<string, string> = {
+                        fleet_logistics: 'Fleet & Logistics',
+                        security: 'Security',
+                        hospitality: 'Hospitality & Food',
+                        retail_chain: 'Retail Chains',
+                        industrial: 'Industrial',
+                      };
+                      return (
+                        <div key={vertical} className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+                          <span className="text-sm text-gray-700">{labels[vertical] ?? vertical}</span>
+                          <span className="text-sm font-semibold text-gray-900">{count as number}</span>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* Commercial properties nearby */}
+            {commercialProperties.length > 0 && (
+              <div className="bg-white rounded-xl p-6 border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Commercial Properties Nearby</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {commercialProperties.map((prop) => {
+                    const typeLabels: Record<string, string> = {
+                      office_park: 'Office Park',
+                      retail_centre: 'Retail Centre',
+                      industrial_park: 'Industrial Park',
+                      mixed_use: 'Mixed Use',
+                    };
+                    return (
+                      <div key={prop.name} className="flex items-start gap-3 bg-gray-50 rounded-lg px-4 py-3">
+                        <PiBuildingsBold className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{prop.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {typeLabels[prop.property_type] ?? prop.property_type}
+                            {prop.gla_sqm ? ` · ${prop.gla_sqm.toLocaleString()} m²` : ''}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Why CircleTel — data-driven value props */}
+      <section className="py-16 md:py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
+            Why Businesses in {readableName} Choose CircleTel
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-circleTel-orange/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <PiMapPinBold className="w-6 h-6 text-circleTel-orange" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Local Support</h3>
+              <p className="text-gray-600 text-sm">
+                Based in Gauteng with a dedicated team. WhatsApp us anytime at {CONTACT.WHATSAPP_NUMBER} —
+                no call centres, no ticket queues.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-circleTel-orange/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <PiShieldCheckBold className="w-6 h-6 text-circleTel-orange" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Lock-in Contracts</h3>
+              <p className="text-gray-600 text-sm">
+                {competitorCount >= 4
+                  ? `With ${competitorCount} ISPs operating in ${readableName}, we earn your business monthly. Cancel anytime.`
+                  : `Month-to-month flexibility. We earn your business every month — no penalties, no exit fees.`}
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-circleTel-orange/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <PiCheckCircleBold className="w-6 h-6 text-circleTel-orange" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Fast Installation</h3>
+              <p className="text-gray-600 text-sm">
+                {(zone.base_station_count as number) > 0
+                  ? 'SkyFibre wireless — installed in 3-5 business days. No trenching, no waiting for fibre.'
+                  : 'MTN Business 5G/LTE — active same day. No installation wait, no infrastructure delays.'}
+              </p>
+            </div>
           </div>
         </div>
       </section>
