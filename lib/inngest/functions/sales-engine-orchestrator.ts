@@ -370,7 +370,7 @@ export const salesEngineWeeklyReview = inngest.createFunction(
         const { refreshTopWardPois } = await import(
           '@/lib/sales-engine/osm-poi-service'
         );
-        const result = await refreshTopWardPois(30);
+        const result = await refreshTopWardPois(62); // All available wards
         if (result.error) {
           console.error(`[Sales Engine Weekly] OSM refresh failed: ${result.error}`);
         }
