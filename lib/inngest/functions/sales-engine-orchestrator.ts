@@ -382,6 +382,25 @@ export const salesEngineWeeklyReview = inngest.createFunction(
     });
 
     // =========================================================================
+    // Step 3f: Map competitor presence per zone
+    // =========================================================================
+    await step.run('map-competitor-zones', async () => {
+      try {
+        const { mapCompetitorsForAllZones } = await import(
+          '@/lib/sales-engine/competitor-zone-mapping-service'
+        );
+        const result = await mapCompetitorsForAllZones();
+        if (result.error) {
+          console.error(`[Sales Engine Weekly] Competitor mapping failed: ${result.error}`);
+        }
+        return { zones_mapped: result.data?.zones_mapped ?? 0 };
+      } catch (err) {
+        console.error('[Sales Engine Weekly] Competitor mapping error:', err);
+        return { zones_mapped: 0 };
+      }
+    });
+
+    // =========================================================================
     // Step 4: Send weekly Slack report
     // =========================================================================
     await step.run('send-weekly-slack-report', async () => {

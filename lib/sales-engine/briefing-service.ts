@@ -124,6 +124,7 @@ export interface SniperTarget {
   coverage_confidence: string | null;
   business_poi_density: number;
   pct_no_internet: number;
+  competitors_present: number;
 }
 
 export interface ArlanWeeklyTargets {
@@ -619,6 +620,35 @@ export async function getWeeklyBriefing(): Promise<{
 
       const arlanDealCategories = campaignDef?.arlan_deal_categories ?? [];
 
+      // Competitor context — enrich rationale with competition data
+      let competitorsPresent = 0;
+      try {
+        const { getCompetitorSummaryForZone } = await import(
+          './competitor-zone-mapping-service'
+        );
+        const compResult = await getCompetitorSummaryForZone(zone.id);
+        if (compResult.data) {
+          competitorsPresent = compResult.data.competitors.filter(
+            (c) => c.has_coverage
+          ).length;
+          if (competitorsPresent <= 2) {
+            rationale.push(
+              `Only ${competitorsPresent} competitor${competitorsPresent === 1 ? '' : 's'} present — weak competition`
+            );
+          } else if (competitorsPresent >= 4) {
+            rationale.push(
+              `${competitorsPresent} competitors — competitive area, lead with price`
+            );
+          } else {
+            rationale.push(
+              `${competitorsPresent} competitors present — moderate competition`
+            );
+          }
+        }
+      } catch {
+        // Competitor data is supplementary — don't fail the briefing
+      }
+
       // Estimate zone MRR based on unworked leads and propensity
       const estimatedZoneMrr =
         (unworkedLeadCount ?? 0) * (zone.propensity_score ?? 0.3) * 1299;
@@ -645,6 +675,7 @@ export async function getWeeklyBriefing(): Promise<{
         coverage_confidence: zone.coverage_confidence,
         business_poi_density: zone.business_poi_density ?? 0,
         pct_no_internet: zone.pct_no_internet ?? 0,
+        competitors_present: competitorsPresent,
       });
     }
 
