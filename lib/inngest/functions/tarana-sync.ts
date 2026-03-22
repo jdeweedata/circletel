@@ -195,7 +195,35 @@ export const taranaSyncFunction = inngest.createFunction(
       return Array.from(serials);
     });
 
-    // Step 5: Upsert records (insert new, update existing)
+    // Step 5: Fetch RN counts per BN site for active_connections
+    const rnCountsBySite = await step.run('fetch-rn-counts', async () => {
+      try {
+        const { getAllRemoteNodes } = await import('@/lib/tarana/client');
+        console.log('[TaranaSync] Fetching remote nodes for active connection counts...');
+
+        const remoteNodes = await getAllRemoteNodes();
+        console.log(`[TaranaSync] Fetched ${remoteNodes.length} remote nodes`);
+
+        // Count connected RNs (deviceStatus === 1) per site name
+        const counts: Record<string, number> = {};
+        for (const rn of remoteNodes) {
+          if (rn.deviceStatus === 1 && rn.siteName) {
+            counts[rn.siteName] = (counts[rn.siteName] || 0) + 1;
+          }
+        }
+
+        const sitesWithRNs = Object.keys(counts).length;
+        console.log(`[TaranaSync] ${sitesWithRNs} sites have active RN connections`);
+
+        return counts;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('[TaranaSync] Failed to fetch RN counts (continuing with zeros):', message);
+        return {} as Record<string, number>;
+      }
+    });
+
+    // Step 6: Upsert records (insert new, update existing)
     const upsertResult = await step.run('upsert-records', async () => {
       const supabase = await createClient();
       const existingSet = new Set(existingSerials);
@@ -217,7 +245,7 @@ export const taranaSyncFunction = inngest.createFunction(
           serial_number: bn.serialNumber,
           hostname: bn.deviceId || bn.serialNumber,
           site_name: bn.siteName || 'Unknown Site',
-          active_connections: 0, // Updated separately if needed
+          active_connections: rnCountsBySite[bn.siteName ?? ''] ?? 0,
           market: bn.marketName || 'Unknown',
           lat: bn.latitude,
           lng: bn.longitude,
@@ -265,7 +293,7 @@ export const taranaSyncFunction = inngest.createFunction(
     updated = upsertResult.updated;
     errors.push(...upsertResult.errors);
 
-    // Step 6: Delete stale records (if option enabled)
+    // Step 7: Delete stale records (if option enabled)
     if (deleteStale) {
       const deleteResult = await step.run('delete-stale-records', async () => {
         const supabase = await createClient();
@@ -298,7 +326,7 @@ export const taranaSyncFunction = inngest.createFunction(
       errors.push(...deleteResult.errors);
     }
 
-    // Step 7: Update sync log with final results
+    // Step 8: Update sync log with final results
     const finalResult = await step.run('update-sync-log', async () => {
       const supabase = await createClient();
       const duration = Date.now() - startTime;
@@ -339,7 +367,7 @@ export const taranaSyncFunction = inngest.createFunction(
       };
     });
 
-    // Step 8: PiPaperPlaneRightBold completion event
+    // Step 9: Send completion event
     await step.run('send-completion-event', async () => {
       await inngest.send({
         name: 'tarana/sync.completed',

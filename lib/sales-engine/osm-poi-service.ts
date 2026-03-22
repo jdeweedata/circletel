@@ -37,6 +37,28 @@ interface POICategory {
   healthcare: number;
 }
 
+export type POICategoryKey = 'business' | 'office' | 'healthcare';
+
+export type VerticalCategory =
+  | 'fleet_logistics'
+  | 'security'
+  | 'hospitality'
+  | 'retail_chain'
+  | 'industrial';
+
+export interface VerticalCounts {
+  fleet_logistics: number;
+  security: number;
+  hospitality: number;
+  retail_chain: number;
+  industrial: number;
+}
+
+interface ClassifiedPOI {
+  category: POICategoryKey | null;
+  vertical: VerticalCategory | null;
+}
+
 interface WardPOICounts {
   ward_code: string;
   business_poi_count: number;
@@ -83,6 +105,78 @@ function classifyPOI(properties: Record<string, string | undefined>): keyof POIC
 }
 
 /**
+ * Classify an OSM feature into both a broad POI category and a granular vertical.
+ * A POI can have BOTH a category AND a vertical (e.g., amenity=restaurant → business + hospitality).
+ */
+function classifyPOIDetailed(properties: Record<string, string | undefined>): ClassifiedPOI {
+  const category = classifyPOI(properties);
+
+  const amenity = properties.amenity;
+  const office = properties.office;
+  const shop = properties.shop;
+  const building = properties.building;
+  const landuse = properties.landuse;
+  const tourism = properties.tourism;
+
+  let vertical: VerticalCategory | null = null;
+
+  // Fleet & logistics
+  if (
+    amenity === 'fuel' ||
+    shop === 'car' ||
+    shop === 'car_repair' ||
+    office === 'logistics' ||
+    office === 'transport' ||
+    office === 'courier'
+  ) {
+    vertical = 'fleet_logistics';
+  }
+
+  // Security
+  if (!vertical && (office === 'security' || shop === 'security')) {
+    vertical = 'security';
+  }
+
+  // Hospitality
+  if (
+    !vertical &&
+    (amenity === 'restaurant' ||
+      amenity === 'cafe' ||
+      amenity === 'bar' ||
+      amenity === 'hotel' ||
+      amenity === 'fast_food' ||
+      tourism === 'hotel' ||
+      tourism === 'guest_house')
+  ) {
+    vertical = 'hospitality';
+  }
+
+  // Retail chain
+  if (
+    !vertical &&
+    (shop === 'supermarket' ||
+      shop === 'department_store' ||
+      shop === 'mall' ||
+      shop === 'wholesale')
+  ) {
+    vertical = 'retail_chain';
+  }
+
+  // Industrial
+  if (
+    !vertical &&
+    (building === 'industrial' ||
+      building === 'warehouse' ||
+      landuse === 'industrial' ||
+      office === 'industrial')
+  ) {
+    vertical = 'industrial';
+  }
+
+  return { category, vertical };
+}
+
+/**
  * Get the centroid point from a GeoJSON geometry.
  */
 function getFeaturePoint(geometry: GeoJSONFeature['geometry']): { lat: number; lng: number } | null {
@@ -116,6 +210,185 @@ function getFeaturePoint(geometry: GeoJSONFeature['geometry']): { lat: number; l
  * Parse GeoJSON and aggregate POI counts per ward.
  * Each POI is assigned to the nearest ward based on centroid proximity.
  */
+// =============================================================================
+// Overpass API Types
+// =============================================================================
+
+interface OverpassElement {
+  type: string;
+  id: number;
+  lat?: number;
+  lon?: number;
+  tags?: Record<string, string | undefined>;
+}
+
+interface OverpassResponse {
+  elements: OverpassElement[];
+}
+
+// =============================================================================
+// Overpass API Constants
+// =============================================================================
+
+const OVERPASS_API = 'https://overpass-api.de/api/interpreter';
+
+function buildOverpassQuery(lat: number, lng: number, radiusM: number): string {
+  return `
+    [out:json][timeout:25];
+    (
+      node["amenity"~"clinic|hospital|doctors|pharmacy|restaurant|bank|fuel|cafe|bar|hotel|fast_food"](around:${radiusM},${lat},${lng});
+      node["office"](around:${radiusM},${lat},${lng});
+      node["shop"](around:${radiusM},${lat},${lng});
+      node["tourism"~"hotel|guest_house"](around:${radiusM},${lat},${lng});
+      node["building"~"industrial|warehouse"](around:${radiusM},${lat},${lng});
+    );
+    out body;
+  `;
+}
+
+// =============================================================================
+// Overpass Live Refresh
+// =============================================================================
+
+/**
+ * Query OSM Overpass API for POIs near a coordinate and update ward_demographics.
+ */
+export async function refreshPoisFromOverpass(
+  centerLat: number,
+  centerLng: number,
+  radiusKm: number = 5,
+  wardCode?: string
+): Promise<ServiceResult<POICategory & { verticals: VerticalCounts }>> {
+  try {
+    const radiusM = radiusKm * 1000;
+    const query = buildOverpassQuery(centerLat, centerLng, radiusM);
+
+    const response = await fetch(OVERPASS_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `data=${encodeURIComponent(query)}`,
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      return { data: null, error: `Overpass API returned ${response.status}: ${body.slice(0, 200)}` };
+    }
+
+    const json = (await response.json()) as OverpassResponse;
+    const elements = Array.isArray(json.elements) ? json.elements : [];
+
+    const counts: POICategory = { business: 0, office: 0, healthcare: 0 };
+    const verticals: VerticalCounts = {
+      fleet_logistics: 0,
+      security: 0,
+      hospitality: 0,
+      retail_chain: 0,
+      industrial: 0,
+    };
+
+    for (const element of elements) {
+      if (!element.tags) continue;
+      const classified = classifyPOIDetailed(element.tags);
+      if (classified.category) {
+        counts[classified.category]++;
+      }
+      if (classified.vertical) {
+        verticals[classified.vertical]++;
+      }
+    }
+
+    // Update ward_demographics if wardCode provided
+    if (wardCode) {
+      const supabase = await createClient();
+      const { error: updateError } = await supabase
+        .from('ward_demographics')
+        .update({
+          business_poi_count: counts.business,
+          office_poi_count: counts.office,
+          healthcare_poi_count: counts.healthcare,
+          fleet_logistics_poi_count: verticals.fleet_logistics,
+          security_poi_count: verticals.security,
+          hospitality_poi_count: verticals.hospitality,
+          retail_chain_poi_count: verticals.retail_chain,
+          industrial_poi_count: verticals.industrial,
+        })
+        .eq('ward_code', wardCode);
+
+      if (updateError) {
+        console.error(`[OSM POI] Failed to update ward ${wardCode}: ${updateError.message}`);
+      }
+    }
+
+    return { data: { ...counts, verticals }, error: null };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { data: null, error: `Overpass refresh failed: ${message}` };
+  }
+}
+
+/**
+ * Refresh POI data for the top-scoring wards using the Overpass API.
+ * Adds a 1.5s delay between requests to respect Overpass rate limits.
+ */
+export async function refreshTopWardPois(
+  limit: number = 20
+): Promise<ServiceResult<{ wards_refreshed: number; errors: string[] }>> {
+  try {
+    const supabase = await createClient();
+
+    const { data: wards, error: wardsError } = await supabase
+      .from('ward_demographics')
+      .select('ward_code, centroid_lat, centroid_lng')
+      .not('centroid_lat', 'is', null)
+      .not('centroid_lng', 'is', null)
+      .order('demographic_fit_score', { ascending: false })
+      .limit(limit);
+
+    if (wardsError || !wards || wards.length === 0) {
+      return {
+        data: null,
+        error: `No wards found for refresh: ${wardsError?.message ?? 'empty result'}`,
+      };
+    }
+
+    let wardsRefreshed = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < wards.length; i++) {
+      const ward = wards[i];
+      const result = await refreshPoisFromOverpass(
+        ward.centroid_lat,
+        ward.centroid_lng,
+        5,
+        ward.ward_code
+      );
+
+      if (result.error) {
+        errors.push(`Ward ${ward.ward_code}: ${result.error}`);
+      } else {
+        wardsRefreshed++;
+      }
+
+      // Rate limit: 1.5s delay between requests (skip after last)
+      if (i < wards.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+    }
+
+    return {
+      data: { wards_refreshed: wardsRefreshed, errors },
+      error: null,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { data: null, error: `Top ward refresh failed: ${message}` };
+  }
+}
+
+// =============================================================================
+// Import & Aggregation
+// =============================================================================
+
 export async function importOsmPois(
   geojson: GeoJSONCollection
 ): Promise<ServiceResult<{ total_pois: number; wards_updated: number; errors: string[] }>> {

@@ -9,6 +9,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { enrichZoneCoverage } from './coverage-enrichment-service';
 import { enrichZoneDemographics } from './demographic-enrichment-service';
+import { tagZoneWithCampaign, generateSlug, determineArlanRouting } from './campaign-service';
 import type {
   ZoneType,
   ZoneDiscoveryCandidate,
@@ -80,7 +81,8 @@ const PRODUCT_COVERAGE_MAP: ProductCoverageRequirement[] = [
 function getArlanUseCasesForZone(
   zoneType: ZoneType,
   businessPoiCount: number,
-  healthcarePoiCount: number
+  healthcarePoiCount: number,
+  verticals?: { fleet_logistics: number; security: number; hospitality: number; retail_chain: number; industrial: number }
 ): string[] {
   // Base use cases available in every zone
   const useCases = ['voice_comms', 'backup_connectivity', 'device_upgrade'];
@@ -94,6 +96,22 @@ function getArlanUseCasesForZone(
   }
   if (zoneType === 'commercial_strip') {
     useCases.push('iot_m2m', 'venue_wifi');
+  }
+
+  // Vertical-specific use cases (when enrichment data is available)
+  if (verticals) {
+    if (verticals.fleet_logistics >= 3) {
+      useCases.push('fleet_management', 'iot_m2m');
+    }
+    if (verticals.security >= 2) {
+      useCases.push('iot_m2m'); // CCTV/alarm SIMs
+    }
+    if (verticals.hospitality >= 3) {
+      useCases.push('venue_wifi', 'data_connectivity');
+    }
+    if (verticals.industrial >= 3) {
+      useCases.push('iot_m2m', 'fleet_management');
+    }
   }
 
   return [...new Set(useCases)];
@@ -396,6 +414,10 @@ export async function runZoneDiscovery(
         created_zone_id: null,
         rejection_reason: null,
         discovery_batch_id: batchId,
+        auto_decision: null,
+        auto_decided_at: null,
+        campaign_tag: null,
+        arlan_only_zone: false,
         created_at: '',
         updated_at: '',
       };
@@ -437,6 +459,8 @@ export async function runZoneDiscovery(
       arlan_upsell_use_cases: c.arlan_upsell_use_cases,
       milestone_month: c.milestone_month,
       milestone_target_products: c.milestone_target_products,
+      campaign_tag: c.campaign_tag,
+      arlan_only_zone: c.arlan_only_zone,
       status: 'pending' as const,
       discovery_batch_id: batchId,
     }));
@@ -589,6 +613,23 @@ export async function approveCandidate(
     await enrichZoneCoverage(newZone.id);
     await enrichZoneDemographics(newZone.id);
 
+    // Tag with campaign and generate SEO slug
+    try {
+      await tagZoneWithCampaign(newZone.id);
+
+      const slug = generateSlug(
+        candidate.ward_name ?? candidate.suggested_zone_name,
+        candidate.province
+      );
+      await supabase
+        .from('sales_zones')
+        .update({ seo_slug: slug })
+        .eq('id', newZone.id);
+    } catch (tagError) {
+      // Campaign tagging is supplementary — don't block zone creation
+      console.warn(`[ZoneDiscovery] Campaign tagging failed for zone ${newZone.id}:`, tagError);
+    }
+
     // Update candidate status
     await supabase
       .from('zone_discovery_candidates')
@@ -724,6 +765,116 @@ export async function expireOldCandidates(): Promise<
     }
 
     return { data: { expired: count ?? 0 }, error: null };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { data: null, error: message };
+  }
+}
+
+// =============================================================================
+// Auto-Processing
+// =============================================================================
+
+/**
+ * Automatically approve or reject all pending candidates in a batch
+ * based on composite_score thresholds:
+ *   >= 70 → auto_approved_high (priority: high)
+ *   50-69 → auto_approved_passive (priority: low)
+ *   < 50  → rejected
+ */
+export async function autoProcessDiscoveryCandidates(
+  batchId: string
+): Promise<ServiceResult<{
+  auto_approved_high: number;
+  auto_approved_passive: number;
+  auto_rejected: number;
+  errors: string[];
+}>> {
+  try {
+    const supabase = await createClient();
+
+    // Fetch pending candidates for this batch, highest score first
+    const { data: candidates, error: fetchError } = await supabase
+      .from('zone_discovery_candidates')
+      .select('*')
+      .eq('discovery_batch_id', batchId)
+      .eq('status', 'pending')
+      .order('composite_score', { ascending: false });
+
+    if (fetchError) {
+      return { data: null, error: `Failed to fetch candidates: ${fetchError.message}` };
+    }
+
+    if (!candidates || candidates.length === 0) {
+      return {
+        data: { auto_approved_high: 0, auto_approved_passive: 0, auto_rejected: 0, errors: [] },
+        error: null,
+      };
+    }
+
+    let auto_approved_high = 0;
+    let auto_approved_passive = 0;
+    let auto_rejected = 0;
+    const errors: string[] = [];
+
+    for (const candidate of candidates) {
+      try {
+        const score = candidate.composite_score;
+        let auto_decision: string;
+
+        if (score >= 70) {
+          const result = await approveCandidate(candidate.id, { priority: 'high' }, 'system-auto');
+          if (result.error) {
+            errors.push(`[${candidate.id}] approve-high failed: ${result.error}`);
+            continue;
+          }
+          auto_decision = 'auto_approved_high';
+          auto_approved_high++;
+          console.log(`[ZoneDiscovery] Auto-approved HIGH (score ${score}): ${candidate.suggested_zone_name}`);
+        } else if (score >= 50) {
+          const result = await approveCandidate(candidate.id, { priority: 'low' }, 'system-auto');
+          if (result.error) {
+            errors.push(`[${candidate.id}] approve-passive failed: ${result.error}`);
+            continue;
+          }
+          auto_decision = 'auto_approved_passive';
+          auto_approved_passive++;
+          console.log(`[ZoneDiscovery] Auto-approved PASSIVE (score ${score}): ${candidate.suggested_zone_name}`);
+        } else {
+          const result = await rejectCandidate(candidate.id, 'Score below 50 threshold (auto-rejected)');
+          if (result.error) {
+            errors.push(`[${candidate.id}] reject failed: ${result.error}`);
+            continue;
+          }
+          auto_decision = 'rejected';
+          auto_rejected++;
+          console.log(`[ZoneDiscovery] Auto-rejected (score ${score}): ${candidate.suggested_zone_name}`);
+        }
+
+        // Record the auto-decision metadata
+        await supabase
+          .from('zone_discovery_candidates')
+          .update({
+            auto_decision,
+            auto_decided_at: new Date().toISOString(),
+          })
+          .eq('id', candidate.id);
+      } catch (candidateError) {
+        const msg = candidateError instanceof Error ? candidateError.message : String(candidateError);
+        errors.push(`[${candidate.id}] unexpected error: ${msg}`);
+        console.error(`[ZoneDiscovery] Auto-process error for ${candidate.id}:`, candidateError);
+      }
+    }
+
+    console.log(
+      `[ZoneDiscovery] Auto-processing complete for batch ${batchId}: ` +
+      `${auto_approved_high} high, ${auto_approved_passive} passive, ${auto_rejected} rejected, ${errors.length} errors`
+    );
+
+    return {
+      data: { auto_approved_high, auto_approved_passive, auto_rejected, errors },
+      error: null,
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return { data: null, error: message };

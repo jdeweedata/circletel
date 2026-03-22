@@ -99,6 +99,49 @@ export interface DailyBriefing {
 }
 
 // =============================================================================
+// Sniper Briefing Types
+// =============================================================================
+
+export interface SniperTarget {
+  zone_id: string;
+  zone_name: string;
+  zone_type: string;
+  suburb: string | null;
+  province: string;
+  composite_score: number;
+  routing: 'tarana_primary' | 'arlan_primary' | 'dual_funnel';
+  campaign_tag: string | null;
+  campaign_name: string | null;
+  rationale: string[];
+  primary_product: string;
+  arlan_deal_categories: string[];
+  estimated_zone_mrr: number;
+  demand_signal_count: number;
+  demand_checks_last_7d: number;
+  unworked_leads: number;
+  open_deals: number;
+  stalled_deals: number;
+  coverage_confidence: string | null;
+  business_poi_density: number;
+  pct_no_internet: number;
+  competitors_present: number;
+}
+
+export interface ArlanWeeklyTargets {
+  data_connectivity: { target: number; current: number };
+  backup_connectivity: { target: number; current: number };
+  iot_m2m: { target: number; current: number };
+  fleet_management: { target: number; current: number };
+  made_for_business: { target: number; current: number };
+}
+
+export interface WeeklyBriefing extends DailyBriefing {
+  sniper_targets: SniperTarget[];
+  arlan_weekly_targets: ArlanWeeklyTargets;
+  weekly_focus_summary: string;
+}
+
+// =============================================================================
 // Briefing Aggregation
 // =============================================================================
 
@@ -441,6 +484,229 @@ export async function getDailyBriefing(): Promise<{
     };
 
     return { data: briefing, error: null };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { data: null, error: message };
+  }
+}
+
+// =============================================================================
+// Weekly Sniper Briefing
+// =============================================================================
+
+/**
+ * Get the weekly sniper briefing — extends the daily briefing with
+ * top-scored zone targets, Arlan category targets, and a focus summary.
+ */
+export async function getWeeklyBriefing(): Promise<{
+  data: WeeklyBriefing | null;
+  error: string | null;
+}> {
+  try {
+    // 1. Get the daily briefing as the base
+    const dailyResult = await getDailyBriefing();
+    if (dailyResult.error || !dailyResult.data) {
+      return { data: null, error: dailyResult.error ?? 'Failed to load daily briefing' };
+    }
+
+    const supabase = await createClient();
+    const { CAMPAIGN_DEFINITIONS } = await import('./campaign-service');
+
+    // 2. Fetch top 5 active zones by enriched_zone_score
+    const { data: topZones, error: zonesError } = await supabase
+      .from('sales_zones')
+      .select(
+        'id, name, zone_type, suburb, province, zone_score, coverage_confidence, ' +
+        'base_station_count, dfa_connected_count, business_poi_density, pct_no_internet, ' +
+        'propensity_score, campaign_tag, arlan_routing, demand_signal_count, ' +
+        'enriched_zone_score, coverage_score'
+      )
+      .gt('enriched_zone_score', 0)
+      .order('enriched_zone_score', { ascending: false })
+      .limit(5);
+
+    if (zonesError) {
+      return { data: null, error: `Failed to fetch top zones: ${zonesError.message}` };
+    }
+
+    type ZoneRow = {
+      id: string;
+      name: string;
+      zone_type: string;
+      suburb: string | null;
+      province: string;
+      zone_score: number;
+      coverage_confidence: string | null;
+      base_station_count: number;
+      dfa_connected_count: number;
+      business_poi_density: number;
+      pct_no_internet: number;
+      propensity_score: number;
+      campaign_tag: string | null;
+      arlan_routing: 'tarana_primary' | 'arlan_primary' | 'dual_funnel';
+      demand_signal_count: number;
+      enriched_zone_score: number;
+      coverage_score: number;
+    };
+
+    const zones = (topZones ?? []) as unknown as ZoneRow[];
+    const now = Date.now();
+
+    // 3. Build sniper targets for each zone
+    const sniperTargets: SniperTarget[] = [];
+
+    for (const zone of zones) {
+      // Count unworked leads in this zone
+      const { count: unworkedLeadCount } = await supabase
+        .from('lead_scores')
+        .select('id', { count: 'exact', head: true })
+        .eq('zone_id', zone.id);
+
+      // Fetch open pipeline deals for this zone
+      const { data: zoneOpenDeals } = await supabase
+        .from('sales_pipeline_stages')
+        .select('id, stage, stage_entered_at, day_target')
+        .eq('zone_id', zone.id)
+        .not('stage', 'in', '("installed_active","lost")');
+
+      const openDealsList = zoneOpenDeals ?? [];
+      const openDealCount = openDealsList.length;
+
+      // Count stalled deals (days_stuck > stage target)
+      const stalledCount = openDealsList.filter((d) => {
+        const dayTarget =
+          d.day_target ??
+          PIPELINE_STAGE_DAY_TARGETS[d.stage as PipelineStage] ??
+          7;
+        const daysStuck = Math.floor(
+          (now - new Date(d.stage_entered_at).getTime()) / 86400000
+        );
+        return daysStuck > dayTarget;
+      }).length;
+
+      // Look up campaign name from definitions
+      const campaignDef = zone.campaign_tag
+        ? CAMPAIGN_DEFINITIONS.find((c) => c.tag === zone.campaign_tag)
+        : null;
+
+      // Build rationale array from actual data
+      const rationale: string[] = [];
+      if (zone.demand_signal_count > 0) {
+        rationale.push(`${zone.demand_signal_count} demand signals detected`);
+      }
+      if ((unworkedLeadCount ?? 0) > 0) {
+        rationale.push(`${unworkedLeadCount} unworked leads awaiting contact`);
+      }
+      if (zone.campaign_tag && campaignDef) {
+        rationale.push(`Active campaign: ${campaignDef.name}`);
+      }
+      if (zone.pct_no_internet > 30) {
+        rationale.push(`${zone.pct_no_internet.toFixed(0)}% without internet — greenfield opportunity`);
+      }
+      if (zone.business_poi_density > 10) {
+        rationale.push(`High business density: ${zone.business_poi_density.toFixed(0)} POIs`);
+      }
+      if (zone.coverage_confidence === 'high') {
+        rationale.push('High coverage confidence — ready for deployment');
+      }
+
+      // Determine primary product and Arlan deal categories from campaign or routing
+      const primaryProduct = campaignDef?.primary_product ??
+        (zone.arlan_routing === 'tarana_primary'
+          ? 'SkyFibre SMB 100/25'
+          : zone.arlan_routing === 'arlan_primary'
+            ? 'Arlan Data Connectivity'
+            : 'SkyFibre + Arlan Bundle');
+
+      const arlanDealCategories = campaignDef?.arlan_deal_categories ?? [];
+
+      // Competitor context — enrich rationale with competition data
+      let competitorsPresent = 0;
+      try {
+        const { getCompetitorSummaryForZone } = await import(
+          './competitor-zone-mapping-service'
+        );
+        const compResult = await getCompetitorSummaryForZone(zone.id);
+        if (compResult.data) {
+          competitorsPresent = compResult.data.competitors.filter(
+            (c) => c.has_coverage
+          ).length;
+          if (competitorsPresent <= 2) {
+            rationale.push(
+              `Only ${competitorsPresent} competitor${competitorsPresent === 1 ? '' : 's'} present — weak competition`
+            );
+          } else if (competitorsPresent >= 4) {
+            rationale.push(
+              `${competitorsPresent} competitors — competitive area, lead with price`
+            );
+          } else {
+            rationale.push(
+              `${competitorsPresent} competitors present — moderate competition`
+            );
+          }
+        }
+      } catch {
+        // Competitor data is supplementary — don't fail the briefing
+      }
+
+      // Estimate zone MRR based on unworked leads and propensity
+      const estimatedZoneMrr =
+        (unworkedLeadCount ?? 0) * (zone.propensity_score ?? 0.3) * 1299;
+
+      sniperTargets.push({
+        zone_id: zone.id,
+        zone_name: zone.name,
+        zone_type: zone.zone_type,
+        suburb: zone.suburb,
+        province: zone.province,
+        composite_score: zone.enriched_zone_score,
+        routing: zone.arlan_routing ?? 'dual_funnel',
+        campaign_tag: zone.campaign_tag,
+        campaign_name: campaignDef?.name ?? null,
+        rationale,
+        primary_product: primaryProduct,
+        arlan_deal_categories: arlanDealCategories,
+        estimated_zone_mrr: Math.round(estimatedZoneMrr),
+        demand_signal_count: zone.demand_signal_count ?? 0,
+        demand_checks_last_7d: 0, // Requires spatial join — populated by enrichment jobs
+        unworked_leads: unworkedLeadCount ?? 0,
+        open_deals: openDealCount,
+        stalled_deals: stalledCount,
+        coverage_confidence: zone.coverage_confidence,
+        business_poi_density: zone.business_poi_density ?? 0,
+        pct_no_internet: zone.pct_no_internet ?? 0,
+        competitors_present: competitorsPresent,
+      });
+    }
+
+    // 4. Build Arlan weekly targets (PR #473 strategy)
+    const arlanWeeklyTargets: ArlanWeeklyTargets = {
+      data_connectivity: { target: 3, current: 0 },
+      backup_connectivity: { target: 2, current: 0 },
+      iot_m2m: { target: 2, current: 0 },
+      fleet_management: { target: 1, current: 0 },
+      made_for_business: { target: 2, current: 0 },
+    };
+
+    // 5. Build deterministic focus summary
+    const topTarget = sniperTargets[0];
+    const weeklyFocusSummary = topTarget
+      ? `This week focus on ${topTarget.zone_name} (${topTarget.province}) — ` +
+        `score ${topTarget.composite_score.toFixed(0)}, ` +
+        `${topTarget.unworked_leads} unworked leads, ` +
+        `routing: ${topTarget.routing.replace(/_/g, ' ')}. ` +
+        `Primary product: ${topTarget.primary_product}.`
+      : 'No active zones with enriched scores — run zone enrichment first.';
+
+    // 6. Combine into WeeklyBriefing
+    const weeklyBriefing: WeeklyBriefing = {
+      ...dailyResult.data,
+      sniper_targets: sniperTargets,
+      arlan_weekly_targets: arlanWeeklyTargets,
+      weekly_focus_summary: weeklyFocusSummary,
+    };
+
+    return { data: weeklyBriefing, error: null };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return { data: null, error: message };

@@ -48,6 +48,14 @@ export interface SalesZone {
   pct_income_target: number;
   propensity_score: number;
   demographic_enriched_at: string | null;
+  // Sniper engine fields
+  campaign_tag: string | null;
+  campaign_tagged_at: string | null;
+  arlan_routing: 'tarana_primary' | 'arlan_primary' | 'dual_funnel';
+  seo_slug: string | null;
+  demand_signal_count: number;
+  vertical_composition: Record<string, number> | null;
+  commercial_property_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -68,6 +76,9 @@ export interface CreateZoneInput {
   province?: string;
   suburb?: string;
   notes?: string;
+  campaign_tag?: string;
+  arlan_routing?: 'tarana_primary' | 'arlan_primary' | 'dual_funnel';
+  seo_slug?: string;
 }
 
 export interface UpdateZoneInput extends Partial<CreateZoneInput> {
@@ -529,6 +540,11 @@ export interface ZoneDiscoveryCandidate {
   rejection_reason: string | null;
   // Batch
   discovery_batch_id: string;
+  // Sniper engine fields
+  auto_decision: 'auto_approved_high' | 'auto_approved_passive' | 'rejected' | null;
+  auto_decided_at: string | null;
+  campaign_tag: string | null;
+  arlan_only_zone: boolean;
   created_at: string;
   updated_at: string;
 }
