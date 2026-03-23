@@ -72,7 +72,6 @@ const withPWA = require('next-pwa')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   // Disable source maps in production to reduce memory
   productionBrowserSourceMaps: false,
   eslint: {
@@ -101,8 +100,8 @@ const nextConfig = {
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
-    // Use 2 cores for faster builds (8GB machine can handle it)
-    cpus: 2,
+    // Use 1 core to reduce memory during builds (8GB machine OOMs with 2)
+    cpus: 1,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports
