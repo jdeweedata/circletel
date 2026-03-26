@@ -100,8 +100,8 @@ const nextConfig = {
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
-    // Use 2 cores with reduced heap (5GB heap + 3GB OS headroom = 8GB)
-    cpus: 2,
+    // Use 1 core to reduce memory during builds (8GB machine OOMs with 2)
+    cpus: 1,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports

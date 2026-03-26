@@ -96,8 +96,8 @@ export const taranaSyncFunction = inngest.createFunction(
         .from('tarana_sync_logs')
         .insert({
           status: 'running',
-          triggered_by: triggeredBy,
-          triggered_by_user_id: adminUserId || null,
+          trigger_type: triggeredBy,
+          triggered_by: adminUserId || null,
           started_at: new Date().toISOString(),
         })
         .select('id')
@@ -136,13 +136,12 @@ export const taranaSyncFunction = inngest.createFunction(
           .from('tarana_sync_logs')
           .update({
             status: 'completed',
-            records_fetched: baseNodes.length,
-            records_inserted: 0,
-            records_updated: 0,
-            records_deleted: 0,
+            stations_fetched: baseNodes.length,
+            inserted: 0,
+            updated: 0,
+            deleted: 0,
             duration_ms: duration,
             completed_at: new Date().toISOString(),
-            metadata: { dryRun: true },
           })
           .eq('id', syncLogId);
 
@@ -336,11 +335,11 @@ export const taranaSyncFunction = inngest.createFunction(
         .from('tarana_sync_logs')
         .update({
           status: hasErrors ? 'completed_with_errors' : 'completed',
-          records_fetched: baseNodes.length,
-          records_inserted: inserted,
-          records_updated: updated,
-          records_deleted: deleted,
-          error_message: hasErrors ? errors.slice(0, 10).join('; ') : null,
+          stations_fetched: baseNodes.length,
+          inserted,
+          updated,
+          deleted,
+          errors: hasErrors ? errors.slice(0, 10) : [],
           duration_ms: duration,
           completed_at: new Date().toISOString(),
         })
@@ -444,9 +443,9 @@ export const taranaSyncFailedFunction = inngest.createFunction(
         .from('tarana_sync_logs')
         .update({
           status: 'failed',
-          error_message: error,
+          errors: [error],
+          attempt,
           completed_at: new Date().toISOString(),
-          metadata: { failedAttempt: attempt },
         })
         .eq('id', sync_log_id);
 
