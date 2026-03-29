@@ -4,7 +4,7 @@
  * Marks expired tunnels as 'expired' to keep slot count accurate.
  * Handles cases where admin closes browser without clicking Disconnect.
  *
- * Schedule: Every 15 minutes
+ * Schedule: Every 60 minutes (reduced from 15min to stay within Inngest free tier)
  */
 
 import { inngest } from '../client';
@@ -26,7 +26,7 @@ export const ruijieTunnelCleanupFunction = inngest.createFunction(
     name: 'Ruijie Tunnel Cleanup',
     retries: 2,
   },
-  { cron: '*/15 * * * *' },
+  { cron: '0 * * * *' },
   async ({ step }) => {
     const expiredCount = await step.run('expire-stale-tunnels', async () => {
       const count = await expireStaleTunnels();

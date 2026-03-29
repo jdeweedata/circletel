@@ -7,7 +7,7 @@
  * - Dual triggers: scheduled cron and manual event
  * - Progress tracking via ruijie_sync_logs table
  *
- * Schedule: Every 5 minutes
+ * Schedule: Every 30 minutes (reduced from 5min to stay within Inngest free tier)
  */
 
 import { inngest } from '../client';
@@ -45,8 +45,8 @@ export const ruijieSyncFunction = inngest.createFunction(
     ],
   },
   [
-    // Cron trigger: every 5 minutes
-    { cron: '*/5 * * * *' },
+    // Cron trigger: every 30 minutes (reduced to stay within Inngest free tier)
+    { cron: '*/30 * * * *' },
     // Event trigger: manual requests
     { event: 'ruijie/sync.requested' },
   ],

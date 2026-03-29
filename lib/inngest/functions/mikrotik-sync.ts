@@ -7,7 +7,7 @@
  * - Dual triggers: scheduled cron and manual event
  * - Progress tracking via mikrotik_sync_logs table
  *
- * Schedule: Every 5 minutes
+ * Schedule: Every 30 minutes (reduced from 5min to stay within Inngest free tier)
  *
  * @module lib/inngest/functions/mikrotik-sync
  */
@@ -38,8 +38,8 @@ export const mikrotikSyncFunction = inngest.createFunction(
     ],
   },
   [
-    // Cron trigger: every 5 minutes
-    { cron: '*/5 * * * *' },
+    // Cron trigger: every 30 minutes (reduced to stay within Inngest free tier)
+    { cron: '*/30 * * * *' },
     // Event trigger: manual requests
     { event: 'mikrotik/sync.requested' },
   ],
