@@ -423,9 +423,9 @@ async function logCronExecution(
     await supabase.from('cron_execution_log').insert({
       job_name: 'paynow-reconciliation',
       status: result.errors.length > 0 ? 'completed_with_errors' : 'completed',
-      started_at: new Date(Date.now() - result.durationMs).toISOString(),
-      completed_at: new Date().toISOString(),
-      result: {
+      execution_start: new Date(Date.now() - result.durationMs).toISOString(),
+      execution_end: new Date().toISOString(),
+      execution_details: {
         ...result,
         reconciliation_date: dateStr,
       },

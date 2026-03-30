@@ -122,7 +122,9 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
       id,
       order_number,
       customer_id,
-      total_amount,
+      package_price,
+      installation_fee,
+      router_fee,
       payment_status,
       payment_method,
       created_at
@@ -148,10 +150,12 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
   if (pendingOrders) {
     for (const order of pendingOrders) {
       const ref = order.order_number;
+      // Compute total from available columns (total_amount doesn't exist in consumer_orders)
+      const orderTotal = Number(order.package_price || 0) + Number(order.installation_fee || 0) + Number(order.router_fee || 0);
       references.push(ref);
       references.push(`PAY-${ref}`);
-      referenceMap.set(ref.toLowerCase(), { type: 'order', id: order.id, amount: order.total_amount });
-      referenceMap.set(`pay-${ref}`.toLowerCase(), { type: 'order', id: order.id, amount: order.total_amount });
+      referenceMap.set(ref.toLowerCase(), { type: 'order', id: order.id, amount: orderTotal });
+      referenceMap.set(`pay-${ref}`.toLowerCase(), { type: 'order', id: order.id, amount: orderTotal });
     }
   }
 
@@ -326,9 +330,9 @@ async function logReconciliation(
       .insert({
         job_name: 'payment-reconciliation',
         status: result.errors.length > 0 ? 'completed_with_errors' : 'completed',
-        started_at: new Date().toISOString(),
-        completed_at: new Date().toISOString(),
-        result: result,
+        execution_start: new Date().toISOString(),
+        execution_end: new Date().toISOString(),
+        execution_details: result,
       });
   } catch (error) {
     cronLogger.error('Failed to log reconciliation', { error: error instanceof Error ? error.message : String(error) });
