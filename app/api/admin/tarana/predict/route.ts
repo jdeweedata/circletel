@@ -32,16 +32,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ prediction: null, message: 'No base stations within range' });
     }
 
-    // Fetch BN coordinates for map display
+    // Fetch BN coordinates + network topology for map display and UI
     const { data: bn } = await supabase
       .from('tarana_base_stations')
-      .select('lat, lng')
+      .select('lat, lng, cell_name, sector_name, market_id, site_id')
       .eq('serial_number', prediction.nearestBnSerial)
       .single();
 
     return NextResponse.json({
       prediction,
       baseStation: bn ? { lat: Number(bn.lat), lng: Number(bn.lng) } : null,
+      networkInfo: bn ? {
+        regionName: 'South Africa',
+        marketId: bn.market_id ?? null,
+        siteName: prediction.nearestBnSiteName,
+        cellName: bn.cell_name ?? null,
+        sectorName: bn.sector_name ?? null,
+      } : null,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

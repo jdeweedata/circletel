@@ -11,6 +11,7 @@ import CoverageVerdictCard from './components/CoverageVerdictCard';
 import SalesRecommendationCard from './components/SalesRecommendationCard';
 import CoverageMap from './components/CoverageMap';
 import TechnicalDetailsPanel from './components/TechnicalDetailsPanel';
+import TierEligibilityTable from './components/TierEligibilityTable';
 import RecentChecksPanel, { saveRecentCheck } from './components/RecentChecksPanel';
 import {
   PiRulerBold, PiLightningBold, PiGaugeBold, PiCheckCircleBold,
@@ -36,9 +37,18 @@ const QUALITY_VARIANT: Record<string, 'success' | 'warning' | 'error' | 'neutral
   excellent: 'success', good: 'success', fair: 'warning', poor: 'error', none: 'neutral',
 };
 
+interface NetworkInfo {
+  regionName: string;
+  marketId: number | null;
+  siteName: string;
+  cellName: string | null;
+  sectorName: string | null;
+}
+
 interface CheckResult {
   prediction: CoveragePrediction | null;
   baseStation: { lat: number; lng: number } | null;
+  networkInfo: NetworkInfo | null;
   address: string;
   lat: number;
   lng: number;
@@ -77,12 +87,14 @@ export default function CoverageCheckerPage() {
       const data = await res.json() as {
         prediction: CoveragePrediction | null;
         baseStation: { lat: number; lng: number } | null;
+        networkInfo: NetworkInfo | null;
         message?: string;
       };
 
       const checkResult: CheckResult = {
         prediction: data.prediction,
         baseStation: data.baseStation ?? null,
+        networkInfo: data.networkInfo ?? null,
         address,
         lat,
         lng,
@@ -114,6 +126,18 @@ export default function CoverageCheckerPage() {
   }, [result]);
 
   const prediction = result?.prediction ?? null;
+
+  function getMcsLevel(rssi: number): number {
+    if (rssi >= -65)   return 16;
+    if (rssi >= -68)   return 15;
+    if (rssi >= -70.4) return 12;
+    if (rssi >= -73)   return 10;
+    if (rssi >= -75.4) return 9;
+    if (rssi >= -79.7) return 6;
+    if (rssi >= -82)   return 4;
+    if (rssi >= -85.8) return 2;
+    return 0;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -183,7 +207,7 @@ export default function CoverageCheckerPage() {
                 icon={<PiLightningBold />}
                 label="Signal Level"
                 value={`${prediction.predictedRxPowerDbm.toFixed(0)} dBm`}
-                subtitle={QUALITY_LABEL[prediction.signalQuality] ?? '—'}
+                subtitle={`MCS ${getMcsLevel(prediction.predictedRxPowerDbm)} · ${QUALITY_LABEL[prediction.signalQuality] ?? '—'}`}
                 iconBgColor="bg-orange-50"
                 iconColor="text-orange-500"
               />
@@ -244,6 +268,9 @@ export default function CoverageCheckerPage() {
           {result && !isLoading && (
             <div className="space-y-4">
               <CoverageVerdictCard prediction={result.prediction} />
+              {result.prediction && (
+                <TierEligibilityTable prediction={result.prediction} />
+              )}
               <SalesRecommendationCard prediction={result.prediction} />
               <CoverageMap
                 targetLat={result.lat}
@@ -271,6 +298,7 @@ export default function CoverageCheckerPage() {
               prediction={result.prediction}
               bnLat={result.baseStation?.lat ?? null}
               bnLng={result.baseStation?.lng ?? null}
+              networkInfo={result.networkInfo}
             />
           ) : (
             <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center">
