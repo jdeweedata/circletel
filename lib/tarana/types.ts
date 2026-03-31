@@ -62,13 +62,11 @@ export interface TaranaRadioSearchQuery {
   }>;
   conditions?: Array<{
     logicalOperator: 'AND' | 'OR';
+    // Leaf conditions: { field, operation, values } — the 'type: hierarchy' wrapper is invalid
     conditions: Array<{
-      type: 'hierarchy' | 'field';
-      conditions?: Array<{
-        field: string;
-        operation: 'EXIST' | 'EQ' | 'IN';
-        values: any[];
-      }>;
+      field: string;
+      operation: 'EXIST' | 'EQ' | 'IN';
+      values: any[];
     }>;
   }>;
 }

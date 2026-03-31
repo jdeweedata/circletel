@@ -104,49 +104,36 @@ export async function searchRadios(
     offset = 0,
   } = options;
 
+  // TMQ v1 condition format: leaf = { field, operation, values }
+  // The 'type: hierarchy' wrapper was causing INVALID_FILTER — use direct leaf conditions.
+  const leafConditions: Array<{ field: string; operation: 'EXIST' | 'EQ' | 'IN'; values: any[] }> = [{
+    field: 'regionId',
+    operation: 'EXIST',
+    values: regionIds,
+  }];
+
+  if (marketIds && marketIds.length > 0) {
+    leafConditions.push({
+      field: 'marketId',
+      operation: 'EXIST',
+      values: marketIds,
+    });
+  }
+
   const query: TaranaRadioSearchQuery = {
     deviceType,
     pagination: { offset, limit },
     sort: [{ field: 'deviceId', direction: 'ASC' }],
     conditions: [{
       logicalOperator: 'AND',
-      conditions: [{
-        type: 'hierarchy',
-        conditions: [{
-          field: 'regionId',
-          operation: 'EXIST',
-          values: regionIds,
-        }],
-      }],
+      conditions: leafConditions,
     }],
   };
 
-  // Add market filter if specified
-  if (marketIds && marketIds.length > 0) {
-    query.conditions![0].conditions.push({
-      type: 'hierarchy',
-      conditions: [{
-        field: 'marketId',
-        operation: 'IN',
-        values: marketIds,
-      }],
-    });
-  }
-
-  const body = {
-    query,
-    outputSchema: {
-      deviceFields: [
-        '/system/install/state/latitude',
-        '/system/install/state/longitude',
-        '/system/install/state/height',
-        '/system/install/state/azimuth',
-        '/radios/regulatory/state/band',
-        '/system/state/hostname',
-        '/system/cloud/history/state/first-seen-timestamp',
-      ],
-    },
-  };
+  // No outputSchema — base response already includes serialNumber, deviceType, hierarchy,
+  // and install params. Adding outputSchema.deviceFields causes "KPIs should match device type"
+  // errors when mixing BN/RN-specific YANG paths.
+  const body = { query };
 
   const response = await taranaFetch<any>(
     '/api/tmq/v1/radios/search',

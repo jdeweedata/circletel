@@ -153,24 +153,31 @@ export async function collectLinkMetrics(): Promise<CollectLinkMetricsResult> {
       distanceM = Math.round(haversineDistanceM(rnLat, rnLng, bnLat, bnLng));
     }
 
-    const txPower = rn.carriers?.[0]?.txPower ?? null;
+    const carrier0 = rn.carriers?.[0] ?? null;
+    const txPower = carrier0?.txPower ?? null;
+    // rxPower from carriers[0] IS the per-RN received signal strength (RSSI equivalent).
+    // Confirmed available in NQS v1 device state — see tarana-tcs-api-correction learnings.
+    const rxPower = carrier0?.rxPower ?? null;
+    // losRange = radio-measured LOS distance in metres (more accurate than haversine).
+    const rfDistanceM = typeof rn.losRange === 'number' && rn.losRange > 0
+      ? rn.losRange
+      : null;
 
     const snapshot: Record<string, unknown> = {
       rn_serial_number: rn.serialNumber,
       bn_serial_number: bnSerial,
       captured_at: capturedAt,
-      // Signal fields — NQS v1 doesn't expose RSSI/SINR/MCS directly; null until a
-      // richer endpoint is confirmed. losRange is the key empirical signal we do have.
-      rssi_dbm: null,
-      sinr_db: null,
-      noise_floor_dbm: null,
+      rssi_dbm: typeof rxPower === 'number' ? rxPower : null,
+      sinr_db: null,             // Not exposed by NQS v1
+      noise_floor_dbm: null,     // Not exposed by NQS v1
       tx_power_dbm: typeof txPower === 'number' ? txPower : null,
-      rx_power_dbm: null,
-      mcs_dl: null,
+      rx_power_dbm: typeof rxPower === 'number' ? rxPower : null,
+      mcs_dl: null,              // Not a TCS KPI field — derived from path loss + SINR
       mcs_ul: null,
-      throughput_dl_mbps: null,
+      throughput_dl_mbps: null,  // TMQ v5 dl-subscriber-rate returns 0 data points
       throughput_ul_mbps: null,
       distance_m: distanceM,
+      rf_distance_m: rfDistanceM,
       rn_lat: rnLat ?? null,
       rn_lng: rnLng ?? null,
       rn_height_m: rn.installParams?.height ?? null,
@@ -178,7 +185,6 @@ export async function collectLinkMetrics(): Promise<CollectLinkMetricsResult> {
       bn_lng: bnLng,
       bn_height_m: bnHeightM,
       link_status: rn.linkState ?? null,
-      // Preserve full device state for future field extraction
       raw_fields: {
         losRange: rn.losRange,
         linkState: rn.linkState,
