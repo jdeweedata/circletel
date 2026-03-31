@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { inngest } from '@/lib/inngest/client';
 
 // GET /api/admin/tarana/metrics?serial=X&from=ISO&to=ISO&limit=100
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const sessionClient = await createClientWithSession();
+  const { data: { user } } = await sessionClient.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  const supabase = await createClient();
   const { data: admin } = await supabase
     .from('admin_users')
     .select('id')
@@ -40,10 +41,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/tarana/metrics — trigger manual collection
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const sessionClient = await createClientWithSession();
+  const { data: { user } } = await sessionClient.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  const supabase = await createClient();
   const { data: admin } = await supabase
     .from('admin_users')
     .select('id')
