@@ -108,6 +108,8 @@ All detailed patterns are in `.claude/rules/`:
 | `undocumented-api-debugging.md` | Browser-first API inspection, cookie vs Bearer auth, Istio gateway signals |
 | `product-economics.md` | Unit economics, channel comparison, COS floor, commission tiers |
 | `margin-guardrails.md` | Min margins, discount approval, pricing rules, MSC-aware pricing |
+| `admin-shared-components.md` | StatusBadge/StatCard/SectionCard prop interfaces — verified signatures |
+| `vercel-deployment.md` | Manual deployment trigger API, monitoring, CircleTel project IDs |
 
 ---
 
