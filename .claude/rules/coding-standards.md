@@ -145,15 +145,26 @@ const headers = {
 
 ```json
 // vercel.json
-// ✅ CORRECT: 8GB heap (this project requires it)
-"buildCommand": "NODE_OPTIONS='--max-old-space-size=8192' next build"
+// ✅ CORRECT: 6GB heap + cpus:1 (verified working on Vercel 8GB build machines)
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=6144' next build"
+
+// ❌ WRONG: 5GB + cpus:2 causes OOM (main + 2 workers + OS exceeds 8GB)
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=5120' next build"  // with cpus:2
 
 // ❌ WRONG: gc-interval is NOT allowed in NODE_OPTIONS
-"buildCommand": "NODE_OPTIONS='--max-old-space-size=8192 --gc-interval=100' next build"
-
-// ❌ WRONG: 4GB causes OOM on this project
-"buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' next build"
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=6144 --gc-interval=100' next build"
 ```
+
+**Why 6144 + cpus:1 (not 8192):**
+Vercel build machines have 8GB total RAM. Memory budget:
+- Main Node process: up to 6144MB
+- 1 webpack worker (cpus:1): ~1–1.5GB
+- OS overhead: ~0.5GB
+- Total: ~8GB ✅
+
+With cpus:2, two workers add ~3GB pushing total over 8GB → SIGABRT.
+
+**CRITICAL**: These values are enforced by `.github/workflows/pr-checks.yml`. Any PR that lowers heap below 6144MB or raises cpus above 1 will fail the `validate-build-config` check and block the merge.
 
 **Allowed in NODE_OPTIONS**:
 - `--max-old-space-size=<MB>` - Set heap memory limit
@@ -172,7 +183,7 @@ For large Next.js projects, use these in `next.config.js`:
 experimental: {
   optimizePackageImports: ['large-lib1', 'large-lib2'],
   workerThreads: false,
-  cpus: 1,
+  cpus: 1,  // CRITICAL: keep at 1 — see Vercel Build Configuration above
 }
 ```
 

@@ -1,0 +1,94 @@
+{
+  "verification_metrics": {
+    "period": "2026-03",
+    "by_type": {
+      "type-check": {
+        "total_sessions": 0,
+        "pass_at_1": 0,
+        "pass_at_3": 0,
+        "pass_at_5_plus": 0,
+        "avg_attempts": 0,
+        "fix_categories": {
+          "code": 0,
+          "config": 0,
+          "dependency": 0,
+          "test": 0
+        }
+      },
+      "build": {
+        "total_sessions": 0,
+        "pass_at_1": 0,
+        "pass_at_3": 0,
+        "pass_at_5_plus": 0,
+        "avg_attempts": 0,
+        "fix_categories": {
+          "code": 0,
+          "config": 0,
+          "dependency": 0,
+          "test": 0
+        }
+      },
+      "unit-test": {
+        "total_sessions": 0,
+        "pass_at_1": 0,
+        "pass_at_3": 0,
+        "pass_at_5_plus": 0,
+        "avg_attempts": 0,
+        "fix_categories": {
+          "code": 0,
+          "config": 0,
+          "dependency": 0,
+          "test": 0
+        }
+      },
+      "e2e": {
+        "total_sessions": 0,
+        "pass_at_1": 0,
+        "pass_at_3": 0,
+        "pass_at_5_plus": 0,
+        "avg_attempts": 0,
+        "fix_categories": {
+          "code": 0,
+          "config": 0,
+          "dependency": 0,
+          "test": 0
+        }
+      },
+      "lint": {
+        "total_sessions": 0,
+        "pass_at_1": 0,
+        "pass_at_3": 0,
+        "pass_at_5_plus": 0,
+        "avg_attempts": 0,
+        "fix_categories": {
+          "code": 0,
+          "config": 0,
+          "dependency": 0,
+          "test": 0
+        }
+      },
+      "manual": {
+        "total_sessions": 0,
+        "pass_at_1": 0,
+        "pass_at_3": 0,
+        "pass_at_5_plus": 0,
+        "avg_attempts": 0,
+        "fix_categories": {
+          "code": 0,
+          "config": 0,
+          "dependency": 0,
+          "test": 0
+        }
+      }
+    },
+    "weekly_trend": [],
+    "targets": {
+      "type-check": { "pass_at_1": 0.90 },
+      "build": { "pass_at_1": 0.85 },
+      "unit-test": { "pass_at_1": 0.75 },
+      "e2e": { "pass_at_1": 0.60 },
+      "lint": { "pass_at_1": 0.95 },
+      "manual": { "pass_at_1": 0.80 }
+    }
+  }
+}

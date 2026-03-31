@@ -27,8 +27,10 @@ This skill activates when you:
 | Command | Description |
 |---------|-------------|
 | `/stats` | View usage stats, streak, favorite model |
-| `/stats skills` | **NEW**: View skill effectiveness dashboard |
-| `/stats skills [name]` | **NEW**: Deep-dive on specific skill |
+| `/stats skills` | View skill effectiveness dashboard |
+| `/stats skills [name]` | Deep-dive on specific skill |
+| `/stats verification` | **NEW**: View pass@k metrics by verification type |
+| `/stats verification log` | **NEW**: Log a verification session result |
 | `/usage` | View token usage and limits |
 | `/context` | View current context usage |
 | `/cost` | View session cost breakdown |
@@ -372,10 +374,121 @@ RECENT CORRECTIONS (to improve)
 Skill metrics are stored in:
 ```
 .claude/skills/stats-tracker/
-├── metrics.json           # Current period metrics
+├── metrics.json              # Current period metrics
+├── verification-metrics.json # Pass@k verification metrics
 └── reports/
-    └── weekly-YYYY-WW.md  # Weekly reports
+    └── weekly-YYYY-WW.md     # Weekly reports
 ```
+
+---
+
+## Verification Metrics (Pass@k Tracking)
+
+Track how many verification attempts are needed before success.
+
+### Command: `/stats verification`
+
+```
+/stats verification
+
+═══════════════════════════════════════════════════════════════
+  VERIFICATION METRICS - March 2026
+═══════════════════════════════════════════════════════════════
+
+FIRST-ATTEMPT SUCCESS (pass@1)
+────────────────────────────────────────────────────────────────
+Type-check:  ████████░░ 84% (target: 90%)
+Build:       ███████░░░ 78% (target: 85%)
+Unit tests:  ██████░░░░ 72% (target: 75%) ✓
+E2E:         █████░░░░░ 58% (target: 60%)
+Lint:        █████████░ 96% (target: 95%) ✓
+
+TREND (pass@1 rate, last 4 weeks)
+────────────────────────────────────────────────────────────────
+Week 10: ▃ 78%
+Week 11: ▅ 82%
+Week 12: ▇ 85% ↑
+
+COMMON FIX CATEGORIES
+────────────────────────────────────────────────────────────────
+1. Code changes:       62%
+2. Config tweaks:      18%
+3. Missing imports:    12%
+4. Test adjustments:   8%
+
+INSIGHT: Type-check pass@1 improved 7% after adding
+        type-guards-optionals.md rule.
+═══════════════════════════════════════════════════════════════
+```
+
+### Understanding Pass@k
+
+| Metric | Meaning | Target |
+|--------|---------|--------|
+| pass@1 | Passed on first attempt | > 80% |
+| pass@3 | Passed within 3 attempts | > 95% |
+| pass@5 | Passed within 5 attempts | 100% |
+| fail@5+ | Needed 5+ attempts | < 2% |
+
+### Grader-Specific Targets
+
+| Verification Type | pass@1 Target | Rationale |
+|-------------------|---------------|-----------|
+| type-check | 90% | Type errors are predictable |
+| build | 85% | Env/import issues common |
+| unit-test | 75% | Logic bugs take iteration |
+| e2e | 60% | Integration complexity |
+| lint | 95% | Mostly auto-fixable |
+| manual | 80% | Subjective criteria |
+
+### Logging a Verification Session
+
+After completing verification, log the result:
+
+```
+/stats verification log type-check 2 code
+
+# Logs: type-check verification, passed on attempt 2, fix was code-related
+```
+
+Format: `/stats verification log <type> <attempts> <fix_category>`
+
+### Fix Categories
+
+| Category | Examples |
+|----------|----------|
+| `code` | Wrong type, missing property, logic error |
+| `config` | tsconfig, package.json, env vars |
+| `dependency` | Missing import, version mismatch |
+| `test` | Test assertion wrong, fixture issue |
+
+### RSI Integration
+
+Low pass@1 rates trigger investigation:
+
+```
+pass@1 < target
+      │
+      ▼
+Analyze fix_categories
+      │
+      ▼
+Common pattern? ───► Create compound-learning
+      │
+      ▼
+Extract rule ────────► Add to .claude/rules/
+      │
+      ▼
+pass@1 rate improves
+```
+
+### Weekly Verification Review
+
+Add to your Friday review:
+1. `/stats verification` — Check pass@1 rates
+2. Compare to targets — Which types need improvement?
+3. Review fix categories — What's causing failures?
+4. Consider new rules — Can a pattern prevent failures?
 
 ### Weekly Report Generation
 

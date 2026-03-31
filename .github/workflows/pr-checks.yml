@@ -1,8 +1,11 @@
 name: PR Quality Checks
 
-# Run checks on every PR
+# Run checks on every PR and direct pushes to main
 on:
   pull_request:
+    branches:
+      - main
+  push:
     branches:
       - main
 
@@ -13,6 +16,41 @@ permissions:
   issues: write
 
 jobs:
+  validate-build-config:
+    name: Validate Vercel Build Config
+    runs-on: ubuntu-latest
+    # BLOCKING: these settings prevent Vercel OOM crashes on the 8GB build machine
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check vercel.json heap size
+        run: |
+          HEAP=$(grep -o 'max-old-space-size=[0-9]*' vercel.json | grep -o '[0-9]*')
+          echo "Heap size: ${HEAP}MB"
+          if [ "$HEAP" -lt 6144 ]; then
+            echo "❌ FAIL: vercel.json heap is ${HEAP}MB — must be ≥6144MB"
+            echo "   Fix: set buildCommand to NODE_OPTIONS='--max-old-space-size=6144' next build"
+            exit 1
+          fi
+          echo "✅ Heap size OK: ${HEAP}MB"
+
+      - name: Check next.config.js cpus setting
+        run: |
+          CPUS=$(grep -E '^\s*cpus:' next.config.js | grep -o '[0-9]*')
+          echo "cpus: ${CPUS}"
+          if [ -z "$CPUS" ]; then
+            echo "❌ FAIL: next.config.js is missing cpus setting in experimental"
+            exit 1
+          fi
+          if [ "$CPUS" -gt 1 ]; then
+            echo "❌ FAIL: next.config.js cpus=${CPUS} — must be 1 on Vercel 8GB machines"
+            echo "   Fix: set cpus: 1 in experimental config"
+            exit 1
+          fi
+          echo "✅ cpus setting OK: ${CPUS}"
+
   type-check:
     name: TypeScript Type Check
     runs-on: ubuntu-latest
