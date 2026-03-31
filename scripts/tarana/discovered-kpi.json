@@ -1,0 +1,21 @@
+{
+  "results": {
+    "format-1-basic-filter": {
+      "success": false,
+      "error": "Tarana API error: 400 - {\"data\":null,\"error\":{\"code\":400,\"message\":\"Data points should not be null\",\"status\":\"Bad Request\"}}"
+    },
+    "format-2-query-wrapper": {
+      "success": false,
+      "error": "Tarana API error: 400 - {\"data\":null,\"error\":{\"code\":400,\"message\":\"Data points should not be null\",\"status\":\"Bad Request\"}}"
+    },
+    "format-3-operator-only": {
+      "success": false,
+      "error": "Tarana API error: 400 - {\"data\":null,\"error\":{\"code\":400,\"message\":\"Data points should not be null\",\"status\":\"Bad Request\"}}"
+    },
+    "format-4-time-range": {
+      "success": false,
+      "error": "Tarana API error: 400 - {\"data\":null,\"error\":{\"code\":400,\"message\":\"Data points should not be null\",\"status\":\"Bad Request\"}}"
+    }
+  },
+  "discoveredAt": "2026-03-31T19:08:57.876Z"
+}
