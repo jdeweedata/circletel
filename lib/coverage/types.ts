@@ -45,6 +45,7 @@ export interface CoverageCheckResult {
       requiresElevatedInstall?: boolean;
       installationNote?: string;
       stationsChecked?: number;
+      prediction?: unknown;
     };
   };
 }
@@ -213,4 +214,6 @@ export interface BaseStationProximityResult {
     coordinatesUsed: Coordinates;
     stationsChecked: number;
   };
+  /** Optional terrain-aware signal prediction (populated when includeTerrainPrediction=true) */
+  prediction?: import('@/lib/coverage/prediction').CoveragePrediction;
 }

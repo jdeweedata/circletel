@@ -121,6 +121,35 @@ export type TaranaSyncCancelledEvent = {
 };
 
 // =============================================================================
+// TARANA METRICS COLLECTION EVENTS
+// =============================================================================
+
+export type TaranaMetricsCollectionRequestedEvent = {
+  name: 'tarana/metrics.collection.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+  };
+};
+
+export type TaranaMetricsCollectionCompletedEvent = {
+  name: 'tarana/metrics.collection.completed';
+  data: {
+    collected: number;
+    errors_count: number;
+    duration_ms: number;
+  };
+};
+
+export type TaranaMetricsCollectionFailedEvent = {
+  name: 'tarana/metrics.collection.failed';
+  data: {
+    error: string;
+    attempt: number;
+  };
+};
+
+// =============================================================================
 // DFA SYNC EVENTS
 // =============================================================================
 
@@ -635,6 +664,10 @@ export type InngestEvents = {
   'tarana/sync.completed': TaranaSyncCompletedEvent;
   'tarana/sync.failed': TaranaSyncFailedEvent;
   'tarana/sync.cancelled': TaranaSyncCancelledEvent;
+  // Tarana metrics collection events
+  'tarana/metrics.collection.requested': TaranaMetricsCollectionRequestedEvent;
+  'tarana/metrics.collection.completed': TaranaMetricsCollectionCompletedEvent;
+  'tarana/metrics.collection.failed': TaranaMetricsCollectionFailedEvent;
   // DFA sync events
   'dfa/sync.requested': DFASyncRequestedEvent;
   'dfa/sync.completed': DFASyncCompletedEvent;

@@ -41,7 +41,7 @@ const HOME_PLANS: HeroPlan[] = [
   {
     id: 'skyfibre-home-plus',
     name: 'SkyFibre Home Plus',
-    price: 799,
+    price: 899,
     speed: '50/12.5Mbps',
     type: 'fwa',
     description: 'Stream your favourite shows without buffering.',

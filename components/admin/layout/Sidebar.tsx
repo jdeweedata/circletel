@@ -183,6 +183,12 @@ const navigationSections: NavSection[] = [
         description: 'Quick coverage check & quote generation'
       },
       {
+        name: 'Coverage Checker',
+        href: '/admin/coverage/checker',
+        icon: PiWifiHighBold,
+        description: 'Quick Tarana FWB coverage check'
+      },
+      {
         name: 'CPQ Builder',
         href: '/admin/cpq',
         icon: PiSparkleBold,

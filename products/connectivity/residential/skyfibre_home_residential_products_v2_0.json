@@ -1,0 +1,227 @@
+{
+  "_meta": {
+    "document_reference": "CT-SKY-HOME-JSON-2026-001",
+    "version": "2.0",
+    "effective_date": "2026-03-31",
+    "status": "active",
+    "locale": "en-ZA",
+    "classification": "Confidential — Internal Use Only",
+    "prepared_by": "CircleTel Product Team",
+    "supersedes": "skyfibre_home_residential_products.json (v0 — partial)",
+    "change_log": [
+      {
+        "version": "2.0",
+        "date": "2026-03-31",
+        "author": "CircleTel Product Team",
+        "changes": [
+          "Corrected all speed profiles from symmetrical to 4:1 asymmetrical (DL:UL) per CHANGE_LOG_27_Feb_2026.md",
+          "Updated SkyFibre Home Plus pricing from R999 to R899 incl. VAT",
+          "Updated SkyFibre Home Max pricing from R1,499 to R999 incl. VAT",
+          "Added excl. VAT pricing fields (VAT @ 15%)",
+          "Added 24-month contract discount option (10%)",
+          "Removed outdated 20 Mbps Starter tier (not available on corrected speed profile)",
+          "Confirmed Active status for new sales",
+          "Aligned document reference to CT-SKY-HOME-2026-001"
+        ]
+      },
+      {
+        "version": "0 (partial)",
+        "date": "2025-01-01",
+        "author": "CircleTel Product Team",
+        "changes": [
+          "Initial partial JSON product record — contained incorrect symmetrical speed profiles"
+        ]
+      }
+    ]
+  },
+  "products": [
+    {
+      "name": "SkyFibre Home Plus",
+      "sku": "SKY-HOME-50",
+      "slug": "skyfibre-home-plus",
+      "category": "connectivity",
+      "service_type": "SkyFibre",
+      "description": "Mid-tier residential fixed wireless broadband for work-from-home, HD streaming, and everyday multi-device households. 50 Mbps download / 12.5 Mbps upload delivers reliable performance for 2 to 4 simultaneous users.",
+      "pricing": {
+        "monthly_incl_vat": 899.00,
+        "monthly_excl_vat": 782.61,
+        "vat_rate": 0.15,
+        "setup": 0,
+        "self_install_kit": 875,
+        "professional_install": 0,
+        "router_included": true,
+        "contract_months_standard": 0,
+        "contracts_available": [0, 24],
+        "discount_24_month": 0.10,
+        "monthly_incl_vat_24m": 809.10,
+        "mtn_wholesale_excl_vat": 499.00,
+        "infrastructure_cost": 121.84,
+        "total_direct_cost": 620.84,
+        "gross_margin_excl_vat": 161.77,
+        "gross_margin_percent": 20.7,
+        "currency": "ZAR"
+      },
+      "speeds": {
+        "download_mbps": 50,
+        "upload_mbps": 12.5,
+        "ratio": "4:1 (DL:UL asymmetrical)",
+        "profile_note": "MTN-configured asymmetrical profile across all Tarana G1 FWB tiers. Corrected per CHANGE_LOG_27_Feb_2026.md.",
+        "data_cap": "Uncapped"
+      },
+      "features": [
+        "50 Mbps download / 12.5 Mbps upload",
+        "Uncapped data",
+        "99.5% uptime SLA",
+        "Sub-5 ms latency",
+        "HD streaming ready",
+        "Multi-device support (2–4 simultaneous users)",
+        "VoIP capable",
+        "Gaming suitable",
+        "Work-from-home ready",
+        "Video conferencing capable",
+        "Licensed spectrum — interference-free",
+        "Load-shedding resilient (MTN tower backup power)",
+        "3–5 day installation",
+        "Self-install option available"
+      ],
+      "equipment": {
+        "outdoor_cpe": "Tarana G1 BN (Base Node)",
+        "cpe_ownership": "MTN property — not transferred to customer",
+        "router": "Reyee RG-EW1300G WiFi 5",
+        "router_spec": "WiFi 5 (802.11ac), 1300 Mbps, Gigabit ports",
+        "router_management": "Ruijie Cloud (zero-touch provisioning)",
+        "router_included": true
+      },
+      "installation": {
+        "timeline_business_days": "3–5",
+        "professional_install_cost": 0,
+        "self_install_available": true,
+        "self_install_kit_cost": 875,
+        "provisioning_method": "QR code — Ruijie Cloud"
+      },
+      "sla": {
+        "uptime_percent": 99.5,
+        "response_time_hours": 4,
+        "mttr_hours": 24,
+        "support_phone": "Mon–Fri 08:00–17:00 SAST",
+        "support_whatsapp": "Business hours",
+        "support_email_response": "Within 4 business hours",
+        "portal": "24/7 self-service"
+      },
+      "metadata": {
+        "technology": "MTN Tarana G1 Fixed Wireless Broadband",
+        "frequency": "Licensed spectrum",
+        "wholesale_provider": "MTN Wholesale",
+        "infrastructure_provider": "Echo SP",
+        "billing_platform": "AgilityGIS",
+        "coverage_area": "6 million homes — MTN FWB national footprint",
+        "target_market": "Residential — average South African households",
+        "ideal_users": "2–4 simultaneous users",
+        "typical_usage": "HD streaming, video conferencing, work from home, multi-device browsing",
+        "competitive_position": "Value mid-tier — strong price-performance for uncapped FWA",
+        "msc_commitment": {
+          "month_1_3_nrc": 8750,
+          "month_4_6_nrc": 17500,
+          "month_7_9_nrc": 26250,
+          "month_10_12_nrc": 35000,
+          "note": "MSC applies to overall SkyFibre Home portfolio, not per product"
+        }
+      },
+      "status": "active",
+      "is_active": true,
+      "is_featured": true,
+      "is_popular": true,
+      "open_for_new_sales": true
+    },
+    {
+      "name": "SkyFibre Home Max",
+      "sku": "SKY-HOME-100",
+      "slug": "skyfibre-home-max",
+      "category": "connectivity",
+      "service_type": "SkyFibre",
+      "description": "High-speed residential fixed wireless broadband for demanding households, 4K streaming, and gaming. 100 Mbps download / 25 Mbps upload delivers premium performance for 4 or more simultaneous users.",
+      "pricing": {
+        "monthly_incl_vat": 999.00,
+        "monthly_excl_vat": 868.70,
+        "vat_rate": 0.15,
+        "setup": 0,
+        "self_install_kit": 875,
+        "professional_install": 0,
+        "router_included": true,
+        "contract_months_standard": 0,
+        "contracts_available": [0, 24],
+        "discount_24_month": 0.10,
+        "monthly_incl_vat_24m": 899.10,
+        "mtn_wholesale_excl_vat": 599.00,
+        "infrastructure_cost": 121.84,
+        "total_direct_cost": 720.84,
+        "gross_margin_excl_vat": 147.86,
+        "gross_margin_percent": 17.0,
+        "currency": "ZAR"
+      },
+      "speeds": {
+        "download_mbps": 100,
+        "upload_mbps": 25,
+        "ratio": "4:1 (DL:UL asymmetrical)",
+        "profile_note": "MTN-configured asymmetrical profile across all Tarana G1 FWB tiers. Corrected per CHANGE_LOG_27_Feb_2026.md.",
+        "data_cap": "Uncapped"
+      },
+      "features": [
+        "100 Mbps download / 25 Mbps upload",
+        "Uncapped data",
+        "99.5% uptime SLA",
+        "Sub-5 ms latency",
+        "4K streaming capable",
+        "Multi-device support (4+ simultaneous users)",
+        "VoIP capable",
+        "Competitive gaming suitable",
+        "Work-from-home ready",
+        "Video conferencing capable",
+        "Licensed spectrum — interference-free",
+        "Load-shedding resilient (MTN tower backup power)",
+        "3–5 day installation",
+        "Self-install option available"
+      ],
+      "equipment": {
+        "outdoor_cpe": "Tarana G1 BN (Base Node)",
+        "cpe_ownership": "MTN property — not transferred to customer",
+        "router": "Reyee RG-EW1300G WiFi 5",
+        "router_spec": "WiFi 5 (802.11ac), 1300 Mbps, Gigabit ports",
+        "router_management": "Ruijie Cloud (zero-touch provisioning)",
+        "router_included": true
+      },
+      "installation": {
+        "timeline_business_days": "3–5",
+        "professional_install_cost": 0,
+        "self_install_available": true,
+        "self_install_kit_cost": 875,
+        "provisioning_method": "QR code — Ruijie Cloud"
+      },
+      "sla": {
+        "uptime_percent": 99.5,
+        "response_time_hours": 4,
+        "mttr_hours": 24,
+        "support_phone": "Mon–Fri 08:00–17:00 SAST",
+        "support_whatsapp": "Business hours",
+        "support_email_response": "Within 4 business hours",
+        "portal": "24/7 self-service"
+      },
+      "metadata": {
+        "technology": "MTN Tarana G1 Fixed Wireless Broadband",
+        "frequency": "Licensed spectrum",
+        "wholesale_provider": "MTN Wholesale",
+        "infrastructure_provider": "Echo SP",
+        "billing_platform": "AgilityGIS",
+        "coverage_area": "6 million homes — MTN FWB national footprint",
+        "target_market": "Residential — power users and larger households",
+        "ideal_users": "4+ simultaneous users",
+        "typical_usage": "4K streaming, competitive gaming, heavy work-from-home, multiple devices"
+      },
+      "status": "active",
+      "is_active": true,
+      "is_featured": false,
+      "is_popular": false,
+      "open_for_new_sales": true
+    }
+  ]
+}

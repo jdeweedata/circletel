@@ -105,6 +105,7 @@ All detailed patterns are in `.claude/rules/`:
 | `api-param-documentation.md` | Document API params with Wrong vs Correct tables |
 | `product-management.md` | Product skills triggers, suppliers, wholesale providers |
 | `execution-targets.md` | 12-month milestones, MSC schedule, channel targets, capital budget |
+| `undocumented-api-debugging.md` | Browser-first API inspection, cookie vs Bearer auth, Istio gateway signals |
 | `product-economics.md` | Unit economics, channel comparison, COS floor, commission tiers |
 | `margin-guardrails.md` | Min margins, discount approval, pricing rules, MSC-aware pricing |
 

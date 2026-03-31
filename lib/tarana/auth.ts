@@ -1,6 +1,7 @@
 /**
  * Tarana TCS Portal Authentication
- * Uses AWS Cognito for JWT-based authentication
+ * Uses HTTP Basic Auth on login; subsequent API calls are authenticated via
+ * httpOnly cookies (idToken, accessToken, userId) set by the server.
  */
 
 import { TaranaAuthResponse, TaranaUser } from './types';
@@ -11,17 +12,54 @@ const TARANA_API_BASE = 'https://portal.tcs.taranawireless.com';
 const TARANA_USERNAME = process.env.TARANA_USERNAME || '';
 const TARANA_PASSWORD = process.env.TARANA_PASSWORD || '';
 
-interface TokenCache {
-  accessToken: string;
-  refreshToken: string;
+// Browser-like headers required by the portal
+const BROWSER_HEADERS = {
+  'Accept': 'application/json, text/plain, */*',
+  'Referer': `${TARANA_API_BASE}/`,
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'X-Caller-Name': 'operator-portal',
+};
+
+interface SessionCache {
+  cookies: string;   // Raw Cookie header value extracted from Set-Cookie
+  userId: string;
   expiresAt: number;
   user: TaranaUser | null;
 }
 
-let tokenCache: TokenCache | null = null;
+let sessionCache: SessionCache | null = null;
 
 /**
- * Authenticate with Tarana Portal and get JWT tokens
+ * Parse Set-Cookie headers from a Response and return a Cookie header string.
+ * Node fetch returns headers as a Headers object; we need to extract all
+ * Set-Cookie values and re-join them as a single Cookie: header.
+ */
+function extractCookies(response: Response): string {
+  const cookies: string[] = [];
+  // Node 18+ fetch supports getSetCookie(); fall back to iterating entries
+  const raw = response.headers as unknown as { getSetCookie?: () => string[] };
+  const setCookieValues: string[] = typeof raw.getSetCookie === 'function'
+    ? raw.getSetCookie()
+    : (() => {
+        const vals: string[] = [];
+        response.headers.forEach((value, name) => {
+          if (name.toLowerCase() === 'set-cookie') vals.push(value);
+        });
+        return vals;
+      })();
+
+  for (const cookieStr of setCookieValues) {
+    // Take only name=value (before the first semicolon)
+    const nameValue = cookieStr.split(';')[0].trim();
+    if (nameValue) cookies.push(nameValue);
+  }
+  return cookies.join('; ');
+}
+
+/**
+ * Authenticate with Tarana Portal.
+ * Uses HTTP Basic Auth on the login endpoint; stores the resulting
+ * httpOnly session cookies for use in subsequent API calls.
  */
 export async function authenticateTarana(
   username?: string,
@@ -34,13 +72,14 @@ export async function authenticateTarana(
     throw new Error('Tarana credentials not configured. Set TARANA_USERNAME and TARANA_PASSWORD environment variables.');
   }
 
+  const basicCredentials = Buffer.from(`${user}:${pass}`).toString('base64');
+
   const response = await fetch(`${TARANA_API_BASE}/api/tcs/v1/user-auth/login`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      ...BROWSER_HEADERS,
+      'Authorization': `Basic ${basicCredentials}`,
     },
-    body: JSON.stringify({ username: user, password: pass }),
   });
 
   if (!response.ok) {
@@ -48,48 +87,59 @@ export async function authenticateTarana(
     throw new Error(`Tarana authentication failed: ${response.status} - ${error}`);
   }
 
-  const data = await response.json();
+  const raw = await response.json();
+  // Response: { data: { accessToken, refreshToken, userId, session } }
+  const data = raw.data ?? raw;
 
-  // Cache the tokens
-  tokenCache = {
-    accessToken: data.accessToken || data.access_token,
-    refreshToken: data.refreshToken || data.refresh_token,
-    expiresAt: Date.now() + ((data.expiresIn || 3600) * 1000) - 60000, // 1 min buffer
+  // Extract session cookies from Set-Cookie headers
+  const cookies = extractCookies(response);
+
+  // Tokens expire in 1 hour (3600s); cache with 1-min buffer
+  sessionCache = {
+    cookies,
+    userId: data.userId || '',
+    expiresAt: Date.now() + (3600 - 60) * 1000,
     user: null,
   };
 
   return {
-    accessToken: tokenCache.accessToken,
-    refreshToken: tokenCache.refreshToken,
-    expiresIn: data.expiresIn || 3600,
-    tokenType: data.tokenType || 'Bearer',
+    accessToken: data.accessToken || data.access_token,
+    refreshToken: data.refreshToken || data.refresh_token || '',
+    expiresIn: 3600,
+    tokenType: 'Cookie',
   };
 }
 
 /**
- * Get valid access token, refreshing if needed
+ * Get the Cookie header string for authenticated API requests.
+ * Re-authenticates automatically when the session expires.
+ */
+export async function getSessionCookies(): Promise<string> {
+  if (sessionCache && sessionCache.expiresAt > Date.now() && sessionCache.cookies) {
+    return sessionCache.cookies;
+  }
+  await authenticateTarana();
+  return sessionCache!.cookies;
+}
+
+/**
+ * @deprecated Use getSessionCookies() instead.
+ * Kept for backward compatibility — returns an empty string which will
+ * cause 403s; callers should be migrated to cookie-based auth.
  */
 export async function getAccessToken(): Promise<string> {
-  if (tokenCache && tokenCache.expiresAt > Date.now()) {
-    return tokenCache.accessToken;
-  }
-
-  // Token expired or not cached, re-authenticate
-  const auth = await authenticateTarana();
-  return auth.accessToken;
+  await getSessionCookies();
+  return '';
 }
 
 /**
  * Get current user info
  */
 export async function getTaranaUser(): Promise<TaranaUser> {
-  const token = await getAccessToken();
+  const cookies = await getSessionCookies();
 
   const response = await fetch(`${TARANA_API_BASE}/api/tcs/v1/users`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/json',
-    },
+    headers: { ...BROWSER_HEADERS, 'Cookie': cookies },
   });
 
   if (!response.ok) {
@@ -98,23 +148,23 @@ export async function getTaranaUser(): Promise<TaranaUser> {
 
   const data = await response.json();
 
-  if (tokenCache) {
-    tokenCache.user = data;
+  if (sessionCache) {
+    sessionCache.user = data.data ?? data;
   }
 
-  return data;
+  return data.data ?? data;
 }
 
 /**
- * Clear cached tokens (for logout or re-auth)
+ * Clear cached session (for logout or forced re-auth)
  */
 export function clearTaranaAuth(): void {
-  tokenCache = null;
+  sessionCache = null;
 }
 
 /**
- * Check if we have valid cached credentials
+ * Check if we have a valid cached session
  */
 export function hasTaranaAuth(): boolean {
-  return tokenCache !== null && tokenCache.expiresAt > Date.now();
+  return sessionCache !== null && sessionCache.expiresAt > Date.now() && !!sessionCache.cookies;
 }

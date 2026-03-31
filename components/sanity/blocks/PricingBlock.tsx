@@ -34,6 +34,8 @@ interface PricingBlockProps {
   plans?: PricingPlan[];
   footnote?: string;
   showAnnualToggle?: boolean;
+  // When set, overrides isPopular/featured to highlight a specific plan by name
+  highlightedPlan?: string;
 }
 
 export function PricingBlock({
@@ -45,6 +47,7 @@ export function PricingBlock({
   plans,
   footnote,
   showAnnualToggle = false,
+  highlightedPlan,
 }: PricingBlockProps) {
   // Normalize field names to support both old and Sanity formats
   const displayTitle = title || headline;
@@ -90,7 +93,9 @@ export function PricingBlock({
               )}>
                 {mainPlans.map((plan) => {
                   // Normalize per-plan fields
-                  const isFeatured = plan.featured || plan.isPopular;
+                  const isFeatured = highlightedPlan
+                    ? plan.name === highlightedPlan
+                    : (plan.featured || plan.isPopular);
                   const ctaLabel = plan.cta?.label || plan.ctaLabel || 'Get Started';
                   const ctaHref = plan.cta?.href || plan.ctaUrl || '#';
 

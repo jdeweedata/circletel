@@ -21,6 +21,10 @@ export {
 } from './functions/tarana-sync';
 
 export {
+  taranaMetricsCollectionFunction,
+} from './functions/tarana-metrics-collection';
+
+export {
   dfaSyncFunction,
   dfaSyncCompletedFunction,
   dfaSyncFailedFunction,
@@ -124,6 +128,10 @@ import {
 } from './functions/tarana-sync';
 
 import {
+  taranaMetricsCollectionFunction,
+} from './functions/tarana-metrics-collection';
+
+import {
   dfaSyncFunction,
   dfaSyncCompletedFunction,
   dfaSyncFailedFunction,
@@ -222,6 +230,8 @@ export const functions = [
   taranaSyncFunction,
   taranaSyncCompletedFunction,
   taranaSyncFailedFunction,
+  // Tarana link metrics collection (every 15 min)
+  taranaMetricsCollectionFunction,
   // DFA sync
   dfaSyncFunction,
   dfaSyncCompletedFunction,

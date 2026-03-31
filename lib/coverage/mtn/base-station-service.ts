@@ -15,6 +15,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Coordinates } from '../types';
 import { searchRadios } from '@/lib/tarana/client';
 import { hasTaranaAuth } from '@/lib/tarana/auth';
+import type { CoveragePrediction } from '@/lib/coverage/prediction';
 
 // Coverage confidence levels
 export type CoverageConfidence = 'high' | 'medium' | 'low' | 'none';
@@ -51,6 +52,7 @@ export interface BaseStationProximityResult {
     coordinatesUsed: Coordinates;
     stationsChecked: number;
   };
+  prediction?: CoveragePrediction;
 }
 
 // Coverage thresholds (in km)
@@ -65,9 +67,9 @@ const MIN_CONNECTIONS_LOW = 1;
  */
 export async function checkBaseStationProximity(
   coordinates: Coordinates,
-  options: { limit?: number } = {}
+  options: { limit?: number; includeTerrainPrediction?: boolean } = {}
 ): Promise<BaseStationProximityResult> {
-  const { limit = 5 } = options;
+  const { limit = 5, includeTerrainPrediction = false } = options;
   const supabase = await createClient();
 
   try {
@@ -123,7 +125,7 @@ export async function checkBaseStationProximity(
     const { confidence, requiresElevatedInstall, installationNote } =
       calculateCoverageConfidence(nearest.distance_km, nearest.active_connections);
 
-    return {
+    const result: BaseStationProximityResult = {
       hasCoverage: confidence !== 'none',
       confidence,
       requiresElevatedInstall,
@@ -142,6 +144,21 @@ export async function checkBaseStationProximity(
         stationsChecked: nearbyStations.length
       }
     };
+
+    // Optionally enrich with terrain-aware prediction
+    if (includeTerrainPrediction && confidence !== 'none') {
+      try {
+        const { predictCoverage } = await import('@/lib/coverage/prediction');
+        const prediction = await predictCoverage(nearest.serial_number, coordinates.lat, coordinates.lng);
+        if (prediction) {
+          result.prediction = prediction;
+        }
+      } catch (predErr) {
+        console.warn('[BaseStationService] Terrain prediction failed, continuing without it:', predErr);
+      }
+    }
+
+    return result;
   } catch (error) {
     console.error('[BaseStationService] Unexpected error:', error);
     return createFallbackResult(coordinates, 'Unexpected error');

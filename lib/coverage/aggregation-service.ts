@@ -395,7 +395,8 @@ export class CoverageAggregationService {
               nearestStation: baseStationValidation.nearestStation,
               requiresElevatedInstall: baseStationValidation.requiresElevatedInstall,
               installationNote: baseStationValidation.installationNote ?? undefined,
-              stationsChecked: baseStationValidation.metadata.stationsChecked
+              stationsChecked: baseStationValidation.metadata.stationsChecked,
+              prediction: baseStationValidation.prediction
             } : undefined
           }
         };
@@ -475,7 +476,8 @@ export class CoverageAggregationService {
                   nearestStation: wholesaleBaseStationCheck.nearestStation,
                   requiresElevatedInstall: wholesaleBaseStationCheck.requiresElevatedInstall,
                   installationNote: wholesaleBaseStationCheck.installationNote ?? undefined,
-                  stationsChecked: wholesaleBaseStationCheck.metadata.stationsChecked
+                  stationsChecked: wholesaleBaseStationCheck.metadata.stationsChecked,
+                  prediction: wholesaleBaseStationCheck.prediction
                 } : undefined
               }
             };
@@ -960,7 +962,7 @@ export class CoverageAggregationService {
     coordinates: Coordinates
   ): Promise<BaseStationProximityResult | null> {
     try {
-      const proximityResult = await checkBaseStationProximity(coordinates, { limit: 5 });
+      const proximityResult = await checkBaseStationProximity(coordinates, { limit: 5, includeTerrainPrediction: true });
 
       console.log('[SkyFibre Validation] Base station proximity check:', {
         hasCoverage: proximityResult.hasCoverage,

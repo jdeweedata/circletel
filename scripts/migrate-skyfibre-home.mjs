@@ -20,8 +20,8 @@ const skyfibreHome = {
   tagline: 'Fast, Reliable Home Internet for South African Families',
 
   pricing: {
-    startingPrice: 799,
-    priceNote: 'per month',
+    startingPrice: 899,
+    priceNote: 'per month incl. VAT',
     showContactForPricing: false,
   },
 
@@ -78,7 +78,7 @@ const skyfibreHome = {
         {
           _key: 'p1',
           name: 'SkyFibre Home Plus',
-          price: 799,
+          price: 899,
           speed: '50/12.5 Mbps',
           description: 'Perfect for everyday browsing and streaming',
           features: [

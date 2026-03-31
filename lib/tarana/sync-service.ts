@@ -72,11 +72,22 @@ export async function syncBaseStations(options: {
         serial_number: bn.serialNumber,
         hostname: bn.deviceId || bn.serialNumber,
         site_name: bn.siteName || 'Unknown Site',
-        active_connections: 0, // Will be updated separately if needed
+        active_connections: 0,
         market: bn.marketName || 'Unknown',
         lat: bn.latitude,
         lng: bn.longitude,
         region: bn.regionName || 'South Africa',
+        height_m: bn.height ?? null,
+        azimuth_deg: bn.azimuth ?? null,
+        band: bn.band ?? null,
+        device_status: bn.deviceStatus ?? 0,
+        region_id: bn.regionId ?? null,
+        market_id: bn.marketId ?? null,
+        site_id: bn.siteId ?? null,
+        cell_id: bn.cellId ?? null,
+        cell_name: bn.cellName ?? null,
+        sector_id: bn.sectorId ?? null,
+        sector_name: bn.sectorName ?? null,
         last_updated: new Date().toISOString(),
       };
 

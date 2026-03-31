@@ -98,6 +98,17 @@ export interface TaranaRadio {
   band?: string;
   deviceStatus: number; // 1 = connected
   lastSeen?: string;
+  // Signal metrics (from expanded outputSchema — available when fetched for RNs)
+  rssi?: number;
+  sinr?: number;
+  noiseFloor?: number;
+  mcsDl?: number;
+  mcsUl?: number;
+  throughputDl?: number;
+  throughputUl?: number;
+  txPower?: number;
+  rxPower?: number;
+  linkStatus?: string;
 }
 
 export interface TaranaRadioSearchResponse {
@@ -118,9 +129,67 @@ export interface TaranaDeviceCount {
   total: number;
 }
 
+export interface TaranaConfigAttribute {
+  fieldName: string;
+  targetType: 'BN' | 'RN' | 'ALL';
+  dataType: 'int' | 'string' | 'float' | 'boolean';
+  configYangPath: string;
+  stateYangPath: string;
+  displayName: string;
+  isMandatory: boolean;
+  reportMismatch: boolean;
+  enablePush: boolean;
+}
+
 // API Error
 export interface TaranaApiError {
   code: string;
   message: string;
   details?: any;
+}
+
+// NQS Device State (from GET /api/nqs/v1/devices/{serialNumber})
+export interface TaranaDeviceCarrier {
+  id: number;
+  txPower?: number;
+  rxPower?: number;
+  band?: string;
+}
+
+export interface TaranaDeviceInstallParams {
+  latitude?: number;
+  longitude?: number;
+  height?: number;
+  azimuth?: number;
+}
+
+export interface TaranaDeviceAncestry {
+  regionId?: number;
+  regionName?: string;
+  marketId?: number;
+  marketName?: string;
+  siteId?: number;
+  siteName?: string;
+  cellId?: number;
+  cellName?: string;
+  sectorId?: number;
+  sectorDetails?: {
+    name?: string;
+    id?: number;
+  };
+}
+
+export interface TaranaDeviceState {
+  serialNumber: string;
+  deviceType: 'BN' | 'RN';
+  deviceId?: string;
+  linkState?: string;
+  losRange?: number;       // Radio-measured LOS distance in metres
+  sectorId?: number;
+  band?: string;
+  carriers?: TaranaDeviceCarrier[];
+  installParams?: TaranaDeviceInstallParams;
+  ancestry?: TaranaDeviceAncestry;
+  /** Raw response — preserve for unanticipated fields */
+  raw?: Record<string, unknown>;
 }

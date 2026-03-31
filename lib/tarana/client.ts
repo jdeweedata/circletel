@@ -3,7 +3,7 @@
  * Fetches radio data, network hierarchy, and device metrics
  */
 
-import { getAccessToken } from './auth';
+import { getSessionCookies } from './auth';
 import {
   TaranaRegion,
   TaranaMarket,
@@ -12,6 +12,7 @@ import {
   TaranaRadioSearchQuery,
   TaranaRadioSearchResponse,
   TaranaDeviceCount,
+  TaranaDeviceState,
 } from './types';
 
 const TARANA_API_BASE = 'https://portal.tcs.taranawireless.com';
@@ -24,18 +25,26 @@ const SA_REGION_IDS = [1073, 1071];
 /**
  * Make authenticated API request
  */
-async function taranaFetch<T>(
+// Browser-like base headers required by the TCS portal (Istio gateway validates these)
+const TARANA_BASE_HEADERS = {
+  'Accept': 'application/json, text/plain, */*',
+  'Referer': 'https://portal.tcs.taranawireless.com/',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'X-Caller-Name': 'operator-portal',
+};
+
+export async function taranaFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = await getAccessToken();
+  const cookies = await getSessionCookies();
 
   const response = await fetch(`${TARANA_API_BASE}${endpoint}`, {
     ...options,
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/json',
+      ...TARANA_BASE_HEADERS,
       'Content-Type': 'application/json',
+      'Cookie': cookies,
       ...options.headers,
     },
   });
@@ -128,10 +137,13 @@ export async function searchRadios(
     query,
     outputSchema: {
       deviceFields: [
-        '/connections/connection/system/install/state/latitude',
-        '/connections/connection/system/install/state/longitude',
-        '/connections/connection/system/install/state/height',
-        '/connections/connection/system/install/state/azimuth',
+        '/system/install/state/latitude',
+        '/system/install/state/longitude',
+        '/system/install/state/height',
+        '/system/install/state/azimuth',
+        '/radios/regulatory/state/band',
+        '/system/state/hostname',
+        '/system/cloud/history/state/first-seen-timestamp',
       ],
     },
   };
@@ -159,12 +171,12 @@ export async function searchRadios(
     cellName: r.cellName,
     sectorId: r.sectorId,
     sectorName: r.sectorName,
-    latitude: r.latitude || r.deviceFields?.latitude,
-    longitude: r.longitude || r.deviceFields?.longitude,
-    height: r.deviceFields?.height,
-    azimuth: r.deviceFields?.azimuth,
-    band: r.band,
-    deviceStatus: r.deviceStatus,
+    latitude: r.fields?.['/system/install/state/latitude'] || r.latitude,
+    longitude: r.fields?.['/system/install/state/longitude'] || r.longitude,
+    height: r.fields?.['/system/install/state/height'],
+    azimuth: r.fields?.['/system/install/state/azimuth'],
+    band: r.fields?.['/radios/regulatory/state/band'] || r.band,
+    deviceStatus: r.fields?.['deviceStatus'] ?? r.deviceStatus,
     lastSeen: r.lastSeen,
   }));
 
@@ -206,6 +218,80 @@ export async function getAllRemoteNodes(): Promise<TaranaRadio[]> {
   }
 
   return allRadios;
+}
+
+/**
+ * Get full device state for a single device by serial number.
+ * Uses the NQS v1 endpoint which returns losRange, txPower, linkState, coordinates, etc.
+ */
+export async function getDeviceBySerial(serialNumber: string): Promise<TaranaDeviceState> {
+  const raw = await taranaFetch<any>(`/api/nqs/v1/devices/${encodeURIComponent(serialNumber)}`);
+
+  const carriers: TaranaDeviceState['carriers'] = Array.isArray(raw.carriers)
+    ? raw.carriers.map((c: any) => ({
+        id: c.id ?? 0,
+        txPower: c.txPower ?? c['tx-power'] ?? undefined,
+        rxPower: c.rxPower ?? c['rx-power'] ?? undefined,
+        band: c.band ?? undefined,
+      }))
+    : [];
+
+  return {
+    serialNumber: raw.serialNumber ?? serialNumber,
+    deviceType: raw.deviceType ?? raw.type ?? 'RN',
+    deviceId: raw.deviceId ?? undefined,
+    linkState: raw.linkState ?? raw['link-state'] ?? undefined,
+    losRange: typeof raw.losRange === 'number' ? raw.losRange : undefined,
+    sectorId: raw.sectorId ?? undefined,
+    band: raw.band ?? undefined,
+    carriers,
+    installParams: {
+      latitude: raw.installParams?.latitude ?? raw.latitude ?? undefined,
+      longitude: raw.installParams?.longitude ?? raw.longitude ?? undefined,
+      height: raw.installParams?.height ?? raw.height ?? undefined,
+      azimuth: raw.installParams?.azimuth ?? raw.azimuth ?? undefined,
+    },
+    ancestry: raw.ancestry ?? undefined,
+    raw,
+  };
+}
+
+/**
+ * Get BN devices for a given sector ID.
+ * Uses TNI v2 endpoint — returns BN install params including lat/lng/height/azimuth.
+ */
+export async function getBnDevicesForSector(sectorId: number): Promise<TaranaDeviceState[]> {
+  const raw = await taranaFetch<any>(
+    `/api/tni/v2/sectors/${sectorId}/devices?type=BN`
+  );
+
+  const devices: any[] = Array.isArray(raw) ? raw : (raw.devices ?? raw.data ?? []);
+
+  return devices.map((d: any) => ({
+    serialNumber: d.serialNumber ?? d.serial_number ?? '',
+    deviceType: 'BN' as const,
+    deviceId: d.deviceId ?? undefined,
+    linkState: d.linkState ?? undefined,
+    losRange: undefined,
+    sectorId,
+    band: d.band ?? undefined,
+    carriers: Array.isArray(d.carriers)
+      ? d.carriers.map((c: any) => ({
+          id: c.id ?? 0,
+          txPower: c.txPower ?? undefined,
+          rxPower: c.rxPower ?? undefined,
+          band: c.band ?? undefined,
+        }))
+      : [],
+    installParams: {
+      latitude: d.installParams?.latitude ?? d.latitude ?? undefined,
+      longitude: d.installParams?.longitude ?? d.longitude ?? undefined,
+      height: d.installParams?.height ?? d.height ?? undefined,
+      azimuth: d.installParams?.azimuth ?? d.azimuth ?? undefined,
+    },
+    ancestry: d.ancestry ?? undefined,
+    raw: d,
+  }));
 }
 
 /**
