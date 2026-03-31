@@ -100,7 +100,7 @@ const nextConfig = {
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
-    // Use 1 core with 6GB heap (leaves 2GB for OS/webpack worker on 8GB machine)
+    // Use 1 core with 12GB heap (Enhanced Build Machine: 16GB total, leaves 3GB for worker + OS)
     cpus: 1,
   },
   webpack: (config, { isServer }) => {
