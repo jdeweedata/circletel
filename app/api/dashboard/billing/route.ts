@@ -137,6 +137,20 @@ export async function GET(request: NextRequest) {
       : 0;
 
     // Transform data to match page expectations
+    const mapInvoiceStatus = (dbStatus: string): 'paid' | 'pending' | 'overdue' | 'cancelled' => {
+      switch (dbStatus) {
+        case 'paid':     return 'paid';
+        case 'overdue':  return 'overdue';
+        case 'cancelled':
+        case 'refunded': return 'cancelled';
+        case 'unpaid':
+        case 'sent':
+        case 'draft':
+        case 'partial':
+        default:         return 'pending';
+      }
+    };
+
     const transformedInvoices = (invoices || []).map(inv => ({
       id: inv.id,
       invoice_number: inv.invoice_number,
@@ -145,7 +159,7 @@ export async function GET(request: NextRequest) {
       total_amount: parseFloat(inv.total_amount) || 0,
       amount_due: parseFloat(inv.amount_due) || 0,
       amount_paid: parseFloat(inv.amount_paid) || 0,
-      status: inv.status as 'paid' | 'pending' | 'overdue' | 'cancelled',
+      status: mapInvoiceStatus(inv.status),
       description: inv.notes || `Invoice ${inv.invoice_number}`,
       service_period_start: inv.period_start,
       service_period_end: inv.period_end
