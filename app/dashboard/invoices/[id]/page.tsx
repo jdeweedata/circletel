@@ -8,7 +8,7 @@ import { PiArrowLeftBold, PiCreditCardBold, PiDownloadSimpleBold, PiFileTextBold
 
 import { Metadata } from 'next';
 import { redirect, notFound } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession } from '@/lib/supabase/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,7 @@ interface InvoicePageProps {
 
 export default async function InvoicePage({ params }: InvoicePageProps) {
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = await createClientWithSession();
 
   // Get current user
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -61,13 +61,19 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'paid':
-        return <Badge className="bg-green-500">Paid</Badge>;
+        return <Badge className="bg-green-100 text-green-800 border border-green-200">Paid</Badge>;
       case 'unpaid':
-        return <Badge className="bg-yellow-500">Unpaid</Badge>;
+      case 'sent':
+        return <Badge className="bg-amber-100 text-amber-800 border border-amber-200">Unpaid</Badge>;
       case 'overdue':
-        return <Badge className="bg-red-500">Overdue</Badge>;
+        return <Badge className="bg-red-100 text-red-800 border border-red-200">Overdue</Badge>;
+      case 'partial':
+        return <Badge className="bg-blue-100 text-blue-800 border border-blue-200">Partial</Badge>;
+      case 'cancelled':
+      case 'refunded':
+        return <Badge variant="secondary">Cancelled</Badge>;
       case 'draft':
-        return <Badge variant="secondary">Draft</Badge>;
+        return <Badge variant="outline">Draft</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -173,9 +179,15 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
                 </Link>
               </Button>
             )}
-            <Button variant="outline" className="flex-1">
-              <PiDownloadSimpleBold className="mr-2 h-4 w-4" />
-              Download PDF
+            <Button variant="outline" className="flex-1" asChild>
+              <a
+                href={`/api/dashboard/invoices/${id}/pdf?download=true`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <PiDownloadSimpleBold className="mr-2 h-4 w-4" />
+                Download PDF
+              </a>
             </Button>
           </div>
 
