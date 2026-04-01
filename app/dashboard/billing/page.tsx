@@ -416,12 +416,19 @@ export default function BillingPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <p className="font-bold text-base">{invoice.invoice_number}</p>
-                              <Badge variant={
-                                invoice.status === 'paid' ? 'default' :
-                                invoice.status === 'overdue' ? 'destructive' :
-                                'secondary'
-                              } className="text-xs font-semibold">
-                                {invoice.status.toUpperCase()}
+                              <Badge
+                                className={`text-xs font-semibold border ${
+                                  invoice.status === 'paid'
+                                    ? 'bg-green-100 text-green-800 border-green-200'
+                                    : invoice.status === 'overdue'
+                                    ? 'bg-red-100 text-red-800 border-red-200'
+                                    : invoice.status === 'pending'
+                                    ? 'bg-amber-100 text-amber-800 border-amber-200'
+                                    : 'bg-gray-100 text-gray-600 border-gray-200'
+                                }`}
+                                variant="outline"
+                              >
+                                {invoice.status === 'pending' ? 'UNPAID' : invoice.status.toUpperCase()}
                               </Badge>
                             </div>
                             <p className="text-sm text-gray-600 mb-2">
