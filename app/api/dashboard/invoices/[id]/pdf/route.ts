@@ -1,24 +1,15 @@
 /**
- * Customer Invoice PDF Download API
+ * Customer Invoice PDF — generate on-the-fly
  * GET /api/dashboard/invoices/[id]/pdf
- * 
- * Streams PDF file from Supabase Storage
- * Task 2.5: Invoice API Endpoints
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createClient as createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClientWithSession } from '@/lib/supabase/server';
+import { buildInvoiceData, generateInvoicePDFBuffer } from '@/lib/invoices/invoice-pdf-generator';
 import { billingLogger } from '@/lib/logging/logger';
 
-/**
- * GET /api/dashboard/invoices/[id]/pdf
- *
- * Returns:
- * - PDF file stream
- * - Content-Type: application/pdf
- * - Content-Disposition: attachment or inline
- */
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -26,122 +17,117 @@ export async function GET(
   try {
     const { id } = await context.params;
 
-    // Support both Bearer token and cookie authentication
+    // Auth: Bearer token OR cookies
     const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.slice(7).trim()
+      : null;
 
-    let user: any = null;
-    let supabase: any;
+    let user: { id: string } | null = null;
+    let supabase: SupabaseClient;
 
     if (token) {
-      // Use service role client for token validation
       supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
         { auth: { autoRefreshToken: false, persistSession: false } }
       );
-      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
-      if (tokenError || !tokenUser) {
+      const { data: { user: tokenUser }, error } = await supabase.auth.getUser(token);
+      if (error || !tokenUser) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
       user = tokenUser;
     } else {
-      // Fall back to cookies
-      supabase = await createServerClient();
-      const { data: { user: cookieUser }, error: cookieError } = await supabase.auth.getUser();
-      if (cookieError || !cookieUser) {
+      supabase = await createClientWithSession() as unknown as SupabaseClient;
+      const { data: { user: cookieUser }, error } = await supabase.auth.getUser();
+      if (error || !cookieUser) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
       user = cookieUser;
     }
 
-    // Get customer_id from auth_user_id
-    const { data: customer } = await supabase
+    // Resolve customer_id from auth user
+    const { data: customer, error: customerError } = await supabase
       .from('customers')
-      .select('id')
+      .select('id, first_name, last_name, email, phone, account_number, business_name, business_registration, tax_number')
       .eq('auth_user_id', user.id)
       .single();
 
-    if (!customer) {
-      return NextResponse.json(
-        { error: 'Customer not found' },
-        { status: 404 }
-      );
+    if (customerError || !customer) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
     }
 
-    // Verify customer owns this invoice
+    // Fetch invoice — verify ownership
     const { data: invoice, error: invoiceError } = await supabase
       .from('customer_invoices')
-      .select('invoice_number, pdf_url')
+      .select('id, invoice_number, invoice_date, due_date, period_start, period_end, subtotal, tax_amount, total_amount, amount_paid, amount_due, line_items, notes, status')
       .eq('id', id)
       .eq('customer_id', customer.id)
       .single();
 
     if (invoiceError || !invoice) {
-      return NextResponse.json(
-        { error: 'Invoice not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
 
-    // Check if PDF exists
-    if (!invoice.pdf_url) {
-      return NextResponse.json(
-        { error: 'PDF not yet generated' },
-        { status: 404 }
-      );
-    }
+    // Optionally fetch most-recent order for installation address
+    const { data: order } = await supabase
+      .from('consumer_orders')
+      .select('installation_address, city, province, postal_code')
+      .eq('customer_id', customer.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-    // Extract storage path from URL
-    // pdf_url format: https://xxx.supabase.co/storage/v1/object/public/customer-invoices/...
-    const urlParts = invoice.pdf_url.split('/storage/v1/object/public/');
-    if (urlParts.length !== 2) {
-      return NextResponse.json(
-        { error: 'Invalid PDF URL' },
-        { status: 500 }
-      );
-    }
+    // Build InvoiceData and generate PDF
+    const invoiceData = buildInvoiceData({
+      invoice: {
+        id: invoice.id,
+        invoice_number: invoice.invoice_number,
+        invoice_date: invoice.invoice_date,
+        due_date: invoice.due_date,
+        period_start: invoice.period_start ?? undefined,
+        period_end: invoice.period_end ?? undefined,
+        subtotal: parseFloat(invoice.subtotal) || 0,
+        tax_amount: invoice.tax_amount ? parseFloat(invoice.tax_amount) : undefined,
+        total_amount: parseFloat(invoice.total_amount) || 0,
+        line_items: invoice.line_items || [],
+        notes: invoice.notes ?? undefined,
+        status: invoice.status,
+      },
+      customer: {
+        first_name: customer.first_name,
+        last_name: customer.last_name,
+        email: customer.email,
+        phone: customer.phone ?? undefined,
+        account_number: customer.account_number ?? undefined,
+        business_name: customer.business_name ?? undefined,
+        business_registration: customer.business_registration ?? undefined,
+        tax_number: customer.tax_number ?? undefined,
+      },
+      order: order ? {
+        installation_address: order.installation_address ?? undefined,
+        city: order.city ?? undefined,
+        province: order.province ?? undefined,
+        postal_code: order.postal_code ?? undefined,
+      } : undefined,
+    });
 
-    const [bucket, ...pathParts] = urlParts[1].split('/');
-    const path = pathParts.join('/');
+    const pdfBuffer = generateInvoicePDFBuffer(invoiceData);
 
-    // Download PDF from Supabase Storage
-    const { data: pdfData, error: downloadError } = await supabase
-      .storage
-      .from(bucket)
-      .download(path);
-
-    if (downloadError || !pdfData) {
-      billingLogger.error('Error downloading PDF', { error: downloadError });
-      return NextResponse.json(
-        { error: 'Failed to download PDF' },
-        { status: 500 }
-      );
-    }
-
-    // Convert blob to buffer
-    const buffer = await pdfData.arrayBuffer();
-
-    // Determine disposition (inline for viewing, attachment for download)
     const disposition = request.nextUrl.searchParams.get('download') === 'true'
       ? 'attachment'
       : 'inline';
 
-    // Return PDF with proper headers
-    return new NextResponse(buffer, {
+    return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `${disposition}; filename="${invoice.invoice_number}.pdf"`,
-        'Cache-Control': 'private, max-age=3600' // Cache for 1 hour
-      }
+        'Cache-Control': 'private, max-age=3600',
+      },
     });
 
   } catch (error) {
-    billingLogger.error('Unexpected error in invoice PDF API', { error });
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    billingLogger.error('Unexpected error generating invoice PDF', { error });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
