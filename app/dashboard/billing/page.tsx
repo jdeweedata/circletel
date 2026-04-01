@@ -10,6 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModernStatCard } from "@/components/dashboard/ModernStatCard";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import Link from "next/link";
 
 interface Invoice {
@@ -66,6 +76,9 @@ export default function BillingPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('invoices');
   const [payingInvoiceId, setPayingInvoiceId] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [methodToDelete, setMethodToDelete] = useState<PaymentMethod | null>(null);
 
   // Memoized fetch function that can be called from multiple places
   const fetchBillingData = useCallback(async () => {
@@ -203,6 +216,64 @@ export default function BillingPage() {
       toast.error(err instanceof Error ? err.message : 'Failed to initiate payment');
     } finally {
       setPayingInvoiceId(null);
+    }
+  };
+
+  // Set payment method as primary
+  const handleSetPrimary = async (methodId: string) => {
+    if (!session?.access_token) return;
+    setActionLoading(methodId);
+    try {
+      const response = await fetch(`/api/dashboard/payment-methods/${methodId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_primary: true }),
+      });
+      if (response.ok) {
+        setData(prev => prev ? {
+          ...prev,
+          payment_methods: prev.payment_methods.map(m => ({ ...m, is_primary: m.id === methodId })),
+        } : prev);
+        toast.success('Primary payment method updated');
+      } else {
+        const err = await response.json();
+        toast.error(err.error || 'Failed to set as primary');
+      }
+    } catch {
+      toast.error('Failed to update payment method');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Remove payment method
+  const handleRemove = async () => {
+    if (!session?.access_token || !methodToDelete) return;
+    setActionLoading(methodToDelete.id);
+    try {
+      const response = await fetch(`/api/dashboard/payment-methods/${methodToDelete.id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${session.access_token}` },
+      });
+      if (response.ok) {
+        setData(prev => prev ? {
+          ...prev,
+          payment_methods: prev.payment_methods.filter(m => m.id !== methodToDelete.id),
+        } : prev);
+        toast.success('Payment method removed');
+      } else {
+        const err = await response.json();
+        toast.error(err.error || 'Failed to remove payment method');
+      }
+    } catch {
+      toast.error('Failed to remove payment method');
+    } finally {
+      setActionLoading(null);
+      setDeleteDialogOpen(false);
+      setMethodToDelete(null);
     }
   };
 
@@ -528,10 +599,12 @@ export default function BillingPage() {
                   <h2 className="text-xl font-bold text-gray-900">Payment Methods</h2>
                   <p className="text-sm text-gray-600 mt-1">Manage your saved payment methods</p>
                 </div>
-                <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2">
-                  <PiPlusBold className="h-4 w-4" />
-                  Add New
-                </Button>
+                <Link href="/dashboard/payment-method">
+                  <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2">
+                    <PiPlusBold className="h-4 w-4" />
+                    Add New
+                  </Button>
+                </Link>
               </div>
             </div>
             <div className="p-6">
@@ -565,11 +638,26 @@ export default function BillingPage() {
                           )}
                           <div className="flex gap-2 mt-4">
                             {!method.is_primary && (
-                              <Button size="sm" variant="outline" className="text-xs">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs"
+                                disabled={actionLoading === method.id}
+                                onClick={() => handleSetPrimary(method.id)}
+                              >
+                                {actionLoading === method.id ? (
+                                  <PiSpinnerBold className="h-3 w-3 animate-spin mr-1" />
+                                ) : null}
                                 Set as Primary
                               </Button>
                             )}
-                            <Button size="sm" variant="outline" className="text-xs text-red-600 hover:text-red-700 gap-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs text-red-600 hover:text-red-700 gap-1"
+                              disabled={actionLoading === method.id}
+                              onClick={() => { setMethodToDelete(method); setDeleteDialogOpen(true); }}
+                            >
                               <PiTrashBold className="h-3 w-3" />
                               Remove
                             </Button>
@@ -583,10 +671,12 @@ export default function BillingPage() {
                     <PiCreditCardBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
                     <p>No payment methods saved</p>
                     <p className="text-sm mt-1 mb-4">Add a payment method for faster checkout</p>
-                    <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2">
-                      <PiPlusBold className="h-4 w-4" />
-                      Add Payment Method
-                    </Button>
+                    <Link href="/dashboard/payment-method">
+                      <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2">
+                        <PiPlusBold className="h-4 w-4" />
+                        Add Payment Method
+                      </Button>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -594,6 +684,34 @@ export default function BillingPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove payment method?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove{' '}
+              <strong>
+                {methodToDelete?.card_brand || methodToDelete?.bank_name || 'this payment method'}
+                {methodToDelete?.last_four ? ` ending in ${methodToDelete.last_four}` : ''}
+              </strong>{' '}
+              from your account. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setMethodToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleRemove}
+              disabled={!!actionLoading}
+            >
+              {actionLoading ? <PiSpinnerBold className="h-4 w-4 animate-spin mr-2" /> : null}
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
