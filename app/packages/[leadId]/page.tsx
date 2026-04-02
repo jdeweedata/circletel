@@ -312,11 +312,11 @@ function PackagesContent() {
         });
 
         actions.setCurrentStage(2);
-        router.push('/order/service-address');
+        router.push('/order/checkout');
       } else {
         // New user - go to account creation
         actions.setCurrentStage(2);
-        router.push('/order/account');
+        router.push('/order/checkout');
       }
     }
   };

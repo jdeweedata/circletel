@@ -59,7 +59,7 @@ export default function Home() {
         console.log('[Home] Detected OAuth redirect, forwarding to callback...');
         setIsRedirecting(true);
         // Forward to callback with hash and add next parameter for order flow
-        window.location.href = `/auth/callback?next=/order/service-address${window.location.hash}`;
+        window.location.href = `/auth/callback?next=/order/checkout${window.location.hash}`;
       }
     }
   }, [isRedirecting]);

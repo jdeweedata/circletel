@@ -34,7 +34,7 @@ export default function VerifyOTPPage() {
   useEffect(() => {
     if (!phone) {
       toast.error('Phone number is required');
-      router.push('/order/account');
+      router.push('/order/checkout');
     }
   }, [phone, router]);
 
@@ -78,7 +78,7 @@ export default function VerifyOTPPage() {
         }
 
         // Continue to service address confirmation step
-        router.push('/order/service-address');
+        router.push('/order/checkout');
       } else {
         toast.error(result.error || 'Invalid verification code');
       }
@@ -235,7 +235,7 @@ export default function VerifyOTPPage() {
             <div className="text-center pt-4 border-t">
               <button
                 type="button"
-                onClick={() => router.push('/order/account')}
+                onClick={() => router.push('/order/checkout')}
                 className="text-sm text-gray-600 hover:text-gray-900 flex items-center justify-center mx-auto"
               >
                 <PiArrowLeftBold className="h-4 w-4 mr-1" />

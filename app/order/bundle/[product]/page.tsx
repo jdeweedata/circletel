@@ -138,7 +138,7 @@ export default function BundleTierSelectionPage() {
       actions.markStepComplete(2);
 
       // Navigate to account creation
-      router.push('/order/account');
+      router.push('/order/checkout');
     } catch (error) {
       console.error('Failed to save selection:', error);
       toast.error('Failed to save selection. Please try again.');

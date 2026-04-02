@@ -143,7 +143,7 @@ export default function KycVerificationPage() {
   };
 
   const handleBack = () => {
-    router.push('/order/account');
+    router.push('/order/checkout');
   };
 
   const handleSkip = () => {
@@ -159,7 +159,7 @@ export default function KycVerificationPage() {
       }
     });
 
-    router.push('/order/payment');
+    router.push('/order/checkout');
   };
 
   return (

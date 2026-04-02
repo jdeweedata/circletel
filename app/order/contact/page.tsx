@@ -122,7 +122,7 @@ export default function ContactPage() {
   };
 
   const handleBack = () => {
-    router.push('/order/account');
+    router.push('/order/checkout');
   };
 
   return (

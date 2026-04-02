@@ -108,7 +108,7 @@ export default function InstallationPage() {
       actions.markStepComplete(4);
 
       // Navigate to payment page
-      router.push('/order/payment');
+      router.push('/order/checkout');
     } catch (error) {
       console.error('Error saving installation data:', error);
     } finally {
