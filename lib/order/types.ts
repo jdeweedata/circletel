@@ -19,6 +19,7 @@ export interface CoverageData {
   availableServices?: string[];
   locationType?: LocationType;
   coverageType?: string;
+  propertyType?: string;
   // Selected package stored with coverage (legacy pattern)
   selectedPackage?: PackageDetails;
   // Bundle product preselection (from product page CTA)
@@ -186,33 +187,29 @@ export interface PaymentData {
   amount?: number;
 }
 
-// Order stages - New 4-step journey (with KYC verification)
-export type OrderStage = 1 | 2 | 3 | 4;
-export type OrderStageId = 'coverage' | 'package' | 'account' | 'verification';
+// Order stages - 3-step journey (Location → Choose Plan → Account & Pay)
+export type OrderStage = 1 | 2 | 3;
+export type OrderStageId = 'coverage' | 'packages' | 'checkout';
 
-export const STAGE_NAMES = ['Check Coverage', 'Choose Package', 'Create Account', 'Verification'] as const;
-export const TOTAL_STAGES = 4;
+export const STAGE_NAMES = ['Location', 'Choose Plan', 'Account & Pay'] as const;
+export const TOTAL_STAGES = 3;
 
-export const STAGE_IDS: OrderStageId[] = ['coverage', 'package', 'account', 'verification'];
+export const STAGE_IDS: OrderStageId[] = ['coverage', 'packages', 'checkout'];
 
-// Map stage numbers to IDs
 export const getStageId = (stage: OrderStage): OrderStageId => {
   const map: Record<OrderStage, OrderStageId> = {
     1: 'coverage',
-    2: 'package',
-    3: 'account',
-    4: 'verification',
+    2: 'packages',
+    3: 'checkout',
   };
   return map[stage];
 };
 
-// Map stage IDs to numbers
 export const getStageNumber = (stageId: OrderStageId): OrderStage => {
   const map: Record<OrderStageId, OrderStage> = {
     coverage: 1,
-    package: 2,
-    account: 3,
-    verification: 4,
+    packages: 2,
+    checkout: 3,
   };
   return map[stageId];
 };
