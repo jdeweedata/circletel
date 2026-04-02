@@ -1,7 +1,7 @@
 'use client'
 import { PiCheckBold, PiXBold } from 'react-icons/pi';
 
-import { PricingTableSection, PricingTableColumn } from '@/lib/types/strapi'
+import { PricingTableSection, PricingTableColumn } from '@/lib/types/content'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 

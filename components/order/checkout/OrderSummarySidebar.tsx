@@ -1,5 +1,7 @@
 'use client';
 
+import { PiLockSimpleBold, PiWifiHighBold } from 'react-icons/pi';
+
 interface OrderSummarySidebarProps {
   packageName: string;
   speed: string;
@@ -7,6 +9,7 @@ interface OrderSummarySidebarProps {
   promotionPrice?: number;
   promotionMonths?: number;
   installationFee?: number;
+  address?: string;
 }
 
 export function OrderSummarySidebar({
@@ -16,49 +19,83 @@ export function OrderSummarySidebar({
   promotionPrice,
   promotionMonths,
   installationFee = 0,
+  address,
 }: OrderSummarySidebarProps) {
-  return (
-    <div className="bg-gray-50 rounded-xl border border-gray-200 p-6 sticky top-6">
-      <h3 className="font-semibold text-gray-900 mb-4">Order Summary</h3>
+  const displayPrice = promotionPrice ?? monthlyPrice;
 
-      <div className="mb-4">
-        <p className="font-medium text-gray-900">{packageName}</p>
-        <p className="text-sm text-gray-500">{speed}</p>
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden sticky top-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-4">
+        <div className="flex items-center gap-2 mb-1">
+          <PiWifiHighBold className="w-4 h-4 text-white/80" />
+          <span className="text-xs font-medium text-white/80 uppercase tracking-wide">Your plan</span>
+        </div>
+        <p className="text-white font-bold text-lg leading-tight">{packageName}</p>
+        <p className="text-white/70 text-sm">{speed}</p>
       </div>
 
-      <div className="space-y-2 text-sm border-t border-gray-200 pt-4">
-        <div className="flex justify-between">
-          <span className="text-gray-600">Monthly subscription</span>
-          <span className="text-gray-900">
+      {/* Pricing breakdown */}
+      <div className="px-5 py-4 space-y-3">
+        <div className="flex items-baseline justify-between">
+          <span className="text-sm text-gray-500">Monthly</span>
+          <div className="text-right">
             {promotionPrice ? (
               <>
-                <span className="text-orange-500 font-medium">R{promotionPrice}</span>
-                <span className="text-gray-400 line-through ml-1 text-xs">R{monthlyPrice}</span>
+                <span className="text-gray-900 font-semibold">R{promotionPrice}</span>
+                <span className="text-gray-400 line-through text-xs ml-1.5">R{monthlyPrice}</span>
               </>
             ) : (
-              `R${monthlyPrice}`
+              <span className="text-gray-900 font-semibold">R{monthlyPrice}</span>
             )}
-          </span>
+            <span className="text-gray-400 text-xs">/mo</span>
+          </div>
         </div>
         {promotionMonths && (
-          <p className="text-xs text-gray-400">
-            Promo price for {promotionMonths} months, then R{monthlyPrice}/month
+          <p className="text-xs text-orange-500">
+            Promo rate for {promotionMonths} months, then R{monthlyPrice}/mo
           </p>
         )}
-        <div className="flex justify-between">
-          <span className="text-gray-600">Installation</span>
-          <span className="text-gray-900">{installationFee > 0 ? `R${installationFee}` : 'FREE'}</span>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-500">Installation</span>
+          {installationFee > 0 ? (
+            <span className="text-sm text-gray-900">R{installationFee}</span>
+          ) : (
+            <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">FREE</span>
+          )}
+        </div>
+
+        {address && (
+          <div className="pt-1 border-t border-gray-50">
+            <p className="text-xs text-gray-400 leading-relaxed">{address}</p>
+          </div>
+        )}
+
+        {/* Today's charge */}
+        <div className="bg-gray-50 rounded-lg px-4 py-3 mt-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Charged today</span>
+            <span className="text-2xl font-bold text-orange-500">R1.00</span>
+          </div>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Validation charge · credited to your account
+          </p>
         </div>
       </div>
 
-      <div className="border-t border-gray-200 mt-4 pt-4">
-        <div className="flex justify-between items-center">
-          <span className="font-semibold text-gray-900">Charged today</span>
-          <span className="text-xl font-bold text-orange-500">R1.00</span>
+      {/* Trust strip */}
+      <div className="px-5 py-3 border-t border-gray-50 bg-gray-50/50">
+        <div className="flex items-center gap-1.5 mb-1">
+          <PiLockSimpleBold className="w-3.5 h-3.5 text-gray-400" />
+          <span className="text-xs text-gray-500 font-medium">Secure checkout</span>
         </div>
-        <p className="text-xs text-gray-400 mt-1">
-          Validation charge — credited to your account
-        </p>
+        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-400">
+          <span>No lock-in contract</span>
+          <span>·</span>
+          <span>Cancel anytime</span>
+          <span>·</span>
+          <span>3D Secure</span>
+        </div>
       </div>
     </div>
   );

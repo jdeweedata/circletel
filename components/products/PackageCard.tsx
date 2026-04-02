@@ -1,7 +1,7 @@
 'use client'
 import { PiCheckBold} from 'react-icons/pi';
 
-import { PackageTier } from '@/lib/types/strapi'
+import { PackageTier } from '@/lib/types/content'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 

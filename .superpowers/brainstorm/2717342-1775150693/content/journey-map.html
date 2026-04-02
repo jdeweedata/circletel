@@ -1,0 +1,160 @@
+<h2>Current Consumer Journey — End-to-End Map</h2>
+<p class="subtitle">Review the existing flow and flag what needs attention</p>
+
+<div class="section">
+  <span class="label">Acquisition → Order → Activate → Retain</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
+
+  <!-- Phase 1: Awareness -->
+  <div style="background: #1e293b; border-radius: 10px; padding: 16px;">
+    <div style="color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Phase 1 — Awareness & Discovery</div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <div style="background: #334155; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #f1f5f9;">
+        🏠 Homepage <span style="font-size: 10px; color: #64748b; display: block;">app/(marketing)/page.tsx</span>
+      </div>
+      <div style="background: #334155; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #f1f5f9;">
+        📦 Product Pages <span style="font-size: 10px; color: #64748b; display: block;">/soho, /enterprise, /5g-deals</span>
+      </div>
+      <div style="background: #334155; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #f1f5f9;">
+        🔍 Coverage Checker <span style="font-size: 10px; color: #64748b; display: block;">/coverage (read-only)</span>
+      </div>
+      <div style="background: #334155; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #f1f5f9;">
+        📋 FAQ / Pricing <span style="font-size: 10px; color: #64748b; display: block;">/faq</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="text-align: center; color: #f97316; font-size: 20px;">↓</div>
+
+  <!-- Phase 2: Order Flow -->
+  <div style="background: #1e293b; border-radius: 10px; padding: 16px;">
+    <div style="color: #f97316; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Phase 2 — Order Flow (4 Stages)</div>
+    <div style="display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap;">
+
+      <div style="background: #1d4ed8; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fff; min-width: 120px;">
+        <div style="font-weight: 700;">Stage 1</div>
+        <div>Coverage Check</div>
+        <div style="font-size: 10px; color: #93c5fd; margin-top: 4px;">/order/coverage</div>
+        <div style="font-size: 10px; color: #93c5fd;">Address + residential/business</div>
+      </div>
+
+      <div style="color: #f97316; font-size: 18px; margin-top: 14px;">→</div>
+
+      <div style="background: #1d4ed8; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fff; min-width: 120px;">
+        <div style="font-weight: 700;">Stage 2</div>
+        <div>Package Selection</div>
+        <div style="font-size: 10px; color: #93c5fd; margin-top: 4px;">/order/packages/[leadId]</div>
+        <div style="font-size: 10px; color: #93c5fd;">Speed tiers + add-ons</div>
+      </div>
+
+      <div style="color: #f97316; font-size: 18px; margin-top: 14px;">→</div>
+
+      <div style="background: #1d4ed8; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fff; min-width: 140px;">
+        <div style="font-weight: 700;">Stage 3a</div>
+        <div>Account Creation</div>
+        <div style="font-size: 10px; color: #93c5fd; margin-top: 4px;">/order/account</div>
+        <div style="font-size: 10px; color: #93c5fd;">Email / Google / OTP</div>
+      </div>
+
+      <div style="color: #f97316; font-size: 18px; margin-top: 14px;">→</div>
+
+      <div style="background: #1d4ed8; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fff; min-width: 140px;">
+        <div style="font-weight: 700;">Stage 3b</div>
+        <div>Service Address</div>
+        <div style="font-size: 10px; color: #93c5fd; margin-top: 4px;">/order/service-address</div>
+        <div style="font-size: 10px; color: #93c5fd;">Property type confirmation</div>
+      </div>
+
+      <div style="color: #f97316; font-size: 18px; margin-top: 14px;">→</div>
+
+      <div style="background: #1d4ed8; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fff; min-width: 130px;">
+        <div style="font-weight: 700;">Stage 4</div>
+        <div>Payment</div>
+        <div style="font-size: 10px; color: #93c5fd; margin-top: 4px;">/order/payment</div>
+        <div style="font-size: 10px; color: #93c5fd;">R1.00 validation charge</div>
+      </div>
+
+      <div style="color: #f97316; font-size: 18px; margin-top: 14px;">→</div>
+
+      <div style="background: #166534; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fff; min-width: 130px;">
+        <div style="font-weight: 700;">✓ Confirmation</div>
+        <div>Order Created</div>
+        <div style="font-size: 10px; color: #86efac; margin-top: 4px;">/order/confirmation</div>
+        <div style="font-size: 10px; color: #86efac;">Order # + next steps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="text-align: center; color: #f97316; font-size: 20px;">↓</div>
+
+  <!-- Phase 3: Post-Order -->
+  <div style="background: #1e293b; border-radius: 10px; padding: 16px;">
+    <div style="color: #22c55e; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Phase 3 — Post-Order (Gap Zone ⚠️)</div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <div style="background: #78350f; border: 1px solid #f97316; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fde68a;">
+        ⚠️ Installation Scheduling <span style="font-size: 10px; color: #fcd34d; display: block;">No consumer-facing visibility</span>
+      </div>
+      <div style="background: #78350f; border: 1px solid #f97316; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fde68a;">
+        ⚠️ KYC / RICA <span style="font-size: 10px; color: #fcd34d; display: block;">Post-order, unclear timing</span>
+      </div>
+      <div style="background: #78350f; border: 1px solid #f97316; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fde68a;">
+        ⚠️ Activation Status <span style="font-size: 10px; color: #fcd34d; display: block;">No clear pending → active signal</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="text-align: center; color: #f97316; font-size: 20px;">↓</div>
+
+  <!-- Phase 4: Dashboard -->
+  <div style="background: #1e293b; border-radius: 10px; padding: 16px;">
+    <div style="color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Phase 4 — Customer Dashboard (Retention)</div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <div style="background: #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #f1f5f9;">📊 Overview</div>
+      <div style="background: #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #f1f5f9;">📦 Orders</div>
+      <div style="background: #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #f1f5f9;">🌐 Services</div>
+      <div style="background: #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #f1f5f9;">💳 Billing</div>
+      <div style="background: #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #f1f5f9;">🧾 Invoices</div>
+      <div style="background: #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #f1f5f9;">🎫 Support Tickets</div>
+      <div style="background: #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #f1f5f9;">👤 Profile</div>
+      <div style="background: #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #f1f5f9;">🔐 KYC/Compliance</div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top: 20px; background: #1e293b; border-radius: 10px; padding: 16px;">
+  <div style="color: #f87171; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Known Gaps Identified in Codebase</div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div style="background: #450a0a; border-left: 3px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; color: #fca5a5;">
+      <strong>Order confirmation lacks real data</strong><br>
+      <span style="color: #f87171;">Shows placeholders, not DB order details</span>
+    </div>
+    <div style="background: #450a0a; border-left: 3px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; color: #fca5a5;">
+      <strong>No post-payment activation path</strong><br>
+      <span style="color: #f87171;">Order stays "pending" indefinitely from customer POV</span>
+    </div>
+    <div style="background: #450a0a; border-left: 3px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; color: #fca5a5;">
+      <strong>KYC skipped in order flow</strong><br>
+      <span style="color: #f87171;">KycData struct exists but no collection step</span>
+    </div>
+    <div style="background: #450a0a; border-left: 3px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; color: #fca5a5;">
+      <strong>Duplicate address collection</strong><br>
+      <span style="color: #f87171;">Coverage stage + service-address both collect addresses</span>
+    </div>
+    <div style="background: #78350f; border-left: 3px solid #f97316; padding: 10px; border-radius: 6px; font-size: 12px; color: #fde68a;">
+      <strong>Open redirect vulnerability</strong><br>
+      <span style="color: #fcd34d;">?redirect= param in /auth/login unvalidated</span>
+    </div>
+    <div style="background: #78350f; border-left: 3px solid #f97316; padding: 10px; border-radius: 6px; font-size: 12px; color: #fde68a;">
+      <strong>R1.00 credit tracking unclear</strong><br>
+      <span style="color: #fcd34d;">Validation charge credited to account — where/how?</span>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top: 16px;">Take a look — which area should we focus the brainstorm on? Reply in the terminal.</p>

@@ -1,7 +1,6 @@
 /**
- * Strapi/CMS Type Definitions
+ * CMS Type Definitions
  * Types for product page components (FAQ, Pricing, Specs, etc.)
- * These were originally from Strapi CMS but now used with Prismic/internal CMS
  */
 
 // FAQ Section Types

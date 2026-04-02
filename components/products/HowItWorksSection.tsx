@@ -1,7 +1,7 @@
 'use client'
 import { PiArrowRightBold } from 'react-icons/pi';
 
-import { HowItWorksSection as HowItWorksSectionType } from '@/lib/types/strapi'
+import { HowItWorksSection as HowItWorksSectionType } from '@/lib/types/content'
 import Image from 'next/image'
 
 interface HowItWorksSectionProps {

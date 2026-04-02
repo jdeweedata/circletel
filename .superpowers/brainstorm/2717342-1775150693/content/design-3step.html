@@ -1,0 +1,178 @@
+<h2>Proposed Design — 3-Step Order Flow</h2>
+<p class="subtitle">Review each step. Tell me if anything needs adjusting.</p>
+
+<div style="display: flex; gap: 10px; margin: 16px 0; flex-wrap: wrap;">
+  <div style="background: #f97316; color: #fff; border-radius: 99px; padding: 4px 14px; font-size: 11px; font-weight: 700;">6 screens → 3 screens</div>
+  <div style="background: #7e22ce; color: #e9d5ff; border-radius: 99px; padding: 4px 14px; font-size: 11px; font-weight: 700;">OTP detour eliminated</div>
+  <div style="background: #166534; color: #86efac; border-radius: 99px; padding: 4px 14px; font-size: 11px; font-weight: 700;">All critical bugs fixed</div>
+</div>
+
+<!-- Progress Bar Preview -->
+<div style="background: #1e293b; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+  <div style="color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">New Progress Bar (3 honest steps)</div>
+  <div style="display: flex; align-items: center; gap: 0;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <div style="background: #f97316; color: #fff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;">1</div>
+      <div style="font-size: 11px; color: #f97316; font-weight: 600;">Location</div>
+    </div>
+    <div style="flex: 1; height: 2px; background: #334155; margin: 0 8px; margin-bottom: 18px;"></div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <div style="background: #334155; color: #94a3b8; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;">2</div>
+      <div style="font-size: 11px; color: #64748b; font-weight: 600;">Choose Plan</div>
+    </div>
+    <div style="flex: 1; height: 2px; background: #334155; margin: 0 8px; margin-bottom: 18px;"></div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <div style="background: #334155; color: #94a3b8; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;">3</div>
+      <div style="font-size: 11px; color: #64748b; font-weight: 600;">Account &amp; Pay</div>
+    </div>
+  </div>
+</div>
+
+<!-- Step 1 -->
+<div style="background: #1e293b; border-radius: 10px; padding: 16px; margin-bottom: 12px; border-left: 3px solid #f97316;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #f1f5f9; font-size: 15px;">Step 1 — Location <span style="font-size: 11px; color: #64748b; font-weight: 400;">/order/coverage</span></div>
+    <div style="background: #166534; color: #86efac; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 600;">Unchanged + 1 addition</div>
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div>
+      <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Existing (keep)</div>
+      <div style="font-size: 12px; color: #94a3b8; line-height: 1.7;">
+        ✓ Address autocomplete<br>
+        ✓ Residential / Business toggle<br>
+        ✓ "Address confirmed" green box<br>
+        ✓ Creates coverage lead → leadId
+      </div>
+    </div>
+    <div>
+      <div style="font-size: 11px; color: #f97316; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Add (from service-address page)</div>
+      <div style="background: #451a03; border: 1px solid #f97316; border-radius: 8px; padding: 10px; font-size: 12px; color: #fde68a;">
+        <strong>Property Type dropdown</strong><br>
+        Shows after address is confirmed.<br>
+        Residential: House / Apartment / Estate / Townhouse<br>
+        Business: Office / Industrial / SOHO / Healthcare / Education
+      </div>
+    </div>
+  </div>
+  <div style="margin-top: 10px; background: #0f172a; border-radius: 6px; padding: 8px 12px; font-size: 11px; color: #64748b;">
+    On submit: stores address + coordinates + coverageType + propertyType → navigates to /order/packages/[leadId]
+  </div>
+</div>
+
+<!-- Step 2 -->
+<div style="background: #1e293b; border-radius: 10px; padding: 16px; margin-bottom: 12px; border-left: 3px solid #f97316;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #f1f5f9; font-size: 15px;">Step 2 — Choose Plan <span style="font-size: 11px; color: #64748b; font-weight: 400;">/order/packages/[leadId]</span></div>
+    <div style="background: #78350f; color: #fde68a; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 600;">Wire to real API</div>
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div>
+      <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Keep</div>
+      <div style="font-size: 12px; color: #94a3b8; line-height: 1.7;">
+        ✓ Package card grid layout<br>
+        ✓ Fibre / Wireless tabs<br>
+        ✓ Most Popular badge<br>
+        ✓ Speed/price/features display<br>
+        ✓ Trust indicators (bottom)
+      </div>
+    </div>
+    <div>
+      <div style="font-size: 11px; color: #f97316; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Change</div>
+      <div style="background: #451a03; border: 1px solid #f97316; border-radius: 8px; padding: 10px; font-size: 12px; color: #fde68a;">
+        Replace hardcoded mock packages with:<br>
+        <code style="font-size: 11px;">GET /api/coverage/packages?leadId=&amp;type=</code><br><br>
+        API already returns: name, price, promotion_price, speed_down, speed_up, features[], provider logo
+      </div>
+    </div>
+  </div>
+  <div style="margin-top: 10px; background: #0f172a; border-radius: 6px; padding: 8px 12px; font-size: 11px; color: #64748b;">
+    On select: stores package to OrderContext → navigates to /order/checkout (new combined step 3)
+  </div>
+</div>
+
+<!-- Step 3 -->
+<div style="background: #1e293b; border-radius: 10px; padding: 16px; margin-bottom: 12px; border-left: 3px solid #f97316;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #f1f5f9; font-size: 15px;">Step 3 — Account &amp; Pay <span style="font-size: 11px; color: #64748b; font-weight: 400;">/order/checkout</span></div>
+    <div style="background: #450a0a; color: #fca5a5; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 600;">New page (replaces 3 pages)</div>
+  </div>
+
+  <!-- Two variants -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+
+    <!-- New customer -->
+    <div style="background: #0f172a; border-radius: 8px; padding: 12px; border: 1px solid #334155;">
+      <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">New Customer</div>
+      <div style="font-size: 12px; color: #f1f5f9; line-height: 1.8;">
+        <div style="color: #64748b; font-size: 10px; margin-bottom: 4px; text-transform: uppercase;">Section A — Create Account</div>
+        • Google OAuth button<br>
+        • Or: First name, Last name<br>
+        • Email, Password<br>
+        • Phone (collected, not verified here)<br>
+        • Terms checkbox<br>
+        <br>
+        <div style="color: #64748b; font-size: 10px; margin-bottom: 4px; text-transform: uppercase;">Section B — Payment</div>
+        • Order summary (package + R1.00)<br>
+        • "Proceed to Payment" → NetCash
+      </div>
+    </div>
+
+    <!-- Returning customer -->
+    <div style="background: #0f172a; border-radius: 8px; padding: 12px; border: 1px solid #334155;">
+      <div style="font-size: 11px; color: #22c55e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Returning Customer (logged in)</div>
+      <div style="font-size: 12px; color: #f1f5f9; line-height: 1.8;">
+        <div style="background: #1e3a5f; border-radius: 6px; padding: 8px; margin-bottom: 10px; font-size: 11px; color: #93c5fd;">
+          👤 Ordering as <strong>Jeffrey de Wee...</strong><br>
+          jeff@example.com · [Not you? Sign out]
+        </div>
+        <div style="color: #64748b; font-size: 10px; margin-bottom: 4px; text-transform: uppercase;">Section B — Payment only</div>
+        • Order summary (package + R1.00)<br>
+        • "Proceed to Payment" → NetCash
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #0f172a; border-radius: 6px; padding: 8px 12px; font-size: 11px; color: #64748b;">
+    On payment: creates order in DB (once, here only) → initiates NetCash R1.00 → redirects to NetCash → returns to /order/confirmation/[orderId]
+  </div>
+</div>
+
+<!-- Confirmation -->
+<div style="background: #1e293b; border-radius: 10px; padding: 16px; margin-bottom: 12px; border-left: 3px solid #22c55e;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <div style="font-weight: 700; color: #f1f5f9; font-size: 15px;">Confirmation <span style="font-size: 11px; color: #64748b; font-weight: 400;">/order/confirmation/[orderId]</span></div>
+    <div style="background: #78350f; color: #fde68a; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 600;">Fix: fetch from API</div>
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div>
+      <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Keep</div>
+      <div style="font-size: 12px; color: #94a3b8; line-height: 1.7;">
+        ✓ Order number + date display<br>
+        ✓ Package + address summary<br>
+        ✓ "What happens next" steps
+      </div>
+    </div>
+    <div>
+      <div style="font-size: 11px; color: #f97316; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Change</div>
+      <div style="background: #451a03; border: 1px solid #f97316; border-radius: 8px; padding: 10px; font-size: 12px; color: #fde68a;">
+        • Fetch order via <code>GET /api/orders/[id]</code> instead of reading OrderContext<br>
+        • Survives page refresh<br>
+        • Add "Verify your phone" as Step 1 in "What happens next" (soft block: installation won't schedule until verified)<br>
+        • Add phone verification CTA card
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pages deleted -->
+<div style="background: #1e293b; border-radius: 10px; padding: 16px; border: 1px dashed #334155;">
+  <div style="color: #ef4444; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Pages Deleted / Retired</div>
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    <div style="background: #450a0a; color: #fca5a5; font-size: 11px; padding: 4px 10px; border-radius: 6px; text-decoration: line-through;">/order/account</div>
+    <div style="background: #450a0a; color: #fca5a5; font-size: 11px; padding: 4px 10px; border-radius: 6px; text-decoration: line-through;">/order/service-address</div>
+    <div style="background: #450a0a; color: #fca5a5; font-size: 11px; padding: 4px 10px; border-radius: 6px; text-decoration: line-through;">/order/payment</div>
+    <div style="background: #334155; color: #94a3b8; font-size: 11px; padding: 4px 10px; border-radius: 6px;">Replaced by /order/checkout</div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top: 16px;">Does this design look right? Any section you want to change? Reply in the terminal.</p>

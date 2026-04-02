@@ -1,7 +1,7 @@
 'use client'
 import { PiCaretDownBold } from 'react-icons/pi';
 
-import { FAQSection } from '@/lib/types/strapi'
+import { FAQSection } from '@/lib/types/content'
 import { useState } from 'react'
 
 interface FAQAccordionProps {

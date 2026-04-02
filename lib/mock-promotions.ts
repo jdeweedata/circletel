@@ -1,4 +1,4 @@
-import type { Promotion } from './types/strapi'
+import type { Promotion } from './types/content'
 
 // Mock promotions data matching Afrihost deals page design
 export const mockPromotions: Promotion[] = [

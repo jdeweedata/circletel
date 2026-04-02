@@ -1,0 +1,107 @@
+<h2>Three Approaches — Fix Bugs + Reduce Friction</h2>
+<p class="subtitle">All three fix the critical issues. They differ in how much the flow is restructured.</p>
+
+<div class="options">
+
+  <!-- Option A -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Surgical Fixes — Patch in Place</h3>
+      <p style="color: #94a3b8; font-size: 12px; margin-bottom: 10px;">Keep all 5 screens. Fix bugs. Merge one redundant page.</p>
+
+      <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+        <span style="background: #1d4ed8; color: #bfdbfe; font-size: 10px; padding: 2px 7px; border-radius: 99px;">5 → 4 screens</span>
+        <span style="background: #166534; color: #86efac; font-size: 10px; padding: 2px 7px; border-radius: 99px;">Lowest risk</span>
+        <span style="background: #374151; color: #d1d5db; font-size: 10px; padding: 2px 7px; border-radius: 99px;">~1 week</span>
+      </div>
+
+      <div style="font-size: 11px; color: #94a3b8;">
+        <div style="margin-bottom: 6px;"><span style="color: #22c55e;">✓</span> OTP: Defer phone verification to post-order (send code, verify later in dashboard)</div>
+        <div style="margin-bottom: 6px;"><span style="color: #22c55e;">✓</span> Confirmation: Add API fetch by orderId, remove localStorage dependency</div>
+        <div style="margin-bottom: 6px;"><span style="color: #22c55e;">✓</span> Packages: Wire to real /api/coverage/packages?leadId= API</div>
+        <div style="margin-bottom: 6px;"><span style="color: #22c55e;">✓</span> Duplicate orders: Consolidate to payment stage only (remove from service-address)</div>
+        <div style="margin-bottom: 6px;"><span style="color: #22c55e;">✓</span> Collapse service-address: Merge property type dropdown into coverage page (step 1)</div>
+        <div style="margin-bottom: 6px;"><span style="color: #f97316;">→</span> Flow becomes: Coverage+PropertyType → Packages → Account → Payment → Confirm</div>
+      </div>
+
+      <div class="pros-cons" style="margin-top: 10px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Minimal blast radius</li><li>Reuses existing pages</li><li>Fast to ship</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Still 4 screens</li><li>Account page still heavy</li><li>OTP deferred ≠ removed</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>3-Step Streamlined Flow <span style="color: #f97316; font-size: 12px;">(Recommended)</span></h3>
+      <p style="color: #94a3b8; font-size: 12px; margin-bottom: 10px;">Restructure into 3 lean steps. Remove detours entirely.</p>
+
+      <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+        <span style="background: #1d4ed8; color: #bfdbfe; font-size: 10px; padding: 2px 7px; border-radius: 99px;">6 → 3 screens</span>
+        <span style="background: #7e22ce; color: #e9d5ff; font-size: 10px; padding: 2px 7px; border-radius: 99px;">Best conversion</span>
+        <span style="background: #374151; color: #d1d5db; font-size: 10px; padding: 2px 7px; border-radius: 99px;">~2–3 weeks</span>
+      </div>
+
+      <div style="font-size: 12px; color: #f1f5f9; margin-bottom: 10px;">
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+          <div style="background: #f97316; color: #fff; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0;">1</div>
+          <div><strong>Where are you?</strong> — Address autocomplete + property type (house/apt/estate) + coverage type in one screen</div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+          <div style="background: #f97316; color: #fff; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0;">2</div>
+          <div><strong>Which plan?</strong> — Real packages from API. Select plan + optional add-ons.</div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+          <div style="background: #f97316; color: #fff; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0;">3</div>
+          <div><strong>Who are you + pay</strong> — Email/Google signup, name/phone, inline order creation + R1.00 payment. One screen, two sub-sections.</div>
+        </div>
+      </div>
+
+      <div style="font-size: 11px; color: #94a3b8;">
+        <div style="margin-bottom: 6px;"><span style="color: #22c55e;">✓</span> No OTP in flow — phone collected, verified post-order in dashboard</div>
+        <div style="margin-bottom: 6px;"><span style="color: #22c55e;">✓</span> Order created once, at payment — no duplicates possible</div>
+        <div style="margin-bottom: 6px;"><span style="color: #22c55e;">✓</span> Confirmation fetches from API — survives refresh</div>
+        <div style="margin-bottom: 6px;"><span style="color: #22c55e;">✓</span> Progress bar stays honest: 3 real steps</div>
+      </div>
+
+      <div class="pros-cons" style="margin-top: 10px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Fewer drop-off points</li><li>Cleaner mental model</li><li>Fixes all critical bugs</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Rewrites 3 pages</li><li>Step 3 is busier</li><li>More testing needed</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Single-Page Checkout</h3>
+      <p style="color: #94a3b8; font-size: 12px; margin-bottom: 10px;">Everything on one scrollable page. Sections reveal progressively.</p>
+
+      <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+        <span style="background: #1d4ed8; color: #bfdbfe; font-size: 10px; padding: 2px 7px; border-radius: 99px;">1 long page</span>
+        <span style="background: #7f1d1d; color: #fca5a5; font-size: 10px; padding: 2px 7px; border-radius: 99px;">Highest risk</span>
+        <span style="background: #374151; color: #d1d5db; font-size: 10px; padding: 2px 7px; border-radius: 99px;">~4–6 weeks</span>
+      </div>
+
+      <div style="font-size: 11px; color: #94a3b8;">
+        <div style="margin-bottom: 6px;">Address → packages appear below → account section reveals → payment at bottom</div>
+        <div style="margin-bottom: 6px;">Sticky order summary sidebar (like Shopify checkout)</div>
+        <div style="margin-bottom: 6px;">No page navigation, no state loss on back-button</div>
+        <div style="margin-bottom: 6px;"><span style="color: #f97316;">⚠️</span> Large architectural change — rewrites everything</div>
+        <div style="margin-bottom: 6px;"><span style="color: #f97316;">⚠️</span> Mobile UX requires careful design (long scroll)</div>
+      </div>
+
+      <div class="pros-cons" style="margin-top: 10px;">
+        <div class="pros"><h4>Pros</h4><ul><li>No back-button state loss</li><li>Amazon/Shopify-familiar</li><li>Fewest round trips</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Full rewrite</li><li>Complex mobile UX</li><li>Months of work</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top: 16px;">Click your preferred approach, or tell me in the terminal. I recommend B.</p>
