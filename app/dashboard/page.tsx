@@ -13,6 +13,7 @@ import { ServiceManageDropdown } from "@/components/dashboard/ServiceManageDropd
 import { ModernStatCard } from "@/components/dashboard/ModernStatCard";
 import { EmailVerificationModal } from "@/components/dashboard/EmailVerificationModal";
 import { ConnectionStatusWidget } from "@/components/dashboard/ConnectionStatusWidget";
+import { OnboardingBanner } from "@/components/dashboard/OnboardingBanner";
 
 interface DashboardData {
   customer: {
@@ -272,12 +273,12 @@ export default function DashboardPage() {
         orderNumber={orderNumber}
         email={verifyEmail}
       />
-      <DashboardContent data={data} user={user} customer={customer} pendingOrders={pendingOrders} />
+      <DashboardContent data={data} user={user} customer={customer} pendingOrders={pendingOrders} accessToken={session?.access_token ?? ''} />
     </>
   );
 }
 
-function DashboardContent({ data, user, customer, pendingOrders }: { data: DashboardData; user: any; customer: any; pendingOrders: number }) {
+function DashboardContent({ data, user, customer, pendingOrders, accessToken }: { data: DashboardData; user: any; customer: any; pendingOrders: number; accessToken: string }) {
   // Helper to check if a name is a placeholder/default value
   const isPlaceholder = (name: string | undefined) => {
     if (!name) return true;
@@ -304,6 +305,9 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
   
   return (
     <div className="space-y-8">
+      {/* Onboarding checklist banner — shown until all verification steps are complete */}
+      {accessToken && <OnboardingBanner accessToken={accessToken} />}
+
       {/* Clean Modern Header */}
       <div className="mb-2">
         <div className="flex items-center justify-between">

@@ -1,9 +1,30 @@
 'use client';
 
+import { useState } from 'react';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckoutFormValues } from './types';
+import { PhoneOTPSection } from './PhoneOTPSection';
+
+type SignupTab = 'phone' | 'email';
+
+interface PhoneSignupSession {
+  access_token: string;
+  refresh_token: string;
+}
+
+interface PhoneSignupResult {
+  session: PhoneSignupSession;
+  customer: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+  };
+  isExistingUser: boolean;
+}
 
 interface AccountSectionProps {
   register: UseFormRegister<CheckoutFormValues>;
@@ -12,6 +33,8 @@ interface AccountSectionProps {
   onTogglePassword: () => void;
   onGoogleSignIn: () => Promise<void>;
   isSubmitting: boolean;
+  onPhoneSignupComplete: (result: PhoneSignupResult) => void;
+  onPhoneSignupError: (message: string) => void;
 }
 
 export function AccountSection({
@@ -21,7 +44,11 @@ export function AccountSection({
   onTogglePassword,
   onGoogleSignIn,
   isSubmitting,
+  onPhoneSignupComplete,
+  onPhoneSignupError,
 }: AccountSectionProps) {
+  const [activeTab, setActiveTab] = useState<SignupTab>('phone');
+
   return (
     <div>
       {/* Google OAuth */}
@@ -29,7 +56,7 @@ export function AccountSection({
         type="button"
         onClick={onGoogleSignIn}
         disabled={isSubmitting}
-        className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
+        className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors disabled:opacity-50"
       >
         <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -45,90 +72,120 @@ export function AccountSection({
           <div className="w-full border-t border-gray-100" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="px-3 bg-white text-gray-400">or continue with email</span>
+          <span className="px-3 bg-white text-gray-400">or sign up with</span>
         </div>
       </div>
 
-      <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="firstName" className="text-xs font-medium text-gray-600">First name</Label>
-            <Input
-              id="firstName"
-              placeholder="Jane"
-              className="mt-1 h-10 text-sm"
-              {...register('firstName')}
-            />
-            {errors.firstName && (
-              <p className="text-red-500 text-xs mt-1">{errors.firstName.message}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="lastName" className="text-xs font-medium text-gray-600">Last name</Label>
-            <Input
-              id="lastName"
-              placeholder="Smith"
-              className="mt-1 h-10 text-sm"
-              {...register('lastName')}
-            />
-            {errors.lastName && (
-              <p className="text-red-500 text-xs mt-1">{errors.lastName.message}</p>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="email" className="text-xs font-medium text-gray-600">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="jane@example.com"
-            className="mt-1 h-10 text-sm"
-            {...register('email')}
-          />
-          {errors.email && (
-            <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="password" className="text-xs font-medium text-gray-600">Password</Label>
-          <div className="relative mt-1">
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Min. 8 characters"
-              className="h-10 text-sm pr-14"
-              {...register('password')}
-            />
-            <button
-              type="button"
-              onClick={onTogglePassword}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
-          {errors.password && (
-            <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="phone" className="text-xs font-medium text-gray-600">Phone number</Label>
-          <Input
-            id="phone"
-            type="tel"
-            placeholder="0821234567"
-            className="mt-1 h-10 text-sm"
-            {...register('phone')}
-          />
-          <p className="text-xs text-gray-400 mt-1">Verified after your order is placed.</p>
-          {errors.phone && (
-            <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
-          )}
-        </div>
+      {/* Tab toggle */}
+      <div className="flex rounded-xl border border-gray-200 p-1 mb-5 bg-gray-50">
+        {(['phone', 'email'] as SignupTab[]).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+              activeTab === tab
+                ? 'bg-white text-circleTel-navy shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tab === 'phone' ? 'Phone (OTP)' : 'Email'}
+          </button>
+        ))}
       </div>
+
+      {/* Phone OTP tab */}
+      {activeTab === 'phone' && (
+        <PhoneOTPSection
+          isSubmitting={isSubmitting}
+          onSignupComplete={onPhoneSignupComplete}
+          onError={onPhoneSignupError}
+        />
+      )}
+
+      {/* Email / password tab */}
+      {activeTab === 'email' && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="firstName" className="text-xs font-semibold text-circleTel-navy">First name</Label>
+              <Input
+                id="firstName"
+                placeholder="Jane"
+                className="mt-1 h-10 text-sm"
+                {...register('firstName')}
+              />
+              {errors.firstName && (
+                <p className="text-red-500 text-xs mt-1">{errors.firstName.message}</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="lastName" className="text-xs font-semibold text-circleTel-navy">Last name</Label>
+              <Input
+                id="lastName"
+                placeholder="Smith"
+                className="mt-1 h-10 text-sm"
+                {...register('lastName')}
+              />
+              {errors.lastName && (
+                <p className="text-red-500 text-xs mt-1">{errors.lastName.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="email" className="text-xs font-semibold text-circleTel-navy">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="jane@example.com"
+              className="mt-1 h-10 text-sm"
+              {...register('email')}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="password" className="text-xs font-semibold text-circleTel-navy">Password</Label>
+            <div className="relative mt-1">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Min. 8 characters"
+                className="h-10 text-sm pr-14"
+                {...register('password')}
+              />
+              <button
+                type="button"
+                onClick={onTogglePassword}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="phone" className="text-xs font-semibold text-circleTel-navy">Phone number</Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="0821234567"
+              className="mt-1 h-10 text-sm"
+              {...register('phone')}
+            />
+            <p className="text-xs text-gray-400 mt-1">Verified after your order is placed.</p>
+            {errors.phone && (
+              <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

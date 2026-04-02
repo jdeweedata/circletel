@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 import { generateCustomerInvoice, buildInvoiceLineItems } from '@/lib/invoices/invoice-generator';
 import { PPPoECredentialService } from '@/lib/pppoe';
 import { apiLogger } from '@/lib/logging';
+import { checkOrderVerificationStatus } from '@/lib/orders/verification-gate';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -124,6 +125,26 @@ export async function POST(
         },
         { status: 400 }
       );
+    }
+
+    // Check customer verification gate
+    if (order.customer_id) {
+      const verificationResult = await checkOrderVerificationStatus(order.customer_id, orderId);
+      if (!verificationResult.canProcess) {
+        apiLogger.warn('[Activate] Order blocked by verification gate', {
+          orderId,
+          missingSteps: verificationResult.missingSteps,
+        });
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Customer verification is incomplete. Order cannot be activated until all verification steps are complete.',
+            missingSteps: verificationResult.missingSteps,
+            details: verificationResult.details,
+          },
+          { status: 422 }
+        );
+      }
     }
 
     // Check if installation document was uploaded

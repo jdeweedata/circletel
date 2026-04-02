@@ -22,10 +22,10 @@ export function PaymentDetailCard({
   const displayMonthly = promotionPrice ?? monthlyPrice;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
       {/* Package header */}
       <div className="px-5 py-4 border-b border-gray-50">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Order Summary</p>
+        <p className="text-sm font-bold text-circleTel-navy mb-1">Order Summary</p>
         <div className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-gray-900 text-sm">{packageName}</p>
@@ -58,7 +58,7 @@ export function PaymentDetailCard({
 
         <div className="border-t border-gray-100 pt-2.5 flex items-center justify-between">
           <span className="text-sm font-semibold text-gray-800">Total today</span>
-          <span className="text-xl font-bold text-circleTel-orange">R1.00</span>
+          <span className="text-2xl font-extrabold text-circleTel-orange">R1.00</span>
         </div>
       </div>
 

@@ -69,52 +69,81 @@ export class OTPService {
   }
 
   /**
-   * Verify OTP code for a phone number
+   * Verify OTP code for a phone number.
+   * Checks in-memory store first, falls back to database for serverless environments
+   * where the verify request may hit a different instance than the send request.
    */
   async verifyOTP(phone: string, otp: string): Promise<{ success: boolean; error?: string }> {
     const record = otpStore.get(phone);
 
-    if (!record) {
-      return {
-        success: false,
-        error: 'No OTP found for this phone number. Please request a new code.',
-      };
-    }
+    // --- In-memory path ---
+    if (record) {
+      if (new Date() > record.expiresAt) {
+        otpStore.delete(phone);
+        return { success: false, error: 'OTP has expired. Please request a new code.' };
+      }
+      if (record.attempts >= this.MAX_ATTEMPTS) {
+        otpStore.delete(phone);
+        return { success: false, error: 'Maximum verification attempts exceeded. Please request a new code.' };
+      }
 
-    // Check if expired
-    if (new Date() > record.expiresAt) {
+      record.attempts++;
+      otpStore.set(phone, record);
+
+      if (record.otp !== otp) {
+        return { success: false, error: `Invalid OTP code. ${this.MAX_ATTEMPTS - record.attempts} attempts remaining.` };
+      }
+
       otpStore.delete(phone);
-      return {
-        success: false,
-        error: 'OTP has expired. Please request a new code.',
-      };
+      await this._markVerifiedInDb(phone, otp);
+      return { success: true };
     }
 
-    // Check max attempts
-    if (record.attempts >= this.MAX_ATTEMPTS) {
-      otpStore.delete(phone);
-      return {
-        success: false,
-        error: 'Maximum verification attempts exceeded. Please request a new code.',
-      };
+    // --- Database fallback (different serverless instance) ---
+    try {
+      const supabase = await createClient();
+      const { data, error } = await supabase
+        .from('otp_verifications')
+        .select('otp, expires_at, verified, attempts')
+        .eq('email', phone)
+        .eq('verified', false)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error || !data) {
+        return { success: false, error: 'No OTP found for this phone number. Please request a new code.' };
+      }
+
+      if (new Date() > new Date(data.expires_at)) {
+        return { success: false, error: 'OTP has expired. Please request a new code.' };
+      }
+
+      const dbAttempts: number = (data.attempts as number) ?? 0;
+      if (dbAttempts >= this.MAX_ATTEMPTS) {
+        return { success: false, error: 'Maximum verification attempts exceeded. Please request a new code.' };
+      }
+
+      // Increment attempts in DB
+      await supabase
+        .from('otp_verifications')
+        .update({ attempts: dbAttempts + 1 })
+        .eq('email', phone)
+        .eq('verified', false);
+
+      if (data.otp !== otp) {
+        return { success: false, error: `Invalid OTP code. ${this.MAX_ATTEMPTS - (dbAttempts + 1)} attempts remaining.` };
+      }
+
+      await this._markVerifiedInDb(phone, otp);
+      return { success: true };
+    } catch (dbError) {
+      console.error('[OTPService] Database fallback verification failed:', dbError);
+      return { success: false, error: 'Verification failed. Please request a new code.' };
     }
+  }
 
-    // Increment attempts
-    record.attempts++;
-    otpStore.set(phone, record);
-
-    // Verify OTP
-    if (record.otp !== otp) {
-      return {
-        success: false,
-        error: `Invalid OTP code. ${this.MAX_ATTEMPTS - record.attempts} attempts remaining.`,
-      };
-    }
-
-    // Success - remove from store
-    otpStore.delete(phone);
-
-    // Update database
+  private async _markVerifiedInDb(phone: string, otp: string): Promise<void> {
     try {
       const supabase = await createClient();
       await supabase
@@ -123,10 +152,8 @@ export class OTPService {
         .eq('email', phone)
         .eq('otp', otp);
     } catch (error) {
-      console.error('Error updating OTP verification in database:', error);
+      console.error('[OTPService] Error marking OTP as verified in database:', error);
     }
-
-    return { success: true };
   }
 
   /**

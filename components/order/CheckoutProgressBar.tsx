@@ -9,6 +9,7 @@ export type CheckoutStage = 'coverage' | 'packages' | 'checkout';
 interface CheckoutProgressBarProps {
   currentStage: CheckoutStage;
   className?: string;
+  variant?: 'default' | 'hero';
 }
 
 const STEPS: { id: CheckoutStage; label: string }[] = [
@@ -23,8 +24,9 @@ export function stepNumberToStage(step: number): CheckoutStage {
   return mapping[step] || 'coverage';
 }
 
-export function CheckoutProgressBar({ currentStage, className }: CheckoutProgressBarProps) {
+export function CheckoutProgressBar({ currentStage, className, variant = 'default' }: CheckoutProgressBarProps) {
   const currentIndex = STEPS.findIndex((s) => s.id === currentStage);
+  const isHero = variant === 'hero';
 
   return (
     <nav className={cn('flex items-center justify-center gap-3', className)}>
@@ -39,7 +41,11 @@ export function CheckoutProgressBar({ currentStage, className }: CheckoutProgres
               <div
                 className={cn(
                   'flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-bold flex-shrink-0 transition-colors',
-                  completed || active
+                  isHero
+                    ? completed || active
+                      ? 'bg-white/30 text-white'
+                      : 'bg-white/20 text-white/50'
+                    : completed || active
                     ? 'bg-circleTel-orange text-white'
                     : 'bg-gray-100 text-gray-400'
                 )}
@@ -51,7 +57,13 @@ export function CheckoutProgressBar({ currentStage, className }: CheckoutProgres
               <span
                 className={cn(
                   'text-sm whitespace-nowrap transition-colors',
-                  active
+                  isHero
+                    ? active
+                      ? 'font-semibold text-white'
+                      : completed
+                      ? 'font-medium text-white/70'
+                      : 'font-normal text-white/50'
+                    : active
                     ? 'font-semibold text-gray-900'
                     : completed
                     ? 'font-medium text-gray-400'
@@ -64,7 +76,7 @@ export function CheckoutProgressBar({ currentStage, className }: CheckoutProgres
 
             {/* Breadcrumb separator */}
             {index < STEPS.length - 1 && (
-              <span className="text-gray-300 text-base select-none">›</span>
+              <span className={cn('text-base select-none', isHero ? 'text-white/40' : 'text-gray-300')}>›</span>
             )}
           </React.Fragment>
         );
