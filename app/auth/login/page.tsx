@@ -36,8 +36,24 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
   const [loginMethod, setLoginMethod] = React.useState<'email' | 'otp'>('email');
 
-  // Get redirect path from query params (e.g., ?redirect=/order/payment)
-  const redirectPath = searchParams.get('redirect') || '/dashboard';
+  const ALLOWED_REDIRECT_PATHS = [
+    '/dashboard',
+    '/order/checkout',
+    '/order/coverage',
+    '/order/packages',
+    '/partners',
+  ];
+
+  function safeRedirectPath(raw: string | null): string {
+    if (!raw) return '/dashboard';
+    if (!raw.startsWith('/')) return '/dashboard';
+    if (raw.startsWith('//')) return '/dashboard';
+    const isAllowed = ALLOWED_REDIRECT_PATHS.some((allowed) => raw.startsWith(allowed));
+    return isAllowed ? raw : '/dashboard';
+  }
+
+  // Get redirect path from query params — validated against allowlist to prevent open redirect
+  const redirectPath = safeRedirectPath(searchParams.get('redirect'));
 
   // Only clear session if there's an explicit auth error indicator
   // Don't clear just because there's a redirect param - that's too aggressive
