@@ -125,7 +125,7 @@ export default function VerifyOTPPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Progress Bar */}
-      <CheckoutProgressBar currentStage="verify" />
+      <CheckoutProgressBar currentStage="checkout" />
 
       <div className="flex items-center justify-center p-4 pt-8">
       <div className="w-full max-w-md">

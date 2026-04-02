@@ -293,7 +293,7 @@ export default function AccountPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         {/* Progress Bar */}
-        <CheckoutProgressBar currentStage="account" />
+        <CheckoutProgressBar currentStage="checkout" />
 
         <div className="w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           <div className="max-w-7xl mx-auto">

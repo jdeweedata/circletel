@@ -6,11 +6,8 @@ import { cn } from '@/lib/utils';
 
 export type CheckoutStage =
   | 'coverage'
-  | 'package'
-  | 'account'
-  | 'verify'
-  | 'address'
-  | 'payment';
+  | 'packages'
+  | 'checkout';
 
 interface Step {
   id: CheckoutStage;
@@ -23,33 +20,25 @@ interface CheckoutProgressBarProps {
   className?: string;
 }
 
-// Full checkout flow stages
-// Note: 'verify' is between account and address but we show a simplified view
-// to avoid overwhelming users. Account->Verify->Address are shown as one "Account" stage.
+// 3-step checkout flow: Location -> Choose Plan -> Account & Pay
 const CHECKOUT_STEPS: Step[] = [
-  { id: 'coverage', label: 'Coverage', shortLabel: 'Check' },
-  { id: 'package', label: 'Package', shortLabel: 'Package' },
-  { id: 'account', label: 'Account', shortLabel: 'Account' },
-  { id: 'address', label: 'Address', shortLabel: 'Address' },
-  { id: 'payment', label: 'Payment', shortLabel: 'Pay' },
+  { id: 'coverage', label: 'Location', shortLabel: 'Location' },
+  { id: 'packages', label: 'Choose Plan', shortLabel: 'Plan' },
+  { id: 'checkout', label: 'Account & Pay', shortLabel: 'Pay' },
 ];
 
-// 'verify' maps to 'account' stage visually (sub-step)
 const STAGE_MAPPING: Record<CheckoutStage, CheckoutStage> = {
   coverage: 'coverage',
-  package: 'package',
-  account: 'account',
-  verify: 'account', // Verification is part of account stage
-  address: 'address',
-  payment: 'payment',
+  packages: 'packages',
+  checkout: 'checkout',
 };
 
 // Map old numeric step to new stage names for backwards compatibility
 export function stepNumberToStage(step: number): CheckoutStage {
   const mapping: Record<number, CheckoutStage> = {
-    1: 'account',
-    2: 'address',
-    3: 'payment',
+    1: 'packages',
+    2: 'checkout',
+    3: 'checkout',
   };
   return mapping[step] || 'coverage';
 }

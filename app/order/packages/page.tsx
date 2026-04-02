@@ -270,7 +270,7 @@ export default function OrderPackagesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Progress Bar */}
-      <CheckoutProgressBar currentStage="package" />
+      <CheckoutProgressBar currentStage="packages" />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 md:py-12">
