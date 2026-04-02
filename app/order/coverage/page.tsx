@@ -35,6 +35,27 @@ export default function CoveragePage() {
   const [addressComponents, setAddressComponents] = useState<Partial<AddressData>>({});
   const [coverageType, setCoverageType] = useState<CoverageType>('residential');
   const [isChecking, setIsChecking] = useState(false);
+  const [propertyType, setPropertyType] = useState<string>('');
+
+  const RESIDENTIAL_PROPERTY_TYPES = [
+    { value: 'freestanding_home', label: 'Freestanding Home (SDU)' },
+    { value: 'gated_estate', label: 'Gated / Security Estate' },
+    { value: 'apartment', label: 'Apartment / Flat Complex' },
+    { value: 'townhouse', label: 'Townhouse' },
+  ];
+
+  const BUSINESS_PROPERTY_TYPES = [
+    { value: 'office_park', label: 'Office or Business Park' },
+    { value: 'industrial', label: 'Industrial or Warehouse' },
+    { value: 'educational', label: 'Educational Facility' },
+    { value: 'healthcare', label: 'Healthcare Facility' },
+    { value: 'freestanding_commercial', label: 'Free Standing Building' },
+    { value: 'soho', label: 'SOHO (Small Office Home Office)' },
+  ];
+
+  const propertyTypeOptions = coverageType === 'business'
+    ? BUSINESS_PROPERTY_TYPES
+    : RESIDENTIAL_PROPERTY_TYPES;
 
   // Check for preselected bundle product from query params
   const productSlug = searchParams.get('product');
@@ -67,6 +88,11 @@ export default function CoveragePage() {
     }
   }, [bundleProduct]);
 
+  // Reset propertyType when coverageType changes
+  useEffect(() => {
+    setPropertyType('');
+  }, [coverageType]);
+
   const handleLocationSelect = (data: AddressData) => {
     setAddress(data.address);
     if (data.latitude && data.longitude) {
@@ -87,6 +113,10 @@ export default function CoveragePage() {
       toast.error('Please enter your address');
       return;
     }
+    if (!propertyType) {
+      toast.error('Please select your property type');
+      return;
+    }
 
     setIsChecking(true);
 
@@ -96,6 +126,7 @@ export default function CoveragePage() {
         address: address.trim(),
         coordinates: coordinates,
         type: coverageType,
+        propertyType: propertyType,
         addressComponents: addressComponents || {},
         timestamp: new Date().toISOString()
       }));
@@ -106,9 +137,9 @@ export default function CoveragePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           address: address.trim(),
-          coordinates: coordinates,
-          coverageType: coverageType
-        })
+          coordinates,
+          customer_type: coverageType === 'business' ? 'smme' : 'consumer',
+        }),
       });
 
       if (!response.ok) {
@@ -123,7 +154,8 @@ export default function CoveragePage() {
           leadId: data.leadId,
           address: address.trim(),
           coordinates: coordinates || undefined,
-          coverageType: coverageType
+          coverageType: coverageType,
+          propertyType: propertyType,
         }
       });
 
@@ -136,7 +168,7 @@ export default function CoveragePage() {
         router.push(`/order/bundle/${bundleProduct.slug}`);
       } else {
         // Go to generic packages page
-        router.push(`/packages/${data.leadId}?type=${coverageType}`);
+        router.push(`/order/packages?leadId=${data.leadId}&type=${coverageType}`);
       }
     } catch (error) {
       console.error('Coverage check failed:', error);
@@ -281,6 +313,26 @@ export default function CoveragePage() {
                 <span className="text-sm font-medium">Address confirmed</span>
               </div>
               <p className="text-sm text-green-600 mt-1">{address}</p>
+            </div>
+          )}
+
+          {coordinates && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Property Type
+              </label>
+              <select
+                value={propertyType}
+                onChange={(e) => setPropertyType(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              >
+                <option value="">Select your property type...</option>
+                {propertyTypeOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
         </div>
