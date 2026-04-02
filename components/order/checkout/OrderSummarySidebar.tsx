@@ -9,6 +9,7 @@ interface OrderSummarySidebarProps {
   promotionPrice?: number;
   promotionMonths?: number;
   installationFee?: number;
+  isSimOnly?: boolean;
   address?: string;
 }
 
@@ -19,6 +20,7 @@ export function OrderSummarySidebar({
   promotionPrice,
   promotionMonths,
   installationFee = 0,
+  isSimOnly = false,
   address,
 }: OrderSummarySidebarProps) {
   const displayPrice = promotionPrice ?? monthlyPrice;
@@ -51,19 +53,16 @@ export function OrderSummarySidebar({
             <span className="text-gray-400 text-xs">/mo</span>
           </div>
         </div>
-        {promotionMonths && (
-          <p className="text-xs text-orange-500">
-            Promo rate for {promotionMonths} months, then R{monthlyPrice}/mo
-          </p>
+        {!isSimOnly && (
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-500">Installation</span>
+            {installationFee > 0 ? (
+              <span className="text-sm text-gray-900">R{installationFee}</span>
+            ) : (
+              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">FREE</span>
+            )}
+          </div>
         )}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">Installation</span>
-          {installationFee > 0 ? (
-            <span className="text-sm text-gray-900">R{installationFee}</span>
-          ) : (
-            <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">FREE</span>
-          )}
-        </div>
 
         {address && (
           <div className="pt-1 border-t border-gray-50">

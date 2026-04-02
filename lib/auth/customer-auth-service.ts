@@ -273,7 +273,7 @@ export class CustomerAuthService {
       // Save the intended redirect destination to localStorage BEFORE OAuth
       // This is necessary because Supabase OAuth doesn't reliably preserve query params
       // (the hash fragment with tokens can overwrite them)
-      const nextUrl = '/order/service-address';
+      const nextUrl = (typeof window !== 'undefined' && window.location.pathname) || '/order/checkout';
       if (typeof window !== 'undefined') {
         localStorage.setItem('circletel_oauth_next', nextUrl);
         console.log('[Google OAuth] Saved next URL to localStorage:', nextUrl);

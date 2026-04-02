@@ -12,6 +12,7 @@ import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { AccountSection } from '@/components/order/checkout/AccountSection';
 import { OrderingAsCard } from '@/components/order/checkout/OrderingAsCard';
 import { OrderSummarySidebar } from '@/components/order/checkout/OrderSummarySidebar';
+import { PaymentDetailCard } from '@/components/order/checkout/PaymentDetailCard';
 import { Checkbox } from '@/components/ui/checkbox';
 import { checkoutSchema, CheckoutFormValues } from '@/components/order/checkout/types';
 
@@ -170,32 +171,16 @@ export default function CheckoutPage() {
 
   const monthlyPrice = pkg?.monthlyPrice ?? 0;
 
-  // Mobile summary — compact strip above the form
-  const MobileSummary = pkg ? (
-    <div className="lg:hidden bg-gray-50 border border-gray-100 rounded-xl p-4 mb-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="font-medium text-gray-900 text-sm">{pkg.name}</p>
-          <p className="text-xs text-gray-500">{pkg.speed}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-gray-400">Today</p>
-          <p className="text-lg font-bold text-orange-500">R1.00</p>
-        </div>
-      </div>
-    </div>
-  ) : null;
-
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      <CheckoutProgressBar currentStage="checkout" />
+    <div className="py-8 sm:py-10">
+      <div className="mb-10">
+        <CheckoutProgressBar currentStage="checkout" />
+      </div>
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-12">
         {/* Main column */}
-        <div className="lg:col-span-3">
-          {MobileSummary}
-
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+        <div className="lg:col-span-3 flex flex-col gap-5">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-7 sm:p-8">
             {isAuthenticated ? (
               <>
                 <OrderingAsCard
@@ -205,21 +190,21 @@ export default function CheckoutPage() {
                 />
 
                 {/* Payment method */}
-                <div className="mt-5">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Payment method</p>
-                  <div className="flex items-center gap-3 border border-gray-100 rounded-lg px-4 py-3 bg-gray-50">
+                <div className="mt-6">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Payment method</p>
+                  <div className="flex items-center gap-3 border border-gray-100 rounded-xl px-4 py-3.5 bg-gray-50">
                     <PiCreditCardBold className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-gray-800">Credit or Debit Card</p>
-                      <p className="text-xs text-gray-400">Visa · Mastercard · 3D Secure</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Visa · Mastercard · 3D Secure</p>
                     </div>
                   </div>
                 </div>
 
                 {errorMessage && (
-                  <div className="mt-4 bg-red-50 border border-red-100 rounded-lg p-3 text-sm text-red-700">
+                  <div className="mt-5 bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-700">
                     {errorMessage}{' '}
-                    <a href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="underline">
+                    <a href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="underline font-medium">
                       Contact support
                     </a>
                   </div>
@@ -228,18 +213,18 @@ export default function CheckoutPage() {
                 <button
                   onClick={handleExistingUserOrder}
                   disabled={isSubmitting}
-                  className="mt-5 w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-semibold rounded-lg px-4 py-3 text-sm transition-colors flex items-center justify-center gap-2"
+                  className="mt-6 w-full bg-circleTel-orange hover:bg-orange-600 disabled:opacity-60 text-white font-semibold rounded-xl px-4 py-3.5 text-sm transition-colors flex items-center justify-center gap-2"
                 >
                   <PiLockSimpleBold className="w-4 h-4" />
-                  {isSubmitting ? 'Processing…' : 'Place Order — R1.00 charged today'}
+                  {isSubmitting ? 'Processing…' : 'Place Order'}
                 </button>
-                <p className="text-center text-xs text-gray-400 mt-2">
+                <p className="text-center text-xs text-gray-400 mt-3">
                   R{monthlyPrice}/month billed after activation · No lock-in
                 </p>
               </>
             ) : (
               <form onSubmit={handleSubmit(handleNewUserSubmit)} noValidate>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Your details</p>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-5">Your details</p>
 
                 <AccountSection
                   register={register}
@@ -251,19 +236,19 @@ export default function CheckoutPage() {
                 />
 
                 {/* Payment method */}
-                <div className="mt-5">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Payment method</p>
-                  <div className="flex items-center gap-3 border border-gray-100 rounded-lg px-4 py-3 bg-gray-50">
+                <div className="mt-6">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Payment method</p>
+                  <div className="flex items-center gap-3 border border-gray-100 rounded-xl px-4 py-3.5 bg-gray-50">
                     <PiCreditCardBold className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-gray-800">Credit or Debit Card</p>
-                      <p className="text-xs text-gray-400">Visa · Mastercard · 3D Secure</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Visa · Mastercard · 3D Secure</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Terms */}
-                <div className="flex items-start gap-2.5 mt-5">
+                <div className="flex items-start gap-3 mt-6">
                   <Checkbox
                     id="termsAccepted"
                     checked={termsAccepted === true}
@@ -274,19 +259,19 @@ export default function CheckoutPage() {
                   />
                   <label htmlFor="termsAccepted" className="text-xs text-gray-500 leading-relaxed cursor-pointer">
                     I accept the{' '}
-                    <a href="/terms-of-service" target="_blank" className="text-orange-500 underline">Terms &amp; Conditions</a>
+                    <a href="/terms-of-service" target="_blank" className="text-circleTel-orange underline">Terms &amp; Conditions</a>
                     {' '}and{' '}
-                    <a href="/privacy-policy" target="_blank" className="text-orange-500 underline">Privacy Policy</a>
+                    <a href="/privacy-policy" target="_blank" className="text-circleTel-orange underline">Privacy Policy</a>
                   </label>
                 </div>
                 {errors.termsAccepted && (
-                  <p className="text-red-500 text-xs mt-1">{errors.termsAccepted.message}</p>
+                  <p className="text-red-500 text-xs mt-1.5">{errors.termsAccepted.message}</p>
                 )}
 
                 {errorMessage && (
-                  <div className="mt-4 bg-red-50 border border-red-100 rounded-lg p-3 text-sm text-red-700">
+                  <div className="mt-5 bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-700">
                     {errorMessage}{' '}
-                    <a href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="underline">
+                    <a href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="underline font-medium">
                       Contact support
                     </a>
                   </div>
@@ -295,17 +280,31 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="mt-5 w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-semibold rounded-lg px-4 py-3 text-sm transition-colors flex items-center justify-center gap-2"
+                  className="mt-6 w-full bg-circleTel-orange hover:bg-orange-600 disabled:opacity-60 text-white font-semibold rounded-xl px-4 py-3.5 text-sm transition-colors flex items-center justify-center gap-2"
                 >
                   <PiLockSimpleBold className="w-4 h-4" />
-                  {isSubmitting ? 'Processing…' : 'Place Order — R1.00 charged today'}
+                  {isSubmitting ? 'Processing…' : 'Place Order'}
                 </button>
-                <p className="text-center text-xs text-gray-400 mt-2">
+                <p className="text-center text-xs text-gray-400 mt-3">
                   R{monthlyPrice}/month billed after activation · No lock-in
                 </p>
               </form>
             )}
           </div>
+
+          {/* Mobile payment detail card — below form on small screens */}
+          {pkg && (
+            <div className="lg:hidden">
+              <PaymentDetailCard
+                packageName={pkg.name}
+                speed={pkg.speed}
+                monthlyPrice={pkg.monthlyPrice}
+                promotionPrice={typeof pkg.promotion_price === 'number' ? pkg.promotion_price : undefined}
+                installationFee={pkg.installation_fee ?? 0}
+                isSimOnly={pkg.type === 'mobile'}
+              />
+            </div>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -318,6 +317,7 @@ export default function CheckoutPage() {
               promotionPrice={typeof pkg.promotion_price === 'number' ? pkg.promotion_price : undefined}
               promotionMonths={pkg.promotion_months ?? undefined}
               installationFee={pkg.installation_fee ?? 0}
+              isSimOnly={pkg.type === 'mobile'}
               address={coverage?.address}
             />
           )}

@@ -1,21 +1,10 @@
 'use client';
-import { PiCheckCircleBold, PiSpinnerBold, PiXCircleBold } from 'react-icons/pi';
-
-/**
- * Supabase Auth Callback Page
- * Handles email verification and password reset redirects
- *
- * Flow:
- * 1. User clicks verification link in email
- * 2. Supabase redirects here with token in URL
- * 3. This page exchanges token for session
- * 4. Redirects to dashboard on success
- */
 
 import React from 'react';
+import { PiCheckCircleBold, PiSpinnerBold, PiXCircleBold } from 'react-icons/pi';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckoutProgressBar } from '@/components/order/CheckoutProgressBar';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -66,38 +55,38 @@ export default function AuthCallbackPage() {
         // Check for implicit flow (OAuth with hash fragment)
         // This happens when tokens are in the URL hash instead of query params
         console.log('[Auth Callback] Checking for hash:', window.location.hash);
-        
+
         if (typeof window !== 'undefined' && window.location.hash) {
           const hashParams = new URLSearchParams(window.location.hash.substring(1));
           const accessToken = hashParams.get('access_token');
-          
+
           console.log('[Auth Callback] Access token found:', !!accessToken);
-          
+
           if (accessToken) {
             console.log('[Auth Callback] Detected implicit flow OAuth response');
-            
+
             // Manually set the session from hash parameters
             const refreshToken = hashParams.get('refresh_token');
-            
+
             if (refreshToken) {
               console.log('[Auth Callback] Setting session from tokens...');
-              
+
               // Set the session using the tokens from the hash
               const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
                 access_token: accessToken,
                 refresh_token: refreshToken,
               });
-              
+
               if (sessionError) {
                 console.error('[Auth Callback] Failed to set session:', sessionError);
                 setStatus('error');
                 setErrorMessage('Failed to authenticate with Google');
                 return;
               }
-              
+
               const session = sessionData.session;
               console.log('[Auth Callback] Session set successfully:', !!session?.user);
-            
+
             if (session?.user) {
               // Check if customer record exists
               const { data: existingCustomer } = await supabase
@@ -109,7 +98,7 @@ export default function AuthCallbackPage() {
               if (!existingCustomer && session.user.email) {
                 console.log('[Auth Callback] Creating customer record for OAuth user');
                 console.log('[Auth Callback] User metadata:', session.user.user_metadata);
-                
+
                 const customerData = {
                   auth_user_id: session.user.id,
                   first_name: session.user.user_metadata?.full_name?.split(' ')[0] || session.user.user_metadata?.name?.split(' ')[0] || 'User',
@@ -118,19 +107,19 @@ export default function AuthCallbackPage() {
                   phone: session.user.user_metadata?.phone || session.user.phone || '',
                   account_type: 'personal',
                 };
-                
+
                 console.log('[Auth Callback] Customer data payload:', customerData);
-                
+
                 // Create customer record for OAuth user
                 const response = await fetch('/api/auth/create-customer', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(customerData),
                 });
-                
+
                 const result = await response.json();
                 console.log('[Auth Callback] Create customer result:', result);
-                
+
                 if (!result.success) {
                   console.error('[Auth Callback] Failed to create customer:', result.error);
                   // Continue anyway - user is authenticated, just missing customer record
@@ -140,9 +129,6 @@ export default function AuthCallbackPage() {
               setStatus('success');
 
               // Wait for session to be confirmed in storage before redirecting
-              // This fixes race condition where getSession() returns null on next page
-              // We wait a fixed delay to allow cookies to be written, rather than
-              // creating multiple client instances (which triggers GoTrueClient warnings)
               console.log('[Auth Callback] Waiting for session to persist to cookies...');
               await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -201,7 +187,6 @@ export default function AuthCallbackPage() {
               }
 
               setStatus('success');
-              // Use replace to avoid back-button navigation issues
               setTimeout(() => {
                 router.replace(next);
               }, 1000);
@@ -217,7 +202,6 @@ export default function AuthCallbackPage() {
         const type = searchParams.get('type');
 
         if (tokenHash && type) {
-          // Verify the token hash
           const { data, error: verifyError } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
             type: type as any,
@@ -230,7 +214,6 @@ export default function AuthCallbackPage() {
           }
 
           if (data.session) {
-            // Check if customer record exists, create if not (for OAuth users)
             const { data: existingCustomer } = await supabase
               .from('customers')
               .select('id')
@@ -238,7 +221,6 @@ export default function AuthCallbackPage() {
               .maybeSingle();
 
             if (!existingCustomer && data.session.user.email) {
-              // Create customer record for OAuth user
               await fetch('/api/auth/create-customer', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -254,8 +236,6 @@ export default function AuthCallbackPage() {
             }
 
             setStatus('success');
-            // Use the 'next' variable already defined at the top (from localStorage or query params)
-            // Use replace to avoid back-button navigation issues
             setTimeout(() => {
               router.replace(next);
             }, 1000);
@@ -277,68 +257,52 @@ export default function AuthCallbackPage() {
   }, [router, searchParams]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50/30 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl border-0">
-        <CardHeader className="text-center pb-6">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Minimal header with progress context */}
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-16 w-full pt-8 pb-6">
+        <CheckoutProgressBar currentStage="checkout" />
+      </div>
+
+      {/* Card */}
+      <div className="flex-1 flex items-start justify-center px-4">
+        <div className="w-full max-w-sm bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
           {status === 'loading' && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
-                <PiSpinnerBold className="h-8 w-8 text-blue-600 animate-spin" />
+            <>
+              <div className="flex items-center justify-center w-16 h-16 bg-orange-50 rounded-full mx-auto mb-5">
+                <PiSpinnerBold className="w-8 h-8 text-circleTel-orange animate-spin" />
               </div>
-              <CardTitle className="text-2xl">Verifying your email...</CardTitle>
-            </div>
+              <p className="font-semibold text-gray-900 mb-1">Signing you in…</p>
+              <p className="text-sm text-gray-400">Just a moment while we verify your account</p>
+            </>
           )}
+
           {status === 'success' && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
-                <PiCheckCircleBold className="h-8 w-8 text-green-600" />
+            <>
+              <div className="flex items-center justify-center w-16 h-16 bg-green-50 rounded-full mx-auto mb-5">
+                <PiCheckCircleBold className="w-8 h-8 text-green-500" />
               </div>
-              <CardTitle className="text-2xl text-green-700">Email Verified!</CardTitle>
-            </div>
+              <p className="font-semibold text-gray-900 mb-1">Signed in!</p>
+              <p className="text-sm text-gray-400">Redirecting you now…</p>
+            </>
           )}
+
           {status === 'error' && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center">
-                <PiXCircleBold className="h-8 w-8 text-red-600" />
+            <>
+              <div className="flex items-center justify-center w-16 h-16 bg-red-50 rounded-full mx-auto mb-5">
+                <PiXCircleBold className="w-8 h-8 text-red-500" />
               </div>
-              <CardTitle className="text-2xl text-red-700">Verification Failed</CardTitle>
-            </div>
-          )}
-        </CardHeader>
-        <CardContent className="text-center">
-          {status === 'loading' && (
-            <p className="text-circleTel-secondaryNeutral">
-              Please wait while we verify your email address...
-            </p>
-          )}
-          {status === 'success' && (
-            <div className="space-y-4">
-              <p className="text-circleTel-secondaryNeutral">
-                Your email has been successfully verified. Redirecting to your dashboard...
-              </p>
-              <div className="flex justify-center">
-                <PiSpinnerBold className="h-5 w-5 text-blue-600 animate-spin" />
-              </div>
-            </div>
-          )}
-          {status === 'error' && (
-            <div className="space-y-4">
-              <p className="text-red-600 text-sm">
-                {errorMessage}
-              </p>
-              <p className="text-circleTel-secondaryNeutral text-sm">
-                Please try again or contact support if the problem persists.
-              </p>
+              <p className="font-semibold text-gray-900 mb-1">Something went wrong</p>
+              <p className="text-sm text-red-500 mb-5">{errorMessage}</p>
               <button
-                onClick={() => router.push('/order/verify-email')}
-                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                onClick={() => router.push('/order/checkout')}
+                className="w-full bg-circleTel-orange hover:bg-orange-600 text-white font-semibold rounded-xl px-4 py-3 text-sm transition-colors"
               >
-                Back to Verification
+                Back to Checkout
               </button>
-            </div>
+            </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
