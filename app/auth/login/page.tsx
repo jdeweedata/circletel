@@ -40,7 +40,7 @@ export default function LoginPage() {
     '/dashboard',
     '/order/checkout',
     '/order/coverage',
-    '/order/packages',
+    '/packages',
     '/partners',
   ];
 

@@ -13,7 +13,7 @@ interface BreadcrumbStep {
 
 const BREADCRUMB_STEPS: BreadcrumbStep[] = [
   { number: 1, label: 'Location', path: '/order/coverage' },
-  { number: 2, label: 'Choose Plan', path: '/order/packages' },
+  { number: 2, label: 'Choose Plan', path: '/packages' },
   { number: 3, label: 'Account & Pay', path: '/order/checkout' },
 ];
 

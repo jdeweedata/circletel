@@ -167,8 +167,8 @@ export default function CoveragePage() {
         // Go to bundle tier selection
         router.push(`/order/bundle/${bundleProduct.slug}`);
       } else {
-        // Go to generic packages page
-        router.push(`/order/packages?leadId=${data.leadId}&type=${coverageType}`);
+        // Go to packages page
+        router.push(`/packages/${data.leadId}?type=${coverageType}`);
       }
     } catch (error) {
       console.error('Coverage check failed:', error);
