@@ -289,7 +289,7 @@ export default function OrderDetailPage() {
               <div className="pt-3 border-t">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Monthly Fee</span>
-                  <span className="text-lg font-bold text-gray-900">R{order.base_price.toFixed(2)}</span>
+                  <span className="text-lg font-bold text-gray-900">R{(order.base_price ?? 0).toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>
@@ -333,7 +333,7 @@ export default function OrderDetailPage() {
             <CardContent className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">R{order.base_price.toFixed(2)}</span>
+                <span className="font-semibold">R{(order.base_price ?? 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Installation Fee</span>
@@ -341,7 +341,7 @@ export default function OrderDetailPage() {
               </div>
               <div className="flex justify-between pt-2 border-t">
                 <span className="text-lg font-bold">Total</span>
-                <span className="text-lg font-bold text-circleTel-orange">R{order.total_amount.toFixed(2)}</span>
+                <span className="text-lg font-bold text-circleTel-orange">R{(order.total_amount ?? 0).toFixed(2)}</span>
               </div>
             </CardContent>
           </Card>
