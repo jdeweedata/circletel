@@ -81,10 +81,10 @@ export default function CheckoutPage() {
     await signInWithGoogle();
   };
 
-  // Phone OTP signup: set the Supabase session from API tokens, then place the order
+  // Phone OTP signup: set the Supabase session from API tokens.
+  // Order is placed via the "Place Order" button in the authenticated view to avoid
+  // race conditions between setSession() re-renders and the async placeOrder call.
   const handlePhoneSignupComplete = async (result: PhoneSignupResult) => {
-    if (!validateBeforeOrder()) return;
-    setIsSubmitting(true);
     setErrorMessage(undefined);
     try {
       const supabase = createClient();
@@ -106,17 +106,10 @@ export default function CheckoutPage() {
           termsAccepted: true,
         },
       });
-
-      await placeOrder(
-        result.customer.email,
-        result.customer.phone,
-        result.customer.first_name,
-        result.customer.last_name,
-      );
+      // CustomerAuthProvider will detect SIGNED_IN and render the authenticated checkout view,
+      // where the user clicks "Place Order" to complete the flow.
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
