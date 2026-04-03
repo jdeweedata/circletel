@@ -474,7 +474,7 @@ export default function CheckoutPage() {
                   <PiLightningBold className="w-7 h-7 text-circleTel-orange" />
                 </div>
                 <h3 className="text-sm font-bold text-gray-900 mb-1">Fast Activation</h3>
-                <p className="text-xs text-gray-600">Get connected within 24-48 hours of order confirmation.</p>
+                <p className="text-xs text-gray-600">Get connected within 3-5 days from order confirmation.</p>
               </div>
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-orange-100 rounded-full mb-3">
