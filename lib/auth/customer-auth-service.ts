@@ -324,7 +324,7 @@ export class CustomerAuthService {
   /**
    * Sign in with Google OAuth
    */
-  static async signInWithGoogle(): Promise<{ error: string | null }> {
+  static async signInWithGoogle(options?: { redirectTo?: string }): Promise<{ error: string | null }> {
     try {
       const supabase = createClient();
 
@@ -334,8 +334,11 @@ export class CustomerAuthService {
       // Save the intended redirect destination to localStorage BEFORE OAuth
       // This is necessary because Supabase OAuth doesn't reliably preserve query params
       // (the hash fragment with tokens can overwrite them)
+      // Callers can pass an explicit redirectTo (e.g. from a ?redirect= query param on the login page)
+      // to override the default pathname-based detection, which fails on /auth/* pages.
       const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-      const nextUrl = (currentPath && !currentPath.startsWith('/auth/')) ? currentPath : '/dashboard';
+      const nextUrl = options?.redirectTo
+        || ((currentPath && !currentPath.startsWith('/auth/')) ? currentPath : '/dashboard');
       if (typeof window !== 'undefined') {
         localStorage.setItem('circletel_oauth_next', nextUrl);
         console.log('[Google OAuth] Saved next URL to localStorage:', nextUrl);

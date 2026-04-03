@@ -160,7 +160,7 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      const result = await signInWithGoogle();
+      const result = await signInWithGoogle({ redirectTo: redirectPath });
       if (result.error) {
         toast.error(result.error);
         setIsGoogleLoading(false);
