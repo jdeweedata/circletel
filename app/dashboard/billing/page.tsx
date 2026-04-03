@@ -1,5 +1,6 @@
 'use client';
 import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiPlusBold, PiReceiptBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiWalletBold, PiWarningCircleBold } from 'react-icons/pi';
+import { DashboardBackLink } from '@/components/dashboard/DashboardBackLink';
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
@@ -298,6 +299,7 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-8">
+      <DashboardBackLink />
       {/* Page Header - Matching main dashboard style */}
       <div className="mb-2">
         <h1 className="text-2xl font-semibold text-gray-900">Billing & Payments</h1>

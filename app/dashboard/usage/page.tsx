@@ -1,5 +1,6 @@
 'use client';
 import { PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCalendarBold, PiLightningBold, PiPulseBold, PiSpinnerBold, PiTrendUpBold } from 'react-icons/pi';
+import { DashboardBackLink } from '@/components/dashboard/DashboardBackLink';
 
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -131,6 +132,7 @@ function UsagePageContent() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 p-6">
+      <DashboardBackLink />
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>

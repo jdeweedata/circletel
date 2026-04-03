@@ -1,5 +1,6 @@
 'use client';
 import { PiBuildingsBold, PiCheckCircleBold, PiCreditCardBold, PiDotsThreeVerticalBold, PiEnvelopeBold, PiPhoneBold, PiShieldBold, PiSpinnerBold, PiStarBold, PiTrashBold, PiWarningCircleBold } from 'react-icons/pi';
+import { DashboardBackLink } from '@/components/dashboard/DashboardBackLink';
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
@@ -246,6 +247,7 @@ export default function PaymentMethodPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <DashboardBackLink />
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <div className="p-3 bg-gray-100 rounded-lg">

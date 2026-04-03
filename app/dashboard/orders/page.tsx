@@ -1,5 +1,6 @@
 'use client';
 import { PiArrowsDownUpBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiFunnelBold, PiMagnifyingGlassBold, PiPackageBold, PiSpinnerBold } from 'react-icons/pi';
+import { DashboardBackLink } from '@/components/dashboard/DashboardBackLink';
 
 import React, { useEffect, useState } from "react";
 import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
@@ -187,6 +188,7 @@ export default function OrdersPage() {
 
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+      <DashboardBackLink />
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">My Orders</h1>

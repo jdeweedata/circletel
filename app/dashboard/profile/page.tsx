@@ -1,5 +1,6 @@
 'use client';
 import { PiBuildingsBold, PiEnvelopeBold, PiFileTextBold, PiFloppyDiskBold, PiHashBold, PiIdentificationCardBold, PiPencilSimpleBold, PiPhoneBold, PiUserBold, PiXBold } from 'react-icons/pi';
+import { DashboardBackLink } from '@/components/dashboard/DashboardBackLink';
 
 import React, { useState } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
@@ -104,6 +105,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
+      <DashboardBackLink />
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold text-circleTel-navy mb-2">Profile</h1>
