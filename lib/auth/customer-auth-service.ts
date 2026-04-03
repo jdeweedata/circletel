@@ -80,7 +80,14 @@ export class CustomerAuthService {
         }
 
         // Handle duplicate user (user already exists)
-        if (authError.message.toLowerCase().includes('already registered')) {
+        // Supabase returns 500 with "Database error saving new user" for duplicates,
+        // or 422 with "already registered" — handle both.
+        const lowerErr = authError.message.toLowerCase();
+        if (
+          lowerErr.includes('already registered') ||
+          lowerErr.includes('database error saving new user') ||
+          (authError.status === 500 && !lowerErr.includes('smtp') && !lowerErr.includes('sending'))
+        ) {
           return {
             user: null,
             customer: null,
@@ -90,11 +97,10 @@ export class CustomerAuthService {
         }
 
         // Handle email sending failures — user may still be created in Supabase
-        const lowerMsg = authError.message.toLowerCase();
-        const isEmailError = lowerMsg.includes('sending confirmation') ||
-          lowerMsg.includes('sending email') ||
-          lowerMsg.includes('confirmation email') ||
-          lowerMsg.includes('smtp');
+        const isEmailError = lowerErr.includes('sending confirmation') ||
+          lowerErr.includes('sending email') ||
+          lowerErr.includes('confirmation email') ||
+          lowerErr.includes('smtp');
 
         if (isEmailError && authData?.user) {
           // User was created but confirmation email failed — continue with signup flow
