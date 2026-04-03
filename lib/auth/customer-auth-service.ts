@@ -28,6 +28,7 @@ export interface SignUpResult {
   customer: any | null;
   session: Session | null;
   error: string | null;
+  emailSendFailed?: boolean;
 }
 
 export interface SignInResult {
@@ -64,6 +65,9 @@ export class CustomerAuthService {
         }
       });
 
+      // Track whether the confirmation email failed to send (non-fatal)
+      let emailSendFailed = false;
+
       if (authError) {
         // Handle rate limiting specifically
         if (authError.message.includes('429') || authError.message.toLowerCase().includes('rate limit')) {
@@ -74,7 +78,7 @@ export class CustomerAuthService {
             error: 'Too many signup attempts. Please wait a few minutes and try again.'
           };
         }
-        
+
         // Handle duplicate user (user already exists)
         if (authError.message.toLowerCase().includes('already registered')) {
           return {
@@ -84,13 +88,27 @@ export class CustomerAuthService {
             error: 'This email is already registered. Please sign in instead.'
           };
         }
-        
-        return {
-          user: null,
-          customer: null,
-          session: null,
-          error: authError.message
-        };
+
+        // Handle email sending failures — user may still be created in Supabase
+        const lowerMsg = authError.message.toLowerCase();
+        const isEmailError = lowerMsg.includes('sending confirmation') ||
+          lowerMsg.includes('sending email') ||
+          lowerMsg.includes('confirmation email') ||
+          lowerMsg.includes('smtp');
+
+        if (isEmailError && authData?.user) {
+          // User was created but confirmation email failed — continue with signup flow
+          console.warn('[CustomerAuthService] Email sending failed but user was created:', authError.message);
+          emailSendFailed = true;
+        } else {
+          // Fatal auth error — return immediately
+          return {
+            user: null,
+            customer: null,
+            session: null,
+            error: authError.message
+          };
+        }
       }
 
       if (!authData.user) {
@@ -181,11 +199,28 @@ export class CustomerAuthService {
 
       const customer = customerResult.customer;
 
+      // Try sending verification email via Resend if Supabase mailer failed
+      if (emailSendFailed) {
+        try {
+          const resendRes = await fetch('/api/auth/resend-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+          if (resendRes.ok) {
+            console.info('[CustomerAuthService] Verification email sent via Resend fallback');
+          }
+        } catch (e) {
+          console.warn('[CustomerAuthService] Resend fallback also failed:', e);
+        }
+      }
+
       return {
         user: authData.user,
         customer,
         session: authData.session,
-        error: null
+        error: null,
+        emailSendFailed,
       };
 
     } catch (error) {
@@ -549,7 +584,23 @@ export class CustomerAuthService {
       });
 
       if (error) {
-        return { success: false, error: error.message };
+        // Fallback: use custom API route with Resend when Supabase mailer fails
+        console.warn('[CustomerAuthService] Supabase resend failed, trying Resend fallback:', error.message);
+        try {
+          const res = await fetch('/api/auth/resend-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+          const result = await res.json();
+          if (result.success) {
+            return { success: true, error: null };
+          }
+          return { success: false, error: result.error || 'Failed to resend verification' };
+        } catch (fallbackError) {
+          console.error('Resend fallback error:', fallbackError);
+          return { success: false, error: error.message };
+        }
       }
 
       return { success: true, error: null };
