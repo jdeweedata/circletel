@@ -35,10 +35,10 @@ export function DashboardTopNav({ displayName, email, onSignOut }: DashboardTopN
 
   const initials = displayName
     .split(' ')
-    .map((n) => n[0])
+    .map((n) => n[0] ?? '')
     .join('')
     .toUpperCase()
-    .slice(0, 2);
+    .slice(0, 2) || '?';
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -56,8 +56,7 @@ export function DashboardTopNav({ displayName, email, onSignOut }: DashboardTopN
   return (
     <>
       <header
-        className="sticky top-0 z-10 bg-white border-b border-slate-200"
-        style={{ borderBottomColor: '#e2e8f0' }}
+        className="sticky top-0 z-50 bg-white border-b border-slate-200"
       >
         <div className="max-w-[900px] mx-auto px-5 h-14 flex items-center justify-between">
           {/* Logo */}
@@ -86,7 +85,7 @@ export function DashboardTopNav({ displayName, email, onSignOut }: DashboardTopN
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen((o) => !o)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-offset-1"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#F5831F]"
                 style={{ backgroundColor: '#F5831F' }}
                 aria-label="User menu"
               >
