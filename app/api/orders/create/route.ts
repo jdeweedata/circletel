@@ -1,9 +1,14 @@
-import { PiPaperPlaneRightBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
 import { apiLogger } from '@/lib/logging';
+
+// P4: Valid property types (must match ServiceAddressSection.tsx options)
+const VALID_PROPERTY_TYPES = [
+  'freestanding_home', 'gated_estate', 'apartment', 'townhouse',
+  'office_park', 'industrial', 'educational', 'healthcare', 'freestanding_commercial', 'soho',
+];
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,6 +33,20 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
+    }
+
+    // P4: Server-side property type validation
+    if (!body.installation_location_type) {
+      return NextResponse.json(
+        { success: false, error: 'Missing required field: installation_location_type (property type is required)' },
+        { status: 400 }
+      );
+    }
+    if (!VALID_PROPERTY_TYPES.includes(body.installation_location_type)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid property type: "${body.installation_location_type}". Must be one of: ${VALID_PROPERTY_TYPES.join(', ')}` },
+        { status: 400 }
+      );
     }
 
     const supabase = await createClient();
@@ -244,6 +263,59 @@ async function generateOrderNumber(supabase: any): Promise<string> {
 
   // Fallback: use timestamp
   return `ORD-${dateStr}-${Date.now().toString().slice(-4)}`;
+}
+
+/**
+ * PATCH /api/orders/create?id=<orderId>
+ * P6: Order compensation — called by the client when payment initiation fails after
+ * order creation, to cancel the orphaned pending order instead of leaving it in limbo.
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Missing required query param: id' }, { status: 400 });
+    }
+
+    const body = await request.json();
+    const { status, payment_status } = body as { status?: string; payment_status?: string };
+
+    // Only allow safe terminal states via this endpoint
+    const allowedStatuses = ['failed', 'cancelled'];
+    if (status && !allowedStatuses.includes(status)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid status for compensation. Allowed: ${allowedStatuses.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from('consumer_orders')
+      .update({
+        ...(status ? { status } : {}),
+        ...(payment_status ? { payment_status } : {}),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      // Only allow compensation on pending/processing orders (not already confirmed)
+      .in('status', ['pending', 'processing']);
+
+    if (error) {
+      apiLogger.error('[orders/PATCH] Compensation update failed', { id, error });
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
+    apiLogger.info('[orders/PATCH] Order compensated', { id, status, payment_status });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    apiLogger.error('[orders/PATCH] Unexpected error', { error });
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
 
 // GET endpoint to retrieve orders (for admin or customer)

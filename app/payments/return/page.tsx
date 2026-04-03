@@ -1,5 +1,6 @@
 'use client';
 import { PiCheckCircleBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
+import { EmailVerificationBanner } from '@/components/order/checkout/EmailVerificationBanner';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -87,6 +88,11 @@ function PaymentReturnContent() {
                     <li>✓ Our team will contact you shortly</li>
                   </ul>
                 </p>
+              </div>
+
+              {/* P9: Show email verification banner for unverified email-signup users */}
+              <div className="mb-4 text-left">
+                <EmailVerificationBanner />
               </div>
 
               {orderId ? (

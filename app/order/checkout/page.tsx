@@ -20,6 +20,9 @@ import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/client';
 import { checkoutSchema, CheckoutFormValues } from '@/components/order/checkout/types';
 
+// P3: Granular submit status for button label progression
+type SubmitStatus = 'idle' | 'creating_order' | 'redirecting';
+
 interface PhoneSignupResult {
   session: { access_token: string; refresh_token: string };
   customer: { id: string; first_name: string; last_name: string; email: string; phone: string };
@@ -33,6 +36,8 @@ export default function CheckoutPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // P3: Tracks which step of the submission we're on (for button label)
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
   // Missing profile fields for returning/OAuth customers
@@ -77,9 +82,36 @@ export default function CheckoutPage() {
     }
   }, [pkg, coverage?.leadId, router]);
 
+  // P2: Save local checkout state to sessionStorage before Google OAuth redirect.
+  // localStorage is backed by OrderContext but serviceAddress and propertyType are local-only state.
+  // sessionStorage survives same-origin navigation and doesn't persist to other sessions.
   const handleGoogleSignIn = async () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(
+        'circletel_checkout_return',
+        JSON.stringify({ serviceAddress, propertyType })
+      );
+    }
     await signInWithGoogle();
   };
+
+  // P2: Restore local checkout state from sessionStorage after Google OAuth returns.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    if (typeof window === 'undefined') return;
+    const raw = sessionStorage.getItem('circletel_checkout_return');
+    if (!raw) return;
+    sessionStorage.removeItem('circletel_checkout_return');
+    try {
+      const saved = JSON.parse(raw) as { serviceAddress?: string; propertyType?: string };
+      if (saved.serviceAddress && !serviceAddress) setServiceAddress(saved.serviceAddress);
+      if (saved.propertyType && !propertyType) setPropertyType(saved.propertyType);
+    } catch {
+      // Ignore malformed saved state
+    }
+  // Only run once when isAuthenticated first becomes true (i.e., OAuth return)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   // Phone OTP signup: set the Supabase session from API tokens.
   // Order is placed via the "Place Order" button in the authenticated view to avoid
@@ -136,6 +168,9 @@ export default function CheckoutPage() {
     const finalDeliveryAddress =
       isWirelessOrMobile && !sameAsServiceAddress ? deliveryAddress : serviceAddress;
 
+    // P3: Signal order creation step
+    setSubmitStatus('creating_order');
+
     // Create order
     const orderRes = await fetch('/api/orders/create', {
       method: 'POST',
@@ -161,27 +196,56 @@ export default function CheckoutPage() {
     });
 
     if (!orderRes.ok) {
+      setSubmitStatus('idle');
       const err = await orderRes.json();
       throw new Error(err.error || 'Failed to create order');
     }
     const { order } = await orderRes.json();
 
-    // Initiate payment
-    const paymentRes = await fetch('/api/payment/netcash/initiate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        orderId: order.id,
-        amount: 1.00,
-        customerEmail: email,
-        customerName: `${firstName} ${lastName}`.trim(),
-        paymentReference: order.payment_reference,
-      }),
-    });
+    // P3: Signal payment step
+    setSubmitStatus('redirecting');
 
-    if (!paymentRes.ok) throw new Error('Failed to initiate payment');
+    // Initiate payment — P6: compensate if this fails
+    let paymentRes: Response;
+    try {
+      paymentRes = await fetch('/api/payment/netcash/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          amount: 1.00,
+          customerEmail: email,
+          customerName: `${firstName} ${lastName}`.trim(),
+          paymentReference: order.payment_reference,
+        }),
+      });
+    } catch {
+      // P6: Network failure after order creation — cancel the orphaned order
+      console.error(`[placeOrder] Network error during payment. Compensating orderId: ${order.id}`);
+      fetch('/api/orders/create', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: order.id, status: 'failed', payment_status: 'failed' }),
+      }).catch(() => console.error(`[placeOrder] Compensation also failed. Orphaned orderId: ${order.id}`));
+      setSubmitStatus('idle');
+      throw new Error('Payment gateway unreachable. Please try again.');
+    }
+
+    if (!paymentRes.ok) {
+      const errBody = await paymentRes.json().catch(() => ({})) as { error?: string };
+      // P6: Cancel the orphaned pending order
+      console.error(`[placeOrder] Payment initiation failed. Compensating orderId: ${order.id}`);
+      fetch('/api/orders/create', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: order.id, status: 'failed', payment_status: 'failed' }),
+      }).catch(() => console.error(`[placeOrder] Compensation also failed. Orphaned orderId: ${order.id}`));
+      setSubmitStatus('idle');
+      throw new Error(errBody.error || 'Failed to initiate payment. Please try again.');
+    }
+
     const { paymentUrl } = await paymentRes.json();
-
+    // Button stays disabled through the redirect (isSubmitting remains true)
     window.location.href = paymentUrl;
   };
 
@@ -189,6 +253,7 @@ export default function CheckoutPage() {
   const handleNewUserSubmit = async (values: CheckoutFormValues) => {
     if (!validateBeforeOrder()) return;
     setIsSubmitting(true);
+    setSubmitStatus('idle');
     setErrorMessage(undefined);
     try {
       const result = await signUp(values.email, values.password, {
@@ -199,6 +264,15 @@ export default function CheckoutPage() {
       });
       // Fatal errors block checkout; email-send failures are non-fatal
       if (result.error && !result.emailSendFailed) throw new Error(result.error);
+
+      // P1: Guard — customer record must be confirmed before placing the order.
+      // signUp() awaits create-customer internally, but can return customer: null on non-fatal failure.
+      if (!result.customer?.id) {
+        throw new Error(
+          result.error ||
+          'Account was created but your profile is still being set up. Please wait a moment and try again.'
+        );
+      }
 
       if (result.emailSendFailed) {
         toast.info(
@@ -224,6 +298,7 @@ export default function CheckoutPage() {
       setErrorMessage(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setIsSubmitting(false);
+      setSubmitStatus('idle');
     }
   };
 
@@ -252,6 +327,7 @@ export default function CheckoutPage() {
     }
 
     setIsSubmitting(true);
+    setSubmitStatus('idle');
     setErrorMessage(undefined);
     try {
       let firstName = customer?.first_name || profileFirstName.trim();
@@ -279,6 +355,7 @@ export default function CheckoutPage() {
       setErrorMessage(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setIsSubmitting(false);
+      setSubmitStatus('idle');
     }
   };
 
@@ -287,6 +364,24 @@ export default function CheckoutPage() {
     : '';
 
   const monthlyPrice = pkg?.monthlyPrice ?? 0;
+
+  // P5: Compute whether the profile fields gate is blocking order placement
+  const needsProfile = isAuthenticated && (!customer?.first_name || !customer?.phone);
+  const profileComplete = !needsProfile || (
+    (customer?.first_name || profileFirstName.trim().length >= 2) &&
+    (customer?.last_name || profileLastName.trim().length >= 2) &&
+    (customer?.phone || /^[0-9+\s()-]{10,}$/.test(profilePhone.trim()))
+  );
+  const placeOrderBlocked = needsProfile && !profileComplete;
+
+  // P3: Derive button label from current submit status
+  const submitLabel = isSubmitting
+    ? submitStatus === 'redirecting'
+      ? 'Redirecting to payment…'
+      : submitStatus === 'creating_order'
+      ? 'Creating order…'
+      : 'Processing…'
+    : 'Place Order';
 
   return (
     <div className="pb-24 lg:pb-0">
@@ -411,13 +506,20 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {/* P5: Hint shown when profile is incomplete */}
+                {placeOrderBlocked && (
+                  <p className="mt-5 text-xs text-amber-600 text-center font-medium">
+                    Please complete your profile details above before placing your order.
+                  </p>
+                )}
                 <button
                   onClick={handleExistingUserOrder}
-                  disabled={isSubmitting}
-                  className="mt-6 w-full bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-4 py-4 text-base shadow-lg transition-all flex items-center justify-center gap-2"
+                  disabled={isSubmitting || placeOrderBlocked}
+                  title={placeOrderBlocked ? 'Please complete your profile above' : undefined}
+                  className="mt-4 w-full bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-4 py-4 text-base shadow-lg transition-all flex items-center justify-center gap-2"
                 >
                   <PiLockSimpleBold className="w-5 h-5" />
-                  {isSubmitting ? 'Processing…' : 'Place Order'}
+                  {submitLabel}
                 </button>
                 <p className="text-center text-xs text-gray-400 mt-3">
                   R{monthlyPrice}/month billed after activation · No lock-in
@@ -486,7 +588,7 @@ export default function CheckoutPage() {
                   className="mt-6 w-full bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-4 py-4 text-base shadow-lg transition-all flex items-center justify-center gap-2"
                 >
                   <PiLockSimpleBold className="w-5 h-5" />
-                  {isSubmitting ? 'Processing…' : 'Place Order'}
+                  {submitLabel}
                 </button>
                 <p className="text-center text-xs text-gray-400 mt-3">
                   R{monthlyPrice}/month billed after activation · No lock-in
@@ -566,11 +668,12 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={handleExistingUserOrder}
-                disabled={isSubmitting}
+                disabled={isSubmitting || placeOrderBlocked}
+                title={placeOrderBlocked ? 'Please complete your profile above' : undefined}
                 className="bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-5 py-3 text-sm flex items-center gap-2 flex-shrink-0 min-h-[44px]"
               >
                 <PiLockSimpleBold className="w-4 h-4" />
-                {isSubmitting ? 'Processing…' : 'Place Order'}
+                {submitLabel}
               </button>
             ) : (
               <button
@@ -580,7 +683,7 @@ export default function CheckoutPage() {
                 className="bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-5 py-3 text-sm flex items-center gap-2 flex-shrink-0 min-h-[44px]"
               >
                 <PiLockSimpleBold className="w-4 h-4" />
-                {isSubmitting ? 'Processing…' : 'Place Order'}
+                {submitLabel}
               </button>
             )}
           </div>

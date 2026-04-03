@@ -127,6 +127,96 @@ export async function POST(request: NextRequest) {
     });
 
     if (authError || !authData.user) {
+      // P8: Idempotency — if the phantom email already exists in auth.users, the previous
+      // signup attempt succeeded for auth creation but failed before/during customer insert
+      // (and the rollback deleteUser also failed). Sign in with the existing account.
+      const isDuplicateEmail =
+        authError?.message?.toLowerCase().includes('already registered') ||
+        authError?.message?.toLowerCase().includes('already exists') ||
+        authError?.message?.toLowerCase().includes('user already exists') ||
+        (authError as { status?: number } | null)?.status === 422;
+
+      if (isDuplicateEmail) {
+        apiLogger.warn('[PhoneSignup] Phantom email already exists — recovering via sign-in', { phone: normalised });
+        // Query auth.users via the service role to retrieve the existing user's stored token
+        const { data: authRows, error: authLookupError } = await serviceSupabase
+          .schema('auth')
+          .from('users')
+          .select('id, raw_user_meta_data')
+          .eq('email', phantomEmail)
+          .limit(1) as { data: Array<{ id: string; raw_user_meta_data: Record<string, unknown> }> | null; error: unknown };
+
+        const authRow = authRows?.[0];
+        const storedToken = authRow?.raw_user_meta_data?.phone_signup_token as string | undefined;
+
+        if (authLookupError || !authRow || !storedToken) {
+          apiLogger.error('[PhoneSignup] Could not recover existing phantom account', { error: authLookupError });
+          return NextResponse.json(
+            { success: false, error: 'Account conflict detected. Please contact support.', code: 'PHANTOM_CONFLICT' },
+            { status: 409 }
+          );
+        }
+
+        // Sign in with the existing phantom account
+        const { data: recoverSignIn, error: recoverSignInError } = await serviceSupabase.auth.signInWithPassword({
+          email: phantomEmail,
+          password: storedToken,
+        });
+
+        if (recoverSignInError || !recoverSignIn.session) {
+          apiLogger.error('[PhoneSignup] Recovery sign-in failed', { error: recoverSignInError });
+          return NextResponse.json(
+            { success: false, error: 'Account recovery failed. Please contact support.' },
+            { status: 500 }
+          );
+        }
+
+        // Ensure customer record exists (create if missing from previous failed attempt)
+        const { data: orphanedCustomer } = await serviceSupabase
+          .from('customers')
+          .select('id, first_name, last_name, email, phone, phone_verified_at')
+          .eq('auth_user_id', authRow.id)
+          .maybeSingle();
+
+        let resolvedCustomer = orphanedCustomer;
+        if (!resolvedCustomer) {
+          const finalFirstName = firstName?.trim() || 'Customer';
+          const finalLastName = lastName?.trim() || 'User';
+          const { data: newCustomer } = await serviceSupabase
+            .from('customers')
+            .insert({
+              auth_user_id: authRow.id,
+              first_name: finalFirstName,
+              last_name: finalLastName,
+              email: phantomEmail,
+              phone: normalised,
+              account_type: 'personal',
+              email_verified: false,
+              status: 'active',
+              phone_verified_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+          resolvedCustomer = newCustomer;
+        } else {
+          await serviceSupabase
+            .from('customers')
+            .update({ phone_verified_at: new Date().toISOString() })
+            .eq('id', resolvedCustomer.id);
+        }
+
+        apiLogger.info('[PhoneSignup] Recovered via idempotency path', { authUserId: authRow.id });
+        return NextResponse.json({
+          success: true,
+          isExistingUser: false,
+          session: {
+            access_token: recoverSignIn.session.access_token,
+            refresh_token: recoverSignIn.session.refresh_token,
+          },
+          customer: resolvedCustomer,
+        });
+      }
+
       apiLogger.error('[PhoneSignup] Auth user creation failed', { error: authError });
       return NextResponse.json(
         { success: false, error: authError?.message || 'Failed to create account. Please try again.' },
