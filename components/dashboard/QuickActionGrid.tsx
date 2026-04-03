@@ -25,7 +25,7 @@ export function QuickActionGrid() {
     <div>
       <p
         className="text-xs font-bold tracking-wider mb-3"
-        style={{ color: '#94a3b8', letterSpacing: '0.05em' }}
+        style={{ color: '#94a3b8' }}
       >
         MY ACCOUNT
       </p>
@@ -37,7 +37,6 @@ export function QuickActionGrid() {
             className="group flex flex-col items-center justify-center gap-2 bg-white border rounded-xl py-4 px-2 text-center transition-all hover:shadow-md"
             style={{
               borderColor: '#e2e8f0',
-              borderRadius: '12px',
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLElement).style.borderColor = '#F5831F';
