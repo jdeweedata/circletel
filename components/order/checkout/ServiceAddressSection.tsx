@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { PiMapPinBold, PiPencilSimpleBold, PiCheckBold } from 'react-icons/pi';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -81,16 +82,19 @@ export function ServiceAddressSection({
             placeholder="Enter your service address"
             showLocationButton={true}
             showMapButton={true}
+            variant="form"
           />
           {serviceAddress && (
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => setEditingAddress(false)}
-              className="mt-3 flex items-center gap-1.5 text-xs font-medium text-circleTel-orange hover:text-orange-700 transition-colors"
+              className="mt-3 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white transition-colors"
             >
-              <PiCheckBold className="w-3.5 h-3.5" />
-              Done editing
-            </button>
+              <PiCheckBold className="w-4 h-4 mr-1.5" />
+              Done Editing
+            </Button>
           )}
         </div>
       ) : (
@@ -149,13 +153,16 @@ export function ServiceAddressSection({
             </label>
           </div>
           {!sameAsServiceAddress && (
-            <AddressAutocomplete
-              value={deliveryAddress}
-              onLocationSelect={(data) => onDeliveryAddressChange(data.address)}
-              placeholder="Enter delivery address"
-              showLocationButton={false}
-              showMapButton={false}
-            />
+            <div className="rounded-xl border border-gray-200 p-4 bg-gray-50">
+              <AddressAutocomplete
+                value={deliveryAddress}
+                onLocationSelect={(data) => onDeliveryAddressChange(data.address)}
+                placeholder="Enter delivery address"
+                showLocationButton={false}
+                showMapButton={false}
+                variant="form"
+              />
+            </div>
           )}
         </div>
       )}
