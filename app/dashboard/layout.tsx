@@ -5,12 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { DashboardErrorBoundary } from '@/components/dashboard/ErrorBoundary';
-import {
-  DashboardHeader,
-  DashboardSidebar,
-  MobileBottomNav,
-  DashboardNavProvider,
-} from '@/components/dashboard/navigation';
+import { DashboardNavProvider } from '@/components/dashboard/navigation';
+import { DashboardTopNav } from '@/components/dashboard/DashboardTopNav';
 
 export default function DashboardLayout({
   children,
@@ -20,8 +16,6 @@ export default function DashboardLayout({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, session, signOut, loading } = useCustomerAuth();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
   // CRITICAL: Detect payment return SYNCHRONOUSLY to prevent race condition
   // This must be computed immediately, not via useEffect, to prevent redirect before detection
   const isPaymentReturnFromUrl = useMemo(() => {
@@ -48,30 +42,6 @@ export default function DashboardLayout({
 
   // Combined flag: true if URL indicates payment return OR grace period is active
   const isPaymentReturn = isPaymentReturnFromUrl || paymentReturnGracePeriodActive;
-
-  // Initialize sidebar state from localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('dashboard-sidebar-collapsed');
-      if (stored) {
-        setSidebarCollapsed(JSON.parse(stored));
-      }
-    }
-  }, []);
-
-  // Persist sidebar state
-  const handleSidebarToggle = () => {
-    setSidebarCollapsed((prev) => {
-      const newValue = !prev;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(
-          'dashboard-sidebar-collapsed',
-          JSON.stringify(newValue)
-        );
-      }
-      return newValue;
-    });
-  };
 
   // Auth redirect - with race condition protection
   // Check both user AND session to prevent premature redirects during auth initialization
@@ -137,68 +107,38 @@ export default function DashboardLayout({
     [currentUser?.user_metadata?.firstName, currentUser?.user_metadata?.lastName]
       .filter(Boolean)
       .join(' ') ||
-    (currentUser?.user_metadata as any)?.full_name ||
-    (currentUser?.user_metadata as any)?.name ||
+    (currentUser?.user_metadata as Record<string, unknown>)?.full_name as string ||
+    (currentUser?.user_metadata as Record<string, unknown>)?.name as string ||
     (currentUser?.email ? currentUser.email.split('@')[0] : '') ||
     'User';
 
   return (
     <DashboardNavProvider>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Header with tabs (desktop) */}
-        <DashboardHeader
+      <div className="min-h-screen flex flex-col" style={{ background: '#f1f5f9' }}>
+        <DashboardTopNav
           displayName={displayName}
           email={currentUser?.email || ''}
           onSignOut={handleSignOut}
         />
 
-        {/* Main content area */}
-        <div className="flex flex-1">
-          {/* Context-aware sidebar - desktop only */}
-          <DashboardSidebar
-            collapsed={sidebarCollapsed}
-            onToggleCollapse={handleSidebarToggle}
-          />
+        <main className="flex-1">
+          <div className="max-w-[900px] mx-auto px-5 py-7">
+            <DashboardErrorBoundary>{children}</DashboardErrorBoundary>
+          </div>
+        </main>
 
-          {/* Page content */}
-          <main className="flex-1 min-w-0">
-            <div className="p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-              <DashboardErrorBoundary>{children}</DashboardErrorBoundary>
-            </div>
-          </main>
-        </div>
-
-        {/* Footer - hidden on mobile to avoid overlap with bottom nav */}
-        <footer className="hidden lg:block border-t bg-white/80 backdrop-blur-sm mt-auto">
-          <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-circleTel-secondaryNeutral">
+        <footer className="border-t bg-white/80 mt-auto">
+          <div className="max-w-[900px] mx-auto px-5 py-5">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
               <p>&copy; 2025 CircleTel. All rights reserved.</p>
-              <div className="flex gap-6">
-                <Link
-                  href="/privacy-policy"
-                  className="hover:text-circleTel-orange transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-                <Link
-                  href="/terms-of-service"
-                  className="hover:text-circleTel-orange transition-colors"
-                >
-                  Terms of Service
-                </Link>
-                <Link
-                  href="/contact"
-                  className="hover:text-circleTel-orange transition-colors"
-                >
-                  Contact Us
-                </Link>
+              <div className="flex gap-5">
+                <Link href="/privacy-policy" className="hover:text-slate-800 transition-colors">Privacy Policy</Link>
+                <Link href="/terms-of-service" className="hover:text-slate-800 transition-colors">Terms of Service</Link>
+                <Link href="/contact" className="hover:text-slate-800 transition-colors">Contact Us</Link>
               </div>
             </div>
           </div>
         </footer>
-
-        {/* Mobile bottom navigation */}
-        <MobileBottomNav />
       </div>
     </DashboardNavProvider>
   );
