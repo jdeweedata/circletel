@@ -102,10 +102,30 @@ export class CustomerAuthService {
           lowerErr.includes('confirmation email') ||
           lowerErr.includes('smtp');
 
-        if (isEmailError && authData?.user) {
-          // User was created but confirmation email failed — continue with signup flow
-          console.warn('[CustomerAuthService] Email sending failed but user was created:', authError.message);
-          emailSendFailed = true;
+        if (isEmailError) {
+          if (authData?.user) {
+            // User was created but confirmation email failed — continue with signup flow
+            console.warn('[CustomerAuthService] Email sending failed but user was created:', authError.message);
+            emailSendFailed = true;
+          } else {
+            // Supabase failed before committing the user (SMTP pre-flight failure).
+            // Try signing in — if a previous attempt created the account, we can recover.
+            const { data: signInData } = await supabase.auth.signInWithPassword({ email, password });
+            if (signInData?.user) {
+              console.warn('[CustomerAuthService] Recovered via sign-in after email send failure');
+              // Patch authData so the rest of the flow uses the signed-in user
+              (authData as { user: typeof signInData.user; session: typeof signInData.session }).user = signInData.user;
+              (authData as { user: typeof signInData.user; session: typeof signInData.session }).session = signInData.session;
+              emailSendFailed = true;
+            } else {
+              return {
+                user: null,
+                customer: null,
+                session: null,
+                error: 'We could not send your verification email. Please try again or use "Continue with Google" to sign up.'
+              };
+            }
+          }
         } else {
           // Fatal auth error — return immediately
           return {
