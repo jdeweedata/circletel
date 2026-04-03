@@ -152,7 +152,6 @@ export async function POST(request: NextRequest) {
         email_verified: false,
         status: 'active',
         phone_verified_at: new Date().toISOString(),
-        metadata: { phone_signup: true },
       })
       .select()
       .single();
