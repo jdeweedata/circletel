@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
-import { clearSupabaseSession } from '@/lib/supabase/client';
+import { clearSupabaseSession, createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -53,6 +53,20 @@ export default function LoginPage() {
 
   // Get redirect path from query params — validated against allowlist to prevent open redirect
   const redirectPath = safeRedirectPath(searchParams.get('redirect'));
+
+  // Redirect already-authenticated users away from the login page.
+  // CustomerAuthProvider skips initialization on /auth/* routes, so we check
+  // the Supabase session directly here.
+  React.useEffect(() => {
+    const checkExistingSession = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        router.replace(redirectPath);
+      }
+    };
+    checkExistingSession();
+  }, [router, redirectPath]);
 
   // Only clear session if there's an explicit auth error indicator
   // Don't clear just because there's a redirect param - that's too aggressive

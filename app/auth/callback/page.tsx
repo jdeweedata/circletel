@@ -34,7 +34,7 @@ export default function AuthCallbackPage() {
 
         if (typeof window !== 'undefined') {
           const savedNext = localStorage.getItem('circletel_oauth_next');
-          if (savedNext) {
+          if (savedNext && !savedNext.startsWith('/auth/')) {
             next = savedNext;
             localStorage.removeItem('circletel_oauth_next');  // Clean up after use
             console.log('[Auth Callback] Got next URL from localStorage:', next);
