@@ -11,7 +11,7 @@ export default function CoverageNotFound() {
           Check your address directly to see available internet services in your area.
         </p>
         <Link
-          href="/order/coverage"
+          href="/"
           className="inline-block px-8 py-4 bg-circleTel-orange text-white rounded-lg font-bold text-lg hover:bg-orange-600 transition-colors shadow-lg"
         >
           Check Your Address

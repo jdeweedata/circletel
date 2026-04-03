@@ -113,7 +113,7 @@ export default async function ServicesPage() {
             </p>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <Button size="lg" className="bg-[#F5831F] hover:bg-[#e0721a] text-white" asChild>
-                <Link href={`/order/coverage?product=${product.slug}`}>Get a Quote</Link>
+                <Link href="/">Get a Quote</Link>
               </Button>
               <Button size="lg" className="bg-[#25D366] hover:bg-[#1da851] text-white" asChild>
                 <Link href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
@@ -143,7 +143,7 @@ export default async function ServicesPage() {
                 </div>
               </div>
               <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent rounded-lg hover:bg-white hover:text-slate-900 transition-all duration-200" asChild>
-                <Link href={`/order/coverage?product=${product.slug}`}>Get a Custom Quote</Link>
+                <Link href="/">Get a Custom Quote</Link>
               </Button>
             </div>
           </div>
@@ -252,7 +252,7 @@ export default async function ServicesPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 hover:scale-105 transition-all duration-200" asChild>
-              <Link href={`/order/coverage?product=${product.slug}`}>Get a Custom Quote</Link>
+              <Link href="/">Get a Custom Quote</Link>
             </Button>
             <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent hover:bg-white/20 hover:scale-105 transition-all duration-200" asChild>
               <Link href="https://wa.me/27824873900" className="flex items-center gap-2">

@@ -11,7 +11,7 @@ export default function OrderPage() {
 
   // Redirect to first stage
   useEffect(() => {
-    router.push('/order/coverage');
+    router.push('/');
   }, [router]);
 
   return (

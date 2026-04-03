@@ -21,7 +21,7 @@ const quickActions: QuickAction[] = [
     id: 'place-order',
     title: 'Place New Order',
     icon: PiShoppingCartBold,
-    href: '/order/coverage',
+    href: '/',
     description: 'Order a new service',
     iconBg: 'bg-orange-100',
     iconColor: 'text-circleTel-orange',

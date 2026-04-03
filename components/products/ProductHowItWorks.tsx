@@ -35,9 +35,7 @@ interface ProductHowItWorksProps {
 }
 
 export function ProductHowItWorks({ productSlug }: ProductHowItWorksProps) {
-  const coverageLink = productSlug
-    ? `/order/coverage?product=${productSlug}`
-    : '/order/coverage';
+  const coverageLink = '/';
 
   return (
     <section className="py-12 md:py-16 bg-slate-50">

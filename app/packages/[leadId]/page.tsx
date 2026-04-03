@@ -109,6 +109,7 @@ function PackagesContent() {
           leadId,
           address: data.address || '',
           coordinates: data.coordinates,
+          coverageType: coverageType || 'residential',
         },
       });
 

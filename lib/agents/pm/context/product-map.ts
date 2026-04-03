@@ -127,7 +127,7 @@ export const CIRCLETEL_SITEMAP: SitemapStructure = {
       { label: 'Customer Login', route: '/login', description: 'Customer authentication' },
       { label: 'Checkout', route: '/checkout', description: 'Checkout flow' },
       { label: 'Packages', route: '/packages', description: 'Package selection' },
-      { label: 'Coverage Check', route: '/order/coverage', description: 'Check coverage availability' },
+      { label: 'Coverage Check', route: '/', description: 'Check coverage availability' },
       { label: 'Privacy Policy', route: '/privacy-policy', description: 'Privacy policy' },
       { label: 'Terms of Service', route: '/terms-of-service', description: 'Terms of service' },
       { label: 'Refund Policy', route: '/refund-policy', description: 'Refund policy' },

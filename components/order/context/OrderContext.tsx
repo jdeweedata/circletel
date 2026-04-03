@@ -66,8 +66,12 @@ function orderReducer(state: OrderState, action: OrderAction): OrderState {
       };
     case 'RESET_ORDER':
       return initialState;
-    case 'HYDRATE_STATE':
-      return action.payload;
+    case 'HYDRATE_STATE': {
+      const hydrated = action.payload;
+      // Clamp legacy 3-stage state to 2-stage (coverage step removed)
+      if (hydrated.currentStage > 2) hydrated.currentStage = 2;
+      return hydrated;
+    }
     default:
       return state;
   }

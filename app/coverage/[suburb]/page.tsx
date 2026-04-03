@@ -305,7 +305,7 @@ export default async function SuburbCoveragePage({
             {/* CTA Buttons — same pattern as product pages */}
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <Button size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white shadow-lg" asChild>
-                <Link href="/order/coverage">Check My Address</Link>
+                <Link href="/">Check My Address</Link>
               </Button>
               <Button size="lg" className="bg-[#25D366] hover:bg-[#1da851] text-white" asChild>
                 <a
@@ -544,7 +544,7 @@ export default async function SuburbCoveragePage({
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             <Button size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white shadow-lg" asChild>
-              <Link href="/order/coverage">Check Coverage & Order</Link>
+              <Link href="/">Check Coverage & Order</Link>
             </Button>
             <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-slate-900" asChild>
               <a

@@ -130,7 +130,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </p>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <Button size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white" asChild>
-                <Link href={`/order/coverage?product=${product.slug}`}>Get Started</Link>
+                <Link href="/">Get Started</Link>
               </Button>
               <Button size="lg" className="bg-[#25D366] hover:bg-[#1da851] text-white" asChild>
                 <Link href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
@@ -160,7 +160,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
               </div>
               <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent rounded-lg hover:bg-white hover:text-slate-900 transition-all duration-200" asChild>
-                <Link href={`/order/coverage?product=${product.slug}`}>Check Coverage & Order</Link>
+                <Link href="/">Check Coverage & Order</Link>
               </Button>
             </div>
           </div>
@@ -270,7 +270,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 hover:scale-105 transition-all duration-200" asChild>
-              <Link href={`/order/coverage?product=${product.slug}`}>Check Coverage</Link>
+              <Link href="/">Check Coverage</Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20 hover:scale-105 transition-all duration-200" asChild>
               <Link href="https://wa.me/27824873900" className="flex items-center gap-2">

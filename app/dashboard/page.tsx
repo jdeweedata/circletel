@@ -258,7 +258,7 @@ export default function DashboardPage() {
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <PiPackageBold className="h-12 w-12 text-gray-400" />
         <p className="text-lg text-gray-600">No data available</p>
-        <Link href="/order/coverage">
+        <Link href="/">
           <Button>Check Coverage & Order</Button>
         </Link>
       </div>
@@ -488,7 +488,7 @@ function DashboardContent({ data, user, customer, pendingOrders, accessToken }: 
               <div className="text-center py-8 text-gray-500">
                 <PiPackageBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
                 <p>No active services</p>
-                <Link href="/order/coverage">
+                <Link href="/">
                   <Button className="mt-4 bg-circleTel-orange hover:bg-orange-600">Check Coverage & Order</Button>
                 </Link>
               </div>

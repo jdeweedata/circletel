@@ -13,6 +13,7 @@ import { AccountSection } from '@/components/order/checkout/AccountSection';
 import { OrderingAsCard } from '@/components/order/checkout/OrderingAsCard';
 import { OrderSummarySidebar } from '@/components/order/checkout/OrderSummarySidebar';
 import { PaymentDetailCard } from '@/components/order/checkout/PaymentDetailCard';
+import { ServiceAddressSection } from '@/components/order/checkout/ServiceAddressSection';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,6 +44,20 @@ export default function CheckoutPage() {
   const pkg = orderState.orderData.package?.selectedPackage;
   const coverage = orderState.orderData.coverage;
 
+  // Service address local state (initialized from OrderContext)
+  const [serviceAddress, setServiceAddress] = useState(coverage?.address ?? '');
+  const [serviceCoordinates, setServiceCoordinates] = useState(coverage?.coordinates);
+  const [propertyType, setPropertyType] = useState(coverage?.propertyType ?? '');
+  const [propertyTypeError, setPropertyTypeError] = useState<string | undefined>();
+  const [sameAsServiceAddress, setSameAsServiceAddress] = useState(true);
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+
+  const isWirelessOrMobile =
+    pkg?.type === 'wireless' || pkg?.type === 'mobile' ||
+    (pkg?.service_type || '').toLowerCase().includes('lte') ||
+    (pkg?.service_type || '').toLowerCase().includes('5g') ||
+    (pkg?.product_category || '').toLowerCase().includes('mobile');
+
   const {
     register,
     handleSubmit,
@@ -58,7 +73,7 @@ export default function CheckoutPage() {
   // Guard: require package + coverage
   useEffect(() => {
     if (!pkg && !coverage?.leadId) {
-      router.replace('/order/coverage');
+      router.replace('/');
     }
   }, [pkg, coverage?.leadId, router]);
 
@@ -68,6 +83,7 @@ export default function CheckoutPage() {
 
   // Phone OTP signup: set the Supabase session from API tokens, then place the order
   const handlePhoneSignupComplete = async (result: PhoneSignupResult) => {
+    if (!validateBeforeOrder()) return;
     setIsSubmitting(true);
     setErrorMessage(undefined);
     try {
@@ -109,11 +125,23 @@ export default function CheckoutPage() {
     toast.info('Signed out.');
   };
 
+  const validateBeforeOrder = (): boolean => {
+    if (!propertyType) {
+      setPropertyTypeError('Please select a property type');
+      return false;
+    }
+    setPropertyTypeError(undefined);
+    return true;
+  };
+
   const placeOrder = async (email: string, phone: string, firstName: string, lastName: string) => {
-    if (!pkg || !coverage?.address) {
+    if (!pkg || !serviceAddress) {
       toast.error('Missing package or address. Please start over.');
       return;
     }
+
+    const finalDeliveryAddress =
+      isWirelessOrMobile && !sameAsServiceAddress ? deliveryAddress : serviceAddress;
 
     // Create order
     const orderRes = await fetch('/api/orders/create', {
@@ -131,10 +159,11 @@ export default function CheckoutPage() {
         installation_fee: pkg.installation_fee ?? 0,
         payment_amount: 1.00,
         is_validation_charge: true,
-        installation_address: coverage.address,
-        coordinates: coverage.coordinates,
-        installation_location_type: coverage.propertyType,
-        account_type: coverage.coverageType === 'business' ? 'business' : 'personal',
+        installation_address: serviceAddress,
+        delivery_address: finalDeliveryAddress,
+        coordinates: serviceCoordinates,
+        installation_location_type: propertyType,
+        account_type: coverage?.coverageType === 'business' ? 'business' : 'personal',
       }),
     });
 
@@ -165,6 +194,7 @@ export default function CheckoutPage() {
 
   // New user: create account then place order
   const handleNewUserSubmit = async (values: CheckoutFormValues) => {
+    if (!validateBeforeOrder()) return;
     setIsSubmitting(true);
     setErrorMessage(undefined);
     try {
@@ -206,6 +236,7 @@ export default function CheckoutPage() {
 
   // Existing user: save profile if incomplete, then place order
   const handleExistingUserOrder = async () => {
+    if (!validateBeforeOrder()) return;
     const email = customer?.email || user?.email || '';
     if (!email) {
       toast.error('No account found. Please sign in again.');
@@ -291,6 +322,25 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-12">
         {/* Main column */}
         <div className="lg:col-span-3 flex flex-col gap-5">
+          <ServiceAddressSection
+            serviceAddress={serviceAddress}
+            propertyType={propertyType}
+            coverageType={coverage?.coverageType ?? 'residential'}
+            showDeliveryAddress={isWirelessOrMobile}
+            deliveryAddress={deliveryAddress}
+            sameAsServiceAddress={sameAsServiceAddress}
+            propertyTypeError={propertyTypeError}
+            onServiceAddressChange={(address, coords) => {
+              setServiceAddress(address);
+              if (coords) setServiceCoordinates(coords);
+            }}
+            onPropertyTypeChange={(val) => {
+              setPropertyType(val);
+              setPropertyTypeError(undefined);
+            }}
+            onDeliveryAddressChange={setDeliveryAddress}
+            onSameAsServiceAddressChange={setSameAsServiceAddress}
+          />
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-7 sm:p-8">
             {isAuthenticated ? (
               <>

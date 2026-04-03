@@ -39,7 +39,6 @@ export default function LoginPage() {
   const ALLOWED_REDIRECT_PATHS = [
     '/dashboard',
     '/order/checkout',
-    '/order/coverage',
     '/packages',
     '/partners',
   ];
