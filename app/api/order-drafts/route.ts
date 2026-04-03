@@ -1,5 +1,3 @@
-'use server'
-
 import { NextResponse } from 'next/server'
 import { createClientWithSession } from '@/lib/supabase/server'
 

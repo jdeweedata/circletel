@@ -37,7 +37,7 @@ interface PhoneSignupResult {
 export default function CheckoutPage() {
   const router = useRouter();
   const { state: orderState, actions } = useOrderContext();
-  const { isAuthenticated, customer, user, signOut, signUp, signIn, signInWithGoogle } = useCustomerAuth();
+  const { isAuthenticated, customer, user, signOut, signUp, signIn, signInWithGoogle, loading: authLoading } = useCustomerAuth();
 
   const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>(
     isAuthenticated ? 'confirm' : 'account'
@@ -73,11 +73,15 @@ export default function CheckoutPage() {
     (pkg?.product_category || '').toLowerCase().includes('mobile');
 
   // Guard: require package + coverage
+  // Wait for auth to settle before redirecting — on return from Google OAuth,
+  // OrderContextProvider's state starts as initialState (empty) while the
+  // localStorage load effect hasn't run yet. authLoading=true covers that window.
   useEffect(() => {
+    if (authLoading) return;
     if (!pkg && !coverage?.leadId) {
       router.replace('/');
     }
-  }, [pkg, coverage?.leadId, router]);
+  }, [pkg, coverage?.leadId, router, authLoading]);
 
   // Auto-advance to confirm when user authenticates (Google OAuth return, OTP, etc.)
   useEffect(() => {
