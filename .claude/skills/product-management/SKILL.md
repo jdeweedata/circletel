@@ -26,18 +26,21 @@ This skill automatically activates when you:
 
 | Type | Suppliers | Focus |
 |------|-----------|-------|
-| **Hardware** | Scoop, MiRO, Nology | CPE, routers, APs, networking equipment |
+| **Hardware** | Scoop, MiRO, Nology, Rectron | CPE, routers, APs, networking, enterprise hardware |
 | **Wholesale** | MTN, Echo SP, DFA, Arlan | Connectivity, infrastructure, services |
 
 ## Available Sub-Skills
 
 | Skill | Command | Purpose |
 |-------|---------|---------|
-| **Browse Suppliers** | `/product-browse` | Filter supplier catalogues, identify product candidates |
+| **Search Suppliers** | `/product-search` | Live search supplier websites using Firecrawl — specs, pricing, datasheets |
+| **Browse Suppliers** | `/product-browse` | Filter synced DB catalogues, identify product candidates |
 | **Wholesale Providers** | `/product-wholesale` | View wholesale provider services and contracts |
 | **Market-Fit Analysis** | `/product-analyze` | Competitor comparison, margin calc, go/no-go recommendation |
 | **Doc Generation** | `/product-docs` | Generate commercial spec, business rules, functional spec |
 | **Product Lifecycle** | `/product-lifecycle` | Track IDEA → DEVELOPMENT → ACTIVE → SUNSET stages |
+
+> **Search vs Browse**: `/product-search` queries live websites in real time (Firecrawl). `/product-browse` queries the Supabase DB (synced catalogue). Use search for discovery and Rectron; use browse for known products.
 
 ## Wholesale Providers
 
@@ -52,7 +55,8 @@ This skill automatically activates when you:
 
 ```
 /product              → This menu (product management overview)
-/product-browse       → Browse supplier catalogues with filters
+/product-search       → Live search supplier websites (Firecrawl-powered)
+/product-browse       → Browse synced DB catalogues with filters
 /product-wholesale    → Browse wholesale provider services and contracts
 /product-analyze      → Analyze product-market fit
 /product-docs         → Generate product documentation
@@ -115,10 +119,25 @@ This skill automatically activates when you:
 
 ## Typical Use Cases
 
+### 0. Live Product Search (NEW)
+```
+User: "Find an outdoor 5GHz AP across all suppliers"
+→ Use /product-search "outdoor access point 5GHz"
+→ Firecrawl searches Scoop, MiRO, Nology, Rectron live
+→ Returns comparison table with pricing, stock, datasheet links
+
+User: "What does Rectron have for UPS under R5,000?"
+→ Use /product-search --supplier rectron "UPS" --max-price 5000
+```
+
 ### 1. New Product Discovery
 ```
 User: "What routers does MiRO have for under R5,000?"
 → Use /product-browse with filters: supplier=miro, category=router, max_price=5000
+  (DB query — fast, from synced catalogue)
+  OR
+→ Use /product-search --supplier miro router
+  (live website search — more current but slower)
 ```
 
 ### 2. Product Viability Check
@@ -179,6 +198,6 @@ User: "What products are in development?"
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-08
+**Version**: 1.1.0
+**Last Updated**: 2026-04-03
 **Maintained By**: CircleTel Product Strategy
