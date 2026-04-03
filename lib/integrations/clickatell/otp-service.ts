@@ -3,7 +3,7 @@
  * Handles OTP generation, storage, and verification
  */
 
-import { createClient } from '@/integrations/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 
 interface OTPRecord {
   phone: string;
