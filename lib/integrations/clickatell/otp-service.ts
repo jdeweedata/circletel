@@ -211,6 +211,35 @@ export class OTPService {
   }
 
   /**
+   * Check if a phone number was recently verified (within the last 5 minutes).
+   * Used by phone-signup to confirm the OTP step completed without re-consuming
+   * an already-verified token.
+   */
+  async verifyRecentlyVerified(phone: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const supabase = await createClient();
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const { data, error } = await supabase
+        .from('otp_verifications')
+        .select('verified_at')
+        .eq('email', phone)
+        .eq('verified', true)
+        .gte('verified_at', fiveMinutesAgo)
+        .order('verified_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error || !data) {
+        return { success: false, error: 'Phone verification not found or expired. Please verify your phone number again.' };
+      }
+      return { success: true };
+    } catch (err) {
+      console.error('[OTPService] verifyRecentlyVerified failed:', err);
+      return { success: false, error: 'Verification check failed. Please try again.' };
+    }
+  }
+
+  /**
    * Clear OTP for a phone number
    */
   clearOTP(phone: string): void {

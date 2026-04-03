@@ -151,7 +151,6 @@ export function PhoneOTPSection({ isSubmitting, onSignupComplete, onError }: Pho
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone: verifiedPhone,
-          otp: verifiedOtp,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
         }),

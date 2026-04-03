@@ -30,15 +30,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { phone, otp, firstName, lastName } = body;
 
-    if (!phone || !otp) {
+    if (!phone) {
       return NextResponse.json(
-        { success: false, error: 'Phone number and OTP are required' },
+        { success: false, error: 'Phone number is required' },
         { status: 400 }
       );
     }
 
-    // 1. Verify OTP
-    const otpResult = await otpService.verifyOTP(phone, otp);
+    // 1. Confirm phone was recently verified via /api/otp/verify (within last 5 minutes)
+    const otpResult = await otpService.verifyRecentlyVerified(phone);
     if (!otpResult.success) {
       return NextResponse.json(
         { success: false, error: otpResult.error },
