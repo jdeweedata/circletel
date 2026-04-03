@@ -238,7 +238,7 @@ export function getFulfillmentStatusInfo(status: FulfillmentStatus): {
     cancelled: { label: 'Cancelled', color: 'red', icon: 'XCircle' },
   };
 
-  return statusMap[status];
+  return statusMap[status] ?? { label: 'Pending', color: 'gray', icon: 'Clock' };
 }
 
 // Helper function to determine order workflow based on type

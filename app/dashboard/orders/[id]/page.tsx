@@ -63,7 +63,7 @@ export default function OrderDetailPage() {
           ...result.data,
           // Ensure required fields have defaults if missing
           order_type: result.data.order_type || 'fiber',
-          fulfillment_status: result.data.fulfillment_status || 'pending',
+          fulfillment_status: result.data.fulfillment_status || 'order_confirmed',
           tracking_events: result.data.tracking_events || [],
         };
         setOrder(orderData);
