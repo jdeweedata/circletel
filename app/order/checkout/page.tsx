@@ -174,7 +174,15 @@ export default function CheckoutPage() {
         email: values.email,
         phone: values.phone,
       });
-      if (result.error) throw new Error(result.error);
+      // Fatal errors block checkout; email-send failures are non-fatal
+      if (result.error && !result.emailSendFailed) throw new Error(result.error);
+
+      if (result.emailSendFailed) {
+        toast.info(
+          'Account created! We had trouble sending the verification email — you can resend it from your dashboard.',
+          { duration: 8000 }
+        );
+      }
 
       actions.updateOrderData({
         account: {
