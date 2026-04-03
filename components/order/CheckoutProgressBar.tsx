@@ -4,7 +4,7 @@ import React from 'react';
 import { PiCheckBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 
-export type CheckoutStage = 'packages' | 'checkout';
+export type CheckoutStage = 'packages' | 'account' | 'checkout';
 
 interface CheckoutProgressBarProps {
   currentStage: CheckoutStage;
@@ -14,12 +14,13 @@ interface CheckoutProgressBarProps {
 
 const STEPS: { id: CheckoutStage; label: string }[] = [
   { id: 'packages', label: 'Choose Plan' },
-  { id: 'checkout', label: 'Account & Pay' },
+  { id: 'account', label: 'Sign In' },
+  { id: 'checkout', label: 'Confirm & Pay' },
 ];
 
 // Map old numeric step to new stage names for backwards compatibility
 export function stepNumberToStage(step: number): CheckoutStage {
-  const mapping: Record<number, CheckoutStage> = { 1: 'packages', 2: 'checkout', 3: 'checkout' };
+  const mapping: Record<number, CheckoutStage> = { 1: 'packages', 2: 'account', 3: 'checkout' };
   return mapping[step] || 'packages';
 }
 

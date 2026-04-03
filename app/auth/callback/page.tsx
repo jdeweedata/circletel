@@ -260,7 +260,7 @@ export default function AuthCallbackPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Minimal header with progress context */}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-16 w-full pt-8 pb-6">
-        <CheckoutProgressBar currentStage="checkout" />
+        <CheckoutProgressBar currentStage="account" />
       </div>
 
       {/* Card */}
