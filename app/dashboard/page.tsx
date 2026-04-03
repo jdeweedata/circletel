@@ -1,19 +1,16 @@
 'use client';
-import { PiArrowsDownUpBold, PiClockBold, PiCreditCardBold, PiPackageBold, PiSpinnerBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiPackageBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { QuickActionCards } from "@/components/dashboard/QuickActionCards";
-import { ServiceManageDropdown } from "@/components/dashboard/ServiceManageDropdown";
-import { ModernStatCard } from "@/components/dashboard/ModernStatCard";
 import { EmailVerificationModal } from "@/components/dashboard/EmailVerificationModal";
-import { ConnectionStatusWidget } from "@/components/dashboard/ConnectionStatusWidget";
 import { OnboardingBanner } from "@/components/dashboard/OnboardingBanner";
+import { AccountStatsRow } from '@/components/dashboard/AccountStatsRow';
+import { QuickActionGrid } from '@/components/dashboard/QuickActionGrid';
+import { ServiceCard } from '@/components/dashboard/ServiceCard';
 
 interface DashboardData {
   customer: {
@@ -273,320 +270,110 @@ export default function DashboardPage() {
         orderNumber={orderNumber}
         email={verifyEmail}
       />
-      <DashboardContent data={data} user={user} customer={customer} pendingOrders={pendingOrders} accessToken={session?.access_token ?? ''} />
+      <DashboardContent data={data} user={user} customer={customer as Record<string, unknown> | null} pendingOrders={pendingOrders} accessToken={session?.access_token ?? ''} />
     </>
   );
 }
 
-function DashboardContent({ data, user, customer, pendingOrders, accessToken }: { data: DashboardData; user: any; customer: any; pendingOrders: number; accessToken: string }) {
-  // Helper to check if a name is a placeholder/default value
+function DashboardContent({ data, user, customer, pendingOrders, accessToken }: {
+  data: DashboardData;
+  user: unknown;
+  customer: Record<string, unknown> | null;
+  pendingOrders: number;
+  accessToken: string;
+}) {
   const isPlaceholder = (name: string | undefined) => {
     if (!name) return true;
     const cleaned = name.trim().toLowerCase();
     return cleaned === 'customer' || cleaned === 'user' || cleaned === '';
   };
 
-  // Try multiple sources for the name with fallbacks, skipping placeholder values
-  const firstName = (!isPlaceholder(data.customer.firstName) && data.customer.firstName) ||
-                   (!isPlaceholder(customer?.first_name) && customer?.first_name) ||
-                   user?.user_metadata?.first_name ||
-                   user?.user_metadata?.full_name?.split(' ')[0] ||
-                   '';
+  const userMeta = (user as { user_metadata?: Record<string, string> } | null)?.user_metadata;
 
-  const lastName = (!isPlaceholder(data.customer.lastName) && data.customer.lastName) ||
-                  (!isPlaceholder(customer?.last_name) && customer?.last_name) ||
-                  user?.user_metadata?.last_name ||
-                  user?.user_metadata?.full_name?.split(' ').slice(1).join(' ') ||
-                  '';
+  const firstName =
+    (!isPlaceholder(data.customer.firstName) && data.customer.firstName) ||
+    (!isPlaceholder(customer?.first_name as string) && (customer?.first_name as string)) ||
+    userMeta?.first_name ||
+    userMeta?.full_name?.split(' ')[0] ||
+    '';
+
+  const lastName =
+    (!isPlaceholder(data.customer.lastName) && data.customer.lastName) ||
+    (!isPlaceholder(customer?.last_name as string) && (customer?.last_name as string)) ||
+    userMeta?.last_name ||
+    userMeta?.full_name?.split(' ').slice(1).join(' ') ||
+    '';
 
   const displayName = [firstName, lastName].filter(Boolean).join(' ') || data.customer.email.split('@')[0];
-  const primaryService = data.services[0];
-  const hasActiveService = data.stats.activeServices > 0;
-  
+
+  // pendingOrders is kept in signature for call-site compatibility
+  void pendingOrders;
+
   return (
-    <div className="space-y-8">
-      {/* Onboarding checklist banner — shown until all verification steps are complete */}
+    <div className="space-y-6">
+      {/* Onboarding banner */}
       {accessToken && <OnboardingBanner accessToken={accessToken} />}
 
-      {/* Clean Modern Header */}
-      <div className="mb-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
-              Welcome back, {firstName || displayName}
-            </h1>
-            {data.customer.accountNumber && (
-              <p className="text-sm text-gray-500 mt-1">
-                Account: <span className="font-medium text-gray-700">{data.customer.accountNumber}</span>
-              </p>
-            )}
-          </div>
-        </div>
+      {/* Welcome header */}
+      <div>
+        <h1 className="text-xl font-bold text-slate-900">
+          Hi, {displayName} 👋
+        </h1>
+        {data.customer.accountNumber && (
+          <p className="text-sm text-slate-500 mt-0.5">
+            #{data.customer.accountNumber} · Welcome to your CircleTel account.
+          </p>
+        )}
       </div>
 
-      {/* Pending Orders Alert */}
-      {pendingOrders > 0 && (
-        <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-circleTel-orange rounded-xl p-6 shadow-lg">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-circleTel-orange rounded-lg">
-              <PiWarningCircleBold className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Complete Your Order
-              </h3>
-              <p className="text-gray-700 mb-4">
-                You have <strong>{pendingOrders}</strong> pending {pendingOrders === 1 ? 'order' : 'orders'} waiting for payment method validation.
-                Add a payment method to complete your order and start enjoying high-speed connectivity.
-              </p>
-              <Link href="/dashboard/payment-method">
-                <Button className="bg-circleTel-orange hover:bg-orange-600 font-semibold shadow-md">
-                  <PiCreditCardBold className="w-4 h-4 mr-2" />
-                  Add Payment Method
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Stats row */}
+      <AccountStatsRow
+        activeServices={data.stats.activeServices}
+        totalOrders={data.stats.totalOrders}
+        openTickets={data.stats.overdueInvoices}
+        accountBalance={data.billing?.account_balance ?? 0}
+      />
 
-      {/* Connection Status */}
-      {hasActiveService && (
-        <ConnectionStatusWidget />
-      )}
+      {/* Action cards */}
+      <QuickActionGrid />
 
-      {/* Modern Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <ModernStatCard
-          title="Active Services"
-          value={data.stats.activeServices}
-          trend={data.stats.activeServicesTrend?.hasData ? {
-            value: data.stats.activeServicesTrend.value,
-            isPositive: data.stats.activeServicesTrend.isPositive,
-            label: "vs 30 days ago"
-          } : undefined}
-          subtitle={data.stats.activeServices > 0 ? "All services active" : "No active services"}
-          description="Connected and billing"
-          icon={<PiWifiHighBold className="h-5 w-5" />}
-          href="/dashboard/services"
-        />
-
-        <ModernStatCard
-          title="Total Orders"
-          value={data.stats.totalOrders}
-          trend={data.stats.totalOrdersTrend?.hasData ? {
-            value: data.stats.totalOrdersTrend.value,
-            isPositive: data.stats.totalOrdersTrend.isPositive,
-            label: "vs 30 days ago"
-          } : undefined}
-          subtitle={data.stats.pendingOrders > 0 ? `${data.stats.pendingOrders} pending` : "All orders completed"}
-          description={data.stats.pendingOrders > 0 ? "Some orders need attention" : "Order history"}
-          icon={<PiPackageBold className="h-5 w-5" />}
-          href="/dashboard/orders"
-        />
-
-        <ModernStatCard
-          title="Account Balance"
-          value={`R${data.stats.accountBalance.toFixed(2)}`}
-          trend={data.stats.accountBalanceTrend?.hasData ? {
-            value: data.stats.accountBalanceTrend.value,
-            isPositive: data.stats.accountBalanceTrend.isPositive,
-            label: "vs 30 days ago"
-          } : undefined}
-          subtitle={data.stats.accountBalance === 0 ? "No balance due" : data.stats.accountBalance > 0 ? "Payment due" : "Credit available"}
-          description={data.stats.accountBalance > 0 ? "Please make payment" : "Account in good standing"}
-          icon={<PiCreditCardBold className="h-5 w-5" />}
-          href="/dashboard/billing"
-        />
-
-        <ModernStatCard
-          title="Billing Status"
-          value={data.stats.overdueInvoices > 0 ? "Overdue" : "Current"}
-          trend={data.stats.overdueInvoicesTrend?.hasData ? {
-            value: data.stats.overdueInvoicesTrend.value,
-            isPositive: data.stats.overdueInvoicesTrend.isPositive,
-            label: "vs 30 days ago"
-          } : undefined}
-          subtitle={data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue invoices` : "No outstanding payments"}
-          description={data.stats.overdueInvoices > 0 ? "Payment required" : "Account in good standing"}
-          icon={<PiCreditCardBold className="h-5 w-5" />}
-          href="/dashboard/billing"
-        />
-      </div>
-
-      {/* Quick Action Cards */}
-      <QuickActionCards />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Your Service */}
-        <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Your Service</h2>
-              <Link href="/dashboard/services" className="text-sm font-semibold text-circleTel-orange hover:underline">
-                View all
-              </Link>
-            </div>
-          </div>
-          <div className="p-6">
-            {hasActiveService && primaryService ? (
-              <div className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200 rounded-lg p-6">
-                {/* Status Badge with Indicator and Manage Dropdown */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2.5 w-2.5 bg-green-500 rounded-full" />
-                    <span className="text-sm font-medium text-green-700">
-                      {primaryService.status === 'active' ? 'Connected & Billing' : primaryService.status}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100 font-medium px-2.5 py-0.5 text-xs">
-                      Active
-                    </Badge>
-                    <ServiceManageDropdown
-                      serviceId={primaryService.id}
-                      packageName={primaryService.package_name}
-                    />
-                  </div>
-                </div>
-
-                {/* Service Name */}
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{primaryService.package_name}</h3>
-                  <p className="text-sm text-gray-600 capitalize">{primaryService.service_type}</p>
-                </div>
-
-                {/* Speed Display with Icons */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <PiArrowsDownUpBold className="h-5 w-5 text-blue-600 rotate-180" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-gray-600">Download</p>
-                      <p className="font-bold text-lg text-gray-900">{primaryService.speed_down} <span className="text-sm font-normal text-gray-600">Mbps</span></p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                      <PiArrowsDownUpBold className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-gray-600">Upload</p>
-                      <p className="font-bold text-lg text-gray-900">{primaryService.speed_up} <span className="text-sm font-normal text-gray-600">Mbps</span></p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Monthly Price */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <span className="text-sm font-medium text-gray-600">Monthly Fee</span>
-                  <span className="font-bold text-2xl text-gray-900 tabular-nums">R{primaryService.monthly_price}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <PiPackageBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                <p>No active services</p>
-                <Link href="/">
-                  <Button className="mt-4 bg-circleTel-orange hover:bg-orange-600">Check Coverage & Order</Button>
-                </Link>
-              </div>
-            )}
-          </div>
+      {/* My Connectivity */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <p
+            className="text-xs font-bold tracking-wider"
+            style={{ color: '#94a3b8', letterSpacing: '0.05em' }}
+          >
+            MY CONNECTIVITY
+          </p>
+          <Link
+            href="/packages"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors"
+            style={{ borderColor: '#e2e8f0', color: '#F5831F' }}
+          >
+            + Add Product
+          </Link>
         </div>
 
-        {/* Billing Summary */}
-        <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Billing Summary</h2>
-              <Link href="/dashboard/billing" className="text-sm font-semibold text-circleTel-orange hover:underline">
-                View invoices
-              </Link>
-            </div>
+        {data.services.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
+            <p className="text-sm font-semibold text-slate-700 mb-1">No active services</p>
+            <p className="text-xs text-slate-500 mb-4">Get connected with high-speed fibre or wireless.</p>
+            <Link
+              href="/"
+              className="inline-block text-xs font-bold px-4 py-2 rounded-lg text-white"
+              style={{ background: '#F5831F' }}
+            >
+              Check Coverage
+            </Link>
           </div>
-          <div className="p-6">
-            {data.billing ? (
-              <div className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200 rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <PiCreditCardBold className="h-5 w-5 text-circleTel-orange" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{data.billing.payment_method || 'No payment method'}</p>
-                    <p className={`text-xs font-medium ${data.billing.payment_status === 'current' ? 'text-green-600' : 'text-red-600'}`}>
-                      {data.billing.payment_status === 'current' ? 'Payment up to date' : 'Payment overdue'}
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-medium text-gray-600">Balance Due</p>
-                    <p className="font-bold text-xl text-gray-900 mt-1 tabular-nums">R{data.billing.account_balance.toFixed(2)}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Due: {data.billing.next_billing_date ? new Date(data.billing.next_billing_date).toLocaleDateString() : 'N/A'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-600">Invoices</p>
-                    <p className="font-bold text-xl text-gray-900 mt-1 tabular-nums">{data.invoices.length}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue` : 'All paid'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <PiCreditCardBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                <p>No billing information</p>
-              </div>
-            )}
+        ) : (
+          <div className="space-y-4">
+            {data.services.map((service) => (
+              <ServiceCard key={service.id} service={service} billing={data.billing} />
+            ))}
           </div>
-        </div>
-
-        {/* Recent Orders */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-bold text-gray-900">Recent Orders</CardTitle>
-              <Link href="/dashboard/orders" className="text-sm font-semibold text-circleTel-orange hover:underline">
-                View all
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {data.orders.length > 0 ? (
-              <div className="space-y-3">
-                {data.orders.slice(0, 3).map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:shadow-md transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <PiPackageBold className="h-6 w-6 text-gray-600" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-base">{order.order_number}</p>
-                        <p className="text-base text-gray-600">{new Date(order.created_at).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-extrabold text-lg tabular-nums">R{order.total_amount.toFixed(2)}</p>
-                      <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className="text-sm font-semibold mt-1">
-                        {order.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <PiPackageBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                <p>No orders yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        )}
       </div>
     </div>
   );
