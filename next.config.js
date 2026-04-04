@@ -116,7 +116,7 @@ const nextConfig = {
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
-    // Use 1 core with 12GB heap (Enhanced Build Machine: 16GB total, leaves ~3GB for worker + OS)
+    // Use 1 core with 6GB heap (Turbopack — Rust memory, not V8 heap; Standard 8GB machine)
     cpus: 1,
   },
   webpack: (config, { isServer }) => {
@@ -171,4 +171,7 @@ const nextConfig = {
   }
 };
 
-module.exports = withBundleAnalyzer(withPWA(nextConfig));
+const isVercel = process.env.VERCEL === '1';
+module.exports = isVercel
+  ? withBundleAnalyzer(nextConfig)
+  : withBundleAnalyzer(withPWA(nextConfig));
