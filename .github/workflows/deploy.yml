@@ -6,6 +6,8 @@ on:
 
 jobs:
   build-and-push:
+    # ubuntu-latest = 2 vCPU, 7GB RAM. Our build uses 5632MB heap + 1 webpack worker.
+    # If build OOMs, change to: ubuntu-latest-16-core (64GB, ~$0.064/min)
     runs-on: ubuntu-latest
     permissions:
       contents: read

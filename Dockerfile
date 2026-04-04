@@ -38,8 +38,11 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_TELEMETRY_DISABLED=1 \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-    NODE_OPTIONS='--max-old-space-size=12288'
+    NODE_OPTIONS='--max-old-space-size=5632'
 
+# cpus:1 in next.config.js limits webpack to 1 worker (~1GB).
+# 5632MB heap + 1GB worker + ~1GB Docker/OS = ~7.5GB — fits GitHub Actions 7GB runner.
+# If this OOMs, bump runner to ubuntu-latest-16-core (64GB) in deploy.yml.
 RUN npm run build
 
 # -- Stage 3: Runner --
