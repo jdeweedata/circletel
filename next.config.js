@@ -116,7 +116,7 @@ const nextConfig = {
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
-    // Use 1 core with 6GB heap (Standard Build Machine: 8GB total, leaves ~2GB for worker + OS)
+    // Use 1 core with 8GB heap (Elastic Build Machine: dynamic RAM, Vercel provisions what's needed)
     cpus: 1,
   },
   webpack: (config, { isServer }) => {

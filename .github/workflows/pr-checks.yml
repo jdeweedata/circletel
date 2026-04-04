@@ -19,7 +19,7 @@ jobs:
   validate-build-config:
     name: Validate Vercel Build Config
     runs-on: ubuntu-latest
-    # BLOCKING: these settings prevent Vercel OOM crashes (Standard Build Machine: 8GB)
+    # BLOCKING: these settings prevent Vercel OOM crashes (Elastic Build Machine: dynamic RAM)
 
     steps:
       - name: Checkout code
@@ -45,7 +45,7 @@ jobs:
             exit 1
           fi
           if [ "$CPUS" -gt 1 ]; then
-            echo "❌ FAIL: next.config.js cpus=${CPUS} — must be 1 on Vercel Standard Build Machine"
+            echo "❌ FAIL: next.config.js cpus=${CPUS} — must be 1 on Vercel Elastic Build Machine"
             echo "   Fix: set cpus: 1 in experimental config"
             exit 1
           fi
