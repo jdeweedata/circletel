@@ -98,15 +98,18 @@ async function runSmsReminders(
       throw new Error('CLICKATELL_API_KEY not configured');
     }
 
-    // Process SMS reminders
-    const result = await InvoiceSmsReminderService.processReminders({
-      minDaysOverdue,
-      maxDaysOverdue,
-      dryRun: false,
-    });
+    // Process overdue SMS reminders and due-today reminders in parallel
+    const [result, dueTodayResult] = await Promise.all([
+      InvoiceSmsReminderService.processReminders({
+        minDaysOverdue,
+        maxDaysOverdue,
+        dryRun: false,
+      }),
+      InvoiceSmsReminderService.processDueTodayReminders({ dryRun: false }),
+    ]);
 
     // Collect any errors from individual sends
-    for (const r of result.results) {
+    for (const r of [...result.results, ...dueTodayResult.results]) {
       if (!r.success && r.error && !r.error.includes('DRY RUN')) {
         errors.push(`${r.invoice_number}: ${r.error}`);
       }
@@ -114,11 +117,11 @@ async function runSmsReminders(
 
     const cronResult: CronResult = {
       date: today,
-      processed: result.processed,
-      sent: result.sent,
-      failed: result.failed,
-      skipped: result.skipped,
-      duration_ms: result.duration_ms,
+      processed: result.processed + dueTodayResult.processed,
+      sent: result.sent + dueTodayResult.sent,
+      failed: result.failed + dueTodayResult.failed,
+      skipped: result.skipped + dueTodayResult.skipped,
+      duration_ms: result.duration_ms + dueTodayResult.duration_ms,
       errors: errors.slice(0, 10), // Limit to first 10 errors
     };
 
