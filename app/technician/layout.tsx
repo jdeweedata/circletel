@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Metadata, Viewport } from 'next';
 
 export const metadata: Metadata = {
