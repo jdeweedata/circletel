@@ -258,13 +258,13 @@ export function AdminProductCard({
               </span>
             </div>
             
-            {/* Price Display */}
+            {/* Price Display — base_price_zar is ex-VAT; multiply by 1.15 for display */}
             <div className="flex items-baseline gap-1 mt-1">
               <span className="text-xs text-gray-500">R</span>
               <span className="text-lg font-bold text-gray-900">
-                {Math.round(parseFloat(String(product.base_price_zar)))}
+                {Math.round(parseFloat(String(product.base_price_zar)) * 1.15)}
               </span>
-              <span className="text-[10px] text-gray-400">/ mo</span>
+              <span className="text-[10px] text-gray-400">/ mo incl. VAT</span>
             </div>
           </div>
         </div>

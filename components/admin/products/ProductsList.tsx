@@ -104,8 +104,10 @@ export function ProductsList({
   dragHandleProps,
   columnVisibility = DEFAULT_COLUMN_VISIBILITY,
 }: ProductsListProps) {
-  const formatPrice = (priceStr: string | number) => {
-    const price = typeof priceStr === 'string' ? parseFloat(priceStr) : priceStr;
+  // base_price_zar is stored ex-VAT — multiply by 1.15 for display
+  const formatPrice = (priceStr: string | number, applyVat = false) => {
+    let price = typeof priceStr === 'string' ? parseFloat(priceStr) : priceStr;
+    if (applyVat) price = price * 1.15;
     return new Intl.NumberFormat('en-ZA', {
       style: 'currency',
       currency: 'ZAR',
@@ -271,11 +273,12 @@ export function ProductsList({
               </div>
             </div>
 
-            {/* Pricing */}
+            {/* Pricing — shown incl. VAT */}
             <div className="text-right flex-shrink-0">
               <p className="font-bold text-circleTel-orange text-lg">
-                {formatPrice(product.base_price_zar)}
+                {formatPrice(product.base_price_zar, true)}
               </p>
+              <p className="text-[10px] text-gray-400">incl. VAT / mo</p>
               {columnVisibility.costPrice && (
                 <p className="text-xs text-gray-500">
                   Cost: {formatPrice(product.cost_price_zar)}

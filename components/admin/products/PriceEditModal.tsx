@@ -89,7 +89,8 @@ export function PriceEditModal({ product, open, onClose, onSave }: PriceEditModa
         <div className="space-y-4 py-4">
           {/* Monthly Price */}
           <div className="space-y-2">
-            <Label htmlFor="monthly-price">Monthly Price (ZAR)*</Label>
+            <Label htmlFor="monthly-price">Monthly Price — ex-VAT (ZAR)*</Label>
+            <p className="text-[11px] text-gray-500">Enter ex-VAT amount. Customers see incl. VAT (×1.15).</p>
             <div className="relative">
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                 R
