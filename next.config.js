@@ -84,7 +84,7 @@ const nextConfig = {
     // your project has TypeScript errors.
     ignoreBuildErrors: true,
   },
-  // Exclude Sanity from bundling (large package, causes Turbopack issues)
+  // Exclude heavy/server-only packages from webpack bundling — Node loads them natively at runtime
   serverExternalPackages: [
     'sanity',
     'puppeteer-core',
