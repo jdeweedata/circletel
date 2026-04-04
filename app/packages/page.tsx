@@ -28,6 +28,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { sanityFetch } from '@/lib/sanity/fetch';
 import { PRODUCT_BY_SLUG_QUERY } from '@/lib/sanity/queries/products';
 import { resolvePlan } from '@/lib/plans/plan-mapping';
+import { createClient } from '@/lib/supabase/server';
 
 interface PackagesPageProps {
   searchParams: Promise<{ plan?: string }>;
@@ -139,17 +140,32 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
     redirect('/products');
   }
 
-  const product = await sanityFetch<SanityProduct>({
-    query: PRODUCT_BY_SLUG_QUERY,
-    params: { slug: resolved.sanitySlug },
-    tags: [`product:${resolved.sanitySlug}`, 'products'],
-  });
+  const [product, supabase] = await Promise.all([
+    sanityFetch<SanityProduct>({
+      query: PRODUCT_BY_SLUG_QUERY,
+      params: { slug: resolved.sanitySlug },
+      tags: [`product:${resolved.sanitySlug}`, 'products'],
+    }),
+    createClient(),
+  ]);
 
   if (!product) {
     notFound();
   }
 
+  // Fetch live pricing from database — overrides Sanity price
+  const { data: dbPackage } = await supabase
+    .from('service_packages')
+    .select('price, promotion_price, promotion_months')
+    .eq('name', resolved.dbName)
+    .eq('active', true)
+    .single();
+
   const tier = extractTier(product, resolved.tierName);
+
+  // Override tier price with DB price if available
+  const livePrice = dbPackage?.price ? Number(dbPackage.price) : null;
+  const livePromoPrice = dbPackage?.promotion_price ? Number(dbPackage.promotion_price) : null;
 
   // Inject highlightedPlan into the pricingBlock so the correct tier is visually highlighted
   const blocksWithHighlight = product.blocks?.map((block) => {
@@ -166,7 +182,7 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
     enterprise: 'Enterprise',
   };
 
-  const displayPrice = tier?.price ?? product.pricing?.startingPrice;
+  const displayPrice = livePrice ?? tier?.price ?? product.pricing?.startingPrice;
   const displaySpeed = tier?.speed;
   const heroHeading = tier ? resolved.tierName : product.name;
   const heroSubheading = tier?.description || product.tagline;
@@ -229,13 +245,23 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
                 <span className="text-slate-400 text-sm">
                   {tier ? 'From' : 'Starting from'}
                 </span>
-                <div className="flex items-baseline gap-1">
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  {livePromoPrice && (
+                    <span className="text-slate-400 line-through text-xl">
+                      R{displayPrice.toLocaleString()}
+                    </span>
+                  )}
                   <span className="text-3xl font-bold">
-                    R{displayPrice.toLocaleString()}
+                    R{(livePromoPrice ?? displayPrice).toLocaleString()}
                   </span>
                   <span className="text-slate-400">
                     {product.pricing?.priceNote || 'per month'}
                   </span>
+                  {livePromoPrice && dbPackage?.promotion_months && (
+                    <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full">
+                      {dbPackage.promotion_months} month promo
+                    </span>
+                  )}
                 </div>
               </div>
               <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent rounded-lg hover:bg-white hover:text-slate-900 transition-all duration-200" asChild>
