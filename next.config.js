@@ -3,72 +3,7 @@ const withBundleAnalyzer = process.env.ANALYZE === 'true'
   ? require('@next/bundle-analyzer')({ enabled: true })
   : (config) => config;
 
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  // Disable PWA during development AND Vercel builds (saves ~2GB RAM)
-  disable: process.env.NODE_ENV === 'development' || process.env.VERCEL === '1',
-  register: true,
-  skipWaiting: true,
-  buildExcludes: [/app-build-manifest\.json$/],
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'google-fonts',
-        expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
-        }
-      }
-    },
-    {
-      urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'google-fonts-static',
-        expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
-        }
-      }
-    },
-    {
-      urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-image-assets',
-        expiration: {
-          maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
-    },
-    {
-      urlPattern: /\.(?:js|css)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-resources',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
-    },
-    {
-      urlPattern: ({ url }) => url.origin === 'https://agyjovdugmtopasyvlng.supabase.co',
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'supabase-api',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 60 * 60 // 1 hour
-        },
-        networkTimeoutSeconds: 10
-      }
-    }
-  ]
-});
+const isVercel = process.env.VERCEL === '1';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -171,7 +106,74 @@ const nextConfig = {
   }
 };
 
-const isVercel = process.env.VERCEL === '1';
-module.exports = isVercel
-  ? withBundleAnalyzer(nextConfig)
-  : withBundleAnalyzer(withPWA(nextConfig));
+if (isVercel) {
+  module.exports = withBundleAnalyzer(nextConfig);
+} else {
+  const withPWA = require('next-pwa')({
+    dest: 'public',
+    // Disable PWA in development (saves ~2GB RAM)
+    disable: process.env.NODE_ENV === 'development',
+    register: true,
+    skipWaiting: true,
+    buildExcludes: [/app-build-manifest\.json$/],
+    runtimeCaching: [
+      {
+        urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'google-fonts',
+          expiration: {
+            maxEntries: 4,
+            maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
+          }
+        }
+      },
+      {
+        urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'google-fonts-static',
+          expiration: {
+            maxEntries: 4,
+            maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
+          }
+        }
+      },
+      {
+        urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'static-image-assets',
+          expiration: {
+            maxEntries: 64,
+            maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          }
+        }
+      },
+      {
+        urlPattern: /\.(?:js|css)$/i,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'static-resources',
+          expiration: {
+            maxEntries: 32,
+            maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          }
+        }
+      },
+      {
+        urlPattern: ({ url }) => url.origin === 'https://agyjovdugmtopasyvlng.supabase.co',
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'supabase-api',
+          expiration: {
+            maxEntries: 32,
+            maxAgeSeconds: 60 * 60 // 1 hour
+          },
+          networkTimeoutSeconds: 10
+        }
+      }
+    ]
+  });
+  module.exports = withBundleAnalyzer(withPWA(nextConfig));
+}
