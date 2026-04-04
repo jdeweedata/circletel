@@ -27,8 +27,8 @@ export interface InvoiceForSmsReminder {
   amount_due: number;
   status: string;
   days_overdue: number;
-  sms_reminder_sent_at?: string;
-  sms_reminder_count: number;
+  reminder_sent_at?: string;
+  reminder_count: number;
   customer: {
     id: string;
     first_name: string;
@@ -168,8 +168,8 @@ export class InvoiceSmsReminderService {
         amount_paid,
         amount_due,
         status,
-        sms_reminder_sent_at,
-        sms_reminder_count,
+        reminder_sent_at,
+        reminder_count,
         customer:customers(
           id, first_name, last_name, phone, email, account_number
         )
@@ -177,8 +177,8 @@ export class InvoiceSmsReminderService {
       .in('status', ['overdue', 'unpaid', 'partial'])
       .lte('due_date', maxOverdueDate.toISOString().split('T')[0])
       .gte('due_date', minOverdueDate.toISOString().split('T')[0])
-      .lt('sms_reminder_count', maxReminders)
-      .or(`sms_reminder_sent_at.is.null,sms_reminder_sent_at.lt.${twentyFourHoursAgo.toISOString()}`);
+      .lt('reminder_count', maxReminders)
+      .or(`reminder_sent_at.is.null,reminder_sent_at.lt.${twentyFourHoursAgo.toISOString()}`);
 
     if (error) {
       throw new Error(`Failed to fetch invoices needing SMS reminders: ${error.message}`);
@@ -214,8 +214,8 @@ export class InvoiceSmsReminderService {
         amount_due: inv.amount_due || (inv.total_amount - (inv.amount_paid || 0)),
         status: inv.status,
         days_overdue: daysOverdue,
-        sms_reminder_sent_at: inv.sms_reminder_sent_at,
-        sms_reminder_count: inv.sms_reminder_count || 0,
+        reminder_sent_at: inv.reminder_sent_at,
+        reminder_count: inv.reminder_count || 0,
         customer: customer as InvoiceForSmsReminder['customer'],
       });
     }
@@ -247,8 +247,8 @@ export class InvoiceSmsReminderService {
         amount_paid,
         amount_due,
         status,
-        sms_reminder_sent_at,
-        sms_reminder_count,
+        reminder_sent_at,
+        reminder_count,
         customer:customers(
           id, first_name, last_name, phone, email, account_number
         )
@@ -282,8 +282,8 @@ export class InvoiceSmsReminderService {
     }
 
     // Check if already sent today
-    if (invoice.sms_reminder_sent_at) {
-      const lastSent = new Date(invoice.sms_reminder_sent_at);
+    if (invoice.reminder_sent_at) {
+      const lastSent = new Date(invoice.reminder_sent_at);
       const hoursSinceLastSms = (Date.now() - lastSent.getTime()) / (1000 * 60 * 60);
       if (hoursSinceLastSms < 24) {
         return {
@@ -297,7 +297,7 @@ export class InvoiceSmsReminderService {
     }
 
     // Check max reminders
-    const reminderCount = invoice.sms_reminder_count || 0;
+    const reminderCount = invoice.reminder_count || 0;
     if (reminderCount >= maxReminders) {
       return {
         invoice_id: invoiceId,
@@ -357,9 +357,9 @@ export class InvoiceSmsReminderService {
       await supabase
         .from('customer_invoices')
         .update({
-          sms_reminder_sent_at: new Date().toISOString(),
-          sms_reminder_count: reminderCount + 1,
-          sms_reminder_error: null,
+          reminder_sent_at: new Date().toISOString(),
+          reminder_count: reminderCount + 1,
+          reminder_error: null,
         })
         .eq('id', invoiceId);
 
@@ -479,8 +479,8 @@ export class InvoiceSmsReminderService {
           amount_paid,
           amount_due,
           status,
-          sms_reminder_sent_at,
-          sms_reminder_count,
+          reminder_sent_at,
+          reminder_count,
           customer:customers(
             id, first_name, last_name, phone, email, account_number
           )
@@ -502,7 +502,7 @@ export class InvoiceSmsReminderService {
           ...inv,
           amount_due: inv.amount_due || (inv.total_amount - (inv.amount_paid || 0)),
           days_overdue: daysOverdue,
-          sms_reminder_count: inv.sms_reminder_count || 0,
+          reminder_count: inv.reminder_count || 0,
           customer: customer as InvoiceForSmsReminder['customer'],
         };
       });
@@ -514,7 +514,7 @@ export class InvoiceSmsReminderService {
     // Process each invoice
     for (const invoice of invoices) {
       // Skip if max reminders reached
-      if (invoice.sms_reminder_count >= maxReminders) {
+      if (invoice.reminder_count >= maxReminders) {
         skipped++;
         results.push({
           invoice_id: invoice.id,
@@ -566,7 +566,7 @@ export class InvoiceSmsReminderService {
   }
 
   /**
-   * Send "due today" SMS to customers with invoices due today and sms_reminder_count = 0.
+   * Send "due today" SMS to customers with invoices due today and reminder_count = 0.
    * Called from the daily invoice-sms-reminders cron alongside processReminders.
    */
   static async processDueTodayReminders(
@@ -593,15 +593,15 @@ export class InvoiceSmsReminderService {
         amount_due,
         status,
         paynow_url,
-        sms_reminder_sent_at,
-        sms_reminder_count,
+        reminder_sent_at,
+        reminder_count,
         customer:customers(
           id, first_name, last_name, phone, email, account_number
         )
       `)
       .eq('due_date', today)
       .eq('status', 'open')
-      .eq('sms_reminder_count', 0);
+      .eq('reminder_count', 0);
 
     if (error) {
       throw new Error(`Failed to fetch due-today invoices: ${error.message}`);
@@ -663,8 +663,8 @@ export class InvoiceSmsReminderService {
         await supabase
           .from('customer_invoices')
           .update({
-            sms_reminder_sent_at: new Date().toISOString(),
-            sms_reminder_count: 1,
+            reminder_sent_at: new Date().toISOString(),
+            reminder_count: 1,
           })
           .eq('id', invoice.id);
 
@@ -704,15 +704,15 @@ export class InvoiceSmsReminderService {
    */
   static async getReminderStatus(invoiceId: string): Promise<{
     invoice_id: string;
-    sms_reminder_sent_at: string | null;
-    sms_reminder_count: number;
-    sms_reminder_error: string | null;
+    reminder_sent_at: string | null;
+    reminder_count: number;
+    reminder_error: string | null;
   }> {
     const supabase = await createClient();
 
     const { data, error } = await supabase
       .from('customer_invoices')
-      .select('id, sms_reminder_sent_at, sms_reminder_count, sms_reminder_error')
+      .select('id, reminder_sent_at, reminder_count, reminder_error')
       .eq('id', invoiceId)
       .single();
 
@@ -722,9 +722,9 @@ export class InvoiceSmsReminderService {
 
     return {
       invoice_id: data.id,
-      sms_reminder_sent_at: data.sms_reminder_sent_at,
-      sms_reminder_count: data.sms_reminder_count || 0,
-      sms_reminder_error: data.sms_reminder_error,
+      reminder_sent_at: data.reminder_sent_at,
+      reminder_count: data.reminder_count || 0,
+      reminder_error: data.reminder_error,
     };
   }
 
@@ -764,7 +764,7 @@ export class InvoiceSmsReminderService {
 
     await supabase
       .from('customer_invoices')
-      .update({ sms_reminder_error: error })
+      .update({ reminder_error: error })
       .eq('id', invoiceId);
   }
 

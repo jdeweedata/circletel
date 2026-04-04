@@ -197,7 +197,7 @@ export const invoiceNotificationFunction = inngest.createFunction(
         .from('customer_invoices')
         .update({
           emailed_at: new Date().toISOString(),
-          sms_reminder_count: 0,
+          reminder_count: 0,
         })
         .eq('id', invoice.id);
 
