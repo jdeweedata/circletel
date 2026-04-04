@@ -7,6 +7,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+
+export const dynamic = 'force-dynamic';
 import { render } from '@react-email/render';
 import PasswordResetEmail from '@/emails/templates/consumer/password-reset';
 import { apiLogger } from '@/lib/logging';

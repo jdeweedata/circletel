@@ -7,6 +7,8 @@
  */
 
 import { NextResponse } from 'next/server'
+
+export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js'
 
 // Use anon key for public access with RLS

@@ -9,6 +9,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js';
 import { render } from '@react-email/render';
 import EmailVerificationEmail from '@/emails/templates/consumer/email-verification';
