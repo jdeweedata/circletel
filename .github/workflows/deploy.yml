@@ -6,9 +6,9 @@ on:
 
 jobs:
   build-and-push:
-    # ubuntu-latest-16-core = 16 vCPU, 64GB RAM. Needed for 254-page Next.js webpack build.
-    # ubuntu-latest (7GB) OOMs at ~5572MB heap during webpack compilation.
-    runs-on: ubuntu-latest-16-core
+    # Self-hosted runner on VPS 30 (24GB RAM) — GitHub-hosted ubuntu-latest (7GB) OOMs.
+    # Setup: /home/actions-runner on the VPS, registered as label "self-hosted".
+    runs-on: self-hosted
     permissions:
       contents: read
       packages: write
