@@ -10,16 +10,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-
-export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 
-// Use service role for database operations
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const dynamic = 'force-dynamic';
+
+// Lazy getter — avoids module-level init which throws at build time (no SUPABASE_SERVICE_ROLE_KEY)
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -104,7 +106,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build query
-    let query = supabase
+    let query = getSupabase()
       .from('marketing_email_preferences')
       .select('*');
 
@@ -197,7 +199,7 @@ export async function POST(request: NextRequest) {
         const normalizedEmail = email.toLowerCase();
         
         // Check if preferences exist
-        const { data: existing } = await supabase
+        const { data: existing } = await getSupabase()
           .from('marketing_email_preferences')
           .select('id')
           .eq('email', normalizedEmail)
@@ -205,7 +207,7 @@ export async function POST(request: NextRequest) {
         
         if (existing) {
           // Update existing
-          await supabase
+          await getSupabase()
             .from('marketing_email_preferences')
             .update({
               unsubscribed_all: true,
@@ -215,7 +217,7 @@ export async function POST(request: NextRequest) {
             .eq('id', existing.id);
         } else {
           // Create new with unsubscribed
-          await supabase
+          await getSupabase()
             .from('marketing_email_preferences')
             .insert({
               email: normalizedEmail,
@@ -272,7 +274,7 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase();
 
     // Check if preferences exist
-    const { data: existing } = await supabase
+    const { data: existing } = await getSupabase()
       .from('marketing_email_preferences')
       .select('id, unsubscribe_token')
       .eq('email', normalizedEmail)
@@ -287,7 +289,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Try to link to customer if exists
-    const { data: customer } = await supabase
+    const { data: customer } = await getSupabase()
       .from('customers')
       .select('id')
       .eq('email', normalizedEmail)
@@ -326,7 +328,7 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       // Update existing preferences
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('marketing_email_preferences')
         .update(preferencesData)
         .eq('id', existing.id)
@@ -343,7 +345,7 @@ export async function POST(request: NextRequest) {
       result = data;
     } else {
       // Insert new preferences
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('marketing_email_preferences')
         .insert({
           ...preferencesData,

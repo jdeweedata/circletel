@@ -7,29 +7,21 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-
-export const dynamic = 'force-dynamic';
 import { render } from '@react-email/render';
 import PasswordResetEmail from '@/emails/templates/consumer/password-reset';
 import { apiLogger } from '@/lib/logging';
 
-// Initialize Supabase Admin client
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
-
-// Resend API configuration
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CircleTel <noreply@notifications.circletelsa.co.za>';
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CircleTel <noreply@notifications.circletelsa.co.za>';
+
   try {
     const { email } = await request.json();
 

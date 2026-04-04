@@ -7,15 +7,9 @@
  */
 
 import { NextResponse } from 'next/server'
-
-export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js'
 
-// Use anon key for public access with RLS
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+export const dynamic = 'force-dynamic';
 
 export interface ActivePromotion {
   id: string
@@ -32,6 +26,10 @@ export interface ActivePromotion {
 }
 
 export async function GET() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!
+  )
   try {
     // Get active promotions marked for homepage display
     // RLS policy filters: status = 'active' AND within valid dates

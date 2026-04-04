@@ -7,17 +7,15 @@
  */
 
 import { NextResponse } from 'next/server'
-
-export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js'
 
-// Use anon key for public access with RLS
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!
+  )
   try {
     const now = new Date().toISOString()
 

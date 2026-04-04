@@ -9,28 +9,22 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-
-export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js';
 import { render } from '@react-email/render';
 import EmailVerificationEmail from '@/emails/templates/consumer/email-verification';
 import { apiLogger } from '@/lib/logging';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
-
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CircleTel <noreply@notifications.circletelsa.co.za>';
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CircleTel <noreply@notifications.circletelsa.co.za>';
+
   try {
     const { email } = await request.json();
 
