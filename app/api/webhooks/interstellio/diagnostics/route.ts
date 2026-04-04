@@ -26,6 +26,8 @@ import {
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications'
 import { webhookLogger } from '@/lib/logging'
 
+export const dynamic = 'force-dynamic';
+
 // Webhook secret for signature verification (optional - Interstellio may not sign)
 const WEBHOOK_SECRET = process.env.INTERSTELLIO_WEBHOOK_SECRET
 

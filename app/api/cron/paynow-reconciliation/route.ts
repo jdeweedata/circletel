@@ -22,6 +22,8 @@ import { cronLogger } from '@/lib/logging';
 import { inngest } from '@/lib/inngest';
 import { v4 as uuidv4 } from 'uuid';
 
+export const dynamic = 'force-dynamic';
+
 // Vercel cron configuration
 export const runtime = 'nodejs';
 export const maxDuration = 60;

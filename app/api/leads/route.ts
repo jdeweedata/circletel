@@ -2,15 +2,17 @@ import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { createZohoCRMService } from '@/lib/integrations/zoho/crm-service';
 
+export const dynamic = 'force-dynamic';
+
 // Lazy-initialize Gemini SDK to avoid build-time crash when env var is missing
 let _ai: GoogleGenAI | null = null;
 function getAI() {
   if (!_ai) _ai = new GoogleGenAI({});
   return _ai;
 }
-const zohoService = createZohoCRMService();
 
 export async function POST(req: Request) {
+    const zohoService = createZohoCRMService();
     try {
         const body = await req.json();
         const { name, email, phone, company, employees, message } = body;

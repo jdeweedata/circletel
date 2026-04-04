@@ -15,15 +15,7 @@ import { apiLogger } from '@/lib/logging';
 
 // Vercel serverless config — allow longer execution for PDF rendering
 export const maxDuration = 60;
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Use configured Resend from email, fallback to verified domain
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL
-  ? `CircleTel Quotes <${process.env.RESEND_FROM_EMAIL}>`
-  : process.env.NODE_ENV === 'development'
-    ? 'CircleTel Quotes <onboarding@resend.dev>'
-    : 'CircleTel Quotes <notifications@notify.circletel.co.za>';
+export const dynamic = 'force-dynamic';
 
 interface EmailRequest {
   recipientEmail: string;
@@ -36,6 +28,13 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL
+    ? `CircleTel Quotes <${process.env.RESEND_FROM_EMAIL}>`
+    : process.env.NODE_ENV === 'development'
+      ? 'CircleTel Quotes <onboarding@resend.dev>'
+      : 'CircleTel Quotes <notifications@notify.circletel.co.za>';
+
   try {
     const { id } = await context.params;
     const body: EmailRequest = await request.json();

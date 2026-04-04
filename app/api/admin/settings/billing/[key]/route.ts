@@ -16,6 +16,8 @@ import {
 } from '@/lib/billing/billing-settings-service';
 import { billingLogger } from '@/lib/logging';
 
+export const dynamic = 'force-dynamic';
+
 // =============================================================================
 // Valid Setting Keys
 // =============================================================================

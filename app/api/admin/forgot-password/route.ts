@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Admin Password Reset Request API
  *

@@ -22,6 +22,8 @@ import {
 } from '@/lib/payment/netcash-webhook-processor';
 import { webhookLogger } from '@/lib/logging';
 
+export const dynamic = 'force-dynamic';
+
 // ==================================================================
 // CONFIGURATION
 // ==================================================================

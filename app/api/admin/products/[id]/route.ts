@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { getAuthenticatedUser } from '@/lib/auth/api-auth';
 import { apiLogger } from '@/lib/logging';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/products/[id] - Get single product details
 export async function GET(
   request: NextRequest,
