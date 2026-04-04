@@ -40,8 +40,6 @@ jobs:
             NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
             NEXT_PUBLIC_NETCASH_SERVICE_KEY=${{ secrets.NEXT_PUBLIC_NETCASH_SERVICE_KEY }}
             NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY=${{ secrets.NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY }}
-            NEXT_PUBLIC_DIDIT_ENVIRONMENT=${{ secrets.NEXT_PUBLIC_DIDIT_ENVIRONMENT }}
-            NEXT_PUBLIC_ICASA_ENVIRONMENT=${{ secrets.NEXT_PUBLIC_ICASA_ENVIRONMENT }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
