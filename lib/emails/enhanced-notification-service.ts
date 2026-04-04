@@ -383,6 +383,7 @@ export class EnhancedEmailService {
     vat_amount: number;
     due_date: string;
     account_number?: string;
+    paynow_url?: string;  // When provided, used as the Pay Now button URL instead of dashboard URL
     line_items: Array<{
       description: string;
       quantity: number;
@@ -415,7 +416,7 @@ export class EnhancedEmailService {
         companyName: invoice.company_name || invoice.customer_name,
         invoiceNumber: invoice.invoice_number,
         invoiceUrl: `${baseUrl}/dashboard/invoices/${invoice.invoice_id}`,
-        paymentUrl: `${baseUrl}/dashboard/invoices/${invoice.invoice_id}/pay`,
+        paymentUrl: invoice.paynow_url ?? `${baseUrl}/dashboard/invoices/${invoice.invoice_id}/pay`,
         totalAmount: `R ${invoice.total_amount.toFixed(2)}`,
         dueDate,
         lineItems: formattedLineItems,
