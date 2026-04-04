@@ -112,8 +112,9 @@ export async function generateMetadata({ searchParams }: PackagesPageProps): Pro
   if (!product) return { title: 'Plans | CircleTel' };
 
   const tier = extractTier(product, resolved.tierName);
+  const metaPrice = tier?.price ? Math.round(tier.price * 1.15) : null;
   const title = tier
-    ? `${resolved.tierName} - ${tier.speed || ''} | From R${tier.price}/mo | CircleTel`
+    ? `${resolved.tierName} - ${tier.speed || ''} | From R${metaPrice ?? tier.price}/mo | CircleTel`
     : `${resolved.tierName} | CircleTel`;
   const description = tier?.description || product.tagline || '';
 
@@ -163,9 +164,12 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
 
   const tier = extractTier(product, resolved.tierName);
 
-  // Override tier price with DB price if available
-  const livePrice = dbPackage?.price ? Number(dbPackage.price) : null;
-  const livePromoPrice = dbPackage?.promotion_price ? Number(dbPackage.promotion_price) : null;
+  // All prices in service_packages are stored ex-VAT — multiply by 1.15 for display
+  const VAT = 1.15;
+  const withVAT = (p: number) => Math.round(p * VAT * 100) / 100;
+
+  const livePrice = dbPackage?.price ? withVAT(Number(dbPackage.price)) : null;
+  const livePromoPrice = dbPackage?.promotion_price ? withVAT(Number(dbPackage.promotion_price)) : null;
 
   // Inject highlightedPlan into the pricingBlock so the correct tier is visually highlighted
   const blocksWithHighlight = product.blocks?.map((block) => {
@@ -182,7 +186,10 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
     enterprise: 'Enterprise',
   };
 
-  const displayPrice = livePrice ?? tier?.price ?? product.pricing?.startingPrice;
+  // displayPrice is always VAT-inclusive for DB-sourced prices; Sanity prices treated as-is
+  const displayPrice = livePrice ?? (tier?.price ? withVAT(tier.price) : undefined) ?? product.pricing?.startingPrice;
+  const formatPrice = (p: number) =>
+    p % 1 === 0 ? p.toLocaleString('en-ZA') : p.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const displaySpeed = tier?.speed;
   const heroHeading = tier ? resolved.tierName : product.name;
   const heroSubheading = tier?.description || product.tagline;
@@ -248,14 +255,14 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
                 <div className="flex items-baseline gap-2 flex-wrap">
                   {livePromoPrice && (
                     <span className="text-slate-400 line-through text-xl">
-                      R{displayPrice.toLocaleString()}
+                      R{formatPrice(displayPrice)}
                     </span>
                   )}
                   <span className="text-3xl font-bold">
-                    R{(livePromoPrice ?? displayPrice).toLocaleString()}
+                    R{formatPrice(livePromoPrice ?? displayPrice)}
                   </span>
                   <span className="text-slate-400">
-                    {product.pricing?.priceNote || 'per month'}
+                    {product.pricing?.priceNote || 'per month incl. VAT'}
                   </span>
                   {livePromoPrice && dbPackage?.promotion_months && (
                     <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full">
