@@ -74,6 +74,6 @@ EXPOSE 3000
 
 # 254-page app needs 90-120s cold start — use generous start-period
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
-  CMD wget -qO- http://localhost:3000/api/health || exit 1
+  CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
 
 CMD ["node", "server.js"]
