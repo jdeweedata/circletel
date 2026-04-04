@@ -94,6 +94,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // ============================================
 
 export async function generateStaticParams() {
+  // SUPABASE_SERVICE_ROLE_KEY is a runtime secret — not available during Docker build.
+  // Return [] so the build succeeds; pages are generated on first request via ISR.
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return [];
+
   const supabase = await createClient();
 
   const { data: pages } = await supabase

@@ -22,6 +22,10 @@ export const revalidate = 86400; // ISR: revalidate daily
 // Static params — pre-render active zones with high/medium confidence
 // ---------------------------------------------------------------------------
 export async function generateStaticParams() {
+  // SUPABASE_SERVICE_ROLE_KEY is a runtime secret — not available during Docker build.
+  // Return [] so the build succeeds; pages are generated on first request via ISR.
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return [];
+
   const supabase = await createClient();
   const { data } = await supabase
     .from('sales_zones')
