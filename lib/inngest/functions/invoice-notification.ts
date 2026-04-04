@@ -82,7 +82,7 @@ export const invoiceNotificationFunction = inngest.createFunction(
     // -------------------------------------------------------------------------
     // Step 1: Fetch invoice + customer
     // -------------------------------------------------------------------------
-    const invoice = await step.run('fetch-invoice', async (): Promise<InvoiceRecord> => {
+    const invoiceData = await step.run('fetch-invoice', async () => {
       const supabase = await createClient();
       const { data, error } = await supabase
         .from('customer_invoices')
@@ -107,14 +107,23 @@ export const invoiceNotificationFunction = inngest.createFunction(
         throw new Error(`Invoice ${invoice_id} not found: ${error?.message}`);
       }
 
-      if (data.emailed_at) {
-        billingLogger.info(`Invoice ${data.invoice_number} already emailed at ${data.emailed_at}, skipping`);
-        throw new Error(`ALREADY_NOTIFIED:${data.invoice_number}`);
-      }
-
       const customer = Array.isArray(data.customer) ? data.customer[0] : data.customer;
       return { ...data, customer } as InvoiceRecord;
     });
+
+    // Idempotency guard: if already notified, exit gracefully (not an error)
+    if (invoiceData.emailed_at) {
+      billingLogger.info(`Invoice ${invoiceData.invoice_number} already emailed at ${invoiceData.emailed_at}, skipping`);
+      return {
+        invoice_id,
+        customer_id,
+        notified: false,
+        skipped: true,
+        reason: 'already_notified',
+      };
+    }
+
+    const invoice = invoiceData;
 
     // -------------------------------------------------------------------------
     // Step 2: Send email
