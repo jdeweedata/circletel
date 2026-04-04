@@ -346,6 +346,19 @@ export type BillingDayCancelledEvent = {
   };
 };
 
+// =============================================================================
+// INVOICE NOTIFICATION EVENTS
+// =============================================================================
+
+export type InvoiceGeneratedEvent = {
+  name: 'billing/invoice.generated';
+  data: {
+    invoice_id: string;
+    customer_id: string;
+    triggered_by: 'cron' | 'manual';
+  };
+};
+
 export type ZohoSyncRequestedEvent = {
   name: 'zoho/sync.requested';
   data: {
@@ -687,6 +700,8 @@ export type InngestEvents = {
   'billing/day.completed': BillingDayCompletedEvent;
   'billing/day.failed': BillingDayFailedEvent;
   'billing/day.cancelled': BillingDayCancelledEvent;
+  // Invoice notification events
+  'billing/invoice.generated': InvoiceGeneratedEvent;
   // Zoho sync events
   'zoho/sync.requested': ZohoSyncRequestedEvent;
   'zoho/sync.completed': ZohoSyncCompletedEvent;
