@@ -6,9 +6,9 @@ on:
 
 jobs:
   build-and-push:
-    # ubuntu-latest = 2 vCPU, 7GB RAM. Our build uses 5632MB heap + 1 webpack worker.
-    # If build OOMs, change to: ubuntu-latest-16-core (64GB, ~$0.064/min)
-    runs-on: ubuntu-latest
+    # ubuntu-latest-16-core = 16 vCPU, 64GB RAM. Needed for 254-page Next.js webpack build.
+    # ubuntu-latest (7GB) OOMs at ~5572MB heap during webpack compilation.
+    runs-on: ubuntu-latest-16-core
     permissions:
       contents: read
       packages: write
