@@ -85,22 +85,38 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   // Exclude Sanity from bundling (large package, causes Turbopack issues)
-  serverExternalPackages: ['sanity'],
+  serverExternalPackages: [
+    'sanity',
+    'puppeteer-core',
+    '@sparticuz/chromium-min',
+    'cheerio',
+    'xml2js',
+    'adm-zip',
+    'resend',
+    '@react-email/components',
+    '@react-email/render',
+    '@mendable/firecrawl-js',
+    '@modelcontextprotocol/sdk',
+  ],
   experimental: {
     optimizePackageImports: [
       '@radix-ui/react-icons',
       'react-icons',
       'lucide-react',
       '@phosphor-icons/react',
+      '@tabler/icons-react',
       'date-fns',
       '@tanstack/react-table',
       'recharts',
       'zod',
-      '@hookform/resolvers'
+      '@hookform/resolvers',
+      'framer-motion',
+      'motion',
+      '@tanstack/react-query',
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
-    // Use 1 core with 12GB heap (Enhanced Build Machine: 16GB total, leaves 3GB for worker + OS)
+    // Use 1 core with 6GB heap (Standard Build Machine: 8GB total, leaves ~2GB for worker + OS)
     cpus: 1,
   },
   webpack: (config, { isServer }) => {
