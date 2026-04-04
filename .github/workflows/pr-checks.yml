@@ -19,7 +19,7 @@ jobs:
   validate-build-config:
     name: Validate Vercel Build Config
     runs-on: ubuntu-latest
-    # BLOCKING: these settings prevent Vercel OOM crashes (Standard Build Machine: 8GB + Turbopack)
+    # BLOCKING: these settings prevent Vercel OOM crashes (Enhanced Build Machine: 16GB required)
 
     steps:
       - name: Checkout code
@@ -36,17 +36,6 @@ jobs:
           fi
           echo "✅ Heap size OK: ${HEAP}MB"
 
-      - name: Check vercel.json --turbo flag
-        run: |
-          if grep -q '\-\-turbo' vercel.json; then
-            echo "✅ Turbopack flag present"
-          else
-            echo "❌ FAIL: vercel.json buildCommand missing --turbo flag"
-            echo "   Fix: add --turbo to buildCommand in vercel.json"
-            echo "   Without --turbo, 6144MB heap will OOM on Standard 8GB machine"
-            exit 1
-          fi
-
       - name: Check next.config.js cpus setting
         run: |
           CPUS=$(grep -E '^\s*cpus:' next.config.js | grep -o '[0-9]*')
@@ -56,7 +45,7 @@ jobs:
             exit 1
           fi
           if [ "$CPUS" -gt 1 ]; then
-            echo "❌ FAIL: next.config.js cpus=${CPUS} — must be 1 on Vercel Standard Build Machine"
+            echo "❌ FAIL: next.config.js cpus=${CPUS} — must be 1 on Vercel Enhanced Build Machine"
             echo "   Fix: set cpus: 1 in experimental config"
             exit 1
           fi

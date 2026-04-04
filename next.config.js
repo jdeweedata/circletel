@@ -51,12 +51,11 @@ const nextConfig = {
     ],
     // Reduce memory usage during builds by disabling worker threads
     workerThreads: false,
-    // Use 1 core with 6GB heap (Turbopack — Rust memory, not V8 heap; Standard 8GB machine)
+    // Use 1 core with 12GB heap (Enhanced Build Machine: 16GB total, leaves ~3GB for worker + OS)
     cpus: 1,
   },
   webpack: (config, { isServer }) => {
-    // NOTE: This config is ignored by Turbopack (Vercel builds use next build --turbo)
-    // It applies only to local webpack dev (npm run dev) and CI type-check
+    // Optimize chunk loading for dynamic imports
     // Optimize chunk loading for dynamic imports
     if (!isServer) {
       config.optimization = {

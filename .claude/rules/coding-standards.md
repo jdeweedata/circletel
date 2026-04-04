@@ -145,26 +145,29 @@ const headers = {
 
 ```json
 // vercel.json
-// ✅ CORRECT: 6GB heap + --turbo (Standard Build Machine: 8GB, Turbopack uses Rust native memory)
-"buildCommand": "NODE_OPTIONS='--max-old-space-size=6144' next build --turbo"
-
-// ❌ WRONG: 12GB — exceeds Standard machine RAM (8GB), causes immediate SIGABRT
+// ✅ CORRECT: 12GB heap + cpus:1 (Enhanced Build Machine: 16GB total, ~3GB left for worker + OS)
 "buildCommand": "NODE_OPTIONS='--max-old-space-size=12288' next build"
 
+// ❌ WRONG: 8GB+ — Standard and Elastic only give 8GB total RAM, causes SIGKILL
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=8192' next build"
+
 // ❌ WRONG: gc-interval is NOT allowed in NODE_OPTIONS
-"buildCommand": "NODE_OPTIONS='--max-old-space-size=6144 --gc-interval=100' next build --turbo"
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=12288 --gc-interval=100' next build"
 ```
 
-**Why 6144 + cpus:1 + Turbopack (Standard Build Machine):**
-Vercel Standard Build Machine has 8GB total RAM. Memory budget:
-- V8 heap limit: 6144MB (but Turbopack uses Rust native memory, not V8 heap)
-- 1 webpack worker (cpus:1): N/A under Turbopack (Rust process)
+**Why 12288 + cpus:1 (Enhanced Build Machine):**
+Vercel Enhanced Build Machine has 16GB total RAM. Memory budget:
+- Main Node process: up to 12288MB
+- 1 webpack worker (cpus:1): ~1.5GB
 - OS overhead: ~0.5GB
-- Total: fits within 8GB ✅
+- Total: ~14GB ✅ (2GB headroom)
 
-Turbopack's Rust allocator bypasses V8 GC entirely, making the 6144MB heap limit
-less critical — but it's kept as a safety floor. Standard (8GB) works with Turbopack;
-without Turbopack, Enhanced (16GB) was required.
+Standard (8GB) and Elastic (also starts at 8GB, does NOT dynamically scale for this app) are
+both too small — this 254-page app requires >8GB to build. Enhanced is required.
+
+**Turbopack note**: `next build --turbo` panics on the `sanity` package (Turbopack internal
+integer overflow bug on large packages — tracked upstream). Do NOT use `--turbo` until the
+sanity issue is resolved in a future Turbopack release.
 
 **CRITICAL**: These values are enforced by `.github/workflows/pr-checks.yml`. Any PR that lowers heap below 6144MB or raises cpus above 1 will fail the `validate-build-config` check and block the merge.
 
