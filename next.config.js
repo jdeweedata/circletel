@@ -55,6 +55,8 @@ const nextConfig = {
     cpus: 1,
   },
   webpack: (config, { isServer }) => {
+    // NOTE: This config is ignored by Turbopack (Vercel builds use next build --turbo)
+    // It applies only to local webpack dev (npm run dev) and CI type-check
     // Optimize chunk loading for dynamic imports
     if (!isServer) {
       config.optimization = {

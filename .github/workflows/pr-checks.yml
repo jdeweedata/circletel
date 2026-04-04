@@ -36,6 +36,17 @@ jobs:
           fi
           echo "✅ Heap size OK: ${HEAP}MB"
 
+      - name: Check vercel.json --turbo flag
+        run: |
+          if grep -q '\-\-turbo' vercel.json; then
+            echo "✅ Turbopack flag present"
+          else
+            echo "❌ FAIL: vercel.json buildCommand missing --turbo flag"
+            echo "   Fix: add --turbo to buildCommand in vercel.json"
+            echo "   Without --turbo, 6144MB heap will OOM on Standard 8GB machine"
+            exit 1
+          fi
+
       - name: Check next.config.js cpus setting
         run: |
           CPUS=$(grep -E '^\s*cpus:' next.config.js | grep -o '[0-9]*')
