@@ -216,6 +216,10 @@
       "schedule": "0 4 1 * *"
     },
     {
+      "path": "/api/cron/generate-invoices-25th",
+      "schedule": "0 4 25 * *"
+    },
+    {
       "path": "/api/cron/paynow-reconciliation",
       "schedule": "0 6 * * *"
     },

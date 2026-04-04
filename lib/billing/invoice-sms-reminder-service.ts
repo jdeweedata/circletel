@@ -96,6 +96,15 @@ const SMS_TEMPLATES = {
     days_overdue: number;
   }) =>
     `FINAL NOTICE: ${data.customer_name}, invoice ${data.invoice_number} (R${data.amount_due.toFixed(2)}) is ${data.days_overdue} days overdue. Pay immediately: circletel.co.za/pay/${data.invoice_number} or email billing@circletel.co.za`,
+
+  // Due-today reminder (sent on billing day, invoice not yet overdue)
+  due_today: (data: {
+    customer_name: string;
+    invoice_number: string;
+    amount_due: number;
+    paynow_url?: string;
+  }) =>
+    `Hi ${data.customer_name}, your CircleTel invoice ${data.invoice_number} for R${data.amount_due.toFixed(2)} is due today. Pay now: ${data.paynow_url ?? 'circletel.co.za/dashboard'}`,
 };
 
 // =============================================================================
@@ -544,6 +553,140 @@ export class InvoiceSmsReminderService {
 
       // Delay between SMS to avoid rate limiting (500ms)
       await this.delay(500);
+    }
+
+    return {
+      processed: invoices.length,
+      sent,
+      failed,
+      skipped,
+      results,
+      duration_ms: Date.now() - startTime,
+    };
+  }
+
+  /**
+   * Send "due today" SMS to customers with invoices due today and sms_reminder_count = 0.
+   * Called from the daily invoice-sms-reminders cron alongside processReminders.
+   */
+  static async processDueTodayReminders(
+    options: { dryRun?: boolean } = {}
+  ): Promise<BatchSmsReminderResult> {
+    const startTime = Date.now();
+    const results: SmsReminderResult[] = [];
+    let sent = 0;
+    let failed = 0;
+    let skipped = 0;
+
+    const today = new Date().toISOString().split('T')[0];
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from('customer_invoices')
+      .select(`
+        id,
+        invoice_number,
+        invoice_date,
+        due_date,
+        total_amount,
+        amount_paid,
+        amount_due,
+        status,
+        paynow_url,
+        sms_reminder_sent_at,
+        sms_reminder_count,
+        customer:customers(
+          id, first_name, last_name, phone, email, account_number
+        )
+      `)
+      .eq('due_date', today)
+      .eq('status', 'open')
+      .eq('sms_reminder_count', 0);
+
+    if (error) {
+      throw new Error(`Failed to fetch due-today invoices: ${error.message}`);
+    }
+
+    const invoices = (data ?? []).map((inv) => {
+      const customer = Array.isArray(inv.customer) ? inv.customer[0] : inv.customer;
+      return { ...inv, customer };
+    });
+
+    for (const invoice of invoices) {
+      const customer = invoice.customer as {
+        id: string;
+        first_name: string;
+        last_name: string;
+        phone: string | null;
+        email: string;
+        account_number: string | null;
+      };
+
+      if (!customer?.phone) {
+        skipped++;
+        results.push({
+          invoice_id: invoice.id,
+          invoice_number: invoice.invoice_number,
+          customer_phone: '',
+          success: false,
+          error: 'No phone number',
+        });
+        continue;
+      }
+
+      const amountDue = invoice.amount_due || (invoice.total_amount - (invoice.amount_paid || 0));
+      const message = SMS_TEMPLATES.due_today({
+        customer_name: customer.first_name,
+        invoice_number: invoice.invoice_number,
+        amount_due: amountDue,
+        paynow_url: invoice.paynow_url ?? undefined,
+      });
+
+      if (options.dryRun) {
+        results.push({
+          invoice_id: invoice.id,
+          invoice_number: invoice.invoice_number,
+          customer_phone: customer.phone,
+          success: true,
+          message_id: 'dry-run',
+        });
+        skipped++;
+        continue;
+      }
+
+      try {
+        const clickatell = this.getClickatellService();
+        const smsResult = await clickatell.sendSMS({ to: customer.phone, text: message });
+
+        if (!smsResult.success) throw new Error(smsResult.error || 'SMS failed');
+
+        await supabase
+          .from('customer_invoices')
+          .update({
+            sms_reminder_sent_at: new Date().toISOString(),
+            sms_reminder_count: 1,
+          })
+          .eq('id', invoice.id);
+
+        results.push({
+          invoice_id: invoice.id,
+          invoice_number: invoice.invoice_number,
+          customer_phone: customer.phone,
+          success: true,
+          message_id: smsResult.messageId,
+        });
+        sent++;
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        results.push({
+          invoice_id: invoice.id,
+          invoice_number: invoice.invoice_number,
+          customer_phone: customer.phone,
+          success: false,
+          error: errMsg,
+        });
+        failed++;
+      }
     }
 
     return {

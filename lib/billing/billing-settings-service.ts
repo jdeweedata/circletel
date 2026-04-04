@@ -34,6 +34,7 @@ export interface BillingSettingsMap {
   grace_period_days: number;
   auto_suspend_days: number;
   billing_dates: number[];
+  billing_day_window: number[];
 
   // Fees & Charges
   late_payment_fee: number;
@@ -58,6 +59,7 @@ const DEFAULT_SETTINGS: BillingSettingsMap = {
   grace_period_days: 3,
   auto_suspend_days: 14,
   billing_dates: [1, 5, 25, 30],
+  billing_day_window: [1, 2, 3, 4, 5],
   late_payment_fee: 100.0,
   reconnection_fee: 250.0,
   router_price: 99.0,
@@ -397,6 +399,7 @@ function parseSettingValue<K extends BillingSettingKey>(
   // Type-specific parsing based on key
   switch (key) {
     case 'billing_dates':
+    case 'billing_day_window':
     case 'sms_urgency_thresholds':
       if (Array.isArray(value)) {
         return value.map(Number) as BillingSettingsMap[K];
@@ -474,4 +477,15 @@ export async function getEmailReminderDays(): Promise<number> {
  */
 export async function getBillingDates(): Promise<number[]> {
   return getBillingSetting('billing_dates');
+}
+
+/**
+ * Get the billing_day window for the 25th-of-month invoice generation run.
+ * Customers whose customer_services.billing_day is in this array are
+ * included in the 25th invoice generation cron.
+ *
+ * Default: [1, 2, 3, 4, 5]
+ */
+export async function getBillingDayWindow(): Promise<number[]> {
+  return getBillingSetting('billing_day_window');
 }

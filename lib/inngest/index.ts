@@ -114,6 +114,10 @@ export {
   salesEngineOrchestratorCompleted,
 } from './functions/sales-engine-orchestrator';
 
+export {
+  invoiceNotificationFunction,
+} from './functions/invoice-notification';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -221,6 +225,10 @@ import {
   salesEngineOrchestratorCompleted,
 } from './functions/sales-engine-orchestrator';
 
+import {
+  invoiceNotificationFunction,
+} from './functions/invoice-notification';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -288,4 +296,6 @@ export const functions = [
   salesEngineDailyOrchestrator,
   salesEngineWeeklyReview,
   salesEngineOrchestratorCompleted,
+  // Invoice notification (email + SMS on 25th generation)
+  invoiceNotificationFunction,
 ];
