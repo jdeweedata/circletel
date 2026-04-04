@@ -2,12 +2,9 @@ node_modules
 .next
 .git
 .env*
-docs
 .claude
 .superpowers
-*.md
 .github
-scripts
 supabase
 products
 agent-os
