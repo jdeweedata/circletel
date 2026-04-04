@@ -7,7 +7,6 @@ import { Inter, Manrope, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Analytics } from "@vercel/analytics/react";
 import { PWAProvider } from "@/components/providers/PWAProvider";
 import { OfflineProvider } from "@/components/providers/OfflineProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
@@ -148,7 +147,6 @@ export default async function RootLayout({
                       <StickyMobileCTA />
                       {isDraftMode && <DraftModeIndicator />}
                       {children}
-                      <Analytics />
                     </OrderContextProvider>
                   </CustomerAuthProvider>
                 </GoogleMapsProvider>

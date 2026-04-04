@@ -7,6 +7,8 @@ const isVercel = process.env.VERCEL === '1';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Required for Docker/Coolify deployment — produces self-contained server.js
+  output: 'standalone',
   // Disable source maps in production to reduce memory
   productionBrowserSourceMaps: false,
   eslint: {
