@@ -145,24 +145,25 @@ const headers = {
 
 ```json
 // vercel.json
-// ✅ CORRECT: 8GB heap + cpus:1 (Elastic Build Machine: dynamic RAM, Vercel provisions what's needed)
+// ✅ CORRECT: 12GB heap + cpus:1 (Enhanced Build Machine: 16GB total, ~3GB left for worker + OS)
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=12288' next build"
+
+// ❌ WRONG: 8GB+ — Standard and Elastic only give 8GB total RAM, causes SIGKILL
 "buildCommand": "NODE_OPTIONS='--max-old-space-size=8192' next build"
 
-// ❌ WRONG: 6GB — caused GC thrashing and stuck builds on this 254-page app
-"buildCommand": "NODE_OPTIONS='--max-old-space-size=6144' next build"
-
 // ❌ WRONG: gc-interval is NOT allowed in NODE_OPTIONS
-"buildCommand": "NODE_OPTIONS='--max-old-space-size=8192 --gc-interval=100' next build"
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=12288 --gc-interval=100' next build"
 ```
 
-**Why 8192 + cpus:1 (Elastic Build Machine):**
-Vercel Elastic Build Machine has dynamic RAM — it provisions what the build needs. Memory budget:
-- Main Node process: up to 8192MB
+**Why 12288 + cpus:1 (Enhanced Build Machine):**
+Vercel Enhanced Build Machine has 16GB total RAM. Memory budget:
+- Main Node process: up to 12288MB
 - 1 webpack worker (cpus:1): ~1.5GB
 - OS overhead: ~0.5GB
-- Total: ~10GB, Elastic handles this without pressure
+- Total: ~14GB ✅ (2GB headroom)
 
-Standard 8GB was too tight (6144MB heap caused GC thrashing on 254-page app, builds never completed).
+Standard (8GB) and Elastic (also starts at 8GB, does NOT dynamically scale for this app) are
+both too small — this 254-page app requires >8GB to build. Enhanced is required.
 
 **CRITICAL**: These values are enforced by `.github/workflows/pr-checks.yml`. Any PR that lowers heap below 6144MB or raises cpus above 1 will fail the `validate-build-config` check and block the merge.
 
