@@ -16,8 +16,6 @@ import type {
   determinePaymentStatus,
 } from './webhook-types';
 
-const NETCASH_WEBHOOK_SECRET = process.env.NETCASH_WEBHOOK_SECRET;
-
 /**
  * Verify NetCash webhook signature using HMAC-SHA256
  *
@@ -26,21 +24,23 @@ const NETCASH_WEBHOOK_SECRET = process.env.NETCASH_WEBHOOK_SECRET;
  * @returns true if signature is valid, false otherwise
  */
 export function verifyNetCashWebhook(payload: string, signature: string): boolean {
-  if (!NETCASH_WEBHOOK_SECRET) {
+  // Read dynamically so tests can override process.env.NETCASH_WEBHOOK_SECRET
+  const secret = process.env.NETCASH_WEBHOOK_SECRET;
+  if (!secret) {
     paymentLogger.error('NETCASH_WEBHOOK_SECRET is not configured');
     throw new Error('NETCASH_WEBHOOK_SECRET is not configured');
   }
 
   try {
     const expectedSignature = crypto
-      .createHmac('sha256', NETCASH_WEBHOOK_SECRET)
+      .createHmac('sha256', secret)
       .update(payload)
       .digest('hex');
 
-    // Use timing-safe comparison to prevent timing attacks
+    // Both values are hex strings — decode to bytes before timing-safe compare
     return crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature)
+      Buffer.from(signature, 'hex'),
+      Buffer.from(expectedSignature, 'hex')
     );
   } catch (error) {
     paymentLogger.error('Webhook signature validation error', {
