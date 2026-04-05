@@ -7,6 +7,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: staging-deploy-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 # Grant write permissions to push to branches
 permissions:
   contents: write
@@ -15,6 +19,7 @@ permissions:
 jobs:
   deploy-to-staging:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -38,7 +43,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: '🚀 **Staging Deployment Triggered**\n\n' +
-                    'Your changes are being deployed to staging:\n' +
-                    '👉 https://circletel-staging.vercel.app\n\n' +
-                    'Vercel deployment should complete in ~2 minutes.'
+                    'Changes pushed to the `staging` branch — Coolify will pick these up automatically.\n\n' +
+                    'Production URL: 👉 https://www.circletel.co.za'
             })

@@ -7,6 +7,10 @@ on:
   check_suite:
     types: [completed]
 
+concurrency:
+  group: auto-merge-${{ github.event.pull_request.number || github.event.check_suite.pull_requests[0].number }}
+  cancel-in-progress: true
+
 # Grant permissions to merge PRs
 permissions:
   contents: write
@@ -16,6 +20,7 @@ permissions:
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     # Only run if review is approved
     if: github.event.review.state == 'approved' || github.event.check_suite.conclusion == 'success'
@@ -25,7 +30,7 @@ jobs:
         uses: pascalgn/automerge-action@v0.16.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MERGE_LABELS: "" # Auto-merge all approved PRs
+          MERGE_LABELS: "automerge"
           MERGE_METHOD: "squash" # Use squash merge
           MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
           MERGE_RETRIES: 6
@@ -45,5 +50,5 @@ jobs:
               body: '✅ **PR Auto-Merged Successfully!**\n\n' +
                     'Production deployment is now in progress:\n' +
                     '👉 https://www.circletel.co.za\n\n' +
-                    'Check deployment status: https://vercel.com/jdewee-livecoms-projects/circletel/deployments'
+                    'Monitor at: https://www.circletel.co.za'
             })

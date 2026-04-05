@@ -37,6 +37,10 @@ on:
           - staging
           - local
 
+concurrency:
+  group: api-tests-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: write
@@ -47,6 +51,7 @@ jobs:
   prepare-test-db:
     name: Prepare Test Database
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -98,6 +103,7 @@ jobs:
     name: Admin Quote API Tests
     runs-on: ubuntu-latest
     needs: prepare-test-db
+    timeout-minutes: 15
 
     strategy:
       matrix:
@@ -176,7 +182,7 @@ jobs:
 
       - name: Upload test artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: api-test-results-node-${{ matrix.node-version }}
           path: |
@@ -188,6 +194,7 @@ jobs:
     name: TypeScript Validation
     runs-on: ubuntu-latest
     needs: api-tests
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -211,6 +218,7 @@ jobs:
     name: Security Validation
     runs-on: ubuntu-latest
     needs: api-tests
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -247,10 +255,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [api-tests, type-check, security-check]
     if: always()
+    timeout-minutes: 15
 
     steps:
       - name: Download test artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: test-results
 

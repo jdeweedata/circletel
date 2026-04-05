@@ -1,0 +1,265 @@
+name: MTN Session Management
+
+# Consolidated workflow: validates every 6h, auto-refreshes via 2Captcha + Playwright when invalid,
+# updates Coolify env var, restarts app, verifies production, and creates a deduped GitHub issue on failure.
+# Replaces: validate-mtn-session.yml, refresh-mtn-session.yml, auto-refresh-mtn-session.yml
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: mtn-session
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  validate:
+    name: Validate MTN Session
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      valid: ${{ steps.validate.outputs.valid }}
+      message: ${{ steps.validate.outputs.message }}
+      tracked_expiry: ${{ steps.validate.outputs.tracked_expiry }}
+      minutes_left: ${{ steps.validate.outputs.minutes_left }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate session via API
+        id: validate
+        env:
+          MTN_SESSION: ${{ secrets.MTN_SESSION }}
+        run: |
+          RESULT=$(npx tsx scripts/validate-mtn-session.ts --json)
+
+          echo "Validation result:"
+          echo "$RESULT" | jq '.'
+
+          VALID=$(echo "$RESULT" | jq -r '.valid')
+          MESSAGE=$(echo "$RESULT" | jq -r '.message')
+          TRACKED_EXPIRY=$(echo "$RESULT" | jq -r '.trackedExpiry // "N/A"')
+          MINUTES_LEFT=$(echo "$RESULT" | jq -r '.minutesUntilTrackedExpiry // "0"')
+
+          echo "valid=$VALID" >> $GITHUB_OUTPUT
+          echo "message=$MESSAGE" >> $GITHUB_OUTPUT
+          echo "tracked_expiry=$TRACKED_EXPIRY" >> $GITHUB_OUTPUT
+          echo "minutes_left=$MINUTES_LEFT" >> $GITHUB_OUTPUT
+
+          if [ "$VALID" = "true" ]; then
+            echo "Session is valid — message: $MESSAGE"
+            if [ "$MINUTES_LEFT" -gt 0 ] 2>/dev/null && [ "$MINUTES_LEFT" -lt 60 ]; then
+              echo "::warning::Session approaching tracked expiry in ${MINUTES_LEFT} minutes"
+            fi
+          else
+            echo "::notice::Session is invalid or expired — triggering refresh job"
+          fi
+
+  refresh:
+    name: Refresh MTN Session
+    runs-on: self-hosted
+    timeout-minutes: 15
+    needs: validate
+    if: needs.validate.outputs.valid != 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run automated refresh via 2Captcha + Playwright
+        id: refresh
+        env:
+          MTN_USERNAME: ${{ secrets.MTN_USERNAME }}
+          MTN_PASSWORD: ${{ secrets.MTN_PASSWORD }}
+          TWOCAPTCHA_API_KEY: ${{ secrets.TWOCAPTCHA_API_KEY }}
+        run: |
+          echo "Starting automated MTN session refresh..."
+          REFRESH_OUTPUT=$(npx tsx scripts/automated-mtn-refresh.ts 2>&1)
+          echo "$REFRESH_OUTPUT"
+
+          # Extract base64 session from the line after "Base64 session"
+          SESSION_BASE64=$(echo "$REFRESH_OUTPUT" | grep -A1 "Base64 session" | tail -n1 | tr -d '[:space:]')
+
+          if [ -z "$SESSION_BASE64" ]; then
+            echo "::error::Failed to extract base64 session from refresh output"
+            exit 1
+          fi
+
+          echo "Successfully extracted new session (length: ${#SESSION_BASE64})"
+          echo "session_base64=$SESSION_BASE64" >> $GITHUB_OUTPUT
+
+      - name: Update Coolify environment variable
+        env:
+          COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
+          COOLIFY_APP_UUID: ${{ secrets.COOLIFY_APP_UUID }}
+          SESSION_BASE64: ${{ steps.refresh.outputs.session_base64 }}
+        run: |
+          echo "Updating MTN_SESSION env var in Coolify..."
+          PATCH_RESPONSE=$(curl -sX PATCH "http://localhost:8000/api/v1/applications/$COOLIFY_APP_UUID/envs" \
+            -H "Authorization: Bearer $COOLIFY_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"key\": \"MTN_SESSION\", \"value\": \"$SESSION_BASE64\", \"is_preview\": false}" \
+            -w "\n%{http_code}")
+
+          HTTP_CODE=$(echo "$PATCH_RESPONSE" | tail -n1)
+          BODY=$(echo "$PATCH_RESPONSE" | head -n-1)
+
+          echo "Response body: $BODY"
+          echo "HTTP status: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "::error::Coolify env var update failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "Coolify env var updated successfully"
+
+      - name: Restart Coolify application
+        env:
+          COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
+          COOLIFY_APP_UUID: ${{ secrets.COOLIFY_APP_UUID }}
+        run: |
+          echo "Restarting Coolify application..."
+          RESTART_RESPONSE=$(curl -sfX GET "http://localhost:8000/api/v1/applications/$COOLIFY_APP_UUID/restart" \
+            -H "Authorization: Bearer $COOLIFY_API_TOKEN" \
+            -w "\n%{http_code}")
+
+          HTTP_CODE=$(echo "$RESTART_RESPONSE" | tail -n1)
+          BODY=$(echo "$RESTART_RESPONSE" | head -n-1)
+
+          echo "Response body: $BODY"
+          echo "HTTP status: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "::error::Coolify restart failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "Coolify restart triggered successfully"
+
+      - name: Wait for application to come back up
+        run: |
+          echo "Waiting 60 seconds for application restart to complete..."
+          sleep 60
+
+      - name: Verify session works in production
+        id: verify
+        run: |
+          echo "Verifying session via production API..."
+          VERIFY_RESPONSE=$(curl -s --max-time 30 https://www.circletel.co.za/api/mtn-wholesale/auth)
+          echo "Production API response: $VERIFY_RESPONSE"
+
+          AUTHENTICATED=$(echo "$VERIFY_RESPONSE" | jq -r '.authenticated // false' 2>/dev/null || echo "false")
+
+          if [ "$AUTHENTICATED" = "true" ]; then
+            echo "Session verification passed — authenticated:true confirmed"
+          else
+            echo "::error::Session verification failed — production API did not return authenticated:true"
+            echo "Response was: $VERIFY_RESPONSE"
+            exit 1
+          fi
+
+      - name: Create GitHub issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            // Dedup check — only create if no open mtn-session issue exists
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              labels: 'mtn-session'
+            });
+
+            if (existingIssues.data.length > 0) {
+              console.log(`Skipping issue creation — ${existingIssues.data.length} open mtn-session issue(s) already exist`);
+              return;
+            }
+
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title: 'MTN Session Auto-Refresh Failed — Manual Intervention Required',
+              body: `## MTN Session Refresh Failed
+
+            The automated session refresh workflow failed. Automated recovery via 2Captcha + Playwright was attempted but did not succeed.
+
+            ### Workflow Run
+
+            - **Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Triggered at**: ${new Date().toISOString()}
+            - **Validation result**: ${{ needs.validate.outputs.message || 'N/A' }}
+            - **Tracked expiry**: ${{ needs.validate.outputs.tracked_expiry || 'N/A' }}
+
+            ### Manual Recovery Steps
+
+            1. **Authenticate locally** (with reCAPTCHA):
+               \`\`\`bash
+               npx tsx scripts/automated-mtn-refresh.ts
+               \`\`\`
+
+            2. **Export session to base64**:
+               \`\`\`bash
+               npx tsx scripts/export-session-env.ts --output-only
+               \`\`\`
+
+            3. **Update Coolify env var** (get token from GitHub Secrets → COOLIFY_API_TOKEN):
+               \`\`\`bash
+               curl -sX PATCH "http://localhost:8000/api/v1/applications/b7ukn3c76rd46dsl19oqq59e/envs" \\
+                 -H "Authorization: Bearer <COOLIFY_API_TOKEN>" \\
+                 -H "Content-Type: application/json" \\
+                 -d '{"key": "MTN_SESSION", "value": "<paste-base64>", "is_preview": false}'
+               \`\`\`
+
+            4. **Restart the app**:
+               \`\`\`bash
+               curl -sfX GET "http://localhost:8000/api/v1/applications/b7ukn3c76rd46dsl19oqq59e/restart" \\
+                 -H "Authorization: Bearer <COOLIFY_API_TOKEN>"
+               \`\`\`
+
+            5. **Verify production**:
+               \`\`\`bash
+               curl -s https://www.circletel.co.za/api/mtn-wholesale/auth | jq '.authenticated'
+               \`\`\`
+
+            6. **Close this issue** once verified.
+
+            ### Documentation
+
+            - [Session Management Guide](docs/integrations/MTN_SESSION_MANAGEMENT.md)
+            - [Session Lifespan Findings](docs/integrations/mtn/MTN_SESSION_LIFESPAN_FINDINGS.md)
+            `,
+              labels: ['mtn-session', 'authentication', 'action-required']
+            });
+
+            console.log('GitHub issue created for MTN session refresh failure');
