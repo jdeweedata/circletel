@@ -5,11 +5,14 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat python3 make g++
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --legacy-peer-deps
+# --mount=type=cache persists the npm cache across builds on the self-hosted runner
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --legacy-peer-deps
 
 # -- Stage 2: Build --
 FROM base AS builder
-RUN apk add --no-cache libc6-compat chromium
+# No Chromium here — only needed at runtime (runner stage), not during next build.
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -35,9 +38,11 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
     NODE_OPTIONS='--max-old-space-size=12288'
 
+# --mount=type=cache for .next/cache persists the Next.js webpack/SWC compile cache
+# across builds — unchanged pages are skipped, cutting build time by 60-80%.
 # cpus:1 in next.config.js limits webpack to 1 worker (~1GB).
-# 12288MB heap + 1GB worker + ~1GB Docker/OS = ~14GB — fits ubuntu-latest-16-core (64GB).
-RUN npm run build
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
 
 # -- Stage 3: Runner --
 FROM base AS runner

@@ -25,6 +25,9 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          # Use a persistent BuildKit daemon so --mount=type=cache persists between builds
+          driver-opts: image=moby/buildkit:buildx-stable-1
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -40,8 +43,16 @@ jobs:
             NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
             NEXT_PUBLIC_NETCASH_SERVICE_KEY=${{ secrets.NEXT_PUBLIC_NETCASH_SERVICE_KEY }}
             NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY=${{ secrets.NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # type=local keeps layer cache on VPS disk — no network round-trip to GitHub servers.
+          # On cache miss the first build is cold; every subsequent build is fast.
+          cache-from: type=local,src=/tmp/buildx-cache
+          cache-to: type=local,dest=/tmp/buildx-cache-new,mode=max
+
+      # Rotate cache: replace old with new to prevent unbounded growth
+      - name: Rotate build cache
+        run: |
+          rm -rf /tmp/buildx-cache
+          mv /tmp/buildx-cache-new /tmp/buildx-cache 2>/dev/null || true
 
   deploy:
     needs: build-and-push
