@@ -85,12 +85,16 @@ export function CtaBlock({
           {(primaryButton || secondaryButton) && (
             <div className="mt-8 flex flex-wrap gap-4 justify-center">
               {primaryButton && (
-                <Button asChild size="lg">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-white text-circleTel-navy hover:bg-white/90 font-semibold"
+                >
                   <Link href={primaryButton.url}>{primaryButton.text}</Link>
                 </Button>
               )}
               {secondaryButton && (
-                <Button asChild variant="outline" size="lg">
+                <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
                   <Link href={secondaryButton.url}>{secondaryButton.text}</Link>
                 </Button>
               )}
