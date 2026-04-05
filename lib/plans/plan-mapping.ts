@@ -8,3 +8,8 @@ export const PLAN_TO_PRODUCT: Record<string, { sanitySlug: string; tierName: str
 export function resolvePlan(planId: string): { sanitySlug: string; tierName: string; dbName: string } | null {
   return PLAN_TO_PRODUCT[planId] ?? null;
 }
+
+/** Returns all plan entries for a given Sanity slug — used to bulk-fetch DB prices for a product's pricing block. */
+export function getPlansBySlug(sanitySlug: string): Array<{ tierName: string; dbName: string }> {
+  return Object.values(PLAN_TO_PRODUCT).filter((p) => p.sanitySlug === sanitySlug);
+}

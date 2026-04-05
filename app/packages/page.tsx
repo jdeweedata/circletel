@@ -27,7 +27,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { sanityFetch } from '@/lib/sanity/fetch';
 import { PRODUCT_BY_SLUG_QUERY } from '@/lib/sanity/queries/products';
-import { resolvePlan } from '@/lib/plans/plan-mapping';
+import { resolvePlan, getPlansBySlug } from '@/lib/plans/plan-mapping';
 import { createClient } from '@/lib/supabase/server';
 
 interface PackagesPageProps {
@@ -154,27 +154,51 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
     notFound();
   }
 
-  // Fetch live pricing from database — overrides Sanity price
-  const { data: dbPackage } = await supabase
-    .from('service_packages')
-    .select('price, promotion_price, promotion_months')
-    .eq('name', resolved.dbName)
-    .eq('active', true)
-    .single();
-
-  const tier = extractTier(product, resolved.tierName);
-
-  // All prices in service_packages are stored ex-VAT — multiply by 1.15 for display
+  // Fetch live pricing from DB for all plans belonging to this product's Sanity slug.
+  // service_packages stores prices ex-VAT — multiply by 1.15 for display.
   const VAT = 1.15;
   const withVAT = (p: number) => Math.round(p * VAT * 100) / 100;
 
+  const siblingPlans = getPlansBySlug(resolved.sanitySlug);
+  const dbNames = siblingPlans.map((p) => p.dbName);
+
+  const { data: dbPackages } = await supabase
+    .from('service_packages')
+    .select('name, price, promotion_price, promotion_months')
+    .in('name', dbNames)
+    .eq('active', true);
+
+  // Map: tierName (Sanity) → DB row
+  const dbByTierName = new Map<string, { price: string | null; promotion_price: string | null; promotion_months: number | null }>();
+  for (const plan of siblingPlans) {
+    const row = (dbPackages ?? []).find((r) => r.name === plan.dbName);
+    if (row) dbByTierName.set(plan.tierName, row);
+  }
+
+  // Current plan's DB row (for the pricing bar)
+  const dbPackage = dbByTierName.get(resolved.tierName) ?? null;
   const livePrice = dbPackage?.price ? withVAT(Number(dbPackage.price)) : null;
   const livePromoPrice = dbPackage?.promotion_price ? withVAT(Number(dbPackage.promotion_price)) : null;
 
-  // Inject highlightedPlan into the pricingBlock so the correct tier is visually highlighted
+  const tier = extractTier(product, resolved.tierName);
+
+  // Inject highlightedPlan + live DB prices into the pricingBlock so every card shows current pricing
   const blocksWithHighlight = product.blocks?.map((block) => {
     if (block._type === 'pricingBlock') {
-      return { ...block, highlightedPlan: resolved.tierName };
+      const rawPlans = (block.plans as PricingTier[]) ?? (block.tiers as PricingTier[]) ?? [];
+      const patchedPlans = rawPlans.map((plan) => {
+        const dbRow = dbByTierName.get(plan.name);
+        if (!dbRow?.price) return plan;
+        const inclVAT = withVAT(Number(dbRow.price));
+        const inclPromo = dbRow.promotion_price ? withVAT(Number(dbRow.promotion_price)) : undefined;
+        return {
+          ...plan,
+          price: inclVAT,
+          ...(inclPromo !== undefined && { originalPrice: inclVAT, price: inclPromo }),
+        };
+      });
+      const plansKey = Array.isArray(block.plans) ? 'plans' : 'tiers';
+      return { ...block, [plansKey]: patchedPlans, highlightedPlan: resolved.tierName };
     }
     return block;
   });
