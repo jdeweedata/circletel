@@ -175,10 +175,14 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
     if (row) dbByTierName.set(plan.tierName, row);
   }
 
+  // A promo is only active when promotion_months is set AND promo price < regular price.
+  const isActivePromo = (row: { price: string | null; promotion_price: string | null; promotion_months: number | null } | null) =>
+    !!row?.promotion_price && !!row?.promotion_months && Number(row.promotion_price) < Number(row.price);
+
   // Current plan's DB row (for the pricing bar)
   const dbPackage = dbByTierName.get(resolved.tierName) ?? null;
   const livePrice = dbPackage?.price ? withVAT(Number(dbPackage.price)) : null;
-  const livePromoPrice = dbPackage?.promotion_price ? withVAT(Number(dbPackage.promotion_price)) : null;
+  const livePromoPrice = isActivePromo(dbPackage) ? withVAT(Number(dbPackage!.promotion_price)) : null;
 
   const tier = extractTier(product, resolved.tierName);
 
@@ -190,11 +194,12 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
         const dbRow = dbByTierName.get(plan.name);
         if (!dbRow?.price) return plan;
         const inclVAT = withVAT(Number(dbRow.price));
-        const inclPromo = dbRow.promotion_price ? withVAT(Number(dbRow.promotion_price)) : undefined;
+        const promoActive = isActivePromo(dbRow);
+        const inclPromo = promoActive ? withVAT(Number(dbRow.promotion_price)) : undefined;
         return {
           ...plan,
-          price: inclVAT,
-          ...(inclPromo !== undefined && { originalPrice: inclVAT, price: inclPromo }),
+          price: inclPromo ?? inclVAT,
+          ...(inclPromo !== undefined && { originalPrice: inclVAT }),
         };
       });
       const plansKey = Array.isArray(block.plans) ? 'plans' : 'tiers';
