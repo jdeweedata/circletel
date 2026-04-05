@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'WorkConnect Plans | SOHO Internet | CircleTel',
-  description: 'Compare WorkConnect plans for freelancers, remote workers, and small home offices. From R799/month with VoIP QoS and cloud backup included.',
+  description: 'Compare WorkConnect plans for freelancers, remote workers, and small home offices. From R799/month with VoIP QoS included. Cloud backup add-on from R79/mo.',
 };
 
 interface WorkConnectPlan {
@@ -52,7 +52,7 @@ export default async function WorkConnectPage() {
 
           <p className="font-body text-lg md:text-xl text-circleTel-grey600 mb-8 max-w-2xl mx-auto">
             Reliable connectivity for freelancers, remote workers, and small home offices.
-            All plans include VoIP QoS, cloud backup, and business email.
+            All plans include VoIP QoS and business email. Cloud backup included on Pro — add-on from R79/mo on other plans.
           </p>
         </div>
       </section>

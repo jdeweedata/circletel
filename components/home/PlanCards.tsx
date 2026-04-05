@@ -95,7 +95,7 @@ const WFH_PLANS: HeroPlan[] = [
     speed: '50Mbps',
     type: 'fibre',
     description: 'Never say "sorry, my internet dropped" again.',
-    features: ['No contracts', '25GB cloud backup', 'VoIP ready'],
+    features: ['No contracts', 'VoIP QoS included', 'Backup add-on from R79/mo'],
   },
   {
     id: 'wc-plus',
@@ -107,7 +107,7 @@ const WFH_PLANS: HeroPlan[] = [
     badge: 'Popular',
     badgeColor: 'orange',
     featured: true,
-    features: ['No contracts', '50GB cloud backup', 'Priority support'],
+    features: ['No contracts', 'VoIP QoS included', 'Backup add-on from R79/mo'],
   },
   {
     id: 'wc-pro',
@@ -118,7 +118,7 @@ const WFH_PLANS: HeroPlan[] = [
     description: 'Upload large files in minutes, not hours.',
     badge: 'Uncapped',
     badgeColor: 'orange',
-    features: ['No contracts', '100GB cloud backup', 'Static IP'],
+    features: ['No contracts', '25GB backup included', 'Static IP'],
   },
   {
     id: 'wfh-backup',

@@ -91,10 +91,10 @@ const FALLBACK_PLANS: Plan[] = [
     features: [
       '50 Mbps Speed',
       'VoIP QoS',
-      '25GB Cloud Backup',
       '2 Email Accounts',
       'Business Hours Support',
       'Uncapped Data',
+      'Backup add-on from R79/mo',
     ],
     slug: 'workconnect-starter',
   },
@@ -108,10 +108,10 @@ const FALLBACK_PLANS: Plan[] = [
     features: [
       '100 Mbps Speed',
       'VoIP QoS',
-      '50GB Cloud Backup',
       '5 Email Accounts',
       '3 VPN Tunnels',
       'Extended Support',
+      'Backup add-on from R79/mo',
     ],
     badge: 'Most Popular',
     featured: true,
@@ -127,7 +127,7 @@ const FALLBACK_PLANS: Plan[] = [
     features: [
       '200 Mbps Speed',
       'Static IP Included',
-      '100GB Cloud Backup',
+      '25GB Cloud Backup Included',
       '10 Email Accounts',
       '5 VPN Tunnels',
       'Priority Support',
