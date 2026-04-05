@@ -4,11 +4,16 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
     # Self-hosted runner on VPS 30 (24GB RAM) — GitHub-hosted ubuntu-latest (7GB) OOMs.
     # Setup: /home/actions-runner on the VPS, registered as label "self-hosted".
     runs-on: self-hosted
+    timeout-minutes: 20
     permissions:
       contents: read
       packages: write
@@ -57,6 +62,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Trigger Coolify deploy webhook
         run: |

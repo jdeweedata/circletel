@@ -9,6 +9,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 # Grant permissions for commenting on PRs
 permissions:
   contents: read
@@ -16,44 +20,37 @@ permissions:
   issues: write
 
 jobs:
-  validate-build-config:
-    name: Validate Vercel Build Config
+  validate-dockerfile:
+    name: Validate Dockerfile Build Config
     runs-on: ubuntu-latest
-    # BLOCKING: these settings prevent Vercel OOM crashes (Enhanced Build Machine: 16GB required)
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check vercel.json heap size
+      - name: Check Dockerfile NODE_OPTIONS
         run: |
-          HEAP=$(grep -o 'max-old-space-size=[0-9]*' vercel.json | grep -o '[0-9]*')
+          HEAP=$(grep -o 'max-old-space-size=[0-9]*' Dockerfile | grep -o '[0-9]*' | head -1)
           echo "Heap size: ${HEAP}MB"
-          if [ "$HEAP" -lt 6144 ]; then
-            echo "❌ FAIL: vercel.json heap is ${HEAP}MB — must be ≥6144MB"
-            echo "   Fix: set buildCommand to NODE_OPTIONS='--max-old-space-size=6144' next build"
+          if [ -z "$HEAP" ] || [ "$HEAP" -lt 8192 ]; then
+            echo "❌ FAIL: Dockerfile NODE_OPTIONS heap is ${HEAP}MB — must be ≥8192MB"
             exit 1
           fi
-          echo "✅ Heap size OK: ${HEAP}MB"
+          echo "✅ Dockerfile heap OK: ${HEAP}MB"
 
-      - name: Check next.config.js cpus setting
+      - name: Verify output standalone mode
         run: |
-          CPUS=$(grep -E '^\s*cpus:' next.config.js | grep -o '[0-9]*')
-          echo "cpus: ${CPUS}"
-          if [ -z "$CPUS" ]; then
-            echo "❌ FAIL: next.config.js is missing cpus setting in experimental"
+          if ! grep -q "output.*standalone" next.config.js 2>/dev/null && ! grep -q "output.*standalone" next.config.mjs 2>/dev/null; then
+            echo "❌ FAIL: next.config.js must have output: 'standalone' for Docker/Coolify builds"
             exit 1
           fi
-          if [ "$CPUS" -gt 1 ]; then
-            echo "❌ FAIL: next.config.js cpus=${CPUS} — must be 1 on Vercel Enhanced Build Machine"
-            echo "   Fix: set cpus: 1 in experimental config"
-            exit 1
-          fi
-          echo "✅ cpus setting OK: ${CPUS}"
+          echo "✅ output: standalone confirmed"
 
   type-check:
     name: TypeScript Type Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     continue-on-error: true  # Don't block automation on type errors
 
     steps:
@@ -63,7 +60,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -75,6 +72,7 @@ jobs:
   lint:
     name: ESLint Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     continue-on-error: true  # Don't block automation on lint errors
 
     steps:
@@ -84,7 +82,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -111,6 +109,7 @@ jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     continue-on-error: true  # Don't block if secrets not configured
 
     steps:
@@ -120,7 +119,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
