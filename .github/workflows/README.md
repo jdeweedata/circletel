@@ -1,195 +1,146 @@
-# CircleTel Automated Deployment Workflows
+# CircleTel CI/CD Workflows
 
-This directory contains GitHub Actions workflows that automate the deployment pipeline from development to production.
+CircleTel runs on **Coolify** (self-hosted, VPS 30 — 94.72.104.81, 24GB RAM).
+Builds run on a self-hosted GitHub Actions runner on that VPS; deploys are triggered via Coolify webhook.
+
+Migration completed: 2026-04-05. See `docs/architecture/COOLIFY_MIGRATION_PLAN.md`.
+
+---
+
+## Pipeline Overview
+
+```
+PR opened/updated
+  └─ staging-deployment.yml  → push to staging branch → Coolify staging deploy
+  └─ pr-checks.yml           → Dockerfile validation, type-check, lint, build
+
+PR approved + 'automerge' label added
+  └─ auto-merge.yml          → squash merge to main
+
+Push to main
+  └─ deploy.yml              → build Docker image → push GHCR → trigger Coolify webhook
+
+Scheduled (every 6h)
+  └─ mtn-session.yml         → validate MTN session; refresh + redeploy if stale
+```
+
+---
 
 ## Workflows
 
-### 1. `staging-deployment.yml` - Auto Deploy to Staging
+### `deploy.yml` — Build & Deploy to Production
 
-**Triggers**: When a Pull Request is opened/updated targeting `main` branch
+**Trigger**: Push to `main`
 
-**What it does**:
-- Automatically pushes PR branch to `staging` branch
-- Triggers Vercel deployment to https://circletel-staging.vercel.app
-- Comments on PR with staging deployment link
+**Runner**: `self-hosted` (VPS 30 — 24GB RAM; GitHub-hosted ubuntu-latest OOMs on this 254-page app)
 
-**Result**: Every PR gets automatically deployed to staging for testing!
+**Steps**:
+1. Build Docker image with `NEXT_PUBLIC_*` secrets baked in as build args
+2. Push to `ghcr.io/jdeweedata/circletel:latest`
+3. Trigger Coolify deploy webhook → Coolify pulls the new image and restarts the container
 
----
-
-### 2. `pr-checks.yml` - Quality Checks
-
-**Triggers**: On every Pull Request to `main`
-
-**What it does**:
-- Runs TypeScript type checking (`npm run type-check`)
-- Runs ESLint (`npm run lint`)
-- Runs production build (`npm run build:ci`)
-- Comments on PR with check results
-
-**Result**: Ensures code quality before merging!
+**Cache**: Local disk cache on VPS (`/tmp/buildx-cache`) — no network round-trip
 
 ---
 
-### 3. `auto-merge.yml` - Auto-Merge Approved PRs
+### `pr-checks.yml` — Quality Checks
 
-**Triggers**: When PR is approved or all checks pass
+**Trigger**: PRs to `main`, pushes to `main`
 
-**What it does**:
-- Waits for PR approval
-- Waits for all status checks to pass
-- Automatically merges PR using squash merge
-- Comments on PR with production deployment link
-
-**Result**: Approved PRs merge automatically and deploy to production!
+**Jobs**:
+- `validate-dockerfile` — checks `NODE_OPTIONS` heap ≥8192MB and `output: 'standalone'` in next.config.js
+- `type-check` — `npm run type-check` (non-blocking)
+- `lint` — `npm run lint` (non-blocking)
+- `build` — `npm run build:ci` (non-blocking, requires Supabase secrets)
 
 ---
 
-## Complete Automated Workflow
+### `auto-merge.yml` — Auto-Merge Approved PRs
 
-```
-1. Developer creates PR
-   ↓
-2. GitHub Actions auto-deploys to staging
-   ↓
-3. Vercel deploys to circletel-staging.vercel.app
-   ↓
-4. Quality checks run (type check, lint, build)
-   ↓
-5. Developer/Reviewer approves PR
-   ↓
-6. GitHub Actions auto-merges PR
-   ↓
-7. Vercel auto-deploys to www.circletel.co.za
-   ↓
-8. Done! 🎉
-```
+**Trigger**: PR review submitted (approved) or check suite completed
+
+**Behaviour**: Only merges PRs that have the **`automerge`** label. PRs without the label are silently skipped (not a failure).
+
+**Method**: Squash merge
+
+To enable auto-merge on a PR: add the `automerge` label before or after approval.
 
 ---
 
-## Setup Instructions
+### `staging-deployment.yml` — Auto Deploy to Staging
 
-### Step 1: Enable GitHub Actions
+**Trigger**: PR opened/updated targeting `main`
 
-1. Go to: https://github.com/jdeweedata/circletel-nextjs/settings/actions
-2. Under "Actions permissions", select **"Allow all actions and reusable workflows"**
-3. Click **Save**
+**Steps**: Force-pushes the PR branch to `staging` → Coolify picks up the push and deploys to the staging environment.
 
-### Step 2: Add Required Secrets
+---
 
-1. Go to: https://github.com/jdeweedata/circletel-nextjs/settings/secrets/actions
-2. Add these secrets:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+### `mtn-session.yml` — MTN Session Management
 
-### Step 3: Configure Branch Protection (Optional but Recommended)
+**Trigger**: Every 6 hours (scheduled), or manually via `workflow_dispatch`
 
-1. Go to: https://github.com/jdeweedata/circletel-nextjs/settings/branches
-2. Add branch protection rule for `main`:
-   - ✅ Require pull request reviews before merging (1 approval)
-   - ✅ Require status checks to pass before merging
-   - Select checks: `type-check`, `lint`, `build`
-   - ✅ Require conversation resolution before merging
-   - ⚠️ **DO NOT** enable "Require branches to be up to date" (causes merge conflicts)
+**Steps**:
+1. Validate current MTN session cookie is still active
+2. If valid: done
+3. If expired: run 2Captcha-based refresh on `self-hosted` runner, update `MTN_SESSION` env var in Coolify via API, restart container
 
-### Step 4: Test the Workflow
+**Dedup**: Only opens a GitHub issue if no open `mtn-session` issue already exists.
+
+---
+
+### `claude-code-review.yml` / `claude.yml` — AI Code Review
+
+Automated code review and interactive Claude assistance on PRs and issues.
+
+---
+
+### `api-integration-tests.yml` / `test-payment-integration.yml` — Integration Tests
+
+Payment webhook and API integration tests. Run on PRs touching relevant paths.
+
+---
+
+## Secrets Reference
+
+| Secret | Used By | Purpose |
+|--------|---------|---------|
+| `COOLIFY_DEPLOY_WEBHOOK` | `deploy.yml` | Trigger Coolify production deploy |
+| `COOLIFY_API_TOKEN` | `mtn-session.yml` | Update env vars + restart app via Coolify API |
+| `COOLIFY_APP_UUID` | `mtn-session.yml` | Coolify application identifier (`b7ukn3c76rd46dsl19oqq59e`) |
+| `NEXT_PUBLIC_SUPABASE_URL` | `deploy.yml`, `pr-checks.yml` | Build-time Supabase URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | `deploy.yml` | Build-time Supabase anon key |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | `deploy.yml` | Build-time Maps key |
+| `NEXT_PUBLIC_NETCASH_SERVICE_KEY` | `deploy.yml` | Build-time NetCash key |
+| `NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY` | `deploy.yml` | Build-time NetCash PCI key |
+| `MTN_SESSION` | `mtn-session.yml` | Current MTN session cookie (refreshed automatically) |
+| `TWO_CAPTCHA_API_KEY` | `mtn-session.yml` | 2Captcha key for session refresh |
+
+> **Note**: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` are no longer used and can be deleted from repository secrets.
+
+---
+
+## Production URLs
+
+| Environment | URL |
+|-------------|-----|
+| Production | https://www.circletel.co.za |
+| Staging | Triggered by pushing to `staging` branch |
+| Health check | https://www.circletel.co.za/api/health |
+
+---
+
+## Manual Overrides
 
 ```bash
-# Create a test PR
-git checkout main
-git pull origin main
-git checkout -b test/automated-workflow
+# Force a production deploy without a code change
+gh workflow run deploy.yml
 
-# Make a small change
-echo "# Test automated workflow" >> TEST.md
-git add TEST.md
-git commit -m "test: Verify automated deployment workflow"
+# Manually refresh MTN session
+gh workflow run mtn-session.yml
 
-# Push and create PR
-git push origin test/automated-workflow
+# Push a branch to staging manually
+git push origin <branch>:staging --force
 
-# Create PR on GitHub targeting main branch
-# → Watch the magic happen! 🎉
+# Trigger deploy via Coolify webhook directly
+curl -sfX GET "$COOLIFY_DEPLOY_WEBHOOK" -H "Authorization: Bearer $COOLIFY_API_TOKEN"
 ```
-
----
-
-## What Happens After Setup
-
-### When You Create a PR:
-
-1. ✅ **Instant staging deployment** - No manual push needed!
-2. ✅ **Quality checks run** - Type check, lint, build
-3. ✅ **PR comment with staging link** - Click to test
-
-### When You Approve a PR:
-
-1. ✅ **Auto-merge** - No manual merge needed!
-2. ✅ **Production deployment** - Vercel deploys automatically
-3. ✅ **PR comment with production link** - Click to verify
-
-### You Only Need To:
-
-1. Create feature branch
-2. Make changes
-3. Push branch
-4. Create PR
-5. **Approve PR** ← Only manual step!
-6. Everything else is automated! 🚀
-
----
-
-## Disabling Auto-Merge (If Needed)
-
-If you want to keep auto-staging but disable auto-merge:
-
-1. Delete or rename `.github/workflows/auto-merge.yml`
-2. Manually merge PRs via GitHub UI
-
----
-
-## Troubleshooting
-
-### Auto-deploy to staging not working?
-
-- Check GitHub Actions tab: https://github.com/jdeweedata/circletel-nextjs/actions
-- Verify GitHub Actions is enabled in repository settings
-- Check workflow logs for errors
-
-### Auto-merge not working?
-
-- Ensure PR is approved
-- Ensure all status checks pass
-- Check if branch protection requires more than 1 approval
-- Verify GITHUB_TOKEN has merge permissions
-
-### Build checks failing?
-
-- Check if Supabase secrets are added
-- Verify secrets are named exactly as shown in setup
-- Run `npm run build:ci` locally to reproduce errors
-
----
-
-## Manual Override
-
-You can always manually:
-- Deploy to staging: `git push origin <branch>:staging`
-- Merge PRs: Click "Merge pull request" button on GitHub
-- Deploy to production: Merge to `main` branch
-
-The automation is there to help, not to restrict! 💪
-
----
-
-## Cost
-
-GitHub Actions is **free** for public repositories and includes:
-- 2,000 minutes/month for private repositories
-- These workflows use ~5 minutes per PR
-
-**You're well within the free tier!** ✅
-
----
-
-**Questions?** Check GitHub Actions logs or ask in #tech-support!
