@@ -66,14 +66,14 @@ export async function generateMetadata({
   }
 
   return {
-    title: product.seo?.title || `${product.name} | CircleTel`,
+    title: product.seo?.metaTitle || `${product.name} | CircleTel`,
     description:
-      product.seo?.description ||
+      product.seo?.metaDescription ||
       product.tagline ||
       `${product.name} connectivity solution from CircleTel`,
     openGraph: {
-      title: product.seo?.title || product.name,
-      description: product.seo?.description || product.tagline,
+      title: product.seo?.metaTitle || product.name,
+      description: product.seo?.metaDescription || product.tagline,
       images: product.heroImage ? [{ url: product.heroImage }] : [],
     },
   };
