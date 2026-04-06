@@ -13,6 +13,10 @@ export type BlockType =
   | 'formBlock'
   | 'separatorBlock'
   | 'galleryBlock'
+  | 'bundleGridBlock'
+  | 'trustStripBlock'
+  | 'dualListBlock'
+  | 'whatsappQuoteBlock'
 
 export interface BlockCommonFields {
   _key: string
