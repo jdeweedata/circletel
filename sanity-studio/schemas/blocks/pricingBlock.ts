@@ -43,6 +43,8 @@ export default defineType({
               of: [{ type: 'string' }],
             },
             { name: 'isPopular', type: 'boolean', title: 'Mark as Popular', initialValue: false },
+            { name: 'isEnterprise', type: 'boolean', title: 'Render as Enterprise Banner', description: 'When true, renders as a full-width dark banner below the main pricing grid', initialValue: false },
+            { name: 'badge', type: 'string', title: 'Badge Label', description: 'e.g. "Most Popular" — displayed as an orange pill above the plan card' },
             { name: 'ctaLabel', type: 'string', title: 'Button Label', initialValue: 'Get Started' },
             { name: 'ctaUrl', type: 'string', title: 'Button URL' },
           ],
