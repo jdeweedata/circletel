@@ -19,6 +19,7 @@ interface SubdomainConfig {
  */
 const SUBDOMAIN_ROUTES: SubdomainConfig[] = [
   { prefix: 'studio.', rewriteTo: '/admin/cms' },
+  { prefix: 'sanity.', rewriteTo: '/studio' },
 ];
 
 /**
