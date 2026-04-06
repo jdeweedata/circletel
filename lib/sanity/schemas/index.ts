@@ -32,6 +32,7 @@ import ctaBlock from './blocks/ctaBlock'
 import formBlock from './blocks/formBlock'
 import separatorBlock from './blocks/separatorBlock'
 import galleryBlock from './blocks/galleryBlock'
+import bundleGridBlock from './blocks/bundleGridBlock'
 
 // Object types
 import seo from './objects/seo'
@@ -68,6 +69,7 @@ export const schemaTypes = [
   formBlock,
   separatorBlock,
   galleryBlock,
+  bundleGridBlock,
 
   // Objects
   seo,
