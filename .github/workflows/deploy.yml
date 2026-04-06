@@ -26,21 +26,44 @@ jobs:
         with:
           node-version: '20'
 
+      # Cache node_modules between runs — skip npm ci if lock file unchanged.
+      - name: Cache node_modules
+        id: nm-cache
+        run: |
+          LOCK_HASH=$(sha256sum package-lock.json | cut -d' ' -f1)
+          CACHE_KEY_FILE=/home/actions-runner/.nm-cache-key
+          if [ -d /home/actions-runner/node_modules_cache ] && [ -f "$CACHE_KEY_FILE" ] && [ "$(cat $CACHE_KEY_FILE)" = "$LOCK_HASH" ]; then
+            rsync -a --delete /home/actions-runner/node_modules_cache/ node_modules/
+            echo "hit=true" >> $GITHUB_OUTPUT
+            echo "node_modules restored from cache"
+          else
+            echo "hit=false" >> $GITHUB_OUTPUT
+            echo "Cache miss — will reinstall"
+          fi
+
+      - name: Install dependencies
+        if: steps.nm-cache.outputs.hit != 'true'
+        run: npm ci --legacy-peer-deps
+
+      - name: Save node_modules cache
+        if: steps.nm-cache.outputs.hit != 'true'
+        run: |
+          LOCK_HASH=$(sha256sum package-lock.json | cut -d' ' -f1)
+          rsync -a --delete node_modules/ /home/actions-runner/node_modules_cache/
+          echo "$LOCK_HASH" > /home/actions-runner/.nm-cache-key
+          echo "node_modules cached"
+
       # Restore the Next.js SWC/webpack compile cache from a fixed VPS path.
-      # This persists between runs (unlike --mount=type=cache inside Docker which
-      # is wiped when the BuildKit container is recreated each run).
+      # rsync --checksum skips unchanged files — much faster than rm+cp on 2.4GB cache.
       - name: Restore Next.js SWC cache
         run: |
           if [ -d /home/actions-runner/.next-cache ]; then
-            mkdir -p .next
-            cp -r /home/actions-runner/.next-cache .next/cache
+            mkdir -p .next/cache
+            rsync -a /home/actions-runner/.next-cache/ .next/cache/
             echo "Cache restored ($(du -sh .next/cache | cut -f1))"
           else
             echo "No cache found — cold build"
           fi
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
 
       - name: Build Next.js
         run: NODE_OPTIONS='--max-old-space-size=12288' npm run build
@@ -57,11 +80,11 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
-      # Save the SWC cache to the fixed VPS path for the next run.
+      # Save the SWC cache — rsync only writes changed files, skips unchanged.
       - name: Save Next.js SWC cache
         run: |
-          rm -rf /home/actions-runner/.next-cache
-          cp -r .next/cache /home/actions-runner/.next-cache
+          mkdir -p /home/actions-runner/.next-cache
+          rsync -a --delete .next/cache/ /home/actions-runner/.next-cache/
           echo "Cache saved ($(du -sh /home/actions-runner/.next-cache | cut -f1))"
 
       - name: Login to GHCR
@@ -85,7 +108,7 @@ jobs:
           push: true
           tags: ghcr.io/jdeweedata/circletel:latest
           cache-from: type=local,src=/tmp/buildx-cache
-          cache-to: type=local,dest=/tmp/buildx-cache-new,mode=max
+          cache-to: type=local,dest=/tmp/buildx-cache-new,mode=min
 
       # Rotate cache: replace old with new to prevent unbounded growth
       - name: Rotate build cache
