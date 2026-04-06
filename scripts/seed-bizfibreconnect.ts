@@ -46,7 +46,7 @@ async function buildDocument() {
   ]);
 
   return {
-    _id: 'bizfibreconnect',
+    _id: 'productPage-bizfibreconnect',
     _type: 'productPage',
     name: 'BizFibreConnect',
     slug: { _type: 'slug', current: 'bizfibreconnect' },
