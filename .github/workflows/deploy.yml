@@ -48,6 +48,8 @@ jobs:
             NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
             NEXT_PUBLIC_NETCASH_SERVICE_KEY=${{ secrets.NEXT_PUBLIC_NETCASH_SERVICE_KEY }}
             NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY=${{ secrets.NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY }}
+            NEXT_PUBLIC_SANITY_PROJECT_ID=7iqq2t7l
+            NEXT_PUBLIC_SANITY_DATASET=production
           # type=local keeps layer cache on VPS disk — no network round-trip to GitHub servers.
           # On cache miss the first build is cold; every subsequent build is fast.
           cache-from: type=local,src=/tmp/buildx-cache
