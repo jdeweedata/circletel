@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 
 interface BizMobilePromoBannerProps {
-  /** ISO date string for promo end — if undefined or in the past, banner is hidden */
+  /** When false or undefined, banner is never shown */
+  enabled?: boolean;
+  /** ISO date string — banner hides automatically after this date passes */
   promoEndsAt?: string;
   message?: string;
 }
@@ -18,6 +20,7 @@ function getTimeLeft(endsAt: string): { days: number; hours: number; mins: numbe
 }
 
 export function BizMobilePromoBanner({
+  enabled,
   promoEndsAt,
   message = 'Limited-time pricing active — lock in your rate today.',
 }: Readonly<BizMobilePromoBannerProps>) {
@@ -34,8 +37,8 @@ export function BizMobilePromoBanner({
     return () => clearInterval(interval);
   }, [promoEndsAt]);
 
-  // Hide if no promo date or promo has expired
-  if (!promoEndsAt || timeLeft === null) return null;
+  // Hide if disabled, no promo date, or promo has expired
+  if (!enabled || !promoEndsAt || timeLeft === null) return null;
 
   return (
     <div className="bg-amber-500 text-white">
