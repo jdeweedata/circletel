@@ -29,15 +29,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check Dockerfile NODE_OPTIONS
+      - name: Check deploy workflow NODE_OPTIONS
         run: |
-          HEAP=$(grep -o 'max-old-space-size=[0-9]*' Dockerfile | grep -o '[0-9]*' | head -1)
+          # Build now runs natively in deploy.yml (not inside Docker).
+          # Validate heap is set correctly in the workflow's build step.
+          HEAP=$(grep -o 'max-old-space-size=[0-9]*' .github/workflows/deploy.yml | grep -o '[0-9]*' | head -1)
           echo "Heap size: ${HEAP}MB"
           if [ -z "$HEAP" ] || [ "$HEAP" -lt 8192 ]; then
-            echo "❌ FAIL: Dockerfile NODE_OPTIONS heap is ${HEAP}MB — must be ≥8192MB"
+            echo "❌ FAIL: deploy.yml NODE_OPTIONS heap is ${HEAP}MB — must be ≥8192MB"
             exit 1
           fi
-          echo "✅ Dockerfile heap OK: ${HEAP}MB"
+          echo "✅ deploy.yml heap OK: ${HEAP}MB"
 
       - name: Verify output standalone mode
         run: |

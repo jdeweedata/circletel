@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   build-and-push:
-    # Self-hosted runner on VPS 30 (24GB RAM) — GitHub-hosted ubuntu-latest (7GB) OOMs.
+    # Self-hosted runner on VPS (24GB RAM, 8 cores) — GitHub-hosted ubuntu-latest (7GB) OOMs.
     # Setup: /home/actions-runner on the VPS, registered as label "self-hosted".
     runs-on: self-hosted
     timeout-minutes: 20
@@ -20,6 +20,49 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Restore the Next.js SWC/webpack compile cache from a fixed VPS path.
+      # This persists between runs (unlike --mount=type=cache inside Docker which
+      # is wiped when the BuildKit container is recreated each run).
+      - name: Restore Next.js SWC cache
+        run: |
+          if [ -d /home/actions-runner/.next-cache ]; then
+            mkdir -p .next
+            cp -r /home/actions-runner/.next-cache .next/cache
+            echo "Cache restored ($(du -sh .next/cache | cut -f1))"
+          else
+            echo "No cache found — cold build"
+          fi
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build Next.js
+        run: NODE_OPTIONS='--max-old-space-size=12288' npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
+          NEXT_PUBLIC_APP_URL: https://www.circletel.co.za
+          NEXT_PUBLIC_BASE_URL: https://www.circletel.co.za
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_NETCASH_SERVICE_KEY: ${{ secrets.NEXT_PUBLIC_NETCASH_SERVICE_KEY }}
+          NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY: ${{ secrets.NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY }}
+          NEXT_PUBLIC_SANITY_PROJECT_ID: 7iqq2t7l
+          NEXT_PUBLIC_SANITY_DATASET: production
+          NEXT_TELEMETRY_DISABLED: 1
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+
+      # Save the SWC cache to the fixed VPS path for the next run.
+      - name: Save Next.js SWC cache
+        run: |
+          rm -rf /home/actions-runner/.next-cache
+          cp -r .next/cache /home/actions-runner/.next-cache
+          echo "Cache saved ($(du -sh /home/actions-runner/.next-cache | cut -f1))"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -31,27 +74,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          # Use a persistent BuildKit daemon so --mount=type=cache persists between builds
           driver-opts: image=moby/buildkit:buildx-stable-1
 
+      # Docker now just packages the pre-built artifacts — no compilation inside Docker.
+      # Layer cache still used for the Chromium/apk install layer (rarely changes).
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: ghcr.io/jdeweedata/circletel:latest
-          build-args: |
-            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
-            NEXT_PUBLIC_APP_URL=https://www.circletel.co.za
-            NEXT_PUBLIC_BASE_URL=https://www.circletel.co.za
-            NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
-            NEXT_PUBLIC_NETCASH_SERVICE_KEY=${{ secrets.NEXT_PUBLIC_NETCASH_SERVICE_KEY }}
-            NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY=${{ secrets.NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY }}
-            NEXT_PUBLIC_SANITY_PROJECT_ID=7iqq2t7l
-            NEXT_PUBLIC_SANITY_DATASET=production
-          # type=local keeps layer cache on VPS disk — no network round-trip to GitHub servers.
-          # On cache miss the first build is cold; every subsequent build is fast.
           cache-from: type=local,src=/tmp/buildx-cache
           cache-to: type=local,dest=/tmp/buildx-cache-new,mode=max
 
