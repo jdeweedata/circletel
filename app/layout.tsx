@@ -18,9 +18,9 @@ import { StickyMobileCTA } from "@/components/navigation/StickyMobileCTA";
 import { DraftModeIndicator } from "@/components/sanity/DraftModeIndicator";
 
 export const metadata: Metadata = {
-  title: "CircleTel - Reliable Tech Solutions",
-  description: "Empowering SMEs, SOHOs, and Homes with Reliable Tech. High-Speed Wireless and Fibre Internet, Proactive IT, and Data Resilience for South African businesses.",
-  keywords: ["internet", "fibre", "wireless", "IT support", "South Africa", "SME", "SOHO", "business internet"],
+  title: "CircleTel — One Provider. One Bill. Your Office Runs.",
+  description: "Business internet, mobile, email, backup, and security in one monthly payment. No four vendors. No four support queues. CircleTel handles it all — from R2,499/mo.",
+  keywords: ["internet", "fibre", "wireless", "IT support", "South Africa", "SME", "SOHO", "business internet", "office-in-a-box", "business bundle", "managed internet"],
   authors: [{ name: "CircleTel" }],
   creator: "CircleTel",
   publisher: "CircleTel",
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "CircleTel - Reliable Tech Solutions",
-    description: "Empowering SMEs, SOHOs, and Homes with Reliable Tech",
+    title: "CircleTel — One Provider. One Bill. Your Office Runs.",
+    description: "Business internet, mobile, email, backup, and security in one monthly payment. CircleTel handles it all — from R2,499/mo.",
     url: "https://www.circletel.co.za",
     siteName: "CircleTel",
     images: [
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "CircleTel - Reliable Tech Solutions",
+        alt: "CircleTel — One Provider. One Bill. Your Office Runs.",
       },
     ],
     locale: "en_ZA",
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CircleTel - Reliable Tech Solutions",
-    description: "Empowering SMEs, SOHOs, and Homes with Reliable Tech",
+    title: "CircleTel — One Provider. One Bill. Your Office Runs.",
+    description: "Business internet, mobile, email, backup, and security in one monthly payment. CircleTel handles it all — from R2,499/mo.",
     images: ["/og-image.jpg"],
   },
   manifest: "/manifest.json",

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Business Mobility Starter | CircleTel MTN Business Upgrade</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#E87A1E",
+                        navy: "#1E293B",
+                        success: "#16A34A",
+                        nearblack: "#111827",
+                        lightgray: "#F8F9FA",
+                        graytext: "#6B7280"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Plus Jakarta Sans", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="font-body text-nearblack bg-white">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full h-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm z-50">
+<div class="flex justify-between items-center px-6 md:px-12 max-w-[1200px] mx-auto h-full">
+<div class="text-2xl font-black tracking-tighter text-slate-800 dark:text-white font-headline">CircleTel</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-gray-600 dark:text-gray-400 font-medium hover:text-orange-600 dark:hover:text-orange-400 transition-colors" href="#">Fiber</a>
+<a class="text-gray-600 dark:text-gray-400 font-medium hover:text-orange-600 dark:hover:text-orange-400 transition-colors" href="#">LTE &amp; 5G</a>
+<a class="text-orange-600 dark:text-orange-500 font-bold border-b-2 border-orange-600 pb-1" href="#">Mobile</a>
+<a class="text-gray-600 dark:text-gray-400 font-medium hover:text-orange-600 dark:hover:text-orange-400 transition-colors" href="#">Business Solutions</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:block px-6 py-2 rounded-full border border-orange-600 text-orange-600 font-semibold active:scale-95 duration-150 transition-all">Login</button>
+<button class="px-6 py-2 rounded-full bg-primary text-white font-semibold active:scale-95 duration-150 transition-all">Get Started</button>
+</div>
+</div>
+</nav>
+<main class="pt-16 pb-24">
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-white py-20 md:py-32">
+<div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+<div class="z-10">
+<span class="inline-block px-4 py-1.5 rounded-full bg-orange-50 text-primary font-bold text-sm tracking-wide uppercase mb-6">
+                        MTN Business Device Upgrade
+                    </span>
+<h1 class="font-headline text-4xl md:text-6xl font-extrabold tracking-tight text-navy leading-[1.1] mb-6">
+                        Your team deserves MTN Business rates — <span class="text-primary italic">without</span> the 45-minute store queue.
+                    </h1>
+<p class="text-graytext text-lg md:text-xl mb-8 leading-relaxed max-w-xl">
+                        We submit the paperwork to Arlan. Your team gets MTN Business contracts. You get one CircleTel invoice.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-8">
+<div class="bg-navy rounded-2xl px-6 py-3">
+<p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Starting From</p>
+<p class="text-white font-headline text-3xl font-extrabold">R455<span class="text-lg font-medium">/mo per line</span></p>
+</div>
+</div>
+<div class="flex flex-wrap gap-4">
+<a class="px-8 py-4 bg-primary text-white font-bold rounded-full shadow-lg hover:shadow-orange-200 transition-all active:scale-95" href="#deals">Choose a Device Deal</a>
+<a class="px-8 py-4 bg-success text-white font-bold rounded-full flex items-center gap-2 shadow-lg hover:shadow-green-200 transition-all active:scale-95" href="https://wa.me/">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+                            WhatsApp for a Quote
+                        </a>
+</div>
+</div>
+<div class="relative">
+<div class="absolute -inset-4 bg-orange-100 rounded-full blur-3xl opacity-30"></div>
+<img alt="South African business team using mobile devices" class="relative rounded-lg shadow-2xl z-10 w-full object-cover aspect-[4/3]" data-alt="Modern office in Cape Town with diverse professional team collaborating using smartphones and tablets in a bright sunlit environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAueikFvHTEbI6VK8yI6XZ3-qraULcVvHh9iMWvVPaCB6rTJqqilbw9S9pcxe3Bu2JDfqSfWFBKorK4tsdPFnN4u475aITzI5oUPd5aI_Yz5vNp9MAj3tJE212UjSIrXwz-WEdeSWOXrtgmEAIVlH0CrmNdpE6ZlDCTgxPcwjIpzCL4ebBtVG4k762d45pwAw35EntXovqP83-WhstTd7x4w0ePybZ2BBX32P09RMxzYlgOyBJxzoKf4EG6_VZljhb1bFAescDJx6SZ"/>
+</div>
+</div>
+</section>
+<!-- What's Included -->
+<section class="bg-lightgray py-20">
+<div class="max-w-[1200px] mx-auto px-6">
+<div class="bg-white rounded-[2rem] p-8 md:p-16 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-12 items-center">
+<div class="md:w-1/2">
+<h2 class="font-headline text-3xl md:text-4xl font-extrabold text-navy mb-6">Built for the Busy SME Owner</h2>
+<p class="text-graytext text-lg mb-8">Stop wasting time at physical stores. We bring the MTN corporate ecosystem directly to your desk.</p>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="font-medium">MTN Business device upgrade contract (36-month)</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="font-medium">CircleTel submits paperwork — zero effort from you</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="font-medium">Single monthly invoice from CircleTel</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="font-medium">Mon–Fri business support via WhatsApp</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-success" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="font-medium text-primary">Commission earned: ~R87/deal/month</span>
+</li>
+</ul>
+</div>
+<div class="md:w-1/2 grid grid-cols-2 gap-4">
+<div class="bg-orange-50 p-6 rounded-2xl flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" data-icon="description">description</span>
+<span class="font-bold text-navy">No Forms</span>
+</div>
+<div class="bg-orange-50 p-6 rounded-2xl flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" data-icon="speed">speed</span>
+<span class="font-bold text-navy">Fast Tracking</span>
+</div>
+<div class="bg-orange-50 p-6 rounded-2xl flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" data-icon="support_agent">support_agent</span>
+<span class="font-bold text-navy">VIP Support</span>
+</div>
+<div class="bg-orange-50 p-6 rounded-2xl flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" data-icon="receipt_long">receipt_long</span>
+<span class="font-bold text-navy">One Bill</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recommended Deals Section -->
+<section class="py-20 bg-gray-50" id="deals">
+<div class="max-w-[1200px] mx-auto px-6">
+<div class="text-center mb-16">
+<h2 class="font-headline text-3xl md:text-5xl font-extrabold text-navy mb-4">Recommended Device Deals</h2>
+<p class="text-graytext text-lg">Top-tier hardware paired with South Africa's most reliable business network.</p>
+</div>
+<!-- Note banner -->
+<div class="bg-amber-100 border-l-4 border-amber-500 p-4 mb-12 rounded-r-lg flex items-center gap-4">
+<span class="material-symbols-outlined text-amber-600" data-icon="warning">warning</span>
+<p class="text-amber-900 font-medium text-sm">⚠️ Prices from March 2026 promo sheet — verify with CircleTel before signing.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Deal 1 -->
+<div class="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.08)] border-t-4 border-primary hover:shadow-[0_4px_24px_rgba(232,122,30,0.15)] transition-all p-6 flex flex-col">
+<div class="mb-4">
+<h3 class="font-headline text-xl font-bold text-navy">Vivo Y31 5G</h3>
+<p class="text-graytext text-sm">MFB S+ Plan</p>
+</div>
+<div class="bg-gray-50 rounded-lg p-4 mb-6 flex justify-between items-center">
+<div>
+<p class="text-xs uppercase font-bold text-gray-400">Data</p>
+<p class="font-headline text-lg font-extrabold text-navy">2.3GB</p>
+</div>
+<div class="text-right">
+<p class="text-xs uppercase font-bold text-gray-400">Monthly</p>
+<p class="font-headline text-2xl font-extrabold text-primary">R455</p>
+</div>
+</div>
+<p class="text-graytext text-xs mb-6">Contract Period: 36 Months</p>
+<button class="mt-auto w-full py-3 bg-primary text-white font-bold rounded-full hover:bg-orange-600 transition-colors">Select This Deal</button>
+</div>
+<!-- Deal 2 -->
+<div class="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_24px_rgba(232,122,30,0.15)] transition-all p-6 flex flex-col border border-gray-100">
+<div class="mb-4">
+<h3 class="font-headline text-xl font-bold text-navy">Vivo V60 Lite 5G</h3>
+<p class="text-graytext text-sm">MFB S+ Plan</p>
+</div>
+<div class="bg-gray-50 rounded-lg p-4 mb-6 flex justify-between items-center">
+<div>
+<p class="text-xs uppercase font-bold text-gray-400">Data</p>
+<p class="font-headline text-lg font-extrabold text-navy">2.3GB</p>
+</div>
+<div class="text-right">
+<p class="text-xs uppercase font-bold text-gray-400">Monthly</p>
+<p class="font-headline text-2xl font-extrabold text-primary">R535</p>
+</div>
+</div>
+<p class="text-graytext text-xs mb-6">Contract Period: 36 Months</p>
+<button class="mt-auto w-full py-3 bg-primary text-white font-bold rounded-full hover:bg-orange-600 transition-colors">Select This Deal</button>
+</div>
+<!-- Deal 3 -->
+<div class="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_24px_rgba(232,122,30,0.15)] transition-all p-6 flex flex-col border border-gray-100">
+<div class="mb-4">
+<h3 class="font-headline text-xl font-bold text-navy">Samsung Galaxy A26 5G</h3>
+<p class="text-graytext text-sm">MFB S+ Plan</p>
+</div>
+<div class="bg-gray-50 rounded-lg p-4 mb-6 flex justify-between items-center">
+<div>
+<p class="text-xs uppercase font-bold text-gray-400">Data</p>
+<p class="font-headline text-lg font-extrabold text-navy">2.3GB</p>
+</div>
+<div class="text-right">
+<p class="text-xs uppercase font-bold text-gray-400">Monthly</p>
+<p class="font-headline text-2xl font-extrabold text-primary">R525</p>
+</div>
+</div>
+<p class="text-graytext text-xs mb-6">Contract Period: 36 Months</p>
+<button class="mt-auto w-full py-3 bg-primary text-white font-bold rounded-full hover:bg-orange-600 transition-colors">Select This Deal</button>
+</div>
+<!-- Deal 4 -->
+<div class="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_24px_rgba(232,122,30,0.15)] transition-all p-6 flex flex-col border border-gray-100">
+<div class="mb-4">
+<h3 class="font-headline text-xl font-bold text-navy">Oppo A5 Pro 4G</h3>
+<p class="text-graytext text-sm">MFB M Plan</p>
+</div>
+<div class="bg-gray-50 rounded-lg p-4 mb-6 flex justify-between items-center">
+<div>
+<p class="text-xs uppercase font-bold text-gray-400">Data</p>
+<p class="font-headline text-lg font-extrabold text-navy">6.5GB</p>
+</div>
+<div class="text-right">
+<p class="text-xs uppercase font-bold text-gray-400">Monthly</p>
+<p class="font-headline text-xl font-extrabold text-primary">R459–R509</p>
+</div>
+</div>
+<p class="text-graytext text-xs mb-6">Contract Period: 36 Months</p>
+<button class="mt-auto w-full py-3 bg-primary text-white font-bold rounded-full hover:bg-orange-600 transition-colors">Select This Deal</button>
+</div>
+<!-- Deal 5 -->
+<div class="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_24px_rgba(232,122,30,0.15)] transition-all p-6 flex flex-col border border-gray-100">
+<div class="mb-4">
+<h3 class="font-headline text-xl font-bold text-navy">Oppo A6 Pro 5G</h3>
+<p class="text-graytext text-sm">MFB L Plan</p>
+</div>
+<div class="bg-gray-50 rounded-lg p-4 mb-6 flex justify-between items-center">
+<div>
+<p class="text-xs uppercase font-bold text-gray-400">Data</p>
+<p class="font-headline text-lg font-extrabold text-navy">23GB</p>
+</div>
+<div class="text-right">
+<p class="text-xs uppercase font-bold text-gray-400">Monthly</p>
+<p class="font-headline text-xl font-extrabold text-primary">R649–R759</p>
+</div>
+</div>
+<p class="text-graytext text-xs mb-6">Contract Period: 36 Months</p>
+<button class="mt-auto w-full py-3 bg-primary text-white font-bold rounded-full hover:bg-orange-600 transition-colors">Select This Deal</button>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works -->
+<section class="py-20 bg-white">
+<div class="max-w-[1200px] mx-auto px-6">
+<h2 class="font-headline text-3xl font-extrabold text-center text-navy mb-16">The CircleTel Process</h2>
+<div class="flex flex-col md:flex-row justify-between gap-8 md:gap-4">
+<div class="flex-1 text-center relative px-4">
+<div class="w-16 h-16 bg-orange-100 text-primary rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">1</div>
+<h4 class="font-bold text-xl mb-2">Choose a device deal</h4>
+<p class="text-graytext">Browse our curated SME mobile bundles and select the one that fits your team's needs.</p>
+<div class="hidden md:block absolute top-8 -right-4 w-8 h-[2px] bg-gray-200"></div>
+</div>
+<div class="flex-1 text-center relative px-4">
+<div class="w-16 h-16 bg-orange-100 text-primary rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">2</div>
+<h4 class="font-bold text-xl mb-2">We submit to Arlan</h4>
+<p class="text-graytext">Send us your docs. We handle the MTN Business backend submission directly with our key account managers.</p>
+<div class="hidden md:block absolute top-8 -right-4 w-8 h-[2px] bg-gray-200"></div>
+</div>
+<div class="flex-1 text-center px-4">
+<div class="w-16 h-16 bg-orange-100 text-primary rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">3</div>
+<h4 class="font-bold text-xl mb-2">Device delivered</h4>
+<p class="text-graytext">Your new devices arrive at your office in 2–5 business days. Ready to connect.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Who It's For -->
+<section class="py-16 bg-lightgray">
+<div class="max-w-[800px] mx-auto px-6 text-center">
+<h3 class="font-headline text-2xl font-extrabold text-navy mb-8">Serving all South African SMEs</h3>
+<div class="flex flex-wrap justify-center gap-3">
+<span class="px-6 py-2 bg-white rounded-full border border-gray-200 text-navy font-semibold shadow-sm">Professional Services</span>
+<span class="px-6 py-2 bg-white rounded-full border border-gray-200 text-navy font-semibold shadow-sm">Retail</span>
+<span class="px-6 py-2 bg-white rounded-full border border-gray-200 text-navy font-semibold shadow-sm">Trades</span>
+<span class="px-6 py-2 bg-white rounded-full border border-gray-200 text-navy font-semibold shadow-sm">Medical Practices</span>
+<span class="px-6 py-2 bg-white rounded-full border border-gray-200 text-navy font-semibold shadow-sm">Any SA SME</span>
+</div>
+</div>
+</section>
+<!-- Objection Handler -->
+<section class="py-20 bg-white">
+<div class="max-w-[1200px] mx-auto px-6">
+<div class="bg-navy rounded-[2rem] overflow-hidden shadow-2xl">
+<div class="grid grid-cols-1 md:grid-cols-2">
+<div class="p-10 md:p-16 bg-navy text-white">
+<div class="inline-flex items-center gap-2 bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase mb-6">
+<span class="material-symbols-outlined text-sm" data-icon="star" data-weight="fill">star</span>
+                                CircleTel Advantage
+                            </div>
+<h3 class="font-headline text-3xl font-extrabold mb-4">Same MTN price. Zero queue. One invoice.</h3>
+<p class="text-gray-400 mb-8">We are authorized MTN resellers. You get the exact same deal as the store, but with a dedicated account manager and zero physical travel.</p>
+<div class="flex items-center gap-4 text-success">
+<span class="material-symbols-outlined" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="font-bold">No CAPEX required</span>
+</div>
+</div>
+<div class="p-10 md:p-16 bg-slate-800 text-gray-300 border-l border-slate-700">
+<h3 class="font-headline text-3xl font-extrabold mb-4 text-gray-400">MTN Store Retail</h3>
+<p class="mb-8">Same price, but with a 45-min queue, 3 separate bills, and no dedicated business support desk.</p>
+<div class="flex items-center gap-4 text-gray-500">
+<span class="material-symbols-outlined" data-icon="cancel" data-weight="fill">cancel</span>
+<span class="font-medium">Complex paperwork journey</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Bottom Bar -->
+<div class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.05)] border-t border-gray-100 z-40">
+<div class="max-w-[1200px] mx-auto px-6 py-4 flex justify-between items-center">
+<div>
+<p class="text-graytext text-xs font-bold uppercase">Pricing from</p>
+<p class="font-headline text-xl md:text-2xl font-extrabold text-navy">R455<span class="text-sm font-medium">/mo per line</span></p>
+</div>
+<button class="px-8 py-3 bg-primary text-white font-bold rounded-full shadow-lg hover:bg-orange-600 transition-colors active:scale-95">Get Started</button>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full pt-16 pb-24 bg-slate-900 dark:bg-black border-t border-slate-800">
+<div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="col-span-1 md:col-span-1">
+<div class="text-xl font-bold text-white mb-6">CircleTel</div>
+<p class="text-gray-400 text-sm leading-relaxed mb-6">Connecting Today, Creating Tomorrow. Your trusted MTN Authorised Reseller for South African businesses.</p>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-orange-500" data-icon="phone_iphone">phone_iphone</span>
+<span class="material-symbols-outlined text-orange-500" data-icon="wifi">wifi</span>
+</div>
+</div>
+<div>
+<h4 class="text-white font-bold mb-6">Quick Links</h4>
+<ul class="space-y-4 text-sm font-['Inter']">
+<li><a class="text-gray-400 hover:text-orange-400 transition-colors" href="#">About Us</a></li>
+<li><a class="text-gray-400 hover:text-orange-400 transition-colors" href="#">Coverage Map</a></li>
+<li><a class="text-gray-400 hover:text-orange-400 transition-colors" href="#">Business Solutions</a></li>
+<li><a class="text-gray-400 hover:text-orange-400 transition-colors" href="#">Wholesale</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-bold mb-6">Legal</h4>
+<ul class="space-y-4 text-sm font-['Inter']">
+<li><a class="text-gray-400 hover:text-orange-400 transition-colors" href="#">Terms of Service</a></li>
+<li><a class="text-gray-400 hover:text-orange-400 transition-colors" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-bold mb-6">Support</h4>
+<ul class="space-y-4 text-sm font-['Inter']">
+<li><a class="text-gray-400 hover:text-orange-400 transition-colors" href="#">Contact Support</a></li>
+<li class="flex items-center gap-2 text-success">
+<span class="material-symbols-outlined text-sm" data-icon="chat">chat</span>
+                        WhatsApp Business
+                    </li>
+</ul>
+</div>
+</div>
+<div class="max-w-[1200px] mx-auto px-6 mt-12 pt-8 border-t border-slate-800 text-center text-gray-500 text-xs">
+            © 2024 CircleTel. MTN Authorised Reseller. Connecting Today, Creating Tomorrow.
+        </div>
+</footer>
+</body></html>

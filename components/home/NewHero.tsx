@@ -272,10 +272,10 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
           </div>
           <div className="text-center">
             <span className="font-data text-2xl md:text-3xl font-bold text-circleTel-orange">
-              24/7
+              8am–5pm
             </span>
             <span className="block text-white/70 text-xs mt-1">
-              Local Support
+              Mon–Fri Support
             </span>
           </div>
           <div className="text-center">

@@ -1,0 +1,127 @@
+<h2>Ticket page: 2-panel conversation view</h2>
+<p class="subtitle">SuperSonic uses a Gmail-style 2-panel layout. CircleTel currently shows a simple list. Which should we build?</p>
+
+<div class="split" style="margin-top:20px">
+
+  <!-- Current: Simple list -->
+  <div class="mockup" data-choice="a" onclick="toggleSelect(this)" style="cursor:pointer;border:2px solid transparent;border-radius:12px;overflow:hidden;transition:border-color 0.2s">
+    <div class="mockup-header">A — Current: Simple List</div>
+    <div class="mockup-body" style="padding:12px;background:#f8fafc;font-family:system-ui;font-size:12px;min-height:340px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:600;color:#1e293b">Support Tickets</div>
+        <button style="background:#f97316;color:white;border:none;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:600">+ New Ticket</button>
+      </div>
+      <!-- Filter row -->
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <div style="background:#f97316;color:white;border-radius:20px;padding:3px 10px;font-size:10px">All</div>
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:20px;padding:3px 10px;font-size:10px;color:#64748b">Open</div>
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:20px;padding:3px 10px;font-size:10px;color:#64748b">Closed</div>
+      </div>
+      <!-- Ticket rows -->
+      <div style="background:white;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden">
+        <div style="padding:10px 12px;border-bottom:1px solid #f1f5f9">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <div style="font-size:11px;font-weight:600;color:#1e293b">SST679745 - Internet is down</div>
+            <div style="background:#dcfce7;color:#16a34a;border-radius:4px;padding:2px 7px;font-size:9px">Closed</div>
+          </div>
+          <div style="font-size:10px;color:#64748b">Technical Support · May 14, 2025</div>
+        </div>
+        <div style="padding:10px 12px;border-bottom:1px solid #f1f5f9;background:#fef9f5">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <div style="font-size:11px;font-weight:600;color:#1e293b">SST641200 - Billing question</div>
+            <div style="background:#fef9c3;color:#ca8a04;border-radius:4px;padding:2px 7px;font-size:9px">Open</div>
+          </div>
+          <div style="font-size:10px;color:#64748b">Billing · Mar 2, 2026</div>
+        </div>
+        <div style="padding:10px 12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <div style="font-size:11px;font-weight:600;color:#1e293b">SST612890 - Speed issue</div>
+            <div style="background:#dcfce7;color:#16a34a;border-radius:4px;padding:2px 7px;font-size:9px">Closed</div>
+          </div>
+          <div style="font-size:10px;color:#64748b">Technical Support · Jan 10, 2026</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;color:#94a3b8;font-size:10px;text-align:center">Click a ticket to view details →</div>
+    </div>
+  </div>
+
+  <!-- New: 2-panel conversation -->
+  <div class="mockup" data-choice="b" onclick="toggleSelect(this)" style="cursor:pointer;border:2px solid transparent;border-radius:12px;overflow:hidden;transition:border-color 0.2s">
+    <div class="mockup-header">B — SuperSonic Style: 2-Panel Conversation</div>
+    <div class="mockup-body" style="padding:0;background:#f8fafc;font-family:system-ui;font-size:12px;min-height:340px">
+      <div style="display:flex;height:340px">
+
+        <!-- Left panel: ticket list -->
+        <div style="width:200px;border-right:1px solid #e2e8f0;background:white;display:flex;flex-direction:column;flex-shrink:0">
+          <div style="padding:10px 12px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:11px;font-weight:700;color:#1e293b">My Requests</div>
+            <button style="background:#f97316;color:white;border:none;border-radius:5px;padding:3px 7px;font-size:9px;font-weight:600">+ New</button>
+          </div>
+          <!-- Selected ticket -->
+          <div style="padding:10px 12px;background:#fff7ed;border-left:3px solid #f97316;border-bottom:1px solid #f1f5f9">
+            <div style="font-size:10px;font-weight:600;color:#1e293b;margin-bottom:2px">Billing question</div>
+            <div style="font-size:9px;color:#64748b;margin-bottom:3px">Mar 2, 2026</div>
+            <div style="background:#fef9c3;color:#ca8a04;border-radius:3px;padding:1px 6px;font-size:8px;display:inline">Open</div>
+          </div>
+          <!-- Other tickets -->
+          <div style="padding:10px 12px;border-bottom:1px solid #f1f5f9">
+            <div style="font-size:10px;font-weight:600;color:#1e293b;margin-bottom:2px">Internet is down</div>
+            <div style="font-size:9px;color:#64748b;margin-bottom:3px">May 14, 2025</div>
+            <div style="background:#dcfce7;color:#16a34a;border-radius:3px;padding:1px 6px;font-size:8px;display:inline">Closed</div>
+          </div>
+          <div style="padding:10px 12px">
+            <div style="font-size:10px;font-weight:600;color:#1e293b;margin-bottom:2px">Speed issue</div>
+            <div style="font-size:9px;color:#64748b;margin-bottom:3px">Jan 10, 2026</div>
+            <div style="background:#dcfce7;color:#16a34a;border-radius:3px;padding:1px 6px;font-size:8px;display:inline">Closed</div>
+          </div>
+        </div>
+
+        <!-- Right panel: conversation -->
+        <div style="flex:1;display:flex;flex-direction:column;background:white">
+          <!-- Ticket header -->
+          <div style="padding:10px 14px;border-bottom:1px solid #e2e8f0;background:#f8fafc">
+            <div style="font-size:11px;font-weight:700;color:#1e293b">SST641200 - Billing question</div>
+            <div style="font-size:9px;color:#64748b;margin-top:2px">Billing · Opened Mar 2, 2026 · <span style="color:#ca8a04;font-weight:600">Open</span></div>
+          </div>
+          <!-- Messages -->
+          <div style="flex:1;padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px">
+            <!-- Agent message -->
+            <div style="display:flex;gap:6px;align-items:flex-start">
+              <div style="width:22px;height:22px;background:#1e293b;border-radius:50%;color:white;font-size:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">CT</div>
+              <div style="background:#f1f5f9;border-radius:0 8px 8px 8px;padding:8px 10px;max-width:85%">
+                <div style="font-size:9px;font-weight:600;color:#1e293b;margin-bottom:3px">CircleTel Support</div>
+                <div style="font-size:10px;color:#334155;line-height:1.4">Hi Jeffrey, I can see your invoice for March. The R0.00 balance is correct — your debit order processed successfully on Mar 1.</div>
+                <div style="font-size:8px;color:#94a3b8;margin-top:4px">Mar 2, 2026 · 09:14</div>
+              </div>
+            </div>
+            <!-- Customer message -->
+            <div style="display:flex;gap:6px;align-items:flex-start;flex-direction:row-reverse">
+              <div style="width:22px;height:22px;background:#f97316;border-radius:50%;color:white;font-size:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">JD</div>
+              <div style="background:#fff7ed;border-radius:8px 0 8px 8px;padding:8px 10px;max-width:85%">
+                <div style="font-size:9px;font-weight:600;color:#1e293b;margin-bottom:3px">You</div>
+                <div style="font-size:10px;color:#334155;line-height:1.4">Thank you, that makes sense!</div>
+                <div style="font-size:8px;color:#94a3b8;margin-top:4px">Mar 2, 2026 · 09:22</div>
+              </div>
+            </div>
+          </div>
+          <!-- Reply box -->
+          <div style="padding:8px 12px;border-top:1px solid #e2e8f0;background:#f8fafc;display:flex;gap:6px">
+            <div style="flex:1;background:white;border:1px solid #e2e8f0;border-radius:6px;padding:6px 8px;font-size:10px;color:#94a3b8">Reply to this ticket…</div>
+            <button style="background:#f97316;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:10px;font-weight:600">Send</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;text-align:center">Click to select, then confirm in the terminal.</p>
+
+<style>
+  .mockup[data-choice].selected {
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+  }
+</style>

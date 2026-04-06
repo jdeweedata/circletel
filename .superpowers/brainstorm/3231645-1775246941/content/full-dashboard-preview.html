@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CircleTel Dashboard — Full Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f1f5f9; color: #1e293b; }
+
+  /* Top nav */
+  .topnav { background: white; border-bottom: 1px solid #e2e8f0; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .logo { color: #f97316; font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 6px; }
+  .logo-dot { width: 8px; height: 8px; background: #f97316; border-radius: 50%; }
+  .nav-links { display: flex; gap: 20px; font-size: 13px; color: #64748b; }
+  .nav-links span:hover { color: #f97316; cursor: pointer; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 32px; height: 32px; background: #1e293b; border-radius: 50%; color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+  /* Page */
+  .page { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+
+  /* Welcome */
+  .welcome-name { font-size: 22px; font-weight: 700; color: #1e293b; }
+  .welcome-sub { font-size: 13px; color: #64748b; margin-top: 2px; margin-bottom: 20px; }
+
+  /* Stats row */
+  .stats-row { display: flex; gap: 10px; margin-bottom: 20px; }
+  .stat-chip { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 20px; text-align: center; }
+  .stat-chip .num { font-size: 24px; font-weight: 700; color: #1e293b; }
+  .stat-chip .lbl { font-size: 11px; color: #64748b; margin-top: 1px; }
+  .stat-chip.clickable:hover { border-color: #f97316; cursor: pointer; }
+
+  /* Section label */
+  .section-label { font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+
+  /* 4×2 action grid */
+  .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .action-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+  .action-card:hover { border-color: #f97316; box-shadow: 0 2px 8px rgba(249,115,22,.12); }
+  .action-card .icon { font-size: 22px; margin-bottom: 6px; }
+  .action-card .name { font-size: 12px; font-weight: 600; color: #1e293b; }
+  .action-card.primary .name { color: #f97316; }
+
+  /* Service card */
+  .service-card { background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; margin-bottom: 24px; }
+  .service-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .service-status { font-size: 11px; font-weight: 600; color: #16a34a; margin-bottom: 3px; display: flex; align-items: center; gap: 5px; }
+  .status-dot { width: 7px; height: 7px; background: #16a34a; border-radius: 50%; display: inline-block; }
+  .service-name { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .service-addr { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+  .manage-btn { background: #f97316; color: white; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+  .speeds-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .speed-box { flex: 1; border-radius: 8px; padding: 10px; text-align: center; }
+  .speed-box.dl { background: #f0fdf4; }
+  .speed-box.ul { background: #eff6ff; }
+  .speed-box .sp-label { font-size: 10px; font-weight: 600; margin-bottom: 2px; }
+  .speed-box.dl .sp-label { color: #16a34a; }
+  .speed-box.ul .sp-label { color: #3b82f6; }
+  .speed-box .sp-val { font-size: 20px; font-weight: 800; color: #1e293b; }
+  .speed-box .sp-unit { font-size: 10px; color: #64748b; }
+
+  .extras-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .extra-box { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
+  .extra-box .ex-label { font-size: 9px; font-weight: 700; color: #94a3b8; letter-spacing: .05em; margin-bottom: 4px; }
+  .extra-box .ex-val { font-size: 12px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 4px; }
+  .health-dot { width: 8px; height: 8px; background: #16a34a; border-radius: 50%; }
+  .speed-test-box { background: #fff7ed; border-color: #fed7aa; cursor: pointer; text-align: center; }
+  .speed-test-box:hover { background: #ffedd5; }
+  .speed-test-box .ex-val { justify-content: center; color: #f97316; font-size: 11px; }
+
+  .service-footer { border-top: 1px solid #f1f5f9; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .sf-item .sf-lbl { font-size: 10px; color: #94a3b8; }
+  .sf-item .sf-val { font-size: 14px; font-weight: 700; color: #1e293b; }
+  .sf-item .sf-sub { font-size: 9px; color: #94a3b8; }
+  .loading-bar { height: 3px; background: linear-gradient(90deg, #f97316 0%, #fbbf24 50%, #f97316 100%); background-size: 200% 100%; border-radius: 2px; animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  .loading-text { font-size: 11px; color: #94a3b8; margin-top: 6px; }
+
+  /* Invoice section */
+  .invoice-table { background: white; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; margin-bottom: 24px; }
+  .table-header { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 0.9fr 1fr; padding: 10px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 10px; font-weight: 700; color: #94a3b8; letter-spacing: .05em; gap: 8px; }
+  .table-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 0.9fr 1fr; padding: 11px 16px; border-bottom: 1px solid #f1f5f9; font-size: 12px; align-items: center; gap: 8px; }
+  .table-row:last-child { border-bottom: none; }
+  .table-row:hover { background: #fafafa; }
+  .inv-num { color: #3b82f6; font-weight: 600; font-size: 11px; }
+  .badge { display: inline-block; border-radius: 5px; padding: 2px 8px; font-size: 10px; font-weight: 600; }
+  .badge-paid { background: #dcfce7; color: #16a34a; }
+  .badge-unpaid { background: #fef9c3; color: #ca8a04; }
+  .badge-overdue { background: #fee2e2; color: #dc2626; }
+  .badge-recurring { background: #eff6ff; color: #3b82f6; }
+  .badge-install { background: #f0fdf4; color: #16a34a; }
+  .badge-prorata { background: #faf5ff; color: #7c3aed; }
+  .action-link { color: #f97316; font-weight: 600; font-size: 11px; cursor: pointer; }
+  .action-link.muted { color: #94a3b8; }
+
+  /* Tickets section */
+  .tickets-panel { background: white; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; display: flex; height: 320px; }
+  .ticket-list { width: 240px; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; flex-shrink: 0; }
+  .ticket-list-header { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+  .ticket-list-header span { font-size: 13px; font-weight: 700; }
+  .new-ticket-btn { background: #f97316; color: white; border: none; border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .ticket-item { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+  .ticket-item.active { background: #fff7ed; border-left: 3px solid #f97316; }
+  .ticket-item .ti-subj { font-size: 11px; font-weight: 600; color: #1e293b; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ticket-item .ti-meta { font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
+  .ticket-conv { flex: 1; display: flex; flex-direction: column; }
+  .conv-header { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+  .conv-header .ch-subj { font-size: 12px; font-weight: 700; color: #1e293b; }
+  .conv-header .ch-meta { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+  .conv-messages { flex: 1; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+  .msg { display: flex; gap: 8px; align-items: flex-start; }
+  .msg.outgoing { flex-direction: row-reverse; }
+  .msg-avatar { width: 26px; height: 26px; border-radius: 50%; color: white; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .msg-avatar.agent { background: #1e293b; }
+  .msg-avatar.customer { background: #f97316; }
+  .msg-bubble { max-width: 80%; border-radius: 4px 12px 12px 12px; padding: 9px 11px; }
+  .msg.outgoing .msg-bubble { border-radius: 12px 4px 12px 12px; }
+  .msg-bubble.agent-bubble { background: #f1f5f9; }
+  .msg-bubble.customer-bubble { background: #fff7ed; }
+  .msg-sender { font-size: 9px; font-weight: 700; color: #64748b; margin-bottom: 3px; }
+  .msg-text { font-size: 11px; color: #1e293b; line-height: 1.5; }
+  .msg-time { font-size: 9px; color: #94a3b8; margin-top: 4px; }
+  .conv-input { padding: 10px 14px; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; gap: 8px; }
+  .reply-input { flex: 1; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #94a3b8; }
+  .send-btn { background: #f97316; color: white; border: none; border-radius: 8px; padding: 8px 14px; font-size: 11px; font-weight: 600; cursor: pointer; }
+
+  /* Add to .gitignore notice */
+  .notice { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 10px 14px; font-size: 11px; color: #92400e; margin-bottom: 20px; }
+
+  /* Onboarding banner */
+  .onboarding { background: linear-gradient(135deg, #fff7ed, #fef3c7); border: 1px solid #fde68a; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+  .ob-title { font-size: 13px; font-weight: 700; color: #92400e; }
+  .ob-sub { font-size: 11px; color: #a16207; margin-top: 2px; }
+  .ob-progress { display: flex; align-items: center; gap: 8px; }
+  .progress-bar { width: 120px; height: 6px; background: #fde68a; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #f97316; border-radius: 3px; width: 60%; }
+  .progress-label { font-size: 11px; color: #92400e; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<div class="topnav">
+  <div class="logo"><div class="logo-dot"></div> CircleTel</div>
+  <div class="nav-links">
+    <span>Home</span>
+    <span>Products</span>
+    <span>Deals</span>
+    <span>Support</span>
+  </div>
+  <div class="nav-right">
+    <div class="avatar">JD</div>
+  </div>
+</div>
+
+<!-- Page Content -->
+<div class="page">
+
+  <!-- Welcome -->
+  <div class="welcome-name">Hi, Jeffrey De Wee 👋</div>
+  <div class="welcome-sub">#CT-00012345 · Welcome to your CircleTel account.</div>
+
+  <!-- Onboarding banner (shown when incomplete) -->
+  <div class="onboarding">
+    <div>
+      <div class="ob-title">Complete your account setup</div>
+      <div class="ob-sub">3 of 5 steps complete — verify email, upload RICA documents</div>
+    </div>
+    <div class="ob-progress">
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+      <div class="progress-label">60%</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-chip">
+      <div class="num">1</div>
+      <div class="lbl">Service</div>
+    </div>
+    <div class="stat-chip clickable">
+      <div class="num">0</div>
+      <div class="lbl">Orders</div>
+    </div>
+    <div class="stat-chip">
+      <div class="num">1</div>
+      <div class="lbl">Ticket</div>
+    </div>
+    <div class="stat-chip">
+      <div class="num" style="color:#16a34a">R0</div>
+      <div class="lbl">Balance Due</div>
+    </div>
+  </div>
+
+  <!-- Section: My Account -->
+  <div class="section-label">My Account</div>
+  <div class="action-grid">
+    <div class="action-card primary">
+      <div class="icon">💳</div>
+      <div class="name">Pay Now</div>
+    </div>
+    <div class="action-card">
+      <div class="icon">📑</div>
+      <div class="name">Invoices &amp; Statements</div>
+    </div>
+    <div class="action-card">
+      <div class="icon">🏦</div>
+      <div class="name">Update Banking</div>
+    </div>
+    <div class="action-card">
+      <div class="icon">👤</div>
+      <div class="name">My Profile</div>
+    </div>
+    <div class="action-card">
+      <div class="icon">🎫</div>
+      <div class="name">Log a Ticket</div>
+    </div>
+    <div class="action-card">
+      <div class="icon">❓</div>
+      <div class="name">Get Help</div>
+    </div>
+    <div class="action-card">
+      <div class="icon">📊</div>
+      <div class="name">Check Usage</div>
+    </div>
+    <div class="action-card">
+      <div class="icon">⬆️</div>
+      <div class="name">Upgrade Plan</div>
+    </div>
+  </div>
+
+  <!-- Section: My Connectivity -->
+  <div class="section-label">My Connectivity</div>
+  <div class="service-card">
+    <div class="service-header">
+      <div>
+        <div class="service-status"><span class="status-dot"></span> Connected &amp; Billing</div>
+        <div class="service-name">SkyFibre SMB 100/100 Mbps</div>
+        <div class="service-addr">Unit 1053, Midstream Estate, Gauteng, 1692</div>
+      </div>
+      <button class="manage-btn">Manage ▾</button>
+    </div>
+
+    <div class="speeds-row">
+      <div class="speed-box dl">
+        <div class="sp-label">↓ Download</div>
+        <div class="sp-val">100</div>
+        <div class="sp-unit">Mbps</div>
+      </div>
+      <div class="speed-box ul">
+        <div class="sp-label">↑ Upload</div>
+        <div class="sp-val">100</div>
+        <div class="sp-unit">Mbps</div>
+      </div>
+    </div>
+
+    <div class="extras-row">
+      <div class="extra-box">
+        <div class="ex-label">Network Health</div>
+        <div class="ex-val"><span class="health-dot"></span> Excellent · 99.9% uptime</div>
+      </div>
+      <div class="extra-box speed-test-box">
+        <div class="ex-label">Speed Test</div>
+        <div class="ex-val">⚡ Run test</div>
+      </div>
+      <div class="extra-box">
+        <div class="ex-label">PPPoE / Router</div>
+        <div class="ex-val">View credentials</div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid #f1f5f9;padding-top:4px;margin-bottom:10px">
+      <div class="loading-bar"></div>
+      <div class="loading-text">Fetching your service details…</div>
+    </div>
+
+    <div class="service-footer">
+      <div class="sf-item">
+        <div class="sf-lbl">Monthly fee</div>
+        <div class="sf-val">R1,299 <span class="sf-sub">incl VAT</span></div>
+      </div>
+      <div class="sf-item" style="text-align:right">
+        <div class="sf-lbl">Next billing</div>
+        <div class="sf-val">May 1, 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Invoices -->
+  <div class="section-label">Recent Invoices</div>
+  <div class="invoice-table">
+    <div class="table-header">
+      <span>INVOICE #</span>
+      <span>DATE</span>
+      <span>TYPE</span>
+      <span>AMOUNT</span>
+      <span>STATUS</span>
+      <span>ACTIONS</span>
+    </div>
+    <div class="table-row">
+      <span class="inv-num">INV-0042</span>
+      <span>Apr 2026</span>
+      <span><span class="badge badge-recurring">Recurring</span></span>
+      <span style="font-weight:700">R1,299.00</span>
+      <span><span class="badge badge-unpaid">Unpaid</span></span>
+      <span class="action-link">Pay Now</span>
+    </div>
+    <div class="table-row">
+      <span class="inv-num">INV-0041</span>
+      <span>Mar 2026</span>
+      <span><span class="badge badge-recurring">Recurring</span></span>
+      <span style="font-weight:700">R1,299.00</span>
+      <span><span class="badge badge-paid">Paid</span></span>
+      <span class="action-link muted">View PDF</span>
+    </div>
+    <div class="table-row">
+      <span class="inv-num">INV-0038</span>
+      <span>Nov 2025</span>
+      <span><span class="badge badge-install">Install</span></span>
+      <span style="font-weight:700">R2,550.00</span>
+      <span><span class="badge badge-paid">Paid</span></span>
+      <span class="action-link muted">View PDF</span>
+    </div>
+  </div>
+
+  <!-- Section: Support Tickets -->
+  <div class="section-label">Support Tickets</div>
+  <div class="tickets-panel">
+    <!-- Left: list -->
+    <div class="ticket-list">
+      <div class="ticket-list-header">
+        <span>My Requests</span>
+        <button class="new-ticket-btn">+ New</button>
+      </div>
+      <div class="ticket-item active">
+        <div class="ti-subj">Billing question</div>
+        <div class="ti-meta">Mar 2, 2026</div>
+        <span class="badge badge-unpaid" style="font-size:9px">Open</span>
+      </div>
+      <div class="ticket-item">
+        <div class="ti-subj">Internet is down</div>
+        <div class="ti-meta">May 14, 2025</div>
+        <span class="badge badge-paid" style="font-size:9px">Closed</span>
+      </div>
+      <div class="ticket-item">
+        <div class="ti-subj">Speed issue</div>
+        <div class="ti-meta">Jan 10, 2026</div>
+        <span class="badge badge-paid" style="font-size:9px">Closed</span>
+      </div>
+    </div>
+    <!-- Right: conversation -->
+    <div class="ticket-conv">
+      <div class="conv-header">
+        <div class="ch-subj">SST641200 — Billing question</div>
+        <div class="ch-meta">Billing · Opened Mar 2, 2026 · <span style="color:#ca8a04;font-weight:600">Open</span></div>
+      </div>
+      <div class="conv-messages">
+        <div class="msg">
+          <div class="msg-avatar agent">CT</div>
+          <div class="msg-bubble agent-bubble">
+            <div class="msg-sender">CircleTel Support</div>
+            <div class="msg-text">Hi Jeffrey, I can see your March invoice. The R0.00 balance is correct — your debit order processed successfully on Mar 1.</div>
+            <div class="msg-time">Mar 2, 2026 · 09:14</div>
+          </div>
+        </div>
+        <div class="msg outgoing">
+          <div class="msg-avatar customer">JD</div>
+          <div class="msg-bubble customer-bubble">
+            <div class="msg-sender">You</div>
+            <div class="msg-text">Thank you, that makes sense!</div>
+            <div class="msg-time">Mar 2, 2026 · 09:22</div>
+          </div>
+        </div>
+      </div>
+      <div class="conv-input">
+        <div class="reply-input">Reply to this ticket…</div>
+        <button class="send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

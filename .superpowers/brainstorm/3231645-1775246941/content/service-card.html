@@ -1,0 +1,124 @@
+<h2>Service card: what should "Manage" expand to?</h2>
+<p class="subtitle">SuperSonic's Manage button is a dropdown with basic actions. CircleTel already has Upgrade, Downgrade, and Relocation. How much should the service card show?</p>
+
+<div class="split" style="margin-top:20px">
+
+  <!-- Option A: SuperSonic-style compact -->
+  <div class="mockup" data-choice="a" onclick="toggleSelect(this)" style="cursor:pointer;border:2px solid transparent;border-radius:12px;overflow:hidden;transition:border-color 0.2s">
+    <div class="mockup-header">A — Compact card + rich Manage dropdown</div>
+    <div class="mockup-body" style="padding:14px;background:#f8fafc;font-family:system-ui;font-size:12px;min-height:300px">
+      <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:.05em;margin-bottom:8px">MY CONNECTIVITY</div>
+
+      <!-- Service card -->
+      <div style="background:white;border-radius:10px;border:1px solid #e2e8f0;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <div>
+            <div style="font-size:10px;color:#16a34a;font-weight:600;margin-bottom:2px">● Connected &amp; Billing</div>
+            <div style="font-size:13px;font-weight:700;color:#1e293b">SkyFibre SMB 100/100</div>
+            <div style="font-size:10px;color:#64748b;margin-top:2px">Midstream Estate, 1692</div>
+          </div>
+          <div style="background:#f1f5f9;border-radius:6px;padding:4px 8px;font-size:10px;color:#64748b;font-weight:600">MTN</div>
+        </div>
+        <!-- Speeds -->
+        <div style="display:flex;gap:12px;margin-bottom:12px;padding:8px;background:#f8fafc;border-radius:8px">
+          <div style="text-align:center;flex:1">
+            <div style="font-size:10px;color:#64748b">Download</div>
+            <div style="font-size:16px;font-weight:700;color:#1e293b">100</div>
+            <div style="font-size:9px;color:#64748b">Mbps</div>
+          </div>
+          <div style="width:1px;background:#e2e8f0"></div>
+          <div style="text-align:center;flex:1">
+            <div style="font-size:10px;color:#64748b">Upload</div>
+            <div style="font-size:16px;font-weight:700;color:#1e293b">100</div>
+            <div style="font-size:9px;color:#64748b">Mbps</div>
+          </div>
+          <div style="width:1px;background:#e2e8f0"></div>
+          <div style="text-align:center;flex:1">
+            <div style="font-size:10px;color:#64748b">Monthly</div>
+            <div style="font-size:16px;font-weight:700;color:#1e293b">R1,299</div>
+            <div style="font-size:9px;color:#64748b">incl VAT</div>
+          </div>
+        </div>
+        <!-- Manage dropdown expanded -->
+        <div style="border-top:1px solid #f1f5f9;padding-top:10px">
+          <div style="font-size:10px;color:#64748b;margin-bottom:6px;font-weight:600">MANAGE ▾</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:10px;color:#1e293b">⬆ Upgrade Plan</div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:10px;color:#1e293b">⬇ Downgrade Plan</div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:10px;color:#1e293b">📍 Relocate Service</div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:10px;color:#dc2626">⏸ Pause Service</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Rich expanded card -->
+  <div class="mockup" data-choice="b" onclick="toggleSelect(this)" style="cursor:pointer;border:2px solid transparent;border-radius:12px;overflow:hidden;transition:border-color 0.2s">
+    <div class="mockup-header">B — Rich card with inline speed test + health</div>
+    <div class="mockup-body" style="padding:14px;background:#f8fafc;font-family:system-ui;font-size:12px;min-height:300px">
+      <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:.05em;margin-bottom:8px">MY CONNECTIVITY</div>
+
+      <div style="background:white;border-radius:10px;border:1px solid #e2e8f0;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <div>
+            <div style="font-size:10px;color:#16a34a;font-weight:600;margin-bottom:2px">● Connected &amp; Billing</div>
+            <div style="font-size:13px;font-weight:700;color:#1e293b">SkyFibre SMB 100/100</div>
+            <div style="font-size:10px;color:#64748b;margin-top:2px">Midstream Estate, 1692</div>
+          </div>
+          <button style="background:#f97316;color:white;border:none;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:600">Manage ▾</button>
+        </div>
+
+        <!-- Speeds row -->
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <div style="flex:1;background:#f0fdf4;border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:#16a34a;font-weight:600">↓ Download</div>
+            <div style="font-size:18px;font-weight:700;color:#1e293b">100<span style="font-size:10px;font-weight:400;color:#64748b">Mbps</span></div>
+          </div>
+          <div style="flex:1;background:#eff6ff;border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:10px;color:#3b82f6;font-weight:600">↑ Upload</div>
+            <div style="font-size:18px;font-weight:700;color:#1e293b">100<span style="font-size:10px;font-weight:400;color:#64748b">Mbps</span></div>
+          </div>
+        </div>
+
+        <!-- Network health + speed test row -->
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px">
+            <div style="font-size:9px;color:#64748b;margin-bottom:3px">NETWORK HEALTH</div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <div style="width:8px;height:8px;background:#16a34a;border-radius:50%"></div>
+              <div style="font-size:10px;font-weight:600;color:#16a34a">Excellent</div>
+            </div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px">99.9% uptime · 7 days</div>
+          </div>
+          <div style="flex:1;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:8px;text-align:center;cursor:pointer">
+            <div style="font-size:9px;color:#f97316;font-weight:600;margin-bottom:2px">⚡ SPEED TEST</div>
+            <div style="font-size:10px;color:#64748b">Tap to run</div>
+          </div>
+        </div>
+
+        <!-- Monthly + next billing -->
+        <div style="border-top:1px solid #f1f5f9;padding-top:8px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:10px;color:#64748b">Monthly fee</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b">R1,299 <span style="font-size:9px;font-weight:400;color:#94a3b8">incl VAT</span></div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:10px;color:#64748b">Next billing</div>
+            <div style="font-size:11px;font-weight:600;color:#1e293b">May 1, 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;text-align:center">Click to select, then confirm in the terminal.</p>
+
+<style>
+  .mockup[data-choice].selected {
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+  }
+</style>

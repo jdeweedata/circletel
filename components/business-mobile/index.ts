@@ -1,9 +1,3 @@
 export { BizMobileHero } from './BizMobileHero';
 export { BizMobileBundleCard } from './BizMobileBundleCard';
-export { BizMobileBundleGrid } from './BizMobileBundleGrid';
-export { BizMobileTrustStrip } from './BizMobileTrustStrip';
-export { BizMobileComparisonTable } from './BizMobileComparisonTable';
-export { BizMobileQuoteForm } from './BizMobileQuoteForm';
-export { BizMobileTestimonials } from './BizMobileTestimonials';
 export { BizMobilePromoBanner } from './BizMobilePromoBanner';
-export { BizMobileCTABanner } from './BizMobileCTABanner';
