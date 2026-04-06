@@ -86,12 +86,13 @@ export default defineType({
               subtitle: 'badge',
               featured: 'featured',
             },
-            prepare({ title, subtitle, featured }: { title: string; subtitle?: string; featured?: boolean }) {
-              return { title: `${title}${featured ? ' ⭐' : ''}`, subtitle };
+            prepare({ title, subtitle, featured }: { title?: string; subtitle?: string; featured?: boolean }) {
+              return { title: `${title || '(Untitled Bundle)'}${featured ? ' ⭐' : ''}`, subtitle: subtitle || 'No badge' };
             },
           },
         }),
       ],
+      validation: (Rule) => Rule.min(1).max(6),
     }),
     defineField({
       name: 'columns',
