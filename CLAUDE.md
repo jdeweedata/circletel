@@ -95,6 +95,7 @@ All detailed patterns are in `.claude/rules/`:
 | Rule File | Scope |
 |-----------|-------|
 | `coding-standards.md` | TypeScript, Next.js 15, Supabase, Inngest, debugging |
+| `contact-details.md` | Contact channels, WhatsApp/email constants, support hours |
 | `file-organization.md` | File placement, docs structure, naming conventions |
 | `anti-patterns.md` | NEVERs, hallucination prevention, scope discipline |
 | `auth-patterns.md` | Three-context auth, header+cookie checks, RBAC |
@@ -253,4 +254,4 @@ npm run type-check:memory
 
 ---
 
-**Version**: 8.1 | **Updated**: 2026-03-08 | **Lines**: ~185
+**Version**: 8.1 | **Updated**: 2026-04-06 | **Lines**: ~185

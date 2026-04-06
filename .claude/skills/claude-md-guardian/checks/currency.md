@@ -80,8 +80,8 @@ If the most recent rule file is newer than the CLAUDE.md updated date, flag it.
 **Check:** Every compliance check (C1–C8) should reference a rule file that still exists.
 **Command:**
 ```bash
-grep "Rule:\*\*" /home/circletel/.claude/skills/claude-md-guardian/checks/compliance.md | grep -oE "\`[a-z-]+\.md\`" | tr -d '`' | while read rule; do
-  [ -f "/home/circletel/.claude/rules/$rule" ] || echo "MISSING: $rule"
+grep -oE "\`[a-z-]+\.md\`" /home/circletel/.claude/skills/claude-md-guardian/checks/compliance.md | tr -d '`' | grep -v "accepted-debt" | sort -u | while read rule; do
+  [ -f "/home/circletel/.claude/rules/$rule" ] && echo "✅ $rule" || echo "MISSING: $rule"
 done
 ```
 **Violation:** Any "MISSING" output = compliance check references a deleted rule file
