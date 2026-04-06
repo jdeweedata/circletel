@@ -311,3 +311,18 @@ Track the compound effect over time:
 ---
 
 **Philosophy**: Don't just ship code—ship knowledge. Every task completed is an investment in your future velocity.
+
+---
+
+## Final Step: Session Signal Check
+
+After completing the compound-learnings capture, run a quick signal check:
+
+```bash
+pwsh -NonInteractive -File /home/circletel/.claude/hooks/session-end-check.ps1 -ProjectPath /home/circletel
+```
+
+If signals are displayed, mention them to the user:
+> "Signal check detected: [signals]. Run `/claude-md-guardian` when ready for a full audit."
+
+If no output: continue silently.
