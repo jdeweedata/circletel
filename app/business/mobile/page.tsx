@@ -4,16 +4,8 @@ import { sanityFetch } from '@/lib/sanity/fetch';
 import { urlFor } from '@/lib/sanity/image';
 import { BlockRenderer } from '@/components/sanity/BlockRenderer';
 import { SanitySection } from '@/lib/sanity/types';
-import {
-  BizMobileBundleGrid,
-  BizMobileTrustStrip,
-  BizMobileComparisonTable,
-  BizMobileQuoteForm,
-  BizMobileTestimonials,
-  BizMobileCTABanner,
-  BizMobilePromoBanner,
-} from '@/components/business-mobile';
-import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
+import { BizMobilePromoBanner } from '@/components/business-mobile';
+import { getWhatsAppLink } from '@/lib/constants/contact';
 
 const SLUG = 'business-mobile';
 
@@ -23,8 +15,8 @@ const BUSINESS_MOBILE_QUERY = `*[_type == "productPage" && slug.current == $slug
   tagline,
   heroImage { asset->{url}, alt },
   pricing,
-  keyFeatures,
   seo,
+  promoBanner { enabled, message, endsAt },
   blocks[]{ _key, _type, ... }
 }`;
 
@@ -34,13 +26,10 @@ interface PageData {
   tagline?: string;
   heroImage?: { asset?: { url?: string }; alt?: string };
   pricing?: { startingPrice?: number; priceNote?: string; showContactForPricing?: boolean };
-  keyFeatures?: Array<{ _key: string; title: string; description: string; icon?: string }>;
   seo?: { metaTitle?: string; metaDescription?: string; ogImage?: { asset?: { url?: string } } };
+  promoBanner?: { enabled?: boolean; message?: string; endsAt?: string };
   blocks?: SanitySection[];
 }
-
-// Set to an ISO date string to activate, or leave undefined to hide
-const PROMO_ENDS_AT: string | undefined = undefined;
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await sanityFetch<PageData | null>({
@@ -80,13 +69,12 @@ export default async function BusinessMobilePage() {
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Promo urgency bar */}
       <BizMobilePromoBanner
-        promoEndsAt={PROMO_ENDS_AT}
-        message="Limited-time pricing active — lock in your rate today."
+        enabled={page?.promoBanner?.enabled}
+        promoEndsAt={page?.promoBanner?.endsAt}
+        message={page?.promoBanner?.message ?? 'Limited-time pricing active — lock in your rate today.'}
       />
 
-      {/* Hero — from Sanity if available, otherwise static */}
       {heroImageUrl ? (
         <section className="relative min-h-[520px] flex items-end pb-16 md:items-center md:pb-0">
           <div className="absolute inset-0 z-0">
@@ -139,47 +127,11 @@ export default async function BusinessMobilePage() {
         </section>
       ) : null}
 
-      {/* Bundle cards */}
       <div id="bundles">
-        <BizMobileBundleGrid />
+        {page?.blocks && page.blocks.length > 0 && (
+          <BlockRenderer sections={page.blocks} />
+        )}
       </div>
-
-      {/* Trust strip */}
-      <BizMobileTrustStrip />
-
-      {/* Sanity content blocks (featureGrid, FAQ, etc.) */}
-      {page?.blocks && page.blocks.length > 0 && (
-        <BlockRenderer sections={page.blocks} />
-      )}
-
-      {/* Key features from Sanity (if not covered by blocks) */}
-      {page?.keyFeatures && page.keyFeatures.length > 0 && (!page.blocks || page.blocks.length === 0) && (
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">Why CircleTel Mobile?</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {page.keyFeatures.map((f) => (
-                <div key={f._key} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                  <h3 className="text-lg font-semibold mb-2">{f.title}</h3>
-                  <p className="text-gray-600 text-sm">{f.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Comparison table */}
-      <BizMobileComparisonTable />
-
-      {/* Lead capture form */}
-      <BizMobileQuoteForm />
-
-      {/* Testimonials */}
-      <BizMobileTestimonials />
-
-      {/* Final CTA */}
-      <BizMobileCTABanner />
     </main>
   );
 }
