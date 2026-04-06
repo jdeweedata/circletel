@@ -51,9 +51,11 @@ const nextConfig = {
       'motion',
       '@tanstack/react-query',
     ],
-    // VPS (24GB/8 cores): enable worker threads + 4 cores for parallel compilation
     // Vercel Enhanced (16GB): keep 1 core to stay within memory budget
-    workerThreads: !isVercel,
+    // VPS (24GB/8 cores): 4 cores for parallel compilation via child processes
+    // workerThreads disabled — causes DataCloneError when custom webpack function
+    // (and next-pwa) are present, because functions can't be structuredClone'd
+    workerThreads: false,
     cpus: isVercel ? 1 : 4,
   },
   webpack: (config, { isServer }) => {
