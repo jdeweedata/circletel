@@ -44,7 +44,7 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
 
 # --mount=type=cache for .next/cache persists the Next.js webpack/SWC compile cache
 # across builds — unchanged pages are skipped, cutting build time by 60-80%.
-# cpus:1 in next.config.js limits webpack to 1 worker (~1GB).
+# cpus:4 + workerThreads:true in next.config.js enables parallel webpack workers on VPS (24GB/8 cores).
 RUN --mount=type=cache,target=/app/.next/cache \
     npm run build
 

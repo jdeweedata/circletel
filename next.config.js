@@ -51,10 +51,10 @@ const nextConfig = {
       'motion',
       '@tanstack/react-query',
     ],
-    // Reduce memory usage during builds by disabling worker threads
-    workerThreads: false,
-    // Use 1 core with 12GB heap (Enhanced Build Machine: 16GB total, leaves ~3GB for worker + OS)
-    cpus: 1,
+    // VPS (24GB/8 cores): enable worker threads + 4 cores for parallel compilation
+    // Vercel Enhanced (16GB): keep 1 core to stay within memory budget
+    workerThreads: !isVercel,
+    cpus: isVercel ? 1 : 4,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports
