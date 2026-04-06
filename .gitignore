@@ -186,3 +186,4 @@ sanity-studio/.sanity/
 sanity-studio/dist/
 sanity-studio/node_modules/
 sanity-studio/package-lock.json
+.superpowers/
