@@ -15,6 +15,8 @@ import faqBlock from './blocks/faqBlock';
 import comparisonBlock from './blocks/comparisonBlock';
 import testimonialBlock from './blocks/testimonialBlock';
 import productShowcaseBlock from './blocks/productShowcaseBlock';
+import trustStripBlock from './blocks/trustStripBlock';
+import whatsappQuoteBlock from './blocks/whatsappQuoteBlock';
 
 // Object types (reusable fields)
 import seo from './objects/seo';
@@ -39,6 +41,8 @@ export const schemaTypes = [
   comparisonBlock,
   testimonialBlock,
   productShowcaseBlock,
+  trustStripBlock,
+  whatsappQuoteBlock,
 
   // Objects
   seo,

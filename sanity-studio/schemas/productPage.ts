@@ -109,6 +109,9 @@ export default defineType({
         defineArrayMember({ type: 'faqBlock' }),
         defineArrayMember({ type: 'comparisonBlock' }),
         defineArrayMember({ type: 'testimonialBlock' }),
+        defineArrayMember({ type: 'pricingBlock' }),
+        defineArrayMember({ type: 'trustStripBlock' }),
+        defineArrayMember({ type: 'whatsappQuoteBlock' }),
       ],
     }),
     defineField({
