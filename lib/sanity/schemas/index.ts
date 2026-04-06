@@ -33,6 +33,12 @@ import formBlock from './blocks/formBlock'
 import separatorBlock from './blocks/separatorBlock'
 import galleryBlock from './blocks/galleryBlock'
 
+// Business-mobile block types
+import bundleGridBlock from './blocks/bundleGridBlock'
+import trustStripBlock from './blocks/trustStripBlock'
+import dualListBlock from './blocks/dualListBlock'
+import whatsappQuoteBlock from './blocks/whatsappQuoteBlock'
+
 // Object types
 import seo from './objects/seo'
 import cta from './objects/cta'
@@ -68,6 +74,10 @@ export const schemaTypes = [
   formBlock,
   separatorBlock,
   galleryBlock,
+  bundleGridBlock,
+  trustStripBlock,
+  dualListBlock,
+  whatsappQuoteBlock,
 
   // Objects
   seo,

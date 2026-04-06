@@ -101,6 +101,22 @@ export default defineType({
       type: 'seo',
     }),
     defineField({
+      name: 'promoBanner',
+      title: 'Promo Banner',
+      type: 'object',
+      description: 'Urgency bar shown at the top of the page. Hidden automatically after endsAt.',
+      fields: [
+        {
+          name: 'enabled',
+          type: 'boolean',
+          title: 'Show Banner',
+          initialValue: false,
+        },
+        { name: 'message', type: 'string', title: 'Banner Message' },
+        { name: 'endsAt', type: 'datetime', title: 'Promo End Date/Time' },
+      ],
+    }),
+    defineField({
       name: 'blocks',
       title: 'Additional Sections',
       type: 'array',
@@ -118,6 +134,10 @@ export default defineType({
         defineArrayMember({ type: 'formBlock' }),
         defineArrayMember({ type: 'separatorBlock' }),
         defineArrayMember({ type: 'galleryBlock' }),
+        defineArrayMember({ type: 'bundleGridBlock' }),
+        defineArrayMember({ type: 'trustStripBlock' }),
+        defineArrayMember({ type: 'dualListBlock' }),
+        defineArrayMember({ type: 'whatsappQuoteBlock' }),
       ],
     }),
     defineField({
