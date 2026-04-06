@@ -18,6 +18,10 @@ import { CtaBlock } from './CtaBlock'
 import { FormBlock } from './FormBlock'
 import { SeparatorBlock } from './SeparatorBlock'
 import { GalleryBlock } from './GalleryBlock'
+import { BundleGridBlock } from './BundleGridBlock'
+import { TrustStripBlock } from './TrustStripBlock'
+import { DualListBlock } from './DualListBlock'
+import { WhatsAppQuoteBlock } from './WhatsAppQuoteBlock'
 
 // Re-export all blocks
 export { HeroBlock } from './HeroBlock'
@@ -33,6 +37,10 @@ export { CtaBlock } from './CtaBlock'
 export { FormBlock } from './FormBlock'
 export { SeparatorBlock } from './SeparatorBlock'
 export { GalleryBlock } from './GalleryBlock'
+export { BundleGridBlock } from './BundleGridBlock'
+export { TrustStripBlock } from './TrustStripBlock'
+export { DualListBlock } from './DualListBlock'
+export { WhatsAppQuoteBlock } from './WhatsAppQuoteBlock'
 
 // Block registry for BlockRenderer
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,4 +61,8 @@ export const blockRegistry: Record<BlockType, ComponentType<any>> = {
   formBlock: FormBlock,
   separatorBlock: SeparatorBlock,
   galleryBlock: GalleryBlock,
+  bundleGridBlock: BundleGridBlock,
+  trustStripBlock: TrustStripBlock,
+  dualListBlock: DualListBlock,
+  whatsappQuoteBlock: WhatsAppQuoteBlock,
 }
