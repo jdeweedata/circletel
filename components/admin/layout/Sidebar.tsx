@@ -443,7 +443,9 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
             ? 'translate-x-0 w-64'
             : '-translate-x-full lg:translate-x-0 lg:w-16',
           // On desktop (lg+), sidebar is part of the layout
-          'lg:flex lg:flex-shrink-0'
+          'lg:flex lg:flex-shrink-0',
+          // Always hidden when printing
+          'print:hidden'
         )}
         data-testid="sidebar"
       >

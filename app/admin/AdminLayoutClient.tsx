@@ -144,7 +144,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row print:block">
       {/* Sidebar - Hidden on mobile when closed, overlay when open */}
       <Sidebar
         isOpen={sidebarOpen}
