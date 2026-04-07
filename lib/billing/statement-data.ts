@@ -92,7 +92,6 @@ interface CustomerRow {
   email: string | null;
   phone: string | null;
   account_number: string | null;
-  billing_address: Record<string, string | undefined> | null | unknown;
 }
 
 interface InvoiceRow {
@@ -141,33 +140,16 @@ export async function assembleStatementData(
   // 2. Fetch customer
   const { data: rawCustomer, error: customerError } = await supabase
     .from('customers')
-    .select('id, first_name, last_name, email, phone, account_number, billing_address')
+    .select('id, first_name, last_name, email, phone, account_number')
     .eq('id', customerId)
     .single();
 
   if (customerError || !rawCustomer) {
+    console.error(`[statement-data] Customer lookup failed for ${customerId}:`, customerError?.message ?? 'no data returned');
     throw new Error(`Customer ${customerId} not found`);
   }
 
   const customer = rawCustomer as CustomerRow;
-
-  // Build billing address safely from JSONB
-  let address: StatementCustomer['address'];
-  if (
-    customer.billing_address !== null &&
-    customer.billing_address !== undefined &&
-    typeof customer.billing_address === 'object' &&
-    !Array.isArray(customer.billing_address)
-  ) {
-    const ba = customer.billing_address as Record<string, unknown>;
-    address = {
-      line1: typeof ba.line1 === 'string' ? ba.line1 : undefined,
-      line2: typeof ba.line2 === 'string' ? ba.line2 : undefined,
-      city: typeof ba.city === 'string' ? ba.city : undefined,
-      province: typeof ba.province === 'string' ? ba.province : undefined,
-      postalCode: typeof ba.postalCode === 'string' ? ba.postalCode : undefined,
-    };
-  }
 
   const customerData: StatementCustomer = {
     name: `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim(),
@@ -175,7 +157,7 @@ export async function assembleStatementData(
       customer.account_number ?? `CT-${customer.id.slice(0, 8)}`,
     email: customer.email ?? undefined,
     phone: customer.phone ?? undefined,
-    address,
+    address: undefined,
   };
 
   // 3. Fetch invoices
