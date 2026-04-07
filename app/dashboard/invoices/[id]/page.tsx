@@ -20,6 +20,7 @@ export default async function DashboardInvoicePage({ params }: Props) {
     <InvoicePreview
       invoiceId={id}
       apiEndpoint="/api/dashboard/invoices"
+      pdfEndpoint="/api/dashboard/invoices"
     />
   );
 }
