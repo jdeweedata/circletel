@@ -243,15 +243,41 @@ npm run type-check:memory
 
 ---
 
+## Code Review Graph (MCP)
+
+**Knowledge graph** of the codebase for token-efficient AI code reviews and blast-radius analysis.
+
+```bash
+code-review-graph build          # Full rebuild (after major changes)
+code-review-graph update         # Incremental update (daily use)
+code-review-graph status         # Show graph stats
+```
+
+- **MCP Config**: `.mcp.json` — auto-discovered by Claude Code
+- **Database**: `.code-review-graph/graph.db` (SQLite, gitignored)
+- **Coverage**: 2,557 files, 14,417 nodes, 120,442 edges
+- **Languages**: TypeScript, TSX, JavaScript, Python
+
+**Available MCP tools** (22 tools exposed to Claude Code):
+- `get_symbols` — Functions, classes, imports in a file
+- `get_blast_radius` — Impact analysis for changed files
+- `search_symbols` — Semantic search across codebase
+- `get_dependencies` — Upstream/downstream dependencies
+
+See `docs/tools/CODE_REVIEW_GRAPH.md` for full setup and usage.
+
+---
+
 ## Additional Resources
 
 | Resource | Location |
 |----------|----------|
 | MCP Code Execution Tools | `.claude/tools/README.md` |
+| Code Review Graph | `docs/tools/CODE_REVIEW_GRAPH.md` |
 | Business OS (hooks, commands, skills) | `.claude/README.md` |
 | Changelog | `docs/CHANGELOG.md` |
 | System Architecture | `docs/architecture/SYSTEM_OVERVIEW.md` |
 
 ---
 
-**Version**: 8.1 | **Updated**: 2026-04-06 | **Lines**: ~185
+**Version**: 8.2 | **Updated**: 2026-04-07 | **Lines**: ~205
