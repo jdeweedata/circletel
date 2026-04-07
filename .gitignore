@@ -63,6 +63,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Code Review Graph (knowledge graph database)
+.code-review-graph/
+
 # Temporary files
 *.tmp
 *.temp
