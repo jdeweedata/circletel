@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiFileTextBold, PiPackageBold, PiPaperPlaneRightBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiEyeBold, PiFileTextBold, PiPackageBold, PiPaperPlaneRightBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -393,6 +393,14 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
                       </p>
                       {getStatusBadge(invoice.status)}
                     </div>
+                    <Link
+                      href={`/admin/customers/${customerId}/invoices/${invoice.id}`}
+                      target="_blank"
+                      className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors"
+                      title="View Invoice"
+                    >
+                      <PiEyeBold className="h-4 w-4 text-gray-500" />
+                    </Link>
                     {invoice.status !== 'paid' && (
                       <Button
                         size="sm"

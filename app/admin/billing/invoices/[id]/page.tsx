@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiBuildingBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiLightningBold, PiPlusCircleBold, PiSpinnerBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiBuildingBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiLightningBold, PiPlusCircleBold, PiSpinnerBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -261,6 +261,12 @@ export default function InvoiceDetailPage() {
               Record Payment
             </Button>
           )}
+          <Button variant="outline" asChild>
+            <Link href={`/admin/billing/invoices/${params.id}/preview`} target="_blank">
+              <PiEyeBold className="h-4 w-4 mr-2" />
+              Preview Invoice
+            </Link>
+          </Button>
           <Button variant="outline">
             <PiEnvelopeBold className="h-4 w-4 mr-2" />
             Send Reminder
