@@ -351,11 +351,19 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
             <PiFileTextBold className="h-5 w-5 text-blue-500" />
             Invoice History
           </CardTitle>
-          <Link href={`/admin/billing/invoices?customer=${customerId}`}>
-            <Button variant="ghost" size="sm">
-              View All <PiArrowSquareOutBold className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href={`/admin/customers/${customerId}/statement`} target="_blank">
+              <Button variant="outline" size="sm" className="text-circleTel-orange border-circleTel-orange hover:bg-orange-50">
+                <PiFileTextBold className="h-4 w-4 mr-1" />
+                View Statement
+              </Button>
+            </Link>
+            <Link href={`/admin/billing/invoices?customer=${customerId}`}>
+              <Button variant="ghost" size="sm">
+                View All <PiArrowSquareOutBold className="h-4 w-4 ml-1" />
+              </Button>
+            </Link>
+          </div>
         </CardHeader>
         <CardContent>
           {invoices.length === 0 ? (
