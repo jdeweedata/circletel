@@ -105,7 +105,7 @@ interface InvoiceRow {
   status: string | null;
   period_start: string | null;
   period_end: string | null;
-  payment_reference: string | null;
+  paynow_transaction_ref: string | null;
 }
 
 // --------------------------------------------------------------------------
@@ -164,7 +164,7 @@ export async function assembleStatementData(
   let query = supabase
     .from('customer_invoices')
     .select(
-      'id, invoice_number, invoice_date, due_date, total_amount, amount_paid, amount_due, status, period_start, period_end, payment_reference'
+      'id, invoice_number, invoice_date, due_date, total_amount, amount_paid, amount_due, status, period_start, period_end, paynow_transaction_ref'
     )
     .eq('customer_id', customerId)
     .order('invoice_date', { ascending: true });
@@ -203,7 +203,7 @@ export async function assembleStatementData(
     ) {
       transactions.push({
         date: inv.due_date,
-        reference: `PMT-${inv.invoice_number ?? inv.id}`,
+        reference: inv.paynow_transaction_ref ?? `PMT-${inv.invoice_number ?? inv.id}`,
         description: 'Payment received - thank you',
         credit: amountPaid,
       });
