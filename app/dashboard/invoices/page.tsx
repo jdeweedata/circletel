@@ -80,8 +80,19 @@ export default async function InvoicesPage() {
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">My Invoices</h1>
-        <p className="text-muted-foreground">View and manage your invoices</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">My Invoices</h1>
+            <p className="text-muted-foreground">View and manage your invoices</p>
+          </div>
+          <Link
+            href="/dashboard/statement"
+            className="inline-flex items-center gap-2 text-sm text-circleTel-orange hover:underline font-medium"
+          >
+            <PiFileTextBold className="h-4 w-4" />
+            View Account Statement
+          </Link>
+        </div>
       </div>
 
       {invoices && invoices.length > 0 ? (
