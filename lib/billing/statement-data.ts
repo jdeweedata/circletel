@@ -214,13 +214,14 @@ export async function assembleStatementData(
   const aging = computeAgingBuckets(invoices, today);
 
   // 6. Compute totals
-  const unpaidStatuses = new Set(['unpaid', 'partial', 'overdue']);
+  // Exclude only terminal statuses — any non-zero amount_due on a non-paid invoice counts
+  const paidStatuses = new Set(['paid', 'cancelled', 'refunded', 'voided']);
 
   let totalDue = 0;
   let totalPaid = 0;
 
   for (const inv of invoices) {
-    if (unpaidStatuses.has(inv.status ?? '')) {
+    if (!paidStatuses.has(inv.status ?? '')) {
       totalDue += parseFloat(String(inv.amount_due ?? '0'));
     }
     totalPaid += parseFloat(String(inv.amount_paid ?? '0'));
