@@ -73,6 +73,10 @@ export default function StatementPreview({
       @media print {
         @page { size: A4; margin: 15mm; }
         body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        /* Hide admin layout chrome */
+        header { display: none !important; }
+        [data-testid="sidebar"] { display: none !important; }
+        /* Page-break rules */
         .statement-header, .customer-section, .transactions-section, .aging-section, .banking-section {
           page-break-inside: avoid;
           break-inside: avoid;

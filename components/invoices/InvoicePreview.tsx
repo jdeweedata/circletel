@@ -61,7 +61,12 @@ export default function InvoicePreview({ invoiceId, apiEndpoint }: InvoicePrevie
       @media print {
         @page { size: A4; margin: 15mm; }
         body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        /* Hide admin layout chrome */
+        header { display: none !important; }
+        [data-testid="sidebar"] { display: none !important; }
+        /* Hide action bar */
         .no-print { display: none !important; }
+        /* Page-break rules */
         .invoice-section { page-break-inside: avoid; break-inside: avoid; }
         table { page-break-inside: auto; }
         tr { page-break-inside: avoid; }
