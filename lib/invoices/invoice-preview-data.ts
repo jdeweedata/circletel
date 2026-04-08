@@ -65,7 +65,7 @@ export async function assembleInvoicePreviewData(
     throw new Error(`Customer for invoice ${invoiceId} not found`);
   }
 
-  // 4. Build InvoiceData using existing helper
+  // 4. Build InvoiceData using existing helper (pass empty line_items — we recalculate below)
   const invoiceData = buildInvoiceData({
     invoice: {
       id: rawInvoice.id,
@@ -77,7 +77,7 @@ export async function assembleInvoicePreviewData(
       subtotal: parseFloat(String(rawInvoice.subtotal ?? 0)),
       tax_amount: parseFloat(String(rawInvoice.tax_amount ?? 0)),
       total_amount: parseFloat(String(rawInvoice.total_amount ?? 0)),
-      line_items: Array.isArray(rawInvoice.line_items) ? rawInvoice.line_items : [],
+      line_items: [], // recalculated below with correct excl-VAT logic
       notes: rawInvoice.notes ?? undefined,
       status: rawInvoice.status ?? undefined,
     },
@@ -88,6 +88,28 @@ export async function assembleInvoicePreviewData(
       phone: rawCustomer.phone ?? undefined,
       account_number: rawCustomer.account_number ?? undefined,
     },
+  });
+
+  // 4b. Recalculate line items treating stored unit_price as EXCL VAT.
+  //     buildInvoiceData assumes unit_price is VAT-inclusive and reverse-divides,
+  //     but CircleTel invoices store excl-VAT prices — causing double-division.
+  const VAT_RATE = 0.15;
+  const rawItems = Array.isArray(rawInvoice.line_items) ? rawInvoice.line_items : [];
+  invoiceData.lineItems = rawItems.map((item: Record<string, unknown>) => {
+    const exclUnitPrice = parseFloat(String(item.unit_price ?? item.amount ?? 0));
+    const quantity = Number(item.quantity ?? 1);
+    const discountPercent = Number(item.discount_percent ?? 0);
+    const exclTotal = Math.round(exclUnitPrice * quantity * (1 - discountPercent / 100) * 100) / 100;
+    const inclTotal = Math.round(exclTotal * (1 + VAT_RATE) * 100) / 100;
+    return {
+      description: String(item.description ?? 'Service'),
+      quantity,
+      unit_price: exclUnitPrice,
+      discount_percent: discountPercent,
+      vat_percent: 15,
+      excl_total: exclTotal,
+      incl_total: inclTotal,
+    };
   });
 
   // 5. Extend with payment fields

@@ -16,8 +16,6 @@ import type { InvoicePreviewData } from '@/lib/invoices/invoice-preview-data';
 interface InvoicePreviewProps {
   invoiceId: string;
   apiEndpoint: string;
-  /** Direct download URL base. Button hits `${pdfEndpoint}/${invoiceId}/pdf?download=true`. If omitted, falls back to window.print(). */
-  pdfEndpoint?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -50,7 +48,7 @@ function getStatusStyle(status: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function InvoicePreview({ invoiceId, apiEndpoint, pdfEndpoint }: InvoicePreviewProps) {
+export default function InvoicePreview({ invoiceId, apiEndpoint }: InvoicePreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [invoice, setInvoice] = useState<InvoicePreviewData | null>(null);
@@ -140,24 +138,13 @@ export default function InvoicePreview({ invoiceId, apiEndpoint, pdfEndpoint }: 
           <PiPrinterBold className="h-4 w-4" />
           Print
         </button>
-        {pdfEndpoint ? (
-          <a
-            href={`${pdfEndpoint}/${invoiceId}/pdf?download=true`}
-            download
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F5831F] rounded-lg hover:bg-[#e07010] transition-colors"
-          >
-            <PiDownloadSimpleBold className="h-4 w-4" />
-            Download PDF
-          </a>
-        ) : (
-          <button
-            onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F5831F] rounded-lg hover:bg-[#e07010] transition-colors"
-          >
-            <PiDownloadSimpleBold className="h-4 w-4" />
-            Download PDF
-          </button>
-        )}
+        <button
+          onClick={() => window.print()}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F5831F] rounded-lg hover:bg-[#e07010] transition-colors"
+        >
+          <PiDownloadSimpleBold className="h-4 w-4" />
+          Download PDF
+        </button>
       </div>
 
       {/* ── INVOICE DOCUMENT ── */}

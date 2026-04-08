@@ -10,7 +10,6 @@ export default async function AdminCustomerInvoicePage({ params }: Props) {
     <InvoicePreview
       invoiceId={invoiceId}
       apiEndpoint="/api/admin/billing/invoices"
-      pdfEndpoint="/api/admin/invoices"
     />
   );
 }
