@@ -291,8 +291,7 @@ export function generateStatementPDF(statement: StatementData): jsPDF {
       })
     : [['', '', 'No transactions found for the selected period.', '', '', '']];
 
-  // Store running balance per row for didDrawCell color-coding
-  let balanceRowIdx = 0;
+  // Store running balance per row for didParseCell color-coding
   const balanceValues: number[] = [];
   let tmpBalance = 0;
   for (const tx of statement.transactions) {
@@ -328,37 +327,19 @@ export function generateStatementPDF(statement: StatementData): jsPDF {
     },
     margin: { left: margin, right: margin },
     didDrawPage: () => { drawFooter(); },
-    didDrawCell: (data) => {
+    didParseCell: (data) => {
       // Color-code Credit column (col 4) green and Balance column (col 5) red/green
       if (data.section === 'body' && statement.transactions.length > 0) {
         const rowIdx = data.row.index;
         if (data.column.index === 4 && statement.transactions[rowIdx]?.credit) {
-          doc.setTextColor(COLORS.green);
-          const cell = data.cell;
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'normal');
-          doc.text(
-            formatCurrency(parseFloat(String(statement.transactions[rowIdx].credit))),
-            cell.x + cell.width - 1,
-            cell.y + cell.height / 2 + 2.5,
-            { align: 'right' }
-          );
+          data.cell.styles.textColor = COLORS.green;
         }
         if (data.column.index === 5) {
           const bal = balanceValues[rowIdx] ?? 0;
-          doc.setTextColor(bal > 0 ? '#DC2626' : COLORS.green);
-          const cell = data.cell;
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'bold');
-          doc.text(
-            formatCurrency(bal),
-            cell.x + cell.width - 1,
-            cell.y + cell.height / 2 + 2.5,
-            { align: 'right' }
-          );
+          data.cell.styles.textColor = bal > 0 ? '#DC2626' : COLORS.green;
+          data.cell.styles.fontStyle = 'bold';
         }
       }
-      balanceRowIdx++;
     },
   });
 
@@ -421,22 +402,12 @@ export function generateStatementPDF(statement: StatementData): jsPDF {
     },
     margin: { left: margin, right: margin },
     didDrawPage: () => { drawFooter(); },
-    didDrawCell: (data) => {
+    didParseCell: (data) => {
       if (data.section === 'body') {
         const colIdx = data.column.index;
-        const color = agingCellColors[colIdx] ?? COLORS.dark;
         const value = agingValues[colIdx] ?? 0;
-        const isBold = colIdx === 5 || colIdx === 6 || (value > 0 && colIdx < 4);
-        doc.setTextColor(color);
-        doc.setFont('helvetica', isBold ? 'bold' : 'normal');
-        doc.setFontSize(8);
-        const cell = data.cell;
-        doc.text(
-          formatCurrency(value),
-          cell.x + cell.width - 1,
-          cell.y + cell.height / 2 + 2.5,
-          { align: 'right' }
-        );
+        data.cell.styles.textColor = agingCellColors[colIdx] ?? COLORS.dark;
+        data.cell.styles.fontStyle = (colIdx === 5 || colIdx === 6 || (value > 0 && colIdx < 4)) ? 'bold' : 'normal';
       }
     },
   });
