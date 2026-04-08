@@ -22,6 +22,7 @@ interface StatementPreviewProps {
   apiEndpoint: string;
   showEmailButton?: boolean;
   emailEndpoint?: string;
+  pdfEndpoint?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -57,6 +58,7 @@ export default function StatementPreview({
   apiEndpoint,
   showEmailButton = false,
   emailEndpoint,
+  pdfEndpoint,
 }: StatementPreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +67,7 @@ export default function StatementPreview({
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [emailRecipient, setEmailRecipient] = useState('');
   const [emailSending, setEmailSending] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   // Inject print-specific CSS
   useEffect(() => {
@@ -153,6 +156,35 @@ export default function StatementPreview({
     }
   };
 
+  const handleDownloadPDF = async () => {
+    if (!pdfEndpoint || !statement) {
+      window.print();
+      return;
+    }
+    setDownloading(true);
+    try {
+      // Admin has customerId set; dashboard has customerId=""
+      const url = customerId
+        ? `${pdfEndpoint}/${customerId}/pdf?period=${period}`
+        : `${pdfEndpoint}/pdf?period=${period}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to generate PDF');
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = `CircleTel_Statement_${statement.customer.accountNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      window.print();
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -234,11 +266,16 @@ export default function StatementPreview({
 
           {/* Download PDF */}
           <button
-            onClick={() => window.print()}
-            className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2"
+            onClick={handleDownloadPDF}
+            disabled={downloading}
+            className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <PiDownloadSimpleBold className="w-4 h-4" />
-            Download PDF
+            {downloading ? (
+              <PiSpinnerBold className="w-4 h-4 animate-spin" />
+            ) : (
+              <PiDownloadSimpleBold className="w-4 h-4" />
+            )}
+            {downloading ? 'Generating...' : 'Download PDF'}
           </button>
 
           {/* Email (optional) */}

@@ -14,6 +14,7 @@ export default async function DashboardStatementPage() {
     <StatementPreview
       customerId=""
       apiEndpoint="/api/dashboard/statement"
+      pdfEndpoint="/api/dashboard/statement"
       showEmailButton={false}
     />
   );
