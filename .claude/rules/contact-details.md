@@ -1,3 +1,10 @@
+---
+paths:
+  - "lib/constants/contact*"
+  - "components/navigation/**"
+  - "components/footer/**"
+---
+
 Rule: contact-details
 Loaded by: CLAUDE.md
 Scope: Contact information across all pages and components

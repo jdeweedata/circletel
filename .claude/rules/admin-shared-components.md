@@ -1,3 +1,9 @@
+---
+paths:
+  - "components/admin/**"
+  - "app/admin/**"
+---
+
 # Admin Shared Component Prop Interfaces
 
 **Trigger**: Using any component from `components/admin/shared/`

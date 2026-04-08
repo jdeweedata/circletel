@@ -1,3 +1,11 @@
+---
+paths:
+  - "app/api/**"
+  - "lib/supabase/**"
+  - "middleware.ts"
+  - "**/auth*"
+---
+
 Rule: auth-patterns
 Loaded by: CLAUDE.md
 Scope: Three-context auth system, header+cookie checks, RBAC

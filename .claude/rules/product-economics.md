@@ -1,3 +1,11 @@
+---
+paths:
+  - "lib/types/mtn*"
+  - "components/products/**"
+  - "app/api/**/products/**"
+  - "lib/products/**"
+---
+
 Rule: product-economics
 Loaded by: CLAUDE.md
 Scope: Unit economics by channel, wholesale costs, commission tiers, COS floor, LTV/CAC

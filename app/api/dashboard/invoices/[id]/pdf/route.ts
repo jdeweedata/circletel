@@ -112,6 +112,10 @@ export async function GET(
       } : undefined,
     });
 
+    // Populate payment summary from DB fields
+    invoiceData.amountPaid = parseFloat(invoice.amount_paid) || 0;
+    invoiceData.amountDue = parseFloat(invoice.amount_due) || 0;
+
     const pdfBuffer = generateInvoicePDFBuffer(invoiceData);
 
     const disposition = request.nextUrl.searchParams.get('download') === 'true'

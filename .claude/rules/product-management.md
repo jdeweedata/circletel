@@ -1,3 +1,10 @@
+---
+paths:
+  - "components/products/**"
+  - "app/api/**/products/**"
+  - "lib/products/**"
+---
+
 Rule: product-management
 Loaded by: CLAUDE.md
 Scope: Product management skill triggers, wholesale providers, supplier browsing

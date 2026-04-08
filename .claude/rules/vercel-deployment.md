@@ -1,3 +1,10 @@
+---
+paths:
+  - "vercel.json"
+  - ".github/**"
+  - "next.config.*"
+---
+
 # Vercel Deployment Patterns
 
 **Trigger**: Checking deployment status, triggering builds, debugging missing deployments

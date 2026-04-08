@@ -1,3 +1,9 @@
+---
+paths:
+  - "scripts/**"
+  - "lib/integrations/**"
+---
+
 Rule: undocumented-api-debugging
 Loaded by: CLAUDE.md
 Scope: Debugging undocumented or third-party APIs returning 4xx/5xx errors

@@ -16,6 +16,7 @@ import type { InvoicePreviewData } from '@/lib/invoices/invoice-preview-data';
 interface InvoicePreviewProps {
   invoiceId: string;
   apiEndpoint: string;
+  pdfEndpoint?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -48,10 +49,34 @@ function getStatusStyle(status: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function InvoicePreview({ invoiceId, apiEndpoint }: InvoicePreviewProps) {
+export default function InvoicePreview({ invoiceId, apiEndpoint, pdfEndpoint }: InvoicePreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [invoice, setInvoice] = useState<InvoicePreviewData | null>(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    if (!pdfEndpoint) { window.print(); return; }
+    setDownloading(true);
+    try {
+      const res = await fetch(`${pdfEndpoint}/${invoiceId}/pdf?download=true`);
+      if (!res.ok) throw new Error('Failed to generate PDF');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `CircleTel_Invoice_${invoice?.invoiceNumber || invoiceId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Silent fallback to print
+      window.print();
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   // Inject print CSS
   useEffect(() => {
@@ -139,11 +164,16 @@ export default function InvoicePreview({ invoiceId, apiEndpoint }: InvoicePrevie
           Print
         </button>
         <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F5831F] rounded-lg hover:bg-[#e07010] transition-colors"
+          onClick={handleDownloadPDF}
+          disabled={downloading}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#F5831F] rounded-lg hover:bg-[#e07010] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <PiDownloadSimpleBold className="h-4 w-4" />
-          Download PDF
+          {downloading ? (
+            <PiSpinnerBold className="h-4 w-4 animate-spin" />
+          ) : (
+            <PiDownloadSimpleBold className="h-4 w-4" />
+          )}
+          {downloading ? 'Generating...' : 'Download PDF'}
         </button>
       </div>
 

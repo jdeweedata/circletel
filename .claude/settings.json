@@ -3,6 +3,17 @@
     "supabase@claude-plugins-official": true
   },
   "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/circletel/.claude/hooks/filter-test-output.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
@@ -10,6 +21,15 @@
           {
             "type": "command",
             "command": "pwsh -NonInteractive -File /home/circletel/.claude/hooks/session-end-check.ps1 -ProjectPath /home/circletel"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\": \"Session ended. Run /compact before the next task if context is large, or /clear when switching topics.\"}'"
           }
         ]
       }

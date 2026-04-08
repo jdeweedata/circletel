@@ -1,3 +1,12 @@
+---
+paths:
+  - "lib/pricing/**"
+  - "components/checkout/**"
+  - "app/api/**/pricing/**"
+  - "app/api/**/billing/**"
+  - "components/admin/billing/**"
+---
+
 Rule: margin-guardrails
 Loaded by: CLAUDE.md
 Scope: Minimum margins, discount approval, pricing rules, MSC-aware pricing, bundle economics

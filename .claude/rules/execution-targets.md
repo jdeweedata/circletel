@@ -1,3 +1,9 @@
+---
+paths:
+  - "app/admin/dashboard/**"
+  - "lib/milestones/**"
+---
+
 Rule: execution-targets
 Loaded by: CLAUDE.md
 Scope: 12-month bootstrap milestones, MSC schedule, channel targets, capital budget, hiring triggers
