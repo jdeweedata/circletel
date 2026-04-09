@@ -320,10 +320,10 @@ export function generateStatementPDF(statement: StatementData): jsPDF {
     columnStyles: {
       0: { cellWidth: 22 },                            // Date
       1: { cellWidth: 32 },                            // Reference
-      2: { cellWidth: 60 },                            // Description
+      2: { cellWidth: 52 },                            // Description (reduced to give Balance room)
       3: { cellWidth: 26, halign: 'right' },           // Debit
       4: { cellWidth: 26, halign: 'right' },           // Credit
-      5: { cellWidth: 14, halign: 'right' },           // Balance
+      5: { cellWidth: 22, halign: 'right' },           // Balance (widened: fits "R1 998,00" + "BALANCE (R)" header)
     },
     margin: { left: margin, right: margin },
     didDrawPage: () => { drawFooter(); },
@@ -382,7 +382,7 @@ export function generateStatementPDF(statement: StatementData): jsPDF {
 
   autoTable(doc, {
     startY: yPos,
-    head: [['120+ DAYS', '90 DAYS', '60 DAYS', '30 DAYS', 'CURRENT', 'AMOUNT DUE', 'AMOUNT PAID']],
+    head: [['120+ DAYS', '90 DAYS', '60 DAYS', '30 DAYS', 'CURRENT', 'AMOUNT DUE', 'TOTAL PAID']],
     body: [agingData],
     theme: 'plain',
     styles: {
