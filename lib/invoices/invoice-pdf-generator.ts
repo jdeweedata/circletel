@@ -14,27 +14,29 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { circleTelLogoBase64 } from '@/lib/quotes/circletel-logo-base64';
+import { CONTACT } from '@/lib/constants/contact';
 
 // CircleTel Company Details (SARS requirement: supplier info)
+// Address sourced from lib/constants/contact.ts — update there to propagate everywhere.
 export const COMPANY_DETAILS = {
-  name: 'Circle Tel SA (Pty) Ltd',
+  name: CONTACT.PHYSICAL_ADDRESS.name,
   vatNumber: '4380269318',
   registrationNumber: '2008/026404/07',
   address: {
-    line1: 'Imagine House, 2 Mellis Road',
-    line2: 'Rivonia',
-    province: 'Gauteng',
-    postalCode: '2128',
-    country: 'South Africa'
+    line1: `${CONTACT.PHYSICAL_ADDRESS.building}, ${CONTACT.PHYSICAL_ADDRESS.street}`,
+    line2: CONTACT.PHYSICAL_ADDRESS.suburb,
+    province: CONTACT.PHYSICAL_ADDRESS.province,
+    postalCode: CONTACT.PHYSICAL_ADDRESS.postalCode,
+    country: CONTACT.PHYSICAL_ADDRESS.country,
   },
   contact: {
-    email: 'support@circletel.co.za',
+    email: CONTACT.EMAIL_SUPPORT,
     phone: '+27 10 500 0000',
-    website: 'www.circletel.co.za'
+    website: CONTACT.WEBSITE_SHORT,
   },
   banking: {
     bankName: 'Standard Bank',
-    accountName: 'Circle Tel SA (Pty) Ltd',
+    accountName: CONTACT.PHYSICAL_ADDRESS.name,
     accountNumber: '202413993',
     accountType: 'Current',
     branchCode: '051001',

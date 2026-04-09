@@ -27,13 +27,14 @@ export const CONTACT = {
   BUSINESS_HOURS: 'Monday - Friday: 08:00 - 17:00 SAST',
   SUPPORT_HOURS: 'Mon-Fri, 8am-5pm', // NOT 24/7 - WhatsApp + AI assistance during business hours
 
-  // Physical address
+  // Physical address (CIPC registered — M2008026404)
   PHYSICAL_ADDRESS: {
-    name: 'CircleTel (Pty) Ltd',
+    name: 'Circle Tel SA (Pty) Ltd',
     attention: 'Contracts and Commercial Manager',
-    street: '8a Mellis Rd',
+    building: 'Imagine House',
+    street: '2 Mellis Road',
     suburb: 'Rivonia',
-    city: 'Sandton',
+    city: 'Rivonia',
     province: 'Gauteng',
     postalCode: '2128',
     country: 'South Africa',
@@ -68,8 +69,8 @@ export function formatPhoneInternational(phone: string): string {
  * Format address as a single line
  */
 export function formatAddressOneLine(): string {
-  const { street, suburb, city, province, postalCode } = CONTACT.PHYSICAL_ADDRESS
-  return `${street}, ${suburb}, ${city}, ${province}, ${postalCode}`
+  const { building, street, suburb, province, postalCode } = CONTACT.PHYSICAL_ADDRESS
+  return `${building}, ${street}, ${suburb}, ${province}, ${postalCode}`
 }
 
 /**
