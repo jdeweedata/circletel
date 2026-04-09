@@ -137,9 +137,9 @@ export default async function RootLayout({
         <meta name="msapplication-TileColor" content="#F5831F" />
         <meta name="msapplication-tap-highlight" content="no" />
 
-        {/* Zoho PageSense — raw script tag so id="pagesenseCode" is preserved in HTML */}
-        {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
-        <script id="pagesenseCode" dangerouslySetInnerHTML={{ __html: `!function(){var e="1.0",t=document,a=window,n="zps-page-screen",r=t.head||t.getElementsByTagName("head")[0],i=t.getElementById("pagesenseCode");if(!t.getElementById(n)){var o=t.createElement("style");o.type="text/css",o.id=n;var s="body { background: transparent !important; opacity: 0 !important; visibility: hidden !important; } html { opacity: 0 !important; visibility: hidden !important; }";o.styleSheet?o.styleSheet.cssText=s:o.appendChild(t.createTextNode(s)),r.firstChild?r.insertBefore(o,r.firstChild):r.appendChild(o),a._ps_conf={};var c={addScript:function(e){try{var n=t.createElement("script");if(n.type="text/javascript",n.async=!0,e.src?n.src=e.src:e.text&&(void 0!==n.text?n.text=e.text:n.appendChild(t.createTextNode(e.text))),i&&i.getAttribute){var o=i.getAttribute("nonce");o&&n.setAttribute("nonce",o)}n.onload=n.onreadystatechange=function(){this.readyState&&"loaded"!==this.readyState&&"complete"!==this.readyState||(n.onload=n.onreadystatechange=null,a._ps_conf&&a._ps_conf.pauseRenderForManualActivation?clearTimeout(d):c.revealPage())},n.onerror=function(){c.revealPage()},r.appendChild(n)}catch(e){throw c.revealPage(),e}},revealPage:function(){var e=t.getElementById(n);e&&e.parentNode&&e.parentNode.removeChild(e)}},d=setTimeout((function(){c.revealPage()}),1e4),p=c.revealPage;c.revealPage=function(){clearTimeout(d),p()};try{a._ps_conf&&a._ps_conf.pauseRenderForManualActivation&&(a.pagesense=a.pagesense||[],a.pagesense.push=function(e){e&&"activate"==e[0]&&c&&c.revealPage()}),a._ps_conf?a._ps_conf.version=e:a._ps_conf={version:e},c.addScript({src:"https://cdn.pagesense.io/js/circletelsaptyltd/f0603d911c6347848924dba71b17e8a3.js"})}catch(e){c.revealPage()}}}}();` }} />
+        {/* Zoho PageSense — synchronous load for reliable bot detection */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script src="https://cdn.pagesense.io/js/circletelsaptyltd/f0603d911c6347848924dba71b17e8a3.js" />
       </head>
       <body className="min-h-screen bg-[#F9FAFB] text-gray-900 antialiased font-sans">
         <QueryProvider>
