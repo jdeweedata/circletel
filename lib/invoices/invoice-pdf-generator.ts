@@ -21,8 +21,8 @@ export const COMPANY_DETAILS = {
   vatNumber: '4380269318',
   registrationNumber: '2008/026404/07',
   address: {
-    line1: '8a Mellis Rd, Rivonia',
-    line2: 'Sandton',
+    line1: 'Imagine House, 2 Mellis Road',
+    line2: 'Rivonia',
     province: 'Gauteng',
     postalCode: '2128',
     country: 'South Africa'
