@@ -140,14 +140,12 @@ logs_result*.json
 .claude/skills/vercel-*
 .claude/skills/web-design-guidelines
 
-# External marketing/CRO skills (installed from skills pack)
-.claude/skills/ab-test-setup/
+# External marketing/CRO skills (installed from skills pack — NOT adopted)
 .claude/skills/analytics-tracking/
 .claude/skills/competitor-alternatives/
 .claude/skills/content-strategy/
 .claude/skills/copy-editing/
 .claude/skills/copywriting/
-.claude/skills/email-sequence/
 .claude/skills/form-cro/
 .claude/skills/free-tool-strategy/
 .claude/skills/launch-strategy/
@@ -161,11 +159,15 @@ logs_result*.json
 .claude/skills/pricing-strategy/
 .claude/skills/product-marketing-context/
 .claude/skills/programmatic-seo/
-.claude/skills/referral-program/
 .claude/skills/schema-markup/
-.claude/skills/seo-audit/
 .claude/skills/signup-flow-cro/
 .claude/skills/social-content/
+# Adopted skills (adapted from marketingskills for CircleTel SA market — tracked in git):
+# .claude/skills/ab-test-setup/
+# .claude/skills/churn-prevention/
+# .claude/skills/email-sequence/
+# .claude/skills/referral-program/
+# .claude/skills/seo-audit/
 
 # External shared resources
 shared-ai-skills/
