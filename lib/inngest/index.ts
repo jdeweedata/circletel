@@ -118,6 +118,10 @@ export {
   invoiceNotificationFunction,
 } from './functions/invoice-notification';
 
+export {
+  whatsappCampaignReportFunction,
+} from './functions/whatsapp-campaign-report';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -229,6 +233,10 @@ import {
   invoiceNotificationFunction,
 } from './functions/invoice-notification';
 
+import {
+  whatsappCampaignReportFunction,
+} from './functions/whatsapp-campaign-report';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -298,4 +306,6 @@ export const functions = [
   salesEngineOrchestratorCompleted,
   // Invoice notification (email + SMS on 25th generation)
   invoiceNotificationFunction,
+  // WhatsApp Lead Campaign daily report (08:00 SAST)
+  whatsappCampaignReportFunction,
 ];
