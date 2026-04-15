@@ -38,11 +38,22 @@ async function main() {
 
   console.log(`\n📋 Total unique candidates: ${candidates.length}`);
 
-  // 2. Filter to those NOT already tagged "whatsapp lead"
-  const needsTag = candidates.filter(
-    (t) => !t.tags.some((tag) => tag.toLowerCase() === 'whatsapp lead')
-  );
-  const alreadyTagged = candidates.length - needsTag.length;
+  // 2. Check real tag status (search response doesn't include tag data)
+  console.log(`\n🔍 Checking real tag status for ${candidates.length} ticket(s)...`);
+  const needsTag: typeof candidates = [];
+  let alreadyTagged = 0;
+
+  for (const ticket of candidates) {
+    const tags = await service.fetchTicketTags(ticket.id);
+    const isTagged = tags.some((tag) => tag.toLowerCase() === 'whatsapp lead');
+    if (isTagged) {
+      alreadyTagged++;
+    } else {
+      needsTag.push(ticket);
+    }
+    // Small delay to avoid rate limiting during tag checks
+    await new Promise((r) => setTimeout(r, 100));
+  }
 
   console.log(`   Already tagged: ${alreadyTagged}`);
   console.log(`   Needs tagging:  ${needsTag.length}\n`);
@@ -63,7 +74,7 @@ async function main() {
       continue;
     }
 
-    const ok = await service.addCampaignTag(ticket.id, ticket.tags);
+    const ok = await service.addCampaignTag(ticket.id);
     if (ok) {
       console.log(`✅ Tagged: #${ticket.ticketNumber} — ${ticket.subject.slice(0, 60)}`);
       tagged++;

@@ -155,13 +155,21 @@ export class ZohoAuthService extends ZohoAPIClient {
         scope: 'ZohoCRM.modules.ALL',
       };
 
-      // Upsert (insert or update) - table has unique constraint
-      const { error } = await supabase
+      // Singleton row: SELECT first, then UPDATE or INSERT
+      const { data: existing } = await supabase
         .from('zoho_tokens')
-        .upsert(tokenData, {
-          onConflict: 'id', // Use singleton pattern
-          ignoreDuplicates: false,
-        });
+        .select('id')
+        .maybeSingle();
+
+      let error;
+      if (existing?.id) {
+        ({ error } = await supabase
+          .from('zoho_tokens')
+          .update(tokenData)
+          .eq('id', existing.id));
+      } else {
+        ({ error } = await supabase.from('zoho_tokens').insert(tokenData));
+      }
 
       if (error) {
         // Treat token storage failures as non-blocking so that
@@ -236,6 +244,28 @@ export function createZohoAuthService(): ZohoAuthService {
 
   if (!clientId || !clientSecret || !refreshToken) {
     throw new Error('ZOHO credentials not configured. Please set ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, and ZOHO_REFRESH_TOKEN environment variables.');
+  }
+
+  return new ZohoAuthService({
+    clientId,
+    clientSecret,
+    refreshToken,
+    region: (process.env.ZOHO_REGION as 'US' | 'EU' | 'IN' | 'AU' | 'CN') || 'US',
+    orgId: process.env.ZOHO_ORG_ID,
+  });
+}
+
+/**
+ * Create ZohoAuthService using Desk-scoped refresh token.
+ * Falls back to ZOHO_REFRESH_TOKEN if ZOHO_DESK_REFRESH_TOKEN is not set.
+ */
+export function createZohoDeskAuthService(): ZohoAuthService {
+  const clientId = process.env.ZOHO_CLIENT_ID;
+  const clientSecret = process.env.ZOHO_CLIENT_SECRET;
+  const refreshToken = process.env.ZOHO_DESK_REFRESH_TOKEN || process.env.ZOHO_REFRESH_TOKEN;
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error('Zoho Desk credentials not configured. Please set ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, and ZOHO_DESK_REFRESH_TOKEN environment variables.');
   }
 
   return new ZohoAuthService({

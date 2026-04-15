@@ -5,7 +5,7 @@
  * WhatsApp Lead Campaign daily report pipeline.
  */
 
-import { createZohoAuthService } from './auth-service';
+import { createZohoDeskAuthService } from './auth-service';
 import { zohoLogger } from '@/lib/logging';
 
 // =============================================================================
@@ -214,7 +214,7 @@ interface ZohoConversationResponse {
 }
 
 export class CampaignZohoDeskService {
-  private auth = createZohoAuthService();
+  private auth = createZohoDeskAuthService();
   private baseUrl: string;
   private orgId: string;
 
@@ -234,13 +234,15 @@ export class CampaignZohoDeskService {
       const accessToken = await this.auth.getAccessToken();
       const url = `${this.baseUrl}${endpoint}`;
 
+      const headers: Record<string, string> = {
+        'Authorization': `Zoho-oauthtoken ${accessToken}`,
+        'Content-Type': 'application/json',
+      };
+      if (this.orgId) headers['orgId'] = this.orgId;
+
       const response = await fetch(url, {
         method,
-        headers: {
-          'Authorization': `Zoho-oauthtoken ${accessToken}`,
-          'Content-Type': 'application/json',
-          'orgId': this.orgId,
-        },
+        headers,
         body: body ? JSON.stringify(body) : undefined,
       });
 
@@ -259,46 +261,64 @@ export class CampaignZohoDeskService {
     }
   }
 
+  /** Map a raw Zoho ticket object to CampaignTicket. */
+  private mapTicket(t: ZohoTicketListResponse['data'][number]): CampaignTicket {
+    return {
+      id: t.id,
+      ticketNumber: t.ticketNumber,
+      subject: t.subject || '',
+      status: t.status || 'Open',
+      assigneeName: t.assignee?.name ?? null,
+      contactName: t.contact?.name ?? null,
+      contactPhone: t.contact?.phone ?? null,
+      contactEmail: t.contact?.email ?? null,
+      createdTime: t.createdTime,
+      closedTime: t.closedTime ?? null,
+      tags: t.tags ?? [],
+    };
+  }
+
   /**
-   * Fetch ALL tickets tagged "whatsapp lead", paginated.
+   * Fetch ALL WhatsApp campaign tickets by searching for the three campaign
+   * subject patterns and deduplicating.
+   *
+   * NOTE: Zoho Desk v1 REST API does not accept `tags` as a filter parameter
+   * on GET /tickets (returns 422). Keyword search is the correct approach.
    */
   async fetchAllCampaignTickets(): Promise<CampaignTicket[]> {
+    const SEARCH_TERMS = ['fb.me/', 'lnk.ms/', 'Hello! Can I get more info on this?'];
+    const seen = new Set<string>();
     const tickets: CampaignTicket[] = [];
-    let from = 0;
-    const limit = 100;
 
-    while (true) {
+    for (const term of SEARCH_TERMS) {
       const result = await this.makeRequest<ZohoTicketListResponse>(
-        `/tickets?tags=whatsapp+lead&limit=${limit}&from=${from}&fields=id,ticketNumber,subject,status,assignee,contact,createdTime,closedTime,tags`
+        `/tickets/search?subject=${encodeURIComponent(term)}&limit=100`
       );
 
-      if (!result.success || !result.data?.data) break;
+      if (!result.success || !result.data?.data) continue;
 
-      const batch = result.data.data;
-      if (batch.length === 0) break;
-
-      for (const t of batch) {
-        tickets.push({
-          id: t.id,
-          ticketNumber: t.ticketNumber,
-          subject: t.subject || '',
-          status: t.status || 'Open',
-          assigneeName: t.assignee?.name ?? null,
-          contactName: t.contact?.name ?? null,
-          contactPhone: t.contact?.phone ?? null,
-          contactEmail: t.contact?.email ?? null,
-          createdTime: t.createdTime,
-          closedTime: t.closedTime ?? null,
-          tags: t.tags ?? [],
-        });
+      for (const t of result.data.data) {
+        if (seen.has(t.id)) continue;
+        seen.add(t.id);
+        tickets.push(this.mapTicket(t));
       }
-
-      if (batch.length < limit) break;
-      from += limit;
     }
 
-    zohoLogger.debug(`[CampaignDesk] Fetched ${tickets.length} tagged tickets`);
+    zohoLogger.debug(`[CampaignDesk] Fetched ${tickets.length} campaign tickets via keyword search`);
     return tickets;
+  }
+
+  /**
+   * Fetch the real tag names for a single ticket.
+   * The search/list endpoints do not return tag data; this endpoint does.
+   *
+   * NOTE: Response format is `{ tags: [...] }` (NOT `{ data: [...] }` like other endpoints).
+   */
+  async fetchTicketTags(ticketId: string): Promise<string[]> {
+    interface TagsResponse { tags: Array<{ name: string }> }
+    const result = await this.makeRequest<TagsResponse>(`/tickets/${ticketId}/tags`);
+    if (!result.success || !result.data?.tags) return [];
+    return result.data.tags.map((tag) => tag.name);
   }
 
   /**
@@ -323,39 +343,41 @@ export class CampaignZohoDeskService {
 
   /**
    * Search tickets by subject keyword (for backfill use).
+   * NOTE: The search response does not include tag data. Use fetchTicketTags()
+   * to check real tag status for each returned ticket.
    */
   async searchTicketsBySubject(searchStr: string): Promise<CampaignTicket[]> {
     const result = await this.makeRequest<ZohoTicketListResponse>(
-      `/tickets/search?searchStr=${encodeURIComponent(searchStr)}&limit=100`
+      `/tickets/search?subject=${encodeURIComponent(searchStr)}&limit=100`
     );
 
     if (!result.success || !result.data?.data) return [];
-
-    return result.data.data.map((t) => ({
-      id: t.id,
-      ticketNumber: t.ticketNumber,
-      subject: t.subject || '',
-      status: t.status || 'Open',
-      assigneeName: t.assignee?.name ?? null,
-      contactName: t.contact?.name ?? null,
-      contactPhone: t.contact?.phone ?? null,
-      contactEmail: t.contact?.email ?? null,
-      createdTime: t.createdTime,
-      closedTime: t.closedTime ?? null,
-      tags: t.tags ?? [],
-    }));
+    return result.data.data.map((t) => this.mapTicket(t));
   }
 
   /**
-   * Add "whatsapp lead" tag to a ticket (merges with existing tags).
+   * Add "whatsapp lead" tag to a ticket.
+   *
+   * IMPORTANT: Zoho Desk v1 REST API does not support writing tags to tickets.
+   * GET /tickets/{id}/tags — Allow: GET, OPTIONS only (POST → 405)
+   * PATCH /tickets/{id} with tags/tagIds → 422 UNPROCESSABLE_ENTITY
+   *
+   * Workaround: PATCH the ticket's cf_ticket_type custom field to record
+   * campaign origin. Returns true on success, false if the API rejects the value.
    */
-  async addCampaignTag(ticketId: string, existingTags: string[]): Promise<boolean> {
-    const updatedTags = Array.from(new Set([...existingTags, 'whatsapp lead']));
+  async addCampaignTag(ticketId: string): Promise<boolean> {
     const result = await this.makeRequest(
       `/tickets/${ticketId}`,
       'PATCH',
-      { tags: updatedTags }
+      { cf: { cf_ticket_type: 'WhatsApp Campaign' } }
     );
+    if (!result.success) {
+      zohoLogger.warn(
+        '[CampaignDesk] addCampaignTag: Zoho Desk v1 REST API cannot write tags. ' +
+        'Custom field PATCH also failed. Ticket must be tagged manually in Zoho Desk UI.',
+        { ticketId }
+      );
+    }
     return result.success;
   }
 }

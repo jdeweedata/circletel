@@ -137,6 +137,29 @@ const headers = {
 }
 ```
 
+### `.env.local` Not Loaded by `dotenv/config` in Scripts
+
+`import 'dotenv/config'` (the standard dotenv approach) **only** loads `.env`, not `.env.local`.
+CircleTel stores credentials in `.env.local` (gitignored). Scripts therefore fail with "credentials not configured" even when `.env.local` exists.
+
+```bash
+# ❌ WRONG — credentials from .env.local are NOT loaded
+npx tsx scripts/my-script.ts
+
+# ✅ CORRECT — source .env.local first
+set -a && source .env.local && set +a && npx tsx scripts/my-script.ts
+```
+
+Alternatively, add explicit dotenv config to the script:
+
+```typescript
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });  // load .env.local first
+dotenv.config();                         // fallback to .env
+```
+
+**Signal**: This footgun has appeared in 3+ sessions (NetCash paynow, Zoho Desk backfill).
+
 ## Vercel Build Configuration
 
 ### NODE_OPTIONS Restrictions
