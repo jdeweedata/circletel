@@ -155,6 +155,7 @@ export function ContractTerritoryMap() {
         }
       }
     },
+    // Record is passed as parameter, not captured — empty deps keeps callback identity stable for marker listeners.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
@@ -230,13 +231,14 @@ export function ContractTerritoryMap() {
         const coverageResult = coverageMap.get(record.account_number) ?? 'unchecked';
         const content = buildInfoContent(record, coverageResult);
         infoWindowRef.current?.setContent(content);
+        infoWindowRef.current?.close();
         infoWindowRef.current?.open(map, marker);
 
-        // Attach click handler after InfoWindow renders (100ms delay for DOM)
+        // Attach click handler after InfoWindow renders (use onclick to prevent accumulation)
         window.setTimeout(() => {
           const btn = document.getElementById('ctm-check-btn');
           if (btn) {
-            btn.addEventListener('click', () => checkCoverage(record));
+            btn.onclick = () => checkCoverage(record);
           }
         }, 100);
       });
