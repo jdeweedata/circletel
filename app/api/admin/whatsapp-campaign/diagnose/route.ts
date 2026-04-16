@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createCampaignZohoDeskService } from '@/lib/integrations/zoho/desk-campaign-service';
+import { createZohoDeskAuthService } from '@/lib/integrations/zoho/auth-service';
 import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -23,8 +24,44 @@ export async function GET(request: NextRequest) {
   const authResult = await authenticateAdmin(request);
   if (!authResult.success) return authResult.response;
 
-  const campaignService = createCampaignZohoDeskService();
   const supabase = await createClient();
+
+  // 0. Explicit Zoho Desk auth check — surfaces the real error instead of silently returning []
+  const envCheck = {
+    ZOHO_CLIENT_ID: !!process.env.ZOHO_CLIENT_ID,
+    ZOHO_CLIENT_SECRET: !!process.env.ZOHO_CLIENT_SECRET,
+    ZOHO_DESK_REFRESH_TOKEN: !!process.env.ZOHO_DESK_REFRESH_TOKEN,
+    ZOHO_REFRESH_TOKEN: !!process.env.ZOHO_REFRESH_TOKEN,
+    ZOHO_DESK_ORG_ID: process.env.ZOHO_DESK_ORG_ID ?? '(not set)',
+    ZOHO_REGION: process.env.ZOHO_REGION ?? '(not set — defaults to US)',
+  };
+
+  let zohoAuthStatus: 'ok' | 'config_error' | 'token_error';
+  let zohoAuthError: string | undefined;
+  try {
+    const authService = createZohoDeskAuthService();
+    await authService.getAccessToken();
+    zohoAuthStatus = 'ok';
+  } catch (err) {
+    zohoAuthError = err instanceof Error ? err.message : String(err);
+    zohoAuthStatus = zohoAuthError.includes('credentials not configured') ? 'config_error' : 'token_error';
+  }
+
+  // If auth is broken, return early with diagnostic — skip API calls that would all fail
+  if (zohoAuthStatus !== 'ok') {
+    const { count } = await supabase
+      .from('campaign_ticket_snapshots')
+      .select('*', { count: 'exact', head: true });
+    return NextResponse.json({
+      zohoAuth: { status: zohoAuthStatus, error: zohoAuthError, envCheck },
+      dbSnapshot: { rowCount: count ?? 0 },
+      zohoSearchTerms: [],
+      recentZohoTickets: [],
+      summary: { dbHasData: (count ?? 0) > 0, anySearchTermMatches: false, totalFoundViaCurrentTerms: 0 },
+    });
+  }
+
+  const campaignService = createCampaignZohoDeskService();
 
   // 1. Check DB row count
   const { count } = await supabase
@@ -61,6 +98,7 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.json({
+    zohoAuth: { status: zohoAuthStatus, envCheck },
     dbSnapshot: { rowCount: dbRowCount },
     zohoSearchTerms,
     recentZohoTickets,
