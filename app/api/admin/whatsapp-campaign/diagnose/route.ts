@@ -18,7 +18,13 @@ import { createClient } from '@/lib/supabase/server';
 export const runtime = 'nodejs';
 export const maxDuration = 30;
 
-const CURRENT_SEARCH_TERMS = ['fb.me/', 'lnk.ms/', 'Hello! Can I get more info on this?'];
+const CURRENT_SEARCH_TERMS = [
+  'fb.me/',
+  'lnk.ms/',
+  'Hello! Can I get more info on this?',
+  'I want to know more',
+  'interested',
+];
 
 export async function GET(request: NextRequest) {
   const authResult = await authenticateAdmin(request);

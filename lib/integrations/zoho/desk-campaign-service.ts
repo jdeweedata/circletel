@@ -279,32 +279,74 @@ export class CampaignZohoDeskService {
   }
 
   /**
-   * Fetch ALL WhatsApp campaign tickets by searching for the three campaign
-   * subject patterns and deduplicating.
+   * Subject patterns that identify WhatsApp campaign tickets.
+   * The Zoho Desk search endpoint requires Desk.search.READ scope which our token
+   * does not have. Instead we paginate GET /tickets and filter client-side.
    *
-   * NOTE: Zoho Desk v1 REST API does not accept `tags` as a filter parameter
-   * on GET /tickets (returns 422). Keyword search is the correct approach.
+   * Actual subject patterns observed in Zoho Desk:
+   *   "https://fb.me/<hash>\n\nHello! Can I get more info on this?"
+   *   "https://lnk.ms/<hash>\n\nHello! Can I get more info on this?"
+   *   "Hello! Can I get more info on this?"
+   *   "I want to know more"
+   *   "interested"
+   */
+  private static readonly CAMPAIGN_SUBJECT_PATTERNS = [
+    'fb.me/',
+    'lnk.ms/',
+    'Hello! Can I get more info on this?',
+    'I want to know more',
+    'interested',
+  ];
+
+  /** Return true if the subject looks like a WhatsApp campaign enquiry. */
+  private isCampaignTicket(subject: string): boolean {
+    if (!subject) return false;
+    const lower = subject.toLowerCase();
+    return CampaignZohoDeskService.CAMPAIGN_SUBJECT_PATTERNS.some((p) =>
+      lower.includes(p.toLowerCase())
+    );
+  }
+
+  /**
+   * Fetch ALL WhatsApp campaign tickets by paginating GET /tickets and filtering
+   * by subject patterns client-side.
+   *
+   * Why not /tickets/search? Zoho Desk search endpoint requires Desk.search.READ
+   * scope which the current OAuth token does not include. GET /tickets works with
+   * Desk.tickets.READ alone.
+   *
+   * Pagination stops when either:
+   *  - A page returns fewer tickets than the page size (last page), or
+   *  - We have fetched MAX_PAGES pages (safety cap at ~1,000 tickets).
    */
   async fetchAllCampaignTickets(): Promise<CampaignTicket[]> {
-    const SEARCH_TERMS = ['fb.me/', 'lnk.ms/', 'Hello! Can I get more info on this?'];
+    const PAGE_SIZE = 50;
+    const MAX_PAGES = 20; // safety cap — 1,000 tickets max
     const seen = new Set<string>();
     const tickets: CampaignTicket[] = [];
 
-    for (const term of SEARCH_TERMS) {
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const from = page * PAGE_SIZE;
       const result = await this.makeRequest<ZohoTicketListResponse>(
-        `/tickets/search?subject=${encodeURIComponent(term)}&limit=100`
+        `/tickets?limit=${PAGE_SIZE}&from=${from}`
       );
 
-      if (!result.success || !result.data?.data) continue;
+      if (!result.success || !result.data?.data) break;
 
-      for (const t of result.data.data) {
+      const batch = result.data.data;
+
+      for (const t of batch) {
         if (seen.has(t.id)) continue;
+        if (!this.isCampaignTicket(t.subject)) continue;
         seen.add(t.id);
         tickets.push(this.mapTicket(t));
       }
+
+      // Stop if we got a partial page — no more tickets exist
+      if (batch.length < PAGE_SIZE) break;
     }
 
-    zohoLogger.debug(`[CampaignDesk] Fetched ${tickets.length} campaign tickets via keyword search`);
+    zohoLogger.debug(`[CampaignDesk] Fetched ${tickets.length} campaign tickets via paginated list`);
     return tickets;
   }
 
@@ -342,17 +384,36 @@ export class CampaignZohoDeskService {
   }
 
   /**
-   * Search tickets by subject keyword (for backfill use).
-   * NOTE: The search response does not include tag data. Use fetchTicketTags()
-   * to check real tag status for each returned ticket.
+   * Search tickets by subject keyword by paginating GET /tickets and filtering
+   * client-side (Desk.search.READ scope not available on current token).
+   *
+   * NOTE: Tag data is not returned here. Use fetchTicketTags() per ticket if needed.
    */
   async searchTicketsBySubject(searchStr: string): Promise<CampaignTicket[]> {
-    const result = await this.makeRequest<ZohoTicketListResponse>(
-      `/tickets/search?subject=${encodeURIComponent(searchStr)}&limit=100`
-    );
+    const PAGE_SIZE = 50;
+    const MAX_PAGES = 20;
+    const lower = searchStr.toLowerCase();
+    const results: CampaignTicket[] = [];
 
-    if (!result.success || !result.data?.data) return [];
-    return result.data.data.map((t) => this.mapTicket(t));
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const from = page * PAGE_SIZE;
+      const result = await this.makeRequest<ZohoTicketListResponse>(
+        `/tickets?limit=${PAGE_SIZE}&from=${from}`
+      );
+
+      if (!result.success || !result.data?.data) break;
+
+      const batch = result.data.data;
+      for (const t of batch) {
+        if ((t.subject || '').toLowerCase().includes(lower)) {
+          results.push(this.mapTicket(t));
+        }
+      }
+
+      if (batch.length < PAGE_SIZE) break;
+    }
+
+    return results;
   }
 
   /**
@@ -361,7 +422,7 @@ export class CampaignZohoDeskService {
    */
   async fetchRecentTickets(limit = 10): Promise<Array<{ id: string; subject: string; status: string; createdTime: string }>> {
     const result = await this.makeRequest<ZohoTicketListResponse>(
-      `/tickets?limit=${limit}&sortBy=createdTime&sortOrder=desc`
+      `/tickets?limit=${limit}`
     );
     if (!result.success || !result.data?.data) return [];
     return result.data.data.map((t) => ({
