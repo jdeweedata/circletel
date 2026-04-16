@@ -257,15 +257,22 @@ export function createZohoAuthService(): ZohoAuthService {
 
 /**
  * Create ZohoAuthService using Desk-scoped refresh token.
- * Falls back to ZOHO_REFRESH_TOKEN if ZOHO_DESK_REFRESH_TOKEN is not set.
+ *
+ * Client credentials priority:
+ *   ZOHO_DESK_CLIENT_ID / ZOHO_DESK_CLIENT_SECRET — if the Desk token was generated
+ *   with a different OAuth client (e.g. Zoho Self Client), set these separately.
+ *   Falls back to ZOHO_CLIENT_ID / ZOHO_CLIENT_SECRET if not set.
+ *
+ * Refresh token priority:
+ *   ZOHO_DESK_REFRESH_TOKEN → ZOHO_REFRESH_TOKEN
  */
 export function createZohoDeskAuthService(): ZohoAuthService {
-  const clientId = process.env.ZOHO_CLIENT_ID;
-  const clientSecret = process.env.ZOHO_CLIENT_SECRET;
+  const clientId = process.env.ZOHO_DESK_CLIENT_ID || process.env.ZOHO_CLIENT_ID;
+  const clientSecret = process.env.ZOHO_DESK_CLIENT_SECRET || process.env.ZOHO_CLIENT_SECRET;
   const refreshToken = process.env.ZOHO_DESK_REFRESH_TOKEN || process.env.ZOHO_REFRESH_TOKEN;
 
   if (!clientId || !clientSecret || !refreshToken) {
-    throw new Error('Zoho Desk credentials not configured. Please set ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, and ZOHO_DESK_REFRESH_TOKEN environment variables.');
+    throw new Error('Zoho Desk credentials not configured. Please set ZOHO_DESK_CLIENT_ID, ZOHO_DESK_CLIENT_SECRET, and ZOHO_DESK_REFRESH_TOKEN environment variables.');
   }
 
   return new ZohoAuthService({
