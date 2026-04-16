@@ -356,6 +356,23 @@ export class CampaignZohoDeskService {
   }
 
   /**
+   * Fetch the N most recent tickets from Zoho Desk without subject filtering.
+   * Used by the diagnostic endpoint to identify real subject patterns.
+   */
+  async fetchRecentTickets(limit = 10): Promise<Array<{ id: string; subject: string; status: string; createdTime: string }>> {
+    const result = await this.makeRequest<ZohoTicketListResponse>(
+      `/tickets?limit=${limit}&sortBy=createdTime&sortOrder=desc`
+    );
+    if (!result.success || !result.data?.data) return [];
+    return result.data.data.map((t) => ({
+      id: t.id,
+      subject: t.subject ?? '(no subject)',
+      status: t.status,
+      createdTime: t.createdTime,
+    }));
+  }
+
+  /**
    * Add "whatsapp lead" tag to a ticket.
    *
    * IMPORTANT: Zoho Desk v1 REST API does not support writing tags to tickets.
