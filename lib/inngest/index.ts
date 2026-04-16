@@ -122,6 +122,11 @@ export {
   whatsappCampaignReportFunction,
 } from './functions/whatsapp-campaign-report';
 
+export {
+  zohoDeskTokenRefreshFunction,
+  zohoDeskTokenRefreshFailedFunction,
+} from './functions/zoho-desk-token-refresh';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -237,6 +242,11 @@ import {
   whatsappCampaignReportFunction,
 } from './functions/whatsapp-campaign-report';
 
+import {
+  zohoDeskTokenRefreshFunction,
+  zohoDeskTokenRefreshFailedFunction,
+} from './functions/zoho-desk-token-refresh';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -308,4 +318,7 @@ export const functions = [
   invoiceNotificationFunction,
   // WhatsApp Lead Campaign daily report (08:00 SAST)
   whatsappCampaignReportFunction,
+  // Zoho Desk token refresh (every 45 min, before 1-hour expiry)
+  zohoDeskTokenRefreshFunction,
+  zohoDeskTokenRefreshFailedFunction,
 ];
