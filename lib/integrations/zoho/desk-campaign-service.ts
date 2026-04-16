@@ -201,15 +201,25 @@ interface ZohoTicketListResponse {
   count?: number;
 }
 
-interface ZohoConversationResponse {
+interface ZohoThreadListResponse {
   data: Array<{
     id: string;
-    author?: { name: string };
-    type?: string;
-    direction?: string;
-    content: string;
+    direction: string;
     createdTime: string;
     channel?: string;
+    author?: { name: string; type?: string } | null;
+    channelRelatedInfo?: { messages?: string } | null;
+  }>;
+}
+
+interface ZohoThreadMessagesResponse {
+  data: Array<{
+    id: string;
+    type: string;          // 'TEXT' | 'LAYOUT' | 'LOCATION' | etc.
+    direction: string;     // 'IN' | 'OUT'
+    summary: string | null; // actual message text
+    createdTime: string;
+    author?: { name: string } | null;
   }>;
 }
 
@@ -367,20 +377,40 @@ export class CampaignZohoDeskService {
    * Fetch conversations for a single ticket.
    */
   async fetchConversations(ticketId: string): Promise<CampaignConversation[]> {
-    const result = await this.makeRequest<ZohoConversationResponse>(
+    // Step 1: fetch the thread list for this ticket
+    const threadsResult = await this.makeRequest<ZohoThreadListResponse>(
       `/tickets/${ticketId}/conversations`
     );
+    if (!threadsResult.success || !threadsResult.data?.data) return [];
 
-    if (!result.success || !result.data?.data) return [];
+    const conversations: CampaignConversation[] = [];
 
-    return result.data.data.map((c) => ({
-      id: c.id,
-      author: c.author?.name ?? 'Unknown',
-      direction: (c.direction?.toLowerCase() === 'out' ? 'out' : 'in') as 'in' | 'out',
-      content: c.content || '',
-      timestamp: c.createdTime,
-      channel: (c.channel || 'whatsapp').toLowerCase(),
-    }));
+    // Step 2: for each thread, fetch the nested messages endpoint to get actual text
+    for (const thread of threadsResult.data.data) {
+      const messagesUrl = thread.channelRelatedInfo?.messages;
+      if (!messagesUrl) continue;
+
+      // Strip the base URL — makeRequest prepends it
+      const path = messagesUrl.replace(this.baseUrl, '');
+      const msgResult = await this.makeRequest<ZohoThreadMessagesResponse>(path);
+      if (!msgResult.success || !msgResult.data?.data) continue;
+
+      // Only include messages that have readable text (summary field)
+      for (const m of msgResult.data.data) {
+        if (!m.summary) continue;
+        conversations.push({
+          id: m.id,
+          author: m.author?.name ?? thread.author?.name ?? 'Unknown',
+          direction: (m.direction?.toUpperCase() === 'OUT' ? 'out' : 'in') as 'in' | 'out',
+          content: m.summary,
+          timestamp: m.createdTime,
+          channel: (thread.channel || 'whatsapp').toLowerCase(),
+        });
+      }
+    }
+
+    // Return in chronological order
+    return conversations.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
   }
 
   /**
