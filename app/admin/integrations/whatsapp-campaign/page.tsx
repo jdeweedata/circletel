@@ -127,15 +127,22 @@ export default function WhatsAppCampaignPage() {
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       const json: ReportData = await res.json();
       setData(json);
+      return json;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
+      return null;
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchData();
+    // Load from DB first; auto-fallback to live Zoho data if DB is empty
+    fetchData().then((json) => {
+      if (!json || (!json.snapshot && json.tickets.length === 0)) {
+        fetchData(true);
+      }
+    });
   }, [fetchData]);
 
   const snap = data?.snapshot;
@@ -163,9 +170,11 @@ export default function WhatsAppCampaignPage() {
             <div>
               <h1 className="text-xl font-semibold text-slate-900">WhatsApp Lead Campaign</h1>
               <p className="text-sm text-slate-500">
-                {snap
-                  ? `Last updated: ${new Date(data?.generatedAt ?? '').toLocaleString('en-ZA')}`
-                  : 'Loading...'}
+                {loading
+                  ? 'Loading...'
+                  : snap
+                    ? `Last updated: ${new Date(data?.generatedAt ?? '').toLocaleString('en-ZA')}${data?.isLive ? ' · Live' : ''}`
+                    : 'No data yet — run the daily report or click Refresh Live'}
               </p>
             </div>
           </div>
