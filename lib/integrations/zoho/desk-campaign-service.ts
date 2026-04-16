@@ -373,6 +373,16 @@ export class CampaignZohoDeskService {
   }
 
   /**
+   * Test raw API connectivity — returns the actual HTTP error if the call fails.
+   * Used by the diagnostic endpoint to distinguish auth scope failures from empty results.
+   */
+  async testApiConnectivity(): Promise<{ success: boolean; ticketCount?: number; error?: string }> {
+    const result = await this.makeRequest<ZohoTicketListResponse>('/tickets?limit=1');
+    if (!result.success) return { success: false, error: result.error };
+    return { success: true, ticketCount: result.data?.data?.length ?? 0 };
+  }
+
+  /**
    * Add "whatsapp lead" tag to a ticket.
    *
    * IMPORTANT: Zoho Desk v1 REST API does not support writing tags to tickets.

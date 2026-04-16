@@ -63,6 +63,9 @@ export async function GET(request: NextRequest) {
 
   const campaignService = createCampaignZohoDeskService();
 
+  // 1a. Test raw API connectivity to surface HTTP-level errors (e.g. wrong token scope)
+  const apiConnectivity = await campaignService.testApiConnectivity();
+
   // 1. Check DB row count
   const { count } = await supabase
     .from('campaign_ticket_snapshots')
@@ -99,6 +102,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     zohoAuth: { status: zohoAuthStatus, envCheck },
+    zohoApiConnectivity: apiConnectivity,
     dbSnapshot: { rowCount: dbRowCount },
     zohoSearchTerms,
     recentZohoTickets,
