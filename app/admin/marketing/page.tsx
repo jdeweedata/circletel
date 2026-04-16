@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiArrowsClockwiseBold, PiCalendarBold, PiChartBarBold, PiGiftBold, PiMegaphoneBold, PiPercentBold, PiPlusBold, PiSpinnerBold, PiTargetBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiArrowsClockwiseBold, PiCalendarBold, PiChartBarBold, PiGiftBold, PiMapPinBold, PiMegaphoneBold, PiPercentBold, PiPlusBold, PiSpinnerBold, PiTargetBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 /**
  * Marketing Dashboard
@@ -268,6 +268,12 @@ export default function MarketingDashboardPage() {
               description="View performance metrics"
               icon={PiChartBarBold}
               href="/admin/marketing/analytics"
+            />
+            <QuickAction
+              title="Contract Territory Map"
+              description="Assess competitor customer locations & coverage"
+              icon={PiMapPinBold}
+              href="/admin/marketing/contract-map"
             />
           </div>
         </div>
