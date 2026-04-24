@@ -97,6 +97,9 @@ test-*.bat
 # Duplicate/test migrations (keep only final versions)
 /supabase/migrations/*_fixed.sql
 /supabase/migrations/*_v2.sql
+
+# Data exports (internal analysis only — may contain PII or competitor data)
+/data/exports/
 /supabase/migrations/*_v3.sql
 /supabase/verify-*.sql
 
