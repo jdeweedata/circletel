@@ -81,6 +81,10 @@ const nextConfig = {
     }
     return config;
   },
+  redirects: async () => [
+    { source: '/get-connected', destination: '/check-coverage', permanent: true },
+    { source: '/order/coverage', destination: '/check-coverage', permanent: true },
+  ],
   images: {
     remotePatterns: [
       {
