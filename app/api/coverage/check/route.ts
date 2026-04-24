@@ -12,7 +12,7 @@ import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
-    const { address, coordinates } = await request.json();
+    const { address, coordinates, utm_source, utm_medium, utm_campaign } = await request.json();
 
     if (!address) {
       return NextResponse.json(
@@ -40,7 +40,11 @@ export async function POST(request: NextRequest) {
           type: 'Point',
           coordinates: [coordinates.lng, coordinates.lat]
         }
-      })
+      }),
+      // Add UTM parameters if provided
+      ...(utm_source && { utm_source }),
+      ...(utm_medium && { utm_medium }),
+      ...(utm_campaign && { utm_campaign })
     };
 
     const { data: lead, error: leadError } = await supabase
