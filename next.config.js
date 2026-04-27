@@ -4,6 +4,7 @@ const withBundleAnalyzer = process.env.ANALYZE === 'true'
   : (config) => config;
 
 const isVercel = process.env.VERCEL === '1';
+const isCI = process.env.CI === 'true';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -56,7 +57,7 @@ const nextConfig = {
     // workerThreads disabled — causes DataCloneError when custom webpack function
     // (and next-pwa) are present, because functions can't be structuredClone'd
     workerThreads: false,
-    cpus: isVercel ? 1 : 4,
+    cpus: (isVercel || isCI) ? 1 : 4,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports
