@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { extractBenefits, extractAdditionalInfo } from '@/lib/products/feature-formatter';
+import { ENTERTAINMENT_BUNDLES, type EntertainmentBundle } from '@/lib/data/entertainment-bundles';
 
 interface Package {
   id: string;
@@ -63,6 +64,10 @@ function PackagesContent() {
   const searchParams = useSearchParams();
   const leadId = params.leadId as string;
   const coverageType = searchParams.get('type') || 'residential';
+  const bundleId = searchParams.get('bundle')
+  const activeBundle: EntertainmentBundle | null = bundleId
+    ? (ENTERTAINMENT_BUNDLES.find(b => b.id === bundleId) ?? null)
+    : null
 
   // Use OrderContext for state persistence
   const { state, actions } = useOrderContext();
@@ -112,6 +117,21 @@ function PackagesContent() {
           coverageType: coverageType || 'residential',
         },
       });
+
+      // If a bundle param is present, pre-select the matching LTE plan by speed
+      if (activeBundle && data.packages && data.packages.length > 0) {
+        const matchedPkg = data.packages.find((p: Package) => {
+          const st = (p.service_type || '').toLowerCase()
+          const pc = (p.product_category || '').toLowerCase()
+          const isLTE = (st.includes('lte') || pc.includes('lte')) && !st.includes('5g') && !pc.includes('5g')
+          return isLTE && p.speed_down === activeBundle.internet.speed_mbps
+        })
+        if (matchedPkg) {
+          setSelectedPackage(matchedPkg)
+          setActiveService('lte')
+          return
+        }
+      }
 
       // Auto-select appropriate tab based on available packages (priority: Fibre > LTE > 5G > Wireless)
       // Note: SkyFibre packages use service_type='SkyFibre' and product_category='connectivity'
@@ -496,6 +516,20 @@ function PackagesContent() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Navbar />
+
+      {activeBundle && (
+        <div className="bg-[#1B2A4A] text-white py-3 px-4">
+          <div className="container mx-auto flex items-center justify-between gap-4 flex-wrap text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-[#F5831F] font-semibold">Bundle includes:</span>
+              <span>{activeBundle.device.name} — {activeBundle.device.tagline}</span>
+            </div>
+            <span className="text-white/70">
+              R{activeBundle.bundle_monthly_incl_vat.toLocaleString()}/mo total
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-8 lg:py-12">
         {/* Licensed Wireless (P2P) - Requires Quote */}
