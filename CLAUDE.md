@@ -14,6 +14,8 @@ Guidance for Claude Code when working with CircleTel codebase.
 | Database schema | [Database](#database-schema) | `customer_invoices` (not `invoices`) |
 | File placement | [Rules](#rules) | See `.claude/rules/file-organization.md` |
 | Skills | [Superpowers Pipeline](#superpowers-pipeline-mandatory) | See mandatory pipeline stages |
+| Karpathy principles | [Karpathy Foundation](#-karpathy-foundation-4-guiding-principles) | Think → Simple → Surgical → Goal-Driven |
+| Memory OS           | [Memory OS](#️-memory-os) | `memory-os/long-term/`, `short-term/`, `self-improvement/` |
 
 ---
 
@@ -27,6 +29,52 @@ NEVER claim a task is complete without running /skill superpowers:verification-b
 ALWAYS follow the Superpowers Pipeline (6 stages) — invoke every applicable skill gate before proceeding
 ALWAYS ask before modifying more than 3 files at once
 ```
+
+---
+
+## 🧠 Karpathy Foundation (4 Guiding Principles)
+
+> Based on Andrej Karpathy's mental models for the 4 biggest limitations holding back LLM outputs.
+> These principles apply to ALL work — coding, skills, debugging, planning, and documentation.
+> They reinforce your existing Mandatory Rules and Superpowers Pipeline.
+
+### Principle 1: Think Before Coding
+BEFORE writing any code, answer these silently:
+
+What assumptions am I making? Are they verified?
+What confusion exists in the requirements?
+What trade-offs am I ignoring?
+Have I read ALL relevant files? (not just the ones I think matter)
+
+**Maps to**: Mandatory Rule #1 (Think first), Stage 1 Superpowers (brainstorming, systematic-debugging)
+
+### Principle 2: Simplicity First
+
+No bloated abstractions
+No premature optimization
+No over-engineering "just in case"
+If the solution feels complex, it's probably wrong — simplify
+Prefer 20 clear lines over 5 clever ones
+
+**Maps to**: Mandatory Rule #3 (Keep it simple), Anti-Slop Rule (NEVER make changes outside scope)
+
+### Principle 3: Surgical Changes
+
+Only touch what you MUST
+If the task is "change button color," don't refactor the component
+Orthogonal edits only — changes should be independent and isolated
+Measure blast radius BEFORE editing (use code-review-graph get_blast_radius)
+
+**Maps to**: Mandatory Rule #7 (Minimize blast radius), `.claude/rules/anti-patterns.md`
+
+### Principle 4: Goal-Driven Execution
+
+Every change must have a verifiable success condition
+Write the test/check FIRST, then implement
+"Done" means: it works, it's tested, it's type-checked, it doesn't break other things
+No "it should work" — prove it works
+
+**Maps to**: Mandatory Rule #4 (Never be lazy), Stage 3 TDD skill, Stage 4 verification skill
 
 ---
 
@@ -269,6 +317,70 @@ See `docs/tools/CODE_REVIEW_GRAPH.md` for full setup and usage.
 
 ---
 
+## 🗄️ Memory OS
+
+**Purpose**: Persistent memory across Claude Code sessions. Claude wakes up smarter every session.
+
+### Folder Structure
+memory-os/
+├── long-term/              # Permanent project knowledge
+│   ├── decisions.md        # Architecture & business decisions with reasoning
+│   ├── patterns.md         # Proven patterns specific to CircleTel
+│   ├── mistakes.md         # Mistakes made + how they were fixed (never repeat)
+│   └── client-context.md   # Business context, pricing logic, SA market specifics
+├── short-term/             # Current session / sprint context
+│   ├── active-tasks.md     # What's in progress right now
+│   ├── blockers.md         # Current blockers and unknowns
+│   └── session-notes.md    # Notes from this working session
+└── self-improvement/       # Skill scoring and evolution
+    ├── scores.md           # Output quality scores (1-10) with timestamps
+    ├── feedback-log.md     # User corrections and preferences
+    └── improvement-plan.md # What to do differently next time
+
+### Memory Protocol
+SESSION START:
+
+Run context analyzer (existing): powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
+Read memory-os/short-term/active-tasks.md for continuity
+Read memory-os/long-term/mistakes.md to avoid repeats
+Check memory-os/self-improvement/feedback-log.md for recent corrections
+
+SESSION END:
+
+Update memory-os/short-term/session-notes.md with what was done
+If a mistake was made → add to memory-os/long-term/mistakes.md
+If a new pattern was discovered → add to memory-os/long-term/patterns.md
+If user gave correction → add to memory-os/self-improvement/feedback-log.md
+Score the session output (1-10) → append to memory-os/self-improvement/scores.md
+
+
+### Integration with Existing Systems
+
+| Existing System | Memory OS Connection |
+|----------------|---------------------|
+| `compound:compound` skill (Stage 6) | Learnings auto-feed into `long-term/patterns.md` and `long-term/mistakes.md` |
+| `.claude/rules/compound-learnings.md` | Existing triggers still apply — Memory OS is the *storage layer* |
+| Context Analyzer | Runs first, Memory OS reads second |
+| Superpowers Pipeline | Memory OS wraps around the pipeline (before Stage 1, after Stage 6) |
+
+### Self-Improvement Loop
+After every significant task:
+
+Score output quality (1-10) based on:
+
+Did it pass type-check first try?
+Was the blast radius correct?
+Did user need to correct anything?
+Was the approach the simplest possible?
+
+
+Log score + reasoning to self-improvement/scores.md
+If score < 7, add specific improvement to improvement-plan.md
+Next session: read improvement-plan.md BEFORE starting work
+
+
+---
+
 ## Additional Resources
 
 | Resource | Location |
@@ -281,4 +393,4 @@ See `docs/tools/CODE_REVIEW_GRAPH.md` for full setup and usage.
 
 ---
 
-**Version**: 8.2 | **Updated**: 2026-04-07 | **Lines**: ~205
+**Version**: 9.0 | **Updated**: 2026-04-28 | **Lines**: ~305

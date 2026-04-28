@@ -193,3 +193,7 @@ sanity-studio/dist/
 sanity-studio/node_modules/
 sanity-studio/package-lock.json
 .superpowers/
+
+# Memory OS — session-specific files (not versioned)
+memory-os/short-term/
+memory-os/self-improvement/scores.md
