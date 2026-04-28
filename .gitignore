@@ -197,3 +197,6 @@ sanity-studio/package-lock.json
 # Memory OS — session-specific files (not versioned)
 memory-os/short-term/
 memory-os/self-improvement/scores.md
+
+# Prototyping tool — local only
+tools/open-design/
