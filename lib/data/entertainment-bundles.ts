@@ -28,7 +28,7 @@ export const ENTERTAINMENT_BUNDLES: EntertainmentBundle[] = [
       sku: 'MECOOL-KD3',
       tagline: 'Android TV Stick',
       price_incl_vat: 919,
-      image_path: '/images/entertainment/mecool-kd3.jpg',
+      image_path: '/images/entertainment/mecool-kd3.png',
     },
     internet: {
       name: 'CircleTel LTE 10Mbps',
@@ -51,7 +51,7 @@ export const ENTERTAINMENT_BUNDLES: EntertainmentBundle[] = [
       sku: 'MECOOL-KM7PLUS',
       tagline: 'Google TV Box',
       price_incl_vat: 1034,
-      image_path: '/images/entertainment/mecool-km7plus.jpg',
+      image_path: '/images/entertainment/mecool-km7plus.png',
     },
     internet: {
       name: 'CircleTel LTE 25Mbps',
@@ -73,7 +73,7 @@ export const ENTERTAINMENT_BUNDLES: EntertainmentBundle[] = [
       sku: 'MECOOL-KM7PLUS',
       tagline: 'Google TV Box',
       price_incl_vat: 1034,
-      image_path: '/images/entertainment/mecool-km7plus.jpg',
+      image_path: '/images/entertainment/mecool-km7plus.png',
     },
     internet: {
       name: 'CircleTel LTE 50Mbps',
@@ -95,7 +95,7 @@ export const ENTERTAINMENT_BUNDLES: EntertainmentBundle[] = [
       sku: 'MECOOL-KS3',
       tagline: 'OTT Soundbar + Subwoofer',
       price_incl_vat: 6899,
-      image_path: '/images/entertainment/mecool-ks3.jpg',
+      image_path: '/images/entertainment/mecool-ks3.png',
     },
     internet: {
       name: 'CircleTel LTE 50Mbps',
@@ -118,7 +118,7 @@ export const ENTERTAINMENT_BUNDLES: EntertainmentBundle[] = [
       sku: 'MECOOL-KS3-KM7PLUS',
       tagline: 'Full Home Entertainment System',
       price_incl_vat: 7933,
-      image_path: '/images/entertainment/mecool-ks3-km7plus.jpg',
+      image_path: '/images/entertainment/mecool-ks3-km7plus.png',
     },
     internet: {
       name: 'CircleTel LTE 100Mbps',

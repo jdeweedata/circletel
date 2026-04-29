@@ -34,6 +34,9 @@
 
 ## File Placement
 - Follow `.claude/rules/file-organization.md` strictly
+- Root cleanup requires a **two-pass scan**: first pass audits, then after bulk moves, re-scan to catch stragglers
+- Before moving any file, grep for hardcoded references: `grep -r "filename" . --include="*.py" --include="*.ts" -l`
+- Any `*-[hash].json` in the root is almost certainly a service account key — check `git check-ignore -v <file>` immediately
 - Admin components: `components/admin/`
 - UI primitives: `components/ui/` (shadcn)
 - API routes: `app/api/`
@@ -44,6 +47,14 @@
 - `git push origin feature/xyz:staging` to test
 - `gh pr create --base main` to ship
 - Pre-deploy checklist: Type check → Build → Staging tests → DB migrations → ENV vars
+
+## Pencil CLI (Design File Generation)
+- Installed globally: `npm install -g @pencil.dev/cli`
+- Authenticated as jeffrey@entrsphere.com; CLI key in `.env.local` as `PENCIL_CLI_KEY`
+- Design files go in `designs/` subdirectory — never project root
+- Run pattern: `set -a && source .env.local && set +a && pencil --out designs/filename.pen --prompt "..."`
+- Export to PNG: `pencil --in designs/filename.pen --export designs/filename.png`
+- Default model: `claude-opus-4-6`
 
 ---
 

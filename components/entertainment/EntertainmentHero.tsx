@@ -63,7 +63,7 @@ export function EntertainmentHero() {
             {/* Right: hero image */}
             <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden">
               <Image
-                src="/images/entertainment/entertainment-hero.jpg"
+                src="/images/entertainment/entertainment-hero.png"
                 alt="Mecool KM7 Plus and KS3 Soundbar — CircleTel Entertainment Bundle"
                 fill
                 className="object-cover"

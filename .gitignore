@@ -1,3 +1,7 @@
+# Google service account credentials
+*-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].json
+circletel-drive-*.json
+
 # Dependencies
 /node_modules
 /.pnp
@@ -122,13 +126,13 @@ scripts/test-*.ts
 
 # User files and documents
 files/
-templates/
+docs/templates/
 
 # Screenshots (debug)
-screenshots/
+docs/screenshots/
 
 # Wireframes (generated for dev reference)
-wireframes/
+designs/wireframes/
 
 # Log output files
 logs_result*.json
@@ -169,6 +173,9 @@ logs_result*.json
 .claude/skills/seo-audit/
 .claude/skills/signup-flow-cro/
 .claude/skills/social-content/
+
+# Python virtual environment
+venv/
 
 # External shared resources
 shared-ai-skills/

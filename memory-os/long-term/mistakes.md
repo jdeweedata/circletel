@@ -47,6 +47,18 @@ Prevention: How to avoid this forever
 **Fix**: Reverted extra changes, isolated the fix
 **Prevention**: Karpathy Principle #3 (Surgical Changes). Ask before modifying more than 3 files. Use `get_blast_radius`.
 
+### [2026-04-28] Google service account key unprotected in root
+**What happened**: `circletel-drive-9afdd33bd927.json` sat in project root with no `.gitignore` entry — live GCP credentials would have been committed on next `git add .`
+**Root cause**: File was added manually without updating `.gitignore`
+**Fix**: Added `circletel-drive-*.json` pattern to `.gitignore`
+**Prevention**: Any `*-[hash].json` in the root is almost certainly a service account key. Check `git check-ignore -v <file>` immediately on discovery.
+
+### [2026-04-28] Hardcoded absolute paths in Python scripts block file reorganisation
+**What happened**: `circletel-drive-9afdd33bd927.json` could not be moved to a cleaner location because 4 scripts hardcode `/home/circletel/circletel-drive-9afdd33bd927.json` as a literal string
+**Root cause**: Credential path set directly instead of via env var
+**Fix**: Left file in place; added to `.gitignore`
+**Prevention**: Credential file paths must always be read from `os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')`, set in `.env.local`. Never hardcode.
+
 ---
 
 > **Rule**: Every correction from the user goes here immediately. This is the most important file in Memory OS.

@@ -221,7 +221,7 @@ function generateVerificationEmail(firstName: string, verificationLink: string):
       </div>
       <div class="footer">
         <p>© ${new Date().getFullYear()} CircleTel. All rights reserved.</p>
-        <p>8a Mellis Rd, Rivonia, Sandton, 2128</p>
+        <p>Imagine House, 2 Mellis Road, Rivonia, Sandton, 2191</p>
         <p>Need help? Call us at 087 067 6305</p>
       </div>
     </body>
