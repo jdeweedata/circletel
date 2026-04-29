@@ -1,8 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiLinkBold, PiMoneyBold, PiShareBold } from 'react-icons/pi';
-
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { PiLinkBold, PiMoneyBold, PiShareBold } from 'react-icons/pi';
 
 const steps = [
   {
@@ -27,68 +24,51 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-16 bg-gradient-to-br from-circleTel-navy via-purple-900 to-circleTel-navy text-white relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-      </div>
-
-      <div className="container mx-auto px-4 relative z-10">
+    <section id="how-it-works" className="py-16 bg-circleTel-grey200">
+      <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">
+          <h2 className="text-3xl font-bold text-circleTel-navy mb-4">
             How It Works
           </h2>
-          <p className="text-white/80 max-w-2xl mx-auto">
+          <p className="text-circleTel-grey600 max-w-2xl mx-auto">
             Three simple steps to start earning
           </p>
         </div>
 
-        {/* Steps Grid */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={index}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center border border-white/20 hover:bg-white/20 transition-all duration-300"
-              >
-                {/* Step Number */}
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-circleTel-orange text-white font-bold text-xl mb-4">
-                  {step.number}
+        {/* Steps - Horizontal Flow */}
+        <div className="max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            {/* Connecting line (desktop only) */}
+            <div className="hidden md:block absolute top-16 left-[16%] right-[16%] h-0.5 bg-circleTel-orange/30" />
+
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <div key={index} className="relative text-center">
+                  {/* Step Number Circle */}
+                  <div className="relative z-10 inline-flex items-center justify-center w-14 h-14 rounded-full bg-circleTel-orange text-white font-bold text-xl mb-6 shadow-lg">
+                    {step.number}
+                  </div>
+
+                  {/* Icon */}
+                  <div className="w-12 h-12 mx-auto mb-4 text-circleTel-navy">
+                    <Icon className="w-full h-full" />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-circleTel-navy mb-3">
+                    {step.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-circleTel-grey600 text-sm leading-relaxed max-w-xs mx-auto">
+                    {step.description}
+                  </p>
                 </div>
-
-                {/* Icon */}
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-cyan-400 flex items-center justify-center">
-                  <Icon className="h-8 w-8 text-gray-900" />
-                </div>
-
-                {/* Title */}
-                <h3 className="text-xl font-bold mb-3">
-                  {step.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-white/80 text-sm leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* CTA */}
-        <div className="text-center">
-          <Link href="/partner/onboarding">
-            <Button
-              size="lg"
-              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold px-10 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              Start earning today
-              <PiArrowRightBold className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

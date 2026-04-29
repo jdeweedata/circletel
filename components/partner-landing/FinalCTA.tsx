@@ -1,19 +1,13 @@
 'use client';
-import { PiArrowRightBold, PiCheckCircleBold} from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckCircleBold, PiWhatsappLogoBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export function FinalCTA() {
   return (
-    <section className="py-16 bg-gradient-to-br from-circleTel-navy via-purple-900 to-circleTel-navy text-white relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-64 h-64 bg-circleTel-orange rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-      </div>
-
-      <div className="container mx-auto px-4 relative z-10">
+    <section className="py-16 bg-circleTel-navy text-white">
+      <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           {/* Headline */}
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
@@ -22,36 +16,52 @@ export function FinalCTA() {
           </h2>
 
           {/* Subheadline */}
-          <p className="text-white/80 mb-8 max-w-2xl mx-auto text-lg">
+          <p className="text-white/90 mb-8 max-w-2xl mx-auto text-lg">
             Join 200+ partners already earning with CircleTel. Sign up takes 5 minutes.
           </p>
 
           {/* Benefits */}
           <div className="flex flex-wrap justify-center gap-6 mb-8">
             <div className="flex items-center gap-2 text-white/90">
-              <PiCheckCircleBold className="h-5 w-5 text-cyan-400" />
+              <PiCheckCircleBold className="h-5 w-5 text-circleTel-orange" />
               <span>No upfront costs</span>
             </div>
             <div className="flex items-center gap-2 text-white/90">
-              <PiCheckCircleBold className="h-5 w-5 text-cyan-400" />
+              <PiCheckCircleBold className="h-5 w-5 text-circleTel-orange" />
               <span>No experience needed</span>
             </div>
             <div className="flex items-center gap-2 text-white/90">
-              <PiCheckCircleBold className="h-5 w-5 text-cyan-400" />
+              <PiCheckCircleBold className="h-5 w-5 text-circleTel-orange" />
               <span>Paid monthly</span>
             </div>
           </div>
 
-          {/* CTA Button */}
-          <Link href="/partner/onboarding">
-            <Button
-              size="lg"
-              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-10 py-6 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/partner/onboarding">
+              <Button
+                size="lg"
+                className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-10 py-6 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
+              >
+                Join 200+ partners
+                <PiArrowRightBold className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <a
+              href="https://wa.me/27824873900?text=Hi%2C%20I%27m%20interested%20in%20the%20CircleTel%20Partner%20Programme"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              Sign up now
-              <PiArrowRightBold className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-white text-white hover:bg-white hover:text-circleTel-navy font-semibold text-lg px-8 py-6 rounded-xl transition-all"
+              >
+                <PiWhatsappLogoBold className="mr-2 h-5 w-5" />
+                Chat first
+              </Button>
+            </a>
+          </div>
         </div>
       </div>
     </section>

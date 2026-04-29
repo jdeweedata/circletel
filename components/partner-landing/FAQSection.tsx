@@ -13,12 +13,12 @@ const faqs = [
     answer: 'Everything CircleTel offers—Fibre packages from R399/month, LTE and 5G for areas without fibre, and business connectivity solutions. You earn on all of it.',
   },
   {
-    question: 'How and when do I get paid?',
-    answer: 'Commission is paid monthly, directly into your bank account. You can track your earnings in real-time through your partner dashboard. No waiting around.',
+    question: 'When exactly do I get paid?',
+    answer: 'Commissions are paid after your customer\'s first full billing cycle completes, then monthly thereafter. You can track earnings in real-time via your partner dashboard — no guessing, no waiting around.',
   },
   {
-    question: 'Is there a minimum I need to sell?',
-    answer: 'No minimums, no quotas, no pressure. Earn as much or as little as you want. Some partners do this full-time, others just share their link when it comes up naturally.',
+    question: 'Is there a contract or lock-in?',
+    answer: 'No. You can pause or stop at any time. No minimums, no penalties. Some partners do this full-time, others just share their link when it comes up naturally.',
   },
   {
     question: 'What support do I get?',

@@ -140,6 +140,18 @@ export function CommissionCalculator() {
           </div>
         </div>
 
+        {/* Differentiation Callouts */}
+        <div className="mt-8 max-w-3xl mx-auto">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20">
+            <p className="text-center text-white font-semibold mb-2">
+              No hidden terms. No negotiations. See exactly what you earn before you sign up.
+            </p>
+            <p className="text-center text-white/80 text-sm">
+              Unlike once-off referral schemes, you earn every month — not just once.
+            </p>
+          </div>
+        </div>
+
         {/* Bottom Note */}
         <p className="text-center text-white/70 text-sm mt-6">
           * Based on 30% recurring commission. Actual earnings depend on customer retention.

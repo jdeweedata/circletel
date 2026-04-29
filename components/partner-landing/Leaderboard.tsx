@@ -13,13 +13,13 @@ const leaderboardData = [
 
 export function Leaderboard() {
   return (
-    <section className="py-16 bg-circleTel-lightNeutral">
+    <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-circleTel-navy mb-4">
-              2025 Top Earners
+              2026 Top Earners
             </h2>
             <p className="text-circleTel-secondaryNeutral max-w-2xl mx-auto">
               We've paid out over <strong className="text-circleTel-orange">R2,500,000</strong> in commissions this year. Here are our top partners.

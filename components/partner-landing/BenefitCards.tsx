@@ -1,7 +1,6 @@
 'use client';
 import { PiDeviceMobileBold, PiHeadphonesBold, PiLightningBold, PiMoneyBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
-
 const benefits = [
   {
     icon: PiMoneyBold,
@@ -12,7 +11,7 @@ const benefits = [
   {
     icon: PiWifiHighBold,
     title: 'Full Product Range',
-    stat: 'Fibre • LTE • 5G',
+    stat: 'Fibre, LTE, 5G',
     description: 'home, business, and rural connectivity solutions.',
   },
   {
@@ -30,7 +29,7 @@ const benefits = [
   {
     icon: PiHeadphonesBold,
     title: 'Local Support',
-    stat: '24/7',
+    stat: 'SA-based',
     description: 'South African support team. No overseas call centres.',
   },
   {
@@ -43,58 +42,53 @@ const benefits = [
 
 export function BenefitCards() {
   return (
-    <section className="py-16 bg-circleTel-lightNeutral">
+    <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-circleTel-navy mb-4">
             Why Partner With CircleTel?
           </h2>
-          <p className="text-circleTel-secondaryNeutral max-w-2xl mx-auto">
+          <p className="text-circleTel-grey600 max-w-2xl mx-auto">
             Everything you need to start earning from day one.
           </p>
         </div>
 
-        {/* Benefits Grid - Matching home page card style */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Progression Hint */}
+        <div className="text-center mb-10">
+          <p className="text-circleTel-grey600 text-sm bg-circleTel-grey200 inline-block px-4 py-2 rounded-full">
+            Start as a referral partner. As you grow, talk to us about reseller opportunities.
+          </p>
+        </div>
+
+        {/* Benefits Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {benefits.map((benefit, index) => {
             const Icon = benefit.icon;
             return (
               <div
                 key={index}
-                className="bg-white rounded-lg shadow-lg p-6 relative transition-all duration-300 hover:shadow-xl"
+                className="bg-circleTel-grey200 rounded-xl p-6 hover:shadow-lg transition-shadow duration-300"
               >
-                {/* Circular accent in top right */}
-                <div className="absolute -top-4 -right-4 bg-circleTel-lightNeutral rounded-full h-12 w-12 flex items-center justify-center border-4 border-white">
-                  <span className="text-circleTel-orange font-bold">{index + 1}</span>
-                </div>
-
                 {/* Icon */}
-                <div className="w-14 h-14 rounded-full bg-circleTel-orange bg-opacity-10 flex items-center justify-center mb-4">
-                  <Icon className="h-7 w-7 text-circleTel-orange" />
+                <div className="w-12 h-12 rounded-lg bg-circleTel-orange/10 flex items-center justify-center mb-4">
+                  <Icon className="h-6 w-6 text-circleTel-orange" />
                 </div>
-
-                {/* Title */}
-                <h3 className="text-xl font-bold text-circleTel-navy mb-3">
-                  {benefit.title}
-                </h3>
 
                 {/* Stat */}
-                <div className="text-3xl font-bold text-circleTel-orange mb-3">
+                <div className="text-2xl font-bold text-circleTel-orange mb-2">
                   {benefit.stat}
                 </div>
 
+                {/* Title */}
+                <h3 className="text-lg font-semibold text-circleTel-navy mb-2">
+                  {benefit.title}
+                </h3>
+
                 {/* Description */}
-                <p className="text-circleTel-secondaryNeutral">
+                <p className="text-circleTel-grey600 text-sm">
                   {benefit.description}
                 </p>
-
-                {/* Network-themed decoration */}
-                <div className="absolute bottom-0 right-0 w-16 h-16 opacity-10">
-                  <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-circleTel-orange rounded-full"></div>
-                  <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-circleTel-orange rounded-full"></div>
-                  <div className="absolute top-3/4 left-3/4 w-2 h-2 bg-circleTel-orange rounded-full"></div>
-                </div>
               </div>
             );
           })}
