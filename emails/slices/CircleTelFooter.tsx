@@ -172,7 +172,7 @@ export const CircleTelFooter: React.FC<CircleTelFooterProps> = ({
 
       {/* Physical Address - Required by CAN-SPAM and helps deliverability */}
       <Text style={{ margin: '8px 0 0 0', fontSize: '10px', opacity: 0.7, lineHeight: '1.4' }}>
-        Registered Address: 8a Mellis Rd, Rivonia, Sandton, 2128
+        Registered Address: Imagine House, 2 Mellis Road, Rivonia, Sandton, 2191
         <br />
         Company Registration: 2008/026404/07
       </Text>

@@ -34,11 +34,23 @@ export const CONTACT = {
     building: 'Imagine House',
     street: '2 Mellis Road',
     suburb: 'Rivonia',
-    city: 'Rivonia',
+    city: 'Sandton',
     province: 'Gauteng',
-    postalCode: '2128',
+    postalCode: '2191',
     country: 'South Africa',
   },
+
+  // Postal address (same as physical)
+  POSTAL_ADDRESS: {
+    street: '2 Mellis Road',
+    building: 'Imagine House',
+    suburb: 'Rivonia',
+    city: 'Sandton',
+    postalCode: '2191',
+  },
+
+  // Phone for PDFs/formal documents
+  PHONE_FORMAL: '+27 87 087 6307',
 
   // Website
   WEBSITE: 'https://www.circletel.co.za',
@@ -66,11 +78,50 @@ export function formatPhoneInternational(phone: string): string {
 }
 
 /**
- * Format address as a single line
+ * Format address as a single line (full)
+ * "Imagine House, 2 Mellis Road, Rivonia, Sandton, 2191"
  */
 export function formatAddressOneLine(): string {
-  const { building, street, suburb, province, postalCode } = CONTACT.PHYSICAL_ADDRESS
-  return `${building}, ${street}, ${suburb}, ${province}, ${postalCode}`
+  const { building, street, suburb, city, postalCode } = CONTACT.PHYSICAL_ADDRESS
+  return `${building}, ${street}, ${suburb}, ${city}, ${postalCode}`
+}
+
+/**
+ * Format address with pipe separators (for PDF headers)
+ * Line 1: "Imagine House | 2 Mellis Road"
+ * Line 2: "Rivonia | Sandton | 2191"
+ */
+export function formatAddressPipe(): { line1: string; line2: string } {
+  const { building, street, suburb, city, postalCode } = CONTACT.PHYSICAL_ADDRESS
+  return {
+    line1: `${building} | ${street}`,
+    line2: `${suburb} | ${city} | ${postalCode}`,
+  }
+}
+
+/**
+ * Format postal address (same as physical)
+ * "Imagine House, 2 Mellis Road, Rivonia, 2191"
+ */
+export function formatPostalAddress(): string {
+  const { building, street, suburb, postalCode } = CONTACT.POSTAL_ADDRESS
+  return `${building}, ${street}, ${suburb}, ${postalCode}`
+}
+
+/**
+ * Format address for footer display
+ * "Imagine House, 2 Mellis Road, Rivonia, Sandton, 2191"
+ */
+export function formatAddressFooter(): string {
+  return formatAddressOneLine()
+}
+
+/**
+ * Get full company footer line for PDFs
+ * "Circle Tel SA (Pty) Ltd | Imagine House, 2 Mellis Road, Rivonia, Sandton, 2191"
+ */
+export function formatCompanyFooterLine(): string {
+  return `Circle Tel SA (Pty) Ltd | ${formatAddressOneLine()}`
 }
 
 /**

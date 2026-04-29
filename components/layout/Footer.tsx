@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { FaWhatsapp } from 'react-icons/fa';
 import { Logo } from '@/components/navigation/Logo';
-import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
+import { CONTACT, getWhatsAppLink, formatAddressFooter } from '@/lib/constants/contact';
 
 export const Footer = () => {
   return (
@@ -103,7 +103,7 @@ export const Footer = () => {
             <div className="flex items-center">
               <PiMapPinBold size={16} className="mr-2 text-circleTel-orange" />
               <p className="text-sm text-circleTel-lightNeutral">
-                8a Mellis Rd, Rivonia, Sandton, 2128
+                {formatAddressFooter()}
               </p>
             </div>
           </div>

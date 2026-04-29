@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { QuoteDetails } from './types';
 import { calculatePricingBreakdown } from './quote-calculator';
+import { CONTACT, formatAddressPipe, formatPostalAddress, formatCompanyFooterLine } from '@/lib/constants/contact';
 
 interface PDFOptions {
   includeTerms?: boolean;
@@ -103,13 +104,14 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   // Company details (right side)
   doc.setFontSize(7.5);
   const headerRight = pageWidth - 20;
-  
-  doc.text('8a Mellis Rd | Rivonia', headerRight, 10, { align: 'right' });
-  doc.text('Sandton | 2128', headerRight, 14, { align: 'right' });
-  doc.text('PO Box 3895, 2128', headerRight, 18, { align: 'right' });
-  doc.text('TEL: +27 87 087 6305', headerRight, 22, { align: 'right' });
-  doc.text('EMAIL: contactus@circletel.co.za', headerRight, 26, { align: 'right' });
-  doc.text('WEB: www.circletel.co.za', headerRight, 30, { align: 'right' });
+  const addressPipe = formatAddressPipe();
+
+  doc.text(addressPipe.line1, headerRight, 10, { align: 'right' });
+  doc.text(addressPipe.line2, headerRight, 14, { align: 'right' });
+  doc.text(formatPostalAddress(), headerRight, 18, { align: 'right' });
+  doc.text(`TEL: ${CONTACT.PHONE_FORMAL}`, headerRight, 22, { align: 'right' });
+  doc.text(`EMAIL: ${CONTACT.EMAIL_PRIMARY}`, headerRight, 26, { align: 'right' });
+  doc.text(`WEB: ${CONTACT.WEBSITE_SHORT}`, headerRight, 30, { align: 'right' });
 
   yPos = 45;
 
@@ -588,8 +590,8 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   doc.setFontSize(7.5);
   doc.setTextColor(150, 150, 150);
   doc.setFont('helvetica', 'normal');
-  doc.text('CircleTel (Pty) Ltd | 8a Mellis Rd, Rivonia, Sandton, 2128 | PO Box 3895, 2128', pageWidth / 2, footerY, { align: 'center' });
-  doc.text('www.circletel.co.za | contactus@circletel.co.za | TEL: +27 87 087 6305', pageWidth / 2, footerY + 4, { align: 'center' });
+  doc.text(formatCompanyFooterLine(), pageWidth / 2, footerY, { align: 'center' });
+  doc.text(`${CONTACT.WEBSITE_SHORT} | ${CONTACT.EMAIL_PRIMARY} | TEL: ${CONTACT.PHONE_FORMAL}`, pageWidth / 2, footerY + 4, { align: 'center' });
 
   return doc;
 }

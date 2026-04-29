@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { QuoteDetails } from './types';
 import { CIRCLETEL_LOGO_BASE64 } from './circletel-logo-base64';
+import { CONTACT, formatAddressPipe, formatPostalAddress } from '@/lib/constants/contact';
 
 interface PDFOptions {
   includeTerms?: boolean;
@@ -52,18 +53,19 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(75, 75, 75);
     const rightX = pageWidth - 15;
-    doc.text('8a Mellis Rd | Rivonia', rightX, 12, { align: 'right' });
-    doc.text('Sandton | 2128', rightX, 17, { align: 'right' });
-    doc.text('PO Box 3895, 2128', rightX, 22, { align: 'right' });
-    doc.text('TEL: +27 87 087 6307', rightX, 27, { align: 'right' });
+    const addressPipe = formatAddressPipe();
+    doc.text(addressPipe.line1, rightX, 12, { align: 'right' });
+    doc.text(addressPipe.line2, rightX, 17, { align: 'right' });
+    doc.text(formatPostalAddress(), rightX, 22, { align: 'right' });
+    doc.text(`TEL: ${CONTACT.PHONE_FORMAL}`, rightX, 27, { align: 'right' });
     doc.setTextColor(245, 131, 31);
     doc.text('EMAIL: ', rightX - 45, 32, { align: 'left' });
     doc.setTextColor(75, 75, 75);
-    doc.text('contactus@circletel.co.za', rightX, 32, { align: 'right' });
+    doc.text(CONTACT.EMAIL_PRIMARY, rightX, 32, { align: 'right' });
     doc.setTextColor(245, 131, 31);
     doc.text('WEB: ', rightX - 37, 37, { align: 'left' });
     doc.setTextColor(75, 75, 75);
-    doc.text('www.circletel.co.za', rightX, 37, { align: 'right' });
+    doc.text(CONTACT.WEBSITE_SHORT, rightX, 37, { align: 'right' });
 
     // Orange horizontal line
     doc.setDrawColor(245, 131, 31);

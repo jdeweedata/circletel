@@ -96,10 +96,9 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
           
           {/* Company Contact Information */}
           <div className="text-right text-sm text-gray-700" style={{ lineHeight: '1.6' }}>
-            <p>8a Mellis Rd | Rivonia</p>
-            <p>Sandton | 2128</p>
-            <p>PO Box 3895, 2128</p>
-            <p className="mt-1">TEL: +27 87 087 6305</p>
+            <p>Imagine House | 2 Mellis Road</p>
+            <p>Rivonia | Sandton | 2191</p>
+            <p className="mt-1">TEL: +27 87 087 6307</p>
             <p>
               <span className="font-semibold text-circleTel-orange">EMAIL</span>
               <span>contactus@circletel.co.za</span>
@@ -354,14 +353,14 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
           </div>
           <div>
             <h4 className="font-semibold mb-2 text-gray-900">Physical Address</h4>
-            <p>8a Mellis Rd</p>
-            <p>Rivonia, Sandton, 2128</p>
-            <p>2128, South Africa</p>
+            <p>Imagine House, 2 Mellis Road</p>
+            <p>Rivonia, Sandton, 2191</p>
+            <p>South Africa</p>
           </div>
           <div>
             <h4 className="font-semibold mb-2 text-gray-900">Postal Address</h4>
-            <p>PO Box 3895</p>
-            <p>Rivonia, 2128</p>
+            <p>Imagine House, 2 Mellis Road</p>
+            <p>Rivonia, Sandton, 2191</p>
             <p>South Africa</p>
           </div>
         </div>

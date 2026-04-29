@@ -29,7 +29,7 @@ const siteSettingsData = {
   contactInfo: {
     phone: '082 487 3900',
     email: 'contactus@circletel.co.za',
-    address: 'Imagine House, 2 Mellis Rd, Rivonia, Sandton, 2191',
+    address: 'Imagine House, 2 Mellis Road, Rivonia, Sandton, 2191',
     supportHours: 'Mon–Fri 8am–5pm SAST',
   },
   socialLinks: {

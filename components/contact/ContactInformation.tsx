@@ -37,10 +37,10 @@ const ContactInformation: React.FC<ContactInformationProps> = ({ className }) =>
           </div>
           <div>
             <h3 className="font-bold text-circleTel-navy">Email</h3>
-            <p className="text-circleTel-secondaryNeutral">contactus@circletel.co.za</p>
+            <p className="text-circleTel-secondaryNeutral">{CONTACT.EMAIL_PRIMARY}</p>
           </div>
         </div>
-        
+
         <div className="flex items-start">
           <div className="bg-circleTel-lightNeutral rounded-full p-3 mr-3 text-circleTel-orange">
             <PiMapPinBold size={20} />
@@ -48,10 +48,10 @@ const ContactInformation: React.FC<ContactInformationProps> = ({ className }) =>
           <div>
             <h3 className="font-bold text-circleTel-navy">Address</h3>
             <p className="text-circleTel-secondaryNeutral">
-              8a Mellis Rd<br />
-              Rivonia, Sandton<br />
-              2128<br />
-              South Africa
+              {CONTACT.PHYSICAL_ADDRESS.building}, {CONTACT.PHYSICAL_ADDRESS.street}<br />
+              {CONTACT.PHYSICAL_ADDRESS.suburb}, {CONTACT.PHYSICAL_ADDRESS.city}<br />
+              {CONTACT.PHYSICAL_ADDRESS.postalCode}<br />
+              {CONTACT.PHYSICAL_ADDRESS.country}
             </p>
           </div>
         </div>
