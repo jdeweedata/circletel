@@ -13,7 +13,7 @@ jobs:
     # Self-hosted runner on VPS (24GB RAM, 8 cores) — GitHub-hosted ubuntu-latest (7GB) OOMs.
     # Setup: /home/actions-runner on the VPS, registered as label "self-hosted".
     runs-on: self-hosted
-    timeout-minutes: 20
+    timeout-minutes: 35
     permissions:
       contents: read
       packages: write
@@ -85,7 +85,7 @@ jobs:
       - name: Save Next.js SWC cache
         run: |
           mkdir -p /home/actions-runner/.next-cache
-          rsync -a --delete .next/cache/ /home/actions-runner/.next-cache/
+          timeout 120 rsync -a --delete .next/cache/ /home/actions-runner/.next-cache/ || echo "Cache save timed out — skipping"
           echo "Cache saved ($(du -sh /home/actions-runner/.next-cache | cut -f1))"
 
       - name: Login to GHCR
