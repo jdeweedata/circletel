@@ -16,6 +16,7 @@ Guidance for Claude Code when working with CircleTel codebase.
 | Skills | [Superpowers Pipeline](#superpowers-pipeline-mandatory) | See mandatory pipeline stages |
 | Karpathy principles | [Karpathy Foundation](#-karpathy-foundation-4-guiding-principles) | Think → Simple → Surgical → Goal-Driven |
 | Memory OS           | [Memory OS](#️-memory-os) | `memory-os/long-term/`, `short-term/`, `self-improvement/` |
+| Design system       | `DESIGN.md` (project root) | `npx @google/design.md lint DESIGN.md` |
 
 ---
 
@@ -109,7 +110,7 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
 
 **CircleTel** — B2B/B2C ISP platform for South Africa
 **Stack**: Next.js 15, TypeScript, Supabase (`agyjovdugmtopasyvlng`), Tailwind, NetCash Pay Now
-**Production**: https://www.circletel.co.za | **Staging**: https://circletel-staging.vercel.app
+**Production**: https://www.circletel.co.za | **Hosting**: Coolify on VPS 94.72.104.81
 
 ---
 
@@ -120,6 +121,16 @@ npm run dev:memory          # Dev server (8GB heap)
 npm run type-check:memory   # Type check (4GB heap) — MANDATORY before commit
 npm run build:memory        # Production build (8GB heap)
 ```
+
+## Design Tooling (Pencil CLI)
+
+```bash
+pencil --out designs/filename.pen --prompt "..."          # Generate design
+pencil --in designs/filename.pen --export designs/filename.png  # Export preview
+```
+
+- Auth key: `PENCIL_CLI_KEY` in `.env.local`
+- Design files go in `designs/` — never project root
 
 ---
 
@@ -247,6 +258,7 @@ See `.env.example` for complete list.
 | Skill | Gate |
 |-------|------|
 | `compound:compound` | MUST invoke when: task >30min, pattern found, correction received, tricky debug |
+| `memory-os:memory-os` | MUST invoke when: session ends, user corrects, decision made, pattern found, bug fixed |
 
 See `.claude/rules/compound-learnings.md` for triggers and templates.
 
@@ -257,6 +269,7 @@ See `.claude/rules/compound-learnings.md` for triggers and templates.
 | `superpowers:receiving-code-review` | When PR feedback or review comments are received |
 | `superpowers:using-git-worktrees` | When feature work needs isolation from main branch |
 | `superpowers:writing-skills` | When creating or editing Claude Code skills |
+| `memory-os:memory-os` | Auto-triggers: session start/end, corrections, decisions, patterns, bugs, task completion |
 
 ### Product Management Skills (invoke for product work)
 
@@ -281,10 +294,13 @@ See `.claude/rules/product-management.md` for detailed triggers.
 # 1. Run context analysis (MANDATORY)
 powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
 
-# 2. Start dev server
+# 2. Memory OS auto-loads (reads mistakes, active tasks, improvement plan)
+# No manual prompt needed — the memory-os skill handles this automatically
+
+# 3. Start dev server
 npm run dev:memory
 
-# 3. Type check
+# 4. Type check
 npm run type-check:memory
 ```
 
@@ -393,4 +409,4 @@ Next session: read improvement-plan.md BEFORE starting work
 
 ---
 
-**Version**: 9.0 | **Updated**: 2026-04-28 | **Lines**: ~305
+**Version**: 9.1 | **Updated**: 2026-04-28 | **Lines**: ~315
