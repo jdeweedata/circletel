@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
 
                 <p style="font-size: 12px; color: #9CA3AF; text-align: center;">
                   © ${new Date().getFullYear()} CircleTel. All rights reserved.<br>
-                  8a Mellis Rd, Rivonia, Sandton, 2128<br>
+                  Imagine House, 2 Mellis Road, Rivonia, Sandton, 2191<br>
                   <a href="mailto:contactus@circletel.co.za" style="color: #F5831F; text-decoration: none;">contactus@circletel.co.za</a> |
                   <a href="https://wa.me/27824873900" style="color: #F5831F; text-decoration: none;">082 487 3900</a>
                 </p>
