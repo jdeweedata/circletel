@@ -316,8 +316,8 @@ Thank you for choosing CircleTel!
                         <div>
                           <p className="font-semibold text-circleTel-navy">Address</p>
                           <p className="text-circleTel-secondaryNeutral">
-                            8a Mellis Rd<br />
-                            Rivonia, Sandton, 2128
+                            Imagine House, 2 Mellis Road<br />
+                            Rivonia, Sandton, 2191
                           </p>
                         </div>
                       </div>

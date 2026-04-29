@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Stream Everything. Pay Less.',
     description: 'Mecool Android TV + CircleTel internet from R499/mo',
-    images: ['/images/entertainment/entertainment-hero.jpg'],
+    images: ['/images/entertainment/entertainment-hero.png'],
   },
 }
 
