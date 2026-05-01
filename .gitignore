@@ -220,3 +220,6 @@ scripts/tarana/screenshots/
 # Design tool session artifacts
 .design/screenshots/
 designs/
+
+# Large binary brand assets (store in Google Drive instead)
+docs/brand/*.zip
