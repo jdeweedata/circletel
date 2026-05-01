@@ -56,8 +56,9 @@ const nextConfig = {
     // VPS (24GB/8 cores): 4 cores for parallel compilation via child processes
     // workerThreads disabled — causes DataCloneError when custom webpack function
     // (and next-pwa) are present, because functions can't be structuredClone'd
+    // SELF_HOSTED=true overrides isCI so the VPS runner uses 4 cores, not 1
     workerThreads: false,
-    cpus: (isVercel || isCI) ? 1 : 4,
+    cpus: (isVercel || (isCI && !process.env.SELF_HOSTED)) ? 1 : 4,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports

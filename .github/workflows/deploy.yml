@@ -69,6 +69,7 @@ jobs:
       - name: Build Next.js
         run: NODE_OPTIONS='--max-old-space-size=8192' npm run build
         env:
+          SELF_HOSTED: 'true'
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
           NEXT_PUBLIC_APP_URL: https://www.circletel.co.za
