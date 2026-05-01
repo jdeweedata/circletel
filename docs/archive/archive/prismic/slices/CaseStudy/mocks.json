@@ -1,0 +1,27 @@
+[
+  {
+    "variation": "default",
+    "name": "Default",
+    "slice_type": "case_study",
+    "items": [],
+    "primary": {
+      "title": "Urban Business Case Study",
+      "quote": [
+        {
+          "type": "paragraph",
+          "text": "As a financial services firm in Sandton, we required guaranteed uptime and low latency. CircleTel's enterprise fibre solution delivered consistent sub-5ms latency to our cloud providers and 99.99% uptime, even during load shedding thanks to their integrated power solutions.",
+          "spans": [
+            {
+              "start": 120,
+              "end": 152,
+              "type": "strong"
+            }
+          ]
+        }
+      ],
+      "author": "Johannesburg Financial Services Client",
+      "company": "",
+      "background_color": "white"
+    }
+  }
+]

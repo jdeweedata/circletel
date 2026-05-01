@@ -1,0 +1,60 @@
+[
+  {
+    "variation": "default",
+    "name": "Default",
+    "slice_type": "recipe",
+    "items": [],
+    "primary": {
+      "badge_text": "Most Popular",
+      "badge_color": "blue",
+      "title": "Basic IT Recipe",
+      "description": [
+        {
+          "type": "paragraph",
+          "text": "Our foundational IT service package designed for small businesses that need reliable support without the complexity.",
+          "spans": []
+        }
+      ],
+      "ingredients_title": "Ingredients:",
+      "ingredients": [
+        {
+          "type": "list-item",
+          "text": "Help Desk Support (8/5)",
+          "spans": []
+        },
+        {
+          "type": "list-item",
+          "text": "Basic Security Suite",
+          "spans": []
+        },
+        {
+          "type": "list-item",
+          "text": "Cloud Email Setup",
+          "spans": []
+        },
+        {
+          "type": "list-item",
+          "text": "Data Backup Solutions",
+          "spans": []
+        }
+      ],
+      "price": "R3,500/mo",
+      "cta_text": "Get Started",
+      "cta_link": {
+        "link_type": "Web",
+        "url": "/contact"
+      },
+      "testimonial_quote": [
+        {
+          "type": "paragraph",
+          "text": "CircleTel's Basic IT Recipe gave us the perfect amount of support without breaking our budget. Their team is responsive and always explains things in plain language.",
+          "spans": []
+        }
+      ],
+      "testimonial_author": "Sarah Baloyi",
+      "testimonial_company": "Green Leaf Accounting",
+      "testimonial_initials": "SB",
+      "background_color": "white"
+    }
+  }
+]

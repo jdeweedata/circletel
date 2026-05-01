@@ -207,3 +207,16 @@ memory-os/self-improvement/scores.md
 
 # Prototyping tool — local only
 tools/open-design/
+
+# Playwright MCP session artifacts
+.playwright-mcp/*.log
+.playwright-mcp/*.yml
+
+# Scratch / temp files
+*.bak
+scripts/ocr_samples_dump.txt
+scripts/tarana/screenshots/
+
+# Design tool session artifacts
+.design/screenshots/
+designs/

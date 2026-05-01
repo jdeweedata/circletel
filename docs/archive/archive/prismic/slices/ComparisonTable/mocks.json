@@ -1,0 +1,54 @@
+[
+  {
+    "variation": "default",
+    "name": "Default",
+    "slice_type": "comparison_table",
+    "items": [
+      {
+        "row_label": "Urban Availability",
+        "column_1_value": "★★★★★",
+        "column_2_value": "★★★★☆",
+        "column_3_value": "★★★★☆",
+        "column_4_value": "★★★★★",
+        "highlight_row": false
+      },
+      {
+        "row_label": "Speed (Mbps)",
+        "column_1_value": "100-1000",
+        "column_2_value": "300-900",
+        "column_3_value": "50-200",
+        "column_4_value": "10-80",
+        "highlight_row": true
+      },
+      {
+        "row_label": "Deployment Time",
+        "column_1_value": "1-4 weeks",
+        "column_2_value": "Same day",
+        "column_3_value": "2-5 days",
+        "column_4_value": "Same day",
+        "highlight_row": false
+      }
+    ],
+    "primary": {
+      "section_title": [
+        {
+          "type": "heading2",
+          "text": "Connectivity Comparison",
+          "spans": []
+        }
+      ],
+      "section_description": [
+        {
+          "type": "paragraph",
+          "text": "Compare different connectivity options for your business needs.",
+          "spans": []
+        }
+      ],
+      "column_1_header": "Fibre",
+      "column_2_header": "5G",
+      "column_3_header": "Fixed Wireless",
+      "column_4_header": "LTE",
+      "footer_note": "*Deployment times may vary based on location and infrastructure availability"
+    }
+  }
+]

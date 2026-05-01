@@ -1,0 +1,226 @@
+/**
+ * {{FUNCTION_NAME}} Inngest Function
+ *
+ * {{DESCRIPTION}}
+ *
+ * Features:
+ * - Step-based execution for reliability and resumability
+ * - Automatic retries (3 attempts)
+ * - Cancellation support
+ * - Failure event handling
+ *
+ * Triggers:
+ * - Event: '{{EVENT_NAMESPACE}}/{{EVENT_NAME}}.requested'
+ * - Cron: {{CRON_SCHEDULE}} (optional, remove if not needed)
+ */
+
+import { inngest } from '../client';
+import { createClient } from '@/lib/supabase/server';
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+interface {{FUNCTION_NAME}}Result {
+  // Define your result structure
+  success: boolean;
+  // Add other fields as needed
+}
+
+// =============================================================================
+// MAIN FUNCTION
+// =============================================================================
+
+export const {{FUNCTION_ID}}Function = inngest.createFunction(
+  {
+    id: '{{FUNCTION_ID}}',
+    name: '{{FUNCTION_DISPLAY_NAME}}',
+    retries: 3,
+    cancelOn: [
+      {
+        event: '{{EVENT_NAMESPACE}}/{{EVENT_NAME}}.cancelled',
+        match: 'data.{{PRIMARY_ID}}',
+      },
+    ],
+  },
+  [
+    // Uncomment for scheduled execution:
+    // { cron: '{{CRON_SCHEDULE}}' },
+    { event: '{{EVENT_NAMESPACE}}/{{EVENT_NAME}}.requested' },
+  ],
+  async ({ event, step }) => {
+    const { {{PRIMARY_ID}} } = event.data;
+    const startTime = Date.now();
+
+    try {
+      // Step 1: Initial setup / validation
+      await step.run('validate-input', async () => {
+        const supabase = await createClient();
+
+        // Validate the resource exists
+        const { data, error } = await supabase
+          .from('{{TABLE_NAME}}')
+          .select('id')
+          .eq('id', {{PRIMARY_ID}})
+          .single();
+
+        if (error || !data) {
+          throw new Error(`Resource not found: ${{{PRIMARY_ID}}}`);
+        }
+
+        console.log(`[{{FUNCTION_NAME}}] Starting for ${{{PRIMARY_ID}}}`);
+      });
+
+      // Step 2: Parallel operations (if applicable)
+      // CRITICAL: Order matters - index positions must match destructuring below
+      const results = await step.run('parallel-operations', async () => {
+        const [result1, result2] = await Promise.allSettled([
+          // Add your parallel operations here
+          Promise.resolve({ success: true }),
+          Promise.resolve({ success: true }),
+        ]);
+
+        return {
+          result1: result1.status === 'fulfilled' ? result1.value : null,
+          result2: result2.status === 'fulfilled' ? result2.value : null,
+        };
+      });
+
+      // Step 3: Process results
+      const processedData = await step.run('process-results', async () => {
+        // Process and aggregate results
+        return {
+          // Your processed data
+        };
+      });
+
+      // Step 4: Persist to database
+      const duration = Date.now() - startTime;
+
+      await step.run('persist-results', async () => {
+        const supabase = await createClient();
+
+        const { error } = await supabase
+          .from('{{TABLE_NAME}}')
+          .update({
+            // Your update fields
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', {{PRIMARY_ID}});
+
+        if (error) {
+          throw new Error(`Failed to persist results: ${error.message}`);
+        }
+
+        console.log(`[{{FUNCTION_NAME}}] Complete for ${{{PRIMARY_ID}}} (${duration}ms)`);
+      });
+
+      // Step 5: Send completion event
+      await step.run('send-completion-event', async () => {
+        await inngest.send({
+          name: '{{EVENT_NAMESPACE}}/{{EVENT_NAME}}.completed',
+          data: {
+            {{PRIMARY_ID}},
+            duration_ms: duration,
+            success: true,
+          },
+        });
+      });
+
+      return {
+        success: true,
+        {{PRIMARY_ID}},
+        duration_ms: duration,
+      };
+
+    } catch (error) {
+      // CRITICAL: Always send failure event before re-throwing
+      await step.run('send-failure-event', async () => {
+        await inngest.send({
+          name: '{{EVENT_NAMESPACE}}/{{EVENT_NAME}}.failed',
+          data: {
+            {{PRIMARY_ID}},
+            error: error instanceof Error ? error.message : 'Unknown error',
+            attempt: 1,
+          },
+        });
+      });
+      throw error;
+    }
+  }
+);
+
+// =============================================================================
+// COMPLETION HANDLER
+// =============================================================================
+
+export const {{FUNCTION_ID}}CompletedFunction = inngest.createFunction(
+  {
+    id: '{{FUNCTION_ID}}-completed',
+    name: '{{FUNCTION_DISPLAY_NAME}} Completed Handler',
+  },
+  { event: '{{EVENT_NAMESPACE}}/{{EVENT_NAME}}.completed' },
+  async ({ event, step }) => {
+    const { {{PRIMARY_ID}}, duration_ms } = event.data;
+
+    await step.run('log-completion', async () => {
+      console.log(
+        `[{{FUNCTION_NAME}}] Completed for ${{{PRIMARY_ID}}} (${duration_ms}ms)`
+      );
+
+      // TODO: Add notifications, metrics, or downstream triggers
+    });
+
+    return { logged: true };
+  }
+);
+
+// =============================================================================
+// FAILURE HANDLER
+// =============================================================================
+
+export const {{FUNCTION_ID}}FailedFunction = inngest.createFunction(
+  {
+    id: '{{FUNCTION_ID}}-failed',
+    name: '{{FUNCTION_DISPLAY_NAME}} Failed Handler',
+  },
+  { event: '{{EVENT_NAMESPACE}}/{{EVENT_NAME}}.failed' },
+  async ({ event, step }) => {
+    const { {{PRIMARY_ID}}, error, attempt } = event.data;
+
+    await step.run('handle-failure', async () => {
+      console.error(`[{{FUNCTION_NAME}}] Failed for ${{{PRIMARY_ID}}} (attempt ${attempt}): ${error}`);
+
+      const supabase = await createClient();
+
+      // Update status to failed
+      await supabase
+        .from('{{TABLE_NAME}}')
+        .update({
+          status: 'failed',
+          error_message: error,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', {{PRIMARY_ID}});
+
+      // TODO: Send alert notification
+    });
+
+    return { handled: true };
+  }
+);
+
+// =============================================================================
+// TEMPLATE VARIABLES
+// =============================================================================
+// Replace these placeholders when using this template:
+//
+// {{FUNCTION_NAME}}         - PascalCase name (e.g., FeasibilityCheck)
+// {{FUNCTION_ID}}           - kebab-case ID (e.g., feasibility-check)
+// {{FUNCTION_DISPLAY_NAME}} - Human readable (e.g., Feasibility Coverage Check)
+// {{DESCRIPTION}}           - Function description
+// {{EVENT_NAMESPACE}}       - Event namespace (e.g., feasibility)
+// {{EVENT_NAME}}            - Event name (e.g., check)
+// {{PRIMARY_ID}}            - Primary identifier field (e.g., lead_id)
+// {{TABLE_NAME}}            - Supabase table name (e.g., coverage_leads)
+// {{CRON_SCHEDULE}}         - Cron expression (e.g., 0 22 * * *)

@@ -61,4 +61,19 @@ Prevention: How to avoid this forever
 
 ---
 
+### [2026-04-29] CI hang on "Save Next.js SWC cache" — rsync stalling under memory pressure
+**What happened**: GitHub Actions job appeared stuck on "Build Next.js" for 25+ minutes. Root cause was actually the subsequent rsync step (`Save Next.js SWC cache`) hanging indefinitely. The build had completed but rsync stalled because the VPS was under severe memory pressure (12GB Node heap + Docker overhead pushed system into heavy swap use).
+**Root cause**: rsync becomes unresponsive under swap pressure. The 12GB heap (`--max-old-space-size=12288`) was too large for this VPS — it consumed most available RAM, leaving rsync no clean memory to operate. The failure was **non-deterministic**: same code succeeded on the next run when memory conditions were better.
+**Fix**: 
+1. Added `timeout 120 rsync ... || echo "Cache save timed out — skipping"` to prevent indefinite hang
+2. Bumped `timeout-minutes: 20 → 35` to give proper headroom for 18-minute builds
+3. Prior commit already reduced heap `12288 → 8192` which cut build time from ~18min to ~13min by reducing swap thrashing
+**Prevention**: 
+- Any rsync/cp step after a memory-intensive build step must have a `timeout` guard
+- Self-hosted runner on shared VPS = no memory isolation guarantee — treat all post-build I/O as potentially flaky
+- 8GB heap is the correct ceiling for this VPS (23GB RAM shared with Coolify + curiousfoe + OS)
+- Diagnosis command: check step timestamps via `gh api repos/.../actions/runs/.../jobs` — if a step has no `completed_at` long after the previous step ended, that's the real hang point (not the step GitHub UI shows as "in_progress")
+
+---
+
 > **Rule**: Every correction from the user goes here immediately. This is the most important file in Memory OS.

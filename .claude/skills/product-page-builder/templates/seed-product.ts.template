@@ -1,0 +1,183 @@
+/**
+ * Product Page Seed Script Template
+ *
+ * Usage:
+ * 1. Copy this file to scripts/seed-[product-name].ts
+ * 2. Replace all [PLACEHOLDERS] with actual values
+ * 3. Run: export SANITY_API_TOKEN=$(grep "^SANITY_API_TOKEN" .env.local | cut -d'=' -f2)
+ * 4. Run: npx tsx scripts/seed-[product-name].ts
+ */
+
+import { createClient } from '@sanity/client';
+import { readFileSync } from 'fs';
+
+const client = createClient({
+  projectId: '7iqq2t7l',  // CircleTel Sanity project - DO NOT CHANGE
+  dataset: 'production',
+  apiVersion: '2024-01-01',
+  token: process.env.SANITY_API_TOKEN,
+  useCdn: false,
+});
+
+async function seedProduct() {
+  const PRODUCT_SLUG = '[PRODUCT_SLUG]';  // e.g., 'skyfibre-enterprise'
+  const PRODUCT_NAME = '[PRODUCT_NAME]';  // e.g., 'SkyFibre Enterprise'
+
+  // 1. Upload hero image (generate first with Gemini)
+  const imagePath = `/home/circletel/public/images/products/${PRODUCT_SLUG}-hero.jpg`;
+
+  let heroImageRef: string | null = null;
+  try {
+    const imageBuffer = readFileSync(imagePath);
+    const asset = await client.assets.upload('image', imageBuffer, {
+      filename: `${PRODUCT_SLUG}-hero.jpg`,
+    });
+    heroImageRef = asset._id;
+    console.log('Hero image uploaded:', heroImageRef);
+  } catch (error) {
+    console.log('No hero image found, skipping upload');
+  }
+
+  // 2. Create product document
+  const product = {
+    _id: `productPage-${PRODUCT_SLUG}`,
+    _type: 'productPage',
+    name: PRODUCT_NAME,
+    slug: { _type: 'slug', current: PRODUCT_SLUG },
+
+    // Category: 'consumer' | 'soho' | 'business' | 'enterprise'
+    category: '[CATEGORY]',
+
+    tagline: '[TAGLINE - Outcome-focused, e.g., "Internet that works as hard as you do"]',
+
+    // Hero image (if uploaded)
+    ...(heroImageRef && {
+      heroImage: {
+        _type: 'image',
+        asset: { _type: 'reference', _ref: heroImageRef },
+      },
+    }),
+
+    // Pricing bar (shown below hero)
+    pricing: {
+      startingPrice: [STARTING_PRICE],  // e.g., 1299
+      priceNote: '/mo',
+      showContactForPricing: false,
+    },
+
+    // Key features (4 recommended)
+    // Icons: shield, phone, globe, message-circle, wifi, router, receipt, arrow-up, layout, chart, sim-card
+    keyFeatures: [
+      {
+        _key: 'feature-1',
+        title: '[Feature 1 Title]',
+        description: '[Feature 1 description - keep concise]',
+        icon: 'wifi',
+      },
+      {
+        _key: 'feature-2',
+        title: '[Feature 2 Title]',
+        description: '[Feature 2 description]',
+        icon: 'shield',
+      },
+      {
+        _key: 'feature-3',
+        title: '[Feature 3 Title]',
+        description: '[Feature 3 description]',
+        icon: 'globe',
+      },
+      {
+        _key: 'feature-4',
+        title: '[Feature 4 Title]',
+        description: '[Feature 4 description]',
+        icon: 'router',
+      },
+    ],
+
+    // Technical specifications
+    specifications: [
+      { _key: 'spec-1', label: 'Technology', value: '[e.g., Fixed Wireless Broadband]' },
+      { _key: 'spec-2', label: 'Contention', value: '[e.g., 4:1 Business Grade]' },
+      { _key: 'spec-3', label: 'IP Address', value: '[e.g., Static IP Included]' },
+      { _key: 'spec-4', label: 'Installation', value: '[e.g., Professional Installation]' },
+      { _key: 'spec-5', label: 'Contract', value: '[e.g., 24 months (MTM available)]' },
+      { _key: 'spec-6', label: 'Support', value: '[e.g., 24/7 Technical Support]' },
+    ],
+
+    // Pricing tiers block
+    blocks: [
+      {
+        _type: 'pricingBlock',
+        _key: 'pricing-tiers',
+        headline: 'Choose Your Speed',
+        description: 'Select the plan that fits your business needs. All plans include uncapped data.',
+        plans: [
+          {
+            _key: 'tier-1',
+            name: '[Tier 1 Name]',
+            speed: '[e.g., 50/25 Mbps]',
+            price: [TIER_1_PRICE],
+            period: 'mo',
+            features: [
+              '[Feature 1]',
+              '[Feature 2]',
+              '[Feature 3]',
+              '[Feature 4]',
+            ],
+            ctaLabel: 'Get Started',
+            ctaUrl: `/order/coverage?product=${PRODUCT_SLUG}&tier=tier-1`,
+          },
+          {
+            _key: 'tier-2',
+            name: '[Tier 2 Name]',
+            speed: '[e.g., 100/50 Mbps]',
+            price: [TIER_2_PRICE],
+            period: 'mo',
+            badge: 'Most Popular',
+            featured: true,
+            features: [
+              '[Feature 1]',
+              '[Feature 2]',
+              '[Feature 3]',
+              '[Feature 4]',
+              '[Feature 5 - bonus]',
+            ],
+            ctaLabel: 'Get Started',
+            ctaUrl: `/order/coverage?product=${PRODUCT_SLUG}&tier=tier-2`,
+          },
+          {
+            _key: 'tier-3',
+            name: '[Tier 3 Name]',
+            speed: '[e.g., 200/100 Mbps]',
+            price: [TIER_3_PRICE],
+            period: 'mo',
+            features: [
+              '[Feature 1]',
+              '[Feature 2]',
+              '[Feature 3]',
+              '[Feature 4]',
+              '[Feature 5]',
+              '[Feature 6 - premium]',
+            ],
+            ctaLabel: 'Get Started',
+            ctaUrl: `/order/coverage?product=${PRODUCT_SLUG}&tier=tier-3`,
+          },
+        ],
+        footnote: 'All prices exclude VAT. 24-month contract required. Month-to-month available at additional cost.',
+      },
+    ],
+
+    // SEO metadata
+    seo: {
+      title: `${PRODUCT_NAME} | CircleTel`,
+      description: '[SEO description - 150-160 chars, include key benefits and location]',
+    },
+  };
+
+  // 3. Create or replace in Sanity
+  await client.createOrReplace(product);
+  console.log(`✅ Product created: ${product._id}`);
+  console.log(`📄 View at: http://localhost:3000/products/${PRODUCT_SLUG}`);
+}
+
+seedProduct().catch(console.error);

@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Switch to CircleTel — Better Business Internet on the West Coast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:      oklch(25% 0.07 240);
+    --navy-dk:   oklch(18% 0.06 240);
+    --orange:    oklch(65% 0.16 50);
+    --orange-h:  oklch(55% 0.14 48);
+    --cream:     oklch(97% 0.015 65);
+    --green:     oklch(48% 0.12 162);
+    --green-bg:  oklch(95% 0.03 162);
+    --red-bg:    oklch(95% 0.025 25);
+    --red:       oklch(45% 0.17 25);
+    --mid:       oklch(50% 0.025 240);
+    --border:    oklch(91% 0.012 240);
+    --subtle:    oklch(48% 0.03 240);
+    --wa-green:  oklch(58% 0.18 155);
+    --wa-green-h:oklch(50% 0.16 155);
+    --font-display: 'Barlow Semi Condensed', sans-serif;
+    --font-body:    'Barlow', sans-serif;
+  }
+
+  html { font-size: 16px; }
+  body {
+    font-family: var(--font-body);
+    background: oklch(98% 0.008 240);
+    color: oklch(22% 0.04 240);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── NAV ─────────────────────────────────── */
+  nav {
+    background: var(--navy-dk);
+    padding: 0 5vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--orange); }
+  nav a.nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--wa-green);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+  nav a.nav-cta:hover { background: var(--wa-green-h); }
+  nav a.nav-cta svg { flex-shrink: 0; }
+
+  /* ─── HERO ────────────────────────────────── */
+  .hero {
+    background: var(--navy);
+    padding: 80px 5vw 72px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 90% 40%, rgba(232,122,30,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 1040px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 64px;
+    align-items: center;
+  }
+  .hero-eyebrow {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--orange);
+    background: rgba(232,122,30,0.12);
+    border: 1px solid rgba(232,122,30,0.25);
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.1;
+    color: #fff;
+    letter-spacing: -0.015em;
+    text-wrap: pretty;
+    margin-bottom: 20px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--orange);
+  }
+  .hero-sub {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.7);
+    max-width: 520px;
+    margin-bottom: 36px;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--orange);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 14px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--orange-h); }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 14px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.14); }
+
+  /* Price card */
+  .price-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 32px 28px;
+    text-align: center;
+  }
+  .price-card-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 12px;
+  }
+  .price-figure {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 4.5rem;
+    line-height: 1;
+    color: var(--orange);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .price-figure sup {
+    font-size: 1.8rem;
+    vertical-align: super;
+    letter-spacing: 0;
+  }
+  .price-figure sub {
+    font-size: 1rem;
+    vertical-align: baseline;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0;
+  }
+  .price-desc {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .price-card-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin-bottom: 20px;
+  }
+  .price-savings-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    margin-bottom: 8px;
+  }
+  .price-savings-row .label { color: rgba(255,255,255,0.5); }
+  .price-savings-row .value { color: #fff; font-weight: 600; }
+  .price-savings-row .value.good { color: var(--green-bg); }
+  .price-card-cta {
+    display: block;
+    margin-top: 20px;
+    background: var(--wa-green);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 13px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .price-card-cta:hover { background: var(--wa-green-h); }
+
+  /* ─── TRUST BAR ───────────────────────────── */
+  .trust-bar {
+    background: oklch(99% 0.006 240);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 5vw;
+  }
+  .trust-bar-inner {
+    max-width: 1040px;
+    margin: 0 auto;
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--mid);
+    font-weight: 500;
+  }
+  .trust-item svg { color: var(--orange); flex-shrink: 0; }
+
+  /* ─── SECTION SHELL ───────────────────────── */
+  section { padding: 72px 5vw; }
+  .section-inner { max-width: 1040px; margin: 0 auto; }
+  .section-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    letter-spacing: -0.015em;
+    color: var(--navy);
+    margin-bottom: 12px;
+    text-wrap: pretty;
+  }
+  .section-sub {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--mid);
+    max-width: 560px;
+    margin-bottom: 44px;
+  }
+
+  /* ─── COMPARISON TABLE ────────────────────── */
+  .compare-section { background: oklch(99% 0.006 240); }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 24px rgba(0,0,0,0.04);
+  }
+  .compare-table thead th {
+    padding: 18px 24px;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child {
+    background: oklch(98% 0.008 240);
+    color: var(--mid);
+    width: 26%;
+  }
+  .compare-table thead th.col-shared {
+    background: oklch(98% 0.008 240);
+    color: var(--subtle);
+    width: 37%;
+  }
+  .compare-table thead th.col-ct {
+    background: var(--navy);
+    color: #fff;
+    width: 37%;
+    border-radius: 0 10px 0 0;
+  }
+  .compare-table thead th.col-ct .col-badge {
+    display: inline-block;
+    background: var(--orange);
+    color: #fff;
+    font-size: 0.62rem;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .compare-table tbody tr:last-child td:first-child { border-radius: 0 0 0 10px; }
+  .compare-table tbody tr:last-child td:last-child  { border-radius: 0 0 10px 0; }
+
+  .compare-table tbody td {
+    padding: 16px 24px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .compare-table tbody tr:last-child td { border-bottom: none; }
+  .compare-table tbody td:first-child {
+    background: oklch(98% 0.008 240);
+    font-weight: 600;
+    color: oklch(28% 0.04 240);
+    font-size: 0.82rem;
+  }
+  .compare-table tbody td.cell-bad {
+    background: var(--red-bg);
+    color: var(--red);
+    font-weight: 500;
+  }
+  .compare-table tbody td.cell-good {
+    background: var(--green-bg);
+    color: var(--green);
+    font-weight: 600;
+  }
+  .compare-table tbody td.cell-neutral {
+    background: oklch(99% 0.006 240);
+    color: var(--mid);
+  }
+  .compare-table tbody td.cell-good .chip {
+    display: inline-block;
+    background: var(--green);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .compare-table tbody td.cell-bad .chip {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .table-footnote {
+    font-size: 0.75rem;
+    color: var(--subtle);
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+
+  /* ─── PAIN POINTS ─────────────────────────── */
+  .pain-section { background: oklch(98% 0.008 240); }
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .pain-card {
+    background: oklch(99% 0.006 240);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 24px;
+  }
+  .pain-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--cream);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: var(--orange);
+  }
+  .pain-card h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--navy);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .pain-card p {
+    font-size: 0.83rem;
+    line-height: 1.6;
+    color: var(--mid);
+  }
+
+  /* ─── PACKAGES ────────────────────────────── */
+  .packages-section { background: oklch(99% 0.006 240); }
+  .packages-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .package-card {
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    position: relative;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .package-card:hover {
+    box-shadow: 0 8px 32px rgba(27,42,74,0.1);
+    border-color: var(--orange);
+  }
+  .package-card.featured {
+    border-color: var(--orange);
+    box-shadow: 0 8px 32px rgba(232,122,30,0.15);
+  }
+  .featured-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--orange);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .pkg-speed {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+    margin-bottom: 2px;
+  }
+  .pkg-speed span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--mid);
+  }
+  .pkg-type {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--mid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+  }
+  .pkg-price {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2.4rem;
+    color: var(--orange);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .pkg-price sup { font-size: 1rem; vertical-align: super; }
+  .pkg-price sub {
+    font-size: 0.8rem;
+    color: var(--mid);
+    font-weight: 500;
+    vertical-align: baseline;
+  }
+  .pkg-billing {
+    font-size: 0.75rem;
+    color: var(--mid);
+    margin-bottom: 20px;
+  }
+  .pkg-features {
+    list-style: none;
+    margin-bottom: 24px;
+  }
+  .pkg-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--mid);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .pkg-features li svg { flex-shrink: 0; color: var(--green); margin-top: 1px; }
+  .pkg-cta {
+    display: block;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .pkg-cta.primary {
+    background: var(--orange);
+    color: #fff;
+  }
+  .pkg-cta.primary:hover { background: var(--orange-h); }
+  .pkg-cta.secondary {
+    background: oklch(96% 0.012 240);
+    color: var(--navy);
+  }
+  .pkg-cta.secondary:hover { background: oklch(93% 0.015 240); }
+
+  /* ─── TOWNS ───────────────────────────────── */
+  .towns-section { background: oklch(98% 0.008 240); }
+  .towns-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+  .town-chip {
+    background: oklch(99% 0.006 240);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: oklch(28% 0.04 240);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.1s, color 0.1s;
+  }
+  .town-chip:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .town-chip .town-saving {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--green);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* ─── BOTTOM CTA ──────────────────────────── */
+  .bottom-cta {
+    background: var(--navy);
+    padding: 80px 5vw;
+    text-align: center;
+  }
+  .bottom-cta h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    color: #fff;
+    letter-spacing: -0.015em;
+    margin-bottom: 14px;
+    text-wrap: pretty;
+  }
+  .bottom-cta h2 em {
+    font-style: normal;
+    color: var(--orange);
+  }
+  .bottom-cta p {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.65);
+    max-width: 520px;
+    margin: 0 auto 36px;
+    line-height: 1.65;
+  }
+  .bottom-cta-btns {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--wa-green);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 16px 32px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .btn-whatsapp:hover { background: var(--wa-green-h); }
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 16px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-ghost:hover {
+    border-color: rgba(255,255,255,0.5);
+    color: #fff;
+  }
+
+  .disclaimer {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 28px;
+  }
+
+  /* ─── FOOTER ──────────────────────────────── */
+  footer {
+    background: var(--navy-dk);
+    padding: 24px 5vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.35);
+  }
+  footer .logo { font-size: 1rem; }
+
+  /* ─── FLOATING WA ─────────────────────────── */
+  .wa-float {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 200;
+    background: var(--wa-green);
+    color: #fff;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px oklch(20% 0.05 240 / 0.35);
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .wa-float:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 28px oklch(20% 0.05 240 / 0.45);
+  }
+
+  /* ─── EMAIL FALLBACK ──────────────────────────── */
+  .email-fallback {
+    display: block;
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--mid);
+    margin-top: 8px;
+    text-decoration: none;
+    opacity: 0.85;
+  }
+  .email-fallback:hover { opacity: 1; text-decoration: underline; }
+  .email-fallback-light {
+    color: rgba(255,255,255,0.6);
+  }
+  .email-fallback-light:hover { color: rgba(255,255,255,0.9); }
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─────────────────────────────────────────── -->
+<nav>
+  <div class="logo">Circle<span>Tel</span></div>
+  <a href="https://wa.me/27824873900?text=Hi%2C+I'd+like+better+business+internet+on+the+West+Coast"
+     class="nav-cta" target="_blank">
+    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.12 1.524 5.853L0 24l6.335-1.496A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 01-4.997-1.368l-.358-.213-3.76.888.918-3.672-.234-.376A9.792 9.792 0 012.182 12C2.182 6.574 6.574 2.182 12 2.182S21.818 6.574 21.818 12 17.426 21.818 12 21.818z"/>
+    </svg>
+    Chat on WhatsApp
+  </a>
+</nav>
+
+<!-- ─── HERO ─────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">West Coast Business Internet</div>
+      <h1>Tired of paying more<br>for <em>unreliable</em> wireless?</h1>
+      <p class="hero-sub">
+        Business owners across Vredenburg, Langebaan, Saldanha and 24 more West Coast towns are switching to dedicated fibre-class connectivity — with real SLAs, transparent billing, and support that actually picks up.
+      </p>
+      <div class="hero-ctas">
+        <a href="https://wa.me/27824873900?text=Hi%2C+I'd+like+to+check+my+coverage+and+switch+to+CircleTel"
+           class="btn-primary" target="_blank">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.12 1.524 5.853L0 24l6.335-1.496A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 01-4.997-1.368l-.358-.213-3.76.888.918-3.672-.234-.376A9.792 9.792 0 012.182 12C2.182 6.574 6.574 2.182 12 2.182S21.818 6.574 21.818 12 17.426 21.818 12 21.818z"/>
+          </svg>
+          Check coverage now
+        </a>
+        <a href="mailto:contactus@circletel.co.za" class="email-fallback email-fallback-light">or email us</a>
+        <a href="#compare" class="btn-secondary">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+          See the comparison
+        </a>
+      </div>
+    </div>
+
+    <!-- Price card -->
+    <div class="price-card">
+      <div class="price-card-label">Business Internet from</div>
+      <div class="price-figure"><sup>R</sup>449<sub>/mo</sub></div>
+      <div class="price-desc">
+        10 Mbps dedicated line<br>No contract lock-in · No setup fee
+      </div>
+      <div class="price-card-divider"></div>
+      <div class="price-savings-row">
+        <span class="label">Typical shared wireless</span>
+        <span class="value">R672/mo</span>
+      </div>
+      <div class="price-savings-row">
+        <span class="label">CircleTel Business 10</span>
+        <span class="value">R449/mo</span>
+      </div>
+      <div class="price-savings-row">
+        <span class="label">Your monthly saving</span>
+        <span class="value good">R223 saved</span>
+      </div>
+      <a href="https://wa.me/27824873900?text=Hi%2C+I'd+like+to+get+a+quote+from+CircleTel"
+         class="price-card-cta" target="_blank">
+        Get a free quote →
+      </a>
+      <a href="mailto:contactus@circletel.co.za" class="email-fallback email-fallback-light">or email us</a>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TRUST BAR ─────────────────────────────────────── -->
+<div class="trust-bar">
+  <div class="trust-bar-inner">
+    <div class="trust-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      Installed within 30 days
+    </div>
+    <div class="trust-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      Month-to-month billing
+    </div>
+    <div class="trust-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      4-hour SLA response
+    </div>
+    <div class="trust-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      27 West Coast towns covered
+    </div>
+    <div class="trust-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      Local support team
+    </div>
+  </div>
+</div>
+
+<!-- ─── PAIN POINTS ───────────────────────────────────── -->
+<section class="pain-section">
+  <div class="section-inner">
+    <div class="section-eyebrow">Sound familiar?</div>
+    <h2 class="section-title">The problems shared wireless can't solve</h2>
+    <p class="section-sub">Business owners across the West Coast tell us the same three things when they finally make the switch.</p>
+
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+        <h3>Speed drops when you need it most</h3>
+        <p>Shared spectrum means your business competes with every neighbour for bandwidth — during load-shedding recovery, peak hours, and month-end.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M16 7V5a2 2 0 00-4 0v2M12 12v4"/>
+          </svg>
+        </div>
+        <h3>Surprise billing every month</h3>
+        <p>Usage caps, "congestion fees", and contracts that auto-renew at higher rates. CircleTel charges one flat price — the same every month, guaranteed.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.03 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.28-1.28a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+        </div>
+        <h3>Support that doesn't respond</h3>
+        <p>Logging a ticket when your POS is down and your store has a queue. Our local West Coast team answers calls and responds to faults within 4 hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── COMPARISON TABLE ──────────────────────────────── -->
+<section class="compare-section" id="compare">
+  <div class="section-inner">
+    <div class="section-eyebrow">Side by side</div>
+    <h2 class="section-title">How we stack up against shared wireless</h2>
+    <p class="section-sub">Same West Coast location. Very different service.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="col-shared">Shared Wireless</th>
+          <th class="col-ct">CircleTel<span class="col-badge">RECOMMENDED</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Speed consistency</td>
+          <td class="cell-bad">Shared spectrum — degrades at peak times<span class="chip">VARIES</span></td>
+          <td class="cell-good">Dedicated line · guaranteed throughput<span class="chip">CONSISTENT</span></td>
+        </tr>
+        <tr>
+          <td>Uptime SLA</td>
+          <td class="cell-bad">Best-effort · no SLA commitment</td>
+          <td class="cell-good">99.5% uptime SLA with 4-hour fault response</td>
+        </tr>
+        <tr>
+          <td>Technology</td>
+          <td class="cell-neutral">Fixed wireless — shared tower spectrum</td>
+          <td class="cell-good">MTN backbone · carrier-grade backhaul</td>
+        </tr>
+        <tr>
+          <td>Entry price (10 Mbps)</td>
+          <td class="cell-bad">R672/mo avg across West Coast<span class="chip">HIGHER</span></td>
+          <td class="cell-good">R449/mo · flat rate · no surprises<span class="chip">SAVE R223</span></td>
+        </tr>
+        <tr>
+          <td>Contract</td>
+          <td class="cell-bad">12–24 month lock-in typical</td>
+          <td class="cell-good">Month-to-month · cancel anytime</td>
+        </tr>
+        <tr>
+          <td>Data cap</td>
+          <td class="cell-bad">Capped or throttled after threshold</td>
+          <td class="cell-good">Uncapped on all business packages</td>
+        </tr>
+        <tr>
+          <td>Load-shedding resilience</td>
+          <td class="cell-bad">Tower outages common during Stage 4+</td>
+          <td class="cell-good">Battery backup at network nodes</td>
+        </tr>
+        <tr>
+          <td>Support</td>
+          <td class="cell-bad">Call centre · 24–72h ticket response</td>
+          <td class="cell-good">Local West Coast team · WhatsApp priority</td>
+        </tr>
+        <tr>
+          <td>Setup fee</td>
+          <td class="cell-bad">R999–R2,499 installation</td>
+          <td class="cell-good">Free installation on 12-month plan</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="table-footnote">* Average shared wireless pricing based on published rates for business accounts across 27 West Coast towns, April 2026. CircleTel pricing excludes VAT. Subject to coverage availability.</p>
+  </div>
+</section>
+
+<!-- ─── PACKAGES ─────────────────────────────────────── -->
+<section class="packages-section">
+  <div class="section-inner">
+    <div class="section-eyebrow">Business packages</div>
+    <h2 class="section-title">Pick your speed. No hidden fees.</h2>
+    <p class="section-sub">All packages include uncapped data, free installation on 12-month plan, and 4-hour SLA response.</p>
+
+    <div class="packages-grid">
+      <div class="package-card">
+        <div class="pkg-speed">10 <span>Mbps</span></div>
+        <div class="pkg-type">Business Start</div>
+        <div class="pkg-price"><sup>R</sup>449<sub>/mo</sub></div>
+        <div class="pkg-billing">excl. VAT · month-to-month</div>
+        <ul class="pkg-features">
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            10 Mbps dedicated line
+          </li>
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Uncapped · unshaped
+          </li>
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            4-hour fault response SLA
+          </li>
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Static IP available
+          </li>
+        </ul>
+        <a href="https://wa.me/27824873900?text=I'm+interested+in+CircleTel+Business+10+Mbps"
+           class="pkg-cta secondary" target="_blank">Get a quote</a>
+        <a href="mailto:contactus@circletel.co.za" class="email-fallback">or email us</a>
+      </div>
+
+      <div class="package-card featured">
+        <div class="featured-badge">Most popular</div>
+        <div class="pkg-speed">25 <span>Mbps</span></div>
+        <div class="pkg-type">Business Pro</div>
+        <div class="pkg-price"><sup>R</sup>699<sub>/mo</sub></div>
+        <div class="pkg-billing">excl. VAT · month-to-month</div>
+        <ul class="pkg-features">
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            25 Mbps dedicated line
+          </li>
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Uncapped · unshaped
+          </li>
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            4-hour fault response SLA
+          </li>
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Static IP + priority routing
+          </li>
+        </ul>
+        <a href="https://wa.me/27824873900?text=I'm+interested+in+CircleTel+Business+25+Mbps"
+           class="pkg-cta primary" target="_blank">Get a quote</a>
+        <a href="mailto:contactus@circletel.co.za" class="email-fallback">or email us</a>
+      </div>
+
+      <div class="package-card">
+        <div class="pkg-speed">50 <span>Mbps</span></div>
+        <div class="pkg-type">Business Max</div>
+        <div class="pkg-price"><sup>R</sup>999<sub>/mo</sub></div>
+        <div class="pkg-billing">excl. VAT · month-to-month</div>
+        <ul class="pkg-features">
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            50 Mbps dedicated line
+          </li>
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Uncapped · unshaped
+          </li>
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            2-hour fault response SLA
+          </li>
+          <li>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Dedicated account manager
+          </li>
+        </ul>
+        <a href="https://wa.me/27824873900?text=I'm+interested+in+CircleTel+Business+50+Mbps"
+           class="pkg-cta secondary" target="_blank">Get a quote</a>
+        <a href="mailto:contactus@circletel.co.za" class="email-fallback">or email us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TOWNS ─────────────────────────────────────────── -->
+<section class="towns-section">
+  <div class="section-inner">
+    <div class="section-eyebrow">Coverage area</div>
+    <h2 class="section-title">27 West Coast towns covered</h2>
+    <p class="section-sub">From Yzerfontein to Vredendal — check if we cover your town.</p>
+
+    <div class="towns-grid">
+      <div class="town-chip">Vredenburg<span class="town-saving">Save R223/mo</span></div>
+      <div class="town-chip">Langebaan<span class="town-saving">Save R198/mo</span></div>
+      <div class="town-chip">Saldanha<span class="town-saving">Save R207/mo</span></div>
+      <div class="town-chip">Paternoster<span class="town-saving">Save R185/mo</span></div>
+      <div class="town-chip">Velddrif<span class="town-saving">Save R211/mo</span></div>
+      <div class="town-chip">Hopefield<span class="town-saving">Save R194/mo</span></div>
+      <div class="town-chip">St Helena Bay<span class="town-saving">Save R223/mo</span></div>
+      <div class="town-chip">Jacobsbaai<span class="town-saving">Save R199/mo</span></div>
+      <div class="town-chip">Yzerfontein<span class="town-saving">Save R177/mo</span></div>
+      <div class="town-chip">Darling<span class="town-saving">Save R188/mo</span></div>
+      <div class="town-chip">Riebeek-Kasteel<span class="town-saving">Save R163/mo</span></div>
+      <div class="town-chip">Malmesbury<span class="town-saving">Save R201/mo</span></div>
+      <div class="town-chip">Moorreesburg<span class="town-saving">Save R178/mo</span></div>
+      <div class="town-chip">Piketberg<span class="town-saving">Save R169/mo</span></div>
+      <div class="town-chip">Clanwilliam<span class="town-saving">Save R155/mo</span></div>
+      <div class="town-chip">Citrusdal<span class="town-saving">Save R161/mo</span></div>
+      <div class="town-chip">Vredendal<span class="town-saving">Save R173/mo</span></div>
+      <div class="town-chip">Lutzville<span class="town-saving">Save R167/mo</span></div>
+      <div class="town-chip">Koekenaap<span class="town-saving">Save R158/mo</span></div>
+      <div class="town-chip">Eendekuil<span class="town-saving">Save R152/mo</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BOTTOM CTA ────────────────────────────────────── -->
+<div class="bottom-cta">
+  <h2>Ready to stop overpaying for<br><em>unreliable</em> business internet?</h2>
+  <p>
+    Our team checks coverage and gets you a quote within 2 hours on WhatsApp.
+    No salesperson, no pressure — just honest answers about what's available at your address.
+  </p>
+  <div class="bottom-cta-btns">
+    <a href="https://wa.me/27824873900?text=Hi%2C+I'd+like+to+check+coverage+and+switch+to+CircleTel+business+internet"
+       class="btn-whatsapp" target="_blank">
+      <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.12 1.524 5.853L0 24l6.335-1.496A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 01-4.997-1.368l-.358-.213-3.76.888.918-3.672-.234-.376A9.792 9.792 0 012.182 12C2.182 6.574 6.574 2.182 12 2.182S21.818 6.574 21.818 12 17.426 21.818 12 21.818z"/>
+      </svg>
+      WhatsApp us now
+    </a>
+    <a href="mailto:contactus@circletel.co.za" class="btn-ghost">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
+      contactus@circletel.co.za
+    </a>
+  </div>
+  <p class="disclaimer">Coverage subject to site survey. Pricing excludes VAT. Savings estimates based on average published competitor rates for West Coast business accounts, April 2026.</p>
+</div>
+
+<!-- ─── FOOTER ────────────────────────────────────────── -->
+<footer>
+  <div class="logo">Circle<span style="color:var(--orange)">Tel</span></div>
+  <span>© 2026 CircleTel (Pty) Ltd · West Coast, South Africa</span>
+  <span>082 487 3900</span>
+</footer>
+
+<!-- ─── FLOATING WHATSAPP ─────────────────────────────── -->
+<a href="https://wa.me/27824873900?text=Hi%2C+I'm+interested+in+CircleTel+business+internet"
+   class="wa-float" target="_blank" title="Chat on WhatsApp">
+  <svg width="26" height="26" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.12 1.524 5.853L0 24l6.335-1.496A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 01-4.997-1.368l-.358-.213-3.76.888.918-3.672-.234-.376A9.792 9.792 0 012.182 12C2.182 6.574 6.574 2.182 12 2.182S21.818 6.574 21.818 12 17.426 21.818 12 21.818z"/>
+  </svg>
+</a>
+
+</body>
+</html>

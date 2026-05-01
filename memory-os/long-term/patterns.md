@@ -42,6 +42,13 @@
 - API routes: `app/api/`
 - Public pages: `app/(public)/`
 
+## CI / Self-Hosted Runner Patterns
+- **Heap ceiling**: `--max-old-space-size=8192` (8GB) is the correct limit for this VPS. 12GB causes swap thrashing and slower builds.
+- **rsync must have a timeout guard**: `timeout 120 rsync ... || echo "Cache save timed out — skipping"`. rsync stalls indefinitely under memory pressure.
+- **`timeout-minutes: 35`** on the build job — 18-min build + Docker push + buffer. Never set below 30.
+- **Hang diagnosis**: Step timestamps via `gh api repos/jdeweedata/circletel/actions/runs/<RUN_ID>/jobs` reveal the true hang point. The step GitHub shows "in_progress" is often not the stuck one — look for a step where `started_at` exists but `completed_at` is null long after the previous step ended.
+- **Flaky failures are memory-pressure failures**: Same workflow can succeed or hang depending on VPS memory state at build time. If a build unexpectedly hangs, check `free -h` on the runner before re-running.
+
 ## Deployment Pattern
 - Feature → Staging → Main (2-branch)
 - `git push origin feature/xyz:staging` to test

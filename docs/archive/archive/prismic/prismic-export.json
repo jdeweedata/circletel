@@ -1,0 +1,609 @@
+[
+  {
+    "id": "aaTB0REAACoAyL1t",
+    "uid": "skyfibre-home",
+    "url": null,
+    "type": "product_page",
+    "href": "https://circletel.cdn.prismic.io/api/v2/documents/search?ref=aaTChBEAACkAyL5s&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22aaTB0REAACoAyL1t%22%29+%5D%5D",
+    "tags": [],
+    "first_publication_date": "2026-03-01T22:49:38+0000",
+    "last_publication_date": "2026-03-01T22:49:38+0000",
+    "slugs": [
+      "choose-your-speed"
+    ],
+    "linked_documents": [],
+    "lang": "en-za",
+    "alternate_languages": [],
+    "data": {
+      "product_name": "SkyFibre Home",
+      "tagline": "Fast, Reliable Home Internet for South African Families",
+      "hero_image": {
+        "dimensions": {
+          "width": 2560,
+          "height": 1440
+        },
+        "alt": "South African family enjoying fast home internet",
+        "copyright": null,
+        "url": "https://images.prismic.io/circletel/aaTA8MFoBIGEg9jy_skyfibre-home-hero.jpg?auto=format%2Ccompress&rect=0%2C0%2C2731%2C1536&w=2560&h=1440",
+        "id": "aaTA8MFoBIGEg9jy",
+        "edit": {
+          "x": 0,
+          "y": 0,
+          "zoom": 1,
+          "background": "#ffffff"
+        },
+        "mobile": {
+          "dimensions": {
+            "width": 768,
+            "height": 432
+          },
+          "alt": null,
+          "copyright": null,
+          "url": "https://images.prismic.io/circletel/aaTA8MFoBIGEg9jy_skyfibre-home-hero.jpg?auto=format%2Ccompress&rect=0%2C0%2C2731%2C1536&w=768&h=432",
+          "id": "aaTA8MFoBIGEg9jy",
+          "edit": {
+            "x": 0,
+            "y": 0,
+            "zoom": 1,
+            "background": "#ffffff"
+          }
+        }
+      },
+      "hero_cta_text": "Check Your Coverage",
+      "hero_cta_link": {
+        "link_type": "Web",
+        "key": "6b7ff30e-a1fc-4684-b242-752ffb1f56b2",
+        "url": "/coverage-check"
+      },
+      "slices": [
+        {
+          "variation": "default",
+          "version": "initial",
+          "items": [
+            {
+              "tier_name": "SkyFibre Home Plus",
+              "price": "R799/month",
+              "description": "Perfect for everyday browsing and streaming",
+              "features": [
+                {
+                  "type": "list-item",
+                  "text": "50 Mbps Download / 12.5 Mbps Upload",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Truly Uncapped Data",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Professional Installation Included",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Mon-Fri Support (8am-5pm)",
+                  "spans": []
+                }
+              ],
+              "cta_button_text": "Get Started",
+              "cta_button_link": {
+                "link_type": "Web",
+                "key": "6b095e16-a3f1-4eca-8d28-bffde3ca9112",
+                "url": "/coverage-check?plan=plus"
+              },
+              "is_featured": false
+            },
+            {
+              "tier_name": "SkyFibre Home Max",
+              "price": "R999/month",
+              "description": "Ideal for work-from-home and families",
+              "features": [
+                {
+                  "type": "list-item",
+                  "text": "100 Mbps Download / 25 Mbps Upload",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Truly Uncapped Data",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Professional Installation Included",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Perfect for Video Calls & Streaming",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Mon-Fri Support (8am-5pm)",
+                  "spans": []
+                }
+              ],
+              "cta_button_text": "Get Started",
+              "cta_button_link": {
+                "link_type": "Web",
+                "key": "64dd5859-e71a-42a8-ad18-75057d4b22ab",
+                "url": "/coverage-check?plan=max"
+              },
+              "is_featured": true
+            },
+            {
+              "tier_name": "SkyFibre Home Ultra",
+              "price": "R1,299/month",
+              "description": "Maximum speed for large households",
+              "features": [
+                {
+                  "type": "list-item",
+                  "text": "200 Mbps Download / 50 Mbps Upload",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Truly Uncapped Data",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Professional Installation Included",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Connect 10+ Devices Smoothly",
+                  "spans": []
+                },
+                {
+                  "type": "list-item",
+                  "text": "Mon-Fri Support (8am-5pm)",
+                  "spans": []
+                }
+              ],
+              "cta_button_text": "Get Started",
+              "cta_button_link": {
+                "link_type": "Web",
+                "key": "3f184c5d-3a08-4f68-a590-8a9a7dbd23e2",
+                "url": "/coverage-check?plan=ultra"
+              },
+              "is_featured": false
+            }
+          ],
+          "primary": {
+            "title": [
+              {
+                "type": "heading2",
+                "text": "Choose Your Speed",
+                "spans": []
+              }
+            ],
+            "subtitle": [
+              {
+                "type": "paragraph",
+                "text": "All plans include professional installation, truly uncapped data, and local support.",
+                "spans": []
+              }
+            ]
+          },
+          "id": "pricing_table$6ddd6210-501c-4389-abf3-f8ea4fd9c155",
+          "slice_type": "pricing_table",
+          "slice_label": null
+        },
+        {
+          "variation": "default",
+          "version": "initial",
+          "items": [
+            {
+              "question": "What speeds can I expect?",
+              "answer": [
+                {
+                  "type": "paragraph",
+                  "text": "SkyFibre Home uses MTN's Tarana G1 technology with a 4:1 download-to-upload ratio. Your advertised speed is what you'll consistently get - we don't throttle or apply fair usage policies.",
+                  "spans": []
+                }
+              ]
+            },
+            {
+              "question": "Is installation included?",
+              "answer": [
+                {
+                  "type": "paragraph",
+                  "text": "Yes! Professional installation is included free during our launch period (normally R750). Our technician will mount the outdoor unit, run cabling, and set up your WiFi - typically within 30-45 minutes.",
+                  "spans": []
+                }
+              ]
+            },
+            {
+              "question": "What about load shedding?",
+              "answer": [
+                {
+                  "type": "paragraph",
+                  "text": "The outdoor Tarana unit is PoE-powered from inside your home. If you have a UPS or inverter powering your router, your internet will stay connected during load shedding.",
+                  "spans": []
+                }
+              ]
+            },
+            {
+              "question": "How does this compare to MTN AirFibre?",
+              "answer": [
+                {
+                  "type": "paragraph",
+                  "text": "We use the same MTN Tarana network, but offer professional installation (vs DIY), local support team (vs call centre), static IP options, and truly uncapped data without throttling.",
+                  "spans": []
+                }
+              ]
+            },
+            {
+              "question": "What contract options are available?",
+              "answer": [
+                {
+                  "type": "paragraph",
+                  "text": "We offer month-to-month contracts with no long-term commitment. Simply give us 30 days notice if you ever need to cancel.",
+                  "spans": []
+                }
+              ]
+            }
+          ],
+          "primary": {
+            "section_title": [
+              {
+                "type": "heading2",
+                "text": "Frequently Asked Questions",
+                "spans": []
+              }
+            ],
+            "section_description": [
+              {
+                "type": "paragraph",
+                "text": "Everything you need to know about SkyFibre Home.",
+                "spans": []
+              }
+            ]
+          },
+          "id": "faq$a002aedc-621d-442e-b050-2cdef5c86035",
+          "slice_type": "faq",
+          "slice_label": null
+        }
+      ],
+      "meta_title": "SkyFibre Home | Fast Home Internet | CircleTel",
+      "meta_description": "Get reliable home internet from R799/month. Professional installation, truly uncapped, local support.",
+      "meta_image": {}
+    }
+  },
+  {
+    "id": "aSVBXhIAACkA_MJa",
+    "uid": "enterprise-managed-it-services",
+    "url": null,
+    "type": "service_page",
+    "href": "https://circletel.cdn.prismic.io/api/v2/documents/search?ref=aaTChBEAACkAyL5s&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22aSVBXhIAACkA_MJa%22%29+%5D%5D",
+    "tags": [],
+    "first_publication_date": "2025-11-25T05:46:37+0000",
+    "last_publication_date": "2025-11-25T06:18:07+0000",
+    "slugs": [
+      "enterprise-grade-it-infrastructure-without-the-complexity"
+    ],
+    "linked_documents": [],
+    "lang": "en-za",
+    "alternate_languages": [],
+    "data": {
+      "meta_title": "Enterprise Managed IT Services | CircleTel South Africa",
+      "meta_description": "Reliable managed IT support, cloud security, and 24/7 help desk for SA enterprises. Keep your business connected and compliant with POPIA.",
+      "slices": [
+        {
+          "variation": "default",
+          "version": "initial",
+          "items": [],
+          "primary": {
+            "headline": [
+              {
+                "type": "heading1",
+                "text": "Enterprise-Grade IT Infrastructure Without the Complexity",
+                "spans": []
+              }
+            ],
+            "subheadline": [
+              {
+                "type": "paragraph",
+                "text": "From Cape Town to Johannesburg, we provide South African businesses with proactive IT support, robust cybersecurity, and seamless cloud integration designed for scale.",
+                "spans": []
+              }
+            ],
+            "cta_button_text": "Schedule a Consultation",
+            "background_image": {
+              "dimensions": {
+                "width": 2400,
+                "height": 1792
+              },
+              "alt": null,
+              "copyright": null,
+              "url": "https://images.prismic.io/circletel/aSVCKWGnmrmGqOnG_enterprise-background.jpeg?auto=format,compress",
+              "id": "aSVCKWGnmrmGqOnG",
+              "edit": {
+                "x": 0,
+                "y": 0,
+                "zoom": 1,
+                "background": "transparent"
+              }
+            },
+            "cta_button_link": {
+              "link_type": "Web",
+              "key": "e10af95e-059f-418d-b7e3-92a11eb05d09",
+              "url": "/contact-enterprise"
+            }
+          },
+          "id": "hero_section$96bff0be-01f6-46ec-8d87-e1bfb00ff2b2",
+          "slice_type": "hero_section",
+          "slice_label": null
+        },
+        {
+          "variation": "default",
+          "version": "initial",
+          "items": [],
+          "primary": {
+            "section_title": [
+              {
+                "type": "heading2",
+                "text": "Why Leading SA Companies Partner with CircleTel",
+                "spans": []
+              }
+            ],
+            "features": [
+              {
+                "icon": {
+                  "dimensions": {
+                    "width": 2400,
+                    "height": 1792
+                  },
+                  "alt": null,
+                  "copyright": null,
+                  "url": "https://images.prismic.io/circletel/aSVCKWGnmrmGqOnG_enterprise-background.jpeg?auto=format,compress",
+                  "id": "aSVCKWGnmrmGqOnG",
+                  "edit": {
+                    "x": 0,
+                    "y": 0,
+                    "zoom": 1,
+                    "background": "transparent"
+                  }
+                },
+                "title": "Load Shedding Proof Connectivity",
+                "description": [
+                  {
+                    "type": "paragraph",
+                    "text": "Our data centres run on redundant power systems. We help you architect failover solutions so your operations stay online, even when the grid goes down.",
+                    "spans": []
+                  }
+                ]
+              },
+              {
+                "icon": {
+                  "dimensions": {
+                    "width": 2048,
+                    "height": 2048
+                  },
+                  "alt": null,
+                  "copyright": null,
+                  "url": "https://images.prismic.io/circletel/aSVCIWGnmrmGqOm9_enterprise-security-icon.jpeg?auto=format,compress",
+                  "id": "aSVCIWGnmrmGqOm9",
+                  "edit": {
+                    "x": 0,
+                    "y": 0,
+                    "zoom": 1,
+                    "background": "transparent"
+                  }
+                },
+                "title": "POPIA Compliant Security",
+                "description": [
+                  {
+                    "type": "paragraph",
+                    "text": "Data sovereignty matters. Our local cloud storage and security protocols are designed to ensure your business remains fully compliant with the Protection of Personal Information Act.",
+                    "spans": []
+                  }
+                ]
+              },
+              {
+                "icon": {},
+                "title": "Local 24/7 Support Centre",
+                "description": [
+                  {
+                    "type": "paragraph",
+                    "text": "Speak to local engineers who understand your context. No automated loops—just direct access to certified technicians ready to resolve issues remotely or on-site.",
+                    "spans": []
+                  }
+                ]
+              }
+            ]
+          },
+          "id": "feature_grid$941c7a1f-44b8-4384-ae99-890614aa4083",
+          "slice_type": "feature_grid",
+          "slice_label": null
+        },
+        {
+          "variation": "default",
+          "version": "initial",
+          "items": [],
+          "primary": {
+            "badge_text": "Essential Support",
+            "badge_color": "blue",
+            "title": "The Stability Recipe",
+            "description": [
+              {
+                "type": "paragraph",
+                "text": "Ideal for medium-sized enterprises needing reliable daily operations and foundational security.",
+                "spans": []
+              }
+            ],
+            "ingredients_title": "What's Included:",
+            "ingredients": [
+              {
+                "type": "list-item",
+                "text": "Remote Help Desk (8am - 5pm)",
+                "spans": []
+              },
+              {
+                "type": "list-item",
+                "text": "Microsoft 365 Management",
+                "spans": []
+              },
+              {
+                "type": "list-item",
+                "text": "Managed Endpoint Antivirus",
+                "spans": []
+              },
+              {
+                "type": "list-item",
+                "text": "Daily Off-Site Cloud Backups",
+                "spans": []
+              }
+            ],
+            "price": "From R8,500/mo",
+            "cta_text": "Get a Quote",
+            "cta_link": {
+              "link_type": "Web",
+              "key": "d68acd8f-3f1d-483c-92e9-b73f558662f1",
+              "url": "/contact"
+            },
+            "testimonial_quote": [
+              {
+                "type": "paragraph",
+                "text": "CircleTel migrated our email systems over a weekend with zero downtime. Their team is professional, responsive, and truly understands local business needs.",
+                "spans": []
+              }
+            ],
+            "testimonial_author": "Thabo Mokoena",
+            "testimonial_company": "Mokoena Logistics",
+            "testimonial_initials": "TM",
+            "background_color": "white"
+          },
+          "id": "recipe$82d75aa1-5fac-4664-b09d-c0f841197791",
+          "slice_type": "recipe",
+          "slice_label": null
+        },
+        {
+          "variation": "default",
+          "version": "initial",
+          "items": [],
+          "primary": {
+            "badge_text": "Best for Scale",
+            "badge_color": "purple",
+            "title": "The Growth Recipe",
+            "description": [
+              {
+                "type": "paragraph",
+                "text": "A comprehensive solution for high-demand environments requiring maximum uptime and advanced threat protection.",
+                "spans": []
+              }
+            ],
+            "ingredients_title": "What's Included:",
+            "ingredients": [
+              {
+                "type": "list-item",
+                "text": "24/7 Priority Support & Monitoring",
+                "spans": []
+              },
+              {
+                "type": "list-item",
+                "text": "Advanced Threat Detection (EDR)",
+                "spans": []
+              },
+              {
+                "type": "list-item",
+                "text": "Disaster Recovery Planning",
+                "spans": []
+              },
+              {
+                "type": "list-item",
+                "text": "Dedicated Account Manager",
+                "spans": []
+              },
+              {
+                "type": "list-item",
+                "text": "Monthly Strategic IT Review",
+                "spans": []
+              }
+            ],
+            "price": "From R18,500/mo",
+            "cta_text": "Book Assessment",
+            "cta_link": {
+              "link_type": "Web",
+              "key": "701dc8a2-9197-4c7b-a2f8-1665971b86e5",
+              "url": "/contact"
+            },
+            "testimonial_quote": [
+              {
+                "type": "paragraph",
+                "text": "Since moving to the Growth package, our cybersecurity worries have vanished. The quarterly strategy sessions have also helped us reduce our hardware costs significantly.",
+                "spans": []
+              }
+            ],
+            "testimonial_author": "Sarah van der Merwe",
+            "testimonial_company": "Cape FinTech Solutions",
+            "testimonial_initials": "SM",
+            "background_color": "light-gray"
+          },
+          "id": "recipe$62cdde15-5583-4d8a-87b4-d68009fd2db2",
+          "slice_type": "recipe",
+          "slice_label": null
+        },
+        {
+          "variation": "default",
+          "version": "initial",
+          "items": [
+            {
+              "question": "What are your response times for critical issues?",
+              "answer": [
+                {
+                  "type": "paragraph",
+                  "text": "For our Growth Recipe clients, we guarantee a 1-hour response time for critical outages, though our average response is typically under 15 minutes. We define clear SLAs to ensure your business continuity.",
+                  "spans": []
+                }
+              ]
+            },
+            {
+              "question": "Is my data stored in South Africa?",
+              "answer": [
+                {
+                  "type": "paragraph",
+                  "text": "Yes. To ensure speed and POPIA compliance, we utilise Tier 3 data centres located in Johannesburg and Cape Town. We also offer geo-redundancy options for disaster recovery.",
+                  "spans": []
+                }
+              ]
+            },
+            {
+              "question": "Can you take over from our current IT provider?",
+              "answer": [
+                {
+                  "type": "paragraph",
+                  "text": "Absolutely. We have a structured onboarding process to ensure a smooth transition. We will audit your current setup, obtain necessary credentials, and document your network to prevent any service gaps.",
+                  "spans": []
+                }
+              ]
+            }
+          ],
+          "primary": {
+            "section_title": [
+              {
+                "type": "heading2",
+                "text": "Frequently Asked Questions",
+                "spans": []
+              }
+            ],
+            "section_description": [
+              {
+                "type": "paragraph",
+                "text": "Common queries about our enterprise IT services.",
+                "spans": []
+              }
+            ]
+          },
+          "id": "faq$0124a78e-e946-4700-a11a-99374de23416",
+          "slice_type": "faq",
+          "slice_label": null
+        }
+      ]
+    }
+  }
+]

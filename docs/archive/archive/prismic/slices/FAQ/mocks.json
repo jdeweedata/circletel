@@ -1,0 +1,55 @@
+[
+  {
+    "variation": "default",
+    "name": "Default",
+    "slice_type": "faq",
+    "items": [
+      {
+        "question": "How quickly can you respond to IT issues?",
+        "answer": [
+          {
+            "type": "paragraph",
+            "text": "For small business clients, we guarantee a response within 1 hour during business hours, with most issues being resolved within 4 hours.",
+            "spans": []
+          }
+        ]
+      },
+      {
+        "question": "Can I customize my IT recipe?",
+        "answer": [
+          {
+            "type": "paragraph",
+            "text": "Absolutely! Our recipes are starting points, but we can add or remove ingredients based on your specific business needs and budget.",
+            "spans": []
+          }
+        ]
+      },
+      {
+        "question": "Do I need to sign a long-term contract?",
+        "answer": [
+          {
+            "type": "paragraph",
+            "text": "We offer flexible month-to-month options as well as annual contracts with preferential rates. There's no long-term lock-in if your needs change.",
+            "spans": []
+          }
+        ]
+      }
+    ],
+    "primary": {
+      "section_title": [
+        {
+          "type": "heading2",
+          "text": "Frequently Asked Questions",
+          "spans": []
+        }
+      ],
+      "section_description": [
+        {
+          "type": "paragraph",
+          "text": "Get answers to common questions about our IT services.",
+          "spans": []
+        }
+      ]
+    }
+  }
+]

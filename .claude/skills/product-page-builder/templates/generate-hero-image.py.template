@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""
+Hero Image Generator Template
+
+Usage:
+1. Set GEMINI_API_KEY: export GEMINI_API_KEY=$(grep "^GEMINI_API_KEY" .env.local | cut -d'=' -f2)
+2. Customize PRODUCT_SLUG and PROMPT below
+3. Run: python3 scripts/generate-hero-[product-name].py
+"""
+
+import os
+from google import genai
+from google.genai import types
+
+# Configuration
+PRODUCT_SLUG = "[PRODUCT_SLUG]"  # e.g., 'skyfibre-enterprise'
+OUTPUT_PATH = f"/home/circletel/public/images/products/{PRODUCT_SLUG}-hero.jpg"
+
+# Customize this prompt for your product
+PROMPT = """
+A photorealistic wide-angle shot of a modern [TARGET_ENVIRONMENT]
+with [PEOPLE_DESCRIPTION] in a professional setting.
+The scene features [ENVIRONMENT_DETAILS] with warm lighting.
+In the background, subtle visual elements suggest connectivity -
+[TECHNOLOGY_ELEMENTS like routers, wireless signals, network equipment].
+The color palette emphasizes professional navy blue tones with
+warm orange accent lighting from modern fixtures.
+Natural daylight streams through large windows, creating an
+optimistic, productive atmosphere.
+Shot with a 24mm wide-angle lens, f/2.8, commercial photography quality.
+No text or logos visible.
+"""
+
+def generate_hero_image():
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+
+    print(f"Generating hero image for {PRODUCT_SLUG}...")
+
+    response = client.models.generate_content(
+        model="gemini-3.1-flash-image-preview",
+        contents=[PROMPT],
+        config=types.GenerateContentConfig(
+            response_modalities=['TEXT', 'IMAGE'],
+            image_config=types.ImageConfig(
+                aspect_ratio="16:9",  # Hero format
+                image_size="2K"       # Good quality
+            ),
+        ),
+    )
+
+    for part in response.parts:
+        if part.text:
+            print(f"Model response: {part.text}")
+        elif part.inline_data:
+            image = part.as_image()
+            image.save(OUTPUT_PATH)
+            print(f"✅ Hero image saved to: {OUTPUT_PATH}")
+
+if __name__ == "__main__":
+    generate_hero_image()
