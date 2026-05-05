@@ -63,7 +63,7 @@ export default function ReconciliationQueuePage() {
   const [stats, setStats] = useState<Stats>({ pending: 0, approved: 0, rejected: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('pending');
-  const [sourceFilter, setSourceFilter] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('all');
   const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
@@ -78,7 +78,7 @@ export default function ReconciliationQueuePage() {
     try {
       setLoading(true);
       const params = new URLSearchParams({ status: statusFilter });
-      if (sourceFilter) params.set('source', sourceFilter);
+      if (sourceFilter && sourceFilter !== 'all') params.set('source', sourceFilter);
       const res = await fetch(`/api/admin/billing/reconciliation/queue?${params}`);
       if (!res.ok) throw new Error('Failed to fetch queue');
       const data = await res.json();
@@ -266,7 +266,7 @@ export default function ReconciliationQueuePage() {
             <SelectValue placeholder="All sources" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All sources</SelectItem>
+            <SelectItem value="all">All sources</SelectItem>
             <SelectItem value="zoho_cashbook">EFT (Zoho Cashbook)</SelectItem>
             <SelectItem value="netcash_paynow">PayNow (NetCash)</SelectItem>
           </SelectContent>
