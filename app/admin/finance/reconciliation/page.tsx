@@ -1,375 +1,489 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiPlayBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useEffect, useCallback } from 'react';
+import { PiCheckCircleBold, PiXCircleBold, PiArrowsClockwiseBold, PiMagnifyingGlassBold, PiFunnelBold, PiPlayBold } from 'react-icons/pi';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { format, subDays } from 'date-fns';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
-interface ReconciliationResult {
-  date: string;
-  totalProcessed: number;
-  successful: number;
-  unpaid: number;
-  notFound: number;
-  errors: string[];
-}
-
-interface StatementTransaction {
-  date: string;
-  transactionCode: string;
-  description: string;
+interface QueueItem {
+  id: string;
+  source: string;
+  source_reference: string;
+  source_date: string;
   amount: number;
-  effect: '+' | '-';
-  reference?: string;
-  accountReference?: string;
+  currency: string;
+  payment_method: string;
+  payer_reference: string | null;
+  payer_name: string | null;
+  match_confidence: number;
+  match_method: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  matched_invoice_id: string | null;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  resolution_notes: string | null;
+  raw_data: Record<string, unknown> | null;
+  created_at: string;
 }
 
-interface StatementData {
-  success: boolean;
-  date: string;
-  openingBalance?: number;
-  closingBalance?: number;
-  totalTransactions: number;
-  debitOrderTransactions: number;
-  transactions: StatementTransaction[];
-  error?: string;
+interface Stats {
+  pending: number;
+  approved: number;
+  rejected: number;
+  total: number;
 }
 
-export default function ReconciliationPage() {
-  const [selectedDate, setSelectedDate] = useState<string>(
-    format(subDays(new Date(), 1), 'yyyy-MM-dd')
-  );
-  const [loading, setLoading] = useState(false);
-  const [reconciling, setReconciling] = useState(false);
-  const [statementData, setStatementData] = useState<StatementData | null>(null);
-  const [reconciliationResult, setReconciliationResult] = useState<ReconciliationResult | null>(null);
-  const [recentReconciliations, setRecentReconciliations] = useState<ReconciliationResult[]>([]);
+interface InvoiceSearchResult {
+  id: string;
+  invoice_number: string;
+  total_amount: number;
+  status: string;
+  customer_name?: string;
+  due_date?: string;
+}
 
-  useEffect(() => {
-    // Load recent reconciliation history
-    loadRecentReconciliations();
-  }, []);
+export default function ReconciliationQueuePage() {
+  const [items, setItems] = useState<QueueItem[]>([]);
+  const [stats, setStats] = useState<Stats>({ pending: 0, approved: 0, rejected: 0, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('pending');
+  const [sourceFilter, setSourceFilter] = useState('');
+  const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [invoiceSearch, setInvoiceSearch] = useState('');
+  const [invoiceResults, setInvoiceResults] = useState<InvoiceSearchResult[]>([]);
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceSearchResult | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [triggerLoading, setTriggerLoading] = useState<string | null>(null);
 
-  const loadRecentReconciliations = async () => {
-    // In a real implementation, this would fetch from the cron_execution_log table
-    // For now, we'll leave it empty
-  };
-
-  const fetchStatement = async () => {
-    setLoading(true);
-    setStatementData(null);
-
+  const fetchQueue = useCallback(async () => {
     try {
-      const response = await fetch(`/api/admin/payments/verify?date=${selectedDate}`);
-      const data = await response.json();
-      setStatementData(data);
-    } catch (error) {
-      console.error('Failed to fetch statement:', error);
-      setStatementData({
-        success: false,
-        date: selectedDate,
-        totalTransactions: 0,
-        debitOrderTransactions: 0,
-        transactions: [],
-        error: 'Failed to fetch statement',
-      });
+      setLoading(true);
+      const params = new URLSearchParams({ status: statusFilter });
+      if (sourceFilter) params.set('source', sourceFilter);
+      const res = await fetch(`/api/admin/billing/reconciliation/queue?${params}`);
+      if (!res.ok) throw new Error('Failed to fetch queue');
+      const data = await res.json();
+      setItems(data.items || []);
+      setStats(data.stats || { pending: 0, approved: 0, rejected: 0, total: 0 });
+    } catch {
+      setItems([]);
     } finally {
       setLoading(false);
     }
+  }, [statusFilter, sourceFilter]);
+
+  useEffect(() => {
+    fetchQueue();
+  }, [fetchQueue]);
+
+  const searchInvoices = async (query: string) => {
+    if (query.length < 2) {
+      setInvoiceResults([]);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/billing/invoices?search=${encodeURIComponent(query)}&status=sent,overdue&limit=10`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setInvoiceResults(data.invoices || data.data || []);
+    } catch {
+      setInvoiceResults([]);
+    }
   };
 
-  const runReconciliation = async () => {
-    setReconciling(true);
-    setReconciliationResult(null);
-
+  const handleApprove = async () => {
+    if (!selectedItem || !selectedInvoice) return;
+    setActionLoading(true);
     try {
-      const response = await fetch('/api/cron/payment-reconciliation', {
+      const res = await fetch(`/api/admin/billing/reconciliation/queue/${selectedItem.id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: selectedDate }),
+        body: JSON.stringify({ invoice_id: selectedInvoice.id }),
       });
-      const data = await response.json();
-      setReconciliationResult(data);
-    } catch (error) {
-      console.error('Reconciliation failed:', error);
-      setReconciliationResult({
-        date: selectedDate,
-        totalProcessed: 0,
-        successful: 0,
-        unpaid: 0,
-        notFound: 0,
-        errors: ['Reconciliation request failed'],
-      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setApproveDialogOpen(false);
+      setSelectedItem(null);
+      setSelectedInvoice(null);
+      setInvoiceSearch('');
+      fetchQueue();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to approve');
     } finally {
-      setReconciling(false);
+      setActionLoading(false);
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
-    }).format(amount);
-  };
-
-  const getTransactionCodeBadge = (code: string) => {
-    const successCodes = ['TDD', 'SDD', 'TDC', 'SDC', 'DCS'];
-    const failedCodes = ['DRU', 'DCX', 'DCD', 'DCU'];
-
-    if (successCodes.includes(code)) {
-      return <Badge className="bg-green-500">{code}</Badge>;
+  const handleReject = async () => {
+    if (!selectedItem) return;
+    setActionLoading(true);
+    try {
+      const res = await fetch(`/api/admin/billing/reconciliation/queue/${selectedItem.id}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: rejectReason }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setRejectDialogOpen(false);
+      setSelectedItem(null);
+      setRejectReason('');
+      fetchQueue();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to reject');
+    } finally {
+      setActionLoading(false);
     }
-    if (failedCodes.includes(code)) {
-      return <Badge variant="destructive">{code}</Badge>;
-    }
-    return <Badge variant="secondary">{code}</Badge>;
   };
 
-  const getTransactionDescription = (code: string) => {
-    const descriptions: Record<string, string> = {
-      TDD: 'Two-day debit order',
-      SDD: 'Same-day debit order',
-      TDC: 'Two-day credit card debit',
-      SDC: 'Same-day credit card debit',
-      DCS: 'DebiCheck successful',
-      DRU: 'Debit order unpaid',
-      DCX: 'DebiCheck unsuccessful',
-      DCD: 'DebiCheck disputed',
-      DCU: 'Credit card unpaid',
-    };
-    return descriptions[code] || code;
+  const handleTrigger = async (type: 'eft' | 'paynow' | 'monthly-sweep') => {
+    setTriggerLoading(type);
+    try {
+      const res = await fetch('/api/admin/billing/reconciliation/trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert(`${type} reconciliation triggered successfully`);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to trigger');
+    } finally {
+      setTriggerLoading(null);
+    }
   };
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(amount);
+
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Payment Reconciliation</h1>
-          <p className="text-gray-600">
-            Reconcile debit order payments with NetCash merchant statements
+          <h1 className="text-2xl font-bold text-slate-900">Payment Reconciliation</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Review and approve unmatched payments from EFT and PayNow
           </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleTrigger('eft')}
+            disabled={!!triggerLoading}
+          >
+            <PiPlayBold className="mr-1 h-4 w-4" />
+            {triggerLoading === 'eft' ? 'Running...' : 'Run EFT'}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleTrigger('paynow')}
+            disabled={!!triggerLoading}
+          >
+            <PiPlayBold className="mr-1 h-4 w-4" />
+            {triggerLoading === 'paynow' ? 'Running...' : 'Run PayNow'}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleTrigger('monthly-sweep')}
+            disabled={!!triggerLoading}
+          >
+            <PiPlayBold className="mr-1 h-4 w-4" />
+            {triggerLoading === 'monthly-sweep' ? 'Running...' : 'Monthly Sweep'}
+          </Button>
         </div>
       </div>
 
-      {/* Controls */}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-4 gap-4">
+        <Card className="cursor-pointer hover:ring-2 ring-orange-200" onClick={() => setStatusFilter('pending')}>
+          <CardContent className="pt-4 pb-4">
+            <p className="text-sm text-slate-500">Pending</p>
+            <p className="text-2xl font-bold text-orange-600">{stats.pending}</p>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:ring-2 ring-green-200" onClick={() => setStatusFilter('approved')}>
+          <CardContent className="pt-4 pb-4">
+            <p className="text-sm text-slate-500">Approved</p>
+            <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:ring-2 ring-red-200" onClick={() => setStatusFilter('rejected')}>
+          <CardContent className="pt-4 pb-4">
+            <p className="text-sm text-slate-500">Rejected</p>
+            <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-4">
+            <p className="text-sm text-slate-500">Total</p>
+            <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <div className="flex items-center gap-3">
+        <PiFunnelBold className="h-4 w-4 text-slate-400" />
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="all">All</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All sources" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All sources</SelectItem>
+            <SelectItem value="zoho_cashbook">EFT (Zoho Cashbook)</SelectItem>
+            <SelectItem value="netcash_paynow">PayNow (NetCash)</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button variant="ghost" size="sm" onClick={fetchQueue}>
+          <PiArrowsClockwiseBold className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Queue Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Reconciliation Controls</CardTitle>
-          <CardDescription>
-            Select a date to view the NetCash statement and run reconciliation
-          </CardDescription>
+          <CardTitle className="text-base">
+            Reconciliation Queue ({items.length} items)
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="space-y-2">
-              <Label htmlFor="date">Statement Date</Label>
-              <div className="flex items-center gap-2">
-                <PiCalendarBold className="h-4 w-4 text-gray-500" />
+          {loading ? (
+            <p className="text-sm text-slate-500 py-8 text-center">Loading...</p>
+          ) : items.length === 0 ? (
+            <p className="text-sm text-slate-500 py-8 text-center">No items in queue</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left text-slate-500">
+                    <th className="pb-2 pr-4">Date</th>
+                    <th className="pb-2 pr-4">Source</th>
+                    <th className="pb-2 pr-4">Reference</th>
+                    <th className="pb-2 pr-4">Payer</th>
+                    <th className="pb-2 pr-4 text-right">Amount</th>
+                    <th className="pb-2 pr-4">Status</th>
+                    <th className="pb-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item) => (
+                    <tr key={item.id} className="border-b hover:bg-slate-50">
+                      <td className="py-3 pr-4 whitespace-nowrap">
+                        {item.source_date ? formatDate(item.source_date) : '—'}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <Badge variant="outline" className="text-xs">
+                          {item.source === 'zoho_cashbook' ? 'EFT' : 'PayNow'}
+                        </Badge>
+                      </td>
+                      <td className="py-3 pr-4 font-mono text-xs max-w-[200px] truncate">
+                        {item.payer_reference || item.source_reference}
+                      </td>
+                      <td className="py-3 pr-4 max-w-[150px] truncate">
+                        {item.payer_name || '—'}
+                      </td>
+                      <td className="py-3 pr-4 text-right font-medium">
+                        {formatCurrency(item.amount)}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <Badge
+                          variant={
+                            item.status === 'pending' ? 'secondary' :
+                            item.status === 'approved' ? 'default' : 'destructive'
+                          }
+                          className="text-xs"
+                        >
+                          {item.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3">
+                        {item.status === 'pending' && (
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-green-600 hover:text-green-700 hover:bg-green-50"
+                              onClick={() => {
+                                setSelectedItem(item);
+                                setApproveDialogOpen(true);
+                              }}
+                            >
+                              <PiCheckCircleBold className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => {
+                                setSelectedItem(item);
+                                setRejectDialogOpen(true);
+                              }}
+                            >
+                              <PiXCircleBold className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                        {item.status !== 'pending' && (
+                          <span className="text-xs text-slate-400">
+                            {item.resolved_at ? formatDate(item.resolved_at) : ''}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Approve Dialog */}
+      <Dialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Approve Payment</DialogTitle>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm">
+                <p><span className="text-slate-500">Amount:</span> <strong>{formatCurrency(selectedItem.amount)}</strong></p>
+                <p><span className="text-slate-500">Reference:</span> {selectedItem.payer_reference}</p>
+                <p><span className="text-slate-500">Payer:</span> {selectedItem.payer_name || 'Unknown'}</p>
+                <p><span className="text-slate-500">Date:</span> {selectedItem.source_date ? formatDate(selectedItem.source_date) : '—'}</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Search for invoice to match:</label>
+                <div className="relative">
+                  <PiMagnifyingGlassBold className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    className="pl-9"
+                    placeholder="Invoice number, customer name, or account..."
+                    value={invoiceSearch}
+                    onChange={(e) => {
+                      setInvoiceSearch(e.target.value);
+                      searchInvoices(e.target.value);
+                    }}
+                  />
+                </div>
+                {invoiceResults.length > 0 && (
+                  <div className="border rounded-lg max-h-[200px] overflow-y-auto">
+                    {invoiceResults.map((inv) => (
+                      <button
+                        key={inv.id}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 border-b last:border-b-0 ${
+                          selectedInvoice?.id === inv.id ? 'bg-orange-50 border-orange-200' : ''
+                        }`}
+                        onClick={() => setSelectedInvoice(inv)}
+                      >
+                        <div className="flex justify-between">
+                          <span className="font-medium">{inv.invoice_number}</span>
+                          <span className="font-medium">{formatCurrency(inv.total_amount)}</span>
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          {inv.customer_name} &middot; {inv.status} &middot; Due {inv.due_date ? formatDate(inv.due_date) : '—'}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {selectedInvoice && (
+                  <div className="bg-green-50 border border-green-200 p-2 rounded text-sm">
+                    Selected: <strong>{selectedInvoice.invoice_number}</strong> — {formatCurrency(selectedInvoice.total_amount)}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApproveDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleApprove}
+              disabled={!selectedInvoice || actionLoading}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {actionLoading ? 'Approving...' : 'Approve & Match'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Dialog */}
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Payment</DialogTitle>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm">
+                <p><span className="text-slate-500">Amount:</span> <strong>{formatCurrency(selectedItem.amount)}</strong></p>
+                <p><span className="text-slate-500">Reference:</span> {selectedItem.payer_reference}</p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Reason for rejection (optional):</label>
                 <Input
-                  id="date"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  max={format(subDays(new Date(), 1), 'yyyy-MM-dd')}
-                  className="w-48"
+                  placeholder="e.g. Duplicate, not a customer payment, test transaction..."
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
                 />
               </div>
-              <p className="text-xs text-gray-500">
-                Statements available from 08:30 for the previous day
-              </p>
             </div>
-
-            <Button
-              onClick={fetchStatement}
-              disabled={loading}
-              variant="outline"
-            >
-              {loading ? (
-                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
-              )}
-              Fetch Statement
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              Cancel
             </Button>
-
             <Button
-              onClick={runReconciliation}
-              disabled={reconciling}
-              className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
+              variant="destructive"
+              onClick={handleReject}
+              disabled={actionLoading}
             >
-              {reconciling ? (
-                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <PiPlayBold className="h-4 w-4 mr-2" />
-              )}
-              Run Reconciliation
+              {actionLoading ? 'Rejecting...' : 'Reject'}
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Reconciliation Result */}
-      {reconciliationResult && (
-        <Card className={reconciliationResult.errors.length > 0 ? 'border-orange-200' : 'border-green-200'}>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              {reconciliationResult.errors.length > 0 ? (
-                <PiWarningCircleBold className="h-5 w-5 text-orange-500" />
-              ) : (
-                <PiCheckCircleBold className="h-5 w-5 text-green-500" />
-              )}
-              Reconciliation Result - {reconciliationResult.date}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold">{reconciliationResult.totalProcessed}</div>
-                <div className="text-sm text-gray-600">Total Processed</div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">{reconciliationResult.successful}</div>
-                <div className="text-sm text-gray-600">Successful</div>
-              </div>
-              <div className="text-center p-4 bg-red-50 rounded-lg">
-                <div className="text-2xl font-bold text-red-600">{reconciliationResult.unpaid}</div>
-                <div className="text-sm text-gray-600">Unpaid</div>
-              </div>
-              <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                <div className="text-2xl font-bold text-yellow-600">{reconciliationResult.notFound}</div>
-                <div className="text-sm text-gray-600">Not Found</div>
-              </div>
-            </div>
-
-            {reconciliationResult.errors.length > 0 && (
-              <div className="mt-4 p-4 bg-orange-50 rounded-lg">
-                <h4 className="font-medium text-orange-800 mb-2">Errors</h4>
-                <ul className="list-disc list-inside text-sm text-orange-700">
-                  {reconciliationResult.errors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Statement Data */}
-      {statementData && (
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle className="text-lg">
-                  NetCash Statement - {statementData.date}
-                </CardTitle>
-                <CardDescription>
-                  {statementData.success
-                    ? `${statementData.debitOrderTransactions} debit order transactions found`
-                    : statementData.error}
-                </CardDescription>
-              </div>
-              {statementData.success && (
-                <div className="text-right">
-                  <div className="text-sm text-gray-500">Closing Balance</div>
-                  <div className="text-xl font-bold">
-                    {formatCurrency(statementData.closingBalance || 0)}
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {!statementData.success ? (
-              <div className="text-center py-8 text-gray-500">
-                <PiXCircleBold className="h-12 w-12 mx-auto mb-4 text-red-300" />
-                <p>{statementData.error || 'Failed to load statement'}</p>
-              </div>
-            ) : statementData.transactions.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <PiClockBold className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>No debit order transactions found for this date</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Reference</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead>Effect</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {statementData.transactions.map((tx, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{getTransactionCodeBadge(tx.transactionCode)}</TableCell>
-                      <TableCell>
-                        <div>{getTransactionDescription(tx.transactionCode)}</div>
-                        <div className="text-xs text-gray-500">{tx.description}</div>
-                      </TableCell>
-                      <TableCell>
-                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                          {tx.accountReference || tx.reference || '-'}
-                        </code>
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatCurrency(tx.amount)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={tx.effect === '+' ? 'default' : 'secondary'}>
-                          {tx.effect === '+' ? 'Credit' : 'Debit'}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Info Card */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="text-lg text-blue-800">About Payment Reconciliation</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-blue-700 space-y-2">
-          <p>
-            <strong>Automatic Reconciliation:</strong> A daily cron job runs at 09:00 SAST to
-            reconcile payments from the previous day's NetCash statement.
-          </p>
-          <p>
-            <strong>Manual Reconciliation:</strong> Use this page to manually trigger reconciliation
-            for a specific date or to investigate payment discrepancies.
-          </p>
-          <p>
-            <strong>Transaction Codes:</strong>
-          </p>
-          <ul className="list-disc list-inside ml-4">
-            <li><strong>TDD/SDD</strong> - Successful debit orders (Two-day/Same-day)</li>
-            <li><strong>DCS</strong> - DebiCheck successful</li>
-            <li><strong>DRU</strong> - Debit order unpaid (insufficient funds, etc.)</li>
-            <li><strong>DCX</strong> - DebiCheck unsuccessful</li>
-          </ul>
-        </CardContent>
-      </Card>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
