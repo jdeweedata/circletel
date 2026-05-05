@@ -324,6 +324,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    let newTransaction: { id: string; customer_id?: string; metadata?: unknown } | null = null;
+
     if (existingTransaction) {
       // Update existing transaction
       await supabase
@@ -341,7 +343,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Create new transaction (fallback - this shouldn't normally happen for payment method validations)
       webhookLogger.info('[NetCash Webhook] No existing transaction found, creating new one');
-      await supabase
+      const { data: insertedTransaction, error: insertError } = await supabase
         .from('payment_transactions')
         .insert({
           transaction_id: transactionId,
@@ -355,15 +357,22 @@ export async function POST(request: NextRequest) {
           provider_response: bodyParsed,
           initiated_at: new Date().toISOString(),
           completed_at: paymentStatus === 'completed' ? new Date().toISOString() : null
-        });
+        })
+        .select('id, customer_id, metadata')
+        .single();
 
-      webhookLogger.info('[NetCash Webhook] New transaction created', { transactionId });
+      if (insertError) {
+        webhookLogger.error('[NetCash Webhook] Failed to create new transaction', { error: insertError.message });
+      } else {
+        newTransaction = insertedTransaction;
+        webhookLogger.info('[NetCash Webhook] New transaction created', { transactionId, newTransactionId: newTransaction?.id });
+      }
     }
 
     // Process completed payments
-    if (paymentStatus === 'completed' && existingTransaction) {
-      // Use the transaction we already found (includes metadata, customer_id, etc.)
-      const paymentTransaction = existingTransaction;
+    if (paymentStatus === 'completed') {
+      // Use the transaction we found or just created
+      const paymentTransaction = existingTransaction || newTransaction;
 
       if (paymentTransaction?.id) {
         // Check if this is a payment method validation transaction

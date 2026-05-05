@@ -487,6 +487,90 @@ export type PayNowReconciliationFailedEvent = {
 };
 
 // =============================================================================
+// EFT RECONCILIATION EVENTS
+// =============================================================================
+
+export type EFTReconciliationRequestedEvent = {
+  name: 'eft/reconciliation.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    reconciliation_date?: string;
+    admin_user_id?: string;
+    process_log_id?: string;
+    options?: {
+      dryRun?: boolean;
+    };
+  };
+};
+
+export type EFTReconciliationCompletedEvent = {
+  name: 'eft/reconciliation.completed';
+  data: {
+    process_log_id: string;
+    reconciliation_date: string;
+    total_deposits: number;
+    matched: number;
+    newly_matched: number;
+    already_paid: number;
+    unmatched: number;
+    queued: number;
+    errors: string[];
+    duration_ms: number;
+  };
+};
+
+export type EFTReconciliationCancelledEvent = {
+  name: 'eft/reconciliation.cancelled';
+  data: {
+    process_log_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
+// =============================================================================
+// MONTHLY RECONCILIATION SWEEP EVENTS
+// =============================================================================
+
+export type MonthlySweepRequestedEvent = {
+  name: 'reconciliation/monthly-sweep.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    year?: number;
+    month?: number;
+    admin_user_id?: string;
+    process_log_id?: string;
+    options?: {
+      dryRun?: boolean;
+    };
+  };
+};
+
+export type MonthlySweepCompletedEvent = {
+  name: 'reconciliation/monthly-sweep.completed';
+  data: {
+    process_log_id: string;
+    target_month: string;
+    total_month_deposits: number;
+    already_reconciled: number;
+    already_queued: number;
+    newly_matched: number;
+    newly_queued: number;
+    errors: string[];
+    duration_ms: number;
+  };
+};
+
+export type MonthlySweepCancelledEvent = {
+  name: 'reconciliation/monthly-sweep.cancelled';
+  data: {
+    process_log_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
+// =============================================================================
 // SUPPLIER SYNC EVENTS
 // =============================================================================
 
@@ -721,6 +805,14 @@ export type InngestEvents = {
   'paynow/reconciliation.requested': PayNowReconciliationRequestedEvent;
   'paynow/reconciliation.completed': PayNowReconciliationCompletedEvent;
   'paynow/reconciliation.failed': PayNowReconciliationFailedEvent;
+  // EFT reconciliation events
+  'eft/reconciliation.requested': EFTReconciliationRequestedEvent;
+  'eft/reconciliation.completed': EFTReconciliationCompletedEvent;
+  'eft/reconciliation.cancelled': EFTReconciliationCancelledEvent;
+  // Monthly reconciliation sweep events
+  'reconciliation/monthly-sweep.requested': MonthlySweepRequestedEvent;
+  'reconciliation/monthly-sweep.completed': MonthlySweepCompletedEvent;
+  'reconciliation/monthly-sweep.cancelled': MonthlySweepCancelledEvent;
   // Zone demographic enrichment events
   'zone/demographics.enrichment.requested': ZoneDemographicEnrichmentRequestedEvent;
   'zone/demographics.enrichment.completed': ZoneDemographicEnrichmentCompletedEvent;

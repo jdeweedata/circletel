@@ -11,10 +11,12 @@
  */
 
 export interface ParsedReference {
-  /** Type of reference: invoice, order, contract, or unknown */
-  type: 'invoice' | 'order' | 'contract' | 'unknown';
+  /** Type of reference: invoice, order, contract, account, or unknown */
+  type: 'invoice' | 'order' | 'contract' | 'account' | 'unknown';
   /** Extracted invoice number (e.g., "INV-2026-00002") */
   invoiceNumber?: string;
+  /** Extracted account number (e.g., "CT-2025-00012") */
+  accountNumber?: string;
   /** Original reference string */
   rawReference: string;
 }
@@ -60,6 +62,17 @@ export function parsePayNowReference(reference: string): ParsedReference {
     return {
       type: 'order',
       invoiceNumber: undefined,
+      rawReference: reference,
+    };
+  }
+
+  // Strategy 4: Account number format (e.g., "CT-2025-00012")
+  // Captures: CT + 4-digit year + 5-digit sequence
+  const ctAccountMatch = reference.match(/^CT-(\d{4})-(\d{5})$/i);
+  if (ctAccountMatch) {
+    return {
+      type: 'account',
+      accountNumber: reference,
       rawReference: reference,
     };
   }

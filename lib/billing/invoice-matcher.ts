@@ -32,7 +32,7 @@ export interface InvoiceMatchResult {
     [key: string]: unknown;
   };
   /** How the invoice was matched */
-  matchMethod?: 'invoice_number' | 'paynow_transaction_ref';
+  matchMethod?: 'invoice_number' | 'paynow_transaction_ref' | 'account_number';
   /** Error message if matching failed */
   error?: string;
 }
@@ -44,6 +44,7 @@ export interface InvoiceMatchResult {
  * 1. Parse reference to extract invoice number (CT-INV... → INV-...)
  * 2. If invoice number found, query by invoice_number
  * 3. Fallback: query by paynow_transaction_ref
+ * 4. Fallback: match by customer account number (CT-YYYY-NNNNN) → oldest unpaid invoice
  *
  * @param reference - The PayNow reference string
  * @param supabase - Supabase client instance
@@ -123,11 +124,82 @@ export async function matchInvoiceByReference(
     };
   }
 
+  // Strategy 3: Match by customer account number (CT-YYYY-NNNNN pattern)
+  if (parsed.type === 'account' && parsed.accountNumber) {
+    const accountNumberRegex = /^CT-\d{4}-\d{5}$/i;
+    if (accountNumberRegex.test(parsed.accountNumber)) {
+      billingLogger.debug('[InvoiceMatcher] Attempting account number match', {
+        accountNumber: parsed.accountNumber,
+      });
+
+      // Find customer by account_number
+      const { data: customer, error: customerError } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('account_number', parsed.accountNumber)
+        .single();
+
+      if (customerError && customerError.code !== PGRST_NO_ROWS) {
+        billingLogger.error('[InvoiceMatcher] Database error on customer lookup by account_number', {
+          error: customerError.message,
+          accountNumber: parsed.accountNumber,
+        });
+        return {
+          matched: false,
+          error: `Database error: ${customerError.message}`,
+        };
+      }
+
+      if (customer) {
+        // Find oldest unpaid invoice for this customer
+        const { data: invoice, error: invoiceError } = await supabase
+          .from('customer_invoices')
+          .select('*')
+          .eq('customer_id', customer.id)
+          .in('status', ['unpaid', 'overdue'])
+          .order('due_date', { ascending: true })
+          .limit(1)
+          .single();
+
+        if (invoiceError && invoiceError.code !== PGRST_NO_ROWS) {
+          billingLogger.error('[InvoiceMatcher] Database error on unpaid invoice lookup', {
+            error: invoiceError.message,
+            customerId: customer.id,
+          });
+          return {
+            matched: false,
+            error: `Database error: ${invoiceError.message}`,
+          };
+        }
+
+        if (invoice) {
+          billingLogger.info('[InvoiceMatcher] Matched by account_number', {
+            invoiceId: invoice.id,
+            invoiceNumber: invoice.invoice_number,
+            customerId: customer.id,
+            accountNumber: parsed.accountNumber,
+          });
+          return {
+            matched: true,
+            invoice,
+            matchMethod: 'account_number',
+          };
+        }
+
+        billingLogger.debug('[InvoiceMatcher] Account found but no unpaid invoices', {
+          accountNumber: parsed.accountNumber,
+          customerId: customer.id,
+        });
+      }
+    }
+  }
+
   // No match found
   billingLogger.warn('[InvoiceMatcher] No invoice match found', {
     reference,
     parsedType: parsed.type,
     parsedInvoiceNumber: parsed.invoiceNumber,
+    parsedAccountNumber: parsed.accountNumber,
   });
 
   return {

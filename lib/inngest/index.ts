@@ -94,6 +94,15 @@ export {
 } from './functions/paynow-reconciliation';
 
 export {
+  eftReconciliationFunction,
+  eftReconciliationCompletedFunction,
+} from './functions/eft-reconciliation';
+
+export {
+  reconciliationMonthlySweepFunction,
+} from './functions/reconciliation-monthly-sweep';
+
+export {
   marketingDfaLeadMatchFunction,
   marketingDemandThresholdFunction,
 } from './functions/marketing-triggers';
@@ -214,6 +223,15 @@ import {
 } from './functions/paynow-reconciliation';
 
 import {
+  eftReconciliationFunction,
+  eftReconciliationCompletedFunction,
+} from './functions/eft-reconciliation';
+
+import {
+  reconciliationMonthlySweepFunction,
+} from './functions/reconciliation-monthly-sweep';
+
+import {
   marketingDfaLeadMatchFunction,
   marketingDemandThresholdFunction,
 } from './functions/marketing-triggers';
@@ -301,6 +319,11 @@ export const functions = [
   paynowReconciliationFunction,
   paynowReconciliationCompletedFunction,
   paynowReconciliationFailedFunction,
+  // EFT daily reconciliation (Zoho Books cashbook)
+  eftReconciliationFunction,
+  eftReconciliationCompletedFunction,
+  // Monthly reconciliation sweep (3rd of month, catches stragglers)
+  reconciliationMonthlySweepFunction,
   // Marketing campaign triggers
   marketingDfaLeadMatchFunction,
   marketingDemandThresholdFunction,

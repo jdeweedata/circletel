@@ -253,6 +253,7 @@ export const paynowReconciliationFunction = inngest.createFunction(
         newly_matched: 0,
         already_paid: 0,
         unmatched: 0,
+        queued: 0,
         errors: [] as string[],
       };
 
@@ -306,6 +307,37 @@ export const paynowReconciliationFunction = inngest.createFunction(
               reference,
             });
             counters.unmatched++;
+
+            // Queue for admin review
+            const { error: queueError } = await supabase
+              .from('reconciliation_queue')
+              .upsert(
+                {
+                  source: 'netcash_statement',
+                  source_reference: reference,
+                  source_date: dateStr,
+                  amount: tx.amount,
+                  currency: 'ZAR',
+                  payment_method: tx.transactionCode?.toLowerCase() || 'unknown',
+                  payer_reference: reference,
+                  payer_name: tx.accountReference || tx.description || null,
+                  match_confidence: 0.0,
+                  match_method: null,
+                  status: 'pending',
+                  raw_data: tx,
+                },
+                { onConflict: 'source,source_reference', ignoreDuplicates: true }
+              );
+
+            if (queueError) {
+              cronLogger.warn('[PayNowRecon] Failed to queue unmatched transaction', {
+                reference,
+                error: queueError.message,
+              });
+            } else {
+              counters.queued++;
+            }
+
             continue;
           }
 
@@ -458,6 +490,7 @@ export const paynowReconciliationFunction = inngest.createFunction(
         newly_matched: processingResult.newly_matched,
         already_paid: processingResult.already_paid,
         unmatched: processingResult.unmatched,
+        queued: processingResult.queued,
         errors: processingResult.errors.length,
         duration_ms: duration,
       });
@@ -474,6 +507,7 @@ export const paynowReconciliationFunction = inngest.createFunction(
           newly_matched: processingResult.newly_matched,
           already_paid: processingResult.already_paid,
           unmatched: processingResult.unmatched,
+          queued: processingResult.queued,
           errors: processingResult.errors,
           duration_ms: duration,
         },
@@ -514,6 +548,7 @@ export const paynowReconciliationCompletedFunction = inngest.createFunction(
       newly_matched,
       already_paid,
       unmatched,
+      queued,
       errors,
       duration_ms,
     } = event.data;
@@ -522,7 +557,7 @@ export const paynowReconciliationCompletedFunction = inngest.createFunction(
       console.log(
         `[PayNowRecon] Process ${process_log_id} completed for ${reconciliation_date}: ` +
           `${total_transactions} transactions, ${matched} matched, ${newly_matched} newly matched, ` +
-          `${already_paid} already paid, ${unmatched} unmatched, ${errors.length} errors (${duration_ms}ms)`
+          `${already_paid} already paid, ${unmatched} unmatched, ${queued ?? 0} queued, ${errors.length} errors (${duration_ms}ms)`
       );
     });
 
