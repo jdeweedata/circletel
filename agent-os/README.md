@@ -70,6 +70,35 @@ agent-os/specs/[spec-id]/
     └── final-verification.md
 ```
 
+#### Optional pre-spec artifacts (large initiatives)
+
+For initiatives that need stakeholder alignment **before** committing engineering effort to a full spec, two extra documents are available:
+
+- **`PROPOSAL.md`** — lightweight problem statement + proposed direction. Goal: get a yes/no on *whether* to build this.
+- **`DESIGN.md`** — technical approach, trade-offs, rollout plan. Goal: lock down architecture decisions before SPEC + TASKS are written.
+
+Both live alongside `SPEC.md` / `TASKS.md` inside the spec folder. Templates are in `agent-os/specs/_templates/` — see `_templates/README.md` for when to use each.
+
+```
+PROPOSAL.md  →  approved?  →  DESIGN.md  →  approved?  →  SPEC.md + TASKS.md  →  implement  →  archive/
+   (why)                       (how)                        (what + when)
+```
+
+For small/medium specs, skip straight to `SPEC.md` + `TASKS.md` as before. The PM Agent and `/generate-spec` continue to scaffold those directly.
+
+#### Active vs archived specs
+
+Active specs live in `agent-os/specs/`. Completed, superseded, or withdrawn specs move to `agent-os/specs/archive/<spec-id>/` (folder kept as-is — the spec ID already encodes its creation date).
+
+Archive when any of these is true:
+- `PROGRESS.md` shows 100% and final verification passed
+- Feature deployed to production and verified
+- Proposal/design rejected or withdrawn
+- Superseded by a newer spec (link the successor)
+- No activity for 90+ days and no owner
+
+See `agent-os/specs/archive/README.md` for the full archive procedure (closing PROGRESS entry, `git mv`, optional `/compound` capture).
+
 ---
 
 ## Implementation Workflow
@@ -370,6 +399,12 @@ circletel-nextjs/
 │   │   ├── implementers.yml       # 5 implementer agents
 │   │   └── verifiers.yml          # 3 verifier agents
 │   └── specs/
+│       ├── _templates/            # Optional PROPOSAL.md / DESIGN.md starters
+│       │   ├── README.md
+│       │   ├── PROPOSAL.md
+│       │   └── DESIGN.md
+│       ├── archive/               # Completed / superseded / withdrawn specs
+│       │   └── README.md
 │       └── 20251101-b2b-quote-to-contract-kyc/
 │           ├── spec.md
 │           ├── tasks.md
