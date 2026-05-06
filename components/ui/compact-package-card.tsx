@@ -21,6 +21,7 @@ export interface CompactPackageCardProps {
   // Package details
   name?: string;
   type?: 'uncapped' | 'capped';
+  dataTooltip?: string;
   downloadSpeed?: number;
   uploadSpeed?: number;
   speedUnit?: string;
@@ -103,6 +104,7 @@ export function CompactPackageCard({
   period = 'pm',
   name,
   type = 'uncapped',
+  dataTooltip,
   downloadSpeed,
   uploadSpeed,
   speedUnit = 'Mbps',
@@ -234,7 +236,9 @@ export function CompactPackageCard({
             </TooltipTrigger>
             <TooltipContent side="top" className={cn('max-w-[200px]', selected ? 'bg-gray-900 text-white' : 'bg-white text-gray-900')}>
               <p className="text-xs">
-                {type === 'uncapped'
+                {dataTooltip
+                  ? dataTooltip
+                  : type === 'uncapped'
                   ? 'Unlimited data with no caps or restrictions'
                   : 'Fixed monthly data allowance'}
               </p>

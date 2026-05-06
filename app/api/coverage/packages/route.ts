@@ -48,6 +48,7 @@ interface ServicePackage {
   promotion_months?: number;
   description?: string;
   features?: string[];
+  metadata?: Record<string, unknown> | null;
   compatible_providers?: string[];
   active: boolean;
 }
@@ -403,6 +404,7 @@ export async function GET(request: NextRequest) {
             promotion_months: pkg.promotion_months,
             description: pkg.description,
             features: pkg.features || [],
+            metadata: pkg.metadata || null,
             provider: providerData // Add provider data including logo
           };
         });

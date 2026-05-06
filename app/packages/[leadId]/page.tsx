@@ -39,6 +39,12 @@ interface Package {
   promotion_months?: number;
   description: string;
   features: string[];
+  metadata?: {
+    capped?: boolean;
+    data_cap?: string;
+    fup_limit_gb?: number;
+    [key: string]: unknown;
+  };
   provider?: {
     code: string;
     name: string;
@@ -676,6 +682,16 @@ function PackagesContent() {
                           return 'pink';
                         };
 
+                        const isCapped = pkg.metadata?.capped === true;
+                        const dataCap = pkg.metadata?.data_cap;
+                        const fupGb = pkg.metadata?.fup_limit_gb;
+                        const packageType: 'uncapped' | 'capped' = isCapped ? 'capped' : 'uncapped';
+                        const dataTooltip = isCapped
+                          ? `${dataCap || 'Fixed'} monthly data allowance`
+                          : fupGb
+                          ? `Uncapped data with ${fupGb >= 1000 ? `${(fupGb / 1000).toFixed(1).replace(/\.0$/, '')}TB` : `${fupGb}GB`} Fair Usage Policy`
+                          : undefined;
+
                         return (
                           <CompactPackageCard
                             key={pkg.id}
@@ -690,7 +706,8 @@ function PackagesContent() {
                             }
                             badgeColor={getBadgeColor()}
                             name={pkg.name}
-                            type="uncapped"
+                            type={packageType}
+                            dataTooltip={dataTooltip}
                             downloadSpeed={pkg.speed_down}
                             uploadSpeed={pkg.speed_up}
                             provider={pkg.provider}
