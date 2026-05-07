@@ -223,3 +223,8 @@ designs/
 
 # Large binary brand assets (store in Google Drive instead)
 docs/brand/*.zip
+
+# Build / session artifacts
+graphify-out/
+.claude/mem/
+.factory/

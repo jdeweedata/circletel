@@ -1,0 +1,25 @@
+ThinkWiFi per-site ACTUAL ad revenue — ranked by cumulative | Alexandra = benchmark,,,,,,,,,,,,,,,,,,
+#,Clinic,Province,ISP,ISP cost,Jan,Feb,Mar,Apr (24d),Apr (30d),Cumulative,Peak month,Peak gross,Apr impr.,Apr rev/impr,CT rev (peak),OPEX,NC (peak),Insight
+1,Alexandra,Gauteng,Rain,825,—,2387,2387,386,482,"5,159",Feb/Mar,"2,387","52,999",0.0073,"1,689",658,"1,031","BENCHMARK — exceeded R2,964 indoor-only; Apr monetisation drop"
+2,Sicelo,Gauteng,Telkom,685,—,389,883,177,221,"1,449",Mar,883,"3,309",0.0535,"1,050",658,392,"Volatile — peaked Mar, dropped Apr; investigate"
+3,Soshanguve,Gauteng,Rain,795,—,—,416,416,520,832,Apr pro,520,"9,560",0.0435,892,658,234,Strong — consistent growth; outdoor AP will amplify
+4,Barcelona,Gauteng,Morclick,999,—,21,1,770,963,791,Apr,770,"7,700",0.1000,"1,002",658,344,Late starter — only active in Apr; outdoor AP in place
+5,New Hanover,KwaZulu-Natal,Rain,425,—,—,365,386,482,751,Apr pro,482,"12,172",0.0317,860,658,202,Steady growth — KZN proof point
+6,Sweetwaters,KwaZulu-Natal,Vodacom,650,—,217,217,207,258,641,Apr pro,258,"6,710",0.0308,669,658,11,Consistent — stable plateau; outdoor AP needed
+7,Heidelberg,Gauteng,Morclick,999,—,165,201,194,242,559,Apr pro,242,"3,635",0.0534,656,658,-2,Stable — satellite replacement (was R999 Morclick)
+8,Fleurhof,Gauteng,Rain,850,—,258,135,126,157,519,Feb,258,"2,874",0.0437,669,658,11,Declining — investigate Feb peak vs Apr drop
+9,Skycity,Gauteng,Vodacom,539,—,46,172,172,215,390,Apr pro,215,460,0.3735,633,658,-25,High rev/impression (R0.37) — small but efficient
+10,Umsinga,KwaZulu-Natal,FNB,500,—,—,45,128,159,172,Apr pro,159,"3,599",0.0354,585,658,-73,Growing fast — rural KZN site ramping up
+11,Oukasie,North West,Vodacom,429,—,—,76,57,72,133,Mar,76,800,0.0718,514,658,-144,"Low — North West site, low traffic volume"
+12,Kayamandi,Western Cape,Rain,825,—,—,12,83,104,95,Apr pro,104,"1,200",0.0695,538,658,-120,"New — Western Cape test site, growing"
+13,Durban,KwaZulu-Natal,Telkom,699,—,—,1,86,107,87,Apr pro,107,"1,500",0.0570,541,658,-117,"New — just activated, early trajectory"
+14,Jabulani,Gauteng,MTN,399,—,—,—,41,51,41,Apr pro,51,500,0.0819,493,658,-165,"New — Soweto, just activated in April"
+15,Chloorkop,Gauteng,Rain,607,—,—,1,1,1,1,—,1,100,0.0062,451,658,-207,Non-functional — investigate immediately
+16,Zamdela,Free State,MTN,676,—,—,—,—,0,0,—,0,—,—,450,658,-208,No data matched
+17,Cosmo City,Gauteng,Mavoni,"1,500",—,—,—,—,0,0,—,0,—,—,450,658,-208,"Not yet active — Mavoni R1,500 displacement priority"
+18,Lenasia South,Gauteng,Telkom,400,—,—,—,—,0,0,—,0,—,—,450,658,-208,No data matched
+19,Lens Ext 10,Gauteng,MTN,"2,500",—,—,—,—,0,0,—,0,—,—,450,658,-208,No data matched
+20,Orlando,Gauteng,Telkom,250,—,—,—,—,0,0,—,0,—,—,450,658,-208,INACTIVE — investigate or decommission
+21,Tokoza,Gauteng,Telkom,535,—,—,—,—,0,0,—,0,—,—,450,658,-208,No data matched
+22,Phoenix,KwaZulu-Natal,Rain,750,—,—,—,—,0,0,—,0,—,—,450,658,-208,INACTIVE — investigate or decommission
+,NETWORK,,,,,,,,"4,035","11,621",,,,,,,,

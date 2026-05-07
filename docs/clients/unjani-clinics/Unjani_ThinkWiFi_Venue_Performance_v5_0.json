@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "title": "Unjani ThinkWiFi — Definitive Revenue Data (All Months Corrected)",
+    "version": "5.0",
+    "date": "7 May 2026",
+    "corrections": [
+      "February MP Share corrected from R1,527 to R3,053 (from updated dashboard)",
+      "April now uses full 30-day data (R11,455 gross, R6,332 MP) instead of 24-day snapshot",
+      "May 7-day data included for trend tracking",
+      "31 Mar-30 Apr cross-check confirms data consistency"
+    ]
+  },
+  "monthly_summary": {
+    "jan": {
+      "period": "1-31 Jan 2026",
+      "days": 31,
+      "gross": 36,
+      "net": 25,
+      "tw": 11,
+      "mp": 11,
+      "cpm": 33.85
+    },
+    "feb": {
+      "period": "1-28 Feb 2026",
+      "days": 28,
+      "gross": 4432,
+      "net": 3181,
+      "tw": 1397,
+      "mp": 3053,
+      "cpm": 113.34
+    },
+    "mar_apr": {
+      "period": "31 Mar-30 Apr 2026",
+      "days": 31,
+      "gross": 11537,
+      "net": 6264,
+      "tw": 3425,
+      "mp": 6383,
+      "cpm": 68.66
+    },
+    "apr": {
+      "period": "1-30 Apr 2026",
+      "days": 30,
+      "gross": 11455,
+      "net": 6207,
+      "tw": 3400,
+      "mp": 6332,
+      "cpm": 70.13
+    },
+    "may_7d": {
+      "period": "1-7 May 2026",
+      "days": 7,
+      "gross": 2488,
+      "net": 1374,
+      "tw": 630,
+      "mp": 1231,
+      "cpm": 82.3
+    }
+  },
+  "circletel_pl": {
+    "feb_30d": {
+      "ct_share": 3271,
+      "svc_fee": 9900,
+      "ct_total": 13171,
+      "opex": 14476,
+      "nc": -1305
+    },
+    "apr": {
+      "ct_share": 6332,
+      "svc_fee": 9900,
+      "ct_total": 16232,
+      "opex": 14476,
+      "nc": 1756
+    },
+    "may_pro30": {
+      "ct_share": 5276,
+      "svc_fee": 9900,
+      "ct_total": 15176,
+      "opex": 14476,
+      "nc": 700
+    }
+  }
+}

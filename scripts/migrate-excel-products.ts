@@ -324,7 +324,7 @@ const businessFibreData: ExcelProductRow[] = [
 ];
 
 const fiveGLTEData: ExcelProductRow[] = [
-  // CircleConnect Mobile Business
+  // CircleConnect Mobile Business (legacy)
   {
     name: 'CircleConnect Mobile Business 15GB',
     category: '5G-LTE',
@@ -350,106 +350,198 @@ const fiveGLTEData: ExcelProductRow[] = [
       portability: 'Available'
     })
   },
-  // CircleConnect Uncapped 5G products
+
+  // ── 24-MONTH CONTRACT PACKAGES (free Huawei 5G router included) ──
   {
-    name: 'CircleConnect Uncapped 5G 35Mbps',
+    name: 'CircleConnect Uncapped 5G 35 Mbps',
     category: '5G-LTE',
-    subcategory: 'SIM Only',
+    subcategory: 'Router + SIMs',
     deal_id: '202501EBU2013',
-    sku: 'CC-5G-UNC-35',
+    sku: 'CC-5G-UNC-35-CONTRACT',
     speed_download: '35',
     speed_upload: null,
     speed_info: '35 Mbps Uncapped 5G',
     provider: 'CircleConnect',
     contract_term_months: 24,
     data_cap: 'uncapped',
-    router_included: false,
+    router_included: true,
+    router_model: 'Huawei 5G Router',
     regular_price_ex_vat: 390.434783,
     regular_price_inc_vat: 449,
     promo_price_inc_vat: null,
     installation_fee: 0,
-    description: 'Uncapped 5G connectivity at 35Mbps for businesses',
+    description: 'Uncapped 5G connectivity at 35 Mbps with a free Huawei 5G router on a 24-month contract',
     special_features: JSON.stringify({
       hero_deal: true,
       technology: '5G',
       network: '5G Network',
-      portability: 'Available',
-      setup_fee: 'Included'
+      router_included: true,
+      router_model: 'Huawei 5G Router',
+      contract_type: '24-month'
     })
   },
   {
-    name: 'CircleConnect 5G FWA 500GB',
+    name: 'CircleConnect Uncapped 5G 60 Mbps',
     category: '5G-LTE',
-    subcategory: 'SIM Only',
-    deal_id: '202504EBU1603',
-    sku: 'CC-5G-FWA-500GB',
-    speed_download: null,
-    speed_upload: null,
-    speed_info: '5G FWA 500GB',
-    provider: 'CircleConnect',
-    contract_term_months: 24,
-    data_cap: '500GB',
-    router_included: false,
-    regular_price_ex_vat: 520.869565,
-    regular_price_inc_vat: 599,
-    promo_price_inc_vat: null,
-    installation_fee: 0,
-    description: 'Fixed Wireless Access with 500GB data allocation',
-    special_features: JSON.stringify({
-      hero_deal: false,
-      technology: '5G',
-      network: 'Fixed Wireless Access',
-      portability: 'Available'
-    })
-  },
-  {
-    name: 'CircleConnect Uncapped 5G 60Mbps',
-    category: '5G-LTE',
-    subcategory: 'SIM Only',
+    subcategory: 'Router + SIMs',
     deal_id: '202501EBU2012',
-    sku: 'CC-5G-UNC-60',
+    sku: 'CC-5G-UNC-60-CONTRACT',
     speed_download: '60',
     speed_upload: null,
     speed_info: '60 Mbps Uncapped 5G',
     provider: 'CircleConnect',
     contract_term_months: 24,
     data_cap: 'uncapped',
-    router_included: false,
+    router_included: true,
+    router_model: 'Huawei 5G Router',
     regular_price_ex_vat: 564.347826,
     regular_price_inc_vat: 649,
     promo_price_inc_vat: null,
     installation_fee: 0,
-    description: 'High-speed uncapped 5G connectivity at 60Mbps',
+    description: 'High-speed uncapped 5G at 60 Mbps with a free Huawei 5G router on a 24-month contract',
     special_features: JSON.stringify({
       hero_deal: true,
       technology: '5G',
       network: '5G Network',
-      portability: 'Available'
+      router_included: true,
+      router_model: 'Huawei 5G Router',
+      contract_type: '24-month'
     })
   },
   {
     name: 'CircleConnect Uncapped 5G Best Effort',
     category: '5G-LTE',
-    subcategory: 'SIM Only',
+    subcategory: 'Router + SIMs',
     deal_id: '202501EBU2014',
-    sku: 'CC-5G-UNC-BEST',
+    sku: 'CC-5G-UNC-BEST-CONTRACT',
     speed_download: null,
     speed_upload: null,
-    speed_info: 'Best Effort Uncapped 5G',
+    speed_info: 'Best Effort Uncapped 5G (typically 100–300 Mbps)',
     provider: 'CircleConnect',
     contract_term_months: 24,
     data_cap: 'uncapped',
-    router_included: false,
+    router_included: true,
+    router_model: 'Huawei 5G Router',
     regular_price_ex_vat: 825.217391,
     regular_price_inc_vat: 949,
     promo_price_inc_vat: null,
     installation_fee: 0,
-    description: 'Best effort uncapped 5G with maximum available speeds',
+    description: 'Uncapped 5G Best Effort with speeds typically 100–300 Mbps. Includes a free Huawei 5G router on a 24-month contract',
     special_features: JSON.stringify({
       hero_deal: false,
       technology: '5G',
       network: '5G Network',
-      portability: 'Available'
+      router_included: true,
+      router_model: 'Huawei 5G Router',
+      contract_type: '24-month',
+      speed_info: 'Best Effort (typically 100–300 Mbps)'
+    })
+  },
+
+  // ── MONTH-TO-MONTH SIM-ONLY (no lock-in, router purchased separately) ──
+  {
+    name: 'CircleConnect Uncapped 5G 35 Mbps SIM Only',
+    category: '5G-LTE',
+    subcategory: 'SIM Only',
+    deal_id: '202505M2M-35',
+    sku: 'CC-5G-UNC-35-M2M',
+    speed_download: '35',
+    speed_upload: null,
+    speed_info: '35 Mbps Uncapped 5G (500 GB FUP)',
+    provider: 'CircleConnect',
+    contract_term_months: 1,
+    data_cap: '500GB FUP',
+    router_included: false,
+    regular_price_ex_vat: 468.695652,
+    regular_price_inc_vat: 539,
+    promo_price_inc_vat: null,
+    installation_fee: 0,
+    description: 'Month-to-month uncapped 5G at 35 Mbps. SIM only — no lock-in, cancel anytime. 500 GB Fair Usage Policy',
+    special_features: JSON.stringify({
+      hero_deal: false,
+      technology: '5G',
+      network: '5G Network',
+      contract_type: 'month-to-month',
+      fup: '500GB'
+    })
+  },
+  {
+    name: 'CircleConnect 5G FWA 500 GB',
+    category: '5G-LTE',
+    subcategory: 'SIM Only',
+    deal_id: '202505M2M-FWA500',
+    sku: 'CC-5G-FWA-500GB-M2M',
+    speed_download: null,
+    speed_upload: null,
+    speed_info: '5G FWA 500 GB (no speed limit)',
+    provider: 'CircleConnect',
+    contract_term_months: 1,
+    data_cap: '500GB',
+    router_included: false,
+    regular_price_ex_vat: 564.347826,
+    regular_price_inc_vat: 649,
+    promo_price_inc_vat: null,
+    installation_fee: 0,
+    description: 'Month-to-month 5G Fixed Wireless Access with 500 GB capped data. No speed limit. SIM only — no lock-in',
+    special_features: JSON.stringify({
+      hero_deal: false,
+      technology: '5G',
+      network: 'Fixed Wireless Access',
+      contract_type: 'month-to-month',
+      fup: null
+    })
+  },
+  {
+    name: 'CircleConnect Uncapped 5G 60 Mbps SIM Only',
+    category: '5G-LTE',
+    subcategory: 'SIM Only',
+    deal_id: '202505M2M-60',
+    sku: 'CC-5G-UNC-60-M2M',
+    speed_download: '60',
+    speed_upload: null,
+    speed_info: '60 Mbps Uncapped 5G (800 GB FUP)',
+    provider: 'CircleConnect',
+    contract_term_months: 1,
+    data_cap: '800GB FUP',
+    router_included: false,
+    regular_price_ex_vat: 660.000000,
+    regular_price_inc_vat: 759,
+    promo_price_inc_vat: null,
+    installation_fee: 0,
+    description: 'Month-to-month uncapped 5G at 60 Mbps. SIM only — no lock-in, cancel anytime. 800 GB Fair Usage Policy',
+    special_features: JSON.stringify({
+      hero_deal: false,
+      technology: '5G',
+      network: '5G Network',
+      contract_type: 'month-to-month',
+      fup: '800GB'
+    })
+  },
+  {
+    name: 'CircleConnect Uncapped 5G Best Effort SIM Only',
+    category: '5G-LTE',
+    subcategory: 'SIM Only',
+    deal_id: '202505M2M-BEST',
+    sku: 'CC-5G-UNC-BEST-M2M',
+    speed_download: null,
+    speed_upload: null,
+    speed_info: 'Best Effort Uncapped 5G (1.5 TB FUP, typically 100–300 Mbps)',
+    provider: 'CircleConnect',
+    contract_term_months: 1,
+    data_cap: '1.5TB FUP',
+    router_included: false,
+    regular_price_ex_vat: 938.260870,
+    regular_price_inc_vat: 1079,
+    promo_price_inc_vat: null,
+    installation_fee: 0,
+    description: 'Month-to-month uncapped 5G Best Effort with speeds typically 100–300 Mbps. SIM only — no lock-in. 1.5 TB Fair Usage Policy',
+    special_features: JSON.stringify({
+      hero_deal: false,
+      technology: '5G',
+      network: '5G Network',
+      contract_type: 'month-to-month',
+      fup: '1.5TB',
+      speed_info: 'Best Effort (typically 100–300 Mbps)'
     })
   }
 ];

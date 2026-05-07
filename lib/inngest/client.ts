@@ -751,6 +751,32 @@ export type SalesEngineWeeklyReviewCompletedEvent = {
   };
 };
 
+// =============================================================================
+// B2B SITE ACTIVATION EVENTS
+// =============================================================================
+
+export type B2BSiteActivatedEvent = {
+  name: 'b2b/site.activated';
+  data: {
+    site_id: string;
+    organisation_id: string;
+    activated_at: string;
+    activated_by: string;
+    package_id: string | null;
+    monthly_fee: number | null;
+    service_id: string | null;
+  };
+};
+
+export type B2BSiteActivationInvoiceFailedEvent = {
+  name: 'b2b/site.activation-invoice.failed';
+  data: {
+    site_id: string;
+    organisation_id: string;
+    error: string;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -826,4 +852,7 @@ export type InngestEvents = {
   'sales-engine/orchestrator.completed': SalesEngineOrchestratorCompletedEvent;
   'sales-engine/weekly-review.requested': SalesEngineWeeklyReviewRequestedEvent;
   'sales-engine/weekly-review.completed': SalesEngineWeeklyReviewCompletedEvent;
+  // B2B site activation events
+  'b2b/site.activated': B2BSiteActivatedEvent;
+  'b2b/site.activation-invoice.failed': B2BSiteActivationInvoiceFailedEvent;
 };

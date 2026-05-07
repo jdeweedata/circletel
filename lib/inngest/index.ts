@@ -136,6 +136,10 @@ export {
   zohoDeskTokenRefreshFailedFunction,
 } from './functions/zoho-desk-token-refresh';
 
+export {
+  b2bSiteActivationInvoice,
+} from './functions/b2b-site-activation-invoice';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -265,6 +269,10 @@ import {
   zohoDeskTokenRefreshFailedFunction,
 } from './functions/zoho-desk-token-refresh';
 
+import {
+  b2bSiteActivationInvoice,
+} from './functions/b2b-site-activation-invoice';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -344,4 +352,6 @@ export const functions = [
   // Zoho Desk token refresh (every 45 min, before 1-hour expiry)
   zohoDeskTokenRefreshFunction,
   zohoDeskTokenRefreshFailedFunction,
+  // B2B site activation pro-rata invoice
+  b2bSiteActivationInvoice,
 ];

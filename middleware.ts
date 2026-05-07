@@ -15,6 +15,7 @@ import { type NextRequest } from 'next/server';
 import { handleSubdomainRouting } from './middleware/subdomain-handler';
 import { createMiddlewareSupabaseClient } from './middleware/supabase-client';
 import { handleAdminAuth } from './middleware/admin-auth';
+import { handlePortalAuth } from './middleware/portal-auth';
 import { handleAmbassadorAuth } from './middleware/ambassador-auth';
 
 export async function middleware(request: NextRequest) {
@@ -32,6 +33,12 @@ export async function middleware(request: NextRequest) {
   const adminAuthResult = await handleAdminAuth(request, supabase);
   if (adminAuthResult.shouldRedirect && adminAuthResult.redirectResponse) {
     return adminAuthResult.redirectResponse;
+  }
+
+  // Step 3.5: Handle B2B portal route authentication
+  const portalAuthResult = await handlePortalAuth(request, supabase);
+  if (portalAuthResult.shouldRedirect && portalAuthResult.redirectResponse) {
+    return portalAuthResult.redirectResponse;
   }
 
   // Step 4: Handle ambassador route authentication

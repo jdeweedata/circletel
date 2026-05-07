@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working with CircleTel codebase.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Quick Reference
 
@@ -120,6 +120,16 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
 npm run dev:memory          # Dev server (8GB heap)
 npm run type-check:memory   # Type check (4GB heap) — MANDATORY before commit
 npm run build:memory        # Production build (8GB heap)
+npm run build:ci            # CI build (6GB heap) — used by self-hosted runner
+npm run build:low           # Low-memory build (4GB heap)
+```
+
+### Running Scripts
+
+`dotenv/config` does NOT load `.env.local` — scripts that need credentials must be run with:
+
+```bash
+set -a && source .env.local && set +a && npx tsx scripts/my-script.ts
 ```
 
 ## Design Tooling (Pencil CLI)
@@ -183,6 +193,39 @@ All detailed patterns are in `.claude/rules/`:
 - **Product Pages**: CRO-optimized structure — See `components/products/ProductHowItWorks.tsx`, `WhyCircleTel.tsx`
 
 Full docs: `docs/architecture/SYSTEM_OVERVIEW.md`
+
+### Middleware Pipeline
+
+`middleware.ts` runs a 5-step pipeline on every request (except static assets):
+
+1. **Subdomain routing** — `studio.circletel.co.za` → `/admin/cms` rewrite
+2. **Supabase client** — creates client with cookie-based session handling
+3. **Admin auth** — protects `/admin/*` routes, redirects to login
+4. **Ambassador auth** — protects `/ambassadors/*` routes
+5. **Response** — passes through with updated cookies
+
+Handlers: `middleware/subdomain-handler.ts`, `middleware/admin-auth.ts`, `middleware/ambassador-auth.ts`, `middleware/supabase-client.ts`
+
+### Supabase Client Contexts
+
+```typescript
+// Server (API routes, server components) — service role, bypasses RLS
+import { createClient } from '@/lib/supabase/server'
+const supabase = await createClient()
+
+// Server with user session — reads cookies, respects RLS
+import { createSessionClient } from '@/lib/supabase/server'
+const supabase = await createSessionClient()
+
+// Client (browser components) — anon key + RLS
+import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()
+```
+
+### CI/CD Pipeline
+
+- **Deploy** (`deploy.yml`): Builds on **self-hosted runner** (24GB RAM, 8 cores on VPS 94.72.104.81) — GitHub-hosted runners OOM on this app. Uses tar-based `node_modules` cache and rsync'd `.next/cache` for fast rebuilds.
+- **PR Checks** (`pr-checks.yml`): Type-check and lint run with `continue-on-error: true` — they report but don't block. Dockerfile validation enforces `--max-old-space-size >= 8192` and `output: 'standalone'`.
 
 ---
 
@@ -409,4 +452,4 @@ Next session: read improvement-plan.md BEFORE starting work
 
 ---
 
-**Version**: 9.1 | **Updated**: 2026-04-28 | **Lines**: ~315
+**Version**: 9.2 | **Updated**: 2026-05-06 | **Lines**: ~455

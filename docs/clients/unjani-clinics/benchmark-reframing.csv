@@ -1,0 +1,20 @@
+Corrected benchmark: Alexandra replaces Barcelona as the performance reference,,,,
+Metric,Alexandra (actual),Barcelona (actual),Alexandra advantage,Implication
+Cumulative gross revenue,"R5,159",R791,6.5× higher,Alexandra has generated more than all other sites combined
+Cumulative impressions,"134,559","8,300",16.2× higher,Massive community engagement — even indoor-only
+Peak monthly gross,"R2,387",R770,3.1× higher,"Alexandra's peak EXCEEDED the R2,964 historical benchmark"
+AP configuration,Indoor ONLY,Outdoor + indoor,—,Alexandra achieved this WITHOUT outdoor AP advantage
+Best rev/impression,R0.085 (Feb),R0.100 (Apr),Similar,"When properly monetised, rates are comparable"
+Apr rev/impression,R0.007,R0.100,14× LOWER,April monetisation collapse — not a traffic issue
+Apr impressions,"52,999","7,700",6.9× higher,Alexandra still has the audience; revenue isn't converting
+Apr gross (24d),R386,R770,Barcelona leads,"BUT this is the anomaly, not the norm"
+Monthly avg (4 months),"R1,290",R198,6.5× higher,Alexandra is the actual top performer over the pilot period
+Demonstrated capability,"R2,387/mo",R770/mo,3.1× higher,"Alexandra's real benchmark, not Barcelona's"
+With outdoor AP (projected),"R5,300/mo","R2,964/mo",1.8× higher,At Barcelona's rev/impression rate × Alexandra's traffic
+,,,,
+,,,,
+URGENT ACTIONS,,,,
+1. Fix Alexandra April monetisation,"Work with Think Digital X to diagnose why 53k impressions converted at R0.007 vs Feb's R0.085. Likely: premium ad campaign ended, programmatic fill rate dropped, or portal config changed.",,,
+2. Retrofit Alexandra with outdoor AP,"If indoor-only generates R2,387/mo, outdoor AP could reach R5,300/mo — the single highest-value intervention in the entire network.",,,
+3. Reframe all projections using Alexandra,"The business case should use Alexandra's demonstrated R2,387/mo (indoor) as the base, not Barcelona's R770/mo. With outdoor AP, R5,300/mo is the realistic ceiling.",,,
+4. Replicate Alexandra conditions,"Identify what makes Alexandra different: high-density township, major shopping complex location (Alexandra Plaza), community foot traffic spilling into indoor range. Prioritise Phase 2 sites with similar characteristics.",,,

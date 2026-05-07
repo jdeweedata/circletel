@@ -1,0 +1,121 @@
+[
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Metric",
+    "__EMPTY": "Alexandra (actual)",
+    "__EMPTY_1": "Barcelona (actual)",
+    "__EMPTY_2": "Alexandra advantage",
+    "__EMPTY_3": "Implication"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Cumulative gross revenue",
+    "__EMPTY": "R5,159",
+    "__EMPTY_1": "R791",
+    "__EMPTY_2": "6.5× higher",
+    "__EMPTY_3": "Alexandra has generated more than all other sites combined"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Cumulative impressions",
+    "__EMPTY": "134,559",
+    "__EMPTY_1": "8,300",
+    "__EMPTY_2": "16.2× higher",
+    "__EMPTY_3": "Massive community engagement — even indoor-only"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Peak monthly gross",
+    "__EMPTY": "R2,387",
+    "__EMPTY_1": "R770",
+    "__EMPTY_2": "3.1× higher",
+    "__EMPTY_3": "Alexandra's peak EXCEEDED the R2,964 historical benchmark"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "AP configuration",
+    "__EMPTY": "Indoor ONLY",
+    "__EMPTY_1": "Outdoor + indoor",
+    "__EMPTY_2": "—",
+    "__EMPTY_3": "Alexandra achieved this WITHOUT outdoor AP advantage"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Best rev/impression",
+    "__EMPTY": "R0.085 (Feb)",
+    "__EMPTY_1": "R0.100 (Apr)",
+    "__EMPTY_2": "Similar",
+    "__EMPTY_3": "When properly monetised, rates are comparable"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Apr rev/impression",
+    "__EMPTY": "R0.007",
+    "__EMPTY_1": "R0.100",
+    "__EMPTY_2": "14× LOWER",
+    "__EMPTY_3": "April monetisation collapse — not a traffic issue"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Apr impressions",
+    "__EMPTY": "52,999",
+    "__EMPTY_1": "7,700",
+    "__EMPTY_2": "6.9× higher",
+    "__EMPTY_3": "Alexandra still has the audience; revenue isn't converting"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Apr gross (24d)",
+    "__EMPTY": "R386",
+    "__EMPTY_1": "R770",
+    "__EMPTY_2": "Barcelona leads",
+    "__EMPTY_3": "BUT this is the anomaly, not the norm"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Monthly avg (4 months)",
+    "__EMPTY": "R1,290",
+    "__EMPTY_1": "R198",
+    "__EMPTY_2": "6.5× higher",
+    "__EMPTY_3": "Alexandra is the actual top performer over the pilot period"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "Demonstrated capability",
+    "__EMPTY": "R2,387/mo",
+    "__EMPTY_1": "R770/mo",
+    "__EMPTY_2": "3.1× higher",
+    "__EMPTY_3": "Alexandra's real benchmark, not Barcelona's"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "With outdoor AP (projected)",
+    "__EMPTY": "R5,300/mo",
+    "__EMPTY_1": "R2,964/mo",
+    "__EMPTY_2": "1.8× higher",
+    "__EMPTY_3": "At Barcelona's rev/impression rate × Alexandra's traffic"
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "URGENT ACTIONS",
+    "__EMPTY": null,
+    "__EMPTY_1": null,
+    "__EMPTY_2": null,
+    "__EMPTY_3": null
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "1. Fix Alexandra April monetisation",
+    "__EMPTY": "Work with Think Digital X to diagnose why 53k impressions converted at R0.007 vs Feb's R0.085. Likely: premium ad campaign ended, programmatic fill rate dropped, or portal config changed.",
+    "__EMPTY_1": null,
+    "__EMPTY_2": null,
+    "__EMPTY_3": null
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "2. Retrofit Alexandra with outdoor AP",
+    "__EMPTY": "If indoor-only generates R2,387/mo, outdoor AP could reach R5,300/mo — the single highest-value intervention in the entire network.",
+    "__EMPTY_1": null,
+    "__EMPTY_2": null,
+    "__EMPTY_3": null
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "3. Reframe all projections using Alexandra",
+    "__EMPTY": "The business case should use Alexandra's demonstrated R2,387/mo (indoor) as the base, not Barcelona's R770/mo. With outdoor AP, R5,300/mo is the realistic ceiling.",
+    "__EMPTY_1": null,
+    "__EMPTY_2": null,
+    "__EMPTY_3": null
+  },
+  {
+    "Corrected benchmark: Alexandra replaces Barcelona as the performance reference": "4. Replicate Alexandra conditions",
+    "__EMPTY": "Identify what makes Alexandra different: high-density township, major shopping complex location (Alexandra Plaza), community foot traffic spilling into indoor range. Prioritise Phase 2 sites with similar characteristics.",
+    "__EMPTY_1": null,
+    "__EMPTY_2": null,
+    "__EMPTY_3": null
+  }
+]

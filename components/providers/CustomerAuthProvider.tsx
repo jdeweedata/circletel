@@ -76,6 +76,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
   const isAdminPage = pathname?.startsWith('/admin');
   const isPartnerPage = pathname?.startsWith('/partners');
   const isAuthPage = pathname?.startsWith('/auth/');
+  const isPortalPage = pathname?.startsWith('/portal');
 
   // Shared function to fetch customer with duplicate prevention
   const fetchCustomer = React.useCallback(async (userId: string, supabase: any): Promise<Customer | null> => {
@@ -154,7 +155,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
   // Initialize auth state on mount
   useEffect(() => {
     // Skip initialization on admin, partner, auth pages, and studio subdomain
-    if (isAdminPage || isPartnerPage || isAuthPage || isStudioSubdomain) {
+    if (isAdminPage || isPartnerPage || isAuthPage || isPortalPage || isStudioSubdomain) {
       setLoading(false);
       return;
     }
@@ -261,7 +262,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         abortController.current.abort();
       }
     };
-  }, [isAdminPage, isPartnerPage, isAuthPage, isStudioSubdomain, fetchCustomer]);
+  }, [isAdminPage, isPartnerPage, isAuthPage, isPortalPage, isStudioSubdomain, fetchCustomer]);
 
   // Refresh customer data from database
   const refreshCustomer = React.useCallback(async () => {
