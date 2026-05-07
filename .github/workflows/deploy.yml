@@ -20,7 +20,7 @@ jobs:
     # Self-hosted runner on VPS (24GB RAM, 8 cores) — GitHub-hosted ubuntu-latest (7GB) OOMs.
     # Setup: /home/actions-runner on the VPS, registered as label "self-hosted".
     runs-on: self-hosted
-    timeout-minutes: 20
+    timeout-minutes: 30
     permissions:
       contents: read
 
