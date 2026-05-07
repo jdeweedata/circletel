@@ -101,6 +101,13 @@ export const MTN_WMS_LAYERS = {
     wmsStyle: 'MTN-PMP-Feasible-Integrated',
     label: 'Licensed Wireless',
     serviceType: 'licensed_wireless' as ServiceType
+  },
+  LTE: {
+    layerId: 'LTECoverage',
+    wmsLayer: 'mtnsi:MTNSA-Coverage-LTE',
+    wmsStyle: 'MTNSA-Coverage-LTE',
+    label: 'LTE Cellular',
+    serviceType: 'lte' as ServiceType
   }
 } as const;
 
