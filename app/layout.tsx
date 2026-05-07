@@ -17,6 +17,8 @@ import { WhatsAppFloatingButton } from "@/components/common/WhatsAppFloatingButt
 import { StickyMobileCTA } from "@/components/navigation/StickyMobileCTA";
 import { DraftModeIndicator } from "@/components/sanity/DraftModeIndicator";
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: "CircleTel — One Provider. One Bill. Your Office Runs.",
   description: "Business internet, mobile, email, backup, and security in one monthly payment. No four vendors. No four support queues. CircleTel handles it all — from R2,499/mo.",
