@@ -52,11 +52,22 @@ const nextConfig = {
       'motion',
       '@tanstack/react-query',
     ],
-    // Vercel Enhanced (16GB): keep 1 core to stay within memory budget
-    // VPS (24GB/8 cores): 4 cores for parallel compilation via child processes
-    // workerThreads disabled — causes DataCloneError when custom webpack function
-    // (and next-pwa) are present, because functions can't be structuredClone'd
-    // SELF_HOSTED=true overrides isCI so the VPS runner uses 4 cores, not 1
+    outputFileTracingExcludes: {
+      '*': [
+        './node_modules/sanity/**',
+        './node_modules/puppeteer-core/**',
+        './node_modules/@sparticuz/chromium-min/**',
+        './node_modules/cheerio/**',
+        './node_modules/@mendable/firecrawl-js/**',
+        './node_modules/@modelcontextprotocol/**',
+        './node_modules/@swc/core-linux-x64-gnu/**',
+        './node_modules/@swc/core-linux-x64-musl/**',
+        './node_modules/@esbuild/**',
+        './node_modules/typescript/**',
+        './node_modules/prettier/**',
+        './node_modules/eslint/**',
+      ],
+    },
     workerThreads: false,
     cpus: (isVercel || (isCI && !process.env.SELF_HOSTED)) ? 1 : 4,
   },
