@@ -27,12 +27,12 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Button } from '@/components/ui/button';
-import { StatCard } from '@/components/admin/shared/StatCard';
-import { SectionCard } from '@/components/admin/shared/SectionCard';
-import { StatusBadge, getStatusVariant } from '@/components/admin/shared/StatusBadge';
-import { InfoRow } from '@/components/admin/shared/InfoRow';
-import { DetailPageHeader } from '@/components/admin/shared/DetailPageHeader';
-import { UnderlineTabs, TabPanel } from '@/components/admin/shared/UnderlineTabs';
+import { StatCard } from '@/components/shared/StatCard';
+import { SectionCard } from '@/components/shared/SectionCard';
+import { StatusBadge, getStatusVariant } from '@/components/shared/StatusBadge';
+import { InfoRow } from '@/components/shared/InfoRow';
+import { DetailPageHeader } from '@/components/shared/DetailPageHeader';
+import { UnderlineTabs, TabPanel } from '@/components/shared/UnderlineTabs';
 import type { OrderWithTracking, OrderTrackingEvent, FulfillmentStatus } from '@/lib/types/order-tracking';
 import { getFulfillmentStatusInfo, getOrderWorkflow } from '@/lib/types/order-tracking';
 
