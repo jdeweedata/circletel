@@ -1,8 +1,7 @@
 import { PiArrowRightBold, PiCheckCircleBold, PiWifiHighBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { client } from '@/lib/sanity/client';
-import { WORKCONNECT_ALL_QUERY } from '@/lib/sanity/queries';
+import { products as allProducts } from '@/lib/data/products';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -26,10 +25,25 @@ interface WorkConnectPlan {
   }>;
 }
 
-export const revalidate = 3600; // Revalidate every hour
+const workconnectSlugs = ['workconnect-starter', 'workconnect-soho', 'workconnect-plus', 'workconnect-pro'];
 
-export default async function WorkConnectPage() {
-  const plans = await client.fetch<WorkConnectPlan[]>(WORKCONNECT_ALL_QUERY);
+export default function WorkConnectPage() {
+  const plans: WorkConnectPlan[] = allProducts
+    .filter((p) => workconnectSlugs.includes(p.slug))
+    .map((p) => ({
+      _id: p._id,
+      name: p.name,
+      tagline: p.tagline || '',
+      slug: p.slug,
+      pricing: {
+        startingPrice: p.pricing?.startingPrice ?? 0,
+        priceNote: p.pricing?.priceNote,
+      },
+      keyFeatures: (p.keyFeatures || []).map((f) => ({
+        title: f.title,
+        description: f.description,
+      })),
+    }));
 
   // Determine which plan is "featured" (Plus)
   const featuredSlug = 'workconnect-plus';

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { draftMode } from "next/headers";
+
 import "./globals.css";
 import { Inter, Manrope, JetBrains_Mono } from "next/font/google";
 
@@ -15,7 +15,7 @@ import { OrderContextProvider } from "@/components/order/context/OrderContext";
 import { CustomerAuthProvider } from "@/components/providers/CustomerAuthProvider";
 import { WhatsAppFloatingButton } from "@/components/common/WhatsAppFloatingButton";
 import { StickyMobileCTA } from "@/components/navigation/StickyMobileCTA";
-import { DraftModeIndicator } from "@/components/sanity/DraftModeIndicator";
+
 
 export const dynamic = 'force-dynamic'
 
@@ -107,7 +107,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isEnabled: isDraftMode } = await draftMode();
+
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable} ${jetbrainsMono.variable} font-sans`}>
       <head>
@@ -160,7 +160,7 @@ export default async function RootLayout({
                       <Sonner />
                       <WhatsAppFloatingButton />
                       <StickyMobileCTA />
-                      {isDraftMode && <DraftModeIndicator />}
+
                       {children}
                     </OrderContextProvider>
                   </CustomerAuthProvider>

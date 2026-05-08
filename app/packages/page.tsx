@@ -22,11 +22,10 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ProductHowItWorks } from '@/components/products/ProductHowItWorks';
 import { WhyCircleTel } from '@/components/products/WhyCircleTel';
-import { BlockRenderer } from '@/components/sanity/BlockRenderer';
+import { BlockRenderer } from '@/components/blocks/BlockRenderer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { sanityFetch } from '@/lib/sanity/fetch';
-import { PRODUCT_BY_SLUG_QUERY } from '@/lib/sanity/queries/products';
+import { getProductBySlug } from '@/lib/data/products';
 import { resolvePlan, getPlansBySlug } from '@/lib/plans/plan-mapping';
 import { createClient } from '@/lib/supabase/server';
 
@@ -103,11 +102,7 @@ export async function generateMetadata({ searchParams }: PackagesPageProps): Pro
   const resolved = resolvePlan(planId);
   if (!resolved) return { title: 'Plans | CircleTel' };
 
-  const product = await sanityFetch<SanityProduct>({
-    query: PRODUCT_BY_SLUG_QUERY,
-    params: { slug: resolved.sanitySlug },
-    tags: [`product:${resolved.sanitySlug}`, 'products'],
-  });
+  const product = getProductBySlug(resolved.productSlug);
 
   if (!product) return { title: 'Plans | CircleTel' };
 
@@ -141,14 +136,8 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
     redirect('/products');
   }
 
-  const [product, supabase] = await Promise.all([
-    sanityFetch<SanityProduct>({
-      query: PRODUCT_BY_SLUG_QUERY,
-      params: { slug: resolved.sanitySlug },
-      tags: [`product:${resolved.sanitySlug}`, 'products'],
-    }),
-    createClient(),
-  ]);
+  const product = getProductBySlug(resolved.productSlug);
+  const supabase = await createClient();
 
   if (!product) {
     notFound();
@@ -159,7 +148,7 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
   const VAT = 1.15;
   const withVAT = (p: number) => Math.round(p * VAT * 100) / 100;
 
-  const siblingPlans = getPlansBySlug(resolved.sanitySlug);
+  const siblingPlans = getPlansBySlug(resolved.productSlug);
   const dbNames = siblingPlans.map((p) => p.dbName);
 
   const { data: dbPackages } = await supabase

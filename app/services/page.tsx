@@ -1,12 +1,10 @@
 import { Metadata } from 'next';
-import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { client, previewClient } from '@/lib/sanity/client';
-import { PRODUCT_BY_SLUG_QUERY } from '@/lib/sanity/queries/products';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { getProductBySlug } from '@/lib/data/products';
 import {
   PiShieldCheckBold,
   PiPhoneBold,
@@ -26,7 +24,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ManagedITHowItWorks } from '@/components/products/ManagedITHowItWorks';
 import { WhyCircleTel } from '@/components/products/WhyCircleTel';
-import { BlockRenderer } from '@/components/sanity/BlockRenderer';
+import { BlockRenderer } from '@/components/blocks/BlockRenderer';
 
 const PRODUCT_SLUG = 'managed-it-services';
 
@@ -45,31 +43,29 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'sim-card': PiSimCardBold,
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  const product = await client.fetch(PRODUCT_BY_SLUG_QUERY, { slug: PRODUCT_SLUG });
+export function generateMetadata(): Metadata {
+  const product = getProductBySlug(PRODUCT_SLUG);
 
   if (!product) {
     return { title: 'Managed IT Services | CircleTel' };
   }
 
   return {
-    title: product.seo?.title || `${product.name} | CircleTel`,
+    title: product.seo?.metaTitle || `${product.name} | CircleTel`,
     description:
-      product.seo?.description ||
+      product.seo?.metaDescription ||
       product.tagline ||
       'Complete IT solutions from CircleTel',
     openGraph: {
-      title: product.seo?.title || product.name,
-      description: product.seo?.description || product.tagline,
+      title: product.seo?.metaTitle || product.name,
+      description: product.seo?.metaDescription || product.tagline,
       images: product.heroImage ? [{ url: product.heroImage }] : [],
     },
   };
 }
 
-export default async function ServicesPage() {
-  const { isEnabled: isDraftMode } = await draftMode();
-  const sanityClient = isDraftMode ? previewClient : client;
-  const product = await sanityClient.fetch(PRODUCT_BY_SLUG_QUERY, { slug: PRODUCT_SLUG });
+export default function ServicesPage() {
+  const product = getProductBySlug(PRODUCT_SLUG);
 
   if (!product) {
     notFound();

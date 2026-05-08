@@ -24,7 +24,6 @@ const nextConfig = {
   },
   // Exclude heavy/server-only packages from webpack bundling — Node loads them natively at runtime
   serverExternalPackages: [
-    'sanity',
     'puppeteer-core',
     '@sparticuz/chromium-min',
     'cheerio',
@@ -54,7 +53,6 @@ const nextConfig = {
     ],
     outputFileTracingExcludes: {
       '*': [
-        './node_modules/sanity/**',
         './node_modules/puppeteer-core/**',
         './node_modules/@sparticuz/chromium-min/**',
         './node_modules/cheerio/**',

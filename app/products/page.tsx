@@ -1,8 +1,7 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { client } from '@/lib/sanity/client';
-import { PRODUCT_LIST_QUERY } from '@/lib/sanity/queries/products';
+import { products as allProducts } from '@/lib/data/products';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -41,8 +40,16 @@ const categoryDescriptions: Record<string, string> = {
   enterprise: 'Custom solutions for large organisations with complex requirements.',
 };
 
-export default async function ProductsPage() {
-  const products = await client.fetch<Product[]>(PRODUCT_LIST_QUERY);
+export default function ProductsPage() {
+  const products: Product[] = allProducts.map((p) => ({
+    _id: p._id,
+    name: p.name,
+    slug: p.slug,
+    category: p.category,
+    tagline: p.tagline || '',
+    heroImage: p.heroImage || '',
+    pricing: p.pricing || { startingPrice: 0, priceNote: '', showContactForPricing: false },
+  }));
 
   // Group products by category
   const productsByCategory = products.reduce(

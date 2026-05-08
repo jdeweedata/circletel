@@ -3,48 +3,8 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { client } from '@/lib/sanity/client';
-import { urlFor } from '@/lib/sanity/image';
-import { WORKCONNECT_PRODUCT_QUERY, WORKCONNECT_SLUGS_QUERY } from '@/lib/sanity/queries';
+import { products, getProductBySlug } from '@/lib/data/products';
 import { Button } from '@/components/ui/button';
-
-interface WorkConnectProduct {
-  _id: string;
-  name: string;
-  tagline: string;
-  slug: string;
-  category: string;
-  heroImage?: {
-    asset: {
-      _id: string;
-      url: string;
-    };
-    alt?: string;
-  };
-  pricing: {
-    startingPrice: number;
-    priceNote?: string;
-  };
-  keyFeatures: Array<{
-    title: string;
-    description: string;
-    icon?: string;
-  }>;
-  specifications: Array<{
-    label: string;
-    value: string;
-  }>;
-  seo?: {
-    metaTitle?: string;
-    metaDescription?: string;
-  };
-  relatedProducts?: Array<{
-    name: string;
-    slug: string;
-    tagline: string;
-    pricing: { startingPrice: number };
-  }>;
-}
 
 // Icon mapping
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -56,11 +16,12 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   zap: PiLightningBold,
 };
 
-export async function generateStaticParams() {
-  const products = await client.fetch<Array<{ slug: string }>>(WORKCONNECT_SLUGS_QUERY);
-  return products.map((product) => ({
-    slug: product.slug,
-  }));
+const workconnectSlugs = ['workconnect-starter', 'workconnect-soho', 'workconnect-plus', 'workconnect-pro'];
+
+export function generateStaticParams() {
+  return products
+    .filter((p) => workconnectSlugs.includes(p.slug))
+    .map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -69,7 +30,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = await client.fetch<WorkConnectProduct>(WORKCONNECT_PRODUCT_QUERY, { slug });
+  const product = getProductBySlug(slug);
 
   if (!product) {
     return { title: 'Product Not Found' };
@@ -87,7 +48,7 @@ export default async function WorkConnectProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await client.fetch<WorkConnectProduct>(WORKCONNECT_PRODUCT_QUERY, { slug });
+  const product = getProductBySlug(slug);
 
   if (!product) {
     notFound();
@@ -166,11 +127,11 @@ export default async function WorkConnectProductPage({
             </div>
 
             {/* Hero Image */}
-            {product.heroImage?.asset?.url && (
+            {product.heroImage && (
               <div className="relative h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src={urlFor(product.heroImage).width(800).height(500).url()}
-                  alt={product.heroImage.alt || product.name}
+                  src={product.heroImage}
+                  alt={product.name}
                   fill
                   className="object-cover"
                   priority
