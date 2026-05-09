@@ -34,8 +34,8 @@ export async function POST(
 
     // Void invoice
     const result = await CompliantBillingService.voidInvoice(invoiceId, reason, {
-      user_id: authResult.user.id,
-      user_email: authResult.user.email || undefined,
+      user_id: authResult.adminUser.id,
+      user_email: authResult.adminUser.email || undefined,
       user_role: authResult.adminUser.role,
       reason
     });
@@ -44,7 +44,7 @@ export async function POST(
     await supabase
       .from('admin_activity_log')
       .insert({
-        admin_user_id: adminUser.id,
+        admin_user_id: authResult.adminUser.id,
         action: 'void_invoice',
         resource_type: 'customer_invoice',
         resource_id: invoiceId,

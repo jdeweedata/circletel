@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
           external_reference: reference,
           payment_date,
           notes,
-          recorded_by: user.id,
+          recorded_by: authResult.adminUser.id,
           recorded_at: new Date().toISOString(),
         },
         created_at: new Date().toISOString(),
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
         payment_method,
         reference,
         payment_date,
-        recorded_by: user.id,
+        recorded_by: authResult.adminUser.id,
       }),
       response_body: JSON.stringify({
         payment_reference: paymentReference,

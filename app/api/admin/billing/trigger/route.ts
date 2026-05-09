@@ -19,45 +19,11 @@ interface TriggerRequest {
   };
 }
 
-interface SuccessResponse {
-  success: true;
-  logId: string;
-  billingDate: string;
-  dryRun: boolean;
-  workflow: string;
-}
-
-interface ErrorResponse {
-  success: false;
-  error: string;
-  details?: string;
-}
-
 /**
  * POST /api/admin/billing/trigger
  * Manually trigger billing workflows (debit-orders or billing-day)
- *
- * Request body:
- * {
- *   workflow: 'debit-orders' | 'billing-day',
- *   options?: {
- *     dryRun?: boolean,
- *     date?: string (YYYY-MM-DD format)
- *   }
- * }
- *
- * Response:
- * {
- *   success: true,
- *   logId: string,
- *   billingDate: string,
- *   dryRun: boolean,
- *   workflow: string
- * }
  */
-export async function POST(
-  request: NextRequest
-): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
+export async function POST(request: NextRequest) {
   const startTime = Date.now();
   apiLogger.info('[Billing Trigger API] POST request started');
 
@@ -76,7 +42,6 @@ export async function POST(
       );
     }
 
-    // 2. Parse and validate request body
     let body: TriggerRequest;
     try {
       body = await request.json();
@@ -90,7 +55,6 @@ export async function POST(
 
     const { workflow, options } = body;
 
-    // Validate workflow type
     if (!workflow || !['debit-orders', 'billing-day'].includes(workflow)) {
       apiLogger.error('[Billing Trigger API] Invalid workflow type', {
         workflow,
@@ -104,10 +68,8 @@ export async function POST(
       );
     }
 
-    // 3. Determine billing date
     let billingDate: string;
     if (options?.date) {
-      // Validate date format (YYYY-MM-DD)
       if (!/^\d{4}-\d{2}-\d{2}$/.test(options.date)) {
         apiLogger.error('[Billing Trigger API] Invalid date format', {
           date: options.date,
@@ -122,7 +84,6 @@ export async function POST(
       }
       billingDate = options.date;
     } else {
-      // Use today's date in SAST (UTC+2)
       const now = new Date();
       const sastDate = new Date(now.getTime() + 2 * 60 * 60 * 1000);
       billingDate = sastDate.toISOString().split('T')[0];
@@ -130,7 +91,6 @@ export async function POST(
 
     const dryRun = options?.dryRun === true;
 
-    // 4. Create cron_execution_log entry
     const logId = crypto.getRandomValues(new Uint8Array(16));
     const logUuid = Array.from(logId)
       .map((b) => b.toString(16).padStart(2, '0'))
@@ -142,20 +102,21 @@ export async function POST(
         ? 'process_debit_orders_manual'
         : 'billing_day_manual';
 
-    const { error: logError } = await supabaseAdmin
+    const supabase = await createAdminClient();
+    const { error: logError } = await supabase
       .from('cron_execution_log')
       .insert({
         id: logUuid,
         job_name: jobName,
         status: 'running',
         trigger_source: 'manual',
-        triggered_by: userId,
+        triggered_by: authResult.adminUser.id,
         environment: process.env.VERCEL_ENV || 'production',
         execution_details: {
           workflow,
           dryRun,
           billingDate,
-          adminEmail: adminUser.email,
+          adminEmail: authResult.adminUser.email,
         },
       });
 
@@ -173,7 +134,6 @@ export async function POST(
       );
     }
 
-    // 5. Send Inngest event based on workflow type
     try {
       if (workflow === 'debit-orders') {
         const event: DebitOrdersRequestedEvent = {
@@ -181,7 +141,7 @@ export async function POST(
           data: {
             triggered_by: 'manual',
             billing_date: billingDate,
-            admin_user_id: userId,
+            admin_user_id: authResult.adminUser.id,
             batch_log_id: logUuid,
             options: {
               dryRun,
@@ -201,7 +161,7 @@ export async function POST(
           data: {
             triggered_by: 'manual',
             billing_date: billingDate,
-            admin_user_id: userId,
+            admin_user_id: authResult.adminUser.id,
             process_log_id: logUuid,
             options: {
               dryRun,
@@ -221,8 +181,7 @@ export async function POST(
         error: inngestError instanceof Error ? inngestError.message : String(inngestError),
       });
 
-      // Update log status to failed
-      await supabaseAdmin
+      await supabase
         .from('cron_execution_log')
         .update({
           status: 'failed',
@@ -273,49 +232,16 @@ export async function POST(
 /**
  * GET /api/admin/billing/trigger?logId=xxx
  * Get billing execution log status
- *
- * Query params:
- * - logId: specific log ID to retrieve
- *
- * Response:
- * - With logId: single log entry
- * - Without logId: 10 most recent billing logs
  */
-export async function GET(
-  request: NextRequest
-): Promise<
-  NextResponse<
-    | { success: true; data: any; count: number }
-    | { success: false; error: string }
-  >
-> {
+export async function GET(request: NextRequest) {
   const startTime = Date.now();
   apiLogger.info('[Billing Trigger API] GET request started');
 
   try {
-    // Verify admin authentication
-    const supabaseSSR = await createSSRClient();
-    const { data: authData, error: authError } = await supabaseSSR.auth.getUser();
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
-    if (authError || !authData.user) {
-      apiLogger.info('[Billing Trigger API] GET: Auth verification failed');
-      return NextResponse.json(
-        { success: false, error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    const userId = authData.user.id;
-
-    // Verify user is an admin
-    const supabaseAdmin = await createAdminClient();
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', userId)
-      .maybeSingle();
-
-    if (adminError || !adminUser || !adminUser.is_active) {
+    if (!authResult.adminUser.is_active) {
       apiLogger.info('[Billing Trigger API] GET: Admin user invalid');
       return NextResponse.json(
         { success: false, error: 'Not authorized' },
@@ -323,13 +249,12 @@ export async function GET(
       );
     }
 
-    // Get logId from query params
+    const supabase = await createAdminClient();
     const url = new URL(request.url);
     const logId = url.searchParams.get('logId');
 
     if (logId) {
-      // Fetch specific log entry
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await supabase
         .from('cron_execution_log')
         .select('*')
         .eq('id', logId)
@@ -364,8 +289,7 @@ export async function GET(
         count: 1,
       });
     } else {
-      // Fetch 10 most recent billing logs
-      const { data, error, count } = await supabaseAdmin
+      const { data, error, count } = await supabase
         .from('cron_execution_log')
         .select('*', { count: 'exact' })
         .in('job_name', [

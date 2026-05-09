@@ -72,7 +72,7 @@ export async function POST(
     // Activate service
     const result = await ServiceManager.activateService({
       service_id,
-      admin_user_id: user.id,
+      admin_user_id: authResult.adminUser.id,
       reason,
       notes,
       activation_date: activation_date ? new Date(activation_date) : undefined

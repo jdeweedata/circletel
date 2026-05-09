@@ -32,17 +32,6 @@ export async function DELETE(
 
     const supabaseAdmin = await createClient()
 
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active, email')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single()
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
-    }
-
     // Get session details first (optional, for logging)
     const client = getInterstellioClient()
 
@@ -57,7 +46,7 @@ export async function DELETE(
     await client.disconnectSession(sessionId)
 
     // Log the action
-    apiLogger.info(`[Interstellio] Admin ${adminUser.email} disconnected session ${sessionId}${sessionInfo ? ` (user: ${sessionInfo.username}, IP: ${sessionInfo.framed_ip_address})` : ''}`)
+    apiLogger.info(`[Interstellio] Admin ${authResult.adminUser.email} disconnected session ${sessionId}${sessionInfo ? ` (user: ${sessionInfo.username}, IP: ${sessionInfo.framed_ip_address})` : ''}`)
 
     return NextResponse.json({
       success: true,
@@ -68,7 +57,7 @@ export async function DELETE(
         framedIpAddress: sessionInfo.framed_ip_address,
         callingStationId: sessionInfo.calling_station_id,
       } : null,
-      disconnectedBy: adminUser.email,
+      disconnectedBy: authResult.adminUser.email,
       disconnectedAt: new Date().toISOString(),
     })
   } catch (error) {

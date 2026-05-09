@@ -20,6 +20,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 
@@ -50,6 +51,8 @@ export async function POST(
     }
 
     // TODO: Add RBAC permission check when implemented (integrations:manage)
+
+    const supabase = await createClient();
 
     // =========================================================================
     // Get Cron Job Configuration
@@ -111,7 +114,7 @@ export async function POST(
 
     apiLogger.info(`[CronTriggerAPI] Manually triggering cron job: ${cronJob.name}`);
     apiLogger.info(`[CronTriggerAPI] URL: ${cronUrl}`);
-    apiLogger.info(`[CronTriggerAPI] Triggered by admin: ${user.id}`);
+    apiLogger.info(`[CronTriggerAPI] Triggered by admin: ${authResult.adminUser.id}`);
 
     const startTime = Date.now();
     let triggerResult: {
@@ -127,7 +130,7 @@ export async function POST(
         headers: {
           Authorization: `Bearer ${cronSecret}`,
           'X-Cron-Manual-Trigger': 'true',
-          'X-Triggered-By-Admin': user.id,
+          'X-Triggered-By-Admin': authResult.adminUser.id,
         },
       });
 
@@ -179,7 +182,7 @@ export async function POST(
         trigger_status_code: triggerResult.statusCode,
         trigger_error: triggerResult.errorMessage,
         execution_duration_ms: executionDuration,
-        triggered_by_admin_id: user.id,
+        triggered_by_admin_id: authResult.adminUser.id,
       },
     });
 

@@ -70,7 +70,6 @@ export async function PATCH(
     }
 
     const { id } = await context.params;
-    const { user } = authResult;
 
     const body: MikrotikRouterUpdate = await request.json();
 
@@ -85,7 +84,7 @@ export async function PATCH(
       }
     }
 
-    const router = await MikrotikRouterService.updateRouter(id, body, user.id);
+    const router = await MikrotikRouterService.updateRouter(id, body, authResult.adminUser.id);
 
     return NextResponse.json({
       success: true,
@@ -120,14 +119,7 @@ export async function DELETE(
 
     const { id } = await context.params;
 
-    if (!authResult.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Admin access required to delete routers' },
-        { status: 403 }
-      );
-    }
-
-    await MikrotikRouterService.deleteRouter(id, user.id);
+    await MikrotikRouterService.deleteRouter(id, authResult.adminUser.id);
 
     return NextResponse.json({
       success: true,

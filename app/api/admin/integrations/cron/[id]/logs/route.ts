@@ -17,6 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 
@@ -53,6 +54,8 @@ export async function GET(
     }
 
     // TODO: Add RBAC permission check when implemented (integrations:view)
+
+    const supabase = await createClient();
 
     // =========================================================================
     // Verify Cron Job Exists

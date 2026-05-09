@@ -26,10 +26,6 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    if (adminError || !adminUser) {
-      return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 });
-    }
-
     // Parse request body
     let body: SendSmsRemindersRequest = {};
     try {
@@ -55,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     // Log admin action
     await supabase.from('admin_activity_log').insert({
-      admin_user_id: adminUser.id,
+      admin_user_id: authResult.adminUser.id,
       action: dry_run ? 'preview_invoice_sms_reminders' : 'send_invoice_sms_reminders',
       resource_type: 'customer_invoice',
       resource_id: invoice_ids?.[0] || null,
@@ -94,28 +90,10 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    // Authenticate user
-    const sessionClient = await createClientWithSession();
-    const {
-      data: { user },
-      error: authError,
-    } = await sessionClient.auth.getUser();
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
     const supabase = await createClient();
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, email, role')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 });
-    }
 
     // Get query params
     const { searchParams } = new URL(request.url);

@@ -74,10 +74,10 @@ export async function POST(
     // 6. Update latest audit log entry with user attribution
     await logPublishAudit(
       {
-        id: adminUser.id,
-        email: adminUser.email,
-        full_name: adminUser.full_name,
-        role: adminUser.role,
+        id: authResult.adminUser.id,
+        email: authResult.adminUser.email,
+        full_name: authResult.adminUser.full_name,
+        role: authResult.adminUser.role as 'super_admin' | 'product_manager' | 'editor' | 'viewer',
       },
       servicePackage,
       'Published from admin product catalogue',

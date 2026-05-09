@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
       incidentNumber: outage.incident_number,
       title,
       severity,
-      createdBy: user.email
+      createdBy: authResult.adminUser.email
     });
 
     return NextResponse.json({ outage }, { status: 201 });

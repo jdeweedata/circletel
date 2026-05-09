@@ -18,13 +18,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
 
     // Check if user is a super admin
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('role_template_id, role')
-      .eq('id', user.id)
-      .single();
-
-    if (adminError || !adminUser || (adminUser.role !== 'super_admin' && adminUser.role_template_id !== 'super_admin')) {
+    if (authResult.adminUser.role !== 'super_admin') {
       return NextResponse.json(
         { success: false, error: 'Forbidden: Super Admin access required' },
         { status: 403 }
@@ -170,7 +164,7 @@ export async function POST(request: NextRequest) {
 
     // Log audit trail
     await supabase.from('admin_audit_logs').insert({
-      user_id: authResult.user.id,
+      user_id: authResult.adminUser.id,
       action: 'CREATE_ROLE',
       entity_type: 'role_templates',
       entity_id: newRole.id,

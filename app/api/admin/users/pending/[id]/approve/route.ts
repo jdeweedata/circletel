@@ -171,7 +171,7 @@ export async function POST(
         .from('pending_admin_users')
         .update({
           status: 'approved',
-          reviewed_by: user.id,
+          reviewed_by: authResult.adminUser.id,
           reviewed_at: new Date().toISOString(),
         })
         .eq('id', id)
@@ -182,7 +182,7 @@ export async function POST(
 
       // Log audit trail
       await supabase.from('admin_audit_logs').insert({
-        user_id: authResult.user.id,
+        user_id: authResult.adminUser.id,
         action: 'APPROVE_ADMIN_USER',
         entity_type: 'admin_users',
         entity_id: devAdminUser.id,

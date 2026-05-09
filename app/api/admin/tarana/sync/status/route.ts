@@ -59,15 +59,6 @@ interface SyncLog {
   created_at: string;
 }
 
-interface SyncStatusResponse {
-  success: boolean;
-  data?: {
-    current: SyncLog | null;
-    recent: SyncLog[];
-  };
-  error?: string;
-}
-
 /**
  * GET /api/admin/tarana/sync/status
  *
@@ -76,7 +67,7 @@ interface SyncStatusResponse {
  * - Without id: Returns latest sync log
  * - Always includes recent history (last 5)
  */
-export async function GET(request: NextRequest): Promise<NextResponse<SyncStatusResponse>> {
+export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {

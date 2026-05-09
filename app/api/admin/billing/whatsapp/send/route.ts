@@ -37,17 +37,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    if (!adminUser) {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
-
     apiLogger.info('[Admin WhatsApp] Sending notification', {
       invoiceId: invoice_id,
       notificationType: notification_type,
-      adminId: adminUser.id,
+      adminId: authResult.adminUser.id,
     });
 
     // Send WhatsApp notification
@@ -56,7 +49,7 @@ export async function POST(request: NextRequest) {
       notification_type,
       {
         daysOverdue: days_overdue,
-        createdBy: `admin:${adminUser.id}`,
+        createdBy: `admin:${authResult.adminUser.id}`,
       }
     );
 

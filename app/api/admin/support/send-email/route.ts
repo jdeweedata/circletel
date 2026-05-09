@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const supabase = await createClient();
-    const adminUser = authResult.user;
+    const adminUser = authResult.adminUser;
 
     // Validate API key
     if (!RESEND_API_KEY) {
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     // Build tags
     const tags = [
       { name: 'type', value: 'support' },
-      { name: 'sent_by', value: adminUser.full_name || user.email || 'admin' },
+      { name: 'sent_by', value: authResult.adminUser.full_name || authResult.adminUser.email || 'admin' },
       ...(body.tags || []).map(tag => ({ name: 'custom', value: tag })),
     ];
 

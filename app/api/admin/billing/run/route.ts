@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     await supabase
       .from('admin_activity_log')
       .insert({
-        admin_user_id: adminUser.id,
+        admin_user_id: authResult.adminUser.id,
         action: 'manual_billing_run',
         resource_type: 'billing_run',
         resource_id: result.run_id,

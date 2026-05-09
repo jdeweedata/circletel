@@ -195,6 +195,11 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
     const body = await request.json();
@@ -205,12 +210,9 @@ export async function PUT(
       bodySize: JSON.stringify(body).length
     });
 
-    // Get authenticated user from Supabase session (optional for audit logging)
-    const user = await getAuthenticatedUser(request);
-
-    // Get user info from headers as fallback (for cases where session is not available)
-    const userEmail = user?.email || request.headers.get('x-user-email') || 'admin@circletel.co.za';
-    const userName = user?.full_name || request.headers.get('x-user-name') || 'Admin User';
+    // Get user info from auth result
+    const userEmail = authResult.adminUser.email || 'admin@circletel.co.za';
+    const userName = authResult.adminUser.full_name || 'Admin User';
 
     const changeReason = body.change_reason;
 
@@ -424,18 +426,13 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
-
-    // Get authenticated user from Supabase session
-    const user = await getAuthenticatedUser(request);
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
 
     // Soft delete - set status to inactive (migrated to service_packages - Epic 1.6)
     const { data: product, error } = await supabase
@@ -460,8 +457,8 @@ export async function DELETE(
     await supabase
       .from('service_packages_audit_logs')
       .update({
-        changed_by_email: user.email,
-        changed_by_name: user.full_name,
+        changed_by_email: authResult.adminUser.email,
+        changed_by_name: authResult.adminUser.full_name,
         change_reason: 'Product soft-deleted (status set to inactive)',
         ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
         user_agent: request.headers.get('user-agent')

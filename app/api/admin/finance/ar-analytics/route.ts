@@ -160,27 +160,16 @@ export async function POST(request: NextRequest) {
 
     let isAuthorized = false;
 
-    // Check cron secret
+    // Check cron secret first
     if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
       isAuthorized = true;
     }
 
-    // Check admin auth
+    // Check admin auth if cron secret didn't match
     if (!isAuthorized) {
-      const sessionClient = await createClientWithSession();
-      const { data: { user } } = await sessionClient.auth.getUser();
-
-      if (user) {
-        const supabase = await createClient();
-        const { data: adminUser } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('email', user.email)
-          .single();
-
-        if (adminUser) {
-          isAuthorized = true;
-        }
+      const authResult = await authenticateAdmin(request);
+      if (authResult.success) {
+        isAuthorized = true;
       }
     }
 
