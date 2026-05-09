@@ -28,13 +28,6 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    if (!authResult.success) {
-      return NextResponse.json(
-        { success: false, error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
-
     // Parse request body
     const body: SendInvoiceRequest = await request.json();
     const { 

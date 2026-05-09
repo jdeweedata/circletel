@@ -42,7 +42,7 @@ export async function POST(
     }
 
     // Approve site details
-    const approved = await SiteDetailsService.approveSiteDetails(id, user.id, notes);
+    const approved = await SiteDetailsService.approveSiteDetails(id, authResult.adminUser.id, notes);
 
     // Update journey stage to completed
     const { data: journeyStage } = await supabase

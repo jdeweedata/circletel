@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
     await supabase
       .from('admin_activity_log')
       .insert({
-        admin_user_id: adminUser.id,
+        admin_user_id: authResult.adminUser.id,
         action: 'generate_invoice',
         resource_type: 'customer_invoice',
         resource_id: invoice.id,

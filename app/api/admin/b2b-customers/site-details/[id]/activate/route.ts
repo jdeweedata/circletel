@@ -75,7 +75,7 @@ export async function PATCH(
     event_type: `status_change:${site.status}→${status}`,
     old_value: { status: site.status },
     new_value: { status, ...updateFields },
-    performed_by: user.id,
+    performed_by: authResult.adminUser.id,
     notes: notes || null,
   });
 
@@ -89,7 +89,7 @@ export async function PATCH(
         site_id: siteId,
         organisation_id: site.corporate_id,
         activated_at: new Date().toISOString(),
-        activated_by: user.id,
+        activated_by: authResult.adminUser.id,
         package_id: resolvedPackageId,
         monthly_fee: resolvedFee,
         service_id: site.service_id,
