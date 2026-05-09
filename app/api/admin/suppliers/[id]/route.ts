@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { SupplierUpdate } from '@/lib/suppliers/types'
 
 export const runtime = 'nodejs'
@@ -23,6 +24,11 @@ export async function GET(
   request: NextRequest,
   context: RouteContext
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await context.params
     const supabase = await createClient()
@@ -101,6 +107,11 @@ export async function PUT(
   request: NextRequest,
   context: RouteContext
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await context.params
     const supabase = await createClient()
@@ -168,6 +179,11 @@ export async function DELETE(
   request: NextRequest,
   context: RouteContext
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await context.params
     const supabase = await createClient()

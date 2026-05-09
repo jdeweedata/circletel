@@ -9,9 +9,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { WhatsAppPayNowService } from '@/lib/billing/whatsapp-paynow-service';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const body = await request.json();
     const { invoice_id, notification_type = 'invoice_payment', days_overdue = 0 } = body;
 
@@ -31,23 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get admin user from session
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check admin permission
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, email, role_id')
-      .eq('id', user.id)
-      .single();
 
     if (!adminUser) {
       return NextResponse.json(

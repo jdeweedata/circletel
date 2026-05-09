@@ -7,34 +7,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
-    // Use session client for authentication
-    const sessionClient = await createClientWithSession();
-    const {
-      data: { user },
-    } = await sessionClient.auth.getUser();
-
-    // Use service role client for data access
     const supabase = await createClient();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .single();
-
-    if (!adminUser || !adminUser.is_active) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
 
     // Get query params
     const searchParams = request.nextUrl.searchParams;

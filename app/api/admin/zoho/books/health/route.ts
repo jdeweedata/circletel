@@ -4,7 +4,8 @@
  * Returns health status, sync stats, and connection checks
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { getZohoBooksClient } from '@/lib/integrations/zoho/books-api-client';
 
@@ -37,7 +38,12 @@ interface HealthResponse {
   };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Authenticate admin
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
   // Check credentials
   const credentialsCheck = checkCredentials();
 

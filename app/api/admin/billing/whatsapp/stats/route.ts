@@ -8,26 +8,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const supabase = await createClient();
-
-    // Verify admin authentication
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     // Get message stats from whatsapp_message_log
     const { data: messageStats, error: statsError } = await supabase

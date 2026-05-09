@@ -17,6 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 
@@ -37,6 +38,11 @@ interface NoCoverageLeadQueryParams {
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
 
@@ -218,6 +224,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = await createClient();
     const body = await request.json();
 

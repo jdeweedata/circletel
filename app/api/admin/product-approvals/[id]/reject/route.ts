@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 /**
@@ -11,14 +12,11 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
     const supabase = await createClient();
-
-    // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
 
     const body = await request.json();
     const { rejection_reason } = body;
@@ -47,7 +45,7 @@ export async function POST(
       .from('product_approval_queue')
       .update({
         status: 'rejected',
-        reviewed_by: user.id,
+        reviewed_by: authResult.user.id,
         reviewed_at: new Date().toISOString(),
         rejection_reason
       })
@@ -64,7 +62,7 @@ export async function POST(
       .insert({
         import_id: approval.import_id,
         approval_queue_id: id,
-        user_id: user.id,
+        user_id: authResult.user.id,
         action: 'rejected',
         details: { rejection_reason }
       });

@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { ZohoBooksSyncOrchestrator } from '@/lib/integrations/zoho/books-sync-orchestrator';
 
 interface SyncRequest {
@@ -13,6 +14,12 @@ interface SyncRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const body: SyncRequest = await request.json();
     const { type } = body;
 

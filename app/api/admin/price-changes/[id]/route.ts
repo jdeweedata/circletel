@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 /**
@@ -23,31 +24,11 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
-
-    // =========================================================================
-    // Authentication
-    // =========================================================================
     const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin user
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (!adminUser?.is_active) {
-      return NextResponse.json({ error: 'Account inactive' }, { status: 403 });
-    }
 
     // =========================================================================
     // Get Price Change
@@ -121,31 +102,11 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
-
-    // =========================================================================
-    // Authentication
-    // =========================================================================
     const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin user
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (!adminUser?.is_active) {
-      return NextResponse.json({ error: 'Account inactive' }, { status: 403 });
-    }
 
     // =========================================================================
     // Get Existing Price Change
@@ -275,31 +236,11 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
-
-    // =========================================================================
-    // Authentication
-    // =========================================================================
     const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin user
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (!adminUser?.is_active) {
-      return NextResponse.json({ error: 'Account inactive' }, { status: 403 });
-    }
 
     // =========================================================================
     // Get Existing Price Change

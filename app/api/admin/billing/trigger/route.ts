@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { createClient as createAdminClient } from '@/lib/supabase/server';
 import { inngest } from '@/lib/inngest';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import type {
   DebitOrdersRequestedEvent,
   BillingDayRequestedEvent,
@@ -62,39 +62,13 @@ export async function POST(
   apiLogger.info('[Billing Trigger API] POST request started');
 
   try {
-    // 1. Verify admin authentication
-    const supabaseSSR = await createSSRClient();
-    const { data: authData, error: authError } = await supabaseSSR.auth.getUser();
-
-    if (authError || !authData.user) {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
       apiLogger.info('[Billing Trigger API] Auth verification failed');
-      return NextResponse.json(
-        { success: false, error: 'Not authenticated' },
-        { status: 401 }
-      );
+      return authResult.response;
     }
 
-    const userId = authData.user.id;
-
-    // Verify user is an admin
-    const supabaseAdmin = await createAdminClient();
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, email, is_active')
-      .eq('id', userId)
-      .maybeSingle();
-
-    if (adminError || !adminUser) {
-      apiLogger.error('[Billing Trigger API] Admin user not found', {
-        error: adminError?.message || 'User not found in admin_users table',
-      });
-      return NextResponse.json(
-        { success: false, error: 'User is not an admin' },
-        { status: 403 }
-      );
-    }
-
-    if (!adminUser.is_active) {
+    if (!authResult.adminUser.is_active) {
       apiLogger.info('[Billing Trigger API] Admin user is inactive');
       return NextResponse.json(
         { success: false, error: 'Admin account is inactive' },

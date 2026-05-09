@@ -10,12 +10,18 @@ import {
   CorporateSiteService,
   CorporatePPPoEBulkService,
 } from '@/lib/corporate'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { apiLogger } from '@/lib/logging'
 
 export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await context.params
     const body = await request.json()
@@ -85,6 +91,11 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await context.params
 

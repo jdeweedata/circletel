@@ -8,10 +8,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 /**
  * GET /api/admin/customers/[id]/billing
- * 
+ *
  * Returns:
  * - Customer billing configuration
  * - All invoices
@@ -23,6 +24,9 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const supabase = await createClient();
     const { id: customer_id } = await context.params;

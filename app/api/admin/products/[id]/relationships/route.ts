@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getAuthenticatedUser } from '@/lib/auth/api-auth';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 import type {
   ProductRelationship,
@@ -17,6 +17,9 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
     const supabase = await createClient();
 
@@ -81,18 +84,12 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id: sourceProductId } = await context.params;
     const supabase = await createClient();
     const body: CreateProductRelationshipInput = await request.json();
-
-    // Verify admin authentication
-    const user = await getAuthenticatedUser(request);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
 
     apiLogger.info('[Product Relationships] Creating relationship', {
       sourceProductId,
@@ -185,17 +182,11 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id: sourceProductId } = await context.params;
     const supabase = await createClient();
-
-    // Verify admin authentication
-    const user = await getAuthenticatedUser(request);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
 
     // Get relationship ID from query param
     const { searchParams } = new URL(request.url);

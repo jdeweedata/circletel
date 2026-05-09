@@ -7,9 +7,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { InvoiceSmsReminderService } from '@/lib/billing/invoice-sms-reminder-service';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 interface SendSmsRemindersRequest {
   invoice_ids?: string[];
@@ -20,24 +21,10 @@ interface SendSmsRemindersRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    // Authenticate user
-    const sessionClient = await createClientWithSession();
-    const {
-      data: { user },
-      error: authError,
-    } = await sessionClient.auth.getUser();
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
     const supabase = await createClient();
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('id, email, role')
-      .eq('email', user.email)
-      .single();
 
     if (adminError || !adminUser) {
       return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 });

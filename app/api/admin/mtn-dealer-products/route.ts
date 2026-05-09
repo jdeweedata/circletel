@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import {
   MTNDealerProduct,
   MTNDealerProductFilters,
@@ -10,6 +11,9 @@ import { apiLogger } from '@/lib/logging/logger';
 // GET /api/admin/mtn-dealer-products - List products with filtering
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
 
@@ -121,6 +125,9 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/mtn-dealer-products - Create new product
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const supabase = await createClient();
     const body: MTNDealerProductFormData = await request.json();
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { MTNDealerProductFormData } from '@/lib/types/mtn-dealer-products';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -9,6 +10,9 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
     const supabase = await createClient();
 
@@ -50,6 +54,9 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
     const supabase = await createClient();
     const body: Partial<MTNDealerProductFormData> & { change_reason?: string } = await request.json();
@@ -137,6 +144,9 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
     const supabase = await createClient();
 

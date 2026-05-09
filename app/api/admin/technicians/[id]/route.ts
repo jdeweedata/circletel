@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 // Vercel configuration
@@ -15,26 +16,22 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params;
-
-  if (!id) {
-    return NextResponse.json(
-      { success: false, error: 'Technician ID is required' },
-      { status: 400 }
-    );
-  }
-
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      }
-    );
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
+    const { id } = await context.params;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'Technician ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
 
     const { data: technician, error } = await supabase
       .from('technicians')
@@ -87,26 +84,22 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params;
-
-  if (!id) {
-    return NextResponse.json(
-      { success: false, error: 'Technician ID is required' },
-      { status: 400 }
-    );
-  }
-
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      }
-    );
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
+    const { id } = await context.params;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'Technician ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
     const body = await request.json();
 
     // Get current technician to verify it exists
@@ -218,26 +211,22 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params;
-
-  if (!id) {
-    return NextResponse.json(
-      { success: false, error: 'Technician ID is required' },
-      { status: 400 }
-    );
-  }
-
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      }
-    );
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
+    const { id } = await context.params;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'Technician ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
 
     // Soft delete - set is_active to false instead of actually deleting
     const { data: updatedTechnician, error } = await supabase

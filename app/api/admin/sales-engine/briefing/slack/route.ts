@@ -1,8 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { sendDailyDigest } from '@/lib/sales-engine/slack-digest-service';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const result = await sendDailyDigest();
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 });

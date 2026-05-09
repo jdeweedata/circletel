@@ -6,8 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
-import { createServerClient } from '@supabase/ssr';
 import { checkIntegrationHealth } from '@/lib/integrations/health-check-service';
 import { apiLogger } from '@/lib/logging';
 
@@ -26,49 +26,16 @@ export async function GET(
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { slug } = await context.params;
 
-    // Create TWO clients:
-    // 1. SSR client for authentication (reads cookies)
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll() {
-            // No-op for GET requests
-          },
-        },
-      }
-    );
-
-    // 2. Service role client for database queries (bypasses RLS)
+    // Service role client for database queries (bypasses RLS)
     const supabaseAdmin = await createClient();
-
-    // Check authentication using SSR client
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Verify admin user using service role client (bypasses RLS)
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
 
     // Get integration details
     const { data: integration, error: integrationError } = await supabaseAdmin
@@ -194,49 +161,16 @@ export async function PATCH(
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { slug } = await context.params;
 
-    // Create TWO clients:
-    // 1. SSR client for authentication (reads cookies)
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll() {
-            // No-op for PATCH requests
-          },
-        },
-      }
-    );
-
-    // 2. Service role client for database queries (bypasses RLS)
+    // Service role client for database queries (bypasses RLS)
     const supabaseAdmin = await createClient();
-
-    // Check authentication using SSR client
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Verify admin user using service role client (bypasses RLS)
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
 
     // Parse request body
     const body = await request.json();
@@ -245,7 +179,7 @@ export async function PATCH(
     // Build update object
     const updateData: Record<string, any> = {
       updated_at: new Date().toISOString(),
-      updated_by: user.id,
+      updated_by: authResult.user.id,
     };
 
     if (typeof is_active === 'boolean') {
@@ -278,8 +212,8 @@ export async function PATCH(
       integration_slug: slug,
       action_type: 'configuration_updated',
       action_description: `Integration settings updated`,
-      performed_by: user.id,
-      performed_by_email: user.email,
+      performed_by: authResult.user.id,
+      performed_by_email: authResult.user.email,
       action_result: 'success',
       after_state: updateData,
     });

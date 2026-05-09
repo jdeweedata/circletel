@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 // POST /api/admin/products/[id]/cost-components/bulk - Bulk create/replace components
 export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const { id: packageId } = await context.params;
     const supabase = await createClient();

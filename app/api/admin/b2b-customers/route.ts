@@ -8,33 +8,18 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { BusinessJourneyService } from '@/lib/business/journey-service';
 import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const supabase = await createClient();
-
-    // Verify admin access
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if user is admin (admin_users.id = auth user id, is_active for status)
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, role')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     // Parse query params
     const searchParams = request.nextUrl.searchParams;

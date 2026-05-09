@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 
@@ -21,6 +22,11 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, context: RouteParams) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
 
@@ -61,6 +67,11 @@ export async function GET(request: NextRequest, context: RouteParams) {
 
 export async function PATCH(request: NextRequest, context: RouteParams) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
     const body = await request.json();
@@ -143,6 +154,11 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
 
 export async function DELETE(request: NextRequest, context: RouteParams) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
 

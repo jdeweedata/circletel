@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
@@ -16,24 +17,13 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
-
-    // Verify admin access
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     const { data: outage, error } = await supabase
       .from('outage_incidents')
@@ -70,24 +60,14 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
+    const { adminUser } = authResult;
     const supabase = await createClient();
-
-    // Verify admin access
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     const body = await request.json();
     const {
@@ -134,7 +114,7 @@ export async function PATCH(
     apiLogger.info('Outage updated', {
       incidentId: id,
       updates: Object.keys(updates),
-      updatedBy: user.email
+      updatedBy: adminUser.email
     });
 
     return NextResponse.json({ outage });
@@ -154,24 +134,14 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
+    const { adminUser } = authResult;
     const supabase = await createClient();
-
-    // Verify admin access
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     const body = await request.json();
     const { status, message, is_public = true } = body;
@@ -216,7 +186,7 @@ export async function POST(
       incidentId: id,
       status,
       isPublic: is_public,
-      createdBy: user.email
+      createdBy: adminUser.email
     });
 
     return NextResponse.json({ update }, { status: 201 });

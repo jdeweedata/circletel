@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 /**
@@ -10,14 +11,15 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const { id } = await context.params;
     const supabase = await createClient();
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    const user = authResult.user;
 
     const { error } = await supabase
       .from('notifications')

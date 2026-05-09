@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
@@ -9,6 +10,11 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)
 
@@ -66,6 +72,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = await createClient()
     const body = await request.json()
 

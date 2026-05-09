@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,6 +20,9 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
 
     // Use service role client to bypass RLS for admin access

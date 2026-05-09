@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { createClient as createAdminClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import {
   getAdminProductContext,
   validateAdminProductForPublish,
@@ -25,44 +25,14 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
 
-    // Authenticate admin user using same pattern as /api/admin/me
-    const supabaseSSR = await createSSRClient();
-    const {
-      data: { user: authUser },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
-
-    if (authError || !authUser) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const supabaseAdmin = await createAdminClient();
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, email, full_name, is_active, role')
-      .eq('id', authUser.id)
-      .maybeSingle();
 
-    if (adminError || !adminUser) {
-      return NextResponse.json(
-        { success: false, error: 'User not found in admin_users table' },
-        { status: 404 }
-      );
-    }
-
-    if (!adminUser.is_active) {
-      return NextResponse.json(
-        { success: false, error: 'Account is inactive' },
-        { status: 403 }
-      );
-    }
-
-    if (!['super_admin', 'product_manager'].includes(adminUser.role)) {
+    if (!['super_admin', 'product_manager'].includes(authResult.adminUser.role)) {
       return NextResponse.json(
         { success: false, error: 'Insufficient permissions' },
         { status: 403 }

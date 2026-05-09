@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getCashFlowProjection } from '@/lib/sales-engine/cash-flow-projection-service';
 
 // GET /api/admin/sales-engine/cash-flow

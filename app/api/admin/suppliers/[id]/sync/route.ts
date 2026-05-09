@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { syncScoopProducts } from '@/lib/suppliers/scoop-sync'
 import { syncMiRoProducts } from '@/lib/suppliers/miro'
 import { syncNologyProducts } from '@/lib/suppliers/nology'
@@ -28,6 +29,9 @@ export async function POST(
   request: NextRequest,
   context: RouteContext
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) return authResult.response
+
   try {
     const { id } = await context.params
     const supabase = await createClient()

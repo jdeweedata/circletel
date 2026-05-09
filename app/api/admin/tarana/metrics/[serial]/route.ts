@@ -1,23 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getMetricsHistory, getLatestMetrics } from '@/lib/tarana/metrics-service';
 
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ serial: string }> }
 ) {
-  const sessionClient = await createClientWithSession();
-  const { data: { user } } = await sessionClient.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const supabase = await createClient();
-  const { data: admin } = await supabase
-    .from('admin_users')
-    .select('id')
-    .eq('id', user.id)
-    .eq('is_active', true)
-    .maybeSingle();
-  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
 
   const { serial } = await context.params;
   const { searchParams } = new URL(request.url);

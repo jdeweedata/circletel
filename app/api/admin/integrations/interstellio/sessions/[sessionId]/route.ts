@@ -5,8 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { createClient } from '@/lib/supabase/server'
-import { createServerClient } from '@supabase/ssr'
 import { getInterstellioClient } from '@/lib/interstellio'
 import { apiLogger } from '@/lib/logging'
 
@@ -22,32 +22,15 @@ export async function DELETE(
   context: { params: Promise<{ sessionId: string }> }
 ) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { sessionId } = await context.params
 
-    // Auth
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll() {},
-        },
-      }
-    )
-
     const supabaseAdmin = await createClient()
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const { data: adminUser, error: adminError } = await supabaseAdmin
       .from('admin_users')

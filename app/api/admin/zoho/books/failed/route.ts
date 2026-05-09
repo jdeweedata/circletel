@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 
 interface FailedEntity {
@@ -29,12 +30,19 @@ interface FailedEntitiesResponse {
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('pageSize') || '10');
-  const offset = (page - 1) * pageSize;
+  try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
 
-  const supabase = await createClient();
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const pageSize = parseInt(searchParams.get('pageSize') || '10');
+    const offset = (page - 1) * pageSize;
+
+    const supabase = await createClient();
   const entities: FailedEntity[] = [];
 
   // Get failed customers
@@ -110,15 +118,21 @@ export async function GET(request: NextRequest) {
   const total = entities.length;
   const paginatedEntities = entities.slice(offset, offset + pageSize);
 
-  const response: FailedEntitiesResponse = {
-    entities: paginatedEntities,
-    pagination: {
-      page,
-      pageSize,
-      total,
-      totalPages: Math.ceil(total / pageSize) || 1,
-    },
-  };
+    const response: FailedEntitiesResponse = {
+      entities: paginatedEntities,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize) || 1,
+      },
+    };
 
-  return NextResponse.json(response);
+    return NextResponse.json(response);
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to fetch failed entities', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
 }

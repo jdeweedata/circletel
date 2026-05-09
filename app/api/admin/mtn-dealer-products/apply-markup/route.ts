@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { applyMarkupRules, getMarkupSummary } from '@/lib/products/markup-rules-service';
 import type { MTNDealerBusinessUseCase } from '@/lib/types/mtn-dealer-products';
 
@@ -6,6 +7,9 @@ import type { MTNDealerBusinessUseCase } from '@/lib/types/mtn-dealer-products';
 // Applies category-based markup rules to curated deals
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const body = await request.json().catch(() => ({}));
 
     const { use_case_filter, dry_run } = body as {
@@ -34,8 +38,11 @@ export async function POST(request: NextRequest) {
 
 // GET /api/admin/mtn-dealer-products/apply-markup
 // Returns current markup summary across all deals
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const summary = await getMarkupSummary();
     return NextResponse.json({ success: true, summary });
   } catch (error) {

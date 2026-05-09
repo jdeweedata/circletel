@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClientWithSession, createClient } from '@/lib/supabase/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { apiLogger } from '@/lib/logging/logger'
 
 /**
@@ -9,36 +10,11 @@ import { apiLogger } from '@/lib/logging/logger'
  */
 export async function GET(request: NextRequest) {
   try {
-    // Session client (reads auth cookies)
-    const supabaseSession = await createClientWithSession()
-
-    // Get current user
-    const { data: { user }, error: authError } = await supabaseSession.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
+    const authResult = await authenticateAdmin(request)
+    if (!authResult.success) return authResult.response
 
     // Service-role client for privileged queries (bypasses RLS recursion)
     const supabase = await createClient()
-
-    // Check if user is a super admin (enforced only in production)
-    if (process.env.NODE_ENV === 'production') {
-      const { data: adminUser, error: adminError } = await supabase
-        .from('admin_users')
-        .select('role_template_id, role')
-        .eq('id', user.id)
-        .single()
-
-      if (adminError || !adminUser || (adminUser.role !== 'super_admin' && adminUser.role_template_id !== 'super_admin')) {
-        return NextResponse.json(
-          { error: 'Forbidden: Super Admin access required' },
-          { status: 403 }
-        )
-      }
-    }
 
     // Fetch pending requests
     const { data: pendingRequests, error: requestsError } = await supabase

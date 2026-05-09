@@ -8,11 +8,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { ServiceManager } from '@/lib/services/service-manager';
 
 /**
  * POST /api/admin/customers/[id]/services/activate
- * 
+ *
  * Body:
  * {
  *   service_id: string (required),
@@ -25,19 +26,12 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const supabase = await createClient();
     const { id: customer_id } = await context.params;
-    
-    // Get authenticated admin user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
     
     // TODO: PiCheckBold admin permissions (services:activate)
     // For now, assume service_role or authenticated user is admin

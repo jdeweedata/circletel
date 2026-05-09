@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { ZohoBooksSyncOrchestrator } from '@/lib/integrations/zoho/books-sync-orchestrator';
 
@@ -15,6 +16,12 @@ interface RetryRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const body: RetryRequest = await request.json();
     const { entityType, entityId } = body;
 

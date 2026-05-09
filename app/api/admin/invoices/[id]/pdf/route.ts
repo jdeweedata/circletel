@@ -7,7 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { generateInvoicePDF, buildInvoiceData } from '@/lib/invoices/invoice-pdf-generator';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -15,36 +16,15 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const { id: invoiceId } = await context.params;
 
-    // Use session-aware client to get authenticated user
-    const sessionClient = await createClientWithSession();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Use service role client for data operations (bypasses RLS)
     const supabase = await createClient();
-
-    // Check admin permissions
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, role, permissions')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json(
-        { success: false, error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Fetch the invoice with customer data
     const { data: invoice, error: invoiceError } = await supabase

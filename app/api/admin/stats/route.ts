@@ -3,8 +3,9 @@
  * GET /api/admin/stats - Fetch comprehensive dashboard statistics
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 // ============================================================================
@@ -43,7 +44,12 @@ interface CoverageLeadRecord {
 export const runtime = 'nodejs';
 export const maxDuration = 15; // Allow up to 15 seconds for stats queries
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   const startTime = Date.now();
   apiLogger.info('[Stats API] ⏱️ Request started');
 

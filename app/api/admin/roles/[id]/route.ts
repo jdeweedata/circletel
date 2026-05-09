@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import type { UpdateRoleInput } from '@/lib/types/role';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -15,34 +16,11 @@ export async function GET(
   try {
     const { id } = await context.params;
 
-    // Session client to read the authenticated user from cookies
-    const supabaseSession = await createClientWithSession();
-
-    // Get current user
-    const { data: { user }, error: authError } = await supabaseSession.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
     // Service-role client for privileged operations
     const supabase = await createClient();
-
-    // Check if user is a super admin
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('role_template_id, role')
-      .eq('id', user.id)
-      .single();
-
-    if (adminError || !adminUser || (adminUser.role !== 'super_admin' && adminUser.role_template_id !== 'super_admin')) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Super Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Fetch role with user count
     const { data: role, error: roleError } = await supabase
@@ -93,34 +71,11 @@ export async function PUT(
   try {
     const { id } = await context.params;
 
-    // Session client to read the authenticated user from cookies
-    const supabaseSession = await createClientWithSession();
-
-    // Get current user
-    const { data: { user }, error: authError } = await supabaseSession.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
     // Service-role client for privileged operations
     const supabase = await createClient();
-
-    // Check if user is a super admin
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('role_template_id, role')
-      .eq('id', user.id)
-      .single();
-
-    if (adminError || !adminUser || (adminUser.role !== 'super_admin' && adminUser.role_template_id !== 'super_admin')) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Super Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Parse request body
     const body: UpdateRoleInput = await request.json();
@@ -188,7 +143,7 @@ export async function PUT(
 
     // Log audit trail
     await supabase.from('admin_audit_logs').insert({
-      user_id: user.id,
+      user_id: authResult.user.id,
       action: 'UPDATE_ROLE',
       entity_type: 'role_templates',
       entity_id: id,
@@ -200,7 +155,7 @@ export async function PUT(
       timestamp: new Date().toISOString(),
     });
 
-    apiLogger.info(`Role '${updatedRole.name}' updated successfully by ${adminUser.role}`);
+    apiLogger.info(`Role '${updatedRole.name}' updated successfully by ${authResult.adminUser.role}`);
     if (userCount && userCount > 0) {
       apiLogger.warn(`This role is assigned to ${userCount} active users`);
     }
@@ -234,34 +189,11 @@ export async function DELETE(
   try {
     const { id } = await context.params;
 
-    // Session client to read the authenticated user from cookies
-    const supabaseSession = await createClientWithSession();
-
-    // Get current user
-    const { data: { user }, error: authError } = await supabaseSession.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
     // Service-role client for privileged operations
     const supabase = await createClient();
-
-    // Check if user is a super admin
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('role_template_id, role')
-      .eq('id', user.id)
-      .single();
-
-    if (adminError || !adminUser || (adminUser.role !== 'super_admin' && adminUser.role_template_id !== 'super_admin')) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Super Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Get existing role
     const { data: existingRole, error: fetchError } = await supabase
@@ -314,7 +246,7 @@ export async function DELETE(
 
     // Log audit trail
     await supabase.from('admin_audit_logs').insert({
-      user_id: user.id,
+      user_id: authResult.user.id,
       action: 'DELETE_ROLE',
       entity_type: 'role_templates',
       entity_id: id,
@@ -326,7 +258,7 @@ export async function DELETE(
       timestamp: new Date().toISOString(),
     });
 
-    apiLogger.info(`Role '${existingRole.name}' deleted successfully by ${adminUser.role}`);
+    apiLogger.info(`Role '${existingRole.name}' deleted successfully by ${authResult.adminUser.role}`);
 
     return NextResponse.json({
       success: true,

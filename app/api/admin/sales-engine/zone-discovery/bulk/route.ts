@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import {
   bulkApprove,
   bulkReject,

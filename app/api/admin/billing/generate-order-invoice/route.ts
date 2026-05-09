@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import type { InvoiceLineItem } from '@/lib/billing/types';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 interface GenerateOrderInvoiceRequest {
   order_id: string;
@@ -22,33 +23,11 @@ interface GenerateOrderInvoiceRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    // Use session-aware client to get authenticated user
-    const sessionClient = await createClientWithSession();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
     // Use service role client for data operations (bypasses RLS)
     const supabase = await createClient();
-
-    // Check admin permissions
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, role, permissions')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json(
-        { success: false, error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Parse request body
     const body: GenerateOrderInvoiceRequest = await request.json();

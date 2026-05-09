@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { SupplierInsert } from '@/lib/suppliers/types'
 
 export const runtime = 'nodejs'
@@ -14,7 +15,12 @@ export const maxDuration = 15
 /**
  * GET - List all suppliers with aggregated stats
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const supabase = await createClient()
 
@@ -50,6 +56,11 @@ export async function GET() {
  * POST - Create a new supplier
  */
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const supabase = await createClient()
     const body = await request.json()

@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import type { CMSMedia } from '@/lib/cms/types';
 
 export const dynamic = 'force-dynamic';
@@ -28,17 +29,12 @@ const ALLOWED_MIME_TYPES = [
 // GET - List media
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
+
+    const supabase = await createClient();
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
@@ -102,17 +98,13 @@ export async function GET(request: NextRequest) {
 // POST - Upload media
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
+
+    const supabase = await createClient();
+    const { user } = authResult;
 
     // Parse form data
     const formData = await request.formData();

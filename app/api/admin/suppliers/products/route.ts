@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { getCachedImageUrl } from '@/lib/suppliers/image-cache'
 
 export const runtime = 'nodejs'
@@ -14,6 +15,9 @@ export const maxDuration = 15
  * GET - List supplier products with filtering and pagination
  */
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) return authResult.response
+
   try {
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)
@@ -146,6 +150,9 @@ export async function GET(request: NextRequest) {
  * Get unique manufacturers for filter dropdown
  */
 export async function OPTIONS(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) return authResult.response
+
   try {
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)

@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { createDiagnosticsAnalyzer } from '@/lib/diagnostics/analyzer'
 import { getInterstellioClient } from '@/lib/interstellio'
 import type { DataUsageEntry } from '@/lib/interstellio/types'
@@ -32,6 +33,11 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await context.params
     const supabase = await createClient()
@@ -207,6 +213,11 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await context.params
     const body: ManualDiagnosticsRequest = await request.json()

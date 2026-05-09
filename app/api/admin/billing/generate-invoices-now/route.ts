@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import { generateCustomerInvoice, buildInvoiceLineItems } from '@/lib/invoices/invoice-generator';
 import { BillingService } from '@/lib/billing/billing-service';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 /**
  * POST /api/admin/billing/generate-invoices-now
@@ -28,19 +29,10 @@ import { apiLogger } from '@/lib/logging';
  */
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const supabase = await createClient();
-    
-    // Get authenticated admin user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    
-    // TODO: PiCheckBold admin permissions (billing:manage)
     
     // Parse request body
     const body = await request.json();

@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { CorporateAccountService, CorporateSiteService } from '@/lib/corporate'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { apiLogger } from '@/lib/logging'
 import type { CorporateSiteStatus } from '@/lib/corporate'
 
@@ -15,6 +16,11 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string; siteId: string }> }
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id, siteId } = await context.params
 
@@ -45,6 +51,11 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string; siteId: string }> }
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id, siteId } = await context.params
     const body = await request.json()
@@ -120,6 +131,11 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string; siteId: string }> }
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id, siteId } = await context.params
 

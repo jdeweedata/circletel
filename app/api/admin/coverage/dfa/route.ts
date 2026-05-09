@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 import { dfaCoverageClient } from '@/lib/coverage/providers/dfa';
 
@@ -39,6 +40,11 @@ async function geocodeAddress(address: string): Promise<Coordinates | null> {
 }
 
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const body = (await request.json()) as AdminCoverageRequest;
     const address = body.address?.trim();

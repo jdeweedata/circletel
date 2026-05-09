@@ -5,11 +5,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { MonthlyInvoiceGenerator } from '@/lib/billing/monthly-invoice-generator';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const { id: customerId } = await context.params;
     const body = await request.json().catch(() => ({}));

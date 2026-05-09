@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -21,18 +22,13 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
-
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const { data: media, error } = await supabase
       .from('pb_media')
@@ -57,18 +53,13 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
-
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const body = await request.json();
 
@@ -114,18 +105,13 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
-
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     // First get the media to find the storage path
     const { data: media, error: fetchError } = await supabase

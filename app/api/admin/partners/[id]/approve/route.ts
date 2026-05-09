@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { assignPartnerNumber } from '@/lib/partners/partner-number'
 import { apiLogger } from '@/lib/logging/logger'
 import { EmailNotificationService } from '@/lib/notifications/notification-service'
@@ -35,33 +36,15 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const supabase = await createClient()
     const { id: partnerId } = await context.params
-
-    // Verify admin authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      )
-    }
-
-    // Verify user is an admin
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('id, role')
-      .eq('user_id', user.id)
-      .single()
-
-    if (adminError || !adminUser) {
-      return NextResponse.json(
-        { success: false, error: 'Admin access required' },
-        { status: 403 }
-      )
-    }
+    const { adminUser } = authResult
 
     // Parse and validate request body
     const body = await request.json()

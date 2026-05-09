@@ -6,9 +6,15 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { CorporateAccountService } from '@/lib/corporate'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { apiLogger } from '@/lib/logging'
 
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const stats = await CorporateAccountService.getStats()
 

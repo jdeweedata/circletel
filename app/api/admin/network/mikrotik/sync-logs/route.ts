@@ -7,57 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { MikrotikRouterService } from '@/lib/mikrotik';
-
-// =============================================================================
-// Auth Helper
-// =============================================================================
-
-async function verifyNetworkAdmin(
-  sessionClient: Awaited<ReturnType<typeof createClientWithSession>>
-) {
-  const {
-    data: { user },
-    error: authError,
-  } = await sessionClient.auth.getUser();
-
-  if (authError || !user) {
-    return { error: 'Unauthorized', status: 401 };
-  }
-
-  const serviceClient = await createClient();
-  const { data: adminUser, error: adminError } = await serviceClient
-    .from('admin_users')
-    .select(`
-      id,
-      role_template:role_templates(name, permissions)
-    `)
-    .eq('id', user.id)
-    .single();
-
-  if (adminError || !adminUser) {
-    return { error: 'Forbidden: Admin user not found', status: 403 };
-  }
-
-  const roleTemplate = Array.isArray(adminUser.role_template)
-    ? adminUser.role_template[0]
-    : adminUser.role_template;
-
-  const roleName = roleTemplate?.name;
-  const permissions = roleTemplate?.permissions as string[] | undefined;
-
-  const hasAccess =
-    roleName === 'Super Admin' ||
-    roleName === 'Network Administrator' ||
-    permissions?.includes('network:mikrotik:read');
-
-  if (!hasAccess) {
-    return { error: 'Forbidden: Network access required', status: 403 };
-  }
-
-  return { userId: user.id };
-}
 
 // =============================================================================
 // GET /api/admin/network/mikrotik/sync-logs
@@ -65,14 +16,9 @@ async function verifyNetworkAdmin(
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClientWithSession();
-    const authResult = await verifyNetworkAdmin(supabase);
-
-    if ('error' in authResult) {
-      return NextResponse.json(
-        { success: false, error: authResult.error },
-        { status: authResult.status }
-      );
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     const { searchParams } = new URL(request.url);

@@ -16,38 +16,20 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 
 export async function GET(request: NextRequest) {
   try {
-    // Use session client for authentication
-    const supabase = await createClientWithSession();
-
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
-    // Use service role client to bypass RLS when checking admin_users
+    // Use service role client to bypass RLS
     const supabaseAdmin = await createClient();
-
-    // Verify admin user
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
 
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams;

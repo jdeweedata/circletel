@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 // Vercel configuration: allow longer execution for single order queries
 export const runtime = 'nodejs';
@@ -10,6 +11,9 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ orderId: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   const { orderId } = await context.params;
 
   if (!orderId) {

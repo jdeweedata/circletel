@@ -11,33 +11,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { NotificationTrackingService } from '@/lib/billing/notification-tracking-service';
 
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
-    // Authenticate user
-    const sessionClient = await createClientWithSession();
-    const {
-      data: { user },
-      error: authError,
-    } = await sessionClient.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
     const supabase = await createClient();
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, email, role')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 });
-    }
 
     // Get query params
     const { searchParams } = new URL(request.url);

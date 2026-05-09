@@ -9,6 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { differenceInDays } from 'date-fns';
 import { apiLogger } from '@/lib/logging';
@@ -22,22 +23,16 @@ import { apiLogger } from '@/lib/logging';
  */
 export async function GET(request: NextRequest) {
   try {
-    // =========================================================================
-    // Authentication & Authorization
-    // =========================================================================
-    const supabase = await createSSRClient();
-
-    // Get current user session
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
-    // TODO: Add RBAC permission check when implemented (integrations:view)
+    // =========================================================================
+    // Fetch OAuth Tokens
+    // =========================================================================
+    const supabase = await createSSRClient();
 
     // =========================================================================
     // Fetch OAuth Tokens from integration_oauth_tokens table

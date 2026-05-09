@@ -1,12 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 // Vercel configuration: Allow longer execution for order queries
 export const runtime = 'nodejs';
 export const maxDuration = 15; // Allow up to 15 seconds for order queries
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   const startTime = Date.now();
   apiLogger.info('[Orders API] ⏱️ Request started');
 

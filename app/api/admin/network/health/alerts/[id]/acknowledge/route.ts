@@ -6,36 +6,22 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id: alertId } = await context.params;
-
-    const supabase = await createClientWithSession();
-
-    // Get current user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get admin user ID
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin user not found' }, { status: 403 });
-    }
+    const { adminUser } = authResult;
+    const supabase = await createClient();
 
     // Update alert
     const { error } = await supabase

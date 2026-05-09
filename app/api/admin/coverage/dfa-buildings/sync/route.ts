@@ -15,7 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { inngest } from '@/lib/inngest';
 import { apiLogger } from '@/lib/logging';
@@ -57,62 +57,17 @@ const SYNC_LOG_FIELDS = `
  * Creates a sync log entry and sends an Inngest event for background processing.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   const startTime = Date.now();
   apiLogger.info('[DFA Sync API] Manual sync request received');
 
   try {
-    // =========================================================================
-    // Step 1: Admin Authentication
-    // =========================================================================
-    const supabaseSSR = await createSSRClient();
-
-    // Get current user from session
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
-
-    if (authError || !user) {
-      apiLogger.warn('[DFA Sync API] Unauthenticated request');
-      return NextResponse.json(
-        { success: false, error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    // Use service role client to check admin_users (bypasses RLS)
     const supabase = await createClient();
-
-    // Verify user is an admin
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('id, email, full_name, is_active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (adminError || !adminUser) {
-      apiLogger.warn('[DFA Sync API] User not found in admin_users', {
-        userId: user.id,
-      });
-      return NextResponse.json(
-        { success: false, error: 'Access denied: Admin privileges required' },
-        { status: 403 }
-      );
-    }
-
-    if (!adminUser.is_active) {
-      apiLogger.warn('[DFA Sync API] Inactive admin user', {
-        email: adminUser.email,
-      });
-      return NextResponse.json(
-        { success: false, error: 'Account is inactive' },
-        { status: 403 }
-      );
-    }
-
-    apiLogger.info('[DFA Sync API] Admin authenticated', {
-      email: adminUser.email,
-    });
+    const adminUser = authResult.adminUser;
 
     // =========================================================================
     // Step 2: Conflict Detection - Check for running syncs
@@ -291,64 +246,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  * - Always includes recent history (last 5)
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   const startTime = Date.now();
 
   try {
-    // =========================================================================
-    // Step 1: Admin Authentication
-    // =========================================================================
-    const supabaseSSR = await createSSRClient();
-
-    // Get current user from session
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
-
-    if (authError || !user) {
-      apiLogger.warn('[DFA Sync Status] Unauthenticated request');
-      return NextResponse.json(
-        { success: false, error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    // Use service role client to check admin_users (bypasses RLS)
     const supabase = await createClient();
 
-    // Verify user is an admin
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (adminError || !adminUser) {
-      apiLogger.warn('[DFA Sync Status] User not found in admin_users', {
-        userId: user.id,
-      });
-      return NextResponse.json(
-        { success: false, error: 'Access denied: Admin privileges required' },
-        { status: 403 }
-      );
-    }
-
-    if (!adminUser.is_active) {
-      apiLogger.warn('[DFA Sync Status] Inactive admin user');
-      return NextResponse.json(
-        { success: false, error: 'Account is inactive' },
-        { status: 403 }
-      );
-    }
-
     // =========================================================================
-    // Step 2: Parse Query Parameters
+    // Parse Query Parameters
     // =========================================================================
     const { searchParams } = new URL(request.url);
     const syncLogId = searchParams.get('id');
 
     // =========================================================================
-    // Step 3: Fetch Current Sync Log
+    // Fetch Current Sync Log
     // =========================================================================
     let current = null;
 
@@ -395,7 +310,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // =========================================================================
-    // Step 4: Fetch Recent Sync History
+    // Fetch Recent Sync History
     // =========================================================================
     const { data: recentLogs, error: recentError } = await supabase
       .from('dfa_sync_logs')

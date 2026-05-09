@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { netcashStatementService, DebitOrderResult } from '@/lib/payments/netcash-statement-service';
 
 interface VerifyPaymentRequest {
@@ -39,6 +40,11 @@ interface PaymentVerificationResult {
  * POST - Verify payment for specific order/invoice
  */
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const supabase = await createClient();
     const body: VerifyPaymentRequest = await request.json();
@@ -180,6 +186,11 @@ export async function POST(request: NextRequest) {
  * GET - Get all debit order results for a date
  */
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const dateStr = searchParams.get('date');

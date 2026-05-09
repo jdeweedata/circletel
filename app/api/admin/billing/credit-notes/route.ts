@@ -5,12 +5,16 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { CompliantBillingService, CreditNoteReason } from '@/lib/billing/compliant-billing-service';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const body = await request.json();
     const {
       original_invoice_id,
@@ -31,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Validate reason_category
     const validCategories: CreditNoteReason[] = [
-      'billing_error', 'service_issue', 'cancellation', 
+      'billing_error', 'service_issue', 'cancellation',
       'price_adjustment', 'duplicate', 'other'
     ];
     if (!validCategories.includes(reason_category)) {
@@ -41,31 +45,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Authenticate
-    const sessionClient = await createClientWithSession();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check admin permissions
     const supabase = await createClient();
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, email, role')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json(
-        { success: false, error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Create credit note
     const creditNote = await CompliantBillingService.createCreditNote(
@@ -78,9 +58,9 @@ export async function POST(request: NextRequest) {
         auto_apply
       },
       {
-        user_id: user.id,
-        user_email: user.email || undefined,
-        user_role: adminUser.role,
+        user_id: authResult.user.id,
+        user_email: authResult.user.email || undefined,
+        user_role: authResult.adminUser.role,
         reason
       }
     );
@@ -89,7 +69,7 @@ export async function POST(request: NextRequest) {
     await supabase
       .from('admin_activity_log')
       .insert({
-        admin_user_id: adminUser.id,
+        admin_user_id: authResult.adminUser.id,
         action: 'create_credit_note',
         resource_type: 'credit_note',
         resource_id: creditNote.id,
@@ -119,6 +99,9 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { searchParams } = new URL(request.url);
     const customerId = searchParams.get('customer_id');
     const invoiceId = searchParams.get('invoice_id');
@@ -126,31 +109,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Authenticate
-    const sessionClient = await createClientWithSession();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check admin permissions
     const supabase = await createClient();
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, email, role')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json(
-        { success: false, error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Build query
     let query = supabase

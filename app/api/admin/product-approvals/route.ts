@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 /**
@@ -8,13 +9,10 @@ import { apiLogger } from '@/lib/logging/logger';
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
-    // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    const supabase = await createClient();
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') || 'pending';

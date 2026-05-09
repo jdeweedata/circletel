@@ -19,7 +19,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 
 /**
@@ -34,27 +35,17 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // =========================================================================
-    // Extract Params
-    // =========================================================================
+    // Extract params
     const { id } = await context.params;
 
-    // =========================================================================
-    // Authentication & Authorization
-    // =========================================================================
-    const supabase = await createSSRClient();
-
-    // Get current user session
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
-    // TODO: Add RBAC permission check when implemented (integrations:manage)
+    const supabase = await createClient();
+    const { user } = authResult;
 
     // =========================================================================
     // Fetch Original Webhook Log

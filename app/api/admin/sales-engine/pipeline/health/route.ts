@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getPipelineHealth } from '@/lib/sales-engine/pipeline-health-service';
 
 export async function GET() {

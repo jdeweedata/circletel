@@ -20,7 +20,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/integrations/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -44,31 +45,14 @@ interface SendEmailRequest {
 }
 
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
-    // Verify admin authentication
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, role, full_name')
-      .eq('auth_user_id', user.id)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
+    const adminUser = authResult.user;
 
     // Validate API key
     if (!RESEND_API_KEY) {

@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import {
   getAssets,
@@ -16,26 +17,9 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Verify admin user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Parse query params
@@ -68,26 +52,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Verify admin user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Parse request body
@@ -139,7 +106,7 @@ export async function POST(request: NextRequest) {
         tags,
         metadata,
       },
-      user.id
+      authResult.user.id
     );
 
     if (result.error) {

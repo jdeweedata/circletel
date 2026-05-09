@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { ZohoBillingClient } from '@/lib/integrations/zoho/billing-client';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -21,13 +22,18 @@ interface SyncResult {
 
 /**
  * POST - Sync invoice numbers from Zoho for specific invoices or all unsynced
- * 
+ *
  * Request body:
  * {
  *   "invoice_ids": ["uuid1", "uuid2"] // Optional - if not provided, syncs all with zoho_billing_invoice_id
  * }
  */
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const supabase = await createClient();
     const body = await request.json().catch(() => ({}));

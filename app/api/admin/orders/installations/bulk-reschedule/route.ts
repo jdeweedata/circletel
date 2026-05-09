@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -11,6 +12,9 @@ export const maxDuration = 30;
  * Reschedule multiple installations to a new date and time slot
  */
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const supabase = await createClient();
     const body = await request.json();

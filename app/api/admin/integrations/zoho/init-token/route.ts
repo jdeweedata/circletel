@@ -1,12 +1,13 @@
 /**
  * API Route: Initialize Zoho Token
  * POST /api/admin/integrations/zoho/init-token
- * 
+ *
  * Refreshes the Zoho access token using the refresh token from environment
  * and stores it in the database.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 
@@ -17,6 +18,12 @@ const ZOHO_ACCOUNTS_URL = 'https://accounts.zoho.com';
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     if (!ZOHO_CLIENT_ID || !ZOHO_CLIENT_SECRET || !ZOHO_REFRESH_TOKEN) {
       return NextResponse.json(
         { success: false, error: 'Zoho credentials not configured in environment' },
@@ -109,6 +116,12 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = await createClient();
     
     const { data: token, error } = await supabase

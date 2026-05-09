@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 // Vercel configuration: Allow longer execution for product queries
@@ -16,6 +17,9 @@ export async function GET(request: NextRequest) {
   apiLogger.debug('[Products API] Request started');
 
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const supabase = await createClient();
     apiLogger.debug('[Products API] Supabase client created', { durationMs: Date.now() - startTime });
     const { searchParams } = new URL(request.url);

@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 /**
  * POST /api/admin/price-changes/[id]/publish
@@ -26,31 +27,11 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id } = await context.params;
-
-    // =========================================================================
-    // Authentication & Authorization
-    // =========================================================================
     const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin user
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active, role')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (!adminUser?.is_active) {
-      return NextResponse.json({ error: 'Account inactive' }, { status: 403 });
-    }
 
     // Note: In production, check RBAC permission: products:approve
     // For now, allow all active admin users
@@ -119,7 +100,7 @@ export async function POST(
       .update({
         status: 'published',
         published_at: publishedAt,
-        approved_by: adminUser.id,
+        approved_by: authResult.adminUser.id,
       })
       .eq('id', id)
       .select()

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { MTNDealerTechnology, MTNDealerContractTerm } from '@/lib/types/mtn-dealer-products';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -72,6 +73,9 @@ function normalizeContractTerm(term: number): MTNDealerContractTerm {
 // POST /api/admin/mtn-dealer-products/import - Bulk import products
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const supabase = await createClient();
     const body = await request.json();
 

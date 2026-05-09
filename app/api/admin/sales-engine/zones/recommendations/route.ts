@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getWeeklyRecommendations } from '@/lib/sales-engine/zone-recommendation-service';
 
 export async function GET() {

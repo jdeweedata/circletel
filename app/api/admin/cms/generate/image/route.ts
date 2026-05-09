@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 import { createClientWithSession } from '@/lib/supabase/server';
 import { generateImage } from '@/lib/cms/ai-service';
@@ -23,17 +24,12 @@ interface ImageGenerationRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClientWithSession();
-
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
+
+    const { user } = authResult;
 
     // Check rate limit
     const rateLimitStatus = await checkRateLimit(user.id);

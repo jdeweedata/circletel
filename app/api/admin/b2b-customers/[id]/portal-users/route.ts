@@ -1,29 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-
-async function verifyAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data: adminUser } = await supabase
-    .from('admin_users')
-    .select('id, role')
-    .eq('id', user.id)
-    .eq('is_active', true)
-    .single();
-  return adminUser ? user : null;
-}
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const { id: accountId } = await context.params;
     const supabase = await createClient();
-    const admin = await verifyAdmin(supabase);
-    if (!admin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     const { data: portalUsers, error } = await supabase
       .from('b2b_portal_users')
@@ -46,13 +36,15 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const { id: accountId } = await context.params;
     const supabase = await createClient();
-    const admin = await verifyAdmin(supabase);
-    if (!admin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
+    const admin = authResult.user;
 
     const body = await request.json();
     const { email, display_name, role, site_id } = body;

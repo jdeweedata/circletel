@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 // GET /api/admin/products/[id]/cost-components/[componentId] - Get single component
 export async function GET(
@@ -7,6 +8,9 @@ export async function GET(
   context: { params: Promise<{ id: string; componentId: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id: packageId, componentId } = await context.params;
     const supabase = await createClient();
 
@@ -41,6 +45,9 @@ export async function PUT(
   context: { params: Promise<{ id: string; componentId: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id: packageId, componentId } = await context.params;
     const supabase = await createClient();
     const body = await request.json();
@@ -100,6 +107,9 @@ export async function DELETE(
   context: { params: Promise<{ id: string; componentId: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { id: packageId, componentId } = await context.params;
     const supabase = await createClient();
 

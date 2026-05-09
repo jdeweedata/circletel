@@ -6,8 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { createClient } from '@/lib/supabase/server'
-import { createServerClient } from '@supabase/ssr'
 import { getInterstellioClient } from '@/lib/interstellio'
 import { apiLogger } from '@/lib/logging'
 
@@ -23,43 +23,13 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id: subscriberId } = await context.params
-
-    // Auth
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll() {},
-        },
-      }
-    )
-
-    const supabaseAdmin = await createClient()
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single()
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
-    }
 
     // Get sessions from Interstellio
     const client = getInterstellioClient()
@@ -130,56 +100,26 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id: subscriberId } = await context.params
-
-    // Auth
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll() {},
-        },
-      }
-    )
-
-    const supabaseAdmin = await createClient()
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active, email')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single()
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
-    }
 
     // Disconnect all sessions
     const client = getInterstellioClient()
     await client.disconnectAllSessions(subscriberId)
 
     // Log the action
-    apiLogger.info(`[Interstellio] Admin ${adminUser.email} disconnected all sessions for subscriber ${subscriberId}`)
+    apiLogger.info(`[Interstellio] Admin ${authResult.user.email} disconnected all sessions for subscriber ${subscriberId}`)
 
     return NextResponse.json({
       success: true,
       message: 'All sessions disconnected',
       subscriberId,
-      disconnectedBy: adminUser.email,
+      disconnectedBy: authResult.user.email,
       disconnectedAt: new Date().toISOString(),
     })
   } catch (error) {

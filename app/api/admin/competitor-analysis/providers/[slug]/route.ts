@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 import type { UpdateProviderRequest } from '@/lib/competitor-analysis/types';
@@ -22,6 +23,11 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, context: RouteParams) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { slug } = await context.params;
     const supabase = await createClient();
 
@@ -81,6 +87,11 @@ export async function GET(request: NextRequest, context: RouteParams) {
 
 export async function PATCH(request: NextRequest, context: RouteParams) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { slug } = await context.params;
     const supabase = await createClient();
     const body: UpdateProviderRequest = await request.json();
@@ -162,6 +173,11 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
 
 export async function DELETE(request: NextRequest, context: RouteParams) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { slug } = await context.params;
     const supabase = await createClient();
 

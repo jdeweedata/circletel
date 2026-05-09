@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getCompetitorAlertsSummary } from '@/lib/sales-engine/competitor-intelligence-service';
 
 export const runtime = 'nodejs';

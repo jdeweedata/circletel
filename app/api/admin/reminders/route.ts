@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 /**
@@ -7,13 +8,13 @@ import { apiLogger } from '@/lib/logging/logger';
  * Get reminders for the current user
  */
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const supabase = await createClient();
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') || 'pending';
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     const { data: reminders, error } = await supabase
       .from('reminders')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', authResult.user.id)
       .eq('status', status)
       .order('due_date', { ascending: true })
       .limit(50);
@@ -49,13 +50,13 @@ export async function GET(request: NextRequest) {
  * Create a new reminder
  */
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const supabase = await createClient();
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
 
     const body = await request.json();
     const {
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
     const { data: reminder, error } = await supabase
       .from('reminders')
       .insert({
-        user_id: user.id,
+        user_id: authResult.user.id,
         title,
         description,
         due_date,

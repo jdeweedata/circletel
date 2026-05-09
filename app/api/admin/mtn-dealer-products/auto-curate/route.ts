@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { autoCurateDeals, classifyAllDeals } from '@/lib/products/auto-curation-service';
 import type { AutoCurationRules } from '@/lib/types/mtn-dealer-products';
 
@@ -6,6 +7,9 @@ import type { AutoCurationRules } from '@/lib/types/mtn-dealer-products';
 // Runs auto-curation rules to filter 10K+ deals down to ~200-500 recommended deals
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const body = await request.json().catch(() => ({}));
 
     const { rules, classify_only } = body as {

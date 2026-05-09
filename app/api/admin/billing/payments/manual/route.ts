@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -24,13 +25,10 @@ interface ManualPaymentRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
-    // Get admin user (service role for admin operations)
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const supabase = await createClient();
 
     // Parse request body
     const body: ManualPaymentRequest = await request.json();

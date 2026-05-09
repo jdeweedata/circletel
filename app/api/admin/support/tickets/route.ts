@@ -1,23 +1,19 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
 
 export const runtime = 'nodejs';
 export const maxDuration = 15;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
-    // Use service role client to bypass RLS
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    );
+    const supabase = await createClient();
 
     // Fetch tickets with customer info
     const { data: tickets, error } = await supabase

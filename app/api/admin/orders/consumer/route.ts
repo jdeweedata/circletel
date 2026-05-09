@@ -1,16 +1,15 @@
-import { PiPaperPlaneRightBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 // GET: Fetch all consumer orders for admin
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const supabase = await createClient();
-
-    // TODO: Add admin authentication check
-    // const { data: { user } } = await supabase.auth.getUser();
-    // if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
     // Fetch all orders with sorting
     const { data: orders, error } = await supabase
@@ -45,6 +44,9 @@ export async function GET(request: NextRequest) {
 
 // PATCH: Update order status (for admin)
 export async function PATCH(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const body = await request.json();
     const { orderId, status, notes, installation_scheduled_date } = body;

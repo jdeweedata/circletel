@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getExecutionSnapshot } from '@/lib/sales-engine/execution-plan-service';
 
 export const runtime = 'nodejs';

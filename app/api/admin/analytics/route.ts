@@ -1,12 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 
 // Allow longer execution for aggregation
 export const runtime = 'nodejs';
 export const maxDuration = 30;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = await createClient();
     const now = new Date();
     // Last 12 months

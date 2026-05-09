@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { PIPELINE_STAGE_LABELS, PipelineStage, PIPELINE_STAGE_ORDER } from '@/lib/sales-engine/types';
 

@@ -6,8 +6,8 @@
  * Returns recent sync activity logs with filtering and pagination
  *
  * Query parameters:
- * - entity_type: PiFunnelBold by entity type (customer, subscription, invoice, payment)
- * - status: PiFunnelBold by status (success, failed, pending, retrying)
+ * - entity_type: Filter by entity type (customer, subscription, invoice, payment)
+ * - status: Filter by status (success, failed, pending, retrying)
  * - limit: Number of records to return (default: 50, max: 100)
  * - offset: Pagination offset (default: 0)
  *
@@ -15,7 +15,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { createClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/admin/zoho-sync/logs
@@ -24,36 +25,13 @@ import { createClientWithSession, createClient } from '@/lib/supabase/server';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Session client to read the authenticated user from cookies
-    const supabaseSession = await createClientWithSession();
-
-    // Verify admin authentication
-    const { data: { user }, error: authError } = await supabaseSession.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
-    // Service-role client for privileged operations
     const supabase = await createClient();
-
-    // Check if user is admin (match by id - the admin_users.id matches auth user id)
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, email, role')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json(
-        { error: 'Forbidden: Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);

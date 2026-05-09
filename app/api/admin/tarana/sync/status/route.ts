@@ -18,8 +18,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 
 export const dynamic = 'force-dynamic';
@@ -83,44 +83,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<SyncStatus
     // =========================================================================
     // Step 1: Admin Authentication
     // =========================================================================
-    const supabaseSSR = await createSSRClient();
-
-    // Get current user from session
-    const { data: { user }, error: authError } = await supabaseSSR.auth.getUser();
-
-    if (authError || !user) {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
       apiLogger.warn('[Tarana Sync Status] Unauthenticated request');
-      return NextResponse.json(
-        { success: false, error: 'Not authenticated' },
-        { status: 401 }
-      );
+      return authResult.response;
     }
 
-    // Use service role client to check admin_users (bypasses RLS)
     const supabase = await createClient();
-
-    // Verify user is an admin
-    const { data: adminUser, error: adminError } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (adminError || !adminUser) {
-      apiLogger.warn('[Tarana Sync Status] User not found in admin_users', { userId: user.id });
-      return NextResponse.json(
-        { success: false, error: 'Access denied: Admin privileges required' },
-        { status: 403 }
-      );
-    }
-
-    if (!adminUser.is_active) {
-      apiLogger.warn('[Tarana Sync Status] Inactive admin user');
-      return NextResponse.json(
-        { success: false, error: 'Account is inactive' },
-        { status: 403 }
-      );
-    }
 
     // =========================================================================
     // Step 2: Parse Query Parameters

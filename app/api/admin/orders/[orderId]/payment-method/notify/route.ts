@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js';
 import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service';
 import { ClickatellService } from '@/lib/integrations/clickatell/sms-service';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 interface RouteContext {
   params: Promise<{
@@ -18,6 +19,9 @@ interface RouteContext {
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const { orderId } = await context.params;
     

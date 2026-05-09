@@ -7,10 +7,16 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { CorporateAccountService } from '@/lib/corporate'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { apiLogger } from '@/lib/logging'
 import type { CorporateAccountStatus } from '@/lib/corporate'
 
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const searchParams = request.nextUrl.searchParams
     const page = parseInt(searchParams.get('page') || '1', 10)
@@ -35,6 +41,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const body = await request.json()
 

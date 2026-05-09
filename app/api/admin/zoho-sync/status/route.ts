@@ -18,6 +18,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 
 /**
@@ -27,32 +28,13 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function GET(request: NextRequest) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = await createClient();
-
-    // Verify admin authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('auth_user_id', user.id)
-      .eq('status', 'active')
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json(
-        { error: 'Forbidden: Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Get customer sync status
     const { data: customerStats } = await supabase

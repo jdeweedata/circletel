@@ -6,7 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +16,9 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const { id } = await context.params;
     const { searchParams } = new URL(request.url);
@@ -28,25 +32,8 @@ export async function GET(
       );
     }
 
-    // Use session client for authentication (reads cookies)
-    const supabase = await createClientWithSession();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Use service role client for admin check and DB queries (bypasses RLS)
+    // Use service role client for admin DB queries (bypasses RLS)
     const supabaseAdmin = await createClient();
-    const { data: adminUser } = await supabaseAdmin
-      .from('admin_users')
-      .select('id')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     // Determine which column to filter by based on customer type
     const column = type === 'consumer' ? 'customer_order_id' : 'corporate_site_id';

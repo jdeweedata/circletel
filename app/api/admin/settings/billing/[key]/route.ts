@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import {
   getBillingSetting,
@@ -40,45 +41,6 @@ const VALID_KEYS = new Set<string>([
 ]);
 
 // =============================================================================
-// Auth Helper
-// =============================================================================
-
-async function verifySuperAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return { error: 'Unauthorized', status: 401 };
-  }
-
-  // Check if user is Super Admin
-  const { data: adminUser, error: adminError } = await supabase
-    .from('admin_users')
-    .select(`
-      id,
-      role_template:role_templates(name)
-    `)
-    .eq('id', user.id)
-    .single();
-
-  if (adminError || !adminUser) {
-    return { error: 'Forbidden: Admin user not found', status: 403 };
-  }
-
-  const roleName = Array.isArray(adminUser.role_template)
-    ? adminUser.role_template[0]?.name
-    : (adminUser.role_template as { name: string } | null)?.name;
-
-  if (roleName !== 'Super Admin') {
-    return { error: 'Forbidden: Super Admin access required', status: 403 };
-  }
-
-  return { userId: user.id };
-}
-
-// =============================================================================
 // GET /api/admin/settings/billing/[key]
 // =============================================================================
 
@@ -86,6 +48,11 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ key: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const { key } = await context.params;
 
@@ -93,16 +60,6 @@ export async function GET(
       return NextResponse.json(
         { success: false, error: `Invalid setting key: ${key}` },
         { status: 400 }
-      );
-    }
-
-    const supabase = await createClient();
-    const authResult = await verifySuperAdmin(supabase);
-
-    if ('error' in authResult) {
-      return NextResponse.json(
-        { success: false, error: authResult.error },
-        { status: authResult.status }
       );
     }
 
@@ -150,6 +107,11 @@ export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ key: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const { key } = await context.params;
 
@@ -157,16 +119,6 @@ export async function PUT(
       return NextResponse.json(
         { success: false, error: `Invalid setting key: ${key}` },
         { status: 400 }
-      );
-    }
-
-    const supabase = await createClient();
-    const authResult = await verifySuperAdmin(supabase);
-
-    if ('error' in authResult) {
-      return NextResponse.json(
-        { success: false, error: authResult.error },
-        { status: authResult.status }
       );
     }
 
@@ -182,13 +134,13 @@ export async function PUT(
     await updateBillingSetting(
       key as BillingSettingKey,
       body.value as never,
-      authResult.userId,
+      authResult.user.id,
       body.customer_type || 'global'
     );
 
     billingLogger.info(`[API] Setting ${key} updated`, {
       value: body.value,
-      updatedBy: authResult.userId,
+      updatedBy: authResult.user.id,
     });
 
     return NextResponse.json({

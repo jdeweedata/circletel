@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { assembleStatementData, StatementOptions } from '@/lib/billing/statement-data';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,6 +19,9 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ customerId: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   const { customerId } = await context.params;
 
   const { searchParams } = new URL(request.url);

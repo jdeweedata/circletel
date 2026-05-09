@@ -5,8 +5,9 @@
  * Returns all devices with their geographic coordinates from linked corporate sites
  */
 
-import { NextResponse } from 'next/server';
-import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,28 +27,14 @@ interface DeviceLocation {
   province: string | null;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Authenticate user
-    const supabase = await createClientWithSession();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     const supabaseAdmin = await createClient();
-
-    // Verify admin access
-    const { data: adminUser } = await supabaseAdmin
-      .from('admin_users')
-      .select('id')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     // Get all devices with corporate site links
     const { data: devices, error: devicesError } = await supabaseAdmin

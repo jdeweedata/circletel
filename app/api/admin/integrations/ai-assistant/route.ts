@@ -1,7 +1,7 @@
 import { PiCheckBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient as createServiceClient } from '@/lib/supabase/server';
-import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { apiLogger } from '@/lib/logging';
 
 // Types for the chat request
@@ -156,14 +156,9 @@ export async function POST(request: NextRequest) {
     // =========================================================================
     // Authentication
     // =========================================================================
-    const supabaseSSR = await createSSRClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Check for Gemini API key
@@ -364,7 +359,13 @@ export async function POST(request: NextRequest) {
 }
 
 // Health check endpoint
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Authenticate admin
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   const hasApiKey = !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY);
 
   return NextResponse.json({

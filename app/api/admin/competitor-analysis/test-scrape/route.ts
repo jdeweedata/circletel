@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 import { createProvider } from '@/lib/competitor-analysis/providers';
@@ -13,6 +14,11 @@ import type { CompetitorProvider } from '@/lib/competitor-analysis/types';
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const body = await request.json();
     const { provider_slug, limit_urls } = body;
 

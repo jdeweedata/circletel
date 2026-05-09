@@ -1,5 +1,6 @@
 // Coverage Maps Management API
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
@@ -106,6 +107,11 @@ async function extractKMLFromKMZ(buffer: Buffer): Promise<string> {
 
 // POST - Upload coverage map file
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -255,6 +261,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 // GET - List all coverage maps
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
 
     const { data: maps, error } = await supabase

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { ClickatellService } from '@/lib/integrations/clickatell/sms-service';
 import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -16,6 +17,9 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ orderId: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   const { orderId } = await context.params;
 
   if (!orderId) {

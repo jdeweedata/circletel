@@ -1,22 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { inngest } from '@/lib/inngest/client';
 
 // GET /api/admin/tarana/metrics?serial=X&from=ISO&to=ISO&limit=100
 export async function GET(request: NextRequest) {
-  const sessionClient = await createClientWithSession();
-  const { data: { user } } = await sessionClient.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
 
   const supabase = await createClient();
-  const { data: admin } = await supabase
-    .from('admin_users')
-    .select('id')
-    .eq('id', user.id)
-    .eq('is_active', true)
-    .maybeSingle();
-  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
   const { searchParams } = new URL(request.url);
   const serial = searchParams.get('serial');
   const from = searchParams.get('from');
@@ -41,18 +35,12 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/tarana/metrics — trigger manual collection
 export async function POST(request: NextRequest) {
-  const sessionClient = await createClientWithSession();
-  const { data: { user } } = await sessionClient.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
 
-  const supabase = await createClient();
-  const { data: admin } = await supabase
-    .from('admin_users')
-    .select('id')
-    .eq('id', user.id)
-    .eq('is_active', true)
-    .maybeSingle();
-  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const { user } = authResult;
 
   await inngest.send({
     name: 'tarana/metrics.collection.requested',

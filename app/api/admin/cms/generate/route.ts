@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiLogger } from '@/lib/logging';
 import { createClientWithSession } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import {
   generateBlockContent,
   generateFullPage,
@@ -49,17 +50,12 @@ interface GenerationRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClientWithSession();
-
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
+
+    const { user } = authResult;
 
     // Check rate limit first
     const rateLimitStatus = await checkRateLimit(user.id);
@@ -173,17 +169,12 @@ export async function POST(request: NextRequest) {
 // GET - Get rate limit status and usage stats
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClientWithSession();
-
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
+
+    const { user } = authResult;
 
     const rateLimitStatus = await checkRateLimit(user.id);
     const usageStats = await getUserUsageStats(user.id);

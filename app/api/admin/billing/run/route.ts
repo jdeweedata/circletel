@@ -5,39 +5,27 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const body = await request.json();
     const { billing_day, dry_run = false } = body;
 
-    // Authenticate
-    const sessionClient = await createClientWithSession();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     // Check admin permissions (only super_admin can run billing)
-    const supabase = await createClient();
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, email, role')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser || adminUser.role !== 'super_admin') {
+    if (authResult.adminUser.role !== 'super_admin') {
       return NextResponse.json(
         { success: false, error: 'Super admin access required for billing runs' },
         { status: 403 }
       );
     }
+
+    const supabase = await createClient();
 
     // Call the Edge Function
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -94,35 +82,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Authenticate
-    const sessionClient = await createClientWithSession();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check admin permissions
     const supabase = await createClient();
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, email, role')
-      .eq('email', user.email)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json(
-        { success: false, error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Get billing run history
     const { data: runs, error, count } = await supabase

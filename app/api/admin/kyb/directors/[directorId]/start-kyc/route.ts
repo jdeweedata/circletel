@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createKYCSessionForKYBSubject } from '@/lib/integrations/didit/session-manager';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -7,6 +8,9 @@ export async function POST(
   context: { params: Promise<{ directorId: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { directorId } = await context.params;
 
     if (!directorId || typeof directorId !== 'string') {

@@ -1,6 +1,7 @@
 // Network Providers Management API
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 interface CreateProviderRequest {
   name: string;
@@ -22,6 +23,11 @@ interface UpdateProviderRequest extends Partial<CreateProviderRequest> {
 
 // Get all network providers
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -74,6 +80,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 // Create new network provider
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const body: CreateProviderRequest = await request.json();
 
@@ -157,6 +168,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 // Update network provider
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const body: UpdateProviderRequest = await request.json();
 
@@ -243,6 +259,11 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
 // Delete network provider
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

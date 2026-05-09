@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import {
   getAssetById,
@@ -21,29 +22,12 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
-    const supabase = await createClient();
-
-    // Verify admin user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
     const asset = await getAssetById(id);
 
     if (!asset) {
@@ -65,28 +49,12 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
-    const supabase = await createClient();
-
-    // Verify admin user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
 
     // Check if asset exists
     const existingAsset = await getAssetById(id);
@@ -166,28 +134,12 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
-    const supabase = await createClient();
-
-    // Verify admin user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
 
     // Check if asset exists
     const existingAsset = await getAssetById(id);

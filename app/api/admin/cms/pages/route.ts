@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiLogger } from '@/lib/logging';
 import { createClient } from '@supabase/supabase-js';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import type { PageStatus, ContentType } from '@/lib/cms/types';
 
 export const dynamic = 'force-dynamic';
@@ -33,6 +34,11 @@ function getServiceClient() {
 // GET - List pages
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = getServiceClient();
 
     // Parse query parameters
@@ -80,6 +86,11 @@ export async function GET(request: NextRequest) {
 // POST - Create page
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = getServiceClient();
     const body = await request.json();
 
@@ -139,6 +150,11 @@ export async function POST(request: NextRequest) {
 // PUT - Update page (batch update)
 export async function PUT(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = getServiceClient();
     const body = await request.json();
 

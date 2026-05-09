@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
@@ -20,17 +21,12 @@ function generatePreviewToken(): string {
 // POST - Generate preview token and set cookie
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
+
+    const supabase = await createClient();
 
     const body = await request.json();
     const { pageId } = body;
@@ -133,8 +129,13 @@ export async function GET(request: NextRequest) {
 }
 
 // DELETE - Clear preview mode
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const cookieStore = await cookies();
 
     cookieStore.delete('cms_preview_token');

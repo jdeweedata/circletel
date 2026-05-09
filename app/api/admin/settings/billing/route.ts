@@ -8,7 +8,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { createClient } from '@/lib/supabase/server';
 import {
   getBillingSettingsByCategory,
   updateBillingSettings,
@@ -18,60 +19,16 @@ import {
 import { billingLogger } from '@/lib/logging';
 
 // =============================================================================
-// Auth Helper
-// =============================================================================
-
-async function verifySuperAdmin(sessionClient: Awaited<ReturnType<typeof createClientWithSession>>) {
-  const {
-    data: { user },
-    error: authError,
-  } = await sessionClient.auth.getUser();
-
-  if (authError || !user) {
-    return { error: 'Unauthorized', status: 401 };
-  }
-
-  // Use service role client to bypass RLS for admin_users lookup
-  const serviceClient = await createClient();
-  const { data: adminUser, error: adminError } = await serviceClient
-    .from('admin_users')
-    .select(`
-      id,
-      role_template:role_templates(name)
-    `)
-    .eq('id', user.id)
-    .single();
-
-  if (adminError || !adminUser) {
-    return { error: 'Forbidden: Admin user not found', status: 403 };
-  }
-
-  const roleName = Array.isArray(adminUser.role_template)
-    ? adminUser.role_template[0]?.name
-    : (adminUser.role_template as { name: string } | null)?.name;
-
-  if (roleName !== 'Super Admin') {
-    return { error: 'Forbidden: Super Admin access required', status: 403 };
-  }
-
-  return { userId: user.id };
-}
-
-// =============================================================================
 // GET /api/admin/settings/billing
 // =============================================================================
 
-export async function GET() {
-  try {
-    const supabase = await createClientWithSession();
-    const authResult = await verifySuperAdmin(supabase);
+export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
 
-    if ('error' in authResult) {
-      return NextResponse.json(
-        { success: false, error: authResult.error },
-        { status: authResult.status }
-      );
-    }
+  try {
 
     const settings = await getBillingSettingsByCategory();
 
@@ -105,16 +62,12 @@ interface UpdateSettingsBody {
 }
 
 export async function PUT(request: NextRequest) {
-  try {
-    const supabase = await createClientWithSession();
-    const authResult = await verifySuperAdmin(supabase);
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
 
-    if ('error' in authResult) {
-      return NextResponse.json(
-        { success: false, error: authResult.error },
-        { status: authResult.status }
-      );
-    }
+  try {
 
     const body: UpdateSettingsBody = await request.json();
 
@@ -154,7 +107,7 @@ export async function PUT(request: NextRequest) {
 
     await updateBillingSettings(
       body.settings,
-      authResult.userId,
+      authResult.user.id,
       body.customer_type || 'global'
     );
 
@@ -163,7 +116,7 @@ export async function PUT(request: NextRequest) {
 
     billingLogger.info('[API] Billing settings updated', {
       keys: body.settings.map((s) => s.key),
-      updatedBy: authResult.userId,
+      updatedBy: authResult.user.id,
     });
 
     return NextResponse.json({

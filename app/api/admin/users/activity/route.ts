@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { createClient as createAdminClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 /**
@@ -14,43 +14,11 @@ export const maxDuration = 30;
 
 export async function GET(request: NextRequest) {
   try {
-    // Authenticate user
-    const supabaseSSR = await createSSRClient();
-    const { data: { user }, error: authError } = await supabaseSSR.auth.getUser();
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is admin with proper permissions
+    // Use admin client for privileged queries
     const supabaseAdmin = await createAdminClient();
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, email, role, role_template_id, is_active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (adminError || !adminUser || !adminUser.is_active) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 403 }
-      );
-    }
-
-    // Only Super Admins can view activity logs
-    const isSuperAdmin = adminUser.role === 'super_admin' ||
-      adminUser.role_template_id === 'super_admin' ||
-      adminUser.role_template_id === 'super-admin';
-
-    if (!isSuperAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Insufficient permissions. Super Admin access required.' },
-        { status: 403 }
-      );
-    }
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);

@@ -15,7 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient as createServiceClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 
@@ -29,19 +29,12 @@ import { apiLogger } from '@/lib/logging';
 export async function GET(request: NextRequest) {
   try {
     // =========================================================================
-    // Authentication & Authorization (Two-Client Pattern)
+    // Authentication & Authorization
     // =========================================================================
-    // 1. SSR Client - For authentication (reads cookies)
-    const supabaseSSR = await createSSRClient();
-
-    // Get current user session
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // TODO: Add RBAC permission check when implemented (integrations:view)

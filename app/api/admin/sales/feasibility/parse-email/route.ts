@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 // ============================================================================
 // Types
@@ -95,22 +96,39 @@ Return ONLY the JSON object. No markdown, no explanation, no code blocks.`;
 // ============================================================================
 
 // Diagnostic GET to check env var availability
-export async function GET() {
-    const googleKey = process.env.GOOGLE_AI_API_KEY;
+export async function GET(request: NextRequest) {
+    try {
+        const authResult = await authenticateAdmin(request);
+        if (!authResult.success) {
+            return authResult.response;
+        }
+
+        const googleKey = process.env.GOOGLE_AI_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY;
     const hasGoogleKey = !!googleKey && googleKey !== 'your_gemini_api_key_here';
     const hasGeminiKey = !!geminiKey && geminiKey !== 'your_gemini_api_key_here';
 
-    return NextResponse.json({
-        status: hasGoogleKey || hasGeminiKey ? 'configured' : 'not_configured',
-        GOOGLE_AI_API_KEY: hasGoogleKey ? `set (${googleKey?.substring(0, 6)}...)` : `missing_or_placeholder`,
-        GEMINI_API_KEY: hasGeminiKey ? `set (${geminiKey?.substring(0, 6)}...)` : `missing_or_placeholder`,
-        env_keys_containing_AI: Object.keys(process.env).filter(k => k.includes('AI') || k.includes('GEMINI')).join(', '),
-    });
+        return NextResponse.json({
+            status: hasGoogleKey || hasGeminiKey ? 'configured' : 'not_configured',
+            GOOGLE_AI_API_KEY: hasGoogleKey ? `set (${googleKey?.substring(0, 6)}...)` : `missing_or_placeholder`,
+            GEMINI_API_KEY: hasGeminiKey ? `set (${geminiKey?.substring(0, 6)}...)` : `missing_or_placeholder`,
+            env_keys_containing_AI: Object.keys(process.env).filter(k => k.includes('AI') || k.includes('GEMINI')).join(', '),
+        });
+    } catch (error) {
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
+    }
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse<ParseEmailResponse>> {
     try {
+        const authResult = await authenticateAdmin(request);
+        if (!authResult.success) {
+            return authResult.response as NextResponse<ParseEmailResponse>;
+        }
+
         const body = await request.json();
         const { emailText } = body;
 

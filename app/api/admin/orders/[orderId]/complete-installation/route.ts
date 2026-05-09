@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -14,6 +15,9 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ orderId: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   const { orderId } = await context.params;
 
   if (!orderId) {

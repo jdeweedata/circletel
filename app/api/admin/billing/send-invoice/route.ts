@@ -1,14 +1,15 @@
 /**
  * Send Invoice Email API
  * POST /api/admin/billing/send-invoice
- * 
+ *
  * Sends invoice email to customer and optionally syncs to Zoho Billing
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { processInvoiceNotification, resendInvoiceEmail } from '@/lib/billing/invoice-notification-service';
 import { apiLogger } from '@/lib/logging';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 interface SendInvoiceRequest {
   invoice_id: string;
@@ -22,26 +23,12 @@ interface SendInvoiceRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    // Authenticate admin user
-    const sessionClient = await createClientWithSession();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Check admin permissions
     const supabase = await createClient();
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, role')
-      .eq('email', user.email)
-      .single();
 
-    if (!adminUser) {
+    if (!authResult.success) {
       return NextResponse.json(
         { success: false, error: 'Admin access required' },
         { status: 403 }
@@ -108,7 +95,7 @@ export async function POST(request: NextRequest) {
 
       // Log admin action
       await supabase.from('admin_activity_log').insert({
-        admin_user_id: adminUser.id,
+        admin_user_id: authResult.user.id,
         action: 'send_invoice',
         resource_type: 'customer_invoice',
         resource_id: invoice_id,

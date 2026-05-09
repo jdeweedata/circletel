@@ -5,8 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { createClient } from '@/lib/supabase/server'
-import { createServerClient } from '@supabase/ssr'
 import { getInterstellioClient } from '@/lib/interstellio'
 import { apiLogger } from '@/lib/logging'
 
@@ -22,48 +22,18 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(request: NextRequest) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
     const search = searchParams.get('search') || ''
 
-    // Create TWO clients for auth
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll() {},
-        },
-      }
-    )
-
     const supabaseAdmin = await createClient()
-
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Verify admin user
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single()
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
-    }
 
     // Get Interstellio client
     const client = getInterstellioClient()

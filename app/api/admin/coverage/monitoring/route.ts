@@ -1,10 +1,10 @@
 // Admin API: Coverage Monitoring Endpoint
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 import { mtnCoverageMonitor } from '@/lib/coverage/mtn/monitoring';
 import { mtnCoverageCache } from '@/lib/coverage/mtn/cache';
 import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
-import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,31 +13,12 @@ export const dynamic = 'force-dynamic';
  * Returns comprehensive monitoring data for coverage APIs
  */
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
-    // TEMPORARY: Disable auth for testing
-    // TODO: Re-enable authentication before production
-    /*
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      apiLogger.error('[Monitoring API] Auth error:', authError);
-      return NextResponse.json({ error: 'Unauthorized', details: authError?.message }, { status: 401 });
-    }
-
-    // For development: Skip role check if in dev mode
-    if (process.env.NODE_ENV === 'production') {
-      const { data: profile } = await supabase
-        .from('customers')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile || profile.role !== 'admin') {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
-    }
-    */
 
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
@@ -98,17 +79,12 @@ export async function GET(request: NextRequest) {
  * Reset monitoring metrics (useful for testing)
  */
 export async function POST(request: NextRequest) {
-  try {
-    // TEMPORARY: Disable auth for testing
-    // TODO: Re-enable authentication before production
-    /*
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    */
+  try {
 
     const body = await request.json();
     const action = body.action;

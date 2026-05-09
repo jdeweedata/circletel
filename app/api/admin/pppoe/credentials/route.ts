@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createServerClient } from '@supabase/ssr'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { PPPoECredentialService } from '@/lib/pppoe'
 import { apiLogger } from '@/lib/logging/logger'
 
@@ -24,49 +24,18 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request)
+    if (!authResult.success) {
+      return authResult.response
+    }
+
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
     const status = searchParams.get('status') || undefined
     const search = searchParams.get('search') || undefined
 
-    // Create auth client
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll() { },
-        },
-      }
-    )
-
     const supabaseAdmin = await createClient()
-
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Verify admin user
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single()
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
-    }
 
     // List credentials
     const result = await PPPoECredentialService.list({
@@ -98,6 +67,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request)
+    if (!authResult.success) {
+      return authResult.response
+    }
+
     const body = await request.json()
     const { customerId, serviceId, accountNumber, profileId, sendNotifications } = body
 
@@ -109,43 +83,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create auth client
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll() { },
-        },
-      }
-    )
-
+    const { user } = authResult
     const supabaseAdmin = await createClient()
-
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Verify admin user
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single()
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
-    }
 
     // Create credentials
     const result = await PPPoECredentialService.create({

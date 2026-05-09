@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { inngest } from '@/lib/inngest/client';
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
@@ -14,25 +15,14 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   const { id: siteId } = await context.params;
 
-  const sessionClient = await createClientWithSession();
-  const { data: { user } } = await sessionClient.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   const supabase = await createClient();
-
-  const { data: adminUser } = await supabase
-    .from('admin_users')
-    .select('id, is_active')
-    .eq('id', user.id)
-    .single();
-
-  if (!adminUser || !adminUser.is_active) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
 
   const body = await request.json();
   const { status, technology, package_id, monthly_fee, wholesale_order_ref, installed_at, installed_by, notes } = body;

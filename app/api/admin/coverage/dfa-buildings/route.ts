@@ -15,6 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 
@@ -33,6 +34,11 @@ interface DFABuildingQueryParams {
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);

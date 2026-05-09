@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import fs from 'fs';
 import path from 'path';
 
@@ -110,8 +111,13 @@ export function mergeContracts(
 const CONTRACTS_PATH = path.join('/home/circletel', 'contracts_extracted.json');
 const GEOCACHE_PATH = path.join('/home/circletel', 'contracts_geocode_cache.json');
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const contracts: RawContract[] = JSON.parse(fs.readFileSync(CONTRACTS_PATH, 'utf-8'));
     const geocache: Record<string, [number, number] | null> = JSON.parse(
       fs.readFileSync(GEOCACHE_PATH, 'utf-8')

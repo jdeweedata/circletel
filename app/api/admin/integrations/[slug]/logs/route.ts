@@ -21,7 +21,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 
 interface UnifiedLog {
@@ -48,38 +49,16 @@ export async function GET(
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await context.params;
-
-    // Session client to read the authenticated user from cookies
-    const supabaseSession = await createClientWithSession();
-
-    // Verify admin authentication
-    const { data: { user }, error: authError } = await supabaseSession.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
+
+    const { slug } = await context.params;
 
     // Service-role client for privileged operations
     const supabase = await createClient();
-
-    // Check if user is admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, email, role')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json(
-        { error: 'Forbidden: Admin access required' },
-        { status: 403 }
-      );
-    }
 
     // Verify integration exists
     const { data: integration, error: integrationError } = await supabase

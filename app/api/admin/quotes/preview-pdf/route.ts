@@ -5,9 +5,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateQuotePDF } from '@/lib/quotes/pdf-generator-v2';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const body = await request.json();
 

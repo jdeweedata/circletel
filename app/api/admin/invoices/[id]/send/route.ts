@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { ZohoBillingClient } from '@/lib/integrations/zoho/billing-client';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -15,6 +16,11 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const supabase = await createClient();
     const { id } = await params;

@@ -6,12 +6,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 import type { DashboardStats, DashboardAlert, PricingOpportunity } from '@/lib/competitor-analysis/types';
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const supabase = await createClient();
 
     // Fetch all stats in parallel

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { inngest } from '@/lib/inngest/client';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const body = await request.json();
     const { type, admin_user_id, reconciliation_date, year, month, dry_run } = body as {
       type: 'eft' | 'paynow' | 'monthly-sweep';

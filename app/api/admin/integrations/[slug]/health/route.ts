@@ -5,8 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
-import { createServerClient } from '@supabase/ssr';
 import { checkIntegrationHealth } from '@/lib/integrations/health-check-service';
 import { apiLogger } from '@/lib/logging';
 
@@ -15,49 +15,16 @@ export async function POST(
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { slug } = await context.params;
 
-    // Create TWO clients:
-    // 1. SSR client for authentication (reads cookies)
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll() {
-            // No-op for POST requests
-          },
-        },
-      }
-    );
-
-    // 2. Service role client for database queries (bypasses RLS)
+    // Service role client for database queries (bypasses RLS)
     const supabaseAdmin = await createClient();
-
-    // Check authentication using SSR client
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Verify admin user using service role client (bypasses RLS)
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active, email')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
 
     // Perform health check
     const healthCheckResult = await checkIntegrationHealth(slug);
@@ -67,8 +34,8 @@ export async function POST(
       integration_slug: slug,
       action_type: 'health_check_run',
       action_description: `Manual health check performed`,
-      performed_by: user.id,
-      performed_by_email: adminUser.email,
+      performed_by: authResult.user.id,
+      performed_by_email: authResult.user.email,
       action_result: 'success',
       after_state: {
         healthStatus: healthCheckResult.healthStatus,

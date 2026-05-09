@@ -5,8 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
-import { createServerClient } from '@supabase/ssr';
 import { apiLogger } from '@/lib/logging';
 
 export async function DELETE(
@@ -14,49 +14,14 @@ export async function DELETE(
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // Authenticate admin
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { slug } = await context.params;
-
-    // Create TWO clients:
-    // 1. SSR client for authentication (reads cookies)
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll() {
-            // No-op for DELETE requests
-          },
-        },
-      }
-    );
-
-    // 2. Service role client for database queries (bypasses RLS)
     const supabaseAdmin = await createClient();
-
-    // Check authentication using SSR client
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Verify admin user using service role client (bypasses RLS)
-    const { data: adminUser, error: adminError } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, is_active, email')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (adminError || !adminUser) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
 
     // Get OAuth token
     const { data: token, error: tokenError } = await supabaseAdmin
@@ -99,8 +64,8 @@ export async function DELETE(
       integration_slug: slug,
       action_type: 'oauth_token_revoked',
       action_description: `OAuth token revoked`,
-      performed_by: user.id,
-      performed_by_email: adminUser.email,
+      performed_by: authResult.user.id,
+      performed_by_email: authResult.user.email,
       action_result: 'success',
     });
 

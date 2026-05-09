@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import type {
   DiagnosticsListParams,
   DiagnosticsListResponse,
@@ -29,6 +30,11 @@ import type {
  * - search: PiMagnifyingGlassBold by customer name, email, or subscriber ID
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const supabase = await createClient()
 

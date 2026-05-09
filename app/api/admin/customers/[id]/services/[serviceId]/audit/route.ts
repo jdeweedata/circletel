@@ -8,10 +8,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 /**
  * GET /api/admin/customers/[id]/services/[serviceId]/audit
- * 
+ *
  * Returns:
  * - Complete audit log for the service
  * - Admin user details for each action
@@ -21,19 +22,12 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string; serviceId: string }> }
 ) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) return authResult.response;
+
   try {
     const supabase = await createClient();
     const { id: customer_id, serviceId: service_id } = await context.params;
-    
-    // Get authenticated admin user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
     
     // TODO: PiCheckBold admin permissions (services:view_audit)
     

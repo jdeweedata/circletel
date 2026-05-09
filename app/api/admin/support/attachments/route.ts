@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -6,6 +7,11 @@ const BUCKET_NAME = 'support-attachments';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const supabase = await createClient();
     const formData = await request.formData();
@@ -81,6 +87,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
@@ -121,6 +132,11 @@ export async function DELETE(request: NextRequest) {
 
 // Get signed URL for downloading a file
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);

@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 /**
@@ -30,29 +31,10 @@ import { apiLogger } from '@/lib/logging/logger';
  */
 export async function GET(request: NextRequest) {
   try {
-    // =========================================================================
-    // Authentication & Authorization
-    // =========================================================================
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin user
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (!adminUser?.is_active) {
-      return NextResponse.json({ error: 'Account inactive' }, { status: 403 });
-    }
 
     // =========================================================================
     // Query Parameters
@@ -150,29 +132,10 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // =========================================================================
-    // Authentication & Authorization
-    // =========================================================================
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin user
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active, role')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (!adminUser?.is_active) {
-      return NextResponse.json({ error: 'Account inactive' }, { status: 403 });
-    }
 
     // Note: In production, check RBAC permission: products:manage_pricing
     // For now, allow all active admin users
@@ -286,7 +249,7 @@ export async function POST(request: NextRequest) {
         admin_notes,
         customer_message,
         affected_customers_count: affectedCustomersCount,
-        created_by: adminUser.id,
+        created_by: authResult.adminUser.id,
       })
       .select(
         `

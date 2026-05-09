@@ -1,6 +1,7 @@
 // Coverage Files (KML/KMZ) Upload API
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import path from 'path';
 import { writeFile, mkdir } from 'fs/promises';
 import { parseStringPromise } from 'xml2js';
@@ -29,6 +30,11 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await params;
     const supabase = await createClient();
@@ -180,6 +186,11 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await params;
     const supabase = await createClient();
@@ -214,6 +225,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) {
+    return authResult.response
+  }
+
   try {
     const { id } = await params;
     const supabase = await createClient();

@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { calculateCommission, MTN_COMMISSION_TIERS } from '@/lib/types/mtn-dealer-products';
 import { apiLogger } from '@/lib/logging/logger';
 
 // GET /api/admin/mtn-dealer-products/commission - Get commission tiers and calculate
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const { searchParams } = new URL(request.url);
 
     // If deal_id is provided, calculate for specific deal
@@ -93,6 +97,9 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/mtn-dealer-products/commission - Bulk calculate commissions
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) return authResult.response;
+
     const body = await request.json();
     const { deals } = body as {
       deals: Array<{

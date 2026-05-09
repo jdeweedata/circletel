@@ -1,22 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
-    // Session client to read the authenticated user from cookies
-    const supabaseSession = await createClientWithSession();
-
-    // Get current user
-    const { data: { user }, error: authError } = await supabaseSession.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Service-role client for privileged operations
     const supabase = await createClient();
 
     // Fetch approval queue items with related data
@@ -121,21 +113,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const authResult = await authenticateAdmin(request);
+  if (!authResult.success) {
+    return authResult.response;
+  }
+
   try {
-    // Session client to read the authenticated user from cookies
-    const supabaseSession = await createClientWithSession();
-
-    // Get current user
-    const { data: { user }, error: authError } = await supabaseSession.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Service-role client for privileged operations
     const supabase = await createClient();
 
     const body = await request.json();
@@ -149,7 +132,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updates: any = {
-      reviewed_by: user.id,
+      reviewed_by: authResult.user.id,
       reviewed_at: new Date().toISOString(),
       status: action === 'approve' ? 'approved' : 'rejected'
     };
@@ -180,7 +163,7 @@ export async function PATCH(request: NextRequest) {
       .from('product_approval_activity_log')
       .insert({
         approval_queue_id: approvalId,
-        user_id: user.id,
+        user_id: authResult.user.id,
         action: action === 'approve' ? 'approved' : 'rejected',
         details: { comment }
       });

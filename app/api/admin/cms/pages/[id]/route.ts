@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiLogger } from '@/lib/logging';
 import { createClient } from '@supabase/supabase-js';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import type { PageStatus } from '@/lib/cms/types';
 
 export const dynamic = 'force-dynamic';
@@ -38,6 +39,11 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = getServiceClient();
 
@@ -64,6 +70,11 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = getServiceClient();
     const body = await request.json();
@@ -131,6 +142,11 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = getServiceClient();
     const body = await request.json();
@@ -174,6 +190,11 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
     const { id } = await context.params;
     const supabase = getServiceClient();
 
