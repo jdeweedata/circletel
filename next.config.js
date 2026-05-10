@@ -30,8 +30,6 @@ const nextConfig = {
     'xml2js',
     'adm-zip',
     'resend',
-    '@react-email/components',
-    '@react-email/render',
     '@mendable/firecrawl-js',
     '@modelcontextprotocol/sdk',
   ],

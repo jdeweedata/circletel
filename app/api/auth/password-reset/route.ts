@@ -191,7 +191,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('Password reset error', { error });
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+    apiLogger.error('Password reset error', { error: message, stack });
     return NextResponse.json(
       { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }
