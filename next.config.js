@@ -62,7 +62,6 @@ const nextConfig = {
         './node_modules/@swc/core-linux-x64-musl/**',
         './node_modules/@esbuild/**',
         './node_modules/typescript/**',
-        './node_modules/prettier/**',
         './node_modules/eslint/**',
       ],
     },
