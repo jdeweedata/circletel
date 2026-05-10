@@ -177,12 +177,18 @@ export default function ForgotPasswordPage() {
               </form>
 
               {/* Remember Password Link */}
-              <div className="mt-6 text-center">
+              <div className="mt-6 text-center space-y-2">
                 <Link
                   href="/auth/login"
-                  className="text-webafrica-blue text-sm hover:underline"
+                  className="block text-webafrica-blue text-sm hover:underline"
                 >
                   Remember your password? Sign in
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="block text-gray-500 text-sm hover:text-webafrica-blue hover:underline"
+                >
+                  Don&apos;t have an account? Sign in with Google
                 </Link>
               </div>
             </div>
