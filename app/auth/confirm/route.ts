@@ -79,6 +79,7 @@ function isLinkPreviewBot(userAgent: string | null): boolean {
 }
 
 export async function GET(request: NextRequest) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
   const searchParams = request.nextUrl.searchParams;
   const token_hash = searchParams.get('token_hash');
   const type = searchParams.get('type') as 'recovery' | 'signup' | 'email_change' | 'magiclink' | null;
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
   if (!token_hash || !type) {
     console.error('[Auth Confirm] Missing token_hash or type');
     return NextResponse.redirect(
-      new URL('/auth/login?error=invalid_link&message=Invalid or expired link', request.url)
+      new URL('/auth/login?error=invalid_link&message=Invalid or expired link', baseUrl)
     );
   }
 
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
 
     // Always redirect to confirmation page for recovery tokens
     // This ensures the token isn't consumed by bots OR by the initial GET request
-    const confirmUrl = new URL('/auth/confirm-reset', request.url);
+    const confirmUrl = new URL('/auth/confirm-reset', baseUrl);
     confirmUrl.searchParams.set('token_hash', token_hash);
     confirmUrl.searchParams.set('type', type);
     if (next && next !== '/') {
@@ -151,7 +152,7 @@ export async function GET(request: NextRequest) {
         : '/auth/login?error=verification_failed&message=Verification failed. Please try again.';
 
       console.log('[Auth Confirm] Redirecting to error page:', errorRedirect);
-      return NextResponse.redirect(new URL(errorRedirect, request.url));
+      return NextResponse.redirect(new URL(errorRedirect, baseUrl));
     }
 
     console.log('[Auth Confirm] Token verified successfully for type:', type);
@@ -202,7 +203,7 @@ export async function GET(request: NextRequest) {
         // IMPORTANT: Pass tokens via URL hash so client-side can establish session
         // This is necessary because server-side cookies and client-side localStorage
         // use different storage mechanisms in the current Supabase setup
-        redirectUrl = new URL('/auth/reset-password', request.url);
+        redirectUrl = new URL('/auth/reset-password', baseUrl);
         if (data.session) {
           // Pass tokens in hash fragment (same format as Supabase default magic links)
           redirectUrl.hash = `access_token=${data.session.access_token}&refresh_token=${data.session.refresh_token}&type=recovery`;
@@ -213,16 +214,16 @@ export async function GET(request: NextRequest) {
       case 'signup':
       case 'email_change':
         // Email verification - redirect to dashboard or specified next URL
-        redirectUrl = new URL(next || '/dashboard', request.url);
+        redirectUrl = new URL(next || '/dashboard', baseUrl);
         break;
-      
+
       case 'magiclink':
         // Magic link login - redirect to dashboard or specified next URL
-        redirectUrl = new URL(next || '/dashboard', request.url);
+        redirectUrl = new URL(next || '/dashboard', baseUrl);
         break;
-      
+
       default:
-        redirectUrl = new URL('/', request.url);
+        redirectUrl = new URL('/', baseUrl);
     }
 
     // Create response with redirect
@@ -247,7 +248,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('[Auth Confirm] Unexpected error:', error);
     return NextResponse.redirect(
-      new URL('/auth/login?error=server_error&message=An unexpected error occurred', request.url)
+      new URL('/auth/login?error=server_error&message=An unexpected error occurred', baseUrl)
     );
   }
 }
