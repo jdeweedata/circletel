@@ -43,6 +43,7 @@ export interface NetCashFormData {
   m9?: string;             // Return URL
   m10?: string;            // Cancel URL
   m4?: string;             // Unique transaction ID
+  m5?: string;             // Server notification URL (Accept URL)
   [key: string]: string | undefined;  // Allow additional parameters
 }
 
@@ -118,8 +119,8 @@ export class NetCashProvider extends BasePaymentProvider {
       process.env.NEXT_PUBLIC_BASE_URL + '/payment/cancelled' ||
       'https://www.circletel.co.za/payment/cancelled';
     this.notifyUrl =
-      process.env.NEXT_PUBLIC_BASE_URL + '/api/payments/webhook' ||
-      'https://www.circletel.co.za/api/payments/webhook';
+      process.env.NEXT_PUBLIC_BASE_URL + '/api/payment/netcash/webhook' ||
+      'https://www.circletel.co.za/api/payment/netcash/webhook';
 
     // Validate configuration
     if (!this.isConfigured()) {
@@ -178,6 +179,7 @@ export class NetCashProvider extends BasePaymentProvider {
         Budget: 'N',                                      // Budget facility (No)
         CustomerEmailAddress: params.customerEmail,
         CustomerTelephoneNumber: params.customerPhone || '',
+        m5: params.notifyUrl || this.notifyUrl,            // Server notification URL
         m9: params.returnUrl || this.returnUrl,           // Return URL
         m10: params.cancelUrl || this.cancelUrl,          // Cancel URL
         m4: transactionId,                                // Unique transaction ID

@@ -22,20 +22,20 @@ export interface WebhookProcessingResult {
 export interface OrderUpdateData {
   payment_status: string;
   status?: string;
-  netcash_transaction_id?: string;
   payment_date?: string;
-  payment_amount?: number;
-  payment_error?: string;
+  total_paid?: number;
+  metadata?: Record<string, unknown>;
 }
 
 /** Order data structure for email notifications */
 export interface OrderForEmail {
   id: string;
-  customer_email: string;
-  customer_name: string;
+  email: string;
+  first_name: string;
+  last_name: string;
   payment_reference: string;
   package_name?: string;
-  total_amount?: number;
+  package_price?: number;
   installation_address?: string;
   payment_status?: string;
 }
@@ -75,7 +75,7 @@ export async function processPaymentSuccess(
 
     // 1. Find order by payment reference
     const { data: order, error: orderError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .select('*')
       .eq('payment_reference', payload.Reference)
       .single();
@@ -85,16 +85,22 @@ export async function processPaymentSuccess(
     }
 
     // 2. Update order status
+    const amountPaid = parseFloat(payload.Amount) / 100;
     const updateData: OrderUpdateData = {
       payment_status: 'paid',
       status: 'active',
-      netcash_transaction_id: payload.TransactionID || '',
       payment_date: new Date().toISOString(),
-      payment_amount: parseFloat(payload.Amount) / 100, // Convert from cents
+      total_paid: amountPaid,
+      metadata: {
+        ...(order.metadata as Record<string, unknown> || {}),
+        netcash_transaction_id: payload.TransactionID || '',
+        payment_confirmed_at: new Date().toISOString(),
+        payment_confirmed_via: 'webhook',
+      },
     };
 
     const { error: updateError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .update(updateData)
       .eq('id', order.id);
 
@@ -116,10 +122,10 @@ export async function processPaymentSuccess(
 
     // 4. Send confirmation email
     try {
-      await sendOrderConfirmationEmail(order);
+      await sendOrderConfirmationEmail(order as OrderForEmail);
       await createWebhookAudit(webhookId, 'email_sent', {
         order_id: order.id,
-        email: order.customer_email
+        email: order.email
       });
     } catch (emailError) {
       console.error('[Webhook Processor] Email send failed:', emailError);
@@ -169,7 +175,7 @@ export async function processPaymentFailure(
 
     // 1. Find order
     const { data: order, error: orderError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .select('*')
       .eq('payment_reference', payload.Reference)
       .single();
@@ -179,15 +185,20 @@ export async function processPaymentFailure(
     }
 
     // 2. Update order status
+    const errorMessage = payload.ResponseText || payload.StatusText || 'Payment declined';
     const updateData: OrderUpdateData = {
       payment_status: 'failed',
       status: 'pending',
-      netcash_transaction_id: payload.TransactionID || '',
-      payment_error: payload.ResponseText || payload.StatusText || 'Payment declined'
+      metadata: {
+        ...(order.metadata as Record<string, unknown> || {}),
+        netcash_transaction_id: payload.TransactionID || '',
+        payment_error: errorMessage,
+        payment_failed_at: new Date().toISOString(),
+      },
     };
 
     const { error: updateError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .update(updateData)
       .eq('id', order.id);
 
@@ -205,10 +216,10 @@ export async function processPaymentFailure(
 
     // 4. Send failure notification email
     try {
-      await sendPaymentFailureEmail(order, payload.ResponseText || 'Payment was declined');
+      await sendPaymentFailureEmail(order as OrderForEmail, errorMessage);
       await createWebhookAudit(webhookId, 'email_sent', {
         order_id: order.id,
-        email: order.customer_email,
+        email: order.email,
         type: 'failure_notification'
       });
     } catch (emailError) {
@@ -251,7 +262,7 @@ export async function processRefund(
 
     // 1. Find order
     const { data: order, error: orderError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .select('*')
       .eq('payment_reference', payload.Reference)
       .single();
@@ -264,11 +275,15 @@ export async function processRefund(
     const updateData: OrderUpdateData = {
       payment_status: 'refunded',
       status: 'cancelled',
-      netcash_transaction_id: payload.TransactionID || ''
+      metadata: {
+        ...(order.metadata as Record<string, unknown> || {}),
+        netcash_transaction_id: payload.TransactionID || '',
+        refunded_at: new Date().toISOString(),
+      },
     };
 
     const { error: updateError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .update(updateData)
       .eq('id', order.id);
 
@@ -286,10 +301,10 @@ export async function processRefund(
 
     // 4. Send refund notification
     try {
-      await sendRefundNotificationEmail(order, parseFloat(payload.Amount) / 100);
+      await sendRefundNotificationEmail(order as OrderForEmail, parseFloat(payload.Amount) / 100);
       await createWebhookAudit(webhookId, 'email_sent', {
         order_id: order.id,
-        email: order.customer_email,
+        email: order.email,
         type: 'refund_notification'
       });
     } catch (emailError) {
@@ -332,7 +347,7 @@ export async function processChargeback(
 
     // 1. Find order
     const { data: order, error: orderError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .select('*')
       .eq('payment_reference', payload.Reference)
       .single();
@@ -341,15 +356,20 @@ export async function processChargeback(
       throw new Error(`Order not found for reference: ${payload.Reference}`);
     }
 
-    // 2. Update order status
+    // 2. Update order status (no 'disputed' in order_status enum — use 'suspended')
     const updateData: OrderUpdateData = {
       payment_status: 'chargeback',
-      status: 'disputed',
-      netcash_transaction_id: payload.TransactionID || ''
+      status: 'suspended',
+      metadata: {
+        ...(order.metadata as Record<string, unknown> || {}),
+        netcash_transaction_id: payload.TransactionID || '',
+        chargeback_at: new Date().toISOString(),
+        chargeback_reason: 'chargeback',
+      },
     };
 
     const { error: updateError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .update(updateData)
       .eq('id', order.id);
 
@@ -366,7 +386,7 @@ export async function processChargeback(
     });
 
     // 4. Alert finance team
-    await sendChargebackAlert(order, payload);
+    await sendChargebackAlert(order as OrderForEmail, payload);
 
     return {
       success: true,
@@ -402,15 +422,16 @@ async function sendOrderConfirmationEmail(order: OrderForEmail): Promise<void> {
 
   try {
     const resend = getResend();
+    const customerName = `${order.first_name} ${order.last_name}`.trim();
     await resend.emails.send({
       from: 'CircleTel <orders@circletel.co.za>',
-      to: order.customer_email,
+      to: order.email,
       subject: `Order Confirmation - ${order.payment_reference}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #F5831F;">Thank You for Your Order!</h1>
 
-          <p>Dear ${order.customer_name},</p>
+          <p>Dear ${customerName},</p>
 
           <p>Your payment has been successfully processed. Your order is now active and will be processed shortly.</p>
 
@@ -418,7 +439,7 @@ async function sendOrderConfirmationEmail(order: OrderForEmail): Promise<void> {
             <h2 style="margin-top: 0;">Order Details</h2>
             <p><strong>Order Reference:</strong> ${order.payment_reference}</p>
             <p><strong>Package:</strong> ${order.package_name || 'Service Package'}</p>
-            <p><strong>Amount Paid:</strong> R${order.total_amount?.toFixed(2) || '0.00'}</p>
+            <p><strong>Amount Paid:</strong> R${order.package_price?.toFixed(2) || '0.00'}</p>
             <p><strong>Installation Address:</strong> ${order.installation_address || 'N/A'}</p>
           </div>
 
@@ -440,7 +461,7 @@ async function sendOrderConfirmationEmail(order: OrderForEmail): Promise<void> {
       `
     });
 
-    console.log('[Webhook Processor] Confirmation email sent to:', order.customer_email);
+    console.log('[Webhook Processor] Confirmation email sent to:', order.email);
   } catch (error) {
     console.error('[Webhook Processor] Failed to send confirmation email:', error);
     throw error;
@@ -455,15 +476,16 @@ async function sendPaymentFailureEmail(order: OrderForEmail, errorMessage: strin
 
   try {
     const resend = getResend();
+    const customerName = `${order.first_name} ${order.last_name}`.trim();
     await resend.emails.send({
       from: 'CircleTel <orders@circletel.co.za>',
-      to: order.customer_email,
+      to: order.email,
       subject: `Payment Failed - ${order.payment_reference}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #F5831F;">Payment Could Not Be Processed</h1>
 
-          <p>Dear ${order.customer_name},</p>
+          <p>Dear ${customerName},</p>
 
           <p>We were unable to process your payment for order ${order.payment_reference}.</p>
 
@@ -483,7 +505,7 @@ async function sendPaymentFailureEmail(order: OrderForEmail, errorMessage: strin
       `
     });
 
-    console.log('[Webhook Processor] Failure email sent to:', order.customer_email);
+    console.log('[Webhook Processor] Failure email sent to:', order.email);
   } catch (error) {
     console.error('[Webhook Processor] Failed to send failure email:', error);
     throw error;
@@ -498,15 +520,16 @@ async function sendRefundNotificationEmail(order: OrderForEmail, refundAmount: n
 
   try {
     const resend = getResend();
+    const customerName = `${order.first_name} ${order.last_name}`.trim();
     await resend.emails.send({
       from: 'CircleTel <finance@circletel.co.za>',
-      to: order.customer_email,
+      to: order.email,
       subject: `Refund Processed - ${order.payment_reference}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #F5831F;">Refund Processed</h1>
 
-          <p>Dear ${order.customer_name},</p>
+          <p>Dear ${customerName},</p>
 
           <p>Your refund has been processed successfully.</p>
 
@@ -523,7 +546,7 @@ async function sendRefundNotificationEmail(order: OrderForEmail, refundAmount: n
       `
     });
 
-    console.log('[Webhook Processor] Refund email sent to:', order.customer_email);
+    console.log('[Webhook Processor] Refund email sent to:', order.email);
   } catch (error) {
     console.error('[Webhook Processor] Failed to send refund email:', error);
     throw error;
@@ -550,7 +573,7 @@ async function sendChargebackAlert(order: OrderForEmail, payload: NetcashWebhook
 
           <div style="background-color: #f8d7da; padding: 20px; border-left: 4px solid #dc3545; margin: 20px 0;">
             <p><strong>Order Reference:</strong> ${order.payment_reference}</p>
-            <p><strong>Customer:</strong> ${order.customer_name} (${order.customer_email})</p>
+            <p><strong>Customer:</strong> ${order.first_name} ${order.last_name} (${order.email})</p>
             <p><strong>Amount:</strong> R${(parseFloat(payload.Amount) / 100).toFixed(2)}</p>
             <p><strong>Transaction ID:</strong> ${payload.TransactionID || 'N/A'}</p>
             <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
@@ -630,7 +653,7 @@ async function triggerServiceActivation(orderId: string): Promise<void> {
 export async function orderExists(paymentReference: string): Promise<boolean> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('orders')
+    .from('consumer_orders')
     .select('id')
     .eq('payment_reference', paymentReference)
     .single();
@@ -644,7 +667,7 @@ export async function orderExists(paymentReference: string): Promise<boolean> {
 export async function getOrderByReference(paymentReference: string): Promise<any | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('orders')
+    .from('consumer_orders')
     .select('*')
     .eq('payment_reference', paymentReference)
     .single();
