@@ -64,7 +64,7 @@ const nextConfig = {
       ],
     },
     workerThreads: false,
-    cpus: (isVercel || (isCI && !process.env.SELF_HOSTED)) ? 1 : 4,
+    cpus: (isVercel || isCI || process.env.SELF_HOSTED) ? 1 : 4,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports
