@@ -97,6 +97,17 @@ No "it should work" — prove it works
 
 ---
 
+## Workflow Rules
+
+- Before writing any code, read the files you intend to modify and their immediate callers.
+- If a task touches more than one file, enter Plan Mode first. Do not skip this.
+- State your assumptions explicitly before proceeding. If uncertain, ask — do not guess.
+- After completing a change, verify it against the success criteria before reporting "done."
+- If two patterns in the codebase contradict, pick the more recent one and flag the conflict. Do not blend them.
+- Match existing conventions even if you disagree. Surface disagreements separately.
+
+---
+
 ## ⚠️ CRITICAL: Context Management
 
 ```powershell

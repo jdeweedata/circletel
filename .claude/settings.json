@@ -27,6 +27,24 @@
             "command": "bash /home/circletel/.claude/hooks/filter-test-output.sh"
           }
         ]
+      },
+      {
+        "matcher": "(?:write|edit|MultiEdit)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /home/circletel/.claude/hooks/type-check-hook.js"
+          }
+        ]
+      },
+      {
+        "matcher": "(?:write|edit|MultiEdit)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /home/circletel/.claude/hooks/test-runner-hook.js"
+          }
+        ]
       }
     ],
     "Stop": [
