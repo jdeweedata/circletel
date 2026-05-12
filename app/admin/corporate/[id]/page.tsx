@@ -6,10 +6,14 @@ import { useParams, useRouter } from 'next/navigation';
 import {
   PiArrowLeftBold,
   PiArrowsClockwiseBold,
+  PiArrowSquareOutBold,
   PiBuildingsBold,
   PiCalendarBold,
+  PiCaretDownBold,
+  PiCaretRightBold,
   PiCheckCircleBold,
   PiClockBold,
+  PiCurrencyDollarBold,
   PiDownloadSimpleBold,
   PiEnvelopeBold,
   PiFileTextBold,
@@ -103,6 +107,45 @@ interface CredentialStats {
   failed: number;
 }
 
+interface BillingInvoice {
+  id: string;
+  invoice_number: string;
+  total_amount: number;
+  amount_paid: number;
+  amount_due: number;
+  status: string;
+  due_date: string;
+  invoice_date: string;
+  transaction_ref: string | null;
+  sms_reminder_count: number;
+}
+
+interface BillingSite {
+  site_id: string;
+  site_name: string;
+  account_number: string;
+  nurse_name: string;
+  nurse_email: string;
+  nurse_phone: string | null;
+  invoices: BillingInvoice[];
+  total_outstanding: number;
+  latest_status: string;
+}
+
+interface BillingSummary {
+  total_invoices: number;
+  total_amount: number;
+  total_collected: number;
+  total_outstanding: number;
+  overdue_count: number;
+  paid_count: number;
+}
+
+interface BillingData {
+  summary: BillingSummary;
+  sites: BillingSite[];
+}
+
 // =============================================================================
 // Constants
 // =============================================================================
@@ -115,12 +158,19 @@ const STATUS_CONFIG: Record<string, { color: string; dot: string }> = {
   suspended: { color: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' },
   decommissioned: { color: 'bg-slate-100 text-slate-600 border-slate-200', dot: 'bg-slate-400' },
   archived: { color: 'bg-slate-100 text-slate-600 border-slate-200', dot: 'bg-slate-400' },
+  paid: { color: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
+  overdue: { color: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' },
+  unpaid: { color: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+  partial: { color: 'bg-blue-100 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
+  sent: { color: 'bg-cyan-100 text-cyan-700 border-cyan-200', dot: 'bg-cyan-500' },
+  draft: { color: 'bg-slate-100 text-slate-500 border-slate-200', dot: 'bg-slate-400' },
 };
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
   { id: 'sites', label: 'Sites' },
   { id: 'pppoe', label: 'PPPoE Credentials' },
+  { id: 'billing', label: 'Billing' },
 ] as const;
 
 const TECH_BADGES: Record<string, string> = {
@@ -149,12 +199,15 @@ export default function CorporateDetailPage() {
   const [corporate, setCorporate] = useState<CorporateAccount | null>(null);
   const [sites, setSites] = useState<CorporateSite[]>([]);
   const [credentialStats, setCredentialStats] = useState<CredentialStats | null>(null);
+  const [billingData, setBillingData] = useState<BillingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [sitesLoading, setSitesLoading] = useState(false);
+  const [billingLoading, setBillingLoading] = useState(false);
   const [generatingCredentials, setGeneratingCredentials] = useState(false);
   const [exportingCredentials, setExportingCredentials] = useState(false);
   const [siteSearch, setSiteSearch] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
+  const [expandedSiteId, setExpandedSiteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (corporateId) fetchCorporate();
@@ -166,6 +219,9 @@ export default function CorporateDetailPage() {
     }
     if (corporateId && activeTab === 'pppoe') {
       fetchCredentialStats();
+    }
+    if (corporateId && activeTab === 'billing') {
+      fetchBilling();
     }
   }, [corporateId, activeTab]);
 
@@ -208,6 +264,20 @@ export default function CorporateDetailPage() {
       }
     } catch (error) {
       console.error('Error fetching credential stats:', error);
+    }
+  };
+
+  const fetchBilling = async () => {
+    try {
+      setBillingLoading(true);
+      const response = await fetch(`/api/admin/corporate/${corporateId}/billing`);
+      if (!response.ok) throw new Error('Failed to fetch billing');
+      setBillingData(await response.json());
+    } catch (error) {
+      console.error('Error fetching billing:', error);
+      toast.error('Failed to load billing data');
+    } finally {
+      setBillingLoading(false);
     }
   };
 
@@ -265,6 +335,13 @@ export default function CorporateDetailPage() {
         {status}
       </Badge>
     );
+  };
+
+  const formatCurrency = (amount: number) =>
+    `R${amount.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  const handlePayNow = (transactionRef: string) => {
+    window.open(`/api/paynow/${transactionRef}`, '_blank');
   };
 
   // Loading
@@ -729,6 +806,176 @@ export default function CorporateDetailPage() {
             </Table>
           )}
         </div>
+      </TabPanel>
+
+      {/* ============================================================= */}
+      {/* BILLING TAB */}
+      {/* ============================================================= */}
+      <TabPanel id="billing" activeTab={activeTab} className="space-y-6">
+        {billingLoading ? (
+          <div className="space-y-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-24 bg-slate-100 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        ) : billingData ? (
+          <>
+            {/* Billing Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatCard
+                label="Total Invoices"
+                value={String(billingData.summary.total_invoices)}
+                icon={<PiFileTextBold className="w-5 h-5" />}
+                iconBgColor="bg-slate-100"
+                iconColor="text-slate-600"
+              />
+              <StatCard
+                label="Total Collected"
+                value={formatCurrency(billingData.summary.total_collected)}
+                icon={<PiCheckCircleBold className="w-5 h-5" />}
+                iconBgColor="bg-emerald-100"
+                iconColor="text-emerald-600"
+              />
+              <StatCard
+                label="Outstanding"
+                value={formatCurrency(billingData.summary.total_outstanding)}
+                icon={<PiWarningCircleBold className="w-5 h-5" />}
+                iconBgColor="bg-amber-100"
+                iconColor="text-amber-600"
+              />
+              <StatCard
+                label="Overdue Invoices"
+                value={String(billingData.summary.overdue_count)}
+                icon={<PiClockBold className="w-5 h-5" />}
+                iconBgColor="bg-red-100"
+                iconColor="text-red-600"
+              />
+            </div>
+
+            {/* Billing Sites Table */}
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
+                <h3 className="font-semibold text-slate-900 text-sm">
+                  Billing by Site ({billingData.sites.length})
+                </h3>
+              </div>
+              {billingData.sites.length === 0 ? (
+                <div className="p-12 text-center">
+                  <PiFileTextBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="font-medium text-slate-900">No billing data found</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {billingData.sites.map((site) => (
+                    <div key={site.site_id}>
+                      {/* Site Row */}
+                      <div
+                        className="px-4 py-3 flex items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors"
+                        onClick={() => setExpandedSiteId(
+                          expandedSiteId === site.site_id ? null : site.site_id
+                        )}
+                      >
+                        <button className="text-slate-400 hover:text-slate-600">
+                          {expandedSiteId === site.site_id ? (
+                            <PiCaretDownBold className="w-4 h-4" />
+                          ) : (
+                            <PiCaretRightBold className="w-4 h-4" />
+                          )}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-900 truncate">{site.site_name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-slate-500">
+                              {site.account_number}
+                            </span>
+                            <span className="text-xs text-slate-400">•</span>
+                            <span className="text-xs text-slate-500">{site.nurse_name}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          {statusBadge(site.latest_status)}
+                          <div className="text-right min-w-[100px]">
+                            <p className="font-semibold text-slate-900">
+                              {formatCurrency(site.total_outstanding)}
+                            </p>
+                            <p className="text-xs text-slate-500">outstanding</p>
+                          </div>
+                          {site.invoices.some(
+                            (inv) => inv.transaction_ref && inv.amount_due > 0
+                          ) && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const inv = site.invoices.find(
+                                  (i) => i.transaction_ref && i.amount_due > 0
+                                );
+                                if (inv?.transaction_ref) {
+                                  handlePayNow(inv.transaction_ref);
+                                }
+                              }}
+                            >
+                              <PiArrowSquareOutBold className="w-3.5 h-3.5 mr-1.5" />
+                              Pay Now
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Expanded Invoice Details */}
+                      {expandedSiteId === site.site_id && site.invoices.length > 0 && (
+                        <div className="bg-slate-50 border-t border-slate-100 p-4">
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-7 gap-3 text-xs font-semibold text-slate-600 mb-3">
+                              <div>Invoice</div>
+                              <div>Date</div>
+                              <div className="text-right">Amount</div>
+                              <div className="text-right">Paid</div>
+                              <div className="text-right">Due</div>
+                              <div>Status</div>
+                              <div className="text-center">Reminders</div>
+                            </div>
+                            {site.invoices.map((inv) => (
+                              <div
+                                key={inv.id}
+                                className="grid grid-cols-7 gap-3 text-sm py-2 px-2 rounded hover:bg-white transition-colors"
+                              >
+                                <div className="font-mono font-semibold text-slate-900 truncate">
+                                  {inv.invoice_number}
+                                </div>
+                                <div className="text-slate-600">
+                                  {new Date(inv.invoice_date).toLocaleDateString('en-ZA')}
+                                </div>
+                                <div className="text-right text-slate-900 font-medium">
+                                  {formatCurrency(inv.total_amount)}
+                                </div>
+                                <div className="text-right text-emerald-600 font-medium">
+                                  {formatCurrency(inv.amount_paid)}
+                                </div>
+                                <div className="text-right font-semibold text-slate-900">
+                                  {formatCurrency(inv.amount_due)}
+                                </div>
+                                <div>{statusBadge(inv.status)}</div>
+                                <div className="text-center text-slate-600">
+                                  {inv.sms_reminder_count}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="p-12 text-center bg-white rounded-xl border border-slate-200">
+            <PiFileTextBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <p className="font-medium text-slate-900">No billing data available</p>
+          </div>
+        )}
       </TabPanel>
     </div>
   );
