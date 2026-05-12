@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import SplitAuthLayout from '@/components/auth/SplitAuthLayout';
 
 const registerSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -89,49 +90,40 @@ export default function RegisterPage() {
 
   if (registrationComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-          <div className="max-w-7xl mx-auto">
-            <div className="w-full max-w-md mx-auto">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
-                <p className="text-gray-600 mb-6">
-                  We've sent a confirmation link to <span className="font-semibold">{form.getValues('email')}</span>.
-                  Please check your inbox and click the link to activate your account.
-                </p>
-                <Link
-                  href="/auth/login"
-                  className="inline-flex items-center gap-2 bg-[#F5831F] hover:bg-[#E67510] text-white font-bold py-3 px-6 rounded-md transition-all duration-200"
-                >
-                  Go to Sign In
-                </Link>
-              </div>
-            </div>
+      <SplitAuthLayout>
+        <div className="text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
           </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
+          <p className="text-gray-600 mb-6">
+            We've sent a confirmation link to <span className="font-semibold">{form.getValues('email')}</span>.
+            Please check your inbox and click the link to activate your account.
+          </p>
+          <Link
+            href="/auth/login"
+            className="inline-flex items-center gap-2 bg-[#F5831F] hover:bg-[#E67510] text-white font-bold py-3 px-6 rounded-md transition-all duration-200"
+          >
+            Go to Sign In
+          </Link>
         </div>
-      </div>
+      </SplitAuthLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="w-full max-w-md mx-auto">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
-              <div className="mb-6">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                  Create your account
-                </h1>
-                <p className="text-sm sm:text-base text-gray-600">
-                  Register to manage your CircleTel services
-                </p>
-              </div>
+    <SplitAuthLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            Create your account
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            Register to manage your CircleTel services
+          </p>
+        </div>
 
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
@@ -304,29 +296,26 @@ export default function RegisterPage() {
                 </button>
               </form>
 
-              <div className="text-center text-sm sm:text-base text-gray-600 mt-4">
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
-                >
-                  <PiArrowLeftBold className="w-4 h-4" />
-                  Back to Home
-                </Link>
-              </div>
+        <div className="text-center text-sm sm:text-base text-gray-600 mt-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
+          >
+            <PiArrowLeftBold className="w-4 h-4" />
+            Back to Home
+          </Link>
+        </div>
 
-              <div className="text-center text-sm sm:text-base text-gray-600 mt-2">
-                Already have an account?{' '}
-                <Link
-                  href="/auth/login"
-                  className="text-[#F5831F] hover:underline font-bold"
-                >
-                  Sign in
-                </Link>
-              </div>
-            </div>
-          </div>
+        <div className="text-center text-sm sm:text-base text-gray-600 mt-2">
+          Already have an account?{' '}
+          <Link
+            href="/auth/login"
+            className="text-[#F5831F] hover:underline font-bold"
+          >
+            Sign in
+          </Link>
         </div>
       </div>
-    </div>
+    </SplitAuthLayout>
   );
 }

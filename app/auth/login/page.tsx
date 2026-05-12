@@ -13,6 +13,7 @@ import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { clearSupabaseSession, createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import SplitAuthLayout from '@/components/auth/SplitAuthLayout';
 
 // Login form validation schema - supports both email and OTP login
 const emailLoginSchema = z.object({
@@ -174,21 +175,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto">
-          {/* Minimal Card Container */}
-          <div className="w-full max-w-md mx-auto">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
-              {/* Heading */}
-              <div className="mb-6">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                  Sign in to your account
-                </h1>
-                <p className="text-sm sm:text-base text-gray-600">
-                  Welcome back! Please sign in to continue
-                </p>
-              </div>
+    <SplitAuthLayout>
+      <div className="space-y-6">
+        {/* Heading */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            Sign in to your account
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            Welcome back! Please sign in to continue
+          </p>
+        </div>
 
               {/* Google Sign In Button */}
               <button
@@ -415,20 +412,17 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              {/* Sign Up Link */}
-              <div className="text-center text-sm sm:text-base text-gray-600 mt-2">
-                Don't have an account?{' '}
-                <Link
-                  href="/auth/register"
-                  className="text-[#F5831F] hover:underline font-bold"
-                >
-                  Create account
-                </Link>
-              </div>
-            </div>
-          </div>
+        {/* Sign Up Link */}
+        <div className="text-center text-sm sm:text-base text-gray-600 mt-2">
+          Don't have an account?{' '}
+          <Link
+            href="/auth/register"
+            className="text-[#F5831F] hover:underline font-bold"
+          >
+            Create account
+          </Link>
         </div>
       </div>
-    </div>
+    </SplitAuthLayout>
   );
 }
