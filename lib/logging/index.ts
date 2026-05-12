@@ -36,4 +36,6 @@ export {
   kycLogger,
 } from './logger'
 
+export { withCronLogging, verifyCronSecret } from './cron-logger'
+
 export { logger as default } from './logger'

@@ -47,7 +47,11 @@ export async function middleware(request: NextRequest) {
     return ambassadorAuthResult.redirectResponse;
   }
 
-  // Step 5: Return response (with any cookie updates)
+  // Step 5: Add request correlation ID
+  const requestId = request.headers.get('x-request-id') || crypto.randomUUID();
+  response.headers.set('x-request-id', requestId);
+
+  // Step 6: Return response (with any cookie updates)
   return response;
 }
 

@@ -112,13 +112,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate full payment URL with query parameters (GET method)
-    let fullPaymentUrl = paymentResult.paymentUrl;
-    if (paymentResult.formData && provider.name === 'netcash') {
-      const params = new URLSearchParams(paymentResult.formData as Record<string, string>);
-      fullPaymentUrl = `${paymentResult.paymentUrl}?${params.toString()}`;
-    }
-
     // Update order status to processing
     const { error: updateError } = await supabase
       .from('consumer_orders')
@@ -179,7 +172,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      paymentUrl: fullPaymentUrl,
+      paymentUrl: paymentResult.paymentUrl,
+      formData: paymentResult.formData,
       paymentReference,
       transactionId: paymentResult.transactionId,
       orderId,

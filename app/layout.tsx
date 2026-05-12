@@ -146,7 +146,7 @@ export default async function RootLayout({
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script src="https://cdn.pagesense.io/js/circletelsaptyltd/f0603d911c6347848924dba71b17e8a3.js" />
       </head>
-      <body className="min-h-screen bg-[#F9FAFB] text-gray-900 antialiased font-sans">
+      <body suppressHydrationWarning className="min-h-screen bg-[#F9FAFB] text-gray-900 antialiased font-sans">
         {/* Google Tag Manager (noscript) */}
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WHDZSR3G" height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}></iframe></noscript>
         <QueryProvider>

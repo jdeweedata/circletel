@@ -10,11 +10,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { netcashStatementService } from '@/lib/payments/netcash-statement-service';
-import { cronLogger } from '@/lib/logging';
+import { withCronLogging, verifyCronSecret, cronLogger } from '@/lib/logging';
 
-// Vercel cron configuration
 export const runtime = 'nodejs';
-export const maxDuration = 60; // 60 seconds max
+export const maxDuration = 60;
 
 interface ReconciliationResult {
   date: string;
@@ -26,19 +25,23 @@ interface ReconciliationResult {
 }
 
 export async function GET(request: NextRequest) {
-  // Verify cron secret for security
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const result = await runReconciliation();
-    return NextResponse.json(result);
+    const result = await withCronLogging('payment-reconciliation', 'vercel_cron', async () => {
+      const reconciliation = await runReconciliation();
+      return {
+        records_processed: reconciliation.totalProcessed,
+        records_failed: reconciliation.errors.length,
+        records_skipped: reconciliation.notFound,
+        execution_details: reconciliation as unknown as Record<string, unknown>,
+      };
+    });
+
+    return NextResponse.json({ success: true, logId: result.logId, durationMs: result.durationMs, ...result.execution_details });
   } catch (error) {
-    cronLogger.error('Reconciliation cron error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Reconciliation failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -46,17 +49,23 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Also allow POST for manual triggers
 export async function POST(request: NextRequest) {
   try {
-    // Optional: specify a custom date
     const body = await request.json().catch(() => ({}));
     const customDate = body.date ? new Date(body.date) : undefined;
-    
-    const result = await runReconciliation(customDate);
-    return NextResponse.json(result);
+
+    const result = await withCronLogging('payment-reconciliation', 'manual', async () => {
+      const reconciliation = await runReconciliation(customDate);
+      return {
+        records_processed: reconciliation.totalProcessed,
+        records_failed: reconciliation.errors.length,
+        records_skipped: reconciliation.notFound,
+        execution_details: reconciliation as unknown as Record<string, unknown>,
+      };
+    });
+
+    return NextResponse.json({ success: true, logId: result.logId, durationMs: result.durationMs, ...result.execution_details });
   } catch (error) {
-    cronLogger.error('Reconciliation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Reconciliation failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -165,9 +174,7 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
   if (!statement.success) {
     result.errors.push(`Failed to get NetCash statement: ${statement.error}`);
     
-    // Log the reconciliation attempt
-    await logReconciliation(supabase, result);
-    return result;
+      return result;
   }
 
   // Find matching debit order results
@@ -210,11 +217,6 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
       result.errors.push(`Failed to process ${debitResult.accountReference}: ${errorMsg}`);
     }
   }
-
-  // Log the reconciliation
-  await logReconciliation(supabase, result);
-
-  cronLogger.info(`Reconciliation complete: ${result.successful} successful, ${result.unpaid} unpaid, ${result.notFound} not found`);
 
   return result;
 }
@@ -320,21 +322,3 @@ async function markOrderUnpaid(
     });
 }
 
-async function logReconciliation(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  result: ReconciliationResult
-) {
-  try {
-    await supabase
-      .from('cron_execution_log')
-      .insert({
-        job_name: 'payment-reconciliation',
-        status: result.errors.length > 0 ? 'completed_with_errors' : 'completed',
-        execution_start: new Date().toISOString(),
-        execution_end: new Date().toISOString(),
-        execution_details: result,
-      });
-  } catch (error) {
-    cronLogger.error('Failed to log reconciliation', { error: error instanceof Error ? error.message : String(error) });
-  }
-}

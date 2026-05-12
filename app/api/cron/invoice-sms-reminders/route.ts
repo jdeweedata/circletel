@@ -19,6 +19,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { InvoiceSmsReminderService } from '@/lib/billing/invoice-sms-reminder-service';
+import { CorporateEscalationService } from '@/lib/billing/corporate-escalation-service';
 import { cronLogger } from '@/lib/logging';
 
 // Vercel cron configuration
@@ -131,6 +132,23 @@ async function runSmsReminders(
     cronLogger.info(
       `SMS reminders complete: ${result.sent} sent, ${result.failed} failed, ${result.skipped} skipped`
     );
+
+    // Corporate HQ escalation for 8+ day overdue invoices
+    try {
+      const escalationResult = await CorporateEscalationService.processEscalations();
+      if (escalationResult.sent > 0) {
+        cronLogger.info(`Corporate escalations sent: ${escalationResult.sent}`, {
+          results: escalationResult.results,
+        });
+      }
+    } catch (escalationError) {
+      const msg = escalationError instanceof Error ? escalationError.message : String(escalationError);
+      cronLogger.error('Corporate escalation failed (non-blocking)', { error: msg });
+      errors.push(`Corporate escalation: ${msg}`);
+    }
+
+    // Refresh cronResult errors after escalation
+    cronResult.errors = errors.slice(0, 10);
 
     return cronResult;
   } catch (error) {

@@ -158,14 +158,25 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
         throw new Error(errorData.error || 'Failed to initiate payment');
       }
 
-      const { paymentUrl } = await paymentResponse.json();
+      const { paymentUrl, formData: paymentFormData } = await paymentResponse.json();
 
-      // Step 3: Redirect to Netcash payment page
+      // Step 3: Submit POST form to Netcash payment page
       toast.success('Redirecting to secure payment...');
 
-      // Small delay for user to see toast
       setTimeout(() => {
-        window.location.href = paymentUrl;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = paymentUrl;
+        form.style.display = 'none';
+        for (const [key, value] of Object.entries(paymentFormData as Record<string, string>)) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        }
+        document.body.appendChild(form);
+        form.submit();
       }, 1000);
 
     } catch (err) {

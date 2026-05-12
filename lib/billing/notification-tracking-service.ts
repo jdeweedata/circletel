@@ -16,7 +16,7 @@ import { billingLogger } from '@/lib/logging';
 
 export type NotificationType = 'sms' | 'email' | 'whatsapp' | 'call';
 export type NotificationStatus = 'pending' | 'sent' | 'delivered' | 'failed' | 'bounced' | 'opened' | 'clicked';
-export type NotificationTemplate = 'first_reminder' | 'second_reminder' | 'final_notice' | 'due_reminder' | 'overdue_reminder' | 'payment_confirmation' | 'custom';
+export type NotificationTemplate = 'first_reminder' | 'second_reminder' | 'final_notice' | 'due_reminder' | 'overdue_reminder' | 'payment_confirmation' | 'corporate_escalation' | 'custom';
 
 export interface NotificationLogEntry {
   invoice_id: string;

@@ -145,10 +145,21 @@ export function CircleTelPaymentPage({ variant = "home-internet" }: PaymentPageP
 
       if (!paymentResponse.ok) throw new Error("Failed to initiate payment")
 
-      const { paymentUrl } = await paymentResponse.json()
+      const { paymentUrl, formData: paymentFormData } = await paymentResponse.json()
 
-      // Redirect to payment gateway
-      window.location.href = paymentUrl
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = paymentUrl
+      form.style.display = 'none'
+      for (const [key, value] of Object.entries(paymentFormData as Record<string, string>)) {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = key
+        input.value = value
+        form.appendChild(input)
+      }
+      document.body.appendChild(form)
+      form.submit()
     } catch (error) {
       console.error("Payment error:", error)
       alert("Failed to process payment. Please try again.")

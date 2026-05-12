@@ -292,8 +292,21 @@ export default function CheckoutPage() {
       throw new Error(errBody.error || 'Failed to initiate payment. Please try again.');
     }
 
-    const { paymentUrl } = await paymentRes.json();
-    window.location.href = paymentUrl;
+    const { paymentUrl, formData } = await paymentRes.json();
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = paymentUrl;
+    form.style.display = 'none';
+    for (const [key, value] of Object.entries(formData as Record<string, string>)) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
   };
 
   const handlePlaceOrder = async () => {
