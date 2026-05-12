@@ -3,59 +3,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-function StickerBadge({
-  text,
-  className,
-  rotate = 0,
-  variant = 'orange',
-}: {
-  text: string;
-  className?: string;
-  rotate?: number;
-  variant?: 'orange' | 'navy' | 'white';
-}) {
-  const colors = {
-    orange: { bg: '#E87A1E', text: '#FFFFFF', border: '#C45A30' },
-    navy: { bg: '#1B2A4A', text: '#FFFFFF', border: '#0F1427' },
-    white: { bg: '#FFFFFF', text: '#1B2A4A', border: '#E5E7EB' },
-  };
-  const c = colors[variant];
-
-  return (
-    <div
-      className={`absolute select-none ${className}`}
-      style={{ transform: `rotate(${rotate}deg)` }}
-    >
-      <svg width="140" height="140" viewBox="0 0 140 140" fill="none">
-        <path
-          d="M70 5 L82 18 L98 12 L100 30 L118 32 L112 48 L128 58 L118 72 L128 86 L112 92 L118 108 L100 110 L98 128 L82 122 L70 135 L58 122 L42 128 L40 110 L22 108 L28 92 L12 86 L22 72 L12 58 L28 48 L22 32 L40 30 L42 12 L58 18 Z"
-          fill={c.bg}
-          stroke={c.border}
-          strokeWidth="2"
-        />
-        <text
-          x="70"
-          y="70"
-          textAnchor="middle"
-          dominantBaseline="central"
-          fill={c.text}
-          fontSize="13"
-          fontWeight="700"
-          fontFamily="system-ui, sans-serif"
-        >
-          {text.length > 16 ? (
-            <>
-              <tspan x="70" dy="-8">{text.split(' ').slice(0, Math.ceil(text.split(' ').length / 2)).join(' ')}</tspan>
-              <tspan x="70" dy="16">{text.split(' ').slice(Math.ceil(text.split(' ').length / 2)).join(' ')}</tspan>
-            </>
-          ) : (
-            text
-          )}
-        </text>
-      </svg>
-    </div>
-  );
-}
+const STICKERS = [
+  { src: '/stickers/make_payment_badge_1778569500917.png', alt: 'Make Payment', className: 'top-[8%] left-[8%] w-40 h-40 animate-float', rotate: -12 },
+  { src: '/stickers/account_access_badge_1778569518398.png', alt: 'Account Access', className: 'top-[5%] right-[12%] w-36 h-36 animate-float [animation-delay:1s]', rotate: 8 },
+  { src: '/stickers/see_your_bill_badge_1778569530823.png', alt: 'See Your Bill', className: 'bottom-[12%] left-[20%] w-44 h-36 animate-float [animation-delay:2s]', rotate: -5 },
+];
 
 export default function SplitAuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -67,36 +19,15 @@ export default function SplitAuthLayout({ children }: { children: React.ReactNod
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-[#1B2A4A]/30 rounded-full blur-3xl" />
 
         {/* Sticker badges */}
-        <StickerBadge
-          text="Fast Fibre"
-          variant="orange"
-          rotate={-12}
-          className="top-[12%] left-[10%] animate-float"
-        />
-        <StickerBadge
-          text="No Lock-in"
-          variant="white"
-          rotate={8}
-          className="top-[8%] right-[15%] animate-float [animation-delay:1s]"
-        />
-        <StickerBadge
-          text="Local Support"
-          variant="navy"
-          rotate={-5}
-          className="top-[40%] left-[8%] animate-float [animation-delay:2s]"
-        />
-        <StickerBadge
-          text="24/7 Uptime"
-          variant="orange"
-          rotate={15}
-          className="top-[45%] right-[10%] animate-float [animation-delay:0.5s]"
-        />
-        <StickerBadge
-          text="SA Owned"
-          variant="white"
-          rotate={-8}
-          className="bottom-[15%] left-[25%] animate-float [animation-delay:1.5s]"
-        />
+        {STICKERS.map((s) => (
+          <div
+            key={s.alt}
+            className={`absolute select-none ${s.className}`}
+            style={{ transform: `rotate(${s.rotate}deg)` }}
+          >
+            <Image src={s.src} alt={s.alt} width={180} height={180} className="w-full h-full object-contain drop-shadow-2xl" />
+          </div>
+        ))}
 
         {/* Central tagline */}
         <div className="relative z-10 text-center px-8">
