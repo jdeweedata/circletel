@@ -419,7 +419,7 @@ export default function LoginPage() {
               <div className="text-center text-sm sm:text-base text-gray-600 mt-2">
                 Don't have an account?{' '}
                 <Link
-                  href="/order/checkout"
+                  href="/auth/register"
                   className="text-[#F5831F] hover:underline font-bold"
                 >
                   Create account
