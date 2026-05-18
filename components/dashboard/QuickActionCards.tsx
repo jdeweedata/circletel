@@ -1,6 +1,6 @@
 'use client';
 import { IconType } from 'react-icons';
-import { PiCreditCardBold, PiFileTextBold, PiGearBold, PiHeadphonesBold, PiQuestionBold, PiShoppingCartBold, PiUserCircleBold } from 'react-icons/pi';
+import { PiCreditCardBold, PiFileTextBold, PiHeadphonesBold, PiQuestionBold, PiUserCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -18,40 +18,31 @@ interface QuickAction {
 
 const quickActions: QuickAction[] = [
   {
-    id: 'place-order',
-    title: 'Place New Order',
-    icon: PiShoppingCartBold,
-    href: '/',
-    description: 'Order a new service',
+    id: 'pay-now',
+    title: 'Pay now',
+    icon: PiCreditCardBold,
+    href: '/dashboard/billing',
+    description: 'Make a payment',
     iconBg: 'bg-orange-100',
     iconColor: 'text-circleTel-orange',
   },
   {
-    id: 'payment-method',
-    title: 'Payment Method',
-    icon: PiCreditCardBold,
-    href: '/dashboard/payment-method',
-    description: 'Manage payment method',
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
-  },
-  {
     id: 'invoices',
-    title: 'View Invoices',
+    title: 'Billing & statements',
     icon: PiFileTextBold,
-    href: '/dashboard/billing',
+    href: '/dashboard/invoices',
     description: 'View your invoices',
     iconBg: 'bg-green-100',
     iconColor: 'text-green-600',
   },
   {
-    id: 'manage-service',
-    title: 'Manage Service',
-    icon: PiGearBold,
-    href: '/dashboard/services',
-    description: 'Manage your services',
-    iconBg: 'bg-orange-100',
-    iconColor: 'text-circleTel-orange',
+    id: 'payment-method',
+    title: 'Payment details',
+    icon: PiCreditCardBold,
+    href: '/dashboard/payment-method',
+    description: 'Manage payment method',
+    iconBg: 'bg-blue-100',
+    iconColor: 'text-blue-600',
   },
   {
     id: 'update-profile',
@@ -84,6 +75,7 @@ const quickActions: QuickAction[] = [
 
 export interface QuickActionCardsProps {
   className?: string;
+  billingHighlight?: { amountDue: number; overdueCount: number };
 }
 
 /**
@@ -104,19 +96,18 @@ export interface QuickActionCardsProps {
  * <QuickActionCards />
  * ```
  */
-export function QuickActionCards({ className }: QuickActionCardsProps) {
+export function QuickActionCards({ className, billingHighlight }: QuickActionCardsProps) {
   return (
-    <div className={cn('space-y-4', className)}>
-      {/* Section Header */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
-        <p className="text-sm text-gray-600 mt-1">Common tasks and shortcuts</p>
-      </div>
-
+    <div className={cn('', className)}>
       {/* Action Cards Grid - Matching Stat Card Style */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         {quickActions.map((action) => {
           const Icon = action.icon;
+          const isBillingCard = action.id === 'pay-now';
+          const shouldHighlight = isBillingCard && billingHighlight && (billingHighlight.amountDue > 0 || billingHighlight.overdueCount > 0);
+          const badgeText = billingHighlight?.amountDue && billingHighlight.amountDue > 0
+            ? `R${billingHighlight.amountDue.toFixed(2)} due`
+            : billingHighlight?.overdueCount ? `${billingHighlight.overdueCount} overdue` : '';
 
           return (
             <Link
@@ -125,19 +116,27 @@ export function QuickActionCards({ className }: QuickActionCardsProps) {
               className="block group"
             >
               <div className={cn(
-                'relative overflow-hidden border border-gray-200 bg-white',
+                'relative overflow-hidden border bg-white',
                 'shadow-sm hover:shadow-lg transition-all duration-200',
-                'rounded-lg p-6 h-full flex flex-col',
-                'cursor-pointer hover:scale-[1.02] hover:border-circleTel-orange/30'
+                'rounded-lg py-8 px-6 h-full flex flex-col',
+                'cursor-pointer hover:scale-[1.02] hover:border-circleTel-orange/30',
+                shouldHighlight ? 'border-circleTel-orange' : 'border-gray-200'
               )}>
+                {/* Badge for billing highlight */}
+                {shouldHighlight && badgeText && (
+                  <div className="absolute top-2 right-2 bg-circleTel-orange text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    {badgeText}
+                  </div>
+                )}
+
                 {/* Header with Icon and Title */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <div className={cn(
-                      'h-10 w-10 rounded-lg flex items-center justify-center',
+                      'h-12 w-12 rounded-lg flex items-center justify-center',
                       action.iconBg
                     )}>
-                      <Icon className={cn('h-5 w-5', action.iconColor)} />
+                      <Icon className={cn('h-6 w-6', action.iconColor)} />
                     </div>
                   </div>
                 </div>
