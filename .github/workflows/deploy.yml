@@ -40,7 +40,29 @@ jobs:
               kill "$pid" 2>/dev/null || true
             fi
           done
-          sleep 2
+          # Kill IDE server (antigravity) — uses 13-15GB; auto-restarts on reconnect
+          if pgrep -f 'antigravity-server' > /dev/null 2>&1; then
+            echo "Stopping antigravity-server to free memory for build..."
+            pkill -f 'antigravity-server' || true
+          fi
+          # Kill headless Chrome instances (Chrome DevTools MCP, screenshots)
+          if pgrep -f 'chrome.*headless' > /dev/null 2>&1; then
+            echo "Stopping headless Chrome instances..."
+            pkill -f 'chrome.*headless' || true
+          fi
+          if pgrep -f 'chrome-devtools-mcp' > /dev/null 2>&1; then
+            echo "Stopping Chrome DevTools MCP servers..."
+            pkill -f 'chrome-devtools-mcp' || true
+          fi
+          # Kill orphan next-server production processes outside Docker
+          for pid in $(pgrep -f 'next-server' || true); do
+            cgroup=$(cat /proc/$pid/cgroup 2>/dev/null || true)
+            if echo "$cgroup" | grep -q 'user.slice'; then
+              echo "Killing orphan next-server process PID $pid"
+              kill "$pid" 2>/dev/null || true
+            fi
+          done
+          sleep 3
           # Drop filesystem caches
           sync && echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true
           echo "=== Memory after cleanup ==="
