@@ -237,3 +237,26 @@ export interface KYCSessionCreationResult {
   flowType: 'sme_light' | 'consumer_light' | 'full_kyc';
   expiresAt: string;
 }
+
+export interface ConsumerKYCSession {
+  id: string;
+  customer_id: string;
+  didit_session_id: string;
+  verification_url: string;
+  flow_type: 'consumer_light_kyc';
+  status: DiditSessionStatus;
+  verification_result: DiditVerificationResult | null;
+  risk_score: number | null;
+  extracted_data: ExtractedKYCData | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export type ConsumerKYCDisplayStatus =
+  | 'not_started'
+  | 'pending'
+  | 'in_progress'
+  | 'approved'
+  | 'declined'
+  | 'pending_review'
+  | 'expired';
