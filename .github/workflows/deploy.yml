@@ -10,6 +10,8 @@ on:
       - 'designs/**'
       - 'memory-os/**'
       - 'agent-os/**'
+      - 'openspec/**'
+      - 'scripts/**'
 
 concurrency:
   group: deploy-production
@@ -25,6 +27,24 @@ jobs:
       contents: read
 
     steps:
+      - name: Free memory for build
+        run: |
+          echo "=== Memory before cleanup ==="
+          free -h
+          # Kill orphan next-server dev processes running outside Docker
+          for pid in $(pgrep -f 'next dev' || true); do
+            cgroup=$(cat /proc/$pid/cgroup 2>/dev/null || true)
+            if echo "$cgroup" | grep -q 'user.slice'; then
+              echo "Killing orphan next dev process PID $pid"
+              kill "$pid" 2>/dev/null || true
+            fi
+          done
+          sleep 2
+          # Drop filesystem caches
+          sync && echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true
+          echo "=== Memory after cleanup ==="
+          free -h
+
       - uses: actions/checkout@v4
 
       - name: Set up Node.js 20
