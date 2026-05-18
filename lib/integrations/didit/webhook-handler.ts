@@ -144,7 +144,7 @@ export async function processDiditWebhook(
   // 1. Find existing KYC session
   const { data: session, error: sessionError } = await supabase
     .from('kyc_sessions')
-    .select('id, quote_id, status, raw_webhook_payload')
+    .select('id, quote_id, user_type, status, raw_webhook_payload')
     .eq('didit_session_id', sessionId)
     .single();
 
@@ -177,7 +177,7 @@ export async function processDiditWebhook(
   // 3. Handle event based on type
   switch (event) {
     case 'verification.completed':
-      return handleVerificationCompleted(session.id, result, data, payload, kybSubjectId);
+      return handleVerificationCompleted(session.id, result, data, payload, kybSubjectId, session.user_type);
 
     case 'verification.failed':
       return handleVerificationFailed(session.id, error, payload, kybSubjectId);
@@ -211,7 +211,8 @@ async function handleVerificationCompleted(
   result: DiditWebhookPayload['result'],
   extractedData: ExtractedKYCData | undefined,
   rawPayload: DiditWebhookPayload,
-  kybSubjectId?: string
+  kybSubjectId?: string,
+  userType?: string
 ): Promise<WebhookVerificationResult> {
   const supabase = await createClient();
 
@@ -284,35 +285,34 @@ async function handleVerificationCompleted(
     `[Webhook Handler] KYC session ${sessionId} updated: ${verificationResult}`
   );
 
-  // Send KYC completion email notification
-  try {
-    // Import dynamically to avoid circular dependencies
-    const { sendKYCCompletedEmail } = await import('@/lib/notifications/workflow-notifications');
-    
-    // Fetch quote details for email
-    const { data: kycWithQuote } = await supabase
-      .from('kyc_sessions')
-      .select('*, quote:business_quotes(*)')
-      .eq('id', sessionId)
-      .single();
+  // Send KYC completion email notification (B2B only — consumer sessions have no quote)
+  if (userType !== 'consumer') {
+    try {
+      const { sendKYCCompletedEmail } = await import('@/lib/notifications/workflow-notifications');
 
-    if (kycWithQuote && kycWithQuote.quote) {
-      await sendKYCCompletedEmail({
-        id: sessionId,
-        quote_id: kycWithQuote.quote_id,
-        verification_result: verificationResult,
-        risk_tier: riskScore.risk_tier,
-        completed_at: new Date().toISOString(),
-        customer_name: kycWithQuote.quote.contact_name,
-        customer_email: kycWithQuote.quote.contact_email,
-        quote_number: kycWithQuote.quote.quote_number,
-      });
-      
-      console.log('[Webhook Handler] KYC completion email sent');
+      const { data: kycWithQuote } = await supabase
+        .from('kyc_sessions')
+        .select('*, quote:business_quotes(*)')
+        .eq('id', sessionId)
+        .single();
+
+      if (kycWithQuote && kycWithQuote.quote) {
+        await sendKYCCompletedEmail({
+          id: sessionId,
+          quote_id: kycWithQuote.quote_id,
+          verification_result: verificationResult,
+          risk_tier: riskScore.risk_tier,
+          completed_at: new Date().toISOString(),
+          customer_name: kycWithQuote.quote.contact_name,
+          customer_email: kycWithQuote.quote.contact_email,
+          quote_number: kycWithQuote.quote.quote_number,
+        });
+
+        console.log('[Webhook Handler] KYC completion email sent');
+      }
+    } catch (emailError) {
+      console.error('[Webhook Handler] Failed to send KYC email:', emailError);
     }
-  } catch (emailError) {
-    // Log but don't fail the webhook
-    console.error('[Webhook Handler] Failed to send KYC email:', emailError);
   }
 
   // TODO: Trigger contract generation if auto-approved (low risk)
