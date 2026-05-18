@@ -1,17 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createKYCSessionForConsumer } from '@/lib/integrations/didit/session-manager';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClientWithSession();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
+    let user: any = null;
+
+    if (token) {
+      const supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
+      if (tokenError || !tokenUser) {
+        return NextResponse.json(
+          { success: false, error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
+      user = tokenUser;
+    } else {
+      const sessionClient = await createClientWithSession();
+      const { data: { user: cookieUser }, error: authError } = await sessionClient.auth.getUser();
+      if (authError || !cookieUser) {
+        return NextResponse.json(
+          { success: false, error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
+      user = cookieUser;
     }
 
     const origin = request.headers.get('origin') || 'https://www.circletel.co.za';
