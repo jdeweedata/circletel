@@ -127,9 +127,17 @@ jobs:
 
       - name: Wait for healthy container
         run: |
-          echo "Waiting for container to pass health check..."
+          # Resolve container name dynamically — Coolify regenerates the suffix on recreate.
+          CONTAINER=$(docker ps --filter "label=coolify.name=b7ukn3c76rd46dsl19oqq59e" --format '{{.Names}}' | head -1)
+          if [ -z "$CONTAINER" ]; then
+            echo "ERROR: No running container found with coolify.name=b7ukn3c76rd46dsl19oqq59e"
+            docker ps -a --filter "label=coolify.managed=true" --format '{{.Names}} {{.Status}}'
+            exit 1
+          fi
+          echo "Found container: $CONTAINER"
+          echo "Waiting for health check..."
           for i in $(seq 1 40); do
-            STATUS=$(docker inspect --format='{{.State.Health.Status}}' b7ukn3c76rd46dsl19oqq59e-141223811188 2>/dev/null || echo "not found")
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$CONTAINER" 2>/dev/null || echo "not found")
             echo "$(date +%H:%M:%S) — $STATUS"
             if [ "$STATUS" = "healthy" ]; then
               echo "Container is healthy!"
@@ -138,5 +146,5 @@ jobs:
             sleep 5
           done
           echo "ERROR: Container did not become healthy within 200s"
-          docker logs --tail 50 b7ukn3c76rd46dsl19oqq59e-141223811188
+          docker logs --tail 50 "$CONTAINER"
           exit 1
