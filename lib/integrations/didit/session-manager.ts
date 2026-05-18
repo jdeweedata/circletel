@@ -12,6 +12,7 @@ import type {
   DiditSessionRequest,
   DiditFlowType,
   KYCSessionCreationResult,
+  ConsumerKYCSession,
 } from './types';
 
 /**
@@ -380,4 +381,103 @@ export async function createKYCSessionForKYBSubject(
     flowType,
     expiresAt: diditResponse.expiresAt,
   };
+}
+
+export async function createKYCSessionForConsumer(
+  customerId: string,
+  callbackUrl: string
+): Promise<KYCSessionCreationResult> {
+  const supabase = await createClient();
+
+  const { data: existingSession } = await supabase
+    .from('kyc_sessions')
+    .select('id, didit_session_id, verification_url, status')
+    .eq('customer_id', customerId)
+    .eq('flow_type', 'consumer_light_kyc')
+    .in('status', ['not_started', 'in_progress'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (existingSession) {
+    console.log(
+      `[Session Manager] Existing active consumer session found: ${existingSession.didit_session_id}`
+    );
+    return {
+      sessionId: existingSession.didit_session_id,
+      verificationUrl: existingSession.verification_url,
+      flowType: 'consumer_light',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+  }
+
+  const diditFlowType: DiditFlowType = 'consumer_light_kyc';
+
+  const sessionRequest: DiditSessionRequest = {
+    type: 'kyc',
+    jurisdiction: 'ZA',
+    flow: diditFlowType,
+    features: ['id_verification', 'liveness'],
+    metadata: {
+      user_type: 'consumer',
+      context: 'consumer_dashboard',
+    },
+    redirect_url: callbackUrl,
+    webhook_url: WebhookUrls.didit(),
+  };
+
+  let diditResponse;
+  try {
+    diditResponse = await createSession(sessionRequest);
+  } catch (error) {
+    console.error('[Session Manager] Didit API error (consumer):', error);
+    throw new Error('Failed to create consumer KYC session with Didit');
+  }
+
+  const { error: insertError } = await supabase.from('kyc_sessions').insert({
+    customer_id: customerId,
+    didit_session_id: diditResponse.sessionId,
+    verification_url: diditResponse.verificationUrl,
+    flow_type: 'consumer_light_kyc',
+    user_type: 'consumer',
+    status: 'not_started',
+    created_at: new Date().toISOString(),
+  });
+
+  if (insertError) {
+    console.error('[Session Manager] Failed to store consumer KYC session:', insertError);
+    throw new Error('Failed to store consumer KYC session in database');
+  }
+
+  console.log(
+    `[Session Manager] Consumer KYC session created: ${diditResponse.sessionId}`
+  );
+
+  return {
+    sessionId: diditResponse.sessionId,
+    verificationUrl: diditResponse.verificationUrl,
+    flowType: 'consumer_light',
+    expiresAt: diditResponse.expiresAt,
+  };
+}
+
+export async function getConsumerKYCSession(
+  customerId: string
+): Promise<ConsumerKYCSession | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('kyc_sessions')
+    .select('*')
+    .eq('customer_id', customerId)
+    .eq('flow_type', 'consumer_light_kyc')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    throw new Error(`Failed to fetch consumer KYC session: ${error.message}`);
+  }
+
+  return data as ConsumerKYCSession | null;
 }
