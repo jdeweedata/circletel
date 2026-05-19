@@ -31,7 +31,7 @@ interface ApiPackage {
   } | null;
 }
 
-const WIRELESS_TYPES = ['wireless', 'lte', '5g', 'mobile', 'SkyFibre'];
+const WIRELESS_TYPES = ['wireless', 'lte', '5g', 'mobile'];
 
 const isWireless = (pkg: ApiPackage) =>
   WIRELESS_TYPES.some(t =>
@@ -335,223 +335,113 @@ export default function OrderPackagesPage() {
             </TabsList>
           </div>
 
-          <TabsContent value="fibre" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPackages.map((pkg) => {
-                const isSelected = selectedPackageId === pkg.id;
-                return (
-                  <Card
-                    key={pkg.id}
-                    className={`relative overflow-hidden transition-all hover:shadow-lg cursor-pointer ${
-                      pkg.popular ? 'border-circleTel-orange border-2' : ''
-                    } ${isSelected ? 'ring-2 ring-circleTel-orange shadow-xl' : ''}`}
-                    onClick={() => handleSelectPackage(pkg.id)}
-                  >
-                    {pkg.popular && (
-                      <div className="absolute top-0 right-0">
-                        <Badge className="bg-circleTel-orange text-white rounded-none rounded-bl-lg px-4 py-1">
-                          MOST POPULAR
-                        </Badge>
-                      </div>
-                    )}
-                    {pkg.promotion_price && (
-                      <div className="absolute top-0 left-0">
-                        <Badge className="bg-green-600 text-white rounded-none rounded-br-lg px-3 py-1 text-xs">
-                          {pkg.promotion_months ? `${pkg.promotion_months}-MONTH PROMO` : 'PROMO'}
-                        </Badge>
-                      </div>
-                    )}
-                    <CardHeader className="pt-8">
-                      <CardTitle className="text-2xl">{pkg.name}</CardTitle>
-                      <CardDescription className="text-base">{pkg.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      {/* Price */}
-                      <div className="mb-4">
-                        {pkg.promotion_price ? (
-                          <>
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-4xl font-bold text-circleTel-orange">
-                                R{pkg.promotion_price}
-                              </span>
-                              <span className="text-xl text-gray-400 line-through">R{pkg.price}</span>
+          {['fibre', 'wireless'].map((tabValue) => (
+            <TabsContent key={tabValue} value={tabValue} className="mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredPackages.map((pkg) => {
+                  const isSelected = selectedPackageId === pkg.id;
+                  return (
+                    <Card
+                      key={pkg.id}
+                      className={`relative overflow-hidden transition-all hover:shadow-lg cursor-pointer ${
+                        pkg.popular ? 'border-circleTel-orange border-2' : ''
+                      } ${isSelected ? 'ring-2 ring-circleTel-orange shadow-xl' : ''}`}
+                      onClick={() => handleSelectPackage(pkg.id)}
+                    >
+                      {pkg.popular && (
+                        <div className="absolute top-0 right-0">
+                          <Badge className="bg-circleTel-orange text-white rounded-none rounded-bl-lg px-4 py-1">
+                            MOST POPULAR
+                          </Badge>
+                        </div>
+                      )}
+                      {pkg.promotion_price && (
+                        <div className="absolute top-0 left-0">
+                          <Badge className="bg-green-600 text-white rounded-none rounded-br-lg px-3 py-1 text-xs">
+                            {pkg.promotion_months ? `${pkg.promotion_months}-MONTH PROMO` : 'PROMO'}
+                          </Badge>
+                        </div>
+                      )}
+                      <CardHeader className="pt-8">
+                        <CardTitle className="text-2xl">{pkg.name}</CardTitle>
+                        <CardDescription className="text-base">{pkg.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="mb-4">
+                          {pkg.promotion_price ? (
+                            <>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-4xl font-bold text-circleTel-orange">
+                                  R{pkg.promotion_price}
+                                </span>
+                                <span className="text-xl text-gray-400 line-through">R{pkg.price}</span>
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1">
+                                per month for {pkg.promotion_months} months, then R{pkg.price}/month
+                              </p>
+                            </>
+                          ) : (
+                            <div>
+                              <span className="text-4xl font-bold text-gray-900">R{pkg.price}</span>
+                              <p className="text-sm text-gray-600 mt-1">per month</p>
                             </div>
-                            <p className="text-sm text-gray-600 mt-1">
-                              per month for {pkg.promotion_months} months, then R{pkg.price}/month
-                            </p>
-                          </>
-                        ) : (
-                          <div>
-                            <span className="text-4xl font-bold text-gray-900">R{pkg.price}</span>
-                            <p className="text-sm text-gray-600 mt-1">per month</p>
-                          </div>
-                        )}
-                      </div>
+                          )}
+                        </div>
 
-                      {/* Speed */}
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="text-sm text-gray-600">Download</p>
-                            <p className="text-xl font-bold text-gray-900">
-                              {pkg.speed_down != null ? `${pkg.speed_down} Mbps` : 'N/A'}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-gray-600">Upload</p>
-                            <p className="text-xl font-bold text-gray-900">
-                              {pkg.speed_up != null ? `${pkg.speed_up} Mbps` : 'N/A'}
-                            </p>
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-sm text-gray-600">Download</p>
+                              <p className="text-xl font-bold text-gray-900">
+                                {pkg.speed_down != null ? `${pkg.speed_down} Mbps` : 'N/A'}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-600">Upload</p>
+                              <p className="text-xl font-bold text-gray-900">
+                                {pkg.speed_up != null ? `${pkg.speed_up} Mbps` : 'N/A'}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Features */}
-                      <div className="space-y-2">
-                        <p className="text-sm font-semibold text-gray-700">What you get:</p>
-                        <ul className="space-y-2">
-                          {pkg.features.map((feature, index) => (
-                            <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                              <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (isSelected) {
-                            handleContinue();
-                          } else {
-                            handleSelectPackage(pkg.id);
-                          }
-                        }}
-                        className={`w-full h-12 text-base font-semibold ${
-                          isSelected
-                            ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark'
-                            : 'bg-gray-900 hover:bg-gray-800'
-                        }`}
-                      >
-                        {isSelected ? 'Continue' : 'Select'}
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                );
-              })}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="wireless" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPackages.map((pkg) => {
-                const isSelected = selectedPackageId === pkg.id;
-                return (
-                  <Card
-                    key={pkg.id}
-                    className={`relative overflow-hidden transition-all hover:shadow-lg cursor-pointer ${
-                      pkg.popular ? 'border-circleTel-orange border-2' : ''
-                    } ${isSelected ? 'ring-2 ring-circleTel-orange shadow-xl' : ''}`}
-                    onClick={() => handleSelectPackage(pkg.id)}
-                  >
-                    {pkg.popular && (
-                      <div className="absolute top-0 right-0">
-                        <Badge className="bg-circleTel-orange text-white rounded-none rounded-bl-lg px-4 py-1">
-                          MOST POPULAR
-                        </Badge>
-                      </div>
-                    )}
-                    {pkg.promotion_price && (
-                      <div className="absolute top-0 left-0">
-                        <Badge className="bg-green-600 text-white rounded-none rounded-br-lg px-3 py-1 text-xs">
-                          {pkg.promotion_months ? `${pkg.promotion_months}-MONTH PROMO` : 'PROMO'}
-                        </Badge>
-                      </div>
-                    )}
-                    <CardHeader className="pt-8">
-                      <CardTitle className="text-2xl">{pkg.name}</CardTitle>
-                      <CardDescription className="text-base">{pkg.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      {/* Price */}
-                      <div className="mb-4">
-                        {pkg.promotion_price ? (
-                          <>
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-4xl font-bold text-circleTel-orange">
-                                R{pkg.promotion_price}
-                              </span>
-                              <span className="text-xl text-gray-400 line-through">R{pkg.price}</span>
-                            </div>
-                            <p className="text-sm text-gray-600 mt-1">
-                              per month for {pkg.promotion_months} months, then R{pkg.price}/month
-                            </p>
-                          </>
-                        ) : (
-                          <div>
-                            <span className="text-4xl font-bold text-gray-900">R{pkg.price}</span>
-                            <p className="text-sm text-gray-600 mt-1">per month</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Speed */}
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="text-sm text-gray-600">Download</p>
-                            <p className="text-xl font-bold text-gray-900">
-                              {pkg.speed_down != null ? `${pkg.speed_down} Mbps` : 'N/A'}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-gray-600">Upload</p>
-                            <p className="text-xl font-bold text-gray-900">
-                              {pkg.speed_up != null ? `${pkg.speed_up} Mbps` : 'N/A'}
-                            </p>
-                          </div>
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-gray-700">What you get:</p>
+                          <ul className="space-y-2">
+                            {pkg.features.map((feature, index) => (
+                              <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
+                                <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                      </div>
-
-                      {/* Features */}
-                      <div className="space-y-2">
-                        <p className="text-sm font-semibold text-gray-700">What you get:</p>
-                        <ul className="space-y-2">
-                          {pkg.features.map((feature, index) => (
-                            <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                              <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (isSelected) {
-                            handleContinue();
-                          } else {
-                            handleSelectPackage(pkg.id);
-                          }
-                        }}
-                        className={`w-full h-12 text-base font-semibold ${
-                          isSelected
-                            ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark'
-                            : 'bg-gray-900 hover:bg-gray-800'
-                        }`}
-                      >
-                        {isSelected ? 'Continue' : 'Select'}
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                );
-              })}
-            </div>
-          </TabsContent>
+                      </CardContent>
+                      <CardFooter>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isSelected) {
+                              handleContinue();
+                            } else {
+                              handleSelectPackage(pkg.id);
+                            }
+                          }}
+                          className={`w-full h-12 text-base font-semibold ${
+                            isSelected
+                              ? 'bg-circleTel-orange hover:bg-circleTel-orange-dark'
+                              : 'bg-gray-900 hover:bg-gray-800'
+                          }`}
+                        >
+                          {isSelected ? 'Continue' : 'Select'}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                })}
+              </div>
+            </TabsContent>
+          ))}
         </Tabs>
 
         {/* Trust Indicators */}

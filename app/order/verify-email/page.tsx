@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiArrowsCounterClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiPencilSimpleBold, PiQuestionBold, PiTrayBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiArrowsCounterClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiPencilSimpleBold, PiQuestionBold, PiTrayBold } from 'react-icons/pi';
 
 /**
  * Email Verification Page
@@ -26,7 +26,6 @@ export default function VerifyEmailPage() {
   const { user, isEmailVerified, resendVerification } = useCustomerAuth();
   const [isResending, setIsResending] = React.useState(false);
   const [countdown, setCountdown] = React.useState(0);
-  const [urgencyTimer, setUrgencyTimer] = React.useState(600); // 10 minutes in seconds
   const [showFAQ, setShowFAQ] = React.useState(false);
 
   // Check if already verified
@@ -45,20 +44,6 @@ export default function VerifyEmailPage() {
     }
   }, [countdown]);
 
-  // 10-minute urgency timer
-  React.useEffect(() => {
-    if (urgencyTimer > 0 && !isEmailVerified) {
-      const timer = setTimeout(() => setUrgencyTimer(urgencyTimer - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [urgencyTimer, isEmailVerified]);
-
-  // Format time as MM:SS
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const handleResendEmail = async () => {
     if (!user?.email || countdown > 0) return;
@@ -115,16 +100,6 @@ export default function VerifyEmailPage() {
           </CardHeader>
 
           <CardContent className="pt-8 pb-10 px-8 space-y-8">
-            {/* Urgency Timer Banner */}
-            {urgencyTimer > 0 && (
-              <Alert className={`border-2 ${urgencyTimer < 180 ? 'border-red-300 bg-red-50' : 'border-orange-300 bg-orange-50'}`}>
-                <PiWarningCircleBold className={`h-5 w-5 ${urgencyTimer < 180 ? 'text-red-600' : 'text-orange-600'}`} />
-                <AlertDescription className={`${urgencyTimer < 180 ? 'text-red-900' : 'text-orange-900'} text-base font-semibold`}>
-                  {urgencyTimer < 180 ? '🔥 Urgent: ' : '⏰ '}Please verify within {formatTime(urgencyTimer)} to keep your session active
-                </AlertDescription>
-              </Alert>
-            )}
-
             {/* Wrong Email Option */}
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div className="flex items-center gap-3">
