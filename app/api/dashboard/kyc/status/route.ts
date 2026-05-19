@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           verification_url: session.verification_url,
           status: session.status,
           verification_result: session.verification_result,
-          risk_score: session.risk_score,
+          risk_tier: session.risk_tier,
           created_at: session.created_at,
           completed_at: session.completed_at,
         },

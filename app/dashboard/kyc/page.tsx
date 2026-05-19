@@ -29,7 +29,7 @@ interface KYCSession {
   verification_url: string;
   status: 'not_started' | 'in_progress' | 'completed' | 'abandoned';
   verification_result: 'approved' | 'declined' | 'pending_review' | null;
-  risk_score: number | null;
+  risk_tier: 'low' | 'medium' | 'high' | null;
   created_at: string;
   completed_at: string | null;
 }
@@ -221,13 +221,9 @@ export default function KYCPage() {
         />
 
         <ModernStatCard
-          title="Risk Score"
-          value={kycSession?.risk_score != null ? `${kycSession.risk_score}%` : 'N/A'}
-          subtitle={
-            kycSession?.risk_score != null
-              ? kycSession.risk_score <= 30 ? 'Low risk' : kycSession.risk_score <= 70 ? 'Medium risk' : 'High risk'
-              : 'Not assessed'
-          }
+          title="Risk Tier"
+          value={kycSession?.risk_tier ? kycSession.risk_tier.charAt(0).toUpperCase() + kycSession.risk_tier.slice(1) : 'N/A'}
+          subtitle={kycSession?.risk_tier ? `${kycSession.risk_tier} risk` : 'Not assessed'}
           description="Automated risk assessment"
           icon={<PiShieldCheckBold className="h-5 w-5" />}
         />

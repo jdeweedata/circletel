@@ -246,7 +246,7 @@ export interface ConsumerKYCSession {
   flow_type: 'consumer_light_kyc';
   status: DiditSessionStatus;
   verification_result: DiditVerificationResult | null;
-  risk_score: number | null;
+  risk_tier: 'low' | 'medium' | 'high' | null;
   extracted_data: ExtractedKYCData | null;
   created_at: string;
   completed_at: string | null;
