@@ -39,18 +39,38 @@ export function OrderSummarySidebar({
 
       {/* Pricing breakdown */}
       <div className="px-5 py-4 space-y-3">
-        <div className="flex items-baseline justify-between">
-          <span className="text-sm text-gray-500">Monthly</span>
-          <div className="text-right">
-            {promotionPrice ? (
-              <>
-                <span className="text-lg font-bold text-gray-900">R{promotionPrice}</span>
-                <span className="text-gray-400 line-through text-xs ml-1.5">R{monthlyPrice}</span>
-              </>
-            ) : (
-              <span className="text-lg font-bold text-gray-900">R{monthlyPrice}</span>
-            )}
-            <span className="text-gray-400 text-xs">/mo</span>
+        <div className="space-y-1">
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm text-gray-500">Monthly (excl. VAT)</span>
+            <div className="text-right">
+              {promotionPrice ? (
+                <>
+                  <span className="text-sm font-semibold text-gray-900">R{(promotionPrice / 1.15).toFixed(2)}</span>
+                  <span className="text-gray-400 line-through text-xs ml-1.5">R{(monthlyPrice / 1.15).toFixed(2)}</span>
+                </>
+              ) : (
+                <span className="text-sm font-semibold text-gray-900">R{(monthlyPrice / 1.15).toFixed(2)}</span>
+              )}
+              <span className="text-gray-400 text-xs">/mo</span>
+            </div>
+          </div>
+          <div className="flex items-baseline justify-between text-xs text-gray-400">
+            <span>VAT (15%)</span>
+            <span>R{(displayPrice - displayPrice / 1.15).toFixed(2)}</span>
+          </div>
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm font-medium text-gray-700">Monthly (incl. VAT)</span>
+            <div className="text-right">
+              {promotionPrice ? (
+                <>
+                  <span className="text-lg font-bold text-gray-900">R{promotionPrice.toFixed(2)}</span>
+                  <span className="text-gray-400 line-through text-xs ml-1.5">R{monthlyPrice.toFixed(2)}</span>
+                </>
+              ) : (
+                <span className="text-lg font-bold text-gray-900">R{monthlyPrice.toFixed(2)}</span>
+              )}
+              <span className="text-gray-400 text-xs">/mo</span>
+            </div>
           </div>
         </div>
         {!isSimOnly && (
