@@ -478,6 +478,7 @@ export default function CheckoutPage() {
                           <Input
                             id="profileFirstName"
                             placeholder="Jane"
+                            autoComplete="given-name"
                             value={profileFirstName}
                             onChange={(e) => setProfileFirstName(e.target.value)}
                             className="mt-1 h-10 text-sm"
@@ -489,6 +490,7 @@ export default function CheckoutPage() {
                           <Input
                             id="profileLastName"
                             placeholder="Smith"
+                            autoComplete="family-name"
                             value={profileLastName}
                             onChange={(e) => setProfileLastName(e.target.value)}
                             className="mt-1 h-10 text-sm"
@@ -504,6 +506,8 @@ export default function CheckoutPage() {
                           id="profilePhone"
                           type="tel"
                           placeholder="0821234567"
+                          autoComplete="tel"
+                          inputMode="numeric"
                           value={profilePhone}
                           onChange={(e) => setProfilePhone(e.target.value)}
                           className="mt-1 h-10 text-sm"

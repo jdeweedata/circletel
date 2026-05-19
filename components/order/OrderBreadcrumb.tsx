@@ -54,7 +54,7 @@ export function OrderBreadcrumb() {
           </div>
 
           {/* Secure Checkout Badge */}
-          <div className="hidden md:flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+          <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 md:px-4 py-1.5 md:py-2 rounded-full">
             <PiLockBold className="h-4 w-4 text-white" />
             <span className="text-sm font-semibold text-white whitespace-nowrap">
               Secure Checkout

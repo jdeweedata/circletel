@@ -32,8 +32,8 @@ export default function VerifyEmailPage() {
   // Check if already verified
   React.useEffect(() => {
     if (isEmailVerified) {
-      toast.success('Email verified! Redirecting to dashboard...');
-      router.push('/dashboard');
+      toast.success('Email verified! Continuing to checkout...');
+      router.push('/order/checkout');
     }
   }, [isEmailVerified, router]);
 
@@ -83,7 +83,7 @@ export default function VerifyEmailPage() {
   };
 
   const handleContinueToDashboard = () => {
-    router.push('/dashboard');
+    router.push('/order/checkout');
   };
 
   const handleChangeEmail = () => {
@@ -185,9 +185,9 @@ export default function VerifyEmailPage() {
                       3
                     </div>
                     <div className="flex-1 pt-1">
-                      <p className="font-semibold text-circleTel-navy">Access your dashboard</p>
+                      <p className="font-semibold text-circleTel-navy">Continue checkout</p>
                       <p className="text-sm text-circleTel-secondaryNeutral mt-1">
-                        You'll be redirected to your customer dashboard to complete your order
+                        You'll be redirected back to checkout to complete your order
                       </p>
                     </div>
                   </li>
@@ -228,7 +228,7 @@ export default function VerifyEmailPage() {
                 onClick={handleContinueToDashboard}
                 className="w-full h-14 text-base bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all"
               >
-                Continue to Dashboard
+                Continue to Checkout
                 <PiArrowRightBold className="h-4 w-4 ml-2" />
               </Button>
             </div>

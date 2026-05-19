@@ -38,11 +38,10 @@ export default function VerifyOTPPage() {
     }
   }, [phone, router]);
 
-  // Auto-submit when 6 digits entered
+  const [otpReady, setOtpReady] = useState(false);
+
   useEffect(() => {
-    if (otp.length === 6 && !isVerifying) {
-      handleVerify();
-    }
+    setOtpReady(otp.length === 6);
   }, [otp]);
 
   const handleVerify = async (e?: React.FormEvent) => {
@@ -193,7 +192,7 @@ export default function VerifyOTPPage() {
                 required
               />
               <p className="text-xs text-gray-500 text-center">
-                Enter the 6-digit code sent to your phone — auto-verifies when complete
+                Enter the 6-digit code sent to your phone
               </p>
             </div>
 

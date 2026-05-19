@@ -248,6 +248,7 @@ export function AccountSection({
               <Input
                 id="signUpFirstName"
                 placeholder="Jane"
+                autoComplete="given-name"
                 value={signUpFirstName}
                 onChange={(e) => setSignUpFirstName(e.target.value)}
                 className="mt-1 h-10 text-sm"
@@ -258,6 +259,7 @@ export function AccountSection({
               <Input
                 id="signUpLastName"
                 placeholder="Smith"
+                autoComplete="family-name"
                 value={signUpLastName}
                 onChange={(e) => setSignUpLastName(e.target.value)}
                 className="mt-1 h-10 text-sm"
@@ -270,6 +272,7 @@ export function AccountSection({
               id="signUpEmail"
               type="email"
               placeholder="jane@example.com"
+              autoComplete="email"
               value={signUpEmail}
               onChange={(e) => setSignUpEmail(e.target.value)}
               className="mt-1 h-10 text-sm"
@@ -282,6 +285,7 @@ export function AccountSection({
                 id="signUpPassword"
                 type={showSignUpPassword ? 'text' : 'password'}
                 placeholder="Min. 8 characters"
+                autoComplete="new-password"
                 value={signUpPassword}
                 onChange={(e) => setSignUpPassword(e.target.value)}
                 className="h-10 text-sm pr-14"
@@ -301,6 +305,8 @@ export function AccountSection({
               id="signUpPhone"
               type="tel"
               placeholder="0821234567"
+              autoComplete="tel"
+              inputMode="numeric"
               value={signUpPhone}
               onChange={(e) => setSignUpPhone(e.target.value)}
               className="mt-1 h-10 text-sm"

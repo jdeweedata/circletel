@@ -46,6 +46,7 @@ export default function OrderPackagesPage() {
   const { isAuthenticated, customer } = useCustomerAuth();
   const [packages, setPackages] = useState<ApiPackage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [selectedType, setSelectedType] = useState<'fibre' | 'wireless'>('fibre');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
 
@@ -67,30 +68,33 @@ export default function OrderPackagesPage() {
     }
   }, [orderState.orderData.coverage, leadId, loading, router]);
 
+  const fetchPackages = async () => {
+    if (!leadId) {
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      setFetchError(false);
+      const coverageType = searchParams.get('type') || 'residential';
+      const res = await fetch(
+        `/api/coverage/packages?leadId=${leadId}&type=${coverageType}`
+      );
+      if (!res.ok) throw new Error('Failed to fetch packages');
+      const data = await res.json();
+      setPackages(data.packages || []);
+    } catch (err) {
+      console.error('Failed to load packages:', err);
+      setPackages([]);
+      setFetchError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPackages = async () => {
-      if (!leadId) {
-        setLoading(false);
-        return;
-      }
-      try {
-        setLoading(true);
-        const coverageType = searchParams.get('type') || 'residential';
-        const res = await fetch(
-          `/api/coverage/packages?leadId=${leadId}&type=${coverageType}`
-        );
-        if (!res.ok) throw new Error('Failed to fetch packages');
-        const data = await res.json();
-        setPackages(data.packages || []);
-      } catch (err) {
-        console.error('Failed to load packages:', err);
-        setPackages([]);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchPackages();
-  }, [leadId, searchParams]);
+  }, [leadId, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pre-select package from order context (for returning users) or default to first
   useEffect(() => {
@@ -242,6 +246,28 @@ export default function OrderPackagesPage() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!loading && fetchError) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <CheckoutProgressBar currentStage="packages" />
+        <div className="mt-12 text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Something went wrong loading packages
+          </h2>
+          <p className="text-gray-500 mb-6">
+            We couldn&apos;t load the available packages. Please try again.
+          </p>
+          <button
+            onClick={fetchPackages}
+            className="inline-flex items-center gap-2 bg-[#F5831F] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#E67510] transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
