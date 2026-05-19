@@ -244,6 +244,7 @@ export function PhoneOTPSection({ isSubmitting, onSignupComplete, onError }: Pho
               if (value.length === 6) handleVerifyOTP(value);
             }}
             disabled={busy}
+            autoFocus
           >
             <InputOTPGroup>
               {Array.from({ length: 6 }).map((_, i) => (
