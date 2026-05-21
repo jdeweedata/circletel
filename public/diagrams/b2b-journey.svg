@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1140" height="1610">
+<rect width="100%" height="100%" fill="#ffffff" />
+<defs><marker id="ah" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1e1e1e" /></marker></defs>
+<text x="600" y="62.5" text-anchor="middle" dominant-baseline="central" font-size="32" font-family="sans-serif" fill="#1B2A4A">CircleTel B2B Buy Journey — 6-Stage Flow</text>
+<text x="140" y="117.5" text-anchor="middle" dominant-baseline="central" font-size="18" font-family="sans-serif" fill="#868e96">ENTRY POINTS</text>
+<rect x="40" y="140" width="220" height="70" fill="#E87A1E" stroke="#E87A1E" stroke-width="2" rx="8" />
+<text x="150" y="175" text-anchor="middle" dominant-baseline="central" font-size="16" font-family="sans-serif" fill="#ffffff">Customer
+/business page</text>
+<rect x="300" y="140" width="220" height="70" fill="#1B2A4A" stroke="#1B2A4A" stroke-width="2" rx="8" />
+<text x="410" y="175" text-anchor="middle" dominant-baseline="central" font-size="16" font-family="sans-serif" fill="#ffffff">Admin
+/admin/quotes/new</text>
+<rect x="560" y="140" width="220" height="70" fill="#1B2A4A" stroke="#1B2A4A" stroke-width="2" rx="8" />
+<text x="670" y="175" text-anchor="middle" dominant-baseline="central" font-size="16" font-family="sans-serif" fill="#ffffff">Shared Link
+/quotes/share/[token]</text>
+<line x1="150" y1="210" x2="150" y2="270" stroke="#868e96" stroke-width="2" marker-end="url(#ah)" />
+<line x1="410" y1="210" x2="370" y2="270" stroke="#868e96" stroke-width="2" marker-end="url(#ah)" />
+<line x1="670" y1="210" x2="370" y2="270" stroke="#868e96" stroke-width="2" marker-end="url(#ah)" />
+<rect x="40" y="280" width="100" height="30" fill="#E87A1E" stroke="#E87A1E" stroke-width="1" rx="8" />
+<text x="90" y="295" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#ffffff">STAGE 1</text>
+<rect x="40" y="320" width="740" height="100" fill="#fff4e6" stroke="#E87A1E" stroke-width="2" rx="8" />
+<text x="210" y="342.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-family="sans-serif" fill="#1B2A4A">Request Quote (SLA: 48h)</text>
+<text x="410" y="387.5" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#495057">Company details → Select SMME/Enterprise → Choose packages
+→ Contract term (12/24/36 mo) → Accept consents → Submit (BQ-YYYY-NNN)</text>
+<line x1="410" y1="420" x2="410" y2="470" stroke="#E87A1E" stroke-width="2" marker-end="url(#ah)" />
+<text x="520" y="445" text-anchor="middle" dominant-baseline="central" font-size="12" font-family="sans-serif" fill="#868e96">Admin review + approve</text>
+<rect x="40" y="480" width="100" height="30" fill="#f59e0b" stroke="#f59e0b" stroke-width="1" rx="8" />
+<text x="90" y="495" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#ffffff">STAGE 2</text>
+<rect x="40" y="520" width="740" height="100" fill="#fffbeb" stroke="#f59e0b" stroke-width="2" rx="8" />
+<text x="260" y="542.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-family="sans-serif" fill="#1B2A4A">Business Verification — KYC (SLA: 72h)</text>
+<text x="410" y="587.5" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#495057">Didit KYC (type: sme) → CIPC cert + Director ID + Proof of address
+→ VAT cert (Enterprise required, SMME optional) → 2-3 min verification</text>
+<line x1="410" y1="620" x2="410" y2="670" stroke="#f59e0b" stroke-width="2" marker-end="url(#ah)" />
+<rect x="40" y="680" width="100" height="30" fill="#1B2A4A" stroke="#1B2A4A" stroke-width="1" rx="8" />
+<text x="90" y="695" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#ffffff">STAGE 3</text>
+<rect x="40" y="720" width="740" height="130" fill="#e7f5ff" stroke="#1B2A4A" stroke-width="2" rx="8" />
+<text x="210" y="742.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-family="sans-serif" fill="#1B2A4A">Site Details (SLA: 48h)</text>
+<rect x="60" y="765" width="330" height="70" fill="#dbeafe" stroke="#3B82F6" stroke-width="2" rx="8" />
+<text x="225" y="800" text-anchor="middle" dominant-baseline="central" font-size="13" font-family="sans-serif" fill="#1B2A4A">SMME (simplified)
+Property type + contact only
+Site photos optional, no RFI</text>
+<rect x="420" y="765" width="340" height="70" fill="#e2e8f0" stroke="#1B2A4A" stroke-width="2" rx="8" />
+<text x="590" y="800" text-anchor="middle" dominant-baseline="central" font-size="13" font-family="sans-serif" fill="#1B2A4A">Enterprise (full)
+Property + photos + RFI checklist
+Building access + manager contact</text>
+<line x1="410" y1="850" x2="410" y2="900" stroke="#1B2A4A" stroke-width="2" marker-end="url(#ah)" />
+<rect x="40" y="910" width="100" height="30" fill="#1B2A4A" stroke="#1B2A4A" stroke-width="1" rx="8" />
+<text x="90" y="925" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#ffffff">STAGE 4</text>
+<rect x="40" y="950" width="740" height="100" fill="#e7f5ff" stroke="#1B2A4A" stroke-width="2" rx="8" />
+<text x="210" y="972.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-family="sans-serif" fill="#1B2A4A">Contract (SLA: 48h)</text>
+<text x="410" y="1017.5" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#495057">Generate contract (CT-YYYY-NNN) → Send for Zoho Sign e-signature
+→ Customer reviews terms, pricing, SLA → Digital signature via webhook</text>
+<line x1="410" y1="1050" x2="410" y2="1100" stroke="#1B2A4A" stroke-width="2" marker-end="url(#ah)" />
+<rect x="40" y="1110" width="100" height="30" fill="#1B2A4A" stroke="#1B2A4A" stroke-width="1" rx="8" />
+<text x="90" y="1125" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#ffffff">STAGE 5</text>
+<rect x="40" y="1150" width="740" height="100" fill="#e7f5ff" stroke="#1B2A4A" stroke-width="2" rx="8" />
+<text x="210" y="1172.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-family="sans-serif" fill="#1B2A4A">Installation (SLA: 7 days)</text>
+<text x="410" y="1217.5" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#495057">Technician assigned → On-site fibre installation
+→ Equipment configured &amp; tested → 3-7 business days</text>
+<line x1="410" y1="1250" x2="410" y2="1300" stroke="#1B2A4A" stroke-width="2" marker-end="url(#ah)" />
+<rect x="40" y="1310" width="100" height="30" fill="#4CAF50" stroke="#4CAF50" stroke-width="1" rx="8" />
+<text x="90" y="1325" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#ffffff">STAGE 6</text>
+<rect x="40" y="1350" width="740" height="100" fill="#ecfdf5" stroke="#4CAF50" stroke-width="2" rx="8" />
+<text x="210" y="1372.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-family="sans-serif" fill="#1B2A4A">Go Live (SLA: 24h)</text>
+<text x="410" y="1417.5" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#495057">RICA submission → Credentials generated → Service activated
+→ Business dashboard live at /business/dashboard</text>
+<rect x="40" y="1490" width="740" height="80" fill="#f8f9fa" stroke="#868e96" stroke-width="2" rx="8" />
+<text x="210" y="1512.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-family="sans-serif" fill="#495057">Ongoing Management</text>
+<text x="410" y="1542.5" text-anchor="middle" dominant-baseline="central" font-size="14" font-family="sans-serif" fill="#868e96">Invoices (auto-generated 25th) • Support tickets (Zoho Desk) • Service monitoring</text>
+<line x1="410" y1="1450" x2="410" y2="1490" stroke="#4CAF50" stroke-width="2" marker-end="url(#ah)" />
+<rect x="850" y="320" width="250" height="260" fill="#fff4e6" stroke="#E87A1E" stroke-width="2" rx="8" />
+<text x="975" y="342.5" text-anchor="middle" dominant-baseline="central" font-size="18" font-family="sans-serif" fill="#E87A1E">Business Dashboard</text>
+<text x="975" y="465" text-anchor="middle" dominant-baseline="central" font-size="13" font-family="sans-serif" fill="#495057">/business/dashboard
+
+Journey Progress
+  6-step tracker
+
+Quick Actions
+  Next step CTA
+
+Stats
+  Services, Quotes,
+  Tickets, Invoices
+
+Self-Service (planned)
+  Doc upload, tickets</text>
+<line x1="780" y1="370" x2="850" y2="370" stroke="#E87A1E" stroke-width="2" marker-end="url(#ah)" />
+<text x="820" y="357.5" text-anchor="middle" dominant-baseline="central" font-size="11" font-family="sans-serif" fill="#868e96">parallel</text>
+<rect x="850" y="620" width="250" height="180" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="8" />
+<text x="920" y="640" text-anchor="middle" dominant-baseline="central" font-size="16" font-family="sans-serif" fill="#1B2A4A">Legend</text>
+<text x="975" y="725" text-anchor="middle" dominant-baseline="central" font-size="12" font-family="sans-serif" fill="#495057">Orange = Customer-initiated
+Navy = Admin-managed
+Amber = KYC verification
+Blue = SMME simplified
+Green = Service active
+Dashed = Parallel track
+
+ID formats:
+  Quote: BQ-YYYY-NNN
+  Contract: CT-YYYY-NNN</text>
+</svg>
