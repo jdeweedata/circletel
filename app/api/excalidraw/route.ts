@@ -19,7 +19,7 @@ export async function GET() {
         urls: {
           json: `${baseUrl}/api/excalidraw/${name}`,
           svg: `${baseUrl}/api/excalidraw/${name}.svg`,
-          open: `https://excalidraw.circletel.co.za/#json=${encodeURIComponent(`${baseUrl}/api/excalidraw/${name}`)}`,
+          open: `${baseUrl}/diagrams/viewer.html?name=${name}`,
         },
       }
     })
