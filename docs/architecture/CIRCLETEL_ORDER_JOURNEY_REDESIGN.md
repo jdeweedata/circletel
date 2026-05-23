@@ -310,3 +310,5 @@ New fields added to `OrderContext`:
 <!-- CI pipeline test: staging deployment verification 2026-05-23T20:36:54Z -->
 
 <!-- CI retest: 2026-05-23T20:40:29Z -->
+
+<!-- CI final test: 2026-05-23T20:42:10Z -->
