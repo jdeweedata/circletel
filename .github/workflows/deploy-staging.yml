@@ -111,8 +111,8 @@ jobs:
           SELF_HOSTED: 'true'
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
-          NEXT_PUBLIC_APP_URL: https://www.circletel.co.za
-          NEXT_PUBLIC_BASE_URL: https://www.circletel.co.za
+          NEXT_PUBLIC_APP_URL: https://staging.circletel.co.za
+          NEXT_PUBLIC_BASE_URL: https://staging.circletel.co.za
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
           NEXT_PUBLIC_NETCASH_SERVICE_KEY: ${{ secrets.NEXT_PUBLIC_NETCASH_SERVICE_KEY }}
           NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY: ${{ secrets.NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY }}
@@ -128,30 +128,28 @@ jobs:
           echo "Cache saved ($(du -sh /home/actions-runner/.next-cache | cut -f1))"
 
       - name: Build Docker image
-        run: docker build -t ghcr.io/jdeweedata/circletel:staging .
+        run: docker build -t circletel-staging:latest .
 
-      - name: Deploy staging via Coolify API
+      - name: Deploy staging container
         run: |
-          RESPONSE=$(curl -s -X POST \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            "http://localhost:8000/api/v1/applications/qughu60q2c74u0z8rkgwl5f6/restart")
-          echo "Coolify response: $RESPONSE"
+          docker stop circletel-staging 2>/dev/null || true
+          docker rm circletel-staging 2>/dev/null || true
+          docker run -d \
+            --name circletel-staging \
+            --restart unless-stopped \
+            -p 3001:3000 \
+            --env-file /home/circletel/.env.staging \
+            --health-cmd "curl -f http://localhost:3000/api/health || exit 1" \
+            --health-interval 30s \
+            --health-timeout 10s \
+            --health-retries 3 \
+            circletel-staging:latest
 
       - name: Wait for healthy container
         run: |
-          echo "Waiting 30s for Coolify to start the container..."
-          sleep 30
-          CONTAINER=$(docker ps --filter "label=coolify.name=qughu60q2c74u0z8rkgwl5f6" --format '{{.Names}}' | head -1)
-          if [ -z "$CONTAINER" ]; then
-            echo "WARNING: No running container found yet — Coolify may still be pulling the image"
-            echo "Staging deploy triggered successfully. Check Coolify dashboard for status."
-            exit 0
-          fi
-          echo "Found container: $CONTAINER"
-          echo "Waiting for health check..."
+          echo "Waiting for staging container to become healthy..."
           for i in $(seq 1 40); do
-            STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$CONTAINER" 2>/dev/null || echo "not found")
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' circletel-staging 2>/dev/null || echo "not found")
             echo "$(date +%H:%M:%S) — $STATUS"
             if [ "$STATUS" = "healthy" ]; then
               echo "Staging container is healthy!"
@@ -160,5 +158,5 @@ jobs:
             sleep 5
           done
           echo "WARNING: Container did not become healthy within 200s"
-          docker logs --tail 30 "$CONTAINER"
+          docker logs --tail 30 circletel-staging
           exit 1

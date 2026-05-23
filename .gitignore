@@ -228,3 +228,4 @@ docs/brand/*.zip
 graphify-out/
 .claude/mem/
 .factory/
+.env.staging
