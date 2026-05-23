@@ -308,3 +308,5 @@ New fields added to `OrderContext`:
 - **KYC component**: `components/compliance/LightKYCSession.tsx`
 
 <!-- CI pipeline test: staging deployment verification 2026-05-23T20:36:54Z -->
+
+<!-- CI retest: 2026-05-23T20:40:29Z -->
