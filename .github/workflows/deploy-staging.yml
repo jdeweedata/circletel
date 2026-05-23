@@ -61,6 +61,30 @@ jobs:
           echo "=== Memory after cleanup ==="
           free -h
 
+      - name: Check disk space and cleanup
+        run: |
+          echo "=== Disk usage ==="
+          df -h /
+          AVAIL_MB=$(df --output=avail -BM / | tail -1 | tr -d ' M')
+          echo "Available: ${AVAIL_MB}MB"
+          if [ "$AVAIL_MB" -lt 8000 ]; then
+            echo "Low disk — running cleanup..."
+            docker image prune -f
+            docker builder prune -f
+            npm cache clean --force 2>/dev/null || true
+            journalctl --vacuum-size=100M 2>/dev/null || true
+            rm -rf /tmp/buildx-cache /tmp/com.google.Chrome.scoped_dir.* 2>/dev/null || true
+            rm -rf /root/.cache/ms-playwright/ /root/.cache/typescript/ 2>/dev/null || true
+            find /home/actions-runner/_diag/ -name "*.log" -mtime +1 -delete 2>/dev/null || true
+            AVAIL_MB=$(df --output=avail -BM / | tail -1 | tr -d ' M')
+            echo "After cleanup: ${AVAIL_MB}MB available"
+          fi
+          if [ "$AVAIL_MB" -lt 4000 ]; then
+            echo "::error::FATAL: Only ${AVAIL_MB}MB disk space available — need at least 4GB for build"
+            exit 1
+          fi
+          echo "Disk space OK: ${AVAIL_MB}MB available"
+
       - uses: actions/checkout@v4
 
       - name: Set up Node.js 20
