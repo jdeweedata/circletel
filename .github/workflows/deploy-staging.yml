@@ -1,0 +1,164 @@
+name: Build & Deploy Staging
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [staging]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.claude/**'
+      - 'designs/**'
+      - 'memory-os/**'
+      - 'agent-os/**'
+      - 'openspec/**'
+      - 'scripts/**'
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    timeout-minutes: 40
+    permissions:
+      contents: read
+
+    steps:
+      - name: Free memory for build
+        run: |
+          echo "=== Memory before cleanup ==="
+          free -h
+          for pid in $(pgrep -f 'next dev' || true); do
+            cgroup=$(cat /proc/$pid/cgroup 2>/dev/null || true)
+            if echo "$cgroup" | grep -q 'user.slice'; then
+              echo "Killing orphan next dev process PID $pid"
+              kill "$pid" 2>/dev/null || true
+            fi
+          done
+          if pgrep -f 'antigravity-server' > /dev/null 2>&1; then
+            echo "Stopping antigravity-server to free memory for build..."
+            pkill -f 'antigravity-server' || true
+          fi
+          if pgrep -f 'chrome.*headless' > /dev/null 2>&1; then
+            echo "Stopping headless Chrome instances..."
+            pkill -f 'chrome.*headless' || true
+          fi
+          if pgrep -f 'chrome-devtools-mcp' > /dev/null 2>&1; then
+            echo "Stopping Chrome DevTools MCP servers..."
+            pkill -f 'chrome-devtools-mcp' || true
+          fi
+          for pid in $(pgrep -f 'next-server' || true); do
+            cgroup=$(cat /proc/$pid/cgroup 2>/dev/null || true)
+            if echo "$cgroup" | grep -q 'user.slice'; then
+              echo "Killing orphan next-server process PID $pid"
+              kill "$pid" 2>/dev/null || true
+            fi
+          done
+          sleep 3
+          sync && echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true
+          echo "=== Memory after cleanup ==="
+          free -h
+
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache node_modules
+        id: nm-cache
+        run: |
+          LOCK_HASH=$(sha256sum package-lock.json | cut -d' ' -f1)
+          CACHE_KEY_FILE=/home/actions-runner/.nm-cache-key
+          CACHE_TAR=/home/actions-runner/node_modules.tar
+          if [ -f "$CACHE_TAR" ] && [ -f "$CACHE_KEY_FILE" ] && [ "$(cat $CACHE_KEY_FILE)" = "$LOCK_HASH" ]; then
+            tar -xf "$CACHE_TAR"
+            echo "hit=true" >> $GITHUB_OUTPUT
+            echo "node_modules restored from tar cache"
+          else
+            echo "hit=false" >> $GITHUB_OUTPUT
+            echo "Cache miss — will reinstall"
+          fi
+
+      - name: Install dependencies
+        if: steps.nm-cache.outputs.hit != 'true'
+        run: npm ci --legacy-peer-deps
+
+      - name: Save node_modules cache
+        if: steps.nm-cache.outputs.hit != 'true'
+        run: |
+          LOCK_HASH=$(sha256sum package-lock.json | cut -d' ' -f1)
+          tar -cf /home/actions-runner/node_modules.tar node_modules/
+          echo "$LOCK_HASH" > /home/actions-runner/.nm-cache-key
+          echo "node_modules cached as tar"
+
+      - name: Restore Next.js SWC cache
+        run: |
+          if [ -d /home/actions-runner/.next-cache ]; then
+            mkdir -p .next/cache
+            rsync -a /home/actions-runner/.next-cache/ .next/cache/
+            echo "Cache restored ($(du -sh .next/cache | cut -f1))"
+          else
+            echo "No cache found — cold build"
+          fi
+
+      - name: Build Next.js
+        run: NODE_OPTIONS='--max-old-space-size=12288' npm run build
+        env:
+          SELF_HOSTED: 'true'
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
+          NEXT_PUBLIC_APP_URL: https://www.circletel.co.za
+          NEXT_PUBLIC_BASE_URL: https://www.circletel.co.za
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_NETCASH_SERVICE_KEY: ${{ secrets.NEXT_PUBLIC_NETCASH_SERVICE_KEY }}
+          NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY: ${{ secrets.NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY }}
+          NEXT_PUBLIC_SANITY_PROJECT_ID: 7iqq2t7l
+          NEXT_PUBLIC_SANITY_DATASET: production
+          NEXT_TELEMETRY_DISABLED: 1
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+
+      - name: Save Next.js SWC cache
+        run: |
+          mkdir -p /home/actions-runner/.next-cache
+          timeout 120 rsync -a --delete .next/cache/ /home/actions-runner/.next-cache/ || echo "Cache save timed out — skipping"
+          echo "Cache saved ($(du -sh /home/actions-runner/.next-cache | cut -f1))"
+
+      - name: Build Docker image
+        run: docker build -t ghcr.io/jdeweedata/circletel:staging .
+
+      - name: Deploy staging via Coolify API
+        run: |
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            "http://localhost:8000/api/v1/applications/qughu60q2c74u0z8rkgwl5f6/restart")
+          echo "Coolify response: $RESPONSE"
+
+      - name: Wait for healthy container
+        run: |
+          echo "Waiting 30s for Coolify to start the container..."
+          sleep 30
+          CONTAINER=$(docker ps --filter "label=coolify.name=qughu60q2c74u0z8rkgwl5f6" --format '{{.Names}}' | head -1)
+          if [ -z "$CONTAINER" ]; then
+            echo "WARNING: No running container found yet — Coolify may still be pulling the image"
+            echo "Staging deploy triggered successfully. Check Coolify dashboard for status."
+            exit 0
+          fi
+          echo "Found container: $CONTAINER"
+          echo "Waiting for health check..."
+          for i in $(seq 1 40); do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$CONTAINER" 2>/dev/null || echo "not found")
+            echo "$(date +%H:%M:%S) — $STATUS"
+            if [ "$STATUS" = "healthy" ]; then
+              echo "Staging container is healthy!"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "WARNING: Container did not become healthy within 200s"
+          docker logs --tail 30 "$CONTAINER"
+          exit 1
