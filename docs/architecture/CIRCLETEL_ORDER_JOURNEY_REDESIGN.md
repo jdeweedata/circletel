@@ -306,3 +306,9 @@ New fields added to `OrderContext`:
 - **B2B flow**: `docs/architecture/CIRCLETEL_BUSINESS_BUY_JOURNEY.md`
 - **Didit types**: `lib/integrations/didit/types.ts`
 - **KYC component**: `components/compliance/LightKYCSession.tsx`
+
+<!-- CI pipeline test: staging deployment verification 2026-05-23T20:36:54Z -->
+
+<!-- CI retest: 2026-05-23T20:40:29Z -->
+
+<!-- CI final test: 2026-05-23T20:42:10Z -->
