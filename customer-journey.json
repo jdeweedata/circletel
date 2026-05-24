@@ -1,0 +1,65 @@
+{
+  "title": "CircleTel ISP — Customer Journey",
+  "stages": [
+    {
+      "name": "Discovery",
+      "phase": "awareness",
+      "touchpoints": [
+        "Marketing landing page",
+        "Coverage check tool",
+        "5G deals / packages page",
+        "Location-based SEO pages"
+      ]
+    },
+    {
+      "name": "Evaluation",
+      "phase": "consideration",
+      "touchpoints": [
+        "Pricing & bundles comparison",
+        "Business vs consumer packages",
+        "Quote request (B2B)",
+        "FAQ & connectivity guide"
+      ]
+    },
+    {
+      "name": "Purchase",
+      "phase": "decision",
+      "touchpoints": [
+        "Order flow (coverage → package → payment)",
+        "OTP / email verification",
+        "KYC document upload",
+        "Installation scheduling"
+      ]
+    },
+    {
+      "name": "Onboarding",
+      "phase": "retention",
+      "touchpoints": [
+        "Service activated email",
+        "Customer dashboard access",
+        "WhatsApp opt-in",
+        "Technician installation job"
+      ]
+    },
+    {
+      "name": "Active Customer",
+      "phase": "retention",
+      "touchpoints": [
+        "Usage monitoring dashboard",
+        "Invoice & billing management",
+        "Support tickets system",
+        "Service upgrade/downgrade"
+      ]
+    },
+    {
+      "name": "Advocacy",
+      "phase": "advocacy",
+      "touchpoints": [
+        "Ambassador program (codes & earnings)",
+        "Partner referral portal",
+        "Become-a-partner signup",
+        "Marketing asset sharing"
+      ]
+    }
+  ]
+}
