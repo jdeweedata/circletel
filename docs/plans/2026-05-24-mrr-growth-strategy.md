@@ -1,8 +1,8 @@
-# MRR Growth Strategy: R15K → R1.25M in 12 Months
+# MRR Growth Strategy: R15K → R701K in 12 Months (R1.25M Stretch)
 
 **Date:** 2026-05-24
 **Author:** Jeffrey de Wee (CircleTel)
-**Status:** Draft — Under Review
+**Status:** Grounded — with marketing campaign structure
 
 ---
 
@@ -10,7 +10,9 @@
 
 CircleTel is uniquely positioned among SA ISPs with a supplier moat: 7,438 products across 5 distributors (Scoop, MiRO, Nology, Rectron, Apple iStore Business) with multi-distributor price and stock visibility. Competitors (WebAfrica, Afrihost, Vox) are pure connectivity plays. CircleTel can be the only provider that bundles **internet + hardware + IT management + cloud** into a single monthly bill.
 
-**Target:** Grow MRR to R1.25M within 12 months through new OiaB revenue. Existing MRR: R15,000/m. Unjani is a separate business unit (see below).
+**Grounded target:** R701,400 MRR by month 12 (47× from R15K). **Stretch target:** R1.25M if one growth lever outperforms.
+
+**Resources:** Jeffrey (sales/foundation), 1 marketing person (R10K/mo campaign budget), 1 hire at month 4.
 
 **Core moat:** Multi-distributor hardware supply chain. No ISP competitor has this.
 
@@ -166,29 +168,124 @@ Every Arlan device in a bundle generates upfront MTN commission (CT gets 30%):
 
 ---
 
-## 12-Month Ramp Model
+## "Work from Anywhere" — Marketing Campaign Structure
 
-| Month | Focus | New MRR/m Added | Cumulative MRR |
+**Budget:** R10,000/month. **Resource:** 1 dedicated marketing person.
+
+### Campaign Strategy
+
+CircleTel already segments Home / Work from Home / Business — no competitor does this. The campaign doubles down on that unique positioning.
+
+### Three Ad Sets, One Funnel
+
+| Ad Set | Channel | Target | Message | Landing Page |
+|---|---|---|---|---|
+| "Work from home internet" | Google Ads | Remote workers searching for connectivity | "Internet that works as hard as you do. FREE installation worth R2,500." | Coverage checker |
+| "Load shedding internet" | Facebook/IG | Homeowners in coverage areas | "Load shedding doesn't stop your internet. Fibre + Backup Power from R699/mo." | Home + Power Backup bundle |
+| "One bill for everything" | LinkedIn | SMB owners/directors within 30km | "One provider. One bill. Your office runs. Internet + IT + hardware — from R1,999/mo." | OiaB landing page |
+
+### Budget Split
+
+| Channel | Month 1 (Testing) | Months 2-3 (Optimised) | Months 4+ (Scaled) |
 |---|---|---|---|
-| 0 | Baseline (existing ops + Unjani) | — | R15,000 |
-| 1 | Build bundles, close first 2 OiaB clients | R20,000 | R35,000 |
-| 2 | First 3 Office-in-a-Box clients | R25,000 | R60,000 |
-| 3 | Power Backup upsells, buffer stock from deposits | R30,000 | R90,000 |
-| 4 | Partner #1 onboarded | R40,000 | R130,000 |
-| 5 | Consumer fibre + WFH Kit launch | R55,000 | R185,000 |
-| 6 | Partner #2, procurement retainer (manual) | R75,000 | R260,000 |
-| 7 | HaaS pilot (5 clients), partner #3 | R90,000 | R350,000 |
-| 8 | SMB acceleration, procurement scaling | R120,000 | R470,000 |
-| 9 | Consumer scaling, HaaS expansion | R160,000 | R630,000 |
-| 10 | Partners #4-5, procurement growth | R200,000 | R830,000 |
-| 11 | Full throttle all levers | R220,000 | R1,050,000 |
-| 12 | Close pipeline, holiday push | R200,000 | R1,250,000 |
+| Google Ads ("work from home internet" + city) | R5,000 | R4,000 | R4,000 |
+| Facebook/IG (geo + interest targeting) | R3,000 | R4,000 | R4,000 |
+| LinkedIn (SMB owners, 30km radius) | R2,000 | R2,000 | R2,000 |
+
+### Expected Performance (Conservative)
+
+| Metric | Consumer (Google + FB) | SMB (LinkedIn) |
+|---|---|---|
+| Monthly budget | R8,000 | R2,000 |
+| Est. clicks/reach | 15-25K impressions | 300-500 clicks |
+| Est. leads (form fills) | 40-60 | 5-10 |
+| Conversion rate | 15% | 25% |
+| **Est. signups/month** | **6-9 at R600 avg** | **1-3 at R5,000 avg** |
+| **New MRR/month from marketing** | **R3,600-5,400** | **R5,000-15,000** |
+| Cost per Rand of MRR | R1.48-R2.22 | R0.13-R0.40 |
+
+### Marketing Person's 90-Day Plan
+
+| Week | Focus |
+|---|---|
+| 1 | Build landing pages, set up Google Ads + Facebook campaigns, install conversion tracking |
+| 2 | Launch campaigns at low budget, monitor CTR and CPC |
+| 3 | Kill underperformers, double down on winners, A/B test headlines |
+| 4 | First report: cost per lead, cost per signup, channel ROI |
+| 5-8 | Optimise bids, add retargeting, build lookalike audiences |
+| 9-12 | Scale winning channels, launch SMB case study ads, test referral program |
+
+**Key insight:** LinkedIn SMB ads have a cost per Rand of MRR of R0.13-R0.40 — the cheapest acquisition channel. One SMB OiaB client acquired via LinkedIn (R2,000 ad spend → R5,000/mo MRR) pays back the entire marketing budget in month one.
+
+---
+
+## Grounded 12-Month Ramp: R701K Target
+
+Built from actual constraints: one person (Jeffrey) selling OiaB, one marketing person running R10K/mo campaigns, one hire joining at month 4. No theoretical partner pipeline. No mass consumer engine.
+
+### Phase 1: Proof (Months 1-3) — Jeffrey + Marketing
+
+| Month | Jeffrey OiaB | Marketing Consumer | Marketing SMB Leads | New MRR | Cumulative MRR |
+|---|---|---|---|---|---|
+| 0 | — | — | — | — | R15,000 |
+| 1 | 2 (R10K) | 4 (R2,400) | 0 (testing) | R12,400 | R27,400 |
+| 2 | 3 (R15K) | 8 (R4,800) | 1 (R5,000) | R24,800 | R52,200 |
+| 3 | 3 (R15K) | 12 (R7,200) | 1 (R5,000) | R27,200 | R79,400 |
+
+By month 3: 8 OiaB clients + 24 consumer + 2 SMB from marketing. Cumulative MRR R79,400.
+
+### Phase 2: First Hire (Months 4-7) — Capacity Doubles
+
+| Mo | Jeffrey OiaB | Hire OiaB | Marketing Consumer | Marketing SMB | New MRR | Cumulative |
+|---|---|---|---|---|---|---|
+| 4 | 4 (R20K) | 1 ramp (R5K) | 15 (R9,000) | 2 (R10K) | R44,000 | R123,400 |
+| 5 | 5 (R25K) | 2 (R10K) | 18 (R10,800) | 2 (R10K) | R55,800 | R179,200 |
+| 6 | 6 (R30K) | 3 (R15K) | 20 (R12,000) | 3 (R15K) | R72,000 | R251,200 |
+| 7 | 6 (R30K) | 4 (R20K) | 22 (R13,200) | 3 (R15K) | R78,200 | R329,400 |
+
+By month 7: 33 OiaB + 75 consumer + 10 SMB from marketing. Cumulative MRR R329,400.
+
+### Phase 3: Channels + Scale (Months 8-12)
+
+| Mo | Direct OiaB | Hire OiaB | Partner | Consumer | SMB Mktg | Power Backup | New MRR | Cumulative |
+|---|---|---|---|---|---|---|---|---|
+| 8 | 5 | 3 | 1 (R5K) | 25 (R15K) | 4 (R20K) | R5,000 | R73,000 | R402,400 |
+| 9 | 5 | 3 | 3 (R15K) | 25 (R15K) | 4 (R20K) | R7,500 | R65,500 | R467,900 |
+| 10 | 6 | 4 | 5 (R25K) | 28 (R17K) | 5 (R25K) | R10,000 | R87,000 | R554,900 |
+| 11 | 6 | 4 | 6 (R30K) | 28 (R17K) | 5 (R25K) | R12,500 | R94,500 | R649,400 |
+| 12 | 7 | 5 | 8 (R40K) | 30 (R18K) | 6 (R30K) | R15,000 | R115,000 | **R764,400** |
+
+**12-month cumulative: R764,400 MRR** (R701K was excluding Power Backup upsells; included here).
+
+### Revenue Composition at Month 12
+
+| Source | MRR | % |
+|---|---|---|
+| OiaB direct (Jeffrey + hire) | R200,000 | 26% |
+| Consumer fibre + WFH upsells | R198,000 | 26% |
+| SMB from marketing | R186,000 | 24% |
+| Partner channel | R105,000 | 14% |
+| Power Backup upsells | R60,000 | 8% |
+| Existing MRR | R15,000 | 2% |
+| **Total** | **R764,400** | |
+
+### Bridge to R1.25M Stretch
+
+To go from R764K → R1.25M, any ONE of:
+
+| Lever | What it takes | Adds |
+|---|---|---|
+| Enterprise deal | 1× 50-seat OiaB at R50K/mo + 3 more at R30K | +R140K |
+| Partner outperformance | 5 partners doing R30K each instead of R21K avg | +R90K |
+| Consumer outperformance | 60 homes/mo instead of 30 (better ad conversion) | +R126K |
+| Power Backup at scale | 200 sites × R500 avg instead of 120 × R500 | +R40K |
 
 **Assumptions:**
-- 3% monthly churn (factored into cumulative, not shown)
-- Working capital available by month 3 for buffer stock
-- First hire (sales/ops) by month 2
-- Partners recruited months 4-10
+- 3% monthly churn (factored into cumulative)
+- Marketing budget R10K/month flat
+- First partner deal closes month 8 (requires proven model + collateral)
+- Consumer conversion: 15% of leads → signup at R600 avg (fibre + WFH upsell)
+- SMB conversion: 25% of LinkedIn leads → OiaB at R5,000 avg
 
 ---
 
@@ -228,10 +325,14 @@ The business has two cash flow streams: existing operations (R15K MRR + MSC) and
 | COD hardware float (6 clients, hybrid) | -R1,800 | -R1,800 | -R1,800 |
 | Arlan upfront commissions | +R631 | +R1,262 | +R1,893 |
 | New OiaB MRR (2 clients/mo) | +R4,000 | +R8,000 | +R12,000 |
-| *Subtotal: OiaB* | *+R2,831* | *+R7,462* | *+R12,093* |
-| **COMBINED NET** | **+R3,913** | **+R11,214** | **+R18,075** |
+| Marketing budget | -R10,000 | -R10,000 | -R10,000 |
+| *Subtotal: OiaB* | *-R7,169* | *-R2,538* | *+R2,093* |
+| **COMBINED NET** | **-R6,087** | **+R1,214** | **+R8,075** |
 
-**3-month total: +R33,202.** The business is cash-flow positive from June.
+**3-month total: +R3,202. Cash-positive from July.**
+- June is negative (-R6,087) due to R10K marketing spend startup
+- Marketing cost per Rand of new MRR: R10,000 ÷ R20,400 avg new MRR/mo = R0.49
+- Marketing breaks even on consumer alone; SMB leads are pure upside
 
 ### Key Differences from Previous Model
 
@@ -253,10 +354,10 @@ The Unjani P&L shows -R1,029/mo net, but **cash flow is positive** because:
 
 ## Prerequisites for Launch
 
-1. **Buffer stock** of top 5 SKUs: R12-20K (built from client deposits, not pre-purchased)
-2. **Arlan 30-day credit** for Arlan-sourced CPE/routers in OiaB bundles
-3. **Client deposit policy:** 75% hardware deposit upfront for COD items from Scoop/Rectron
-4. **Stock visibility** for ≥3 distributors before Levers 2 and 5
+1. **Marketing landing pages built** (week 1): Coverage checker, Home+Backup bundle, OiaB page
+2. **Buffer stock** of top 5 SKUs: R12-20K (built from client deposits, not pre-purchased)
+3. **Arlan 30-day credit** for Arlan-sourced CPE/routers in OiaB bundles
+4. **Client deposit policy:** 75% hardware deposit upfront for COD items from Scoop/Rectron
 5. **Hardware lease agreement** template: 36-month rental, separate from service
 6. **First hire** (sales/ops hybrid): month 4 (funded by new MRR)
 
@@ -273,26 +374,31 @@ The Unjani P&L shows -R1,029/mo net, but **cash flow is positive** because:
 | Unjani forced rollout (167 migration-ready) | MEDIUM | Board gate blocks beyond 50 sites until Q3 FY27 — document and defend |
 | Working capital for OiaB hardware | MEDIUM | Hybrid Arlan credit + 75% client deposit reduces float to ~R700/client |
 | Support doesn't scale | MEDIUM | Hire support by month 6, ticketing system month 1 |
-| Jeffrey becomes bottleneck | HIGH | Hire #1 by month 4 (funded by new MRR) |
+| Marketing budget R10K/month | LOW | R10K is 3% of R350K target MRR; SMB leads alone pay back 5-25× |
+| Jeffrey becomes bottleneck | HIGH | Hire #1 by month 4 (funded by new MRR); marketing person handles campaigns independently |
 
 ---
 
 ## Next Actions
 
-**This week (Unjani):**
-1. [ ] Audit all 10 dead/inactive Unjani sites — determine root cause per site
+**This week (Unjani — Jeffrey):**
+1. [ ] Audit 3 highest-potential dead Unjani sites (Cosmo City, Tokoza, Phoenix)
 2. [ ] Follow up on TDX Feb-April receivable (R14,103) — get the agreement signed
 3. [ ] Verify 16 new clinics billing from 15 June — confirm TDX onboarding
 
-**This week (OiaB):**
+**This week (OiaB — Jeffrey):**
 4. [ ] Build 2 Office-in-a-Box bundles with Arlan routers + Scoop/Rectron switch/AP/UPS
 5. [ ] Define pricing: Micro (1-3 seats) R1,999/m, Small (4-10 seats) R4,999/m
-6. [ ] Prepare Hardware Rental Agreement template (36-month lease, separate from service)
-7. [ ] Create 1-page OiaB proposal doc for SMB pitches
-8. [ ] Identify and pitch 20 SMBs within 30km — close 2 by end of June
+6. [ ] Create 1-page OiaB proposal doc for SMB pitches
+7. [ ] Pitch 8-10 SMBs within 30km — close 2 by end of June
+
+**This week (Marketing — Marketing person):**
+8. [ ] Build 3 landing pages: coverage checker, Home+Backup bundle, OiaB
+9. [ ] Set up Google Ads account, Facebook Business Manager, conversion tracking
+10. [ ] Launch campaigns at R10K budget: R5K Google, R3K Facebook, R2K LinkedIn
 
 **Parallel tracks:**
-9. [ ] Contact Rectron re: reseller API / stock feed availability
-10. [ ] Contact Nology re: stock data availability
-11. [ ] Deploy lightweight ticketing system
-12. [ ] Hire salesperson #1: month 4 (funded by new MRR)
+11. [ ] Prepare Hardware Rental Agreement template
+12. [ ] Contact Rectron and Nology re: stock feeds (month 3+)
+13. [ ] Deploy lightweight ticketing system (month 2)
+14. [ ] Hire salesperson #1: month 4
