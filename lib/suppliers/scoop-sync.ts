@@ -507,7 +507,7 @@ async function deactivateMissingProducts(
     })
     .eq('supplier_id', supplierId)
     .eq('is_active', true)
-    .not('sku', 'in', `(${activeSKUs.map(s => `"${s}"`).join(',')})`)
+    .not('sku', 'in', activeSKUs)
     .select('id')
 
   if (error) {

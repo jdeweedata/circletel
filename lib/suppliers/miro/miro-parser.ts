@@ -1,409 +1,213 @@
 /**
- * MiRO Distribution HTML Parser
+ * MiRO Distribution xlsx Price List Parser
  *
- * Parses product data from MiRO category pages using Cheerio.
- * Handles price extraction, stock levels by branch, and product details.
+ * Parses the MiRO price list xlsx file (May 2026 format).
+ * Every sheet has the identical structure:
+ *
+ *   Row 1: "Price list generated on DD-MM-YYYY"
+ *   Row 2: "MiRO Client Code: XXXXXX"
+ *   Row 3: empty
+ *   Row 4: Headers — Item Code | Item Description | Retail Price | Your Price | Item Link
+ *   Row 5+: Product rows
+ *
+ * Retail Price and Your Price are formatted strings like "R1,234.00"
+ * and must be parsed to numbers. All prices exclude VAT.
  */
 
-import * as cheerio from 'cheerio'
-import type { Element } from 'domhandler'
-import type {
-  MiRoScrapedProduct,
-  MiRoStockLevels,
-  ParsedMiRoProduct,
-  CategoryScrapeResult,
-} from './miro-types'
+import ExcelJS from 'exceljs'
+import type { ParsedMiRoProduct, MiRoParseResult } from './miro-types'
 
-/**
- * Parse a MiRO category page HTML to extract products
- */
-export function parseMiRoCategory(
-  html: string,
-  categoryUrl: string
-): CategoryScrapeResult {
+// =====================================================
+// Constants
+// =====================================================
+
+/** Header row number (1-indexed) */
+const HEADER_ROW = 4
+
+/** Data starts on this row */
+const DATA_START_ROW = 5
+
+/** Skip the "(use for new brand)" template sheet */
+const SKIP_SHEETS = new Set(['(use for new brand)'])
+
+// =====================================================
+// Public API
+// =====================================================
+
+export async function parseMiRoFile(
+  filePath: string
+): Promise<MiRoParseResult> {
   const startTime = Date.now()
-  const $ = cheerio.load(html)
-  const products: MiRoScrapedProduct[] = []
   const errors: string[] = []
+  const allProducts: ParsedMiRoProduct[] = []
 
-  // Extract category name from breadcrumb or page title
-  const categoryName = extractCategoryName($, categoryUrl)
+  const fileName = filePath.split('/').pop() || 'unknown'
 
-  // Find all product containers
-  // MiRO uses PrestaShop-style markup
-  const productContainers = $('.product-miniature, .article[data-id-product], .js-product-miniature')
+  try {
+    const wb = new ExcelJS.Workbook()
+    await wb.xlsx.readFile(filePath)
 
-  productContainers.each((_index, element) => {
-    try {
-      const product = parseProductElement($, element, categoryName, categoryUrl)
-      if (product) {
-        products.push(product)
+    console.log(
+      `[MiRoParser] Parsing ${fileName}: ${wb.worksheets.length} sheets`
+    )
+
+    let productsFound = 0
+    let rowsSkipped = 0
+    let sheetsProcessed = 0
+
+    for (const ws of wb.worksheets) {
+      const name = ws.name.trim()
+
+      if (SKIP_SHEETS.has(name)) continue
+
+      sheetsProcessed++
+
+      try {
+        const sheetProducts = parseSheet(ws, name)
+        allProducts.push(...sheetProducts)
+        productsFound += ws.rowCount - DATA_START_ROW + 1
+
+        if (sheetProducts.length > 0) {
+          console.log(
+            `[MiRoParser] ${name}: ${sheetProducts.length} products`
+          )
+        }
+      } catch (err) {
+        const msg = `Sheet "${name}": ${err instanceof Error ? err.message : 'Unknown error'}`
+        errors.push(msg)
       }
-    } catch (error) {
-      errors.push(
-        `Failed to parse product: ${error instanceof Error ? error.message : 'Unknown error'}`
-      )
     }
-  })
 
-  return {
-    categoryUrl,
-    categoryName,
-    products,
-    productsFound: products.length,
-    duration_ms: Date.now() - startTime,
-    errors,
-  }
-}
+    // Count rows we skipped (empty rows)
+    rowsSkipped = productsFound - allProducts.length
 
-/**
- * Extract category name from page
- */
-function extractCategoryName($: cheerio.CheerioAPI, categoryUrl: string): string {
-  // Try breadcrumb
-  const breadcrumb = $('.breadcrumb li:last-child, .breadcrumb-item:last-child').text().trim()
-  if (breadcrumb) return breadcrumb
+    const durationMs = Date.now() - startTime
 
-  // Try page title
-  const pageTitle = $('h1.category-name, h1.page-heading, .category-header h1').text().trim()
-  if (pageTitle) return pageTitle
-
-  // Fall back to URL-based extraction
-  const urlParts = categoryUrl.split('/').pop()?.replace(/-/g, ' ') || 'Unknown'
-  return urlParts.split('?')[0]
-}
-
-/**
- * Parse a single product element
- */
-function parseProductElement(
-  $: cheerio.CheerioAPI,
-  element: Element,
-  category: string,
-  categoryUrl: string
-): MiRoScrapedProduct | null {
-  const $el = $(element)
-
-  // Extract SKU from data attribute or text
-  const sku = extractSku($el)
-  if (!sku) {
-    return null // Skip products without SKU
-  }
-
-  // Extract product name
-  const name = $el
-    .find('.product-title a, .product-name a, h3.product-title a, h2.product-title a')
-    .first()
-    .text()
-    .trim()
-
-  if (!name) {
-    return null // Skip products without name
-  }
-
-  // Extract product URL
-  const productUrl =
-    $el.find('.product-title a, .product-name a').first().attr('href') ||
-    $el.find('a[href*="/product"]').first().attr('href') ||
-    ''
-
-  // Extract price
-  const priceInfo = extractPrice($el)
-
-  // Extract stock levels
-  const stock = extractStockLevels($el)
-
-  // Extract image URL
-  const sourceImageUrl =
-    $el.find('img.product-image, .product-image img, .thumbnail img').first().attr('data-src') ||
-    $el.find('img.product-image, .product-image img, .thumbnail img').first().attr('src') ||
-    ''
-
-  // Extract manufacturer/brand
-  const manufacturer =
-    $el.find('.brand-name, .manufacturer-name, .product-brand').first().text().trim() ||
-    extractManufacturerFromName(name)
-
-  // Extract description
-  const description =
-    $el.find('.product-description-short, .product-desc').first().text().trim() || undefined
-
-  return {
-    sku,
-    name,
-    description,
-    manufacturer,
-    priceInclVat: priceInfo.inclVat,
-    priceExclVat: priceInfo.exclVat,
-    sourceImageUrl: sourceImageUrl ? normalizeImageUrl(sourceImageUrl, categoryUrl) : undefined,
-    productUrl: productUrl ? normalizeUrl(productUrl, categoryUrl) : '',
-    stock,
-    category,
-    categoryUrl,
-  }
-}
-
-/**
- * Extract SKU from product element
- */
-function extractSku($el: cheerio.Cheerio<Element>): string | null {
-  // Try data attribute
-  const dataId = $el.attr('data-id-product')
-  if (dataId) return `MIRO-${dataId}`
-
-  // Try SKU text element
-  const skuText =
-    $el.find('.sku, .product-reference, .reference').first().text().trim() ||
-    $el.find('[itemprop="sku"]').first().text().trim()
-
-  if (skuText) {
-    // Clean up SKU text (remove "SKU:", "Ref:", etc.)
-    const cleaned = skuText.replace(/^(sku|ref|reference|code):\s*/i, '').trim()
-    return cleaned || null
-  }
-
-  return null
-}
-
-/**
- * Extract price from product element
- * MiRO shows prices in format "R1,234.56" or "R1 234.56"
- */
-function extractPrice($el: cheerio.Cheerio<Element>): {
-  inclVat: number
-  exclVat: number
-} {
-  const defaultPrice = { inclVat: 0, exclVat: 0 }
-
-  // Try to find price elements
-  const priceText =
-    $el.find('.price, .product-price, .current-price').first().text() ||
-    $el.find('[itemprop="price"]').first().attr('content') ||
-    ''
-
-  const price = parsePrice(priceText)
-
-  // Check if there's a separate excl VAT price
-  const exclVatText = $el
-    .find('.price-excl, .price-excl-vat, .tax-label')
-    .first()
-    .text()
-
-  if (exclVatText && exclVatText.toLowerCase().includes('excl')) {
-    const exclPrice = parsePrice(exclVatText)
-    if (exclPrice > 0) {
-      return { inclVat: price, exclVat: exclPrice }
-    }
-  }
-
-  // If only one price, assume it's incl VAT and calculate excl (VAT is 15% in SA)
-  if (price > 0) {
     return {
-      inclVat: price,
-      exclVat: Math.round((price / 1.15) * 100) / 100,
+      success: true,
+      file_name: fileName,
+      sheets_processed: sheetsProcessed,
+      products_found: productsFound,
+      products_parsed: allProducts.length,
+      rows_skipped: Math.max(0, rowsSkipped),
+      products: allProducts,
+      errors,
+      duration_ms: durationMs,
+    }
+  } catch (error) {
+    const durationMs = Date.now() - startTime
+    const errorMsg =
+      error instanceof Error ? error.message : 'Unknown error'
+    console.error(`[MiRoParser] Failed: ${errorMsg}`)
+
+    return {
+      success: false,
+      file_name: fileName,
+      sheets_processed: 0,
+      products_found: 0,
+      products_parsed: 0,
+      rows_skipped: 0,
+      products: [],
+      errors: [errorMsg],
+      duration_ms: durationMs,
     }
   }
+}
 
-  return defaultPrice
+// =====================================================
+// Sheet Parsing
+// =====================================================
+
+function parseSheet(
+  ws: ExcelJS.Worksheet,
+  sheetName: string
+): ParsedMiRoProduct[] {
+  const products: ParsedMiRoProduct[] = []
+
+  for (let r = DATA_START_ROW; r <= ws.rowCount; r++) {
+    const row = ws.getRow(r)
+
+    // Column A: Item Code
+    const sku = getCellText(row, 1)
+    // Column B: Item Description
+    const description = getCellText(row, 2)
+    // Column C: Retail Price (formatted string)
+    const retailPriceStr = getCellText(row, 3)
+    // Column D: Your Price / Dealer Cost (formatted string)
+    const yourPriceStr = getCellText(row, 4)
+    // Column E: Product URL
+    const itemLink = getCellText(row, 5)
+
+    // Skip empty rows
+    if (!sku && !description) continue
+
+    // Must have a SKU
+    if (!sku || sku.length < 2) continue
+
+    // Parse prices
+    const retailPrice = parsePrice(retailPriceStr)
+    const costPrice = parsePrice(yourPriceStr)
+
+    // Skip rows without a meaningful price
+    if (costPrice === null && retailPrice === null) continue
+
+    products.push({
+      sku: sku.trim(),
+      name: description || sku.trim(),
+      description: description || null,
+      manufacturer: sheetName,
+      cost_price: costPrice || 0,
+      retail_price: retailPrice || 0,
+      source_image_url: '',
+      product_url: itemLink || '',
+      stock_cpt: 0,
+      stock_jhb: 0,
+      stock_dbn: 0,
+      stock_total: 0, // Not in xlsx
+      category: sheetName,
+    })
+  }
+
+  return products
+}
+
+// =====================================================
+// Helpers
+// =====================================================
+
+function getCellText(
+  row: ExcelJS.Row,
+  col: number
+): string | null {
+  const cell = row.getCell(col)
+  const value = cell.value
+  if (value === null || value === undefined) return null
+
+  if (typeof value === 'object' && 'richText' in value) {
+    const rt = value as { richText: Array<{ text: string }> }
+    return rt.richText.map((t) => t.text).join('').trim() || null
+  }
+
+  if (typeof value === 'object' && 'text' in value) {
+    return (value as { text: string }).text.trim() || null
+  }
+
+  const str = String(value).trim()
+  return str || null
 }
 
 /**
- * Parse price string to number
- * Handles formats: "R1,234.56", "R1 234.56", "R1234.56", "1234.56"
+ * Parse a South African price string like "R1,234.00" or "R42.50" to a number
  */
-export function parsePrice(text: string): number {
-  if (!text) return 0
+function parsePrice(raw: string | null): number | null {
+  if (!raw) return null
 
-  // Remove currency symbol, spaces, and thousands separators
-  const cleaned = text
-    .replace(/R\s*/gi, '')
-    .replace(/ZAR\s*/gi, '')
-    .replace(/\s/g, '')
-    .replace(/,/g, '')
-    .replace(/[^\d.]/g, '')
+  // Remove currency symbol and whitespace
+  let cleaned = raw.replace(/[R\s]/g, '')
 
-  // Extract the numeric value
-  const match = cleaned.match(/(\d+\.?\d*)/)
-  if (match) {
-    const value = parseFloat(match[1])
-    return isNaN(value) ? 0 : Math.round(value * 100) / 100
-  }
+  // Remove thousand separators (commas)
+  cleaned = cleaned.replace(/,/g, '')
 
-  return 0
-}
-
-/**
- * Extract stock levels by branch
- * MiRO shows stock with branch indicators (JHB, CPT, DBN, NS)
- */
-function extractStockLevels($el: cheerio.Cheerio<Element>): MiRoStockLevels {
-  const stock: MiRoStockLevels = {
-    jhb: 'out',
-    cpt: 'out',
-    dbn: 'out',
-    ns: 'out',
-  }
-
-  // Look for stock availability indicators
-  const stockElements = $el.find('.stock-info, .availability, .warehouse-stock, .branch-stock')
-
-  stockElements.each((_i, el) => {
-    const text = cheerio.load(el).text().toLowerCase()
-
-    // Check for each branch
-    if (text.includes('jhb') || text.includes('johannesburg')) {
-      stock.jhb = extractStockValue(text, 'jhb')
-    }
-    if (text.includes('cpt') || text.includes('cape')) {
-      stock.cpt = extractStockValue(text, 'cpt')
-    }
-    if (text.includes('dbn') || text.includes('durban')) {
-      stock.dbn = extractStockValue(text, 'dbn')
-    }
-    if (text.includes('ns') || text.includes('national')) {
-      stock.ns = extractStockValue(text, 'ns')
-    }
-  })
-
-  // Alternative: PiCheckBold for generic in-stock indicator
-  const availabilityText = $el.find('.availability, .stock-status').first().text().toLowerCase()
-
-  if (
-    availabilityText.includes('in stock') ||
-    availabilityText.includes('available') ||
-    $el.find('.in-stock, .available').length > 0
-  ) {
-    // If generic in-stock but no branch info, assume JHB has stock
-    if (stock.jhb === 'out') {
-      stock.jhb = 'in_stock'
-    }
-  }
-
-  return stock
-}
-
-/**
- * Extract numeric stock value or status from text
- */
-function extractStockValue(
-  text: string,
-  _branch: string
-): number | 'in_stock' | 'out' {
-  // Look for numeric value
-  const numMatch = text.match(/(\d+)\s*(pcs|units|available)?/i)
-  if (numMatch) {
-    const num = parseInt(numMatch[1], 10)
-    if (!isNaN(num) && num > 0) return num
-  }
-
-  // Check for qualitative indicators
-  if (text.includes('in stock') || text.includes('available') || text.includes('✓')) {
-    return 'in_stock'
-  }
-  if (text.includes('out of stock') || text.includes('unavailable') || text.includes('✗')) {
-    return 'out'
-  }
-
-  return 'out'
-}
-
-/**
- * Extract manufacturer from product name
- * Common patterns: "Ubiquiti UniFi AC Pro", "MikroTik hAP ac2"
- */
-function extractManufacturerFromName(name: string): string {
-  const knownBrands = [
-    'Ubiquiti',
-    'MikroTik',
-    'Cambium',
-    'TP-Link',
-    'Hikvision',
-    'Dahua',
-    'Cisco',
-    'Netgear',
-    'Ruckus',
-    'Aruba',
-    'Fortinet',
-    'Mimosa',
-    'Tarana',
-    'Teltonika',
-    'Ruijie',
-    'EnGenius',
-    'Peplink',
-    'Draytek',
-    'ZyXEL',
-    'UniFi',
-    'AirMax',
-  ]
-
-  for (const brand of knownBrands) {
-    if (name.toLowerCase().includes(brand.toLowerCase())) {
-      return brand
-    }
-  }
-
-  // Return first word as manufacturer if unknown
-  const firstWord = name.split(/\s+/)[0]
-  return firstWord || 'Unknown'
-}
-
-/**
- * Normalize relative URLs to absolute
- */
-function normalizeUrl(url: string, baseUrl: string): string {
-  if (url.startsWith('http')) return url
-  if (url.startsWith('//')) return `https:${url}`
-
-  const base = new URL(baseUrl)
-  if (url.startsWith('/')) {
-    return `${base.protocol}//${base.host}${url}`
-  }
-
-  return `${base.protocol}//${base.host}/${url}`
-}
-
-/**
- * Normalize image URL
- */
-function normalizeImageUrl(url: string, baseUrl: string): string {
-  // Handle data URLs
-  if (url.startsWith('data:')) return ''
-
-  // Handle lazy-load placeholders
-  if (url.includes('placeholder') || url.includes('loading')) return ''
-
-  return normalizeUrl(url, baseUrl)
-}
-
-/**
- * Convert scraped product to database format
- */
-export function toSupplierProduct(product: MiRoScrapedProduct): ParsedMiRoProduct {
-  // Convert stock levels to numbers
-  const stockToNumber = (val: number | 'in_stock' | 'out'): number => {
-    if (typeof val === 'number') return val
-    if (val === 'in_stock') return 1 // At least 1 in stock
-    return 0
-  }
-
-  const stockJhb = stockToNumber(product.stock.jhb)
-  const stockCpt = stockToNumber(product.stock.cpt)
-  const stockDbn = stockToNumber(product.stock.dbn)
-  const stockNs = stockToNumber(product.stock.ns)
-
-  return {
-    sku: product.sku,
-    name: product.name,
-    description: product.description || null,
-    manufacturer: product.manufacturer || 'Unknown',
-    cost_price: product.priceExclVat,
-    retail_price: product.priceInclVat,
-    source_image_url: product.sourceImageUrl || '',
-    product_url: product.productUrl,
-    stock_cpt: stockCpt,
-    stock_jhb: stockJhb,
-    stock_dbn: stockDbn,
-    stock_total: stockJhb + stockCpt + stockDbn + stockNs,
-    category: product.category,
-  }
+  const num = parseFloat(cleaned)
+  return isNaN(num) ? null : num
 }

@@ -1,14 +1,14 @@
 /**
  * DFA (Dark Fibre Africa) Building Sync Service
  *
- * Fetches all buildings from DFA ArcGIS API and caches them in Supabase.
+ * Fetches all buildings from DFA public ArcGIS FeatureServer and caches them in Supabase.
  * Pattern: Mirrors tarana-sync approach with step-based Inngest integration.
  *
  * Data Sources:
- * - DFA_Connected_Buildings layer: Buildings with active fiber
- * - Promotions layer: Near-net buildings (within 200m of fiber)
+ * - FeatureServer/2: Connected buildings (active fiber)
+ * - FeatureServer/1: Near-net buildings (within 200m of fiber)
  *
- * @see https://gisportal.dfafrica.co.za/arcgis/rest/services
+ * @see https://dfafrica.maps.arcgis.com
  */
 
 import axios from 'axios';
@@ -18,17 +18,16 @@ import {
   DFANearNetBuilding,
   ArcGISQueryResponse,
 } from './types';
-import { webMercatorToLatLng } from './coordinate-utils';
+import { calculatePolygonCentroid } from './coordinate-utils';
 
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
 
 const DFA_API_BASE =
-  'https://gisportal.dfafrica.co.za/server/rest/services/API';
+  'https://utility.arcgis.com/usrsvcs/servers/044304ebfe2140b18e6e50d1af16e9e0/rest/services/Hosted/PublicCoverage/FeatureServer';
 
-// ArcGIS query limits
-const PAGE_SIZE = 1000;
+const PAGE_SIZE = 2000;
 const MAX_RETRIES = 3;
 const TIMEOUT_MS = 30000;
 
@@ -83,10 +82,10 @@ export class DFASyncService {
         f: 'json',
         returnGeometry: 'true',
         spatialRel: 'esriSpatialRelIntersects',
-        where: "DFA_Connected_Y_N='Yes'",
+        where: "dfa_connected_y_n='Yes'",
         outFields:
-          'OBJECTID,DFA_Building_ID,Longitude,Latitude,DFA_Connected_Y_N,FTTH,Broadband,Precinct,Promotion',
-        outSR: '4326', // Request WGS84 directly
+          'objectid,dfa_building_id,longitude,latitude,dfa_connected_y_n,ftth,broadband,precinct,promotion',
+        outSR: '4326',
         resultOffset: offset.toString(),
         resultRecordCount: PAGE_SIZE.toString(),
       });
@@ -98,23 +97,25 @@ export class DFASyncService {
         try {
           const response = await axios.get<
             ArcGISQueryResponse<DFAConnectedBuilding>
-          >(`${DFA_API_BASE}/DFA_Connected_Buildings/MapServer/0/query`, {
+          >(`${DFA_API_BASE}/2/query`, {
             params,
             timeout: TIMEOUT_MS,
           });
 
           if (response.data.features) {
             const buildings = response.data.features.map((f) => {
-              // If geometry has x/y (Web Mercator), convert to lat/lng
-              if (f.geometry?.x !== undefined && f.geometry?.y !== undefined) {
-                const wgs84 = webMercatorToLatLng(f.geometry.x, f.geometry.y);
-                return {
-                  ...f.attributes,
-                  Latitude: wgs84.latitude,
-                  Longitude: wgs84.longitude,
-                };
+              const result = { ...f.attributes };
+              // Derive lat/lng from polygon centroid when attribute fields are null
+              if (
+                (!result.latitude || !result.longitude) &&
+                f.geometry?.rings &&
+                f.geometry.rings.length > 0
+              ) {
+                const centroid = calculatePolygonCentroid(f.geometry.rings);
+                result.latitude = centroid.latitude;
+                result.longitude = centroid.longitude;
               }
-              return f.attributes;
+              return result;
             });
 
             allBuildings.push(...buildings);
@@ -175,10 +176,10 @@ export class DFASyncService {
         f: 'json',
         returnGeometry: 'true',
         spatialRel: 'esriSpatialRelIntersects',
-        where: '1=1', // All records
-        outFields: 'OBJECTID,DFA_Building_ID,Building_Name,Street_Address,Property_Owner',
-        outSR: '102100', // Web Mercator
-        returnCentroid: 'true',
+        where: '1=1',
+        outFields:
+          'objectid,dfa_building_id,building_name,street_address,latitude,longitude,promotion,precinct,ftth,broadband',
+        outSR: '4326',
         resultOffset: offset.toString(),
         resultRecordCount: PAGE_SIZE.toString(),
       });
@@ -190,43 +191,28 @@ export class DFASyncService {
         try {
           const response = await axios.get<
             ArcGISQueryResponse<DFANearNetBuilding>
-          >(`${DFA_API_BASE}/Promotions/MapServer/1/query`, {
+          >(`${DFA_API_BASE}/1/query`, {
             params,
             timeout: TIMEOUT_MS,
           });
 
           if (response.data.features) {
             const buildings = response.data.features.map((f) => {
-              let latitude = 0;
-              let longitude = 0;
-
-              // Calculate centroid from polygon rings
-              if (f.geometry?.rings && f.geometry.rings.length > 0) {
-                const ring = f.geometry.rings[0];
-                let sumX = 0;
-                let sumY = 0;
-                for (const point of ring) {
-                  sumX += point[0];
-                  sumY += point[1];
-                }
-                const centroidX = sumX / ring.length;
-                const centroidY = sumY / ring.length;
-
-                // Convert from Web Mercator to WGS84
-                const wgs84 = webMercatorToLatLng(centroidX, centroidY);
-                latitude = wgs84.latitude;
-                longitude = wgs84.longitude;
+              const result = { ...f.attributes };
+              // Derive lat/lng from polygon centroid when attribute fields are null
+              if (
+                (!result.latitude || !result.longitude) &&
+                f.geometry?.rings &&
+                f.geometry.rings.length > 0
+              ) {
+                const centroid = calculatePolygonCentroid(f.geometry.rings);
+                result.latitude = centroid.latitude;
+                result.longitude = centroid.longitude;
               }
-
-              return {
-                ...f.attributes,
-                // Add calculated coordinates as custom fields
-                _latitude: latitude,
-                _longitude: longitude,
-              };
+              return result;
             });
 
-            allBuildings.push(...(buildings as DFANearNetBuilding[]));
+            allBuildings.push(...buildings);
 
             // exceededTransferLimit=true means MORE records exist, so continue
             hasMore =
@@ -270,23 +256,22 @@ export class DFASyncService {
   transformConnectedBuilding(
     building: DFAConnectedBuilding
   ): DFABuildingRecord | null {
-    // Skip if missing required coordinates
-    if (!building.Latitude || !building.Longitude) {
+    if (!building.latitude || !building.longitude) {
       return null;
     }
 
     return {
-      object_id: building.OBJECTID,
-      building_id: building.DFA_Building_ID || null,
-      building_name: null, // Connected buildings don't have names in API
-      street_address: null,
-      latitude: building.Latitude,
-      longitude: building.Longitude,
+      object_id: building.objectid,
+      building_id: building.dfa_building_id || null,
+      building_name: building.building_name || null,
+      street_address: building.street_address || null,
+      latitude: building.latitude,
+      longitude: building.longitude,
       coverage_type: 'connected',
-      ftth: building.FTTH || null,
-      broadband: building.Broadband || null,
-      precinct: building.Precinct || null,
-      promotion: building.Promotion || null,
+      ftth: building.ftth || null,
+      broadband: building.broadband || null,
+      precinct: building.precinct || null,
+      promotion: building.promotion || null,
       property_owner: null,
       last_synced_at: new Date().toISOString(),
     };
@@ -296,26 +281,25 @@ export class DFASyncService {
    * Transform DFA near-net building to database record
    */
   transformNearNetBuilding(
-    building: DFANearNetBuilding & { _latitude?: number; _longitude?: number }
+    building: DFANearNetBuilding
   ): DFABuildingRecord | null {
-    // Skip if missing calculated coordinates
-    if (!building._latitude || !building._longitude) {
+    if (!building.latitude || !building.longitude) {
       return null;
     }
 
     return {
-      object_id: building.OBJECTID,
-      building_id: building.DFA_Building_ID || null,
-      building_name: building.Building_Name || null,
-      street_address: building.Street_Address || null,
-      latitude: building._latitude,
-      longitude: building._longitude,
+      object_id: building.objectid,
+      building_id: building.dfa_building_id || null,
+      building_name: building.building_name || null,
+      street_address: building.street_address || null,
+      latitude: building.latitude,
+      longitude: building.longitude,
       coverage_type: 'near-net',
-      ftth: null,
-      broadband: null,
-      precinct: null,
-      promotion: null,
-      property_owner: building.Property_Owner || null,
+      ftth: building.ftth || null,
+      broadband: building.broadband || null,
+      precinct: building.precinct || null,
+      promotion: building.promotion || null,
+      property_owner: null,
       last_synced_at: new Date().toISOString(),
     };
   }
@@ -499,10 +483,10 @@ export class DFASyncService {
     const startTime = Date.now();
 
     const results = await Promise.allSettled([
-      axios.get(`${DFA_API_BASE}/DFA_Connected_Buildings/MapServer/0?f=json`, {
+      axios.get(`${DFA_API_BASE}/2?f=json`, {
         timeout: 5000,
       }),
-      axios.get(`${DFA_API_BASE}/Promotions/MapServer/1?f=json`, {
+      axios.get(`${DFA_API_BASE}/1?f=json`, {
         timeout: 5000,
       }),
     ]);

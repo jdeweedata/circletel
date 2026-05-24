@@ -1,12 +1,17 @@
 /**
- * Nology Product Sync Service
+ * Nology Product Sync Service (xlsx-based)
  *
- * Fetches products from Nology category pages via HTML scraping,
- * parses them, and syncs to the supplier_products table.
+ * Updated from HTML scraping to xlsx file parsing.
+ * Scans a watch directory for the latest Nology price list xlsx file,
+ * parses all brand sheets, and syncs to supplier_products.
+ *
+ * Note: Nology's xlsx does NOT include stock levels.
  */
 
+import { readdirSync, statSync } from 'fs'
+import { join, basename } from 'path'
 import { createClient } from '@/lib/supabase/server'
-import { parseNologyCategory, toSupplierProduct } from './nology-parser'
+import { parseNologyFile } from './nology-parser'
 import type { NologySyncConfig, ParsedNologyProduct } from './nology-types'
 import type {
   SyncResult,
@@ -15,60 +20,22 @@ import type {
 } from '../types'
 
 const NOLOGY_SUPPLIER_CODE = 'NOLOGY'
-const DEFAULT_RATE_LIMIT_MS = 2000 // 2 seconds between requests
+const DEFAULT_FILE_PATTERN = '*Nology*Reseller*Price*List*.xlsx'
+const DEFAULT_WATCH_DIR = '/home/circletel/products/pricelist'
+
+// =====================================================
+// Public API
+// =====================================================
 
 /**
- * Fetch HTML with rate limiting and retry
- */
-async function fetchHtml(url: string, timeout = 30000): Promise<string> {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), timeout)
-
-  try {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        Accept:
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate, br',
-        Connection: 'keep-alive',
-        Referer: 'https://www.nology.co.za/',
-      },
-      cache: 'no-store',
-      signal: controller.signal,
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-
-    return response.text()
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(`Fetch timeout after ${timeout}ms: ${url}`)
-    }
-    throw error
-  } finally {
-    clearTimeout(timeoutId)
-  }
-}
-
-/**
- * Sleep for specified milliseconds
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-/**
- * Main sync function - scrapes all Nology categories and syncs products
+ * Sync Nology products from the latest xlsx file in the watch directory
  */
 export async function syncNologyProducts(options: {
   triggered_by?: 'manual' | 'scheduled' | 'webhook'
   triggered_by_user_id?: string
   dry_run?: boolean
+  /** Override file path for testing */
+  file_path?: string
 } = {}): Promise<SyncResult> {
   const startTime = Date.now()
   const supabase = await createClient()
@@ -76,21 +43,30 @@ export async function syncNologyProducts(options: {
   // Get supplier record
   const { data: supplier, error: supplierError } = await supabase
     .from('suppliers')
-    .select('id, feed_url, metadata')
+    .select('id, metadata')
     .eq('code', NOLOGY_SUPPLIER_CODE)
     .single()
 
   if (supplierError || !supplier) {
-    throw new Error(`Supplier ${NOLOGY_SUPPLIER_CODE} not found: ${supplierError?.message}`)
+    throw new Error(
+      `Supplier ${NOLOGY_SUPPLIER_CODE} not found: ${supplierError?.message}`
+    )
   }
 
-  const config = supplier.metadata as NologySyncConfig
-  const categories = config?.categories || []
-  const rateLimitMs = config?.rate_limit_ms || DEFAULT_RATE_LIMIT_MS
+  const config = (supplier.metadata || {}) as NologySyncConfig
+  const watchDir = config.watch_dir || DEFAULT_WATCH_DIR
+  const filePattern = config.file_pattern || DEFAULT_FILE_PATTERN
 
-  if (categories.length === 0) {
-    throw new Error('No categories configured for Nology supplier')
+  // Find the latest file
+  const filePath = options.file_path || findLatestFile(watchDir, filePattern)
+
+  if (!filePath) {
+    throw new Error(
+      `No files matching "${filePattern}" found in ${watchDir}`
+    )
   }
+
+  console.log(`[NologySync] Using file: ${filePath}`)
 
   // Create sync log entry
   const { data: syncLog, error: logError } = await supabase
@@ -115,44 +91,21 @@ export async function syncNologyProducts(options: {
     .eq('id', supplier.id)
 
   try {
-    const allProducts: ParsedNologyProduct[] = []
-    const categoryErrors: string[] = []
+    // Parse the xlsx file
+    console.log('[NologySync] Parsing xlsx file...')
+    const parseResult = await parseNologyFile(filePath)
 
-    // Scrape each category with rate limiting
-    console.log(`[NologySync] Starting sync for ${categories.length} categories`)
-
-    for (let i = 0; i < categories.length; i++) {
-      const categoryUrl = categories[i]
-      console.log(`[NologySync] Scraping category ${i + 1}/${categories.length}: ${categoryUrl}`)
-
-      try {
-        const html = await fetchHtml(categoryUrl)
-        const result = parseNologyCategory(html, categoryUrl)
-
-        console.log(
-          `[NologySync] Found ${result.productsFound} products in ${result.categoryName} (${result.duration_ms}ms)`
-        )
-
-        // Convert to supplier product format
-        const parsedProducts = result.products.map(toSupplierProduct)
-        allProducts.push(...parsedProducts)
-
-        if (result.errors.length > 0) {
-          categoryErrors.push(...result.errors)
-        }
-      } catch (error) {
-        const errorMsg = `Failed to scrape ${categoryUrl}: ${error instanceof Error ? error.message : 'Unknown error'}`
-        console.error(`[NologySync] ${errorMsg}`)
-        categoryErrors.push(errorMsg)
-      }
-
-      // Rate limiting between requests (skip after last)
-      if (i < categories.length - 1) {
-        await sleep(rateLimitMs)
-      }
+    if (!parseResult.success) {
+      throw new Error(
+        `Failed to parse file: ${parseResult.errors.join('; ')}`
+      )
     }
 
-    console.log(`[NologySync] Total products scraped: ${allProducts.length}`)
+    console.log(
+      `[NologySync] Parsed ${parseResult.products_parsed} products ` +
+        `from ${parseResult.sheets_processed} brands ` +
+        `(${parseResult.rows_skipped} rows skipped) in ${parseResult.duration_ms}ms`
+    )
 
     // Handle dry run
     if (options.dry_run) {
@@ -162,14 +115,19 @@ export async function syncNologyProducts(options: {
         .from('supplier_sync_logs')
         .update({
           status: 'completed',
-          products_found: allProducts.length,
+          products_found: parseResult.products_found,
           products_created: 0,
           products_updated: 0,
           products_unchanged: 0,
           products_deactivated: 0,
           duration_ms: durationMs,
           completed_at: new Date().toISOString(),
-          error_details: { dry_run: true, categories_scraped: categories.length },
+          error_details: {
+            dry_run: true,
+            file: basename(filePath),
+            products_parsed: parseResult.products_parsed,
+            sheets: parseResult.sheets_processed,
+          },
         })
         .eq('id', syncLog.id)
 
@@ -178,7 +136,7 @@ export async function syncNologyProducts(options: {
         supplier_id: supplier.id,
         log_id: syncLog.id,
         stats: {
-          products_found: allProducts.length,
+          products_found: parseResult.products_found,
           products_created: 0,
           products_updated: 0,
           products_unchanged: 0,
@@ -189,15 +147,21 @@ export async function syncNologyProducts(options: {
       }
     }
 
-    // Deduplicate products by SKU
-    const uniqueProducts = deduplicateProducts(allProducts)
-    console.log(`[NologySync] Unique products after dedup: ${uniqueProducts.length}`)
+    // Deduplicate by SKU
+    const uniqueProducts = deduplicateProducts(parseResult.products)
+    console.log(
+      `[NologySync] Unique products after dedup: ${uniqueProducts.length}`
+    )
 
     // Upsert products to database
     console.log('[NologySync] Upserting products...')
-    const upsertResult = await upsertProducts(supabase, supplier.id, uniqueProducts)
+    const upsertResult = await upsertProducts(
+      supabase,
+      supplier.id,
+      uniqueProducts
+    )
 
-    // Deactivate products not in scrape
+    // Deactivate products not in the current file
     const deactivated = await deactivateMissingProducts(
       supabase,
       supplier.id,
@@ -205,14 +169,15 @@ export async function syncNologyProducts(options: {
     )
 
     const durationMs = Date.now() - startTime
-    const hasErrors = categoryErrors.length > 0 || upsertResult.errors.length > 0
+    const hasErrors =
+      parseResult.errors.length > 0 || upsertResult.errors.length > 0
 
     // Update sync log with results
     await supabase
       .from('supplier_sync_logs')
       .update({
         status: 'completed',
-        products_found: allProducts.length,
+        products_found: parseResult.products_found,
         products_created: upsertResult.created.length,
         products_updated: upsertResult.updated.length,
         products_unchanged: upsertResult.unchanged.length,
@@ -221,7 +186,14 @@ export async function syncNologyProducts(options: {
         duration_ms: durationMs,
         completed_at: new Date().toISOString(),
         error_message: hasErrors
-          ? [...categoryErrors, ...upsertResult.errors.map((e) => `${e.sku}: ${e.error}`)].slice(0, 5).join('; ')
+          ? [
+              ...parseResult.errors,
+              ...upsertResult.errors.map(
+                (e) => `${e.sku}: ${e.error}`
+              ),
+            ]
+              .slice(0, 5)
+              .join('; ')
           : null,
       })
       .eq('id', syncLog.id)
@@ -243,7 +215,7 @@ export async function syncNologyProducts(options: {
       supplier_id: supplier.id,
       log_id: syncLog.id,
       stats: {
-        products_found: allProducts.length,
+        products_found: parseResult.products_found,
         products_created: upsertResult.created.length,
         products_updated: upsertResult.updated.length,
         products_unchanged: upsertResult.unchanged.length,
@@ -253,10 +225,10 @@ export async function syncNologyProducts(options: {
       duration_ms: durationMs,
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
     const durationMs = Date.now() - startTime
 
-    // Update sync log with error
     await supabase
       .from('supplier_sync_logs')
       .update({
@@ -267,7 +239,6 @@ export async function syncNologyProducts(options: {
       })
       .eq('id', syncLog.id)
 
-    // Update supplier status
     await supabase
       .from('suppliers')
       .update({
@@ -296,10 +267,57 @@ export async function syncNologyProducts(options: {
   }
 }
 
-/**
- * Deduplicate products by SKU
- */
-function deduplicateProducts(products: ParsedNologyProduct[]): ParsedNologyProduct[] {
+// =====================================================
+// File Discovery
+// =====================================================
+
+function findLatestFile(
+  watchDir: string,
+  pattern: string
+): string | null {
+  try {
+    const regex = new RegExp(
+      '^' +
+        pattern
+          .replace(/\./g, '\\.')
+          .replace(/\*/g, '.*')
+          .replace(/\?/g, '.') +
+        '$',
+      'i'
+    )
+
+    const files = readdirSync(watchDir)
+      .filter((f) => regex.test(f))
+      .map((f) => {
+        const fullPath = join(watchDir, f)
+        try {
+          return {
+            path: fullPath,
+            mtime: statSync(fullPath).mtimeMs,
+          }
+        } catch {
+          return null
+        }
+      })
+      .filter(
+        (f): f is { path: string; mtime: number } => f !== null
+      )
+      .sort((a, b) => b.mtime - a.mtime)
+
+    return files[0]?.path || null
+  } catch (error) {
+    console.error('[NologySync] Error scanning directory:', error)
+    return null
+  }
+}
+
+// =====================================================
+// Database Operations
+// =====================================================
+
+function deduplicateProducts(
+  products: ParsedNologyProduct[]
+): ParsedNologyProduct[] {
   const seen = new Set<string>()
   return products.filter((p) => {
     if (seen.has(p.sku)) return false
@@ -308,9 +326,6 @@ function deduplicateProducts(products: ParsedNologyProduct[]): ParsedNologyProdu
   })
 }
 
-/**
- * Upsert products to database
- */
 async function upsertProducts(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
@@ -324,37 +339,36 @@ async function upsertProducts(
     errors: [],
   }
 
-  // Get existing products for comparison
   const { data: existingProducts } = await supabase
     .from('supplier_products')
     .select('id, sku, cost_price, stock_total')
     .eq('supplier_id', supplierId)
 
-  interface ExistingProduct {
+  interface EP {
     sku: string
     id: string
     cost_price: number | null
     stock_total: number
   }
 
-  const existingMap = new Map<string, ExistingProduct>(
-    (existingProducts || []).map((p: ExistingProduct) => [p.sku, p])
+  const existingMap = new Map<string, EP>(
+    (existingProducts || []).map((p: EP) => [p.sku, p])
   )
 
   const now = new Date().toISOString()
-
-  // Separate products into new and existing
   const toInsert: Array<Record<string, unknown>> = []
-  const toUpdate: Array<{ id: string; sku: string; data: Record<string, unknown> }> = []
+  const toUpdate: Array<{
+    id: string
+    sku: string
+    data: Record<string, unknown>
+  }> = []
   const unchangedIds: string[] = []
 
   for (const product of products) {
     const existing = existingMap.get(product.sku)
 
     if (existing) {
-      const hasChanges =
-        existing.cost_price !== product.cost_price ||
-        existing.stock_total !== product.stock_total
+      const hasChanges = existing.cost_price !== product.cost_price
 
       if (hasChanges) {
         toUpdate.push({
@@ -367,14 +381,11 @@ async function upsertProducts(
             cost_price: product.cost_price,
             retail_price: product.retail_price,
             source_image_url: product.source_image_url,
-            stock_cpt: product.stock_cpt,
-            stock_jhb: product.stock_jhb,
-            stock_dbn: product.stock_dbn,
-            stock_total: product.stock_total,
             product_url: product.product_url,
-            category: product.category,
+            category: product.manufacturer,
+            subcategory: product.subcategory,
+            specifications: { warranty: product.warranty },
             previous_cost_price: existing.cost_price,
-            previous_stock_total: existing.stock_total,
             last_synced_at: now,
             is_active: true,
           },
@@ -393,63 +404,64 @@ async function upsertProducts(
         cost_price: product.cost_price,
         retail_price: product.retail_price,
         source_image_url: product.source_image_url,
-        stock_cpt: product.stock_cpt,
-        stock_jhb: product.stock_jhb,
-        stock_dbn: product.stock_dbn,
-        stock_total: product.stock_total,
         product_url: product.product_url,
-        category: product.category,
+        category: product.manufacturer,
+        subcategory: product.subcategory,
+        specifications: { warranty: product.warranty },
         last_synced_at: now,
         is_active: true,
       })
     }
   }
 
-  // Batch insert new products
+  // Batch insert
   const insertBatchSize = 500
   for (let i = 0; i < toInsert.length; i += insertBatchSize) {
     const batch = toInsert.slice(i, i + insertBatchSize)
-    const { error } = await supabase.from('supplier_products').insert(batch)
-
+    const { error } = await supabase
+      .from('supplier_products')
+      .insert(batch)
     if (error) {
       console.error('[NologySync] Batch insert error:', error)
-      batch.forEach((p) => result.errors.push({ sku: p.sku as string, error: error.message }))
+      batch.forEach((p) =>
+        result.errors.push({
+          sku: p.sku as string,
+          error: error.message,
+        })
+      )
     } else {
       batch.forEach((p) => result.created.push(p.sku as string))
     }
   }
 
-  // Batch update existing products
+  // Batch update
   const updateBatchSize = 50
   for (let i = 0; i < toUpdate.length; i += updateBatchSize) {
     const batch = toUpdate.slice(i, i + updateBatchSize)
-
     const updatePromises = batch.map(async ({ id, sku, data }) => {
-      const { error } = await supabase.from('supplier_products').update(data).eq('id', id)
-
-      if (error) {
-        result.errors.push({ sku, error: error.message })
-      } else {
-        result.updated.push(sku)
-      }
+      const { error } = await supabase
+        .from('supplier_products')
+        .update(data)
+        .eq('id', id)
+      if (error) result.errors.push({ sku, error: error.message })
+      else result.updated.push(sku)
     })
-
     await Promise.all(updatePromises)
   }
 
-  // Batch update last_synced_at for unchanged products
+  // Batch update timestamp for unchanged
   const unchangedBatchSize = 500
   for (let i = 0; i < unchangedIds.length; i += unchangedBatchSize) {
     const batch = unchangedIds.slice(i, i + unchangedBatchSize)
-    await supabase.from('supplier_products').update({ last_synced_at: now }).in('id', batch)
+    await supabase
+      .from('supplier_products')
+      .update({ last_synced_at: now })
+      .in('id', batch)
   }
 
   return result
 }
 
-/**
- * Deactivate products not in the current scrape
- */
 async function deactivateMissingProducts(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
@@ -467,11 +479,14 @@ async function deactivateMissingProducts(
     })
     .eq('supplier_id', supplierId)
     .eq('is_active', true)
-    .not('sku', 'in', `(${activeSKUs.map((s) => `"${s}"`).join(',')})`)
+    .not('sku', 'in', activeSKUs)
     .select('id')
 
   if (error) {
-    console.warn('[NologySync] Failed to deactivate missing products:', error)
+    console.warn(
+      '[NologySync] Failed to deactivate missing products:',
+      error
+    )
     return 0
   }
 

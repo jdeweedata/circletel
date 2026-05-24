@@ -204,6 +204,44 @@ export function formatGeometryPoint(coords: WebMercatorCoordinates): string {
 }
 
 /**
+ * Calculate centroid of a polygon from its rings (WGS84 coordinates)
+ */
+export function calculatePolygonCentroid(
+  rings: number[][][]
+): { latitude: number; longitude: number } {
+  const ring = rings[0];
+  let sumX = 0;
+  let sumY = 0;
+  for (const point of ring) {
+    sumX += point[0];
+    sumY += point[1];
+  }
+  return {
+    longitude: sumX / ring.length,
+    latitude: sumY / ring.length,
+  };
+}
+
+/**
+ * Create a bounding box in WGS84 coordinates using haversine-based offset
+ */
+export function createWGS84BoundingBox(
+  centerLat: number,
+  centerLng: number,
+  radiusMeters: number
+) {
+  const latOffset = radiusMeters / 111320;
+  const lngOffset = radiusMeters / (111320 * Math.cos((centerLat * Math.PI) / 180));
+  return {
+    xmin: centerLng - lngOffset,
+    ymin: centerLat - latOffset,
+    xmax: centerLng + lngOffset,
+    ymax: centerLat + latOffset,
+    spatialReference: { wkid: 4326 },
+  };
+}
+
+/**
  * Format bounding box for ArcGIS API geometry parameter
  */
 export function formatGeometryEnvelope(bbox: {

@@ -1,6 +1,6 @@
 /**
  * DFA (Dark Fibre Africa) ArcGIS API Type Definitions
- * Based on ArcGIS REST API responses from gisportal.dfafrica.co.za
+ * Based on public FeatureServer at dfafrica.maps.arcgis.com
  */
 
 // =====================================================
@@ -22,34 +22,47 @@ export interface DFABoundingBoxRequest {
 }
 
 // =====================================================
-// Response Types - Connected Buildings
+// Response Types - Connected Buildings (FeatureServer/2)
 // =====================================================
 
 export interface DFAConnectedBuilding {
-  OBJECTID: number;
-  DFA_Building_ID: string;
-  Longitude: number;
-  Latitude: number;
-  DFA_Connected_Y_N: 'Y' | 'N' | 'Yes' | 'No';
-  Third_Party_Dependant_For_Conne?: string;
-  QBRecordID?: number;
-  Broadband?: string;
-  FTTH?: string;
-  Precinct?: string;
-  Promotion?: string;
-  Microwave_Connected?: string;
+  objectid: number;
+  orig_objectid?: number;
+  dfa_building_id: string;
+  building_name?: string;
+  longitude?: number;
+  latitude?: number;
+  street_address?: string;
+  dfa_connected_y_n?: string;
+  third_party_dependant_for_conne?: string;
+  feasible_y_n?: string;
+  qbrecordid?: number;
+  broadband?: string;
+  ftth?: string;
+  precinct?: string;
+  promotion?: string;
 }
 
 // =====================================================
-// Response Types - Near-Net Buildings
+// Response Types - Near-Net Buildings (FeatureServer/1)
 // =====================================================
 
 export interface DFANearNetBuilding {
-  OBJECTID: number;
-  DFA_Building_ID: string;
-  Building_Name: string;
-  Street_Address: string;
-  Property_Owner?: string;
+  objectid: number;
+  orig_objectid?: number;
+  dfa_building_id?: string;
+  building_name?: string;
+  longitude?: number;
+  latitude?: number;
+  street_address?: string;
+  dfa_connected_y_n?: string;
+  third_party_dependant_for_conne?: string;
+  feasible_y_n?: string;
+  qbrecordid?: number;
+  broadband?: string;
+  ftth?: string;
+  precinct?: string;
+  promotion?: string;
 }
 
 // =====================================================
@@ -57,42 +70,13 @@ export interface DFANearNetBuilding {
 // =====================================================
 
 export interface DFADuctbank {
-  OBJECTID: number;
+  objectid: number;
   ductbankid: number;
   name?: string;
   owner?: string;
-  placement?: string;
-  installcompany?: string;
-  stage: 'Completed' | 'Construction' | string; // Maps to legend: Completed=green, Construction=blue
-  start_dir?: string;
-  start_depth?: number;
-  start_depth_units?: string;
-  start_comments?: string;
-  end_dir?: string;
-  end_depth?: number;
-  end_depth_units?: string;
-  end_comments?: string;
-  user1?: string;
-  user2?: string;
-  installday?: number;
-  installmonth?: number;
-  installyear?: number;
-  workorderid?: number;
-  totlength?: number; // Total length of fiber route
-  length_units?: string;
-  n_superducts?: number;
-  n_innerducts?: number;
-  updatetime?: string; // ISO date
-  updateuser?: string;
+  stage: 'Completed' | 'Construction' | string;
   ea1?: string; // Route Name
   ea2?: string; // DFA Region
-  start_buildingid?: number;
-  end_buildingid?: number;
-  start_access_pointid?: number;
-  end_access_pointid?: number;
-  start_poleid?: number;
-  end_poleid?: number;
-  ospgid?: string; // GUID
 }
 
 // =====================================================

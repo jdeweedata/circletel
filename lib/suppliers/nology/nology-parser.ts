@@ -1,405 +1,480 @@
 /**
- * Nology HTML Parser
+ * Nology xlsx Price List Parser
  *
- * Parses product data from Nology category pages (VirtueMart) using Cheerio.
- * Handles price extraction, stock status, and product details.
+ * Parses the Nology Reseller Price List xlsx file (April 2026 format).
+ * The workbook has 39 sheets — one per brand — each with consistent structure:
  *
- * NOTE: Nology uses VirtueMart which loads prices via JavaScript/AJAX.
- * Prices require authentication to display. Currently syncing product
- * catalog without pricing until authentication is implemented.
+ *   Row 3-4: Headers (SKU | DESCRIPTION | PRICE | COMMENTS)
+ *   Subsequent: Product rows with category group headers interspersed
+ *
+ * Product sheets are identified by columns B (SKU), C (Description),
+ * D (Price).
+ *
+ * Non-product sheets (PRICING, Categories, Delivery, EOL, Promotions,
+ * New Products, Warehouse Clearance) are skipped.
  */
 
-import * as cheerio from 'cheerio'
-import type { Element } from 'domhandler'
+import ExcelJS from 'exceljs'
 import type {
-  NologyScrapedProduct,
+  NologyXlsxRow,
   ParsedNologyProduct,
-  NologyCategoryScrapeResult,
+  NologyParseResult,
+  NologySheetResult,
 } from './nology-types'
 
+// =====================================================
+// Constants
+// =====================================================
+
+/** Sheets to skip (utility/non-product sheets) */
+const SKIP_SHEETS = new Set([
+  'PRICING',
+  'Categories',
+  'Delivery',
+  'EOL Products',
+  'Promotions',
+  'New Products',
+  'Warehouse Clearance',
+])
+
+/** Row where headers typically start (varies slightly per sheet) */
+const HEADER_SEARCH_START = 1
+const HEADER_SEARCH_END = 8
+
+/** SKU pattern: must contain at least one digit or look like a part number */
+const SKU_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._\-+#\s]+$/
+
+/** Minimum SKU length */
+const MIN_SKU_LENGTH = 3
+
+/** Category header patterns — rows to skip */
+const CATEGORY_HEADER_PATTERNS = [
+  /^[A-Z\s]{3,}$/, // ALL CAPS (e.g., "SWITCHES", "ROUTERS")
+  /^\d+$/, // Pure numbers
+]
+
+// =====================================================
+// Public API
+// =====================================================
+
 /**
- * Parse a Nology category page HTML to extract products
+ * Parse a Nology xlsx price list file
  */
-export function parseNologyCategory(
-  html: string,
-  categoryUrl: string
-): NologyCategoryScrapeResult {
+export async function parseNologyFile(
+  filePath: string
+): Promise<NologyParseResult> {
   const startTime = Date.now()
-  const $ = cheerio.load(html)
-  const products: NologyScrapedProduct[] = []
   const errors: string[] = []
+  const allProducts: ParsedNologyProduct[] = []
+  const sheetResults: NologySheetResult[] = []
 
-  // Extract category name
-  const categoryName = extractCategoryName($, categoryUrl)
+  const fileName = filePath.split('/').pop() || 'unknown'
 
-  // Find all product containers (VirtueMart structure)
-  // Nology uses: .product.vm-col for product grid items
-  const productContainers = $('.product.vm-col, .vm-product-item, .product-container')
+  try {
+    const wb = new ExcelJS.Workbook()
+    await wb.xlsx.readFile(filePath)
 
-  productContainers.each((_index, element) => {
-    try {
-      const product = parseProductElement($, element, categoryName, categoryUrl)
-      if (product) {
-        products.push(product)
+    console.log(
+      `[NologyParser] Parsing ${fileName}: ${wb.worksheets.length} sheets`
+    )
+
+    let sheetsProcessed = 0
+
+    for (const ws of wb.worksheets) {
+      const name = ws.name.trim()
+
+      // Skip utility sheets
+      if (SKIP_SHEETS.has(name)) {
+        continue
       }
-    } catch (error) {
-      errors.push(
-        `Failed to parse product: ${error instanceof Error ? error.message : 'Unknown error'}`
-      )
+
+      sheetsProcessed++
+
+      try {
+        const sheetResult = parseSheet(ws, name)
+        sheetResults.push(sheetResult)
+        allProducts.push(...sheetResult.products)
+
+        if (sheetResult.products_parsed > 0) {
+          console.log(
+            `[NologyParser] ${name}: ${sheetResult.products_parsed} products`
+          )
+        }
+      } catch (err) {
+        const msg = `Sheet "${name}": ${err instanceof Error ? err.message : 'Unknown error'}`
+        errors.push(msg)
+        sheetResults.push({
+          sheet_name: name,
+          brand: name,
+          products_found: 0,
+          products_parsed: 0,
+          rows_skipped: 0,
+          products: [],
+          errors: [msg],
+        })
+      }
     }
-  })
+
+    const durationMs = Date.now() - startTime
+    const totalRowsSkipped = sheetResults.reduce(
+      (sum, s) => sum + s.rows_skipped,
+      0
+    )
+
+    return {
+      success: true,
+      file_name: fileName,
+      sheets_processed: sheetsProcessed,
+      products_found: allProducts.length + totalRowsSkipped,
+      products_parsed: allProducts.length,
+      rows_skipped: totalRowsSkipped,
+      products: allProducts,
+      sheet_results: sheetResults,
+      errors,
+      duration_ms: durationMs,
+    }
+  } catch (error) {
+    const durationMs = Date.now() - startTime
+    const errorMsg =
+      error instanceof Error ? error.message : 'Unknown error'
+    console.error(`[NologyParser] Failed to parse ${fileName}: ${errorMsg}`)
+
+    return {
+      success: false,
+      file_name: fileName,
+      sheets_processed: 0,
+      products_found: 0,
+      products_parsed: 0,
+      rows_skipped: 0,
+      products: [],
+      sheet_results: [],
+      errors: [errorMsg],
+      duration_ms: durationMs,
+    }
+  }
+}
+
+// =====================================================
+// Sheet Parsing
+// =====================================================
+
+function parseSheet(
+  ws: ExcelJS.Worksheet,
+  sheetName: string
+): NologySheetResult {
+  const errors: string[] = []
+  const products: ParsedNologyProduct[] = []
+  let rowsSkipped = 0
+
+  const brand = sheetName
+
+  // Find header row by looking for "SKU" in first few rows
+  let headerRow = 0
+  for (let r = HEADER_SEARCH_START; r <= HEADER_SEARCH_END; r++) {
+    const cellB = getCellText(ws, r, 2)
+    if (cellB && cellB.toUpperCase().trim() === 'SKU') {
+      headerRow = r
+      break
+    }
+  }
+
+  if (headerRow === 0) {
+    // No SKU header — might still have products (e.g., AudioCodes sheet)
+    // Try alternate detection
+    return {
+      sheet_name: sheetName,
+      brand,
+      products_found: 0,
+      products_parsed: 0,
+      rows_skipped: 0,
+      products: [],
+      errors: [],
+    }
+  }
+
+  const dataStartRow = headerRow + 1
+
+  for (let r = dataStartRow; r <= ws.rowCount; r++) {
+    const sku = getCellText(ws, r, 2) // Column B
+    const description = getCellText(ws, r, 3) // Column C
+    const price = getCellNumber(ws, r, 4) // Column D
+    const comments = getCellText(ws, r, 5) // Column E
+    const productUrl = getCellHyperlink(ws, r, 2) // Hyperlink on SKU cell
+
+    // Skip empty rows
+    if (!sku && price === null) {
+      rowsSkipped++
+      continue
+    }
+
+    // Skip if SKU looks like a category header
+    if (sku && isCategoryHeader(sku)) {
+      rowsSkipped++
+      continue
+    }
+
+    // Skip if SKU contains obvious non-product text
+    if (sku && isNonProductText(sku)) {
+      rowsSkipped++
+      continue
+    }
+
+    // Must have a valid SKU
+    if (!sku || sku.length < MIN_SKU_LENGTH || !SKU_PATTERN.test(sku)) {
+      if (description && price && price > 0) {
+        // Has description and price but no recognizable SKU — could be a product
+        // Use a generated SKU
+      } else {
+        rowsSkipped++
+        continue
+      }
+    }
+
+    // Must have either a description or a price
+    if (!description && price === null) {
+      rowsSkipped++
+      continue
+    }
+
+    const product = toProduct(
+      {
+        brand,
+        sku: sku ? sku.trim() : `NOLOGY-${r}`,
+        description,
+        price,
+        comments,
+        product_url: productUrl,
+        row_number: r,
+      },
+      sheetName
+    )
+
+    products.push(product)
+  }
 
   return {
-    categoryUrl,
-    categoryName,
+    sheet_name: sheetName,
+    brand,
+    products_found: ws.rowCount - dataStartRow + 1,
+    products_parsed: products.length,
+    rows_skipped: rowsSkipped,
     products,
-    productsFound: products.length,
-    duration_ms: Date.now() - startTime,
     errors,
   }
 }
 
-/**
- * Extract category name from page
- */
-function extractCategoryName($: cheerio.CheerioAPI, categoryUrl: string): string {
-  // Try main h1
-  const mainTitle = $('h1').first().text().trim()
-  if (mainTitle) return mainTitle
-
-  // Try VirtueMart category title
-  const vmTitle = $('.category-header h1, .vmgroup-description h1').text().trim()
-  if (vmTitle) return vmTitle
-
-  // Try breadcrumb
-  const breadcrumb = $('.pathway li:last-child, .breadcrumb li:last-child span').text().trim()
-  if (breadcrumb) return breadcrumb
-
-  // Fall back to URL-based extraction
-  const urlParts = categoryUrl.split('/').pop()?.replace(/-/g, ' ') || 'Unknown'
-  return urlParts.split('?')[0]
-}
+// =====================================================
+// Cell Reading Helpers
+// =====================================================
 
 /**
- * Parse a single product element
+ * Get cell value as trimmed text (handles rich text and formulas)
  */
-function parseProductElement(
-  $: cheerio.CheerioAPI,
-  element: Element,
-  category: string,
-  categoryUrl: string
-): NologyScrapedProduct | null {
-  const $el = $(element)
-
-  // Extract product title and link
-  // Nology uses h2.product-title > a
-  const titleElement = $el.find('h2.product-title a, .product-title a, h3 a').first()
-  const name = titleElement.text().trim()
-
-  if (!name) {
-    return null // Skip products without name
-  }
-
-  const productUrl = titleElement.attr('href') || ''
-
-  // Extract SKU from dedicated element
-  // Nology shows: <p class="sku-product-code">SKU: GS1900-8HP</p>
-  const sku = extractSku($el, productUrl, name)
-  if (!sku) {
-    return null // Skip products without SKU
-  }
-
-  // Extract price (NOTE: Nology requires auth for prices, usually returns 0)
-  const priceInfo = extractPrice($el)
-
-  // Extract image URL
-  // Nology uses: .pro-image img or .browseProductImage
-  const imageUrl =
-    $el.find('.pro-image img, .browseProductImage').first().attr('src') ||
-    $el.find('.pro-image img, .browseProductImage').first().attr('data-src') ||
-    ''
-
-  // Extract stock status
-  const inStock = extractStockStatus($el)
-
-  // Extract manufacturer/brand from product name
-  const manufacturer = extractManufacturerFromName(name)
-
-  // Extract short description
-  const description =
-    $el.find('.product_s_desc, .product-s-desc, p.product_s_desc span').first().text().trim() ||
-    undefined
-
-  return {
-    sku,
-    name,
-    description,
-    manufacturer,
-    priceInclVat: priceInfo.inclVat,
-    priceExclVat: priceInfo.exclVat,
-    sourceImageUrl: imageUrl ? normalizeImageUrl(imageUrl, categoryUrl) : undefined,
-    productUrl: productUrl ? normalizeUrl(productUrl, categoryUrl) : '',
-    inStock,
-    category,
-    categoryUrl,
-  }
-}
-
-/**
- * Extract SKU from product element
- */
-function extractSku(
-  $el: cheerio.Cheerio<Element>,
-  productUrl: string,
-  _name: string
+function getCellText(
+  ws: ExcelJS.Worksheet,
+  row: number,
+  col: number
 ): string | null {
-  // Try dedicated SKU element (Nology pattern)
-  // <p class="sku-product-code">SKU: GS1900-8HP</p>
-  const skuElement = $el.find('.sku-product-code, .product-sku, [itemprop="sku"]').first().text().trim()
-  if (skuElement) {
-    // Remove "SKU:" prefix if present
-    const cleaned = skuElement.replace(/^SKU:\s*/i, '').trim()
-    if (cleaned) return cleaned
+  const cell = ws.getRow(row).getCell(col)
+  const value = cell.value
+  if (value === null || value === undefined) return null
+
+  // Rich text
+  if (typeof value === 'object' && 'richText' in value) {
+    const rt = value as { richText: Array<{ text: string }> }
+    return rt.richText.map((t) => t.text).join('').trim() || null
   }
 
-  // Try virtuemart product ID from form
-  const productId = $el.find('input[name="virtuemart_product_id[]"]').first().attr('value')
-  if (productId) return `NOL-${productId}`
+  // Formula with result
+  if (typeof value === 'object' && 'result' in value) {
+    const result = (value as { result: unknown }).result
+    if (result === null || result === undefined) return null
+    return String(result).trim() || null
+  }
 
-  // Try data attribute
-  const dataProductId =
-    $el.attr('data-virtuemart_product_id') ||
-    $el.attr('data-product-id') ||
-    $el.find('[data-product-id]').first().attr('data-product-id')
-  if (dataProductId) return `NOL-${dataProductId}`
+  // Hyperlink object (the text property is the display text)
+  if (typeof value === 'object' && 'text' in value) {
+    const text = (value as { text: string }).text
+    return text.trim() || null
+  }
 
-  // Extract from URL (e.g., /products/.../zyxel-gs1900-8hp-detail)
-  const urlMatch = productUrl.match(/\/([^/]+)-detail(?:\?.*)?$/)
-  if (urlMatch) {
-    const slug = urlMatch[1].toUpperCase()
-    if (slug.length < 50) return slug
+  const str = String(value).trim()
+  return str || null
+}
+
+/**
+ * Get cell value as a number
+ */
+function getCellNumber(
+  ws: ExcelJS.Worksheet,
+  row: number,
+  col: number
+): number | null {
+  const cell = ws.getRow(row).getCell(col)
+  const value = cell.value
+  if (value === null || value === undefined) return null
+
+  if (typeof value === 'number') return value
+
+  if (typeof value === 'string') {
+    // Try parsing
+    const cleaned = value.replace(/[R\s,]/g, '')
+    const num = parseFloat(cleaned)
+    return isNaN(num) ? null : num
+  }
+
+  // Formula with numeric result
+  if (typeof value === 'object' && 'result' in value) {
+    const result = (value as { result: unknown }).result
+    if (typeof result === 'number') return result
+    if (typeof result === 'string') {
+      const num = parseFloat(result.replace(/[R\s,]/g, ''))
+      return isNaN(num) ? null : num
+    }
   }
 
   return null
 }
 
 /**
- * Extract price from product element
- * NOTE: Nology loads prices via JavaScript - requires authentication
- * This function may return 0 for unauthenticated requests
+ * Extract hyperlink URL from a cell
  */
-function extractPrice($el: cheerio.Cheerio<Element>): {
-  inclVat: number
-  exclVat: number
-} {
-  const defaultPrice = { inclVat: 0, exclVat: 0 }
+function getCellHyperlink(
+  ws: ExcelJS.Worksheet,
+  row: number,
+  col: number
+): string | null {
+  const cell = ws.getRow(row).getCell(col)
+  const value = cell.value
 
-  // Try to find price elements (VirtueMart uses various classes)
-  const priceSelectors = [
-    '.PricesalesPrice',
-    '.vm-price-value',
-    '.product-price span.price',
-    '.product-price',
-    '[itemprop="price"]',
+  // exceljs stores hyperlinks in the value object
+  if (typeof value === 'object' && value !== null) {
+    if ('hyperlink' in value) {
+      return (value as { hyperlink: string }).hyperlink || null
+    }
+  }
+
+  return null
+}
+
+// =====================================================
+// Validation Helpers
+// =====================================================
+
+/**
+ * Check if text looks like a category group header
+ */
+function isCategoryHeader(text: string): boolean {
+  if (text.length < 2) return false
+
+  // Category headers are plain text labels like "SWITCHES", "ROUTERS"
+  // They contain only letters, spaces, and forward slashes (no digits/dashes)
+  // This distinguishes them from SKUs like "LS-1600V2-6P-HPWR-GL"
+  const isPlainText = /^[A-Z][A-Z\s/&()-]+$/.test(text)
+  if (isPlainText && text.length >= 3 && text.length < 50) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * Check if text is non-product metadata
+ */
+function isNonProductText(text: string): boolean {
+  const lower = text.toLowerCase()
+  const nonProductPatterns = [
+    'click here',
+    'e & oe',
+    'terms & conditions',
+    'pricing valid',
+    'all pricing',
+    'for more information',
+    'nology is an official',
+    'please refer to',
+    'return',
+    'page',
   ]
-
-  for (const selector of priceSelectors) {
-    const priceText = $el.find(selector).first().text().trim()
-    if (priceText) {
-      const price = parsePrice(priceText)
-      if (price > 0) {
-        // Check for excl VAT price
-        const exclVatText = $el.find('.PricebasePriceWithoutTax, .price-excl-vat').first().text()
-        if (exclVatText) {
-          const exclPrice = parsePrice(exclVatText)
-          if (exclPrice > 0) {
-            return { inclVat: price, exclVat: exclPrice }
-          }
-        }
-        // Calculate excl VAT (15% in SA)
-        return {
-          inclVat: price,
-          exclVat: Math.round((price / 1.15) * 100) / 100,
-        }
-      }
-    }
-  }
-
-  // Try itemprop content attribute
-  const priceContent = $el.find('[itemprop="price"]').first().attr('content')
-  if (priceContent) {
-    const price = parseFloat(priceContent)
-    if (!isNaN(price) && price > 0) {
-      return {
-        inclVat: price,
-        exclVat: Math.round((price / 1.15) * 100) / 100,
-      }
-    }
-  }
-
-  return defaultPrice
+  return nonProductPatterns.some((p) => lower.includes(p))
 }
 
-/**
- * Parse price string to number
- */
-export function parsePrice(text: string): number {
-  if (!text) return 0
-
-  // Remove currency symbol, spaces, and thousands separators
-  const cleaned = text
-    .replace(/R\s*/gi, '')
-    .replace(/ZAR\s*/gi, '')
-    .replace(/\s/g, '')
-    .replace(/,/g, '')
-    .replace(/[^\d.]/g, '')
-
-  // Extract the numeric value
-  const match = cleaned.match(/(\d+\.?\d*)/)
-  if (match) {
-    const value = parseFloat(match[1])
-    return isNaN(value) ? 0 : Math.round(value * 100) / 100
-  }
-
-  return 0
-}
+// =====================================================
+// Product Conversion
+// =====================================================
 
 /**
- * Extract stock status
+ * Convert raw xlsx row to ParsedNologyProduct
  */
-function extractStockStatus($el: cheerio.Cheerio<Element>): boolean {
-  // Check for explicit stock indicator
-  const stockText = $el
-    .find('.stock-status, .availability, .vm-stock-level, .product-stock')
-    .first()
-    .text()
-    .toLowerCase()
+function toProduct(
+  row: NologyXlsxRow,
+  sheetName: string
+): ParsedNologyProduct {
+  const name =
+    row.description || row.sku || `Unknown Product (${sheetName})`
 
-  if (stockText.includes('out of stock') || stockText.includes('unavailable')) {
-    return false
-  }
-  if (stockText.includes('in stock') || stockText.includes('available')) {
-    return true
-  }
+  // Extract warranty from comments
+  const warranty = extractWarranty(row.comments)
 
-  // Check for stock CSS classes
-  if ($el.find('.in-stock, .available').length > 0) {
-    return true
-  }
-  if ($el.find('.out-of-stock, .unavailable, .soldout').length > 0) {
-    return false
-  }
-
-  // Check for add to cart form (Nology shows form for in-stock items)
-  const addToCartForm = $el.find('form.product, .addtocart-area form')
-  if (addToCartForm.length > 0) {
-    return true
-  }
-
-  // Default to true if we can't determine (product is listed)
-  return true
-}
-
-/**
- * Extract manufacturer from product name
- * Common brands seen on Nology
- */
-function extractManufacturerFromName(name: string): string {
-  const knownBrands = [
-    // Network equipment brands
-    'Zyxel',
-    'ZyXEL',
-    'MikroTik',
-    'Ubiquiti',
-    'TP-Link',
-    'Cisco',
-    'Netgear',
-    'D-Link',
-    'Dell',
-    'HP',
-    'HPE',
-    'Juniper',
-    'H3C',
-    'Huawei',
-    'Teltonika',
-    'Aruba',
-    'Ruckus',
-    'Fortinet',
-    'Planet',
-    'Allied Telesis',
-    'Extreme',
-    'Cambium',
-    // Camera/surveillance
-    'Hikvision',
-    'Dahua',
-    // General
-    'Samsung',
-    'LG',
-  ]
-
-  const nameLower = name.toLowerCase()
-  for (const brand of knownBrands) {
-    if (nameLower.includes(brand.toLowerCase())) {
-      // Return properly capitalized brand name
-      return brand
-    }
-  }
-
-  // Check if name starts with a brand-like word (capitalized, 3+ chars)
-  const firstWord = name.split(/\s+/)[0]
-  if (firstWord && firstWord.length >= 3 && /^[A-Z]/.test(firstWord)) {
-    // Could be a brand - return as-is
-    return firstWord
-  }
-
-  return 'Unknown'
-}
-
-/**
- * Normalize relative URLs to absolute
- */
-function normalizeUrl(url: string, baseUrl: string): string {
-  if (url.startsWith('http')) return url
-  if (url.startsWith('//')) return `https:${url}`
-
-  const base = new URL(baseUrl)
-  if (url.startsWith('/')) {
-    return `${base.protocol}//${base.host}${url}`
-  }
-
-  return `${base.protocol}//${base.host}/${url}`
-}
-
-/**
- * Normalize image URL
- */
-function normalizeImageUrl(url: string, baseUrl: string): string {
-  if (url.startsWith('data:')) return ''
-  if (url.includes('noimage') || url.includes('placeholder')) return ''
-
-  return normalizeUrl(url, baseUrl)
-}
-
-/**
- * Convert scraped product to database format
- */
-export function toSupplierProduct(product: NologyScrapedProduct): ParsedNologyProduct {
-  // Nology doesn't provide branch-level stock, so we use generic in-stock indicator
-  const stockValue = product.inStock ? 1 : 0
+  // Extract stock info from comments
+  const hasStockInfo = row.comments
+    ? /in stock|now in stock|eta|confirmed on order|last stock/i.test(
+        row.comments
+      )
+    : false
 
   return {
-    sku: product.sku,
-    name: product.name,
-    description: product.description || null,
-    manufacturer: product.manufacturer || 'Unknown',
-    cost_price: product.priceExclVat,
-    retail_price: product.priceInclVat,
-    source_image_url: product.sourceImageUrl || '',
-    product_url: product.productUrl,
-    stock_cpt: 0, // Nology doesn't provide branch stock
-    stock_jhb: stockValue, // Assume JHB for Nology
+    sku: row.sku!.trim(),
+    name: name.trim(),
+    description: row.description || null,
+    manufacturer: row.brand,
+    cost_price: row.price || 0,
+    retail_price: row.price || 0, // Nology xlsx doesn't provide retail
+    source_image_url: '',
+    product_url: row.product_url || '',
+    stock_cpt: 0, // Not in xlsx
+    stock_jhb: 0,
     stock_dbn: 0,
-    stock_total: stockValue,
-    category: product.category,
+    stock_total: hasStockInfo ? 1 : 0, // At least mark as available
+    category: row.brand,
+    warranty,
+    subcategory: categoryFromRow(row),
   }
+}
+
+/**
+ * Extract warranty duration from comments text
+ */
+function extractWarranty(comments: string | null): string | null {
+  if (!comments) return null
+
+  const patterns = [
+    /(\d+)\s*(?:month|yr|year)s?\s*warranty/i,
+    /(\d+)\s*months?\s*warranty/i,
+    /warranty[:\s]*(\d+)\s*(?:month|yr|year)s?/i,
+  ]
+
+  for (const pattern of patterns) {
+    const match = comments.match(pattern)
+    if (match) {
+      const num = parseInt(match[1], 10)
+      return `${num} months`
+    }
+  }
+
+  return null
+}
+
+/**
+ * Infer subcategory from row data
+ */
+function categoryFromRow(row: NologyXlsxRow): string | null {
+  // If comments contain a category-like prefix
+  if (row.comments) {
+    const catMatch = row.comments.match(
+      /^(SWITCHES|ROUTERS|ACCESS POINTS|FIREWALLS|HEADSETS|SPEAKERPHONES?|CAMERAS?|(?:Wi-?Fi|FIBRE|5G|LTE)\s+(?:ROUTERS?|CPE)|CONVERTORS?|SOLAR PANELS?|BACKUP POWER|MESH (?:Wi-?FI|WI-FI)|ANDROID TV|SMART (?:SWITCH|HOME))/i
+    )
+    if (catMatch) return catMatch[1]
+  }
+
+  return null
 }

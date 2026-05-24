@@ -2,7 +2,7 @@
  * DFA (Dark Fibre Africa) Coverage Client
  *
  * Integrates with DFA's ArcGIS REST API to check fiber coverage
- * API Documentation: https://gisportal.dfafrica.co.za/arcgis/rest/services
+ * API Documentation: https://dfafrica.maps.arcgis.com
  */
 
 import axios, { AxiosError } from 'axios';
@@ -16,20 +16,17 @@ import {
   DFACoverageError
 } from './types';
 import {
-  latLngToWebMercator,
-  createBoundingBox,
-  calculateDistance,
   haversineDistance,
   isWithinSouthAfricaBounds,
-  formatGeometryPoint,
-  formatGeometryEnvelope
+  createWGS84BoundingBox,
+  calculatePolygonCentroid,
 } from './coordinate-utils';
 
 export class DFACoverageClient {
   private readonly baseUrl =
-    'https://gisportal.dfafrica.co.za/server/rest/services/API';
-  private readonly timeout = 5000; // 5 seconds
-  private readonly maxNearNetDistance = 200; // meters
+    'https://utility.arcgis.com/usrsvcs/servers/044304ebfe2140b18e6e50d1af16e9e0/rest/services/Hosted/PublicCoverage/FeatureServer';
+  private readonly timeout = 5000;
+  private readonly maxNearNetDistance = 200;
 
   /**
    * Check DFA fiber coverage at a specific address/location
@@ -70,16 +67,16 @@ export class DFACoverageClient {
           hasCoverage: true,
           coverageType: 'connected',
           buildingDetails: {
-            objectId: connectedBuilding.OBJECTID,
-            buildingId: connectedBuilding.DFA_Building_ID,
+            objectId: connectedBuilding.objectid,
+            buildingId: connectedBuilding.dfa_building_id,
             status: 'Connected',
-            ftth: connectedBuilding.FTTH,
-            broadband: connectedBuilding.Broadband,
-            precinct: connectedBuilding.Precinct,
-            promotion: connectedBuilding.Promotion,
+            ftth: connectedBuilding.ftth,
+            broadband: connectedBuilding.broadband,
+            precinct: connectedBuilding.precinct,
+            promotion: connectedBuilding.promotion,
             coordinates: {
-              latitude: connectedBuilding.Latitude,
-              longitude: connectedBuilding.Longitude
+              latitude: connectedBuilding.latitude ?? 0,
+              longitude: connectedBuilding.longitude ?? 0
             }
           },
           message: 'Active DFA fiber connection available'
@@ -149,61 +146,80 @@ export class DFACoverageClient {
     latitude: number,
     longitude: number
   ): Promise<DFAConnectedBuilding | null> {
-    const webMercator = latLngToWebMercator(latitude, longitude);
+    const geometry = JSON.stringify({
+      x: longitude,
+      y: latitude,
+      spatialReference: { wkid: 4326 },
+    });
 
     const params = new URLSearchParams({
       f: 'json',
-      returnGeometry: 'false',
+      returnGeometry: 'true',
       spatialRel: 'esriSpatialRelIntersects',
-      geometry: formatGeometryPoint(webMercator),
+      geometry,
       geometryType: 'esriGeometryPoint',
-      inSR: '102100',
-      where: "DFA_Connected_Y_N='Yes'",
+      inSR: '4326',
+      where: "dfa_connected_y_n='Yes'",
       outFields:
-        'OBJECTID,DFA_Building_ID,Longitude,Latitude,DFA_Connected_Y_N,FTTH,Broadband,Precinct,Promotion',
-      outSR: '102100'
+        'objectid,dfa_building_id,longitude,latitude,dfa_connected_y_n,ftth,broadband,precinct,promotion',
+      outSR: '4326',
     });
 
     const response = await axios.get<
       ArcGISQueryResponse<DFAConnectedBuilding>
-    >(`${this.baseUrl}/DFA_Connected_Buildings/MapServer/0/query`, {
+    >(`${this.baseUrl}/2/query`, {
       params,
-      timeout: this.timeout
+      timeout: this.timeout,
     });
 
     if (response.data.features && response.data.features.length > 0) {
       const feature = response.data.features[0];
-      if (feature.attributes.DFA_Connected_Y_N === 'Yes') {
-        return feature.attributes;
+      const building = { ...feature.attributes };
+      if (
+        (!building.latitude || !building.longitude) &&
+        feature.geometry?.rings?.length
+      ) {
+        const centroid = calculatePolygonCentroid(feature.geometry.rings);
+        building.latitude = centroid.latitude;
+        building.longitude = centroid.longitude;
       }
+      return building;
     }
 
-    const bbox = createBoundingBox(latitude, longitude, 3);
+    // Fallback: small bounding box query
+    const bbox = createWGS84BoundingBox(latitude, longitude, 3);
     const params2 = new URLSearchParams({
       f: 'json',
-      returnGeometry: 'false',
+      returnGeometry: 'true',
       spatialRel: 'esriSpatialRelIntersects',
-      geometry: formatGeometryEnvelope(bbox),
+      geometry: JSON.stringify(bbox),
       geometryType: 'esriGeometryEnvelope',
-      inSR: '102100',
-      where: "DFA_Connected_Y_N='Yes'",
+      inSR: '4326',
+      where: "dfa_connected_y_n='Yes'",
       outFields:
-        'OBJECTID,DFA_Building_ID,Longitude,Latitude,DFA_Connected_Y_N,FTTH,Broadband,Precinct,Promotion',
-      outSR: '102100'
+        'objectid,dfa_building_id,longitude,latitude,dfa_connected_y_n,ftth,broadband,precinct,promotion',
+      outSR: '4326',
     });
 
     const response2 = await axios.get<
       ArcGISQueryResponse<DFAConnectedBuilding>
-    >(`${this.baseUrl}/DFA_Connected_Buildings/MapServer/0/query`, {
+    >(`${this.baseUrl}/2/query`, {
       params: params2,
-      timeout: this.timeout
+      timeout: this.timeout,
     });
 
     if (response2.data.features && response2.data.features.length > 0) {
       const feature = response2.data.features[0];
-      if (feature.attributes.DFA_Connected_Y_N === 'Yes') {
-        return feature.attributes;
+      const building = { ...feature.attributes };
+      if (
+        (!building.latitude || !building.longitude) &&
+        feature.geometry?.rings?.length
+      ) {
+        const centroid = calculatePolygonCentroid(feature.geometry.rings);
+        building.latitude = centroid.latitude;
+        building.longitude = centroid.longitude;
       }
+      return building;
     }
 
     return null;
@@ -224,29 +240,28 @@ export class DFACoverageClient {
     address: string;
     distance: number;
   } | null> {
-    const bbox = createBoundingBox(latitude, longitude, maxDistance);
+    const bbox = createWGS84BoundingBox(latitude, longitude, maxDistance);
 
     const params = new URLSearchParams({
       f: 'json',
       returnGeometry: 'true',
       spatialRel: 'esriSpatialRelIntersects',
-      geometry: formatGeometryEnvelope(bbox),
+      geometry: JSON.stringify(bbox),
       geometryType: 'esriGeometryEnvelope',
-      inSR: '102100',
-      outFields: 'OBJECTID,DFA_Building_ID,Building_Name,Street_Address',
-      outSR: '102100'
+      inSR: '4326',
+      outFields: 'objectid,dfa_building_id,building_name,street_address',
+      outSR: '4326',
     });
 
     const response = await axios.get<ArcGISQueryResponse<DFANearNetBuilding>>(
-      `${this.baseUrl}/Promotions/MapServer/1/query`,
+      `${this.baseUrl}/1/query`,
       {
         params,
-        timeout: this.timeout
+        timeout: this.timeout,
       }
     );
 
     if (response.data.features && response.data.features.length > 0) {
-      // Find nearest building
       let nearestBuilding: {
         buildingName: string;
         address: string;
@@ -255,34 +270,23 @@ export class DFACoverageClient {
       let minDistance = maxDistance;
 
       for (const feature of response.data.features) {
-        // Get building centroid (use geometry if available)
-        if (feature.geometry?.rings) {
-          // Calculate centroid of polygon
-          const ring = feature.geometry.rings[0];
-          let sumX = 0;
-          let sumY = 0;
-          for (const point of ring) {
-            sumX += point[0];
-            sumY += point[1];
-          }
-          const centroidX = sumX / ring.length;
-          const centroidY = sumY / ring.length;
-
-          // Calculate distance
-          const webMercator = latLngToWebMercator(latitude, longitude);
-          const distance = calculateDistance(webMercator, {
-            x: centroidX,
-            y: centroidY
-          });
+        if (feature.geometry?.rings && feature.geometry.rings.length > 0) {
+          const centroid = calculatePolygonCentroid(feature.geometry.rings);
+          const distance = haversineDistance(
+            latitude,
+            longitude,
+            centroid.latitude,
+            centroid.longitude
+          );
 
           if (distance < minDistance) {
             minDistance = distance;
             nearestBuilding = {
               buildingName:
-                feature.attributes.Building_Name || 'Unnamed Building',
+                feature.attributes.building_name || 'Unnamed Building',
               address:
-                feature.attributes.Street_Address || 'Address not available',
-              distance
+                feature.attributes.street_address || 'Address not available',
+              distance,
             };
           }
         }
@@ -311,50 +315,47 @@ export class DFACoverageClient {
     longitude: number,
     maxDistance: number = 500
   ): Promise<{ distance: number; routeName?: string } | null> {
-    const bbox = createBoundingBox(latitude, longitude, maxDistance);
+    const bbox = createWGS84BoundingBox(latitude, longitude, maxDistance);
 
     const params = new URLSearchParams({
       f: 'json',
       returnGeometry: 'true',
       spatialRel: 'esriSpatialRelIntersects',
-      geometry: formatGeometryEnvelope(bbox),
+      geometry: JSON.stringify(bbox),
       geometryType: 'esriGeometryEnvelope',
-      inSR: '102100',
-      outFields: 'OBJECTID,stage,ea1,totlength', // ea1 = Route Name
-      outSR: '102100',
-      where: "stage = 'Completed'" // Only query completed fiber
+      inSR: '4326',
+      outFields: 'objectid,stage,ea1',
+      outSR: '4326',
+      where: "stage = 'Completed'",
     });
 
     try {
       const response = await axios.get(
-        `${this.baseUrl}/API_BasedOSPLayers/MapServer/1/query`,
+        `${this.baseUrl}/5/query`,
         {
           params,
-          timeout: this.timeout
+          timeout: this.timeout,
         }
       );
 
       if (response.data.features && response.data.features.length > 0) {
-        // Calculate distance to nearest polyline
-        // This is a simplified calculation - for production, use proper
-        // point-to-line distance calculation
-        const webMercator = latLngToWebMercator(latitude, longitude);
-
         let nearestDistance = maxDistance;
         let routeName: string | undefined;
 
         for (const feature of response.data.features) {
           if (feature.geometry?.paths) {
-            // Get first path (fiber route)
-            const path = feature.geometry.paths[0];
-            for (const point of path) {
-              const distance = calculateDistance(webMercator, {
-                x: point[0],
-                y: point[1]
-              });
-              if (distance < nearestDistance) {
-                nearestDistance = distance;
-                routeName = feature.attributes.ea1; // Route Name
+            for (const path of feature.geometry.paths) {
+              for (const point of path) {
+                const distance = haversineDistance(
+                  latitude,
+                  longitude,
+                  point[1],
+                  point[0]
+                );
+                if (distance < nearestDistance) {
+                  nearestDistance = distance;
+                  routeName = feature.attributes.ea1;
+                }
               }
             }
           }
@@ -363,12 +364,11 @@ export class DFACoverageClient {
         if (nearestDistance < maxDistance) {
           return {
             distance: nearestDistance,
-            routeName
+            routeName,
           };
         }
       }
     } catch (error) {
-      // Non-critical - just log and return null
       console.warn('Ductbank query failed:', error);
     }
 
@@ -384,7 +384,7 @@ export class DFACoverageClient {
 
     try {
       const response = await axios.get(
-        `${this.baseUrl}/DFA_Connected_Buildings/MapServer/0?f=json`,
+        `${this.baseUrl}/2?f=json`,
         { timeout: this.timeout }
       );
 

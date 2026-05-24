@@ -1,122 +1,70 @@
 /**
- * Admin Suppliers API Route
- * GET /api/admin/suppliers - List all suppliers with stats
- * POST /api/admin/suppliers - Create a new supplier
+ * Admin Suppliers API
+ *
+ * GET /api/admin/suppliers — list suppliers with product counts
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
-import { SupplierInsert } from '@/lib/suppliers/types'
 
-export const runtime = 'nodejs'
-export const maxDuration = 15
-
-/**
- * GET - List all suppliers with aggregated stats
- */
-export async function GET(request: NextRequest) {
-  const authResult = await authenticateAdmin(request)
-  if (!authResult.success) {
-    return authResult.response
-  }
-
+export async function GET() {
   try {
     const supabase = await createClient()
 
-    // Get suppliers with product stats using the view
-    const { data: suppliers, error } = await supabase
-      .from('v_supplier_summary')
-      .select('*')
-      .order('name', { ascending: true })
-
-    if (error) {
-      console.error('[Suppliers API] Error fetching suppliers:', error)
-      return NextResponse.json(
-        { success: false, error: 'Failed to fetch suppliers', details: error.message },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: suppliers || [],
-      total: suppliers?.length || 0,
-    })
-  } catch (error) {
-    console.error('[Suppliers API] Error:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-/**
- * POST - Create a new supplier
- */
-export async function POST(request: NextRequest) {
-  const authResult = await authenticateAdmin(request)
-  if (!authResult.success) {
-    return authResult.response
-  }
-
-  try {
-    const supabase = await createClient()
-    const body = await request.json()
-
-    // Validate required fields
-    if (!body.name || !body.code) {
-      return NextResponse.json(
-        { success: false, error: 'Name and code are required' },
-        { status: 400 }
-      )
-    }
-
-    // Prepare insert data
-    const insertData: SupplierInsert = {
-      name: body.name,
-      code: body.code.toUpperCase(),
-      website_url: body.website_url || null,
-      contact_email: body.contact_email || null,
-      contact_phone: body.contact_phone || null,
-      account_number: body.account_number || null,
-      payment_terms: body.payment_terms || null,
-      feed_url: body.feed_url || null,
-      feed_type: body.feed_type || 'manual',
-      is_active: body.is_active ?? true,
-      notes: body.notes || null,
-    }
-
-    const { data: supplier, error } = await supabase
+    const { data, error } = await supabase
       .from('suppliers')
-      .insert(insertData)
-      .select()
-      .single()
+      .select(
+        `
+        id,
+        code,
+        name,
+        website_url,
+        feed_type,
+        is_active,
+        sync_status,
+        last_synced_at,
+        sync_error
+      `
+      )
+      .order('name')
 
     if (error) {
-      console.error('[Suppliers API] Error creating supplier:', error)
-      if (error.code === '23505') {
-        return NextResponse.json(
-          { success: false, error: 'A supplier with this code already exists' },
-          { status: 409 }
-        )
-      }
       return NextResponse.json(
-        { success: false, error: 'Failed to create supplier', details: error.message },
+        { error: error.message },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      data: supplier,
-      message: 'Supplier created successfully',
-    }, { status: 201 })
+    // Get product counts per supplier
+    const { data: productCounts } = await supabase
+      .from('supplier_products')
+      .select('supplier_id, is_active, in_stock')
+
+    const countMap: Record<
+      string,
+      { total: number; active: number; inStock: number }
+    > = {}
+    for (const p of productCounts || []) {
+      if (!countMap[p.supplier_id]) {
+        countMap[p.supplier_id] = { total: 0, active: 0, inStock: 0 }
+      }
+      countMap[p.supplier_id].total++
+      if (p.is_active) countMap[p.supplier_id].active++
+      if (p.in_stock) countMap[p.supplier_id].inStock++
+    }
+
+    const suppliers = (data || []).map((s) => ({
+      ...s,
+      products_total: countMap[s.id]?.total || 0,
+      products_active: countMap[s.id]?.active || 0,
+      products_in_stock: countMap[s.id]?.inStock || 0,
+    }))
+
+    return NextResponse.json({ data: suppliers })
   } catch (error) {
-    console.error('[Suppliers API] Error:', error)
+    console.error('[Admin Suppliers API] Error:', error)
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { error: 'Failed to fetch suppliers' },
       { status: 500 }
     )
   }
