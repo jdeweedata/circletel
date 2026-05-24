@@ -1,0 +1,153 @@
+# MRR Growth Strategy: R15K → R1.25M in 12 Months
+
+**Date:** 2026-05-24
+**Author:** Jeffrey de Wee (CircleTel)
+**Status:** Draft — Under Review
+
+---
+
+## Executive Summary
+
+CircleTel is uniquely positioned among SA ISPs with a supplier moat: 7,438 products across 5 distributors (Scoop, MiRO, Nology, Rectron, Apple iStore Business) with multi-distributor price and stock visibility. Competitors (WebAfrica, Afrihost, Vox) are pure connectivity plays. CircleTel can be the only provider that bundles **internet + hardware + IT management + cloud** into a single monthly bill.
+
+**Target:** Grow MRR from R15K to R1.25M within 12 months.
+
+**Core moat:** Multi-distributor hardware supply chain. No ISP competitor has this.
+
+---
+
+## Competitive Analysis Summary
+
+| Capability | CircleTel | WebAfrica | Afrihost | Vox |
+|---|---|---|---|---|
+| Consumer Fibre | ✓ | ✓ | ✓ | ✓ |
+| Business Fibre | ✓ | ✗ | ~ | ✓ |
+| Managed IT | ✓ | ✗ | ✗ | ✗ |
+| Hardware Supply | ✓ (5 distributors) | ✗ | ✗ | ✗ |
+| Cloud & Hosting | ✓ | ✗ | ✓ (hosting) | ✗ |
+| VoIP / Voice | ✗ | ✗ | ✓ | ✓ (leader) |
+| Rewards / Loyalty | ✗ | ✓ (EarnMore) | ✗ | ✓ (Vox Rewards) |
+| Mobile App | ✗ | ✓ | ✓ | ✗ |
+| Power Backup | ✓ | ✗ | ✗ | ✗ |
+| 24/7 Support | ✗ | ✗ | ✗ | ✓ |
+
+**Key insight:** CircleTel's Managed IT + Hardware Supply is the uncontested space.
+
+---
+
+## The 7 Revenue Levers
+
+### Lever 1: Managed Office-in-a-Box (FLAGSHIP)
+One monthly fee: internet + hardware + IT support + cloud backup + VoIP. Zero upfront cost.
+- **Micro (1-3 seats):** R1,999/m
+- **Small (4-10 seats):** R4,999/m
+- **Medium (11-25 seats):** R8,999/m
+- **Target MRR:** R250,000/m (50 clients × R5,000 avg)
+
+### Lever 2: 4-Hour Hardware Replacement SLA
+Guaranteed hardware replacement within 4 hours. Enabled by multi-distributor stock visibility.
+- **Pricing:** R299/m per site
+- **Target MRR:** R59,800/m (200 sites)
+- **Prerequisite:** Stock visibility problem solved (see below)
+
+### Lever 3: Power Backup-as-a-Service
+UPS + inverter + battery lease for load shedding resilience.
+- **Basic (4hr):** R399/m | **Standard (6hr):** R699/m | **Pro (8hr):** R1,299/m
+- **Target MRR:** R105,000/m (150 sites × R700 avg)
+
+### Lever 4: Hardware-as-a-Service (HaaS)
+Laptop, desktop, monitor, printer leasing with full break-fix support.
+- **Pricing:** R299-R999/m per device
+- **Target MRR:** R100,000/m (200 devices × R500 avg)
+- **Capital intensive:** Requires equipment finance partner
+
+### Lever 5: Procurement-as-a-Service
+Monthly retainer for outsourced IT procurement. Client gets wholesale pricing.
+- **Pricing:** R1,500-R5,000/m retainer + 10% hardware markup
+- **Target MRR:** R100,000/m (40 clients × R2,500 avg)
+- **Prerequisite:** Multi-distributor quoting engine
+
+### Lever 6: Partner/Reseller Channel
+White-label bundles to IT consultants and MSPs who lack supplier access.
+- **Model:** Partners sell at their margin; CircleTel fulfills hardware + tier-2 support
+- **Target MRR:** R150,000/m (10 partners × R15,000 avg wholesale)
+
+### Lever 7: Consumer Fibre + Home Office Kit Upsell
+Home fibre signup → upsell pro router + UPS + basic IT support.
+- **Pricing:** R299/m add-on on top of fibre
+- **Target MRR:** R400,000/m (500 homes × R800 avg)
+
+---
+
+## 12-Month Ramp Model
+
+| Month | Focus | New MRR/m Added | Cumulative MRR |
+|---|---|---|---|
+| 0 | Baseline | — | R15,000 |
+| 1 | Build bundles, hire salesperson #1 | R20,000 | R35,000 |
+| 2 | First 3 Office-in-a-Box clients | R25,000 | R60,000 |
+| 3 | Power Backup upsells, buffer stock | R30,000 | R90,000 |
+| 4 | Partner #1 onboarded | R40,000 | R130,000 |
+| 5 | Consumer fibre + WFH Kit launch | R55,000 | R185,000 |
+| 6 | Partner #2, procurement retainer (manual) | R75,000 | R260,000 |
+| 7 | HaaS pilot (5 clients), partner #3 | R90,000 | R350,000 |
+| 8 | SMB acceleration, procurement scaling | R120,000 | R470,000 |
+| 9 | Consumer scaling, HaaS expansion | R160,000 | R630,000 |
+| 10 | Partners #4-5, procurement growth | R200,000 | R830,000 |
+| 11 | Full throttle all levers | R220,000 | R1,050,000 |
+| 12 | Close pipeline, holiday push | R200,000 | R1,250,000 |
+
+**Assumptions:**
+- 3% monthly churn (factored into cumulative, not shown)
+- Working capital available by month 3 for buffer stock
+- First hire (sales/ops) by month 2
+- Partners recruited months 4-10
+
+---
+
+## Stock Visibility Status (As-Is)
+
+| Supplier | Feed Type | Price Data | Stock Data | Status |
+|---|---|---|---|---|
+| Scoop | XML | ✓ (DealerPrice, RetailPrice) | ✓ (CPT, JHB, DBN, Total) | **LIVE** |
+| MiRO | xlsx + product-page scraper | ✓ (Your Price, Retail) | ~ (scraper for JHB/CPT/DBN) | **PARTIAL** |
+| Nology | xlsx | ✓ (Price excl VAT) | ✗ (comments may have stock notes) | **NONE** |
+| Rectron | xlsm (CAPTCHA portal) | ✓ (Price excl VAT) | ✗ (explicitly not tracked) | **NONE** |
+| Apple iStore | Pending | Pending | Pending | **PENDING** |
+
+**Critical finding:** 2 of 5 suppliers have no stock data at all. Only Scoop has reliable real-time stock. This constrains Levers 2 (4-hour SLA) and 5 (Procurement-as-a-Service) until resolved.
+
+---
+
+## Prerequisites for Launch
+
+1. **Buffer stock** of top 20 SKUs: R50-80K upfront (mandatory)
+2. **Stock visibility** for ≥3 distributors before Levers 2 and 5
+3. **Working capital** for hardware float: R50-100K by month 3
+4. **First hire** (sales/ops hybrid): month 2
+5. **Ticketing/support system**: month 1 (even if lightweight)
+
+---
+
+## Risks & Mitigations
+
+| Risk | Severity | Mitigation |
+|---|---|---|
+| Stock data is fiction for 2 distributors | HIGH | Buffer stock + defer Levers 2/5 until solved |
+| Working capital for hardware | HIGH | 50% deposit + 30-day distributor terms + finance partner |
+| Support doesn't scale | MEDIUM | Hire support by month 6, ticketing system month 1 |
+| Partner quality control | MEDIUM | Vetting process, non-compete, minimum commitment |
+| Consumer churn | LOW | Hardware amortized in 8-10 months; 12-month retention is profitable |
+| Jeffrey becomes bottleneck | HIGH | Hire #1 by month 2, hire #2 by month 6 |
+
+---
+
+## Next Actions
+
+1. [ ] Approve R50-80K buffer stock budget
+2. [ ] Define top 20 SKUs from supplier data
+3. [ ] Contact Rectron re: reseller API / stock feed availability
+4. [ ] Contact Nology re: stock data availability
+5. [ ] Build 3 standardized SMB bundles with pricing
+6. [ ] Hire salesperson #1
+7. [ ] Deploy lightweight ticketing system
