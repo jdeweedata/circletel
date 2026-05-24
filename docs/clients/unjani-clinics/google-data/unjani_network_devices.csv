@@ -1,0 +1,41 @@
+Clinic,Site Name (DB),Device Type,Serial Number,Model,Device Status (DB),Ruijie Cloud Status,MAC Address,Firmware,Channel,SIM Number,PPPoE Username,Monthly Cost (R),Admin URL
+Alexandra,Unjani Alexandra,tarana_router,S150F2224000967,Tarana G1 FWB,active,,,,mtn_wholesale,,CT-UNJ-002@circletel.co.za,499.00,/admin/network/devices/S150F2224000967
+Barcelona,Unjani Barcelona,ruijie_ap,G1UQ9C800686A,RAP62-OD,offline,offline,9cce.88d1.6a1e,ReyeeOS 2.385.0.1403,mtn_wholesale,,,,/admin/network/devices/G1UQ9C800686A
+Barcelona,Unjani Barcelona,tozed_cpe,X100PRO862378061530132,Tozed ZLT X100 PRO,signal_issues,,,,arlan,11360259504,CT-UNJ-013@circletel.co.za,503.48,/admin/network/devices/X100PRO862378061530132
+Chloorkop,Unjani Chloorkop,ruijie_ap,G1U52HL002532,RAP2200(F),active,online,9cce.8822.9b05,ReyeeOS 2.380.0.2426,mtn_wholesale,,,,/admin/network/devices/G1U52HL002532
+Chloorkop,Unjani Chloorkop,tarana_router,S150F2224001002,Tarana G1 FWB,active,,,,mtn_wholesale,,CT-UNJ-006@circletel.co.za,499.00,/admin/network/devices/S150F2224001002
+Cosmo City,Unjani Cosmo City,ruijie_ap,G1U52HL044450,RAP2200(F),offline,online,9cce.8822.dc85,ReyeeOS 2.380.0.2426,mtn_wholesale,,,,/admin/network/devices/G1U52HL044450
+Cosmo City,Unjani Cosmo City,tarana_router,S150F2224000981,Tarana G1 FWB,active,,,,mtn_wholesale,,CT-UNJ-007@circletel.co.za,499.00,/admin/network/devices/S150F2224000981
+Durban,Unjani Durban,tozed_cpe,DURBAN-SIM-11360258712,Tozed ZLT X100 PRO,pending,,,,arlan,11360258712,CT-UNJ-022@circletel.co.za,503.48,/admin/network/devices/DURBAN-SIM-11360258712
+Fleurhof,Unjani Fleurhof,ruijie_ap,G1U20W5024986,RAP2200(F),active,offline,9cce.88d1.6a1e,ReyeeOS 2.380.0.2426,mtn_wholesale,,,,/admin/network/devices/G1U20W5024986
+Fleurhof,Unjani Fleurhof,tarana_router,S150F2224000953,Tarana G1 FWB,active,,,,mtn_wholesale,,CT-UNJ-008@circletel.co.za,499.00,/admin/network/devices/S150F2224000953
+Heidelberg,Unjani Heidelberg,ruijie_ap,G1U52HL044518,RAP2200(F),active,online,9cce.8822.dc9d,ReyeeOS 2.380.0.2426,mtn_wholesale,,,,/admin/network/devices/G1U52HL044518
+Heidelberg,Unjani Heidelberg,tarana_router,S150F2224001003,Tarana G1 FWB,active,,,,mtn_wholesale,,CT-UNJ-012@circletel.co.za,499.00,/admin/network/devices/S150F2224001003
+Jabulani,Unjani Jabulani,ruijie_ap,G1UQ9C8000921,RAP62-OD,offline,online,9cce.88d1.60d6,ReyeeOS 2.385.0.1403,mtn_wholesale,,,,/admin/network/devices/G1UQ9C8000921
+Jabulani,Unjani Jabulani,tozed_cpe,X100PRO862378060760458,Tozed ZLT X100 PRO,active,,,,arlan,11349666027,CT-UNJ-015@circletel.co.za,503.48,/admin/network/devices/X100PRO862378060760458
+Kayamandi,Unjani Kayamandi,ruijie_ap,G1U52HL044564,RAP2200(F),offline,online,9cce.8822.dcb1,ReyeeOS 2.380.0.2426,mtn_wholesale,,,,/admin/network/devices/G1U52HL044564
+Kayamandi,Unjani Kayamandi,tozed_cpe,KAYAMANDI-SIM-11360258928,Tozed ZLT X100 PRO,active,,,,arlan,11360258928,CT-UNJ-018@circletel.co.za,503.48,/admin/network/devices/KAYAMANDI-SIM-11360258928
+Lenasia Ext10,Unjani Lens ext 10,ruijie_ap,G1UQ9C8001191,RAP62-OD,active,online,9cce.88d1.6142,ReyeeOS 2.385.0.1403,mtn_wholesale,,,,/admin/network/devices/G1UQ9C8001191
+Lenasia Ext10,Unjani Lens ext 10,tarana_router,S150F2224000947,Tarana G1 FWB,active,,,,mtn_wholesale,,CT-UNJ-016@circletel.co.za,499.00,/admin/network/devices/S150F2224000947
+New Hanover,Unjani New Hanover,ruijie_ap,G1UQ9C8000942,RAP62-OD,active,online,9cce.88d1.60de,ReyeeOS 2.385.0.1403,mtn_wholesale,,,,/admin/network/devices/G1UQ9C8000942
+New Hanover,Unjani New Hanover,tozed_cpe,X100PRO862378061530355,Tozed ZLT X100 PRO,active,,,,arlan,11349665987,CT-UNJ-023@circletel.co.za,503.48,/admin/network/devices/X100PRO862378061530355
+Nokaneng,Unjani Nokaneng,ruijie_ap,G1UQ9C800083B,RAP62-OD,active,offline,9cce.88d1.60b2,ReyeeOS 2.385.0.1403,mtn_wholesale,,,,/admin/network/devices/G1UQ9C800083B
+Nokaneng,Unjani Nokaneng,tozed_cpe,X100PRO862378060745004,Tozed ZLT X100 PRO,active,,,,arlan,11349665979,CT-UNJ-017@circletel.co.za,503.48,/admin/network/devices/X100PRO862378060745004
+Oukasie,Unjani Oukasie,ruijie_ap,G1U52HL002739,RAP2200(F),offline,offline,9cce.8822.9b55,ReyeeOS 2.300.0.1521,mtn_wholesale,,,,/admin/network/devices/G1U52HL002739
+Oukasie,Unjani Oukasie,tozed_cpe,X100PRO862378060803159,Tozed ZLT X100 PRO,signal_issues,,,,arlan,11349666019,CT-UNJ-014@circletel.co.za,503.48,/admin/network/devices/X100PRO862378060803159
+Phoenix,Unjani Phoenix,ruijie_ap,G1UQ9C8001170,Ruijie AP,offline,offline,,,mtn_wholesale,,,,/admin/network/devices/G1UQ9C8001170
+Phoenix,Unjani Phoenix,tarana_router,S150F2224000952,Tarana G1 FWB,signal_issues,,,,mtn_wholesale,,CT-UNJ-021@circletel.co.za,499.00,/admin/network/devices/S150F2224000952
+Sicelo,Unjani Sicelo,ruijie_ap,G1U52HL044404,RAP2200(F),offline,online,9cce.8822.dc71,ReyeeOS 2.380.0.2426,mtn_wholesale,,,,/admin/network/devices/G1U52HL044404
+Sicelo,Unjani Sicelo,tozed_cpe,X100PRO862378060205728,Tozed ZLT X100 PRO,signal_issues,,,,arlan,11360259181,CT-UNJ-011@circletel.co.za,503.48,/admin/network/devices/X100PRO862378060205728
+Sky City,Unjani Sky City,ruijie_ap,G1U52HL044425,RAP2200(F),active,online,9cce.8822.dc79,ReyeeOS 2.380.0.2426,mtn_wholesale,,,,/admin/network/devices/G1U52HL044425
+Sky City,Unjani Sky City,tarana_router,S150F2224000963,Tarana G1 FWB,active,,,,mtn_wholesale,,CT-UNJ-009@circletel.co.za,499.00,/admin/network/devices/S150F2224000963
+Soshanguve,Unjani Soshanguve,ruijie_ap,G1UQ9C8001073,RAP62-OD,offline,online,9cce.88d1.6112,ReyeeOS 2.385.0.1403,mtn_wholesale,,,,/admin/network/devices/G1UQ9C8001073
+Soshanguve,Unjani Soshanguve,tarana_router,S150F2224000982,Tarana G1 FWB,active,,,,mtn_wholesale,,CT-UNJ-025@circletel.co.za,499.00,/admin/network/devices/S150F2224000982
+Sweetwaters,Unjani Sweetwaters,ruijie_ap,G1UQ9C800789A,RAP62-OD,active,offline,9cce.88d1.6bba,ReyeeOS 2.385.0.1403,mtn_wholesale,,,,/admin/network/devices/G1UQ9C800789A
+Sweetwaters,Unjani Sweetwaters,tozed_cpe,X100PRO862378061527104,Tozed ZLT X100 PRO,signal_issues,,,,arlan,11360258936,CT-UNJ-020@circletel.co.za,503.48,/admin/network/devices/X100PRO862378061527104
+Thokoza,Unjani Tokoza,ruijie_ap,G1U52HL044467,RAP2200(F),active,online,9cce.8822.dc89,ReyeeOS 2.380.0.2426,mtn_wholesale,,,,/admin/network/devices/G1U52HL044467
+Thokoza,Unjani Tokoza,tarana_router,S150F2224000983,Tarana G1 FWB,active,,,,mtn_wholesale,,CT-UNJ-010@circletel.co.za,499.00,/admin/network/devices/S150F2224000983
+Umsinga,Unjani Umsinga,ruijie_ap,G1UQ9C8000984,RAP62-OD,active,offline,9cce.88d1.60ee,ReyeeOS 2.385.0.1403,mtn_wholesale,,,,/admin/network/devices/G1UQ9C8000984
+Umsinga,Unjani Umsinga,tozed_cpe,X100PRO862378061405509,Tozed ZLT X100 PRO,active,,,,arlan,11349666050,CT-UNJ-024@circletel.co.za,503.48,/admin/network/devices/X100PRO862378061405509
+Zamdela,Unjani Zamdela,ruijie_ap,G1UQ9C800113B,RAP62-OD,active,online,9cce.88d1.612a,ReyeeOS 2.385.0.1403,mtn_wholesale,,,,/admin/network/devices/G1UQ9C800113B
+Zamdela,Unjani Zamdela,tozed_cpe,X100PRO86237806817050,Tozed ZLT X100 PRO,active,,,,arlan,11349666035,CT-UNJ-019@circletel.co.za,503.48,/admin/network/devices/X100PRO86237806817050
