@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
         errors: result.errors.length > 0 ? result.errors : undefined,
       });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[SendInvoice API] Error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },

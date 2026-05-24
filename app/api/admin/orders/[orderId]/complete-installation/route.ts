@@ -235,7 +235,7 @@ export async function POST(
       message: 'Installation completed successfully',
       documentUrl: publicUrl,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error completing installation', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

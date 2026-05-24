@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
       message: 'Payment method added successfully'
     }, { status: 201 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     paymentLogger.error('Error adding payment method', { error: error.message || error });
     return NextResponse.json(
       { error: error.message || 'Failed to add payment method' },

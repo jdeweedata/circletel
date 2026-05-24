@@ -84,7 +84,7 @@ export async function GET(
       },
       terms
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Get quote error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to fetch quote' },
@@ -223,7 +223,7 @@ export async function PUT(
       message: 'Quote updated successfully',
       quote: updatedQuote
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Update quote error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to update quote' },
@@ -300,7 +300,7 @@ export async function DELETE(
       success: true,
       message: 'Quote deleted successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Delete quote error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to delete quote' },

@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[Support Email] Error', { error });
     return NextResponse.json(
       { error: error.message || 'Internal server error' },

@@ -74,7 +74,7 @@ export async function POST(
         sentAt: new Date().toISOString(),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[Send for Signature Error]', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

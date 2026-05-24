@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
               if (!emailSent) {
                 apiLogger.error('Failed to send KYC approval email', { error: emailError });
               }
-            } catch (error: any) {
+            } catch (error: unknown) {
               apiLogger.error('Error sending KYC approval email', { error });
               emailError = error.message;
             }
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
           if (!emailSent) {
             apiLogger.error('Failed to send KYC rejection email', { error: emailError });
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           apiLogger.error('Error sending KYC rejection email', { error });
           emailError = error.message;
         }
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
       emailSent,
       emailError,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('API error', { error });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },

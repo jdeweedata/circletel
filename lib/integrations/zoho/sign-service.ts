@@ -181,7 +181,7 @@ export async function sendContractForSignature(
       requestId: zohoRequestId,
       customerSigningUrl,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     zohoLogger.error('[ZOHO Sign Service Error]', { error: error instanceof Error ? error.message : String(error) });
     throw new Error(`Failed to send contract for signature: ${error.message}`);
   }
@@ -225,7 +225,7 @@ async function downloadPdfAsBase64(pdfUrl: string): Promise<string> {
 
     const buffer = Buffer.from(response.data);
     return buffer.toString('base64');
-  } catch (error: any) {
+  } catch (error: unknown) {
     zohoLogger.error('Failed to download PDF for ZOHO Sign', { error: error instanceof Error ? error.message : String(error) });
     throw new Error('Failed to download contract PDF');
   }
@@ -309,7 +309,7 @@ export async function processZohoSignWebhook(
       default:
         zohoLogger.debug('[ZOHO Sign Webhook] Unknown event type', { eventType });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     zohoLogger.error('[ZOHO Sign Webhook Processing Error]', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }

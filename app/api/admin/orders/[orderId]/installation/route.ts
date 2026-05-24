@@ -97,7 +97,7 @@ export async function GET(
       success: true,
       data: transformedTask,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error fetching installation task', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

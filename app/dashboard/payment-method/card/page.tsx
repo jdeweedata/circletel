@@ -50,7 +50,7 @@ export default function CardPaymentPage() {
       setTimeout(() => {
         window.location.href = data.payment_url as string;
       }, 1000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Payment validation error:', error);
       if (error?.name === 'AbortError') {
         toast.error('Payment gateway took too long to respond. Please try again.');

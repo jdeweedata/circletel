@@ -267,7 +267,7 @@ export async function POST(
         paymentMethodId: paymentMethod.id,
         fileToken,
       });
-    } catch (netcashError: any) {
+    } catch (netcashError: unknown) {
       apiLogger.error('[Admin Payment Method] NetCash API error', { error: netcashError instanceof Error ? netcashError.message : String(netcashError) });
 
       // Update records with error status
@@ -324,7 +324,7 @@ export async function POST(
       },
       message: 'eMandate request created. Customer will receive email/SMS from NetCash to sign the mandate.',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[Admin Payment Method] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: mappedTechnicians,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Admin technicians fetch error', { error });
     return NextResponse.json(
       {
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
       data: mappedTechnician,
       message: 'Technician created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Admin technician create error', { error });
     return NextResponse.json(
       {

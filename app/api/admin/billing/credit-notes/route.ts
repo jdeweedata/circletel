@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       credit_note: creditNote
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Create credit note failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to create credit note' },
@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
       offset
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('List credit notes failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to list credit notes' },

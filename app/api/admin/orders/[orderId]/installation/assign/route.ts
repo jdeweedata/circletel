@@ -181,7 +181,7 @@ export async function POST(
       data: result,
       message: existingTask ? 'Technician reassigned successfully' : 'Installation scheduled and technician assigned',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in POST /api/admin/orders/[orderId]/installation/assign', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error.message },
@@ -251,7 +251,7 @@ export async function DELETE(
       success: true,
       message: 'Technician unassigned successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in DELETE /api/admin/orders/[orderId]/installation/assign', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error.message },

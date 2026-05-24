@@ -197,7 +197,7 @@ export async function POST(
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[Mandate SMS] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
@@ -310,7 +310,7 @@ export async function GET(
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[Mandate SMS Status] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },

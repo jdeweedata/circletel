@@ -347,7 +347,7 @@ export async function POST(
       emailId: emailResult.data.id
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     apiLogger.error('Email sending error', { error: errorMsg });
     return NextResponse.json(

@@ -82,7 +82,7 @@ export async function GET(
         allowedNextStatuses: allowedStatuses,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error fetching allowed statuses', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
@@ -256,7 +256,7 @@ export async function PATCH(
       data: updatedOrder,
       message: `Order status updated to ${newStatus}`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error updating order status', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

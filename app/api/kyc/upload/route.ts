@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       url: uploadResult.url,
       message: 'Document uploaded successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('KYC upload error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
@@ -181,7 +181,7 @@ export async function GET(request: NextRequest) {
       success: true,
       documents: documents || [],
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('KYC fetch error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },

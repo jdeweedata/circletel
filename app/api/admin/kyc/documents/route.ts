@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       success: true,
       documents: documents || [],
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('API error', { error });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },

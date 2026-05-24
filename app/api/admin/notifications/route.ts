@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       unread_count: unreadCount
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in GET /api/admin/notifications', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

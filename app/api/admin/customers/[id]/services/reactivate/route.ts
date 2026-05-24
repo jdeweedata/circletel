@@ -65,7 +65,7 @@ export async function POST(
       balance_updated: result.balance_updated
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Service reactivation failed:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },

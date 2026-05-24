@@ -165,7 +165,7 @@ export default function QuotePreviewPage({ params }: Props) {
       } else {
         setError(data.error || 'Failed to load quote');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to load quote');
     } finally {
       setLoading(false);
@@ -240,7 +240,7 @@ export default function QuotePreviewPage({ params }: Props) {
       setShowEmailDialog(false);
       setEmailRecipient('');
       setEmailMessage('');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Email error:', error);
       alert(`Failed to send email: ${error.message}`);
     } finally {

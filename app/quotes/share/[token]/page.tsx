@@ -52,7 +52,7 @@ export default function ShareableQuotePage({ params }: Props) {
         // Redirect to the quote preview page with shared=true query parameter
         router.push(`/quotes/business/${quoteId}/preview?shared=true`);
 
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error resolving share link:', err);
         setError('Failed to load quote. Please try again.');
         setLoading(false);

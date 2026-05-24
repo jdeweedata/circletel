@@ -63,7 +63,7 @@ export default function AmbassadorLoginPage() {
 
       // Redirect to dashboard
       router.push('/ambassadors');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
       setError(err.message || 'Invalid email or password');
     } finally {

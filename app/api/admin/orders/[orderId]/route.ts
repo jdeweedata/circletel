@@ -84,7 +84,7 @@ export async function GET(
       success: true,
       data: enrichedOrder,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Admin single order fetch error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

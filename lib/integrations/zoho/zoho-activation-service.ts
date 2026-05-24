@@ -185,7 +185,7 @@ export class ZohoActivationService {
       try {
         const crmContact = await this.createOrUpdateCRMContact(input);
         result.crmContactId = crmContact.id;
-      } catch (error: any) {
+      } catch (error: unknown) {
         zohoLogger.error('Failed to create CRM contact:', error);
         result.errors!.crm = error.message;
       }
@@ -194,7 +194,7 @@ export class ZohoActivationService {
       try {
         const booksCustomer = await this.createBooksCustomer(input);
         result.booksCustomerId = booksCustomer.contact_id;
-      } catch (error: any) {
+      } catch (error: unknown) {
         zohoLogger.error('Failed to create Books customer:', error);
         result.errors!.books = error.message;
       }
@@ -207,7 +207,7 @@ export class ZohoActivationService {
           result.invoiceNumber = invoice.invoice_number;
           result.invoiceTotal = invoice.total;
           result.invoicePdfUrl = invoice.invoice_url;
-        } catch (error: any) {
+        } catch (error: unknown) {
           zohoLogger.error('Failed to generate Books invoice:', error);
           result.errors!.books = error.message;
         }
@@ -218,7 +218,7 @@ export class ZohoActivationService {
         try {
           const subscription = await this.createBillingSubscription(input, result.booksCustomerId);
           result.billingSubscriptionId = subscription.subscription_id;
-        } catch (error: any) {
+        } catch (error: unknown) {
           zohoLogger.error('Failed to create Billing subscription:', error);
           result.errors!.billing = error.message;
         }
@@ -228,7 +228,7 @@ export class ZohoActivationService {
       if (result.invoicePdfUrl) {
         try {
           await this.sendInvoiceEmail(input, result.invoicePdfUrl);
-        } catch (error: any) {
+        } catch (error: unknown) {
           zohoLogger.error('Failed to send invoice email:', error);
           result.errors!.mail = error.message;
         }
@@ -251,7 +251,7 @@ export class ZohoActivationService {
 
       return result;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       zohoLogger.error('Zoho activation service error:', error);
       return {
         success: false,
@@ -544,7 +544,7 @@ export class ZohoActivationService {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         return await fn();
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error;
         zohoLogger.warn(`Attempt ${attempt}/${maxRetries} failed:`, error.message);
 

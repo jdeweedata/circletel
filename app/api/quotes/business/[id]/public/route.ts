@@ -72,7 +72,7 @@ export async function GET(
       },
       terms
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Get public quote error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to fetch quote' },

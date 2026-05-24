@@ -62,7 +62,7 @@ export async function GET(
       success: true,
       data: mappedTechnician,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Technician fetch error', { error });
     return NextResponse.json(
       {
@@ -190,7 +190,7 @@ export async function PATCH(
       data: mappedTechnician,
       message: 'Technician updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Technician update error', { error });
     return NextResponse.json(
       {
@@ -256,7 +256,7 @@ export async function DELETE(
       data: updatedTechnician,
       message: 'Technician deactivated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Technician delete error', { error });
     return NextResponse.json(
       {

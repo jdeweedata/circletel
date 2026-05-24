@@ -86,7 +86,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in POST /api/admin/product-approvals/[id]/reject', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

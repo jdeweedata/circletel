@@ -137,7 +137,7 @@ export async function GET(
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Invoice PDF generation failed', { error });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },

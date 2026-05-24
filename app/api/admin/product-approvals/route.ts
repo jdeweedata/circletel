@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       total_count: approvals?.length || 0
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in GET /api/admin/product-approvals', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

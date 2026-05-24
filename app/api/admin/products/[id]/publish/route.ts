@@ -161,7 +161,7 @@ export async function POST(
           error: billingResult.error,
         };
       }
-    } catch (billingError: any) {
+    } catch (billingError: unknown) {
       apiLogger.error('[publish] Zoho Billing sync error', { error: billingError });
 
 
@@ -195,7 +195,7 @@ export async function POST(
         zoho_billing: zohoBillingSync,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[publish] Error publishing admin product', { error });
     return NextResponse.json(
       {

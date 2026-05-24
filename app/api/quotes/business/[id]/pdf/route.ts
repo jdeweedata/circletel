@@ -81,7 +81,7 @@ export async function GET(
         'Cache-Control': 'no-cache'
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('PDF generation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { 

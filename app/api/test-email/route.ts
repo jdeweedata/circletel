@@ -172,7 +172,7 @@ Unsubscribe: ${BASE_URL}/unsubscribe?email=${encodeURIComponent(to)}
       headers_included: Object.keys(unsubscribeHeaders),
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error sending test email:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },

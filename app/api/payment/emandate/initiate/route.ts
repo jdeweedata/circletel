@@ -331,7 +331,7 @@ export async function POST(request: NextRequest) {
         paymentMethodId: paymentMethod.id,
         fileToken,
       });
-    } catch (netcashError: any) {
+    } catch (netcashError: unknown) {
       paymentLogger.error('[eMandate Initiate] NetCash API error', { error: netcashError instanceof Error ? netcashError.message : String(netcashError) });
 
       // Update emandate_requests with error
@@ -383,7 +383,7 @@ export async function POST(request: NextRequest) {
       expires_at: emandateRecord.expires_at,
       message: 'Mandate request submitted. Customer will receive an email/SMS from NetCash to sign the mandate.',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     paymentLogger.error('[eMandate Initiate] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Internal server error', details: error.message },

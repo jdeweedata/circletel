@@ -74,7 +74,7 @@ export async function POST(
       service: result.service
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Service suspension failed:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },

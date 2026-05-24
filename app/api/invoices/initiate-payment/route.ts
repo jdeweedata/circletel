@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[Invoice Payment API] Error initiating payment', { error });
 
     return NextResponse.json(

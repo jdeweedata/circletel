@@ -50,7 +50,7 @@ export async function POST(
       ...result
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Send invoice failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to send invoice' },

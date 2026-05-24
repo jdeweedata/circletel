@@ -96,7 +96,7 @@ export async function POST(
       data: tracking
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Tracking error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
@@ -172,7 +172,7 @@ export async function GET(
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error fetching tracking data', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

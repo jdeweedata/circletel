@@ -336,7 +336,7 @@ export async function POST(request: NextRequest) {
       orderId,
       mandateSuccessful,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     webhookLogger.error('Error processing NetCash eMandate postback', { error: error instanceof Error ? error.message : String(error) });
 
     // Return 200 even on error to prevent NetCash retries flooding our system

@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
       } else {
         cronLogger.info('[Zoho Sync Cron] ✅ Execution logged to database');
       }
-    } catch (logError: any) {
+    } catch (logError: unknown) {
       cronLogger.warn('[Zoho Sync Cron] Failed to log execution (non-fatal)', { error: logError.message });
     }
 
@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
                 },
               });
             }
-          } catch (logError: any) {
+          } catch (logError: unknown) {
             cronLogger.warn(
               `[Zoho Sync Cron] Failed to log error for ${result.sku}`,
               { error: logError.message }
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
       results: summary.results.slice(0, 10),
       resultsCount: summary.results.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime;
 
     cronLogger.error('[Zoho Sync Cron] Fatal error', { error: error.message });

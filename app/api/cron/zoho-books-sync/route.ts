@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
       });
 
       cronLogger.info('[ZohoBooks Sync] ✅ Execution logged to database');
-    } catch (logError: any) {
+    } catch (logError: unknown) {
       cronLogger.warn('[ZohoBooks Sync] Failed to log execution (non-fatal)', {
         error: logError.message,
       });
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
       results: summary.results.slice(0, 10),
       resultsCount: summary.results.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime;
     const isOAuthError = error.message?.startsWith('OAUTH_ERROR:');
 

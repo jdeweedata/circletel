@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       { error: 'Invalid action. Use: send, preview, send-test-shaun, or list' },
       { status: 400 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Email test error:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to process request' },

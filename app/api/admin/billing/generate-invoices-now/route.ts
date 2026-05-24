@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
         
         generated++;
         
-      } catch (error: any) {
+      } catch (error: unknown) {
         apiLogger.error(`Failed to generate invoice for service ${service.id}:`, error);
         errors.push(`Service ${service.id}: ${error.message}`);
         failed++;
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
       errors: errors.length > 0 ? errors : undefined
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Manual invoice generation failed:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },

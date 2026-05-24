@@ -125,7 +125,7 @@ export async function POST(
       service_package_id: servicePackageId
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in POST /api/admin/product-approvals/[id]/approve', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

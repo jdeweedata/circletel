@@ -176,7 +176,7 @@ export default function DebitOrderPage() {
       }
 
       throw new Error('No mandate response received. Please try again.');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Debit order setup error:', error);
       if (error?.name === 'AbortError') {
         toast.error('Request timed out. Please try again.');

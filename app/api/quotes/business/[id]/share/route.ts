@@ -96,7 +96,7 @@ export async function POST(
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Share link generation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
@@ -145,7 +145,7 @@ export async function DELETE(
       message: 'Share link revoked successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Share link revocation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

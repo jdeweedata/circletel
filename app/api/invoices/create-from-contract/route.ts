@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[Invoice API] Error creating invoice', { error });
 
     return NextResponse.json(

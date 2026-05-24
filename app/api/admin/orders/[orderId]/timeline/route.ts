@@ -261,7 +261,7 @@ export async function GET(
         },
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error fetching order timeline', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

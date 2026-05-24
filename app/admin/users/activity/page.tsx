@@ -96,7 +96,7 @@ export default function AdminUserActivityPage() {
       setLogs(result.data.logs);
       setStatistics(result.data.statistics);
       setTotalPages(result.data.pagination.totalPages);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching activity logs:', error);
       toast.error(error.message || 'Failed to load activity logs');
     } finally {

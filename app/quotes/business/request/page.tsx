@@ -92,7 +92,7 @@ export default function BusinessQuoteRequestPage() {
 
         setPackages(mockPackages);
         setLoading(false);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(err.message || 'Failed to load packages');
         setLoading(false);
       }

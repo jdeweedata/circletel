@@ -33,7 +33,7 @@ export async function GET(
       count: auditHistory.length
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Get audit history failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to get audit history' },

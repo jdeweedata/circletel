@@ -245,7 +245,7 @@ export class ServiceManager {
         audit_log_id: auditLog?.id
       };
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Service activation failed:', error);
       return {
         success: false,
@@ -372,7 +372,7 @@ export class ServiceManager {
         audit_log_id: auditLog?.id
       };
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Service suspension failed:', error);
       return {
         success: false,
@@ -545,7 +545,7 @@ export class ServiceManager {
         audit_log_id: auditLog?.id
       };
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Service reactivation failed:', error);
       return {
         success: false,
@@ -713,7 +713,7 @@ export class ServiceManager {
         audit_log_id: auditLog?.id
       };
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Service cancellation failed:', error);
       return {
         success: false,

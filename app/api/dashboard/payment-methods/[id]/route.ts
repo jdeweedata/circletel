@@ -113,7 +113,7 @@ export async function PATCH(
       message: 'Payment method set as primary successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     paymentLogger.error('Error updating payment method', { error: error.message || error, id: (await context.params).id });
     return NextResponse.json(
       { error: error.message || 'Failed to update payment method' },
@@ -210,7 +210,7 @@ export async function DELETE(
       message: 'Payment method removed successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     paymentLogger.error('Error removing payment method', { error: error.message || error, id: (await context.params).id });
 
     // Check for specific error messages

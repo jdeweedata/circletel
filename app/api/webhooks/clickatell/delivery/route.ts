@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, processed: callbacks.length });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     webhookLogger.error('[Clickatell Webhook] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message },

@@ -202,7 +202,7 @@ export async function createZohoLead(
       success: false,
       error: 'No response data from Zoho',
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating Zoho lead:', error);
     return {
       success: false,
@@ -257,7 +257,7 @@ export async function updateZohoLead(
       success: false,
       error: 'No response data from Zoho',
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating Zoho lead:', error);
     return {
       success: false,
@@ -310,7 +310,7 @@ export async function convertZohoLead(
       success: true,
       zoho_lead_id: zohoLeadId,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error converting Zoho lead:', error);
     return {
       success: false,
@@ -435,7 +435,7 @@ export async function syncCoverageLeadToZoho(
     return {
       success: true,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error syncing coverage lead to Zoho:', error);
     return {
       success: false,

@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       pending_count: pendingCount
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in GET /api/admin/reminders', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, reminder });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in POST /api/admin/reminders', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

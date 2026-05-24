@@ -169,7 +169,7 @@ export async function POST(
       documentUrl: urlData.publicUrl,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error uploading document', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

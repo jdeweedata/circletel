@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: statusMap,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[Integration Status API] Error', { error });
     return NextResponse.json(
       {

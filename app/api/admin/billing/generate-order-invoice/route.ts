@@ -273,7 +273,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Order invoice generation failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },

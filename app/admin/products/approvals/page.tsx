@@ -33,7 +33,7 @@ export default function ProductApprovalsPage() {
           variant: 'destructive'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message,
@@ -72,7 +72,7 @@ export default function ProductApprovalsPage() {
           variant: 'destructive'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message,
@@ -108,7 +108,7 @@ export default function ProductApprovalsPage() {
           variant: 'destructive'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
         description: error.message,

@@ -106,7 +106,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       if (!emailResult.success) {
         results.email.error = emailResult.error || 'Unknown error';
       }
-    } catch (emailError: any) {
+    } catch (emailError: unknown) {
       apiLogger.error('Failed to send email', { error: emailError instanceof Error ? emailError.message : String(emailError) });
       results.email.error = emailError.message;
     }
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       if (!smsResult.success) {
         results.sms.error = smsResult.error || 'Unknown error';
       }
-    } catch (smsError: any) {
+    } catch (smsError: unknown) {
       apiLogger.error('Failed to send SMS', { error: smsError instanceof Error ? smsError.message : String(smsError) });
       results.sms.error = smsError.message;
     }
@@ -188,7 +188,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         ? 'Notification sent successfully'
         : 'Failed to send notifications',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error sending payment method notification', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },

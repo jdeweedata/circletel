@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       limit,
       offset,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in GET /api/admin/coverage-leads', { error });
     return NextResponse.json(
       { success: false, error: error.message },
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
       success: true,
       lead,
     }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in POST /api/admin/coverage-leads', { error });
     return NextResponse.json(
       { success: false, error: error.message },

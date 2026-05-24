@@ -73,7 +73,7 @@ export async function POST(
         await billingClient.markInvoiceAsSent(zohoInvoiceId);
         apiLogger.info('[SendInvoice] Invoice marked as sent in Zoho');
       }
-    } catch (zohoError: any) {
+    } catch (zohoError: unknown) {
       // Log the error but continue to update local status
       // Invoice may already be sent in Zoho, which is fine
       apiLogger.info('[SendInvoice] Zoho API response (may be already sent)', { message: zohoError.message });

@@ -57,7 +57,7 @@ export async function POST(
       ...result
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Void invoice failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to void invoice' },

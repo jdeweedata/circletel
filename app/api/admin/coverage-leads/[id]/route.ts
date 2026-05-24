@@ -45,7 +45,7 @@ export async function GET(
       success: true,
       lead,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in GET /api/admin/coverage-leads/[id]', { error });
     return NextResponse.json(
       { success: false, error: error.message },
@@ -91,7 +91,7 @@ export async function PATCH(
       success: true,
       lead,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in PATCH /api/admin/coverage-leads/[id]', { error });
     return NextResponse.json(
       { success: false, error: error.message },
@@ -134,7 +134,7 @@ export async function DELETE(
       success: true,
       message: 'Coverage lead deleted successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in DELETE /api/admin/coverage-leads/[id]', { error });
     return NextResponse.json(
       { success: false, error: error.message },

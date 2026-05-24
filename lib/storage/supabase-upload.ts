@@ -112,7 +112,7 @@ export async function uploadFile(
       path: data.path,
       url: publicUrl,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Upload error:', error);
     return {
       success: false,
@@ -156,7 +156,7 @@ export async function deleteFile(
     }
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return { success: false, error: error.message };
   }
 }
@@ -180,7 +180,7 @@ export async function getSignedUrl(
     }
 
     return { url: data.signedUrl };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return { error: error.message };
   }
 }

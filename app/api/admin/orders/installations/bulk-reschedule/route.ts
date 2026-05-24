@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       },
       message: `Successfully rescheduled ${updatedTasks?.length || 0} installation(s)`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error in POST /api/admin/orders/installations/bulk-reschedule', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error.message },

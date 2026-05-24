@@ -575,7 +575,7 @@ export async function GET(request: NextRequest) {
       },
       results: results.slice(0, 10),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime;
 
     cronLogger.error('[ZohoBooks Retry] Fatal error', { error: error.message });

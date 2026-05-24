@@ -427,7 +427,7 @@ export async function POST(
         message: 'PPPoE credentials will be created manually',
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Error activating order', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {

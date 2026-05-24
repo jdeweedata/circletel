@@ -159,7 +159,7 @@ export class EnhancedEmailService {
         success: true,
         message_id: result.id,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Error sending email:', error);
       return {
         success: false,

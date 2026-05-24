@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       ...result
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Manual billing run failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to run billing' },
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
       offset
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('Get billing runs failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to get billing runs' },

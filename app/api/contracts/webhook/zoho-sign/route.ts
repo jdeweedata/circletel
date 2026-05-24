@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: `Event ${event_type} processed successfully`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     webhookLogger.error('[ZOHO Sign Webhook Error]', error);
     return NextResponse.json(
       {

@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
             cronLogger.info(
               `[Price Changes Cron] ✅ Updated Zoho Billing Plan: ${zohoPlanId}`
             );
-          } catch (zohoError: any) {
+          } catch (zohoError: unknown) {
             cronLogger.error(
               `[Price Changes Cron] Zoho Billing update failed (non-fatal)`,
               { error: zohoError.message }
@@ -237,7 +237,7 @@ export async function GET(request: NextRequest) {
         cronLogger.info(
           `[Price Changes Cron] ✅ Price change ${change.id} completed successfully`
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         // =====================================================================
         // ERROR HANDLING
         // =====================================================================
@@ -286,7 +286,7 @@ export async function GET(request: NextRequest) {
       failed: failureCount,
       results,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     cronLogger.error('[Price Changes Cron] Fatal error', { error: error.message });
 
     return NextResponse.json(

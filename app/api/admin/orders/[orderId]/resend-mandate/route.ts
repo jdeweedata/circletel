@@ -199,7 +199,7 @@ export async function POST(
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     apiLogger.error('[Resend Mandate] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },

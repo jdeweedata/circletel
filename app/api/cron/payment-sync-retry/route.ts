@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
       } else {
         cronLogger.info('[Payment Sync Retry] Execution logged to database');
       }
-    } catch (logError: any) {
+    } catch (logError: unknown) {
       cronLogger.warn('[Payment Sync Retry] Failed to log execution (non-fatal)', { error: logError.message });
     }
 
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
       beforeStats,
       afterStats,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime;
 
     cronLogger.error('[Payment Sync Retry] Fatal error', { error: error.message });

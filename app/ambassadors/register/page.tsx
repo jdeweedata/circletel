@@ -125,7 +125,7 @@ export default function AmbassadorRegisterPage() {
       }
 
       setSuccess(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Registration error:', err);
       if (err.message?.includes('already registered')) {
         setError('An account with this email already exists. Please log in instead.');

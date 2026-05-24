@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
         cronLogger.info(`Generated invoice ${invoice.invoice_number} for service ${service.id}`);
         recordsProcessed++;
         
-      } catch (error: any) {
+      } catch (error: unknown) {
         cronLogger.error(`[GenerateInvoices] Failed to process service ${service.id}`, { error: error instanceof Error ? error.message : String(error) });
         errors.push(`Service ${service.id}: ${error.message}`);
         recordsFailed++;
@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
       errors: errors.length > 0 ? errors : undefined
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     cronLogger.error('[GenerateInvoices] Invoice generation job failed', { error: error instanceof Error ? error.message : String(error) });
     
     // Log failed execution

@@ -200,7 +200,7 @@ export default function EditProductPage() {
         
         // Cost & Margin fields
         setValue('wholesale_cost', data.data.wholesale_cost || data.data.cost_price_zar || null);
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast({
           variant: 'destructive',
           title: 'Error',
@@ -287,7 +287,7 @@ export default function EditProductPage() {
 
       // Redirect back to products list
       router.push('/admin/products');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: 'destructive',
         title: 'Error',

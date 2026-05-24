@@ -65,7 +65,7 @@ export async function handleSignatureComplete(
 
     // TODO: Trigger invoice generation (Task Group 10)
     // await triggerInvoiceGeneration(contractId);
-  } catch (error: any) {
+  } catch (error: unknown) {
     zohoLogger.error('[handleSignatureComplete] Error', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
@@ -171,7 +171,7 @@ export async function processSignWebhook(payload: ZohoSignWebhookPayload): Promi
     }
 
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     zohoLogger.error('[processSignWebhook] Processing error', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
@@ -223,7 +223,7 @@ export async function checkAndMarkFullySigned(contractId: string): Promise<boole
     }
 
     return false;
-  } catch (error: any) {
+  } catch (error: unknown) {
     zohoLogger.error('[checkAndMarkFullySigned] Error', { error: error instanceof Error ? error.message : String(error) });
     return false;
   }
