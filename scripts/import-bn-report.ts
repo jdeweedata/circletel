@@ -12,7 +12,7 @@
  *   2. Ensure SUPABASE_SERVICE_ROLE_KEY is set in .env.local
  */
 
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 import { createClient } from '@supabase/supabase-js';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
@@ -53,6 +53,44 @@ interface BaseStation {
   region: string;
 }
 
+/**
+ * Convert an ExcelJS worksheet to array of objects (matching xlsx sheet_to_json without header:1)
+ * Uses first row as headers.
+ */
+function sheetToObjects(worksheet: ExcelJS.Worksheet): Record<string, unknown>[] {
+  const result: Record<string, unknown>[] = [];
+
+  worksheet.eachRow((row, rowNumber) => {
+    // Skip header row — will be extracted separately
+  });
+
+  if (worksheet.rowCount < 2) return result;
+
+  // Extract headers from first row
+  const headerRow = worksheet.getRow(1);
+  const headers: string[] = [];
+  headerRow.eachCell((cell, colNumber) => {
+    headers[colNumber] = String(cell.value ?? '');
+  });
+
+  // Build objects for each data row
+  for (let r = 2; r <= worksheet.rowCount; r++) {
+    const row = worksheet.getRow(r);
+    const obj: Record<string, unknown> = {};
+    row.eachCell((cell, colNumber) => {
+      const header = headers[colNumber];
+      if (header) {
+        obj[header] = cell.value;
+      }
+    });
+    if (Object.keys(obj).length > 0) {
+      result.push(obj);
+    }
+  }
+
+  return result;
+}
+
 function parseLocation(location: string): { lat: number; lng: number } | null {
   if (!location || typeof location !== 'string') return null;
 
@@ -87,10 +125,10 @@ async function importBNReport() {
   console.log(`\nReading Excel file: ${excelPath}`);
 
   // Read Excel file
-  const workbook = XLSX.readFile(excelPath);
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-  const data: BNReportRow[] = XLSX.utils.sheet_to_json(sheet);
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(excelPath);
+  const worksheet = workbook.worksheets[0];
+  const data = sheetToObjects(worksheet) as unknown as BNReportRow[];
 
   console.log(`Found ${data.length} rows in Excel file`);
 

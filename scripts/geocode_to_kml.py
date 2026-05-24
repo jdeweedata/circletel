@@ -24,11 +24,13 @@ import urllib.parse
 from pathlib import Path
 
 BASE = Path("/home/circletel")
-INPUT  = BASE / "contracts_clean_addresses.json"
+INPUT  = BASE / "data/exports/contracts/contracts_clean_addresses.json"
 OUTPUT = BASE / "contracts_map.kml"
 CACHE  = BASE / "contracts_geocode_cache.json"
 
-API_KEY = "AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU"
+API_KEY = os.environ.get("GOOGLE_MAPS_SERVER_KEY", "")
+if not API_KEY:
+    sys.exit("ERROR: GOOGLE_MAPS_SERVER_KEY not set. Run: set -a && source .env.local && set +a && python3 scripts/geocode_to_kml.py")
 
 # ── price tiers ───────────────────────────────────────────────────────────────
 TIERS = [

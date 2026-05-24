@@ -4,7 +4,7 @@
  * Imports products from Excel into the product approval queue
  */
 
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
@@ -15,6 +15,17 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+/**
+ * Convert an ExcelJS worksheet to array-of-arrays (matching xlsx sheet_to_json with header:1)
+ */
+function sheetToArray(worksheet) {
+  const rows = [];
+  worksheet.eachRow({ includeEmpty: true }, (row) => {
+    rows.push(row.values.slice(1)); // ExcelJS row.values is 1-indexed
+  });
+  return rows;
+}
 
 /**
  * Parse price string to number
@@ -88,10 +99,10 @@ async function importProductExcel(filePath, userId) {
 
   // 1. Read Excel file
   console.log('📖 Reading Excel file...');
-  const workbook = XLSX.readFile(filePath);
-  const sheetName = workbook.SheetNames[0];
-  const worksheet = workbook.Sheets[sheetName];
-  const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(filePath);
+  const worksheet = workbook.worksheets[0];
+  const sheetData = sheetToArray(worksheet);
 
   // 2. Parse products
   console.log('🔍 Parsing products...');
@@ -105,7 +116,7 @@ async function importProductExcel(filePath, userId) {
   const metadata = {
     title,
     version,
-    excelSheets: workbook.SheetNames,
+    excelSheets: workbook.worksheets.map(ws => ws.name),
     importNotes: 'Imported via automated script'
   };
 

@@ -4,7 +4,7 @@
  * Tests: Excel parsing → Import → Approval Queue → Notifications
  */
 
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 require('dotenv').config({ path: '.env.local' });
@@ -13,6 +13,17 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+/**
+ * Convert an ExcelJS worksheet to array-of-arrays (matching xlsx sheet_to_json with header:1)
+ */
+function sheetToArray(worksheet) {
+  const rows = [];
+  worksheet.eachRow({ includeEmpty: true }, (row) => {
+    rows.push(row.values.slice(1)); // ExcelJS row.values is 1-indexed
+  });
+  return rows;
+}
 
 async function runWorkflowTest() {
   console.log('\n' + '='.repeat(70));
@@ -61,13 +72,13 @@ async function runWorkflowTest() {
       console.log(`   ❌ Excel file not found: ${excelPath}`);
       testResults.failed++;
     } else {
-      const workbook = XLSX.readFile(excelPath);
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.readFile(excelPath);
+      const worksheet = workbook.worksheets[0];
+      const sheetData = sheetToArray(worksheet);
 
       console.log(`   ✅ Excel file loaded successfully`);
-      console.log(`   ✅ Found sheet: ${sheetName}`);
+      console.log(`   ✅ Found sheet: ${worksheet.name}`);
       console.log(`   ✅ Total rows: ${sheetData.length}`);
       testResults.passed += 3;
 
@@ -105,8 +116,9 @@ async function runWorkflowTest() {
     const testUserId = null; // System import for testing
 
     // Parse sample product
-    const workbook = XLSX.readFile(excelPath);
-    const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(excelPath);
+    const sheetData = sheetToArray(workbook.worksheets[0]);
     const headerRowIndex = sheetData.findIndex(row => row[0] === 'Package' && row[1] === 'Speed');
 
     const sampleProduct = {

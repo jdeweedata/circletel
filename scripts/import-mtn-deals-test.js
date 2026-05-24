@@ -4,13 +4,13 @@
  * Tests the import with first 10 deals only
  */
 
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 require('dotenv').config({ path: '.env.local' });
 
-// Import the main function
-const { importMTNDeals } = require('./import-mtn-deals.js');
+// Import the main function and helpers
+const { importMTNDeals, sheetToArray } = require('./import-mtn-deals.js');
 
 const filePath = process.argv[2];
 if (!filePath) {
@@ -18,33 +18,37 @@ if (!filePath) {
   process.exit(1);
 }
 
-// Read first 11 rows only (header + 10 deals)
-const workbook = XLSX.readFile(filePath);
-const sheetName = workbook.SheetNames[0];
-const worksheet = workbook.Sheets[sheetName];
-const fullData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+(async () => {
+  // Read first 11 rows only (header + 10 deals)
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(filePath);
+  const worksheet = workbook.worksheets[0];
+  const fullData = sheetToArray(worksheet);
 
-// Create temp file with limited rows
-const testData = fullData.slice(0, 11); // Header + 10 deals
-const testWorkbook = XLSX.utils.book_new();
-const testWorksheet = XLSX.utils.aoa_to_sheet(testData);
-XLSX.utils.book_append_sheet(testWorkbook, testWorksheet, 'Sheet1');
+  // Create temp file with limited rows
+  const testData = fullData.slice(0, 11); // Header + 10 deals
 
-const tempFile = 'temp-mtn-deals-test.xlsx';
-XLSX.writeFile(testWorkbook, tempFile);
+  const testWorkbook = new ExcelJS.Workbook();
+  const testWorksheet = testWorkbook.addWorksheet('Sheet1');
+  testData.forEach(row => {
+    testWorksheet.addRow(row);
+  });
 
-console.log(`\n🧪 Test Mode: Importing first 10 deals only\n`);
+  const tempFile = 'temp-mtn-deals-test.xlsx';
+  await testWorkbook.xlsx.writeFile(tempFile);
 
-// Run import
-importMTNDeals(tempFile, { dryRun: false, updateExisting: true })
-  .then(result => {
+  console.log(`\n🧪 Test Mode: Importing first 10 deals only\n`);
+
+  // Run import
+  try {
+    const result = await importMTNDeals(tempFile, { dryRun: false, updateExisting: true });
     fs.unlinkSync(tempFile); // Clean up temp file
     console.log('\n✅ Test import completed!');
     console.log(`\nResults: ${result.inserted} inserted, ${result.updated} updated`);
     process.exit(0);
-  })
-  .catch(error => {
+  } catch (error) {
     fs.unlinkSync(tempFile); // Clean up temp file
     console.error('\n❌ Test import failed:', error.message);
     process.exit(1);
-  });
+  }
+})();
