@@ -7,7 +7,6 @@
  * @version 1.0.1 - 2025-12-02
  */
 
-import Firecrawl from '@mendable/firecrawl-js';
 import type {
   FirecrawlScrapeOptions,
   FirecrawlExtractOptions,
@@ -15,6 +14,30 @@ import type {
   FirecrawlExtractResponse,
   FirecrawlMapResponse,
 } from './types';
+
+/**
+ * Lazy-loaded Firecrawl SDK.
+ *
+ * Using dynamic require() instead of a static import so that the Next.js
+ * standalone output tracer does not fail when @mendable/firecrawl-js is
+ * missing from the production Docker image.  When the package is absent,
+ * all scrape / extract / map calls will return clean errors instead of
+ * crashing the Inngest serve endpoint (which eagerly loads every function
+ * in the barrel).
+ */
+let Firecrawl: any = undefined;
+
+function loadFirecrawl(): any {
+  if (Firecrawl) return Firecrawl;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require('@mendable/firecrawl-js');
+    Firecrawl = mod.default || mod;
+  } catch {
+    // Package not available – createClient() will throw a descriptive error
+  }
+  return Firecrawl;
+}
 
 // =============================================================================
 // CONFIGURATION
@@ -128,11 +151,17 @@ export function clearCreditUsageLog(): void {
 /**
  * Create a configured Firecrawl client instance
  */
-function createClient(): Firecrawl {
+function createClient(): any {
+  const F = loadFirecrawl();
+  if (!F) {
+    throw new Error(
+      'Firecrawl SDK not available. Install @mendable/firecrawl-js or ensure it is included in the build.'
+    );
+  }
   if (!FIRECRAWL_API_KEY) {
     throw new Error('FIRECRAWL_API_KEY environment variable is not set');
   }
-  return new Firecrawl({ apiKey: FIRECRAWL_API_KEY });
+  return new F({ apiKey: FIRECRAWL_API_KEY });
 }
 
 /**

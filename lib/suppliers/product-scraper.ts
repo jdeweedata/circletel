@@ -5,7 +5,20 @@
  * Extracts specifications, features, and additional metadata.
  */
 
-import Firecrawl from '@mendable/firecrawl-js'
+// Lazy-loaded Firecrawl SDK — see lib/competitor-analysis/firecrawl-client.ts for rationale
+let _FirecrawlCls: any = undefined;
+
+function getFirecrawlClass(): any {
+  if (_FirecrawlCls) return _FirecrawlCls;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require('@mendable/firecrawl-js');
+    _FirecrawlCls = mod.default || mod;
+  } catch {
+    // Package not available
+  }
+  return _FirecrawlCls;
+}
 
 // =====================================================
 // Types
@@ -62,15 +75,19 @@ const MAX_CONCURRENT_SCRAPES = 5
 // Firecrawl Client
 // =====================================================
 
-let firecrawlClient: Firecrawl | null = null
+let firecrawlClient: any = null
 
-function getFirecrawlClient(): Firecrawl {
+function getFirecrawlClient(): any {
   if (!firecrawlClient) {
+    const F = getFirecrawlClass()
+    if (!F) {
+      throw new Error('Firecrawl SDK not available. Install @mendable/firecrawl-js or ensure it is included in the build.')
+    }
     const apiKey = process.env.FIRECRAWL_API_KEY
     if (!apiKey) {
       throw new Error('FIRECRAWL_API_KEY not configured')
     }
-    firecrawlClient = new Firecrawl({ apiKey })
+    firecrawlClient = new F({ apiKey })
   }
   return firecrawlClient
 }

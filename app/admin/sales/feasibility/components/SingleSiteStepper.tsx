@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import type { CoverageDetail, DetailedCoverage } from '../page';
-import { mapDarkStyle } from './MapStyles';
+// import { mapDarkStyle } from './MapStyles';  // Dark styles no longer used
 
 // ============================================================================
 // Types
@@ -101,7 +101,7 @@ const mapOptions: google.maps.MapOptions = {
   mapTypeControl: false,
   streetViewControl: false,
   fullscreenControl: false,
-  styles: mapDarkStyle, // Using same dark style
+  styles: [], // Light default map style
 };
 
 // Static libraries array to prevent Google Maps reload warning
@@ -636,9 +636,9 @@ export function SingleSiteStepper() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-circleTel-midnight-navy text-slate-100">
+    <div className="h-full flex flex-col bg-slate-50 text-slate-900">
       {/* Progress Bar */}
-      <div className="bg-circleTel-navy/50 backdrop-blur-xl border-b border-white/10 px-6 py-6">
+      <div className="bg-white border-b border-slate-200 px-6 py-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => {
@@ -655,7 +655,7 @@ export function SingleSiteStepper() {
                         ? 'bg-green-500 text-white shadow-green-500/20'
                         : isActive
                           ? 'bg-circleTel-orange text-white shadow-circleTel-orange/30 scale-110'
-                          : 'bg-white/5 text-slate-500 border border-white/5'
+                          : 'bg-slate-100 text-slate-500 border border-slate-200'
                         }`}
                     >
                       {isComplete ? (
@@ -673,7 +673,7 @@ export function SingleSiteStepper() {
                   </div>
                   {!isLast && (
                     <div
-                      className={`flex-1 h-0.5 mx-4 rounded-full transition-all duration-500 ${isComplete ? 'bg-gradient-to-r from-green-500 to-green-500' : 'bg-white/5'
+                      className={`flex-1 h-0.5 mx-4 rounded-full transition-all duration-500 ${isComplete ? 'bg-gradient-to-r from-green-500 to-green-500' : 'bg-slate-200'
                         }`}
                     />
                   )}
@@ -697,29 +697,29 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-0 group-hover:opacity-50 transition-opacity" />
-                  <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-circleTel-orange opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
                     <PiMapPinBold className="h-6 w-6 text-circleTel-orange" />
                     Site Location
                   </h2>
-                  <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                  <p className="text-slate-600 mt-2 font-medium tracking-wide">
                     Define the target coordinates for feasibility analysis
                   </p>
                 </div>
 
                 {/* Toggle GPS/Address */}
-                <div className="flex items-center gap-6 bg-black/20 p-2 rounded-xl border border-white/5 w-fit">
+                <div className="flex items-center gap-6 bg-slate-100 p-2 rounded-xl border border-slate-200 w-fit">
                   <button
                     onClick={() => setFormData(prev => ({ ...prev, useGPS: false }))}
-                    className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${!formData.useGPS ? 'bg-circleTel-orange text-white shadow-lg shadow-circleTel-orange/20' : 'text-slate-500 hover:text-slate-300'
+                    className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${!formData.useGPS ? 'bg-circleTel-orange text-white shadow-lg shadow-circleTel-orange/20' : 'text-slate-600 hover:text-slate-700'
                       }`}
                   >
                     Address
                   </button>
                   <button
                     onClick={() => setFormData(prev => ({ ...prev, useGPS: true }))}
-                    className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${formData.useGPS ? 'bg-circleTel-orange text-white shadow-lg shadow-circleTel-orange/20' : 'text-slate-500 hover:text-slate-300'
+                    className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${formData.useGPS ? 'bg-circleTel-orange text-white shadow-lg shadow-circleTel-orange/20' : 'text-slate-600 hover:text-slate-700'
                       }`}
                   >
                     GPS
@@ -736,7 +736,7 @@ export function SingleSiteStepper() {
                       placeholder="Enter GPS coordinates (e.g., -26.2041, 28.0473)"
                       value={formData.gpsInput}
                       onChange={(e) => handleGPSInputChange(e.target.value)}
-                      className="pl-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 focus:ring-1 focus:ring-circleTel-orange/30 font-mono h-14 rounded-xl"
+                      className="pl-12 bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 focus:ring-1 focus:ring-circleTel-orange/30 font-mono h-14 rounded-xl"
                     />
                   ) : (
                     <Input
@@ -744,7 +744,7 @@ export function SingleSiteStepper() {
                       placeholder="Start typing an address..."
                       value={formData.address}
                       onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                      className="pl-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 focus:ring-1 focus:ring-circleTel-orange/30 h-14 rounded-xl"
+                      className="pl-12 bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 focus:ring-1 focus:ring-circleTel-orange/30 h-14 rounded-xl"
                     />
                   )}
                 </div>
@@ -781,9 +781,8 @@ export function SingleSiteStepper() {
                   <Button
                     onClick={checkCoverage}
                     disabled={(!formData.address && !formData.coordinates) || isLoading}
-                    className="w-full bg-circleTel-orange hover:bg-circleTel-bright-orange text-white py-8 text-sm font-black uppercase tracking-[0.3em] rounded-xl shadow-[0_10px_30px_rgba(245,132,30,0.3)] disabled:opacity-20 disabled:shadow-none transition-all duration-500 overflow-hidden relative group"
+                    className="w-full bg-circleTel-orange hover:bg-circleTel-bright-orange text-white py-8 text-sm font-black uppercase tracking-[0.3em] rounded-xl shadow-sm disabled:opacity-20 disabled:shadow-none transition-all duration-500 overflow-hidden relative group"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
                     {isLoading ? (
                       <PiSpinnerBold className="h-5 w-5 animate-spin mr-3" />
                     ) : (
@@ -804,13 +803,13 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50" />
-                  <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-green-500 opacity-100" />
+                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
                     <PiShieldCheckBold className="h-6 w-6 text-green-500" />
                     Available Infrastructure
                   </h2>
-                  <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                  <p className="text-slate-600 mt-2 font-medium tracking-wide">
                     Select the optimal packages for this location
                   </p>
                 </div>
@@ -819,9 +818,9 @@ export function SingleSiteStepper() {
                 <div className="flex flex-wrap gap-2">
                   {formData.coverage && Object.entries(formData.coverage).map(([tech, details]) => (
                     details?.available && (
-                      <div key={tech} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg flex items-center gap-2">
+                      <div key={tech} className="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-lg flex items-center gap-2">
                         {getTechIcon(tech)}
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">{tech} Ready</span>
+                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{tech} Ready</span>
                       </div>
                     )
                   ))}
@@ -831,14 +830,14 @@ export function SingleSiteStepper() {
                 <div className="flex flex-wrap items-center gap-3 py-2 px-1">
                   <div className="flex items-center gap-2">
                     <PiFunnelBold className="h-4 w-4 text-slate-500" />
-                    <span className="text-sm text-slate-400">Filters:</span>
+                    <span className="text-sm text-slate-600">Filters:</span>
                   </div>
 
                   {/* Technology Filter */}
                   <select
                     value={filters.technology}
                     onChange={(e) => setFilters(f => ({ ...f, technology: e.target.value as typeof filters.technology }))}
-                    className="text-sm border border-white/10 rounded-lg px-3 py-1.5 bg-white/5 text-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                    className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-900 focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
                   >
                     <option value="all">All Technologies</option>
                     <option value="fibre">Fibre</option>
@@ -851,7 +850,7 @@ export function SingleSiteStepper() {
                   <select
                     value={filters.minSpeed}
                     onChange={(e) => setFilters(f => ({ ...f, minSpeed: Number(e.target.value) }))}
-                    className="text-sm border border-white/10 rounded-lg px-3 py-1.5 bg-white/5 text-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                    className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-900 focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
                   >
                     <option value="0">Any Speed</option>
                     <option value="50">50+ Mbps</option>
@@ -862,11 +861,11 @@ export function SingleSiteStepper() {
 
                   {/* Sort By */}
                   <div className="flex items-center gap-1 ml-auto">
-                    <PiArrowsDownUpBold className="h-4 w-4 text-gray-400" />
+                    <PiArrowsDownUpBold className="h-4 w-4 text-slate-400" />
                     <select
                       value={filters.sortBy}
                       onChange={(e) => setFilters(f => ({ ...f, sortBy: e.target.value as typeof filters.sortBy }))}
-                      className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                      className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-900 focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
                     >
                       <option value="price">Price: Low to High</option>
                       <option value="speed">Speed: High to Low</option>
@@ -878,12 +877,12 @@ export function SingleSiteStepper() {
                 {/* Package Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {availablePackages.length === 0 ? (
-                    <div className="col-span-2 text-center py-12 text-gray-500">
+                    <div className="col-span-2 text-center py-12 text-slate-500">
                       <PiPackageBold className="h-10 w-10 mx-auto mb-3 opacity-40" />
                       <p className="font-medium">Loading packages...</p>
                     </div>
                   ) : filteredPackages.length === 0 ? (
-                    <div className="col-span-2 text-center py-12 text-gray-500">
+                    <div className="col-span-2 text-center py-12 text-slate-500">
                       <PiSlidersHorizontalBold className="h-10 w-10 mx-auto mb-3 opacity-40" />
                       <p className="font-medium">No packages match your filters</p>
                       <button
@@ -962,7 +961,7 @@ export function SingleSiteStepper() {
 
                 {/* Results count */}
                 {filteredPackages.length > 0 && (
-                  <p className="text-xs text-gray-400 text-center">
+                  <p className="text-xs text-slate-500 text-center">
                     Showing {filteredPackages.length} of {availablePackages.length} packages
                   </p>
                 )}
@@ -978,35 +977,35 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
-                  <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-circleTel-orange opacity-100" />
+                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
                     <PiPackageBold className="h-6 w-6 text-circleTel-orange" />
                     Review Selection
                   </h2>
-                  <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                  <p className="text-slate-600 mt-2 font-medium tracking-wide">
                     Verify the chosen infrastructure packages
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   {formData.selectedPackages.map((pkg) => (
-                    <div key={pkg.id} className="relative p-6 rounded-2xl bg-white/5 border border-white/10 group hover:border-white/20 transition-all">
+                    <div key={pkg.id} className="relative p-6 rounded-xl bg-white border border-slate-200 group hover:border-slate-300 transition-all shadow-sm">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-3 bg-white/5 rounded-xl group-hover:bg-circleTel-orange/10 transition-colors">
+                          <div className="p-3 bg-slate-100 rounded-lg group-hover:bg-circleTel-orange/10 transition-colors">
                             {getTechIcon(pkg.technology)}
                           </div>
                           <div>
-                            <h4 className="text-sm font-black text-white uppercase tracking-widest">{pkg.name}</h4>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">{pkg.name}</h4>
+                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">
                               {pkg.speed} Mbps • {pkg.provider}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-black text-white tracking-widest leading-none">{formatPrice(pkg.price)}</p>
-                          <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">/ month</p>
+                          <p className="text-lg font-black text-slate-900 tracking-widest leading-none">{formatPrice(pkg.price)}</p>
+                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">/ month</p>
                         </div>
                       </div>
                     </div>
@@ -1014,29 +1013,29 @@ export function SingleSiteStepper() {
                 </div>
 
                 {/* Totals Card */}
-                <div className="bg-black/40 rounded-2xl border border-white/5 p-8 backdrop-blur-md shadow-2xl">
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-8 shadow-sm">
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Monthly Subtotal</span>
-                      <span className="text-sm font-black text-white tracking-widest">{formatPrice(totals.monthly)}</span>
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Monthly Subtotal</span>
+                      <span className="text-sm font-black text-slate-900 tracking-widest">{formatPrice(totals.monthly)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">VAT (15%)</span>
-                      <span className="text-sm font-black text-white tracking-widest">{formatPrice(totals.vat)}</span>
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">VAT (15%)</span>
+                      <span className="text-sm font-black text-slate-900 tracking-widest">{formatPrice(totals.vat)}</span>
                     </div>
-                    <div className="pt-4 mt-2 border-t border-white/5 flex justify-between items-center">
-                      <span className="text-xs font-black text-white uppercase tracking-[0.2em]">Monthly Total</span>
+                    <div className="pt-4 mt-2 border-t border-slate-200 flex justify-between items-center">
+                      <span className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">Monthly Total</span>
                       <span className="text-2xl font-black text-circleTel-orange tracking-widest">{formatPrice(totals.total)}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center pt-8">
-                  <Button variant="ghost" onClick={prevStep} className="text-slate-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
+                  <Button variant="ghost" onClick={prevStep} className="text-slate-600 hover:text-slate-900 uppercase tracking-widest text-[10px] font-black">
                     <PiCaretLeftBold className="h-4 w-4 mr-2" />
                     Back to Selection
                   </Button>
-                  <Button onClick={nextStep} className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-[0_10px_30px_rgba(245,132,30,0.3)]">
+                  <Button onClick={nextStep} className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-sm">
                     Client Details
                     <PiCaretRightBold className="h-4 w-4 ml-2" />
                   </Button>
@@ -1053,62 +1052,62 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
-                  <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-circleTel-orange opacity-100" />
+                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
                     <PiBuildingsBold className="h-6 w-6 text-circleTel-orange" />
                     Client Profile
                   </h2>
-                  <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                  <p className="text-slate-600 mt-2 font-medium tracking-wide">
                     Information for proposal generation
                   </p>
                 </div>
 
-                <div className="bg-white/5 rounded-2xl border border-white/5 p-8 space-y-6">
+                <div className="bg-white rounded-xl border border-slate-200 p-8 space-y-6 shadow-sm">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="md:col-span-2 group">
-                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block group-focus-within:text-circleTel-orange transition-colors">Company Name *</Label>
+                      <Label className="text-sm font-medium text-slate-700 mb-2 block group-focus-within:text-circleTel-orange transition-colors">Company Name *</Label>
                       <Input
                         placeholder="e.g. Acme Corp"
                         value={formData.companyName}
                         onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-                        className="bg-black/20 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 h-14 rounded-xl font-bold tracking-wide"
+                        className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 h-14 rounded-xl font-bold tracking-wide"
                       />
                     </div>
                     <div className="group">
-                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block group-focus-within:text-circleTel-orange transition-colors">Contact Person</Label>
+                      <Label className="text-sm font-medium text-slate-700 mb-2 block group-focus-within:text-circleTel-orange transition-colors">Contact Person</Label>
                       <Input
                         placeholder="Contact Name"
                         value={formData.contactName}
                         onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                        className="bg-black/20 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 h-14 rounded-xl"
+                        className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 h-14 rounded-xl"
                       />
                     </div>
                     <div className="group">
-                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block group-focus-within:text-circleTel-orange transition-colors">Email Address</Label>
+                      <Label className="text-sm font-medium text-slate-700 mb-2 block group-focus-within:text-circleTel-orange transition-colors">Email Address</Label>
                       <Input
                         type="email"
                         placeholder="client@company.com"
                         value={formData.email}
                         onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        className="bg-black/20 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 h-14 rounded-xl"
+                        className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 h-14 rounded-xl"
                       />
                     </div>
                     <div className="group">
-                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block group-focus-within:text-circleTel-orange transition-colors">Phone Number</Label>
+                      <Label className="text-sm font-medium text-slate-700 mb-2 block group-focus-within:text-circleTel-orange transition-colors">Phone Number</Label>
                       <Input
                         type="tel"
                         placeholder="+27..."
                         value={formData.phone}
                         onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        className="bg-black/20 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 h-14 rounded-xl"
+                        className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 h-14 rounded-xl"
                       />
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-white/5 space-y-6">
+                  <div className="pt-6 border-t border-slate-200 space-y-6">
                     <div>
-                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 block">Preferred Contract Term</Label>
+                      <Label className="text-sm font-medium text-slate-700 mb-4 block">Preferred Contract Term</Label>
                       <RadioGroup
                         value={formData.contractTerm.toString()}
                         onValueChange={(v) => setFormData(prev => ({ ...prev, contractTerm: parseInt(v) as 12 | 24 | 36 }))}
@@ -1117,9 +1116,9 @@ export function SingleSiteStepper() {
                         {contractTermOptions.map((opt) => (
                           <label
                             key={opt.value}
-                            className={`flex-1 flex items-center justify-center gap-3 p-4 border rounded-xl cursor-pointer transition-all duration-300 ${formData.contractTerm === opt.value
-                              ? 'border-circleTel-orange bg-circleTel-orange/10 text-white'
-                              : 'border-white/5 bg-black/20 text-slate-500 hover:border-white/10'
+                            className={`flex-1 flex items-center justify-center gap-3 p-4 border rounded-lg cursor-pointer transition-all duration-300 ${formData.contractTerm === opt.value
+                              ? 'border-circleTel-orange bg-circleTel-orange/10 text-slate-900'
+                              : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300'
                               }`}
                           >
                             <RadioGroupItem value={opt.value.toString()} className="sr-only" />
@@ -1129,14 +1128,14 @@ export function SingleSiteStepper() {
                       </RadioGroup>
                     </div>
 
-                    <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/5">
+                    <div className="flex items-center gap-4 p-4 bg-slate-100 rounded-lg border border-slate-200">
                       <Checkbox
                         id="failover"
                         checked={formData.failover}
                         onCheckedChange={(checked) => setFormData(prev => ({ ...prev, failover: !!checked }))}
-                        className="border-white/20 data-[state=checked]:bg-circleTel-orange data-[state=checked]:border-circleTel-orange"
+                        className="border-slate-300 data-[state=checked]:bg-circleTel-orange data-[state=checked]:border-circleTel-orange"
                       />
-                      <Label htmlFor="failover" className="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer flex items-center gap-2">
+                      <Label htmlFor="failover" className="text-sm font-medium text-slate-700 cursor-pointer flex items-center gap-2">
                         <PiShieldBold className="h-4 w-4 text-green-500" />
                         Redundant Failover Required
                       </Label>
@@ -1145,14 +1144,14 @@ export function SingleSiteStepper() {
                 </div>
 
                 <div className="flex justify-between items-center pt-8">
-                  <Button variant="ghost" onClick={prevStep} className="text-slate-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
+                  <Button variant="ghost" onClick={prevStep} className="text-slate-600 hover:text-slate-900 uppercase tracking-widest text-[10px] font-black">
                     <PiCaretLeftBold className="h-4 w-4 mr-2" />
                     Back to review
                   </Button>
                   <Button
                     onClick={nextStep}
                     disabled={!formData.companyName}
-                    className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-[0_10px_30px_rgba(245,132,30,0.3)] disabled:opacity-20 transition-all active:scale-95"
+                    className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-sm disabled:opacity-20 transition-all active:scale-95"
                   >
                     Confirm Proposal
                     <PiCaretRightBold className="h-4 w-4 ml-2" />
@@ -1172,20 +1171,20 @@ export function SingleSiteStepper() {
               >
                 {generatedQuoteId ? (
                   // Success State
-                  <div className="text-center py-16 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-green-500 opacity-50" />
-                    <div className="w-20 h-20 bg-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/10">
-                      <PiCheckCircleBold className="h-10 w-10 text-green-500" />
+                  <div className="text-center py-16 bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-green-500 opacity-100" />
+                    <div className="w-20 h-20 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                      <PiCheckCircleBold className="h-10 w-10 text-green-600" />
                     </div>
-                    <h2 className="text-3xl font-black text-white uppercase tracking-widest leading-tight">Quote Generated</h2>
-                    <p className="text-slate-400 mt-3 font-medium tracking-wide max-w-sm mx-auto">
+                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-widest leading-tight">Quote Generated</h2>
+                    <p className="text-slate-600 mt-3 font-medium tracking-wide max-w-sm mx-auto">
                       Automated proposal has been created and synced with the sales pipeline
                     </p>
 
                     <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center px-8">
                       <Button
                         onClick={() => window.open(`/admin/quotes/${generatedQuoteId}`, '_blank')}
-                        className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-circleTel-orange/20"
+                        className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-sm"
                       >
                         <PiArrowSquareOutBold className="h-4 w-4 mr-2" />
                         View Document
@@ -1215,7 +1214,7 @@ export function SingleSiteStepper() {
                           setGeneratedQuoteId(null);
                           setMarkerPosition(null);
                         }}
-                        className="border-white/10 hover:bg-white/5 text-slate-300 h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px]"
+                        className="border-slate-200 hover:bg-slate-50 text-slate-700 h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px]"
                       >
                         <PiArrowCounterClockwiseBold className="h-4 w-4 mr-2" />
                         New Feasibility
@@ -1225,13 +1224,13 @@ export function SingleSiteStepper() {
                 ) : (
                   // Review State
                   <>
-                    <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
-                      <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                    <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                      <div className="absolute top-0 left-0 w-full h-1 bg-circleTel-orange opacity-100" />
+                      <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
                         <PiFileTextBold className="h-6 w-6 text-circleTel-orange" />
                         Final Review
                       </h2>
-                      <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                      <p className="text-slate-600 mt-2 font-medium tracking-wide">
                         Validate installation parameters before finalizing
                       </p>
                     </div>
@@ -1240,32 +1239,32 @@ export function SingleSiteStepper() {
                       {/* Summary Section */}
                       <div className="space-y-6">
                         {/* Location */}
-                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex gap-4">
+                        <div className="p-6 bg-white rounded-xl border border-slate-200 flex gap-4 shadow-sm">
                           <div className="p-2 bg-circleTel-orange/10 rounded-lg h-fit">
                             <PiMapPinBold className="h-4 w-4 text-circleTel-orange" />
                           </div>
                           <div>
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Site Address</span>
-                            <p className="text-sm font-bold text-white mt-1 leading-relaxed">{formData.address}</p>
+                            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Site Address</span>
+                            <p className="text-sm font-bold text-slate-900 mt-1 leading-relaxed">{formData.address}</p>
                           </div>
                         </div>
 
                         {/* Client */}
-                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex gap-4">
+                        <div className="p-6 bg-white rounded-xl border border-slate-200 flex gap-4 shadow-sm">
                           <div className="p-2 bg-circleTel-orange/10 rounded-lg h-fit">
                             <PiBuildingsBold className="h-4 w-4 text-circleTel-orange" />
                           </div>
                           <div className="flex-1">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Client Account</span>
-                            <p className="text-sm font-black text-white mt-1 uppercase tracking-wider">{formData.companyName}</p>
-                            <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-white/5">
+                            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Client Account</span>
+                            <p className="text-sm font-black text-slate-900 mt-1 uppercase tracking-wider">{formData.companyName}</p>
+                            <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-slate-200">
                               <div>
                                 <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Contact</span>
-                                <p className="text-[10px] text-slate-300 font-bold">{formData.contactName || 'N/A'}</p>
+                                <p className="text-[10px] text-slate-700 font-bold">{formData.contactName || 'N/A'}</p>
                               </div>
                               <div>
                                 <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Term</span>
-                                <p className="text-[10px] text-slate-300 font-bold">{formData.contractTerm} Months</p>
+                                <p className="text-[10px] text-slate-700 font-bold">{formData.contractTerm} Months</p>
                               </div>
                             </div>
                           </div>
@@ -1273,28 +1272,28 @@ export function SingleSiteStepper() {
                       </div>
 
                       {/* Calculations Section */}
-                      <div className="bg-black/30 rounded-2xl border border-white/5 p-8 flex flex-col">
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Commercial Summary</span>
+                      <div className="bg-slate-50 rounded-xl border border-slate-200 p-8 flex flex-col shadow-sm">
+                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6">Commercial Summary</span>
 
                         <div className="space-y-4 flex-1">
                           {formData.selectedPackages.map(pkg => (
                             <div key={pkg.id} className="flex justify-between items-center group">
                               <div className="flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-circleTel-orange" />
-                                <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors capitalize">{pkg.name}</span>
+                                <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900 transition-colors capitalize">{pkg.name}</span>
                               </div>
-                              <span className="text-xs font-black text-white tracking-widest">{formatPrice(pkg.price)}</span>
+                              <span className="text-xs font-black text-slate-900 tracking-widest">{formatPrice(pkg.price)}</span>
                             </div>
                           ))}
                         </div>
 
-                        <div className="pt-6 mt-6 border-t border-white/10 space-y-4">
+                        <div className="pt-6 mt-6 border-t border-slate-200 space-y-4">
                           <div className="flex justify-between items-center">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">VAT (15%)</span>
-                            <span className="text-xs font-black text-slate-300 tracking-widest">{formatPrice(totals.vat)}</span>
+                            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">VAT (15%)</span>
+                            <span className="text-xs font-black text-slate-700 tracking-widest">{formatPrice(totals.vat)}</span>
                           </div>
-                          <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl">
-                            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Monthly Total</span>
+                          <div className="flex justify-between items-center bg-white p-4 rounded-lg border border-slate-200">
+                            <span className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em]">Monthly Total</span>
                             <span className="text-2xl font-black text-circleTel-orange tracking-tighter">{formatPrice(totals.total)}</span>
                           </div>
                         </div>
@@ -1302,20 +1301,19 @@ export function SingleSiteStepper() {
                     </div>
 
                     <div className="flex justify-between items-center pt-10">
-                      <Button variant="ghost" onClick={prevStep} className="text-slate-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
+                      <Button variant="ghost" onClick={prevStep} className="text-slate-600 hover:text-slate-900 uppercase tracking-widest text-[10px] font-black">
                         <PiCaretLeftBold className="h-4 w-4 mr-2" />
                         Edit details
                       </Button>
                       <Button
                         onClick={generateQuote}
                         disabled={isLoading}
-                        className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-16 h-14 rounded-xl font-black uppercase tracking-[.3em] text-[10px] shadow-[0_15px_40px_rgba(245,132,30,0.4)] relative group transition-all active:scale-95"
+                        className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-16 h-14 rounded-xl font-black uppercase tracking-[.3em] text-[10px] shadow-sm relative group transition-all active:scale-95"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
                         {isLoading ? (
                           <PiSpinnerBold className="h-5 w-5 animate-spin mr-3" />
                         ) : (
-                          <PiLightningBold className="h-4 w-4 mr-3 text-white fill-white shadow-xl shadow-white/50" />
+                          <PiLightningBold className="h-4 w-4 mr-3 text-white" />
                         )}
                         Finalize Proposal
                       </Button>
