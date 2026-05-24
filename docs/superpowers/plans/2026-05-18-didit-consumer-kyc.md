@@ -1,0 +1,1056 @@
+# Didit Consumer KYC Integration — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Replace the manual document upload KYC page with a Didit-powered redirect verification flow, redesigned to match the `/dashboard/billing` page layout (ModernStatCard grid, Tabs, consistent styling).
+
+**Architecture:** Backend creates a Didit session for the consumer customer → frontend redirects the user to Didit's hosted verification UI → Didit webhook sends results back → webhook handler updates `kyc_sessions` table → page polls for status updates. Reuses existing Didit client infrastructure (`lib/integrations/didit/`) with a new consumer-specific session creation endpoint and flow.
+
+**Tech Stack:** Next.js 15, TypeScript, Supabase, Tailwind CSS, shadcn/ui Tabs, ModernStatCard, Didit Sessions API v2, react-icons/pi
+
+---
+
+## File Map
+
+| Action | File | Responsibility |
+|--------|------|----------------|
+| Create | `app/api/dashboard/kyc/create-session/route.ts` | Consumer KYC session creation API |
+| Create | `app/api/dashboard/kyc/status/route.ts` | Consumer KYC session status API |
+| Modify | `app/dashboard/kyc/page.tsx` | Full redesign — ModernStatCard + Tabs layout |
+| Modify | `lib/integrations/didit/session-manager.ts` | Add `createKYCSessionForConsumer()` |
+| Modify | `lib/integrations/didit/types.ts` | Add `ConsumerKYCSession` interface |
+| Modify | `app/api/compliance/webhook/didit/route.ts` | Handle consumer session webhook events |
+| Modify | `lib/integrations/didit/webhook-handler.ts` | Process consumer KYC webhook payloads |
+
+---
+
+### Task 1: Add Consumer KYC Types
+
+**Files:**
+- Modify: `lib/integrations/didit/types.ts`
+
+- [ ] **Step 1: Add ConsumerKYCSession interface and consumer status type**
+
+Add these types at the end of `lib/integrations/didit/types.ts`:
+
+```typescript
+/**
+ * Consumer KYC session data stored in kyc_sessions table
+ */
+export interface ConsumerKYCSession {
+  id: string;
+  customer_id: string;
+  didit_session_id: string;
+  verification_url: string;
+  flow_type: 'consumer_light_kyc';
+  status: DiditSessionStatus;
+  verification_result: DiditVerificationResult | null;
+  risk_score: number | null;
+  extracted_data: ExtractedKYCData | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+/**
+ * Consumer KYC page display status — derived from session data
+ */
+export type ConsumerKYCDisplayStatus =
+  | 'not_started'      // No session exists
+  | 'pending'          // Session created, user hasn't completed
+  | 'in_progress'      // User is actively verifying
+  | 'approved'         // Verification approved
+  | 'declined'         // Verification declined
+  | 'pending_review'   // Manual review needed
+  | 'expired';         // Session expired
+```
+
+- [ ] **Step 2: Verify types compile**
+
+Run: `npx tsc --noEmit lib/integrations/didit/types.ts 2>&1 | head -20`
+Expected: No errors
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add lib/integrations/didit/types.ts
+git commit -m "feat(kyc): add consumer KYC session types"
+```
+
+---
+
+### Task 2: Add Consumer Session Creation to Session Manager
+
+**Files:**
+- Modify: `lib/integrations/didit/session-manager.ts`
+
+- [ ] **Step 1: Add `createKYCSessionForConsumer()` function**
+
+Add this function to the end of `lib/integrations/didit/session-manager.ts`, before the module's closing. This creates a Didit session for a consumer dashboard user (identified by `customerId` from `useCustomerAuth()`), stores it in `kyc_sessions`, and returns the verification URL.
+
+```typescript
+/**
+ * Create KYC Session for Consumer Dashboard User
+ *
+ * Creates a Didit verification session for a consumer customer.
+ * Uses consumer_light_kyc flow: OCR + Passive Liveness + Face Match + IP Analysis
+ *
+ * @param customerId - Supabase auth user ID from useCustomerAuth()
+ * @param callbackUrl - URL to redirect user after verification completes
+ */
+export async function createKYCSessionForConsumer(
+  customerId: string,
+  callbackUrl: string
+): Promise<KYCSessionCreationResult> {
+  const supabase = await createClient();
+
+  // Check for existing active session
+  const { data: existingSession } = await supabase
+    .from('kyc_sessions')
+    .select('id, didit_session_id, verification_url, status')
+    .eq('customer_id', customerId)
+    .eq('flow_type', 'consumer_light_kyc')
+    .in('status', ['not_started', 'in_progress'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (existingSession) {
+    return {
+      success: true,
+      sessionId: existingSession.didit_session_id,
+      verificationUrl: existingSession.verification_url,
+      message: 'Existing active session found',
+    };
+  }
+
+  const flowType: DiditFlowType = 'consumer_light_kyc';
+
+  const sessionRequest: DiditSessionRequest = {
+    flowType,
+    vendorData: customerId,
+    callbackUrl,
+    metadata: {
+      source: 'consumer_dashboard',
+      customerId,
+    },
+  };
+
+  const diditResponse = await createSession(sessionRequest);
+
+  // Store session in database
+  const { error: insertError } = await supabase
+    .from('kyc_sessions')
+    .insert({
+      customer_id: customerId,
+      didit_session_id: diditResponse.sessionId,
+      verification_url: diditResponse.verificationUrl,
+      flow_type: flowType,
+      user_type: 'consumer',
+      status: 'not_started',
+    });
+
+  if (insertError) {
+    console.error('Failed to store KYC session:', insertError);
+    throw new Error(`Failed to store KYC session: ${insertError.message}`);
+  }
+
+  return {
+    success: true,
+    sessionId: diditResponse.sessionId,
+    verificationUrl: diditResponse.verificationUrl,
+    message: 'Consumer KYC session created',
+  };
+}
+
+/**
+ * Get latest consumer KYC session for a customer
+ */
+export async function getConsumerKYCSession(customerId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('kyc_sessions')
+    .select('*')
+    .eq('customer_id', customerId)
+    .eq('flow_type', 'consumer_light_kyc')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    throw new Error(`Failed to fetch KYC session: ${error.message}`);
+  }
+
+  return data;
+}
+```
+
+- [ ] **Step 2: Add imports if needed**
+
+Ensure `DiditFlowType`, `DiditSessionRequest`, and `KYCSessionCreationResult` are imported at the top. They should already be imported from `./types`.
+
+- [ ] **Step 3: Verify compilation**
+
+Run: `npm run type-check:memory 2>&1 | grep -i "error" | head -10`
+Expected: No new errors
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add lib/integrations/didit/session-manager.ts
+git commit -m "feat(kyc): add consumer session creation and retrieval"
+```
+
+---
+
+### Task 3: Create Consumer KYC Session API Endpoint
+
+**Files:**
+- Create: `app/api/dashboard/kyc/create-session/route.ts`
+
+- [ ] **Step 1: Create the API route**
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import { createClientWithSession } from '@/lib/supabase/server';
+import { createKYCSessionForConsumer } from '@/lib/integrations/didit/session-manager';
+
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = await createClientWithSession();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const origin = request.headers.get('origin') || 'https://www.circletel.co.za';
+    const callbackUrl = `${origin}/dashboard/kyc?status=completed`;
+
+    const result = await createKYCSessionForConsumer(user.id, callbackUrl);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        sessionId: result.sessionId,
+        verificationUrl: result.verificationUrl,
+        message: result.message,
+      },
+    });
+  } catch (error) {
+    console.error('[KYC] Session creation failed:', error);
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'Failed to create KYC session' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+- [ ] **Step 2: Verify the file compiles**
+
+Run: `npx tsc --noEmit app/api/dashboard/kyc/create-session/route.ts 2>&1 | head -10`
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add app/api/dashboard/kyc/create-session/route.ts
+git commit -m "feat(kyc): add consumer KYC session creation API endpoint"
+```
+
+---
+
+### Task 4: Create Consumer KYC Status API Endpoint
+
+**Files:**
+- Create: `app/api/dashboard/kyc/status/route.ts`
+
+- [ ] **Step 1: Create the status API route**
+
+```typescript
+import { NextResponse } from 'next/server';
+import { createClientWithSession } from '@/lib/supabase/server';
+import { getConsumerKYCSession } from '@/lib/integrations/didit/session-manager';
+
+export async function GET() {
+  try {
+    const supabase = await createClientWithSession();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const session = await getConsumerKYCSession(user.id);
+
+    if (!session) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          status: 'not_started',
+          session: null,
+        },
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        status: session.verification_result || session.status,
+        session: {
+          id: session.id,
+          didit_session_id: session.didit_session_id,
+          verification_url: session.verification_url,
+          status: session.status,
+          verification_result: session.verification_result,
+          risk_score: session.risk_score,
+          created_at: session.created_at,
+          completed_at: session.completed_at,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('[KYC] Status fetch failed:', error);
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'Failed to fetch KYC status' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add app/api/dashboard/kyc/status/route.ts
+git commit -m "feat(kyc): add consumer KYC status API endpoint"
+```
+
+---
+
+### Task 5: Update Webhook Handler for Consumer Sessions
+
+**Files:**
+- Modify: `app/api/compliance/webhook/didit/route.ts`
+- Modify: `lib/integrations/didit/webhook-handler.ts`
+
+- [ ] **Step 1: Read current webhook handler implementation**
+
+Run: `cat lib/integrations/didit/webhook-handler.ts` to understand the current processing logic before modifying.
+
+- [ ] **Step 2: Add consumer session handling to webhook handler**
+
+In `lib/integrations/didit/webhook-handler.ts`, the `processDiditWebhook()` function currently updates `kyc_sessions` via the `quote_id` relationship. Add logic to also handle sessions where `user_type = 'consumer'` — these sessions have a `customer_id` instead of `quote_id`.
+
+The webhook payload includes `vendor_data` which contains the `customerId` for consumer sessions. Add a branch:
+
+```typescript
+// Inside processDiditWebhook, after finding the session by didit_session_id:
+
+// If this is a consumer session, update status and result
+if (session.user_type === 'consumer') {
+  const { error: updateError } = await supabase
+    .from('kyc_sessions')
+    .update({
+      status: mapDiditStatus(payload.event),
+      verification_result: payload.result?.status || null,
+      risk_score: payload.result?.risk_score || null,
+      extracted_data: payload.data || null,
+      completed_at: ['completed', 'abandoned'].includes(mapDiditStatus(payload.event))
+        ? new Date().toISOString()
+        : null,
+    })
+    .eq('didit_session_id', payload.sessionId);
+
+  if (updateError) {
+    console.error('[Webhook] Consumer session update failed:', updateError);
+    throw updateError;
+  }
+
+  console.log(`[Webhook] Consumer KYC session ${payload.sessionId} updated: ${payload.event}`);
+  return;
+}
+```
+
+- [ ] **Step 3: Verify the webhook handler compiles**
+
+Run: `npm run type-check:memory 2>&1 | grep "webhook" | head -10`
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add lib/integrations/didit/webhook-handler.ts app/api/compliance/webhook/didit/route.ts
+git commit -m "feat(kyc): handle consumer KYC sessions in Didit webhook"
+```
+
+---
+
+### Task 6: Redesign `/dashboard/kyc` Page
+
+**Files:**
+- Modify: `app/dashboard/kyc/page.tsx` (complete rewrite)
+
+This is the main task. The page must match `/dashboard/billing` exactly in layout structure:
+1. Page wrapper: `<div className="space-y-8">`
+2. Header: `<h1 className="text-2xl font-semibold text-gray-900">`
+3. ModernStatCard grid: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6`
+4. Tabs with matching styling (orange active state, rounded-xl)
+5. Full width (no `max-w-4xl` constraint)
+6. Auth: `useCustomerAuth()` (not `createClient()`)
+
+- [ ] **Step 1: Write the complete redesigned page**
+
+Replace `app/dashboard/kyc/page.tsx` entirely:
+
+```typescript
+'use client';
+
+import React, { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ModernStatCard } from '@/components/dashboard/ModernStatCard';
+import {
+  PiCheckCircleBold,
+  PiClockBold,
+  PiIdentificationCardBold,
+  PiShieldCheckBold,
+  PiScanBold,
+  PiUserCircleBold,
+  PiWarningCircleBold,
+  PiArrowClockwiseBold,
+  PiTimerBold,
+  PiListChecksBold,
+  PiXCircleBold,
+} from 'react-icons/pi';
+
+interface KYCSession {
+  id: string;
+  didit_session_id: string;
+  verification_url: string;
+  status: 'not_started' | 'in_progress' | 'completed' | 'abandoned';
+  verification_result: 'approved' | 'declined' | 'pending_review' | null;
+  risk_score: number | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+interface KYCData {
+  status: string;
+  session: KYCSession | null;
+}
+
+function getStatusBadge(status: string): { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; color: string } {
+  switch (status) {
+    case 'approved':
+      return { label: 'Verified', variant: 'default', color: 'bg-green-100 text-green-800' };
+    case 'declined':
+      return { label: 'Declined', variant: 'destructive', color: 'bg-red-100 text-red-800' };
+    case 'pending_review':
+      return { label: 'Under Review', variant: 'secondary', color: 'bg-yellow-100 text-yellow-800' };
+    case 'in_progress':
+      return { label: 'In Progress', variant: 'secondary', color: 'bg-blue-100 text-blue-800' };
+    case 'not_started':
+      return { label: 'Not Started', variant: 'outline', color: 'bg-gray-100 text-gray-800' };
+    default:
+      return { label: 'Unknown', variant: 'outline', color: 'bg-gray-100 text-gray-800' };
+  }
+}
+
+export default function KYCPage() {
+  const { session } = useCustomerAuth();
+  const searchParams = useSearchParams();
+  const [data, setData] = useState<KYCData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('verification');
+  const [creating, setCreating] = useState(false);
+
+  const fetchKYCStatus = useCallback(async () => {
+    if (!session?.access_token) {
+      setError('Please log in to view KYC status');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/dashboard/kyc/status', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch KYC status: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        setData(result.data);
+        setError(null);
+      } else {
+        setError(result.error || 'Failed to load KYC status');
+      }
+    } catch (err) {
+      console.error('KYC status error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load KYC status');
+    } finally {
+      setLoading(false);
+    }
+  }, [session?.access_token]);
+
+  useEffect(() => {
+    fetchKYCStatus();
+  }, [fetchKYCStatus]);
+
+  // Handle return from Didit verification
+  useEffect(() => {
+    const status = searchParams.get('status');
+    if (status === 'completed') {
+      toast.success('Verification submitted! We are reviewing your documents.');
+      fetchKYCStatus();
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', '/dashboard/kyc');
+      }
+    }
+  }, [searchParams, fetchKYCStatus]);
+
+  const startVerification = async () => {
+    if (!session?.access_token) return;
+
+    setCreating(true);
+    try {
+      const response = await fetch('/api/dashboard/kyc/create-session', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data?.verificationUrl) {
+        window.location.href = result.data.verificationUrl;
+      } else {
+        toast.error(result.error || 'Failed to start verification');
+      }
+    } catch (err) {
+      console.error('Start verification error:', err);
+      toast.error('Failed to start verification. Please try again.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="mb-2">
+          <h1 className="text-2xl font-semibold text-gray-900">Identity Verification</h1>
+          <p className="text-sm text-gray-500 mt-1">Verify your identity to unlock all account features</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-32 bg-gray-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div className="mb-2">
+          <h1 className="text-2xl font-semibold text-gray-900">Identity Verification</h1>
+          <p className="text-sm text-gray-500 mt-1">Verify your identity to unlock all account features</p>
+        </div>
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-6 text-center">
+            <PiWarningCircleBold className="h-12 w-12 text-red-400 mx-auto mb-4" />
+            <p className="text-red-800 font-medium">{error}</p>
+            <Button
+              onClick={() => { setLoading(true); setError(null); fetchKYCStatus(); }}
+              className="mt-4 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+            >
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const kycStatus = data?.status || 'not_started';
+  const kycSession = data?.session;
+  const isVerified = kycStatus === 'approved';
+  const statusBadge = getStatusBadge(kycStatus);
+
+  return (
+    <div className="space-y-8">
+      {/* Page Header - Matching billing page style */}
+      <div className="mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900">Identity Verification</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Verify your identity to unlock all account features
+        </p>
+      </div>
+
+      {/* KYC Summary Cards - ModernStatCard grid matching billing page */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <ModernStatCard
+          title="Verification Status"
+          value={statusBadge.label}
+          subtitle={isVerified ? 'Identity confirmed' : 'Action required'}
+          description={isVerified ? 'Your account is fully verified' : 'Complete verification to access all features'}
+          icon={isVerified ? <PiCheckCircleBold className="h-5 w-5" /> : <PiWarningCircleBold className="h-5 w-5" />}
+        />
+
+        <ModernStatCard
+          title="Documents Verified"
+          value={isVerified ? '1' : '0'}
+          subtitle={isVerified ? 'ID document verified' : 'No documents verified'}
+          description="South African ID or passport"
+          icon={<PiIdentificationCardBold className="h-5 w-5" />}
+        />
+
+        <ModernStatCard
+          title="Identity Check"
+          value={isVerified ? 'Passed' : 'Pending'}
+          subtitle={isVerified ? 'Face match confirmed' : 'Liveness check required'}
+          description="Biometric face verification"
+          icon={<PiScanBold className="h-5 w-5" />}
+        />
+
+        <ModernStatCard
+          title="Risk Score"
+          value={kycSession?.risk_score != null ? `${kycSession.risk_score}%` : 'N/A'}
+          subtitle={
+            kycSession?.risk_score != null
+              ? kycSession.risk_score <= 30 ? 'Low risk' : kycSession.risk_score <= 70 ? 'Medium risk' : 'High risk'
+              : 'Not assessed'
+          }
+          description="Automated risk assessment"
+          icon={<PiShieldCheckBold className="h-5 w-5" />}
+        />
+      </div>
+
+      {/* Main Content Tabs - Matching billing page tab styling */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex h-auto p-1.5 bg-gray-100 border border-gray-200 rounded-xl gap-1">
+          <TabsTrigger
+            value="verification"
+            className="gap-2.5 px-5 py-3 text-sm font-semibold rounded-lg transition-all duration-200
+              data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
+              data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
+          >
+            <PiShieldCheckBold className="h-5 w-5" />
+            <span className="hidden sm:inline">Verification</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="documents"
+            className="gap-2.5 px-5 py-3 text-sm font-semibold rounded-lg transition-all duration-200
+              data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
+              data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
+          >
+            <PiIdentificationCardBold className="h-5 w-5" />
+            <span className="hidden sm:inline">Documents</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="timeline"
+            className="gap-2.5 px-5 py-3 text-sm font-semibold rounded-lg transition-all duration-200
+              data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
+              data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
+          >
+            <PiListChecksBold className="h-5 w-5" />
+            <span className="hidden sm:inline">Timeline</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Verification Tab */}
+        <TabsContent value="verification" className="mt-6">
+          <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Identity Verification</h2>
+            </div>
+            <div className="p-6">
+              {kycStatus === 'not_started' && (
+                <div className="text-center py-8">
+                  <PiUserCircleBold className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Verify Your Identity</h3>
+                  <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                    Complete a quick identity verification to unlock all account features.
+                    You will need your South African ID document and a device with a camera.
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-3 mb-6">
+                    <Badge variant="outline" className="gap-1.5 py-1.5 px-3">
+                      <PiIdentificationCardBold className="h-4 w-4" /> ID Document Scan
+                    </Badge>
+                    <Badge variant="outline" className="gap-1.5 py-1.5 px-3">
+                      <PiScanBold className="h-4 w-4" /> Face Verification
+                    </Badge>
+                    <Badge variant="outline" className="gap-1.5 py-1.5 px-3">
+                      <PiShieldCheckBold className="h-4 w-4" /> Risk Analysis
+                    </Badge>
+                  </div>
+                  <Button
+                    onClick={startVerification}
+                    disabled={creating}
+                    className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-8 py-3 text-base"
+                  >
+                    {creating ? (
+                      <>
+                        <PiArrowClockwiseBold className="h-5 w-5 animate-spin mr-2" />
+                        Starting Verification...
+                      </>
+                    ) : (
+                      'Start Verification'
+                    )}
+                  </Button>
+                  <p className="text-xs text-gray-400 mt-3">Takes about 2 minutes. Powered by Didit.</p>
+                </div>
+              )}
+
+              {kycStatus === 'in_progress' && (
+                <div className="text-center py-8">
+                  <PiTimerBold className="h-16 w-16 text-blue-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Verification In Progress</h3>
+                  <p className="text-gray-500 mb-6">
+                    Your verification is being processed. This usually takes a few minutes.
+                  </p>
+                  <Button
+                    onClick={() => { setLoading(true); fetchKYCStatus(); }}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <PiArrowClockwiseBold className="h-4 w-4" />
+                    Check Status
+                  </Button>
+                </div>
+              )}
+
+              {kycStatus === 'pending' && kycSession?.verification_url && (
+                <div className="text-center py-8">
+                  <PiClockBold className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Verification Pending</h3>
+                  <p className="text-gray-500 mb-6">
+                    You have a pending verification session. Click below to continue.
+                  </p>
+                  <Button
+                    onClick={() => { window.location.href = kycSession.verification_url; }}
+                    className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-8"
+                  >
+                    Continue Verification
+                  </Button>
+                </div>
+              )}
+
+              {kycStatus === 'approved' && (
+                <div className="text-center py-8">
+                  <PiCheckCircleBold className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-green-800 mb-2">Identity Verified</h3>
+                  <p className="text-gray-500 mb-2">
+                    Your identity has been successfully verified. All account features are now available.
+                  </p>
+                  {kycSession?.completed_at && (
+                    <p className="text-xs text-gray-400">
+                      Verified on {new Date(kycSession.completed_at).toLocaleDateString('en-ZA', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                      })}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {kycStatus === 'declined' && (
+                <div className="text-center py-8">
+                  <PiXCircleBold className="h-16 w-16 text-red-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-red-800 mb-2">Verification Declined</h3>
+                  <p className="text-gray-500 mb-6">
+                    Your verification was not successful. You can try again with a valid ID document.
+                  </p>
+                  <Button
+                    onClick={startVerification}
+                    disabled={creating}
+                    className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-8"
+                  >
+                    {creating ? 'Starting...' : 'Try Again'}
+                  </Button>
+                </div>
+              )}
+
+              {kycStatus === 'pending_review' && (
+                <div className="text-center py-8">
+                  <PiClockBold className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-yellow-800 mb-2">Under Review</h3>
+                  <p className="text-gray-500">
+                    Your verification is being manually reviewed. We will notify you once the review is complete.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Documents Tab */}
+        <TabsContent value="documents" className="mt-6">
+          <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Verified Documents</h2>
+            </div>
+            <div className="p-6">
+              {isVerified ? (
+                <div className="space-y-3">
+                  <div className="p-4 border rounded-lg hover:bg-gray-50 hover:shadow-md transition-all">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <PiIdentificationCardBold className="h-5 w-5 text-circleTel-orange" />
+                        <div>
+                          <p className="font-medium text-gray-900">Identity Document</p>
+                          <p className="text-sm text-gray-500">South African Smart ID / Passport</p>
+                        </div>
+                      </div>
+                      <Badge className="bg-green-100 text-green-800">Verified</Badge>
+                    </div>
+                  </div>
+                  <div className="p-4 border rounded-lg hover:bg-gray-50 hover:shadow-md transition-all">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <PiScanBold className="h-5 w-5 text-circleTel-orange" />
+                        <div>
+                          <p className="font-medium text-gray-900">Biometric Verification</p>
+                          <p className="text-sm text-gray-500">Face match with passive liveness</p>
+                        </div>
+                      </div>
+                      <Badge className="bg-green-100 text-green-800">Passed</Badge>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <PiIdentificationCardBold className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No verified documents yet. Complete verification to see your documents here.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Timeline Tab */}
+        <TabsContent value="timeline" className="mt-6">
+          <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Verification Timeline</h2>
+            </div>
+            <div className="p-6">
+              {kycSession ? (
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                      <PiCheckCircleBold className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Session Created</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(kycSession.created_at).toLocaleDateString('en-ZA', {
+                          day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {kycSession.status !== 'not_started' && (
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                        <PiScanBold className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">Verification Started</p>
+                        <p className="text-sm text-gray-500">User began identity verification process</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {kycSession.completed_at && (
+                    <div className="flex items-start gap-4">
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                        kycSession.verification_result === 'approved' ? 'bg-green-100' :
+                        kycSession.verification_result === 'declined' ? 'bg-red-100' : 'bg-yellow-100'
+                      }`}>
+                        {kycSession.verification_result === 'approved' ? (
+                          <PiCheckCircleBold className="h-4 w-4 text-green-600" />
+                        ) : kycSession.verification_result === 'declined' ? (
+                          <PiXCircleBold className="h-4 w-4 text-red-600" />
+                        ) : (
+                          <PiClockBold className="h-4 w-4 text-yellow-600" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          Verification {kycSession.verification_result === 'approved' ? 'Approved' :
+                            kycSession.verification_result === 'declined' ? 'Declined' : 'Under Review'}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(kycSession.completed_at).toLocaleDateString('en-ZA', {
+                            day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <PiListChecksBold className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No verification activity yet. Start verification to see your timeline.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: Verify page compiles**
+
+Run: `npm run type-check:memory 2>&1 | grep "kyc/page" | head -10`
+Expected: No errors
+
+- [ ] **Step 3: Start dev server and test the page**
+
+Run: `npm run dev:memory`
+Navigate to: `http://localhost:3000/dashboard/kyc`
+Verify:
+- Header says "Identity Verification" with subtitle
+- 4 ModernStatCards visible in grid
+- 3 tabs (Verification, Documents, Timeline) with orange active state
+- "Start Verification" button visible on Verification tab
+- No console errors
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add app/dashboard/kyc/page.tsx
+git commit -m "feat(kyc): redesign KYC page with ModernStatCard grid and Tabs matching billing layout"
+```
+
+---
+
+### Task 7: Environment Variables Setup
+
+**Files:**
+- Modify: `.env.local` (manual)
+- Modify: `.env.example`
+
+- [ ] **Step 1: Document required env vars in .env.example**
+
+Add these lines to `.env.example`:
+
+```env
+# Didit KYC Integration
+DIDIT_API_KEY=                           # Didit API key from verify-email response
+DIDIT_API_URL=https://verification.didit.me/v2
+DIDIT_WEBHOOK_SECRET=                    # From POST /v3/webhook/destinations/ response
+DIDIT_WORKFLOW_CONSUMER_LIGHT_KYC=       # Workflow UUID for consumer OCR+Liveness+FaceMatch+IP
+```
+
+- [ ] **Step 2: Remind user to configure .env.local**
+
+Print instructions for the user:
+```
+Required .env.local variables for Didit consumer KYC:
+1. DIDIT_API_KEY — Get from Didit console or programmatic register flow
+2. DIDIT_WEBHOOK_SECRET — Get when registering webhook destination
+3. DIDIT_WORKFLOW_CONSUMER_LIGHT_KYC — Create workflow with OCR + PASSIVE Liveness + FACE_MATCH + IP_ANALYSIS
+```
+
+- [ ] **Step 3: Commit .env.example changes**
+
+```bash
+git add .env.example
+git commit -m "docs: add Didit consumer KYC env vars to .env.example"
+```
+
+---
+
+### Task 8: Verify Full Integration
+
+- [ ] **Step 1: Run type checker**
+
+Run: `npm run type-check:memory`
+Expected: No new errors
+
+- [ ] **Step 2: Verify page layout matches billing**
+
+Open both pages side by side:
+- `/dashboard/billing` — reference
+- `/dashboard/kyc` — new design
+
+Check:
+- [ ] Same header size (`text-2xl font-semibold`)
+- [ ] Same stat card grid (`grid-cols-4`)
+- [ ] Same tab styling (orange active, rounded-xl, shadow-md)
+- [ ] Same content card styling (`border rounded-lg`)
+- [ ] Full width (no max-w constraint)
+- [ ] Uses `useCustomerAuth()` (not `createClient()`)
+
+- [ ] **Step 3: Test verification flow (without Didit credentials)**
+
+Without DIDIT env vars:
+- Page should load showing "Not Started" status
+- Click "Start Verification" should show error toast (expected — no API key)
+- No console crashes
+
+- [ ] **Step 4: Final commit with all changes**
+
+```bash
+git add -A
+git status
+git commit -m "feat(kyc): complete Didit consumer KYC integration with billing-style layout"
+```
+
+---
+
+## Environment Variables Checklist
+
+| Variable | Where to Get | Required |
+|----------|-------------|----------|
+| `DIDIT_API_KEY` | `POST /auth/v2/programmatic/register/` then `verify-email/` | Yes |
+| `DIDIT_WEBHOOK_SECRET` | `POST /v3/webhook/destinations/` response `secret_shared_key` | Yes |
+| `DIDIT_WORKFLOW_CONSUMER_LIGHT_KYC` | `POST /v3/workflows/` with OCR+LIVENESS+FACE_MATCH+IP_ANALYSIS | Yes |
+| `DIDIT_API_URL` | Default: `https://verification.didit.me/v2` | Optional |
+
+## Features Included (Free Tier — 500/month each)
+
+| Feature | Cost After Free | What It Does |
+|---------|----------------|--------------|
+| OCR | $0.15 | Extracts data from ID documents |
+| Passive Liveness | $0.10 | Confirms real person (not photo/video) |
+| Face Match | $0.05 | Matches selfie to ID photo |
+| IP Analysis | $0.03 | Checks IP for VPN/proxy/risk signals |
+| **Total per verification** | **$0.33** | After 500 free/month |
+
+## Deliberately Excluded
+
+| Feature | Cost | Reason |
+|---------|------|--------|
+| AML Screening | $0.20/check, no free tier | Not required for consumer ISP onboarding |
+| NFC | Varies | Requires native app, not web |
+| Active 3D Liveness | Higher cost | Passive is sufficient for consumer KYC |
