@@ -463,4 +463,28 @@ Next session: read improvement-plan.md BEFORE starting work
 
 ---
 
-**Version**: 9.2 | **Updated**: 2026-05-06 | **Lines**: ~455
+**Version**: 9.3 | **Updated**: 2026-05-24 | **Lines**: ~500
+
+---
+
+## Strategic Context (READ BEFORE MAKING BUSINESS RECOMMENDATIONS)
+
+**Before proposing any revenue, marketing, hiring, or pricing decision, Claude MUST read these files to understand the actual financial reality:**
+
+| Priority | Document | Contains |
+|---|---|---|
+| 1 | `memory-os/long-term/client-context.md` | Cash position (R86K), burn rate (R198K/mo), 13-day runway, R463K intercompany receivables, external revenue sources |
+| 2 | `memory-os/long-term/decisions.md` | Strategic decisions: supplier moat, B2B-only marketing, Unjani as separate P&L, no-warm-prospects launch |
+| 3 | `memory-os/long-term/mistakes.md` | March 2026 Facebook campaign: R1,045 spent, 30 leads, 0 conversions — ads work, follow-up failed |
+| 4 | `data/resources/CircleTel_Resource_Plan_v1_0.md` | Team (4.5 FTEs), costs (R130K/mo people), sales gap (zero dedicated sales), cost reduction levers (R74K/mo) |
+| 5 | `docs/plans/2026-05-24-mrr-growth-strategy.md` | Grounded R657K MRR plan, B2B medical niche, R10K/mo marketing, hybrid Arlan+COD sourcing |
+
+**Key facts every session must know:**
+- Revenue: ~R35K/mo (R15K existing + R9.5K Unjani + R6-11K TDX ads)
+- Burn: R198K/mo. Cash: R86K (13 days runway). Funded by intercompany loans (NewGen group)
+- The supplier moat is 7,438 products across 5 distributors — no ISP competitor has this
+- The March 2026 Facebook campaign proved ads work (R41.80/conversation) but 60% of leads got zero follow-up
+- Unjani is a separate P&L unit, not MRR — 22 sites, bimodal ad revenue (7 performers, 10 dead)
+- All R10K marketing budget goes B2B (medical + accounting niches). Consumer is organic-only.
+- No warm OiaB prospects exist. First 2 clients must come from cold outreach or marketing leads.
+- Cost reduction (R74K/mo) is the fastest runway extension: Anton (R11K), Ashwyn (R12.5K), NewGen shared services (R50K)

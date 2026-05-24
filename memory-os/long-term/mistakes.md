@@ -76,4 +76,34 @@ Prevention: How to avoid this forever
 
 ---
 
+### [2026-05-18] Hardcoded Coolify container name broke health check in deploy.yml
+**What happened**: GitHub Actions run 26052825759 build succeeded, Docker image built, container deployed and healthy — but the health check step failed because it referenced container `b7ukn3c76rd46dsl19oqq59e-141223811188` which no longer existed. Coolify had regenerated the suffix to `-185027262864`.
+**Root cause**: Container name was hardcoded in deploy.yml. Coolify assigns a new random numeric suffix on every `docker compose up -d --force-recreate`.
+**Fix**: Replaced hardcoded name with dynamic resolution: `docker ps --filter "label=coolify.name=b7ukn3c76rd46dsl19oqq59e" --format '{{.Names}}' | head -1`
+**Prevention**: NEVER hardcode Coolify container names in any script or workflow. Always use label-based lookup via `docker ps --filter "label=coolify.name=<app-id>"`.
+
+---
+
+### [2026-05-18] KYC API routes used cookie-only auth — 401 in production
+**What happened**: `/api/dashboard/kyc/status` and `/api/dashboard/kyc/create-session` returned 401 for authenticated users. Console showed Bearer token being sent but API returning 401.
+**Root cause**: Both routes used `createClientWithSession()` which only reads cookies. The dashboard client (`useCustomerAuth()`) sends auth via `Authorization: Bearer` header. The cookie-only approach silently fails because the browser fetch includes the header but the API ignores it.
+**Fix**: Added header-first auth check matching the pattern from `/api/dashboard/services/route.ts` — check `Authorization` header first, fall back to cookies. Commit `de457c2a`.
+**Prevention**: ALL new consumer dashboard API routes MUST check Authorization header first, then fall back to cookies. Reference pattern: `/api/dashboard/services/route.ts` lines 31-78. Never use bare `createClientWithSession()` + `getUser()` for consumer-facing APIs — it only works if cookies are present, but the dashboard client sends Bearer tokens.
+
+---
+
+### [2026-05-24] Facebook campaign: R1,045 spent, 30 leads, 0 conversions
+**What happened**: Marlbank (Vaal) campaign ran 28 Mar–2 Apr 2026. Generated 25 conversations and 30+ Zoho tickets at R41.80/conversation. Zero conversions. Two customers asked to pay (tickets #613, #614) and were never called back.
+**Root cause**: Three simultaneous failures:
+1. 60% of leads got zero follow-up — Tamsyn at 50% allocation carries 64% of all tickets with no sales/support prioritisation
+2. 67% of checked leads were outside SkyFibre coverage — campaign advertised a product in an area where it wasn't available
+3. WhatsApp bot had a phone validation bug that rejected valid SA numbers (ticket #572)
+**Fix**: 
+1. Zoho priority queues: sales leads Priority 1, support tickets Priority 2
+2. Lead response SLA: all leads responded to within 2 hours
+3. Coverage webhook automation: auto-check address against RN database, auto-reply
+4. Only advertise products in confirmed coverage areas
+5. Fix WhatsApp bot phone validation (accept 071-084 ranges)
+**Prevention**: NEVER launch a campaign without: (a) confirmed product availability in the target geography, (b) a dedicated person handling leads within 2 hours, (c) conversion tracking from day one. The ad is the easy part. The business behind the ad is what converts.
+
 > **Rule**: Every correction from the user goes here immediately. This is the most important file in Memory OS.

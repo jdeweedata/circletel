@@ -61,6 +61,69 @@ Impact: What this affects going forward
 **Alternatives rejected**: Single table (would require major refactor)
 **Impact**: Any product update must consider both tables until sync is built.
 
+### [2026-05-14] Tarana Sync: TMQ v1 → NQS v1 devices endpoint
+**Context**: TMQ v1 `/api/tmq/v1/radios/search` returns 500 since late 2025, breaking the nightly tarana-sync Inngest function. TMQ v2/v3/v4/v5 search endpoints don't exist (404).
+**Decision**: Replace all TMQ-based calls with NQS v1 `GET /api/nqs/v1/operators/219/devices?type={BN|RN}&offset=N`
+**Reasoning**: NQS v1 is the only working endpoint that returns device data with full hierarchy (region, market, site, cell, sector). Verified via probe scripts and smoke tests — 697 BNs fetched successfully with correct ancestry mapping.
+**Alternatives rejected**: TMQ v2-v5 (don't exist), TNI v2 sectors/devices (requires knowing sector IDs upfront, no fleet-wide listing)
+**Impact**: `lib/tarana/client.ts` rewritten — `searchRadios()`, `mapNqsDeviceToRadio()`, `getDeviceCounts()`. NQS pagination is fixed at 10 items/page (limit param ignored). RN visibility is retailer-scoped (~9 RNs vs 8,600+ operator fleet). Ancestry uses nested objects (`ancestry.region.name`) not flat fields (`ancestry.regionName`).
+
 ---
+
+### [2026-05-24] Supplier moat is the core competitive advantage
+**Context**: Competitive analysis of WebAfrica, Afrihost, Vox vs CircleTel
+**Decision**: CircleTel's unique advantage is multi-distributor hardware supply (7,438 products, 5 distributors). No ISP competitor can bundle internet + hardware + IT management.
+**Reasoning**: Competitors are pure connectivity plays. Hardware bundling creates stickier customers and higher ARPU through Office-in-a-Box bundles.
+**Alternatives rejected**: Consumer-only positioning (commodity market, low margins)
+**Impact**: All growth strategy flows from hardware bundling capability. OiaB is the flagship product.
+
+### [2026-05-24] Unjani is a separate P&L, not MRR
+**Context**: Previous models treated Unjani as +R9-13K/month revenue. Actual per-site OPEX (R786.46) exceeds per-site revenue (R738) at current ad rates.
+**Decision**: Unjani is a separate business unit with its own P&L. The R499 MTN wholesale cost sits inside the MSC shortfall. Non-MTN OPEX (R288/site) is a separate cost line.
+**Reasoning**: Treating Unjani as MRR inflated the baseline and hid the operating loss.
+**Alternatives rejected**: Bundling Unjani into CircleTel MRR (obscures the true cash position)
+**Impact**: Combined cash flow models now show three streams: existing ops, Unjani, and OiaB. MSC shortfall of R18,652/month covers the MTN wholesale component.
+
+### [2026-05-24] R10K marketing budget: 100% B2B, zero consumer
+**Context**: R10K/month marketing budget with one full-stack marketer (TK)
+**Decision**: All R10K goes to B2B OiaB campaigns targeting medical practices and accounting firms. Consumer is organic/referral only. No split budget.
+**Reasoning**: B2B OiaB generates R10-35K MRR per R10K spend (0.3-1 month payback). Consumer generates R2.4-8K MRR (1.5-4 month payback). Splitting underfunds both.
+**Alternatives rejected**: 60/40 B2B/consumer split, consumer-first campaign
+**Impact**: Marketing section of MRR plan is 100% B2B. First campaign targets medical niche ("Your Practice Runs").
+
+### [2026-05-24] Hardware lease separation from service contract
+**Context**: Competitors market month-to-month no-lock-in. But OiaB requires hardware investment that needs protection.
+**Decision**: Two contracts: Service Agreement (month-to-month, 30-day notice) + Hardware Rental Agreement (36-month, return hardware or pay 50% of remaining lease).
+**Reasoning**: Marketing says "no lock-in on your internet" (true for service). Hardware investment is protected by separate lease. Follows Dell Financial Services / HP Financial Services model.
+**Alternatives rejected**: 12-month minimum on everything (fights market trend), pure month-to-month (underwater on hardware at month 8)
+**Impact**: Hardware lease template needed before first OiaB sale.
+
+### [2026-05-24] No warm prospects — pipeline-first month 1
+**Context**: Jeffrey has no existing OiaB prospects. Previous ramp assumed warm leads.
+**Decision**: Month 1 is pipeline building (cold outreach + marketing campaigns). First deals close late month 1 / early month 2. Grounded 12-month target reduced from R1.25M to R657K.
+**Reasoning**: Marketing campaigns take 2-4 weeks to generate leads. Cold outreach (5-10 medical practice visits/week) yields 1-2 deals/month at 5% conversion.
+**Alternatives rejected**: Assumed warm leads (fantasy), mass consumer campaign (underfunded at R10K)
+**Impact**: Ramp model reworked. Jeffrey's week 1 = build target list of 50 practices + begin cold outreach.
+
+### [2026-05-24] Sell-first, buy-later model for COD hardware
+**Context**: Scoop and Rectron are COD accounts (no credit terms). Arlan provides 30-day credit on their hardware.
+**Decision**: Client pays 75% deposit upfront → order COD hardware from Scoop/Rectron → deliver in 5-7 days. Arlan routers on 30-day credit with zero upfront float.
+**Reasoning**: Eliminates working capital requirement for hardware. 75% deposit covers COD costs. Arlan credit + commissions self-fund the router component.
+**Alternatives rejected**: Pre-purchase buffer stock (requires R50-80K cash), distributor credit application (Scoop/Rectron don't offer it)
+**Impact**: Per-client hardware float reduced to R700-1,100. Combined with Arlan commissions, OiaB launch is near cash-neutral.
+
+### [2026-05-24] March 2026 Facebook campaign: ads work, follow-up failed
+**Context**: Marlbank (Vaal) campaign — 28 Mar to 2 Apr 2026. R1,045 spent, 25 conversations, 30+ tickets, 0 conversions.
+**Decision**: The campaign validated demand (R41.80/conversation, viable at R899 ARPU). The failure was operational: 60% of leads got zero follow-up, 67% of checked leads were outside coverage area. Never run another campaign without fixing lead workflow first.
+**Reasoning**: The ads are not the problem. Tamsyn at 50% allocation carries 64% of all tickets with no sales/support prioritization. Leads died in her queue.
+**Alternatives rejected**: "Campaign didn't work — try different creative" (wrong diagnosis)
+**Impact**: Before any new ad spend: (1) fix Zoho priority queues, (2) implement lead response SLA, (3) automate coverage check via webhook, (4) recover the 30 stale leads.
+
+### [2026-05-24] Cost reduction before growth investment
+**Context**: R198K/month burn, R86K cash, 13 days runway. R463K trade receivables are intercompany — not collectible.
+**Decision**: The three documented cost reductions (Anton -R11K, Ashwyn -R12.5K, NewGen shared services -R50K) must be actioned before any growth spend. These extend runway from 13 to 21+ days.
+**Reasoning**: Growth investments (R500 geo-test, automation build, commission agents) are irrelevant if the business runs out of cash before they ship.
+**Alternatives rejected**: Growth-first approach (runs out of cash), collection of R463K (it's intercompany, not external debt)
+**Impact**: Monday morning priority 1 = three cost reduction conversations with NewGen. Priority 2 = recover March leads. Priority 3 = confirm Unjani billing.
 
 > **Rule**: When a new architectural decision is made, add it here BEFORE implementing. Future sessions read this first.
