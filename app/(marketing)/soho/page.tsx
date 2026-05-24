@@ -48,5 +48,5 @@ export default function SOHOPage() {
       };
     });
 
-  return <SOHOContent plans={plans} />;
+  return <SOHOContent plans={plans} productSlugs={workconnectSlugs} />;
 }
