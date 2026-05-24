@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * Invoice Notification Service
  * Handles invoice creation workflow:
@@ -481,7 +482,7 @@ export class InvoiceNotificationService {
         email_message_id: result.email_message_id,
         email_verified: result.email_verified || false,
         errors: result.errors.length > 0 ? result.errors : null,
-        created_at: new Date().toISOString(),
+        created_at: nowISO(),
       });
     } catch (error) {
       billingLogger.error('Failed to log notification', { invoiceId, error });

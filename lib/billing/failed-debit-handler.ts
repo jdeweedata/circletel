@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * Failed Debit Order Handler
  *
@@ -117,7 +118,7 @@ export class FailedDebitHandler {
           debit_order_failed_at: (failedAt || new Date()).toISOString(),
           debit_order_failure_reason: normalizedReason,
           payment_collection_method: 'debit_order_failed',
-          updated_at: new Date().toISOString(),
+          updated_at: nowISO(),
         })
         .eq('id', invoiceId);
 

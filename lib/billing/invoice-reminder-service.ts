@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * Invoice Reminder Service
  *
@@ -283,7 +284,7 @@ export class InvoiceReminderService {
       await supabase
         .from('customer_invoices')
         .update({
-          reminder_sent_at: new Date().toISOString(),
+          reminder_sent_at: nowISO(),
           reminder_count: (typedInvoice.reminder_count || 0) + 1,
           reminder_error: null
         })
@@ -529,7 +530,7 @@ export class InvoiceReminderService {
         invoice_id: invoiceId,
         action,
         new_data: data,
-        created_at: new Date().toISOString()
+        created_at: nowISO()
       });
   }
 

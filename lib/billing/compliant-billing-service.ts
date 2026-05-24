@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * SARS-Compliant Billing Service
  * 
@@ -214,9 +215,9 @@ export class CompliantBillingService {
       .update({
         status: 'sent',
         pdf_url: signedUrl?.signedUrl,
-        pdf_generated_at: new Date().toISOString(),
+        pdf_generated_at: nowISO(),
         is_locked: true,
-        locked_at: new Date().toISOString(),
+        locked_at: nowISO(),
         locked_reason: 'Invoice sent to customer'
       })
       .eq('id', invoiceId);
@@ -367,7 +368,7 @@ export class CompliantBillingService {
       .from('credit_notes')
       .update({
         status: 'applied',
-        applied_at: new Date().toISOString()
+        applied_at: nowISO()
       })
       .eq('id', creditNoteId);
 
@@ -438,7 +439,7 @@ export class CompliantBillingService {
       .from('customer_invoices')
       .update({
         status: 'voided',
-        voided_at: new Date().toISOString(),
+        voided_at: nowISO(),
         voided_by: audit?.user_id,
         void_reason: reason
       })
@@ -493,7 +494,7 @@ export class CompliantBillingService {
         status: newStatus,
         payment_method: paymentMethod,
         payment_reference: paymentReference,
-        paid_at: newStatus === 'paid' ? new Date().toISOString() : null
+        paid_at: newStatus === 'paid' ? nowISO() : null
       })
       .eq('id', invoiceId);
 
@@ -579,7 +580,7 @@ export class CompliantBillingService {
    */
   static async processOverdueInvoices() {
     const supabase = await createClient();
-    const today = new Date().toISOString().split('T')[0];
+    const today = nowISO().split('T')[0];
 
     const { data: overdueInvoices, error } = await supabase
       .from('customer_invoices')

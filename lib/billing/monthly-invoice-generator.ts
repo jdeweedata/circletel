@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * Monthly Invoice Generator Service
  *
@@ -141,7 +142,7 @@ export class MonthlyInvoiceGenerator {
     } = options;
 
     const runId = `billing-${Date.now()}`;
-    const startedAt = new Date().toISOString();
+    const startedAt = nowISO();
     const results: InvoiceGenerationResult[] = [];
 
     billingLogger.info('MonthlyInvoice: Starting billing run', {
@@ -178,7 +179,7 @@ export class MonthlyInvoiceGenerator {
       // 3. Build summary
       const summary = this.buildSummary(results);
 
-      const completedAt = new Date().toISOString();
+      const completedAt = nowISO();
 
       const billingResult: MonthlyBillingResult = {
         runId,
@@ -212,7 +213,7 @@ export class MonthlyInvoiceGenerator {
         runId,
         billingDay,
         startedAt,
-        completedAt: new Date().toISOString(),
+        completedAt: nowISO(),
         dryRun,
         summary: {
           totalServices: 0,
@@ -534,7 +535,7 @@ export class MonthlyInvoiceGenerator {
    */
   async updateLastInvoiceDate(serviceId: string): Promise<void> {
     const supabase = await this.getClient();
-    const today = new Date().toISOString().split('T')[0];
+    const today = nowISO().split('T')[0];
 
     const { error } = await supabase
       .from('customer_services')

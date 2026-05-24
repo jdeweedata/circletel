@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * WhatsApp PayNow Service
  *
@@ -277,7 +278,7 @@ export class WhatsAppPayNowService {
       await supabase
         .from('customer_invoices')
         .update({
-          whatsapp_sent_at: new Date().toISOString(),
+          whatsapp_sent_at: nowISO(),
           whatsapp_message_id: sendResult.messageId,
         })
         .eq('id', invoiceId);
@@ -477,7 +478,7 @@ export class WhatsAppPayNowService {
         .from('customers')
         .update({
           whatsapp_consent: consent,
-          whatsapp_consent_at: consent ? new Date().toISOString() : null,
+          whatsapp_consent_at: consent ? nowISO() : null,
           whatsapp_consent_source: consent ? source : null,
         })
         .eq('id', customerId);

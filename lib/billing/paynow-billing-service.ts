@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * PayNow Billing Service
  *
@@ -290,7 +291,7 @@ export class PayNowBillingService {
           await supabase
             .from('customer_invoices')
             .update({
-              paynow_sent_at: new Date().toISOString(),
+              paynow_sent_at: nowISO(),
               paynow_sent_via: sentVia,
             })
             .eq('id', invoiceId);

@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * Payment Method Management Service
  * 
@@ -299,7 +300,7 @@ export class PaymentMethodService {
       .from('customer_payment_methods')
       .update({
         is_active: false,
-        deactivated_at: new Date().toISOString()
+        deactivated_at: nowISO()
       })
       .eq('id', payment_method_id);
     

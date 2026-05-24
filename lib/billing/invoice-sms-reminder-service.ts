@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * Invoice SMS Reminder Service
  *
@@ -357,7 +358,7 @@ export class InvoiceSmsReminderService {
       await supabase
         .from('customer_invoices')
         .update({
-          sms_reminder_sent_at: new Date().toISOString(),
+          sms_reminder_sent_at: nowISO(),
           sms_reminder_count: reminderCount + 1,
           sms_reminder_error: null,
         })
@@ -578,7 +579,7 @@ export class InvoiceSmsReminderService {
     let failed = 0;
     let skipped = 0;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = nowISO().split('T')[0];
     const supabase = await createClient();
 
     const { data, error } = await supabase
@@ -663,7 +664,7 @@ export class InvoiceSmsReminderService {
         await supabase
           .from('customer_invoices')
           .update({
-            sms_reminder_sent_at: new Date().toISOString(),
+            sms_reminder_sent_at: nowISO(),
             sms_reminder_count: 1,
           })
           .eq('id', invoice.id);
@@ -782,7 +783,7 @@ export class InvoiceSmsReminderService {
       invoice_id: invoiceId,
       action,
       new_data: data,
-      created_at: new Date().toISOString(),
+      created_at: nowISO(),
     });
   }
 

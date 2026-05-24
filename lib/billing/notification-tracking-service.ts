@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * Invoice Notification Tracking Service
  *
@@ -107,7 +108,7 @@ export class NotificationTrackingService {
           error_message: entry.error_message,
           amount_due: entry.amount_due,
           days_overdue: entry.days_overdue,
-          sent_at: entry.status === 'sent' ? new Date().toISOString() : null,
+          sent_at: entry.status === 'sent' ? nowISO() : null,
           metadata: entry.metadata || {},
         })
         .select('id')
@@ -141,11 +142,11 @@ export class NotificationTrackingService {
 
       // Set appropriate timestamp based on status
       if (status === 'delivered') {
-        updateData.delivered_at = new Date().toISOString();
+        updateData.delivered_at = nowISO();
       } else if (status === 'opened') {
-        updateData.opened_at = new Date().toISOString();
+        updateData.opened_at = nowISO();
       } else if (status === 'clicked') {
-        updateData.clicked_at = new Date().toISOString();
+        updateData.clicked_at = nowISO();
       }
 
       if (metadata) {
@@ -386,7 +387,7 @@ export class NotificationTrackingService {
   static async createDailySnapshot(): Promise<{ success: boolean; error?: string }> {
     try {
       const supabase = await createClient();
-      const today = new Date().toISOString().split('T')[0];
+      const today = nowISO().split('T')[0];
 
       // Get AR summary
       const summary = await this.getARAgingSummary();

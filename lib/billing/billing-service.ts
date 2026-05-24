@@ -8,6 +8,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { nowISO } from '@/lib/dates';
 
 /**
  * Billing date options (day of month)
@@ -262,7 +263,7 @@ export class BillingService {
       .from('customer_billing')
       .update({
         account_balance: newBalance,
-        updated_at: new Date().toISOString()
+        updated_at: nowISO()
       })
       .eq('customer_id', customer_id);
     

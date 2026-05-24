@@ -1,3 +1,4 @@
+import { nowISO } from '@/lib/dates';
 /**
  * Billing Settings Service
  *
@@ -297,7 +298,7 @@ export async function updateBillingSetting<K extends BillingSettingKey>(
       .update({
         setting_value: serializedValue,
         updated_by: updatedBy,
-        updated_at: new Date().toISOString(),
+        updated_at: nowISO(),
       })
       .eq('setting_key', key)
       .eq('customer_type', customerType);
@@ -347,7 +348,7 @@ export async function updateBillingSettings(
       .update({
         setting_value: serializedValue,
         updated_by: updatedBy,
-        updated_at: new Date().toISOString(),
+        updated_at: nowISO(),
       })
       .eq('setting_key', key)
       .eq('customer_type', customerType);
