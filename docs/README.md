@@ -16,8 +16,9 @@ docs/
 │   └── STAGING_SETUP_CHECKLIST.md
 ├── architecture/                # System architecture and design
 │   ├── DESIGN_SYSTEM.md
-│   ├── REFACTORING_PLAN.md
-│   └── sidebar-refactor-migration.md
+│   └── archive/
+│       ├── REFACTORING_PLAN.md
+│       └── SIDEBAR_REFACTOR_MIGRATION.md
 ├── features/                    # Feature implementations
 │   ├── implementation-plan-ux-optimization.md
 │   └── wireless-packages-integration.md
@@ -90,8 +91,8 @@ docs/
 
 #### Core Architecture Documents
 - **[Design System](architecture/DESIGN_SYSTEM.md)** - Component library, colors, typography
-- **[Refactoring Plan](architecture/REFACTORING_PLAN.md)** - Code quality improvements
-- **[Sidebar Migration](architecture/sidebar-refactor-migration.md)** - UI component refactoring
+- **[Refactoring Plan](architecture/archive/REFACTORING_PLAN.md)** - Code quality improvements (archived)
+- **[Sidebar Migration](architecture/archive/SIDEBAR_REFACTOR_MIGRATION.md)** - UI component refactoring (archived)
 
 ---
 

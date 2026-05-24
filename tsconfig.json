@@ -38,12 +38,10 @@
   "exclude": [
     "node_modules",
     "supabase/functions/**/*",
-    "archive/**/*",
     "scripts/**/*",
     "**/__tests__/**/*",
     "tests/**/*",
     "docs/**/*",
-    "sanity-studio/**/*",
     "edge-proxy/**/*"
   ]
 }

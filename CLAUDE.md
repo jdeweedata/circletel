@@ -189,6 +189,7 @@ All detailed patterns are in `.claude/rules/`:
 | `undocumented-api-debugging.md` | Browser-first API inspection, cookie vs Bearer auth, Istio gateway signals |
 | `product-economics.md` | Unit economics, channel comparison, COS floor, commission tiers |
 | `margin-guardrails.md` | Min margins, discount approval, pricing rules, MSC-aware pricing |
+| `shared-memory.md` | Two-tier shared memory protocol — Hermes Agent + Claude Code handoffs |
 | `admin-shared-components.md` | StatusBadge/StatCard/SectionCard prop interfaces — verified signatures |
 | `vercel-deployment.md` | Manual deployment trigger API, monitoring, CircleTel project IDs |
 | `invoice-pdf-patterns.md` | VAT calc (excl-VAT multiply), fetch/blob download, print:hidden, jsPDF patterns |
@@ -463,7 +464,49 @@ Next session: read improvement-plan.md BEFORE starting work
 
 ---
 
-**Version**: 9.3 | **Updated**: 2026-05-24 | **Lines**: ~500
+## Shared Agent Memory (Hermes + Claude Code)
+
+This project uses a **two-tier shared memory system** so Hermes Agent and Claude Code never lose context between each other.
+
+### Global Tier (`~/.agent-memory/`)
+Read these files on session start:
+- `~/.agent-memory/GLOBAL_CONTEXT.md` — VPS environment overview
+- `~/.agent-memory/long-term/environment.md` — Installed tools, quirks
+- `~/.agent-memory/long-term/mistakes.md` — Global mistakes to avoid
+
+### Project Tier (`memory-os/`)
+Read these files on session start (BEFORE any work):
+- `memory-os/README.md` — Full protocol for this project
+- `memory-os/long-term/mistakes.md` — Project mistakes — do not repeat
+- `memory-os/short-term/active-tasks.md` — What's in progress
+- `memory-os/long-term/agent-context.md` — What AI agents have learned
+- `memory-os/short-term/handoffs/` — Recent handoffs from Hermes Agent
+
+### Session End Protocol
+- Update `memory-os/short-term/session-notes.md` with what was done
+- If tasks changed → update `memory-os/short-term/active-tasks.md`
+- If new facts learned → update `memory-os/long-term/agent-context.md`
+- If handing off → write to `memory-os/short-term/handoffs/YYYY-MM-DD-topic.md`
+- Score the session → `memory-os/self-improvement/scores.md`
+
+### Handoff Format
+```markdown
+# Handoff: Topic
+**From:** Claude Code
+**To:** Hermes Agent
+**Date:** YYYY-MM-DD
+
+## What Was Done
+## Key Findings / Decisions
+## Current State
+## Next Steps
+```
+
+See `.claude/rules/shared-memory.md` for the complete protocol.
+
+---
+
+**Version**: 10.0 | **Updated**: 2026-05-24 | **Lines**: ~530
 
 ---
 
@@ -474,10 +517,11 @@ Next session: read improvement-plan.md BEFORE starting work
 | Priority | Document | Contains |
 |---|---|---|
 | 1 | `memory-os/long-term/client-context.md` | Cash position (R86K), burn rate (R198K/mo), 13-day runway, R463K intercompany receivables, external revenue sources |
-| 2 | `memory-os/long-term/decisions.md` | Strategic decisions: supplier moat, B2B-only marketing, Unjani as separate P&L, no-warm-prospects launch |
-| 3 | `memory-os/long-term/mistakes.md` | March 2026 Facebook campaign: R1,045 spent, 30 leads, 0 conversions — ads work, follow-up failed |
-| 4 | `data/resources/CircleTel_Resource_Plan_v1_0.md` | Team (4.5 FTEs), costs (R130K/mo people), sales gap (zero dedicated sales), cost reduction levers (R74K/mo) |
-| 5 | `docs/plans/2026-05-24-mrr-growth-strategy.md` | Grounded R657K MRR plan, B2B medical niche, R10K/mo marketing, hybrid Arlan+COD sourcing |
+| 2 | `memory-os/long-term/agent-context.md` | What AI agents know — file paths, codebase facts, DFA GIS findings, tool quirks |
+| 3 | `memory-os/long-term/decisions.md` | Strategic decisions: supplier moat, B2B-only marketing, Unjani as separate P&L, no-warm-prospects launch |
+| 4 | `memory-os/long-term/mistakes.md` | March 2026 Facebook campaign: R1,045 spent, 30 leads, 0 conversions — ads work, follow-up failed |
+| 5 | `data/resources/CircleTel_Resource_Plan_v1_0.md` | Team (4.5 FTEs), costs (R130K/mo people), sales gap (zero dedicated sales), cost reduction levers (R74K/mo) |
+| 6 | `docs/plans/2026-05-24-mrr-growth-strategy.md` | Grounded R657K MRR plan, B2B medical niche, R10K/mo marketing, hybrid Arlan+COD sourcing |
 
 **Key facts every session must know:**
 - Revenue: ~R35K/mo (R15K existing + R9.5K Unjani + R6-11K TDX ads)

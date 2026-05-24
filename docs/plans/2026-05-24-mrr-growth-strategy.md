@@ -359,6 +359,88 @@ The Unjani P&L shows -R1,029/mo net, but **cash flow is positive** because:
 
 **Critical assumption:** The TDX receivable from Feb-April (~R14,103) is being paid. If TDX delays payment, June cash flow drops by R6,332.
 
+## SkyFibre Geo-Campaign: Grounded in Live TCS Data
+
+**Data source:** TCS Portal NQS v1 API, fetched 2026-05-24. Full export: `data/exports/tarana-sites-summary-2026-05-24.json`
+
+### Network Reality (Live Data)
+
+| Metric | Value |
+|---|---|
+| Total BN stations (MTN SA) | 697 (across 392 unique sites) |
+| BNs online | 683 (98.0%) |
+| BNs offline | 14 (2.0%) |
+| CircleTel RNs deployed | 9 (6 connected, 3 disconnected) |
+| Sites with CircleTel RNs | 7 unique sites |
+| Sites with zero CircleTel RNs | 385 of 392 |
+
+### Critical Insight: RN Data Is Retailer-Scoped
+
+The "97% with zero connections" figure is **misleading**. NQS v1 only shows CircleTel's own 9 RNs (retailer ID 221). Other MTN retailers' RNs are invisible. A site showing "0 connections" for us may have 50+ connections from other retailers. We **cannot** identify underutilised stations from this data alone.
+
+**Implication:** The geo-campaign cannot target "underutilised towers" — we don't have that data. Instead, target areas around **proven infrastructure** where CircleTel already has working RNs.
+
+### CircleTel's 7 Active Sites
+
+| Site | Market | RN Status | LOS Range |
+|---|---|---|---|
+| Sandton Office Tower pCell | JHB Gauteng | 1 connected | 3,234m |
+| Alex Shopping Centre | JHB Gauteng | 1 connected | 6,090m |
+| Hennie Alberts Str | JHB Gauteng | 1 connected | 1,578m |
+| Palm Ridge Secondary 2 | JHB Gauteng | 1 connected | 4,199m |
+| Cosmo City Secondary 2 | JHB Gauteng | 1 connected | 1,262m |
+| Ravenswood | JHB Gauteng | 1 connected | 1,641m |
+| Rand Leases | JHB Gauteng | 1 disconnected | 3,257m |
+| Spes Nova School | KZN | 2 disconnected | 932-935m |
+
+All active sites are in **JHB Gauteng** (6 sites) + **KZN** (1 site). This is where install crews have experience and logistics are proven.
+
+### Market Distribution (392 Unique Sites)
+
+| Market | Sites | % | CircleTel Presence |
+|---|---|---|---|
+| JHB Gauteng | 112 | 29% | 6 active sites |
+| TSH Gauteng | 63 | 16% | None |
+| KZN | 61 | 16% | 1 site (disconnected) |
+| CAPE | 56 | 14% | None |
+| CENTRAL | 34 | 9% | None |
+| ECAPE | 32 | 8% | None |
+| NORTHERN | 32 | 8% | None |
+
+### Grounded Geo-Campaign Recommendation
+
+**Budget:** R3,000/month (carved from the R10K marketing budget — or separate allocation)
+
+**Strategy:** Concentric rings around CircleTel's 7 proven sites, NOT spray across 392 unknowns.
+
+**Why this works:**
+1. LOS ranges (1.2–6.1km) define the maximum service radius per site
+2. Install crews already know these locations — no new logistics
+3. Businesses within LOS range get guaranteed connectivity (not "check coverage")
+4. The 3 disconnected RNs (Rand Leases, 2× Spes Nova) are reactivation targets — fix before marketing
+
+**Tier 1 — Immediate (R2K/month):**
+Geo-fence Facebook/LinkedIn ads within 3km of Sandton Office Tower pCell, Alex Shopping Centre, and Palm Ridge Secondary 2. These have the longest LOS ranges (3.2–6.1km) = largest addressable area. Target SMMEs within proven coverage.
+
+**Tier 2 — Month 2+ (R1K/month):**
+Expand rings to Hennie Alberts Str, Cosmo City Secondary 2, Ravenswood (shorter LOS 1.2–1.6km = tighter targeting). Add Google Ads for "business internet [suburb]" matching these areas.
+
+**Tier 3 — After RN reactivation:**
+Fix Rand Leases and Spes Nova School disconnections. Once live, add to geo-fence rotation. KZN (Spes Nova) opens a new market.
+
+**What NOT to do:**
+- Don't target all 392 sites — we can't verify coverage at sites without our own RNs
+- Don't advertise "SkyFibre available in your area" without LOS confirmation
+- Don't spend on CAPE, CENTRAL, ECAPE, NORTHERN until RNs are deployed there
+
+**Expected impact at R3K/month:**
+- 5-8 SkyFibre leads/month from geo-targeted ads (R375-600 per lead)
+- At 25% close rate: 1-2 new SkyFibre subscriptions/month
+- At R999/month avg: R1-2K new MRR/month from geo-campaign alone
+- ROI positive by month 2-3
+
+---
+
 ## Prerequisites for Launch
 
 1. **Marketing landing page built** (week 1): OiaB medical practice page, not consumer

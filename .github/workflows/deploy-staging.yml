@@ -163,7 +163,7 @@ jobs:
             --restart unless-stopped \
             -p 3001:3000 \
             --env-file /home/circletel/.env.staging \
-            --health-cmd "curl -f http://localhost:3000/api/health || exit 1" \
+            --health-cmd "wget -qO- http://127.0.0.1:3000/api/health || exit 1" \
             --health-interval 30s \
             --health-timeout 10s \
             --health-retries 3 \

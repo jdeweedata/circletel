@@ -3,7 +3,7 @@
 CircleTel runs on **Coolify** (self-hosted, VPS 30 — 94.72.104.81, 24GB RAM).
 Builds run on a self-hosted GitHub Actions runner on that VPS; deploys are triggered via Coolify webhook.
 
-Migration completed: 2026-04-05. See `docs/architecture/COOLIFY_MIGRATION_PLAN.md`.
+Migration completed: 2026-04-05. See `docs/architecture/archive/COOLIFY_MIGRATION_PLAN.md`.
 
 ---
 
