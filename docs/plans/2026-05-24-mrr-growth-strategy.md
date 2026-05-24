@@ -142,29 +142,32 @@ To avoid competing with month-to-month ISPs on lock-in while protecting hardware
 - 16 new clinics from 15 Jun 2026 at R450 ex VAT: +R4,464/m (CT share)
 - **Combined baseline: R28,463/m**
 
-### Lean Launch Cash Flow (Months 1-3)
+### Lean Launch Cash Flow (Months 1-3, with TDX 45-day lag)
 
-| | Month 1 (Jun) | Month 2 (Jul) | Month 3 (Aug) | Total |
+| | June | July | August | Total |
 |---|---|---|---|---|
-| Cash IN (baseline MRR) | R26,232 | R28,464 | R28,464 | R83,160 |
+| Existing MRR | R15,000 | R15,000 | R15,000 | R45,000 |
+| Unjani (45-day lag via TDX) | R6,332 (Apr) | R9,002 (May) | R11,232 (Jun est.) | R26,566 |
+| **Cash IN** | **R21,332** | **R24,002** | **R26,232** | **R71,566** |
 | MSC shortfall | R18,652 | R18,652 | R18,652 | R55,956 |
 | Ops/hosting | R5,000 | R5,000 | R5,000 | R15,000 |
-| Hardware float (10 OiaB, net of deposits) | R5,500 | R8,250 | R13,750 | R27,500 |
-| **Net cash flow** | **-R2,920** | **-R3,438** | **-R8,938** | **-R15,296** |
+| Hardware float (6 OiaB, 75% deposit, COD) | R2,750 | R2,750 | R2,750 | R8,250 |
+| **Cash OUT** | **R26,402** | **R26,402** | **R26,402** | **R79,206** |
+| **Net cash flow** | **-R5,070** | **-R2,400** | **-R170** | **-R7,640** |
 
-**Gap: R15,296 over 3 months.** Bridgeable with:
-- Distributor 30-day credit terms → hardware float drops to R0 → R12,204 surplus
-- OR start with 5 OiaB clients instead of 10 → hardware float R13,750 → near break-even
-- OR collect 75% hardware deposit instead of 50% → gap closes
+**Gap: R7,640 over 3 months.** ~R2,500/month — survivable.
+- Arlan 30-day credit on Arlan-sourced hardware → shifts R2-4K of float to credit
+- 75% client deposit (not 50%) → COD items are nearly fully funded upfront
+- 6 OiaB clients total (2/month) not 10 → proves model without overextending
 
 ## Prerequisites for Launch
 
-1. **Buffer stock** of top 10 SKUs: R25-40K (built from client deposits, not pre-purchased)
-2. **Distributor 30-day credit** at Scoop and/or Rectron: apply immediately
-3. **Stock visibility** for ≥3 distributors before Levers 2 and 5
-4. **Hardware lease agreement** template: 36-month rental, separate from service
-5. **First hire** (sales/ops hybrid): month 4 (funded by new MRR)
-6. **Ticketing/support system**: month 1 (even if lightweight)
+1. **Buffer stock** of top 5 SKUs: R12-20K (built from client deposits, not pre-purchased)
+2. **Arlan 30-day credit** for Arlan-sourced CPE/routers in OiaB bundles
+3. **Client deposit policy:** 75% hardware deposit upfront for COD items from Scoop/Rectron
+4. **Stock visibility** for ≥3 distributors before Levers 2 and 5
+5. **Hardware lease agreement** template: 36-month rental, separate from service
+6. **First hire** (sales/ops hybrid): month 4 (funded by new MRR)
 
 ---
 
