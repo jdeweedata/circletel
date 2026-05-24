@@ -522,6 +522,7 @@ export default function AdminKycPage() {
         <SessionViewer
           session={selectedSession}
           onClose={() => setSelectedSession(null)}
+          onStatusChange={() => { fetchSessions(); setSelectedSession(null); }}
         />
       )}
     </div>
