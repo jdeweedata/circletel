@@ -168,54 +168,59 @@ Every Arlan device in a bundle generates upfront MTN commission (CT gets 30%):
 
 ---
 
-## "Work from Anywhere" — Marketing Campaign Structure
+## "Your Practice Runs" — B2B Medical Niche Campaign
 
-**Budget:** R10,000/month. **Resource:** 1 dedicated marketing person.
+**Budget:** R10,000/month. **Channel:** 100% B2B. **Niche:** Medical practices (GPs, dentists, physios) within 30km of Rivonia.
 
-### Campaign Strategy
+**Resource:** Full-stack marketing person — can execute end-to-end on Facebook, LinkedIn, and Google Ads including campaign design, setup, and ongoing management.
 
-CircleTel already segments Home / Work from Home / Business — no competitor does this. The campaign doubles down on that unique positioning.
+### Why B2B-Only, Medical-First
 
-### Three Ad Sets, One Funnel
-
-| Ad Set | Channel | Target | Message | Landing Page |
-|---|---|---|---|---|
-| "Work from home internet" | Google Ads | Remote workers searching for connectivity | "Internet that works as hard as you do. FREE installation worth R2,500." | Coverage checker |
-| "Load shedding internet" | Facebook/IG | Homeowners in coverage areas | "Load shedding doesn't stop your internet. Fibre + Backup Power from R699/mo." | Home + Power Backup bundle |
-| "One bill for everything" | LinkedIn | SMB owners/directors within 30km | "One provider. One bill. Your office runs. Internet + IT + hardware — from R1,999/mo." | OiaB landing page |
-
-### Budget Split
-
-| Channel | Month 1 (Testing) | Months 2-3 (Optimised) | Months 4+ (Scaled) |
+| Option | MRR per R10K spend | Payback | Decision |
 |---|---|---|---|
-| Google Ads ("work from home internet" + city) | R5,000 | R4,000 | R4,000 |
-| Facebook/IG (geo + interest targeting) | R3,000 | R4,000 | R4,000 |
-| LinkedIn (SMB owners, 30km radius) | R2,000 | R2,000 | R2,000 |
+| Consumer fibre | R2,400-R8,000 | 1.5-4 months | **Reject** |
+| Split B2B/consumer | Underfunded on both | Neither works | **Reject** |
+| **B2B OiaB only** | **R10,000-R35,000** | **0.3-1 month** | **Deploy all R10K here** |
 
-### Expected Performance (Conservative)
+Medical practices are the right niche because:
+- Jeffrey already manages connectivity for 21 Unjani clinics — instant credibility
+- Medical practices cannot function without connectivity (prescriptions, medical aid, patient records, lab results)
+- They're used to paying R3-5K/mo for fragmented IT — "one bill" is a genuine simplification
+- 500-1,000 practices within 30km of Rivonia
+- No ad spend on consumer leaves Jeffrey's cold outreach as the only non-marketing acquisition channel
 
-| Metric | Consumer (Google + FB) | SMB (LinkedIn) |
+### Month-1 Campaign Structure (B2B Only)
+
+| Week | Activity | Budget | Expected Output |
+|---|---|---|---|
+| 1 | Build OiaB landing page + 1-page medical practice proposal PDF | R0 | Sales asset live |
+| 1-2 | LinkedIn: "Is your IT guy costing more than R5K/mo?" — target medical practice owners/directors in JHB, Sandton, Randburg | R4,000 | 15-25 leads |
+| 1-2 | Google Ads: "IT support for medical practice Johannesburg" + "managed IT for GP Sandton" | R4,000 | 10-20 leads |
+| 3-4 | Facebook/IG retargeting: site visitors + lookalike of leads | R2,000 | 5-10 additional leads |
+| 3-4 | Jeffrey calls all leads, books 8-12 demos | R0 | Meetings booked |
+| 4 | Close first 1-2 deals | R0 | R5-10K new MRR |
+
+**Total month 1: R10K → 30-55 leads → 8-12 meetings → 1-2 OiaB clients → R5-10K new MRR.**
+
+### Month 2-3: Optimise + Retarget
+
+| Activity | Budget | Expected Output |
 |---|---|---|
-| Monthly budget | R8,000 | R2,000 |
-| Est. clicks/reach | 15-25K impressions | 300-500 clicks |
-| Est. leads (form fills) | 40-60 | 5-10 |
-| Conversion rate | 15% | 25% |
-| **Est. signups/month** | **6-9 at R600 avg** | **1-3 at R5,000 avg** |
-| **New MRR/month from marketing** | **R3,600-5,400** | **R5,000-15,000** |
-| Cost per Rand of MRR | R1.48-R2.22 | R0.13-R0.40 |
+| Double down on best-performing channel | R6,000 | Scaled lead volume |
+| Retargeting (site visitors, unconverted leads) | R2,000 | 10-15 recovered leads |
+| Launch case study ad (first client testimonial) | R2,000 | Higher conversion rate |
+
+**By end of month 3: 4-7 OiaB clients from marketing alone at R20-35K new MRR.**
 
 ### Marketing Person's 90-Day Plan
 
 | Week | Focus |
 |---|---|
-| 1 | Build landing pages, set up Google Ads + Facebook campaigns, install conversion tracking |
-| 2 | Launch campaigns at low budget, monitor CTR and CPC |
-| 3 | Kill underperformers, double down on winners, A/B test headlines |
-| 4 | First report: cost per lead, cost per signup, channel ROI |
-| 5-8 | Optimise bids, add retargeting, build lookalike audiences |
-| 9-12 | Scale winning channels, launch SMB case study ads, test referral program |
-
-**Key insight:** LinkedIn SMB ads have a cost per Rand of MRR of R0.13-R0.40 — the cheapest acquisition channel. One SMB OiaB client acquired via LinkedIn (R2,000 ad spend → R5,000/mo MRR) pays back the entire marketing budget in month one.
+| 1 | Build OiaB landing page, medical practice proposal PDF, set up LinkedIn Campaign Manager + Google Ads + Facebook Business Manager, install conversion tracking |
+| 2 | Launch LinkedIn + Google campaigns at R8K combined; A/B test 3 headlines per channel |
+| 3-4 | Kill underperformers, double winners, launch retargeting; deliver first lead list to Jeffrey |
+| 5-8 | Optimise bids, build lookalike audiences, launch first case study ad |
+| 9-12 | Scale winning channels; test second niche (accounting firms) with 20% of budget |
 
 ---
 
@@ -223,69 +228,71 @@ CircleTel already segments Home / Work from Home / Business — no competitor do
 
 Built from actual constraints: one person (Jeffrey) selling OiaB, one marketing person running R10K/mo campaigns, one hire joining at month 4. No theoretical partner pipeline. No mass consumer engine.
 
-### Phase 1: Proof (Months 1-3) — Jeffrey + Marketing
+### Phase 1: Pipeline (Months 1-3) — Jeffrey + Marketing
 
-| Month | Jeffrey OiaB | Marketing Consumer | Marketing SMB Leads | New MRR | Cumulative MRR |
-|---|---|---|---|---|---|
-| 0 | — | — | — | — | R15,000 |
-| 1 | 2 (R10K) | 4 (R2,400) | 0 (testing) | R12,400 | R27,400 |
-| 2 | 3 (R15K) | 8 (R4,800) | 1 (R5,000) | R24,800 | R52,200 |
-| 3 | 3 (R15K) | 12 (R7,200) | 1 (R5,000) | R27,200 | R79,400 |
+No warm prospects. Month 1 = pipeline building. Deals close from late month 1 / month 2.
 
-By month 3: 8 OiaB clients + 24 consumer + 2 SMB from marketing. Cumulative MRR R79,400.
+Jeffrey's cold outreach: 5-10 medical practice drop-ins/week × 4 weeks = 20-40 visits/month. At 5% conversion: 1-2 clients/month from month 2.
+
+| Month | Jeffrey Cold Outreach | Marketing Leads | Total OiaB | Consumer (organic) | New MRR | Cumulative MRR |
+|---|---|---|---|---|---|---|
+| 0 | — | — | — | — | — | R15,000 |
+| 1 | Pipeline (20-30 visits) | 30-55 leads from week 3 | 1 (late) | 2 (R1,200) | R6,200 | R21,200 |
+| 2 | 1-2 from visits | 1-2 from month-1 leads | 2-4 (R15K) | 3 (R1,800) | R16,800 | R38,000 |
+| 3 | 1-2 from visits | 2-3 from campaigns | 3-5 (R20K) | 4 (R2,400) | R22,400 | R60,400 |
+
+By month 3: 6-10 OiaB clients + 9 organic consumer. Cumulative MRR R60,400.
 
 ### Phase 2: First Hire (Months 4-7) — Capacity Doubles
 
-| Mo | Jeffrey OiaB | Hire OiaB | Marketing Consumer | Marketing SMB | New MRR | Cumulative |
+| Mo | Jeffrey OiaB | Hire OiaB | Mktg Leads → OiaB | Consumer (organic + referral) | New MRR | Cumulative |
 |---|---|---|---|---|---|---|
-| 4 | 4 (R20K) | 1 ramp (R5K) | 15 (R9,000) | 2 (R10K) | R44,000 | R123,400 |
-| 5 | 5 (R25K) | 2 (R10K) | 18 (R10,800) | 2 (R10K) | R55,800 | R179,200 |
-| 6 | 6 (R30K) | 3 (R15K) | 20 (R12,000) | 3 (R15K) | R72,000 | R251,200 |
-| 7 | 6 (R30K) | 4 (R20K) | 22 (R13,200) | 3 (R15K) | R78,200 | R329,400 |
+| 4 | 3 (R15K) | 1 ramp (R5K) | 2 (R10K) | 4 (R2,400) | R32,400 | R92,800 |
+| 5 | 4 (R20K) | 2 (R10K) | 2 (R10K) | 5 (R3,000) | R43,000 | R135,800 |
+| 6 | 5 (R25K) | 3 (R15K) | 3 (R15K) | 6 (R3,600) | R58,600 | R194,400 |
+| 7 | 5 (R25K) | 4 (R20K) | 3 (R15K) | 8 (R4,800) | R64,800 | R259,200 |
 
-By month 7: 33 OiaB + 75 consumer + 10 SMB from marketing. Cumulative MRR R329,400.
+By month 7: 34 OiaB + 23 consumer organic. Cumulative MRR R259,200.
 
 ### Phase 3: Channels + Scale (Months 8-12)
 
-| Mo | Direct OiaB | Hire OiaB | Partner | Consumer | SMB Mktg | Power Backup | New MRR | Cumulative |
+| Mo | Direct OiaB | Hire OiaB | Partner | Mktg OiaB | Consumer | Power Backup | New MRR | Cumulative |
 |---|---|---|---|---|---|---|---|---|
-| 8 | 5 | 3 | 1 (R5K) | 25 (R15K) | 4 (R20K) | R5,000 | R73,000 | R402,400 |
-| 9 | 5 | 3 | 3 (R15K) | 25 (R15K) | 4 (R20K) | R7,500 | R65,500 | R467,900 |
-| 10 | 6 | 4 | 5 (R25K) | 28 (R17K) | 5 (R25K) | R10,000 | R87,000 | R554,900 |
-| 11 | 6 | 4 | 6 (R30K) | 28 (R17K) | 5 (R25K) | R12,500 | R94,500 | R649,400 |
-| 12 | 7 | 5 | 8 (R40K) | 30 (R18K) | 6 (R30K) | R15,000 | R115,000 | **R764,400** |
+| 8 | 5 | 3 | 1 (R5K) | 4 (R20K) | 10 (R6K) | R5,000 | R64,000 | R323,200 |
+| 9 | 5 | 3 | 3 (R15K) | 4 (R20K) | 12 (R7.2K) | R7,500 | R57,700 | R380,900 |
+| 10 | 6 | 4 | 5 (R25K) | 5 (R25K) | 15 (R9K) | R10,000 | R79,000 | R459,900 |
+| 11 | 6 | 4 | 6 (R30K) | 5 (R25K) | 18 (R10.8K) | R12,500 | R88,300 | R548,200 |
+| 12 | 7 | 5 | 8 (R40K) | 6 (R30K) | 20 (R12K) | R15,000 | R109,000 | **R657,200** |
 
-**12-month cumulative: R764,400 MRR** (R701K was excluding Power Backup upsells; included here).
+**12-month cumulative: R657,200 MRR.**
 
 ### Revenue Composition at Month 12
 
 | Source | MRR | % |
 |---|---|---|
-| OiaB direct (Jeffrey + hire) | R200,000 | 26% |
-| Consumer fibre + WFH upsells | R198,000 | 26% |
-| SMB from marketing | R186,000 | 24% |
-| Partner channel | R105,000 | 14% |
-| Power Backup upsells | R60,000 | 8% |
+| OiaB direct (Jeffrey + hire) | R195,000 | 30% |
+| Marketing-generated OiaB | R130,000 | 20% |
+| Partner channel | R105,000 | 16% |
+| Consumer (organic + referral, no paid ads) | R132,000 | 20% |
+| Power Backup upsells | R80,000 | 12% |
 | Existing MRR | R15,000 | 2% |
-| **Total** | **R764,400** | |
+| **Total** | **R657,200** | |
 
 ### Bridge to R1.25M Stretch
 
-To go from R764K → R1.25M, any ONE of:
-
 | Lever | What it takes | Adds |
 |---|---|---|
-| Enterprise deal | 1× 50-seat OiaB at R50K/mo + 3 more at R30K | +R140K |
-| Partner outperformance | 5 partners doing R30K each instead of R21K avg | +R90K |
-| Consumer outperformance | 60 homes/mo instead of 30 (better ad conversion) | +R126K |
-| Power Backup at scale | 200 sites × R500 avg instead of 120 × R500 | +R40K |
+| Enterprise deal | 1× 50-seat OiaB at R50K/mo + 2 more at R30K | +R110K |
+| Partner outperformance | 5 partners doing R35K each instead of R21K avg | +R70K |
+| Second niche campaign (accounting firms) | Launch month 9, add R30K/mo by month 12 | +R30K |
+| Consumer paid campaign (from month 10) | R5K/mo consumer budget from OiaB profits | +R25K |
 
 **Assumptions:**
 - 3% monthly churn (factored into cumulative)
-- Marketing budget R10K/month flat
-- First partner deal closes month 8 (requires proven model + collateral)
-- Consumer conversion: 15% of leads → signup at R600 avg (fibre + WFH upsell)
-- SMB conversion: 25% of LinkedIn leads → OiaB at R5,000 avg
+- Marketing budget R10K/month flat, 100% B2B
+- First partner deal closes month 8 (requires proven model + reference clients)
+- Consumer is organic/referral only — no paid consumer ads until month 10+
+- Jeffrey cold outreach: 5-10 medical practice visits/week, 5% conversion
 
 ---
 
@@ -322,17 +329,17 @@ The business has two cash flow streams: existing operations (R15K MRR + MSC) and
 | Non-MTN OPEX (Echo/BSS/Teraco/NOC/Field) | -R6,048 | -R6,048 | -R6,048 |
 | *Subtotal: Unjani* | *+R9,734* | *+R12,404* | *+R14,634* |
 | **OiaB launch** | | | |
-| COD hardware float (6 clients, hybrid) | -R1,800 | -R1,800 | -R1,800 |
-| Arlan upfront commissions | +R631 | +R1,262 | +R1,893 |
-| New OiaB MRR (2 clients/mo) | +R4,000 | +R8,000 | +R12,000 |
-| Marketing budget | -R10,000 | -R10,000 | -R10,000 |
-| *Subtotal: OiaB* | *-R7,169* | *-R2,538* | *+R2,093* |
-| **COMBINED NET** | **-R6,087** | **+R1,214** | **+R8,075** |
+| COD hardware float (2-4 clients total) | -R900 | -R1,800 | -R1,800 |
+| Arlan upfront commissions | +R316 | +R631 | +R1,262 |
+| New OiaB MRR (1 late month-1, then ramping) | +R2,000 | +R10,000 | +R20,000 |
+| Marketing budget (100% B2B) | -R10,000 | -R10,000 | -R10,000 |
+| *Subtotal: OiaB* | *-R8,584* | *-R1,169* | *+R9,462* |
+| **COMBINED NET** | **-R7,502** | **+R2,583** | **+R15,444** |
 
-**3-month total: +R3,202. Cash-positive from July.**
-- June is negative (-R6,087) due to R10K marketing spend startup
-- Marketing cost per Rand of new MRR: R10,000 ÷ R20,400 avg new MRR/mo = R0.49
-- Marketing breaks even on consumer alone; SMB leads are pure upside
+**3-month total: +R10,525. Cash-positive from July.**
+- June is negative (-R7,502) — R10K marketing spend + hardware float before first deals close
+- Month 1 is pipeline investment; months 2-3 deliver payback
+- Marketing cost per Rand of new MRR by month 3: R10,000 ÷ R22,400 = R0.45
 
 ### Key Differences from Previous Model
 
@@ -354,7 +361,7 @@ The Unjani P&L shows -R1,029/mo net, but **cash flow is positive** because:
 
 ## Prerequisites for Launch
 
-1. **Marketing landing pages built** (week 1): Coverage checker, Home+Backup bundle, OiaB page
+1. **Marketing landing page built** (week 1): OiaB medical practice page, not consumer
 2. **Buffer stock** of top 5 SKUs: R12-20K (built from client deposits, not pre-purchased)
 3. **Arlan 30-day credit** for Arlan-sourced CPE/routers in OiaB bundles
 4. **Client deposit policy:** 75% hardware deposit upfront for COD items from Scoop/Rectron
@@ -389,16 +396,17 @@ The Unjani P&L shows -R1,029/mo net, but **cash flow is positive** because:
 **This week (OiaB — Jeffrey):**
 4. [ ] Build 2 Office-in-a-Box bundles with Arlan routers + Scoop/Rectron switch/AP/UPS
 5. [ ] Define pricing: Micro (1-3 seats) R1,999/m, Small (4-10 seats) R4,999/m
-6. [ ] Create 1-page OiaB proposal doc for SMB pitches
-7. [ ] Pitch 8-10 SMBs within 30km — close 2 by end of June
+6. [ ] Create 1-page medical practice proposal PDF
+7. [ ] Build target list: 50 GP/dentist/physio practices within 30km of Rivonia
+8. [ ] Begin cold outreach: 5-10 practice drop-ins per week with one-pager
 
 **This week (Marketing — Marketing person):**
-8. [ ] Build 3 landing pages: coverage checker, Home+Backup bundle, OiaB
-9. [ ] Set up Google Ads account, Facebook Business Manager, conversion tracking
-10. [ ] Launch campaigns at R10K budget: R5K Google, R3K Facebook, R2K LinkedIn
+9. [ ] Build OiaB landing page for medical practice niche
+10. [ ] Set up LinkedIn Campaign Manager, Google Ads, Facebook Business Manager, conversion tracking
+11. [ ] Launch LinkedIn (R4K) + Google Ads (R4K) — target: "IT support for medical practice Johannesburg"
 
 **Parallel tracks:**
-11. [ ] Prepare Hardware Rental Agreement template
-12. [ ] Contact Rectron and Nology re: stock feeds (month 3+)
-13. [ ] Deploy lightweight ticketing system (month 2)
-14. [ ] Hire salesperson #1: month 4
+12. [ ] Prepare Hardware Rental Agreement template
+13. [ ] Contact Rectron and Nology re: stock feeds (month 3+)
+14. [ ] Deploy lightweight ticketing system (month 2)
+15. [ ] Hire salesperson #1: month 4
