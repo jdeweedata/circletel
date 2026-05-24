@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
 import { dfaCoverageClient } from '@/lib/coverage/providers/dfa';
+import { dfaProductMapper } from '@/lib/coverage/providers/dfa/dfa-product-mapper';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,6 +94,16 @@ export async function POST(request: NextRequest) {
         timeline: '8–12 weeks',
         note: `Near-net (~${rounded}m): additional network build required. Estimated timeline: 8–12 weeks.`
       };
+    }
+
+    if (result.hasCoverage) {
+      const [products, recommendations] = await Promise.all([
+        dfaProductMapper.mapToProducts(result),
+        dfaProductMapper.getRecommendations(result),
+      ]);
+      payload.products = products;
+      payload.recommendedProduct = recommendations[0] ?? null;
+      payload.installationEstimate = dfaProductMapper.getInstallationEstimate(result);
     }
 
     return NextResponse.json({ success: true, data: payload });

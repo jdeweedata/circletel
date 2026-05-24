@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiBuildingsBold, PiDeviceMobileBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiFloppyDiskBold, PiFolderOpenBold, PiMapPinBold, PiPackageBold, PiPercentBold, PiPhoneBold, PiPlusBold, PiSpinnerBold, PiUserBold, PiXBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiBuildingsBold, PiDeviceMobileBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiFloppyDiskBold, PiFolderOpenBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiPercentBold, PiPhoneBold, PiPlusBold, PiSpinnerBold, PiUserBold, PiWifiHighBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -79,6 +79,43 @@ interface ServicePackage {
   service_type: string;
 }
 
+interface DFACoverageResult {
+  coverageType: 'connected' | 'near-net' | 'none';
+  products?: Array<{
+    id: string;
+    name: string;
+    download_speed: number;
+    upload_speed: number;
+    price: number;
+    coverage_details: {
+      coverage_type: string;
+      building_id?: string;
+      distance?: number;
+      installation_note?: string;
+    };
+  }>;
+  recommendedProduct?: {
+    id: string;
+    name: string;
+    price: number;
+    download_speed: number;
+  } | null;
+  installationEstimate?: {
+    estimatedCost: string;
+    estimatedDays: string;
+    notes: string;
+  };
+  connected?: {
+    buildingId?: string;
+    status?: string;
+  };
+  nearNet?: {
+    distanceMeters: number;
+    display: string;
+    timeline: string;
+  };
+}
+
 interface QuoteItem {
   package_id: string;
   package: ServicePackage;
@@ -110,6 +147,11 @@ export default function NewQuotePage() {
   
   // Quote Preview feature states
   const [showQuotePreview, setShowQuotePreview] = useState(false);
+
+  // DFA Coverage check states
+  const [dfaCoverage, setDfaCoverage] = useState<DFACoverageResult | null>(null);
+  const [dfaLoading, setDfaLoading] = useState(false);
+  const [addressCoordinates, setAddressCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
@@ -151,6 +193,50 @@ export default function NewQuotePage() {
     } catch (error) {
       console.error('Error fetching lead:', error);
     }
+  };
+
+  const checkDFACoverage = async (coords: { lat: number; lng: number }) => {
+    setDfaLoading(true);
+    setDfaCoverage(null);
+    try {
+      const response = await fetch('/api/admin/coverage/dfa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coordinates: coords }),
+      });
+      const data = await response.json();
+      if (data.success && data.data) {
+        setDfaCoverage(data.data);
+        if (data.data.coverageType !== 'none' && data.data.products?.length > 0) {
+          toast.success(`DFA fibre ${data.data.coverageType === 'connected' ? 'connected' : 'near-net'} — ${data.data.products.length} packages available`);
+        }
+      }
+    } catch (error) {
+      console.error('DFA coverage check failed:', error);
+    } finally {
+      setDfaLoading(false);
+    }
+  };
+
+  const handleAddressChange = (value: string, placeDetails?: google.maps.places.PlaceResult) => {
+    form.setValue('service_address', value);
+    if (placeDetails?.geometry?.location) {
+      const lat = placeDetails.geometry.location.lat();
+      const lng = placeDetails.geometry.location.lng();
+      setAddressCoordinates({ lat, lng });
+      checkDFACoverage({ lat, lng });
+    }
+  };
+
+  const addDFAServiceItem = (product: NonNullable<DFACoverageResult['products']>[number]) => {
+    const pkg: ServicePackage = {
+      id: product.id,
+      name: product.name,
+      speed: `${product.download_speed}/${product.upload_speed} Mbps`,
+      pricing: { monthly: product.price, installation: 1500 },
+      service_type: 'BizFibreConnect',
+    };
+    addServiceItem(pkg, 'primary');
   };
 
   const fetchPackages = async () => {
@@ -627,7 +713,7 @@ export default function NewQuotePage() {
                     render={({ field }) => (
                       <AddressAutocomplete
                         value={field.value}
-                        onChange={field.onChange}
+                        onChange={handleAddressChange}
                         placeholder="Start typing address... (e.g., Welmoed Estate, Stellenbosch)"
                         className="w-full"
                       />
@@ -639,6 +725,84 @@ export default function NewQuotePage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* DFA Coverage Results */}
+            {(dfaLoading || dfaCoverage) && (
+              <Card className={dfaCoverage?.coverageType === 'connected' ? 'border-green-300 bg-green-50/50' : dfaCoverage?.coverageType === 'near-net' ? 'border-amber-300 bg-amber-50/50' : ''}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <PiWifiHighBold className="w-5 h-5 text-circleTel-orange" />
+                    DFA Fibre Coverage
+                    {dfaLoading && <PiSpinnerBold className="w-4 h-4 animate-spin text-gray-400" />}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {dfaLoading ? (
+                    <p className="text-sm text-gray-500">Checking DFA fibre coverage at this address...</p>
+                  ) : dfaCoverage?.coverageType === 'none' ? (
+                    <p className="text-sm text-gray-500">No DFA fibre coverage at this address.</p>
+                  ) : dfaCoverage ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          dfaCoverage.coverageType === 'connected'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {dfaCoverage.coverageType === 'connected' ? 'Connected Building' : 'Near-Net'}
+                        </span>
+                        {dfaCoverage.nearNet && (
+                          <span className="text-xs text-gray-600">{dfaCoverage.nearNet.display} from fibre</span>
+                        )}
+                      </div>
+                      {dfaCoverage.installationEstimate && (
+                        <div className="text-xs text-gray-600 space-y-0.5">
+                          <p>Install: {dfaCoverage.installationEstimate.estimatedCost} · {dfaCoverage.installationEstimate.estimatedDays}</p>
+                          <p className="text-gray-500">{dfaCoverage.installationEstimate.notes}</p>
+                        </div>
+                      )}
+                      {dfaCoverage.products && dfaCoverage.products.length > 0 && (
+                        <div className="space-y-2 pt-1">
+                          <p className="text-xs font-medium text-gray-700">Available DFA BizFibreConnect packages:</p>
+                          <div className="grid gap-2">
+                            {dfaCoverage.products.map((product) => (
+                              <div
+                                key={product.id}
+                                className={`flex items-center justify-between p-2.5 rounded-lg border bg-white ${
+                                  dfaCoverage.recommendedProduct?.id === product.id
+                                    ? 'border-circleTel-orange ring-1 ring-circleTel-orange/30'
+                                    : 'border-gray-200'
+                                }`}
+                              >
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium">{product.download_speed}/{product.upload_speed} Mbps</span>
+                                    {dfaCoverage.recommendedProduct?.id === product.id && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-circleTel-orange/10 text-circleTel-orange font-medium">Best Value</span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-gray-500 mt-0.5">R {product.price.toLocaleString()}/mo</p>
+                                </div>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs h-7 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
+                                  onClick={() => addDFAServiceItem(product)}
+                                >
+                                  <PiLightningBold className="w-3 h-3 mr-1" />
+                                  Add
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Services */}
             <Card>

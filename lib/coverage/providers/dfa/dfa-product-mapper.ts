@@ -5,7 +5,7 @@
  * Handles connected and near-net coverage scenarios
  */
 
-import { createClient } from '@/integrations/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 import type { DFACoverageResponse } from './types';
 
 export interface MappedProduct {
@@ -87,7 +87,7 @@ export class DFAProductMapper {
    * @returns Array of BizFibre products from database
    */
   private async fetchDFAProducts() {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
       .from('service_packages')
