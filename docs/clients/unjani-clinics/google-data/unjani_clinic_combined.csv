@@ -1,0 +1,41 @@
+Account Number,Clinic,Province,Area,Technology,Connectivity Source,Arlan v2 Order,SIM Number,Activation Date,Address,PPPoE Username,Status,Month,Period,Unique Users,Login Sessions,Ad Impressions,Download GB,Gross Revenue (R),Net Revenue (R),Think Share (R),Partner Revenue (R)
+CT-UNJ-002,Alexandra,Gauteng,Johannesburg,Tarana FWB,Tarana FWB,No,,2026-02-11,47 Third St Wynberg,CT-UNJ-002@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,2906,7366,48810,2057,3459,1878,1048,2423
+CT-UNJ-002,Alexandra,Gauteng,Johannesburg,Tarana FWB,Tarana FWB,No,,2026-02-11,47 Third St Wynberg,CT-UNJ-002@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,3577,9783,70647,2711,5739,3030,1645,3071
+CT-UNJ-013,Barcelona,Gauteng,Springs,LTE/5G,Arlan 5G,Yes,11360259504,2026-02-26,,CT-UNJ-013@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,500,1715,11233,524,905,521,283,619
+CT-UNJ-013,Barcelona,Gauteng,Springs,LTE/5G,Arlan 5G,Yes,11360259504,2026-02-26,,CT-UNJ-013@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,526,1768,10156,502,1034,558,283,538
+CT-UNJ-006,Chloorkop,Gauteng,Ekurhuleni,Tarana FWB,Tarana FWB,No,,2026-02-11,3430 Successor St Phomolong,CT-UNJ-006@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,13,20,193,5,13,9,4,9
+CT-UNJ-006,Chloorkop,Gauteng,Ekurhuleni,Tarana FWB,Tarana FWB,No,,2026-02-11,3430 Successor St Phomolong,CT-UNJ-006@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,1,1,20,0,2,2,1,1
+CT-UNJ-007,Cosmo City,Gauteng,Johannesburg,Tarana FWB,Tarana FWB,No,,2026-02-12,35 Massachussets Cres,CT-UNJ-007@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,183,375,3221,103,277,158,78,155
+CT-UNJ-022,Durban,KwaZulu-Natal,Durban,LTE,Arlan 5G,Yes,11360258712,2026-03-07,135 Anton Lembede St Durban,CT-UNJ-022@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,317,950,8500,236,638,432,202,527
+CT-UNJ-022,Durban,KwaZulu-Natal,Durban,LTE,Arlan 5G,Yes,11360258712,2026-03-07,135 Anton Lembede St Durban,CT-UNJ-022@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,248,681,4994,160,166,93,59,105
+CT-UNJ-008,Fleurhof,Gauteng,Johannesburg,Tarana FWB,Tarana FWB,No,,2026-02-12,"Ext 26 Cnr Lavender & Drumstick St Fleurhof",CT-UNJ-008@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,47,68,671,16,59,40,18,37
+CT-UNJ-008,Fleurhof,Gauteng,Johannesburg,Tarana FWB,Tarana FWB,No,,2026-02-12,"Ext 26 Cnr Lavender & Drumstick St Fleurhof",CT-UNJ-008@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,116,227,1959,51,156,85,47,87
+CT-UNJ-012,Heidelberg,Gauteng,Heidelberg,Tarana FWB,Tarana FWB,No,,2026-02-16,"Unnamed Road Military Base Heidelberg",CT-UNJ-012@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,171,372,3086,96,229,144,66,148
+CT-UNJ-012,Heidelberg,Gauteng,Heidelberg,Tarana FWB,Tarana FWB,No,,2026-02-16,"Unnamed Road Military Base Heidelberg",CT-UNJ-012@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,232,436,3363,102,283,161,75,146
+CT-UNJ-015,Jabulani,Gauteng,Soweto,5G/LTE/FWA,Arlan 5G,No,11349666027,2026-03-06,,CT-UNJ-015@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,48,66,602,14,48,30,14,31
+CT-UNJ-015,Jabulani,Gauteng,Soweto,5G/LTE/FWA,Arlan 5G,No,11349666027,2026-03-06,,CT-UNJ-015@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,44,78,621,13,49,29,15,28
+CT-UNJ-018,Kayamandi,Western Cape,Stellenbosch,5G/LTE,Arlan 5G,Yes,11360258928,2026-03-13,,CT-UNJ-018@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,105,167,1433,48,72,52,24,56
+CT-UNJ-018,Kayamandi,Western Cape,Stellenbosch,5G/LTE,Arlan 5G,Yes,11360258928,2026-03-13,,CT-UNJ-018@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,182,391,3095,94,103,60,41,73
+CT-UNJ-016,Lenasia Ext10,Gauteng,Johannesburg,Tarana FWB,Tarana FWB,No,,2026-02-26,"22 Karasberg St Lenasia South Lenasia 1835",CT-UNJ-016@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,105,321,2641,64,226,144,62,124
+CT-UNJ-016,Lenasia Ext10,Gauteng,Johannesburg,Tarana FWB,Tarana FWB,No,,2026-02-26,"22 Karasberg St Lenasia South Lenasia 1835",CT-UNJ-016@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,135,383,3621,103,298,164,83,157
+CT-UNJ-023,New Hanover,KwaZulu-Natal,New Hanover,LTE/5G,Arlan 5G,Yes,11360259199,2026-03-04,,CT-UNJ-023@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,728,1893,11977,525,506,238,158,692
+CT-UNJ-023,New Hanover,KwaZulu-Natal,New Hanover,LTE/5G,Arlan 5G,Yes,11360259199,2026-03-04,,CT-UNJ-023@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,868,2508,14349,694,468,256,190,331
+CT-UNJ-017,Nokaneng,Limpopo,Greater Tubatse,LTE Uncapped,Arlan 5G,Yes,11360259512,2026-03-02,,CT-UNJ-017@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,272,857,4203,304,88,52,22,44
+CT-UNJ-017,Nokaneng,Limpopo,Greater Tubatse,LTE Uncapped,Arlan 5G,Yes,11360259512,2026-03-02,,CT-UNJ-017@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,369,1334,7177,467,215,122,77,139
+CT-UNJ-014,Oukasie,North West,Brits,5G/LTE/FWA,Arlan 5G,No,11349666019,2026-02-27,Oukasie Sports Grounds Brits,CT-UNJ-014@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,161,313,2064,142,56,38,16,33
+CT-UNJ-014,Oukasie,North West,Brits,5G/LTE/FWA,Arlan 5G,No,11349666019,2026-02-27,Oukasie Sports Grounds Brits,CT-UNJ-014@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,165,321,2034,122,89,60,31,59
+CT-UNJ-021,Phoenix,KwaZulu-Natal,Durban,Tarana FWB,Tarana FWB,No,,2026-03-03,"28 Corkbrook Cl Brookdale Phoenix",CT-UNJ-021@circletel.co.za,Hardware Issue,May 2026,1 May - 23 May 2026,88,293,2399,85,175,110,57,184
+CT-UNJ-011,Sicelo,Gauteng,Meyerton,5G/LTE/FWA,Arlan 5G,Yes,11360259181,2026-02-16,,CT-UNJ-011@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,345,678,5127,214,373,229,114,252
+CT-UNJ-011,Sicelo,Gauteng,Meyerton,5G/LTE/FWA,Arlan 5G,Yes,11360259181,2026-02-16,,CT-UNJ-011@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,148,297,3145,117,332,188,86,168
+CT-UNJ-009,Sky City,Gauteng,Klipwater,Tarana FWB,Tarana FWB,No,,2026-02-13,22 Heidelberg Rd Garthdale AH,CT-UNJ-009@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,129,494,3684,126,249,131,75,184
+CT-UNJ-009,Sky City,Gauteng,Klipwater,Tarana FWB,Tarana FWB,No,,2026-02-13,22 Heidelberg Rd Garthdale AH,CT-UNJ-009@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,120,406,2868,111,248,141,66,129
+CT-UNJ-025,Soshanguve,Gauteng,Pretoria,Tarana FWB,Tarana FWB,No,,2026-02-25,,CT-UNJ-025@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,472,1089,9020,323,782,462,227,493
+CT-UNJ-025,Soshanguve,Gauteng,Pretoria,Tarana FWB,Tarana FWB,No,,2026-02-25,,CT-UNJ-025@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,584,1519,12806,425,1166,643,329,624
+CT-UNJ-020,Sweetwaters,KwaZulu-Natal,Pietermaritzburg,LTE/5G,Arlan 5G,Yes,11360258936,2026-03-03,,CT-UNJ-020@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,311,840,6834,293,453,243,143,557
+CT-UNJ-020,Sweetwaters,KwaZulu-Natal,Pietermaritzburg,LTE/5G,Arlan 5G,Yes,11360258936,2026-03-03,,CT-UNJ-020@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,420,1221,8077,416,251,121,110,184
+CT-UNJ-010,Thokoza,Gauteng,Ekurhuleni,Tarana FWB,Tarana FWB,No,,2026-02-18,263 Khumalo St Thokoza,CT-UNJ-010@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,124,581,1645,150,126,76,37,77
+CT-UNJ-010,Thokoza,Gauteng,Ekurhuleni,Tarana FWB,Tarana FWB,No,,2026-02-18,263 Khumalo St Thokoza,CT-UNJ-010@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,144,539,2236,161,193,114,54,104
+CT-UNJ-024,Umsinga,KwaZulu-Natal,Tugela Ferry,LTE/5G,Arlan 5G,Yes,11360258696,2026-03-11,,CT-UNJ-024@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,3,6,53,4,3,1,1,1
+CT-UNJ-024,Umsinga,KwaZulu-Natal,Tugela Ferry,LTE/5G,Arlan 5G,Yes,11360258696,2026-03-11,,CT-UNJ-024@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,217,695,4076,263,146,80,59,103
+CT-UNJ-019,Zamdela,Free State,Sasolburg,5G/LTE/FWA,Arlan 5G,No,11349666035,2026-03-09,,CT-UNJ-019@circletel.co.za,Activated,May 2026,1 May - 23 May 2026,204,463,2754,118,52,39,16,33
+CT-UNJ-019,Zamdela,Free State,Sasolburg,5G/LTE/FWA,Arlan 5G,No,11349666035,2026-03-09,,CT-UNJ-019@circletel.co.za,Activated,April 2026,1 Apr - 30 Apr 2026,211,558,3309,113,107,67,40,73
