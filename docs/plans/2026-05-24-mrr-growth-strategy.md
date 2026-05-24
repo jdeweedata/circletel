@@ -94,6 +94,31 @@ To avoid competing with month-to-month ISPs on lock-in while protecting hardware
 
 ---
 
+## Hybrid Hardware Sourcing: Arlan Credit + Distributor COD
+
+Scoop and Rectron are COD accounts (no credit terms). However, Arlan Communications provides 30-day credit on MTN Business hardware (5,851 active deals, 253 devices) with commissions paid by the 25th monthly.
+
+### OiaB Hardware Stack — Per Client
+
+| Hardware Item | Source | Payment Terms | CT Upfront Float |
+|---|---|---|---|
+| Router/CPE (ZYXEL, ZLT X100, Vida CPE) | Arlan | 30-day credit | R0 |
+| Switch (8-port) | Scoop/Rectron | COD | R600-900 |
+| Access Point | Scoop/Rectron | COD | R1,000-1,500 |
+| UPS | Scoop/Rectron | COD | R1,200-2,000 |
+| **Total per client** | | | **R2,800-4,400** |
+
+With 75% client deposit: net CT float = **R700-1,100 per client** (vs. R1,375-2,750 all-COD).
+
+### Arlan Commission Kicker
+
+Every Arlan device in a bundle generates upfront MTN commission (CT gets 30%):
+
+- **Example:** ZYXEL router at R899/m on 24-month term → R631 upfront commission + R200/m markup (100% CT retained)
+- **Over 6 OiaB clients:** ~R3,786 in upfront commissions, self-funding the COD hardware float
+
+---
+
 ## 12-Month Ramp Model
 
 | Month | Focus | New MRR/m Added | Cumulative MRR |
@@ -142,23 +167,26 @@ To avoid competing with month-to-month ISPs on lock-in while protecting hardware
 - 16 new clinics from 15 Jun 2026 at R450 ex VAT: +R4,464/m (CT share)
 - **Combined baseline: R28,463/m**
 
-### Lean Launch Cash Flow (Months 1-3, with TDX 45-day lag)
+### Lean Launch Cash Flow (Months 1-3, Hybrid Model)
 
 | | June | July | August | Total |
 |---|---|---|---|---|
 | Existing MRR | R15,000 | R15,000 | R15,000 | R45,000 |
 | Unjani (45-day lag via TDX) | R6,332 (Apr) | R9,002 (May) | R11,232 (Jun est.) | R26,566 |
-| **Cash IN** | **R21,332** | **R24,002** | **R26,232** | **R71,566** |
+| Arlan upfront commissions | R631 | R1,262 | R1,893 | R3,786 |
+| **Cash IN** | **R21,963** | **R25,264** | **R28,125** | **R75,352** |
 | MSC shortfall | R18,652 | R18,652 | R18,652 | R55,956 |
 | Ops/hosting | R5,000 | R5,000 | R5,000 | R15,000 |
-| Hardware float (6 OiaB, 75% deposit, COD) | R2,750 | R2,750 | R2,750 | R8,250 |
-| **Cash OUT** | **R26,402** | **R26,402** | **R26,402** | **R79,206** |
-| **Net cash flow** | **-R5,070** | **-R2,400** | **-R170** | **-R7,640** |
+| COD hardware float (6 OiaB, hybrid) | R1,800 | R1,800 | R1,800 | R5,400 |
+| **Cash OUT** | **R25,452** | **R25,452** | **R25,452** | **R76,356** |
+| **Net cash flow** | **-R3,489** | **-R188** | **+R2,673** | **-R1,004** |
 
-**Gap: R7,640 over 3 months.** ~R2,500/month — survivable.
-- Arlan 30-day credit on Arlan-sourced hardware → shifts R2-4K of float to credit
-- 75% client deposit (not 50%) → COD items are nearly fully funded upfront
-- 6 OiaB clients total (2/month) not 10 → proves model without overextending
+**3-month gap: -R1,004. Effectively break-even.**
+- Arlan router on 30-day credit → R0 upfront float on the most expensive item
+- Arlan upfront commissions → R3,786 in found money self-funds the COD float
+- June is the tightest month (-R3,489). Close 1 OiaB client by mid-June to close the gap.
+- July is break-even. August is cash-positive by R2,673.
+- Arlan markup on bundled routers adds ~R200/m recurring per client (not shown — adds to MRR)
 
 ## Prerequisites for Launch
 
@@ -176,20 +204,23 @@ To avoid competing with month-to-month ISPs on lock-in while protecting hardware
 | Risk | Severity | Mitigation |
 |---|---|---|
 | Stock data is fiction for 2 distributors | HIGH | Buffer stock + defer Levers 2/5 until solved |
-| Working capital for hardware | HIGH | 50% deposit + 30-day distributor terms + finance partner |
+| Working capital for hardware | MEDIUM | Hybrid Arlan credit + 75% client deposit reduces float to ~R700/client |
+| Arlan commissions delayed | MEDIUM | Factor 45-day lag; June float covered by May commissions |
 | Support doesn't scale | MEDIUM | Hire support by month 6, ticketing system month 1 |
 | Partner quality control | MEDIUM | Vetting process, non-compete, minimum commitment |
 | Consumer churn | LOW | Hardware amortized in 8-10 months; 12-month retention is profitable |
-| Jeffrey becomes bottleneck | HIGH | Hire #1 by month 2, hire #2 by month 6 |
+| Jeffrey becomes bottleneck | HIGH | Hire #1 by month 4 (funded by new MRR) |
 
 ---
 
 ## Next Actions
 
-1. [ ] Approve R50-80K buffer stock budget
-2. [ ] Define top 20 SKUs from supplier data
-3. [ ] Contact Rectron re: reseller API / stock feed availability
-4. [ ] Contact Nology re: stock data availability
-5. [ ] Build 3 standardized SMB bundles with pricing
-6. [ ] Hire salesperson #1
-7. [ ] Deploy lightweight ticketing system
+1. [ ] Build 2 Office-in-a-Box bundles with Arlan routers + Scoop/Rectron switch/AP/UPS
+2. [ ] Define pricing: Micro (1-3 seats) R1,999/m, Small (4-10 seats) R4,999/m
+3. [ ] Prepare Hardware Rental Agreement template (36-month lease, separate from service)
+4. [ ] Create 1-page OiaB proposal doc for SMB pitches
+5. [ ] Identify and pitch 20 SMBs within 30km — close 2 by end of June
+6. [ ] Contact Rectron re: reseller API / stock feed availability (parallel track)
+7. [ ] Contact Nology re: stock data availability (parallel track)
+8. [ ] Deploy lightweight ticketing system (week 1)
+9. [ ] Hire salesperson #1: month 4 (funded by R48,500 cumulative MRR)
