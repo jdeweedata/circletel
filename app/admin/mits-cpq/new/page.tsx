@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MITSCPQWizard } from '@/components/mits-cpq/MITSCPQWizard';
-import { Loader2 } from 'lucide-react';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 export default function NewMITSQuotePage() {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function NewMITSQuotePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-orange mx-auto" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-orange mx-auto" />
           <p className="text-slate-600">Creating new quote...</p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function NewMITSQuotePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-orange mx-auto" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-orange mx-auto" />
           <p className="text-slate-600">Loading wizard...</p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Wifi, ArrowUpDown, Building2, Shield, Receipt, Zap } from 'lucide-react';
+import { PiWifiHighBold, PiArrowsDownUpBold, PiBuildingsBold, PiShieldBold, PiReceiptBold, PiLightningBold } from 'react-icons/pi';
 import Link from 'next/link';
 import { BizMobilePlanCard } from './BizMobilePlanCard';
 import { CONTACT } from '@/lib/constants/contact';
@@ -47,27 +47,27 @@ const PLANS = [
 
 const WHY_FEATURES = [
   {
-    icon: Zap,
+    icon: PiLightningBold,
     title: 'MTN Enterprise Network',
     body: "Priority access on South Africa's leading business LTE & 5G network.",
   },
   {
-    icon: ArrowUpDown,
+    icon: PiArrowsDownUpBold,
     title: 'Multi-SIM Ready',
     body: 'Add multiple lines on a single business account — perfect for teams.',
   },
   {
-    icon: Building2,
+    icon: PiBuildingsBold,
     title: 'Dedicated Business Support',
     body: 'Mon–Fri 8am–5pm SAST. Escalate directly via your account manager.',
   },
   {
-    icon: Receipt,
+    icon: PiReceiptBold,
     title: 'Single Monthly Bill',
     body: 'All your devices and plans consolidated on one invoice.',
   },
   {
-    icon: Shield,
+    icon: PiShieldBold,
     title: 'No Hidden Fees',
     body: 'All prices quoted are VAT-inclusive. What you see is what you pay.',
   },
@@ -129,13 +129,13 @@ const MIFI_OPTIONS = [
     name: 'Huawei E5576-321',
     tagline: '4G MiFi — connect up to 16 devices',
     price: 459,
-    icon: Wifi,
+    icon: PiWifiHighBold,
   },
   {
     name: 'Tozed ZLT M36',
     tagline: '4G MiFi — compact & portable',
     price: 199,
-    icon: Wifi,
+    icon: PiWifiHighBold,
   },
 ];
 
@@ -193,7 +193,7 @@ export function BizMobilePageLayout() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm"
             >
-              <Wifi size={16} />
+              <PiWifiHighBold className="h-4 w-4" />
               WhatsApp Us
             </Link>
           </div>
@@ -258,7 +258,7 @@ export function BizMobilePageLayout() {
 
                 {/* Device placeholder */}
                 <div className="h-20 bg-slate-50 rounded flex items-center justify-center">
-                  <Wifi className="text-slate-200" size={28} strokeWidth={1} />
+                  <PiWifiHighBold className="h-7 w-7 text-slate-200" />
                 </div>
 
                 <div>

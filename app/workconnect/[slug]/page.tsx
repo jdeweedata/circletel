@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { products, getProductBySlug } from '@/lib/data/products';
 import { Button } from '@/components/ui/button';
+import { LivePrice } from '@/components/products/LivePrice';
 
 // Icon mapping
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -78,9 +79,11 @@ export default async function WorkConnectProductPage({
               </p>
 
               <div className="flex items-baseline gap-2 mb-6">
-                <span className="font-heading text-5xl font-bold text-circleTel-navy">
-                  R{product.pricing.startingPrice.toLocaleString()}
-                </span>
+                <LivePrice
+                  productSlug={product.slug}
+                  staticPrice={product.pricing.startingPrice}
+                  className="font-heading text-5xl font-bold text-circleTel-navy"
+                />
                 <span className="text-circleTel-grey600 text-lg">
                   {product.pricing.priceNote || '/month'}
                 </span>

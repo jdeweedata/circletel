@@ -79,14 +79,14 @@ export default function AdminQuotesPage() {
         } else {
           setError(data.error || 'Failed to load quotes');
         }
-      } catch (fetchErr: any) {
+      } catch (fetchErr: unknown) {
         clearTimeout(timeoutId);
         if (fetchErr.name === 'AbortError') {
           throw new Error('Request timed out after 30 seconds. The server may be experiencing issues.');
         }
         throw fetchErr;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching quotes:', err);
       setError(err.message || 'Failed to load quotes');
     } finally {

@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { IconMenu2, IconX, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { PiListBold, PiXBold, PiCaretLeftBold, PiCaretRightBold } from 'react-icons/pi';
 
 interface Links {
   label: string;
@@ -129,7 +129,7 @@ export const MobileSidebarMotion = ({
         {...props}
       >
         <div className="flex justify-end z-20 w-full">
-          <IconMenu2
+          <PiListBold
             className="text-neutral-800 dark:text-neutral-200"
             onClick={() => setOpen(!open)}
           />
@@ -153,7 +153,7 @@ export const MobileSidebarMotion = ({
                 className="absolute right-10 top-10 z-50 text-neutral-800 dark:text-neutral-200"
                 onClick={() => setOpen(!open)}
               >
-                <IconX />
+                <PiXBold />
               </div>
               {children}
             </motion.div>
@@ -218,9 +218,9 @@ export const SidebarMotionToggle = ({
       {...props}
     >
       {open ? (
-        <IconChevronLeft className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
+        <PiCaretLeftBold className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
       ) : (
-        <IconChevronRight className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
+        <PiCaretRightBold className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
       )}
     </button>
   );

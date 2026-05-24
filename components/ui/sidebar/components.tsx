@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IconMenu2, IconX, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { PiListBold, PiXBold, PiCaretLeftBold, PiCaretRightBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 
 import { SidebarProvider, useSidebar } from './context';
@@ -117,7 +117,7 @@ const MobileSidebar = memo(function MobileSidebar({
   return (
     <div className={styles.mobileHeader}>
       <div className="flex justify-end z-20 w-full">
-        <IconMenu2
+        <PiListBold
           className="text-neutral-800 dark:text-neutral-200 cursor-pointer"
           onClick={toggle}
           aria-label="Open sidebar menu"
@@ -135,7 +135,7 @@ const MobileSidebar = memo(function MobileSidebar({
               onClick={toggle}
               aria-label="Close sidebar menu"
             >
-              <IconX />
+              <PiXBold />
             </button>
             {children}
           </motion.div>
@@ -223,9 +223,9 @@ export const SidebarToggle = memo(function SidebarToggle({
       {...props}
     >
       {isOpen ? (
-        openIcon || <IconChevronLeft className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
+        openIcon || <PiCaretLeftBold className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
       ) : (
-        closedIcon || <IconChevronRight className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
+        closedIcon || <PiCaretRightBold className="h-4 w-4 text-neutral-700 dark:text-neutral-200" />
       )}
     </button>
   );

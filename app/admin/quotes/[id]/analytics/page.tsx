@@ -90,7 +90,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
       } else {
         setError(data.error || 'Failed to load analytics');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);

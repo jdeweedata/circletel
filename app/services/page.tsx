@@ -1,4 +1,6 @@
-import { Metadata } from 'next';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -19,6 +21,7 @@ import {
   PiSimCardBold,
   PiCheckCircleBold,
   PiWhatsappLogoBold,
+  PiSpinnerBold,
 } from 'react-icons/pi';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -43,40 +46,50 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'sim-card': PiSimCardBold,
 };
 
-export function generateMetadata(): Metadata {
-  const product = getProductBySlug(PRODUCT_SLUG);
-
-  if (!product) {
-    return { title: 'Managed IT Services | CircleTel' };
-  }
-
-  return {
-    title: product.seo?.metaTitle || `${product.name} | CircleTel`,
-    description:
-      product.seo?.metaDescription ||
-      product.tagline ||
-      'Complete IT solutions from CircleTel',
-    openGraph: {
-      title: product.seo?.metaTitle || product.name,
-      description: product.seo?.metaDescription || product.tagline,
-      images: product.heroImage ? [{ url: product.heroImage }] : [],
-    },
-  };
-}
+const categoryLabels: Record<string, string> = {
+  consumer: 'Consumer',
+  soho: 'Work From Home',
+  business: 'Business',
+  enterprise: 'Enterprise',
+};
 
 export default function ServicesPage() {
   const product = getProductBySlug(PRODUCT_SLUG);
+  const [livePricing, setLivePricing] = useState<{
+    monthly?: number;
+    setup?: number;
+  } | null>(null);
+  const [pricingLoading, setPricingLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPricing() {
+      try {
+        const res = await fetch(`/api/products?slug=${PRODUCT_SLUG}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const match = data.products?.find((p: { slug: string }) => p.slug === PRODUCT_SLUG);
+        if (match) {
+          setLivePricing({
+            monthly: match.pricing?.monthly ?? match.price,
+            setup: match.pricing?.setup,
+          });
+        }
+      } catch {
+        // Keep static pricing as fallback
+      } finally {
+        setPricingLoading(false);
+      }
+    }
+    fetchPricing();
+  }, []);
 
   if (!product) {
     notFound();
   }
 
-  const categoryLabels: Record<string, string> = {
-    consumer: 'Consumer',
-    soho: 'Work From Home',
-    business: 'Business',
-    enterprise: 'Enterprise',
-  };
+  // Use live pricing if available, fall back to static
+  const displayPrice = livePricing?.monthly ?? product.pricing?.startingPrice;
+  const showContactForPricing = !displayPrice && product.pricing?.showContactForPricing;
 
   return (
     <div className="min-h-screen bg-white">
@@ -123,19 +136,27 @@ export default function ServicesPage() {
       </section>
 
       {/* Pricing Bar */}
-      {product.pricing && !product.pricing.showContactForPricing && (
+      {!showContactForPricing && displayPrice && (
         <section className="bg-slate-900 text-white py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="text-center md:text-left">
-                <span className="text-slate-400 text-sm">Starting from</span>
+                <span className="text-slate-400 text-sm">
+                  {pricingLoading ? 'Loading price...' : 'Starting from'}
+                </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">
-                    R{product.pricing.startingPrice?.toLocaleString()}
-                  </span>
-                  <span className="text-slate-400">
-                    {product.pricing.priceNote}
-                  </span>
+                  {pricingLoading ? (
+                    <PiSpinnerBold className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      <span className="text-3xl font-bold">
+                        R{displayPrice.toLocaleString()}
+                      </span>
+                      <span className="text-slate-400">
+                        {product.pricing?.priceNote || '/month'}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
               <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent rounded-lg hover:bg-white hover:text-slate-900 transition-all duration-200" asChild>

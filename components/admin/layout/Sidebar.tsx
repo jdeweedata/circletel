@@ -83,6 +83,7 @@ const navigationSections: NavSection[] = [
         children: [
           { name: 'All Products', href: '/admin/products', icon: PiListBold },
           { name: 'Add Product', href: '/admin/products/new', icon: PiPlusBold },
+          { name: 'Hardware Store', href: '/admin/products/hardware', icon: PiCubeBold },
           { name: 'Relationships', href: '/admin/products/relationships', icon: PiLinkBold },
           { name: 'MTN Dealer Products', href: '/admin/mtn-dealer-products', icon: PiHandshakeBold },
           { name: 'Drafts', href: '/admin/products/drafts', icon: PiFileTextBold },
@@ -154,7 +155,7 @@ const navigationSections: NavSection[] = [
         icon: PiTruckBold,
         children: [
           { name: 'All Suppliers', href: '/admin/suppliers', icon: PiTruckBold },
-          { name: 'Product Catalog', href: '/admin/suppliers/products', icon: PiCubeBold }
+          { name: 'Hardware Products', href: '/admin/products/hardware', icon: PiCubeBold }
         ]
       },
     ]

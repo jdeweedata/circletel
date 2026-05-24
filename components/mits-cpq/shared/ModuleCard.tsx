@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Minus } from 'lucide-react';
+import { PiPlusBold, PiMinusBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import type { MITSModule } from '@/lib/mits-cpq/types';
 
@@ -79,7 +79,7 @@ export function ModuleCard({
             disabled={quantity === 0}
             className="rounded p-1 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Minus className="h-4 w-4 text-slate-600" />
+<PiMinusBold className="h-4 w-4 text-slate-600" />
           </button>
           <span className="w-6 text-center font-semibold text-slate-900">
             {quantity}
@@ -88,7 +88,7 @@ export function ModuleCard({
             onClick={handleIncrement}
             className="rounded p-1 transition-colors hover:bg-slate-100"
           >
-            <Plus className="h-4 w-4 text-orange" />
+<PiPlusBold className="h-4 w-4 text-orange" />
           </button>
         </div>
       </div>

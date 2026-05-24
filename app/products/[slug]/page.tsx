@@ -7,13 +7,13 @@ import { PiWhatsappLogoBold } from 'react-icons/pi';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ProductPageHero } from '@/components/products/ProductPageHero';
-import { PricingBar } from '@/components/products/PricingBar';
 import { FeatureGrid } from '@/components/products/FeatureGrid';
 import { ProductHowItWorks } from '@/components/products/ProductHowItWorks';
 import { SpecificationTable } from '@/components/products/SpecificationTable';
 import { WhyCircleTel } from '@/components/products/WhyCircleTel';
 import { RelatedProducts } from '@/components/products/RelatedProducts';
 import { BlockRenderer } from '@/components/blocks/BlockRenderer';
+import { LivePricingBar } from '@/components/products/LivePricingBar';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -67,9 +67,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
       />
 
       {product.pricing && !product.pricing.showContactForPricing && (
-        <PricingBar
-          startingPrice={product.pricing.startingPrice}
-          priceNote={product.pricing.priceNote}
+        <LivePricingBar
+          productSlug={product.slug}
+          staticPrice={product.pricing.startingPrice}
+          staticPriceNote={product.pricing.priceNote}
         />
       )}
 

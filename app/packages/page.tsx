@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { LivePrice } from '@/components/products/LivePrice';
 import {
   PiShieldCheckBold,
   PiPhoneBold,
@@ -406,7 +407,14 @@ export default async function PackagesPage({ searchParams }: PackagesPageProps) 
                       <p className="text-slate-600 text-sm mb-2">{related.tagline}</p>
                       {related.pricing && (
                         <p className="text-primary font-medium">
-                          From R{related.pricing.startingPrice?.toLocaleString()}/mo
+                          From{' '}
+                          <LivePrice
+                            productSlug={related.slug}
+                            staticPrice={related.pricing.startingPrice}
+                            className="text-primary font-medium"
+                            prefix="R"
+                            suffix="/mo"
+                          />
                         </p>
                       )}
                     </CardContent>

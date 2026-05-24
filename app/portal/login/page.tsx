@@ -48,7 +48,7 @@ export default function PortalLoginPage() {
       }
 
       router.push(redirect);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Portal login error:', err);
       setError(err.message || 'Invalid email or password');
     } finally {

@@ -66,7 +66,7 @@ export default function EditQuotePage({ params }: Props) {
       } else {
         setError(data.error || 'Failed to load quote');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to load quote');
     } finally {
       setLoading(false);
@@ -133,7 +133,7 @@ export default function EditQuotePage({ params }: Props) {
       } else {
         setError(data.error || 'Failed to update quote');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to update quote');
     } finally {
       setSaving(false);

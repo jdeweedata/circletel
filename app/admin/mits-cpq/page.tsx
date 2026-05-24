@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Clock, CheckCircle } from 'lucide-react';
+import { PiPlusBold, PiFileTextBold, PiClockBold, PiCheckCircleBold } from 'react-icons/pi';
 
 interface CPQSession {
   id: string;
@@ -116,7 +116,7 @@ export default function MITSCPQDashboard() {
         </div>
         <Link href="/admin/mits-cpq/new">
           <Button className="flex items-center gap-2 bg-orange text-white hover:bg-orange/90">
-            <Plus className="h-4 w-4" />
+            <PiPlusBold className="h-4 w-4" />
             New Quote
           </Button>
         </Link>

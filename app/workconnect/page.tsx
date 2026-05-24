@@ -1,14 +1,11 @@
-import { PiArrowRightBold, PiCheckCircleBold, PiWifiHighBold } from 'react-icons/pi';
-import { Metadata } from 'next';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { PiArrowRightBold, PiCheckCircleBold, PiWifiHighBold, PiSpinnerBold } from 'react-icons/pi';
 import Link from 'next/link';
 import { products as allProducts } from '@/lib/data/products';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-export const metadata: Metadata = {
-  title: 'WorkConnect Plans | SOHO Internet | CircleTel',
-  description: 'Compare WorkConnect plans for freelancers, remote workers, and small home offices. From R799/month with VoIP QoS included. Cloud backup add-on from R79/mo.',
-};
 
 interface WorkConnectPlan {
   _id: string;
@@ -25,9 +22,41 @@ interface WorkConnectPlan {
   }>;
 }
 
+interface LivePrice {
+  slug: string;
+  monthly: number;
+}
+
 const workconnectSlugs = ['workconnect-starter', 'workconnect-soho', 'workconnect-plus', 'workconnect-pro'];
 
 export default function WorkConnectPage() {
+  const [livePrices, setLivePrices] = useState<LivePrice[]>([]);
+
+  useEffect(() => {
+    async function fetchPrices() {
+      try {
+        const res = await fetch('/api/products');
+        if (!res.ok) return;
+        const data = await res.json();
+        const prices: LivePrice[] = (data.products || [])
+          .filter((p: { slug: string }) => workconnectSlugs.includes(p.slug))
+          .map((p: { slug: string; pricing?: { monthly: number }; price: number }) => ({
+            slug: p.slug,
+            monthly: p.pricing?.monthly ?? p.price,
+          }));
+        setLivePrices(prices);
+      } catch {
+        // Fall back to static prices
+      }
+    }
+    fetchPrices();
+  }, []);
+
+  const getPrice = (slug: string, staticPrice: number): number => {
+    const live = livePrices.find((lp) => lp.slug === slug);
+    return live?.monthly ?? staticPrice;
+  };
+
   const plans: WorkConnectPlan[] = allProducts
     .filter((p) => workconnectSlugs.includes(p.slug))
     .map((p) => ({
@@ -36,7 +65,7 @@ export default function WorkConnectPage() {
       tagline: p.tagline || '',
       slug: p.slug,
       pricing: {
-        startingPrice: p.pricing?.startingPrice ?? 0,
+        startingPrice: getPrice(p.slug, p.pricing?.startingPrice ?? 0),
         priceNote: p.pricing?.priceNote,
       },
       keyFeatures: (p.keyFeatures || []).map((f) => ({
@@ -45,12 +74,10 @@ export default function WorkConnectPage() {
       })),
     }));
 
-  // Determine which plan is "featured" (Plus)
   const featuredSlug = 'workconnect-plus';
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero */}
       <section className="bg-circleTel-grey200 py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange/10 rounded-full mb-6">
@@ -59,11 +86,9 @@ export default function WorkConnectPage() {
               Built for Remote Work
             </span>
           </div>
-
           <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-circleTel-navy mb-6">
             WorkConnect Plans
           </h1>
-
           <p className="font-body text-lg md:text-xl text-circleTel-grey600 mb-8 max-w-2xl mx-auto">
             Reliable connectivity for freelancers, remote workers, and small home offices.
             All plans include VoIP QoS and business email. Cloud backup included on Pro — add-on from R79/mo on other plans.
@@ -71,12 +96,12 @@ export default function WorkConnectPage() {
         </div>
       </section>
 
-      {/* Plans Grid */}
       <section className="py-16 md:py-20">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {plans.map((plan) => {
               const isFeatured = plan.slug === featuredSlug;
+              const priceLoading = livePrices.length === 0;
               return (
                 <div
                   key={plan._id}
@@ -87,30 +112,29 @@ export default function WorkConnectPage() {
                       : 'shadow-lg hover:shadow-xl border border-gray-100'
                   )}
                 >
-                  {/* Badge */}
                   {isFeatured && (
                     <div className="absolute -top-3 right-4 px-3 py-1 rounded-full text-xs font-semibold bg-circleTel-orange text-white">
                       Most Popular
                     </div>
                   )}
-
-                  {/* Plan Name */}
                   <h2 className="font-heading text-xl font-semibold text-circleTel-navy mb-1">
                     {plan.name}
                   </h2>
                   <p className="font-body text-sm text-circleTel-grey600 mb-4">
                     {plan.tagline}
                   </p>
-
-                  {/* Price */}
                   <div className="mb-4">
-                    <span className="font-heading text-4xl font-bold text-circleTel-navy">
-                      R{plan.pricing.startingPrice.toLocaleString()}
-                    </span>
-                    <span className="text-circleTel-grey600">/mo</span>
+                    {priceLoading && !plan.pricing.startingPrice ? (
+                      <PiSpinnerBold className="h-6 w-6 animate-spin text-circleTel-orange" />
+                    ) : (
+                      <>
+                        <span className="font-heading text-4xl font-bold text-circleTel-navy">
+                          R{plan.pricing.startingPrice.toLocaleString()}
+                        </span>
+                        <span className="text-circleTel-grey600">/mo</span>
+                      </>
+                    )}
                   </div>
-
-                  {/* Features */}
                   <ul className="space-y-2 mb-6 min-h-[180px]">
                     {plan.keyFeatures.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm">
@@ -119,8 +143,6 @@ export default function WorkConnectPage() {
                       </li>
                     ))}
                   </ul>
-
-                  {/* CTA */}
                   <Button
                     className={cn(
                       'w-full',
@@ -139,15 +161,12 @@ export default function WorkConnectPage() {
               );
             })}
           </div>
-
-          {/* Footnote */}
           <p className="text-center text-sm text-circleTel-grey600 mt-8">
             All prices exclude VAT. No contracts required. Free professional installation.
           </p>
         </div>
       </section>
 
-      {/* CTA */}
       <section className="bg-circleTel-navy py-16 md:py-20">
         <div className="container mx-auto px-4 text-center">
           <h2 className="font-heading text-2xl md:text-3xl font-bold text-white mb-4">

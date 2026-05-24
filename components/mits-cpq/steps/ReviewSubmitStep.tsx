@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { PricingBreakdown } from '@/components/mits-cpq/shared';
-import { FileText, Download, Send } from 'lucide-react';
+import { PiFileTextBold, PiDownloadSimpleBold, PiPaperPlaneTiltBold } from 'react-icons/pi';
 import { useMITSTiers } from '@/lib/mits-cpq/hooks';
 import type { MITSStepData } from '@/lib/mits-cpq/types';
 
@@ -185,11 +185,11 @@ export function ReviewSubmitStep({ stepData, sessionId, onSubmit }: ReviewSubmit
       {/* PDF Actions */}
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="outline" onClick={handlePreviewPDF} className="flex items-center gap-2">
-          <FileText className="h-4 w-4" />
+          <PiFileTextBold className="h-4 w-4" />
           Preview PDF
         </Button>
         <Button variant="outline" onClick={handleDownloadPDF} className="flex items-center gap-2">
-          <Download className="h-4 w-4" />
+          <PiDownloadSimpleBold className="h-4 w-4" />
           Download
         </Button>
       </div>
@@ -236,7 +236,7 @@ export function ReviewSubmitStep({ stepData, sessionId, onSubmit }: ReviewSubmit
           className="flex items-center gap-2 bg-orange text-white hover:bg-orange/90 disabled:opacity-50"
           size="lg"
         >
-          <Send className="h-4 w-4" />
+          <PiPaperPlaneTiltBold className="h-4 w-4" />
           {submitting ? 'Submitting Quote...' : 'Submit Quote'}
         </Button>
       </div>

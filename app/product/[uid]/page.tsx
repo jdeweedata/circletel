@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { BlockRenderer } from '@/components/blocks/BlockRenderer'
+import { LivePrice } from '@/components/products/LivePrice'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { Button } from '@/components/ui/button'
@@ -75,7 +76,13 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
               )}
               {product.pricing && !product.pricing.showContactForPricing && product.pricing.startingPrice && (
                 <p className="text-2xl text-white font-bold mb-6">
-                  From R{product.pricing.startingPrice.toLocaleString()}
+                  From{' '}
+                  <LivePrice
+                    productSlug={product.slug}
+                    staticPrice={product.pricing.startingPrice}
+                    className="text-2xl text-white font-bold"
+                    prefix="R"
+                  />
                   {product.pricing.priceNote && (
                     <span className="text-lg font-normal text-white/80">
                       {' '}

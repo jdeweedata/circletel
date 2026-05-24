@@ -1,28 +1,35 @@
-import { Metadata } from 'next';
-import Image from 'next/image';
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { products as allProducts } from '@/lib/data/products';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PiSpinnerBold } from 'react-icons/pi';
 
-export const metadata: Metadata = {
-  title: 'Products | CircleTel',
-  description:
-    'Explore CircleTel connectivity solutions - Business Complete for SMEs, Remote+ for work-from-home professionals, and Venue+ for commercial WiFi.',
-};
+interface ServicePackage {
+  id: string;
+  name: string;
+  slug: string | null;
+  product_category: string | null;
+  description: string | null;
+  price: number;
+  pricing: {
+    monthly?: number;
+    setup?: number;
+    download_speed?: number;
+    upload_speed?: number;
+  } | null;
+  metadata: Record<string, unknown> | null;
+}
 
 interface Product {
-  _id: string;
+  id: string;
   name: string;
   slug: string;
   category: string;
   tagline: string;
-  heroImage: string;
-  pricing: {
-    startingPrice: number;
-    priceNote: string;
-    showContactForPricing: boolean;
-  };
+  startingPrice: number;
+  priceNote: string;
 }
 
 const categoryLabels: Record<string, string> = {
@@ -30,6 +37,8 @@ const categoryLabels: Record<string, string> = {
   soho: 'Work From Home',
   business: 'Business',
   enterprise: 'Enterprise',
+  connectivity: 'Connectivity',
+  'managed-connectivity': 'Managed Connectivity',
 };
 
 const categoryDescriptions: Record<string, string> = {
@@ -38,18 +47,44 @@ const categoryDescriptions: Record<string, string> = {
   soho: 'Professional home office solutions that keep you connected when it matters most.',
   consumer: 'Reliable home connectivity for streaming, gaming, and everyday use.',
   enterprise: 'Custom solutions for large organisations with complex requirements.',
+  connectivity: 'Fast, reliable internet for home and business.',
 };
 
 export default function ProductsPage() {
-  const products: Product[] = allProducts.map((p) => ({
-    _id: p._id,
-    name: p.name,
-    slug: p.slug,
-    category: p.category,
-    tagline: p.tagline || '',
-    heroImage: p.heroImage || '',
-    pricing: p.pricing || { startingPrice: 0, priceNote: '', showContactForPricing: false },
-  }));
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await fetch('/api/products');
+        if (!res.ok) throw new Error('Failed to fetch products');
+        const data = await res.json();
+
+        const mapped: Product[] = (data.products || []).map((p: ServicePackage) => {
+          const monthlyPrice = p.pricing?.monthly ?? p.price;
+          return {
+            id: p.id,
+            name: p.name,
+            slug: p.slug || '',
+            category: p.product_category || 'other',
+            tagline: p.description || '',
+            startingPrice: monthlyPrice,
+            priceNote: monthlyPrice > 0 ? '/month' : 'Contact us',
+          };
+        });
+
+        setProducts(mapped);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, []);
 
   // Group products by category
   const productsByCategory = products.reduce(
@@ -64,8 +99,26 @@ export default function ProductsPage() {
     {} as Record<string, Product[]>
   );
 
-  // Define category order
-  const categoryOrder = ['business', 'soho', 'consumer', 'enterprise'];
+  const categoryOrder = ['business', 'soho', 'consumer', 'connectivity', 'enterprise'];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-orange" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -101,52 +154,29 @@ export default function ProductsPage() {
                   {categoryLabels[category] || category}
                 </h2>
                 <p className="text-lg text-slate-600 max-w-2xl">
-                  {categoryDescriptions[category]}
+                  {categoryDescriptions[category] || 'Explore our range of connectivity solutions.'}
                 </p>
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {categoryProducts.map((product) => (
                   <Link
-                    key={product._id}
+                    key={product.id}
                     href={`/products/${product.slug}`}
                     className="group"
                   >
                     <Card className="overflow-hidden h-full hover:shadow-xl transition-shadow">
-                      {product.heroImage && (
-                        <div className="relative h-56">
-                          <Image
-                            src={product.heroImage}
-                            alt={product.name}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-xl font-bold text-white">
-                              {product.name}
-                            </h3>
-                          </div>
-                        </div>
-                      )}
                       <CardContent className="p-6">
+                        <h3 className="text-xl font-bold mb-2">{product.name}</h3>
                         <p className="text-slate-600 mb-4">{product.tagline}</p>
-                        {product.pricing &&
-                          !product.pricing.showContactForPricing && (
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-bold text-primary">
-                                R{product.pricing.startingPrice?.toLocaleString()}
-                              </span>
-                              <span className="text-slate-500 text-sm">
-                                {product.pricing.priceNote}
-                              </span>
-                            </div>
-                          )}
-                        {product.pricing?.showContactForPricing && (
-                          <span className="text-primary font-medium">
-                            Contact for pricing
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-bold text-primary">
+                            R{product.startingPrice.toLocaleString()}
                           </span>
-                        )}
+                          <span className="text-slate-500 text-sm">
+                            {product.priceNote}
+                          </span>
+                        </div>
                       </CardContent>
                     </Card>
                   </Link>

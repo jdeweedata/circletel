@@ -49,7 +49,7 @@ export default function KycUploadTestPage() {
       }
 
       setOrderId(data.orderId);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setLoading(false);

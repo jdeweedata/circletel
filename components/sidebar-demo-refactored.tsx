@@ -3,11 +3,11 @@
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  IconArrowLeft,
-  IconBrandTabler,
-  IconSettings,
-  IconUserBolt,
-} from "@tabler/icons-react";
+  PiArrowLeftBold,
+  PiLayoutBold,
+  PiGearBold,
+  PiUserGearBold,
+} from 'react-icons/pi';
 import { cn } from "@/lib/utils";
 
 // Import from the working sidebar-motion components (for now)
@@ -35,26 +35,26 @@ const DEMO_LINKS: SidebarLinkType[] = [
   {
     label: "Dashboard",
     href: "/dashboard",
-    icon: <IconBrandTabler className="h-5 w-5 shrink-0" />,
+    icon: <PiLayoutBold className="h-5 w-5 shrink-0" />,
     ariaLabel: "Go to dashboard",
   },
   {
     label: "Profile",
     href: "/profile",
-    icon: <IconUserBolt className="h-5 w-5 shrink-0" />,
+    icon: <PiUserGearBold className="h-5 w-5 shrink-0" />,
     badge: "2",
     ariaLabel: "View profile (2 notifications)",
   },
   {
     label: "Settings",
     href: "/settings",
-    icon: <IconSettings className="h-5 w-5 shrink-0" />,
+    icon: <PiGearBold className="h-5 w-5 shrink-0" />,
     ariaLabel: "Open settings",
   },
   {
     label: "Logout",
     href: "/logout",
-    icon: <IconArrowLeft className="h-5 w-5 shrink-0" />,
+    icon: <PiArrowLeftBold className="h-5 w-5 shrink-0" />,
     ariaLabel: "Logout from application",
   },
 ];

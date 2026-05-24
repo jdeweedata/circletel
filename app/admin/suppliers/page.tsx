@@ -1,307 +1,413 @@
 'use client'
-import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCubeBold, PiPackageBold, PiTrendUpBold, PiTruckBold, PiWarningCircleBold } from 'react-icons/pi';
 
-import React from 'react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { SupplierWithStats, SyncStatus } from '@/lib/suppliers/types'
+  PiArrowCounterClockwiseBold,
+  PiCheckCircleBold,
+  PiWarningCircleBold,
+  PiXBold,
+  PiClockBold,
+} from 'react-icons/pi'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { useAdminAuth } from '@/hooks/useAdminAuth'
 
-export default function SuppliersPage() {
-  const router = useRouter()
-  const [suppliers, setSuppliers] = React.useState<SupplierWithStats[]>([])
-  const [loading, setLoading] = React.useState(true)
-  const [syncing, setSyncing] = React.useState<string | null>(null)
+interface Supplier {
+  id: string
+  code: string
+  name: string
+  website_url: string | null
+  feed_type: string
+  is_active: boolean
+  sync_status: string
+  last_synced_at: string | null
+  sync_error: string | null
+  products_total: number
+  products_active: number
+  products_in_stock: number
+}
 
-  React.useEffect(() => {
-    fetchSuppliers()
+const feedTypeLabels: Record<string, string> = {
+  xml: 'XML Feed',
+  html: 'HTML Scrape',
+  xlsm: 'Excel File',
+  api: 'API',
+  csv: 'CSV',
+}
+
+export default function AdminSuppliersPage() {
+  const { user } = useAdminAuth()
+  const [suppliers, setSuppliers] = useState<Supplier[]>([])
+  const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState<string | null>(null)
+
+  useEffect(() => {
+    loadSuppliers()
   }, [])
 
-  const fetchSuppliers = async () => {
+  async function loadSuppliers() {
     try {
-      setLoading(true)
-      const response = await fetch('/api/admin/suppliers')
-      const result = await response.json()
-
-      if (result.success) {
-        setSuppliers(result.data || [])
-      }
-    } catch (error) {
-      console.error('Failed to fetch suppliers:', error)
+      const res = await fetch('/api/admin/suppliers')
+      const data = await res.json()
+      setSuppliers(data.data || [])
+    } catch (err) {
+      console.error('Failed to load suppliers:', err)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSync = async (supplierId: string) => {
+  async function triggerSync(code: string) {
+    setSyncing(code)
     try {
-      setSyncing(supplierId)
-      const response = await fetch(`/api/admin/suppliers/${supplierId}/sync`, {
+      const res = await fetch('/api/admin/suppliers/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cache_images: true }),
+        body: JSON.stringify({ supplier: code }),
       })
-
-      const result = await response.json()
-
-      if (result.success) {
-        // Refresh suppliers list
-        await fetchSuppliers()
-      } else {
-        alert(`Sync failed: ${result.error}`)
+      if (res.ok) {
+        setTimeout(loadSuppliers, 3000) // Refresh after sync starts
       }
-    } catch (error) {
-      console.error('Sync failed:', error)
-      alert('Sync failed. Please try again.')
+    } catch (err) {
+      console.error('Sync trigger failed:', err)
     } finally {
       setSyncing(null)
     }
   }
 
-  const getSyncStatusBadge = (status: SyncStatus, error: string | null) => {
-    switch (status) {
-      case 'success':
-        return (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            <PiCheckCircleBold className="w-3 h-3 mr-1" />
-            Success
-          </Badge>
-        )
-      case 'syncing':
-        return (
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-            <PiArrowsClockwiseBold className="w-3 h-3 mr-1 animate-spin" />
-            Syncing
-          </Badge>
-        )
-      case 'failed':
-        return (
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200" title={error || 'Sync failed'}>
-            <PiWarningCircleBold className="w-3 h-3 mr-1" />
-            Failed
-          </Badge>
-        )
-      default:
-        return (
-          <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-            <PiClockBold className="w-3 h-3 mr-1" />
-            Pending
-          </Badge>
-        )
-    }
+  if (!user) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <p className="text-[#7C93AF]">Authenticating...</p>
+      </div>
+    )
   }
 
-  const formatLastSync = (date: string | null) => {
-    if (!date) return 'Never'
-    const d = new Date(date)
-    const now = new Date()
-    const diffHours = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60))
-
-    if (diffHours < 1) return 'Just now'
-    if (diffHours < 24) return `${diffHours}h ago`
-    const diffDays = Math.floor(diffHours / 24)
-    return `${diffDays}d ago`
+  if (loading) {
+    return (
+      <div className="py-20 text-center text-[#7C93AF]">Loading...</div>
+    )
   }
 
-  // Calculate totals
-  const totals = suppliers.reduce(
-    (acc, s) => ({
-      products: acc.products + (s.total_products || 0),
-      inStock: acc.inStock + (s.in_stock_products || 0),
-      active: acc.active + (s.active_products || 0),
-    }),
-    { products: 0, inStock: 0, active: 0 }
+  // Aggregate stats
+  const totalProducts = suppliers.reduce(
+    (sum, s) => sum + s.products_total,
+    0
+  )
+  const totalActive = suppliers.reduce(
+    (sum, s) => sum + s.products_active,
+    0
+  )
+  const totalInStock = suppliers.reduce(
+    (sum, s) => sum + s.products_in_stock,
+    0
+  )
+  const failedSuppliers = suppliers.filter(
+    (s) => s.sync_status === 'failed'
   )
 
   return (
-    <div className="container mx-auto py-6 px-4">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Suppliers</h1>
-          <p className="text-gray-500 mt-1">
-            Manage equipment suppliers and product catalogs
-          </p>
-        </div>
-        <div className="flex gap-2 mt-4 md:mt-0">
-          <Button variant="outline" onClick={() => router.push('/admin/suppliers/products')}>
-            <PiPackageBold className="w-4 h-4 mr-2" />
-            View All Products
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-[#1B2A4A]">
+          Supplier Management
+        </h1>
+        <p className="mt-1 text-sm text-[#7C93AF]">
+          {suppliers.length} suppliers · {totalProducts} products ·{' '}
+          {totalInStock} in stock
+        </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      {/* Stats cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Suppliers</CardDescription>
-            <CardTitle className="text-3xl">{suppliers.length}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center text-sm text-gray-500">
-              <PiTruckBold className="w-4 h-4 mr-1" />
-              Active suppliers
-            </div>
+          <CardContent className="p-4">
+            <p className="text-xs font-bold uppercase text-[#7C93AF]">
+              Total Products
+            </p>
+            <p className="mt-1 text-2xl font-bold text-[#1B2A4A]">
+              {totalProducts.toLocaleString()}
+            </p>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Products</CardDescription>
-            <CardTitle className="text-3xl">{totals.products.toLocaleString()}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center text-sm text-gray-500">
-              <PiCubeBold className="w-4 h-4 mr-1" />
-              Across all suppliers
-            </div>
+          <CardContent className="p-4">
+            <p className="text-xs font-bold uppercase text-[#7C93AF]">
+              Active Products
+            </p>
+            <p className="mt-1 text-2xl font-bold text-green-700">
+              {totalActive.toLocaleString()}
+            </p>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>In Stock</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{totals.inStock.toLocaleString()}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center text-sm text-gray-500">
-              <PiCheckCircleBold className="w-4 h-4 mr-1" />
-              Products available
-            </div>
+          <CardContent className="p-4">
+            <p className="text-xs font-bold uppercase text-[#7C93AF]">
+              In Stock
+            </p>
+            <p className="mt-1 text-2xl font-bold text-[#E87A1E]">
+              {totalInStock.toLocaleString()}
+            </p>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Active Products</CardDescription>
-            <CardTitle className="text-3xl">{totals.active.toLocaleString()}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center text-sm text-gray-500">
-              <PiTrendUpBold className="w-4 h-4 mr-1" />
-              Currently listed
-            </div>
+          <CardContent className="p-4">
+            <p className="text-xs font-bold uppercase text-[#7C93AF]">
+              Sync Issues
+            </p>
+            <p
+              className={`mt-1 text-2xl font-bold ${
+                failedSuppliers.length > 0
+                  ? 'text-red-600'
+                  : 'text-green-700'
+              }`}
+            >
+              {failedSuppliers.length}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Suppliers Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Supplier List</CardTitle>
-          <CardDescription>
-            Click on a supplier to view products and manage settings
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <PiArrowsClockwiseBold className="w-6 h-6 animate-spin text-gray-400" />
-              <span className="ml-2 text-gray-500">Loading suppliers...</span>
+      {/* Alerts */}
+      {failedSuppliers.length > 0 && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="flex items-center gap-3 p-4">
+            <PiWarningCircleBold className="h-5 w-5 flex-none text-red-600" />
+            <div>
+              <p className="text-sm font-bold text-red-700">
+                Sync failures detected
+              </p>
+              <p className="text-xs text-red-600">
+                {failedSuppliers.map((s) => s.name).join(', ')} — last
+                sync failed. Check logs for details.
+              </p>
             </div>
-          ) : suppliers.length === 0 ? (
-            <div className="text-center py-12">
-              <PiTruckBold className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">No suppliers configured yet</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Supplier</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead>In Stock</TableHead>
-                  <TableHead>Price Range</TableHead>
-                  <TableHead>Last Sync</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {suppliers.map((supplier) => (
-                  <TableRow
-                    key={supplier.id}
-                    className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => router.push(`/admin/suppliers/${supplier.id}`)}
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                          <PiTruckBold className="w-5 h-5 text-orange-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium">{supplier.name}</div>
-                          <div className="text-sm text-gray-500 flex items-center gap-1">
-                            <span className="font-mono text-xs bg-gray-100 px-1 rounded">
-                              {supplier.code}
-                            </span>
-                            {supplier.website_url && (
-                              <PiArrowSquareOutBold className="w-3 h-3" />
-                            )}
-                          </div>
-                        </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Supplier table */}
+      <div className="overflow-hidden rounded-xl border border-[#DDE7F3] bg-white">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-[#DDE7F3] bg-[#F9FAFB]">
+              <th className="px-4 py-3 text-left text-xs font-bold uppercase text-[#7C93AF]">
+                Supplier
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-bold uppercase text-[#7C93AF]">
+                Feed
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-bold uppercase text-[#7C93AF]">
+                Products
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-bold uppercase text-[#7C93AF]">
+                In Stock
+              </th>
+              <th className="px-4 py-3 text-center text-xs font-bold uppercase text-[#7C93AF]">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-bold uppercase text-[#7C93AF]">
+                Last Sync
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-bold uppercase text-[#7C93AF]">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#DDE7F3]">
+            {suppliers.map((s) => {
+              const staleThreshold = 24 * 60 * 60 * 1000
+              const isStale =
+                s.last_synced_at &&
+                Date.now() - new Date(s.last_synced_at).getTime() >
+                  staleThreshold
+
+              return (
+                <tr key={s.id} className="hover:bg-[#F9FAFB]">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`h-2 w-2 rounded-full ${
+                          s.sync_status === 'success'
+                            ? 'bg-green-500'
+                            : s.sync_status === 'failed'
+                              ? 'bg-red-500'
+                              : s.sync_status === 'syncing'
+                                ? 'bg-yellow-500 animate-pulse'
+                                : 'bg-gray-300'
+                        }`}
+                      />
+                      <div>
+                        <p className="text-sm font-bold text-[#1B2A4A]">
+                          {s.name}
+                        </p>
+                        <p className="text-xs text-[#7C93AF]">
+                          {s.code}
+                        </p>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium">{supplier.total_products?.toLocaleString() || 0}</div>
-                      <div className="text-xs text-gray-500">
-                        {supplier.active_products?.toLocaleString() || 0} active
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium text-green-600">
-                        {supplier.in_stock_products?.toLocaleString() || 0}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {supplier.total_stock_units?.toLocaleString() || 0} units
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {supplier.min_price && supplier.max_price ? (
-                        <div className="text-sm">
-                          R{supplier.min_price.toLocaleString()} - R{supplier.max_price.toLocaleString()}
-                        </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <Badge
+                      variant="outline"
+                      className="text-xs"
+                    >
+                      {feedTypeLabels[s.feed_type] || s.feed_type}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className="text-sm font-semibold text-[#31527B]">
+                      {s.products_active.toLocaleString()}
+                    </span>
+                    <span className="ml-1 text-xs text-[#7C93AF]">
+                      / {s.products_total.toLocaleString()}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {s.products_in_stock > 0 ? (
+                      <span className="text-sm font-semibold text-green-700">
+                        {s.products_in_stock.toLocaleString()}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-[#7C93AF]">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {s.sync_status === 'success' ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-green-700">
+                        <PiCheckCircleBold className="h-3.5 w-3.5" />
+                        OK
+                      </span>
+                    ) : s.sync_status === 'failed' ? (
+                      <span
+                        className="inline-flex items-center gap-1 text-xs font-bold text-red-600"
+                        title={s.sync_error || ''}
+                      >
+                        <PiXBold className="h-3.5 w-3.5" />
+                        Failed
+                      </span>
+                    ) : s.sync_status === 'syncing' ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-yellow-600">
+                        <PiClockBold className="h-3.5 w-3.5" />
+                        Syncing
+                      </span>
+                    ) : (
+                      <span className="text-xs text-[#7C93AF]">
+                        {s.sync_status}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="text-xs">
+                      {s.last_synced_at ? (
+                        <>
+                          <span className="font-semibold text-[#31527B]">
+                            {new Date(
+                              s.last_synced_at
+                            ).toLocaleDateString('en-ZA')}
+                          </span>
+                          <span className="ml-1 text-[#7C93AF]">
+                            {new Date(
+                              s.last_synced_at
+                            ).toLocaleTimeString('en-ZA', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-[#7C93AF]">Never</span>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">{formatLastSync(supplier.last_synced_at)}</div>
-                    </TableCell>
-                    <TableCell>
-                      {getSyncStatusBadge(supplier.sync_status as SyncStatus, supplier.sync_error)}
-                    </TableCell>
-                    <TableCell className="text-right">
+                      {isStale && (
+                        <span className="ml-1 text-amber-600">
+                          ⚠
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        disabled={syncing === supplier.id}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleSync(supplier.id)
-                        }}
+                        className="gap-1 text-xs"
+                        onClick={() => triggerSync(s.code)}
+                        disabled={
+                          syncing === s.code ||
+                          s.sync_status === 'syncing'
+                        }
                       >
-                        <PiArrowsClockwiseBold className={`w-4 h-4 mr-1 ${syncing === supplier.id ? 'animate-spin' : ''}`} />
-                        {syncing === supplier.id ? 'Syncing...' : 'Sync'}
+                        <PiArrowCounterClockwiseBold className="h-3.5 w-3.5" />
+                        {syncing === s.code
+                          ? 'Starting...'
+                          : 'Sync Now'}
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Quick links */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Link href="/admin/products/hardware">
+          <Card className="cursor-pointer transition hover:ring-2 hover:ring-[#E87A1E]/20">
+            <CardContent className="flex items-center gap-3 p-4">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FDF2E9] text-xl">
+                📦
+              </span>
+              <div>
+                <p className="text-sm font-bold text-[#1B2A4A]">
+                  Hardware Catalogue
+                </p>
+                <p className="text-xs text-[#7C93AF]">
+                  Manage published products
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <a href="/admin/products/hardware/promote">
+          <Card className="cursor-pointer transition hover:ring-2 hover:ring-[#E87A1E]/20">
+            <CardContent className="flex items-center gap-3 p-4">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 text-xl">
+                ➕
+              </span>
+              <div>
+                <p className="text-sm font-bold text-[#1B2A4A]">
+                  Promote Product
+                </p>
+                <p className="text-xs text-[#7C93AF]">
+                  Add from supplier feed
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </a>
+        <a href="/products/hardware">
+          <Card className="cursor-pointer transition hover:ring-2 hover:ring-[#E87A1E]/20">
+            <CardContent className="flex items-center gap-3 p-4">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-xl">
+                🛒
+              </span>
+              <div>
+                <p className="text-sm font-bold text-[#1B2A4A]">
+                  View Store
+                </p>
+                <p className="text-xs text-[#7C93AF]">
+                  Customer-facing pages
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </a>
+      </div>
     </div>
   )
 }

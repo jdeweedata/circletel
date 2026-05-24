@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { PiCaretLeftBold, PiCaretRightBold } from 'react-icons/pi';
 import { TierSelectionStep } from './steps/TierSelectionStep';
 import { M365ConfigStep } from './steps/M365ConfigStep';
 import { AddOnsStep } from './steps/AddOnsStep';
@@ -229,7 +229,7 @@ export function MITSCPQWizard({
           disabled={currentStepIndex === 0}
           className="flex items-center gap-2"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <PiCaretLeftBold className="h-4 w-4" />
           Back
         </Button>
 
@@ -239,7 +239,7 @@ export function MITSCPQWizard({
             className="flex items-center gap-2 bg-orange text-white hover:bg-orange/90"
           >
             Next
-            <ChevronRight className="h-4 w-4" />
+            <PiCaretRightBold className="h-4 w-4" />
           </Button>
         )}
 
@@ -250,7 +250,7 @@ export function MITSCPQWizard({
             className="flex items-center gap-2 bg-orange text-white hover:bg-orange/90 disabled:opacity-50"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Quote'}
-            <ChevronRight className="h-4 w-4" />
+            <PiCaretRightBold className="h-4 w-4" />
           </Button>
         )}
       </div>

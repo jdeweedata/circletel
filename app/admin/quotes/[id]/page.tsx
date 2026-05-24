@@ -74,7 +74,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
       } else {
         setError(data.error || 'Failed to load quote');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to load quote');
     } finally {
       setLoading(false);
@@ -94,7 +94,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
       } else {
         setError(data.error || 'Failed to approve quote');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to approve quote');
     } finally {
       setActionLoading(false);
@@ -121,7 +121,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
       } else {
         setError(data.error || 'Failed to reject quote');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to reject quote');
     } finally {
       setActionLoading(false);
@@ -146,7 +146,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
       } else {
         setError(data.error || 'Failed to send quote');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to send quote');
     } finally {
       setActionLoading(false);
@@ -167,7 +167,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
       } else {
         alert('Failed to generate share link: ' + data.error);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert('Error generating share link: ' + err.message);
     } finally {
       setSharingLoading(false);

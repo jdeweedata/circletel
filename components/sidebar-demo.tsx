@@ -2,11 +2,11 @@
 import React from "react";
 import { SidebarMotion, SidebarMotionBody, SidebarMotionLink, SidebarMotionToggle, useSidebarMotion } from "@/components/ui/sidebar-motion";
 import {
-  IconArrowLeft,
-  IconBrandTabler,
-  IconSettings,
-  IconUserBolt,
-} from "@tabler/icons-react";
+  PiArrowLeftBold,
+  PiLayoutBold,
+  PiGearBold,
+  PiUserGearBold,
+} from 'react-icons/pi';
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -16,28 +16,28 @@ export default function SidebarDemo() {
       label: "Dashboard",
       href: "#",
       icon: (
-        <IconBrandTabler className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <PiLayoutBold className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Profile",
       href: "#",
       icon: (
-        <IconUserBolt className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <PiUserGearBold className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Settings",
       href: "#",
       icon: (
-        <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <PiGearBold className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Logout",
       href: "#",
       icon: (
-        <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <PiArrowLeftBold className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
   ];

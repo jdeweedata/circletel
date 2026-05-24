@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Star } from 'lucide-react';
+import { PiCheckBold, PiStarBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import type { MITSTier } from '@/lib/mits-cpq/types';
 
@@ -31,7 +31,7 @@ export function TierCard({
       {/* Recommended Badge */}
       {recommended && (
         <div className="absolute -top-3 right-6 flex items-center gap-1 rounded-full bg-blue-500 px-3 py-1 text-xs font-semibold text-white">
-          <Star className="h-3 w-3 fill-current" />
+<PiStarBold className="h-3 w-3 fill-current" />
           Recommended
         </div>
       )}
@@ -39,7 +39,7 @@ export function TierCard({
       {/* Selected Checkmark */}
       {selected && (
         <div className="absolute -top-3 -right-3 rounded-full bg-orange p-1.5">
-          <Check className="h-4 w-4 text-white" />
+<PiCheckBold className="h-4 w-4 text-white" />
         </div>
       )}
 

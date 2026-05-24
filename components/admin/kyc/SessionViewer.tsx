@@ -82,7 +82,7 @@ export default function SessionViewer({ session, onClose }: SessionViewerProps) 
 
   // Get status badge
   const getStatusBadge = (status: string) => {
-    const badges: Record<string, JSX.Element> = {
+    const badges: Record<string, React.JSX.Element> = {
       not_started: (
         <Badge variant="secondary" className="bg-gray-100 text-gray-800">
           Not Started
@@ -112,7 +112,7 @@ export default function SessionViewer({ session, onClose }: SessionViewerProps) 
   const getRiskTierBadge = (tier?: string | null) => {
     if (!tier) return null;
 
-    const badges: Record<string, JSX.Element> = {
+    const badges: Record<string, React.JSX.Element> = {
       low: (
         <Badge variant="default" className="bg-green-500">
           Low Risk

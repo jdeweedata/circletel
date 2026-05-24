@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { MapPin, CheckCircle, XCircle } from 'lucide-react';
+import { PiMapPinBold, PiCheckCircleBold, PiXCircleBold } from 'react-icons/pi';
 import type { MITSCustomerData } from '@/lib/mits-cpq/types';
 
 interface CustomerDetailsStepProps {
@@ -226,20 +226,20 @@ export function CustomerDetailsStep({ data, onUpdate }: CustomerDetailsStepProps
             disabled={!formData.billing_address || !formData.city || coverageStatus === 'checking'}
             className="flex items-center gap-2"
           >
-            <MapPin className="h-4 w-4" />
+<PiMapPinBold className="h-4 w-4" />
             {coverageStatus === 'checking' ? 'Checking Coverage...' : 'Check Coverage'}
           </Button>
 
           {coverageStatus === 'covered' && (
             <div className="flex items-center gap-2 text-sm font-medium text-green-700">
-              <CheckCircle className="h-4 w-4" />
+<PiCheckCircleBold className="h-4 w-4" />
               Address is covered — SkyFibre available
             </div>
           )}
 
           {coverageStatus === 'not_covered' && (
             <div className="flex items-center gap-2 text-sm font-medium text-red-600">
-              <XCircle className="h-4 w-4" />
+<PiXCircleBold className="h-4 w-4" />
               Address not currently covered — LTE/5G fallback available
             </div>
           )}
