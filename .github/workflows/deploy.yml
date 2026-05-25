@@ -164,7 +164,7 @@ jobs:
 
       # Build Docker image locally — no GHCR push/pull since runner IS the production VPS.
       - name: Build Docker image
-        run: docker build -t ghcr.io/jdeweedata/circletel:latest .
+        run: docker build --no-cache -t ghcr.io/jdeweedata/circletel:latest .
 
       # Restart the Coolify-managed container with the new image.
       - name: Deploy container
