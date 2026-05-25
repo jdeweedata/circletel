@@ -31,6 +31,7 @@ export interface TaranaBaseStation {
   lat: number;
   lng: number;
   distance_km: number;
+  device_status: number;
 }
 
 // Result of base station proximity check
@@ -45,6 +46,7 @@ export interface BaseStationProximityResult {
     distanceKm: number;
     activeConnections: number;
     market: string;
+    deviceStatus: number;
   } | null;
   allNearbyStations: TaranaBaseStation[];
   metadata: {
@@ -116,14 +118,53 @@ export async function checkBaseStationProximity(
       market: s.market,
       lat: Number(s.lat),
       lng: Number(s.lng),
-      distance_km: Number(s.distance_km)
+      distance_km: Number(s.distance_km),
+      device_status: s.device_status ?? 0,
     }));
 
-    const nearest = nearbyStations[0];
+    // Separate online and offline — only online BNs can serve customers
+    const onlineStations = nearbyStations.filter(s => s.device_status === 1);
+    const offlineCount = nearbyStations.length - onlineStations.length;
+
+    if (onlineStations.length === 0) {
+      // All nearby BNs are offline — no coverage possible
+      const fallbackNearest = nearbyStations[0];
+      return {
+        hasCoverage: false,
+        confidence: 'none',
+        requiresElevatedInstall: false,
+        installationNote: `Nearest base station (${fallbackNearest.site_name}) is currently offline. ${offlineCount} station(s) checked.`,
+        nearestStation: fallbackNearest ? {
+          siteName: fallbackNearest.site_name,
+          hostname: fallbackNearest.hostname,
+          distanceKm: fallbackNearest.distance_km,
+          activeConnections: fallbackNearest.active_connections,
+          market: fallbackNearest.market,
+          deviceStatus: fallbackNearest.device_status,
+        } : null,
+        allNearbyStations: nearbyStations,
+        metadata: {
+          checkedAt: new Date().toISOString(),
+          coordinatesUsed: coordinates,
+          stationsChecked: nearbyStations.length,
+        },
+      };
+    }
+
+    const nearest = onlineStations[0];
 
     // Determine coverage confidence based on distance and connections
-    const { confidence, requiresElevatedInstall, installationNote } =
+    let { confidence, requiresElevatedInstall, installationNote } =
       calculateCoverageConfidence(nearest.distance_km, nearest.active_connections);
+
+    // Downgrade: BN is online but has no connected RNs — coverage is unverified
+    if (nearest.active_connections === 0 && confidence !== 'none') {
+      installationNote = (installationNote ? installationNote + ' ' : '') +
+        'Base station is online but has no active customer connections — coverage unverified.';
+      if (confidence === 'high') {
+        confidence = 'medium';
+      }
+    }
 
     const result: BaseStationProximityResult = {
       hasCoverage: confidence !== 'none',
@@ -135,7 +176,8 @@ export async function checkBaseStationProximity(
         hostname: nearest.hostname,
         distanceKm: nearest.distance_km,
         activeConnections: nearest.active_connections,
-        market: nearest.market
+        market: nearest.market,
+        deviceStatus: nearest.device_status,
       },
       allNearbyStations: nearbyStations,
       metadata: {
@@ -241,6 +283,7 @@ function buildProximityResult(
     lat: number;
     lng: number;
     distance_km: number;
+    device_status: number;
   }>
 ): BaseStationProximityResult {
   const nearest = stations[0];
@@ -271,6 +314,7 @@ function buildProximityResult(
       distanceKm: nearest.distance_km,
       activeConnections: nearest.active_connections,
       market: nearest.market,
+      deviceStatus: nearest.device_status ?? 0,
     } : null,
     allNearbyStations: stations as TaranaBaseStation[],
     metadata: {

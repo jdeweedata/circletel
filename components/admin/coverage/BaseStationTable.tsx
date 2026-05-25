@@ -32,6 +32,8 @@ interface BaseStation {
   lat: number;
   lng: number;
   region: string;
+  deviceStatus: number;
+  band: string | null;
   lastUpdated: string;
 }
 
@@ -162,6 +164,7 @@ export function BaseStationTable({
               <TableHead>Hostname</TableHead>
               <SortableHeader column="market">Market</SortableHeader>
               <TableHead>Coordinates</TableHead>
+              <TableHead>Status</TableHead>
               <SortableHeader column="active_connections">Connections</SortableHeader>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -174,13 +177,14 @@ export function BaseStationTable({
                   <TableCell><div className="h-4 w-24 bg-gray-200 animate-pulse rounded" /></TableCell>
                   <TableCell><div className="h-4 w-20 bg-gray-200 animate-pulse rounded" /></TableCell>
                   <TableCell><div className="h-4 w-28 bg-gray-200 animate-pulse rounded" /></TableCell>
+                  <TableCell><div className="h-4 w-16 bg-gray-200 animate-pulse rounded" /></TableCell>
                   <TableCell><div className="h-4 w-12 bg-gray-200 animate-pulse rounded" /></TableCell>
                   <TableCell><div className="h-4 w-16 bg-gray-200 animate-pulse rounded ml-auto" /></TableCell>
                 </TableRow>
               ))
             ) : stations.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                   <PiRadioBold className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                   <p>No base stations found</p>
                 </TableCell>
@@ -197,6 +201,13 @@ export function BaseStationTable({
                   </TableCell>
                   <TableCell className="text-sm text-gray-600">
                     {station.lat.toFixed(4)}, {station.lng.toFixed(4)}
+                  </TableCell>
+                  <TableCell>
+                    {station.deviceStatus === 1 ? (
+                      <Badge className="bg-green-500 hover:bg-green-600">Online</Badge>
+                    ) : (
+                      <Badge variant="destructive">Offline</Badge>
+                    )}
                   </TableCell>
                   <TableCell>{getConnectionBadge(station.activeConnections)}</TableCell>
                   <TableCell className="text-right">

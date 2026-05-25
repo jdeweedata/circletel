@@ -20,6 +20,8 @@ interface BaseStation {
   lat: number;
   lng: number;
   region: string;
+  deviceStatus: number;
+  band: string | null;
   lastUpdated: string;
 }
 
@@ -34,6 +36,8 @@ interface Stats {
   avgConnections: number;
   marketCount: number;
   markets: Market[];
+  onlineStations: number;
+  offlineStations: number;
 }
 
 interface Pagination {
@@ -61,6 +65,8 @@ export default function BaseStationsPage() {
     avgConnections: 0,
     marketCount: 0,
     markets: [],
+    onlineStations: 0,
+    offlineStations: 0,
   });
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -333,6 +339,8 @@ export default function BaseStationsPage() {
           totalConnections={stats.totalConnections}
           avgConnections={stats.avgConnections}
           marketCount={stats.marketCount}
+          onlineStations={stats.onlineStations}
+          offlineStations={stats.offlineStations}
           loading={loading && stations.length === 0}
         />
 

@@ -222,6 +222,24 @@ export const taranaSyncFunction = inngest.createFunction(
       }
     });
 
+    // Step 5b: Fetch network-wide device counts (dashboard data from TMQ v5)
+    const deviceCounts = await step.run('fetch-device-counts', async () => {
+      try {
+        const { getDeviceCounts } = await import('@/lib/tarana/client');
+        console.log('[TaranaSync] Fetching device counts from TMQ v5...');
+        const counts = await getDeviceCounts();
+        console.log(
+          `[TaranaSync] BN: ${counts.bn.connected}C/${counts.bn.disconnected}D/${counts.bn.total}T | ` +
+          `RN: ${counts.rn.connected}C/${counts.rn.disconnected}D/${counts.rn.total}T`
+        );
+        return counts;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('[TaranaSync] Failed to fetch device counts (continuing):', message);
+        return null;
+      }
+    });
+
     // Step 6: Upsert records (insert new, update existing)
     const upsertResult = await step.run('upsert-records', async () => {
       const supabase = await createClient();
@@ -249,6 +267,19 @@ export const taranaSyncFunction = inngest.createFunction(
           lat: bn.latitude,
           lng: bn.longitude,
           region: bn.regionName || 'South Africa',
+          // Live status and RF metadata (from TMQ v1)
+          device_status: bn.deviceStatus ?? 0,
+          height_m: bn.height ?? null,
+          azimuth_deg: bn.azimuth ?? null,
+          band: bn.band ?? null,
+          // Hierarchy IDs for BN-RN site matching
+          region_id: bn.regionId ?? null,
+          market_id: bn.marketId ?? null,
+          site_id: bn.siteId ?? null,
+          cell_id: bn.cellId ?? null,
+          cell_name: bn.cellName ?? null,
+          sector_id: bn.sectorId ?? null,
+          sector_name: bn.sectorName ?? null,
           last_updated: new Date().toISOString(),
         };
 
@@ -291,6 +322,34 @@ export const taranaSyncFunction = inngest.createFunction(
     inserted = upsertResult.inserted;
     updated = upsertResult.updated;
     errors.push(...upsertResult.errors);
+
+    // Step 6b: Store device counts if fetched successfully
+    if (deviceCounts) {
+      await step.run('store-device-counts', async () => {
+        const supabase = await createClient();
+        const { error: dcError } = await supabase
+          .from('tarana_device_counts')
+          .insert({
+            sync_log_id: syncLogId,
+            bn_connected: deviceCounts.bn.connected,
+            bn_disconnected: deviceCounts.bn.disconnected,
+            bn_spectrum_unassigned: deviceCounts.bn.spectrumUnassigned,
+            bn_new_installs_30d: deviceCounts.bn.newInstalls30Days,
+            bn_total: deviceCounts.bn.total,
+            rn_connected: deviceCounts.rn.connected,
+            rn_disconnected: deviceCounts.rn.disconnected,
+            rn_spectrum_unassigned: deviceCounts.rn.spectrumUnassigned,
+            rn_new_installs_30d: deviceCounts.rn.newInstalls30Days,
+            rn_total: deviceCounts.rn.total,
+          });
+
+        if (dcError) {
+          console.error('[TaranaSync] Failed to store device counts:', dcError.message);
+        } else {
+          console.log('[TaranaSync] Device counts stored successfully');
+        }
+      });
+    }
 
     // Step 7: Delete stale records (if option enabled)
     if (deleteStale) {

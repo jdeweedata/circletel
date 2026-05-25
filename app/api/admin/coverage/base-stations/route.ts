@@ -77,7 +77,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Fetch aggregate stats (separate query for performance)
     const { data: statsData, error: statsError } = await supabase
       .from('tarana_base_stations')
-      .select('active_connections, market');
+      .select('active_connections, market, device_status');
 
     if (statsError) {
       apiLogger.error('[BaseStations API] Stats error', { error: statsError.message });
@@ -87,6 +87,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const totalStations = count || 0;
     const totalConnections = statsData?.reduce((sum, s) => sum + (s.active_connections || 0), 0) || 0;
     const avgConnections = totalStations > 0 ? totalConnections / totalStations : 0;
+    const onlineStations = statsData?.filter(s => s.device_status === 1).length || 0;
+    const offlineStations = totalStations - onlineStations;
 
     // Calculate market breakdown
     const marketCounts: Record<string, number> = {};
@@ -110,6 +112,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       lat: parseFloat(station.lat),
       lng: parseFloat(station.lng),
       region: station.region,
+      deviceStatus: station.device_status ?? 0,
+      band: station.band ?? null,
       lastUpdated: station.last_updated,
       createdAt: station.created_at,
     })) || [];
@@ -124,6 +128,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           avgConnections: parseFloat(avgConnections.toFixed(1)),
           marketCount: markets.length,
           markets,
+          onlineStations,
+          offlineStations,
         },
         pagination: {
           page: params.page,

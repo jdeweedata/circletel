@@ -184,6 +184,7 @@ export interface TaranaBaseStation {
   lat: number;
   lng: number;
   distance_km: number;
+  device_status: number;
 }
 
 /**
@@ -205,6 +206,7 @@ export interface BaseStationProximityResult {
     distanceKm: number;
     activeConnections: number;
     market: string;
+    deviceStatus: number;
   } | null;
   /** All nearby base stations (up to limit) */
   allNearbyStations: TaranaBaseStation[];
