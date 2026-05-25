@@ -7,6 +7,7 @@ import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClock
  */
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +21,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import DocumentViewer from '@/components/admin/kyc/DocumentViewer';
-import SessionViewer from '@/components/admin/kyc/SessionViewer';
 
 interface KycDocument {
   id: string;
@@ -73,8 +73,8 @@ export default function AdminKycPage() {
   const [selectedVerificationResult, setSelectedVerificationResult] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDocument, setSelectedDocument] = useState<KycDocument | null>(null);
-  const [selectedSession, setSelectedSession] = useState<KycSession | null>(null);
   const [activeTab, setActiveTab] = useState<string>('sessions');
+  const router = useRouter();
 
   // Fetch documents
   const fetchDocuments = async () => {
@@ -326,7 +326,7 @@ export default function AdminKycPage() {
                     <div
                       key={session.id}
                       className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => setSelectedSession(session)}
+                      onClick={() => router.push(`/admin/kyc/${session.id}`)}
                     >
                       <div className="flex items-center gap-4 flex-1">
                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -517,14 +517,6 @@ export default function AdminKycPage() {
         />
       )}
 
-      {/* Session Viewer Modal */}
-      {selectedSession && (
-        <SessionViewer
-          session={selectedSession}
-          onClose={() => setSelectedSession(null)}
-          onStatusChange={() => { fetchSessions(); setSelectedSession(null); }}
-        />
-      )}
     </div>
   );
 }
