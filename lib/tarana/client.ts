@@ -130,9 +130,6 @@ export async function searchRadios(
     }],
   };
 
-  // No outputSchema — base response already includes serialNumber, deviceType, hierarchy,
-  // and install params. Adding outputSchema.deviceFields causes "KPIs should match device type"
-  // errors when mixing BN/RN-specific YANG paths.
   const body = { query };
 
   const response = await taranaFetch<any>(
@@ -163,7 +160,7 @@ export async function searchRadios(
     height: r.fields?.['/system/install/state/height'],
     azimuth: r.fields?.['/system/install/state/azimuth'],
     band: r.fields?.['/radios/regulatory/state/band'] || r.band,
-    deviceStatus: r.fields?.['deviceStatus'] ?? r.deviceStatus,
+    deviceStatus: r.fields?.deviceStatus ?? r.deviceStatus,
     lastSeen: r.lastSeen,
   }));
 
@@ -326,4 +323,88 @@ export async function getDeviceCounts(): Promise<{
       total: response.rn?.total || 0,
     },
   };
+}
+
+/**
+ * Fetch all devices from NQS v1 with their live connection status.
+ * NQS v1 paginates at fixed 10 items/page (limit param is ignored).
+ * Returns a map of serialNumber → connected (boolean).
+ */
+export async function getAllDeviceStatusesNqs(deviceType?: 'BN' | 'RN'): Promise<Map<string, boolean>> {
+  const statusMap = new Map<string, boolean>();
+  let offset = 0;
+
+  while (true) {
+    const raw = await taranaFetch<any>(
+      `/api/nqs/v1/operators/${MTN_OPERATOR_ID}/devices?offset=${offset}&limit=100`
+    );
+    const items: any[] = raw.data?.items || [];
+    if (items.length === 0) break;
+
+    for (const d of items) {
+      if (!deviceType || d.type === deviceType) {
+        statusMap.set(d.serialNumber, d.connected === true);
+      }
+    }
+
+    offset += items.length;
+
+    if (offset > 20000) break;
+  }
+
+  return statusMap;
+}
+
+/**
+ * Fetch all BN devices from NQS v1 as TaranaRadio objects.
+ * Fallback when TMQ v1 search is unavailable (500 errors).
+ * NQS v1 has richer data including live `connected` status.
+ */
+export async function getAllBaseNodesNqs(): Promise<TaranaRadio[]> {
+  const allRadios: TaranaRadio[] = [];
+  let offset = 0;
+
+  while (true) {
+    const raw = await taranaFetch<any>(
+      `/api/nqs/v1/operators/${MTN_OPERATOR_ID}/devices?offset=${offset}&limit=100`
+    );
+    const items: any[] = raw.data?.items || [];
+    if (items.length === 0) break;
+
+    for (const d of items) {
+      if (d.type !== 'BN') continue;
+
+      const ancestry = d.ancestry || {};
+      allRadios.push({
+        serialNumber: d.serialNumber,
+        deviceId: d.hostName || d.serialNumber,
+        deviceType: 'BN',
+        regionId: ancestry.region?.id ?? 0,
+        regionName: ancestry.region?.name ?? 'South Africa',
+        marketId: ancestry.market?.id ?? 0,
+        marketName: ancestry.market?.name ?? 'Unknown',
+        siteId: ancestry.site?.id ?? 0,
+        siteName: ancestry.site?.name ?? 'Unknown Site',
+        cellId: ancestry.cell?.id,
+        cellName: ancestry.cellDetails?.name ?? ancestry.cell?.name?.toString(),
+        sectorId: ancestry.sector?.id,
+        sectorName: ancestry.sectorDetails?.name ?? ancestry.sector?.name?.toString(),
+        latitude: d.installParams?.latitude ?? 0,
+        longitude: d.installParams?.longitude ?? 0,
+        height: d.installParams?.heightAgl ?? d.installParams?.height,
+        azimuth: d.installParams?.antennaAzimuth,
+        band: d.band,
+        deviceStatus: d.connected === true ? 1 : 0,
+        lastSeen: d.lastUpdateTimeSeconds
+          ? new Date(d.lastUpdateTimeSeconds * 1000).toISOString()
+          : undefined,
+      });
+    }
+
+    offset += items.length;
+
+    if (offset > 20000) break;
+  }
+
+  return allRadios;
 }

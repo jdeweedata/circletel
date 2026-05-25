@@ -13,7 +13,7 @@
 
 import { inngest } from '../client';
 import { createClient } from '@/lib/supabase/server';
-import { getAllBaseNodes } from '@/lib/tarana/client';
+import { getAllBaseNodesNqs, getAllBaseNodes } from '@/lib/tarana/client';
 import type { TaranaRadio } from '@/lib/tarana/types';
 
 // =============================================================================
@@ -113,16 +113,26 @@ export const taranaSyncFunction = inngest.createFunction(
     });
 
     // Step 2: Fetch base nodes from Tarana API
+    // NQS v1 is primary (has live connected status); TMQ v1 is fallback
     const baseNodes = await step.run('fetch-base-nodes', async () => {
-      console.log('[TaranaSync] Fetching base nodes from Tarana API...');
+      console.log('[TaranaSync] Fetching base nodes via NQS v1...');
 
       try {
-        const nodes = await getAllBaseNodes();
-        console.log(`[TaranaSync] Fetched ${nodes.length} base nodes from API`);
+        const nodes = await getAllBaseNodesNqs();
+        console.log(`[TaranaSync] Fetched ${nodes.length} base nodes from NQS v1`);
         return nodes;
-      } catch (error) {
-        console.error('[TaranaSync] Failed to fetch base nodes:', error);
-        throw error;
+      } catch (nqsError) {
+        const msg = nqsError instanceof Error ? nqsError.message : String(nqsError);
+        console.warn(`[TaranaSync] NQS v1 failed (${msg}), falling back to TMQ v1...`);
+
+        try {
+          const nodes = await getAllBaseNodes();
+          console.log(`[TaranaSync] Fetched ${nodes.length} base nodes from TMQ v1 (fallback)`);
+          return nodes;
+        } catch (tmqError) {
+          console.error('[TaranaSync] Both NQS v1 and TMQ v1 failed:', tmqError);
+          throw tmqError;
+        }
       }
     });
 
@@ -195,26 +205,30 @@ export const taranaSyncFunction = inngest.createFunction(
     });
 
     // Step 5: Fetch RN counts per BN site for active_connections
+    // NQS v1 returns RNs but may be retailer-scoped (~9 visible), TMQ v1 is fallback
     const rnCountsBySite = await step.run('fetch-rn-counts', async () => {
       try {
-        const { getAllRemoteNodes } = await import('@/lib/tarana/client');
-        console.log('[TaranaSync] Fetching remote nodes for active connection counts...');
+        const { getAllRemoteNodes, getAllDeviceStatusesNqs } = await import('@/lib/tarana/client');
 
-        const remoteNodes = await getAllRemoteNodes();
-        console.log(`[TaranaSync] Fetched ${remoteNodes.length} remote nodes`);
+        // Try TMQ v1 first for RNs (has full fleet visibility when working)
+        try {
+          console.log('[TaranaSync] Fetching remote nodes via TMQ v1...');
+          const remoteNodes = await getAllRemoteNodes();
+          console.log(`[TaranaSync] Fetched ${remoteNodes.length} remote nodes from TMQ v1`);
 
-        // Count connected RNs (deviceStatus === 1) per site name
-        const counts: Record<string, number> = {};
-        for (const rn of remoteNodes) {
-          if (rn.deviceStatus === 1 && rn.siteName) {
-            counts[rn.siteName] = (counts[rn.siteName] || 0) + 1;
+          const counts: Record<string, number> = {};
+          for (const rn of remoteNodes) {
+            if (rn.deviceStatus === 1 && rn.siteName) {
+              counts[rn.siteName] = (counts[rn.siteName] || 0) + 1;
+            }
           }
+          console.log(`[TaranaSync] ${Object.keys(counts).length} sites have active RN connections`);
+          return counts;
+        } catch (tmqError) {
+          const msg = tmqError instanceof Error ? tmqError.message : String(tmqError);
+          console.warn(`[TaranaSync] TMQ v1 RN fetch failed (${msg}), skipping RN counts`);
+          return {} as Record<string, number>;
         }
-
-        const sitesWithRNs = Object.keys(counts).length;
-        console.log(`[TaranaSync] ${sitesWithRNs} sites have active RN connections`);
-
-        return counts;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         console.error('[TaranaSync] Failed to fetch RN counts (continuing with zeros):', message);
@@ -267,7 +281,7 @@ export const taranaSyncFunction = inngest.createFunction(
           lat: bn.latitude,
           lng: bn.longitude,
           region: bn.regionName || 'South Africa',
-          // Live status and RF metadata (from TMQ v1)
+          // Live status and RF metadata (from NQS v1)
           device_status: bn.deviceStatus ?? 0,
           height_m: bn.height ?? null,
           azimuth_deg: bn.azimuth ?? null,
