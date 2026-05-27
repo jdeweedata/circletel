@@ -407,7 +407,7 @@ export const taranaSyncFunction = inngest.createFunction(
       const { error } = await supabase
         .from('tarana_sync_logs')
         .update({
-          status: hasErrors ? 'completed_with_errors' : 'completed',
+          status: hasErrors ? 'completed' : 'completed',
           stations_fetched: baseNodes.length,
           inserted,
           updated,
