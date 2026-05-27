@@ -13,7 +13,7 @@
 
 import { inngest } from '../client';
 import { createClient } from '@/lib/supabase/server';
-import { getAllBaseNodesNqs, getAllBaseNodes } from '@/lib/tarana/client';
+import { getAllDevicesNqs } from '@/lib/tarana/client';
 import type { TaranaRadio } from '@/lib/tarana/types';
 
 // =============================================================================
@@ -112,29 +112,23 @@ export const taranaSyncFunction = inngest.createFunction(
       return newLog.id;
     });
 
-    // Step 2: Fetch base nodes from Tarana API
-    // NQS v1 is primary (has live connected status); TMQ v1 is fallback
-    const baseNodes = await step.run('fetch-base-nodes', async () => {
-      console.log('[TaranaSync] Fetching base nodes via NQS v1...');
-
-      try {
-        const nodes = await getAllBaseNodesNqs();
-        console.log(`[TaranaSync] Fetched ${nodes.length} base nodes from NQS v1`);
-        return nodes;
-      } catch (nqsError) {
-        const msg = nqsError instanceof Error ? nqsError.message : String(nqsError);
-        console.warn(`[TaranaSync] NQS v1 failed (${msg}), falling back to TMQ v1...`);
-
-        try {
-          const nodes = await getAllBaseNodes();
-          console.log(`[TaranaSync] Fetched ${nodes.length} base nodes from TMQ v1 (fallback)`);
-          return nodes;
-        } catch (tmqError) {
-          console.error('[TaranaSync] Both NQS v1 and TMQ v1 failed:', tmqError);
-          throw tmqError;
-        }
-      }
+    // Step 2: Fetch all devices (BNs + RNs + counts) from NQS v1 in a single API pass.
+    // TMQ v1 and TMQ v5 are dead (500/400 errors since April 2026).
+    // RN visibility is retailer-scoped (~9 RNs for Circle Tel SA).
+    const nqsData = await step.run('fetch-all-devices', async () => {
+      console.log('[TaranaSync] Fetching all devices via NQS v1...');
+      const data = await getAllDevicesNqs();
+      console.log(
+        `[TaranaSync] Fetched ${data.baseNodes.length} BNs (${data.deviceCounts.bn.connected} online, ${data.deviceCounts.bn.disconnected} offline) | ` +
+        `${data.deviceCounts.rn.total} RNs (${data.deviceCounts.rn.connected} online) | ` +
+        `${Object.keys(data.rnCountsBySite).length} sites with active connections`
+      );
+      return data;
     });
+
+    const baseNodes = nqsData.baseNodes;
+    const rnCountsBySite = nqsData.rnCountsBySite;
+    const deviceCounts = nqsData.deviceCounts;
 
     // Step 3: Handle dry run - complete early if dryRun is true
     if (dryRun) {
@@ -204,57 +198,7 @@ export const taranaSyncFunction = inngest.createFunction(
       return Array.from(serials);
     });
 
-    // Step 5: Fetch RN counts per BN site for active_connections
-    // NQS v1 returns RNs but may be retailer-scoped (~9 visible), TMQ v1 is fallback
-    const rnCountsBySite = await step.run('fetch-rn-counts', async () => {
-      try {
-        const { getAllRemoteNodes, getAllDeviceStatusesNqs } = await import('@/lib/tarana/client');
-
-        // Try TMQ v1 first for RNs (has full fleet visibility when working)
-        try {
-          console.log('[TaranaSync] Fetching remote nodes via TMQ v1...');
-          const remoteNodes = await getAllRemoteNodes();
-          console.log(`[TaranaSync] Fetched ${remoteNodes.length} remote nodes from TMQ v1`);
-
-          const counts: Record<string, number> = {};
-          for (const rn of remoteNodes) {
-            if (rn.deviceStatus === 1 && rn.siteName) {
-              counts[rn.siteName] = (counts[rn.siteName] || 0) + 1;
-            }
-          }
-          console.log(`[TaranaSync] ${Object.keys(counts).length} sites have active RN connections`);
-          return counts;
-        } catch (tmqError) {
-          const msg = tmqError instanceof Error ? tmqError.message : String(tmqError);
-          console.warn(`[TaranaSync] TMQ v1 RN fetch failed (${msg}), skipping RN counts`);
-          return {} as Record<string, number>;
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error('[TaranaSync] Failed to fetch RN counts (continuing with zeros):', message);
-        return {} as Record<string, number>;
-      }
-    });
-
-    // Step 5b: Fetch network-wide device counts (dashboard data from TMQ v5)
-    const deviceCounts = await step.run('fetch-device-counts', async () => {
-      try {
-        const { getDeviceCounts } = await import('@/lib/tarana/client');
-        console.log('[TaranaSync] Fetching device counts from TMQ v5...');
-        const counts = await getDeviceCounts();
-        console.log(
-          `[TaranaSync] BN: ${counts.bn.connected}C/${counts.bn.disconnected}D/${counts.bn.total}T | ` +
-          `RN: ${counts.rn.connected}C/${counts.rn.disconnected}D/${counts.rn.total}T`
-        );
-        return counts;
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error('[TaranaSync] Failed to fetch device counts (continuing):', message);
-        return null;
-      }
-    });
-
-    // Step 6: Upsert records (insert new, update existing)
+    // Step 5: Upsert records (insert new, update existing)
     const upsertResult = await step.run('upsert-records', async () => {
       const supabase = await createClient();
       const existingSet = new Set(existingSerials);
@@ -337,7 +281,9 @@ export const taranaSyncFunction = inngest.createFunction(
     updated = upsertResult.updated;
     errors.push(...upsertResult.errors);
 
-    // Step 6b: Store device counts if fetched successfully
+    // Step 6b: Store device counts from NQS v1
+    // NQS v1 provides BN connected/disconnected/total and retailer-scoped RN counts.
+    // spectrum_unassigned and new_installs_30d are not available from this endpoint.
     if (deviceCounts) {
       await step.run('store-device-counts', async () => {
         const supabase = await createClient();
@@ -347,13 +293,13 @@ export const taranaSyncFunction = inngest.createFunction(
             sync_log_id: syncLogId,
             bn_connected: deviceCounts.bn.connected,
             bn_disconnected: deviceCounts.bn.disconnected,
-            bn_spectrum_unassigned: deviceCounts.bn.spectrumUnassigned,
-            bn_new_installs_30d: deviceCounts.bn.newInstalls30Days,
+            bn_spectrum_unassigned: null,
+            bn_new_installs_30d: null,
             bn_total: deviceCounts.bn.total,
             rn_connected: deviceCounts.rn.connected,
             rn_disconnected: deviceCounts.rn.disconnected,
-            rn_spectrum_unassigned: deviceCounts.rn.spectrumUnassigned,
-            rn_new_installs_30d: deviceCounts.rn.newInstalls30Days,
+            rn_spectrum_unassigned: null,
+            rn_new_installs_30d: null,
             rn_total: deviceCounts.rn.total,
           });
 

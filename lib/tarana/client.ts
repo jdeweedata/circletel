@@ -356,12 +356,40 @@ export async function getAllDeviceStatusesNqs(deviceType?: 'BN' | 'RN'): Promise
 }
 
 /**
- * Fetch all BN devices from NQS v1 as TaranaRadio objects.
- * Fallback when TMQ v1 search is unavailable (500 errors).
- * NQS v1 has richer data including live `connected` status.
+ * Result from fetching all devices via NQS v1.
+ * Single API pass replaces TMQ v1 (BN search), TMQ v1 (RN search), and TMQ v5 (counts).
  */
-export async function getAllBaseNodesNqs(): Promise<TaranaRadio[]> {
-  const allRadios: TaranaRadio[] = [];
+export interface NqsDeviceData {
+  baseNodes: TaranaRadio[];
+  /** Count of connected RNs per BN site name (for active_connections) */
+  rnCountsBySite: Record<string, number>;
+  /** Device counts computed from NQS v1 pagination (replaces broken TMQ v5) */
+  deviceCounts: {
+    bn: { connected: number; disconnected: number; total: number };
+    rn: { connected: number; disconnected: number; total: number };
+  };
+}
+
+/**
+ * Fetch all devices (BNs and RNs) from NQS v1 with live connection status.
+ *
+ * TMQ v1 /radios/search returns 500 for both BN and RN (since ~April 2026).
+ * TMQ v5 /radios/count returns 400 for all query formats.
+ *
+ * NQS v1 is the only working endpoint and returns both device types in a single
+ * paginated call. RN visibility is retailer-scoped (~9 RNs for Circle Tel SA
+ * out of ~6000+ in the fleet), so active_connections will only reflect sites
+ * with RNs assigned to our retailer.
+ *
+ * Replaces: getAllBaseNodesNqs(), getAllRemoteNodes(), getDeviceCounts()
+ */
+export async function getAllDevicesNqs(): Promise<NqsDeviceData> {
+  const baseNodes: TaranaRadio[] = [];
+  const rnCountsBySite: Record<string, number> = {};
+  let bnConnected = 0;
+  let bnDisconnected = 0;
+  let rnConnected = 0;
+  let rnDisconnected = 0;
   let offset = 0;
 
   while (true) {
@@ -372,39 +400,65 @@ export async function getAllBaseNodesNqs(): Promise<TaranaRadio[]> {
     if (items.length === 0) break;
 
     for (const d of items) {
-      if (d.type !== 'BN') continue;
-
+      const connected = d.connected === true;
       const ancestry = d.ancestry || {};
-      allRadios.push({
-        serialNumber: d.serialNumber,
-        deviceId: d.hostName || d.serialNumber,
-        deviceType: 'BN',
-        regionId: ancestry.region?.id ?? 0,
-        regionName: ancestry.region?.name ?? 'South Africa',
-        marketId: ancestry.market?.id ?? 0,
-        marketName: ancestry.market?.name ?? 'Unknown',
-        siteId: ancestry.site?.id ?? 0,
-        siteName: ancestry.site?.name ?? 'Unknown Site',
-        cellId: ancestry.cell?.id,
-        cellName: ancestry.cellDetails?.name ?? ancestry.cell?.name?.toString(),
-        sectorId: ancestry.sector?.id,
-        sectorName: ancestry.sectorDetails?.name ?? ancestry.sector?.name?.toString(),
-        latitude: d.installParams?.latitude ?? 0,
-        longitude: d.installParams?.longitude ?? 0,
-        height: d.installParams?.heightAgl ?? d.installParams?.height,
-        azimuth: d.installParams?.antennaAzimuth,
-        band: d.band,
-        deviceStatus: d.connected === true ? 1 : 0,
-        lastSeen: d.lastUpdateTimeSeconds
-          ? new Date(d.lastUpdateTimeSeconds * 1000).toISOString()
-          : undefined,
-      });
+
+      if (d.type === 'BN') {
+        if (connected) bnConnected++; else bnDisconnected++;
+
+        baseNodes.push({
+          serialNumber: d.serialNumber,
+          deviceId: d.hostName || d.serialNumber,
+          deviceType: 'BN',
+          regionId: ancestry.region?.id ?? 0,
+          regionName: ancestry.region?.name ?? 'South Africa',
+          marketId: ancestry.market?.id ?? 0,
+          marketName: ancestry.market?.name ?? 'Unknown',
+          siteId: ancestry.site?.id ?? 0,
+          siteName: ancestry.site?.name ?? 'Unknown Site',
+          cellId: ancestry.cell?.id,
+          cellName: ancestry.cellDetails?.name ?? ancestry.cell?.name?.toString(),
+          sectorId: ancestry.sector?.id,
+          sectorName: ancestry.sectorDetails?.name ?? ancestry.sector?.name?.toString(),
+          latitude: d.installParams?.latitude ?? 0,
+          longitude: d.installParams?.longitude ?? 0,
+          height: d.installParams?.heightAgl ?? d.installParams?.height,
+          azimuth: d.installParams?.antennaAzimuth,
+          band: d.band,
+          deviceStatus: connected ? 1 : 0,
+          lastSeen: d.lastUpdateTimeSeconds
+            ? new Date(d.lastUpdateTimeSeconds * 1000).toISOString()
+            : undefined,
+        });
+      } else if (d.type === 'RN') {
+        if (connected) rnConnected++; else rnDisconnected++;
+
+        const siteName: string = ancestry.site?.name ?? 'Unknown Site';
+        if (connected) {
+          rnCountsBySite[siteName] = (rnCountsBySite[siteName] || 0) + 1;
+        }
+      }
     }
 
     offset += items.length;
-
     if (offset > 20000) break;
   }
 
-  return allRadios;
+  return {
+    baseNodes,
+    rnCountsBySite,
+    deviceCounts: {
+      bn: { connected: bnConnected, disconnected: bnDisconnected, total: bnConnected + bnDisconnected },
+      rn: { connected: rnConnected, disconnected: rnDisconnected, total: rnConnected + rnDisconnected },
+    },
+  };
+}
+
+/**
+ * @deprecated Use getAllDevicesNqs() instead — returns BNs + RN counts + device counts
+ * in a single API pass. TMQ v1 is dead (500 errors since April 2026).
+ */
+export async function getAllBaseNodesNqs(): Promise<TaranaRadio[]> {
+  const data = await getAllDevicesNqs();
+  return data.baseNodes;
 }
