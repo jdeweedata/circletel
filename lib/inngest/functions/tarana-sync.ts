@@ -293,13 +293,13 @@ export const taranaSyncFunction = inngest.createFunction(
             sync_log_id: syncLogId,
             bn_connected: deviceCounts.bn.connected,
             bn_disconnected: deviceCounts.bn.disconnected,
-            bn_spectrum_unassigned: null,
-            bn_new_installs_30d: null,
+            bn_spectrum_unassigned: 0,
+            bn_new_installs_30d: 0,
             bn_total: deviceCounts.bn.total,
             rn_connected: deviceCounts.rn.connected,
             rn_disconnected: deviceCounts.rn.disconnected,
-            rn_spectrum_unassigned: null,
-            rn_new_installs_30d: null,
+            rn_spectrum_unassigned: 0,
+            rn_new_installs_30d: 0,
             rn_total: deviceCounts.rn.total,
           });
 
