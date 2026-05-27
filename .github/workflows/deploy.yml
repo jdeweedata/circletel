@@ -163,14 +163,39 @@ jobs:
           echo "Cache saved ($(du -sh /home/actions-runner/.next-cache | cut -f1))"
 
       # Build Docker image locally — no GHCR push/pull since runner IS the production VPS.
+      # --no-cache prevents Docker from reusing cached COPY layers, which was the root
+      # cause of stale .next/standalone output being served after fresh npm run build.
+      # Tag as :latest AND :<git-sha> so the verification step can prove the exact image.
       - name: Build Docker image
-        run: docker build --no-cache -t ghcr.io/jdeweedata/circletel:latest .
+        run: |
+          IMAGE="ghcr.io/jdeweedata/circletel"
+          docker build --no-cache \
+            --build-arg GIT_COMMIT_SHA="${{ github.sha }}" \
+            -t "$IMAGE:latest" \
+            -t "$IMAGE:${{ github.sha }}" \
+            .
+
+      # Verify the image commit SHA before deploying — catches stale builds early.
+      - name: Verify image commit
+        run: |
+          EXPECTED="${{ github.sha }}"
+          ACTUAL=$(docker run --rm --entrypoint cat ghcr.io/jdeweedata/circletel:latest /app/COMMIT_SHA.txt 2>/dev/null || echo "MISSING")
+          if [ "$ACTUAL" = "MISSING" ]; then
+            echo "::warning::No COMMIT_SHA.txt in image — cannot verify commit. Non-fatal."
+          elif [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::Image contains commit $ACTUAL but expected $EXPECTED — refusing to deploy stale image"
+            exit 1
+          else
+            echo "Image commit $ACTUAL matches expected $EXPECTED ✓"
+          fi
 
       # Restart the Coolify-managed container with the new image.
+      # --no-build: skip build (we just built it) — saves time.
+      # --pull never: never pull from registry — ensures only our locally-built image is used.
       - name: Deploy container
         run: |
           cd /data/coolify/applications/b7ukn3c76rd46dsl19oqq59e
-          docker compose up -d --force-recreate
+          docker compose up -d --force-recreate --no-build --pull never
 
       - name: Wait for healthy container
         run: |

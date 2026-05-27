@@ -20,6 +20,11 @@ ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME="0.0.0.0"
 
+# Bake the commit SHA into the image so deploy workflows can verify they're deploying
+# the right version (not a stale cached image).
+ARG GIT_COMMIT_SHA=unknown
+RUN echo "$GIT_COMMIT_SHA" > /app/COMMIT_SHA.txt
+
 RUN addgroup --system --gid 1001 nodejs \
  && adduser --system --uid 1001 nextjs
 
