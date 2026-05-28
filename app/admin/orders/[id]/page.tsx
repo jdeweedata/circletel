@@ -27,6 +27,7 @@ import { CommunicationTimeline } from '@/components/admin/orders/CommunicationTi
 import { OrderHeader } from '@/components/admin/orders/detail/OrderHeader';
 import { OrderStatCards } from '@/components/admin/orders/detail/OrderStatCards';
 import { OrderOverviewTab } from '@/components/admin/orders/detail/OrderOverviewTab';
+import { DeviceAssignment } from '@/components/admin/orders/DeviceAssignment';
 
 interface Order {
   id: string;
@@ -92,10 +93,16 @@ interface Order {
   installation_document_url?: string;
   installation_document_name?: string;
   installation_completed_at?: string;
+  sim_serial?: string | null;
+  router_serial?: string | null;
+  router_model?: string | null;
+  terms_accepted?: boolean;
+  terms_accepted_at?: string;
 }
 
 const TAB_CONFIG = [
   { id: 'overview', label: 'Overview' },
+  { id: 'devices', label: 'Devices' },
   { id: 'installation', label: 'Installation' },
   { id: 'financials', label: 'Financials' },
   { id: 'history', label: 'History' },
@@ -228,6 +235,22 @@ export default function AdminOrderDetailPage() {
             order={order}
             onViewHistory={() => setActiveTab('history')}
           />
+        </TabPanel>
+
+        {/* DEVICES TAB */}
+        <TabPanel id="devices" activeTab={activeTab} className="mt-6">
+          <div className="max-w-2xl">
+            <SectionCard icon={PiPackageBold} title="SIM & Router Assignment" compact>
+              <DeviceAssignment
+                orderId={order.id}
+                orderNumber={order.order_number}
+                initialSimSerial={order.sim_serial || null}
+                initialRouterSerial={order.router_serial || null}
+                initialRouterModel={order.router_model || null}
+                onUpdate={fetchOrder}
+              />
+            </SectionCard>
+          </div>
         </TabPanel>
 
         {/* INSTALLATION TAB */}

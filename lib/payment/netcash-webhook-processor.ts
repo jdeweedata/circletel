@@ -7,6 +7,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 import type { NetcashWebhookPayload } from './netcash-webhook-validator';
+import { normalizeNetcashReference } from './netcash-webhook-validator';
 
 // ==================================================================
 // TYPES
@@ -64,6 +65,10 @@ function getResend() {
 
 /**
  * Process successful payment webhook
+ *
+ * Handles two scenarios:
+ * 1. R1.00 card validation → stores payment method, does NOT activate order
+ * 2. Full payment → updates order status, stores payment method, sends emails
  */
 export async function processPaymentSuccess(
   payload: NetcashWebhookPayload,
@@ -73,19 +78,92 @@ export async function processPaymentSuccess(
     console.log('[Webhook Processor] Processing payment success:', payload.Reference);
     const supabase = await createClient();
 
-    // 1. Find order by payment reference
-    const { data: order, error: orderError } = await supabase
+    const amountPaid = parseFloat(payload.Amount) / 100;
+    const isCardValidation = amountPaid <= 1.01; // R1.00 card validation
+
+    // 1. Find order by payment reference — try exact match first, then normalized
+    let { data: order, error: orderError } = await supabase
       .from('consumer_orders')
       .select('*')
       .eq('payment_reference', payload.Reference)
       .single();
 
     if (orderError || !order) {
-      throw new Error(`Order not found for reference: ${payload.Reference}`);
+      // Try normalized reference (strip CT- prefix and timestamp suffix)
+      const normalizedRef = normalizeNetcashReference(payload.Reference);
+      console.log('[Webhook Processor] Exact reference match failed, trying normalized:', normalizedRef);
+
+      const { data: normalizedOrder, error: normalizedError } = await supabase
+        .from('consumer_orders')
+        .select('*')
+        .eq('payment_reference', normalizedRef)
+        .single();
+
+      if (normalizedError || !normalizedOrder) {
+        throw new Error(
+          `Order not found for reference: ${payload.Reference} (also tried normalized: ${normalizedRef})`
+        );
+      }
+
+      order = normalizedOrder;
     }
 
-    // 2. Update order status
-    const amountPaid = parseFloat(payload.Amount) / 100;
+    // 2. Store payment method for recurring billing (always, even for R1.00 validations)
+    if (order.customer_id) {
+      await storePaymentMethod(payload, order.customer_id, order.id, webhookId);
+    } else {
+      // If order has no customer_id yet, try to find customer by email
+      const { data: customerData } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('email', order.email)
+        .maybeSingle();
+
+      if (customerData?.id) {
+        await storePaymentMethod(payload, customerData.id, order.id, webhookId);
+        // Also update the order's customer_id
+        await supabase
+          .from('consumer_orders')
+          .update({ customer_id: customerData.id, updated_at: new Date().toISOString() })
+          .eq('id', order.id);
+      }
+    }
+
+    // 3. For R1.00 card validations, don't activate the order — just store payment method
+    if (isCardValidation) {
+      console.log('[Webhook Processor] R1.00 card validation detected — payment method stored, order NOT activated');
+
+      // Update order with payment method validation metadata (keep status as pending)
+      await supabase
+        .from('consumer_orders')
+        .update({
+          metadata: {
+            ...(order.metadata as Record<string, unknown> || {}),
+            netcash_transaction_id: payload.TransactionID || '',
+            card_validated: true,
+            card_validated_at: new Date().toISOString(),
+            card_validated_via: 'netcash_webhook',
+            card_last_four: payload.CardNumber?.slice(-4) || null,
+            card_type: payload.CardType || null,
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      await createWebhookAudit(webhookId, 'card_validated', {
+        order_id: order.id,
+        transaction_id: payload.TransactionID,
+        card_last_four: payload.CardNumber?.slice(-4),
+      });
+
+      return {
+        success: true,
+        orderId: order.id,
+        message: 'Card validation processed — payment method stored',
+      };
+    }
+
+    // 4. Full payment: update order status
     const updateData: OrderUpdateData = {
       payment_status: 'paid',
       status: 'active',
@@ -108,19 +186,14 @@ export async function processPaymentSuccess(
       throw new Error(`Failed to update order: ${updateError.message}`);
     }
 
-    // 2.5. Store payment method for recurring billing
-    if (order.customer_id) {
-      await storePaymentMethod(payload, order.customer_id, order.id, webhookId);
-    }
-
-    // 3. Create audit log
+    // 5. Create audit log
     await createWebhookAudit(webhookId, 'order_updated', {
       order_id: order.id,
       previous_status: order.payment_status,
       new_status: 'paid'
     });
 
-    // 4. Send confirmation email
+    // 6. Send confirmation email
     try {
       await sendOrderConfirmationEmail(order as OrderForEmail);
       await createWebhookAudit(webhookId, 'email_sent', {
@@ -129,14 +202,13 @@ export async function processPaymentSuccess(
       });
     } catch (emailError) {
       console.error('[Webhook Processor] Email send failed:', emailError);
-      // Don't fail the webhook if email fails
       await createWebhookAudit(webhookId, 'email_failed', {
         order_id: order.id,
         error: emailError instanceof Error ? emailError.message : 'Unknown error'
       });
     }
 
-    // 5. Trigger service activation workflow (if needed)
+    // 7. Trigger service activation workflow
     await triggerServiceActivation(order.id);
 
     return {
@@ -173,15 +245,26 @@ export async function processPaymentFailure(
     console.log('[Webhook Processor] Processing payment failure:', payload.Reference);
     const supabase = await createClient();
 
-    // 1. Find order
-    const { data: order, error: orderError } = await supabase
+    // 1. Find order — try exact match first, then normalized
+    let { data: order, error: orderError } = await supabase
       .from('consumer_orders')
       .select('*')
       .eq('payment_reference', payload.Reference)
       .single();
 
     if (orderError || !order) {
-      throw new Error(`Order not found for reference: ${payload.Reference}`);
+      const normalizedRef = normalizeNetcashReference(payload.Reference);
+      const { data: normalizedOrder, error: normalizedError } = await supabase
+        .from('consumer_orders')
+        .select('*')
+        .eq('payment_reference', normalizedRef)
+        .single();
+
+      if (normalizedError || !normalizedOrder) {
+        throw new Error(`Order not found for reference: ${payload.Reference}`);
+      }
+
+      order = normalizedOrder;
     }
 
     // 2. Update order status
@@ -260,15 +343,26 @@ export async function processRefund(
     console.log('[Webhook Processor] Processing refund:', payload.Reference);
     const supabase = await createClient();
 
-    // 1. Find order
-    const { data: order, error: orderError } = await supabase
+    // 1. Find order — try exact match first, then normalized
+    let { data: order, error: orderError } = await supabase
       .from('consumer_orders')
       .select('*')
       .eq('payment_reference', payload.Reference)
       .single();
 
     if (orderError || !order) {
-      throw new Error(`Order not found for reference: ${payload.Reference}`);
+      const normalizedRef = normalizeNetcashReference(payload.Reference);
+      const { data: normalizedOrder, error: normalizedError } = await supabase
+        .from('consumer_orders')
+        .select('*')
+        .eq('payment_reference', normalizedRef)
+        .single();
+
+      if (normalizedError || !normalizedOrder) {
+        throw new Error(`Order not found for reference: ${payload.Reference}`);
+      }
+
+      order = normalizedOrder;
     }
 
     // 2. Update order status
@@ -345,15 +439,26 @@ export async function processChargeback(
     console.log('[Webhook Processor] Processing chargeback:', payload.Reference);
     const supabase = await createClient();
 
-    // 1. Find order
-    const { data: order, error: orderError } = await supabase
+    // 1. Find order — try exact match first, then normalized
+    let { data: order, error: orderError } = await supabase
       .from('consumer_orders')
       .select('*')
       .eq('payment_reference', payload.Reference)
       .single();
 
     if (orderError || !order) {
-      throw new Error(`Order not found for reference: ${payload.Reference}`);
+      const normalizedRef = normalizeNetcashReference(payload.Reference);
+      const { data: normalizedOrder, error: normalizedError } = await supabase
+        .from('consumer_orders')
+        .select('*')
+        .eq('payment_reference', normalizedRef)
+        .single();
+
+      if (normalizedError || !normalizedOrder) {
+        throw new Error(`Order not found for reference: ${payload.Reference}`);
+      }
+
+      order = normalizedOrder;
     }
 
     // 2. Update order status (no 'disputed' in order_status enum — use 'suspended')
@@ -699,7 +804,7 @@ async function storePaymentMethod(
 
     // Extract card details from payload
     const cardLast4 = payload.CardNumber?.slice(-4) || 'XXXX';
-    const cardType = (payload.CardType?.toLowerCase() || 'visa') as 'visa' | 'mastercard';
+    const cardType = (payload.CardType?.toLowerCase() || 'visa');
     const cardToken = payload.Token || payload.CardToken || payload.TransactionID;
 
     if (!cardToken) {
@@ -707,13 +812,16 @@ async function storePaymentMethod(
       return;
     }
 
+    // Build display name
+    const displayName = `${cardType.charAt(0).toUpperCase() + cardType.slice(1)} ***${cardLast4}`;
+
     // Check if payment method already exists for this customer with same card
     const { data: existing } = await supabase
       .from('customer_payment_methods')
       .select('id')
       .eq('customer_id', customerId)
-      .eq('card_last_four', cardLast4)
-      .eq('method_type', 'credit_card')
+      .eq('last_four', cardLast4)
+      .eq('method_type', 'card')
       .maybeSingle();
 
     if (existing) {
@@ -722,40 +830,55 @@ async function storePaymentMethod(
       await supabase
         .from('customer_payment_methods')
         .update({
-          is_verified: true,
-          verified_at: new Date().toISOString(),
+          token_status: 'active',
+          token_verified_at: new Date().toISOString(),
+          token_last_used_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq('id', existing.id);
       return;
     }
 
-    // Clear any existing primary payment method for this customer
-    await supabase
+    // Check if customer already has a primary payment method
+    const { data: existingPrimary } = await supabase
       .from('customer_payment_methods')
-      .update({ is_primary: false })
+      .select('id')
       .eq('customer_id', customerId)
-      .eq('is_primary', true);
+      .eq('is_primary', true)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    const shouldBePrimary = !existingPrimary;
+
+    // Clear any existing primary if we're setting a new one
+    if (shouldBePrimary) {
+      await supabase
+        .from('customer_payment_methods')
+        .update({ is_primary: false })
+        .eq('customer_id', customerId)
+        .eq('is_primary', true);
+    }
 
     // Create new payment method
     const { data: paymentMethod, error } = await supabase
       .from('customer_payment_methods')
       .insert({
         customer_id: customerId,
-        order_id: orderId,
-        method_type: 'credit_card',
+        method_type: 'card',
+        display_name: displayName,
         card_type: cardType,
-        card_last_four: cardLast4,
-        netcash_token: cardToken,
+        last_four: cardLast4,
+        card_masked_number: payload.CardNumber || null,
+        card_token: cardToken,
         is_active: true,
-        is_primary: true,
-        is_verified: true,
-        verified_at: new Date().toISOString(),
+        is_primary: shouldBePrimary,
+        token_status: 'active',
+        token_verified_at: new Date().toISOString(),
         encrypted_details: {
-          verified: true,
           verification_method: 'r1_validation',
           verification_date: new Date().toISOString(),
           transaction_id: payload.TransactionID,
+          order_id: orderId,
         },
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -768,23 +891,6 @@ async function storePaymentMethod(
     }
 
     console.log('[Webhook Processor] Payment method stored:', paymentMethod.id);
-
-    // Update or create customer_billing record with primary payment method
-    const { error: billingError } = await supabase
-      .from('customer_billing')
-      .upsert({
-        customer_id: customerId,
-        primary_payment_method_id: paymentMethod.id,
-        payment_method_type: 'card',
-        auto_pay_enabled: true,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'customer_id',
-      });
-
-    if (billingError) {
-      console.error('[Webhook Processor] Failed to update customer_billing:', billingError);
-    }
 
     await createWebhookAudit(webhookId, 'payment_method_stored', {
       payment_method_id: paymentMethod.id,

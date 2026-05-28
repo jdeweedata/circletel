@@ -5,6 +5,7 @@ import {
   PiCalendarBold,
   PiCheckCircleBold,
   PiClockBold,
+  PiCreditCardBold,
   PiCurrencyDollarBold,
   PiEnvelopeBold,
   PiFileTextBold,
@@ -12,6 +13,7 @@ import {
   PiMapPinBold,
   PiPackageBold,
   PiPhoneBold,
+  PiShieldCheckBold,
   PiSpinnerBold,
   PiTruckBold,
   PiWarningCircleBold,
@@ -150,6 +152,12 @@ export default function OrderDetailPage() {
 
     const map: Record<string, React.ReactNode> = {
       order_confirmed: <PiCheckCircleBold className={`h-5 w-5 ${iconClass}`} />,
+      payment_received: <PiCurrencyDollarBold className={`h-5 w-5 ${iconClass}`} />,
+      kyc_submitted: <PiFileTextBold className={`h-5 w-5 ${iconClass}`} />,
+      kyc_verified: <PiShieldCheckBold className={`h-5 w-5 ${iconClass}`} />,
+      terms_accepted: <PiCheckCircleBold className={`h-5 w-5 ${iconClass}`} />,
+      payment_method_validated: <PiCreditCardBold className={`h-5 w-5 ${iconClass}`} />,
+      device_registered: <PiPackageBold className={`h-5 w-5 ${iconClass}`} />,
       equipment_prepared: <PiPackageBold className={`h-5 w-5 ${iconClass}`} />,
       equipment_shipped: <PiTruckBold className={`h-5 w-5 ${iconClass}`} />,
       delivery_completed: <PiHouseBold className={`h-5 w-5 ${iconClass}`} />,

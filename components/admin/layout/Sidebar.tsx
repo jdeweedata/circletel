@@ -115,6 +115,17 @@ const navigationSections: NavSection[] = [
         description: 'Manage customer orders'
       },
       {
+        name: 'Order Fulfillment',
+        icon: PiTruckBold,
+        description: 'Device dispatch, delivery & activation',
+        children: [
+          { name: 'Fulfillment Dashboard', href: '/admin/fulfillment', icon: PiSquaresFourBold },
+          { name: 'Device Stock', href: '/admin/fulfillment/devices', icon: PiPackageBold },
+          { name: 'Dispatch Queue', href: '/admin/fulfillment/dispatch', icon: PiTruckBold },
+          { name: 'Pending Activation', href: '/admin/fulfillment/activation', icon: PiLightningBold },
+        ]
+      },
+      {
         name: 'Field Operations',
         icon: PiWrenchBold,
         children: [

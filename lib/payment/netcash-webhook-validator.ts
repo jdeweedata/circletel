@@ -419,6 +419,38 @@ export function extractOrderIdFromReference(reference: string): string | null {
 }
 
 /**
+ * Normalize a Netcash reference back to the DB payment_reference format.
+ *
+ * Netcash sends references like: CT-PAY-ORD-20260508-5728-1778232419231
+ * The DB stores:               PAY-ORD-20260508-5728
+ *
+ * This strips the CT- prefix and trailing timestamp to produce a
+ * reference that can be matched against consumer_orders.payment_reference.
+ */
+export function normalizeNetcashReference(reference: string): string {
+  let normalized = reference;
+
+  // Strip CT- prefix added by generateTransactionReference()
+  if (normalized.startsWith('CT-')) {
+    normalized = normalized.slice(3);
+  }
+
+  // Strip trailing numeric timestamp (13+ digit number after last dash)
+  // Format: CT-PAY-ORD-20260508-5728-1778232419231
+  const parts = normalized.split('-');
+  if (parts.length >= 2) {
+    const lastPart = parts[parts.length - 1];
+    // Timestamp is 13 digits (milliseconds) or more
+    if (/^\d{13,}$/.test(lastPart)) {
+      parts.pop();
+      normalized = parts.join('-');
+    }
+  }
+
+  return normalized;
+}
+
+/**
  * Sanitize webhook payload for logging (remove sensitive data)
  */
 export function sanitizePayloadForLogging(payload: NetcashWebhookPayload): Record<string, unknown> {

@@ -42,6 +42,10 @@ export type SiteSurveyStatus =
 export type TrackingEventType =
   | 'order_confirmed'
   | 'payment_received'
+  | 'kyc_submitted'
+  | 'kyc_verified'
+  | 'terms_accepted'
+  | 'payment_method_validated'
   | 'equipment_prepared'
   | 'equipment_shipped'
   | 'delivery_out'
@@ -59,7 +63,8 @@ export type TrackingEventType =
   | 'order_completed'
   | 'order_cancelled'
   | 'status_update'
-  | 'note_added';
+  | 'note_added'
+  | 'device_registered';
 
 export type TrackingEventStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
 
