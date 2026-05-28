@@ -1,15 +1,17 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import {
   PiCaretRightBold,
-  PiPauseBold,
-  PiXCircleBold,
+  PiPhoneBold,
   PiEnvelopeBold,
+  PiCalendarBold,
+  PiDotsThreeVerticalBold,
+  PiPauseBold,
   PiPrinterBold,
-  PiDownloadSimpleBold,
+  PiXCircleBold,
 } from 'react-icons/pi';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/admin/shared';
 import { SendEmailDialog } from '@/components/admin/support/SendEmailDialog';
 
@@ -20,6 +22,7 @@ interface Order {
   first_name: string;
   last_name: string;
   email: string;
+  phone: string;
   status: string;
   package_name: string;
   package_price: number;
@@ -29,6 +32,7 @@ interface Order {
 
 interface OrderHeaderProps {
   order: Order;
+  onNavigateToTab?: (tab: string) => void;
 }
 
 const STATUS_CONFIG: Record<string, { className: string; label: string }> = {
@@ -52,8 +56,20 @@ function getStatusConfig(status: string) {
   };
 }
 
-export function OrderHeader({ order }: OrderHeaderProps) {
+export function OrderHeader({ order, onNavigateToTab }: OrderHeaderProps) {
   const statusConfig = getStatusConfig(order.status);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   return (
     <div className="bg-white border-b border-slate-200">
@@ -68,82 +84,97 @@ export function OrderHeader({ order }: OrderHeaderProps) {
         </div>
 
         {/* Title Row */}
-        <div className="flex flex-wrap items-center justify-between gap-6 mt-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 mt-4">
           <div className="flex items-center gap-4">
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+            <h2 className="text-[26px] font-extrabold tracking-tight text-slate-900">
               {order.order_number}
             </h2>
             <StatusBadge status={statusConfig.label} className={statusConfig.className} />
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Grouped icon buttons */}
-            <div className="flex border border-slate-200 rounded-lg overflow-hidden bg-white">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Call button */}
+            <button
+              type="button"
+              onClick={() => window.open(`tel:${order.phone}`, '_self')}
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-[10px] hover:bg-slate-50 transition-colors"
+            >
+              <PiPhoneBold className="w-4 h-4" />
+              <span className="hidden sm:inline">Call</span>
+            </button>
+
+            {/* Email button */}
+            <SendEmailDialog
+              defaultTo={order.email}
+              defaultSubject={`RE: Order ${order.order_number}`}
+              defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
+              customerId={order.customer_id}
+              orderId={order.id}
+              trigger={
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-[10px] hover:bg-slate-50 transition-colors"
+                >
+                  <PiEnvelopeBold className="w-4 h-4" />
+                  <span className="hidden sm:inline">Email</span>
+                </button>
+              }
+            />
+
+            {/* Schedule Installation — primary CTA */}
+            <button
+              type="button"
+              onClick={() => onNavigateToTab?.('installation')}
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-[10px] transition-colors shadow-lg shadow-primary/20"
+            >
+              <PiCalendarBold className="w-4 h-4" />
+              Schedule Installation
+            </button>
+
+            {/* Overflow menu */}
+            <div className="relative" ref={menuRef}>
               <button
                 type="button"
-                className="p-2.5 text-slate-600 hover:bg-slate-50 transition-colors"
-                title="Suspend Order"
-                aria-label="Suspend Order"
-                onClick={() => {
-                  // TODO: Implement suspend functionality
-                  console.log('Suspend order:', order.id);
-                }}
+                onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
+                className="inline-flex items-center justify-center w-10 h-10 text-slate-600 bg-white border border-slate-200 rounded-[10px] hover:bg-slate-50 transition-colors"
+                aria-label="More actions"
               >
-                <PiPauseBold className="w-5 h-5" />
+                <PiDotsThreeVerticalBold className="w-5 h-5" />
               </button>
-              <button
-                type="button"
-                className="p-2.5 text-slate-600 hover:bg-slate-50 transition-colors border-l border-slate-200"
-                title="Cancel Order"
-                aria-label="Cancel Order"
-                onClick={() => {
-                  // TODO: Implement cancel functionality
-                  console.log('Cancel order:', order.id);
-                }}
-              >
-                <PiXCircleBold className="w-5 h-5" />
-              </button>
-              <SendEmailDialog
-                defaultTo={order.email}
-                defaultSubject={`RE: Order ${order.order_number}`}
-                defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
-                customerId={order.customer_id}
-                orderId={order.id}
-                trigger={
+              {menuOpen && (
+                <div className="absolute right-0 top-12 bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-900/10 py-1.5 min-w-[182px] z-30">
                   <button
                     type="button"
-                    className="p-2.5 text-slate-600 hover:bg-slate-50 transition-colors border-l border-slate-200"
-                    title="Send Email"
-                    aria-label="Send Email"
+                    onClick={() => { setMenuOpen(false); console.log('Hold order:', order.id); }}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg mx-1.5 transition-colors"
+                    style={{ width: 'calc(100% - 12px)' }}
                   >
-                    <PiEnvelopeBold className="w-5 h-5" />
+                    <PiPauseBold className="w-4 h-4" />
+                    Place on hold
                   </button>
-                }
-              />
-              <button
-                type="button"
-                className="p-2.5 text-slate-600 hover:bg-slate-50 transition-colors border-l border-slate-200"
-                title="Print Details"
-                aria-label="Print Details"
-                onClick={() => window.print()}
-              >
-                <PiPrinterBold className="w-5 h-5" />
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => { setMenuOpen(false); window.print(); }}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg mx-1.5 transition-colors"
+                    style={{ width: 'calc(100% - 12px)' }}
+                  >
+                    <PiPrinterBold className="w-4 h-4" />
+                    Print order
+                  </button>
+                  <div className="h-px bg-slate-200 my-1.5 mx-3" />
+                  <button
+                    type="button"
+                    onClick={() => { setMenuOpen(false); console.log('Cancel order:', order.id); }}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg mx-1.5 transition-colors"
+                    style={{ width: 'calc(100% - 12px)' }}
+                  >
+                    <PiXCircleBold className="w-4 h-4" />
+                    Cancel order
+                  </button>
+                </div>
+              )}
             </div>
-
-            {/* Export button */}
-            <Button
-              type="button"
-              onClick={() => {
-                // TODO: Implement export functionality
-                console.log('Export order:', order.id);
-              }}
-              className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-primary/20"
-            >
-              <PiDownloadSimpleBold className="w-5 h-5" />
-              Export Order
-            </Button>
           </div>
         </div>
       </div>

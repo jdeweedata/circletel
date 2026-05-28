@@ -1,4 +1,10 @@
 export { OrderHeader } from './OrderHeader';
 export { OrderStatCards } from './OrderStatCards';
 export { OrderProgressTimeline } from './OrderProgressTimeline';
+export { OrderProgressStrip } from './OrderProgressStrip';
 export { OrderOverviewTab } from './OrderOverviewTab';
+export { OrderOverviewRedesigned } from './OrderOverviewRedesigned';
+export { OrderDevicesRedesigned } from './OrderDevicesRedesigned';
+export { OrderInstallationRedesigned } from './OrderInstallationRedesigned';
+export { OrderFinancialsRedesigned } from './OrderFinancialsRedesigned';
+export { OrderHistoryRedesigned } from './OrderHistoryRedesigned';
