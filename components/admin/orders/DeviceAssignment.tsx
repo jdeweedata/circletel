@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import {
-  PiSimCardBold, PiRouterBold, PiFloppyDiskBold,
+  PiSimCardBold, PiBroadcastBold, PiFloppyDiskBold,
   PiCheckCircleBold, PiSpinnerBold, PiPencilSimpleBold,
   PiXCircleBold,
 } from 'react-icons/pi';
@@ -75,7 +75,7 @@ export function DeviceAssignment({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-            <PiRouterBold className="h-5 w-5 text-purple-600" />
+            <PiBroadcastBold className="h-5 w-5 text-purple-600" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-900">Device Assignment</h3>
@@ -124,7 +124,7 @@ export function DeviceAssignment({
           {/* Router */}
           <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
             <div className="flex items-center gap-2 mb-2">
-              <PiRouterBold className="h-4 w-4 text-slate-500" />
+              <PiBroadcastBold className="h-4 w-4 text-slate-500" />
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Router</span>
               {initialRouterSerial && !isPlaceholder(initialRouterSerial) && (
                 <PiCheckCircleBold className="h-3.5 w-3.5 text-emerald-500 ml-auto" />
@@ -165,7 +165,7 @@ export function DeviceAssignment({
 
           <div className="space-y-2">
             <Label htmlFor="router-serial" className="flex items-center gap-1.5">
-              <PiRouterBold className="h-4 w-4 text-slate-600" />
+              <PiBroadcastBold className="h-4 w-4 text-slate-600" />
               Router Serial Number
             </Label>
             <Input
@@ -179,7 +179,7 @@ export function DeviceAssignment({
 
           <div className="space-y-2">
             <Label htmlFor="router-model" className="flex items-center gap-1.5">
-              <PiRouterBold className="h-4 w-4 text-slate-600" />
+              <PiBroadcastBold className="h-4 w-4 text-slate-600" />
               Router Model
             </Label>
             <Input
