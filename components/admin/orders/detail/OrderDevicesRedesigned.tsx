@@ -22,6 +22,8 @@ interface OrderDevicesRedesignedProps {
     sim_serial?: string | null;
     router_serial?: string | null;
     router_model?: string | null;
+    router_included: boolean;
+    package_name: string;
     payment_method_active?: boolean;
     payment_method_mandate_status?: string;
     installation_scheduled_date?: string;
@@ -48,8 +50,8 @@ export function OrderDevicesRedesigned({
   const [savingDevice, setSavingDevice] = useState<'sim' | 'router' | null>(null);
 
   // Derived state
-  const assignedCount = (simSerial ? 1 : 0) + (routerSerial ? 1 : 0);
-  const totalDevices = 2;
+  const totalDevices = order.router_included ? 2 : 1;
+  const assignedCount = (simSerial ? 1 : 0) + (order.router_included && routerSerial ? 1 : 0);
 
   // Check dispatch readiness
   const paymentVerified = order.payment_method_active === true;
@@ -160,8 +162,8 @@ export function OrderDevicesRedesigned({
           </div>
         )}
 
-        {/* Unassigned state: show stock + input */}
-        {!isAssigned && !isEditing && (
+        {/* Unassigned state */}
+        {!isAssigned && !isEditing && stockText && (
           <div className="mt-2">
             <p className="text-xs text-slate-600 mb-0">{stockText}</p>
           </div>
@@ -240,8 +242,8 @@ export function OrderDevicesRedesigned({
             <PiSimCardBold className="h-5 w-5 text-purple-600" />,
             'bg-purple-100',
             'SIM Card',
-            'CircleConnect Data SIM',
-            '12 in stock · JHB',
+            `Data SIM · ${order.package_name}`,
+            '',
             simSerial !== '',
             simSerial,
             simEditing,
@@ -250,13 +252,13 @@ export function OrderDevicesRedesigned({
           )}
 
           {/* Router Row */}
-          {renderDeviceRow(
+          {order.router_included && renderDeviceRow(
             'router',
             <PiBroadcastBold className="h-5 w-5 text-blue-600" />,
             'bg-blue-100',
             'Router',
-            'Huawei 5G CPE Pro',
-            '8 in stock · CPT',
+            order.router_model || 'Model not specified',
+            '',
             routerSerial !== '',
             routerSerial,
             routerEditing,
