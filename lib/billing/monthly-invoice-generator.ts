@@ -527,7 +527,7 @@ export class MonthlyInvoiceGenerator {
         amount_paid: 0,
         line_items: lineItems,
         invoice_type: 'recurring',
-        status: 'unpaid',
+        status: 'sent', // valid_invoice_status CHECK allows draft|sent|paid|partial|overdue|cancelled|voided ('unpaid' is invalid)
       })
       .select('id, invoice_number')
       .single();
