@@ -19,6 +19,7 @@ import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service
 import { formatPaymentMethod } from '@/lib/payments/types';
 import { webhookLogger } from '@/lib/logging';
 import { matchInvoiceByReference } from '@/lib/billing/invoice-matcher';
+import { extractCustomerEmail } from '@/lib/payments/netcash-webhook-email';
 
 /**
  * Verify NetCash webhook signature
@@ -353,7 +354,7 @@ export async function POST(request: NextRequest) {
           currency: 'ZAR',
           status: paymentStatus,
           payment_method: bodyParsed.PaymentMethod || bodyParsed.payment_method || null,
-          customer_email: bodyParsed.Extra2 || null, // NetCash Extra2 for email
+          customer_email: extractCustomerEmail(bodyParsed), // Email/CustomerEmail only — never Extra2 (it holds the notify URL)
           provider_response: bodyParsed,
           initiated_at: new Date().toISOString(),
           completed_at: paymentStatus === 'completed' ? new Date().toISOString() : null
