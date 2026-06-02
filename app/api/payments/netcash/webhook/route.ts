@@ -19,6 +19,8 @@ import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service
 import { formatPaymentMethod } from '@/lib/payments/types';
 import { webhookLogger } from '@/lib/logging';
 import { matchInvoiceByReference } from '@/lib/billing/invoice-matcher';
+import { extractCustomerEmail } from '@/lib/payments/netcash-webhook-email';
+import { decideWebhookAction } from '@/lib/payments/netcash-webhook-auth';
 
 /**
  * Verify NetCash webhook signature
@@ -353,7 +355,7 @@ export async function POST(request: NextRequest) {
           currency: 'ZAR',
           status: paymentStatus,
           payment_method: bodyParsed.PaymentMethod || bodyParsed.payment_method || null,
-          customer_email: bodyParsed.Extra2 || null, // NetCash Extra2 for email
+          customer_email: extractCustomerEmail(bodyParsed), // Email/CustomerEmail only — never Extra2 (it holds the notify URL)
           provider_response: bodyParsed,
           initiated_at: new Date().toISOString(),
           completed_at: paymentStatus === 'completed' ? new Date().toISOString() : null
@@ -473,6 +475,31 @@ export async function POST(request: NextRequest) {
 
         if (invoiceMatch.matched && invoiceMatch.invoice) {
           const invoice = invoiceMatch.invoice;
+
+          // AUTHORIZATION GATE: NetCash Pay Now does not sign webhooks, so we fail
+          // safe — only mutate the invoice when the amount is sane for it.
+          const owed = Number(invoice.amount_due ?? invoice.total_amount ?? 0);
+          const invoiceDecision = decideWebhookAction({
+            entityMatched: true,
+            owedAmount: owed,
+            receivedAmount: amount,
+          });
+          if (invoiceDecision.action === 'manual_review') {
+            webhookLogger.warn('[Invoice Payment] Blocked — manual review required', {
+              reference, invoiceNumber: invoice.invoice_number, amount, owed, reason: invoiceDecision.reason,
+            });
+            if (webhookLog) {
+              await supabase.from('payment_webhook_logs')
+                .update({ status: 'manual_review', success: false, error_message: invoiceDecision.reason,
+                          processing_completed_at: new Date().toISOString() })
+                .eq('id', webhookLog.id);
+            }
+            return NextResponse.json(
+              { success: true, message: 'Webhook received; held for manual review', reference },
+              { status: 200 }
+            );
+          }
+
           webhookLogger.info('[Invoice Payment] Invoice matched', {
             reference,
             matchMethod: invoiceMatch.matchMethod,
