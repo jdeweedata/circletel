@@ -24,21 +24,25 @@ to it. Schedules live only in `vercel.json`, which is dead post-Coolify-migratio
 
 ---
 
-## DECISION GATE 0 — Choose the authoritative generator (operator/business decision)
+## DECISION GATE 0 — Authoritative generator: **DECIDED ✅**
 
 Exactly one invoice generator may be scheduled, or customers get double/triple-billed.
 
-- **Recommendation:** Use `generate-monthly-invoices` (bills on the 1st, `billing_day`-matched) as the
-  authoritative engine for the **catch-up** and ongoing recurring billing. Rationale: it has the safest
-  `dryRun` (returns before any write — verified at `monthly-invoice-generator.ts:332`), idempotent dedup
-  via `last_invoice_date` (prevents re-billing within a month), and a dedicated audit table.
-- **Alternative (business model "generate 25th / due 1st", per PR #493):** Use `generate-invoices-25th`.
-  If chosen, read that route fully and confirm its dedup before enabling — it fires customer PayNow
-  notifications on every run.
-- **Required action:** Pick ONE. The rest of this plan assumes `generate-monthly-invoices`. If you pick
-  the 25th engine, swap the endpoint in Phases 3–5 accordingly.
+**DECISION (2026-06-02): `generate-monthly-invoices` is the single authoritative engine for BOTH the
+catch-up and ongoing recurring billing, scheduled `0 4 1 * *` (1st of month).**
 
-- [ ] **Decision recorded:** authoritative generator = `__________________`
+Rationale: one engine = least moving parts for a small team; safest `dryRun` (returns before any write,
+verified `monthly-invoice-generator.ts:332`); idempotent dedup via `last_invoice_date`; dedicated audit
+table (`billing_cron_logs`). **Accepted trade-off:** invoices generate on the 1st and are **due the same
+day** — customers get no advance-notice window (weaker for collections than the 25th→due-1st model).
+
+The other two engines are **retired** (see Phase 5):
+- `generate-invoices` (daily) — **broken**: queries `customer_services.next_billing_date`, a column that
+  does not exist → throws on every run. Delete or fix; never schedule.
+- `generate-invoices-25th` (25th) — viable alternative model (25th→due-1st) but NOT used here. Leave
+  unscheduled.
+
+- [x] **Decision recorded:** authoritative generator = **`generate-monthly-invoices` (1st, both catch-up + ongoing)**
 
 ---
 
@@ -153,17 +157,21 @@ The endpoint works; it just needs to be on the Coolify schedule like `payment-re
 
 ## Phase 5 — Retire the redundant generators (prevent double-billing)
 
-- [ ] **Step 1 — Ensure ONLY the chosen generator is scheduled on Coolify.** Do NOT create Coolify tasks
-  for `generate-invoices` or `generate-invoices-25th` (unless one of them was chosen in Gate 0, in which
-  case it is the only one scheduled).
+- [ ] **Step 1 — Ensure ONLY `generate-monthly-invoices` is scheduled on Coolify.** Do NOT create Coolify
+  tasks for `generate-invoices` or `generate-invoices-25th`.
 
-- [ ] **Step 2 — Mark the dead schedules in `vercel.json`** with a comment/PR note that they are
-  superseded (vercel.json is inert post-migration, but it misleads readers). Modify
-  `vercel.json` to remove or annotate the two non-authoritative invoice-generation cron entries. Commit:
+- [ ] **Step 2 — Fix or remove the broken `generate-invoices` job.** It queries the non-existent column
+  `customer_services.next_billing_date` (verified 2026-06-02 — `column does not exist`), so it errors on
+  every invocation. Either delete `app/api/cron/generate-invoices/route.ts` or correct its eligibility
+  query. At minimum it must never be scheduled.
+
+- [ ] **Step 3 — Remove/annotate the dead schedules in `vercel.json`** (inert post-migration, but
+  misleads readers). Keep only `generate-monthly-invoices`; remove or comment the
+  `generate-invoices` and `generate-invoices-25th` cron entries. Commit:
 
 ```bash
-git add vercel.json
-git commit -m "chore(billing): mark non-authoritative invoice crons as superseded (Coolify uses one generator)"
+git add vercel.json app/api/cron/generate-invoices/route.ts
+git commit -m "chore(billing): retire broken/duplicate invoice crons; generate-monthly-invoices is authoritative"
 ```
 
 - [ ] **Step 3 — Document the decision** in `docs/audits/2026-06-02-netcash-payment-reconciliation.md`
