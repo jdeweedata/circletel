@@ -523,6 +523,8 @@ export class MonthlyInvoiceGenerator {
         vat_rate: vatRate,
         tax_amount: vatAmount,
         total_amount: totalAmount,
+        amount_due: totalAmount, // new invoice: full amount owed (NOT NULL column)
+        amount_paid: 0,
         line_items: lineItems,
         invoice_type: 'recurring',
         status: 'unpaid',
