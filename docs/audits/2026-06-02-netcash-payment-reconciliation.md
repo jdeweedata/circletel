@@ -17,6 +17,7 @@
 | 4 | R899 order payment (real revenue) has **null `customer_id`/`customer_email`** on the transaction despite being invoice-linked | **P2** | 1 row |
 | 5 | 3 payment methods marked `token_status=active` + `is_primary` with **null `card_token`** — uncharffeable | **P1** | 3 rows |
 | 6 | Ashwyn's two 08-May order payments never produced a webhook | **Investigated** | Not revenue — see §5 |
+| 7 | Order webhook branch is **dead for real `CT-PAY-ORD-*` refs** (regex `/^CT-\d{8}-/` never matches) → orders never marked paid by webhook | **P1 (functional)** | Confirmed — see §8 |
 
 **Bottom line on money:** Of the 7 supplied transactions, **only one is real revenue** — the R899 Ozow payment (`CT-20260505-95ppe6nm`) for invoice **INV-2026-00008**, which is correctly recorded as fully `paid`. The remaining six are R1 card-authorization / payment-method-validation charges, not package revenue. **No revenue has been lost.**
 
@@ -182,10 +183,38 @@ WHERE id = 'fc21435a-6c7a-44a4-9444-30b8f15c97b9' AND customer_email LIKE 'http%
 
 | Item | Action | Status |
 |------|--------|--------|
-| Finding 1 (Extra2) | `extractCustomerEmail()` helper (`lib/payments/netcash-webhook-email.ts`) wired into `route.ts:356`; 9 unit tests incl. Extra2 regression | ✅ **Done** (type-check clean, tests pass) |
-| Finding 2 (signature) | Design hardening (txn+amount validation) — **needs decision**, not a flip | ⏸ Recommended, deferred (awaiting sign-off) |
+| Finding 1 (Extra2) | `extractCustomerEmail()` helper (`lib/payments/netcash-webhook-email.ts`) wired into route; 9 unit tests incl. Extra2 regression | ✅ **Done** (type-check clean, tests pass) |
+| Finding 2 (signature/auth) | Fail-safe **authorization gate** on the **invoice** mutation: `decideWebhookAction()` (`lib/payments/netcash-webhook-auth.ts`, 7 unit tests) requires amount-sanity vs the invoice before marking paid; mismatches → `manual_review`, no mutation, HTTP 200 | ✅ **Done** (invoice path; branch `feature/netcash-webhook-auth-hardening`) |
 | Finding 3 (dead route) | Deprecate/remove singular stack | Recommended |
 | Finding 4 (R899 linkage) | Data backfill 6.1 applied — txn `d778c220…` → `96cbba3b` / shaunr07@gmail.com | ✅ **Done** |
 | Finding 1 cleanup | 6.2 applied — 2 corrupted URL emails repaired; 0 URL-emails remain | ✅ **Done** |
 | Finding 5 (null tokens) | Re-tokenization + insert-guard (only mark `active` when token present) | Recommended |
+| Finding 7 (dead order branch) | Fix routing regex + derive order total from `package_price`+fees, then gate — **separate scoped work** (see §8) | Recommended (own branch) |
 | Ashwyn | No action (not revenue — card tokenized OK, orders correctly pending) | Closed |
+
+> **Verification of Finding 2 fix:** the decision logic has 7 isolated unit tests (`netcash-webhook-auth.test.ts`) and the wiring is type-checked + peer-reviewed (gate provably precedes the `customer_invoices` update). A live webhook replay was **deliberately not run** because the webhook uses the service-role client against the production database — replaying would mutate real rows and pollute `payment_webhook_logs`. Confidence rests on unit tests + static review, not a prod-mutating replay.
+>
+> **Pre-existing test debt (not introduced here):** `__tests__/lib/payments/payment-processor.test.ts` and `netcash-provider.test.ts` fail on `main` (broken Supabase mocks — `Cannot read properties of undefined (reading 'from')`). Out of scope; flagged for separate cleanup.
+
+---
+
+## 8. Finding 7 — Order Webhook Branch Is Dead for Real References
+
+The order-payment branch in `app/api/payments/netcash/webhook/route.ts` is gated on
+`else if (reference && /^CT-\d{8}-/i.test(reference))`. Real order references arrive as
+`CT-PAY-ORD-20260529-1561-<ts>` — after `CT-` comes `PAY`, **not 8 digits**, so the regex never
+matches. Consequently `updateOrderFromPayment()` is **never called for real order payments**; they
+fall through to the "No invoice or order matched — manual review" warning. This is consistent with the
+DB: orders `ORD-20260529-1561`, `ORD-20260519-3375`, `ORD-20260508-5728/2875` all remain
+`payment_status='pending'`, `total_paid=0`.
+
+**Security note:** this is a *functional* bug, **not** a security hole — a forged webhook cannot mutate
+an order via a branch that never executes for order-shaped references. The Finding 2 authorization gate
+was therefore scoped to the **invoice** branch (the only live money-mutation path).
+
+**Recommended separate fix (own branch, with tests):**
+1. Correct the order-branch condition to match `CT-PAY-ORD-*` (or route by `normalizeNetcashReference()`
+   resolving to a `consumer_orders.payment_reference`).
+2. Derive the order's owed amount from `package_price + installation_fee + router_fee + prorata_amount`
+   (there is **no** single `total_amount` column on `consumer_orders`).
+3. Apply the same `decideWebhookAction()` gate before mutating the order.

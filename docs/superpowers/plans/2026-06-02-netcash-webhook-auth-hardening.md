@@ -10,6 +10,12 @@
 
 **Out of scope (documented separately in `docs/audits/2026-06-02-netcash-payment-reconciliation.md`):** Finding 3 (removing the dead singular route stack) and Finding 5 (null-token payment methods). Do not touch those here.
 
+> ## Execution outcome (2026-06-02) — branch `feature/netcash-webhook-auth-hardening`
+> - **Task 1 — DONE** (`437b444a`): pure decider `lib/payments/netcash-webhook-auth.ts` + 7 unit tests. Spec + quality reviewed ✅.
+> - **Task 2 — DONE** (`10184f48`): invoice-branch authorization gate. Type-check clean, spec + quality reviewed ✅. This secures the only **live** money-mutation path.
+> - **Task 3 — DESCOPED.** Investigation found both of this task's assumptions are false: the order branch regex `/^CT-\d{8}-/` never matches real `CT-PAY-ORD-*` refs (so `updateOrderFromPayment` is dead code — not a live attack surface), and `consumer_orders` has **no** `total_amount` column (owed must be derived from `package_price`+fees). Gating dead code adds no security value (YAGNI). The underlying functional bug is recorded as **Finding 7 / §8** in the audit and recommended as separate, properly-tested work.
+> - **Task 4 — ADAPTED.** Live prod-mutating replay deliberately skipped (the webhook uses the service-role client against the production DB). Verification = 7 decider unit tests + type-check + peer review confirming the gate precedes the invoice mutation.
+
 ---
 
 ## Background facts the implementer must know
