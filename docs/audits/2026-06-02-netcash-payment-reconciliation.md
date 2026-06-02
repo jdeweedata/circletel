@@ -218,3 +218,94 @@ was therefore scoped to the **invoice** branch (the only live money-mutation pat
 2. Derive the order's owed amount from `package_price + installation_fee + router_fee + prorata_amount`
    (there is **no** single `total_amount` column on `consumer_orders`).
 3. Apply the same `decideWebhookAction()` gate before mutating the order.
+
+---
+
+## 9. Billing-Cycle Diagnosis — "payments not showing up / not reconciled / billing not updating"
+
+Investigation (read-only, 2026-06-02) of the live order → payment → invoice → recurring-billing
+pipeline. **No billing data was mutated.**
+
+### Funnel snapshot (production)
+
+| Stage | State |
+|-------|-------|
+| `consumer_orders` | 21 total — **all** `payment_status='pending'`; only 2 `billing_active=true` |
+| billing-active orders | `CT-2025-00012` next_billing **2025-12-01** (frozen 6 mo); `CT-2025-00030` next_billing **2026-05-25** (passed, not advanced) |
+| `customer_invoices` | 9 ever; newest **created 2026-05-05**; 7 paid, 1 overdue, 1 sent; R1,998 outstanding |
+| `customer_services` | **28 active, all `billing_day=1`, all `last_invoice_date = NULL`** |
+| `payment_transactions` | 12 completed, 3 failed, **35 pending** (stuck); **9 completed orphans** (no invoice/order link) |
+| `payment_webhook_logs` | 16 ever; all `signature_verified=false`; newest 2026-05-29 |
+
+### PRIMARY ROOT CAUSE — recurring invoice generation is not executing in production
+
+All **28 active `customer_services` have `last_invoice_date = NULL`** — the `MonthlyInvoiceGenerator`
+(`lib/billing/monthly-invoice-generator.ts:240-275`, sets `last_invoice_date` after billing) has
+**never successfully billed any of them**. No invoice batch exists on any 1st-of-month; nothing was
+generated for the 2026-06-01 run. The endpoint (`/api/cron/generate-monthly-invoices`) exists, is
+wired, supports `dryRun`, and defaults `billingDay` to today.
+
+**Why it isn't running:** all cron schedules live in `vercel.json` (`0 4 1 * *` for this job), but
+**Vercel was decommissioned in the 2026-04-05 Coolify migration (Vercel builds disabled).** `vercel.json`
+crons do not execute on Coolify. Whether the equivalent Coolify scheduled tasks exist / fire / succeed
+is **external config not visible in the repo** — it must be checked in Coolify + prod logs.
+
+**CONFIRMED (2026-06-02):** the `billing_cron_logs` table — which the generator writes to on **every**
+run (`monthly-invoice-generator.ts:561`), including dry runs — has **0 rows**. The generator has
+**never executed in production**. This, plus all 28 services at `last_invoice_date=NULL` and no
+invoice batch on any 1st-of-month, is conclusive: the cron is not firing. The remaining unknown
+(Coolify task missing vs present-but-failing) is immaterial — the fix is on the scheduling/infra side.
+
+**Pre-enable check (safe, non-mutating), before turning the real cron on:**
+`POST /api/cron/generate-monthly-invoices` with `{ "dryRun": true, "billingDay": 1 }` +
+`Authorization: Bearer $CRON_SECRET`. Expect ~28 services eligible. `dryRun` returns before any
+invoice/`last_invoice_date`/ZOHO write (`monthly-invoice-generator.ts:332`), so it is safe to run
+against production. (Use `billingDay:1` explicitly — the GET form defaults to *today*, which would
+match 0 services since all are `billing_day=1`.)
+
+### Contributing defects (verified in code/data)
+
+1. **Order webhooks are dead (Finding 7)** → order payments never mark orders paid; no order ever
+   becomes `billing_active`. There is also **no traced bridge** from a paid `consumer_order` to a
+   `customer_services` row, so new orders never enter the billing engine.
+2. **Transaction↔invoice link gap.** The webhook marks invoices paid but leaves
+   `payment_transactions.invoice_id = NULL` (9 orphans, incl. real R899 payments whose invoices ARE
+   paid). The ledger is unreliable for "which payment paid which invoice" → payments appear "missing"
+   in any transaction→invoice view.
+3. **Overlapping/ambiguous billing crons** — `generate-invoices` (daily), `generate-monthly-invoices`
+   (1st), `generate-invoices-25th` (25th), `process-billing-day` (daily) all exist. Unclear which is
+   authoritative; this ambiguity likely contributed to none reliably running post-migration.
+
+### Business impact (who isn't being billed)
+
+The 28 active `customer_services` break down as:
+
+| Segment | Count | Monthly | Notes |
+|---------|-------|---------|-------|
+| Unjani clinic sites (`*@unjani.org`, R450, `billing_day=1`) | 19 | R8,550 | Created **2026-05-12**; first invoice due **2026-06-01** — never generated |
+| Real consumer customers (Prins Mhlanga R999; Shaun Robertson R899) | 2 | R1,898 | Invoiced sporadically/manually |
+| Test/system accounts (R0, `CTF-*`, `*@circletel.co.za`) | 6 | R0 | Should be excluded from billing runs |
+
+**~R8,550/mo of Unjani recurring revenue has never been invoiced** because the cron has never fired,
+and the Unjani billing relationship (live since ~2026-05-12) has never started. This is the most likely
+real-world manifestation of the reported symptom.
+
+### Remediation path
+
+1. **Infra (Coolify — requires operator access):** create/repair the scheduled task that POSTs
+   `/api/cron/generate-monthly-invoices` (`0 4 1 * *`, Bearer `CRON_SECRET`). Verify it appears in
+   Coolify's scheduled tasks and check its run history. The `vercel.json` crons are dead post-migration.
+2. **Data cleanup:** exclude/deactivate the 6 R0 `CTF-*` test services so they don't generate noise
+   invoices + emails on the first real run.
+3. **Controlled catch-up run:** `dryRun:true, billingDay:1` first (preview the ~21 real invoices), then
+   a real run **with explicit go-ahead** (it creates invoices, syncs ZOHO, and sends PayNow
+   notifications to 19 clinics + 2 customers).
+4. **Consolidate billing crons:** decide the authoritative job among `generate-invoices` (daily),
+   `generate-monthly-invoices` (1st), `generate-invoices-25th` (25th), `process-billing-day` (daily);
+   retire the rest to prevent double-billing once scheduling is restored.
+
+### What this means for the webhook-hardening branch
+
+The `feature/netcash-webhook-auth-hardening` branch is correct and safe but is **orthogonal** to these
+symptoms — it hardens/cleans, it does not start the billing engine. The user-felt problem is the
+**billing cron execution gap (PRIMARY)**, not the webhook.
