@@ -53,7 +53,6 @@ export interface ServiceToBill {
   package: {
     id: string;
     name: string;
-    monthly_price: number;
   } | null;
 }
 
@@ -267,8 +266,7 @@ export class MonthlyInvoiceGenerator {
         ),
         package:service_packages(
           id,
-          name,
-          monthly_price
+          name
         )
       `
       )
