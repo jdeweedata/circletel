@@ -67,15 +67,18 @@ Expected: 6 rows, all `monthly_price=0`, `status='active'`.
 
 - [ ] **Step 2 — Deactivate (mutating):**
 
+> ⚠️ `customer_services.status` has a `valid_status` CHECK allowing only
+> `pending / active / suspended / cancelled`. Use **`cancelled`** — `inactive` would violate it.
+
 ```sql
-UPDATE customer_services SET status = 'inactive', updated_at = now()
+UPDATE customer_services SET status = 'cancelled', updated_at = now()
 WHERE id IN ('ffd59805-ed3b-4470-b73a-1a957a004ef8','08509cb3-b9cf-4c2c-85ae-4fc89a6476a5',
              '39c268ca-1789-471f-880e-b83cc1a1c7c0','687694d5-5f9f-42ca-9735-2c0667ddd075',
              '506f87c9-f88a-4daa-bc83-bbc73322de7c','6786c68b-af29-4026-8e7c-e6248a976f7a')
   AND monthly_price = 0
 RETURNING id, status;
 ```
-Expected: 6 rows returned, `status='inactive'`.
+Expected: 6 rows returned, `status='cancelled'`.
 
 - [ ] **Step 3 — Verify the billable set is now 22:**
 
@@ -88,6 +91,13 @@ Expected: 22 active, 21 paid (19 Unjani + Prins + Shaun). (One R0 may remain if 
 ---
 
 ## Phase 2 — Dry-run preview of the catch-up run (no writes)
+
+> ⚠️ PREREQUISITE — **deploy the engine fix first.** The `dryRun`/catch-up curls hit
+> **production**, which runs the **deployed** code. The currently-deployed `MonthlyInvoiceGenerator`
+> has two bugs (branch `fix/billing-invoice-generator`, commit `33f136f3` fixes them): it over-bills
+> 15% (treats VAT-inclusive `monthly_price` as net) and inserts no `invoice_number` (NOT NULL, no
+> sequence → every insert fails). **Do NOT run Phase 2/3 against production until `fix/billing-invoice-generator`
+> is merged and deployed**, or the preview reflects the broken engine and a real run would fail/misbill.
 
 Confirms exactly who would be billed before any invoice is created. `dryRun` returns before all writes
 (`monthly-invoice-generator.ts:332`). Run this yourself so `CRON_SECRET` stays in your shell:
@@ -112,24 +122,38 @@ Expected: `dryRun:true`, `totalServices` ≈ 21, `invoicesCreated` (preview coun
 > ⚠️ This creates ~21 real invoices, syncs them to ZOHO, and sends Pay Now notifications to 19 clinics +
 > 2 customers. Requires explicit operator go-ahead AFTER Phase 2 looks correct.
 
-- [ ] **Step 1 — Real run:**
+- [ ] **Step 1 — Real run, but SILENT first (`skipPayNow:true`).** Create the invoices without
+  notifying customers, so we can verify amounts/numbers before any email/SMS goes out on this
+  first-ever real run:
 
 ```bash
 ! set -a; source /home/circletel/.env.local; set +a; \
 curl -s -X POST https://www.circletel.co.za/api/cron/generate-monthly-invoices \
   -H "Authorization: Bearer $CRON_SECRET" -H "content-type: application/json" \
-  -d '{"billingDay":1}' | jq '{runId,totalServices,invoicesCreated,failed,skipped}'
+  -d '{"billingDay":1,"skipPayNow":true}' | jq '{runId,totalServices,invoicesCreated,failed,skipped}'
 ```
 Expected: `invoicesCreated` ≈ 21, `failed:0`.
 
-- [ ] **Step 2 — Verify invoices + audit row:**
+- [ ] **Step 2 — Verify amounts, numbers + audit row (CRITICAL gate before notifying):**
 
 ```sql
-SELECT count(*) AS new_invoices FROM customer_invoices WHERE created_at::date = current_date;
+-- Amounts must be VAT-INCLUSIVE: total = price (450/899/999), not price*1.15
+SELECT invoice_number, total_amount, subtotal, tax_amount, status
+FROM customer_invoices WHERE created_at::date = current_date ORDER BY invoice_number;
+-- Expect: Unjani total 450 (391.30+58.70), Shaun 899 (781.74+117.26), Prins 999 (868.70+130.30)
+-- Numbers continue the sequence: INV-2026-00009, 00010, ...
 SELECT created_at, services_processed, invoices_created, dry_run FROM billing_cron_logs ORDER BY created_at DESC LIMIT 1;
 SELECT count(*) AS still_null FROM customer_services WHERE status='active' AND billing_day=1 AND last_invoice_date IS NULL;
 ```
-Expected: ~21 new invoices; one fresh `billing_cron_logs` row (`dry_run=false`); `still_null = 0`.
+Expected: ~21 new invoices with **correct VAT-inclusive totals**; fresh `billing_cron_logs` row
+(`dry_run=false`); `still_null = 0`. **If any total = price×1.15, STOP — the fix isn't deployed.**
+
+- [ ] **Step 2b — Send notifications** only after Step 2 is verified. ⚠️ Re-running the generator will
+  NOT notify these invoices — it `skip`s already-billed services, and the Pay Now send lives inside the
+  create branch. Notifications for already-created invoices must come from a separate path: the
+  `process-billing-day` cron (sends Pay Now links for invoices due today to non-eMandate customers) or a
+  per-invoice Pay Now send (`processPayNowForInvoice`). Verify that path picks up these invoices before
+  relying on it; confirm channel (email/SMS) with the operator.
 
 - [ ] **Step 3 — Re-run idempotency check:** repeat Step 1. Expected: `invoicesCreated:0`, all `skipped`
   ("Already billed this month"). Confirms no double-billing.
