@@ -8,7 +8,7 @@ import { LivePrice } from '@/components/products/LivePrice'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { Button } from '@/components/ui/button'
-import { products, getProductBySlug } from '@/lib/data/products'
+import { products, getProductBySlug } from '@/lib/data/payload-products'
 
 type Params = { uid: string }
 

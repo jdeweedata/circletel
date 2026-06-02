@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { products, getProductBySlug } from '@/lib/data/products';
+import { getAllProducts, getProductBySlug, getProductSlugs } from '@/lib/data/payload-products';
 import { Button } from '@/components/ui/button';
 import { PiWhatsappLogoBold } from 'react-icons/pi';
 import { Navbar } from '@/components/layout/Navbar';
@@ -19,15 +19,16 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const slugs = await getProductSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return { title: 'Product Not Found' };
@@ -49,7 +50,7 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();

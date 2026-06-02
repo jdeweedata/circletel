@@ -39,7 +39,7 @@ export default function AdminLayout({
   const devBypass = isDev && isLocalhost;
 
   // Full-screen routes that use their own layout (no admin sidebar/header)
-  const fullScreenRoutes = ['/admin/cms/builder'];
+  const fullScreenRoutes: string[] = [];
   const isFullScreenRoute = fullScreenRoutes.some(route => pathname?.startsWith(route));
 
   // Fetch admin user from API (server-side validates session from cookies)

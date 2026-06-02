@@ -364,9 +364,7 @@ const navigationSections: NavSection[] = [
         name: 'CMS Management',
         icon: PiGlobeBold,
         children: [
-          { name: 'Pages', href: '/admin/cms', icon: PiFileTextBold },
-          { name: 'Media Library', href: '/admin/cms/media', icon: PiImageBold },
-          { name: 'Page Builder', href: '/admin/cms/builder', icon: PiSidebarSimpleBold }
+          { name: 'Content (Payload)', href: '/cms', icon: PiFileTextBold },
         ]
       },
     ]

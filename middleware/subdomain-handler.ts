@@ -2,7 +2,7 @@
  * Subdomain Handler
  *
  * Handles subdomain-based routing for CircleTel.
- * Currently supports: studio.circletel.co.za -> /admin/cms
+ * Currently supports: studio.circletel.co.za -> /cms (Payload CMS)
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
@@ -18,8 +18,7 @@ interface SubdomainConfig {
  * Add new subdomains here as needed
  */
 const SUBDOMAIN_ROUTES: SubdomainConfig[] = [
-  { prefix: 'studio.', rewriteTo: '/admin/cms' },
-  { prefix: 'sanity.', rewriteTo: '/studio' },
+  { prefix: 'studio.', rewriteTo: '/cms' },
 ];
 
 /**

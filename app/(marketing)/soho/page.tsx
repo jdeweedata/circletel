@@ -1,4 +1,4 @@
-import { products as allProducts } from '@/lib/data/products';
+import { products as allProducts } from '@/lib/data/payload-products';
 import SOHOContent from './SOHOContent';
 
 interface Plan {

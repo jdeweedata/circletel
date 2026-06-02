@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { products, getProductBySlug } from '@/lib/data/products';
+import { products, getProductBySlug } from '@/lib/data/payload-products';
 import { Button } from '@/components/ui/button';
 import { LivePrice } from '@/components/products/LivePrice';
 

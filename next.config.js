@@ -33,6 +33,13 @@ const nextConfig = {
     '@mendable/firecrawl-js',
     '@modelcontextprotocol/sdk',
   ],
+  transpilePackages: [
+    '@payloadcms/next',
+    '@payloadcms/db-postgres',
+    '@payloadcms/richtext-lexical',
+    '@payloadcms/plugin-seo',
+    'payload',
+  ],
   experimental: {
     optimizePackageImports: [
       '@radix-ui/react-icons',
@@ -67,7 +74,6 @@ const nextConfig = {
     cpus: (isVercel || isCI || process.env.SELF_HOSTED) ? 1 : 4,
   },
   webpack: (config, { isServer }) => {
-    // Optimize chunk loading for dynamic imports
     // Optimize chunk loading for dynamic imports
     if (!isServer) {
       config.optimization = {

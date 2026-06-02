@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getProductBySlug } from '@/lib/data/products';
+import { getProductBySlug } from '@/lib/data/payload-products';
 import { BizMobilePromoBanner, BizMobilePageLayout } from '@/components/business-mobile';
 
 export function generateMetadata(): Metadata {

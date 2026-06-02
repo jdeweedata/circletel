@@ -26,7 +26,7 @@ import { WhyCircleTel } from '@/components/products/WhyCircleTel';
 import { BlockRenderer } from '@/components/blocks/BlockRenderer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { getProductBySlug } from '@/lib/data/products';
+import { getProductBySlug } from '@/lib/data/payload-products';
 import { resolvePlan, getPlansBySlug } from '@/lib/plans/plan-mapping';
 import { createClient } from '@/lib/supabase/server';
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { PiArrowRightBold, PiCheckCircleBold, PiWifiHighBold, PiSpinnerBold } from 'react-icons/pi';
 import Link from 'next/link';
-import { products as allProducts } from '@/lib/data/products';
+import { products as allProducts } from '@/lib/data/payload-products';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 

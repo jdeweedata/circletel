@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { getProductBySlug } from '@/lib/data/products';
+import { getProductBySlug } from '@/lib/data/payload-products';
 import {
   PiShieldCheckBold,
   PiPhoneBold,

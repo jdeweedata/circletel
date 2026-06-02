@@ -105,8 +105,8 @@ const getPageInfo = (pathname: string): { title: string; description: string } =
     return { title: 'Zoho Integration', description: 'Manage Zoho CRM, Mail, and Calendar' };
   }
 
-  // CMS
-  if (pathname.startsWith('/admin/cms')) {
+  // CMS (Payload)
+  if (pathname.startsWith('/cms')) {
     return { title: 'CMS Management', description: 'Manage website content' };
   }
 

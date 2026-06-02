@@ -3,7 +3,7 @@
  *
  * Handles request processing before reaching route handlers.
  * Responsibilities:
- * 1. Subdomain routing (studio.circletel.co.za -> /admin/cms)
+ * 1. Subdomain routing (studio.circletel.co.za -> /cms)
  * 2. Admin route authentication
  *
  * @see middleware/subdomain-handler.ts - Subdomain routing logic
