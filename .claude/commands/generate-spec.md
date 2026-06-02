@@ -50,6 +50,19 @@ mkdir -p "agent-os/specs/$specId"
 
 Generate the following files for the spec:
 
+### 4.0 (Optional) PROPOSAL.md + DESIGN.md — large initiatives only
+
+For specs flagged `priority: high` or `critical`, or any feature that touches 4+ task groups / multiple integrations, scaffold the optional pre-spec artifacts **first**:
+
+```bash
+cp agent-os/specs/_templates/PROPOSAL.md "agent-os/specs/$specId/"
+cp agent-os/specs/_templates/DESIGN.md   "agent-os/specs/$specId/"
+```
+
+These let stakeholders sign off on *why* (PROPOSAL) and *how* (DESIGN) before committing to a fully-detailed SPEC + TASKS. See `agent-os/specs/_templates/README.md` for guidance on when to use them.
+
+For small/medium specs (default), skip 4.0 and go straight to README + SPEC + TASKS below.
+
 ### 4.1 README.md
 Quick overview with:
 - Spec ID and title
