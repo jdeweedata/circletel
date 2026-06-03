@@ -23,9 +23,16 @@ export default buildConfig({
     meta: {
       titleSuffix: ' | CircleTel CMS',
     },
-    routes: {
-      admin: '/cms',
-    },
+  },
+
+  // URL base paths. These belong at the TOP LEVEL `routes` — NOT `admin.routes`,
+  // which only holds in-panel sub-routes (/account, /login, /forgot). The admin
+  // UI lives at /cms; the REST API is namespaced under /api/payload so it does
+  // not collide with the app's existing /api/* routes (folder:
+  // app/(payload)/api/payload/[[...slug]]/route.ts).
+  routes: {
+    admin: '/cms',
+    api: '/api/payload',
   },
 
   collections: [
