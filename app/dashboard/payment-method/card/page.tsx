@@ -1,23 +1,68 @@
 'use client';
-import { PiArrowLeftBold, PiCreditCardBold, PiEnvelopeBold, PiLockBold, PiPhoneBold, PiSpinnerBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiCreditCardBold, PiEnvelopeBold, PiLockBold, PiPhoneBold, PiShieldBold, PiSpinnerBold } from 'react-icons/pi';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
+interface PendingOrder {
+  id: string;
+  order_number: string;
+}
+
 export default function CardPaymentPage() {
-  const router = useRouter();
   const { session } = useCustomerAuth();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [billingDay, setBillingDay] = useState<string>('25');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [pendingOrders, setPendingOrders] = useState<PendingOrder[]>([]);
+  const fetchInProgress = useRef(false);
 
-  const handleAddPaymentMethod = async () => {
+  // Fetch pending orders (a mandate is tied to an order, same as the debit-order flow)
+  useEffect(() => {
+    async function fetchPendingOrders() {
+      if (!session?.access_token || fetchInProgress.current) return;
+      fetchInProgress.current = true;
+
+      try {
+        const response = await fetch('/api/orders/pending', {
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setPendingOrders(data.orders || []);
+        }
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      } finally {
+        fetchInProgress.current = false;
+      }
+    }
+
+    fetchPendingOrders();
+  }, [session?.access_token]);
+
+  const handleAddCardMandate = async () => {
     if (!session?.access_token) {
       toast.error('Please sign in to add a payment method');
+      return;
+    }
+
+    if (!acceptedTerms) {
+      toast.error('Please authorize the recurring card payment to continue');
+      return;
+    }
+
+    const orderId = pendingOrders[0]?.id;
+    if (!orderId) {
+      toast.error('No pending order found. Please create an order first.');
       return;
     }
 
@@ -26,36 +71,43 @@ export default function CardPaymentPage() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       controller.abort();
-    }, 45000);
+    }, 60000);
 
     try {
-      const response = await fetch('/api/payments/payment-method-initiate', {
+      const response = await fetch('/api/payment/emandate/initiate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          order_id: orderId,
+          billing_day: parseInt(billingDay, 10),
+          mandate_method: 'card',
+        }),
         signal: controller.signal,
       });
 
       const data = await response.json();
 
-      if (!response.ok || !data.success || !data.payment_url) {
-        throw new Error(data.error || 'Failed to initiate payment validation');
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || data.details || 'Failed to set up card mandate');
       }
 
-      toast.success('Redirecting to secure payment...');
+      toast.success(
+        'Card mandate submitted! Check your email/SMS from NetCash to enter your card and sign the mandate.',
+        { duration: 8000 }
+      );
 
       setTimeout(() => {
-        window.location.href = data.payment_url as string;
-      }, 1000);
+        window.location.href = '/dashboard/payment-method';
+      }, 3000);
     } catch (error: unknown) {
-      console.error('Payment validation error:', error);
-      if (error?.name === 'AbortError') {
-        toast.error('Payment gateway took too long to respond. Please try again.');
+      console.error('Card mandate setup error:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        toast.error('Request timed out. Please try again.');
       } else {
-        toast.error(error instanceof Error ? error.message : 'Failed to add payment method');
+        toast.error(error instanceof Error ? error.message : 'Failed to add card');
       }
     } finally {
       clearTimeout(timeoutId);
@@ -82,7 +134,7 @@ export default function CardPaymentPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Credit or Debit Card</h1>
-            <p className="text-gray-600">Add your card for secure automatic payments</p>
+            <p className="text-gray-600">Save your card for automatic monthly payments</p>
           </div>
         </div>
 
@@ -92,29 +144,22 @@ export default function CardPaymentPage() {
             <div className="flex items-start gap-3">
               <PiCreditCardBold className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
-                <h3 className="font-semibold text-blue-900">Card Verification</h3>
+                <h3 className="font-semibold text-blue-900">How it works</h3>
                 <p className="text-sm text-blue-700 mt-1">
-                  We'll charge <strong>R1.00</strong> to verify your card. This amount will be <strong>credited to your account</strong>.
+                  We&apos;ll send you a secure link from NetCash by email/SMS. You enter your card
+                  details there once, and it&apos;s securely saved for your monthly payments — no card
+                  details are stored by CircleTel.
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Main Card */}
+        {/* Mandate Setup */}
         <Card>
-          <CardContent className="p-8 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-full mb-6 shadow-lg">
-              <PiCreditCardBold className="w-10 h-10 text-white" />
-            </div>
-
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Add Your Card</h2>
-            <p className="text-gray-600 mb-6 max-w-sm mx-auto">
-              Click below to securely enter your card details via our payment partner.
-            </p>
-
+          <CardContent className="p-6 space-y-5">
             {/* Card Logos */}
-            <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="flex items-center justify-center gap-4">
               <Image
                 src="/images/payment-logos/visa-logo.svg"
                 alt="VISA"
@@ -138,28 +183,64 @@ export default function CardPaymentPage() {
               />
             </div>
 
+            {/* Billing Day */}
+            <div className="space-y-2">
+              <Label htmlFor="billing_day" className="text-sm font-medium">
+                Preferred Payment Day <span className="text-red-500">*</span>
+              </Label>
+              <Select value={billingDay} onValueChange={setBillingDay}>
+                <SelectTrigger id="billing_day" className="w-full">
+                  <SelectValue placeholder="Select day of month" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1st of the month</SelectItem>
+                  <SelectItem value="5">5th of the month</SelectItem>
+                  <SelectItem value="25">25th of the month</SelectItem>
+                  <SelectItem value="30">30th of the month</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">Your monthly payment will be charged on this day</p>
+            </div>
+
+            {/* Terms Acceptance */}
+            <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+              <Checkbox
+                id="accept_terms"
+                checked={acceptedTerms}
+                onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                className="mt-0.5"
+              />
+              <Label
+                htmlFor="accept_terms"
+                className="text-sm text-gray-700 leading-relaxed cursor-pointer"
+              >
+                I authorize CircleTel (Pty) Ltd to charge my card for monthly service charges.
+                I understand I can cancel this authorization at any time.
+              </Label>
+            </div>
+
+            {/* Submit Button */}
             <Button
-              onClick={handleAddPaymentMethod}
-              disabled={isProcessing}
-              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white text-base px-8 py-6 h-auto shadow-md"
-              size="lg"
+              onClick={handleAddCardMandate}
+              disabled={isProcessing || !acceptedTerms}
+              className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white text-base py-6 h-auto shadow-md"
             >
               {isProcessing ? (
                 <>
                   <PiSpinnerBold className="w-5 h-5 mr-2 animate-spin" />
-                  Processing...
+                  Setting up mandate...
                 </>
               ) : (
                 <>
-                  <PiCreditCardBold className="w-5 h-5 mr-2" />
-                  Continue to Payment
+                  <PiShieldBold className="w-5 h-5 mr-2" />
+                  Set Up Card Payment
                 </>
               )}
             </Button>
 
-            <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-2">
+            <p className="text-xs text-gray-500 text-center flex items-center justify-center gap-2">
               <PiLockBold className="w-3.5 h-3.5" />
-              <span>Secured by NetCash - 256-bit SSL encryption</span>
+              <span>You&apos;ll receive a secure NetCash link to enter and sign your card</span>
             </p>
           </CardContent>
         </Card>

@@ -19,12 +19,17 @@ export const maxDuration = 30;
  *
  * Optional body:
  * - customer_id: UUID (if not provided, will be derived from auth token)
+ * - mandate_method: 'bank' | 'card' (default 'bank'). 'card' issues a credit-card-backed
+ *   mandate (NetCash bankDetailType 2) — the customer enters card details on the NetCash
+ *   signing page and NetCash returns a reusable CCToken in the postback.
  * - bank_details: { bank_name, account_name, account_number, branch_code, account_type }
+ *   (bank mandates only)
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    let { customer_id, order_id, billing_day = 1, bank_details } = body;
+    let { customer_id, order_id, billing_day = 1, bank_details, mandate_method } = body;
+    const isCardMandate = mandate_method === 'card';
 
     // Validate order_id is required
     if (!order_id) {
@@ -175,13 +180,18 @@ export async function POST(request: NextRequest) {
       emailAddress: customer.email || undefined,
       sendMandate: true, // Auto-send mandate for signature
       publicHolidayOption: 1, // Next business day
-      // Bank details (if provided)
-      ...(bank_details && {
+      // Bank details (bank mandates only)
+      ...(bank_details && !isCardMandate && {
         bankDetailType: 1, // Bank account
         bankAccountName: bank_details.account_name,
         bankAccountNumber: bank_details.account_number,
         branchCode: bank_details.branch_code,
         bankAccountType: getBankAccountType(bank_details.account_type),
+      }),
+      // Credit-card mandate: NetCash collects card details at signing and returns a CCToken.
+      // We only signal the mandate type (bankDetailType 2); no card data is sent (PCI).
+      ...(isCardMandate && {
+        bankDetailType: 2, // Credit card
       }),
     };
 
@@ -257,7 +267,8 @@ export async function POST(request: NextRequest) {
         fileToken,
       });
     } catch (netcashError: unknown) {
-      paymentLogger.error('[eMandate Initiate] NetCash API error', { error: netcashError instanceof Error ? netcashError.message : String(netcashError) });
+      const netcashMessage = netcashError instanceof Error ? netcashError.message : String(netcashError);
+      paymentLogger.error('[eMandate Initiate] NetCash API error', { error: netcashMessage });
 
       // Update emandate_requests with error
       await supabase
@@ -265,7 +276,7 @@ export async function POST(request: NextRequest) {
         .update({
           status: 'failed',
           netcash_response_code: 'ERROR',
-          netcash_error_messages: [netcashError.message],
+          netcash_error_messages: [netcashMessage],
           updated_at: new Date().toISOString(),
         })
         .eq('id', emandateRecord.id);
@@ -273,7 +284,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Failed to create eMandate with NetCash',
-          details: netcashError.message,
+          details: netcashMessage,
         },
         { status: 502 }
       );
@@ -300,9 +311,10 @@ export async function POST(request: NextRequest) {
       message: 'Mandate request submitted. Customer will receive an email/SMS from NetCash to sign the mandate.',
     });
   } catch (error: unknown) {
-    paymentLogger.error('[eMandate Initiate] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
+    const message = error instanceof Error ? error.message : String(error);
+    paymentLogger.error('[eMandate Initiate] Unexpected error', { error: message });
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error', details: message },
       { status: 500 }
     );
   }
