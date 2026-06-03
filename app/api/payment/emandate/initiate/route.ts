@@ -231,20 +231,26 @@ export async function POST(request: NextRequest) {
 
       fileToken = batchResult.fileToken;
 
-      // Update emandate_requests with response
-      await supabase
+      // Update emandate_requests with response.
+      // NOTE: emandate_requests has no `metadata` column — writing it made this UPDATE fail
+      // silently (error was unchecked), leaving status stuck at 'pending' after a successful
+      // submit. file_token is captured in the log line below; persist only real columns here.
+      const { error: updateError } = await supabase
         .from('emandate_requests')
         .update({
           status: 'sent',
           request_type: 'batch', // Update to batch type
           netcash_response_code: 'SUCCESS',
-          metadata: {
-            file_token: fileToken,
-            submitted_at: new Date().toISOString(),
-          },
           updated_at: new Date().toISOString(),
         })
         .eq('id', emandateRecord.id);
+
+      if (updateError) {
+        paymentLogger.error('[eMandate Initiate] Failed to update request status after submit', {
+          error: updateError.message,
+          emandateRequestId: emandateRecord.id,
+        });
+      }
 
       paymentLogger.info('[eMandate Initiate] Mandate batch submitted successfully:', {
         emandateRequestId: emandateRecord.id,
