@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { NetCashEMandateBatchService, EMandateBatchRequest } from '@/lib/payments/netcash-emandate-batch-service';
+import { mapPaymentMethodToDisplay } from '@/lib/payments/payment-method-mapper';
 import { apiLogger } from '@/lib/logging';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
@@ -99,58 +100,9 @@ export async function POST(
     const amount = parseFloat(mandateAmount) || parseFloat(order.package_price) || 0;
     const billingDay = parseInt(debitDay) || 1;
 
-    // Delete any existing incomplete payment methods (from failed previous attempts)
-    await supabase
-      .from('payment_methods')
-      .delete()
-      .eq('netcash_account_reference', accountReference)
-      .is('mandate_signed_at', null);
-
-    // Create payment_methods record
-    // Note: valid_bank_account constraint requires bank_name, bank_account_name,
-    // and bank_account_number_masked when method_type = 'bank_account'
-    // Using placeholder values until customer completes mandate signing
-    const { data: paymentMethod, error: pmError } = await supabase
-      .from('payment_methods')
-      .insert({
-        customer_id: customer.id,
-        order_id: orderId,
-        method_type: 'bank_account',
-        status: 'pending',
-        // Placeholder bank details (required by constraint, updated after mandate signing)
-        bank_name: 'Pending',
-        bank_account_name: `${customer.first_name} ${customer.last_name}`,
-        bank_account_number_masked: 'XXXX-XXXX',
-        bank_account_type: 'current',
-        netcash_account_reference: accountReference,
-        mandate_amount: amount,
-        mandate_frequency: 'monthly',
-        mandate_debit_day: billingDay,
-        mandate_agreement_date: new Date().toISOString().split('T')[0],
-        mandate_active: false,
-        is_primary: true,
-        is_verified: false,
-        metadata: {
-          initiated_at: new Date().toISOString(),
-          initiated_by: 'admin',
-          order_number: order.order_number,
-          package_name: order.package_name,
-          payment_method_type: paymentMethodType,
-          debit_frequency: debitFrequency,
-          admin_notes: notes,
-          bank_details_pending: true,
-        },
-      })
-      .select()
-      .single();
-
-    if (pmError || !paymentMethod) {
-      apiLogger.error('[Admin Payment Method] Failed to create payment method', { error: pmError?.message, code: pmError?.code });
-      return NextResponse.json(
-        { success: false, error: 'Failed to create payment method' },
-        { status: 500 }
-      );
-    }
+    // W1.3 cutover: no pending `payment_methods` row is created. Pending state lives on
+    // `emandate_requests`; the active mandate is written to `customer_payment_methods` by the
+    // NetCash webhook / approve-validation on signing.
 
     // Build eMandate batch request
     const today = new Date();
@@ -183,7 +135,7 @@ export async function POST(
     const { data: emandateRecord, error: erError } = await supabase
       .from('emandate_requests')
       .insert({
-        payment_method_id: paymentMethod.id,
+        payment_method_id: null,
         order_id: orderId,
         customer_id: customer.id,
         request_type: 'batch',
@@ -208,7 +160,6 @@ export async function POST(
 
     if (erError || !emandateRecord) {
       apiLogger.error('[Admin Payment Method] Failed to create emandate request', { error: erError?.message, code: erError?.code });
-      await supabase.from('payment_methods').delete().eq('id', paymentMethod.id);
       return NextResponse.json(
         { success: false, error: 'Failed to create eMandate request' },
         { status: 500 }
@@ -248,23 +199,8 @@ export async function POST(
         })
         .eq('id', emandateRecord.id);
 
-      // Update payment_methods status
-      await supabase
-        .from('payment_methods')
-        .update({
-          status: 'pending',
-          metadata: {
-            ...paymentMethod.metadata,
-            file_token: fileToken,
-            mandate_sent_at: new Date().toISOString(),
-          },
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', paymentMethod.id);
-
       apiLogger.info('[Admin Payment Method] Mandate batch submitted successfully:', {
         emandateRequestId: emandateRecord.id,
-        paymentMethodId: paymentMethod.id,
         fileToken,
       });
     } catch (netcashError: unknown) {
@@ -280,14 +216,6 @@ export async function POST(
           updated_at: new Date().toISOString(),
         })
         .eq('id', emandateRecord.id);
-
-      await supabase
-        .from('payment_methods')
-        .update({
-          status: 'failed',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', paymentMethod.id);
 
       return NextResponse.json(
         {
@@ -318,7 +246,7 @@ export async function POST(
         mandateUrl,
         accountReference,
         emandateRequestId: emandateRecord.id,
-        paymentMethodId: paymentMethod.id,
+        paymentMethodId: null,
         fileToken,
         expiresAt: emandateRecord.expires_at,
       },
@@ -378,20 +306,20 @@ export async function GET(
       apiLogger.error('Error fetching emandate request', { error: emandateError.message, code: emandateError.code });
     }
 
-    // Fetch payment method separately to avoid join issues
-    let paymentMethodData = null;
-    if (emandateRequest?.payment_method_id) {
-      const { data: pmData, error: pmError } = await supabase
-        .from('payment_methods')
+    // Source of truth: active debit-order mandate in customer_payment_methods,
+    // written by the NetCash webhook / approve-validation on signing (W1.3 cutover).
+    let activeMandate: ReturnType<typeof mapPaymentMethodToDisplay> | null = null;
+    {
+      const { data: cpmRow } = await supabase
+        .from('customer_payment_methods')
         .select('*')
-        .eq('id', emandateRequest.payment_method_id)
-        .single();
-
-      if (pmError) {
-        apiLogger.error('Error fetching payment method', { error: pmError.message, code: pmError.code });
-      } else {
-        paymentMethodData = pmData;
-      }
+        .eq('customer_id', order.customer_id)
+        .eq('method_type', 'debit_order')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (cpmRow) activeMandate = mapPaymentMethodToDisplay(cpmRow);
     }
 
     // Helper function to generate signed URL for mandate PDFs in Supabase storage
@@ -423,32 +351,36 @@ export async function GET(
 
     // If we have an eMandate request, use that data
     if (emandateRequest) {
-      const pm = paymentMethodData;
+      // Prefer the active mandate (post-signing) from customer_payment_methods; before signing,
+      // fall back to the NetCash postback data / request payload on the emandate request itself.
+      const postback = emandateRequest.postback_data || {};
+      const reqPayload = emandateRequest.request_payload || {};
+      const statusMap: Record<string, string> = { signed: 'active', declined: 'declined', failed: 'failed' };
 
       // Get signed URL for the mandate PDF
-      const pdfLink = pm?.netcash_mandate_pdf_link || emandateRequest.postback_mandate_pdf_link;
+      const pdfLink = activeMandate?.netcash_mandate_pdf_link || emandateRequest.postback_mandate_pdf_link;
       const signedPdfUrl = await getSignedPdfUrl(pdfLink);
 
       const transformedPaymentMethod = {
-        id: pm?.id || emandateRequest.payment_method_id,
+        id: activeMandate?.id || emandateRequest.payment_method_id || emandateRequest.id,
         method_type: 'bank_account',
-        status: pm?.status || 'pending',
+        status: activeMandate?.status || statusMap[emandateRequest.status] || emandateRequest.status || 'pending',
 
-        // Bank account details from payment_methods or emandate postback
-        bank_name: pm?.bank_name || emandateRequest.postback_data?.BankName || null,
-        bank_account_name: pm?.bank_account_name || emandateRequest.postback_data?.BankAccountName || null,
-        bank_account_number_masked: pm?.bank_account_number_masked || emandateRequest.postback_data?.BankAccountNo || null,
-        bank_account_type: pm?.bank_account_type || 'cheque',
-        branch_code: pm?.branch_code || emandateRequest.postback_data?.BranchCode || null,
+        // Bank account details from the active mandate or emandate postback
+        bank_name: activeMandate?.bank_name || postback.BankName || null,
+        bank_account_name: activeMandate?.bank_account_name || postback.BankAccountName || null,
+        bank_account_number_masked: activeMandate?.bank_account_number_masked || postback.BankAccountNo || null,
+        bank_account_type: activeMandate?.bank_account_type || 'cheque',
+        branch_code: activeMandate?.branch_code || postback.BranchCode || null,
 
         // Mandate details
-        mandate_amount: pm?.mandate_amount || emandateRequest.mandate_amount,
+        mandate_amount: activeMandate?.mandate_amount ?? reqPayload.mandate_amount ?? null,
         mandate_frequency: 'monthly',
-        mandate_debit_day: emandateRequest.billing_day || pm?.mandate_debit_day || 25,
-        mandate_signed_at: pm?.mandate_signed_at || emandateRequest.signed_at,
+        mandate_debit_day: activeMandate?.mandate_debit_day || reqPayload.billing_day || 1,
+        mandate_signed_at: activeMandate?.mandate_signed_at || emandateRequest.signed_at,
         netcash_mandate_pdf_link: signedPdfUrl,
 
-        created_at: pm?.created_at || emandateRequest.created_at,
+        created_at: activeMandate?.created_at || emandateRequest.created_at,
       };
 
       const transformedEmandateRequest = {

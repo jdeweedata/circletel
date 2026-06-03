@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { apiLogger } from '@/lib/logging';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { buildActiveDebitOrderMethod } from '@/lib/payments/payment-method-mapper';
+import { activateDebitOrderMandate } from '@/lib/payments/activate-debit-order-mandate';
 
 /**
  * POST /api/admin/orders/[orderId]/approve-validation
@@ -58,7 +60,7 @@ export async function POST(
     // Find the emandate request for this order
     const { data: emandateRequest, error: emError } = await supabase
       .from('emandate_requests')
-      .select('*, payment_methods(*)')
+      .select('*')
       .eq('order_id', orderId)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -105,25 +107,36 @@ export async function POST(
       );
     }
 
-    // Update payment_methods status to 'active'
-    const { error: pmUpdateError } = await supabase
-      .from('payment_methods')
-      .update({
-        status: 'active',
-        mandate_active: true,
-        mandate_signed_at: now,
-        is_verified: true,
-        verification_method: 'netcash_validation',
-        netcash_mandate_reference: body.netcashReference || emandateRequest.netcash_account_reference,
-        activated_at: now,
-        updated_at: now,
-      })
-      .eq('id', emandateRequest.payment_method_id);
+    // Activate the debit-order mandate in customer_payment_methods (source of truth the
+    // debit batch reads) + customer_billing. Shared with the NetCash webhook path.
+    const reqPayload = (emandateRequest.request_payload || {}) as Record<string, unknown>;
+    const rawAmount = reqPayload.mandate_amount;
+    const amount =
+      typeof rawAmount === 'number'
+        ? rawAmount
+        : rawAmount != null && rawAmount !== ''
+          ? parseFloat(String(rawAmount))
+          : null;
+    const mandateRef = body.netcashReference || emandateRequest.netcash_account_reference;
 
-    if (pmUpdateError) {
-      apiLogger.error('Error updating payment method', { error: pmUpdateError.message, code: pmUpdateError.code });
+    const pmWrite = buildActiveDebitOrderMethod({
+      customerId: order.customer_id,
+      mandateRef,
+      amount: Number.isFinite(amount as number) ? (amount as number) : null,
+      debitDay: typeof reqPayload.billing_day === 'number' ? reqPayload.billing_day : 1,
+      signedAt: now,
+    });
+
+    const { errors: activationErrors } = await activateDebitOrderMandate(
+      supabase,
+      order.customer_id,
+      pmWrite
+    );
+
+    if (activationErrors.length) {
+      apiLogger.error('Error activating debit-order mandate', { errors: activationErrors, orderId });
       return NextResponse.json(
-        { success: false, error: 'Failed to update payment method' },
+        { success: false, error: 'Failed to activate payment method' },
         { status: 500 }
       );
     }

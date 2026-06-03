@@ -110,55 +110,12 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Fallback: PiCheckBold payment_methods table (for eMandate/debit order)
-    const { data: paymentMethods, error: paymentError } = await supabaseService
-      .from('payment_methods')
-      .select(`
-        id,
-        method_type,
-        status,
-        is_verified,
-        is_primary,
-        bank_name,
-        bank_account_number_masked,
-        card_type,
-        card_number_masked,
-        mandate_active
-      `)
-      .eq('customer_id', customer.id)
-      .eq('status', 'active')
-      .eq('is_verified', true)
-      .order('is_primary', { ascending: false })
-      .limit(1);
-
-    if (paymentError) {
-      console.error('Error checking payment_methods:', paymentError);
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to check payment method',
-          details: paymentError.message
-        },
-        { status: 500 }
-      );
-    }
-
-    const hasPaymentMethod = paymentMethods && paymentMethods.length > 0;
-    const primaryMethod = hasPaymentMethod ? paymentMethods[0] : null;
-
+    // customer_payment_methods is the single source of truth (W1.3 cutover). If nothing
+    // active was found above, the customer has no usable payment method.
     return NextResponse.json({
       success: true,
-      hasPaymentMethod,
-      paymentMethod: primaryMethod ? {
-        id: primaryMethod.id,
-        type: primaryMethod.method_type,
-        isPrimary: primaryMethod.is_primary,
-        // Masked details for display
-        displayName: primaryMethod.method_type === 'bank_account'
-          ? `${primaryMethod.bank_name || 'Bank'} ****${primaryMethod.bank_account_number_masked?.slice(-4) || '****'}`
-          : `${primaryMethod.card_type || 'Card'} ****${primaryMethod.card_number_masked?.slice(-4) || '****'}`,
-        mandateActive: primaryMethod.mandate_active,
-      } : null,
+      hasPaymentMethod: false,
+      paymentMethod: null,
     });
 
   } catch (error) {

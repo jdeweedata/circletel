@@ -376,9 +376,12 @@ export class MonthlyInvoiceGenerator {
         }
       }
 
-      // 6. Send Pay Now notification (non-blocking, continue on failure)
+      // 6. Send Pay Now notification (non-blocking, continue on failure).
+      // Skip for debit-order invoices — the daily debit batch collects those, and sending a
+      // Pay Now link would both overwrite payment_collection_method and risk a double charge.
       let paynowSent = false;
-      if (!skipPayNow) {
+      const isDebitOrder = invoice.payment_collection_method === 'debit_order';
+      if (!skipPayNow && !isDebitOrder) {
         try {
           const paynowResult = await processPayNowForInvoice(invoice.id, {
             sendEmail: true,
@@ -462,7 +465,7 @@ export class MonthlyInvoiceGenerator {
    */
   async createInvoice(
     service: ServiceToBill
-  ): Promise<{ id: string; invoice_number: string } | null> {
+  ): Promise<{ id: string; invoice_number: string; payment_collection_method: 'debit_order' | null } | null> {
     const supabase = await this.getClient();
     const now = new Date();
     const invoiceDate = now.toISOString().split('T')[0];
@@ -510,6 +513,11 @@ export class MonthlyInvoiceGenerator {
       },
     ];
 
+    // Route collection: if the customer has an active debit-order mandate, mark the invoice
+    // 'debit_order' so the daily debit batch (lib/inngest/functions/debit-orders.ts) collects it.
+    // Otherwise leave it for the Pay Now path. Default behaviour (paynow) is unchanged.
+    const collectionMethod = await this.resolveCollectionMethod(service.customer_id);
+
     // Insert invoice (invoice_number generated above — no DB trigger exists for customer_invoices)
     const { data: invoice, error } = await supabase
       .from('customer_invoices')
@@ -528,6 +536,7 @@ export class MonthlyInvoiceGenerator {
         line_items: lineItems,
         invoice_type: 'recurring',
         status: 'unpaid',
+        payment_collection_method: collectionMethod,
       })
       .select('id, invoice_number')
       .single();
@@ -540,7 +549,46 @@ export class MonthlyInvoiceGenerator {
       return null;
     }
 
-    return invoice;
+    return { ...invoice, payment_collection_method: collectionMethod };
+  }
+
+  /**
+   * Resolve the collection method for a customer's invoices.
+   * Returns 'debit_order' when the customer has an active, verified NetCash mandate (the same
+   * criteria the debit batch uses) or a customer_billing debit-order preference; else null
+   * (the Pay Now path takes over).
+   */
+  async resolveCollectionMethod(
+    customerId: string
+  ): Promise<'debit_order' | null> {
+    const supabase = await this.getClient();
+
+    const { data: methods } = await supabase
+      .from('customer_payment_methods')
+      .select('mandate_status, encrypted_details')
+      .eq('customer_id', customerId)
+      .eq('method_type', 'debit_order')
+      .eq('is_active', true);
+
+    const hasActiveMandate = (methods || []).some((m: any) => {
+      const verified =
+        m.encrypted_details?.verified === true ||
+        m.encrypted_details?.verified === 'true';
+      const mandateActive =
+        m.mandate_status === 'active' || m.mandate_status === 'approved';
+      return verified && mandateActive;
+    });
+
+    if (hasActiveMandate) return 'debit_order';
+
+    // Fallback: explicit billing preference set on mandate activation (customer_billing).
+    const { data: billing } = await supabase
+      .from('customer_billing')
+      .select('payment_method')
+      .eq('customer_id', customerId)
+      .maybeSingle();
+
+    return billing?.payment_method === 'debit_order' ? 'debit_order' : null;
   }
 
   /**

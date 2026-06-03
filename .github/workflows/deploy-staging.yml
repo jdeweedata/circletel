@@ -168,9 +168,14 @@ jobs:
             --health-timeout 10s \
             --health-retries 3 \
             --label "traefik.enable=true" \
-            --label "traefik.http.routers.staging.rule=Host(\`staging.circletel.co.za\`)" \
-            --label "traefik.http.routers.staging.entrypoints=websecure" \
-            --label "traefik.http.routers.staging.tls.certresolver=letsencrypt" \
+            --label "traefik.http.routers.staging-http.entryPoints=http" \
+            --label "traefik.http.routers.staging-http.rule=Host(\`staging.circletel.co.za\`)" \
+            --label "traefik.http.routers.staging-http.service=staging" \
+            --label "traefik.http.routers.staging-https.entryPoints=https" \
+            --label "traefik.http.routers.staging-https.rule=Host(\`staging.circletel.co.za\`)" \
+            --label "traefik.http.routers.staging-https.tls=true" \
+            --label "traefik.http.routers.staging-https.tls.certresolver=letsencrypt" \
+            --label "traefik.http.routers.staging-https.service=staging" \
             --label "traefik.http.services.staging.loadbalancer.server.port=3000" \
             circletel-staging:latest
 

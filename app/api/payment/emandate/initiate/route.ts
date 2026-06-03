@@ -10,8 +10,8 @@ export const maxDuration = 30;
  * POST /api/payment/emandate/initiate
  *
  * Initiates an eMandate request for a customer order.
- * Creates payment_methods and emandate_requests records,
- * then calls NetCash API to get mandate signing URL.
+ * Creates an emandate_requests record, then calls the NetCash API to submit the mandate.
+ * The active payment method is written to customer_payment_methods by the webhook on signing.
  *
  * Required body:
  * - order_id: UUID (required)
@@ -131,73 +131,9 @@ export async function POST(request: NextRequest) {
     const accountReference = customer.account_number;
     const mandateAmount = parseFloat(order.package_price) || 0;
 
-    // Delete any existing incomplete payment methods with the same account reference
-    // (from failed previous attempts). Only keep active mandates that are signed.
-    const { error: deleteError } = await supabase
-      .from('payment_methods')
-      .delete()
-      .eq('netcash_account_reference', accountReference)
-      .is('mandate_signed_at', null); // Only delete unsigned mandates
-
-    if (deleteError) {
-      paymentLogger.warn('[eMandate Initiate] Failed to clean up old payment methods', { error: deleteError.message });
-    } else {
-      paymentLogger.info('[eMandate Initiate] Cleaned up old unsigned payment methods', { accountReference });
-    }
-
-    // Create payment_methods record (pending status)
-    const { data: paymentMethod, error: pmError } = await supabase
-      .from('payment_methods')
-      .insert({
-        customer_id,
-        order_id,
-        method_type: 'bank_account',
-        status: 'pending',
-        netcash_account_reference: accountReference,
-        mandate_amount: mandateAmount,
-        mandate_frequency: 'monthly', // lowercase to match database constraint
-        mandate_debit_day: debitDay,
-        mandate_agreement_date: new Date().toISOString().split('T')[0],
-        mandate_active: false,
-        is_primary: true,
-        is_verified: false,
-        // Bank details (if provided)
-        bank_name: bank_details?.bank_name || null,
-        bank_account_name: bank_details?.account_name || null,
-        bank_account_number_masked: bank_details?.account_number
-          ? `****${bank_details.account_number.slice(-4)}`
-          : null,
-        branch_code: bank_details?.branch_code || null,
-        // Map frontend account types to database expected values (lowercase)
-        bank_account_type: bank_details?.account_type
-          ? (() => {
-              const dbTypeMap: Record<string, string> = {
-                'cheque': 'current',
-                'savings': 'savings',
-                'transmission': 'transmission',
-                'Current': 'current',
-                'Savings': 'savings',
-                'Transmission': 'transmission',
-              };
-              return dbTypeMap[bank_details.account_type] || 'current';
-            })()
-          : null,
-        metadata: {
-          initiated_at: new Date().toISOString(),
-          order_number: order.order_number,
-          package_name: order.package_name,
-        },
-      })
-      .select()
-      .single();
-
-    if (pmError || !paymentMethod) {
-      paymentLogger.error('[eMandate Initiate] Failed to create payment method', { error: pmError?.message });
-      return NextResponse.json(
-        { error: 'Failed to create payment method' },
-        { status: 500 }
-      );
-    }
+    // W1.3 cutover: no pending `payment_methods` row is created. The pending state lives on
+    // `emandate_requests` (status); the active mandate is written to `customer_payment_methods`
+    // by the NetCash webhook / approve-validation on signing.
 
     // Build eMandate batch request
     const today = new Date();
@@ -256,7 +192,7 @@ export async function POST(request: NextRequest) {
     const { data: emandateRecord, error: erError } = await supabase
       .from('emandate_requests')
       .insert({
-        payment_method_id: paymentMethod.id,
+        payment_method_id: null,
         order_id,
         customer_id,
         request_type: 'synchronous',
@@ -274,8 +210,6 @@ export async function POST(request: NextRequest) {
 
     if (erError || !emandateRecord) {
       paymentLogger.error('[eMandate Initiate] Failed to create emandate request', { error: erError?.message });
-      // Rollback payment method
-      await supabase.from('payment_methods').delete().eq('id', paymentMethod.id);
       return NextResponse.json(
         { error: 'Failed to create eMandate request' },
         { status: 500 }
@@ -312,23 +246,8 @@ export async function POST(request: NextRequest) {
         })
         .eq('id', emandateRecord.id);
 
-      // Update payment_methods status
-      await supabase
-        .from('payment_methods')
-        .update({
-          status: 'pending', // Waiting for customer to sign
-          metadata: {
-            ...paymentMethod.metadata,
-            file_token: fileToken,
-            mandate_sent_at: new Date().toISOString(),
-          },
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', paymentMethod.id);
-
       paymentLogger.info('[eMandate Initiate] Mandate batch submitted successfully:', {
         emandateRequestId: emandateRecord.id,
-        paymentMethodId: paymentMethod.id,
         fileToken,
       });
     } catch (netcashError: unknown) {
@@ -344,15 +263,6 @@ export async function POST(request: NextRequest) {
           updated_at: new Date().toISOString(),
         })
         .eq('id', emandateRecord.id);
-
-      // Update payment_methods to failed
-      await supabase
-        .from('payment_methods')
-        .update({
-          status: 'failed',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', paymentMethod.id);
 
       return NextResponse.json(
         {
@@ -377,7 +287,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       emandate_request_id: emandateRecord.id,
-      payment_method_id: paymentMethod.id,
+      payment_method_id: null,
       file_token: fileToken,
       account_reference: accountReference,
       expires_at: emandateRecord.expires_at,

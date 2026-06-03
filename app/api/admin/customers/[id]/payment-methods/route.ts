@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { mapPaymentMethodToDisplay } from '@/lib/payments/payment-method-mapper';
 
 /**
  * GET /api/admin/customers/[id]/payment-methods
@@ -28,27 +29,11 @@ export async function GET(
       }
     );
 
-    // Fetch payment methods from payment_methods table
-    const { data: paymentMethods, error } = await supabase
-      .from('payment_methods')
-      .select(`
-        id,
-        method_type,
-        status,
-        bank_name,
-        bank_account_name,
-        bank_account_number_masked,
-        branch_code,
-        mandate_amount,
-        mandate_debit_day,
-        mandate_signed_at,
-        netcash_mandate_reference,
-        netcash_mandate_pdf_link,
-        is_primary,
-        is_verified,
-        created_at,
-        updated_at
-      `)
+    // Source of truth: customer_payment_methods (W1.3 cutover). Mapped to the legacy
+    // display shape so existing admin UI keeps working.
+    const { data: rows, error } = await supabase
+      .from('customer_payment_methods')
+      .select('*')
       .eq('customer_id', customerId)
       .order('created_at', { ascending: false });
 
@@ -60,20 +45,20 @@ export async function GET(
       );
     }
 
+    const paymentMethods = (rows || []).map(mapPaymentMethodToDisplay);
+
     // Generate signed URLs for mandate PDFs stored in Supabase
     const paymentMethodsWithUrls = await Promise.all(
-      (paymentMethods || []).map(async (pm) => {
-        if (pm.netcash_mandate_pdf_link && pm.netcash_mandate_pdf_link.startsWith('mandate-documents/')) {
+      paymentMethods.map(async (pm) => {
+        const link = pm.netcash_mandate_pdf_link;
+        if (link && link.startsWith('mandate-documents/')) {
           // It's a Supabase storage path, generate signed URL
-          const storagePath = pm.netcash_mandate_pdf_link.replace('mandate-documents/', '');
+          const storagePath = link.replace('mandate-documents/', '');
           const { data: urlData } = await supabase.storage
             .from('mandate-documents')
             .createSignedUrl(storagePath, 60 * 60); // 1 hour validity
 
-          return {
-            ...pm,
-            netcash_mandate_pdf_link: urlData?.signedUrl || pm.netcash_mandate_pdf_link,
-          };
+          return { ...pm, netcash_mandate_pdf_link: urlData?.signedUrl || link };
         }
         return pm;
       })

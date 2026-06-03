@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { NetCashEMandateService, EMandatePostback } from '@/lib/payments/netcash-emandate-service';
+import { mapPostbackToPaymentMethod } from '@/lib/payments/payment-method-mapper';
+import { activateDebitOrderMandate } from '@/lib/payments/activate-debit-order-mandate';
+import { retainMandatePdf } from '@/lib/payments/retain-mandate-pdf';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
 import { webhookLogger } from '@/lib/logging';
@@ -38,10 +41,12 @@ export async function POST(request: NextRequest) {
     const orderNumber = parsedPostback.Field2;
     const customerId = parsedPostback.Field3;
 
-    if (!orderId || !orderNumber) {
-      webhookLogger.error('Missing order reference in postback', { parsedPostback });
+    // order_id/order_number are absent for B2B (order-less) mandates. Only the NetCash account
+    // reference is required to locate the request; customer id (Field3) drives activation.
+    if (!parsedPostback.AccountRef) {
+      webhookLogger.error('Missing account reference in postback', { parsedPostback });
       return NextResponse.json(
-        { error: 'Missing order reference in postback' },
+        { error: 'Missing account reference in postback' },
         { status: 400 }
       );
     }
@@ -58,17 +63,18 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // Find emandate request by account reference
-    // Include 'pending' and 'resent' statuses for robustness - sometimes the status
-    // update doesn't happen before the postback arrives
-    const { data: emandateRequest, error: findError } = await supabase
+    // Find emandate request by account reference (+ customer id when present). Keyed on the
+    // account reference rather than order_id so B2B (order-less) mandates resolve too.
+    // Include 'pending'/'sent'/'resent' statuses for robustness — the status update doesn't
+    // always land before the postback arrives.
+    let findQuery = supabase
       .from('emandate_requests')
       .select('*')
-      .eq('order_id', orderId)
       .eq('netcash_account_reference', parsedPostback.AccountRef)
       .in('status', ['pending', 'sent', 'resent', 'customer_notified', 'viewed'])
-      .order('created_at', { ascending: false })
-      .maybeSingle();
+      .order('created_at', { ascending: false });
+    if (customerId) findQuery = findQuery.eq('customer_id', customerId);
+    const { data: emandateRequest, error: findError } = await findQuery.maybeSingle();
 
     if (findError) {
       webhookLogger.error('Error finding emandate request', { error: findError.message });
@@ -110,81 +116,33 @@ export async function POST(request: NextRequest) {
     }
 
     if (mandateSuccessful) {
-      // Update payment method with signed mandate details
-      const { error: pmUpdateError } = await supabase
-        .from('payment_methods')
-        .update({
-          status: 'active',
-          mandate_signed_at: new Date().toISOString(),
-          activated_at: new Date().toISOString(),
-          mandate_active: true,
-          is_verified: true,
-          verification_method: 'emandate',
-          netcash_mandate_reference: parsedPostback.MandateReferenceNumber,
-          netcash_mandate_pdf_link: parsedPostback.MandatePDFLink,
+      // W1.2 (Gap 2) + W2.1 (Gap 3): Write the active mandate to `customer_payment_methods`
+      // (the table the debit-order batch reads) and update `customer_billing`. Shared with the
+      // manual approve-validation path via activateDebitOrderMandate so they never diverge.
+      if (customerId) {
+        const signedAt = new Date().toISOString();
+        const pmWrite = mapPostbackToPaymentMethod(parsedPostback, customerId, signedAt);
 
-          // Bank account details (masked)
-          bank_name: parsedPostback.BankName || null,
-          bank_account_name: parsedPostback.BankAccountName || null,
-          bank_account_number_masked: parsedPostback.BankAccountNo || null, // Already masked
-          bank_account_type: parsedPostback.BankAccountType?.toLowerCase() || null,
-          branch_code: parsedPostback.BranchCode || null,
+        // W4.1: retain our own copy of the signed mandate PDF (PASA 5-year retention).
+        // Best-effort — failure is logged but does not block activation.
+        const pdfPath = await retainMandatePdf(supabase, {
+          customerId,
+          mandateRef: pmWrite.mandate_id || parsedPostback.AccountRef,
+          pdfLink: parsedPostback.MandatePDFLink,
+        });
+        if (pdfPath) pmWrite.encrypted_details.mandate_pdf_path = pdfPath;
 
-          // Credit card details (if applicable)
-          card_type: parsedPostback.IsCreditCard === 'True' ? parsedPostback.CCType?.toLowerCase() : null,
-          card_number_masked: parsedPostback.IsCreditCard === 'True' ? parsedPostback.CCAccountNo : null,
-          card_holder_name: parsedPostback.IsCreditCard === 'True' ? parsedPostback.CCAccountName : null,
-          card_expiry_month: parsedPostback.IsCreditCard === 'True' && parsedPostback.CCExpMM
-            ? parseInt(parsedPostback.CCExpMM)
-            : null,
-          card_expiry_year: parsedPostback.IsCreditCard === 'True' && parsedPostback.CCExpYYYY
-            ? parseInt(parsedPostback.CCExpYYYY)
-            : null,
-          netcash_token: parsedPostback.CCToken || null,
-
-          // Update metadata
-          metadata: {
-            ...emandateRequest.request_payload,
-            postback_received: new Date().toISOString(),
-            mandate_reference: parsedPostback.MandateReferenceNumber,
-            debit_day: parsedPostback.DebitDay,
-            agreement_date: parsedPostback.AgreementDate,
-          },
-        })
-        .eq('id', emandateRequest.payment_method_id);
-
-      if (pmUpdateError) {
-        webhookLogger.error('Error updating payment method', { error: pmUpdateError.message });
-      }
-
-      // Update or create customer_billing record with primary payment method
-      if (customerId && emandateRequest.payment_method_id) {
-        const debitDay = parseInt(parsedPostback.DebitDay || '1');
-        const billingDate = [1, 5, 25, 30].includes(debitDay) ? debitDay : 1;
-
-        const { error: billingError } = await supabase
-          .from('customer_billing')
-          .upsert({
-            customer_id: customerId,
-            primary_payment_method_id: emandateRequest.payment_method_id,
-            payment_method_type: 'debit_order',
-            auto_pay_enabled: true,
-            preferred_billing_date: billingDate,
-            updated_at: new Date().toISOString(),
-          }, {
-            onConflict: 'customer_id',
-          });
-
-        if (billingError) {
-          webhookLogger.error('Error updating customer_billing', { error: billingError.message });
+        const { errors: activationErrors } = await activateDebitOrderMandate(supabase, customerId, pmWrite);
+        if (activationErrors.length) {
+          webhookLogger.error('Error activating debit-order mandate', { errors: activationErrors, customerId });
         } else {
-          webhookLogger.info('Customer billing updated with debit order:', {
-            customerId,
-            billingDate,
-          });
+          webhookLogger.info('Debit-order mandate activated', { customerId, mandateId: pmWrite.mandate_id });
         }
       }
 
+      // B2C only: update the linked consumer order + send order-based notifications.
+      // B2B mandates have no order_id, so this whole block is skipped for them.
+      if (orderId) {
       // Update order status to payment_method_registered
       const { error: orderUpdateError } = await supabase
         .from('consumer_orders')
@@ -271,24 +229,11 @@ export async function POST(request: NextRequest) {
           .eq('entity_id', orderId)
           .eq('new_status', 'payment_method_registered');
       }
+      } // end if (orderId) — B2C order-coupled updates
     } else {
-      // Mandate declined or failed
-      const { error: pmFailError } = await supabase
-        .from('payment_methods')
-        .update({
-          status: 'failed',
-          metadata: {
-            ...emandateRequest.request_payload,
-            postback_received: new Date().toISOString(),
-            decline_reason: parsedPostback.ReasonForDecline,
-          },
-        })
-        .eq('id', emandateRequest.payment_method_id);
-
-      if (pmFailError) {
-        webhookLogger.error('Error updating failed payment method', { error: pmFailError.message });
-      }
-
+      // Mandate declined or failed. The decline is already recorded on emandate_requests
+      // (status='declined'/'failed' above); no customer_payment_methods row is created until
+      // a mandate succeeds, so there is nothing to mark failed here.
       webhookLogger.info('Payment method registration failed:', {
         orderId,
         reason: parsedPostback.ReasonForDecline,
