@@ -33,6 +33,23 @@ export default async function OrderConfirmationPage({ params }: Props) {
     .select('*')
     .eq('order_id', orderId);
 
+  // Monthly cost for display, INCLUSIVE of 15% VAT.
+  // consumer_orders.package_price has an inconsistent VAT basis across historical orders
+  // (some ex-VAT, some incl), so derive the figure from the catalog price (service_packages.price
+  // is consistently ex-VAT) and add VAT. Fall back to the stored package_price only if the
+  // catalog row is unavailable.
+  let monthlyCostInclVat = order.package_price ? Number(order.package_price) : 0;
+  if (order.service_package_id) {
+    const { data: pkg } = await supabase
+      .from('service_packages')
+      .select('price')
+      .eq('id', order.service_package_id)
+      .single();
+    if (pkg?.price != null) {
+      monthlyCostInclVat = Math.round(Number(pkg.price) * 1.15 * 100) / 100;
+    }
+  }
+
   const kycStatus = order.kyc_verification_status || 'pending';
   const hasKycDocuments = kycDocuments && kycDocuments.length > 0;
 
@@ -224,9 +241,9 @@ export default async function OrderConfirmationPage({ params }: Props) {
                   <span className="font-medium text-gray-900">{order.package_name || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Monthly Cost:</span>
+                  <span className="text-gray-600">Monthly Cost (incl. VAT):</span>
                   <span className="font-medium text-gray-900">
-                    R{order.monthly_price ? Number(order.monthly_price).toFixed(2) : '0.00'}
+                    R{monthlyCostInclVat.toFixed(2)}
                   </span>
                 </div>
                 {order.once_off_price && Number(order.once_off_price) > 0 && (

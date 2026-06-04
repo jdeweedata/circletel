@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiChatBold, PiCheckCircleBold, PiCreditCardBold, PiMagnifyingGlassBold, PiPlusBold, PiShoppingCartBold, PiUserBold, PiWifiHighBold, PiXBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiChatBold, PiCheckCircleBold, PiCreditCardBold, PiFileTextBold, PiMagnifyingGlassBold, PiPlusBold, PiShoppingCartBold, PiUserBold, PiWifiHighBold, PiXBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -24,6 +24,7 @@ import Link from 'next/link';
 import { CustomerRadiusSection } from '@/components/admin/interstellio';
 import { PPPoECredentialsSection } from '@/components/admin/pppoe';
 import { CustomerBillingTab } from '@/components/admin/customers/CustomerBillingTab';
+import { CustomerComplianceDocuments } from '@/components/admin/compliance/CustomerComplianceDocuments';
 
 interface Customer {
   id: string;
@@ -369,7 +370,19 @@ export default function CustomerDetailPage() {
             <PiChatBold className="w-4 h-4 mr-2" />
             Tickets
           </TabsTrigger>
+          <TabsTrigger
+            value="documents"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-circleTel-orange data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3"
+          >
+            <PiFileTextBold className="w-4 h-4 mr-2" />
+            Documents
+          </TabsTrigger>
         </TabsList>
+
+        {/* Documents Tab */}
+        <TabsContent value="documents" className="mt-0">
+          <CustomerComplianceDocuments customerId={customerId} title="FICA / RICA Documents" />
+        </TabsContent>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="mt-0">
