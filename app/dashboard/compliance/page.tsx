@@ -66,12 +66,33 @@ export default function CompliancePage() {
         return
       }
 
-      // Get user's most recent order that needs KYC
+      // Resolve the customer record for this auth user. consumer_orders.customer_id stores
+      // customers.id (NOT the auth user id), so bridge via customers.auth_user_id.
+      const { data: customer, error: customerError } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single()
+
+      if (customerError || !customer) {
+        setError('No customer profile found for your account.')
+        setLoading(false)
+        return
+      }
+
+      // Get the customer's most recent order still needing documents
+      // (any pre-active, non-cancelled state — not just the KYC states).
       const { data: orderData, error: orderError } = await supabase
         .from('consumer_orders')
         .select('*')
-        .eq('customer_id', user.id)
-        .in('status', ['kyc_pending', 'kyc_submitted', 'kyc_rejected'])
+        .eq('customer_id', customer.id)
+        .in('status', [
+          'pending', 'payment_pending', 'payment_received',
+          'kyc_pending', 'kyc_approved', 'kyc_rejected',
+          'payment_method_pending', 'payment_method_registered',
+          'credit_check_pending', 'credit_check_approved', 'credit_check_rejected',
+          'installation_scheduled', 'installation_in_progress',
+        ])
         .order('created_at', { ascending: false })
         .limit(1)
         .single()

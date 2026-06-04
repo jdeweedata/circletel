@@ -262,6 +262,12 @@ const navigationSections: NavSection[] = [
         icon: PiShieldCheckBold,
         description: 'View KYB subject KYC status and risk'
       },
+      {
+        name: 'Document Reviews',
+        href: '/admin/compliance/documents',
+        icon: PiFileTextBold,
+        description: 'FICA/RICA documents uploaded via the customer portal'
+      },
     ]
   },
   {

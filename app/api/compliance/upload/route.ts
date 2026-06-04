@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClientWithSession } from '@/lib/supabase/server'
 import type { FICADocumentType, RICADocumentType } from '@/lib/types/fica-rica'
 import { apiLogger } from '@/lib/logging'
 
@@ -30,7 +30,7 @@ interface UploadRequestBody {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const supabase = await createClientWithSession()
 
     // Check authentication
     const {
@@ -105,19 +105,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update order status to kyc_submitted if this is the first document
-    const { data: existingDocs } = await supabase
-      .from('compliance_documents')
-      .select('id')
-      .eq('order_id', body.orderId)
-
-    if (existingDocs && existingDocs.length === 1) {
-      // First document uploaded - update order status
-      await supabase
-        .from('consumer_orders')
-        .update({ status: 'kyc_submitted' })
-        .eq('id', body.orderId)
-    }
+    // Note: we intentionally do NOT mutate consumer_orders.status here. Orders may be in any
+    // pre-active state (e.g. payment_method_pending) when documents are uploaded, and the order
+    // status state-machine (trigger_validate_order_status_transition) rejects an arbitrary jump
+    // to 'kyc_submitted'. Document review/approval drives compliance state separately.
 
     return NextResponse.json({
       success: true,
@@ -139,7 +130,7 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const supabase = await createClientWithSession()
 
     // Check authentication
     const {
@@ -225,7 +216,7 @@ export async function GET(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const supabase = await createClientWithSession()
 
     // Check authentication
     const {
