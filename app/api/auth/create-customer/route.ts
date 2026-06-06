@@ -77,6 +77,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Dedupe-on-signup: a phone number must map to a single account, otherwise
+    // mobile OTP login can't resolve which account to sign into. Reject if the
+    // number is already registered to a DIFFERENT account (matched by the DB
+    // partial unique index `customers_phone_unique_not_blank` as the backstop).
+    const normalizedPhone = (phone || '').trim();
+    if (normalizedPhone) {
+      const { data: phoneOwner } = await supabase
+        .from('customers')
+        .select('email')
+        .eq('phone', normalizedPhone)
+        .neq('email', email)
+        .limit(1)
+        .maybeSingle();
+
+      if (phoneOwner) {
+        apiLogger.warn('[Create Customer] Phone already registered to another account', { email });
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'This phone number is already registered to another account. Please use a different number or sign in.',
+            code: 'PHONE_TAKEN',
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     // Insert customer record using service role with ON CONFLICT handling
     // If email already exists, update the record instead of failing
     const { data: customer, error: customerError } = await supabase
@@ -86,7 +113,7 @@ export async function POST(request: NextRequest) {
         first_name: finalFirstName,
         last_name: finalLastName,
         email,
-        phone: phone || '', // Use empty string if phone not provided (OAuth users)
+        phone: normalizedPhone, // '' if not provided (OAuth users)
         account_type: account_type || 'personal',
         email_verified: false,
         status: 'active',
