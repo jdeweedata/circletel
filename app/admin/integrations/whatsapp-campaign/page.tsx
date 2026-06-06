@@ -17,6 +17,12 @@ import { UnderlineTabs, TabPanel } from '@/components/admin/shared/UnderlineTabs
 import { InsightBadge } from '@/components/admin/shared/InsightBadge';
 import { ConversationThread } from '@/components/admin/whatsapp-campaign/ConversationThread';
 import type { InsightStatus, CampaignConversation } from '@/lib/integrations/zoho/desk-campaign-service';
+import {
+  enrichSalesTicket,
+  summarizeSalesQueues,
+  type SalesOpsTicket,
+  type SalesQueue,
+} from '@/lib/integrations/zoho/campaign-sales-ops';
 
 // =============================================================================
 // TYPES
@@ -43,13 +49,18 @@ interface TicketRow {
   status: string | null;
   assigned_agent: string | null;
   contact_name: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
   lead_name: string | null;
   lead_email: string | null;
   lead_phone: string | null;
   lead_address: string | null;
   insight_status: InsightStatus;
   is_signed_up: boolean;
+  order_id: string | null;
   zoho_created_at: string | null;
+  first_response_at: string | null;
+  closed_at: string | null;
   conversations: CampaignConversation[];
   conversation_count: number;
 }
@@ -72,25 +83,55 @@ function formatDuration(ms: number | null): string {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-function exportToCsv(tickets: TicketRow[]) {
-  const headers = ['Ticket #', 'Name', 'Email', 'Phone', 'Address', 'Insight', 'Signed Up', 'Agent', 'Created'];
-  const rows = tickets.map((t) => [
-    t.ticket_number ?? '',
-    t.lead_name ?? t.contact_name ?? '',
-    t.lead_email ?? '',
-    t.lead_phone ?? '',
-    t.lead_address ?? '',
-    t.insight_status,
-    t.is_signed_up ? 'Yes' : 'No',
-    t.assigned_agent ?? 'Unassigned',
-    t.zoho_created_at ? new Date(t.zoho_created_at).toLocaleDateString('en-ZA') : '',
+function csvEscape(value: string | number | null | undefined): string {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`;
+}
+
+function exportToCsv(tickets: SalesOpsTicket[]) {
+  const headers = [
+    'Queue',
+    'SLA Status',
+    'Ticket #',
+    'Name',
+    'Phone',
+    'Email',
+    'Address',
+    'Insight',
+    'Signed Up',
+    'Order ID',
+    'Agent',
+    'Lead Age',
+    'First Response',
+    'Created',
+    'Messages',
+  ];
+
+  const rows = tickets.map((ticket) => [
+    getQueueLabel(ticket.sales_queue),
+    ticket.sla_status,
+    ticket.ticket_number ?? '',
+    ticket.display_name,
+    ticket.display_phone ?? '',
+    ticket.display_email ?? '',
+    ticket.lead_address ?? '',
+    ticket.insight_status,
+    ticket.is_signed_up ? 'Yes' : 'No',
+    ticket.order_id ?? '',
+    ticket.assigned_agent ?? 'Unassigned',
+    formatAge(ticket.lead_age_ms),
+    ticket.first_response_ms === null ? '' : formatDuration(ticket.first_response_ms),
+    ticket.zoho_created_at ? new Date(ticket.zoho_created_at).toLocaleString('en-ZA') : '',
+    ticket.conversation_count,
   ]);
-  const csv = [headers, ...rows].map((r) => r.map((v) => `"${v}"`).join(',')).join('\n');
+
+  const csv = [headers, ...rows]
+    .map((row) => row.map(csvEscape).join(','))
+    .join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `whatsapp-campaign-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `whatsapp-campaign-sales-queue-${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -111,12 +152,36 @@ const PIPELINE_ORDER: InsightStatus[] = [
   'no_coverage', 'awaiting_agent', 'unresponsive', 'closed_resolved',
 ];
 
+const SALES_QUEUE_TABS: Array<{ id: SalesQueue | 'all'; label: string }> = [
+  { id: 'all', label: 'All Active' },
+  { id: 'sla_risk', label: 'SLA Risk' },
+  { id: 'needs_agent', label: 'Needs Agent' },
+  { id: 'ready_to_sell', label: 'Ready to Sell' },
+  { id: 'waiting_on_customer', label: 'Waiting on Customer' },
+  { id: 'coverage_issue', label: 'Coverage Issue' },
+  { id: 'unresponsive', label: 'Unresponsive' },
+  { id: 'converted', label: 'Converted' },
+];
+
+function formatAge(ms: number | null): string {
+  if (ms === null) return 'N/A';
+  const h = Math.floor(ms / 3_600_000);
+  const m = Math.floor((ms % 3_600_000) / 60_000);
+  if (h >= 24) return `${Math.floor(h / 24)}d ${h % 24}h`;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function getQueueLabel(queue: SalesQueue): string {
+  return SALES_QUEUE_TABS.find((tab) => tab.id === queue)?.label ?? queue;
+}
+
 export default function WhatsAppCampaignPage() {
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [expandedTicket, setExpandedTicket] = useState<string | null>(null);
+  const [activeQueue, setActiveQueue] = useState<SalesQueue | 'all'>('all');
 
   const fetchData = useCallback(async (live = false) => {
     setLoading(true);
@@ -148,13 +213,38 @@ export default function WhatsAppCampaignPage() {
   const snap = data?.snapshot;
   const tickets = data?.tickets ?? [];
 
+  // Enrich tickets with sales ops data
+  const enrichedTickets = tickets
+    .map((ticket) => enrichSalesTicket(ticket))
+    .sort((a, b) => {
+      const queueRank: Record<SalesQueue, number> = {
+        sla_risk: 0,
+        needs_agent: 1,
+        ready_to_sell: 2,
+        waiting_on_customer: 3,
+        coverage_issue: 4,
+        unresponsive: 5,
+        converted: 6,
+      };
+      const rankDiff = queueRank[a.sales_queue] - queueRank[b.sales_queue];
+      if (rankDiff !== 0) return rankDiff;
+      return (b.lead_age_ms ?? 0) - (a.lead_age_ms ?? 0);
+    });
+
+  const queueCounts = summarizeSalesQueues(enrichedTickets);
+
+  const activeSalesTickets =
+    activeQueue === 'all'
+      ? enrichedTickets.filter((ticket) => ticket.sales_queue !== 'converted')
+      : enrichedTickets.filter((ticket) => ticket.sales_queue === activeQueue);
+
   // Derived agent rows
   const agentRows = snap
     ? Object.entries(snap.agent_breakdown).map(([agent, count]) => ({
         agent,
         count,
-        signUps: tickets.filter((t) => t.assigned_agent === agent && t.is_signed_up).length,
-        closed: tickets.filter((t) => t.assigned_agent === agent && t.status === 'Closed').length,
+        signUps: enrichedTickets.filter((t) => t.assigned_agent === agent && t.is_signed_up).length,
+        closed: enrichedTickets.filter((t) => t.assigned_agent === agent && t.status === 'Closed').length,
       }))
     : [];
 
@@ -199,27 +289,36 @@ export default function WhatsAppCampaignPage() {
         {/* Stat Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            label="Total Leads"
-            value={snap?.cumulative_leads ?? '—'}
-            subtitle={snap ? `${snap.new_leads_today} yesterday` : undefined}
+            label="Needs Agent"
+            value={queueCounts.needs_agent}
+            subtitle={`${queueCounts.sla_risk} SLA risk`}
             icon={<PiUsersBold />}
+            onClick={() => setActiveQueue('needs_agent')}
+            isActive={activeQueue === 'needs_agent'}
           />
           <StatCard
-            label="Conversions"
-            value={snap?.conversions_today ?? '—'}
-            subtitle={snap ? `${snap.conversion_rate.toFixed(1)}% rate` : undefined}
-            icon={<PiCheckCircleBold />}
-          />
-          <StatCard
-            label="Open Tickets"
-            value={snap?.open_tickets ?? '—'}
-            subtitle={snap?.unassigned_tickets ? `${snap.unassigned_tickets} unassigned ⚠` : undefined}
-            icon={<PiChartBarBold />}
-          />
-          <StatCard
-            label="Avg. Response"
-            value={formatDuration(snap?.avg_first_response_ms ?? null)}
+            label="SLA Risk"
+            value={queueCounts.sla_risk}
+            subtitle="No response after 2h"
             icon={<PiClockBold />}
+            onClick={() => setActiveQueue('sla_risk')}
+            isActive={activeQueue === 'sla_risk'}
+          />
+          <StatCard
+            label="Ready to Sell"
+            value={queueCounts.ready_to_sell}
+            subtitle="Details collected, no order"
+            icon={<PiChartBarBold />}
+            onClick={() => setActiveQueue('ready_to_sell')}
+            isActive={activeQueue === 'ready_to_sell'}
+          />
+          <StatCard
+            label="Converted"
+            value={queueCounts.converted}
+            subtitle={snap ? `${snap.conversions_today} yesterday` : undefined}
+            icon={<PiCheckCircleBold />}
+            onClick={() => setActiveQueue('converted')}
+            isActive={activeQueue === 'converted'}
           />
         </div>
 
@@ -228,6 +327,99 @@ export default function WhatsAppCampaignPage() {
 
         {/* Overview Tab */}
         <TabPanel id="overview" activeTab={activeTab}>
+          <SectionCard
+            title="Daily Sales Queue"
+            icon={PiWhatsappLogoBold}
+            action={
+              <button
+                onClick={() => exportToCsv(activeSalesTickets)}
+                className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900"
+              >
+                <PiDownloadBold /> Export Queue
+              </button>
+            }
+          >
+            <div className="flex flex-wrap gap-2 mb-4">
+              {SALES_QUEUE_TABS.map((tab) => {
+                const count = tab.id === 'all'
+                  ? enrichedTickets.filter((ticket) => ticket.sales_queue !== 'converted').length
+                  : queueCounts[tab.id];
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveQueue(tab.id)}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                      activeQueue === tab.id
+                        ? 'border-circleTel-orange bg-orange-50 text-circleTel-orange'
+                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {tab.label} <span className="ml-1 text-xs opacity-70">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-slate-500 border-b border-slate-200">
+                    <th className="pb-2 pr-4">Lead</th>
+                    <th className="pb-2 pr-4">Queue</th>
+                    <th className="pb-2 pr-4">Age</th>
+                    <th className="pb-2 pr-4">Response</th>
+                    <th className="pb-2 pr-4">Agent</th>
+                    <th className="pb-2 pr-4">Address</th>
+                    <th className="pb-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {activeSalesTickets.map((ticket) => (
+                    <tr key={ticket.ticket_id} className="hover:bg-slate-50">
+                      <td className="py-3 pr-4">
+                        <p className="font-medium text-slate-900">{ticket.display_name}</p>
+                        <p className="text-xs text-slate-500">
+                          {ticket.display_phone ?? ticket.display_email ?? 'No contact captured'} · #{ticket.ticket_number ?? 'N/A'}
+                        </p>
+                      </td>
+                      <td className="py-3 pr-4">
+                        <span className="text-xs font-semibold text-slate-700">{getQueueLabel(ticket.sales_queue)}</span>
+                      </td>
+                      <td className="py-3 pr-4 text-slate-600">{formatAge(ticket.lead_age_ms)}</td>
+                      <td className="py-3 pr-4 text-slate-600">
+                        {ticket.first_response_ms === null ? ticket.sla_status : formatDuration(ticket.first_response_ms)}
+                      </td>
+                      <td className="py-3 pr-4 text-slate-600">{ticket.assigned_agent ?? 'Unassigned'}</td>
+                      <td className="py-3 pr-4 text-slate-600 max-w-[240px] truncate">
+                        {ticket.lead_address ?? 'No address captured'}
+                      </td>
+                      <td className="py-3">
+                        <div className="flex items-center gap-2">
+                          {ticket.display_phone && (
+                            <button
+                              onClick={() => navigator.clipboard.writeText(ticket.display_phone ?? '')}
+                              className="text-xs font-medium text-slate-600 hover:text-slate-900"
+                            >
+                              Copy Phone
+                            </button>
+                          )}
+                          {ticket.order_id && (
+                            <a
+                              href={`/admin/orders/${ticket.order_id}`}
+                              className="text-xs font-medium text-circleTel-orange hover:underline"
+                            >
+                              Open Order
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </SectionCard>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Pipeline Breakdown */}
             <SectionCard title="Lead Pipeline (All Time)" icon={PiChartBarBold}>
@@ -255,7 +447,7 @@ export default function WhatsAppCampaignPage() {
             {/* Recent Tickets */}
             <SectionCard title="Recent Tickets" icon={PiWhatsappLogoBold}>
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {tickets.slice(0, 20).map((t) => (
+                {enrichedTickets.slice(0, 20).map((t) => (
                   <div
                     key={t.ticket_id}
                     className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0"
@@ -281,7 +473,7 @@ export default function WhatsAppCampaignPage() {
             icon={PiUsersBold}
             action={
               <button
-                onClick={() => exportToCsv(tickets)}
+                onClick={() => exportToCsv(enrichedTickets)}
                 className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900"
               >
                 <PiDownloadBold /> Export CSV
@@ -302,7 +494,7 @@ export default function WhatsAppCampaignPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {tickets.map((t) => (
+                  {enrichedTickets.map((t) => (
                     <tr key={t.ticket_id} className="hover:bg-slate-50">
                       <td className="py-2 pr-4 font-medium text-slate-900">
                         {t.lead_name ?? t.contact_name ?? '—'}
@@ -364,7 +556,7 @@ export default function WhatsAppCampaignPage() {
         <TabPanel id="conversations" activeTab={activeTab}>
           <SectionCard title="Conversation Threads" icon={PiWhatsappLogoBold}>
             <div className="space-y-3">
-              {tickets.map((t) => (
+              {enrichedTickets.map((t) => (
                 <div key={t.ticket_id} className="border border-slate-200 rounded-xl overflow-hidden">
                   <button
                     onClick={() =>
