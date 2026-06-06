@@ -179,7 +179,7 @@ export default function LoginPage() {
       heading="Customer Portal"
       subtitle="Manage your account, view invoices, track your connection and get support — all in one place."
     >
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Heading */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">Sign in</h1>
@@ -191,7 +191,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setLoginMethod('email')}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 py-2 px-3 rounded-md text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
               loginMethod === 'email'
                 ? 'bg-[#F5831F] text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -202,7 +202,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setLoginMethod('otp')}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 py-2 px-3 rounded-md text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
               loginMethod === 'otp'
                 ? 'bg-[#F5831F] text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -214,7 +214,7 @@ export default function LoginPage() {
 
         {/* Email Login Form */}
         {loginMethod === 'email' && (
-          <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-5">
+          <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
             {/* Email Field */}
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
@@ -299,7 +299,7 @@ export default function LoginPage() {
 
         {/* OTP Login Form */}
         {loginMethod === 'otp' && (
-          <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-5">
+          <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-4">
             {/* Phone Field */}
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
@@ -363,7 +363,7 @@ export default function LoginPage() {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={isGoogleLoading || isSubmitting}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -388,23 +388,21 @@ export default function LoginPage() {
           </span>
         </button>
 
-        {/* Sign Up Link */}
-        <div className="text-center text-sm text-gray-600">
-          New customer?{' '}
-          <Link href="/auth/register" className="text-[#F5831F] hover:underline font-bold">
-            Create account
-          </Link>
-        </div>
-
-        {/* Back Link */}
-        <div className="text-center">
+        {/* Sign Up + Back links on one row */}
+        <div className="flex items-center justify-between gap-3 text-sm text-gray-600">
           <Link
             href="/"
-            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="inline-flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors"
           >
             <PiArrowLeftBold className="w-4 h-4" />
-            Back to Home
+            Home
           </Link>
+          <span>
+            New customer?{' '}
+            <Link href="/auth/register" className="text-[#F5831F] hover:underline font-bold">
+              Create account
+            </Link>
+          </span>
         </div>
       </div>
     </SplitAuthLayout>

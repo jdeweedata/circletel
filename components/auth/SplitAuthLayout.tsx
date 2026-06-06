@@ -46,22 +46,24 @@ export default function SplitAuthLayout({
         </div>
       </div>
 
-      {/* Right Panel — light background with centered logo + card */}
-      <div className="flex w-full lg:w-1/2 flex-col items-center justify-center bg-[#F5F6F7] px-6 py-10">
+      {/* Right Panel — light background with centered logo + card.
+          overflow-y-auto keeps any rare overflow inside the panel rather than
+          forcing the whole page to scroll. */}
+      <div className="flex w-full lg:w-1/2 flex-col items-center justify-center overflow-y-auto bg-[#F5F6F7] px-6 py-6 sm:py-8">
         {/* Single logo above the card */}
-        <Link href="/" className="mb-6 inline-block">
+        <Link href="/" className="mb-4 inline-block">
           <Image
             src="/images/circletel-logo-2026.png"
             alt="CircleTel"
             width={120}
             height={120}
-            className="h-20 w-auto"
+            className="h-12 sm:h-14 w-auto"
             priority
           />
         </Link>
 
         {/* Form card */}
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
+        <div className="w-full max-w-md rounded-2xl bg-white p-6 sm:p-8 shadow-xl">
           {children}
         </div>
       </div>

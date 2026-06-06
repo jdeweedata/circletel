@@ -121,9 +121,9 @@ export default function RegisterPage() {
         heading="Join CircleTel"
         subtitle="Create your account to manage your services, billing and support — all in one place."
       >
-      <div className="space-y-6">
+      <div className="space-y-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
             Create your account
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
@@ -178,118 +178,122 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm sm:text-base font-semibold text-gray-700">
-                    Email <span className="text-red-600">*</span>
-                  </Label>
-                  <Controller
-                    name="email"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        id="email"
-                        type="email"
-                        placeholder="nurse@unjani.org"
-                        className="w-full text-sm sm:text-base"
-                      />
-                    )}
-                  />
-                  {form.formState.errors.email && (
-                    <p className="text-xs text-red-600">{form.formState.errors.email.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm sm:text-base font-semibold text-gray-700">
-                    Phone Number <span className="text-red-600">*</span>
-                  </Label>
-                  <Controller
-                    name="phone"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        id="phone"
-                        type="tel"
-                        placeholder="0821234567"
-                        className="w-full text-sm sm:text-base"
-                      />
-                    )}
-                  />
-                  {form.formState.errors.phone && (
-                    <p className="text-xs text-red-600">{form.formState.errors.phone.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm sm:text-base font-semibold text-gray-700">
-                    Password <span className="text-red-600">*</span>
-                  </Label>
-                  <Controller
-                    name="password"
-                    control={form.control}
-                    render={({ field }) => (
-                      <div className="relative">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm sm:text-base font-semibold text-gray-700">
+                      Email <span className="text-red-600">*</span>
+                    </Label>
+                    <Controller
+                      name="email"
+                      control={form.control}
+                      render={({ field }) => (
                         <Input
                           {...field}
-                          id="password"
-                          type={showPassword ? 'text' : 'password'}
-                          placeholder="••••••••"
-                          className="w-full pr-10 text-sm sm:text-base"
+                          id="email"
+                          type="email"
+                          placeholder="nurse@unjani.org"
+                          className="w-full text-sm sm:text-base"
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showPassword ? (
-                            <PiEyeSlashBold className="w-4 h-4" />
-                          ) : (
-                            <PiEyeBold className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
+                      )}
+                    />
+                    {form.formState.errors.email && (
+                      <p className="text-xs text-red-600">{form.formState.errors.email.message}</p>
                     )}
-                  />
-                  {form.formState.errors.password && (
-                    <p className="text-xs text-red-600">{form.formState.errors.password.message}</p>
-                  )}
-                </div>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm sm:text-base font-semibold text-gray-700">
-                    Confirm Password <span className="text-red-600">*</span>
-                  </Label>
-                  <Controller
-                    name="confirmPassword"
-                    control={form.control}
-                    render={({ field }) => (
-                      <div className="relative">
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm sm:text-base font-semibold text-gray-700">
+                      Phone Number <span className="text-red-600">*</span>
+                    </Label>
+                    <Controller
+                      name="phone"
+                      control={form.control}
+                      render={({ field }) => (
                         <Input
                           {...field}
-                          id="confirmPassword"
-                          type={showConfirmPassword ? 'text' : 'password'}
-                          placeholder="••••••••"
-                          className="w-full pr-10 text-sm sm:text-base"
+                          id="phone"
+                          type="tel"
+                          placeholder="0821234567"
+                          className="w-full text-sm sm:text-base"
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showConfirmPassword ? (
-                            <PiEyeSlashBold className="w-4 h-4" />
-                          ) : (
-                            <PiEyeBold className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
+                      )}
+                    />
+                    {form.formState.errors.phone && (
+                      <p className="text-xs text-red-600">{form.formState.errors.phone.message}</p>
                     )}
-                  />
-                  {form.formState.errors.confirmPassword && (
-                    <p className="text-xs text-red-600">{form.formState.errors.confirmPassword.message}</p>
-                  )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-sm sm:text-base font-semibold text-gray-700">
+                      Password <span className="text-red-600">*</span>
+                    </Label>
+                    <Controller
+                      name="password"
+                      control={form.control}
+                      render={({ field }) => (
+                        <div className="relative">
+                          <Input
+                            {...field}
+                            id="password"
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="••••••••"
+                            className="w-full pr-10 text-sm sm:text-base"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          >
+                            {showPassword ? (
+                              <PiEyeSlashBold className="w-4 h-4" />
+                            ) : (
+                              <PiEyeBold className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    />
+                    {form.formState.errors.password && (
+                      <p className="text-xs text-red-600">{form.formState.errors.password.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="text-sm sm:text-base font-semibold text-gray-700">
+                      Confirm Password <span className="text-red-600">*</span>
+                    </Label>
+                    <Controller
+                      name="confirmPassword"
+                      control={form.control}
+                      render={({ field }) => (
+                        <div className="relative">
+                          <Input
+                            {...field}
+                            id="confirmPassword"
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            placeholder="••••••••"
+                            className="w-full pr-10 text-sm sm:text-base"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          >
+                            {showConfirmPassword ? (
+                              <PiEyeSlashBold className="w-4 h-4" />
+                            ) : (
+                              <PiEyeBold className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    />
+                    {form.formState.errors.confirmPassword && (
+                      <p className="text-xs text-red-600">{form.formState.errors.confirmPassword.message}</p>
+                    )}
+                  </div>
                 </div>
 
                 <button
@@ -302,24 +306,23 @@ export default function RegisterPage() {
                 </button>
               </form>
 
-        <div className="text-center text-sm sm:text-base text-gray-600 mt-4">
+        <div className="flex items-center justify-between gap-3 text-sm text-gray-600">
           <Link
             href="/"
             className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
           >
             <PiArrowLeftBold className="w-4 h-4" />
-            Back to Home
+            Home
           </Link>
-        </div>
-
-        <div className="text-center text-sm sm:text-base text-gray-600 mt-2">
-          Already have an account?{' '}
-          <Link
-            href="/auth/login"
-            className="text-[#F5831F] hover:underline font-bold"
-          >
-            Sign in
-          </Link>
+          <span>
+            Already have an account?{' '}
+            <Link
+              href="/auth/login"
+              className="text-[#F5831F] hover:underline font-bold"
+            >
+              Sign in
+            </Link>
+          </span>
         </div>
       </div>
     </SplitAuthLayout>
