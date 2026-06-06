@@ -193,6 +193,17 @@ export class CustomerAuthService {
         const errorMsg = lastError || customerResult?.error || 'Unknown error';
         console.error('Failed to create customer record:', errorMsg);
 
+        // Phone already registered to another account — surface the friendly
+        // message as-is instead of the generic "profile setup failed" wrapper.
+        if (customerResult?.code === 'PHONE_TAKEN') {
+          return {
+            user: null,
+            customer: null,
+            session: null,
+            error: customerResult.error || 'This phone number is already registered to another account.',
+          };
+        }
+
         // If it's a duplicate key error, this is actually OK - the customer record exists
         // This can happen during retry scenarios or rate limiting
         if (errorMsg?.includes('duplicate key') || errorMsg?.includes('already exists')) {
