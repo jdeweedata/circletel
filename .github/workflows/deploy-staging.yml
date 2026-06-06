@@ -158,11 +158,23 @@ jobs:
         run: |
           docker stop circletel-staging 2>/dev/null || true
           docker rm circletel-staging 2>/dev/null || true
+          # Must attach to the 'coolify' network with Traefik labels, otherwise
+          # the container lands on the default bridge and the public URL 404s
+          # (the reverse proxy can't route to it). See routing fix 2026-06-05.
           docker run -d \
             --name circletel-staging \
             --restart unless-stopped \
+            --network coolify \
             -p 3001:3000 \
             --env-file /home/circletel/.env.staging \
+            --label traefik.enable=true \
+            --label "traefik.http.routers.circletel-staging-http.entrypoints=http" \
+            --label 'traefik.http.routers.circletel-staging-http.rule=Host(`staging.circletel.co.za`)' \
+            --label "traefik.http.routers.circletel-staging-http.middlewares=redirect-to-https" \
+            --label "traefik.http.routers.circletel-staging-https.entrypoints=https" \
+            --label 'traefik.http.routers.circletel-staging-https.rule=Host(`staging.circletel.co.za`)' \
+            --label "traefik.http.routers.circletel-staging-https.tls.certresolver=letsencrypt" \
+            --label "traefik.http.services.circletel-staging.loadbalancer.server.port=3000" \
             --health-cmd "wget -qO- http://127.0.0.1:3000/api/health || exit 1" \
             --health-interval 30s \
             --health-timeout 10s \

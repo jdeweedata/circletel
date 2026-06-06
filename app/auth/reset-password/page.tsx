@@ -356,7 +356,10 @@ export default function ResetPasswordPage() {
   // Error state - invalid or expired link
   if (hasError) {
     return (
-      <SplitAuthLayout>
+      <SplitAuthLayout
+        heading="Reset your password"
+        subtitle="Choose a new password to regain access to your CircleTel account."
+      >
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
@@ -396,7 +399,10 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <SplitAuthLayout>
+    <SplitAuthLayout
+        heading="Reset your password"
+        subtitle="Choose a new password to regain access to your CircleTel account."
+      >
       <div className="space-y-6">
         {!passwordReset ? (
           <div>
