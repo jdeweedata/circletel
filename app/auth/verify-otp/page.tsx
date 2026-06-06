@@ -6,13 +6,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
+import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
 export default function VerifyOTPLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signInWithOtp } = useCustomerAuth();
   const phone = searchParams.get('phone') || '';
   const redirectPath = searchParams.get('redirect') || '/dashboard';
 
@@ -51,7 +50,9 @@ export default function VerifyOTPLoginPage() {
     setIsVerifying(true);
 
     try {
-      const response = await fetch('/api/otp/verify', {
+      // Single call: server verifies the Clickatell OTP (once) and returns a
+      // Supabase magic-link token hash to establish the session.
+      const response = await fetch('/api/otp/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, otp }),
@@ -59,24 +60,29 @@ export default function VerifyOTPLoginPage() {
 
       const result = await response.json();
 
-      if (result.success) {
-        // If OTP is valid, sign in the user
-        if (signInWithOtp) {
-          const signInResult = await signInWithOtp(phone, otp);
-
-          if (signInResult.error) {
-            toast.error(signInResult.error);
-            setIsVerifying(false);
-            return;
-          }
-        }
-
-        toast.success('Successfully signed in!');
-        // Redirect to intended page or dashboard
-        router.push(redirectPath);
-      } else {
+      if (!result.success || !result.tokenHash) {
         toast.error(result.error || 'Invalid verification code');
+        setIsVerifying(false);
+        return;
       }
+
+      // Exchange the token hash for a real session (stored like password login).
+      const supabase = createClient();
+      const { error: sessionError } = await supabase.auth.verifyOtp({
+        token_hash: result.tokenHash,
+        type: 'magiclink',
+      });
+
+      if (sessionError) {
+        console.error('Error establishing session:', sessionError);
+        toast.error('Could not sign you in. Please try again.');
+        setIsVerifying(false);
+        return;
+      }
+
+      toast.success('Successfully signed in!');
+      // Redirect to intended page or dashboard
+      router.push(redirectPath);
     } catch (error) {
       console.error('Error verifying OTP:', error);
       toast.error('Failed to verify code. Please try again.');
