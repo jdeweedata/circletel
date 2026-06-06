@@ -16,6 +16,7 @@ import {
   createCampaignZohoDeskService,
   ConversationIntelligence,
 } from '@/lib/integrations/zoho/desk-campaign-service';
+import { mapLiveCampaignTicketToSnapshot } from '@/lib/integrations/zoho/campaign-sales-ops';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -42,13 +43,29 @@ export async function GET(request: NextRequest) {
         const ci = new ConversationIntelligence(conversations, ticket.status);
         const profile = ci.extractLeadProfile();
         const insightStatus = ci.deriveInsightStatus({ isSigned_up: false });
-        return { ticket, conversations, profile, insightStatus };
+
+        return mapLiveCampaignTicketToSnapshot({
+          ticket,
+          conversations,
+          profile,
+          insightStatus,
+          isSignedUp: false,
+          orderId: null,
+        });
       })
     );
 
     const tickets = ticketData
-      .filter((r) => r.status === 'fulfilled')
-      .map((r) => (r as PromiseFulfilledResult<{ ticket: typeof allTickets[number]; conversations: Awaited<ReturnType<typeof campaignService.fetchConversations>>; profile: ReturnType<InstanceType<typeof ConversationIntelligence>['extractLeadProfile']>; insightStatus: ReturnType<InstanceType<typeof ConversationIntelligence>['deriveInsightStatus']> }>).value);
+      .filter(
+        (result): result is PromiseFulfilledResult<ReturnType<typeof mapLiveCampaignTicketToSnapshot>> =>
+          result.status === 'fulfilled'
+      )
+      .map((result) => result.value)
+      .sort((a, b) => {
+        const aTime = a.zoho_created_at ? new Date(a.zoho_created_at).getTime() : 0;
+        const bTime = b.zoho_created_at ? new Date(b.zoho_created_at).getTime() : 0;
+        return bTime - aTime;
+      });
 
     return NextResponse.json({
       snapshot: null,
