@@ -165,6 +165,12 @@ export const aboutItems: NavigationItem[] = [];
 // Note: "/resources" overview link is added via prependItems in NavigationMenu.tsx
 export const resourcesItems: NavigationItem[] = [
   {
+    name: "Blog",
+    href: "/blog",
+    icon: PiBookOpenBold,
+    description: "News, guides and updates from CircleTel"
+  },
+  {
     name: "Client Forms",
     href: "/forms",
     icon: PiClipboardTextBold,
