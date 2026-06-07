@@ -1,43 +1,64 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
-import { getPublishedPosts } from '@/lib/data/cms-blog'
+import { getPublishedPosts, getAllCategories } from '@/lib/data/cms-blog'
+import { CategoryPills } from '@/components/blog/CategoryPills'
+import { PostCard } from '@/components/blog/PostCard'
 
 export const revalidate = 300
 
 export const metadata: Metadata = {
   title: 'Blog | CircleTel',
-  description: 'News, guides and updates from CircleTel.',
+  description: 'Reviews, guides and connectivity news from CircleTel.',
 }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return ''
-  return new Date(iso).toLocaleDateString('en-ZA', { year: 'numeric', month: 'long', day: 'numeric' })
+interface BlogIndexPageProps {
+  searchParams: Promise<{ category?: string }>
 }
 
-export default async function BlogIndexPage() {
-  const posts = await getPublishedPosts()
+export default async function BlogIndexPage({ searchParams }: BlogIndexPageProps) {
+  const { category } = await searchParams
+  const [posts, categories] = await Promise.all([
+    getPublishedPosts({ category }),
+    getAllCategories(),
+  ])
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12">
-      <h1 className="text-3xl font-bold text-[#1B2A4A] mb-8">Blog</h1>
+    <main className="mx-auto max-w-6xl px-4 py-12">
+      {/* Header band */}
+      <div className="mb-12">
+        <h1 className="text-4xl font-bold text-neutral-900 mb-2 font-heading">
+          CircleTel Blog
+        </h1>
+        <p className="text-lg text-neutral-500 mb-6">
+          Reviews, guides and connectivity news
+        </p>
+        {/* Orange accent rule */}
+        <div className="w-12 h-1 bg-[#F5831F] rounded-full" />
+      </div>
+
+      {/* Category pills */}
+      <CategoryPills categories={categories} active={category} />
+
+      {/* Featured hero + grid */}
       {posts.length === 0 ? (
-        <p className="text-gray-500">No posts yet. Check back soon.</p>
-      ) : (
-        <div className="grid gap-8 sm:grid-cols-2">
-          {posts.map((p) => (
-            <Link key={p.id} href={`/blog/${p.slug}`} className="group block rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition">
-              {p.featuredImageThumbUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.featuredImageThumbUrl} alt={p.featuredImageAlt ?? p.title} className="w-full h-44 object-cover" />
-              )}
-              <div className="p-4">
-                <h2 className="font-semibold text-lg text-[#1B2A4A] group-hover:text-[#F5831F] transition">{p.title}</h2>
-                {p.excerpt && <p className="text-sm text-gray-600 mt-2 line-clamp-3">{p.excerpt}</p>}
-                <p className="text-xs text-gray-400 mt-3">{[p.authorName, formatDate(p.publishedAt)].filter(Boolean).join(' · ')}</p>
-              </div>
-            </Link>
-          ))}
+        <div className="py-12 text-center">
+          <p className="text-neutral-500">No posts yet. Check back soon.</p>
         </div>
+      ) : (
+        <>
+          {/* Featured post (first one) */}
+          {posts.length > 0 && (
+            <PostCard post={posts[0]} variant="featured" />
+          )}
+
+          {/* Remaining posts grid */}
+          {posts.length > 1 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {posts.slice(1).map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </main>
   )
