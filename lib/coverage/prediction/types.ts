@@ -60,6 +60,26 @@ export interface CoveragePrediction {
 }
 
 // ============================================================================
+// Live Network Status (from TCS Portal)
+// ============================================================================
+
+/** Operational status of the nearest base station and network-wide health */
+export interface LiveNetworkStatus {
+  /** Whether the nearest BN is currently online */
+  bnOnline: boolean;
+  /** Active customer connections on the nearest BN's site */
+  bnActiveConnections: number;
+  /** Network-wide BN/RN summary from latest sync */
+  networkSummary: {
+    totalBNs: number;
+    onlineBNs: number;
+    totalRNs: number;
+    onlineRNs: number;
+    fetchedAt: string | null;
+  } | null;
+}
+
+// ============================================================================
 // Calibration
 // ============================================================================
 

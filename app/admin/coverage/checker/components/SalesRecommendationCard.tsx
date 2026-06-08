@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import type { CoveragePrediction, SignalQuality } from '@/lib/coverage/prediction/types';
+import type { CoveragePrediction, LiveNetworkStatus, SignalQuality } from '@/lib/coverage/prediction/types';
 import { SectionCard } from '@/components/admin/shared';
 import { PiSparkleBold, PiCheckCircleBold, PiWarningBold, PiBuildingsBold, PiHouseBold } from 'react-icons/pi';
 
 interface SalesRecommendationCardProps {
   prediction: CoveragePrediction | null;
+  liveStatus?: LiveNetworkStatus | null;
 }
 
 // ── Product catalogue (source of truth: products/connectivity/) ──────────────
@@ -37,9 +38,19 @@ type CustomerType = 'smb' | 'residential';
 function getRecommendation(
   prediction: CoveragePrediction | null,
   customerType: CustomerType,
+  liveStatus: LiveNetworkStatus | null,
 ): { text: string; tiers: Tier[]; warning: string | null } {
   const baseTiers = customerType === 'residential' ? RESIDENTIAL_TIERS : SMB_TIERS;
   const allUnavailable = baseTiers.map(t => ({ ...t, available: false, recommended: false }));
+
+  // Gate: BN is offline — nothing can be sold regardless of signal quality
+  if (liveStatus && !liveStatus.bnOnline) {
+    return {
+      text: 'The nearest base station is currently offline. SkyFibre cannot be sold at this address until the base station is restored. Check back after the next sync or contact operations.',
+      tiers: allUnavailable,
+      warning: 'Do not create an order — installation will fail. Monitor the base station status and re-check coverage when the BN is back online.',
+    };
+  }
 
   if (!prediction || prediction.signalQuality === 'none') {
     return {
@@ -103,9 +114,9 @@ function getRecommendation(
   }
 }
 
-export default function SalesRecommendationCard({ prediction }: SalesRecommendationCardProps) {
+export default function SalesRecommendationCard({ prediction, liveStatus }: SalesRecommendationCardProps) {
   const [customerType, setCustomerType] = useState<CustomerType>('smb');
-  const { text, tiers, warning } = getRecommendation(prediction, customerType);
+  const { text, tiers, warning } = getRecommendation(prediction, customerType, liveStatus ?? null);
   const noService = !prediction || prediction.signalQuality === 'none';
 
   return (
