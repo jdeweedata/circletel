@@ -103,11 +103,32 @@ export class NetcashPaymentService {
   }
 
   /**
-   * Generate payment URL with form data
-   * Returns the full URL to redirect customer to for payment
+   * Generate a hosted Pay Now LINK (GET) to redirect/email/SMS the customer to.
+   *
+   * IMPORTANT: NetCash's hosted paynow.aspx page reads the amount from `p4` in RANDS for GET
+   * links. The `Amount`-in-cents + m-field set on NetcashPaymentFormData is the *form-POST*
+   * shape; encoding it straight into a GET querystring makes the page render R0.00 (the page
+   * ignores `Amount`). So build the correct GET-link params here (p4 in Rands).
+   *
+   * `p2` carries the reference NetCash echoes back on the postback; we use `m5` (the invoice id)
+   * which is also what we persist as `paynow_transaction_ref`, so reconciliation stays consistent.
    */
   generatePaymentUrl(formData: NetcashPaymentFormData): string {
-    const params = new URLSearchParams(formData as any);
+    const amountInRands = (parseInt(formData.Amount, 10) / 100).toFixed(2);
+    const params = new URLSearchParams({
+      m1: formData.m1,                    // Service key
+      m2: formData.m2,                    // PCI Vault key
+      p2: formData.m5,                    // Reference (= invoice id) echoed back for reconciliation
+      p3: formData.p3,                    // Description (bank statement narrative)
+      p4: amountInRands,                  // Amount in RANDS (NOT cents) — fixes the R0.00 bug
+      Budget: formData.Budget || 'N',
+      m4: formData.m4,                    // Extra 1: CT- transaction ref
+      m6: formData.m6,                    // Extra 3: invoice number
+      m9: process.env.NETCASH_RETURN_URL    // Success/return URL (robust fallback base)
+        || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za'}/api/payments/netcash/redirect`,
+      m10: process.env.NETCASH_CANCEL_URL
+        || `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za'}/payment/cancelled`,
+    });
     return `${this.paymentUrl}?${params.toString()}`;
   }
 
