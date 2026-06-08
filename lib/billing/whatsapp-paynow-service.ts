@@ -69,19 +69,6 @@ export type WhatsAppNotificationType =
   | 'payment_reminder'
   | 'debit_failed';
 
-// =============================================================================
-// SHORT URL HELPER
-// =============================================================================
-
-/**
- * Generate short payment URL for WhatsApp
- * Uses circletel.co.za/api/paynow/[ref] which redirects to full NetCash URL
- */
-function getShortPaymentUrl(transactionRef: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
-  return `${baseUrl}/api/paynow/${transactionRef}`;
-}
-
 /**
  * Format date for WhatsApp message (e.g., "28 February 2026")
  */
@@ -217,8 +204,11 @@ export class WhatsAppPayNowService {
         };
       }
 
-      // Generate short URL for WhatsApp
-      const paymentUrl = getShortPaymentUrl(invoice.paynow_transaction_ref);
+      // WhatsApp templates use a DYNAMIC URL button with base
+      // https://www.circletel.co.za/api/paynow/{{1}} — Meta substitutes the button
+      // parameter into {{1}}, so we must pass the BARE transaction ref (not the full URL),
+      // otherwise the link doubles up.
+      const paymentUrl = invoice.paynow_transaction_ref;
       const customerName = customer.first_name || 'Customer';
 
       // Send appropriate template

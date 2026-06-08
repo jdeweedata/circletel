@@ -85,7 +85,7 @@ export class WhatsAppService {
     to: string,
     templateName: CircleTelTemplate,
     components: SendTemplateRequest['template']['components'] = [],
-    languageCode = 'en_US'
+    languageCode = 'en_ZA' // CircleTel templates are created in English (ZAF) — must match the template's language
   ): Promise<WhatsAppSendResult> {
     const config = this.getConfig();
 
