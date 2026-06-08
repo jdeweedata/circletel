@@ -51,7 +51,7 @@ jobs:
 
   type-check:
     name: TypeScript Type Check
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2  # TRIAL: Ubicloud managed runner (was ubuntu-latest)
     timeout-minutes: 10
     continue-on-error: true  # Don't block automation on type errors
 
