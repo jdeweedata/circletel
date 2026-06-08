@@ -29,6 +29,12 @@ export interface RuleConfig {
   marginFloorPct: number;
   /** Minimum combined margin % for bundles, default 30. */
   bundleMarginFloorPct: number;
+  /**
+   * Fallback minimum MARKUP % for MTN/Arlan deals with no business_use_case.
+   * MTN/Arlan use a markup model (not the connectivity margin floor); per-use-case
+   * floors come from MARKUP_RULES (8–20%). Default 8 (lowest, "device_upgrade").
+   */
+  mtnDefaultMarkupFloorPct: number;
   /** Sources whose products require a FICA checklist before quoting. */
   ficaRequiredSources: UnifiedProductSource[];
 }
@@ -60,5 +66,6 @@ export interface ProductRuleEvaluation {
 export const DEFAULT_RULE_CONFIG: RuleConfig = {
   marginFloorPct: 25,
   bundleMarginFloorPct: 30,
+  mtnDefaultMarkupFloorPct: 8,
   ficaRequiredSources: ['MTN / Arlan'],
 };

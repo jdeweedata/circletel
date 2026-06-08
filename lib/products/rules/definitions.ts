@@ -8,6 +8,7 @@
 
 import type { ProductRule, RuleResult } from './types';
 import type { UnifiedProduct } from '@/lib/types/unified-product';
+import { MARKUP_RULES, type MTNDealerBusinessUseCase } from '@/lib/types/mtn-dealer-products';
 
 function result(
   rule: Pick<ProductRule, 'id' | 'name' | 'group'>,
@@ -38,7 +39,9 @@ const APPROVED_BRAND_PREFIXES = [
 const marginFloorRule: ProductRule = {
   id: 'margin-floor',
   name: 'Minimum product margin',
-  description: 'Every priced product must meet the configured contribution-margin floor.',
+  description:
+    'Priced products must clear their floor: contribution margin (25%) for CircleTel/Hardware, ' +
+    'or the per-use-case MARKUP floor (8–20%) for MTN/Arlan deals.',
   group: 'Pricing',
   priority: 1,
   appliesTo: 'All products with a retail price',
@@ -47,6 +50,20 @@ const marginFloorRule: ProductRule = {
     if (product.cost <= 0) {
       return result(this, 'warning', 'Cost of sale not set — margin cannot be verified.');
     }
+
+    // MTN/Arlan use a markup model (markup % on cost), with per-use-case floors.
+    if (product.source === 'MTN / Arlan') {
+      const useCase = (product.raw as { business_use_case?: MTNDealerBusinessUseCase | null })
+        .business_use_case ?? null;
+      const floor = (useCase && MARKUP_RULES[useCase]?.markup_pct) || config.mtnDefaultMarkupFloorPct;
+      const markupPct = Math.round(((product.price - product.cost) / product.cost) * 100);
+      const label = useCase ?? 'default';
+      return markupPct >= floor
+        ? result(this, 'pass', `Markup ${markupPct}% meets the ${floor}% ${label} floor.`)
+        : result(this, 'fail', `Markup ${markupPct}% is below the ${floor}% ${label} floor.`);
+    }
+
+    // CircleTel / Hardware use the contribution-margin floor.
     const floor = config.marginFloorPct;
     return product.margin >= floor
       ? result(this, 'pass', `Margin ${product.margin}% meets the ${floor}% floor.`)
