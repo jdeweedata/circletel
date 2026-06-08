@@ -50,7 +50,7 @@ jobs:
   # Job 1: Prepare test database
   prepare-test-db:
     name: Prepare Test Database
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     timeout-minutes: 15
 
     steps:
@@ -101,7 +101,7 @@ jobs:
   # Job 2: Run authenticated API tests
   api-tests:
     name: Admin Quote API Tests
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     needs: prepare-test-db
     timeout-minutes: 15
 
@@ -192,7 +192,7 @@ jobs:
   # Job 3: Type check after API changes
   type-check:
     name: TypeScript Validation
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     needs: api-tests
     timeout-minutes: 15
 
@@ -216,7 +216,7 @@ jobs:
   # Job 4: Security validation
   security-check:
     name: Security Validation
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     needs: api-tests
     timeout-minutes: 15
 
@@ -252,7 +252,7 @@ jobs:
   # Job 5: Report results
   report:
     name: Test Report
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     needs: [api-tests, type-check, security-check]
     if: always()
     timeout-minutes: 15

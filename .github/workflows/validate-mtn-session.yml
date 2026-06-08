@@ -15,7 +15,7 @@ on:
 jobs:
   validate-session:
     name: Validate MTN SSO Session
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
 
     steps:
       - name: Checkout code
