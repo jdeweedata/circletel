@@ -1,0 +1,94 @@
+#!/bin/sh
+# Shared pre-push hook (tracked in repo; enabled via core.hooksPath=.githooks).
+# Auto-wired on `npm install` / `npm ci` by the "prepare" script in package.json.
+# To enable manually:  git config core.hooksPath .githooks
+#
+#   1. Validate Vercel build config (heap/cpus) — prevents OOM crashes on the runner.
+#      Mirrors the validate-build-config job in .github/workflows/pr-checks.yml
+#   2. Type-check ONLY the .ts/.tsx files being pushed.
+#      The repo carries ~295 pre-existing type errors (CI runs tsc with
+#      continue-on-error), so a full blocking type-check is unusable. Instead we
+#      run tsc once and fail only if a file YOU are pushing has an error — bad
+#      pushes are caught before they reach the self-hosted runner, without being
+#      blocked by errors in files you never touched.
+#
+# Escape hatches:
+#   git push --no-verify       # skip this hook entirely
+#   SKIP_TYPECHECK=1 git push  # keep the build-config check, skip the type-check
+
+FAILED=0
+ZERO="0000000000000000000000000000000000000000"
+
+# ----- 1. Build config validation -----------------------------------------
+HEAP=$(grep -o 'max-old-space-size=[0-9]*' vercel.json 2>/dev/null | grep -o '[0-9]*')
+if [ -z "$HEAP" ]; then
+  echo "⚠️  WARNING: Could not find max-old-space-size in vercel.json"
+elif [ "$HEAP" -lt 6144 ]; then
+  echo "❌ vercel.json heap is ${HEAP}MB — must be ≥6144MB (Vercel OOM risk)"
+  FAILED=1
+else
+  echo "✅ vercel.json heap: ${HEAP}MB"
+fi
+
+CPUS=$(grep -E '^\s*cpus:' next.config.js 2>/dev/null | grep -o '[0-9]*')
+if [ -z "$CPUS" ]; then
+  echo "⚠️  WARNING: Could not find cpus setting in next.config.js"
+elif [ "$CPUS" -gt 1 ]; then
+  echo "❌ next.config.js cpus=${CPUS} — must be 1 (Vercel OOM risk with 2+ workers)"
+  FAILED=1
+else
+  echo "✅ next.config.js cpus: ${CPUS}"
+fi
+
+# ----- 2. Scoped type-check ------------------------------------------------
+if [ "$SKIP_TYPECHECK" = "1" ]; then
+  echo "⏭️  SKIP_TYPECHECK=1 — skipping type-check"
+else
+  # Collect .ts/.tsx files across every ref being pushed (read from stdin).
+  CHANGED=""
+  while read -r local_ref local_sha remote_ref remote_sha; do
+    [ "$local_sha" = "$ZERO" ] && continue          # branch deletion — nothing to check
+    if [ "$remote_sha" = "$ZERO" ]; then            # new branch — compare to origin/main
+      base=$(git merge-base origin/main "$local_sha" 2>/dev/null)
+      [ -z "$base" ] && base="origin/main"
+    else
+      base="$remote_sha"
+    fi
+    files=$(git diff --name-only "$base" "$local_sha" 2>/dev/null | grep -E '\.(ts|tsx)$')
+    CHANGED="$CHANGED
+$files"
+  done
+
+  CHANGED=$(printf '%s\n' "$CHANGED" | grep -E '\.(ts|tsx)$' | sort -u)
+
+  if [ -z "$CHANGED" ]; then
+    echo "✅ No .ts/.tsx files in this push — skipping type-check"
+  else
+    N=$(printf '%s\n' "$CHANGED" | grep -c .)
+    echo "🔎 Type-checking ($N changed TS file(s) in scope)…"
+    ERRORS=$(npm run type-check:memory 2>&1 | grep -E '^[^ (]+\.(ts|tsx)\([0-9]+,[0-9]+\): error')
+
+    HITS=""
+    for f in $CHANGED; do
+      match=$(printf '%s\n' "$ERRORS" | grep -F "$f(")
+      [ -n "$match" ] && HITS="$HITS
+$match"
+    done
+
+    if [ -n "$(printf '%s' "$HITS" | tr -d '[:space:]')" ]; then
+      echo "❌ Type errors in files you're pushing:"
+      printf '%s\n' "$HITS" | grep -E 'error TS'
+      FAILED=1
+    else
+      echo "✅ No type errors in the files you're pushing"
+    fi
+  fi
+fi
+
+if [ "$FAILED" -eq 1 ]; then
+  echo ""
+  echo "Push blocked. Fix the issues above, or bypass with:  git push --no-verify"
+  exit 1
+fi
+
+exit 0
