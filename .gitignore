@@ -229,3 +229,12 @@ graphify-out/
 .claude/mem/
 .factory/
 .env.staging
+
+# Local-only artifacts & sensitive operational data (not for git)
+.docs/
+.understand-anything/
+.claude-workflows/
+mockups/
+app/prototype/
+.design/ctel CI/
+.design/image copy 2.png
