@@ -1,13 +1,9 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { NewHero, type SegmentType } from '@/components/home/NewHero';
-import { QuickActions } from '@/components/home/QuickActions';
-import { PlanCards } from '@/components/home/PlanCards';
-import { HowItWorks } from '@/components/home/HowItWorks';
-import { Testimonials } from '@/components/home/Testimonials';
-import { FAQ } from '@/components/home/FAQ';
+import { useSearchParams } from 'next/navigation';
+import { HomeLanding20260607 } from '@/components/home/HomeLanding20260607';
+import type { SegmentType } from '@/components/home/NewHero';
 
 // Valid segment values
 const VALID_SEGMENTS: SegmentType[] = ['business', 'wfh', 'home'];
@@ -17,7 +13,6 @@ function isValidSegment(value: string | null): value is SegmentType {
 }
 
 export default function Home() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -56,7 +51,6 @@ export default function Home() {
       const accessToken = hashParams.get('access_token');
 
       if (accessToken && !isRedirecting) {
-        console.log('[Home] Detected OAuth redirect, forwarding to callback...');
         setIsRedirecting(true);
         // Forward to callback with hash and add next parameter for order flow
         window.location.href = `/auth/callback?next=/order/checkout${window.location.hash}`;
@@ -77,16 +71,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <NewHero
-        activeSegment={activeSegment}
-        onSegmentChange={handleSegmentChange}
-      />
-      <QuickActions />
-      <PlanCards activeSegment={activeSegment} />
-      <HowItWorks />
-      <Testimonials activeSegment={activeSegment} />
-      <FAQ />
-    </div>
+    <HomeLanding20260607
+      activeSegment={activeSegment}
+      onSegmentChange={handleSegmentChange}
+    />
   );
 }
