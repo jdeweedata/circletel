@@ -12,6 +12,7 @@
     "build:ci": "node --max-old-space-size=6144 ./node_modules/next/dist/bin/next build",
     "start": "next start",
     "lint": "next lint",
+    "prepare": "git config core.hooksPath .githooks || true",
     "type-check": "tsc --noEmit",
     "type-check:memory": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc --noEmit",
     "predeploy:check": "npm run type-check && npm run lint",

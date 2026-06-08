@@ -193,6 +193,7 @@ All detailed patterns are in `.claude/rules/`:
 | `admin-shared-components.md` | StatusBadge/StatCard/SectionCard prop interfaces — verified signatures |
 | `vercel-deployment.md` | Manual deployment trigger API, monitoring, CircleTel project IDs |
 | `invoice-pdf-patterns.md` | VAT calc (excl-VAT multiply), fetch/blob download, print:hidden, jsPDF patterns |
+| `pre-push-hook.md` | Shared `.githooks/pre-push` — build-config + scoped type-check, escape hatches |
 
 ---
 
