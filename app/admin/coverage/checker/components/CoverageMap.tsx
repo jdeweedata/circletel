@@ -8,14 +8,20 @@ interface CoverageMapProps {
   targetLat: number;
   targetLng: number;
   targetAddress: string;
-  bnLat: number | null;
-  bnLng: number | null;
-  bnSiteName: string;
+  // Tarana mode
+  bnLat?: number | null;
+  bnLng?: number | null;
+  bnSiteName?: string;
+  // DFA mode
+  mode?: 'tarana' | 'dfa';
+  dfaCoverageType?: 'connected' | 'near-net' | 'none';
 }
 
 export default function CoverageMap({
   targetLat, targetLng, targetAddress,
   bnLat, bnLng, bnSiteName,
+  mode = 'tarana',
+  dfaCoverageType,
 }: CoverageMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
@@ -60,12 +66,12 @@ export default function CoverageMap({
     });
     targetMarker.addListener('click', () => targetInfo.open(map, targetMarker));
 
-    // BN marker (orange) if available
-    if (bnLat !== null && bnLng !== null) {
+    // BN marker (orange) — Tarana mode only
+    if (mode === 'tarana' && bnLat !== null && bnLat !== undefined && bnLng !== null && bnLng !== undefined) {
       const bnMarker = new google.maps.Marker({
         position: { lat: bnLat, lng: bnLng },
         map,
-        title: bnSiteName,
+        title: bnSiteName || 'Base Node',
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
           scale: 12,
@@ -80,7 +86,7 @@ export default function CoverageMap({
       bounds.extend({ lat: bnLat, lng: bnLng });
 
       const bnInfo = new google.maps.InfoWindow({
-        content: `<div style="font-size:12px;font-weight:600;padding:2px 4px">📡 ${bnSiteName}</div>`,
+        content: `<div style="font-size:12px;font-weight:600;padding:2px 4px">📡 ${bnSiteName || 'Base Node'}</div>`,
       });
       bnMarker.addListener('click', () => bnInfo.open(map, bnMarker));
 
@@ -100,10 +106,32 @@ export default function CoverageMap({
           repeat: '12px',
         }],
       });
-
-      map.fitBounds(bounds, 80);
     }
-  }, [targetLat, targetLng, bnLat, bnLng, targetAddress, bnSiteName]);
+
+    // DFA mode — add a coverage zone indicator
+    if (mode === 'dfa' && dfaCoverageType && dfaCoverageType !== 'none') {
+      const dfaColor = dfaCoverageType === 'connected' ? '#10B981' : '#F59E0B';
+      // Circle overlay around target showing coverage zone
+      new google.maps.Circle({
+        map,
+        center: { lat: targetLat, lng: targetLng },
+        radius: dfaCoverageType === 'connected' ? 100 : 200,
+        fillColor: dfaColor,
+        fillOpacity: 0.15,
+        strokeColor: dfaColor,
+        strokeWeight: 2,
+        strokeOpacity: 0.6,
+      });
+
+      const dfaLabel = dfaCoverageType === 'connected' ? 'DFA Connected Zone' : 'DFA Near-Net Zone';
+      const dfaInfo = new google.maps.InfoWindow({
+        content: `<div style="font-size:12px;font-weight:600;padding:2px 4px">🔌 ${dfaLabel}</div>`,
+      });
+      targetMarker.addListener('click', () => dfaInfo.open(map, targetMarker));
+    }
+
+    map.fitBounds(bounds, 80);
+  }, [targetLat, targetLng, bnLat, bnLng, targetAddress, bnSiteName, mode, dfaCoverageType]);
 
   return (
     <SectionCard title="Coverage Map" icon={PiMapPinBold}>
@@ -113,14 +141,25 @@ export default function CoverageMap({
           <span className="w-3 h-3 rounded-full bg-blue-500 inline-block" />
           Target Address
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-orange-500 inline-block" />
-          Base Node ({bnSiteName})
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-6 border-t-2 border-dashed border-orange-400 inline-block" />
-          Link Path
-        </span>
+        {mode === 'dfa' ? (
+          <span className="flex items-center gap-1.5">
+            <span className={`w-3 h-3 rounded-full inline-block ${
+              dfaCoverageType === 'connected' ? 'bg-emerald-500' : 'bg-amber-500'
+            }`} />
+            DFA {dfaCoverageType === 'connected' ? 'Connected' : 'Near-Net'} Zone
+          </span>
+        ) : (
+          <>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-orange-500 inline-block" />
+              Base Node ({bnSiteName || 'Unknown'})
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-6 border-t-2 border-dashed border-orange-400 inline-block" />
+              Link Path
+            </span>
+          </>
+        )}
       </div>
     </SectionCard>
   );

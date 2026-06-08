@@ -26,12 +26,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ prediction: null, message: 'No base stations within range' });
     }
 
-    // Fetch BN coordinates + network topology for map display and UI
+    // Fetch BN coordinates + network topology + live status for map display and UI
     const { data: bn } = await supabase
       .from('tarana_base_stations')
-      .select('lat, lng, cell_name, sector_name, market_id, site_id')
+      .select('lat, lng, cell_name, sector_name, market_id, site_id, device_status, active_connections')
       .eq('serial_number', prediction.nearestBnSerial)
       .single();
+
+    // Fetch latest device counts for network-wide context
+    const { data: deviceCounts } = await supabase
+      .from('tarana_device_counts')
+      .select('*')
+      .order('fetched_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    const liveStatus = {
+      bnOnline: (bn?.device_status ?? 0) === 1,
+      bnActiveConnections: bn?.active_connections ?? 0,
+      networkSummary: deviceCounts ? {
+        totalBNs: deviceCounts.bn_total,
+        onlineBNs: deviceCounts.bn_connected,
+        totalRNs: deviceCounts.rn_total,
+        onlineRNs: deviceCounts.rn_connected,
+        fetchedAt: deviceCounts.fetched_at,
+      } : null,
+    };
 
     return NextResponse.json({
       prediction,
@@ -43,6 +63,7 @@ export async function POST(request: NextRequest) {
         cellName: bn.cell_name ?? null,
         sectorName: bn.sector_name ?? null,
       } : null,
+      liveStatus,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

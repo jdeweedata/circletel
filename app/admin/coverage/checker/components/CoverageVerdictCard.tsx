@@ -1,10 +1,12 @@
 'use client';
 
-import type { CoveragePrediction, SignalQuality } from '@/lib/coverage/prediction/types';
+import type { CoveragePrediction, LiveNetworkStatus, SignalQuality } from '@/lib/coverage/prediction/types';
 import { StatusBadge } from '@/components/admin/shared';
+import { PiWarningCircleBold } from 'react-icons/pi';
 
 interface CoverageVerdictCardProps {
   prediction: CoveragePrediction | null;
+  liveStatus?: LiveNetworkStatus | null;
 }
 
 const QUALITY_CONFIG: Record<SignalQuality, {
@@ -44,7 +46,7 @@ function SignalBars({ filled, total = 5 }: { filled: number; total?: number }) {
   );
 }
 
-export default function CoverageVerdictCard({ prediction }: CoverageVerdictCardProps) {
+export default function CoverageVerdictCard({ prediction, liveStatus }: CoverageVerdictCardProps) {
   if (!prediction) {
     const cfg = QUALITY_CONFIG.none;
     return (
@@ -99,6 +101,36 @@ export default function CoverageVerdictCard({ prediction }: CoverageVerdictCardP
         <p className="mt-3 text-xs text-amber-700 bg-amber-100 rounded-lg px-3 py-2">
           ⚠️ Elevated installation may be required (10m+ antenna mast) for optimal signal at this location.
         </p>
+      )}
+      {/* BN offline — overrides terrain prediction */}
+      {liveStatus && !liveStatus.bnOnline && (
+        <div className="mt-3 flex items-start gap-2 bg-red-100 border border-red-300 rounded-lg px-3 py-2.5">
+          <PiWarningCircleBold className="text-red-600 mt-0.5 shrink-0 h-4 w-4" />
+          <div>
+            <p className="text-sm font-semibold text-red-800">
+              Base Station Offline — Do Not Sell
+            </p>
+            <p className="text-xs text-red-700 mt-0.5">
+              The nearest base station ({prediction.nearestBnSiteName}) is currently offline.
+              This address is not serviceable until the base station is restored.
+            </p>
+          </div>
+        </div>
+      )}
+      {/* BN online but zero connections — coverage unverified */}
+      {liveStatus && liveStatus.bnOnline && liveStatus.bnActiveConnections === 0 && prediction.signalQuality !== 'none' && (
+        <div className="mt-3 flex items-start gap-2 bg-amber-100 border border-amber-300 rounded-lg px-3 py-2.5">
+          <PiWarningCircleBold className="text-amber-600 mt-0.5 shrink-0 h-4 w-4" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800">
+              Unverified Coverage — No Active Customers
+            </p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              This base station is online but has zero active customer connections.
+              Coverage is unverified — a site survey is strongly recommended before selling.
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
