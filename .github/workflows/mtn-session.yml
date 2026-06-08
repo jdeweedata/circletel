@@ -20,7 +20,7 @@ permissions:
 jobs:
   validate:
     name: Validate MTN Session
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     timeout-minutes: 10
     outputs:
       valid: ${{ steps.validate.outputs.valid }}
