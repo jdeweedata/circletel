@@ -23,6 +23,7 @@ import { createClient } from '@/lib/supabase/server';
 import { syncInvoiceToZohoBilling } from '@/lib/integrations/zoho/invoice-sync-service';
 import { computeVatInclusiveAmounts, formatInvoiceNumber, nextInvoiceSequence } from './invoice-amounts';
 import { processPayNowForInvoice } from '@/lib/billing/paynow-billing-service';
+import { computeProRata } from '@/lib/onboarding/prorata';
 import { billingLogger } from '@/lib/logging';
 
 // =============================================================================
@@ -42,6 +43,7 @@ export interface ServiceToBill {
   billing_day: number;
   last_invoice_date: string | null;
   status: string;
+  activation_date: string | null;
   customer: {
     id: string;
     first_name: string | null;
@@ -49,6 +51,7 @@ export interface ServiceToBill {
     email: string | null;
     phone: string | null;
     account_number: string | null;
+    onboarding_status: string | null;
   } | null;
   package: {
     id: string;
@@ -255,6 +258,7 @@ export class MonthlyInvoiceGenerator {
         monthly_price,
         billing_day,
         last_invoice_date,
+        activation_date,
         status,
         customer:customers(
           id,
@@ -262,7 +266,8 @@ export class MonthlyInvoiceGenerator {
           last_name,
           email,
           phone,
-          account_number
+          account_number,
+          onboarding_status
         ),
         package:service_packages(
           id,
@@ -288,7 +293,7 @@ export class MonthlyInvoiceGenerator {
     }
 
     // Transform data - handle Supabase joins returning arrays
-    return (services || []).map((service) => ({
+    const transformed = (services || []).map((service) => ({
       ...service,
       customer: Array.isArray(service.customer)
         ? service.customer[0]
@@ -297,6 +302,27 @@ export class MonthlyInvoiceGenerator {
         ? service.package[0]
         : service.package,
     })) as ServiceToBill[];
+
+    // GATE: Exclude customers in onboarding flow unless they are billing_ready.
+    // Legacy customers (no onboarding_submission) continue to bill normally.
+    const customerIds = transformed.map(s => s.customer_id);
+    if (customerIds.length > 0) {
+      const { data: onboardingByCustomer } = await supabase
+        .from('onboarding_submissions')
+        .select('customer_id')
+        .in('customer_id', customerIds);
+      const inOnboardingSet = new Set((onboardingByCustomer || []).map(row => row.customer_id));
+
+      return transformed.filter(service => {
+        const inOnboarding = inOnboardingSet.has(service.customer_id);
+        // If NOT in onboarding: bill (legacy customer)
+        if (!inOnboarding) return true;
+        // If in onboarding: bill only if billing_ready
+        return service.customer?.onboarding_status === 'billing_ready';
+      });
+    }
+
+    return transformed;
   }
 
   /**
@@ -479,7 +505,31 @@ export class MonthlyInvoiceGenerator {
     // Amounts — consumer monthly_price is VAT-INCLUSIVE (gross); back VAT out so total === price.
     // Matches every existing paid invoice (e.g. R899 -> net 781.74 + VAT 117.26 = 899).
     const vatRate = 15.0;
-    const { subtotal, vatAmount, totalAmount } = computeVatInclusiveAmounts(service.monthly_price);
+
+    // Pro-rata first invoice: detect via last_invoice_date === null and apply fraction
+    const isFirstInvoice = service.last_invoice_date === null;
+    let monthlyPrice = service.monthly_price;
+    if (isFirstInvoice && service.activation_date) {
+      const prorata = computeProRata({
+        monthlyExVat: service.monthly_price, // Pass as-is; computeProRata treats it as VAT-exclusive (business rule says 450 ex)
+        vatPct: 15,
+        activationDate: service.activation_date,
+        billingDay: service.billing_day,
+      });
+      // Apply pro-rata fraction to the monthly price
+      // prorata.days / prorata.daysInMonth gives the fraction of the month to charge
+      monthlyPrice = prorata.amountInclVat;
+      billingLogger.info('MonthlyInvoice: Pro-rata first invoice', {
+        serviceId: service.id,
+        activationDate: service.activation_date,
+        days: prorata.days,
+        daysInMonth: prorata.daysInMonth,
+        monthlyPrice: service.monthly_price,
+        prorataPrice: monthlyPrice,
+      });
+    }
+
+    const { subtotal, vatAmount, totalAmount } = computeVatInclusiveAmounts(monthlyPrice);
 
     // Generate INV-YYYY-NNNNN — customer_invoices has NO DB sequence/trigger for invoice_number
     // (the legacy sequence was dropped in the baseline squash), so the app must supply it.
@@ -508,27 +558,39 @@ export class MonthlyInvoiceGenerator {
       },
     ];
 
+    // Determine collection method: onboarding customers use debit_order, others default to existing behavior
+    let paymentCollectionMethod: string | null = null;
+    if (service.customer?.onboarding_status === 'billing_ready') {
+      paymentCollectionMethod = 'debit_order';
+    }
+
     // Insert invoice (invoice_number generated above — no DB trigger exists for customer_invoices)
+    const invoicePayload: Record<string, any> = {
+      invoice_number: invoiceNumber,
+      customer_id: service.customer_id,
+      service_id: service.id,
+      invoice_date: invoiceDate,
+      due_date: dueDate,
+      period_start: periodStart,
+      period_end: periodEnd,
+      subtotal,
+      vat_rate: vatRate,
+      tax_amount: vatAmount,
+      total_amount: totalAmount,
+      amount_due: totalAmount, // new invoice: full amount owed (NOT NULL column)
+      amount_paid: 0,
+      line_items: lineItems,
+      invoice_type: 'recurring',
+      status: 'sent', // valid_invoice_status CHECK allows draft|sent|paid|partial|overdue|cancelled|voided ('unpaid' is invalid)
+    };
+
+    if (paymentCollectionMethod) {
+      invoicePayload.payment_collection_method = paymentCollectionMethod;
+    }
+
     const { data: invoice, error } = await supabase
       .from('customer_invoices')
-      .insert({
-        invoice_number: invoiceNumber,
-        customer_id: service.customer_id,
-        service_id: service.id,
-        invoice_date: invoiceDate,
-        due_date: dueDate,
-        period_start: periodStart,
-        period_end: periodEnd,
-        subtotal,
-        vat_rate: vatRate,
-        tax_amount: vatAmount,
-        total_amount: totalAmount,
-        amount_due: totalAmount, // new invoice: full amount owed (NOT NULL column)
-        amount_paid: 0,
-        line_items: lineItems,
-        invoice_type: 'recurring',
-        status: 'sent', // valid_invoice_status CHECK allows draft|sent|paid|partial|overdue|cancelled|voided ('unpaid' is invalid)
-      })
+      .insert(invoicePayload)
       .select('id, invoice_number')
       .single();
 
