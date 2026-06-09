@@ -37,12 +37,45 @@ export function UnifiedProductDetailSidebar({
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<DetailTab>('overview');
+  const [publishing, setPublishing] = useState(false);
+  const [publishMsg, setPublishMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const open = product !== null;
 
   const evaluation = useMemo<ProductRuleEvaluation | null>(
     () => (product ? rulesEngine.evaluateProduct(product, ruleConfig) : null),
     [product, ruleConfig]
   );
+
+  // Publish only applies to editorial admin products (publishTarget set).
+  const canPublish = product?.publishTarget === 'service_packages';
+  const blocked = evaluation?.blocked ?? false;
+  const blockerTitle = blocked
+    ? `Blocked: ${evaluation?.results.filter((r) => r.level === 'fail').map((r) => r.ruleName).join(', ')}`
+    : undefined;
+
+  async function handlePublish() {
+    if (!product) return;
+    setPublishing(true);
+    setPublishMsg(null);
+    try {
+      const res = await fetch(`/api/admin/products/${product.id}/publish`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        const reason =
+          data.blockers?.map((b: { message: string }) => b.message).join('; ') ||
+          data.errors?.join('; ') ||
+          data.error ||
+          `Failed (${res.status})`;
+        setPublishMsg({ ok: false, text: reason });
+      } else {
+        setPublishMsg({ ok: true, text: 'Published to the catalogue.' });
+      }
+    } catch (err) {
+      setPublishMsg({ ok: false, text: err instanceof Error ? err.message : 'Publish failed' });
+    } finally {
+      setPublishing(false);
+    }
+  }
 
   return (
     <>
@@ -111,6 +144,40 @@ export function UnifiedProductDetailSidebar({
               {tab === 'pricing' && <PricingTab product={product} />}
               {tab === 'rules' && <RulesTab evaluation={evaluation} />}
             </div>
+
+            {canPublish && (
+              <footer className="border-t border-ui-border p-4">
+                {publishMsg && (
+                  <p
+                    className={cn(
+                      'mb-2 rounded-md px-2 py-1.5 text-xs',
+                      publishMsg.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                    )}
+                  >
+                    {publishMsg.text}
+                  </p>
+                )}
+                <button
+                  onClick={handlePublish}
+                  disabled={blocked || publishing}
+                  title={blockerTitle}
+                  className={cn(
+                    'w-full rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors',
+                    blocked || publishing
+                      ? 'cursor-not-allowed bg-slate-300'
+                      : 'bg-circleTel-orange hover:bg-circleTel-orange-dark'
+                  )}
+                >
+                  {publishing ? 'Publishing…' : blocked ? 'Blocked by rules' : 'Publish to catalogue'}
+                </button>
+                {blocked && (
+                  <p className="mt-1.5 text-center text-xs text-ui-text-muted">
+                    Resolve {evaluation?.summary.fail} failing rule
+                    {(evaluation?.summary.fail ?? 0) > 1 ? 's' : ''} to publish.
+                  </p>
+                )}
+              </footer>
+            )}
           </>
         )}
       </aside>

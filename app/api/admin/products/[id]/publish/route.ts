@@ -4,6 +4,7 @@ import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import {
   getAdminProductContext,
   validateAdminProductForPublish,
+  evaluateAdminProductForPublish,
   buildServicePackagePayload,
   upsertServicePackage,
   archivePreviousVersions,
@@ -59,6 +60,23 @@ export async function POST(
       );
     }
 
+    // 2b. Governance rule gating — block on any failing rule
+    const ruleEvaluation = evaluateAdminProductForPublish(ctx);
+    if (ruleEvaluation.blocked) {
+      const blockers = ruleEvaluation.results
+        .filter((r) => r.level === 'fail')
+        .map((r) => ({ rule: r.ruleName, message: r.message }));
+      apiLogger.warn('[publish] Blocked by governance rules', { id, blockers });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Product is blocked by governance rules',
+          blockers,
+        },
+        { status: 400 }
+      );
+    }
+
     // 3. Build service_packages payload
     const payload = buildServicePackagePayload(ctx, {
       marketSegment,
@@ -80,7 +98,7 @@ export async function POST(
         role: authResult.adminUser.role as 'super_admin' | 'product_manager' | 'editor' | 'viewer',
       },
       servicePackage,
-      'Published from admin product catalogue',
+      `Published from admin product catalogue (rules: ${ruleEvaluation.summary.pass} pass, ${ruleEvaluation.summary.warning} warning)`,
       {
         ipAddress:
           request.headers.get('x-forwarded-for') ||
@@ -173,7 +191,7 @@ export async function POST(
           .from('product_integrations')
           .update({
             zoho_billing_sync_status: 'failed',
-            zoho_billing_last_sync_error: billingError?.message || String(billingError),
+            zoho_billing_last_sync_error: billingError instanceof Error ? billingError.message : String(billingError),
           })
           .eq('service_package_id', servicePackage.id);
       } catch (dbError) {
@@ -182,7 +200,7 @@ export async function POST(
 
       zohoBillingSync = {
         success: false,
-        error: billingError?.message || String(billingError),
+        error: billingError instanceof Error ? billingError.message : String(billingError),
       };
     }
 
@@ -201,7 +219,7 @@ export async function POST(
       {
         success: false,
         error: 'Failed to publish product',
-        details: error?.message ?? String(error),
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );
