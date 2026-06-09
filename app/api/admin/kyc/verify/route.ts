@@ -9,6 +9,8 @@ import { createClient as createServerClient } from '@/lib/supabase/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { apiLogger } from '@/lib/logging/logger';
+import { computeVettingStatus, requiredDocsFor } from '@/lib/onboarding/document-requirements';
+import { maybeMarkBillingReady } from '@/lib/onboarding/billing-ready';
 
 export async function POST(request: NextRequest) {
   try {
@@ -91,10 +93,83 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update order status based on verification result
+    // Re-fetch the document to learn its scope (consumer_order_id vs onboarding_submission_id)
+    const { data: scopedDoc, error: scopeError } = await supabase
+      .from('kyc_documents')
+      .select('consumer_order_id, onboarding_submission_id')
+      .eq('id', documentId)
+      .single();
+
+    if (scopeError || !scopedDoc) {
+      apiLogger.error('Failed to re-fetch document scope', { error: scopeError });
+      return NextResponse.json(
+        { success: false, error: 'Failed to determine document scope' },
+        { status: 500 }
+      );
+    }
+
     let emailSent = false;
     let emailError: string | undefined;
 
+    // B2B SUBMISSION PATH: onboarding_submission_id is set
+    if (scopedDoc.onboarding_submission_id) {
+      const submissionId = scopedDoc.onboarding_submission_id;
+
+      // Fetch the submission to get its context (segment, submission_data)
+      const { data: submission, error: subError } = await supabase
+        .from('onboarding_submissions')
+        .select('id, customer_id, segment, submission_data, status')
+        .eq('id', submissionId)
+        .single();
+
+      if (!subError && submission) {
+        // Compute required docs based on segment + entity context
+        const step2 = submission.submission_data?.step2;
+        const required = requiredDocsFor(submission.segment as any, {
+          vatRegistered: step2?.vat === 'Yes',
+          entityType: step2?.entityType || '',
+        })
+          .filter((r) => r.required)
+          .map((r) => r.type);
+
+        // Fetch this submission's documents
+        const { data: submissionDocs, error: docsError } = await supabase
+          .from('kyc_documents')
+          .select('document_type, verification_status')
+          .eq('onboarding_submission_id', submissionId);
+
+        if (!docsError && submissionDocs) {
+          const vetting = computeVettingStatus(required, submissionDocs);
+
+          // Update the submission's vetting status and overall status
+          const submissionStatus =
+            vetting === 'approved'
+              ? 'approved'
+              : vetting === 'rejected'
+                ? 'rejected'
+                : 'submitted';
+
+          await supabase.from('onboarding_submissions').update({
+            document_vetting_status: vetting,
+            status: submissionStatus,
+            admin_reviewed_at: new Date().toISOString(),
+            admin_reviewed_by: authResult.adminUser.id,
+          });
+
+          // Try to mark customer billing_ready if all conditions are met
+          const marked = await maybeMarkBillingReady(supabase, submission.customer_id);
+
+          return NextResponse.json({
+            success: true,
+            message: `Document ${status} successfully`,
+            vetting,
+            billingReadyMarked: marked,
+          });
+        }
+      }
+    }
+
+    // CONSUMER ORDER PATH: consumer_order_id is set (original logic)
     if (status === 'approved') {
       // Check if all documents for this order are approved
       const { data: allDocs, error: docsError } = await supabase
@@ -103,9 +178,7 @@ export async function POST(request: NextRequest) {
         .eq('consumer_order_id', document.consumer_order_id);
 
       if (!docsError && allDocs) {
-        const allApproved = allDocs.every(
-          (doc) => doc.verification_status === 'approved'
-        );
+        const allApproved = allDocs.every((doc) => doc.verification_status === 'approved');
 
         if (allApproved) {
           // All documents approved, update order to kyc_approved
@@ -130,7 +203,7 @@ export async function POST(request: NextRequest) {
               }
             } catch (error: unknown) {
               apiLogger.error('Error sending KYC approval email', { error });
-              emailError = error.message;
+              emailError = (error as Error).message;
             }
           }
         }
@@ -159,7 +232,7 @@ export async function POST(request: NextRequest) {
           }
         } catch (error: unknown) {
           apiLogger.error('Error sending KYC rejection email', { error });
-          emailError = error.message;
+          emailError = (error as Error).message;
         }
       }
     }
@@ -173,7 +246,11 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     apiLogger.error('API error', { error });
     return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : 'Internal server error',
+      },
       { status: 500 }
     );
   }
