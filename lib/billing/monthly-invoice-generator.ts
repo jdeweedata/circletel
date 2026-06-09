@@ -506,30 +506,34 @@ export class MonthlyInvoiceGenerator {
     // Matches every existing paid invoice (e.g. R899 -> net 781.74 + VAT 117.26 = 899).
     const vatRate = 15.0;
 
+    // Always compute full-month amounts from the existing function on the unchanged price.
+    const { subtotal: fullSubtotal, vatAmount: fullVat, totalAmount: fullTotal } = computeVatInclusiveAmounts(service.monthly_price);
+
     // Pro-rata first invoice: detect via last_invoice_date === null and apply fraction
+    // Only use computeProRata to get days/daysInMonth; ignore its amount fields (VAT base is already set above).
     const isFirstInvoice = service.last_invoice_date === null;
-    let monthlyPrice = service.monthly_price;
+    let fraction = 1;
     if (isFirstInvoice && service.activation_date) {
-      const prorata = computeProRata({
-        monthlyExVat: service.monthly_price, // Pass as-is; computeProRata treats it as VAT-exclusive (business rule says 450 ex)
+      const pr = computeProRata({
+        monthlyExVat: service.monthly_price, // only days/daysInMonth are used; VAT treatment irrelevant here
         vatPct: 15,
         activationDate: service.activation_date,
         billingDay: service.billing_day,
       });
-      // Apply pro-rata fraction to the monthly price
-      // prorata.days / prorata.daysInMonth gives the fraction of the month to charge
-      monthlyPrice = prorata.amountInclVat;
+      fraction = pr.days / pr.daysInMonth;
       billingLogger.info('MonthlyInvoice: Pro-rata first invoice', {
         serviceId: service.id,
         activationDate: service.activation_date,
-        days: prorata.days,
-        daysInMonth: prorata.daysInMonth,
-        monthlyPrice: service.monthly_price,
-        prorataPrice: monthlyPrice,
+        days: pr.days,
+        daysInMonth: pr.daysInMonth,
+        fraction,
       });
     }
 
-    const { subtotal, vatAmount, totalAmount } = computeVatInclusiveAmounts(monthlyPrice);
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const subtotal = round2(fullSubtotal * fraction);
+    const vatAmount = round2(fullVat * fraction);
+    const totalAmount = round2(subtotal + vatAmount);
 
     // Generate INV-YYYY-NNNNN — customer_invoices has NO DB sequence/trigger for invoice_number
     // (the legacy sequence was dropped in the baseline squash), so the app must supply it.
