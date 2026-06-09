@@ -81,6 +81,7 @@ const navigationSections: NavSection[] = [
         name: 'Products',
         icon: PiPackageBold,
         children: [
+          { name: 'Unified Console', href: '/admin/products/unified-console', icon: PiSquaresFourBold },
           { name: 'All Products', href: '/admin/products', icon: PiListBold },
           { name: 'Add Product', href: '/admin/products/new', icon: PiPlusBold },
           { name: 'Hardware Store', href: '/admin/products/hardware', icon: PiCubeBold },
