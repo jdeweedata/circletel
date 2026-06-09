@@ -8,6 +8,8 @@ import type {
 } from '@/lib/types/admin-products';
 import type { Product as ServicePackage } from '@/lib/types/products';
 import type { AuthenticatedUser } from '@/lib/auth/api-auth';
+import { normalizeAdminProductToUnified } from '@/lib/types/unified-product';
+import { rulesEngine, type ProductRuleEvaluation } from '@/lib/products/rules';
 
 export interface ServicePackagePayload {
   id?: string;
@@ -148,6 +150,17 @@ export function validateAdminProductForPublish(ctx: AdminProductContext): string
   }
 
   return errors;
+}
+
+/**
+ * Evaluate the product-governance rules engine against an admin product before
+ * publishing. Callers MUST block the publish when `evaluation.blocked` is true.
+ * Mirrors the client-side evaluation in the unified console so the gate is
+ * enforced server-side too.
+ */
+export function evaluateAdminProductForPublish(ctx: AdminProductContext): ProductRuleEvaluation {
+  const unified = normalizeAdminProductToUnified(ctx.product, ctx.pricing);
+  return rulesEngine.evaluateProduct(unified);
 }
 
 /**
