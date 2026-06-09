@@ -53,6 +53,26 @@ export async function POST(request: NextRequest) {
   }
   const submissionId = body.submissionId as string;
 
+  // Check idempotency: if already submitted/approved, short-circuit
+  const { data: existingSub } = await supabase
+    .from('onboarding_submissions')
+    .select('status')
+    .eq('id', submissionId)
+    .single();
+  if (existingSub?.status === 'submitted' || existingSub?.status === 'approved') {
+    const { data: c } = await supabase
+      .from('customers')
+      .select('account_number')
+      .eq('id', customerId)
+      .single();
+    return NextResponse.json({
+      success: true,
+      accountNumber: c?.account_number,
+      eMandateSent: true,
+      idempotent: true,
+    });
+  }
+
   // Require all mandatory documents present
   const required = requiredDocsFor('unjani', {
     vatRegistered: s2.data.vat === 'Yes',
@@ -76,7 +96,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 1) Enrich customer
-  await supabase
+  const { error: custErr } = await supabase
     .from('customers')
     .update({
       business_name: s2.data.entityName,
@@ -94,39 +114,70 @@ export async function POST(request: NextRequest) {
       },
     })
     .eq('id', customerId);
+  if (custErr) {
+    return NextResponse.json(
+      { success: false, error: custErr.message },
+      { status: 500 }
+    );
+  }
 
   // 2) Set chosen billing day on the service
-  await supabase
+  const { error: svcErr } = await supabase
     .from('customer_services')
     .update({ billing_day: Number(s5.data.paymentDate) })
     .eq('customer_id', customerId);
+  if (svcErr) {
+    return NextResponse.json(
+      { success: false, error: svcErr.message },
+      { status: 500 }
+    );
+  }
 
   // 3) Create payment method (mandate pending, NOT verified yet)
-  const { data: pm } = await supabase
+  // Avoid duplicate payment methods on retry
+  const { data: existingPm } = await supabase
     .from('customer_payment_methods')
-    .insert({
-      customer_id: customerId,
-      onboarding_submission_id: submissionId,
-      method_type: 'debit_order',
-      display_name: `DebiCheck - ${s3.data.bank} ****${s3.data.accNumber.slice(-4)}`,
-      last_four: s3.data.accNumber.slice(-4),
-      encrypted_details: {
-        bank_name: s3.data.bank,
-        account_holder_name: s3.data.accHolder,
-        account_type: s3.data.accType,
-        account_number: s3.data.accNumber,
-        branch_code: s3.data.branchCode,
-        verified: false,
-      },
-      mandate_status: 'pending',
-      is_primary: true,
-      is_active: true,
-    })
     .select('id')
-    .single();
+    .eq('onboarding_submission_id', submissionId)
+    .maybeSingle();
+  let paymentMethodId: string;
+  if (existingPm) {
+    paymentMethodId = existingPm.id;
+  } else {
+    const { data: pm, error: pmErr } = await supabase
+      .from('customer_payment_methods')
+      .insert({
+        customer_id: customerId,
+        onboarding_submission_id: submissionId,
+        method_type: 'debit_order',
+        display_name: `DebiCheck - ${s3.data.bank} ****${s3.data.accNumber.slice(-4)}`,
+        last_four: s3.data.accNumber.slice(-4),
+        // plain object: debit-order batch + eMandate webhook read encrypted_details.verified directly
+        encrypted_details: {
+          bank_name: s3.data.bank,
+          account_holder_name: s3.data.accHolder,
+          account_type: s3.data.accType,
+          account_number: s3.data.accNumber,
+          branch_code: s3.data.branchCode,
+          verified: false,
+        },
+        mandate_status: 'pending',
+        is_primary: true,
+        is_active: true,
+      })
+      .select('id')
+      .single();
+    if (pmErr) {
+      return NextResponse.json(
+        { success: false, error: pmErr.message },
+        { status: 500 }
+      );
+    }
+    paymentMethodId = pm!.id;
+  }
 
   // 4) Finalize submission
-  await supabase
+  const { error: subErr } = await supabase
     .from('onboarding_submissions')
     .update({
       status: 'submitted',
@@ -139,6 +190,12 @@ export async function POST(request: NextRequest) {
       },
     })
     .eq('id', submissionId);
+  if (subErr) {
+    return NextResponse.json(
+      { success: false, error: subErr.message },
+      { status: 500 }
+    );
+  }
 
   // 5) Mark token used (single-use)
   await supabase
@@ -158,32 +215,39 @@ export async function POST(request: NextRequest) {
     .eq('customer_id', customerId)
     .maybeSingle();
   let fileToken: string | undefined;
+  let eMandateSent = false;
   try {
-    const req = buildEMandateRequest({
-      accountNumber: cust!.account_number,
-      paymentMethodId: pm!.id,
-      submissionId,
-      accountHolder: s3.data.accHolder,
-      isConsumer: false,
-      entityName: s2.data.entityName,
-      registrationNumber: s2.data.regNumber,
-      mobile: s1.data.phone,
-      bank: s3.data.bank,
-      accountType: s3.data.accType,
-      accountNumber2: s3.data.accNumber,
-      branchCode: s3.data.branchCode,
-      monthlyExVat: Number(svcRow?.monthly_price ?? 450),
-      vatPct: 15,
-      paymentDay: s5.data.paymentDate,
-      agreementDate: new Date().toISOString().slice(0, 10),
-    });
-    const result = await new NetCashEMandateBatchService().submitMandate(req);
-    if (result.success) {
-      fileToken = result.fileToken;
-      await supabase
-        .from('onboarding_submissions')
-        .update({ netcash_file_token: fileToken })
-        .eq('id', submissionId);
+    // Null-check: skip eMandate if account_number is missing, but don't crash
+    if (!cust?.account_number) {
+      console.warn('[Onboarding] customer account_number not found, skipping eMandate');
+    } else {
+      const req = buildEMandateRequest({
+        accountNumber: cust.account_number,
+        paymentMethodId,
+        submissionId,
+        accountHolder: s3.data.accHolder,
+        isConsumer: false,
+        entityName: s2.data.entityName,
+        registrationNumber: s2.data.regNumber,
+        mobile: s1.data.phone,
+        bank: s3.data.bank,
+        accountType: s3.data.accType,
+        accountNumber2: s3.data.accNumber,
+        branchCode: s3.data.branchCode,
+        monthlyExVat: Number(svcRow?.monthly_price ?? 450),
+        vatPct: 15,
+        paymentDay: s5.data.paymentDate,
+        agreementDate: new Date().toISOString().slice(0, 10),
+      });
+      const result = await new NetCashEMandateBatchService().submitMandate(req);
+      if (result.success) {
+        fileToken = result.fileToken;
+        eMandateSent = true;
+        await supabase
+          .from('onboarding_submissions')
+          .update({ netcash_file_token: fileToken })
+          .eq('id', submissionId);
+      }
     }
   } catch (e) {
     console.error('[Onboarding] eMandate submit error', e);
@@ -191,7 +255,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    accountNumber: cust!.account_number,
-    eMandateSent: !!fileToken,
+    accountNumber: cust?.account_number,
+    eMandateSent,
   });
 }
