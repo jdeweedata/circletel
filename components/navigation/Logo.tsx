@@ -8,6 +8,11 @@ interface LogoProps {
 }
 
 export function Logo({ variant = 'navbar', className = '' }: LogoProps) {
+  const logoSrc =
+    variant === 'navbar'
+      ? '/images/circletel-logo-white.png'
+      : '/images/circletel-enclosed-logo.png';
+
   const getLogoClasses = () => {
     if (variant === 'footer') {
       // Footer: larger for better visibility
@@ -19,7 +24,7 @@ export function Logo({ variant = 'navbar', className = '' }: LogoProps) {
   return (
     <Link href="/" className="flex items-center flex-shrink-0">
       <Image
-        src="/images/circletel-enclosed-logo.png"
+        src={logoSrc}
         alt="CircleTel Logo"
         className={getLogoClasses()}
         width={500}

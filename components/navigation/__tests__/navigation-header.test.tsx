@@ -8,11 +8,21 @@ describe('navigation header', () => {
     const logo = Logo({});
     expect(React.isValidElement(logo)).toBe(true);
 
-    const image = logo.props.children as React.ReactElement<{ className: string }>;
+    const image = logo.props.children as React.ReactElement<{ className: string; src: string }>;
 
+    expect(image.props.src).toBe('/images/circletel-logo-white.png');
     expect(image.props.className).toContain('h-14');
     expect(image.props.className).toContain('lg:h-20');
     expect(image.props.className).not.toContain('lg:h-32');
+  });
+
+  it('keeps the enclosed logo for the footer lockup', () => {
+    const logo = Logo({ variant: 'footer' });
+    expect(React.isValidElement(logo)).toBe(true);
+
+    const image = logo.props.children as React.ReactElement<{ src: string }>;
+
+    expect(image.props.src).toBe('/images/circletel-enclosed-logo.png');
   });
 
   it('uses live partner routes in the search index', () => {
