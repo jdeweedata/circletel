@@ -81,12 +81,16 @@ export async function POST(request: NextRequest) {
     // mobile OTP login can't resolve which account to sign into. Reject if the
     // number is already registered to a DIFFERENT account (matched by the DB
     // partial unique index `customers_phone_unique_not_blank` as the backstop).
+    // Scope: PERSONAL accounts only. Business/clinic accounts (e.g. Unjani) may
+    // legitimately share one nurse's number across multiple clinics.
+    const accountType = account_type || 'personal';
     const normalizedPhone = (phone || '').trim();
-    if (normalizedPhone) {
+    if (normalizedPhone && accountType === 'personal') {
       const { data: phoneOwner } = await supabase
         .from('customers')
         .select('email')
         .eq('phone', normalizedPhone)
+        .eq('account_type', 'personal')
         .neq('email', email)
         .limit(1)
         .maybeSingle();
