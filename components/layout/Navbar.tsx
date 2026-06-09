@@ -1,5 +1,5 @@
 'use client';
-import { PiListBold, PiXBold, PiMagnifyingGlass } from 'react-icons/pi';
+import { PiListBold, PiMagnifyingGlass } from 'react-icons/pi';
 
 import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
@@ -24,14 +24,13 @@ export function Navbar() {
       {/* Help Bar - Contact strip above main nav */}
       <HelpBar />
 
-      {/* Main Navigation */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-2 lg:py-4">
-          <div className="flex justify-between items-center">
+      <div className="border-y border-white/10 bg-circleTel-navy shadow-lg shadow-circleTel-navy/10">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center"><Logo /></div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex md:items-center md:gap-3">
+            <div className="hidden md:flex md:items-center md:gap-2">
               <DesktopNavigationMenu />
 
               {/* Search Button */}
@@ -39,16 +38,23 @@ export function Navbar() {
                 variant="ghost"
                 size="icon"
                 onClick={openSearch}
-                className="text-circleTel-navy hover:text-circleTel-orange"
+                className="rounded-full text-white/85 hover:bg-white/10 hover:text-white focus-visible:ring-circleTel-orange focus-visible:ring-offset-circleTel-navy"
                 aria-label="Search (Ctrl+K)"
               >
                 <PiMagnifyingGlass className="w-5 h-5" />
               </Button>
 
-              <Button asChild variant="outline" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full border-white/30 bg-transparent text-white hover:border-white hover:bg-white/10 hover:text-white"
+              >
                 <Link href="/quotes/request">Request Quote</Link>
               </Button>
-              <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
+              <Button
+                asChild
+                className="rounded-full bg-circleTel-orange text-white shadow-lg shadow-circleTel-orange/20 hover:bg-circleTel-orange-dark"
+              >
                 <Link href="/auth/login">Customer Login</Link>
               </Button>
             </div>
@@ -60,7 +66,7 @@ export function Navbar() {
                 <button
                   onClick={openSearch}
                   aria-label="Search"
-                  className="text-circleTel-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary p-[10px] min-w-[44px] min-h-[44px] rounded-md flex items-center justify-center"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full p-[10px] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2 focus-visible:ring-offset-circleTel-navy"
                 >
                   <PiMagnifyingGlass size={22} />
                 </button>
@@ -70,9 +76,9 @@ export function Navbar() {
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   aria-expanded={isMenuOpen}
                   aria-label="Toggle menu"
-                  className="text-circleTel-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary p-[10px] min-w-[44px] min-h-[44px] rounded-md flex items-center justify-center"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full p-[10px] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2 focus-visible:ring-offset-circleTel-navy"
                 >
-                  {isMenuOpen ? <PiXBold size={24} /> : <PiListBold size={24} />}
+                  <PiListBold size={24} />
                 </button>
               </div>
             )}

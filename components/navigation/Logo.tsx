@@ -13,8 +13,7 @@ export function Logo({ variant = 'navbar', className = '' }: LogoProps) {
       // Footer: larger for better visibility
       return `h-24 sm:h-28 md:h-32 lg:h-36 w-auto ${className}`;
     }
-    // Navbar: Significantly increased size for better brand presence
-    return `h-20 sm:h-24 md:h-28 lg:h-32 w-auto ${className}`;
+    return `h-14 sm:h-16 lg:h-20 w-auto ${className}`;
   };
 
   return (

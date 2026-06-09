@@ -2,8 +2,14 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { PiCaretDownBold } from 'react-icons/pi';
+import { PiCaretDownBold, PiSquaresFourBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   managedITItems,
   connectivityItems,
@@ -27,6 +33,13 @@ interface NavDropdownProps {
   checkActive: (path: string) => boolean;
 }
 
+const overviewItem = (name: string, href: string, description: string): NavigationItem => ({
+  name,
+  href,
+  description,
+  icon: PiSquaresFourBold,
+});
+
 function NavDropdown({
   label,
   items,
@@ -39,63 +52,64 @@ function NavDropdown({
   const allItems = [...(prependItems || []), ...items];
 
   return (
-    <div className="relative group">
-      {/* Trigger */}
-      <button
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger
         className={cn(
-          'nav-trigger inline-flex h-11 min-h-[44px] items-center justify-center rounded-md px-4 py-2 transition-colors',
-          'hover:bg-circleTel-orange/10 focus:bg-circleTel-orange/10 focus:outline-none',
-          'group-hover:bg-circleTel-orange/10',
-          isActive && 'bg-circleTel-orange/10 text-circleTel-navy'
+          'inline-flex h-11 min-h-[44px] items-center justify-center rounded-full px-4 py-2 font-body text-sm font-semibold text-white/85 transition-colors',
+          'hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none',
+          'data-[state=open]:bg-white/10 data-[state=open]:text-white',
+          isActive && 'bg-white/10 text-circleTel-orange'
         )}
       >
         {label}
         <PiCaretDownBold
-          className="relative top-[1px] ml-1 h-3 w-3 transition-transform duration-200 group-hover:rotate-180"
+          className="relative top-[1px] ml-1 h-3 w-3 transition-transform duration-200"
           aria-hidden="true"
         />
-      </button>
+      </DropdownMenuTrigger>
 
-      {/* Dropdown Content */}
-      <div
+      <DropdownMenuContent
         className={cn(
-          'absolute top-full mt-1.5 rounded-md border bg-white shadow-lg',
-          'opacity-0 invisible group-hover:opacity-100 group-hover:visible',
-          'transition-all duration-150 z-50',
-          align === 'right' ? 'right-0 left-auto' : 'left-0',
-          columns === 2 ? 'w-[320px] md:w-[400px] lg:w-[500px]' : 'w-[280px]'
+          'rounded-xl border-circleTel-lightNeutral bg-white p-3 shadow-2xl shadow-circleTel-navy/20',
+          columns === 2 ? 'w-[520px]' : 'w-[320px]'
         )}
+        align={align === 'right' ? 'end' : 'start'}
+        sideOffset={10}
       >
-        <ul
-          className={cn(
-            'grid gap-1 p-2',
-            columns === 2 && 'md:grid-cols-2'
-          )}
-        >
-          {allItems.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={cn(
-                  'block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150',
-                  'hover:bg-circleTel-orange/10 focus:bg-circleTel-orange/10',
-                  checkActive(item.href) && 'bg-circleTel-orange/10'
-                )}
-              >
-                <div className="nav-item-title hover:text-circleTel-orange transition-colors">
-                  {item.name}
-                </div>
-                {item.description && (
-                  <p className="nav-item-description line-clamp-2 mt-1">
-                    {item.description}
-                  </p>
-                )}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+        <div className={cn('grid gap-2', columns === 2 && 'md:grid-cols-2')}>
+          {allItems.map((item) => {
+            const Icon = item.icon || PiSquaresFourBold;
+
+            return (
+              <DropdownMenuItem key={item.href} asChild className="p-0">
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'group flex min-h-[76px] select-none gap-3 rounded-lg p-3 no-underline outline-none transition-colors',
+                    'hover:bg-circleTel-orange-light focus:bg-circleTel-orange-light',
+                    checkActive(item.href) && 'bg-circleTel-orange-light'
+                  )}
+                >
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-circleTel-navy text-white transition-colors group-hover:bg-circleTel-orange">
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-heading text-sm font-bold leading-tight text-circleTel-navy transition-colors group-hover:text-circleTel-orange-accessible">
+                      {item.name}
+                    </span>
+                    {item.description && (
+                      <span className="mt-1 block line-clamp-2 font-body text-xs leading-relaxed text-circleTel-navy/70">
+                        {item.description}
+                      </span>
+                    )}
+                  </span>
+                </Link>
+              </DropdownMenuItem>
+            );
+          })}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -109,7 +123,6 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
 
   return (
     <nav className={cn('hidden md:flex items-center gap-1', className)}>
-      {/* Managed IT */}
       <NavDropdown
         label="Managed IT"
         items={managedITItems}
@@ -120,15 +133,10 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             : isActive(path)
         }
         prependItems={[
-          {
-            name: 'Services Overview',
-            href: '/services',
-            description: 'Explore all our managed IT services',
-          },
+          overviewItem('Services Overview', '/services', 'Explore managed IT, security and support services'),
         ]}
       />
 
-      {/* Connectivity */}
       <NavDropdown
         label="Connectivity"
         items={connectivityItems}
@@ -139,15 +147,10 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             : isActive(path)
         }
         prependItems={[
-          {
-            name: 'Connectivity Overview',
-            href: '/connectivity',
-            description: 'Explore all our connectivity solutions',
-          },
+          overviewItem('Connectivity Overview', '/connectivity', 'Compare business internet, fibre and Wi-Fi options'),
         ]}
       />
 
-      {/* Cloud & Hosting */}
       <NavDropdown
         label="Cloud & Hosting"
         items={cloudHostingItems}
@@ -158,34 +161,24 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             : isActive(path)
         }
         prependItems={[
-          {
-            name: 'Cloud Overview',
-            href: '/cloud',
-            description: 'Explore all our cloud & hosting solutions',
-          },
+          overviewItem('Cloud Overview', '/cloud', 'Explore cloud, hosting and backup solutions'),
         ]}
       />
 
-      {/* Resources */}
       <NavDropdown
         label="Resources"
         items={resourcesItems}
-        isActive={isActive('/resources')}
+        isActive={isActive('/resources') || isActive('/blog') || isActive('/forms')}
         checkActive={(path) =>
           path === '/resources'
             ? isActive('/resources') && !currentPath.includes('/resources/')
             : isActive(path)
         }
         prependItems={[
-          {
-            name: 'Resources Overview',
-            href: '/resources',
-            description: 'Guides, tools and support resources',
-          },
+          overviewItem('Resources Overview', '/resources', 'Guides, tools and support resources'),
         ]}
       />
 
-      {/* Partners */}
       <NavDropdown
         label="Partners"
         items={partnerItems}

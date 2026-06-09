@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { PiMagnifyingGlass, PiX, PiArrowRight } from 'react-icons/pi';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
@@ -13,7 +14,7 @@ interface SearchResult {
 }
 
 // Static search index - pages and common search terms
-const SEARCH_INDEX: SearchResult[] = [
+export const SEARCH_INDEX: SearchResult[] = [
   // Products
   { title: 'SkyFibre SMB', description: 'Fixed Wireless Broadband for SMEs', href: '/products/skyfibre-smb', category: 'Products' },
   { title: 'WorkConnect SOHO', description: 'Internet for home workers and freelancers', href: '/products/workconnect-soho', category: 'Products' },
@@ -24,7 +25,7 @@ const SEARCH_INDEX: SearchResult[] = [
   { title: 'Check Coverage', description: 'See if we cover your area', href: '/coverage', category: 'Actions' },
   { title: 'Request a Quote', description: 'Get a custom quote for your business', href: '/quotes/request', category: 'Actions' },
   { title: 'Customer Login', description: 'Access your dashboard', href: '/auth/login', category: 'Actions' },
-  { title: 'Partner Portal', description: 'Login for CircleTel partners', href: '/partners', category: 'Actions' },
+  { title: 'Partner Portal', description: 'Login for CircleTel partners', href: '/partner/login', category: 'Actions' },
 
   // Support
   { title: 'FAQ', description: 'Frequently asked questions', href: '/faq', category: 'Support' },
@@ -33,13 +34,74 @@ const SEARCH_INDEX: SearchResult[] = [
   { title: 'Privacy Policy', description: 'How we handle your data', href: '/privacy-policy', category: 'Legal' },
 
   // Resources
-  { title: 'About CircleTel', description: 'Learn about our company', href: '/about', category: 'Company' },
-  { title: 'Become a Partner', description: 'Join our partner program', href: '/partners/register', category: 'Company' },
+  { title: 'Become a Partner', description: 'Join our partner program', href: '/become-a-partner', category: 'Company' },
 ];
 
 interface SearchModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+interface SearchResultsProps {
+  results: SearchResult[];
+  query: string;
+  selectedIndex: number;
+  onSelect: (result: SearchResult) => void;
+  onHover: (index: number) => void;
+}
+
+function SearchResults({
+  results,
+  query,
+  selectedIndex,
+  onSelect,
+  onHover,
+}: SearchResultsProps) {
+  if (results.length === 0) {
+    return (
+      <div className="px-4 py-8 text-center text-muted-foreground">
+        No results found for &quot;{query}&quot;
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      {results.map((result, index) => (
+        <Link
+          key={result.href}
+          href={result.href}
+          onClick={() => onSelect(result)}
+          onMouseEnter={() => onHover(index)}
+          className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${
+            index === selectedIndex
+              ? 'bg-circleTel-orange/10 text-circleTel-orange'
+              : 'hover:bg-muted'
+          }`}
+        >
+          <div>
+            <div className="font-medium">{result.title}</div>
+            <div className="text-sm text-muted-foreground">{result.description}</div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+              {result.category}
+            </span>
+            {index === selectedIndex && <PiArrowRight className="w-4 h-4" />}
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function SearchFooter() {
+  return (
+    <div className="border-t px-4 py-2 text-xs text-muted-foreground flex items-center justify-between bg-muted/50">
+      <span>Navigate with <kbd className="px-1.5 py-0.5 bg-white border rounded text-[10px]">↑</kbd> <kbd className="px-1.5 py-0.5 bg-white border rounded text-[10px]">↓</kbd></span>
+      <span>Select with <kbd className="px-1.5 py-0.5 bg-white border rounded text-[10px]">Enter</kbd></span>
+    </div>
+  );
 }
 
 export function SearchModal({ open, onOpenChange }: SearchModalProps) {
@@ -103,8 +165,7 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
   );
 
   // Navigate to result
-  const handleResultClick = (result: SearchResult) => {
-    router.push(result.href);
+  const handleResultClick = () => {
     onOpenChange(false);
   };
 
@@ -133,46 +194,17 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
           )}
         </div>
 
-        {/* Results */}
         <div className="max-h-80 overflow-y-auto py-2">
-          {results.length === 0 ? (
-            <div className="px-4 py-8 text-center text-muted-foreground">
-              No results found for &quot;{query}&quot;
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {results.map((result, index) => (
-                <button
-                  key={result.href}
-                  onClick={() => handleResultClick(result)}
-                  onMouseEnter={() => setSelectedIndex(index)}
-                  className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${
-                    index === selectedIndex
-                      ? 'bg-circleTel-orange/10 text-circleTel-orange'
-                      : 'hover:bg-muted'
-                  }`}
-                >
-                  <div>
-                    <div className="font-medium">{result.title}</div>
-                    <div className="text-sm text-muted-foreground">{result.description}</div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                      {result.category}
-                    </span>
-                    {index === selectedIndex && <PiArrowRight className="w-4 h-4" />}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+          <SearchResults
+            results={results}
+            query={query}
+            selectedIndex={selectedIndex}
+            onSelect={handleResultClick}
+            onHover={setSelectedIndex}
+          />
         </div>
 
-        {/* Footer hint */}
-        <div className="border-t px-4 py-2 text-xs text-muted-foreground flex items-center justify-between bg-muted/50">
-          <span>Navigate with <kbd className="px-1.5 py-0.5 bg-white border rounded text-[10px]">↑</kbd> <kbd className="px-1.5 py-0.5 bg-white border rounded text-[10px]">↓</kbd></span>
-          <span>Select with <kbd className="px-1.5 py-0.5 bg-white border rounded text-[10px]">Enter</kbd></span>
-        </div>
+        <SearchFooter />
       </DialogContent>
     </Dialog>
   );
