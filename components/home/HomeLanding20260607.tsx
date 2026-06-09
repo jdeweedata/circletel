@@ -20,11 +20,23 @@ import type { SegmentType } from './NewHero';
 
 const ASSET_BASE = '/images/home/2026-06-07';
 
-const HERO_BACKGROUND = [
-  'linear-gradient(95deg, rgba(15,20,39,.98) 0%, rgba(15,20,39,.94) 38%, rgba(27,42,74,.62) 62%, rgba(232,122,30,.18) 100%)',
-  'linear-gradient(0deg, rgba(15,20,39,.24), rgba(15,20,39,.08))',
-  `url("${ASSET_BASE}/hero-connectivity.png")`,
-].join(', ');
+interface ResponsiveImage {
+  avif: string;
+  webp: string;
+  png: string;
+  width: number;
+  height: number;
+}
+
+const responsiveImage = (name: string, width: number, height: number): ResponsiveImage => ({
+  avif: `${ASSET_BASE}/${name}.avif`,
+  webp: `${ASSET_BASE}/${name}.webp`,
+  png: `${ASSET_BASE}/${name}.png`,
+  width,
+  height,
+});
+
+const HERO_IMAGE = responsiveImage('hero-connectivity', 1717, 916);
 
 const SEGMENT_CONFIG: Record<SegmentType, {
   placeholder: string;
@@ -45,7 +57,7 @@ const AUDIENCE_CARDS: Array<{
   tag: string;
   title: string;
   description: string;
-  image: string;
+  image: ResponsiveImage;
   targetId: string;
 }> = [
   {
@@ -53,7 +65,7 @@ const AUDIENCE_CARDS: Array<{
     tag: 'Home fibre',
     title: 'Stream, game and work at once.',
     description: 'Uncapped packages for homes that need stable speed without a contract.',
-    image: `${ASSET_BASE}/card-home-fibre.png`,
+    image: responsiveImage('card-home-fibre', 1024, 1536),
     targetId: 'plans',
   },
   {
@@ -61,7 +73,7 @@ const AUDIENCE_CARDS: Array<{
     tag: 'Work from home',
     title: 'Your office should not drop calls.',
     description: 'Managed WiFi, better support and bandwidth for video-first workdays.',
-    image: `${ASSET_BASE}/card-work-from-home.png`,
+    image: responsiveImage('card-work-from-home', 1024, 1536),
     targetId: 'plans',
   },
   {
@@ -69,7 +81,7 @@ const AUDIENCE_CARDS: Array<{
     tag: 'Business',
     title: 'Connectivity for teams and sites.',
     description: 'Fibre, fixed wireless, telephony and managed IT under one provider.',
-    image: `${ASSET_BASE}/card-business-it.png`,
+    image: responsiveImage('card-business-it', 1024, 1536),
     targetId: 'business-proof',
   },
 ];
@@ -96,6 +108,35 @@ const BUSINESS_PROOF = [
 interface HomeLanding20260607Props {
   activeSegment: SegmentType;
   onSegmentChange: (segment: SegmentType) => void;
+}
+
+function BackgroundPicture({
+  image,
+  className,
+  imgClassName,
+  loading = 'lazy',
+}: {
+  image: ResponsiveImage;
+  className: string;
+  imgClassName: string;
+  loading?: 'eager' | 'lazy';
+}) {
+  return (
+    <picture className={className}>
+      <source srcSet={image.avif} type="image/avif" />
+      <source srcSet={image.webp} type="image/webp" />
+      <img
+        src={image.png}
+        alt=""
+        aria-hidden="true"
+        width={image.width}
+        height={image.height}
+        loading={loading}
+        decoding="async"
+        className={imgClassName}
+      />
+    </picture>
+  );
 }
 
 export function HomeLanding20260607({
@@ -214,17 +255,18 @@ export function HomeLanding20260607({
     <div className="min-h-screen bg-white">
       <section
         className="relative isolate overflow-hidden bg-circleTel-midnight-navy text-white"
-        style={{
-          backgroundImage: HERO_BACKGROUND,
-          backgroundPosition: 'center right',
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-        }}
       >
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] bg-[length:76px_76px] [mask-image:linear-gradient(90deg,rgba(0,0,0,.75),rgba(0,0,0,.1))]" />
-        <div className="absolute -bottom-[22vw] -right-[18vw] -z-10 h-[42vw] w-[42vw] rounded-full bg-circleTel-orange/35 blur-3xl" />
+        <BackgroundPicture
+          image={HERO_IMAGE}
+          loading="eager"
+          className="absolute inset-0 z-0 block"
+          imgClassName="h-full w-full object-cover object-center md:object-right"
+        />
+        <div className="absolute inset-0 z-10 bg-[linear-gradient(95deg,rgba(15,20,39,.98)_0%,rgba(15,20,39,.94)_38%,rgba(27,42,74,.62)_62%,rgba(232,122,30,.18)_100%),linear-gradient(0deg,rgba(15,20,39,.24),rgba(15,20,39,.08))]" />
+        <div className="absolute inset-0 z-10 bg-[linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] bg-[length:76px_76px] [mask-image:linear-gradient(90deg,rgba(0,0,0,.75),rgba(0,0,0,.1))]" />
+        <div className="absolute -bottom-[22vw] -right-[18vw] z-10 h-[42vw] w-[42vw] rounded-full bg-circleTel-orange/35 blur-3xl" />
 
-        <div className="container mx-auto px-4 pb-20 pt-10 md:pb-20 md:pt-16">
+        <div className="container relative z-20 mx-auto px-4 pb-20 pt-10 md:pb-20 md:pt-16">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 font-heading text-xs font-bold uppercase tracking-widest text-orange-100 backdrop-blur">
             <PiShieldCheckBold className="h-4 w-4 text-circleTel-orange" />
             Residential + business connectivity
@@ -333,12 +375,12 @@ export function HomeLanding20260607({
                 onClick={() => chooseSegment(card.segment, card.targetId)}
                 className="group relative isolate min-h-[320px] overflow-hidden rounded-3xl p-6 text-left text-white shadow-xl shadow-circleTel-navy/10 transition hover:-translate-y-1 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-circleTel-orange focus:ring-offset-2"
               >
-                <span
-                  className="absolute inset-0 z-0 scale-[1.01] bg-cover bg-center transition duration-300 group-hover:scale-105"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(15,20,39,.08), rgba(15,20,39,.22) 42%, rgba(15,20,39,.9)), url("${card.image}")`,
-                  }}
+                <BackgroundPicture
+                  image={card.image}
+                  className="absolute inset-0 z-0 block scale-[1.01] transition duration-300 group-hover:scale-105"
+                  imgClassName="h-full w-full object-cover object-center"
                 />
+                <span className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(15,20,39,.08),rgba(15,20,39,.22)_42%,rgba(15,20,39,.9))]" />
                 <span className="absolute inset-0 z-10 bg-[linear-gradient(135deg,rgba(255,255,255,.13)_0_1px,transparent_1px),linear-gradient(45deg,transparent_0_45%,rgba(255,255,255,.18)_45%_48%,transparent_48%)] bg-[length:28px_28px,100%_100%] opacity-35" />
                 <span className="relative z-20 flex items-start justify-between gap-4">
                   <span className="rounded-full border border-white/20 bg-white/20 px-3 py-1.5 font-heading text-xs font-extrabold backdrop-blur">
