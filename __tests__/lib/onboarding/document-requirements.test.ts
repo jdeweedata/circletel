@@ -41,4 +41,16 @@ describe('computeVettingStatus', () => {
   it('documents_pending when nothing uploaded', () => {
     expect(computeVettingStatus([...req], [])).toBe('documents_pending');
   });
+  it('ignores rejection of a non-required document', () => {
+    expect(computeVettingStatus(['company_registration', 'bank_statement'], [
+      { document_type: 'company_registration', verification_status: 'approved' },
+      { document_type: 'bank_statement', verification_status: 'approved' },
+      { document_type: 'proof_of_address', verification_status: 'rejected' }, // not in required list
+    ])).toBe('approved');
+  });
+  it('is documents_pending when a required doc has no upload yet', () => {
+    expect(computeVettingStatus(['company_registration', 'bank_statement'], [
+      { document_type: 'company_registration', verification_status: 'approved' },
+    ])).toBe('under_review');
+  });
 });

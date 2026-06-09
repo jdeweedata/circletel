@@ -24,4 +24,13 @@ describe('buildEMandateRequest', () => {
     expect(r.bankDetailType).toBe(1);
     expect(r.bankAccountType).toBe(2); // Savings -> 2
   });
+  it('wraps commencement month from December to January', () => {
+    const r = buildEMandateRequest({ ...base, agreementDate: '2026-12-15' } as any);
+    expect(r.commencementMonth).toBe(1);
+  });
+  it('falls back to entity name as surname for a single-word account holder', () => {
+    const r = buildEMandateRequest({ ...base, accountHolder: 'Clinic' } as any);
+    expect(r.firstName).toBe('Clinic');
+    expect(r.surname).toBe(base.entityName);
+  });
 });

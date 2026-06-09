@@ -42,8 +42,9 @@ interface DocStatusRow { document_type: string; verification_status: string }
 /** Roll up per-document statuses into the account-level vetting status. */
 export function computeVettingStatus(requiredTypes: string[], docs: DocStatusRow[]): VettingStatus {
   if (docs.length === 0) return 'documents_pending';
-  if (docs.some(d => d.verification_status === 'rejected')) return 'rejected';
+  const requiredSet = new Set(requiredTypes);
   const statusByType = new Map(docs.map(d => [d.document_type, d.verification_status]));
+  if (requiredTypes.some(t => statusByType.get(t) === 'rejected')) return 'rejected';
   const allApproved = requiredTypes.every(t => statusByType.get(t) === 'approved');
   if (allApproved) return 'approved';
   return 'under_review';
