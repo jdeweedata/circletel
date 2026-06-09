@@ -89,6 +89,17 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
     fetchClinic();
   }, [token]);
 
+  // Step 4 canGoNext: all required docs present (memoized).
+  // MUST be declared before any early return so the hook order is stable across renders (React #310).
+  const { s4RequiredDocs, s4DocsUploaded } = useMemo(() => {
+    const requiredDocs = requiredDocsFor('unjani', {
+      vatRegistered: state.step2.vat === 'Yes',
+      entityType: state.step2.entityType || '',
+    }).filter((d) => d.required);
+    const docsUploaded = requiredDocs.every((d) => state.documents[d.type]);
+    return { s4RequiredDocs: requiredDocs, s4DocsUploaded: docsUploaded };
+  }, [state.step2.vat, state.step2.entityType, state.documents]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -142,16 +153,6 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
   const s2Valid = step2Schema.safeParse(state.step2).success;
   const s3Valid = step3Schema.safeParse(state.step3).success;
   const s5Valid = step5Schema.safeParse(state.step5).success;
-
-  // Step 4 canGoNext: all required docs present (memoized)
-  const { s4RequiredDocs, s4DocsUploaded } = useMemo(() => {
-    const requiredDocs = requiredDocsFor('unjani', {
-      vatRegistered: state.step2.vat === 'Yes',
-      entityType: state.step2.entityType || '',
-    }).filter((d) => d.required);
-    const docsUploaded = requiredDocs.every((d) => state.documents[d.type]);
-    return { s4RequiredDocs: requiredDocs, s4DocsUploaded: docsUploaded };
-  }, [state.step2.vat, state.step2.entityType, state.documents]);
 
   const canGoNextByStep: Record<number, boolean> = {
     1: s1Valid,
