@@ -507,7 +507,7 @@ export class MonthlyInvoiceGenerator {
     const vatRate = 15.0;
 
     // Always compute full-month amounts from the existing function on the unchanged price.
-    const { subtotal: fullSubtotal, vatAmount: fullVat, totalAmount: fullTotal } = computeVatInclusiveAmounts(service.monthly_price);
+    const { subtotal: fullSubtotal, vatAmount: fullVat } = computeVatInclusiveAmounts(service.monthly_price);
 
     // Pro-rata first invoice: detect via last_invoice_date === null and apply fraction
     // Only use computeProRata to get days/daysInMonth; ignore its amount fields (VAT base is already set above).
