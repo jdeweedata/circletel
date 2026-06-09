@@ -32,8 +32,22 @@ const ACCOUNT_TYPES = [
 ];
 
 export interface Step3BankingProps {
-  value: Partial<Step3>;
-  onChange: (values: Partial<Step3>) => void;
+  value: {
+    accHolder?: string;
+    bank?: string;
+    accType?: string;
+    accNumber?: string;
+    branchCode?: string;
+    mandate?: boolean;
+  };
+  onChange: (values: {
+    accHolder?: string;
+    bank?: string;
+    accType?: string;
+    accNumber?: string;
+    branchCode?: string;
+    mandate?: boolean;
+  }) => void;
   step2EntityName?: string;
   canGoNext: boolean;
 }

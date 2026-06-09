@@ -36,6 +36,20 @@ export function Step4Documents({
       return;
     }
 
+    // Client-side file validation
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+
+    if (file.size > maxSize) {
+      setError(`File is too large. Maximum size is 5MB (${file.name} is ${(file.size / 1024 / 1024).toFixed(1)}MB).`);
+      return;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      setError(`File type not allowed. Please upload a PDF, JPEG, or PNG file.`);
+      return;
+    }
+
     setBusy(docType);
     setError(null);
 

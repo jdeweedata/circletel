@@ -1,6 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { step1Schema, step2Schema, step3Schema, step5Schema } from '@/lib/onboarding/schemas';
+import { requiredDocsFor } from '@/lib/onboarding/document-requirements';
 import { useOnboardingState } from './useOnboardingState';
 import { OrderWizard } from '@/components/order/OrderWizard';
 import { Step1Clinic } from './steps/Step1Clinic';
@@ -70,10 +71,13 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
           body: JSON.stringify({ token, mode: 'draft' }),
         });
         const submitJson = await submitRes.json();
-        if (submitJson.success) {
-          wizard.patch('submissionId', submitJson.submissionId);
+        if (!submitRes.ok || !submitJson.success) {
+          setError('Could not start your onboarding session. Please refresh and try again.');
+          setLoading(false);
+          return;
         }
 
+        wizard.patch('submissionId', submitJson.submissionId);
         setLoading(false);
       } catch (err) {
         setError('Network error loading clinic details');
@@ -139,16 +143,15 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
   const s3Valid = step3Schema.safeParse(state.step3).success;
   const s5Valid = step5Schema.safeParse(state.step5).success;
 
-  // Step 4 canGoNext: all required docs present
-  const s4RequiredDocs = require('@/lib/onboarding/document-requirements')
-    .requiredDocsFor('unjani', {
+  // Step 4 canGoNext: all required docs present (memoized)
+  const { s4RequiredDocs, s4DocsUploaded } = useMemo(() => {
+    const requiredDocs = requiredDocsFor('unjani', {
       vatRegistered: state.step2.vat === 'Yes',
-      entityType: state.step2.entityType,
-    })
-    .filter((d: any) => d.required);
-  const s4DocsUploaded = s4RequiredDocs.every(
-    (d: any) => state.documents[d.type]
-  );
+      entityType: state.step2.entityType || '',
+    }).filter((d) => d.required);
+    const docsUploaded = requiredDocs.every((d) => state.documents[d.type]);
+    return { s4RequiredDocs: requiredDocs, s4DocsUploaded: docsUploaded };
+  }, [state.step2.vat, state.step2.entityType, state.documents]);
 
   const canGoNextByStep: Record<number, boolean> = {
     1: s1Valid,
@@ -276,7 +279,7 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
           <Step5ServiceOrder
             value={state.step5}
             onChange={(vals) => updateStep('step5', vals)}
-            monthlyPrice={state.service?.monthly_price ?? 450}
+            monthlyPrice={typeof state.service?.monthly_price === 'number' ? state.service.monthly_price : 450}
             activationDate={state.service?.activation_date ?? new Date().toISOString().split('T')[0]}
             canGoNext={canGoNextByStep[5]}
           />

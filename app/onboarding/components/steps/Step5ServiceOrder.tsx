@@ -8,8 +8,14 @@ import { computeProRata } from '@/lib/onboarding/prorata';
 import { PiCaretDown, PiCaretUp } from 'react-icons/pi';
 
 export interface Step5ServiceOrderProps {
-  value: Partial<Step5>;
-  onChange: (values: Partial<Step5>) => void;
+  value: {
+    paymentDate?: '1' | '15' | '20' | '25';
+    soAccept?: boolean;
+  };
+  onChange: (values: {
+    paymentDate?: '1' | '15' | '20' | '25';
+    soAccept?: boolean;
+  }) => void;
   monthlyPrice?: number;
   activationDate?: string;
   canGoNext: boolean;
