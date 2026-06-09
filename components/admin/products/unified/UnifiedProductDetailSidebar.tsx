@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PiXBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/types/products';
 import type { UnifiedProduct } from '@/lib/types/unified-product';
+import { rulesEngine, type ProductRuleEvaluation, type RuleConfig } from '@/lib/products/rules';
 import {
   MarginBar,
   ProductSourceChip,
   PublishReadinessChecklist,
+  RuleHealthBadge,
+  RuleLevelBadge,
   type ChecklistItem,
 } from '@/components/admin/products/shared';
 
@@ -21,19 +24,25 @@ const TABS: Array<{ id: DetailTab; label: string }> = [
 ];
 
 /**
- * Right slide-over showing a selected product's detail. Rule evaluation and
- * publish gating are wired in Phases 6–7; for now the checklist is derived from
- * the product's own fields as a placeholder.
+ * Right slide-over showing a selected product's detail, including its live rule
+ * evaluation (Phase 6). Publish gating (Phase 7) builds on the same evaluation.
  */
 export function UnifiedProductDetailSidebar({
   product,
+  ruleConfig,
   onClose,
 }: {
   product: UnifiedProduct | null;
+  ruleConfig?: Partial<RuleConfig>;
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<DetailTab>('overview');
   const open = product !== null;
+
+  const evaluation = useMemo<ProductRuleEvaluation | null>(
+    () => (product ? rulesEngine.evaluateProduct(product, ruleConfig) : null),
+    [product, ruleConfig]
+  );
 
   return (
     <>
@@ -62,6 +71,7 @@ export function UnifiedProductDetailSidebar({
                 <div className="mb-1 flex items-center gap-2">
                   <ProductSourceChip source={product.source} />
                   <span className="text-xs capitalize text-ui-text-muted">{product.status}</span>
+                  {evaluation && <RuleHealthBadge summary={evaluation.summary} />}
                 </div>
                 <h2 className="truncate text-base font-semibold text-ui-text-primary">
                   {product.name}
@@ -97,13 +107,9 @@ export function UnifiedProductDetailSidebar({
             </nav>
 
             <div className="flex-1 overflow-y-auto p-4">
-              {tab === 'overview' && <OverviewTab product={product} />}
+              {tab === 'overview' && <OverviewTab product={product} evaluation={evaluation} />}
               {tab === 'pricing' && <PricingTab product={product} />}
-              {tab === 'rules' && (
-                <p className="text-sm text-ui-text-muted">
-                  Rule evaluation appears here once wired (Phase 6).
-                </p>
-              )}
+              {tab === 'rules' && <RulesTab evaluation={evaluation} />}
             </div>
           </>
         )}
@@ -112,12 +118,26 @@ export function UnifiedProductDetailSidebar({
   );
 }
 
-function OverviewTab({ product }: { product: UnifiedProduct }) {
+function OverviewTab({
+  product,
+  evaluation,
+}: {
+  product: UnifiedProduct;
+  evaluation: ProductRuleEvaluation | null;
+}) {
   const checklist: ChecklistItem[] = [
     { label: 'Has a name', ok: Boolean(product.name?.trim()) },
     { label: 'Has a description', ok: (product.description?.trim().length ?? 0) >= 20 },
     { label: 'Has a price', ok: product.price > 0 },
     { label: 'Cost of sale set', ok: product.cost > 0 },
+    {
+      label: 'Passes all rules',
+      ok: evaluation ? evaluation.publishable : false,
+      blocking: evaluation ? evaluation.blocked : false,
+      detail: evaluation?.blocked
+        ? `${evaluation.summary.fail} blocking rule${evaluation.summary.fail > 1 ? 's' : ''}`
+        : undefined,
+    },
   ];
   return (
     <div className="space-y-4">
@@ -148,6 +168,32 @@ function PricingTab({ product }: { product: UnifiedProduct }) {
         <MarginBar margin={product.margin} />
       </div>
     </dl>
+  );
+}
+
+function RulesTab({ evaluation }: { evaluation: ProductRuleEvaluation | null }) {
+  if (!evaluation || evaluation.results.length === 0) {
+    return <p className="text-sm text-ui-text-muted">No rules apply to this product.</p>;
+  }
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3 text-xs text-ui-text-muted">
+        <span>{evaluation.summary.pass} pass</span>
+        <span>{evaluation.summary.warning} warning</span>
+        <span>{evaluation.summary.fail} fail</span>
+      </div>
+      <ul className="space-y-2">
+        {evaluation.results.map((r) => (
+          <li key={r.ruleId} className="rounded-lg border border-ui-border p-3">
+            <div className="mb-1 flex items-center justify-between gap-2">
+              <span className="text-sm font-medium text-ui-text-primary">{r.ruleName}</span>
+              <RuleLevelBadge level={r.level} />
+            </div>
+            <p className="text-xs text-ui-text-secondary">{r.message}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PiSlidersBold, PiCaretLeftBold, PiCaretRightBold, PiWarningBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import type {
@@ -8,6 +8,8 @@ import type {
   UnifiedProductSource,
   UnifiedProductStatus,
 } from '@/lib/types/unified-product';
+import { rulesEngine, type RuleConfig } from '@/lib/products/rules';
+import type { RuleSummary } from '@/components/admin/products/shared';
 import { useUnifiedProducts } from '@/hooks/useUnifiedProducts';
 import { UnifiedProductSearch, type UnifiedSort } from './UnifiedProductSearch';
 import { UnifiedProductGrid } from './UnifiedProductGrid';
@@ -40,6 +42,8 @@ export function UnifiedProductConsole() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<UnifiedProduct | null>(null);
   const [rulesOpen, setRulesOpen] = useState(false);
+  // Rule threshold overrides (edited in Rules Studio); empty = engine defaults.
+  const [ruleConfig, setRuleConfig] = useState<Partial<RuleConfig>>({});
 
   // Debounce search → also reset to page 1.
   useEffect(() => {
@@ -58,6 +62,16 @@ export function UnifiedProductConsole() {
     page,
     perPage: PER_PAGE,
   });
+
+  // Evaluate rules client-side for the loaded page (engine is pure + cheap).
+  // Re-runs when products or threshold overrides change → live badge updates.
+  const ruleSummaries = useMemo<Record<string, RuleSummary>>(() => {
+    const out: Record<string, RuleSummary> = {};
+    for (const evaluation of rulesEngine.evaluateMany(products, ruleConfig)) {
+      out[evaluation.uid] = evaluation.summary;
+    }
+    return out;
+  }, [products, ruleConfig]);
 
   const resetPageThen = <T,>(setter: (v: T) => void) => (v: T) => {
     setter(v);
@@ -141,6 +155,7 @@ export function UnifiedProductConsole() {
       <UnifiedProductGrid
         products={products}
         isLoading={loading}
+        ruleSummaries={ruleSummaries}
         selectedUid={selected?.uid ?? null}
         onSelect={setSelected}
         emptyHint="No products match these filters."
@@ -172,10 +187,20 @@ export function UnifiedProductConsole() {
       )}
 
       {/* detail slide-over */}
-      <UnifiedProductDetailSidebar product={selected} onClose={() => setSelected(null)} />
+      <UnifiedProductDetailSidebar
+        product={selected}
+        ruleConfig={ruleConfig}
+        onClose={() => setSelected(null)}
+      />
 
       {/* rules studio modal */}
-      <RulesStudio open={rulesOpen} onClose={() => setRulesOpen(false)} />
+      <RulesStudio
+        open={rulesOpen}
+        onClose={() => setRulesOpen(false)}
+        config={ruleConfig}
+        onConfigChange={setRuleConfig}
+        simulationProduct={selected ?? products[0] ?? null}
+      />
     </div>
   );
 }

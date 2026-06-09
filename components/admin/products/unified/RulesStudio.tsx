@@ -3,8 +3,15 @@
 import { useState } from 'react';
 import { PiXBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
-import { BUILTIN_RULES } from '@/lib/products/rules';
-import type { RuleGroup } from '@/lib/products/rules';
+import {
+  BUILTIN_RULES,
+  rulesEngine,
+  DEFAULT_RULE_CONFIG,
+  type RuleConfig,
+  type RuleGroup,
+} from '@/lib/products/rules';
+import type { UnifiedProduct } from '@/lib/types/unified-product';
+import { RuleLevelBadge } from '@/components/admin/products/shared';
 
 const GROUP_STYLE: Record<RuleGroup, string> = {
   Pricing: 'bg-emerald-50 text-emerald-700',
@@ -14,16 +21,48 @@ const GROUP_STYLE: Record<RuleGroup, string> = {
   Approval: 'bg-amber-50 text-amber-700',
 };
 
+interface RulesStudioProps {
+  open: boolean;
+  onClose: () => void;
+  config: Partial<RuleConfig>;
+  onConfigChange: (config: Partial<RuleConfig>) => void;
+  /** Product to simulate the selected rule against (e.g. the selected card). */
+  simulationProduct: UnifiedProduct | null;
+}
+
+const THRESHOLDS: Array<{ key: keyof RuleConfig; label: string }> = [
+  { key: 'marginFloorPct', label: 'Margin floor %' },
+  { key: 'bundleMarginFloorPct', label: 'Bundle floor %' },
+  { key: 'mtnDefaultMarkupFloorPct', label: 'MTN markup floor %' },
+];
+
 /**
- * Rules Studio — lists the built-in product rules and shows the selected rule's
- * detail. Live simulation against a product + threshold editing are wired in
- * Phase 6; this is the read-only shell.
+ * Rules Studio — browse rules, edit thresholds, and live-simulate the selected
+ * rule against a product. Threshold edits propagate to the console so card
+ * badges and the detail sidebar re-evaluate in real time.
  */
-export function RulesStudio({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function RulesStudio({
+  open,
+  onClose,
+  config,
+  onConfigChange,
+  simulationProduct,
+}: RulesStudioProps) {
   const [selectedId, setSelectedId] = useState<string>(BUILTIN_RULES[0]?.id ?? '');
   const selected = BUILTIN_RULES.find((r) => r.id === selectedId) ?? BUILTIN_RULES[0];
 
   if (!open) return null;
+
+  const effective = { ...DEFAULT_RULE_CONFIG, ...config };
+  const simulation =
+    selected && simulationProduct
+      ? rulesEngine.simulateRule(selected.id, simulationProduct, config)
+      : null;
+
+  const setThreshold = (key: keyof RuleConfig, raw: string) => {
+    const n = parseInt(raw, 10);
+    onConfigChange({ ...config, [key]: Number.isFinite(n) ? n : DEFAULT_RULE_CONFIG[key] });
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -96,9 +135,56 @@ export function RulesStudio({ open, onClose }: { open: boolean; onClose: () => v
                 </div>
               </dl>
 
-              <p className="mt-6 rounded-lg bg-slate-50 p-3 text-xs text-ui-text-muted">
-                Live simulation against a selected product and threshold editing arrive in Phase 6.
-              </p>
+              {/* live simulation */}
+              <section className="mt-5 rounded-lg border border-ui-border p-3">
+                <h5 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ui-text-muted">
+                  Simulation
+                </h5>
+                {simulationProduct ? (
+                  <div className="space-y-1">
+                    <p className="text-xs text-ui-text-muted">
+                      Against <span className="font-medium text-ui-text-secondary">{simulationProduct.name}</span>
+                    </p>
+                    {simulation ? (
+                      <div className="flex items-center gap-2">
+                        <RuleLevelBadge level={simulation.level} />
+                        <span className="text-sm text-ui-text-secondary">{simulation.message}</span>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-ui-text-muted">This rule does not apply to that product.</p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-ui-text-muted">
+                    Select a product card to simulate this rule against it.
+                  </p>
+                )}
+              </section>
+
+              {/* thresholds */}
+              <section className="mt-4 rounded-lg border border-ui-border p-3">
+                <h5 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ui-text-muted">
+                  Thresholds
+                </h5>
+                <div className="grid grid-cols-3 gap-3">
+                  {THRESHOLDS.map((t) => (
+                    <label key={t.key} className="text-xs text-ui-text-muted">
+                      {t.label}
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={effective[t.key]}
+                        onChange={(e) => setThreshold(t.key, e.target.value)}
+                        className="mt-1 w-full rounded-md border border-ui-border px-2 py-1 text-sm text-ui-text-primary focus:outline-none focus:ring-2 focus:ring-circleTel-orange/30"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] text-ui-text-muted">
+                  Edits re-evaluate card badges and the detail panel live.
+                </p>
+              </section>
             </div>
           )}
         </div>
