@@ -30,12 +30,13 @@ export async function maybeMarkBillingReady(
   // Docs must be approved
   if (submission.document_vetting_status !== 'approved') return false;
 
-  // Mandate must exist, be verified, and be active
+  // Mandate must exist, be verified, be active, and is_active must be true
   const { data: mandate, error: manError } = await supabase
     .from('customer_payment_methods')
     .select('mandate_status, encrypted_details')
     .eq('customer_id', customerId)
     .eq('method_type', 'debit_order')
+    .eq('is_active', true)
     .maybeSingle();
 
   if (manError || !mandate) return false;

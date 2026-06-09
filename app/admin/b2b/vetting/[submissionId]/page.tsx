@@ -9,6 +9,9 @@ import {
   PiWarningCircleBold,
   PiDownloadSimpleBold,
   PiEyeBold,
+  PiCheckBold,
+  PiXBold,
+  PiClipboardTextBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -93,6 +96,10 @@ export default function B2BVettingDetailPage({
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const [docUrl, setDocUrl] = useState<string | null>(null);
   const [submissionId, setSubmissionId] = useState<string>('');
+  const [actionInFlight, setActionInFlight] = useState<string | null>(null);
+  const [showRejectReason, setShowRejectReason] = useState<string | null>(null);
+  const [rejectReasonText, setRejectReasonText] = useState<string>('');
+  const [actionError, setActionError] = useState<string | null>(null);
 
   // Handle async params
   useEffect(() => {
@@ -102,31 +109,33 @@ export default function B2BVettingDetailPage({
   }, [params]);
 
   // Fetch submission details
-  useEffect(() => {
+  const fetchSubmission = async () => {
     if (!submissionId) return;
 
-    async function fetchSubmission() {
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/admin/b2b/vetting/${submissionId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
-          },
-        });
+    setLoading(true);
+    setActionError(null);
+    try {
+      const response = await fetch(`/api/admin/b2b/vetting/${submissionId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch submission');
-        }
-
-        const data = await response.json();
-        setSubmission(data.submission);
-      } catch (error) {
-        console.error('Error fetching submission:', error);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to fetch submission');
       }
-    }
 
+      const data = await response.json();
+      setSubmission(data.submission);
+    } catch (error) {
+      console.error('Error fetching submission:', error);
+      setActionError('Failed to load submission');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchSubmission();
   }, [submissionId]);
 
@@ -159,6 +168,57 @@ export default function B2BVettingDetailPage({
 
     fetchDocUrl(submission);
   }, [selectedDoc, submission]);
+
+  // Handle document vetting action (approve, reject, request changes)
+  const handleDocumentAction = async (
+    documentId: string,
+    status: 'approved' | 'rejected' | 'under_review',
+    rejectionReason?: string
+  ) => {
+    if (status === 'rejected' && !rejectionReason?.trim()) {
+      setActionError('Rejection reason is required');
+      return;
+    }
+
+    const actionKey = `${documentId}-${status}`;
+    setActionInFlight(actionKey);
+    setActionError(null);
+
+    try {
+      const body: any = { documentId, status };
+      if (status === 'rejected') {
+        body.rejectionReason = rejectionReason;
+      } else if (status === 'under_review' && rejectionReason) {
+        body.notes = rejectionReason;
+      }
+
+      const response = await fetch('/api/admin/kyc/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to update document');
+      }
+
+      // Reset reject reason UI and re-fetch submission
+      setShowRejectReason(null);
+      setRejectReasonText('');
+      await fetchSubmission();
+    } catch (error) {
+      console.error('Error updating document:', error);
+      setActionError(
+        error instanceof Error ? error.message : 'Failed to update document'
+      );
+    } finally {
+      setActionInFlight(null);
+    }
+  };
 
   if (!submissionId) {
     return <div>Loading...</div>;
@@ -243,6 +303,15 @@ export default function B2BVettingDetailPage({
         </CardContent>
       </Card>
 
+      {/* Action Error Alert */}
+      {actionError && (
+        <Card className="mb-6 border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <p className="text-sm text-red-700">{actionError}</p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Documents */}
         <div className="lg:col-span-2 space-y-6">
@@ -261,48 +330,148 @@ export default function B2BVettingDetailPage({
                   const doc = submission.documents.find(
                     (d) => d.document_type === req.type
                   );
+                  const isApproved = doc?.verification_status === 'approved';
+                  const isRejected = doc?.verification_status === 'rejected';
+                  const isPending = doc?.verification_status === 'pending';
                   return (
                     <div
                       key={req.type}
-                      className="flex items-start justify-between p-3 border rounded-lg"
+                      className="space-y-2 p-3 border rounded-lg"
                     >
-                      <div className="flex-1">
-                        <p className="font-medium">{req.label}</p>
-                        {doc && (
-                          <p className="text-sm text-gray-600">
-                            {doc.verification_status === 'approved' && (
-                              <span className="text-green-600">Approved</span>
-                            )}
-                            {doc.verification_status === 'rejected' && (
-                              <span className="text-red-600">
-                                Rejected:{' '}
-                                {doc.rejection_reason && (
-                                  <span className="block text-xs mt-1">
-                                    {doc.rejection_reason}
-                                  </span>
-                                )}
-                              </span>
-                            )}
-                            {doc.verification_status === 'pending' && (
-                              <span className="text-amber-600">Pending</span>
-                            )}
-                          </p>
-                        )}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="font-medium">{req.label}</p>
+                          {doc && (
+                            <p className="text-sm text-gray-600">
+                              {isApproved && (
+                                <span className="text-green-600">Approved</span>
+                              )}
+                              {isRejected && (
+                                <span className="text-red-600">
+                                  Rejected:{' '}
+                                  {doc.rejection_reason && (
+                                    <span className="block text-xs mt-1">
+                                      {doc.rejection_reason}
+                                    </span>
+                                  )}
+                                </span>
+                              )}
+                              {isPending && (
+                                <span className="text-amber-600">Pending</span>
+                              )}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {doc && getDocStatusIcon(doc.verification_status)}
+                          {doc && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setSelectedDoc(doc.id)}
+                              className="gap-1"
+                              disabled={actionInFlight?.startsWith(doc.id) || false}
+                            >
+                              <PiEyeBold className="w-4 h-4" />
+                              View
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {doc && getDocStatusIcon(doc.verification_status)}
-                        {doc && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setSelectedDoc(doc.id)}
-                            className="gap-1"
-                          >
-                            <PiEyeBold className="w-4 h-4" />
-                            View
-                          </Button>
-                        )}
-                      </div>
+
+                      {/* Action Buttons */}
+                      {doc && (
+                        <div className="space-y-2">
+                          {showRejectReason === doc.id ? (
+                            <div className="space-y-2 pt-2 border-t">
+                              <textarea
+                                placeholder="Enter rejection reason (required)..."
+                                value={rejectReasonText}
+                                onChange={(e) => setRejectReasonText(e.target.value)}
+                                className="w-full p-2 text-sm border rounded resize-none focus:outline-none focus:ring-2 focus:ring-red-500"
+                                rows={2}
+                              />
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() =>
+                                    handleDocumentAction(doc.id, 'rejected', rejectReasonText)
+                                  }
+                                  disabled={
+                                    actionInFlight === `${doc.id}-rejected` ||
+                                    !rejectReasonText.trim()
+                                  }
+                                  className="gap-1"
+                                >
+                                  <PiXBold className="w-3 h-3" />
+                                  {actionInFlight === `${doc.id}-rejected`
+                                    ? 'Rejecting...'
+                                    : 'Confirm Reject'}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setShowRejectReason(null);
+                                    setRejectReasonText('');
+                                  }}
+                                  disabled={actionInFlight === `${doc.id}-rejected`}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-2 pt-2 border-t">
+                              {!isApproved && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() =>
+                                    handleDocumentAction(doc.id, 'approved')
+                                  }
+                                  disabled={actionInFlight === `${doc.id}-approved`}
+                                  className="gap-1 text-green-600 hover:text-green-700"
+                                >
+                                  <PiCheckBold className="w-3 h-3" />
+                                  {actionInFlight === `${doc.id}-approved`
+                                    ? 'Approving...'
+                                    : 'Approve'}
+                                </Button>
+                              )}
+                              {!isRejected && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setShowRejectReason(doc.id)}
+                                  disabled={actionInFlight?.startsWith(doc.id) || false}
+                                  className="gap-1 text-red-600 hover:text-red-700"
+                                >
+                                  <PiXBold className="w-3 h-3" />
+                                  Reject
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleDocumentAction(doc.id, 'under_review')
+                                }
+                                disabled={
+                                  actionInFlight === `${doc.id}-under_review`
+                                }
+                                className="gap-1 text-amber-600 hover:text-amber-700"
+                              >
+                                <PiClipboardTextBold className="w-3 h-3" />
+                                {actionInFlight === `${doc.id}-under_review`
+                                  ? 'Updating...'
+                                  : 'Request Changes'}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
