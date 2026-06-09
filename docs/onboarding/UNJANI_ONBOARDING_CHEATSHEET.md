@@ -6,7 +6,7 @@
 
 ### The process (your 5 actions)
 1. **Confirm** the clinic's WhatsApp number is correct.
-2. **Send** the onboarding link (admin tool → clinic → Send onboarding link / WhatsApp).
+2. **Send** the onboarding invite (today: request from the CircleTel team; soon: admin-panel button). WhatsApp goes to the clinic from +27 84 773 9467.
 3. **Guide** the nurse through the 6-step wizard (~5 min — most clinic details pre-filled).
 4. **Vet** the uploaded documents in **Admin → B2B vetting** (Approve / Reject-with-reason).
 5. **Confirm billing live** once docs approved **+** debit order active → status = **billing-ready**.
