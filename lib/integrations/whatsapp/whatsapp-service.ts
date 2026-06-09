@@ -22,6 +22,7 @@ import type {
   DebitFailedParams,
   PaymentReceivedParams,
   ServiceActivatedParams,
+  ClinicOnboardingParams,
 } from './types';
 
 // =============================================================================
@@ -339,6 +340,39 @@ export class WhatsAppService {
     ];
 
     return this.sendTemplate(to, 'circletel_service_activated', components);
+  }
+
+  // ===========================================================================
+  // CLINIC ONBOARDING TEMPLATE
+  // ===========================================================================
+
+  /**
+   * Send clinic onboarding invitation (magic-link to the web wizard)
+   * Template: circletel_clinic_onboarding
+   *
+   * Structure:
+   * - Body: Hi {{1}}, let's set up your CircleTel ClinicConnect billing...
+   * - Button: Start setup -> https://www.circletel.co.za/onboarding/{{1}} (token)
+   */
+  async sendClinicOnboarding(
+    to: string,
+    params: ClinicOnboardingParams
+  ): Promise<WhatsAppSendResult> {
+    const components: SendTemplateRequest['template']['components'] = [
+      {
+        type: 'body',
+        parameters: [{ type: 'text', text: params.clinicName }],
+      },
+      // Button URL parameter — the magic-link token substituted into the template URL
+      {
+        type: 'button',
+        sub_type: 'url',
+        index: 0,
+        parameters: [{ type: 'text', text: params.token }],
+      },
+    ];
+
+    return this.sendTemplate(to, 'circletel_clinic_onboarding', components);
   }
 
   // ===========================================================================

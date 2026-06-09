@@ -88,7 +88,8 @@ export type CircleTelTemplate =
   | 'circletel_payment_reminder'
   | 'circletel_debit_failed'
   | 'circletel_payment_received'
-  | 'circletel_service_activated';
+  | 'circletel_service_activated'
+  | 'circletel_clinic_onboarding';
 
 /**
  * Template parameter mappings for CircleTel templates
@@ -127,6 +128,11 @@ export interface ServiceActivatedParams {
   customerName: string;       // {{1}} - Customer first name
   serviceName: string;        // {{2}} - Package name
   accountNumber: string;      // {{3}} - Account number
+}
+
+export interface ClinicOnboardingParams {
+  clinicName: string;         // {{1}} - Clinic / contact name (body)
+  token: string;              // URL button param: https://www.circletel.co.za/onboarding/{{1}}
 }
 
 // Union type for all template params
