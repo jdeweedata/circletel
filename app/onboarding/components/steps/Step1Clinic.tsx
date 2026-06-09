@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
+import { PlacesAddressInput } from '@/app/onboarding/components/PlacesAddressInput';
 import {
   Select,
   SelectContent,
@@ -169,11 +169,17 @@ export function Step1Clinic({ value, onChange, canGoNext }: Step1ClinicProps) {
               Physical site address
               <span className="text-red-600">*</span>
             </Label>
-            <AddressAutocomplete
+            <PlacesAddressInput
               value={value.siteAddress ?? ''}
-              variant="form"
               placeholder="Start typing your clinic name or address…"
-              onLocationSelect={(data) => {
+              onTextChange={(text) => {
+                const newValue = {
+                  ...value,
+                  siteAddress: text,
+                };
+                onChange(newValue);
+              }}
+              onSelect={(data) => {
                 const newValue = {
                   ...value,
                   siteAddress: data.address,
