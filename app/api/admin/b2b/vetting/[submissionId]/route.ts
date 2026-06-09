@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
-import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(
@@ -15,6 +15,9 @@ export async function GET(
   try {
     const authResult = await authenticateAdmin(request);
     if (!authResult.success) return authResult.response;
+
+    const perm = requirePermission(authResult.adminUser, 'kyc:verify');
+    if (perm) return perm;
 
     const supabase = await createServerClient();
     const { submissionId } = await context.params;

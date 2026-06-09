@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
-import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { apiLogger } from '@/lib/logging/logger';
 import { computeVettingStatus, requiredDocsFor } from '@/lib/onboarding/document-requirements';
@@ -16,6 +16,9 @@ export async function POST(request: NextRequest) {
   try {
     const authResult = await authenticateAdmin(request);
     if (!authResult.success) return authResult.response;
+
+    const perm = requirePermission(authResult.adminUser, 'kyc:verify');
+    if (perm) return perm;
 
     // Use service role key for admin access
     const supabase = await createServerClient();
@@ -154,7 +157,7 @@ export async function POST(request: NextRequest) {
             status: submissionStatus,
             admin_reviewed_at: new Date().toISOString(),
             admin_reviewed_by: authResult.adminUser.id,
-          });
+          }).eq('id', submissionId);
 
           // Try to mark customer billing_ready if all conditions are met
           const marked = await maybeMarkBillingReady(supabase, submission.customer_id);
