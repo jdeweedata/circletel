@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NetCashEMandateService, EMandatePostback } from '@/lib/payments/netcash-emandate-service';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
+import { maybeMarkBillingReady } from '@/lib/onboarding/billing-ready';
 import { webhookLogger } from '@/lib/logging';
 
 // Vercel configuration
@@ -110,7 +111,92 @@ export async function POST(request: NextRequest) {
     }
 
     if (mandateSuccessful) {
-      // Update payment method with signed mandate details
+      // 1. Resolve customer_payment_methods: prefer field1 (paymentMethodId), fallback to field3 (account_number)
+      // field1 should be the customer_payment_methods.id; field3 is the account_number (CT-2026-XXXXX)
+      const paymentMethodIdFromField1 = parsedPostback.Field1;
+      const accountNumberFromField3 = parsedPostback.Field3;
+
+      let customerPaymentMethodId: string | null = null;
+      let resolvedCustomerId: string | null = null;
+
+      if (paymentMethodIdFromField1) {
+        // Preferred: match by payment method ID from field1
+        const { data: pm } = await supabase
+          .from('customer_payment_methods')
+          .select('id, customer_id, encrypted_details')
+          .eq('id', paymentMethodIdFromField1)
+          .eq('method_type', 'debit_order')
+          .eq('is_active', true)
+          .maybeSingle();
+        if (pm) {
+          customerPaymentMethodId = pm.id;
+          resolvedCustomerId = pm.customer_id;
+        }
+      }
+
+      // Fallback: match by account_number from field3
+      if (!customerPaymentMethodId && accountNumberFromField3) {
+        const { data: customer } = await supabase
+          .from('customers')
+          .select('id')
+          .eq('account_number', accountNumberFromField3)
+          .maybeSingle();
+
+        if (customer) {
+          const { data: pm } = await supabase
+            .from('customer_payment_methods')
+            .select('id, customer_id, encrypted_details')
+            .eq('customer_id', customer.id)
+            .eq('method_type', 'debit_order')
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (pm) {
+            customerPaymentMethodId = pm.id;
+            resolvedCustomerId = pm.customer_id;
+          }
+        }
+      }
+
+      // Update customer_payment_methods (the new table the debit-order batch reads)
+      if (customerPaymentMethodId && resolvedCustomerId) {
+        const { data: pmData } = await supabase
+          .from('customer_payment_methods')
+          .select('encrypted_details')
+          .eq('id', customerPaymentMethodId)
+          .maybeSingle();
+
+        const existingDetails = pmData?.encrypted_details ?? {};
+        const { error: cpmUpdateError } = await supabase
+          .from('customer_payment_methods')
+          .update({
+            mandate_id: parsedPostback.MandateReferenceNumber,
+            mandate_status: 'active',
+            mandate_approved_at: new Date().toISOString(),
+            // CRITICAL: set verified=true as a plain boolean; batch reads encrypted_details.verified directly
+            encrypted_details: {
+              ...existingDetails,
+              verified: true,
+            },
+          })
+          .eq('id', customerPaymentMethodId);
+
+        if (cpmUpdateError) {
+          webhookLogger.error('Error updating customer_payment_methods', { error: cpmUpdateError.message });
+        } else {
+          webhookLogger.info('customer_payment_methods updated with mandate details:', {
+            paymentMethodId: customerPaymentMethodId,
+            customerId: resolvedCustomerId,
+            mandateRef: parsedPostback.MandateReferenceNumber,
+          });
+        }
+
+        // Try to flip customer to billing_ready if docs are already approved
+        await maybeMarkBillingReady(supabase, resolvedCustomerId);
+      }
+
+      // 2. Keep legacy payment_methods table in sync (preserve existing behaviour)
       const { error: pmUpdateError } = await supabase
         .from('payment_methods')
         .update({
@@ -273,6 +359,80 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Mandate declined or failed
+      // 1. Resolve customer_payment_methods using the same logic as success branch
+      const paymentMethodIdFromField1 = parsedPostback.Field1;
+      const accountNumberFromField3 = parsedPostback.Field3;
+
+      let customerPaymentMethodId: string | null = null;
+      let customerId: string | null = null;
+
+      if (paymentMethodIdFromField1) {
+        const { data: pm } = await supabase
+          .from('customer_payment_methods')
+          .select('id, customer_id')
+          .eq('id', paymentMethodIdFromField1)
+          .eq('method_type', 'debit_order')
+          .eq('is_active', true)
+          .maybeSingle();
+        if (pm) {
+          customerPaymentMethodId = pm.id;
+          customerId = pm.customer_id;
+        }
+      }
+
+      if (!customerPaymentMethodId && accountNumberFromField3) {
+        const { data: customer } = await supabase
+          .from('customers')
+          .select('id')
+          .eq('account_number', accountNumberFromField3)
+          .maybeSingle();
+
+        if (customer) {
+          const { data: pm } = await supabase
+            .from('customer_payment_methods')
+            .select('id, customer_id')
+            .eq('customer_id', customer.id)
+            .eq('method_type', 'debit_order')
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (pm) {
+            customerPaymentMethodId = pm.id;
+            customerId = pm.customer_id;
+          }
+        }
+      }
+
+      // Update customer_payment_methods to mark mandate as failed
+      if (customerPaymentMethodId) {
+        const { error: cpmFailError } = await supabase
+          .from('customer_payment_methods')
+          .update({
+            mandate_status: 'failed',
+          })
+          .eq('id', customerPaymentMethodId);
+
+        if (cpmFailError) {
+          webhookLogger.error('Error updating customer_payment_methods on rejection', { error: cpmFailError.message });
+        }
+      }
+
+      // Mark customer onboarding as failed
+      if (customerId) {
+        const { error: custFailError } = await supabase
+          .from('customers')
+          .update({
+            onboarding_status: 'failed',
+          })
+          .eq('id', customerId);
+
+        if (custFailError) {
+          webhookLogger.error('Error updating customer onboarding_status on rejection', { error: custFailError.message });
+        }
+      }
+
+      // 2. Keep legacy payment_methods in sync
       const { error: pmFailError } = await supabase
         .from('payment_methods')
         .update({
