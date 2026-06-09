@@ -117,7 +117,7 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
             Already set up
           </h2>
           <p className="text-green-800">
-            Your clinic billing is already activated. If you need to make changes,
+            Your clinic is already set up. If you need to make changes,
             please contact support at{' '}
             <a
               href="https://wa.me/27824873900"
