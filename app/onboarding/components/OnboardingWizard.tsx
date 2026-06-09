@@ -214,7 +214,7 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
         <p className="text-sm font-semibold text-circleTel-orange uppercase tracking-widest">
           Unjani Clinic Network · Billing setup
         </p>
-        <h1 className="text-3xl font-bold text-gray-900 mt-1 mb-2">
+        <h1 className="font-heading text-3xl md:text-4xl font-bold text-circleTel-navy mt-1 mb-2">
           Let's set up your clinic for billing
         </h1>
         <p className="text-gray-600 max-w-2xl">

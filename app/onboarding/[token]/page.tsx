@@ -7,11 +7,10 @@ export default async function OnboardingPage({
 }) {
   const { token } = await params;
 
+  // <main> + background are provided by app/onboarding/layout.tsx (site chrome).
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <OnboardingWizard token={token} />
-      </div>
-    </main>
+    <div className="container mx-auto px-4 py-10 md:py-16 max-w-3xl">
+      <OnboardingWizard token={token} />
+    </div>
   );
 }
