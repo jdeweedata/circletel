@@ -161,19 +161,23 @@ export async function POST(request: NextRequest) {
 
       // Update customer_payment_methods (the new table the debit-order batch reads)
       if (customerPaymentMethodId && resolvedCustomerId) {
-        const { data: pmData } = await supabase
+        // Fetch current mandate_status and encrypted_details to detect if already active (webhook redelivery)
+        const { data: pmBefore } = await supabase
           .from('customer_payment_methods')
-          .select('encrypted_details')
+          .select('mandate_status, encrypted_details')
           .eq('id', customerPaymentMethodId)
           .maybeSingle();
 
-        const existingDetails = pmData?.encrypted_details ?? {};
+        const wasAlreadyActive = pmBefore?.mandate_status === 'active' || pmBefore?.mandate_status === 'approved';
+        const existingDetails = pmBefore?.encrypted_details ?? {};
+
         const { error: cpmUpdateError } = await supabase
           .from('customer_payment_methods')
           .update({
             mandate_id: parsedPostback.MandateReferenceNumber,
             mandate_status: 'active',
             mandate_approved_at: new Date().toISOString(),
+            verified: true,
             // CRITICAL: set verified=true as a plain boolean; batch reads encrypted_details.verified directly
             encrypted_details: {
               ...existingDetails,
@@ -189,11 +193,15 @@ export async function POST(request: NextRequest) {
             paymentMethodId: customerPaymentMethodId,
             customerId: resolvedCustomerId,
             mandateRef: parsedPostback.MandateReferenceNumber,
+            wasAlreadyActive,
           });
         }
 
         // Try to flip customer to billing_ready if docs are already approved
-        await maybeMarkBillingReady(supabase, resolvedCustomerId);
+        // Only on the first activation (not on webhook redelivery)
+        if (!wasAlreadyActive && resolvedCustomerId) {
+          await maybeMarkBillingReady(supabase, resolvedCustomerId);
+        }
       }
 
       // 2. Keep legacy payment_methods table in sync (preserve existing behaviour)
