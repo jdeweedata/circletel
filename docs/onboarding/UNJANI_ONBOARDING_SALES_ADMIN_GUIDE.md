@@ -197,4 +197,60 @@ CircleTel: WhatsApp **082 487 3900** or email **contactus@circletel.co.za** (Mon
 
 ---
 
+## 12. WhatsApp scripts (copy-paste when guiding a nurse)
+
+> These are for **you chatting one-on-one** with the nurse on WhatsApp (e.g. from the support line 082 487 3900). Keep replies in the same conversation. Replace anything in **[brackets]**. The official "Start setup" link itself is sent by the system from +27 84 773 9467 — these messages are your human follow-ups around it.
+
+**A. Heads-up before/with the link**
+```
+Hi [Nurse name] 👋 It's [Your name] from CircleTel. We're setting up your monthly billing for [Clinic name]. I'm sending you a secure WhatsApp link now — just tap the orange "Start setup" button. It takes about 5 minutes. Please have ready: your company registration (CIPC) number, VAT number (if registered), your clinic's bank details, and photos of those documents + your ID and proof of address. I'm here if you get stuck. 🙂
+```
+
+**B. "I've sent the link"**
+```
+Done ✅ You'll get a WhatsApp from CircleTel with a "Start setup" button. Tap it and follow the 6 short steps. Most of your clinic details are already filled in — just check them. Let me know once you reach the end and I'll take it from there.
+```
+
+**C. Gentle reminder (not completed yet)**
+```
+Hi [Nurse name], just checking in on the CircleTel setup for [Clinic name] 🙂 The link is still valid for [X] day(s). It only takes ~5 minutes. Reply here if anything's unclear and I'll walk you through it.
+```
+
+**D. Link expired / "it won't open"**
+```
+No problem — that link has expired or was already used. I'm sending you a fresh one now. Please tap "Start setup" within 7 days. 👍
+```
+
+**E. A document needs re-uploading**
+```
+Thanks [Nurse name]! Almost there. Your [document, e.g. bank confirmation] couldn't be approved because [reason, e.g. the account holder name must match the clinic's registered name]. Could you re-open your link and upload a corrected [document]? Everything else is approved. 🙏
+```
+
+**F. Debit-order (DebiCheck) approval reminder**
+```
+Hi [Nurse name], one last step: your bank will send you a DebiCheck request to approve the R517.50 monthly debit for [Clinic name]. Please approve it on your banking app / when prompted — billing can't activate until you do. Shout if you don't see it.
+```
+
+**G. All done — billing active**
+```
+🎉 You're all set, [Nurse name]! [Clinic name] is now set up. Your monthly fee is R517.50 (R450 + VAT), coming off on the [date]. Your first month is pro-rated. Welcome aboard — anything you need, we're on 082 487 3900.
+```
+
+**H. Nurse with more than one clinic**
+```
+Hi [Nurse name], since you also run [Second clinic], that one has its own separate setup. I'm sending a second link for [Second clinic] — please complete it too (each clinic is billed separately). Same quick steps. 🙂
+```
+
+**I. New clinic — coverage check pending**
+```
+Hi [Nurse name], for [New clinic name] we first need to confirm we can install internet at the address. Our technical team is checking coverage now. Once that's confirmed and we've installed, I'll send your billing setup link. I'll keep you posted. 👍
+```
+
+**J. Reassurance (nurse worried about giving bank details)**
+```
+Totally understand 🙂 It's the official CircleTel setup page (same as circletel.co.za). The bank details are only to set up your monthly debit order, and YOU approve it through your own bank (DebiCheck) — nothing is ever taken without your approval. You can verify us on 082 487 3900 or contactus@circletel.co.za.
+```
+
+---
+
 *Internal document. For the technical/implementation detail behind this process, see `docs/superpowers/plans/2026-06-09-unjani-b2b-onboarding.md`.*
