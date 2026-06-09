@@ -35,7 +35,6 @@ export function useOnboardingState(prefill: { customer: any; service: any }) {
     service: prefill.service,
     step1: {
       clinicName: prefill.customer.business_name?.replace(/^Unjani Clinic — /, '') ?? '',
-      unjaniAcc: prefill.customer.clinic_details?.unjani_account ?? '',
       province: prefill.customer.clinic_details?.province ?? '',
       contact: prefill.customer.clinic_details?.nurse_owner_name ?? '',
       phone: prefill.customer.phone ?? '',

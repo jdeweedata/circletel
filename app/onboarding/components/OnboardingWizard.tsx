@@ -117,7 +117,7 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
             Already set up
           </h2>
           <p className="text-green-800">
-            Your clinic billing is already activated. If you need to make changes,
+            Your clinic is already set up. If you need to make changes,
             please contact support at{' '}
             <a
               href="https://wa.me/27824873900"
@@ -212,15 +212,15 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
       {/* Intro section with branding */}
       <div>
         <p className="text-sm font-semibold text-circleTel-orange uppercase tracking-widest">
-          Unjani Clinic Network · Billing setup
+          Unjani Clinic Network · Clinic onboarding
         </p>
         <h1 className="font-heading text-3xl md:text-4xl font-bold text-circleTel-navy mt-1 mb-2">
-          Let's set up your clinic for billing
+          Get your clinic connected — free Wi-Fi for your patients
         </h1>
         <p className="text-gray-600 max-w-2xl">
-          We already hold your clinic and contact details from the Unjani network
-          record. Confirm what we have, add your business and banking details, and
-          accept your Service Order to activate billing.
+          Welcome! Let's set up your clinic with CircleTel ClinicConnect — reliable
+          internet for the clinic and free Wi-Fi for the patients who visit you.
+          Confirm the details below and complete a few quick steps to get activated.
         </p>
       </div>
 

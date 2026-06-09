@@ -43,6 +43,12 @@ interface SubmissionDetail {
     business_name: string;
     email: string;
     phone: string;
+    clinic_details?: {
+      site_address?: string;
+      lat?: string | number;
+      lng?: string | number;
+      [key: string]: any;
+    };
   } | null;
   documents: Array<{
     id: string;
@@ -620,6 +626,41 @@ export default function B2BVettingDetailPage({
               </div>
             </CardContent>
           </Card>
+
+          {/* Clinic Location */}
+          {submission.customers?.clinic_details && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Clinic Location</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {submission.customers.clinic_details.site_address && (
+                  <div>
+                    <p className="text-sm text-gray-600">Address</p>
+                    <p className="text-sm">{submission.customers.clinic_details.site_address}</p>
+                  </div>
+                )}
+                {submission.customers.clinic_details.lat && submission.customers.clinic_details.lng && (
+                  <>
+                    <div>
+                      <p className="text-sm text-gray-600">Coordinates</p>
+                      <p className="text-sm font-mono">
+                        {submission.customers.clinic_details.lat}, {submission.customers.clinic_details.lng}
+                      </p>
+                    </div>
+                    <a
+                      href={`https://www.google.com/maps?q=${submission.customers.clinic_details.lat},${submission.customers.clinic_details.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-circleTel-orange hover:underline"
+                    >
+                      View on Google Maps
+                    </a>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Submitted Date */}
           <Card>

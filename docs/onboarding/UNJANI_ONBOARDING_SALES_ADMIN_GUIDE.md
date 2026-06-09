@@ -4,6 +4,8 @@
 **Purpose:** A plain-language, step-by-step playbook + FAQs so you can confidently guide a nurse through onboarding over the phone or WhatsApp.
 **Last updated:** 2026-06-09
 
+> **Tooling status (read me):** The onboarding wizard, the WhatsApp invite template, and the document-vetting screen (`/admin/b2b/vetting`) are **live**. A self-serve "Send onboarding link" **button for sales admins is still being built** — until it ships, the CircleTel team triggers the WhatsApp invite (single clinic or the whole batch) on request. You can already do the **document vetting** yourself in the admin vetting queue. This note will be removed once the send button is live.
+
 ---
 
 ## 1. The big picture (read this first)
@@ -39,7 +41,7 @@ The nurse does this themselves on their phone by tapping a **personal link** we 
 **You will:**
 
 1. **Confirm the clinic's WhatsApp number** is correct on file (this is where the link goes).
-2. **Send the onboarding link.** From the admin tool, choose the clinic and "Send onboarding link (WhatsApp)". The nurse receives a WhatsApp from **CircleTel (+27 84 773 9467)** that says *"Hi [Clinic], let's set up your CircleTel billing"* with a **Start setup** button.
+2. **Send the onboarding link.** Trigger the onboarding invite for the clinic *(today: request it from the CircleTel team; soon: a "Send onboarding link" button in the admin panel)*. The nurse receives a WhatsApp from **CircleTel (+27 84 773 9467)** that says *"Hi [Clinic], let's set up your CircleTel billing"* with a **Start setup** button.
    - The link is valid for **7 days** and is **single-use** (it's used up once they finish).
 3. **Tell the nurse what to expect:** *"Tap the orange Start setup button. It takes about 5 minutes. Have your company registration number, VAT number if you have one, your clinic's bank details, and photos of your documents ready."*
 4. **The nurse completes the 6 steps** (see §5). They tap through; most clinic details are already filled in.
