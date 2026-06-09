@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 export const step1Schema = z.object({
   clinicName: z.string().min(3),
-  unjaniAcc: z.string().min(2),
   province: z.string().min(2),
   contact: z.string().min(2),
   phone: z.string().min(9),

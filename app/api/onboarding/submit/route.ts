@@ -105,7 +105,6 @@ export async function POST(request: NextRequest) {
       onboarding_status: 'submitted',
       clinic_details: {
         clinic_name: s1.data.clinicName,
-        unjani_account: s1.data.unjaniAcc,
         province: s1.data.province,
         nurse_owner_name: s1.data.contact,
         site_address: s1.data.siteAddress,

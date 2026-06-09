@@ -38,7 +38,7 @@ export async function GET(
         admin_notes,
         rejection_reason,
         submitted_at,
-        customers(id, account_number, business_name, email, phone)
+        customers(id, account_number, business_name, email, phone, clinic_details)
       `
       )
       .eq('id', submissionId)
