@@ -144,9 +144,9 @@ jobs:
         run: NODE_OPTIONS='--max-old-space-size=12288' npm run build
         env:
           SELF_HOSTED: 'true'
-          # 24GB VPS has headroom for parallel webpack workers — un-throttle from 1 CPU.
-          # Lower this if the build OOMs (watch `free -h` in the build logs).
-          BUILD_CPUS: '4'
+          # BUILD_CPUS deliberately UNSET → cpus:1. BUILD_CPUS=4 was measured at 27-34min
+          # (memory thrash; one deploy timed out) vs ~21min at cpus:1. The real speedup is
+          # Turbopack (10m39s), not more cores — do not re-add BUILD_CPUS here.
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
           NEXT_PUBLIC_APP_URL: https://www.circletel.co.za
