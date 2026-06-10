@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { requiredDocsFor } from '@/lib/onboarding/document-requirements';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PiCheckCircle, PiUploadSimple } from 'react-icons/pi';
+import { PiCheckCircle, PiCameraBold } from 'react-icons/pi';
 
 export interface Step4DocumentsProps {
   token: string;
@@ -93,6 +93,10 @@ export function Step4Documents({
           Upload the required documents to verify your company details and
           banking.
         </p>
+        <p className="text-sm text-circleTel-orange-accessible mt-2">
+          📷 On your phone, tap a document below to <strong>take a photo</strong> with your
+          camera — or choose a PDF/image you already have.
+        </p>
       </div>
 
       {error && (
@@ -142,8 +146,8 @@ export function Step4Documents({
                   asChild
                 >
                   <span className="cursor-pointer">
-                    <PiUploadSimple className="w-4 h-4 mr-1" />
-                    {busy === doc.type ? 'Uploading...' : 'Upload'}
+                    <PiCameraBold className="w-4 h-4 mr-1" />
+                    {busy === doc.type ? 'Uploading...' : 'Take photo or upload'}
                   </span>
                 </Button>
               </label>
