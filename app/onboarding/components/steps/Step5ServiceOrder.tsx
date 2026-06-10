@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { computeProRata } from '@/lib/onboarding/prorata';
+import { SERVICE_ORDER_TERMS, SERVICE_ORDER_TERMS_TITLE, SERVICE_ORDER_MSA_REFERENCE_UI } from '@/lib/onboarding/service-order-terms';
 import { PiCaretDown, PiCaretUp } from 'react-icons/pi';
 
 export interface Step5ServiceOrderProps {
@@ -22,17 +23,6 @@ export interface Step5ServiceOrderProps {
 }
 
 const PAYMENT_DATES = ['1', '15', '20', '25'];
-
-const SERVICE_ORDER_CLAUSES = [
-  '<b>Commencement:</b> The Service Order terms commence on the Effective Date and continue for one calendar month thereafter, automatically renewing for successive one-month periods unless either party terminates with 30 days written notice.',
-  '<b>Payment:</b> The monthly fee is due and payable in advance on the selected payment date. The first invoice is pro-rated from the Effective Date to the end of that calendar month.',
-  '<b>DebiCheck Authorisation:</b> By accepting this Service Order, you authorise CircleTel to collect the monthly fee via DebiCheck debit order on your nominated payment date, in accordance with the DebiCheck rules.',
-  '<b>Service Suspension:</b> If payment is not received by the due date, CircleTel may suspend service access without further notice.',
-  '<b>Intellectual Property:</b> All CircleTel materials, technology, and know-how remain the property of CircleTel and may not be copied or reproduced without consent.',
-  '<b>Limitation of Liability:</b> CircleTel\'s total liability under this Service Order is limited to the fees paid in the three months preceding the claim.',
-  '<b>Termination:</b> Either party may terminate this Service Order with 30 days written notice. Upon termination, all outstanding fees remain due.',
-  '<b>Governing Law:</b> This Service Order is governed by the laws of the Republic of South Africa.',
-];
 
 export function Step5ServiceOrder({
   value,
@@ -160,7 +150,7 @@ export function Step5ServiceOrder({
               onClick={() => setShowDetails(!showDetails)}
               className="flex items-center justify-between w-full font-semibold text-gray-900 hover:text-circleTel-orange"
             >
-              <span>CircleTel Service Order — Terms & Conditions</span>
+              <span>{SERVICE_ORDER_TERMS_TITLE}</span>
               {showDetails ? (
                 <PiCaretUp className="w-5 h-5" />
               ) : (
@@ -170,13 +160,11 @@ export function Step5ServiceOrder({
 
             {showDetails && (
               <div className="mt-4 space-y-3 text-sm text-gray-700">
-                {SERVICE_ORDER_CLAUSES.map((clause, idx) => (
+                {SERVICE_ORDER_TERMS.map((clause, idx) => (
                   <p key={idx} dangerouslySetInnerHTML={{ __html: clause }} />
                 ))}
                 <p className="text-xs text-gray-600 mt-4 pt-4 border-t">
-                  These terms are back-to-back with the Master Service Agreement
-                  between CircleTel and Unjani Clinics NPC (the "MSA"). In the
-                  event of any conflict, the MSA prevails.
+                  {SERVICE_ORDER_MSA_REFERENCE_UI}
                 </p>
               </div>
             )}
