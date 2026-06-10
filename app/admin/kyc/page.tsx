@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { StatusBadge } from '@/components/backend';
 import {
   Select,
   SelectContent,
@@ -138,13 +139,13 @@ export default function AdminKycPage() {
     return matchesStatus && matchesVerification && matchesSearch;
   });
 
-  // Get status badge
+  // Get status badge — canonical StatusBadge with KYC-specific labels/icons.
   const getStatusBadge = (status: string) => {
     const badges = {
-      pending: <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><PiClockBold className="w-3 h-3 mr-1" />Pending</Badge>,
-      under_review: <Badge variant="secondary" className="bg-blue-100 text-blue-800"><PiEyeBold className="w-3 h-3 mr-1" />Under Review</Badge>,
-      approved: <Badge variant="default" className="bg-green-500"><PiCheckCircleBold className="w-3 h-3 mr-1" />Approved</Badge>,
-      rejected: <Badge variant="destructive"><PiXCircleBold className="w-3 h-3 mr-1" />Rejected</Badge>,
+      pending: <StatusBadge status="Pending" variant="warning" icon={<PiClockBold className="w-3 h-3" />} />,
+      under_review: <StatusBadge status="Under Review" variant="info" icon={<PiEyeBold className="w-3 h-3" />} />,
+      approved: <StatusBadge status="Approved" variant="success" icon={<PiCheckCircleBold className="w-3 h-3" />} />,
+      rejected: <StatusBadge status="Rejected" variant="error" icon={<PiXCircleBold className="w-3 h-3" />} />,
     };
     return badges[status as keyof typeof badges] || badges.pending;
   };

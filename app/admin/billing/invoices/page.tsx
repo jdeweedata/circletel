@@ -1,11 +1,18 @@
 'use client';
-import { PiArrowsClockwiseBold, PiDotsThreeBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiMagnifyingGlassBold, PiPlusBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiDotsThreeBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiMagnifyingGlassBold, PiPlusBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import {
+  PageHeader,
+  StatusBadge,
+  LoadingState,
+  ErrorState,
+  EmptyState,
+  type StatusVariant,
+} from '@/components/backend';
 
 interface Invoice {
   id: string;
@@ -78,25 +85,27 @@ export default function InvoicesPage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return <Badge className="bg-green-100 text-green-800">Paid</Badge>;
-      case 'sent':
-        return <Badge className="bg-blue-100 text-blue-800">Sent</Badge>;
-      case 'overdue':
-        return <Badge className="bg-red-100 text-red-800">Overdue</Badge>;
-      case 'draft':
-        return <Badge className="bg-gray-100 text-gray-800">Draft</Badge>;
-      case 'partial':
-        return <Badge className="bg-yellow-100 text-yellow-800">Partial</Badge>;
-      case 'voided':
-      case 'cancelled':
-        return <Badge className="bg-gray-100 text-gray-600">Voided</Badge>;
-      default:
-        return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
-    }
+  // Invoice-specific status semantics, rendered through the canonical StatusBadge.
+  const INVOICE_STATUS_VARIANT: Record<string, StatusVariant> = {
+    paid: 'success',
+    sent: 'info',
+    overdue: 'error',
+    draft: 'neutral',
+    partial: 'warning',
+    voided: 'neutral',
+    cancelled: 'neutral',
   };
+  const INVOICE_STATUS_LABEL: Record<string, string> = {
+    voided: 'Voided',
+    cancelled: 'Voided',
+  };
+
+  const getStatusBadge = (status: string) => (
+    <StatusBadge
+      status={INVOICE_STATUS_LABEL[status] ?? status.charAt(0).toUpperCase() + status.slice(1)}
+      variant={INVOICE_STATUS_VARIANT[status] ?? 'neutral'}
+    />
+  );
 
   const filteredInvoices = invoices.filter(invoice => {
     if (!searchQuery) return true;
@@ -110,11 +119,8 @@ export default function InvoicesPage() {
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2 text-gray-500">
-          <PiArrowsClockwiseBold className="h-5 w-5 animate-spin" />
-          <span>Loading invoices...</span>
-        </div>
+      <div className="p-6">
+        <LoadingState message="Loading invoices..." />
       </div>
     );
   }
@@ -122,40 +128,29 @@ export default function InvoicesPage() {
   if (error) {
     return (
       <div className="p-6">
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-red-600">
-              <PiWarningCircleBold className="h-5 w-5" />
-              <span>{error}</span>
-            </div>
-            <Button onClick={fetchInvoices} variant="outline" className="mt-4">
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
+        <ErrorState title="Unable to load invoices" message={error} onRetry={fetchInvoices} />
       </div>
     );
   }
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Invoices</h1>
-          <p className="text-gray-500 mt-1">Manage billing and invoices</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchInvoices}>
-            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark" disabled>
-            <PiPlusBold className="h-4 w-4 mr-2" />
-            Create Invoice
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Invoices"
+        subtitle="Manage billing and invoices"
+        actions={
+          <>
+            <Button variant="outline" onClick={fetchInvoices}>
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+            <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark" disabled>
+              <PiPlusBold className="h-4 w-4 mr-2" />
+              Create Invoice
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -227,9 +222,10 @@ export default function InvoicesPage() {
 
           {/* Table */}
           {filteredInvoices.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              {searchQuery ? 'No invoices match your search' : 'No invoices found'}
-            </div>
+            <EmptyState
+              icon={<PiFileTextBold />}
+              title={searchQuery ? 'No invoices match your search' : 'No invoices found'}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
