@@ -194,6 +194,7 @@ All detailed patterns are in `.claude/rules/`:
 | `vercel-deployment.md` | Manual deployment trigger API, monitoring, CircleTel project IDs |
 | `invoice-pdf-patterns.md` | VAT calc (excl-VAT multiply), fetch/blob download, print:hidden, jsPDF patterns |
 | `pre-push-hook.md` | Shared `.githooks/pre-push` — build-config + scoped type-check, escape hatches |
+| `self-hosted-runner-disk.md` | VPS disk-full → deploy guard fails; `prune -a` fix (skipped Build step = disk, not code) |
 
 ---
 
