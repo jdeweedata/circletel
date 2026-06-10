@@ -8,6 +8,7 @@ on:
       - 'docs/**'
       - '*.md'
       - '.claude/**'
+      - '.githooks/**'
       - 'designs/**'
       - 'memory-os/**'
       - 'agent-os/**'

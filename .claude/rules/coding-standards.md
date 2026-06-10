@@ -195,7 +195,13 @@ Rollout is **staging-first**: `deploy-staging.yml` uses `--turbopack`; prod (`de
 webpack until a staging container boots healthy and serves routes (Turbopack `standalone`-output
 parity is the one remaining risk to confirm on a real container boot, not just a compile).
 
-**CRITICAL**: These values are enforced by `.github/workflows/pr-checks.yml`. Any PR that lowers heap below 6144MB or raises cpus above 1 will fail the `validate-build-config` check and block the merge.
+**CRITICAL — where these are actually enforced** (two places, not one):
+- `.github/workflows/pr-checks.yml` (`validate-dockerfile` job) checks that `deploy.yml`'s
+  `NODE_OPTIONS` heap is **≥8192MB** and that `next.config.js` has `output: 'standalone'`. It does
+  **not** check cpus.
+- `.githooks/pre-push` checks `vercel.json` heap **≥6144MB** and the `cpus` setting. Since `cpus` is
+  now env-driven (`BUILD_CPUS`, default 1 — only the VPS deploy sets it to 4), the hook treats the
+  env-driven form as Vercel-safe.
 
 **Allowed in NODE_OPTIONS**:
 - `--max-old-space-size=<MB>` - Set heap memory limit

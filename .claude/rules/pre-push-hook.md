@@ -13,8 +13,9 @@ Enabled via `core.hooksPath`, auto-applied on `npm install` / `npm ci` by the
 
 ## What it checks (in order)
 
-1. **Build config** — heap ≥6144 in `vercel.json`, `cpus:1` in `next.config.js`.
-   Mirrors the `validate-build-config` job in `.github/workflows/pr-checks.yml`.
+1. **Build config** — heap ≥6144 in `vercel.json`, and the `cpus` setting in `next.config.js`.
+   `cpus` is now env-driven (`BUILD_CPUS`, default 1 — only the VPS deploy sets it to 4), so the
+   hook recognizes that form as Vercel-safe; a bare `cpus: N>1` literal still fails.
    Catches OOM-risk config before it reaches the self-hosted runner.
 2. **Scoped type-check** — runs `npm run type-check:memory` once, blocks **only if a
    `.ts/.tsx` file in this push has an error**. Pushes with no TS changes skip it.
