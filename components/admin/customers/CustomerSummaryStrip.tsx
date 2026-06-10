@@ -1,6 +1,7 @@
 'use client';
 import {
   PiArrowsClockwiseBold,
+  PiArrowsLeftRightBold,
   PiChatBold,
   PiCheckCircleBold,
   PiCurrencyCircleDollarBold,
@@ -15,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ChangePackageDialog } from './ChangePackageDialog';
 
 interface CustomerSummary {
   total_outstanding: number;
@@ -61,6 +63,7 @@ export function CustomerSummaryStrip({ customerId, openTicketCount }: CustomerSu
   const [summary, setSummary] = useState<CustomerSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendingPayNow, setSendingPayNow] = useState(false);
+  const [changePackageOpen, setChangePackageOpen] = useState(false);
   const [actionResult, setActionResult] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -257,6 +260,12 @@ export function CustomerSummaryStrip({ customerId, openTicketCount }: CustomerSu
                 Send Pay Now Link
               </Button>
             )}
+            {summary?.active_service && (
+              <Button size="sm" variant="outline" onClick={() => setChangePackageOpen(true)}>
+                <PiArrowsLeftRightBold className="h-4 w-4 mr-1.5" />
+                Change Package
+              </Button>
+            )}
             <Button
               size="sm"
               variant="outline"
@@ -273,6 +282,24 @@ export function CustomerSummaryStrip({ customerId, openTicketCount }: CustomerSu
             </Link>
           </div>
         </div>
+
+        {summary?.active_service && (
+          <ChangePackageDialog
+            customerId={customerId}
+            service={{
+              id: summary.active_service.id,
+              package_name: summary.active_service.package_name,
+              monthly_price: summary.active_service.monthly_price,
+            }}
+            open={changePackageOpen}
+            onOpenChange={setChangePackageOpen}
+            onSuccess={(message) => {
+              setActionResult({ type: 'success', message });
+              setTimeout(() => setActionResult(null), 8000);
+              fetchSummary();
+            }}
+          />
+        )}
       </CardContent>
     </Card>
   );

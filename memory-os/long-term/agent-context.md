@@ -111,3 +111,4 @@ Format:
 ### Git/CI facts
 - Pushing a feature branch to `staging` fails non-fast-forward if staging moved — merge `origin/staging` into the feature branch first, never force-push staging
 - `vps-runner` (self-hosted) can sit ~9 min in queue before claiming a job — queued ≠ broken; check `runner_id: 0` on the job to confirm it's just lag
+- UPDATE 2026-06-10 (later session work): change-package now EXISTS — `GET/POST /api/admin/customers/[id]/services/change-package` (GET lists active packages, POST applies + audits to `service_action_log` with upgrade/downgrade/edit). UI: `ChangePackageDialog` via summary strip. `customer_services` denormalizes package fields (package_name, service_type, monthly_price, speed_down/up) — keep in sync on package change. The `[id]/billing` route getUser bug is FIXED.

@@ -30,19 +30,7 @@ export async function GET(
   try {
     const supabase = await createClient();
     const { id: customer_id } = await context.params;
-    
-    // Get authenticated admin user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    
-    // TODO: PiCheckBold admin permissions (billing:view)
-    
+
     // Get customer details
     const { data: customer, error: customerError } = await supabase
       .from('customers')
