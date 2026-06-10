@@ -38,6 +38,7 @@ interface PipelineClinic {
   mandate_status: string | null;
   vetting_due_date: string | null;
   submitted_at: string | null;
+  service_order_issued_at: string | null;
   sla: {
     dueDate: string | null;
     overdue: boolean;
@@ -108,6 +109,7 @@ export default function UnjanionboardingPipelinePage() {
   const router = useRouter();
   const [data, setData] = useState<PipelineResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [issuingServiceOrder, setIssuingServiceOrder] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPipeline() {
@@ -134,6 +136,40 @@ export default function UnjanionboardingPipelinePage() {
 
     fetchPipeline();
   }, []);
+
+  const handleIssueServiceOrder = async (customerId: string) => {
+    setIssuingServiceOrder(customerId);
+    try {
+      const response = await fetch('/api/admin/b2b/issue-service-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
+        },
+        body: JSON.stringify({ customerId }),
+      });
+
+      if (response.ok) {
+        // Refresh the pipeline data
+        const pipelineResponse = await fetch('/api/admin/b2b/onboarding-pipeline', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
+          },
+        });
+        const result: PipelineResponse = await pipelineResponse.json();
+        setData(result);
+      } else {
+        const error = await response.json();
+        console.error('Failed to issue service order:', error);
+        alert(`Error: ${error.message || 'Failed to issue service order'}`);
+      }
+    } catch (error) {
+      console.error('Error issuing service order:', error);
+      alert('Error issuing service order');
+    } finally {
+      setIssuingServiceOrder(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -252,6 +288,7 @@ export default function UnjanionboardingPipelinePage() {
                     <TableHead>Province</TableHead>
                     <TableHead>Stage</TableHead>
                     <TableHead>SLA</TableHead>
+                    <TableHead>Service Order</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -281,6 +318,29 @@ export default function UnjanionboardingPipelinePage() {
                             <span className="text-gray-600">{formatSLADisplay(clinic)}</span>
                           )}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {clinic.service_order_issued_at ? (
+                          <div className="text-sm">
+                            <span className="text-green-600 font-medium">Issued</span>
+                            <div className="text-xs text-gray-500">
+                              {new Date(clinic.service_order_issued_at).toLocaleDateString('en-ZA')}
+                            </div>
+                          </div>
+                        ) : (
+                          clinic.stage === 'billing_ready' || clinic.stage === 'docs_approved' || clinic.stage === 'mandate_active' ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleIssueServiceOrder(clinic.customer_id)}
+                              disabled={issuingServiceOrder === clinic.customer_id}
+                            >
+                              {issuingServiceOrder === clinic.customer_id ? 'Issuing...' : 'Issue'}
+                            </Button>
+                          ) : (
+                            <span className="text-xs text-gray-400">Pending</span>
+                          )
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         {clinic.submission_id ? (

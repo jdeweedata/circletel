@@ -23,6 +23,7 @@ interface PipelineClinic {
   mandate_status: string | null;
   vetting_due_date: string | null;
   submitted_at: string | null;
+  service_order_issued_at: string | null;
   sla: {
     dueDate: string | null;
     overdue: boolean;
@@ -113,7 +114,8 @@ export async function GET(request: NextRequest) {
           status,
           document_vetting_status,
           submitted_at,
-          vetting_due_date
+          vetting_due_date,
+          service_order_issued_at
         ),
         customer_payment_methods!customer_payment_methods_customer_id (
           id,
@@ -195,6 +197,7 @@ export async function GET(request: NextRequest) {
         mandate_status: debitOrderPm?.mandate_status || null,
         vetting_due_date: submission?.vetting_due_date || null,
         submitted_at: submission?.submitted_at || null,
+        service_order_issued_at: submission?.service_order_issued_at || null,
         sla: {
           dueDate: submission?.vetting_due_date || null,
           overdue: isOverdue,
