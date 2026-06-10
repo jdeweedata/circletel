@@ -54,20 +54,24 @@ export const PlacesAddressInput: React.FC<PlacesAddressInputProps> = ({
 
     const loadPlacesAPI = async () => {
       try {
-        // Check if google.maps is already loaded
-        const googleMaps = (window as any).google?.maps;
-        if (!googleMaps) {
-          // Load the Google Maps loader
-          const { loadGoogleMapsService } = await import('@/lib/googleMapsLoader');
-          await loadGoogleMapsService();
+        // loadGoogleMapsService() only imports the service module — it does NOT inject
+        // the Maps <script>. We must call svc.loadGoogleMaps() to actually load the
+        // script (with loading=async, which exposes google.maps.importLibrary).
+        const { loadGoogleMapsService } = await import('@/lib/googleMapsLoader');
+        const svc = await loadGoogleMapsService();
+        await svc.loadGoogleMaps();
+
+        // importLibrary may attach a tick after the script's onload — poll briefly.
+        let tries = 0;
+        while (typeof (window as any).google?.maps?.importLibrary !== 'function' && tries < 50) {
+          await new Promise((r) => setTimeout(r, 100));
+          tries++;
         }
 
-        // Verify that google.maps.importLibrary is available
-        const updatedGoogleMaps = (window as any).google?.maps;
-        if (updatedGoogleMaps && typeof updatedGoogleMaps.importLibrary === 'function') {
+        if (typeof (window as any).google?.maps?.importLibrary === 'function') {
           setMapsLoaded(true);
         } else {
-          console.error('[PlacesAddressInput] google.maps.importLibrary not available');
+          console.error('[PlacesAddressInput] google.maps.importLibrary not available after load');
         }
       } catch (error) {
         console.error('[PlacesAddressInput] Failed to load Google Maps:', error);
