@@ -1,7 +1,7 @@
 'use client';
 import { PiListBold, PiMagnifyingGlass } from 'react-icons/pi';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Logo } from '@/components/navigation/Logo';
@@ -10,27 +10,73 @@ import { MobileMenu } from '@/components/navigation/MobileMenu';
 import { HelpBar } from '@/components/navigation/HelpBar';
 import { SearchModal, useSearchShortcut } from '@/components/navigation/SearchModal';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
+const COMPACT_NAV_SCROLL_OFFSET = 96;
+
+export function getNavbarPresentation(hasScrolled: boolean, isMenuOpen: boolean) {
+  const isCompact = hasScrolled && !isMenuOpen;
+
+  return {
+    isCompact,
+    helpBarClassName: cn(
+      'overflow-hidden transition-[max-height,opacity,transform] duration-300 ease-out',
+      isCompact
+        ? 'max-h-0 -translate-y-2 opacity-0 pointer-events-none'
+        : 'max-h-12 translate-y-0 opacity-100'
+    ),
+    navFrameClassName: cn(
+      'border-y border-white/10 bg-circleTel-navy transition-all duration-300 ease-out',
+      isCompact
+        ? 'bg-circleTel-navy/95 shadow-md shadow-circleTel-navy/15 backdrop-blur supports-[backdrop-filter]:bg-circleTel-navy/90'
+        : 'shadow-lg shadow-circleTel-navy/10'
+    ),
+    navShellClassName: cn(
+      'container mx-auto px-4 transition-[padding] duration-300 ease-out',
+      isCompact ? 'py-1.5' : 'py-2'
+    ),
+    logoClassName: isCompact ? 'max-h-14 transition-all duration-300 ease-out' : '',
+    desktopActionsClassName: cn(
+      'hidden transition-all duration-300 ease-out md:flex md:items-center',
+      isCompact ? 'md:gap-1' : 'md:gap-2'
+    ),
+  };
+}
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
   const isMobile = useIsMobile();
 
   const openSearch = useCallback(() => setIsSearchOpen(true), []);
   useSearchShortcut(openSearch);
 
+  useEffect(() => {
+    const updateScrolledState = () => {
+      setHasScrolled(window.scrollY > COMPACT_NAV_SCROLL_OFFSET);
+    };
+
+    updateScrolledState();
+    window.addEventListener('scroll', updateScrolledState, { passive: true });
+
+    return () => window.removeEventListener('scroll', updateScrolledState);
+  }, []);
+
+  const presentation = getNavbarPresentation(hasScrolled, isMenuOpen);
+
   return (
     <header className="sticky top-0 z-50 w-full">
       {/* Help Bar - Contact strip above main nav */}
-      <HelpBar />
+      <HelpBar className={presentation.helpBarClassName} />
 
-      <div className="border-y border-white/10 bg-circleTel-navy shadow-lg shadow-circleTel-navy/10">
-        <div className="container mx-auto px-4 py-2">
+      <div className={presentation.navFrameClassName}>
+        <div className={presentation.navShellClassName}>
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center"><Logo /></div>
+            <div className="flex items-center"><Logo className={presentation.logoClassName} /></div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex md:items-center md:gap-2">
+            <div className={presentation.desktopActionsClassName}>
               <DesktopNavigationMenu />
 
               {/* Search Button */}

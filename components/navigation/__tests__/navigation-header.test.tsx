@@ -1,5 +1,8 @@
 import React from 'react';
 
+import {
+  getNavbarPresentation,
+} from '@/components/layout/Navbar';
 import { Logo } from '@/components/navigation/Logo';
 import { SEARCH_INDEX } from '@/components/navigation/SearchModal';
 
@@ -44,6 +47,37 @@ describe('navigation header', () => {
         expect.objectContaining({ href: '/partners' }),
         expect.objectContaining({ href: '/partners/register' }),
       ])
+    );
+  });
+
+  it('collapses the header chrome into a compact nav after scroll', () => {
+    expect(getNavbarPresentation(false, false)).toEqual(
+      expect.objectContaining({
+        isCompact: false,
+        helpBarClassName: expect.stringContaining('opacity-100'),
+        navShellClassName: expect.stringContaining('py-2'),
+        logoClassName: '',
+      })
+    );
+
+    expect(getNavbarPresentation(true, false)).toEqual(
+      expect.objectContaining({
+        isCompact: true,
+        helpBarClassName: expect.stringContaining('max-h-0'),
+        navShellClassName: expect.stringContaining('py-1.5'),
+        logoClassName: expect.stringContaining('max-h-14'),
+      })
+    );
+  });
+
+  it('keeps the full header chrome available while the mobile menu is open', () => {
+    expect(getNavbarPresentation(true, true)).toEqual(
+      expect.objectContaining({
+        isCompact: false,
+        helpBarClassName: expect.stringContaining('opacity-100'),
+        navShellClassName: expect.stringContaining('py-2'),
+        logoClassName: '',
+      })
     );
   });
 });
