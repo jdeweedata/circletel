@@ -24,6 +24,7 @@ import Link from 'next/link';
 import { CustomerRadiusSection } from '@/components/admin/interstellio';
 import { PPPoECredentialsSection } from '@/components/admin/pppoe';
 import { CustomerBillingTab } from '@/components/admin/customers/CustomerBillingTab';
+import { CustomerSummaryStrip } from '@/components/admin/customers/CustomerSummaryStrip';
 import { CustomerComplianceDocuments } from '@/components/admin/compliance/CustomerComplianceDocuments';
 
 interface Customer {
@@ -67,11 +68,12 @@ interface Service {
 
 interface Ticket {
   id: string;
-  ticket_id: string;
+  ticket_number: string;
   subject: string;
   status: string;
-  last_interaction_date: string;
-  agent: string | null;
+  priority: string;
+  created_time: string;
+  modified_time: string;
 }
 
 interface CustomerService {
@@ -92,14 +94,14 @@ export default function CustomerDetailPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [customerServices, setCustomerServices] = useState<CustomerService[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [ticketsLoading, setTicketsLoading] = useState(true);
+  const [ticketsError, setTicketsError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Ticket filters
   const [ticketSearch, setTicketSearch] = useState('');
   const [ticketStatusFilter, setTicketStatusFilter] = useState('all');
-  const [ticketDateFilter, setTicketDateFilter] = useState('all');
-  const [ticketAgentFilter, setTicketAgentFilter] = useState('all');
 
   // Success toast state
   const [showSuccessToast, setShowSuccessToast] = useState(false);
@@ -129,6 +131,29 @@ export default function CustomerDetailPage() {
   useEffect(() => {
     fetchCustomerData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId]);
+
+  // Tickets load separately so the slower Zoho Desk call never blocks the page
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        setTicketsLoading(true);
+        setTicketsError(null);
+        const response = await fetch(`/api/admin/customers/${customerId}/tickets`);
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Failed to load tickets');
+        }
+        setTickets(data.tickets || []);
+      } catch (err) {
+        console.error('Error fetching tickets:', err);
+        setTicketsError(err instanceof Error ? err.message : 'Failed to load tickets');
+        setTickets([]);
+      } finally {
+        setTicketsLoading(false);
+      }
+    };
+    fetchTickets();
   }, [customerId]);
 
   const fetchCustomerData = async () => {
@@ -171,9 +196,6 @@ export default function CustomerDetailPage() {
         setCustomerServices(servicesData.services || []);
       }
 
-      // Fetch customer tickets (mock data for now - can be replaced with real API)
-      // TODO: Replace with actual ticket API when available
-      setTickets([]);
     } catch (err) {
       console.error('Error fetching customer data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load customer');
@@ -182,15 +204,18 @@ export default function CustomerDetailPage() {
     }
   };
 
-  // Filter tickets based on search and filters
+  // Filter tickets based on search and status
   const filteredTickets = tickets.filter((ticket) => {
     const matchesSearch = ticketSearch === '' ||
-      ticket.ticket_id.toLowerCase().includes(ticketSearch.toLowerCase()) ||
+      ticket.ticket_number.toLowerCase().includes(ticketSearch.toLowerCase()) ||
       ticket.subject.toLowerCase().includes(ticketSearch.toLowerCase());
     const matchesStatus = ticketStatusFilter === 'all' || ticket.status.toLowerCase() === ticketStatusFilter.toLowerCase();
-    const matchesAgent = ticketAgentFilter === 'all' || ticket.agent === ticketAgentFilter;
-    return matchesSearch && matchesStatus && matchesAgent;
+    return matchesSearch && matchesStatus;
   });
+
+  const openTicketCount = ticketsLoading
+    ? null
+    : tickets.filter((t) => t.status.toLowerCase() !== 'closed').length;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -332,6 +357,9 @@ export default function CustomerDetailPage() {
         </CardContent>
       </Card>
 
+      {/* At-a-glance summary + quick actions */}
+      <CustomerSummaryStrip customerId={customerId} openTicketCount={openTicketCount} />
+
       {/* Tab Navigation */}
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent mb-6">
@@ -368,7 +396,7 @@ export default function CustomerDetailPage() {
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-circleTel-orange data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3"
           >
             <PiChatBold className="w-4 h-4 mr-2" />
-            Tickets
+            Tickets{!ticketsLoading ? ` (${tickets.length})` : ''}
           </TabsTrigger>
           <TabsTrigger
             value="documents"
@@ -649,51 +677,44 @@ export default function CustomerDetailPage() {
                   <SelectContent>
                     <SelectItem value="all">Status: All</SelectItem>
                     <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="resolved">Resolved</SelectItem>
+                    <SelectItem value="on hold">On Hold</SelectItem>
+                    <SelectItem value="escalated">Escalated</SelectItem>
                     <SelectItem value="closed">Closed</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={ticketDateFilter} onValueChange={setTicketDateFilter}>
-                  <SelectTrigger className="w-[150px] h-8 text-xs">
-                    <SelectValue placeholder="Date Range: All Time" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Date Range: All Time</SelectItem>
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="week">This Week</SelectItem>
-                    <SelectItem value="month">This Month</SelectItem>
-                    <SelectItem value="quarter">This Quarter</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={ticketAgentFilter} onValueChange={setTicketAgentFilter}>
-                  <SelectTrigger className="w-[120px] h-8 text-xs">
-                    <SelectValue placeholder="Agent: All" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Agent: All</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Tickets Table */}
-              {filteredTickets.length === 0 ? (
-                <p className="text-gray-500 text-sm text-center py-8">No support tickets found</p>
+              {ticketsLoading ? (
+                <div className="space-y-3 py-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />
+                  ))}
+                </div>
+              ) : ticketsError ? (
+                <p className="text-red-600 text-sm text-center py-8">{ticketsError}</p>
+              ) : filteredTickets.length === 0 ? (
+                <p className="text-gray-500 text-sm text-center py-8">
+                  {tickets.length === 0
+                    ? 'No support tickets found for this customer'
+                    : 'No tickets match your search or filter'}
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-100">
-                        <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Ticket ID</th>
+                        <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Ticket #</th>
                         <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Subject</th>
                         <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Status</th>
-                        <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Last Interaction Date</th>
+                        <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Priority</th>
+                        <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Last Updated</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredTickets.map((ticket) => (
                         <tr key={ticket.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                          <td className="py-3 px-2 text-gray-900">{ticket.ticket_id}</td>
+                          <td className="py-3 px-2 text-gray-900">{ticket.ticket_number}</td>
                           <td className="py-3 px-2 text-gray-900">{ticket.subject}</td>
                           <td className="py-3 px-2">
                             <Badge
@@ -701,15 +722,18 @@ export default function CustomerDetailPage() {
                               className={`${
                                 ticket.status.toLowerCase() === 'open'
                                   ? 'bg-green-50 text-green-600 border-green-200'
-                                  : ticket.status.toLowerCase() === 'pending'
+                                  : ticket.status.toLowerCase() === 'on hold'
                                   ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
+                                  : ticket.status.toLowerCase() === 'escalated'
+                                  ? 'bg-red-50 text-red-600 border-red-200'
                                   : 'bg-gray-50 text-gray-600 border-gray-200'
                               } text-xs font-medium`}
                             >
                               {ticket.status}
                             </Badge>
                           </td>
-                          <td className="py-3 px-2 text-gray-900">{formatDate(ticket.last_interaction_date)}</td>
+                          <td className="py-3 px-2 text-gray-600">{ticket.priority || '-'}</td>
+                          <td className="py-3 px-2 text-gray-900">{formatDate(ticket.modified_time)}</td>
                         </tr>
                       ))}
                     </tbody>
