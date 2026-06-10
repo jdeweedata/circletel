@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       customer_type: 'smme',
       customer_id: resolved.customerId,
       onboarding_submission_id: submissionId || null,
+      customer_name: customer?.business_name ?? 'Clinic',
       company_name: customer?.business_name ?? null,
       customer_email: customer?.email ?? null,
       customer_phone: customer?.phone ?? null,

@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { PlacesAddressInput } from '@/app/onboarding/components/PlacesAddressInput';
 
 const ENTITY_TYPES = [
   'Private Company (Pty) Ltd',
@@ -180,13 +181,11 @@ export function Step2Business({ value, onChange, canGoNext }: Step2BusinessProps
             <Label htmlFor="regAddress">
               Registered address<span className="text-red-600">*</span>
             </Label>
-            <Input
-              id="regAddress"
-              type="text"
-              placeholder="Street address, suburb, city"
+            <PlacesAddressInput
               value={value.regAddress ?? ''}
-              onChange={(e) => handleFieldChange('regAddress', e.target.value)}
-              className={errors.regAddress ? 'border-red-600' : ''}
+              placeholder="Start typing the registered address…"
+              onTextChange={(text) => handleFieldChange('regAddress', text)}
+              onSelect={(data) => handleFieldChange('regAddress', data.address)}
             />
             {errors.regAddress && (
               <p className="text-xs text-red-600 mt-1">{errors.regAddress}</p>
