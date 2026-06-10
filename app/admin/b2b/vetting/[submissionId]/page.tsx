@@ -106,6 +106,7 @@ export default function B2BVettingDetailPage({
   const [showRejectReason, setShowRejectReason] = useState<string | null>(null);
   const [rejectReasonText, setRejectReasonText] = useState<string>('');
   const [actionError, setActionError] = useState<string | null>(null);
+  const [mandateConfirming, setMandateConfirming] = useState(false);
 
   // Handle async params
   useEffect(() => {
@@ -223,6 +224,40 @@ export default function B2BVettingDetailPage({
       );
     } finally {
       setActionInFlight(null);
+    }
+  };
+
+  // Handle mandate confirmation
+  const handleConfirmMandate = async () => {
+    if (!submission?.customers?.id) return;
+
+    setMandateConfirming(true);
+    setActionError(null);
+
+    try {
+      const response = await fetch('/api/admin/b2b/mandate-confirm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
+        },
+        body: JSON.stringify({ customerId: submission.customers.id }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to confirm mandate');
+      }
+
+      // Re-fetch submission to show updated mandate_status
+      await fetchSubmission();
+    } catch (error) {
+      console.error('Error confirming mandate:', error);
+      setActionError(
+        error instanceof Error ? error.message : 'Failed to confirm mandate'
+      );
+    } finally {
+      setMandateConfirming(false);
     }
   };
 
@@ -594,7 +629,7 @@ export default function B2BVettingDetailPage({
                         <p className="text-sm text-gray-600">Branch Code</p>
                         <p className="font-mono text-sm">{encrypted.branch_code || '-'}</p>
                       </div>
-                      <div className="pt-2">
+                      <div className="pt-2 flex items-center justify-between">
                         <Badge
                           variant={
                             pm.mandate_status === 'active' ? 'default' : 'secondary'
@@ -602,6 +637,18 @@ export default function B2BVettingDetailPage({
                         >
                           {pm.mandate_status}
                         </Badge>
+                        {pm.mandate_status !== 'active' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleConfirmMandate}
+                            disabled={mandateConfirming}
+                            className="gap-1 text-blue-600 hover:text-blue-700"
+                          >
+                            <PiCheckBold className="w-3 h-3" />
+                            {mandateConfirming ? 'Confirming...' : 'Confirm Active'}
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
