@@ -143,6 +143,9 @@ jobs:
         run: NODE_OPTIONS='--max-old-space-size=12288' npm run build
         env:
           SELF_HOSTED: 'true'
+          # 24GB VPS has headroom for parallel webpack workers — un-throttle from 1 CPU.
+          # Lower this if the build OOMs (watch `free -h` in the build logs).
+          BUILD_CPUS: '4'
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
           NEXT_PUBLIC_APP_URL: https://www.circletel.co.za

@@ -1,9 +1,13 @@
 name: Auto Deploy to Staging
 
-# Triggers when PR is opened or updated
+# OPT-IN staging deploy. PRs no longer build staging automatically (that ran a full
+# 25-30 min self-hosted build on every push and serialized the runner). Instead, add
+# the `deploy-staging` label to a PR to push it to the staging branch — which triggers
+# the Build & Deploy Staging workflow. Once labelled, new pushes to that PR re-deploy.
+# Remove the label (or never add it) to skip staging entirely.
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [labeled, synchronize, reopened]
     branches:
       - main
 
@@ -18,6 +22,9 @@ permissions:
 
 jobs:
   deploy-to-staging:
+    # Only run when the PR carries the `deploy-staging` label. On `labeled` this is true
+    # once the label is added; on `synchronize`/`reopened` it gates re-deploys to opted-in PRs.
+    if: contains(github.event.pull_request.labels.*.name, 'deploy-staging')
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
