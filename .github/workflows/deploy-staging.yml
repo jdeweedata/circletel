@@ -70,8 +70,11 @@ jobs:
           echo "Available: ${AVAIL_MB}MB"
           if [ "$AVAIL_MB" -lt 8000 ]; then
             echo "Low disk — running cleanup..."
-            docker image prune -f
-            docker builder prune -f
+            # -a reclaims ALL unused images + the full build cache (not just dangling);
+            # running containers are unaffected. The -f-only form reclaimed almost nothing
+            # and a staging build failed the 4GB disk guard (2026-06-10).
+            docker image prune -a -f
+            docker builder prune -a -f
             npm cache clean --force 2>/dev/null || true
             journalctl --vacuum-size=100M 2>/dev/null || true
             rm -rf /tmp/buildx-cache /tmp/com.google.Chrome.scoped_dir.* 2>/dev/null || true
