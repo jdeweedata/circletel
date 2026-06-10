@@ -147,6 +147,8 @@ const navigationSections: NavSection[] = [
         icon: PiBuildingsBold,
         description: 'Business customer journey',
         children: [
+          { name: 'Clinic Onboarding', href: '/admin/unjani/onboarding', icon: PiUserPlusBold },
+          { name: 'Document Vetting', href: '/admin/b2b/vetting', icon: PiUserCheckBold },
           { name: 'All B2B Customers', href: '/admin/b2b-customers', icon: PiBuildingsBold },
           { name: 'Site Details', href: '/admin/b2b-customers/site-details', icon: PiMapPinBold },
           { name: 'Journey Overview', href: '/admin/b2b-customers?view=journey', icon: PiTrendUpBold },
