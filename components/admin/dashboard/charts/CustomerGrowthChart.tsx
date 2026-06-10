@@ -1,5 +1,4 @@
 'use client';
-import {} from 'react-icons/pi';
 
 import {
   BarChart,
@@ -11,51 +10,45 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PiUsersBold } from 'react-icons/pi';
+import { SectionCard, EmptyState } from '@/components/backend';
+import { CHART_COLORS, axisProps, gridProps, tooltipStyle } from './chart-theme';
 
-interface CustomerGrowthChartProps {
-  data: any[];
+export interface CustomerGrowthDatum {
+  name: string;
+  customers: number;
+  orders: number;
 }
 
-export function CustomerGrowthChart({ data }: CustomerGrowthChartProps) {
+interface CustomerGrowthChartProps {
+  data: CustomerGrowthDatum[];
+  className?: string;
+}
+
+export function CustomerGrowthChart({ data, className }: CustomerGrowthChartProps) {
   return (
-    <Card className="col-span-4 lg:col-span-2">
-      <CardHeader>
-        <CardTitle>Customer & Order Growth</CardTitle>
-      </CardHeader>
-      <CardContent className="pl-2">
+    <SectionCard title="Customer & Order Growth" className={className}>
+      {data.length === 0 ? (
+        <EmptyState
+          icon={<PiUsersBold />}
+          title="No growth data yet"
+          description="New customers and orders will appear here over time."
+        />
+      ) : (
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-              <XAxis
-                dataKey="name"
-                stroke="#6B7280"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="#6B7280"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip
-                cursor={{ fill: '#F3F4F6' }}
-                contentStyle={{
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #E5E7EB',
-                  borderRadius: '0.5rem'
-                }}
-              />
+              <CartesianGrid {...gridProps} />
+              <XAxis dataKey="name" {...axisProps} />
+              <YAxis {...axisProps} />
+              <Tooltip cursor={{ fill: '#F3F4F6' }} contentStyle={tooltipStyle} />
               <Legend />
-              <Bar dataKey="customers" name="New Customers" fill="#4F46E5" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="orders" name="New Orders" fill="#10B981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="customers" name="New Customers" fill={CHART_COLORS.customers} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="orders" name="New Orders" fill={CHART_COLORS.orders} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </SectionCard>
   );
 }
