@@ -64,7 +64,12 @@ const nextConfig = {
       ],
     },
     workerThreads: false,
-    cpus: (isVercel || isCI || process.env.SELF_HOSTED) ? 1 : 4,
+    // CI / Vercel / self-hosted default to 1 CPU to cap build memory (Vercel's 16GB
+    // Enhanced machine OOMs above 1). The VPS deploy build has 24GB headroom, so it
+    // opts into more cores via BUILD_CPUS to cut wall-clock build time. Unset => 1.
+    cpus: (isVercel || isCI || process.env.SELF_HOSTED)
+      ? (parseInt(process.env.BUILD_CPUS, 10) || 1)
+      : 4,
   },
   webpack: (config, { isServer }) => {
     // Optimize chunk loading for dynamic imports

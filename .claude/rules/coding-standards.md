@@ -188,9 +188,12 @@ Vercel Enhanced Build Machine has 16GB total RAM. Memory budget:
 Standard (8GB) and Elastic (also starts at 8GB, does NOT dynamically scale for this app) are
 both too small — this 254-page app requires >8GB to build. Enhanced is required.
 
-**Turbopack note**: `next build --turbo` panics on the `sanity` package (Turbopack internal
-integer overflow bug on large packages — tracked upstream). Do NOT use `--turbo` until the
-sanity issue is resolved in a future Turbopack release.
+**Turbopack note** (updated 2026-06-10): `next build --turbopack` now **compiles this app** — the
+prior `sanity`-package panic is gone (Sanity was fully removed). Verified build: **10m39s** vs the
+~12-18m webpack baseline (CI run 27264116393). Flag is `--turbopack` (Next 15.5), not the old `--turbo`.
+Rollout is **staging-first**: `deploy-staging.yml` uses `--turbopack`; prod (`deploy.yml`) stays on
+webpack until a staging container boots healthy and serves routes (Turbopack `standalone`-output
+parity is the one remaining risk to confirm on a real container boot, not just a compile).
 
 **CRITICAL**: These values are enforced by `.github/workflows/pr-checks.yml`. Any PR that lowers heap below 6144MB or raises cpus above 1 will fail the `validate-build-config` check and block the merge.
 

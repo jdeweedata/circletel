@@ -129,10 +129,16 @@ jobs:
             echo "No cache found — cold build"
           fi
 
-      - name: Build Next.js
-        run: NODE_OPTIONS='--max-old-space-size=12288' npm run build
+      - name: Build Next.js (Turbopack — staging-first validation)
+        # Staging builds with Turbopack to validate serve-parity before prod adopts it.
+        # Verified to compile: 10m39s vs ~12-18m webpack (CI run 27264116393, 2026-06-10).
+        # Prod (deploy.yml) stays on webpack until a staging container boots healthy here.
+        run: NODE_OPTIONS='--max-old-space-size=12288' npm run build -- --turbopack
         env:
           SELF_HOSTED: 'true'
+          # 24GB VPS has headroom for parallel webpack workers — un-throttle from 1 CPU.
+          # Lower this if the build OOMs (watch `free -h` in the build logs).
+          BUILD_CPUS: '4'
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
           NEXT_PUBLIC_APP_URL: https://staging.circletel.co.za
