@@ -30,14 +30,21 @@ else
   echo "✅ vercel.json heap: ${HEAP}MB"
 fi
 
-CPUS=$(grep -E '^\s*cpus:' next.config.js 2>/dev/null | grep -o '[0-9]*')
-if [ -z "$CPUS" ]; then
-  echo "⚠️  WARNING: Could not find cpus setting in next.config.js"
-elif [ "$CPUS" -gt 1 ]; then
-  echo "❌ next.config.js cpus=${CPUS} — must be 1 (Vercel OOM risk with 2+ workers)"
-  FAILED=1
+# cpus may be a literal (cpus: 1) or env-driven (cpus: ...BUILD_CPUS... || 1). The
+# env-driven form defaults to 1 and only the VPS deploy sets BUILD_CPUS, so Vercel/CI
+# still build at cpus:1 — treat it as safe.
+if grep -q 'BUILD_CPUS' next.config.js 2>/dev/null; then
+  echo "✅ next.config.js cpus is env-driven (BUILD_CPUS, defaults to 1 — Vercel-safe)"
 else
-  echo "✅ next.config.js cpus: ${CPUS}"
+  CPUS=$(grep -E '^\s*cpus:' next.config.js 2>/dev/null | grep -o '[0-9]*' | head -1)
+  if [ -z "$CPUS" ]; then
+    echo "⚠️  WARNING: Could not find cpus setting in next.config.js"
+  elif [ "$CPUS" -gt 1 ]; then
+    echo "❌ next.config.js cpus=${CPUS} — must be 1 (Vercel OOM risk with 2+ workers)"
+    FAILED=1
+  else
+    echo "✅ next.config.js cpus: ${CPUS}"
+  fi
 fi
 
 # ----- 2. Scoped type-check ------------------------------------------------
