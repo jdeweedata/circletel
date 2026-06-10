@@ -144,6 +144,10 @@ export {
   clinicVettingSlaFunction,
 } from './functions/clinic-vetting-sla';
 
+export {
+  clinicMandatePollFunction,
+} from './functions/clinic-mandate-poll';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -281,6 +285,10 @@ import {
   clinicVettingSlaFunction,
 } from './functions/clinic-vetting-sla';
 
+import {
+  clinicMandatePollFunction,
+} from './functions/clinic-mandate-poll';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -365,4 +373,7 @@ export const functions = [
   // Clinic vetting SLA reminder (daily at 09:00 SAST)
   // NOTE: This cron must be wired in Coolify; vercel.json crons are inactive
   clinicVettingSlaFunction,
+  // Clinic mandate status poll — NetCash eMandate backstop (daily at 08:00 SAST)
+  // NOTE: This cron must be wired in Coolify; vercel.json crons are inactive
+  clinicMandatePollFunction,
 ];
