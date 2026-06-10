@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/backend';
 
 interface Customer {
   id: string;
@@ -119,17 +120,17 @@ export default function CustomersPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Customer Management</h1>
-          <p className="text-gray-600 mt-1">View and manage customer accounts</p>
-        </div>
-        <Button>
-          <PiUserPlusBold className="h-4 w-4 mr-2" />
-          Add Customer
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Customer Management"
+        subtitle="View and manage customer accounts"
+        actions={
+          <Button>
+            <PiUserPlusBold className="h-4 w-4 mr-2" />
+            Add Customer
+          </Button>
+        }
+      />
 
       <Card className="mb-6">
         <CardHeader>

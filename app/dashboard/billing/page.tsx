@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { ModernStatCard } from "@/components/dashboard/ModernStatCard";
+import { LoadingState, ErrorState, ConsoleTabsList } from "@/components/backend";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -278,21 +279,16 @@ export default function BillingPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (error || !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <PiWarningCircleBold className="h-12 w-12 text-red-500" />
-        <p className="text-lg font-semibold text-gray-900">Unable to load billing information</p>
-        {error && <p className="text-sm text-gray-600">{error}</p>}
-        <Button onClick={() => window.location.reload()}>Retry</Button>
-      </div>
+      <ErrorState
+        title="Unable to load billing information"
+        message={error ?? undefined}
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 
@@ -362,35 +358,13 @@ export default function BillingPage() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex h-auto p-1.5 bg-gray-100 border border-gray-200 rounded-xl gap-1">
-          <TabsTrigger
-            value="invoices"
-            className="gap-2.5 px-5 py-3 text-sm font-semibold rounded-lg transition-all duration-200
-              data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
-              data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
-          >
-            <PiFileTextBold className="h-5 w-5" />
-            <span className="hidden sm:inline">Invoices</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="payments"
-            className="gap-2.5 px-5 py-3 text-sm font-semibold rounded-lg transition-all duration-200
-              data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
-              data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
-          >
-            <PiReceiptBold className="h-5 w-5" />
-            <span className="hidden sm:inline">Payment History</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="methods"
-            className="gap-2.5 px-5 py-3 text-sm font-semibold rounded-lg transition-all duration-200
-              data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
-              data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
-          >
-            <PiCreditCardBold className="h-5 w-5" />
-            <span className="hidden sm:inline">Payment Methods</span>
-          </TabsTrigger>
-        </TabsList>
+        <ConsoleTabsList
+          items={[
+            { value: 'invoices', label: 'Invoices', icon: <PiFileTextBold className="h-5 w-5" />, hideLabelOnMobile: true },
+            { value: 'payments', label: 'Payment History', icon: <PiReceiptBold className="h-5 w-5" />, hideLabelOnMobile: true },
+            { value: 'methods', label: 'Payment Methods', icon: <PiCreditCardBold className="h-5 w-5" />, hideLabelOnMobile: true },
+          ]}
+        />
 
         {/* Invoices Tab */}
         <TabsContent value="invoices" className="mt-6">
