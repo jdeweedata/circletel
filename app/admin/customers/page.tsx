@@ -23,6 +23,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/backend';
 
 interface Customer {
   id: string;
@@ -167,16 +168,14 @@ function CustomersPageInner() {
   const hasNextPage = (page + 1) * PAGE_SIZE < totalCount;
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Customer Management</h1>
-        <p className="text-gray-600 mt-1">
-          Find a customer to check their balance, take a payment, or open a ticket
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Customer Management"
+        subtitle="Find a customer to check their balance, take a payment, or open a ticket"
+      />
 
       {/* Clickable stat filters */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statCards.map((card) => {
           const isActive = filter === card.filter && (card.filter !== '' || filter === '');
           return (
@@ -369,7 +368,7 @@ function CustomersPageInner() {
 
 export default function CustomersPage() {
   return (
-    <Suspense fallback={<div className="container mx-auto py-8 px-4 text-gray-500">Loading…</div>}>
+    <Suspense fallback={<div className="text-gray-500">Loading…</div>}>
       <CustomersPageInner />
     </Suspense>
   );

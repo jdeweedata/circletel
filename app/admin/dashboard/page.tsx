@@ -6,7 +6,8 @@ import Link from 'next/link';
 // Card components kept for potential future use but currently using custom styled divs
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { PageHeader, StatCard, ConsoleTabsList } from '@/components/backend';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
@@ -399,54 +400,35 @@ export default function AdminDashboard() {
   const renderStatCard = (stat: any) => {
     const Icon = stat.icon;
     return (
-      <Link key={stat.title} href={stat.href}>
-        <div className="rounded-lg relative overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-200 cursor-pointer hover:shadow-lg hover:scale-[1.02] hover:border-circleTel-orange/30">
-          <div className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="text-gray-400">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="text-sm font-medium text-gray-600">{stat.title}</h3>
-              </div>
-              {stat.urgent && (
-                <Badge variant="destructive" className="text-xs">
-                  URGENT
-                </Badge>
-              )}
-            </div>
-            <div className="mb-2">
-              <p className="text-3xl font-bold text-gray-900 tracking-tight">{stat.value}</p>
-            </div>
-            <p className="text-sm font-medium text-gray-700">{stat.description}</p>
-          </div>
-        </div>
-      </Link>
+      <StatCard
+        key={stat.title}
+        title={stat.title}
+        value={stat.value}
+        subtitle={stat.description}
+        icon={<Icon className="h-5 w-5" />}
+        href={stat.href}
+        badge={stat.urgent ? <Badge variant="destructive" className="text-xs">URGENT</Badge> : undefined}
+      />
     );
   };
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy">
-            Admin Dashboard
-          </h1>
-          <p className="text-circleTel-secondaryNeutral mt-2">
-            Welcome back, {user?.full_name?.split(' ')[0]}! Here&apos;s your overview
-          </p>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={refresh}
-          disabled={isLoading}
-          className="flex items-center space-x-2"
-        >
-          <PiArrowsClockwiseBold className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-        </Button>
-      </div>
+      <PageHeader
+        title="Admin Dashboard"
+        subtitle={`Welcome back, ${user?.full_name?.split(' ')[0] ?? ''}! Here's your overview`}
+        actions={
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={refresh}
+            disabled={isLoading}
+            className="flex items-center space-x-2"
+          >
+            <PiArrowsClockwiseBold className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </Button>
+        }
+      />
 
       {error && (
         <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
@@ -456,24 +438,14 @@ export default function AdminDashboard() {
       )}
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto grid w-full grid-cols-2 md:grid-cols-4">
-          <TabsTrigger value="overview" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-            <PiStackBold className="h-4 w-4 mr-2" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="sales" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-            <PiTrendUpBold className="h-4 w-4 mr-2" />
-            Sales & Marketing
-          </TabsTrigger>
-          <TabsTrigger value="operations" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-            <PiLightningBold className="h-4 w-4 mr-2" />
-            Operations
-          </TabsTrigger>
-          <TabsTrigger value="system" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-            <PiShieldBold className="h-4 w-4 mr-2" />
-            System Health
-          </TabsTrigger>
-        </TabsList>
+        <ConsoleTabsList
+          items={[
+            { value: 'overview', label: 'Overview', icon: <PiStackBold className="h-4 w-4" /> },
+            { value: 'sales', label: 'Sales & Marketing', icon: <PiTrendUpBold className="h-4 w-4" /> },
+            { value: 'operations', label: 'Operations', icon: <PiLightningBold className="h-4 w-4" /> },
+            { value: 'system', label: 'System Health', icon: <PiShieldBold className="h-4 w-4" /> },
+          ]}
+        />
 
         <TabsContent value="overview" className="space-y-8 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
