@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Step1, Step2 } from '@/lib/onboarding/schemas';
 
 // Working state types: allow boolean for mandate/soAccept (not just literal true)
@@ -28,29 +28,38 @@ export interface OnboardingState {
   submissionId: string | null;
 }
 
+function buildStep1(customer: any): Partial<Step1> {
+  return {
+    clinicName:
+      customer?.business_name?.replace(/^Unjani Clinic — /, '').replace(/^Unjani Clinic - /, '') ?? '',
+    province: customer?.clinic_details?.province ?? '',
+    contact: customer?.clinic_details?.nurse_owner_name ?? '',
+    phone: customer?.phone ?? '',
+    email: customer?.email ?? '',
+    siteAddress: customer?.clinic_details?.site_address ?? '',
+    lat: customer?.clinic_details?.lat ?? '',
+    lng: customer?.clinic_details?.lng ?? '',
+  };
+}
+
+function buildStep2(customer: any): Partial<Step2> {
+  return {
+    entityName: customer?.business_name ?? '',
+    entityType: '',
+    regNumber: customer?.business_registration ?? '',
+    vat: customer?.tax_number ? 'Yes' : 'No',
+    vatNumber: customer?.tax_number ?? '',
+    regAddress: '',
+  };
+}
+
 export function useOnboardingState(prefill: { customer: any; service: any }) {
   const [current, setCurrent] = useState(1);
   const [state, setState] = useState<OnboardingState>({
     clinic: prefill.customer,
     service: prefill.service,
-    step1: {
-      clinicName: prefill.customer.business_name?.replace(/^Unjani Clinic — /, '') ?? '',
-      province: prefill.customer.clinic_details?.province ?? '',
-      contact: prefill.customer.clinic_details?.nurse_owner_name ?? '',
-      phone: prefill.customer.phone ?? '',
-      email: prefill.customer.email ?? '',
-      siteAddress: prefill.customer.clinic_details?.site_address ?? '',
-      lat: prefill.customer.clinic_details?.lat ?? '',
-      lng: prefill.customer.clinic_details?.lng ?? '',
-    },
-    step2: {
-      entityName: prefill.customer.business_name ?? '',
-      entityType: '',
-      regNumber: prefill.customer.business_registration ?? '',
-      vat: prefill.customer.tax_number ? 'Yes' : 'No',
-      vatNumber: prefill.customer.tax_number ?? '',
-      regAddress: '',
-    },
+    step1: buildStep1(prefill.customer),
+    step2: buildStep2(prefill.customer),
     step3: {
       accHolder: '',
       bank: '',
@@ -66,6 +75,27 @@ export function useOnboardingState(prefill: { customer: any; service: any }) {
     },
     submissionId: null,
   });
+
+  // The useState initializer runs once — on first render prefill is still empty
+  // (clinic data is fetched after mount). Seed the form from prefill once it
+  // loads. Guarded by a ref so it runs exactly once, before the form is
+  // interactive (the wizard shows "Loading…" until prefill is set), so this
+  // never clobbers a nurse's edits.
+  const seeded = useRef(false);
+  useEffect(() => {
+    if (seeded.current) return;
+    const c = prefill?.customer;
+    if (c && (c.id || c.business_name || c.email)) {
+      seeded.current = true;
+      setState((s) => ({
+        ...s,
+        clinic: c,
+        service: prefill.service,
+        step1: buildStep1(c),
+        step2: buildStep2(c),
+      }));
+    }
+  }, [prefill]);
 
   const patch = (key: keyof OnboardingState, value: any) =>
     setState((s) => ({ ...s, [key]: value }));
