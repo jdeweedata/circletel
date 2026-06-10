@@ -140,13 +140,17 @@ jobs:
             echo "No cache found — cold build"
           fi
 
-      - name: Build Next.js
-        run: NODE_OPTIONS='--max-old-space-size=12288' npm run build
+      - name: Build Next.js (Turbopack)
+        # Turbopack validated on staging 2026-06-10 (run 27276509705): built in 10m14s,
+        # container booted healthy, /, /check-coverage, /onboarding all served 200 — full
+        # standalone serve-parity. ~2x faster than webpack (~17-21min). Revert to plain
+        # `npm run build` if a Turbopack regression appears.
+        run: NODE_OPTIONS='--max-old-space-size=12288' npm run build -- --turbopack
         env:
           SELF_HOSTED: 'true'
           # BUILD_CPUS deliberately UNSET → cpus:1. BUILD_CPUS=4 was measured at 27-34min
-          # (memory thrash; one deploy timed out) vs ~21min at cpus:1. The real speedup is
-          # Turbopack (10m39s), not more cores — do not re-add BUILD_CPUS here.
+          # (memory thrash; one deploy timed out) vs ~21min at cpus:1. The speedup comes
+          # from Turbopack (above), not more cores — do not re-add BUILD_CPUS here.
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
           NEXT_PUBLIC_APP_URL: https://www.circletel.co.za
