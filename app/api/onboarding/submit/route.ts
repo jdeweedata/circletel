@@ -4,6 +4,7 @@ import { step1Schema, step2Schema, step3Schema, step5Schema } from '@/lib/onboar
 import { requiredDocsFor } from '@/lib/onboarding/document-requirements';
 import { buildEMandateRequest } from '@/lib/onboarding/emandate-request';
 import { NetCashEMandateBatchService } from '@/lib/payments/netcash-emandate-batch-service';
+import { addBusinessDays, now } from '@/lib/dates';
 
 export async function POST(request: NextRequest) {
   const supabase = svc();
@@ -176,11 +177,14 @@ export async function POST(request: NextRequest) {
   }
 
   // 4) Finalize submission
+  const vettingDueDate = addBusinessDays(now(), 2); // 2 business days from now
   const { error: subErr } = await supabase
     .from('onboarding_submissions')
     .update({
       status: 'submitted',
       document_vetting_status: 'documents_pending',
+      submitted_at: new Date().toISOString(),
+      vetting_due_date: vettingDueDate.toISOString(),
       submission_data: {
         step1: s1.data,
         step2: s2.data,

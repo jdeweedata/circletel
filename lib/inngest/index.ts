@@ -140,6 +140,10 @@ export {
   b2bSiteActivationInvoice,
 } from './functions/b2b-site-activation-invoice';
 
+export {
+  clinicVettingSlaFunction,
+} from './functions/clinic-vetting-sla';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -273,6 +277,10 @@ import {
   b2bSiteActivationInvoice,
 } from './functions/b2b-site-activation-invoice';
 
+import {
+  clinicVettingSlaFunction,
+} from './functions/clinic-vetting-sla';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -354,4 +362,7 @@ export const functions = [
   zohoDeskTokenRefreshFailedFunction,
   // B2B site activation pro-rata invoice
   b2bSiteActivationInvoice,
+  // Clinic vetting SLA reminder (daily at 09:00 SAST)
+  // NOTE: This cron must be wired in Coolify; vercel.json crons are inactive
+  clinicVettingSlaFunction,
 ];

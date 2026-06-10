@@ -11,6 +11,8 @@ import { EmailNotificationService } from '@/lib/notifications/notification-servi
 import { apiLogger } from '@/lib/logging/logger';
 import { computeVettingStatus, requiredDocsFor } from '@/lib/onboarding/document-requirements';
 import { maybeMarkBillingReady } from '@/lib/onboarding/billing-ready';
+import { WhatsAppService } from '@/lib/integrations/whatsapp/whatsapp-service';
+import { issueToken, buildMagicLinkUrl } from '@/lib/onboarding/onboarding-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -161,6 +163,114 @@ export async function POST(request: NextRequest) {
 
           // Try to mark customer billing_ready if all conditions are met
           const marked = await maybeMarkBillingReady(supabase, submission.customer_id);
+
+          // Send notifications (best-effort; failures don't break the API response)
+          try {
+            // Fetch customer + clinic details for notification
+            const { data: customer } = await supabase
+              .from('customers')
+              .select('id, first_name, business_name, phone, email, clinic_details')
+              .eq('id', submission.customer_id)
+              .single();
+
+            if (customer) {
+              const firstName = customer.first_name || 'Clinic Owner';
+              const clinicName = customer.business_name || 'Your Clinic';
+              const phone = customer.phone;
+              const email = customer.email;
+
+              const whatsAppService = new WhatsAppService();
+
+              // APPROVAL path: send approval notifications
+              if (vetting === 'approved' && phone) {
+                try {
+                  // Send WhatsApp approval notification (best-effort)
+                  // Note: circletel_docs_approved template submitted to Meta (PENDING approval)
+                  await whatsAppService.sendTemplate(
+                    phone,
+                    'circletel_docs_approved' as any,
+                    [
+                      {
+                        type: 'body',
+                        parameters: [
+                          { type: 'text', text: firstName },
+                          { type: 'text', text: clinicName },
+                        ],
+                      },
+                    ]
+                  );
+                } catch (err) {
+                  apiLogger.error('[KYC B2B] WhatsApp approval send failed', { error: err });
+                }
+
+                // Send email approval notification (best-effort)
+                if (email) {
+                  try {
+                    await EmailNotificationService.sendKycApproval(
+                      email,
+                      firstName,
+                      customer.id
+                    );
+                  } catch (err) {
+                    apiLogger.error('[KYC B2B] Email approval send failed', { error: err });
+                  }
+                }
+              }
+
+              // REJECTION path: send rejection notifications + magic link
+              if (vetting === 'rejected' && phone) {
+                try {
+                  // Issue a fresh token for the clinic to re-upload documents
+                  const token = await issueToken(customer.id, 'whatsapp');
+                  const magicLink = buildMagicLinkUrl(
+                    'https://www.circletel.co.za',
+                    token
+                  );
+
+                  // Send WhatsApp rejection notification with link to fix documents
+                  // Note: circletel_docs_changes template submitted to Meta (PENDING approval)
+                  await whatsAppService.sendTemplate(
+                    phone,
+                    'circletel_docs_changes' as any,
+                    [
+                      {
+                        type: 'body',
+                        parameters: [
+                          { type: 'text', text: firstName },
+                          { type: 'text', text: clinicName },
+                          { type: 'text', text: rejectionReason || 'Documents require review' },
+                        ],
+                      },
+                      {
+                        type: 'button',
+                        sub_type: 'url',
+                        index: 0,
+                        parameters: [{ type: 'text', text: magicLink }],
+                      },
+                    ]
+                  );
+                } catch (err) {
+                  apiLogger.error('[KYC B2B] WhatsApp rejection send failed', { error: err });
+                }
+
+                // Send email rejection notification
+                if (email) {
+                  try {
+                    await EmailNotificationService.sendKycRejection(
+                      email,
+                      firstName,
+                      customer.id,
+                      rejectionReason || 'Documents require review'
+                    );
+                  } catch (err) {
+                    apiLogger.error('[KYC B2B] Email rejection send failed', { error: err });
+                  }
+                }
+              }
+            }
+          } catch (notifyErr) {
+            apiLogger.error('[KYC B2B] Notification error (non-fatal)', { error: notifyErr });
+          }
 
           return NextResponse.json({
             success: true,

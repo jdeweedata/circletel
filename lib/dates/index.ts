@@ -651,3 +651,15 @@ export function getAge(date: DateInput): string {
   if (years === 1) return '1 year old';
   return `${years} years old`;
 }
+
+// =============================================================================
+// RE-EXPORT BUSINESS DAY UTILITIES
+// =============================================================================
+
+export {
+  isBusinessDay,
+  addBusinessDays,
+  countBusinessDays,
+  getBusinessDaysUntil,
+  isPublicHoliday,
+} from './business-days';
