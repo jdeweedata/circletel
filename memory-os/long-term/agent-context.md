@@ -94,3 +94,20 @@ Format:
 ### Team
 - Jeffrey (MD, sole sales), TK (marketing), Tamsyn (back office), Jarryd (ops)
 - No dedicated sales person — Jeffrey closes ~4/mo
+
+### Admin Customers Area (learned 2026-06-10, dashboard redesign session)
+- `GET /api/admin/customers` is now paginated/searchable (`q`, `filter=overdue|suspended|new`, `limit`, `offset`); returns `outstanding_balance`/`has_overdue` per row + global `stats`
+- New endpoints: `[id]/summary` (balance, active service, last payment — fast aggregate) and `[id]/tickets` (Zoho Desk by customer email)
+- **Latent bug**: `[id]/billing/route.ts` calls `auth.getUser()` on a service-role client → always 401, endpoint dead. Don't build on it; use `[id]/summary`
+- **No package-change endpoint** — services routes are activate/cancel/reactivate/suspend only
+- Zoho Desk: `listCustomerTickets(email)` in `lib/integrations/zoho/desk-service.ts`; `createZohoDeskService()` THROWS if `ZOHO_DESK_ORG_ID`/`ZOHO_ACCESS_TOKEN` missing — wrap in try/catch for graceful degradation
+- `payment_transactions.status` success value is `'completed'` (check: pending/processing/completed/failed/refunded/cancelled)
+
+### Backend UI Kit (staging commit 1fe59cf, 2026-06-10)
+- `components/backend/` is the canonical kit: PageHeader, StatCard, StatusBadge, SectionCard, InfoRow, ConsoleTabs, Loading/Empty/ErrorState. `components/admin/shared/*` are now re-export shims
+- Admin layout `<main>` already pads (`p-4 sm:p-6 lg:p-8`) — migrated pages use `space-y-6` container, NOT `container mx-auto py-8 px-4` (double padding)
+- Spec: `docs/design/BACKEND_UI_KIT.md`
+
+### Git/CI facts
+- Pushing a feature branch to `staging` fails non-fast-forward if staging moved — merge `origin/staging` into the feature branch first, never force-push staging
+- `vps-runner` (self-hosted) can sit ~9 min in queue before claiming a job — queued ≠ broken; check `runner_id: 0` on the job to confirm it's just lag
