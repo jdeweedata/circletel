@@ -89,13 +89,24 @@ designs, duplicated status-badge logic.
 - Publish action lives in the detail rail.
 - Relationships management embedded in the detail rail (replaces the standalone page).
 
+Known endpoint constraints (verified 2026-06-11): edit endpoints exist for 3 of 4 sources —
+`PATCH /api/admin/products/[id]` (service_packages), `PATCH /api/hardware/products/[id]`,
+`PUT /api/admin/mtn-dealer-products/[id]`. `admin_products` rows have no direct update endpoint;
+their detail rail offers publish + cost components only (editing stays in the existing approval
+flow). The service_packages PATCH maps a `cost_price_zar` body field to `pricing.setup` (legacy
+behaviour) — the drawer must NOT send cost via that endpoint.
+
 ### 3.4 Governance fixes (known debts from PR #528)
 
-1. `POST /api/admin/products/[id]/publish` runs `evaluateAdminProductForPublish()` server-side;
-   returns 400 with failing rules. Client button reflects blocked state.
+1. ~~Enforce rules in publish route~~ — **already done**: `POST /api/admin/products/[id]/publish`
+   already calls `evaluateAdminProductForPublish()` and returns 400 with blockers (verified
+   2026-06-11). No work needed.
 2. New table `product_rules_config` persists Rules Studio thresholds (rule_id, config JSONB,
    updated_by, updated_at). Engine loads config server-side; Studio writes through an admin API.
-3. Additive column `admin_products.cost_price_zar` so margin-floor evaluates drafts pre-publish.
+3. Margin on drafts: `admin_products` cost already exists via the `product_cost_components`
+   table (used by `lib/catalog/publish.ts`). Fix is in the **aggregator** — sum cost components
+   for the fetched `admin_products` page (single `IN` query) instead of hardcoding `cost: 0`.
+   No schema change.
 
 No other schema changes in Phase 1. Checkout/billing untouched.
 
