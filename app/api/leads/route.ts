@@ -15,7 +15,10 @@ export async function POST(req: Request) {
     const zohoService = createZohoCRMService();
     try {
         const body = await req.json();
-        const { name, email, phone, company, employees, message } = body;
+        const { name, email, phone, company, employees, message, source } = body;
+        const leadSource = typeof source === 'string' && source.trim()
+            ? source.trim()
+            : 'Website Consultation Form';
 
         if (!name || !email || !company) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -24,6 +27,7 @@ export async function POST(req: Request) {
         // Call Gemini 3 Flash to score the lead
         const prompt = `
     Analyze the following inbound lead for an MSP (Managed IT Services Provider):
+    Lead Source: ${leadSource}
     Company: ${company}
     Employees: ${employees}
     Message: ${message}
@@ -68,7 +72,7 @@ export async function POST(req: Request) {
             Company: company,
             No_of_Employees: employees,
             Description: `[AI Summary: ${aiResult.summary}] Original Message: ${message}`,
-            Lead_Source: 'Website Consultation Form',
+            Lead_Source: leadSource,
             Lead_Status: 'Not Contacted',
             Lead_Score: aiResult.leadScore,
             Lead_Intent: aiResult.intent,
