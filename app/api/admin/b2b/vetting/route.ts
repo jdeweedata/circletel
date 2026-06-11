@@ -33,7 +33,9 @@ export async function GET(request: NextRequest) {
         status,
         document_vetting_status,
         submitted_at,
-        customers(id, account_number, business_name, onboarding_status)
+        vetting_due_date,
+        customers(id, account_number, business_name, onboarding_status),
+        kyc_documents!kyc_documents_onboarding_submission_id_fkey(verification_status)
       `
       )
       .in('status', ['submitted', 'approved', 'rejected']);
@@ -54,9 +56,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Flatten the embedded document rows into counts (the queue only needs progress)
+    const result = (submissions || []).map((s) => {
+      const docs = Array.isArray((s as Record<string, unknown>).kyc_documents)
+        ? ((s as Record<string, unknown>).kyc_documents as Array<{ verification_status: string | null }>)
+        : [];
+      const { kyc_documents: _docs, ...rest } = s as Record<string, unknown>;
+      return {
+        ...rest,
+        docs_total: docs.length,
+        docs_approved: docs.filter((d) => d.verification_status === 'approved').length,
+        docs_rejected: docs.filter((d) => d.verification_status === 'rejected').length,
+      };
+    });
+
     return NextResponse.json({
       success: true,
-      submissions: submissions || [],
+      submissions: result,
     });
   } catch (error: unknown) {
     apiLogger.error('API error', { error });
