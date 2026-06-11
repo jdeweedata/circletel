@@ -13,7 +13,7 @@ Analysis of SuperSonic's coverage checking implementation conducted on 2025-09-2
 ### 1. Frontend Components
 - **Input Field**: Simple text input with Google Maps Places Autocomplete
 - **Google Maps Integration**:
-  - API Key: `AIzaSyDBs50OhIhu4ynXqSoz5XQQEkw19kpWFkw`
+  - API Key: `<REDACTED-GOOGLE-API-KEY>`
   - Libraries: `places` for autocomplete, geocoding for coordinates
   - Scoped to South Africa (`country:ZA`)
 

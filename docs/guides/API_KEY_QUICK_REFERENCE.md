@@ -8,7 +8,7 @@
 ## ✅ What's Configured
 
 ```env
-API Key: AIzaSyB2ioUlQNgZ3FXkHjEOSPzegmGYC5SUkLQ
+API Key: <REDACTED-GOOGLE-API-KEY>
 Project: 269593533640
 Model:   gemini-3-pro-preview (CMS)
 Test:    gemini-2.0-flash (verified working ✅)

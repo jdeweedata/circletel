@@ -116,10 +116,15 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         console.log('[CustomerAuthProvider] Customer not found via client, trying API...');
         
         try {
+          const { data: { session: currentSession } } = await supabase.auth.getSession();
           const response = await fetch('/api/customers/ensure', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ auth_user_id: userId }),
+            headers: {
+              'Content-Type': 'application/json',
+              ...(currentSession?.access_token
+                ? { 'Authorization': `Bearer ${currentSession.access_token}` }
+                : {}),
+            },
           });
           
           if (response.ok) {

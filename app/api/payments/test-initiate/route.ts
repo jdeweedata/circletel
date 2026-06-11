@@ -14,11 +14,15 @@ import { createClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
 import { buildPaymentMethodDescription } from '@/lib/payments/description-builder';
 import { paymentLogger } from '@/lib/logging';
+import { devOnlyGuard } from '@/lib/api/dev-only-guard';
 
 /**
  * POST handler - Initiate test payment
  */
 export async function POST(request: NextRequest) {
+  const blocked = devOnlyGuard();
+  if (blocked) return blocked;
+
   const requestStart = Date.now();
   try {
     const body = await request.json();

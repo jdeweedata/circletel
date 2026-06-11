@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { ZohoMCPResponse } from '@/lib/types/zoho';
 import { zohoMCPDirectClient } from '@/lib/zoho-mcp-direct-client';
+import { devOnlyGuard } from '@/lib/api/dev-only-guard';
 
 export async function GET(): Promise<NextResponse> {
+  const blocked = devOnlyGuard();
+  if (blocked) return blocked;
+
   try {
     // Test connection using the direct MCP client
     const result = await zohoMCPDirectClient.testConnection();

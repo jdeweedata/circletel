@@ -48,7 +48,7 @@ GET /api/coverage/wireless
 
 ### 4. Google Maps Integration
 
-**API Key**: `AIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U`
+**API Key**: `<REDACTED-GOOGLE-API-KEY>`
 
 **Services Used**:
 - Places API (Autocomplete)

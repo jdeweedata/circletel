@@ -8,9 +8,13 @@
  * Returns immediately — does not wait for sync to complete.
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) return authResult.response
+
   try {
     const body = await request.json()
     const supplier = body.supplier as string
@@ -18,6 +22,15 @@ export async function POST(request: Request) {
     if (!supplier) {
       return NextResponse.json(
         { error: 'Missing supplier code' },
+        { status: 400 }
+      )
+    }
+
+    // The supplier code is interpolated into a shell command below, so it must be
+    // a strict alphanumeric token — never trust it raw even from an admin.
+    if (!/^[A-Za-z0-9_-]+$/.test(supplier)) {
+      return NextResponse.json(
+        { error: 'Invalid supplier code' },
         { status: 400 }
       )
     }

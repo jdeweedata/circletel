@@ -20,7 +20,7 @@ SUPABASE_DB_PASSWORD=3BVHkEN4AD4sQQRz
 
 ### Google Maps (Required for coverage checker)
 ```
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<REDACTED-GOOGLE-API-KEY>
 ```
 
 ### Email Service (Resend)
@@ -110,7 +110,7 @@ netlify env:set NEXT_PUBLIC_SUPABASE_ANON_KEY "sb_publishable_jKBISiYlrRyJEfyYGc
 netlify env:set NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY "sb_publishable_jKBISiYlrRyJEfyYGcjJZw_AQJ8Udc7"
 netlify env:set SUPABASE_SERVICE_ROLE_KEY "sb_secret_KZlUVioFZ4r8vbeOK4215g_f3tUgyoG"
 netlify env:set SUPABASE_DB_PASSWORD "3BVHkEN4AD4sQQRz"
-netlify env:set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY "AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU"
+netlify env:set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY "<REDACTED-GOOGLE-API-KEY>"
 netlify env:set RESEND_API_KEY "re_QhMu7F2n_JycLfeqNt8RNA692iWYcT6tM"
 # ... (continue for all variables)
 ```

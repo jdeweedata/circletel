@@ -26,7 +26,7 @@ Created a comprehensive test interface for the MTN MNS Wholesale Feasibility API
 - React 18 with Next.js 15 App Router
 - TypeScript with full type safety
 - shadcn/ui component library
-- Google Maps JavaScript API (AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU)
+- Google Maps JavaScript API (<REDACTED-GOOGLE-API-KEY>)
 - Lucide React icons
 
 **Code Stats**: 611 lines of production-ready TypeScript
@@ -233,7 +233,7 @@ None - This was a greenfield implementation
 
 ### Google Maps API
 
-- **Key**: `AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU`
+- **Key**: `<REDACTED-GOOGLE-API-KEY>`
 - **Library**: `@react-google-maps/api`
 - **Features Used**: Map display, marker placement, click events
 

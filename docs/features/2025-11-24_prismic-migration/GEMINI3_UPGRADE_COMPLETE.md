@@ -154,7 +154,7 @@ node scripts/create-prismic-page-with-ai.js resource cybersecurity
 ```bash
 # 1. Add tokens to .env.local
 PRISMIC_WRITE_TOKEN=your_token_here
-GEMINI_API_KEY=AIzaSyB2ioUlQNgZ3FXkHjEOSPzegmGYC5SUkLQ
+GEMINI_API_KEY=<REDACTED-GOOGLE-API-KEY>
 
 # 2. Test service page generation
 node scripts/create-prismic-page-with-ai.js service small-business-test
@@ -203,7 +203,7 @@ PRISMIC_REPOSITORY_NAME=circletel
 PRISMIC_WRITE_TOKEN=<get_from_prismic_dashboard>
 
 # Gemini 3 Pro
-GEMINI_API_KEY=AIzaSyB2ioUlQNgZ3FXkHjEOSPzegmGYC5SUkLQ
+GEMINI_API_KEY=<REDACTED-GOOGLE-API-KEY>
 GOOGLE_AI_PROJECT_ID=269593533640
 ```
 

@@ -72,7 +72,7 @@ GET https://maps.googleapis.com/maps/api/place/js/AutocompletionService.GetPredi
 ```
 
 **Parameters:**
-- API Key: `AIzaSyDBs50OhIhu4ynXqSoz5XQQEkw19kpWFkw`
+- API Key: `<REDACTED-GOOGLE-API-KEY>`
 - Country filter: ZA (South Africa)
 - Types: geocode, establishment
 - Language: en-US
@@ -81,7 +81,7 @@ GET https://maps.googleapis.com/maps/api/place/js/AutocompletionService.GetPredi
 ```
 GET https://maps.googleapis.com/maps/api/js/AuthenticationService.Authenticate
   ?callback=_xdc_._hpceek
-  &key=AIzaSyDBs50OhIhu4ynXqSoz5XQQEkw19kpWFkw
+  &key=<REDACTED-GOOGLE-API-KEY>
 ```
 
 ### Cookies
@@ -324,7 +324,7 @@ fetch('https://circletel-customer.agilitygis.com/app/customerportal/home.html');
 
 **Supersonic:**
 ```
-AIzaSyDBs50OhIhu4ynXqSoz5XQQEkw19kpWFkw
+<REDACTED-GOOGLE-API-KEY>
 ```
 
 **CircleTel Portal:**

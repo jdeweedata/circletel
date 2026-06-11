@@ -5,8 +5,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/integrations/supabase/server';
+import { devOnlyGuard } from '@/lib/api/dev-only-guard';
 
 export async function POST(request: NextRequest) {
+  const blocked = devOnlyGuard();
+  if (blocked) return blocked;
+
   try {
     const supabase = await createClient();
     const body = await request.json();
@@ -54,7 +58,7 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error('Test order creation error:', error);
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }

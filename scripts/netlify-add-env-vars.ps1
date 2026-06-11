@@ -14,7 +14,7 @@ netlify env:set SUPABASE_DB_PASSWORD "3BVHkEN4AD4sQQRz"
 
 # Google Maps
 Write-Host "`n[6/50] Google Maps..." -ForegroundColor Yellow
-netlify env:set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY "AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU"
+netlify env:set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY "<REDACTED-GOOGLE-API-KEY>"
 
 # Email Service (Resend)
 Write-Host "`n[7/50] Resend Email..." -ForegroundColor Yellow

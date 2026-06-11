@@ -67,7 +67,7 @@ GET /api/coverage/wireless
 
 **API Key Confirmed**:
 ```
-AIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U
+<REDACTED-GOOGLE-API-KEY>
 ```
 
 **Services Used** (Verified via network requests):
@@ -111,7 +111,7 @@ Longitude: 28.1706496
 GET /maps/api/js/GeocodeService.Search?
   1d=-25.903104&2d=28.1706496&
   9sen-US&
-  key=AIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U
+  key=<REDACTED-GOOGLE-API-KEY>
 ```
 
 ---
@@ -434,7 +434,7 @@ GET https://maps.googleapis.com/maps/api/js/GeocodeService.Search?
   1d=-25.903104&
   2d=28.1706496&
   9sen-US&
-  key=AIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U&
+  key=<REDACTED-GOOGLE-API-KEY>&
   token=123140
 Status: 200 OK
 ```

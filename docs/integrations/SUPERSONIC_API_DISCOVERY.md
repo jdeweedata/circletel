@@ -326,7 +326,7 @@ Based on observed functionality:
 
 **API Key Exposed** (public):
 ```
-AIzaSyDBs50OhIhu4ynXqSoz5XQQEkw19kpWFkw
+<REDACTED-GOOGLE-API-KEY>
 ```
 
 **Services Used**:
