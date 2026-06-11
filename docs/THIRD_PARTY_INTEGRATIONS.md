@@ -1259,7 +1259,7 @@ export function initAutocomplete(
 
 #### **Environment Variables**
 ```bash
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<REDACTED-GOOGLE-API-KEY>
 GOOGLE_CLIENT_ID=<client_id>
 GOOGLE_CLIENT_SECRET=<client_secret>
 ```

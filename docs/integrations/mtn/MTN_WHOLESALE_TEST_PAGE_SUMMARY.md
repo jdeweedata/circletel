@@ -387,7 +387,7 @@ Durban: -29.858680, 30.393530
 
 ### Required Environment Variables
 ```env
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<REDACTED-GOOGLE-API-KEY>
 ```
 
 ### Optional (for production)

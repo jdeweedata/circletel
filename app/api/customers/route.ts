@@ -1,30 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 import { apiLogger } from '@/lib/logging';
+
+// Explicit column list — never expose the full row to the client
+const CUSTOMER_COLUMNS =
+  'id, auth_user_id, first_name, last_name, email, phone, account_number, account_status, account_type, business_name, business_registration, tax_number, email_verified, status, last_login, created_at, updated_at';
+
+/**
+ * Resolve the authenticated user from the Authorization header (Bearer token)
+ * or, failing that, the session cookies. Returns null if unauthenticated.
+ */
+async function getRequestUser(request: NextRequest): Promise<User | null> {
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    const tokenClient = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data, error } = await tokenClient.auth.getUser(token);
+    if (!error && data?.user) return data.user;
+    return null;
+  }
+
+  try {
+    const sessionClient = await createClientWithSession();
+    const { data, error } = await sessionClient.auth.getUser();
+    if (!error && data?.user) return data.user;
+  } catch (e) {
+    apiLogger.warn('[API /customers] Cookie auth failed', { error: e });
+  }
+  return null;
+}
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getRequestUser(request);
+    if (!user || !user.email) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const supabase = await createClient();
     const body = await request.json();
-    const { firstName, lastName, email, phone, accountType } = body;
+    const { firstName, lastName, phone, accountType } = body;
 
     // Validation
-    if (!firstName || !lastName || !email || !phone) {
+    if (!firstName || !lastName || !phone) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Check if customer already exists
+    // Only the caller's own record may be created or updated
     const { data: existingCustomer } = await supabase
       .from('customers')
-      .select('id, email')
-      .eq('email', email)
-      .single();
+      .select('id')
+      .or(`auth_user_id.eq.${user.id},email.eq.${user.email}`)
+      .limit(1)
+      .maybeSingle();
 
     if (existingCustomer) {
-      // Update existing customer
       const { data, error } = await supabase
         .from('customers')
         .update({
@@ -35,7 +76,7 @@ export async function POST(request: NextRequest) {
           updated_at: new Date().toISOString(),
         })
         .eq('id', existingCustomer.id)
-        .select()
+        .select(CUSTOMER_COLUMNS)
         .single();
 
       if (error) {
@@ -53,19 +94,19 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create new customer
     const { data, error } = await supabase
       .from('customers')
       .insert({
+        auth_user_id: user.id,
         first_name: firstName,
         last_name: lastName,
-        email,
+        email: user.email,
         phone,
         account_type: accountType || 'personal',
         status: 'active',
         email_verified: false,
       })
-      .select()
+      .select(CUSTOMER_COLUMNS)
       .single();
 
     if (error) {
@@ -92,39 +133,43 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email');
-    const id = searchParams.get('id');
-
-    if (!email && !id) {
+    const user = await getRequestUser(request);
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: 'Email or ID required' },
-        { status: 400 }
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
       );
     }
 
-    let query = supabase.from('customers').select('*');
+    const supabase = await createClient();
 
-    if (email) {
-      query = query.eq('email', email);
-    } else if (id) {
-      query = query.eq('id', id);
+    // The caller can only ever retrieve their own record
+    let { data, error } = await supabase
+      .from('customers')
+      .select(CUSTOMER_COLUMNS)
+      .eq('auth_user_id', user.id)
+      .maybeSingle();
+
+    if (!data && !error && user.email) {
+      ({ data, error } = await supabase
+        .from('customers')
+        .select(CUSTOMER_COLUMNS)
+        .eq('email', user.email)
+        .maybeSingle());
     }
 
-    const { data, error } = await query.single();
-
     if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { success: false, error: 'Customer not found' },
-          { status: 404 }
-        );
-      }
       apiLogger.error('Error fetching customer', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch customer' },
         { status: 500 }
+      );
+    }
+
+    if (!data) {
+      return NextResponse.json(
+        { success: false, error: 'Customer not found' },
+        { status: 404 }
       );
     }
 

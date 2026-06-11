@@ -5,7 +5,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { netcashService } from '@/lib/payments/netcash-service';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 /**
@@ -47,6 +50,69 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Authorize: an admin may initiate payment for any invoice; a customer may
+    // only initiate payment for an invoice they own.
+    const adminAuth = await authenticateAdmin(request);
+    if (!adminAuth.success) {
+      // Not an admin — resolve the customer session (header token or cookies)
+      let userId: string | null = null;
+      const authHeader = request.headers.get('authorization');
+      const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+      if (token) {
+        const tokenClient = createSupabaseClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        const { data, error } = await tokenClient.auth.getUser(token);
+        if (!error && data?.user) userId = data.user.id;
+      } else {
+        try {
+          const sessionClient = await createClientWithSession();
+          const { data } = await sessionClient.auth.getUser();
+          if (data?.user) userId = data.user.id;
+        } catch {
+          /* fall through to 401 */
+        }
+      }
+
+      if (!userId) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
+
+      // Verify the invoice belongs to this customer
+      const supabase = await createClient();
+      const { data: customer } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('auth_user_id', userId)
+        .single();
+
+      if (!customer) {
+        return NextResponse.json(
+          { success: false, error: 'Customer not found' },
+          { status: 404 }
+        );
+      }
+
+      const { data: invoice } = await supabase
+        .from('customer_invoices')
+        .select('id')
+        .eq('id', invoiceId)
+        .eq('customer_id', customer.id)
+        .maybeSingle();
+
+      if (!invoice) {
+        return NextResponse.json(
+          { success: false, error: 'Invoice not found' },
+          { status: 404 }
+        );
+      }
+    }
+
     // Check if NetCash service is configured
     if (!netcashService.isConfigured()) {
       return NextResponse.json(
@@ -83,7 +149,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to initiate payment'
+        error: error instanceof Error ? error.message : 'Failed to initiate payment'
       },
       { status: 500 }
     );

@@ -10,8 +10,12 @@ import {
   getCustomerSyncStatus,
   findCustomersNeedingSync
 } from '@/lib/integrations/zoho/customer-sync-service';
+import { devOnlyGuard } from '@/lib/api/dev-only-guard';
 
 export async function GET(request: NextRequest) {
+  const blocked = devOnlyGuard();
+  if (blocked) return blocked;
+
   const supabase = await createClient();
   const searchParams = request.nextUrl.searchParams;
   const customerId = searchParams.get('customer_id');

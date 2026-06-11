@@ -707,7 +707,7 @@ NEXT_PUBLIC_PAYMENT_SUCCESS_URL=http://localhost:3006/order/confirmation
 NEXT_PUBLIC_PAYMENT_CANCEL_URL=http://localhost:3006/order/payment
 
 # Google Maps (already configured)
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<REDACTED-GOOGLE-API-KEY>
 ```
 
 ---

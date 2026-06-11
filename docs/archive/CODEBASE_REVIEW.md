@@ -297,7 +297,7 @@ fttb_providers (with coverage_area geometry)
 **⚠️ Security Concern:**
 ```typescript
 // .env.example contains actual API keys (should be redacted)
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<REDACTED-GOOGLE-API-KEY>
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -470,7 +470,7 @@ This defeats the purpose of type checking and linting!
 1. **API Keys in .env.example:**
 ```env
 # CRITICAL: Real API keys committed to repository
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyC-kOFKZqhhmLXgEjXV7upYs_l1s_h3VzU
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<REDACTED-GOOGLE-API-KEY>
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 RESEND_API_KEY=re_QhMu7F2n_JycLfeqNt8RNA692iWYcT6tM
 ZOHO_MCP_KEY=e2f4039d67d5fb236177fbce811a0ff0

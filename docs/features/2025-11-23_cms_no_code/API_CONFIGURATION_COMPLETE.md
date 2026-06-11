@@ -14,7 +14,7 @@
 # =============================================================================
 # AI-Powered CMS - Google Gemini Configuration
 # =============================================================================
-GOOGLE_AI_API_KEY=AIzaSyB2ioUlQNgZ3FXkHjEOSPzegmGYC5SUkLQ
+GOOGLE_AI_API_KEY=<REDACTED-GOOGLE-API-KEY>
 GOOGLE_AI_PROJECT_ID=269593533640
 
 # CMS AI Configuration
@@ -53,7 +53,7 @@ ENABLE_SEO_ANALYSIS=true
 ```
 
 ### 3. Project Configuration
-- **API Key**: `AIzaSyB2ioUlQNgZ3FXkHjEOSPzegmGYC5SUkLQ`
+- **API Key**: `<REDACTED-GOOGLE-API-KEY>`
 - **Project ID**: `269593533640`
 - **Project Number**: `269593533640`
 
@@ -66,7 +66,7 @@ Your curl command works with:
 ```bash
 curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent" \
   -H 'Content-Type: application/json' \
-  -H 'X-goog-api-key: AIzaSyB2ioUlQNgZ3FXkHjEOSPzegmGYC5SUkLQ' \
+  -H 'X-goog-api-key: <REDACTED-GOOGLE-API-KEY>' \
   -X POST \
   -d '{
     "contents": [{

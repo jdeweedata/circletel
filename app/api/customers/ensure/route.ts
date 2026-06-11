@@ -15,10 +15,8 @@ export async function POST(request: NextRequest) {
     // Service role client for database operations
     const supabase = await createClient();
 
-    // Try to get user from request body first (for cases where session isn't available)
-    const body = await request.json().catch(() => ({}));
-
-    // Get authenticated user - check Authorization header first, then cookies
+    // Get authenticated user - check Authorization header first, then cookies.
+    // The user identity comes ONLY from a verified session; never from the body.
     let user = null;
     let authError = null;
 
@@ -46,111 +44,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // If we have auth_user_id in body, use that (allows creating customer without session)
-    if (body.auth_user_id) {
-      // Check if customer exists
-      const { data: existingCustomer } = await supabase
-        .from('customers')
-        .select('*')
-        .eq('auth_user_id', body.auth_user_id)
-        .single();
-
-      if (existingCustomer) {
-        return NextResponse.json({
-          success: true,
-          customer: existingCustomer,
-          message: 'Customer already exists'
-        });
-      }
-
-      // Create customer from provided data
-      const accountNumber = `CT-${Date.now().toString().slice(-8)}`;
-
-      const { data: customer, error: createError } = await supabase
-        .from('customers')
-        .insert({
-          auth_user_id: body.auth_user_id,
-          email: body.email || 'unknown@circletel.co.za',
-          first_name: body.first_name || 'Customer',
-          last_name: body.last_name || '',
-          phone: body.phone || '',
-          account_number: accountNumber,
-          account_status: 'active',
-          account_type: 'personal',
-        })
-        .select('*')
-        .single();
-
-      if (createError) {
-        return NextResponse.json(
-          { success: false, error: createError.message },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        customer,
-        message: 'Customer created from provided data'
-      });
-    }
-
     if (authError || !user) {
-      // No auth and no body data
-      const bodyData = body;
-
-      if (!body.auth_user_id || !body.email) {
-        return NextResponse.json(
-          { success: false, error: 'Not authenticated and no user data provided' },
-          { status: 401 }
-        );
-      }
-
-      // Create customer from provided data
-      const accountNumber = `CT-${Date.now().toString().slice(-8)}`;
-
-      const { data: customer, error: createError } = await supabase
-        .from('customers')
-        .insert({
-          auth_user_id: body.auth_user_id,
-          email: body.email,
-          first_name: body.first_name || 'Customer',
-          last_name: body.last_name || '',
-          phone: body.phone || '',
-          account_number: accountNumber,
-          account_status: 'active',
-          account_type: 'personal',
-        })
-        .select('*')
-        .single();
-
-      if (createError) {
-        // Check if customer already exists
-        if (createError.code === '23505') {
-          const { data: existingCustomer } = await supabase
-            .from('customers')
-            .select('*')
-            .eq('auth_user_id', body.auth_user_id)
-            .single();
-
-          return NextResponse.json({
-            success: true,
-            customer: existingCustomer,
-            message: 'Customer already exists'
-          });
-        }
-
-        return NextResponse.json(
-          { success: false, error: createError.message },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        customer,
-        message: 'Customer created from provided data'
-      });
+      return NextResponse.json(
+        { success: false, error: 'Not authenticated' },
+        { status: 401 }
+      );
     }
 
     // Check if customer exists
@@ -187,6 +85,21 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (createError) {
+      // Concurrent ensure calls (dashboard + auth provider) can race the insert
+      if (createError.code === '23505') {
+        const { data: racedCustomer } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        return NextResponse.json({
+          success: true,
+          customer: racedCustomer,
+          message: 'Customer already exists'
+        });
+      }
+
       return NextResponse.json(
         { success: false, error: createError.message },
         { status: 500 }

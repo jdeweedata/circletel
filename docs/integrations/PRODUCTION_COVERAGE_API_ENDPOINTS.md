@@ -325,7 +325,7 @@ GET https://maps.googleapis.com/maps/api/js/GeocodeService.Search?5m2&1d-25.9031
 GET https://maps.googleapis.com/maps/api/place/js/AutocompletionService.GetPredictions?1s18%20Rasmus%20Erasmus%2C%20Centurion&4sen-US&7scountry%3AZA
 ```
 
-**API Key**: `AIzaSyDBs50OhIhu4ynXqSoz5XQQEkw19kpWFkw`
+**API Key**: `<REDACTED-GOOGLE-API-KEY>`
 
 ### User Journey Flow
 

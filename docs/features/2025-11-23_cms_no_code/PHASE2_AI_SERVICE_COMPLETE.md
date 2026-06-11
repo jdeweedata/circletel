@@ -249,7 +249,7 @@ lib/cms/
 ### Environment Variables (Already Set)
 ```env
 # From .env.local
-GOOGLE_AI_API_KEY=AIzaSyB2ioUlQNgZ3FXkHjEOSPzegmGYC5SUkLQ
+GOOGLE_AI_API_KEY=<REDACTED-GOOGLE-API-KEY>
 GOOGLE_AI_PROJECT_ID=269593533640
 CMS_MODEL_ID=gemini-3-pro-preview
 CMS_API_VERSION=v1alpha

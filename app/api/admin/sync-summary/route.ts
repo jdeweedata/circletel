@@ -6,10 +6,14 @@
  * Returns recent sync activity and alerts across all suppliers.
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  const authResult = await authenticateAdmin(request)
+  if (!authResult.success) return authResult.response
+
   try {
     const { searchParams } = new URL(request.url)
     const days = parseInt(searchParams.get('days') || '7')

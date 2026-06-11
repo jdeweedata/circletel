@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { NetCashEMandateService, EMandatePostback } from '@/lib/payments/netcash-emandate-service';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
@@ -146,6 +147,31 @@ async function applyClinicMandateOutcome(
  */
 export async function POST(request: NextRequest) {
   try {
+    // Postback authentication: NetCash eMandate postbacks carry no signature, so the
+    // Notify URL on the NetCash profile must include ?key=<NETCASH_EMANDATE_WEBHOOK_KEY>.
+    // Enforcement is env-gated so deploying this code before NetCash updates the URL
+    // does not drop genuine postbacks (the clinic-mandate-poll cron remains the backstop).
+    const expectedKey = process.env.NETCASH_EMANDATE_WEBHOOK_KEY;
+    if (expectedKey) {
+      const providedKey = request.nextUrl.searchParams.get('key') ?? '';
+      const expected = Buffer.from(expectedKey);
+      const provided = Buffer.from(providedKey);
+      const keyValid =
+        expected.length === provided.length && crypto.timingSafeEqual(expected, provided);
+
+      if (!keyValid) {
+        webhookLogger.warn('eMandate postback rejected: invalid or missing webhook key', {
+          hasKey: providedKey.length > 0,
+          ip: request.headers.get('x-forwarded-for') ?? 'unknown',
+        });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    } else {
+      webhookLogger.warn(
+        'NETCASH_EMANDATE_WEBHOOK_KEY not set — eMandate postback accepted WITHOUT verification'
+      );
+    }
+
     // Parse form data from NetCash
     const formData = await request.formData();
     const postbackData: Record<string, string> = {};

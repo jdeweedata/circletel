@@ -26,7 +26,7 @@ https://supersonic.sudosky.com/api/partner-logo
 
 **Google Maps API Key:**
 ```
-AIzaSyDBs50OhIhu4ynXqSoz5XQQEkw19kpWFkw
+<REDACTED-GOOGLE-API-KEY>
 ```
 
 **WMS/GIS:** Google Maps (no traditional WMS)
