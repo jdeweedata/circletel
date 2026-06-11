@@ -14,6 +14,7 @@ import {
   RuleLevelBadge,
   type ChecklistItem,
 } from '@/components/admin/products/shared';
+import { RelationshipsPanel } from './RelationshipsPanel';
 
 type DetailTab = 'overview' | 'pricing' | 'rules';
 
@@ -207,20 +208,26 @@ function OverviewTab({
     },
   ];
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-ui-text-secondary">
-        {product.description?.trim() || 'No description.'}
-      </p>
-      {product.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {product.tags.map((t) => (
-            <span key={t} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-              {t}
-            </span>
-          ))}
-        </div>
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <p className="text-sm text-ui-text-secondary">
+          {product.description?.trim() || 'No description.'}
+        </p>
+        {product.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {product.tags.map((t) => (
+              <span key={t} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+        <PublishReadinessChecklist items={checklist} />
+      </div>
+
+      {product.sourceTable === 'service_packages' && (
+        <RelationshipsPanel productId={product.id} />
       )}
-      <PublishReadinessChecklist items={checklist} />
     </div>
   );
 }
