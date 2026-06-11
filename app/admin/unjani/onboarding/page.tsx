@@ -28,6 +28,14 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   EmptyState,
   ErrorState,
   LoadingState,
@@ -209,6 +217,13 @@ export default function UnjaniOnboardingPipelinePage() {
   const [actingOn, setActingOn] = useState<string | null>(null);
   const [batchSending, setBatchSending] = useState(false);
   const [drawerClinic, setDrawerClinic] = useState<PipelineClinic | null>(null);
+
+  // "Start onboarding" dialog (Register view → create the clinic in the pipeline)
+  const [registerDialog, setRegisterDialog] = useState<RegisterClinic | null>(null);
+  const [regNurse, setRegNurse] = useState('');
+  const [regPhone, setRegPhone] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [registering, setRegistering] = useState(false);
 
   const authHeaders = useCallback(
     (): Record<string, string> => ({
@@ -414,6 +429,43 @@ export default function UnjaniOnboardingPipelinePage() {
       toast.error('Batch invite failed');
     } finally {
       setBatchSending(false);
+    }
+  };
+
+  const openRegisterDialog = (clinic: RegisterClinic) => {
+    setRegisterDialog(clinic);
+    setRegNurse(clinic.nurse ?? '');
+    setRegPhone('');
+    setRegEmail('');
+  };
+
+  const submitRegisterClinic = async () => {
+    if (!registerDialog) return;
+    setRegistering(true);
+    try {
+      const response = await fetch('/api/admin/unjani/register-clinic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({
+          clinicName: registerDialog.name,
+          nurseName: regNurse.trim() || undefined,
+          phone: regPhone.trim() || undefined,
+          email: regEmail.trim() || undefined,
+        }),
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        toast.success(`${result.businessName} added to the pipeline (${result.accountNumber})`);
+        setRegisterDialog(null);
+        await fetchPipeline();
+      } else {
+        toast.error(result.error || 'Failed to add clinic');
+      }
+    } catch (error) {
+      console.error('Error registering clinic:', error);
+      toast.error('Failed to add clinic');
+    } finally {
+      setRegistering(false);
     }
   };
 
@@ -1082,6 +1134,7 @@ export default function UnjaniOnboardingPipelinePage() {
                       <TableHead>Saving p/m</TableHead>
                       <TableHead>Migration ready</TableHead>
                       <TableHead>Pipeline status</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1130,6 +1183,20 @@ export default function UnjaniOnboardingPipelinePage() {
                               <span className="text-xs text-gray-400">Not started</span>
                             )}
                           </TableCell>
+                          <TableCell className="text-right">
+                            {meta ? (
+                              <span className="text-xs text-gray-400">In pipeline</span>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openRegisterDialog(c)}
+                                className="border-circleTel-orange text-circleTel-orange-accessible hover:bg-circleTel-orange hover:text-white whitespace-nowrap"
+                              >
+                                Start onboarding
+                              </Button>
+                            )}
+                          </TableCell>
                         </TableRow>
                       );
                     })}
@@ -1149,6 +1216,88 @@ export default function UnjaniOnboardingPipelinePage() {
           </div>
         </div>
       )}
+
+      {/* Start-onboarding dialog (Register view) */}
+      <Dialog
+        open={!!registerDialog}
+        onOpenChange={(open) => {
+          if (!open && !registering) setRegisterDialog(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Start onboarding — {registerDialog?.name}</DialogTitle>
+            <DialogDescription>
+              Creates the clinic in the pipeline at &ldquo;Awaiting invite&rdquo;. Billing-safe:
+              no charges until the service is activated. New clinics still need coverage check →
+              install → activate before billing.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Professional nurse
+              </label>
+              <input
+                type="text"
+                value={regNurse}
+                onChange={(e) => setRegNurse(e.target.value)}
+                placeholder="Nurse name"
+                className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                WhatsApp number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="tel"
+                value={regPhone}
+                onChange={(e) => setRegPhone(e.target.value)}
+                placeholder="082 123 4567"
+                className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+              />
+              <p className="text-xs text-gray-400 mt-1">The onboarding invite is sent here.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                value={regEmail}
+                onChange={(e) => setRegEmail(e.target.value)}
+                placeholder="clinic@unjani.org"
+                className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+              />
+            </div>
+            {registerDialog && (
+              <p className="text-xs text-gray-500">
+                {registerDialog.province}
+                {registerDialog.saving !== null && registerDialog.saving > 0 && (
+                  <> · saves {fmtRand(registerDialog.saving)} p/m vs {registerDialog.isp}</>
+                )}
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setRegisterDialog(null)}
+              disabled={registering}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={submitRegisterClinic}
+              disabled={registering || !regPhone.trim() || !regEmail.trim()}
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+            >
+              {registering ? 'Adding…' : 'Add to pipeline'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Detail drawer */}
       <Sheet
