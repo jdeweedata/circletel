@@ -1,5 +1,5 @@
 'use client';
-import { PiArchiveBold, PiArrowsClockwiseBold, PiBellBold, PiBriefcaseBold, PiBuildingsBold, PiCalendarBold, PiCaretDownBold, PiCaretLeftBold, PiCaretRightBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiImageBold, PiLightningBold, PiLinkBold, PiListBold, PiMapPinBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiPercentBold, PiPlusBold, PiPulseBold, PiRadioBold, PiReceiptBold, PiRocketBold, PiShieldCheckBold, PiShoppingCartBold, PiSidebarSimpleBold, PiSparkleBold, PiSquaresFourBold, PiTargetBold, PiTestTubeBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUserPlusBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiBellBold, PiBriefcaseBold, PiBuildingsBold, PiCalendarBold, PiCaretDownBold, PiCaretLeftBold, PiCaretRightBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiImageBold, PiLightningBold, PiLinkBold, PiListBold, PiMapPinBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiPercentBold, PiPlusBold, PiPulseBold, PiRadioBold, PiReceiptBold, PiRocketBold, PiShieldCheckBold, PiShoppingCartBold, PiSidebarSimpleBold, PiSparkleBold, PiSquaresFourBold, PiTargetBold, PiTestTubeBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUserPlusBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -81,14 +81,8 @@ const navigationSections: NavSection[] = [
         name: 'Products',
         icon: PiPackageBold,
         children: [
-          { name: 'Unified Console', href: '/admin/products/unified-console', icon: PiSquaresFourBold },
-          { name: 'All Products', href: '/admin/products', icon: PiListBold },
+          { name: 'Product Workspace', href: '/admin/products', icon: PiSquaresFourBold },
           { name: 'Add Product', href: '/admin/products/new', icon: PiPlusBold },
-          { name: 'Hardware Store', href: '/admin/products/hardware', icon: PiCubeBold },
-          { name: 'Relationships', href: '/admin/products/relationships', icon: PiLinkBold },
-          { name: 'MTN Dealer Products', href: '/admin/mtn-dealer-products', icon: PiHandshakeBold },
-          { name: 'Drafts', href: '/admin/products/drafts', icon: PiFileTextBold },
-          { name: 'Archived', href: '/admin/products/archived', icon: PiArchiveBold }
         ]
       },
       {
@@ -168,8 +162,7 @@ const navigationSections: NavSection[] = [
         name: 'Suppliers',
         icon: PiTruckBold,
         children: [
-          { name: 'All Suppliers', href: '/admin/suppliers', icon: PiTruckBold },
-          { name: 'Hardware Products', href: '/admin/products/hardware', icon: PiCubeBold }
+          { name: 'Suppliers', href: '/admin/products?section=suppliers', icon: PiTruckBold },
         ]
       },
     ]

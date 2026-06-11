@@ -1,9 +1,5 @@
-import { UnifiedProductConsole } from '@/components/admin/products/unified/UnifiedProductConsole';
-
-export const metadata = {
-  title: 'Unified Product Console | CircleTel Admin',
-};
+import { redirect } from 'next/navigation';
 
 export default function UnifiedConsolePage() {
-  return <UnifiedProductConsole />;
+  redirect('/admin/products');
 }

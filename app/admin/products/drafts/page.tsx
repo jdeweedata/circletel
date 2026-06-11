@@ -1,5 +1,5 @@
-import { ProductsDashboard } from '@/components/admin/products/ProductsDashboard';
+import { redirect } from 'next/navigation';
 
 export default function DraftProductsPage() {
-  return <ProductsDashboard defaultStatus="draft" />;
+  redirect('/admin/products?status=draft');
 }

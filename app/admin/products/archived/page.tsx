@@ -1,5 +1,5 @@
-import { ProductsDashboard } from '@/components/admin/products/ProductsDashboard';
+import { redirect } from 'next/navigation';
 
 export default function ArchivedProductsPage() {
-  return <ProductsDashboard defaultStatus="archived" />;
+  redirect('/admin/products?status=archived');
 }
