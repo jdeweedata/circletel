@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PiXBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/types/products';
@@ -51,6 +51,20 @@ export function ProductEditDrawer({
     status: product?.rawStatus ?? 'draft',
     isFeatured: product?.isFeatured ?? false,
   });
+
+  // Re-seed form state when product changes (fixes drawer stale data on product switch)
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        name: product.name ?? '',
+        description: product.description ?? '',
+        price: product.price ?? 0,
+        cost: product.sourceTable === 'admin_products' ? null : product.cost ?? 0,
+        status: product.rawStatus ?? 'draft',
+        isFeatured: product.isFeatured ?? false,
+      });
+    }
+  }, [product?.uid]);
 
   const open = product !== null;
 
@@ -109,12 +123,11 @@ export function ProductEditDrawer({
       } else if (isMTN) {
         method = 'PUT';
         url = `/api/admin/mtn-dealer-products/${product!.id}`;
+        // MTN: status-only (selling_price is computed from markup rules, not directly editable)
         body = {
-          selling_price_incl_vat: formData.price > 0 ? formData.price : undefined,
           status: formData.status,
           change_reason: 'Edited in Product Workspace',
         };
-        Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
       } else {
         throw new Error('Unknown product source');
       }
@@ -237,24 +250,39 @@ export function ProductEditDrawer({
             </div>
 
             {/* Price field */}
-            <div>
-              <label className="block text-sm font-medium text-ui-text-primary mb-1">
-                {isServicePackage ? 'Monthly price (ZAR)' : isHardware ? 'Retail price (ZAR)' : 'Selling price (ZAR)'}
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.price || ''}
-                onChange={(e) => {
-                  const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
-                  setFormData({ ...formData, price: Number.isNaN(val) ? 0 : val });
-                }}
-                disabled={submitting}
-                className="w-full rounded-lg border border-ui-border px-3 py-2 text-sm disabled:bg-slate-50"
-                placeholder="0.00"
-              />
-            </div>
+            {!isMTN && (
+              <div>
+                <label className="block text-sm font-medium text-ui-text-primary mb-1">
+                  {isServicePackage ? 'Monthly price (ZAR)' : isHardware ? 'Retail price (ZAR)' : 'Selling price (ZAR)'}
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price || ''}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                    setFormData({ ...formData, price: Number.isNaN(val) ? 0 : val });
+                  }}
+                  disabled={submitting}
+                  className="w-full rounded-lg border border-ui-border px-3 py-2 text-sm disabled:bg-slate-50"
+                  placeholder="0.00"
+                />
+              </div>
+            )}
+
+            {/* MTN: selling price read-only */}
+            {isMTN && (
+              <div>
+                <label className="block text-sm font-medium text-ui-text-primary mb-1">
+                  Selling price (ZAR)
+                </label>
+                <div className="rounded-lg border border-ui-border bg-slate-50 px-3 py-2 text-sm text-ui-text-muted">
+                  {formatPrice(formData.price)}
+                </div>
+                <p className="mt-1 text-xs text-ui-text-muted">Priced via markup rules — edit in MTN Tools</p>
+              </div>
+            )}
 
             {/* Cost field - only for hardware */}
             {isHardware && (

@@ -88,7 +88,7 @@ export function UnifiedProductConsole() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [sourceTab, status, debouncedSearch, sort, page, pathname, router]);
 
-  const { products, total, totalPages, countsBySource, loading, error } = useUnifiedProducts({
+  const { products, total, totalPages, countsBySource, loading, error, refetch } = useUnifiedProducts({
     source: sourceTab === 'all' ? undefined : sourceTab,
     status: status === 'all' ? undefined : status,
     search: debouncedSearch,
@@ -257,9 +257,8 @@ export function UnifiedProductConsole() {
         product={editing}
         onClose={() => setEditing(null)}
         onSaved={() => {
-          // Refetch the product list after saving
           setEditing(null);
-          // The useUnifiedProducts hook will re-run on its own dependencies
+          refetch();
         }}
       />
 
