@@ -4,6 +4,8 @@ export interface EMandateBuildInput {
   accountNumber: string;       // -> accountReference + field3
   paymentMethodId: string;     // -> field1
   submissionId: string;        // -> field2
+  /** Person who signs the mandate (NetCash fields 113/114) — the nurse, NOT the bank account holder. */
+  signerName?: string;
   accountHolder: string;
   isConsumer: boolean;
   entityName: string;
@@ -25,7 +27,10 @@ export function buildEMandateRequest(i: EMandateBuildInput): EMandateBatchReques
   const agreement = new Date(i.agreementDate + 'T00:00:00Z');
   // Commencement month = the month the first debit should run (next month after agreement)
   const commencementMonth = ((agreement.getUTCMonth() + 1) % 12) + 1;
-  const [first = '', ...rest] = i.accountHolder.trim().split(/\s+/);
+  // NetCash fields 113/114 identify the mandate SIGNER — prefer the nurse's name,
+  // falling back to the account-holder string for older callers.
+  const signer = (i.signerName || i.accountHolder).trim();
+  const [first = '', ...rest] = signer.split(/\s+/);
   return {
     accountReference: i.accountNumber.substring(0, 22),
     mandateName: i.accountHolder.substring(0, 50),

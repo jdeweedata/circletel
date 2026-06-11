@@ -261,6 +261,7 @@ export async function POST(request: NextRequest) {
         accountNumber: cust.account_number,
         paymentMethodId,
         submissionId,
+        signerName: s1.data.contact, // the nurse signs the mandate
         accountHolder: s3.data.accHolder,
         isConsumer: false,
         entityName: s2.data.entityName,
