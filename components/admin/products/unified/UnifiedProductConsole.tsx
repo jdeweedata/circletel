@@ -75,6 +75,25 @@ export function UnifiedProductConsole() {
     return () => clearTimeout(t);
   }, [search]);
 
+  // Load saved Rules Studio config from the server on mount.
+  // Silent failure → keep defaults if the config can't be fetched.
+  useEffect(() => {
+    const loadRuleConfig = async () => {
+      try {
+        const res = await fetch('/api/admin/products/rules-config');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.config) {
+            setRuleConfig(json.config);
+          }
+        }
+      } catch (error) {
+        // Silent failure — console continues with default rules.
+      }
+    };
+    loadRuleConfig();
+  }, []);
+
   // Keep the URL shareable: reflect filters without adding history entries.
   useEffect(() => {
     const qs = buildWorkspaceQuery({
