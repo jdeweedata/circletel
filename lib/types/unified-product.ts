@@ -107,13 +107,19 @@ function compact(values: Array<string | null | undefined>): string[] {
 
 /**
  * admin_products — editorial source. Price comes from the latest approved
- * admin_product_pricing row (passed in separately); cost is not tracked here.
+ * admin_product_pricing row (passed in separately); cost comes from summed
+ * product_cost_components when available.
  */
 export function normalizeAdminProductToUnified(
   row: AdminProduct,
-  pricing?: AdminProductPricing | null
+  pricing?: AdminProductPricing | null,
+  /** Summed product_cost_components for this product, when loaded. */
+  costSum?: number
 ): UnifiedProduct {
   const price = toNumber(pricing?.price_regular);
+  const cost = toNumber(costSum);
+  // Only compute margin when cost is explicitly provided (costSum !== undefined)
+  const margin = costSum !== undefined ? computeMarginPct(price, cost) : 0;
   const statusMap: Record<string, UnifiedProductStatus> = {
     draft: 'draft',
     pending: 'pending',
@@ -133,8 +139,8 @@ export function normalizeAdminProductToUnified(
     status: statusMap[row.status] ?? 'draft',
     rawStatus: row.status,
     price,
-    cost: 0,
-    margin: 0, // cost not tracked on admin_products
+    cost,
+    margin,
     description: row.description,
     publishTarget: 'service_packages',
     isPublished: false,
