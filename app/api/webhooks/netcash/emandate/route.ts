@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { NetCashEMandateService, EMandatePostback } from '@/lib/payments/netcash-emandate-service';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
@@ -9,6 +9,134 @@ import { webhookLogger } from '@/lib/logging';
 // Vercel configuration
 export const runtime = 'nodejs';
 export const maxDuration = 30; // Postback processing might take longer
+
+// The route builds its service-role client without DB generics, so the helpers
+// accept the same loosely-typed client.
+type ServiceClient = SupabaseClient<any, any, any>;
+
+/**
+ * Resolve the customer_payment_methods row a postback refers to.
+ * Field1 carries the payment-method id (preferred); Field3 the account number.
+ * Used by both the consumer-order path and the clinic onboarding path.
+ */
+async function resolveClinicPaymentMethod(
+  supabase: ServiceClient,
+  paymentMethodIdFromField1: string | undefined,
+  accountNumberFromField3: string | undefined
+): Promise<{ id: string; customer_id: string } | null> {
+  if (paymentMethodIdFromField1) {
+    const { data: pm } = await supabase
+      .from('customer_payment_methods')
+      .select('id, customer_id')
+      .eq('id', paymentMethodIdFromField1)
+      .eq('method_type', 'debit_order')
+      .eq('is_active', true)
+      .maybeSingle();
+    if (pm) return pm as { id: string; customer_id: string };
+  }
+
+  if (accountNumberFromField3) {
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('account_number', accountNumberFromField3)
+      .maybeSingle();
+    if (customer) {
+      const { data: pm } = await supabase
+        .from('customer_payment_methods')
+        .select('id, customer_id')
+        .eq('customer_id', (customer as { id: string }).id)
+        .eq('method_type', 'debit_order')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (pm) return pm as { id: string; customer_id: string };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Apply a mandate postback to a clinic payment method (the onboarding flow —
+ * no emandate_requests / consumer_orders involvement).
+ */
+async function applyClinicMandateOutcome(
+  supabase: ServiceClient,
+  pm: { id: string; customer_id: string },
+  parsedPostback: EMandatePostback,
+  mandateSuccessful: boolean
+): Promise<void> {
+  if (mandateSuccessful) {
+    const { data: pmBefore } = await supabase
+      .from('customer_payment_methods')
+      .select('mandate_status, encrypted_details')
+      .eq('id', pm.id)
+      .maybeSingle();
+
+    const before = pmBefore as { mandate_status?: string; encrypted_details?: Record<string, unknown> } | null;
+    const wasAlreadyActive =
+      before?.mandate_status === 'active' || before?.mandate_status === 'approved';
+
+    const { error } = await supabase
+      .from('customer_payment_methods')
+      .update({
+        mandate_id: parsedPostback.MandateReferenceNumber,
+        mandate_status: 'active',
+        mandate_approved_at: new Date().toISOString(),
+        // CRITICAL: batch reads encrypted_details.verified — there is NO top-level
+        // verified column on customer_payment_methods
+        encrypted_details: {
+          ...(before?.encrypted_details ?? {}),
+          verified: true,
+        },
+      })
+      .eq('id', pm.id);
+
+    if (error) {
+      webhookLogger.error('[Clinic postback] Failed to activate payment method', {
+        paymentMethodId: pm.id,
+        error: error.message,
+      });
+      return;
+    }
+
+    webhookLogger.info('[Clinic postback] Mandate activated', {
+      paymentMethodId: pm.id,
+      customerId: pm.customer_id,
+      mandateRef: parsedPostback.MandateReferenceNumber,
+      wasAlreadyActive,
+    });
+
+    // Flip the customer to billing_ready if docs are already approved (first activation only)
+    if (!wasAlreadyActive) {
+      await maybeMarkBillingReady(supabase, pm.customer_id);
+    }
+  } else {
+    const { error } = await supabase
+      .from('customer_payment_methods')
+      .update({ mandate_status: 'failed' })
+      .eq('id', pm.id);
+    if (error) {
+      webhookLogger.error('[Clinic postback] Failed to mark payment method failed', {
+        paymentMethodId: pm.id,
+        error: error.message,
+      });
+    }
+
+    await supabase
+      .from('customers')
+      .update({ onboarding_status: 'failed' })
+      .eq('id', pm.customer_id);
+
+    webhookLogger.info('[Clinic postback] Mandate declined/failed', {
+      paymentMethodId: pm.id,
+      customerId: pm.customer_id,
+      reason: parsedPostback.ReasonForDecline,
+    });
+  }
+}
 
 /**
  * POST /api/webhooks/netcash/emandate
@@ -39,7 +167,10 @@ export async function POST(request: NextRequest) {
     const orderNumber = parsedPostback.Field2;
     const customerId = parsedPostback.Field3;
 
-    if (!orderId || !orderNumber) {
+    // Reject only when there is nothing to correlate on at all.
+    // Consumer flow needs Field1+Field2 (order id + number); the clinic flow can
+    // resolve on Field1 (payment-method id) or Field3 (account number) alone.
+    if (!orderId && !customerId) {
       webhookLogger.error('Missing order reference in postback', { parsedPostback });
       return NextResponse.json(
         { error: 'Missing order reference in postback' },
@@ -59,37 +190,60 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // Find emandate request by account reference
+    // Find emandate request by account reference (consumer-order flow only —
+    // requires both order id and order number in the custom fields).
     // Include 'pending' and 'resent' statuses for robustness - sometimes the status
     // update doesn't happen before the postback arrives
-    const { data: emandateRequest, error: findError } = await supabase
-      .from('emandate_requests')
-      .select('*')
-      .eq('order_id', orderId)
-      .eq('netcash_account_reference', parsedPostback.AccountRef)
-      .in('status', ['pending', 'sent', 'resent', 'customer_notified', 'viewed'])
-      .order('created_at', { ascending: false })
-      .maybeSingle();
+    let emandateRequest: Record<string, any> | null = null;
+    if (orderId && orderNumber) {
+      const { data, error: findError } = await supabase
+        .from('emandate_requests')
+        .select('*')
+        .eq('order_id', orderId)
+        .eq('netcash_account_reference', parsedPostback.AccountRef)
+        .in('status', ['pending', 'sent', 'resent', 'customer_notified', 'viewed'])
+        .order('created_at', { ascending: false })
+        .maybeSingle();
 
-    if (findError) {
-      webhookLogger.error('Error finding emandate request', { error: findError.message });
-      return NextResponse.json(
-        { error: 'Failed to process postback' },
-        { status: 500 }
-      );
+      if (findError) {
+        webhookLogger.error('Error finding emandate request', { error: findError.message });
+        return NextResponse.json(
+          { error: 'Failed to process postback' },
+          { status: 500 }
+        );
+      }
+      emandateRequest = data;
     }
 
+    const mandateSuccessful = parsedPostback.MandateSuccessful === '1';
+    const mandateDeclined = parsedPostback.IsDeclined === '1';
+
     if (!emandateRequest) {
-      webhookLogger.warn('No matching emandate request found for postback:', {
+      // CLINIC ONBOARDING PATH — the wizard's eMandate batch creates no
+      // emandate_requests row. Field1 = customer_payment_methods.id,
+      // Field2 = onboarding_submissions.id, Field3 = account number.
+      const pm = await resolveClinicPaymentMethod(
+        supabase,
+        parsedPostback.Field1,
+        parsedPostback.Field3
+      );
+
+      if (pm) {
+        await applyClinicMandateOutcome(supabase, pm, parsedPostback, mandateSuccessful);
+        return NextResponse.json({
+          received: true,
+          flow: 'clinic',
+          mandateSuccessful,
+        });
+      }
+
+      webhookLogger.warn('No matching emandate request or clinic payment method for postback:', {
         orderId,
         accountRef: parsedPostback.AccountRef,
       });
       // Still return 200 to prevent NetCash retries
       return NextResponse.json({ received: true });
     }
-
-    const mandateSuccessful = parsedPostback.MandateSuccessful === '1';
-    const mandateDeclined = parsedPostback.IsDeclined === '1';
 
     // Update emandate request with postback data
     const { error: updateError } = await supabase
@@ -177,8 +331,8 @@ export async function POST(request: NextRequest) {
             mandate_id: parsedPostback.MandateReferenceNumber,
             mandate_status: 'active',
             mandate_approved_at: new Date().toISOString(),
-            verified: true,
-            // CRITICAL: set verified=true as a plain boolean; batch reads encrypted_details.verified directly
+            // CRITICAL: batch reads encrypted_details.verified — there is NO top-level
+            // verified column; including one made this whole update silently fail
             encrypted_details: {
               ...existingDetails,
               verified: true,
