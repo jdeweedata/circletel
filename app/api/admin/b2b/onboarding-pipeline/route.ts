@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
         business_name,
         onboarding_status,
         clinic_details,
-        onboarding_submissions!onboarding_submissions_customer (
+        onboarding_submissions!onboarding_submissions_customer_id_fkey (
           id,
           status,
           document_vetting_status,
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
           vetting_due_date,
           service_order_issued_at
         ),
-        customer_payment_methods!customer_payment_methods_customer_id (
+        customer_payment_methods!customer_payment_methods_customer_id_fkey (
           id,
           mandate_status,
           method_type
