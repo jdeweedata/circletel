@@ -34,9 +34,13 @@ const RELATIONSHIP_TYPES: ProductRelationshipType[] = [
  * Mounted in UnifiedProductDetailSidebar's detail tabs.
  */
 export function RelationshipsPanel({ productId }: { productId: string }) {
-  const [relationships, setRelationships] = useState<
-    Record<ProductRelationshipType, ProductRelationshipWithTarget[]> | null
-  >(null);
+  const [relationships, setRelationships] = useState<{
+    addons: ProductRelationshipWithTarget[];
+    prerequisites: ProductRelationshipWithTarget[];
+    exclusions: ProductRelationshipWithTarget[];
+    alternatives: ProductRelationshipWithTarget[];
+    bundleComponents: ProductRelationshipWithTarget[];
+  } | null>(null);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +56,19 @@ export function RelationshipsPanel({ productId }: { productId: string }) {
 
   // Delete state
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Mapping from plural grouping keys to singular relationship types and labels
+  const groupMapping: Array<{
+    key: 'addons' | 'prerequisites' | 'exclusions' | 'alternatives' | 'bundleComponents';
+    type: ProductRelationshipType;
+    label: string;
+  }> = [
+    { key: 'addons', type: 'addon', label: 'Add-ons' },
+    { key: 'prerequisites', type: 'requires', label: 'Prerequisites' },
+    { key: 'exclusions', type: 'excludes', label: 'Exclusions' },
+    { key: 'alternatives', type: 'alternative', label: 'Alternatives' },
+    { key: 'bundleComponents', type: 'includes', label: 'Bundle Components' },
+  ];
 
   // Fetch relationships
   const fetchRelationships = useCallback(async () => {
@@ -163,7 +180,9 @@ export function RelationshipsPanel({ productId }: { productId: string }) {
 
   // Available products for new relationships (exclude self and already related)
   const relatedIds = relationships
-    ? Object.values(relationships).flatMap((rels) => rels.map((r) => r.target_product_id))
+    ? groupMapping.flatMap((group) =>
+        relationships[group.key]?.map((r) => r.target_product_id) || []
+      )
     : [];
   const availableProducts = allProducts.filter((p) => p.id !== productId && !relatedIds.includes(p.id));
 
@@ -182,13 +201,16 @@ export function RelationshipsPanel({ productId }: { productId: string }) {
   }
 
   // Render relationship group
-  const renderGroup = (type: ProductRelationshipType) => {
-    const items = relationships?.[type] || [];
+  const renderGroup = (
+    groupKey: 'addons' | 'prerequisites' | 'exclusions' | 'alternatives' | 'bundleComponents',
+    label: string
+  ) => {
+    const items = relationships?.[groupKey] || [];
     if (items.length === 0) return null;
 
     return (
-      <div key={type} className="space-y-2">
-        <h4 className="text-sm font-medium text-gray-700">{RELATIONSHIP_LABELS[type]}</h4>
+      <div key={groupKey} className="space-y-2">
+        <h4 className="text-sm font-medium text-gray-700">{label}</h4>
         <div className="space-y-2">
           {items.map((rel) => (
             <div
@@ -221,7 +243,7 @@ export function RelationshipsPanel({ productId }: { productId: string }) {
 
   // Check if any relationships exist
   const hasAnyRelationships = relationships
-    ? Object.values(relationships).some((rels) => rels.length > 0)
+    ? groupMapping.some((group) => relationships[group.key]?.length > 0)
     : false;
 
   return (
@@ -328,7 +350,7 @@ export function RelationshipsPanel({ productId }: { productId: string }) {
         {/* Relationships list */}
         {hasAnyRelationships ? (
           <div className="space-y-4">
-            {RELATIONSHIP_TYPES.map((type) => renderGroup(type))}
+            {groupMapping.map((group) => renderGroup(group.key, group.label))}
           </div>
         ) : (
           <EmptyState
