@@ -455,7 +455,7 @@ export default function AdminDashboard() {
           {/* Revenue Chart */}
           {analyticsData && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RevenueTrendChart data={analyticsData.history} />
+              <RevenueTrendChart data={analyticsData.history} className="col-span-4 lg:col-span-2" />
               {/* Quick Actions beside chart on large screens if needed, or below */}
             </div>
           )}
@@ -518,7 +518,7 @@ export default function AdminDashboard() {
           </div>
           {analyticsData && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <CustomerGrowthChart data={analyticsData.history} />
+              <CustomerGrowthChart data={analyticsData.history} className="col-span-4 lg:col-span-2" />
             </div>
           )}
         </TabsContent>
@@ -529,7 +529,7 @@ export default function AdminDashboard() {
           </div>
           {analyticsData && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <OrderStatusPieChart data={analyticsData.orderStatus} />
+              <OrderStatusPieChart data={analyticsData.orderStatus} className="col-span-4 lg:col-span-1" />
             </div>
           )}
         </TabsContent>
