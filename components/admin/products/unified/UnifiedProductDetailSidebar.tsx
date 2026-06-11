@@ -32,10 +32,12 @@ export function UnifiedProductDetailSidebar({
   product,
   ruleConfig,
   onClose,
+  onEdit,
 }: {
   product: UnifiedProduct | null;
   ruleConfig?: Partial<RuleConfig>;
   onClose: () => void;
+  onEdit?: (p: UnifiedProduct) => void;
 }) {
   const [tab, setTab] = useState<DetailTab>('overview');
   const [publishing, setPublishing] = useState(false);
@@ -114,13 +116,24 @@ export function UnifiedProductDetailSidebar({
                   {product.sku ?? '—'} · {product.type}
                 </p>
               </div>
-              <button
-                onClick={onClose}
-                className="rounded-md p-1 text-ui-text-muted hover:bg-slate-100"
-                aria-label="Close"
-              >
-                <PiXBold className="h-5 w-5" />
-              </button>
+              <div className="flex gap-1">
+                {product.sourceTable !== 'admin_products' && onEdit && (
+                  <button
+                    onClick={() => onEdit(product)}
+                    className="rounded-md px-2 py-1 text-sm font-medium bg-circleTel-orange text-white hover:bg-circleTel-orange-dark transition-colors"
+                    aria-label="Edit product"
+                  >
+                    Edit
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="rounded-md p-1 text-ui-text-muted hover:bg-slate-100"
+                  aria-label="Close"
+                >
+                  <PiXBold className="h-5 w-5" />
+                </button>
+              </div>
             </header>
 
             <nav className="flex gap-6 border-b border-ui-border px-4">

@@ -20,6 +20,7 @@ import {
 import { UnifiedProductSearch, type UnifiedSort } from './UnifiedProductSearch';
 import { UnifiedProductGrid } from './UnifiedProductGrid';
 import { UnifiedProductDetailSidebar } from './UnifiedProductDetailSidebar';
+import { ProductEditDrawer } from './ProductEditDrawer';
 import { RulesStudio } from './RulesStudio';
 
 type SourceTab = UnifiedProductSource | 'all';
@@ -60,6 +61,7 @@ export function UnifiedProductConsole() {
   const [sort, setSort] = useState<UnifiedSort>(initial.sort);
   const [page, setPage] = useState(initial.page);
   const [selected, setSelected] = useState<UnifiedProduct | null>(null);
+  const [editing, setEditing] = useState<UnifiedProduct | null>(null);
   const [rulesOpen, setRulesOpen] = useState(false);
   // Rule threshold overrides (edited in Rules Studio); empty = engine defaults.
   const [ruleConfig, setRuleConfig] = useState<Partial<RuleConfig>>({});
@@ -244,6 +246,21 @@ export function UnifiedProductConsole() {
         product={selected}
         ruleConfig={ruleConfig}
         onClose={() => setSelected(null)}
+        onEdit={(p) => {
+          setSelected(null);
+          setEditing(p);
+        }}
+      />
+
+      {/* edit drawer */}
+      <ProductEditDrawer
+        product={editing}
+        onClose={() => setEditing(null)}
+        onSaved={() => {
+          // Refetch the product list after saving
+          setEditing(null);
+          // The useUnifiedProducts hook will re-run on its own dependencies
+        }}
       />
 
       {/* rules studio modal */}
