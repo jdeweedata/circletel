@@ -110,7 +110,7 @@ export function Step5ServiceOrder({
                   CircleTel ClinicConnect
                 </p>
                 <p className="text-sm text-gray-600">
-                  Managed connectivity service · Unjani clinic
+                  Managed connectivity service · Unjani clinic · 24-month term
                 </p>
               </div>
             </div>
@@ -122,7 +122,8 @@ export function Step5ServiceOrder({
                   First invoice (pro-rated)
                 </p>
                 <p className="text-xs text-gray-600">
-                  {proRata.days} days of {proRata.daysInMonth} in the month
+                  {proRata.days} days of {proRata.daysInMonth} in the month — billed
+                  only from your service activation date
                 </p>
               </div>
               <p className="font-bold text-circleTel-orange text-xl">

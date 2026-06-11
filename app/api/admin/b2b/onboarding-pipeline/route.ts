@@ -18,6 +18,9 @@ interface PipelineClinic {
   customer_id: string;
   business_name: string;
   province: string;
+  nurse_name: string | null;
+  phone: string | null;
+  email: string | null;
   stage: string;
   document_vetting_status: string | null;
   mandate_status: string | null;
@@ -107,6 +110,8 @@ export async function GET(request: NextRequest) {
         id,
         account_number,
         business_name,
+        phone,
+        email,
         onboarding_status,
         clinic_details,
         onboarding_submissions!onboarding_submissions_customer_id_fkey (
@@ -162,10 +167,13 @@ export async function GET(request: NextRequest) {
         ? clinic.customer_payment_methods.find((pm: any) => pm.method_type === 'debit_order')
         : null;
 
-      const province =
+      const details =
         clinic.clinic_details && typeof clinic.clinic_details === 'object'
-          ? (clinic.clinic_details as any).province || ''
-          : '';
+          ? (clinic.clinic_details as Record<string, unknown>)
+          : {};
+      const province = typeof details.province === 'string' ? details.province : '';
+      const nurseName =
+        typeof details.nurse_owner_name === 'string' ? details.nurse_owner_name : null;
 
       const stage = determineStage(
         clinic.onboarding_status,
@@ -192,6 +200,9 @@ export async function GET(request: NextRequest) {
         customer_id: clinic.id,
         business_name: clinic.business_name,
         province,
+        nurse_name: nurseName,
+        phone: clinic.phone || null,
+        email: clinic.email || null,
         stage,
         document_vetting_status: submission?.document_vetting_status || null,
         mandate_status: debitOrderPm?.mandate_status || null,

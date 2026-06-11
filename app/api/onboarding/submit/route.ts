@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { resolveToken, svc } from '@/lib/onboarding/onboarding-service';
 import { step1Schema, step2Schema, step3Schema, step5Schema } from '@/lib/onboarding/schemas';
 import { requiredDocsFor } from '@/lib/onboarding/document-requirements';
 import { buildEMandateRequest } from '@/lib/onboarding/emandate-request';
 import { NetCashEMandateBatchService } from '@/lib/payments/netcash-emandate-batch-service';
+import { whatsAppService } from '@/lib/integrations/whatsapp/whatsapp-service';
 import { addBusinessDays, now } from '@/lib/dates';
+import {
+  SERVICE_ORDER_TERMS,
+  SERVICE_ORDER_TERMS_TITLE,
+  SERVICE_ORDER_TERMS_VERSION,
+  SERVICE_ORDER_MSA_REFERENCE,
+  stripHtmlFromTerms,
+} from '@/lib/onboarding/service-order-terms';
 
 export async function POST(request: NextRequest) {
   const supabase = svc();
@@ -178,18 +187,42 @@ export async function POST(request: NextRequest) {
 
   // 4) Finalize submission
   const vettingDueDate = addBusinessDays(now(), 2); // 2 business days from now
+  const acceptedAt = new Date().toISOString();
+
+  // Acceptance evidence: exactly which terms were accepted, when, and from where.
+  // The snapshot + hash let us prove the accepted terms even after the live terms change.
+  const termsCanonical = JSON.stringify([
+    SERVICE_ORDER_TERMS_TITLE,
+    ...SERVICE_ORDER_TERMS,
+    SERVICE_ORDER_MSA_REFERENCE,
+  ]);
+  const acceptance = {
+    accepted_at: acceptedAt,
+    ip:
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      null,
+    user_agent: request.headers.get('user-agent') || null,
+    token_id: resolved.tokenId,
+    terms_version: SERVICE_ORDER_TERMS_VERSION,
+    terms_hash: crypto.createHash('sha256').update(termsCanonical).digest('hex'),
+    terms_snapshot: stripHtmlFromTerms(SERVICE_ORDER_TERMS),
+    msa_reference: SERVICE_ORDER_MSA_REFERENCE,
+  };
+
   const { error: subErr } = await supabase
     .from('onboarding_submissions')
     .update({
       status: 'submitted',
       document_vetting_status: 'documents_pending',
-      submitted_at: new Date().toISOString(),
+      submitted_at: acceptedAt,
       vetting_due_date: vettingDueDate.toISOString(),
       submission_data: {
         step1: s1.data,
         step2: s2.data,
         step3: { ...s3.data, accNumber: `****${s3.data.accNumber.slice(-4)}` },
         step5: s5.data,
+        acceptance,
       },
     })
     .eq('id', submissionId);
@@ -209,7 +242,7 @@ export async function POST(request: NextRequest) {
   // 6) Fire NetCash eMandate (best-effort; do not fail the submission on transient errors)
   const { data: cust } = await supabase
     .from('customers')
-    .select('account_number')
+    .select('account_number, business_name, first_name, phone')
     .eq('id', customerId)
     .single();
   const { data: svcRow } = await supabase
@@ -228,6 +261,7 @@ export async function POST(request: NextRequest) {
         accountNumber: cust.account_number,
         paymentMethodId,
         submissionId,
+        signerName: s1.data.contact, // the nurse signs the mandate
         accountHolder: s3.data.accHolder,
         isConsumer: false,
         entityName: s2.data.entityName,
@@ -254,6 +288,23 @@ export async function POST(request: NextRequest) {
     }
   } catch (e) {
     console.error('[Onboarding] eMandate submit error', e);
+  }
+
+  // 7) Confirm receipt to the nurse on WhatsApp (best-effort; never blocks the submission)
+  // Template circletel_docs_received: account number + "we're vetting your documents".
+  try {
+    if (cust?.phone && cust.account_number) {
+      const result = await whatsAppService.sendClinicDocsReceived(cust.phone, {
+        firstName: cust.first_name || 'there',
+        clinicName: cust.business_name || 'your clinic',
+        accountNumber: cust.account_number,
+      });
+      if (!result.success) {
+        console.warn('[Onboarding] docs-received WhatsApp failed', result.error);
+      }
+    }
+  } catch (e) {
+    console.error('[Onboarding] docs-received WhatsApp error', e);
   }
 
   return NextResponse.json({

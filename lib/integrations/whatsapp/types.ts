@@ -89,7 +89,10 @@ export type CircleTelTemplate =
   | 'circletel_debit_failed'
   | 'circletel_payment_received'
   | 'circletel_service_activated'
-  | 'circletel_clinic_onboarding';
+  | 'circletel_clinic_onboarding'
+  | 'circletel_docs_received'
+  | 'circletel_docs_approved'
+  | 'circletel_docs_changes';
 
 /**
  * Template parameter mappings for CircleTel templates
@@ -133,6 +136,12 @@ export interface ServiceActivatedParams {
 export interface ClinicOnboardingParams {
   clinicName: string;         // {{1}} - Clinic / contact name (body)
   token: string;              // URL button param: https://www.circletel.co.za/onboarding/{{1}}
+}
+
+export interface ClinicDocsReceivedParams {
+  firstName: string;          // {{1}} - Nurse / contact first name
+  clinicName: string;         // {{2}} - Clinic name
+  accountNumber: string;      // {{3}} - CircleTel account number (CT-YYYY-NNNNN)
 }
 
 // Union type for all template params
