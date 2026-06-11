@@ -46,7 +46,10 @@ export interface TemplateDefinition {
  * 2. Document expected parameters for each template
  * 3. Generate example payloads for testing
  */
-export const CIRCLETEL_TEMPLATES: Record<CircleTelTemplate, TemplateDefinition> = {
+// Partial: documentation map for the original billing templates. The clinic
+// templates (circletel_clinic_onboarding / docs_received / docs_approved /
+// docs_changes) are registered via scripts/create-*-template.ts instead.
+export const CIRCLETEL_TEMPLATES: Partial<Record<CircleTelTemplate, TemplateDefinition>> = {
   // ===========================================================================
   // INVOICE PAYMENT TEMPLATE
   // ===========================================================================

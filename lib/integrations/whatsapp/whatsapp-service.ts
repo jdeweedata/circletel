@@ -23,6 +23,7 @@ import type {
   PaymentReceivedParams,
   ServiceActivatedParams,
   ClinicOnboardingParams,
+  ClinicDocsReceivedParams,
 } from './types';
 
 // =============================================================================
@@ -373,6 +374,32 @@ export class WhatsAppService {
     ];
 
     return this.sendTemplate(to, 'circletel_clinic_onboarding', components);
+  }
+
+  /**
+   * Confirm a completed onboarding submission while documents are vetted
+   * Template: circletel_docs_received
+   *
+   * Structure:
+   * - Body: Hi {{1}}, thank you — your CircleTel ClinicConnect setup for {{2}}
+   *   is complete... Your account number is {{3}}...
+   */
+  async sendClinicDocsReceived(
+    to: string,
+    params: ClinicDocsReceivedParams
+  ): Promise<WhatsAppSendResult> {
+    const components: SendTemplateRequest['template']['components'] = [
+      {
+        type: 'body',
+        parameters: [
+          { type: 'text', text: params.firstName },
+          { type: 'text', text: params.clinicName },
+          { type: 'text', text: params.accountNumber },
+        ],
+      },
+    ];
+
+    return this.sendTemplate(to, 'circletel_docs_received', components);
   }
 
   // ===========================================================================

@@ -5,6 +5,7 @@ import { step1Schema, step2Schema, step3Schema, step5Schema } from '@/lib/onboar
 import { requiredDocsFor } from '@/lib/onboarding/document-requirements';
 import { buildEMandateRequest } from '@/lib/onboarding/emandate-request';
 import { NetCashEMandateBatchService } from '@/lib/payments/netcash-emandate-batch-service';
+import { whatsAppService } from '@/lib/integrations/whatsapp/whatsapp-service';
 import { addBusinessDays, now } from '@/lib/dates';
 import {
   SERVICE_ORDER_TERMS,
@@ -241,7 +242,7 @@ export async function POST(request: NextRequest) {
   // 6) Fire NetCash eMandate (best-effort; do not fail the submission on transient errors)
   const { data: cust } = await supabase
     .from('customers')
-    .select('account_number')
+    .select('account_number, business_name, first_name, phone')
     .eq('id', customerId)
     .single();
   const { data: svcRow } = await supabase
@@ -286,6 +287,23 @@ export async function POST(request: NextRequest) {
     }
   } catch (e) {
     console.error('[Onboarding] eMandate submit error', e);
+  }
+
+  // 7) Confirm receipt to the nurse on WhatsApp (best-effort; never blocks the submission)
+  // Template circletel_docs_received: account number + "we're vetting your documents".
+  try {
+    if (cust?.phone && cust.account_number) {
+      const result = await whatsAppService.sendClinicDocsReceived(cust.phone, {
+        firstName: cust.first_name || 'there',
+        clinicName: cust.business_name || 'your clinic',
+        accountNumber: cust.account_number,
+      });
+      if (!result.success) {
+        console.warn('[Onboarding] docs-received WhatsApp failed', result.error);
+      }
+    }
+  } catch (e) {
+    console.error('[Onboarding] docs-received WhatsApp error', e);
   }
 
   return NextResponse.json({
