@@ -60,7 +60,10 @@ recursive bundles (one level of bundling only, per TMF guidance).
   - `/admin/mtn-dealer-products` → `/admin/products?source=mtn`
   - `/admin/products/relationships` → `/admin/products` (relationships are managed per-product in the detail rail; no standalone section)
   - `/admin/suppliers` → `/admin/products?section=suppliers`
-- DELETE: legacy `/admin/products/mtn-deals` page + its orphan `/api/products/mtn-deals` route.
+- ~~DELETE: legacy `/admin/products/mtn-deals` page + orphan API~~ — **kept** (discovered 2026-06-11:
+  `components/admin/quotes/MTNDealSelector.tsx` actively consumes `/api/products/mtn-deals`, and
+  `lib/agents/pm/context/product-map.ts` references the page). The page is unlinked from the
+  sidebar; consolidating the quotes flow onto the dealer API is a Phase 2 follow-up.
 - Old page components deleted once workspace is verified on staging (same PR train, separate
   cleanup commit so it is revertable).
 - Sidebar Products group shrinks from 10 entries to: **Products**, **Add Product**, **CPQ Builder**.
