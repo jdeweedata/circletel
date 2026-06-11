@@ -80,14 +80,14 @@ export default function B2BVettingQueuePage() {
   const router = useRouter();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [segment, setSegment] = useState<string>('');
+  const [segment, setSegment] = useState<string>('all');
 
   useEffect(() => {
     async function fetchSubmissions() {
       setLoading(true);
       try {
         const url = new URL('/api/admin/b2b/vetting', window.location.origin);
-        if (segment) {
+        if (segment && segment !== 'all') {
           url.searchParams.set('segment', segment);
         }
 
@@ -136,7 +136,7 @@ export default function B2BVettingQueuePage() {
                   <SelectValue placeholder="All segments" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All segments</SelectItem>
+                  <SelectItem value="all">All segments</SelectItem>
                   <SelectItem value="unjani">Unjani</SelectItem>
                   <SelectItem value="smb">SMB</SelectItem>
                   <SelectItem value="edu">Education</SelectItem>
