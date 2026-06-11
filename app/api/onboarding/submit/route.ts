@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { resolveToken, svc } from '@/lib/onboarding/onboarding-service';
 import { step1Schema, step2Schema, step3Schema, step5Schema } from '@/lib/onboarding/schemas';
 import { requiredDocsFor } from '@/lib/onboarding/document-requirements';
 import { buildEMandateRequest } from '@/lib/onboarding/emandate-request';
 import { NetCashEMandateBatchService } from '@/lib/payments/netcash-emandate-batch-service';
 import { addBusinessDays, now } from '@/lib/dates';
+import {
+  SERVICE_ORDER_TERMS,
+  SERVICE_ORDER_TERMS_TITLE,
+  SERVICE_ORDER_TERMS_VERSION,
+  SERVICE_ORDER_MSA_REFERENCE,
+  stripHtmlFromTerms,
+} from '@/lib/onboarding/service-order-terms';
 
 export async function POST(request: NextRequest) {
   const supabase = svc();
@@ -178,18 +186,42 @@ export async function POST(request: NextRequest) {
 
   // 4) Finalize submission
   const vettingDueDate = addBusinessDays(now(), 2); // 2 business days from now
+  const acceptedAt = new Date().toISOString();
+
+  // Acceptance evidence: exactly which terms were accepted, when, and from where.
+  // The snapshot + hash let us prove the accepted terms even after the live terms change.
+  const termsCanonical = JSON.stringify([
+    SERVICE_ORDER_TERMS_TITLE,
+    ...SERVICE_ORDER_TERMS,
+    SERVICE_ORDER_MSA_REFERENCE,
+  ]);
+  const acceptance = {
+    accepted_at: acceptedAt,
+    ip:
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      null,
+    user_agent: request.headers.get('user-agent') || null,
+    token_id: resolved.tokenId,
+    terms_version: SERVICE_ORDER_TERMS_VERSION,
+    terms_hash: crypto.createHash('sha256').update(termsCanonical).digest('hex'),
+    terms_snapshot: stripHtmlFromTerms(SERVICE_ORDER_TERMS),
+    msa_reference: SERVICE_ORDER_MSA_REFERENCE,
+  };
+
   const { error: subErr } = await supabase
     .from('onboarding_submissions')
     .update({
       status: 'submitted',
       document_vetting_status: 'documents_pending',
-      submitted_at: new Date().toISOString(),
+      submitted_at: acceptedAt,
       vetting_due_date: vettingDueDate.toISOString(),
       submission_data: {
         step1: s1.data,
         step2: s2.data,
         step3: { ...s3.data, accNumber: `****${s3.data.accNumber.slice(-4)}` },
         step5: s5.data,
+        acceptance,
       },
     })
     .eq('id', submissionId);

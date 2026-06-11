@@ -21,6 +21,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { uploadFile } from '@/lib/storage/supabase-upload';
@@ -114,6 +115,41 @@ export async function POST(request: NextRequest): Promise<NextResponse<ServiceOr
     const billingDay = step5.paymentDate || '1';
     const clinicDetails = customer.clinic_details as any || {};
 
+    // === Acceptance evidence (captured at the Step-5 click-accept) ===
+    const acceptanceRecord = submissionData?.acceptance;
+    let acceptance: Parameters<typeof generateServiceOrderBlob>[0]['acceptance'];
+    if (acceptanceRecord?.accepted_at) {
+      // Link-delivery evidence from the single-use token used at acceptance
+      let linkSentVia: string | undefined;
+      let linkSentAtIso: string | undefined;
+      if (acceptanceRecord.token_id) {
+        const { data: tokenRow } = await supabase
+          .from('onboarding_tokens')
+          .select('sent_via, sent_at')
+          .eq('id', acceptanceRecord.token_id)
+          .maybeSingle();
+        linkSentVia = tokenRow?.sent_via || undefined;
+        linkSentAtIso = tokenRow?.sent_at || undefined;
+      }
+      const digits = (customer.phone || '').replace(/\D/g, '');
+      const maskedPhone =
+        digits.length >= 7 ? `${digits.slice(0, 3)} *** ${digits.slice(-4)}` : undefined;
+
+      acceptance = {
+        acceptedAtIso: acceptanceRecord.accepted_at,
+        ip: acceptanceRecord.ip || undefined,
+        termsVersion: acceptanceRecord.terms_version || undefined,
+        termsHash: acceptanceRecord.terms_hash || undefined,
+        termsSnapshot: Array.isArray(acceptanceRecord.terms_snapshot)
+          ? acceptanceRecord.terms_snapshot
+          : undefined,
+        linkSentVia,
+        linkSentAtIso,
+        maskedPhone,
+        submissionId: submission.id,
+      };
+    }
+
     // === Generate Service Order PDF ===
     const pdfBlob = generateServiceOrderBlob({
       accountNumber: customer.account_number,
@@ -127,7 +163,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ServiceOr
       billingDay: billingDay as '1' | '15' | '20' | '25',
       activationDate: service.activation_date || new Date().toISOString(),
       submittedAt: submission.submitted_at || new Date().toISOString(),
+      acceptance,
     });
+
+    // Integrity hash of the issued document (proves the stored PDF is untampered)
+    const pdfSha256 = crypto
+      .createHash('sha256')
+      .update(Buffer.from(await pdfBlob.arrayBuffer()))
+      .digest('hex');
 
     // === Upload PDF to Storage ===
     // Convert Blob to File for uploadFile API
@@ -153,12 +196,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<ServiceOr
       );
     }
 
-    // === Update Onboarding Submission with PDF Path ===
+    // === Update Onboarding Submission with PDF Path + integrity hash ===
     const { error: updateError } = await supabase
       .from('onboarding_submissions')
       .update({
         service_order_pdf_path: uploadResult.path,
         service_order_issued_at: new Date().toISOString(),
+        submission_data: {
+          ...submissionData,
+          service_order_pdf_sha256: pdfSha256,
+        },
       })
       .eq('id', submission.id);
 

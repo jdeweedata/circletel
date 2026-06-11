@@ -168,6 +168,42 @@ export interface ServiceOrderInput {
   billingDay: '1' | '15' | '20' | '25';
   activationDate: string; // ISO 8601
   submittedAt: string; // ISO 8601
+  /**
+   * Acceptance evidence captured at the Step-5 click-accept (submission_data.acceptance).
+   * When present, the PDF renders the terms SNAPSHOT the clinic actually accepted
+   * (not the current live terms) and an audit-grade acceptance declaration.
+   */
+  acceptance?: {
+    acceptedAtIso: string;
+    ip?: string | null;
+    termsVersion?: string;
+    termsHash?: string;
+    /** Plain-text clauses exactly as accepted. */
+    termsSnapshot?: string[];
+    linkSentVia?: string; // 'whatsapp' | 'sms' | ...
+    linkSentAtIso?: string;
+    maskedPhone?: string; // e.g. 073 *** 8016
+    submissionId?: string;
+  };
+}
+
+/** Format an ISO timestamp as date + time in South African time, e.g. "11 June 2026, 14:32:07 (SAST)". */
+function formatDateTimeSAST(iso: string): string {
+  const d = new Date(iso);
+  const date = d.toLocaleDateString('en-ZA', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Africa/Johannesburg',
+  });
+  const time = d.toLocaleTimeString('en-ZA', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'Africa/Johannesburg',
+  });
+  return `${date}, ${time} (SAST)`;
 }
 
 /**
@@ -336,8 +372,11 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
   doc.text('TERMS AND CONDITIONS', leftCol, yPos);
   yPos += 8;
 
-  // Plain text terms (without HTML tags)
-  const plainTerms = stripHtmlFromTerms(SERVICE_ORDER_TERMS);
+  // Render the terms snapshot the clinic actually accepted; fall back to current live terms
+  // (older submissions made before acceptance evidence was captured).
+  const plainTerms = input.acceptance?.termsSnapshot?.length
+    ? input.acceptance.termsSnapshot
+    : stripHtmlFromTerms(SERVICE_ORDER_TERMS);
 
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
@@ -373,11 +412,42 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...COLORS.secondaryText);
-  const acceptanceLines = doc.splitTextToSize(
-    `This Service Order was accepted electronically by the clinic on ${formatDate(input.submittedAt)} via the CircleTel onboarding portal (click-accept). No manual signature is required.`,
-    colWidth
-  );
+
+  const acc = input.acceptance;
+  let acceptanceText: string;
+  if (acc) {
+    const channel =
+      acc.linkSentVia === 'whatsapp' ? 'WhatsApp' : acc.linkSentVia === 'sms' ? 'SMS' : 'a secure channel';
+    const linkSentence =
+      acc.maskedPhone && acc.linkSentAtIso
+        ? ` Access was via a single-use secure link sent by ${channel} to ${acc.maskedPhone} on ${formatDate(acc.linkSentAtIso)}.`
+        : '';
+    const ipSentence = acc.ip ? ` Originating IP address: ${acc.ip}.` : '';
+    acceptanceText =
+      `This Service Order was accepted electronically by the clinic on ${formatDateTimeSAST(acc.acceptedAtIso)} ` +
+      `via the CircleTel onboarding portal (click-accept), in terms of the Electronic Communications and ` +
+      `Transactions Act 25 of 2002.${linkSentence}${ipSentence} No manual signature is required.`;
+  } else {
+    acceptanceText =
+      `This Service Order was accepted electronically by the clinic on ${formatDate(input.submittedAt)} ` +
+      `via the CircleTel onboarding portal (click-accept). No manual signature is required.`;
+  }
+  const acceptanceLines = doc.splitTextToSize(acceptanceText, colWidth);
   doc.text(acceptanceLines, leftCol, yPos);
+  yPos += acceptanceLines.length * 4 + 4;
+
+  // Audit reference line — ties this document to the immutable acceptance record
+  if (acc && (acc.submissionId || acc.termsVersion || acc.termsHash)) {
+    doc.setFontSize(7);
+    doc.setTextColor(...COLORS.secondaryText);
+    const auditParts = [
+      acc.submissionId ? `Acceptance record: ${acc.submissionId}` : null,
+      acc.termsVersion ? `Terms version: ${acc.termsVersion}` : null,
+      acc.termsHash ? `Terms SHA-256: ${acc.termsHash}` : null,
+    ].filter(Boolean);
+    const auditLines = doc.splitTextToSize(auditParts.join('  ·  '), colWidth);
+    doc.text(auditLines, leftCol, yPos);
+  }
 
   // Add footers to all pages
   const totalPages = doc.getNumberOfPages();

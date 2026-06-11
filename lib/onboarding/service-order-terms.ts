@@ -7,6 +7,13 @@
 
 export const SERVICE_ORDER_TERMS_TITLE = 'CircleTel Service Order — Terms & Conditions';
 
+/**
+ * Human-readable terms version. BUMP THIS whenever SERVICE_ORDER_TERMS changes.
+ * Stored on each acceptance (with a content hash) so we can always prove which
+ * terms a clinic accepted, even after the terms evolve.
+ */
+export const SERVICE_ORDER_TERMS_VERSION = '2026-06-11';
+
 export const SERVICE_ORDER_TERMS = [
   '<b>Commencement & Contract Period:</b> The Service Order commences on the date of service activation (the "Activation Date") and continues for a fixed period of 24 (twenty-four) months from the Activation Date (the "Contract Period"). Thereafter it renews automatically on a month-to-month basis unless either party terminates with 30 days written notice.',
   '<b>Billing & Payment:</b> Billing commences only on the Activation Date — no fees are charged before the service is activated. The first invoice is pro-rated from the Activation Date to the end of that calendar month. Thereafter the monthly fee is due and payable in advance on the selected payment date.',
