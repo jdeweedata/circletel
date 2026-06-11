@@ -36,6 +36,7 @@ import {
   StatCard,
 } from '@/components/backend';
 import { cn } from '@/lib/utils';
+import networkRegister from '@/lib/data/unjani-network-register.json';
 
 // ---------- Types (mirror /api/admin/b2b/onboarding-pipeline) ----------
 
@@ -144,6 +145,49 @@ const SLA_FILL: Record<SlaStatus, string> = {
 
 const fmtRand = (n: number) => 'R' + Math.round(n).toLocaleString('en-ZA');
 
+// ---------- Network register (static reference data — MSA savings schedule v1.0) ----------
+
+interface RegisterClinic {
+  name: string;
+  province: string;
+  nurse: string | null;
+  isp: string | null;
+  isp_cost: number | null;
+  saving: number | null;
+  migration_ready: boolean;
+}
+
+const REGISTER = networkRegister as {
+  version: string;
+  as_of: string;
+  summary: {
+    total_clinics: number;
+    clinics_with_saving: number;
+    clinics_with_cost_increase: number;
+    clinics_no_cost_data: number;
+    net_monthly_saving_rands: number;
+  };
+  clinics: RegisterClinic[];
+};
+
+/** Normalise clinic names so pipeline rows ("Unjani Clinic - Delmas") match register rows ("Delmas"). */
+const normName = (s: string) => s.toLowerCase().replace(/^unjani clinic\s*-\s*/, '').trim();
+
+const SAVING_BY_NAME = new Map(REGISTER.clinics.map((c) => [normName(c.name), c.saving]));
+
+function savingDisplay(saving: number | null | undefined) {
+  if (saving === null || saving === undefined) {
+    return <span className="text-sm text-gray-400">—</span>;
+  }
+  if (saving > 0) {
+    return <span className="text-sm font-semibold text-green-600">+{fmtRand(saving)}</span>;
+  }
+  if (saving < 0) {
+    return <span className="text-sm font-semibold text-red-600">−{fmtRand(Math.abs(saving))}</span>;
+  }
+  return <span className="text-sm text-gray-400">R0</span>;
+}
+
 // ---------- Page ----------
 
 type SortKey = 'name' | 'stage' | 'sla' | 'province';
@@ -154,7 +198,7 @@ export default function UnjaniOnboardingPipelinePage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
-  const [view, setView] = useState<'table' | 'kanban'>('table');
+  const [view, setView] = useState<'table' | 'kanban' | 'register'>('table');
   const [stageFilter, setStageFilter] = useState('');
   const [provinceFilter, setProvinceFilter] = useState('');
   const [slaFilter, setSlaFilter] = useState('');
@@ -199,9 +243,32 @@ export default function UnjaniOnboardingPipelinePage() {
   const clinics = useMemo(() => data?.clinics ?? [], [data]);
 
   const provinces = useMemo(
-    () => Array.from(new Set(clinics.map((c) => c.province).filter(Boolean))).sort(),
+    () =>
+      Array.from(
+        new Set([
+          ...clinics.map((c) => c.province).filter(Boolean),
+          ...REGISTER.clinics.map((c) => c.province),
+        ])
+      ).sort(),
     [clinics]
   );
+
+  /** Pipeline stage by normalised clinic name — cross-references the register view. */
+  const pipelineStageByName = useMemo(
+    () => new Map(clinics.map((c) => [normName(c.business_name), c.stage])),
+    [clinics]
+  );
+
+  const filteredRegister = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return REGISTER.clinics
+      .filter(
+        (c) =>
+          (!provinceFilter || c.province === provinceFilter) &&
+          (!q || `${c.name} ${c.nurse ?? ''}`.toLowerCase().includes(q))
+      )
+      .sort((a, b) => (b.saving ?? -Infinity) - (a.saving ?? -Infinity));
+  }, [provinceFilter, query]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -351,6 +418,35 @@ export default function UnjaniOnboardingPipelinePage() {
   };
 
   const exportCsv = () => {
+    if (view === 'register') {
+      const head =
+        'Clinic,Province,Nurse,Current ISP,Current cost p/m,CircleTel fee p/m,Monthly saving,Migration ready,Pipeline stage';
+      const lines = filteredRegister.map((c) =>
+        [
+          `"${c.name}"`,
+          c.province,
+          `"${c.nurse ?? ''}"`,
+          c.isp ?? '',
+          c.isp_cost ?? '',
+          450,
+          c.saving ?? '',
+          c.migration_ready ? 'Yes' : 'No',
+          pipelineStageByName.has(normName(c.name))
+            ? stageMeta(pipelineStageByName.get(normName(c.name))!).label
+            : 'Not started',
+        ].join(',')
+      );
+      const blob = new Blob([head + '\n' + lines.join('\n')], {
+        type: 'text/csv;charset=utf-8',
+      });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `unjani-network-register-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast.success(`CSV exported — ${filteredRegister.length} register clinics`);
+      return;
+    }
     const head =
       'Account,Clinic,Province,Nurse,Stage,SLA status,Business days left,Submitted at,Service order issued';
     const lines = sorted.map((c) => {
@@ -450,11 +546,11 @@ export default function UnjaniOnboardingPipelinePage() {
     <main className="max-w-7xl mx-auto px-4 py-8">
       <PageHeader
         title="Unjani Clinic Onboarding"
-        subtitle={`${total} clinics in pipeline · ${data.overdueCount} overdue SLA · vetting target 2 business days`}
+        subtitle={`${total} clinics in pipeline · ${REGISTER.summary.total_clinics} in network register · vetting target 2 business days`}
         actions={
           <>
             <div className="inline-flex rounded-md border border-gray-200 bg-white overflow-hidden">
-              {(['table', 'kanban'] as const).map((v) => (
+              {(['table', 'kanban', 'register'] as const).map((v) => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
@@ -738,6 +834,7 @@ export default function UnjaniOnboardingPipelinePage() {
                     >
                       Vetting SLA {sortKey === 'sla' && (sortDir === 1 ? '▲' : '▼')}
                     </TableHead>
+                    <TableHead>Saving p/m</TableHead>
                     <TableHead>Service order</TableHead>
                     <TableHead className="text-right">Next action</TableHead>
                   </TableRow>
@@ -814,6 +911,9 @@ export default function UnjaniOnboardingPipelinePage() {
                               due {new Date(clinic.sla.dueDate).toLocaleDateString('en-ZA')}
                             </div>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          {savingDisplay(SAVING_BY_NAME.get(normName(clinic.business_name)))}
                         </TableCell>
                         <TableCell>
                           {issued ? (
@@ -911,6 +1011,142 @@ export default function UnjaniOnboardingPipelinePage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Network register view — the full 253-clinic MSA schedule (static reference data) */}
+      {view === 'register' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              label="Network register"
+              value={REGISTER.summary.total_clinics}
+              subtitle={`${total} already in the pipeline`}
+            />
+            <StatCard
+              label="Clinics that save"
+              value={REGISTER.summary.clinics_with_saving}
+              subtitle="cheaper on the R450 MSA fee"
+            />
+            <StatCard
+              label="Cost increase / no data"
+              value={`${REGISTER.summary.clinics_with_cost_increase} / ${REGISTER.summary.clinics_no_cost_data}`}
+              subtitle="need a value conversation first"
+            />
+            <StatCard
+              label="Net saving across network"
+              value={fmtRand(REGISTER.summary.net_monthly_saving_rands) + ' p/m'}
+              subtitle={`MSA schedule v${REGISTER.version} · ${REGISTER.as_of}`}
+            />
+          </div>
+
+          <SectionCard title="Top displacement savings" compact>
+            <div className="space-y-2">
+              {REGISTER.clinics
+                .filter((c) => (c.saving ?? 0) > 0)
+                .sort((a, b) => (b.saving ?? 0) - (a.saving ?? 0))
+                .slice(0, 6)
+                .map((c, _, arr) => (
+                  <div key={c.name} className="flex items-center gap-3 text-xs">
+                    <span className="w-36 shrink-0 truncate text-gray-600" title={c.name}>
+                      {c.name}
+                    </span>
+                    <span className="flex-1 h-3.5 bg-gray-100 rounded-sm overflow-hidden">
+                      <span
+                        className="block h-full bg-circleTel-orange rounded-sm"
+                        style={{ width: `${((c.saving ?? 0) / (arr[0].saving ?? 1)) * 100}%` }}
+                      />
+                    </span>
+                    <span className="w-16 text-right font-semibold tabular-nums">
+                      {fmtRand(c.saving ?? 0)}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </SectionCard>
+
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            {filteredRegister.length === 0 ? (
+              <EmptyState
+                icon={<PiBuildingsBold />}
+                title="No register clinics match these filters"
+                description="Clear the search or province filter."
+              />
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Clinic</TableHead>
+                      <TableHead>Current ISP</TableHead>
+                      <TableHead>Saving p/m</TableHead>
+                      <TableHead>Migration ready</TableHead>
+                      <TableHead>Pipeline status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredRegister.map((c) => {
+                      const stage = pipelineStageByName.get(normName(c.name));
+                      const meta = stage ? stageMeta(stage) : null;
+                      return (
+                        <TableRow key={c.name}>
+                          <TableCell>
+                            <div className="font-semibold text-gray-900">{c.name}</div>
+                            <div className="text-xs text-gray-400 mt-0.5">
+                              {c.province}
+                              {c.nurse && <> · {c.nurse}</>}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm text-gray-600 whitespace-nowrap">
+                            {c.isp ? (
+                              <>
+                                {c.isp}
+                                {c.isp_cost != null && (
+                                  <span className="text-gray-400"> · {fmtRand(c.isp_cost)} p/m</span>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-gray-400">No data</span>
+                            )}
+                          </TableCell>
+                          <TableCell>{savingDisplay(c.saving)}</TableCell>
+                          <TableCell>
+                            {c.migration_ready ? (
+                              <span className="text-sm font-medium text-green-600">Yes</span>
+                            ) : (
+                              <span className="text-sm text-gray-400">No</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {meta ? (
+                              <span
+                                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap"
+                                style={{ background: meta.pillBg, color: meta.pillFg }}
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                {meta.label}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-400">Not started</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+            <div className="flex flex-wrap justify-between gap-2 border-t border-gray-100 px-4 py-3 text-xs text-gray-500">
+              <span>
+                Showing {filteredRegister.length} of {REGISTER.summary.total_clinics} register clinics
+                · sorted by saving
+              </span>
+              <span>
+                New clinics need coverage check → install → activation before the onboarding wizard
+              </span>
+            </div>
+          </div>
         </div>
       )}
 
