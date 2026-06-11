@@ -1,23 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import {
+  PiBuildingsBold,
   PiCheckCircleBold,
-  PiClockBold,
-  PiXCircleBold,
-  PiCaretRightBold,
+  PiCurrencyCircleDollarBold,
+  PiDownloadSimpleBold,
+  PiMagnifyingGlassBold,
+  PiPaperPlaneTiltBold,
   PiWarningBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -26,13 +21,32 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageHeader,
+  SectionCard,
+  StatCard,
+} from '@/components/backend';
+import { cn } from '@/lib/utils';
+
+// ---------- Types (mirror /api/admin/b2b/onboarding-pipeline) ----------
 
 interface PipelineClinic {
   account_number: string;
   customer_id: string;
   business_name: string;
   province: string;
+  nurse_name: string | null;
+  phone: string | null;
+  email: string | null;
   stage: string;
   document_vetting_status: string | null;
   mandate_status: string | null;
@@ -61,310 +75,965 @@ interface PipelineResponse {
   overdueCount: number;
 }
 
-function getStageBadge(stage: string) {
-  const variants: Record<
-    string,
-    { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }
-  > = {
-    invited: { variant: 'secondary', label: 'Invited' },
-    submitted: { variant: 'secondary', label: 'Submitted' },
-    changes_requested: { variant: 'destructive', label: 'Changes Requested' },
-    docs_approved: { variant: 'outline', label: 'Docs Approved' },
-    mandate_active: { variant: 'outline', label: 'Mandate Active' },
-    billing_ready: { variant: 'default', label: 'Billing Ready' },
-    pending: { variant: 'outline', label: 'Pending' },
-  };
-  const config = variants[stage] || { variant: 'outline', label: stage };
-  return <Badge variant={config.variant}>{config.label}</Badge>;
+// ---------- Stage model ----------
+
+interface StageMeta {
+  id: keyof PipelineResponse['stageCounts'];
+  label: string;
+  /** Pill colours (bg / fg) and the solid accent used in charts + kanban. */
+  pillBg: string;
+  pillFg: string;
+  color: string;
+  action: string;
 }
 
-function getStageIcon(stage: string) {
-  switch (stage) {
-    case 'billing_ready':
-      return <PiCheckCircleBold className="w-4 h-4 text-green-600" />;
-    case 'changes_requested':
-      return <PiXCircleBold className="w-4 h-4 text-red-600" />;
-    default:
-      return <PiClockBold className="w-4 h-4 text-amber-600" />;
-  }
+const STAGES: StageMeta[] = [
+  { id: 'pending', label: 'Awaiting invite', pillBg: '#F6F7F9', pillFg: '#606261', color: '#8B8B8B', action: 'Send invite' },
+  { id: 'invited', label: 'Invited', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#2563EB', action: 'Send reminder' },
+  { id: 'submitted', label: 'Docs submitted', pillBg: '#FDF2E9', pillFg: '#D76026', color: '#E87A1E', action: 'Vet documents' },
+  { id: 'changes_requested', label: 'Changes requested', pillBg: '#FCF6E5', pillFg: '#CA8A04', color: '#CA8A04', action: 'Review changes' },
+  { id: 'docs_approved', label: 'Docs approved', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#5B8DEF', action: 'Send mandate link' },
+  { id: 'mandate_active', label: 'Mandate active', pillBg: '#EAF7EF', pillFg: '#16A34A', color: '#3FBF6E', action: 'Issue service order' },
+  { id: 'billing_ready', label: 'Ready to install', pillBg: '#16A34A', pillFg: '#FFFFFF', color: '#16A34A', action: 'Issue service order' },
+];
+
+const STAGE_INDEX = Object.fromEntries(STAGES.map((s, i) => [s.id, i]));
+
+function stageMeta(stage: string): StageMeta {
+  return STAGES[STAGE_INDEX[stage]] ?? STAGES[0];
 }
 
-function formatSLADisplay(clinic: PipelineClinic): string {
-  if (!clinic.sla.dueDate) {
-    return '-';
-  }
+// ---------- SLA helpers (vetting SLA from the API) ----------
 
-  if (clinic.sla.overdue && clinic.sla.businessDaysLeft !== null) {
-    return `${Math.abs(clinic.sla.businessDaysLeft)} days overdue`;
-  }
+type SlaStatus = 'ok' | 'warn' | 'err';
 
-  if (clinic.sla.businessDaysLeft !== null) {
-    return `${clinic.sla.businessDaysLeft} days left`;
-  }
-
-  return '-';
+function slaStatus(clinic: PipelineClinic): SlaStatus | null {
+  if (!clinic.sla.dueDate) return null;
+  if (clinic.sla.overdue) return 'err';
+  if ((clinic.sla.businessDaysLeft ?? 99) <= 1) return 'warn';
+  return 'ok';
 }
 
-export default function UnjanionboardingPipelinePage() {
+/** Elapsed share of the vetting window (submitted_at → vetting_due_date), 0–100. */
+function slaProgress(clinic: PipelineClinic): number {
+  if (!clinic.sla.dueDate || !clinic.submitted_at) return clinic.sla.overdue ? 100 : 0;
+  const start = new Date(clinic.submitted_at).getTime();
+  const end = new Date(clinic.sla.dueDate).getTime();
+  if (end <= start) return 100;
+  const pct = ((Date.now() - start) / (end - start)) * 100;
+  return Math.min(Math.max(pct, 4), 100);
+}
+
+function slaLabel(clinic: PipelineClinic): string {
+  const days = clinic.sla.businessDaysLeft;
+  if (clinic.sla.dueDate === null || days === null) return '—';
+  if (clinic.sla.overdue) return `${Math.abs(days)}d overdue`;
+  return `${days}d left`;
+}
+
+const SLA_TEXT: Record<SlaStatus, string> = {
+  ok: 'text-green-600',
+  warn: 'text-amber-600',
+  err: 'text-red-600',
+};
+const SLA_FILL: Record<SlaStatus, string> = {
+  ok: 'bg-green-600',
+  warn: 'bg-amber-500',
+  err: 'bg-red-600',
+};
+
+const fmtRand = (n: number) => 'R' + Math.round(n).toLocaleString('en-ZA');
+
+// ---------- Page ----------
+
+type SortKey = 'name' | 'stage' | 'sla' | 'province';
+
+export default function UnjaniOnboardingPipelinePage() {
   const router = useRouter();
   const [data, setData] = useState<PipelineResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [issuingServiceOrder, setIssuingServiceOrder] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
+
+  const [view, setView] = useState<'table' | 'kanban'>('table');
+  const [stageFilter, setStageFilter] = useState('');
+  const [provinceFilter, setProvinceFilter] = useState('');
+  const [slaFilter, setSlaFilter] = useState('');
+  const [query, setQuery] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('stage');
+  const [sortDir, setSortDir] = useState<1 | -1>(1);
+
+  const [actingOn, setActingOn] = useState<string | null>(null);
+  const [batchSending, setBatchSending] = useState(false);
+  const [drawerClinic, setDrawerClinic] = useState<PipelineClinic | null>(null);
+
+  const authHeaders = useCallback(
+    (): Record<string, string> => ({
+      Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
+    }),
+    []
+  );
+
+  const fetchPipeline = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/b2b/onboarding-pipeline', {
+        headers: authHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch pipeline');
+      const result: PipelineResponse = await response.json();
+      setData(result);
+      setLoadError(false);
+    } catch (error) {
+      console.error('Error fetching pipeline:', error);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [authHeaders]);
 
   useEffect(() => {
-    async function fetchPipeline() {
-      setLoading(true);
-      try {
-        const response = await fetch('/api/admin/b2b/onboarding-pipeline', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch pipeline');
-        }
-
-        const result: PipelineResponse = await response.json();
-        setData(result);
-      } catch (error) {
-        console.error('Error fetching pipeline:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchPipeline();
-  }, []);
+  }, [fetchPipeline]);
 
-  const handleIssueServiceOrder = async (customerId: string) => {
-    setIssuingServiceOrder(customerId);
+  // ---------- Derived data ----------
+
+  const clinics = useMemo(() => data?.clinics ?? [], [data]);
+
+  const provinces = useMemo(
+    () => Array.from(new Set(clinics.map((c) => c.province).filter(Boolean))).sort(),
+    [clinics]
+  );
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return clinics.filter(
+      (c) =>
+        (!stageFilter || c.stage === stageFilter) &&
+        (!provinceFilter || c.province === provinceFilter) &&
+        (!slaFilter || slaStatus(c) === slaFilter) &&
+        (!q ||
+          `${c.business_name} ${c.account_number} ${c.nurse_name ?? ''}`
+            .toLowerCase()
+            .includes(q))
+    );
+  }, [clinics, stageFilter, provinceFilter, slaFilter, query]);
+
+  const sorted = useMemo(() => {
+    const list = [...filtered];
+    list.sort((a, b) => {
+      let va: string | number;
+      let vb: string | number;
+      switch (sortKey) {
+        case 'stage':
+          va = STAGE_INDEX[a.stage] ?? 0;
+          vb = STAGE_INDEX[b.stage] ?? 0;
+          break;
+        case 'sla':
+          va = a.sla.businessDaysLeft ?? 999;
+          vb = b.sla.businessDaysLeft ?? 999;
+          break;
+        case 'province':
+          va = a.province;
+          vb = b.province;
+          break;
+        default:
+          va = a.business_name;
+          vb = b.business_name;
+      }
+      return (va < vb ? -1 : va > vb ? 1 : 0) * sortDir;
+    });
+    return list;
+  }, [filtered, sortKey, sortDir]);
+
+  const provinceCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    clinics.forEach((c) => {
+      const key = c.province || 'Unknown';
+      map.set(key, (map.get(key) ?? 0) + 1);
+    });
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [clinics]);
+
+  // ---------- Actions ----------
+
+  const sendLink = async (clinic: PipelineClinic, label: string) => {
+    setActingOn(clinic.customer_id);
+    try {
+      const response = await fetch('/api/admin/unjani/send-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ customerId: clinic.customer_id, channel: 'whatsapp' }),
+      });
+      const result = await response.json();
+      if (response.ok && result.success && result.sent) {
+        toast.success(`${label} sent to ${clinic.business_name} via WhatsApp`);
+      } else if (response.ok && result.success) {
+        toast.warning(
+          `Link issued for ${clinic.business_name}, but sending failed${result.sendError ? `: ${result.sendError}` : ''}`
+        );
+      } else {
+        toast.error(result.error || `Failed to send ${label.toLowerCase()}`);
+      }
+      await fetchPipeline();
+    } catch (error) {
+      console.error('Error sending link:', error);
+      toast.error(`Failed to send ${label.toLowerCase()}`);
+    } finally {
+      setActingOn(null);
+    }
+  };
+
+  const issueServiceOrder = async (clinic: PipelineClinic) => {
+    setActingOn(clinic.customer_id);
     try {
       const response = await fetch('/api/admin/b2b/issue-service-order', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
-        },
-        body: JSON.stringify({ customerId }),
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ customerId: clinic.customer_id }),
       });
-
       if (response.ok) {
-        // Refresh the pipeline data
-        const pipelineResponse = await fetch('/api/admin/b2b/onboarding-pipeline', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
-          },
-        });
-        const result: PipelineResponse = await pipelineResponse.json();
-        setData(result);
+        toast.success(`Service order issued for ${clinic.business_name}`);
+        await fetchPipeline();
       } else {
         const error = await response.json();
-        console.error('Failed to issue service order:', error);
-        alert(`Error: ${error.message || 'Failed to issue service order'}`);
+        toast.error(error.message || error.error || 'Failed to issue service order');
       }
     } catch (error) {
       console.error('Error issuing service order:', error);
-      alert('Error issuing service order');
+      toast.error('Failed to issue service order');
     } finally {
-      setIssuingServiceOrder(null);
+      setActingOn(null);
     }
   };
+
+  const sendPendingInvites = async () => {
+    setBatchSending(true);
+    try {
+      // Dry run first so the confirm shows the real recipient count.
+      const dryResponse = await fetch('/api/admin/unjani/send-onboarding-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ dryRun: true }),
+      });
+      const dry = await dryResponse.json();
+      if (!dryResponse.ok || !dry.success) {
+        toast.error(dry.error || 'Failed to check eligible clinics');
+        return;
+      }
+      if (!dry.eligibleCount) {
+        toast.info('No clinics are awaiting an invite');
+        return;
+      }
+      if (
+        !window.confirm(
+          `Send WhatsApp onboarding invites to ${dry.eligibleCount} clinic(s)?`
+        )
+      ) {
+        return;
+      }
+      const response = await fetch('/api/admin/unjani/send-onboarding-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({}),
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        toast.success(`Invites sent: ${result.sent} of ${result.total}`);
+        await fetchPipeline();
+      } else {
+        toast.error(result.error || 'Batch invite failed');
+      }
+    } catch (error) {
+      console.error('Error sending batch invites:', error);
+      toast.error('Batch invite failed');
+    } finally {
+      setBatchSending(false);
+    }
+  };
+
+  const exportCsv = () => {
+    const head =
+      'Account,Clinic,Province,Nurse,Stage,SLA status,Business days left,Submitted at,Service order issued';
+    const lines = sorted.map((c) => {
+      const st = slaStatus(c);
+      return [
+        c.account_number,
+        `"${c.business_name}"`,
+        c.province,
+        `"${c.nurse_name ?? ''}"`,
+        stageMeta(c.stage).label,
+        st === 'err' ? 'Overdue' : st === 'warn' ? 'At risk' : st === 'ok' ? 'On track' : '',
+        c.sla.businessDaysLeft ?? '',
+        c.submitted_at ? new Date(c.submitted_at).toLocaleDateString('en-ZA') : '',
+        c.service_order_issued_at
+          ? new Date(c.service_order_issued_at).toLocaleDateString('en-ZA')
+          : '',
+      ].join(',');
+    });
+    const blob = new Blob([head + '\n' + lines.join('\n')], {
+      type: 'text/csv;charset=utf-8',
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `unjani-onboarding-pipeline-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast.success(`CSV exported — ${sorted.length} clinics`);
+  };
+
+  const runNextAction = (clinic: PipelineClinic) => {
+    switch (clinic.stage) {
+      case 'pending':
+        sendLink(clinic, 'Invite');
+        break;
+      case 'invited':
+        sendLink(clinic, 'Reminder');
+        break;
+      case 'docs_approved':
+        sendLink(clinic, 'Mandate link');
+        break;
+      case 'submitted':
+      case 'changes_requested':
+        if (clinic.submission_id) {
+          router.push(`/admin/b2b/vetting/${clinic.submission_id}`);
+        } else {
+          toast.info('No submission to review yet');
+        }
+        break;
+      case 'mandate_active':
+      case 'billing_ready':
+        issueServiceOrder(clinic);
+        break;
+    }
+  };
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 1 ? -1 : 1));
+    } else {
+      setSortKey(key);
+      setSortDir(1);
+    }
+  };
+
+  // ---------- Render ----------
 
   if (loading) {
     return (
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Clinic Onboarding Pipeline</h1>
-          <p className="text-gray-600">Track Unjani clinic onboarding progress</p>
-        </div>
-
-        <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full" />
-          ))}
-        </div>
+        <LoadingState message="Loading onboarding pipeline…" />
       </main>
     );
   }
 
-  if (!data) {
+  if (loadError || !data) {
     return (
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center py-8 text-gray-500">Failed to load pipeline data</div>
+        <ErrorState
+          title="Failed to load pipeline"
+          message="The onboarding pipeline could not be loaded."
+          onRetry={() => {
+            setLoading(true);
+            fetchPipeline();
+          }}
+        />
       </main>
     );
   }
+
+  const total = clinics.length;
+  const readyCount = data.stageCounts.billing_ready;
+  const awaitingInvite = data.stageCounts.pending;
+  const maxStageCount = Math.max(...STAGES.map((s) => data.stageCounts[s.id]), 1);
+  const maxProvinceCount = provinceCounts[0]?.[1] ?? 1;
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Clinic Onboarding Pipeline</h1>
-        <p className="text-gray-600">Track Unjani clinic onboarding progress and SLAs</p>
+      <PageHeader
+        title="Unjani Clinic Onboarding"
+        subtitle={`${total} clinics in pipeline · ${data.overdueCount} overdue SLA · vetting target 2 business days`}
+        actions={
+          <>
+            <div className="inline-flex rounded-md border border-gray-200 bg-white overflow-hidden">
+              {(['table', 'kanban'] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={cn(
+                    'px-4 py-2 text-sm font-semibold capitalize transition-colors',
+                    view === v
+                      ? 'bg-circleTel-navy text-white'
+                      : 'text-gray-500 hover:text-gray-900'
+                  )}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+            <Button variant="outline" onClick={exportCsv}>
+              <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button
+              onClick={sendPendingInvites}
+              disabled={batchSending}
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+            >
+              <PiPaperPlaneTiltBold className="w-4 h-4 mr-2" />
+              {batchSending ? 'Sending…' : 'Send pending invites'}
+            </Button>
+          </>
+        }
+      />
+
+      {/* KPI row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <StatCard
+          label="Active pipeline"
+          value={total}
+          icon={<PiBuildingsBold className="w-5 h-5" />}
+          description="clinics in onboarding"
+        />
+        <StatCard
+          label="Overdue SLA"
+          value={data.overdueCount}
+          icon={<PiWarningBold className="w-5 h-5" />}
+          description={`${awaitingInvite} still awaiting invite`}
+          badge={
+            data.overdueCount > 0 ? (
+              <span className="text-[10px] font-bold uppercase tracking-wide bg-red-100 text-red-700 rounded-full px-2 py-0.5">
+                Attention
+              </span>
+            ) : undefined
+          }
+        />
+        <StatCard
+          label="Ready to install"
+          value={readyCount}
+          icon={<PiCheckCircleBold className="w-5 h-5" />}
+          description="service orders can be raised"
+        />
+        <StatCard
+          label="Pipeline MRR at activation"
+          value={fmtRand(total * 450)}
+          icon={<PiCurrencyCircleDollarBold className="w-5 h-5" />}
+          description={`${total} × R450 p/m connectivity`}
+        />
       </div>
 
-      {/* Stage Count Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{data.stageCounts.invited}</div>
-              <div className="text-xs text-gray-600">Invited</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{data.stageCounts.submitted}</div>
-              <div className="text-xs text-gray-600">Submitted</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">
-                {data.stageCounts.changes_requested}
+      {/* Pipeline by stage funnel */}
+      <SectionCard
+        title="Pipeline by stage"
+        action={<span className="text-xs text-gray-400">Click a stage to filter</span>}
+        className="mb-6"
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2">
+          {STAGES.map((s) => {
+            const count = data.stageCounts[s.id];
+            const overdueInStage = clinics.filter(
+              (c) => c.stage === s.id && slaStatus(c) === 'err'
+            ).length;
+            const selected = stageFilter === s.id;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setStageFilter(selected ? '' : s.id)}
+                aria-pressed={selected}
+                className={cn(
+                  'relative rounded-md border p-3 text-left transition-colors',
+                  selected
+                    ? 'border-circleTel-orange bg-circleTel-orange-light'
+                    : 'border-gray-200 bg-white hover:border-circleTel-orange'
+                )}
+              >
+                {overdueInStage > 0 && (
+                  <span className="absolute top-2 right-2 text-[10px] font-bold text-red-600 bg-red-50 rounded-full px-1.5 py-0.5">
+                    {overdueInStage} overdue
+                  </span>
+                )}
+                <div className="text-2xl font-bold text-circleTel-navy tabular-nums">
+                  {count}
+                </div>
+                <div className="text-xs font-medium text-gray-500 mt-0.5">{s.label}</div>
+                <div className="h-1 rounded-full bg-gray-100 mt-2 overflow-hidden">
+                  <div
+                    className="h-full bg-circleTel-orange rounded-full"
+                    style={{ width: `${Math.round((count / maxStageCount) * 100)}%` }}
+                  />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </SectionCard>
+
+      {/* Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <SectionCard title="Stage distribution" compact>
+          {total === 0 ? (
+            <p className="text-sm text-gray-500">No clinics in pipeline.</p>
+          ) : (
+            <div className="flex items-center gap-6">
+              <svg
+                width="150"
+                height="150"
+                viewBox="0 0 42 42"
+                role="img"
+                aria-label="Stage distribution donut chart"
+                className="shrink-0"
+              >
+                {(() => {
+                  let offset = 25;
+                  return STAGES.filter((s) => data.stageCounts[s.id] > 0).map((s) => {
+                    const pct = (data.stageCounts[s.id] / total) * 100;
+                    const seg = (
+                      <circle
+                        key={s.id}
+                        r="15.915"
+                        cx="21"
+                        cy="21"
+                        fill="none"
+                        stroke={s.color}
+                        strokeWidth="5.4"
+                        strokeDasharray={`${pct} ${100 - pct}`}
+                        strokeDashoffset={offset}
+                      />
+                    );
+                    offset -= pct;
+                    return seg;
+                  });
+                })()}
+                <text
+                  x="21"
+                  y="20"
+                  textAnchor="middle"
+                  fontSize="7.5"
+                  fontWeight="700"
+                  fill="#1B2A4A"
+                >
+                  {total}
+                </text>
+                <text x="21" y="26.5" textAnchor="middle" fontSize="3" fill="#8B8B8B">
+                  clinics
+                </text>
+              </svg>
+              <div className="flex flex-col gap-1.5 text-xs min-w-0">
+                {STAGES.filter((s) => data.stageCounts[s.id] > 0).map((s) => (
+                  <div key={s.id} className="flex items-center gap-2 text-gray-600">
+                    <span
+                      className="w-2.5 h-2.5 rounded-sm shrink-0"
+                      style={{ background: s.color }}
+                    />
+                    <span className="truncate">{s.label}</span>
+                    <span className="ml-auto pl-3 font-semibold text-gray-900 tabular-nums">
+                      {data.stageCounts[s.id]}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="text-xs text-gray-600">Changes Req.</div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{data.stageCounts.docs_approved}</div>
-              <div className="text-xs text-gray-600">Docs Approved</div>
+          )}
+        </SectionCard>
+
+        <SectionCard title="Clinics by province" compact>
+          {provinceCounts.length === 0 ? (
+            <p className="text-sm text-gray-500">No clinics in pipeline.</p>
+          ) : (
+            <div className="space-y-2">
+              {provinceCounts.map(([province, count]) => (
+                <div key={province} className="flex items-center gap-3 text-xs">
+                  <span className="w-28 shrink-0 truncate text-gray-600" title={province}>
+                    {province}
+                  </span>
+                  <span className="flex-1 h-3.5 bg-gray-100 rounded-sm overflow-hidden">
+                    <span
+                      className="block h-full bg-circleTel-navy rounded-sm"
+                      style={{ width: `${(count / maxProvinceCount) * 100}%` }}
+                    />
+                  </span>
+                  <span className="w-6 text-right font-semibold tabular-nums">{count}</span>
+                </div>
+              ))}
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{data.stageCounts.mandate_active}</div>
-              <div className="text-xs text-gray-600">Mandate Active</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {data.stageCounts.billing_ready}
-              </div>
-              <div className="text-xs text-gray-600">Ready</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className={data.overdueCount > 0 ? 'border-red-300 bg-red-50' : ''}>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className={`text-2xl font-bold ${data.overdueCount > 0 ? 'text-red-600' : ''}`}>
-                {data.overdueCount}
-              </div>
-              <div className="text-xs text-gray-600">Overdue</div>
-            </div>
-          </CardContent>
-        </Card>
+          )}
+        </SectionCard>
       </div>
 
-      {/* Pipeline Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Clinics</CardTitle>
-          <CardDescription>{data.clinics.length} total clinics</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {data.clinics.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">No clinics in pipeline</div>
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="relative flex-1 min-w-[220px]">
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search clinic, account number or nurse…"
+            aria-label="Search clinics"
+            className="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+          />
+        </div>
+        <select
+          value={provinceFilter}
+          onChange={(e) => setProvinceFilter(e.target.value)}
+          aria-label="Filter by province"
+          className="rounded-md border border-gray-200 bg-white py-2 px-3 text-sm text-gray-700"
+        >
+          <option value="">All provinces</option>
+          {provinces.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
+        <select
+          value={slaFilter}
+          onChange={(e) => setSlaFilter(e.target.value)}
+          aria-label="Filter by SLA status"
+          className="rounded-md border border-gray-200 bg-white py-2 px-3 text-sm text-gray-700"
+        >
+          <option value="">All SLA statuses</option>
+          <option value="err">Overdue</option>
+          <option value="warn">At risk</option>
+          <option value="ok">On track</option>
+        </select>
+        {stageFilter && (
+          <button
+            onClick={() => setStageFilter('')}
+            className="inline-flex items-center gap-1.5 rounded-full bg-circleTel-orange-light px-3 py-1.5 text-xs font-semibold text-circleTel-orange-accessible"
+          >
+            Stage: {stageMeta(stageFilter).label}
+            <span aria-hidden>×</span>
+          </button>
+        )}
+      </div>
+
+      {/* Table view */}
+      {view === 'table' && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          {sorted.length === 0 ? (
+            <EmptyState
+              icon={<PiBuildingsBold />}
+              title="No clinics match these filters"
+              description="Clear a filter or adjust the search to see the pipeline."
+            />
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Account</TableHead>
-                    <TableHead>Clinic</TableHead>
-                    <TableHead>Province</TableHead>
-                    <TableHead>Stage</TableHead>
-                    <TableHead>SLA</TableHead>
-                    <TableHead>Service Order</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
+                    <TableHead
+                      className="cursor-pointer select-none"
+                      onClick={() => toggleSort('name')}
+                    >
+                      Clinic {sortKey === 'name' && (sortDir === 1 ? '▲' : '▼')}
+                    </TableHead>
+                    <TableHead
+                      className="cursor-pointer select-none"
+                      onClick={() => toggleSort('stage')}
+                    >
+                      Stage {sortKey === 'stage' && (sortDir === 1 ? '▲' : '▼')}
+                    </TableHead>
+                    <TableHead
+                      className="cursor-pointer select-none"
+                      onClick={() => toggleSort('sla')}
+                    >
+                      Vetting SLA {sortKey === 'sla' && (sortDir === 1 ? '▲' : '▼')}
+                    </TableHead>
+                    <TableHead>Service order</TableHead>
+                    <TableHead className="text-right">Next action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.clinics.map((clinic) => (
-                    <TableRow
-                      key={clinic.customer_id}
-                      className={clinic.sla.overdue ? 'bg-red-50' : 'hover:bg-gray-50'}
-                    >
-                      <TableCell className="font-mono text-sm">{clinic.account_number}</TableCell>
-                      <TableCell className="font-medium">{clinic.business_name}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{clinic.province}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getStageIcon(clinic.stage)}
-                          {getStageBadge(clinic.stage)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {clinic.sla.overdue ? (
-                            <div className="flex items-center gap-1 text-red-600 font-medium">
-                              <PiWarningBold className="w-4 h-4" />
-                              {formatSLADisplay(clinic)}
+                  {sorted.map((clinic) => {
+                    const meta = stageMeta(clinic.stage);
+                    const st = slaStatus(clinic);
+                    const stageIdx = STAGE_INDEX[clinic.stage] ?? 0;
+                    const issued = !!clinic.service_order_issued_at;
+                    const actionable =
+                      !issued ||
+                      !['mandate_active', 'billing_ready'].includes(clinic.stage);
+                    return (
+                      <TableRow
+                        key={clinic.customer_id}
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() => setDrawerClinic(clinic)}
+                      >
+                        <TableCell>
+                          <div className="font-semibold text-gray-900">
+                            {clinic.business_name}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-0.5">
+                            <span className="font-mono">{clinic.account_number}</span>
+                            {clinic.province && <> · {clinic.province}</>}
+                            {clinic.nurse_name && <> · {clinic.nurse_name}</>}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap"
+                            style={{ background: meta.pillBg, color: meta.pillFg }}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                            {meta.label}
+                          </span>
+                          <div className="flex gap-0.5 mt-1.5">
+                            {STAGES.slice(0, 6).map((_, i) => (
+                              <span
+                                key={i}
+                                className={cn(
+                                  'w-3 h-1 rounded-full',
+                                  i < stageIdx ||
+                                    clinic.stage === 'billing_ready'
+                                    ? 'bg-circleTel-orange'
+                                    : 'bg-gray-200'
+                                )}
+                              />
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {st === null ? (
+                            <span className="text-sm text-gray-400">—</span>
+                          ) : (
+                            <div
+                              className={cn(
+                                'flex items-center gap-2 text-xs font-semibold whitespace-nowrap',
+                                SLA_TEXT[st]
+                              )}
+                            >
+                              <span className="w-10 h-1.5 rounded-full bg-gray-200 overflow-hidden shrink-0">
+                                <span
+                                  className={cn('block h-full', SLA_FILL[st])}
+                                  style={{ width: `${slaProgress(clinic)}%` }}
+                                />
+                              </span>
+                              {slaLabel(clinic)}
+                            </div>
+                          )}
+                          {clinic.sla.dueDate && (
+                            <div className="text-[11px] text-gray-400 mt-1">
+                              due {new Date(clinic.sla.dueDate).toLocaleDateString('en-ZA')}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {issued ? (
+                            <div className="text-sm">
+                              <span className="text-green-600 font-medium">Issued</span>
+                              <div className="text-xs text-gray-400">
+                                {new Date(
+                                  clinic.service_order_issued_at!
+                                ).toLocaleDateString('en-ZA')}
+                              </div>
                             </div>
                           ) : (
-                            <span className="text-gray-600">{formatSLADisplay(clinic)}</span>
+                            <span className="text-xs text-gray-400">Pending</span>
                           )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {clinic.service_order_issued_at ? (
-                          <div className="text-sm">
-                            <span className="text-green-600 font-medium">Issued</span>
-                            <div className="text-xs text-gray-500">
-                              {new Date(clinic.service_order_issued_at).toLocaleDateString('en-ZA')}
-                            </div>
-                          </div>
-                        ) : (
-                          clinic.stage === 'billing_ready' || clinic.stage === 'docs_approved' || clinic.stage === 'mandate_active' ? (
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {actionable ? (
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleIssueServiceOrder(clinic.customer_id)}
-                              disabled={issuingServiceOrder === clinic.customer_id}
+                              disabled={actingOn === clinic.customer_id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                runNextAction(clinic);
+                              }}
+                              className="border-circleTel-orange text-circleTel-orange-accessible hover:bg-circleTel-orange hover:text-white whitespace-nowrap"
                             >
-                              {issuingServiceOrder === clinic.customer_id ? 'Issuing...' : 'Issue'}
+                              {actingOn === clinic.customer_id ? 'Working…' : meta.action}
                             </Button>
                           ) : (
-                            <span className="text-xs text-gray-400">Pending</span>
-                          )
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {clinic.submission_id ? (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() =>
-                              router.push(`/admin/b2b/vetting/${clinic.submission_id}`)
-                            }
-                          >
-                            <PiCaretRightBold className="w-4 h-4" />
-                          </Button>
-                        ) : (
-                          <span className="text-xs text-gray-400">No submission</span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            <span className="text-xs text-gray-400">Handed over</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
           )}
-        </CardContent>
-      </Card>
+          <div className="flex flex-wrap justify-between gap-2 border-t border-gray-100 px-4 py-3 text-xs text-gray-500">
+            <span>
+              Showing {sorted.length} of {total} clinics
+            </span>
+            <span>Vetting SLA target: 2 business days from submission</span>
+          </div>
+        </div>
+      )}
+
+      {/* Kanban view (read-only — clinics move via actions) */}
+      {view === 'kanban' && (
+        <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2 items-start">
+          {STAGES.map((s) => {
+            const cards = filtered.filter((c) => c.stage === s.id);
+            return (
+              <div
+                key={s.id}
+                className="bg-gray-50 border border-gray-200 rounded-lg p-2 min-h-[200px]"
+              >
+                <div className="flex items-center justify-between px-1.5 pb-2 text-xs font-semibold text-gray-600">
+                  {s.label}
+                  <span className="bg-white border border-gray-200 rounded-full px-2 py-0.5 tabular-nums">
+                    {cards.length}
+                  </span>
+                </div>
+                <div className="space-y-1.5">
+                  {cards.map((clinic) => {
+                    const st = slaStatus(clinic);
+                    return (
+                      <button
+                        key={clinic.customer_id}
+                        onClick={() => setDrawerClinic(clinic)}
+                        className="w-full text-left bg-white rounded-md shadow-sm p-2.5 border-l-2 hover:shadow transition-shadow"
+                        style={{
+                          borderLeftColor:
+                            st === 'err' ? '#DC2626' : st === 'warn' ? '#CA8A04' : s.color,
+                        }}
+                      >
+                        <div className="text-xs font-semibold text-gray-900 truncate">
+                          {clinic.business_name}
+                        </div>
+                        <div className="text-[11px] text-gray-400 truncate">
+                          {clinic.province || '—'}
+                          {clinic.nurse_name && <> · {clinic.nurse_name}</>}
+                        </div>
+                        {st !== null && (
+                          <div className={cn('text-[11px] font-semibold mt-1', SLA_TEXT[st])}>
+                            {slaLabel(clinic)}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Detail drawer */}
+      <Sheet
+        open={!!drawerClinic}
+        onOpenChange={(open) => {
+          if (!open) setDrawerClinic(null);
+        }}
+      >
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col gap-0 bg-white">
+          {drawerClinic && (
+            <>
+              <SheetHeader className="bg-circleTel-navy text-white p-6 space-y-1">
+                <div className="font-mono text-xs text-white/60">
+                  {drawerClinic.account_number}
+                </div>
+                <SheetTitle className="text-white">
+                  {drawerClinic.business_name}
+                </SheetTitle>
+                <span
+                  className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/15 text-white"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                  {stageMeta(drawerClinic.stage).label}
+                </span>
+              </SheetHeader>
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div>
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-2">
+                    Contact
+                  </h4>
+                  {(
+                    [
+                      ['Professional nurse', drawerClinic.nurse_name],
+                      ['Phone', drawerClinic.phone],
+                      ['Email', drawerClinic.email],
+                      ['Province', drawerClinic.province],
+                    ] as const
+                  ).map(([label, value]) => (
+                    <div
+                      key={label}
+                      className="flex justify-between gap-4 py-1.5 border-b border-gray-50 text-sm"
+                    >
+                      <span className="text-gray-500 shrink-0">{label}</span>
+                      <span className="font-medium text-gray-900 text-right break-all">
+                        {value || '—'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-3">
+                    Onboarding timeline
+                  </h4>
+                  <ul>
+                    {STAGES.map((s, i) => {
+                      const idx = STAGE_INDEX[drawerClinic.stage] ?? 0;
+                      const state = i < idx ? 'done' : i === idx ? 'now' : 'todo';
+                      return (
+                        <li key={s.id} className="relative pl-6 pb-4 text-sm last:pb-0">
+                          <span
+                            className={cn(
+                              'absolute left-0 top-1 w-2.5 h-2.5 rounded-full',
+                              state === 'done' && 'bg-green-600',
+                              state === 'now' &&
+                                'bg-circleTel-orange ring-4 ring-circleTel-orange-light',
+                              state === 'todo' && 'bg-gray-200'
+                            )}
+                          />
+                          {i < STAGES.length - 1 && (
+                            <span className="absolute left-[4.5px] top-4 bottom-0 w-px bg-gray-200" />
+                          )}
+                          <span
+                            className={cn(
+                              state === 'now'
+                                ? 'font-semibold text-gray-900'
+                                : 'text-gray-600'
+                            )}
+                          >
+                            {s.label}
+                          </span>
+                          {state === 'now' && drawerClinic.sla.dueDate && (
+                            <div className="text-xs text-gray-400 mt-0.5">
+                              Vetting due{' '}
+                              {new Date(drawerClinic.sla.dueDate).toLocaleDateString('en-ZA')}
+                              {drawerClinic.sla.overdue && (
+                                <span className="text-red-600 font-semibold"> · SLA breached</span>
+                              )}
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+              <div className="border-t border-gray-100 p-4 flex gap-2">
+                {drawerClinic.submission_id && (
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() =>
+                      router.push(`/admin/b2b/vetting/${drawerClinic.submission_id}`)
+                    }
+                  >
+                    View submission
+                  </Button>
+                )}
+                <Button
+                  className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+                  disabled={actingOn === drawerClinic.customer_id}
+                  onClick={() => runNextAction(drawerClinic)}
+                >
+                  {actingOn === drawerClinic.customer_id
+                    ? 'Working…'
+                    : stageMeta(drawerClinic.stage).action}
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </main>
   );
 }
