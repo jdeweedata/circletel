@@ -223,6 +223,7 @@ export default function UnjaniOnboardingPipelinePage() {
   const [regNurse, setRegNurse] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regEmail, setRegEmail] = useState('');
+  const [regAddress, setRegAddress] = useState('');
   const [registering, setRegistering] = useState(false);
 
   const authHeaders = useCallback(
@@ -437,6 +438,7 @@ export default function UnjaniOnboardingPipelinePage() {
     setRegNurse(clinic.nurse ?? '');
     setRegPhone('');
     setRegEmail('');
+    setRegAddress('');
   };
 
   const submitRegisterClinic = async () => {
@@ -451,6 +453,7 @@ export default function UnjaniOnboardingPipelinePage() {
           nurseName: regNurse.trim() || undefined,
           phone: regPhone.trim() || undefined,
           email: regEmail.trim() || undefined,
+          siteAddress: regAddress.trim() || undefined,
         }),
       });
       const result = await response.json();
@@ -1270,6 +1273,19 @@ export default function UnjaniOnboardingPipelinePage() {
                 placeholder="clinic@unjani.org"
                 className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Site address</label>
+              <input
+                type="text"
+                value={regAddress}
+                onChange={(e) => setRegAddress(e.target.value)}
+                placeholder="Leave blank to use the network register address"
+                className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                The nurse confirms this in the wizard. Blank uses the address on file.
+              </p>
             </div>
             {registerDialog && (
               <p className="text-xs text-gray-500">

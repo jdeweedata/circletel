@@ -36,6 +36,7 @@ interface RegisterContact {
   email: string | null;
   province: string | null;
   area_type: string | null;
+  address: string | null;
 }
 
 const CONTACTS = registerContacts as Record<string, RegisterContact>;
@@ -83,6 +84,9 @@ export async function POST(request: NextRequest) {
     const email: string = (body.email || registerEntry?.email || '').trim().toLowerCase();
     const province = registerEntry?.province || '';
     const areaType = registerEntry?.area_type || '';
+    // Optional override; otherwise seed the site address from the v3.1 register so the
+    // nurse sees the real address prefilled in wizard Step 1.
+    const siteAddress: string = (body.siteAddress || registerEntry?.address || '').trim();
 
     if (!phone || !email) {
       return NextResponse.json(
@@ -153,6 +157,7 @@ export async function POST(request: NextRequest) {
           province,
           area_type: areaType,
           nurse_owner_name: nurseName || null,
+          site_address: siteAddress || null,
         },
       })
       .select('id')
