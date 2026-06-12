@@ -218,6 +218,13 @@ export default function UnjaniOnboardingPipelinePage() {
   const [batchSending, setBatchSending] = useState(false);
   const [drawerClinic, setDrawerClinic] = useState<PipelineClinic | null>(null);
 
+  // Inline edit of the clinic's contact (e.g. a nurse asks for the invite on a different number)
+  const [editingContact, setEditingContact] = useState(false);
+  const [editNurse, setEditNurse] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [savingContact, setSavingContact] = useState(false);
+
   // "Start onboarding" dialog (Register view → create the clinic in the pipeline)
   const [registerDialog, setRegisterDialog] = useState<RegisterClinic | null>(null);
   const [regNurse, setRegNurse] = useState('');
@@ -439,6 +446,55 @@ export default function UnjaniOnboardingPipelinePage() {
     setRegPhone('');
     setRegEmail('');
     setRegAddress('');
+  };
+
+  const startEditContact = () => {
+    if (!drawerClinic) return;
+    setEditNurse(drawerClinic.nurse_name ?? '');
+    setEditPhone(drawerClinic.phone ?? '');
+    setEditEmail(drawerClinic.email ?? '');
+    setEditingContact(true);
+  };
+
+  const saveContact = async () => {
+    if (!drawerClinic) return;
+    setSavingContact(true);
+    try {
+      const response = await fetch('/api/admin/unjani/update-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({
+          customerId: drawerClinic.customer_id,
+          nurseName: editNurse.trim(),
+          phone: editPhone.trim(),
+          email: editEmail.trim(),
+        }),
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        toast.success('Contact details updated');
+        setEditingContact(false);
+        // Reflect the change in the open drawer immediately, then refresh the list
+        setDrawerClinic((c) =>
+          c
+            ? {
+                ...c,
+                nurse_name: editNurse.trim() || null,
+                phone: editPhone.trim() || null,
+                email: editEmail.trim() || null,
+              }
+            : c
+        );
+        await fetchPipeline();
+      } else {
+        toast.error(result.error || 'Failed to update contact');
+      }
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      toast.error('Failed to update contact');
+    } finally {
+      setSavingContact(false);
+    }
   };
 
   const submitRegisterClinic = async () => {
@@ -1319,7 +1375,10 @@ export default function UnjaniOnboardingPipelinePage() {
       <Sheet
         open={!!drawerClinic}
         onOpenChange={(open) => {
-          if (!open) setDrawerClinic(null);
+          if (!open) {
+            setDrawerClinic(null);
+            setEditingContact(false);
+          }
         }}
       >
         <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col gap-0 bg-white">
@@ -1341,27 +1400,91 @@ export default function UnjaniOnboardingPipelinePage() {
               </SheetHeader>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div>
-                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-2">
-                    Contact
-                  </h4>
-                  {(
-                    [
-                      ['Professional nurse', drawerClinic.nurse_name],
-                      ['Phone', drawerClinic.phone],
-                      ['Email', drawerClinic.email],
-                      ['Province', drawerClinic.province],
-                    ] as const
-                  ).map(([label, value]) => (
-                    <div
-                      key={label}
-                      className="flex justify-between gap-4 py-1.5 border-b border-gray-50 text-sm"
-                    >
-                      <span className="text-gray-500 shrink-0">{label}</span>
-                      <span className="font-medium text-gray-900 text-right break-all">
-                        {value || '—'}
-                      </span>
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                      Contact
+                    </h4>
+                    {!editingContact && (
+                      <button
+                        onClick={startEditContact}
+                        className="text-xs font-semibold text-circleTel-orange-accessible hover:text-circleTel-orange"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
+                  {editingContact ? (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Professional nurse</label>
+                        <input
+                          type="text"
+                          value={editNurse}
+                          onChange={(e) => setEditNurse(e.target.value)}
+                          className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">
+                          Phone <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          value={editPhone}
+                          onChange={(e) => setEditPhone(e.target.value)}
+                          placeholder="082 123 4567"
+                          className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">The onboarding invite is sent here.</p>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Email</label>
+                        <input
+                          type="email"
+                          value={editEmail}
+                          onChange={(e) => setEditEmail(e.target.value)}
+                          className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+                        />
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingContact(false)}
+                          disabled={savingContact}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={saveContact}
+                          disabled={savingContact || editPhone.trim().length < 6}
+                          className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+                        >
+                          {savingContact ? 'Saving…' : 'Save contact'}
+                        </Button>
+                      </div>
                     </div>
-                  ))}
+                  ) : (
+                    (
+                      [
+                        ['Professional nurse', drawerClinic.nurse_name],
+                        ['Phone', drawerClinic.phone],
+                        ['Email', drawerClinic.email],
+                        ['Province', drawerClinic.province],
+                      ] as const
+                    ).map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="flex justify-between gap-4 py-1.5 border-b border-gray-50 text-sm"
+                      >
+                        <span className="text-gray-500 shrink-0">{label}</span>
+                        <span className="font-medium text-gray-900 text-right break-all">
+                          {value || '—'}
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
                 <div>
                   <h4 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-3">
