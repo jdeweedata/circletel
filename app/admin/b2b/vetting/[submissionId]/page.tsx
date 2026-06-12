@@ -1,29 +1,44 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
   PiArrowLeftBold,
-  PiCheckCircleBold,
-  PiXCircleBold,
-  PiWarningCircleBold,
-  PiDownloadSimpleBold,
-  PiEyeBold,
+  PiArrowSquareOutBold,
+  PiBankBold,
   PiCheckBold,
-  PiXBold,
+  PiCheckCircleBold,
   PiClipboardTextBold,
+  PiClockBold,
+  PiFileTextBold,
+  PiInfoBold,
+  PiMapPinBold,
+  PiUserBold,
+  PiWarningCircleBold,
+  PiXBold,
+  PiXCircleBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { requiredDocsFor } from '@/lib/onboarding/document-requirements';
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageHeader,
+  StatCard,
+  StatusBadge,
+} from '@/components/backend';
+import { requiredDocsFor, type DocRequirement } from '@/lib/onboarding/document-requirements';
+import { cn } from '@/lib/utils';
+
+interface SubmissionStep2 {
+  entityName?: string;
+  entityType?: string;
+  regNumber?: string;
+  vat?: string;
+  vatNumber?: string;
+  [key: string]: unknown;
+}
 
 interface SubmissionDetail {
   id: string;
@@ -31,7 +46,10 @@ interface SubmissionDetail {
   segment: string;
   status: string;
   document_vetting_status: string;
-  submission_data: any;
+  submission_data: {
+    step2?: SubmissionStep2;
+    [key: string]: unknown;
+  } | null;
   admin_reviewed_at: string | null;
   admin_reviewed_by: string | null;
   admin_notes: string | null;
@@ -47,7 +65,7 @@ interface SubmissionDetail {
       site_address?: string;
       lat?: string | number;
       lng?: string | number;
-      [key: string]: any;
+      [key: string]: unknown;
     };
   } | null;
   documents: Array<{
@@ -62,33 +80,113 @@ interface SubmissionDetail {
     id: string;
     display_name: string;
     mandate_status: string;
-    encrypted_details: any;
+    encrypted_details: {
+      account_holder_name?: string;
+      bank_name?: string;
+      account_type?: string;
+      account_number?: string;
+      branch_code?: string;
+      [key: string]: unknown;
+    } | null;
   }>;
   nameMatch: boolean;
 }
 
-function getVettingStatusColor(status: string) {
+interface RequiredDocItem {
+  requirement: DocRequirement;
+  document: SubmissionDetail['documents'][number] | null;
+}
+
+type DocumentActionStatus = 'approved' | 'rejected' | 'under_review';
+
+const dateTimeFormatter = new Intl.DateTimeFormat('en-ZA', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
+const dateFormatter = new Intl.DateTimeFormat('en-ZA', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+});
+
+function formatDateTime(value: string | null | undefined) {
+  if (!value) return '-';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '-' : dateTimeFormatter.format(date);
+}
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return '-';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '-' : dateFormatter.format(date);
+}
+
+function formatStatusLabel(status: string) {
+  return status.replace(/_/g, ' ');
+}
+
+function vettingStatusVariant(status: string): 'success' | 'warning' | 'error' | 'info' | 'neutral' {
   switch (status) {
     case 'approved':
-      return 'text-green-600 bg-green-50';
+      return 'success';
     case 'rejected':
-      return 'text-red-600 bg-red-50';
+      return 'error';
     case 'under_review':
-      return 'text-amber-600 bg-amber-50';
+      return 'info';
+    case 'documents_pending':
+      return 'warning';
     default:
-      return 'text-gray-600 bg-gray-50';
+      return 'neutral';
   }
 }
 
-function getDocStatusIcon(status: string) {
+function documentStatusMeta(status: string): {
+  label: string;
+  variant: 'success' | 'warning' | 'error' | 'info' | 'neutral';
+  icon: React.ReactNode;
+} {
   switch (status) {
     case 'approved':
-      return <PiCheckCircleBold className="w-4 h-4 text-green-600" />;
+      return {
+        label: 'Approved',
+        variant: 'success',
+        icon: <PiCheckCircleBold className="h-4 w-4 text-green-600" />,
+      };
     case 'rejected':
-      return <PiXCircleBold className="w-4 h-4 text-red-600" />;
+      return {
+        label: 'Changes requested',
+        variant: 'error',
+        icon: <PiXCircleBold className="h-4 w-4 text-red-600" />,
+      };
+    case 'under_review':
+      return {
+        label: 'Under review',
+        variant: 'info',
+        icon: <PiInfoBold className="h-4 w-4 text-blue-600" />,
+      };
+    case 'pending':
     default:
-      return <div className="w-4 h-4 rounded-full bg-gray-300" />;
+      return {
+        label: 'Needs review',
+        variant: 'warning',
+        icon: <PiWarningCircleBold className="h-4 w-4 text-amber-600" />,
+      };
   }
+}
+
+function maskAccountNumber(value: string | undefined) {
+  if (!value) return '-';
+  const lastFour = value.slice(-4);
+  return lastFour ? `****${lastFour}` : '-';
+}
+
+function isPdfDocument(documentPath: string | undefined, signedUrl: string | null) {
+  const target = `${documentPath ?? ''} ${signedUrl ?? ''}`.toLowerCase();
+  return target.includes('.pdf');
 }
 
 export default function B2BVettingDetailPage({
@@ -96,30 +194,32 @@ export default function B2BVettingDetailPage({
 }: {
   params: Promise<{ submissionId: string }>;
 }) {
-  const router = useRouter();
   const [submission, setSubmission] = useState<SubmissionDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const [docUrl, setDocUrl] = useState<string | null>(null);
+  const [docLoading, setDocLoading] = useState(false);
+  const [docError, setDocError] = useState<string | null>(null);
+  const [docRefreshKey, setDocRefreshKey] = useState(0);
   const [submissionId, setSubmissionId] = useState<string>('');
   const [actionInFlight, setActionInFlight] = useState<string | null>(null);
-  const [showRejectReason, setShowRejectReason] = useState<string | null>(null);
-  const [rejectReasonText, setRejectReasonText] = useState<string>('');
+  const [changeRequestOpen, setChangeRequestOpen] = useState(false);
+  const [reviewReasonText, setReviewReasonText] = useState<string>('');
+  const [reviewReasonError, setReviewReasonError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [mandateConfirming, setMandateConfirming] = useState(false);
 
-  // Handle async params
   useEffect(() => {
     params.then((p) => {
       setSubmissionId(p.submissionId);
     });
   }, [params]);
 
-  // Fetch submission details
-  const fetchSubmission = async () => {
+  const fetchSubmission = useCallback(async (options?: { showLoading?: boolean }) => {
     if (!submissionId) return;
 
-    setLoading(true);
+    const showLoading = options?.showLoading ?? true;
+    if (showLoading) setLoading(true);
     setActionError(null);
     try {
       const response = await fetch(`/api/admin/b2b/vetting/${submissionId}`, {
@@ -138,25 +238,93 @@ export default function B2BVettingDetailPage({
       console.error('Error fetching submission:', error);
       setActionError('Failed to load submission');
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
-  };
+  }, [submissionId]);
 
   useEffect(() => {
     fetchSubmission();
-  }, [submissionId]);
+  }, [fetchSubmission]);
 
-  // Fetch signed URL for selected document
+  const step2 = submission?.submission_data?.step2;
+
+  const requiredDocItems = useMemo<RequiredDocItem[]>(() => {
+    if (!submission) return [];
+
+    return requiredDocsFor(submission.segment as any, {
+      vatRegistered: step2?.vat === 'Yes',
+      entityType: step2?.entityType || '',
+    })
+      .filter((requirement) => requirement.required)
+      .map((requirement) => ({
+        requirement,
+        document:
+          submission.documents.find(
+            (document) => document.document_type === requirement.type
+          ) ?? null,
+      }));
+  }, [submission, step2?.entityType, step2?.vat]);
+
+  const selectedDocument = useMemo(() => {
+    if (!submission || !selectedDoc) return null;
+    return submission.documents.find((document) => document.id === selectedDoc) ?? null;
+  }, [selectedDoc, submission]);
+
+  const selectedRequirement = useMemo(() => {
+    return (
+      requiredDocItems.find((item) => item.document?.id === selectedDocument?.id)
+        ?.requirement ?? null
+    );
+  }, [requiredDocItems, selectedDocument?.id]);
+
+  const docCounts = useMemo(() => {
+    const requiredWithDocs = requiredDocItems.filter((item) => item.document);
+    const approved = requiredWithDocs.filter(
+      (item) => item.document?.verification_status === 'approved'
+    ).length;
+    const changesRequested = requiredWithDocs.filter(
+      (item) => item.document?.verification_status === 'rejected'
+    ).length;
+    const missing = requiredDocItems.filter((item) => !item.document).length;
+    const needsDecision = requiredWithDocs.filter(
+      (item) => item.document?.verification_status !== 'approved'
+    ).length;
+
+    return {
+      approved,
+      changesRequested,
+      missing,
+      needsDecision,
+      total: requiredDocItems.length,
+    };
+  }, [requiredDocItems]);
+
   useEffect(() => {
-    if (!selectedDoc || !submission) return;
+    if (!submission) return;
 
-    async function fetchDocUrl(sub: SubmissionDetail) {
+    const selectedStillExists =
+      selectedDoc && submission.documents.some((document) => document.id === selectedDoc);
+    if (selectedStillExists) return;
+
+    const firstRequiredDocument =
+      requiredDocItems.find((item) => item.document)?.document ??
+      submission.documents[0] ??
+      null;
+
+    setSelectedDoc(firstRequiredDocument?.id ?? null);
+  }, [requiredDocItems, selectedDoc, submission]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchDocUrl(documentId: string, filePath: string) {
+      setDocLoading(true);
+      setDocUrl(null);
+      setDocError(null);
+
       try {
-        const doc = sub.documents.find((d) => d.id === selectedDoc);
-        if (!doc) return;
-
         const response = await fetch(
-          `/api/admin/kyc/document-url?path=${encodeURIComponent(doc.file_path)}`,
+          `/api/admin/kyc/document-url?path=${encodeURIComponent(filePath)}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
@@ -167,23 +335,44 @@ export default function B2BVettingDetailPage({
         if (!response.ok) throw new Error('Failed to get document URL');
 
         const data = await response.json();
-        setDocUrl(data.url);
+        if (!cancelled && selectedDoc === documentId) {
+          setDocUrl(data.url);
+        }
       } catch (error) {
         console.error('Error fetching document URL:', error);
+        if (!cancelled) {
+          setDocError('Document preview could not be loaded.');
+        }
+      } finally {
+        if (!cancelled) {
+          setDocLoading(false);
+        }
       }
     }
 
-    fetchDocUrl(submission);
-  }, [selectedDoc, submission]);
+    if (!selectedDocument) {
+      setDocUrl(null);
+      setDocLoading(false);
+      setDocError(null);
+      return;
+    }
 
-  // Handle document vetting action (approve, reject, request changes)
+    fetchDocUrl(selectedDocument.id, selectedDocument.file_path);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [docRefreshKey, selectedDoc, selectedDocument]);
+
   const handleDocumentAction = async (
     documentId: string,
-    status: 'approved' | 'rejected' | 'under_review',
-    rejectionReason?: string
+    status: DocumentActionStatus,
+    reason?: string
   ) => {
-    if (status === 'rejected' && !rejectionReason?.trim()) {
-      setActionError('Rejection reason is required');
+    const trimmedReason = reason?.trim() ?? '';
+
+    if (status === 'rejected' && !trimmedReason) {
+      setReviewReasonError('Add a clear reason before sending the change request.');
       return;
     }
 
@@ -192,11 +381,17 @@ export default function B2BVettingDetailPage({
     setActionError(null);
 
     try {
-      const body: any = { documentId, status };
+      const body: {
+        documentId: string;
+        status: DocumentActionStatus;
+        rejectionReason?: string;
+        notes?: string;
+      } = { documentId, status };
+
       if (status === 'rejected') {
-        body.rejectionReason = rejectionReason;
-      } else if (status === 'under_review' && rejectionReason) {
-        body.notes = rejectionReason;
+        body.rejectionReason = trimmedReason;
+      } else if (status === 'under_review' && trimmedReason) {
+        body.notes = trimmedReason;
       }
 
       const response = await fetch('/api/admin/kyc/verify', {
@@ -210,13 +405,13 @@ export default function B2BVettingDetailPage({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to update document');
+        throw new Error(errorData.message || errorData.error || 'Failed to update document');
       }
 
-      // Reset reject reason UI and re-fetch submission
-      setShowRejectReason(null);
-      setRejectReasonText('');
-      await fetchSubmission();
+      setChangeRequestOpen(false);
+      setReviewReasonText('');
+      setReviewReasonError(null);
+      await fetchSubmission({ showLoading: false });
     } catch (error) {
       console.error('Error updating document:', error);
       setActionError(
@@ -227,7 +422,6 @@ export default function B2BVettingDetailPage({
     }
   };
 
-  // Handle mandate confirmation
   const handleConfirmMandate = async () => {
     if (!submission?.customers?.id) return;
 
@@ -249,8 +443,7 @@ export default function B2BVettingDetailPage({
         throw new Error(errorData.error || 'Failed to confirm mandate');
       }
 
-      // Re-fetch submission to show updated mandate_status
-      await fetchSubmission();
+      await fetchSubmission({ showLoading: false });
     } catch (error) {
       console.error('Error confirming mandate:', error);
       setActionError(
@@ -262,17 +455,17 @@ export default function B2BVettingDetailPage({
   };
 
   if (!submissionId) {
-    return <div>Loading...</div>;
+    return (
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <LoadingState message="Loading submission…" />
+      </main>
+    );
   }
 
   if (loading) {
     return (
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="space-y-4">
-          <Skeleton className="h-12 w-1/3" />
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-64 w-full" />
-        </div>
+        <LoadingState message="Loading vetting submission…" />
       </main>
     );
   }
@@ -280,276 +473,391 @@ export default function B2BVettingDetailPage({
   if (!submission) {
     return (
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <p className="text-red-600">Submission not found</p>
+        <ErrorState
+          title="Submission not found"
+          message={actionError ?? 'The selected vetting submission could not be loaded.'}
+          onRetry={fetchSubmission}
+        />
       </main>
     );
   }
 
-  const step2 = submission.submission_data?.step2;
-  const requiredDocs = requiredDocsFor(submission.segment as any, {
-    vatRegistered: step2?.vat === 'Yes',
-    entityType: step2?.entityType || '',
-  });
+  const selectedStatus = selectedDocument
+    ? documentStatusMeta(selectedDocument.verification_status)
+    : null;
+  const selectedIsApproved = selectedDocument?.verification_status === 'approved';
+  const selectedIsRejected = selectedDocument?.verification_status === 'rejected';
+  const selectedActionPrefix = selectedDocument?.id ?? '';
+  const decisionDisabled =
+    !selectedDocument || docLoading || Boolean(docError) || actionInFlight?.startsWith(selectedActionPrefix);
+  const selectedIsPdf = isPdfDocument(selectedDocument?.file_path, docUrl);
+  const primaryPaymentMethod = submission.paymentMethods[0];
+  const primaryBanking = primaryPaymentMethod?.encrypted_details ?? {};
 
   return (
-    <main className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-          className="gap-2"
-        >
-          <PiArrowLeftBold /> Back
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold">
-            {submission.customers?.business_name || 'Submission'}
-          </h1>
-          <p className="text-gray-600">
-            {submission.customers?.account_number} · {submission.segment}
-          </p>
-        </div>
-      </div>
-
-      {/* Status Banner */}
-      <Card className={`mb-6 ${getVettingStatusColor(submission.document_vetting_status)}`}>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {submission.document_vetting_status === 'approved' && (
-                <PiCheckCircleBold className="w-6 h-6" />
-              )}
-              {submission.document_vetting_status === 'rejected' && (
-                <PiXCircleBold className="w-6 h-6" />
-              )}
-              {['documents_pending', 'under_review'].includes(
-                submission.document_vetting_status
-              ) && <PiWarningCircleBold className="w-6 h-6" />}
-
-              <div>
-                <p className="font-semibold capitalize">
-                  {submission.document_vetting_status.replace(/_/g, ' ')}
-                </p>
-                {submission.admin_reviewed_at && (
-                  <p className="text-sm opacity-75">
-                    Reviewed{' '}
-                    {new Date(submission.admin_reviewed_at).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-            </div>
+    <main className="max-w-[1500px] mx-auto px-4 py-8">
+      <PageHeader
+        title={submission.customers?.business_name || 'Vetting submission'}
+        subtitle={`${submission.customers?.account_number ?? 'No account number'} · ${submission.segment} · Submitted ${formatDateTime(submission.submitted_at)}`}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge
+              status={formatStatusLabel(submission.document_vetting_status)}
+              variant={vettingStatusVariant(submission.document_vetting_status)}
+              showDot
+              className="capitalize"
+            />
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link href="/admin/b2b/vetting">
+                <PiArrowLeftBold className="h-4 w-4" />
+                Back to Vetting Queue
+              </Link>
+            </Button>
           </div>
-        </CardContent>
-      </Card>
+        }
+      />
 
-      {/* Action Error Alert */}
       {actionError && (
         <Card className="mb-6 border-red-200 bg-red-50">
           <CardContent className="pt-6">
-            <p className="text-sm text-red-700">{actionError}</p>
+            <p className="text-sm font-medium text-red-700">{actionError}</p>
           </CardContent>
         </Card>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Documents */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Document Checklist */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Document Checklist</CardTitle>
-              <CardDescription>
-                Upload and verification status of required documents
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {requiredDocs
-                .filter((d) => d.required)
-                .map((req) => {
-                  const doc = submission.documents.find(
-                    (d) => d.document_type === req.type
-                  );
-                  const isApproved = doc?.verification_status === 'approved';
-                  const isRejected = doc?.verification_status === 'rejected';
-                  const isPending = doc?.verification_status === 'pending';
-                  return (
-                    <div
-                      key={req.type}
-                      className="space-y-2 p-3 border rounded-lg"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="font-medium">{req.label}</p>
-                          {doc && (
-                            <p className="text-sm text-gray-600">
-                              {isApproved && (
-                                <span className="text-green-600">Approved</span>
-                              )}
-                              {isRejected && (
-                                <span className="text-red-600">
-                                  Rejected:{' '}
-                                  {doc.rejection_reason && (
-                                    <span className="block text-xs mt-1">
-                                      {doc.rejection_reason}
-                                    </span>
-                                  )}
-                                </span>
-                              )}
-                              {isPending && (
-                                <span className="text-amber-600">Pending</span>
-                              )}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {doc && getDocStatusIcon(doc.verification_status)}
-                          {doc && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => setSelectedDoc(doc.id)}
-                              className="gap-1"
-                              disabled={actionInFlight?.startsWith(doc.id) || false}
-                            >
-                              <PiEyeBold className="w-4 h-4" />
-                              View
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+      <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Document Progress"
+          value={`${docCounts.approved}/${docCounts.total}`}
+          subtitle="Required docs approved"
+          icon={<PiFileTextBold className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Needs Decision"
+          value={docCounts.needsDecision}
+          subtitle={
+            docCounts.changesRequested > 0
+              ? `${docCounts.changesRequested} with changes requested`
+              : 'Open items remaining'
+          }
+          icon={<PiClipboardTextBold className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Missing Documents"
+          value={docCounts.missing}
+          subtitle="Required uploads not found"
+          icon={<PiWarningCircleBold className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Last Reviewed"
+          value={formatDate(submission.admin_reviewed_at)}
+          subtitle={submission.admin_reviewed_at ? formatDateTime(submission.admin_reviewed_at) : 'No review yet'}
+          icon={<PiClockBold className="h-5 w-5" />}
+        />
+      </section>
 
-                      {/* Action Buttons */}
-                      {doc && (
-                        <div className="space-y-2">
-                          {showRejectReason === doc.id ? (
-                            <div className="space-y-2 pt-2 border-t">
-                              <textarea
-                                placeholder="Enter rejection reason (required)..."
-                                value={rejectReasonText}
-                                onChange={(e) => setRejectReasonText(e.target.value)}
-                                className="w-full p-2 text-sm border rounded resize-none focus:outline-none focus:ring-2 focus:ring-red-500"
-                                rows={2}
-                              />
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() =>
-                                    handleDocumentAction(doc.id, 'rejected', rejectReasonText)
-                                  }
-                                  disabled={
-                                    actionInFlight === `${doc.id}-rejected` ||
-                                    !rejectReasonText.trim()
-                                  }
-                                  className="gap-1"
-                                >
-                                  <PiXBold className="w-3 h-3" />
-                                  {actionInFlight === `${doc.id}-rejected`
-                                    ? 'Rejecting...'
-                                    : 'Confirm Reject'}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setShowRejectReason(null);
-                                    setRejectReasonText('');
-                                  }}
-                                  disabled={actionInFlight === `${doc.id}-rejected`}
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex flex-wrap gap-2 pt-2 border-t">
-                              {!isApproved && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handleDocumentAction(doc.id, 'approved')
-                                  }
-                                  disabled={actionInFlight === `${doc.id}-approved`}
-                                  className="gap-1 text-green-600 hover:text-green-700"
-                                >
-                                  <PiCheckBold className="w-3 h-3" />
-                                  {actionInFlight === `${doc.id}-approved`
-                                    ? 'Approving...'
-                                    : 'Approve'}
-                                </Button>
-                              )}
-                              {!isRejected && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setShowRejectReason(doc.id)}
-                                  disabled={actionInFlight?.startsWith(doc.id) || false}
-                                  className="gap-1 text-red-600 hover:text-red-700"
-                                >
-                                  <PiXBold className="w-3 h-3" />
-                                  Reject
-                                </Button>
-                              )}
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() =>
-                                  handleDocumentAction(doc.id, 'under_review')
-                                }
-                                disabled={
-                                  actionInFlight === `${doc.id}-under_review`
-                                }
-                                className="gap-1 text-amber-600 hover:text-amber-700"
-                              >
-                                <PiClipboardTextBold className="w-3 h-3" />
-                                {actionInFlight === `${doc.id}-under_review`
-                                  ? 'Updating...'
-                                  : 'Request Changes'}
-                              </Button>
-                            </div>
-                          )}
-                        </div>
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[340px_minmax(0,1fr)_360px]">
+        <Card className="h-fit">
+          <CardHeader>
+            <CardTitle>Required documents</CardTitle>
+            <CardDescription>Select a document before making a decision.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {requiredDocItems.map((item) => {
+              const document = item.document;
+              const status = document
+                ? documentStatusMeta(document.verification_status)
+                : {
+                    label: 'Missing',
+                    variant: 'neutral' as const,
+                    icon: <PiFileTextBold className="h-4 w-4 text-gray-400" />,
+                  };
+              const active = document?.id === selectedDocument?.id;
+
+              return (
+                <button
+                  key={item.requirement.type}
+                  type="button"
+                  disabled={!document}
+                  onClick={() => {
+                    if (!document) return;
+                    setSelectedDoc(document.id);
+                    setChangeRequestOpen(false);
+                    setReviewReasonText('');
+                    setReviewReasonError(null);
+                  }}
+                  className={cn(
+                    'w-full rounded-lg border p-3 text-left transition-colors',
+                    active
+                      ? 'border-circleTel-orange bg-circleTel-orange-light'
+                      : 'border-gray-200 bg-white hover:bg-gray-50',
+                    !document && 'cursor-not-allowed opacity-70'
+                  )}
+                  aria-pressed={active}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5">{status.icon}</div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-gray-900">{item.requirement.label}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <StatusBadge
+                          status={status.label}
+                          variant={status.variant}
+                          className="capitalize"
+                        />
+                        {document && (
+                          <span className="text-xs text-gray-500">
+                            Reviewed {formatDate(document.verified_at)}
+                          </span>
+                        )}
+                      </div>
+                      {document?.rejection_reason && (
+                        <p className="mt-2 rounded-md bg-red-50 p-2 text-xs font-medium text-red-700">
+                          {document.rejection_reason}
+                        </p>
                       )}
                     </div>
-                  );
-                })}
+                  </div>
+                </button>
+              );
+            })}
+          </CardContent>
+        </Card>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <CardTitle>{selectedRequirement?.label ?? 'Document preview'}</CardTitle>
+                <CardDescription>
+                  {selectedDocument
+                    ? `File type: ${selectedIsPdf ? 'PDF' : 'image or document'}`
+                    : 'Select a document from the checklist.'}
+                </CardDescription>
+              </div>
+              {selectedStatus && (
+                <StatusBadge
+                  status={selectedStatus.label}
+                  variant={selectedStatus.variant}
+                  icon={selectedStatus.icon}
+                />
+              )}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                <p className="text-sm font-medium text-gray-600">
+                  {docLoading
+                    ? 'Loading document…'
+                    : docError
+                      ? 'Preview failed to load'
+                      : docUrl
+                        ? 'Preview opened'
+                        : 'No preview selected'}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setDocRefreshKey((key) => key + 1)}
+                    disabled={!selectedDocument || docLoading}
+                  >
+                    Reload
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => docUrl && window.open(docUrl, '_blank', 'noopener,noreferrer')}
+                    disabled={!docUrl}
+                    className="gap-1"
+                  >
+                    <PiArrowSquareOutBold className="h-4 w-4" />
+                    Open original
+                  </Button>
+                </div>
+              </div>
+
+              <div className="min-h-[520px] rounded-lg border border-gray-200 bg-gray-100 p-3">
+                {!selectedDocument && (
+                  <EmptyState
+                    icon={<PiFileTextBold />}
+                    title="No document selected"
+                    description="Choose a required document to inspect it."
+                    className="min-h-[480px]"
+                  />
+                )}
+
+                {selectedDocument && docLoading && (
+                  <LoadingState
+                    message="Loading document…"
+                    className="min-h-[480px]"
+                  />
+                )}
+
+                {selectedDocument && !docLoading && docError && (
+                  <ErrorState
+                    title="Document preview unavailable"
+                    message={docError}
+                    onRetry={() => setDocRefreshKey((key) => key + 1)}
+                    className="min-h-[480px]"
+                  />
+                )}
+
+                {selectedDocument && !docLoading && !docError && docUrl && selectedIsPdf && (
+                  <iframe
+                    src={docUrl}
+                    className="h-[620px] w-full rounded-md bg-white"
+                    title={`${selectedRequirement?.label ?? 'Selected document'} preview`}
+                  />
+                )}
+
+                {selectedDocument && !docLoading && !docError && docUrl && !selectedIsPdf && (
+                  <div className="flex min-h-[620px] items-center justify-center rounded-md bg-white p-4">
+                    <img
+                      src={docUrl}
+                      alt={`${selectedRequirement?.label ?? 'Selected document'} preview`}
+                      className="max-h-[580px] max-w-full rounded object-contain"
+                    />
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
-          {/* Document Viewer */}
-          {selectedDoc && docUrl && (
+          {selectedDocument && (
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Document Preview</CardTitle>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => window.open(docUrl, '_blank')}
-                  className="gap-1"
-                >
-                  <PiDownloadSimpleBold className="w-4 h-4" />
-                  Open
-                </Button>
+              <CardHeader>
+                <CardTitle>Decision for selected document</CardTitle>
+                <CardDescription>
+                  Make the call while the document and comparison context are visible.
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                {docUrl.toLowerCase().includes('.pdf') ? (
-                  <div className="bg-gray-100 rounded p-4 h-96">
-                    <iframe
-                      src={docUrl}
-                      className="w-full h-full rounded"
-                      title="Document preview"
+              <CardContent className="space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  {!selectedIsApproved && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        handleDocumentAction(selectedDocument.id, 'approved')
+                      }
+                      disabled={decisionDisabled}
+                      className="gap-1 text-green-700 hover:text-green-800"
+                    >
+                      <PiCheckBold className="h-4 w-4" />
+                      {actionInFlight === `${selectedDocument.id}-approved`
+                        ? 'Approving…'
+                        : 'Approve Document'}
+                    </Button>
+                  )}
+
+                  {!selectedIsRejected && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setChangeRequestOpen(true);
+                        setReviewReasonText(selectedDocument.rejection_reason ?? '');
+                        setReviewReasonError(null);
+                      }}
+                      disabled={decisionDisabled}
+                      className="gap-1 text-red-700 hover:text-red-800"
+                    >
+                      <PiXBold className="h-4 w-4" />
+                      Request Changes
+                    </Button>
+                  )}
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      handleDocumentAction(selectedDocument.id, 'under_review')
+                    }
+                    disabled={decisionDisabled}
+                    className="gap-1 text-blue-700 hover:text-blue-800"
+                  >
+                    <PiClipboardTextBold className="h-4 w-4" />
+                    {actionInFlight === `${selectedDocument.id}-under_review`
+                      ? 'Updating…'
+                      : 'Mark Under Review'}
+                  </Button>
+                </div>
+
+                {changeRequestOpen && (
+                  <div className="rounded-lg border border-red-100 bg-red-50 p-4">
+                    <label
+                      htmlFor="changeRequestReason"
+                      className="flex items-center justify-between gap-3 text-sm font-semibold text-gray-900"
+                    >
+                      Change request reason
+                      <span className="text-xs font-medium text-red-700">Required</span>
+                    </label>
+                    <textarea
+                      id="changeRequestReason"
+                      name="changeRequestReason"
+                      value={reviewReasonText}
+                      onChange={(event) => {
+                        setReviewReasonText(event.target.value);
+                        if (event.target.value.trim()) setReviewReasonError(null);
+                      }}
+                      aria-invalid={Boolean(reviewReasonError)}
+                      aria-describedby={
+                        reviewReasonError
+                          ? 'changeRequestHelp changeRequestError'
+                          : 'changeRequestHelp'
+                      }
+                      rows={4}
+                      placeholder="Example: Please upload a bank confirmation letter that shows the account holder and account number clearly."
+                      className={cn(
+                        'mt-2 w-full resize-y rounded-md border bg-white p-3 text-sm focus:outline-none focus:ring-2',
+                        reviewReasonError
+                          ? 'border-red-300 focus:ring-red-200'
+                          : 'border-gray-300 focus:ring-circleTel-orange/20'
+                      )}
                     />
-                  </div>
-                ) : (
-                  <div className="bg-gray-100 rounded p-4 h-96 flex items-center justify-center">
-                    <img
-                      src={docUrl}
-                      alt="Document"
-                      className="max-w-full max-h-full object-contain"
-                    />
+                    <p id="changeRequestHelp" className="mt-2 text-xs text-gray-600">
+                      This feedback is sent to the clinic contact with the re-upload link.
+                    </p>
+                    {reviewReasonError && (
+                      <p
+                        id="changeRequestError"
+                        className="mt-2 text-xs font-semibold text-red-700"
+                      >
+                        {reviewReasonError}
+                      </p>
+                    )}
+                    <div className="mt-3 flex flex-wrap justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setChangeRequestOpen(false);
+                          setReviewReasonText('');
+                          setReviewReasonError(null);
+                        }}
+                        disabled={actionInFlight === `${selectedDocument.id}-rejected`}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() =>
+                          handleDocumentAction(
+                            selectedDocument.id,
+                            'rejected',
+                            reviewReasonText
+                          )
+                        }
+                        disabled={actionInFlight === `${selectedDocument.id}-rejected`}
+                        className="gap-1"
+                      >
+                        <PiXBold className="h-4 w-4" />
+                        {actionInFlight === `${selectedDocument.id}-rejected`
+                          ? 'Sending…'
+                          : 'Send Change Request'}
+                      </Button>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -557,174 +865,176 @@ export default function B2BVettingDetailPage({
           )}
         </div>
 
-        {/* Right Column: Details */}
-        <div className="space-y-6">
-          {/* Entity Information */}
+        <aside className="space-y-6 xl:sticky xl:top-6">
           <Card>
             <CardHeader>
-              <CardTitle>Entity Information</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <PiFileTextBold className="h-5 w-5 text-circleTel-orange" />
+                Entity information
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-sm text-gray-600">Business Name</p>
-                <p className="font-medium">{step2?.entityName || '-'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Entity Type</p>
-                <p className="font-medium">{step2?.entityType || '-'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Registration Number</p>
-                <p className="font-mono text-sm">{step2?.regNumber || '-'}</p>
-              </div>
+            <CardContent className="space-y-3 text-sm">
+              <InfoRow label="Business name" value={step2?.entityName || '-'} />
+              <InfoRow label="Entity type" value={step2?.entityType || '-'} />
+              <InfoRow
+                label="Registration"
+                value={<span className="font-mono">{step2?.regNumber || '-'}</span>}
+              />
               {step2?.vat === 'Yes' && (
-                <div>
-                  <p className="text-sm text-gray-600">VAT Number</p>
-                  <p className="font-mono text-sm">{step2?.vatNumber || '-'}</p>
+                <InfoRow
+                  label="VAT number"
+                  value={<span className="font-mono">{step2?.vatNumber || '-'}</span>}
+                />
+              )}
+              {!submission.nameMatch && (
+                <div className="flex gap-2 rounded-md bg-amber-50 p-3 text-xs font-medium text-amber-800">
+                  <PiWarningCircleBold className="mt-0.5 h-4 w-4 shrink-0" />
+                  Account holder should match the registered entity name.
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Banking Information */}
-          {submission.paymentMethods.length > 0 && (
+          {primaryPaymentMethod && (
             <Card>
               <CardHeader>
-                <CardTitle>Banking Details</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <PiBankBold className="h-5 w-5 text-circleTel-orange" />
+                  Banking details
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {submission.paymentMethods.map((pm) => {
-                  const encrypted = pm.encrypted_details || {};
-                  return (
-                    <div key={pm.id} className="space-y-2 p-3 border rounded">
-                      <div>
-                        <p className="text-sm text-gray-600">Account Holder</p>
-                        <p className="font-medium text-sm">
-                          {encrypted.account_holder_name || '-'}
-                        </p>
-                        {!submission.nameMatch && (
-                          <div className="flex gap-2 items-start mt-2 p-2 bg-amber-50 rounded">
-                            <PiWarningCircleBold className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                            <p className="text-xs text-amber-700">
-                              Account holder should match registered entity name
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Bank</p>
-                        <p className="font-medium text-sm">{encrypted.bank_name || '-'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Account Type</p>
-                        <p className="text-sm">{encrypted.account_type || '-'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Account Number</p>
-                        <p className="font-mono text-sm">
-                          ****{encrypted.account_number?.slice(-4) || '****'}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Branch Code</p>
-                        <p className="font-mono text-sm">{encrypted.branch_code || '-'}</p>
-                      </div>
-                      <div className="pt-2 flex items-center justify-between">
-                        <Badge
-                          variant={
-                            pm.mandate_status === 'active' ? 'default' : 'secondary'
-                          }
-                        >
-                          {pm.mandate_status}
-                        </Badge>
-                        {pm.mandate_status !== 'active' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleConfirmMandate}
-                            disabled={mandateConfirming}
-                            className="gap-1 text-blue-600 hover:text-blue-700"
-                          >
-                            <PiCheckBold className="w-3 h-3" />
-                            {mandateConfirming ? 'Confirming...' : 'Confirm Active'}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+              <CardContent className="space-y-3 text-sm">
+                <InfoRow
+                  label="Account holder"
+                  value={primaryBanking.account_holder_name || '-'}
+                />
+                <InfoRow label="Bank" value={primaryBanking.bank_name || '-'} />
+                <InfoRow label="Account type" value={primaryBanking.account_type || '-'} />
+                <InfoRow
+                  label="Account no."
+                  value={
+                    <span className="font-mono">
+                      {maskAccountNumber(primaryBanking.account_number)}
+                    </span>
+                  }
+                />
+                <InfoRow
+                  label="Branch code"
+                  value={<span className="font-mono">{primaryBanking.branch_code || '-'}</span>}
+                />
+                <div className="flex items-center justify-between gap-3 pt-2">
+                  <StatusBadge
+                    status={primaryPaymentMethod.mandate_status}
+                    variant={
+                      primaryPaymentMethod.mandate_status === 'active'
+                        ? 'success'
+                        : 'warning'
+                    }
+                    className="capitalize"
+                  />
+                  {primaryPaymentMethod.mandate_status !== 'active' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleConfirmMandate}
+                      disabled={mandateConfirming}
+                      className="gap-1 text-blue-700 hover:text-blue-800"
+                    >
+                      <PiCheckBold className="h-3 w-3" />
+                      {mandateConfirming ? 'Confirming…' : 'Confirm Active'}
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Contact Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Contact</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <PiUserBold className="h-5 w-5 text-circleTel-orange" />
+                Contact
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-sm text-gray-600">Email</p>
-                <p className="text-sm break-all">{submission.customers?.email || '-'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Phone</p>
-                <p className="text-sm">{submission.customers?.phone || '-'}</p>
-              </div>
+            <CardContent className="space-y-3 text-sm">
+              <InfoRow
+                label="Email"
+                value={
+                  <span className="break-all">{submission.customers?.email || '-'}</span>
+                }
+              />
+              <InfoRow label="Phone" value={submission.customers?.phone || '-'} />
             </CardContent>
           </Card>
 
-          {/* Clinic Location */}
           {submission.customers?.clinic_details && (
             <Card>
               <CardHeader>
-                <CardTitle>Clinic Location</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <PiMapPinBold className="h-5 w-5 text-circleTel-orange" />
+                  Clinic location
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 text-sm">
                 {submission.customers.clinic_details.site_address && (
-                  <div>
-                    <p className="text-sm text-gray-600">Address</p>
-                    <p className="text-sm">{submission.customers.clinic_details.site_address}</p>
-                  </div>
+                  <InfoRow
+                    label="Address"
+                    value={submission.customers.clinic_details.site_address}
+                  />
                 )}
-                {submission.customers.clinic_details.lat && submission.customers.clinic_details.lng && (
-                  <>
-                    <div>
-                      <p className="text-sm text-gray-600">Coordinates</p>
-                      <p className="text-sm font-mono">
-                        {submission.customers.clinic_details.lat}, {submission.customers.clinic_details.lng}
-                      </p>
-                    </div>
-                    <a
-                      href={`https://www.google.com/maps?q=${submission.customers.clinic_details.lat},${submission.customers.clinic_details.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-circleTel-orange hover:underline"
-                    >
-                      View on Google Maps
-                    </a>
-                  </>
-                )}
+                {submission.customers.clinic_details.lat &&
+                  submission.customers.clinic_details.lng && (
+                    <>
+                      <InfoRow
+                        label="Coordinates"
+                        value={
+                          <span className="font-mono">
+                            {submission.customers.clinic_details.lat},{' '}
+                            {submission.customers.clinic_details.lng}
+                          </span>
+                        }
+                      />
+                      <a
+                        href={`https://www.google.com/maps?q=${submission.customers.clinic_details.lat},${submission.customers.clinic_details.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-circleTel-orange hover:underline"
+                      >
+                        View on Google Maps
+                        <PiArrowSquareOutBold className="h-3 w-3" />
+                      </a>
+                    </>
+                  )}
               </CardContent>
             </Card>
           )}
 
-          {/* Submitted Date */}
           <Card>
             <CardHeader>
-              <CardTitle>Timeline</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <PiClockBold className="h-5 w-5 text-circleTel-orange" />
+                Timeline
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-sm text-gray-600">Submitted</p>
-                <p className="text-sm">
-                  {new Date(submission.submitted_at).toLocaleString()}
-                </p>
-              </div>
+            <CardContent className="space-y-3 text-sm">
+              <InfoRow label="Submitted" value={formatDateTime(submission.submitted_at)} />
+              <InfoRow
+                label="Last reviewed"
+                value={formatDateTime(submission.admin_reviewed_at)}
+              />
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </aside>
+      </section>
     </main>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-[116px_minmax(0,1fr)] gap-3">
+      <p className="text-gray-500">{label}</p>
+      <div className="min-w-0 font-medium text-gray-900">{value}</div>
+    </div>
   );
 }
