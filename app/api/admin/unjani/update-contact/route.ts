@@ -15,11 +15,20 @@ import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth'
 import { svc } from '@/lib/onboarding/onboarding-service';
 import { apiLogger } from '@/lib/logging/logger';
 
+function normalizeSAPhone(phone: string): string | null {
+  const cleaned = phone.trim().replace(/[\s-]/g, '');
+  return /^(0\d{9}|\+27\d{9})$/.test(cleaned) ? cleaned : null;
+}
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export async function POST(request: NextRequest) {
   try {
     const auth = await authenticateAdmin(request);
     if (!auth.success) return auth.response;
-    const perm = requirePermission(auth.adminUser, ['customers:write', 'kyc:verify']);
+    const perm = requirePermission(auth.adminUser, 'customers:write');
     if (perm) return perm;
 
     const body = await request.json().catch(() => ({}));
@@ -28,7 +37,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'customerId required' }, { status: 400 });
     }
 
-    const phone = typeof body.phone === 'string' ? body.phone.trim() : undefined;
+    const phone =
+      typeof body.phone === 'string' ? normalizeSAPhone(body.phone) : undefined;
     const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : undefined;
     const nurseName = typeof body.nurseName === 'string' ? body.nurseName.trim() : undefined;
 
@@ -38,9 +48,21 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    if (phone !== undefined && phone.length < 6) {
+    if (typeof body.phone === 'string' && phone === null) {
       return NextResponse.json(
         { success: false, error: 'Please enter a valid phone number' },
+        { status: 400 }
+      );
+    }
+    if (typeof body.email === 'string' && email.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Email cannot be blank' },
+        { status: 400 }
+      );
+    }
+    if (email !== undefined && !isValidEmail(email)) {
+      return NextResponse.json(
+        { success: false, error: 'Please enter a valid email address' },
         { status: 400 }
       );
     }
