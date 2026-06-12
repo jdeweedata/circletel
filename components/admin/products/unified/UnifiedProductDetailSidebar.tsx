@@ -14,6 +14,7 @@ import {
   RuleLevelBadge,
   type ChecklistItem,
 } from '@/components/admin/products/shared';
+import { RelationshipsPanel } from './RelationshipsPanel';
 
 type DetailTab = 'overview' | 'pricing' | 'rules';
 
@@ -31,10 +32,12 @@ export function UnifiedProductDetailSidebar({
   product,
   ruleConfig,
   onClose,
+  onEdit,
 }: {
   product: UnifiedProduct | null;
   ruleConfig?: Partial<RuleConfig>;
   onClose: () => void;
+  onEdit?: (p: UnifiedProduct) => void;
 }) {
   const [tab, setTab] = useState<DetailTab>('overview');
   const [publishing, setPublishing] = useState(false);
@@ -113,13 +116,24 @@ export function UnifiedProductDetailSidebar({
                   {product.sku ?? '—'} · {product.type}
                 </p>
               </div>
-              <button
-                onClick={onClose}
-                className="rounded-md p-1 text-ui-text-muted hover:bg-slate-100"
-                aria-label="Close"
-              >
-                <PiXBold className="h-5 w-5" />
-              </button>
+              <div className="flex gap-1">
+                {product.sourceTable !== 'admin_products' && onEdit && (
+                  <button
+                    onClick={() => onEdit(product)}
+                    className="rounded-md px-2 py-1 text-sm font-medium bg-circleTel-orange text-white hover:bg-circleTel-orange-dark transition-colors"
+                    aria-label="Edit product"
+                  >
+                    Edit
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="rounded-md p-1 text-ui-text-muted hover:bg-slate-100"
+                  aria-label="Close"
+                >
+                  <PiXBold className="h-5 w-5" />
+                </button>
+              </div>
             </header>
 
             <nav className="flex gap-6 border-b border-ui-border px-4">
@@ -207,20 +221,26 @@ function OverviewTab({
     },
   ];
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-ui-text-secondary">
-        {product.description?.trim() || 'No description.'}
-      </p>
-      {product.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {product.tags.map((t) => (
-            <span key={t} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-              {t}
-            </span>
-          ))}
-        </div>
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <p className="text-sm text-ui-text-secondary">
+          {product.description?.trim() || 'No description.'}
+        </p>
+        {product.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {product.tags.map((t) => (
+              <span key={t} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+        <PublishReadinessChecklist items={checklist} />
+      </div>
+
+      {product.sourceTable === 'service_packages' && (
+        <RelationshipsPanel productId={product.id} />
       )}
-      <PublishReadinessChecklist items={checklist} />
     </div>
   );
 }

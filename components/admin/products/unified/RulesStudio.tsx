@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PiXBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import {
@@ -49,7 +49,40 @@ export function RulesStudio({
   simulationProduct,
 }: RulesStudioProps) {
   const [selectedId, setSelectedId] = useState<string>(BUILTIN_RULES[0]?.id ?? '');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveError, setSaveError] = useState<string>('');
+
+  // Clear saved confirmation after 2 seconds.
+  useEffect(() => {
+    if (saveStatus === 'saved') {
+      const t = setTimeout(() => setSaveStatus('idle'), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [saveStatus]);
+
   const selected = BUILTIN_RULES.find((r) => r.id === selectedId) ?? BUILTIN_RULES[0];
+
+  const handleSave = async () => {
+    setSaveStatus('saving');
+    setSaveError('');
+    try {
+      const res = await fetch('/api/admin/products/rules-config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config }),
+      });
+      if (res.ok) {
+        setSaveStatus('saved');
+      } else {
+        const json = await res.json().catch(() => ({}));
+        setSaveError(json.error || `Error: HTTP ${res.status}`);
+        setSaveStatus('error');
+      }
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : String(error));
+      setSaveStatus('error');
+    }
+  };
 
   if (!open) return null;
 
@@ -185,8 +218,31 @@ export function RulesStudio({
                   Edits re-evaluate card badges and the detail panel live.
                 </p>
               </section>
+
+              {/* save error */}
+              {saveError && (
+                <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
+                  <p className="text-sm text-red-700">{saveError}</p>
+                </div>
+              )}
             </div>
           )}
+
+          {/* footer */}
+          <footer className="flex items-center justify-between border-t border-ui-border bg-slate-50 px-5 py-3">
+            <div className="text-xs text-ui-text-muted">
+              {saveStatus === 'saved' && (
+                <span className="text-emerald-600">Saved ✓</span>
+              )}
+            </div>
+            <button
+              onClick={handleSave}
+              disabled={saveStatus === 'saving'}
+              className="rounded-lg bg-circleTel-orange px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-circleTel-orange/90 disabled:opacity-50"
+            >
+              {saveStatus === 'saving' ? 'Saving...' : 'Save as default'}
+            </button>
+          </footer>
         </div>
       </div>
     </div>

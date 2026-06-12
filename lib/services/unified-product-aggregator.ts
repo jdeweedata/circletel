@@ -128,7 +128,8 @@ export class UnifiedProductAggregator {
 
     if (table === 'admin_products') {
       const pricing = await this.fetchLatestApprovedPricing(supabase, [id]);
-      return normalizeAdminProductToUnified(data as AdminProduct, pricing.get(id) ?? null);
+      const costs = await this.fetchProductCosts(supabase, [id]);
+      return normalizeAdminProductToUnified(data as AdminProduct, pricing.get(id) ?? null, costs.get(id));
     }
     return this.normalizeRow(table, data);
   }
@@ -168,8 +169,13 @@ export class UnifiedProductAggregator {
     if (table === 'admin_products') {
       const ids = rawRows.map((r) => String(r.id));
       const pricing = await this.fetchLatestApprovedPricing(supabase, ids);
+      const costs = await this.fetchProductCosts(supabase, ids);
       rows = rawRows.map((r) =>
-        normalizeAdminProductToUnified(r as unknown as AdminProduct, pricing.get(String(r.id)) ?? null)
+        normalizeAdminProductToUnified(
+          r as unknown as AdminProduct,
+          pricing.get(String(r.id)) ?? null,
+          costs.get(String(r.id))
+        )
       );
     } else {
       rows = rawRows.map((r) => this.normalizeRow(table, r));
@@ -212,6 +218,33 @@ export class UnifiedProductAggregator {
     // First row per product_id wins (already ordered newest-first).
     for (const row of data as AdminProductPricing[]) {
       if (!map.has(row.product_id)) map.set(row.product_id, row);
+    }
+    return map;
+  }
+
+  /** Batch-load and sum cost components per admin product id. */
+  private async fetchProductCosts(
+    supabase: SupabaseServerClient,
+    productIds: string[]
+  ): Promise<Map<string, number>> {
+    const map = new Map<string, number>();
+    if (productIds.length === 0) return map;
+
+    // Cost components are linked via package_id to service_packages.
+    // We query by treating the admin_product.id as a potential package_id
+    // (as done in the cost-components API route).
+    const { data, error } = await supabase
+      .from('product_cost_components')
+      .select('package_id, cost_amount')
+      .in('package_id', productIds);
+
+    if (error || !data) return map;
+
+    // Sum cost_amount per product_id
+    for (const row of data as Array<{ package_id: string; cost_amount: number | string | null }>) {
+      const productId = row.package_id;
+      const amount = (typeof row.cost_amount === 'string' ? Number(row.cost_amount) : row.cost_amount) || 0;
+      map.set(productId, (map.get(productId) ?? 0) + amount);
     }
     return map;
   }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { PiSlidersBold, PiCaretLeftBold, PiCaretRightBold, PiWarningBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import type {
@@ -11,9 +12,15 @@ import type {
 import { rulesEngine, type RuleConfig } from '@/lib/products/rules';
 import type { RuleSummary } from '@/components/admin/products/shared';
 import { useUnifiedProducts } from '@/hooks/useUnifiedProducts';
+import {
+  parseWorkspaceParams,
+  buildWorkspaceQuery,
+  WORKSPACE_DEFAULTS,
+} from '@/lib/products/workspace-params';
 import { UnifiedProductSearch, type UnifiedSort } from './UnifiedProductSearch';
 import { UnifiedProductGrid } from './UnifiedProductGrid';
 import { UnifiedProductDetailSidebar } from './UnifiedProductDetailSidebar';
+import { ProductEditDrawer } from './ProductEditDrawer';
 import { RulesStudio } from './RulesStudio';
 
 type SourceTab = UnifiedProductSource | 'all';
@@ -34,13 +41,27 @@ const PER_PAGE = 20;
  * search, source/status/sort filters, and pagination.
  */
 export function UnifiedProductConsole() {
-  const [sourceTab, setSourceTab] = useState<SourceTab>('all');
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [status, setStatus] = useState<UnifiedProductStatus | 'all'>('all');
-  const [sort, setSort] = useState<UnifiedSort>('updated_desc');
-  const [page, setPage] = useState(1);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const initial = useMemo(
+    () => parseWorkspaceParams(new URLSearchParams(searchParams.toString())),
+    // Parse once on mount only — the console owns state afterwards.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const [sourceTab, setSourceTab] = useState<SourceTab>(
+    initial.source === 'all' ? 'all' : initial.source
+  );
+  const [search, setSearch] = useState(initial.search);
+  const [debouncedSearch, setDebouncedSearch] = useState(initial.search);
+  const [status, setStatus] = useState<UnifiedProductStatus | 'all'>(initial.status);
+  const [sort, setSort] = useState<UnifiedSort>(initial.sort);
+  const [page, setPage] = useState(initial.page);
   const [selected, setSelected] = useState<UnifiedProduct | null>(null);
+  const [editing, setEditing] = useState<UnifiedProduct | null>(null);
   const [rulesOpen, setRulesOpen] = useState(false);
   // Rule threshold overrides (edited in Rules Studio); empty = engine defaults.
   const [ruleConfig, setRuleConfig] = useState<Partial<RuleConfig>>({});
@@ -54,7 +75,39 @@ export function UnifiedProductConsole() {
     return () => clearTimeout(t);
   }, [search]);
 
-  const { products, total, totalPages, countsBySource, loading, error } = useUnifiedProducts({
+  // Load saved Rules Studio config from the server on mount.
+  // Silent failure → keep defaults if the config can't be fetched.
+  useEffect(() => {
+    const loadRuleConfig = async () => {
+      try {
+        const res = await fetch('/api/admin/products/rules-config');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.config) {
+            setRuleConfig(json.config);
+          }
+        }
+      } catch (error) {
+        // Silent failure — console continues with default rules.
+      }
+    };
+    loadRuleConfig();
+  }, []);
+
+  // Keep the URL shareable: reflect filters without adding history entries.
+  useEffect(() => {
+    const qs = buildWorkspaceQuery({
+      ...WORKSPACE_DEFAULTS,
+      source: sourceTab === 'all' ? 'all' : sourceTab,
+      status,
+      search: debouncedSearch,
+      sort,
+      page,
+    });
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [sourceTab, status, debouncedSearch, sort, page, pathname, router]);
+
+  const { products, total, totalPages, countsBySource, loading, error, refetch } = useUnifiedProducts({
     source: sourceTab === 'all' ? undefined : sourceTab,
     status: status === 'all' ? undefined : status,
     search: debouncedSearch,
@@ -80,6 +133,13 @@ export function UnifiedProductConsole() {
 
   const countFor = (tab: SourceTab): number | null =>
     tab === 'all' ? total : countsBySource[tab] ?? null;
+
+  const SAVED_VIEWS: Array<{ label: string; apply: () => void }> = [
+    { label: 'Drafts', apply: () => { setStatus('draft'); setSourceTab('all'); setPage(1); } },
+    { label: 'Archived', apply: () => { setStatus('archived'); setSourceTab('all'); setPage(1); } },
+    { label: 'Hardware', apply: () => { setSourceTab('Hardware'); setStatus('all'); setPage(1); } },
+    { label: 'MTN Deals', apply: () => { setSourceTab('MTN / Arlan'); setStatus('all'); setPage(1); } },
+  ];
 
   return (
     <div className="space-y-4 p-6">
@@ -131,6 +191,20 @@ export function UnifiedProductConsole() {
             );
           })}
         </div>
+      </div>
+
+      {/* saved view chips */}
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium text-ui-text-muted">Views:</span>
+        {SAVED_VIEWS.map((v) => (
+          <button
+            key={v.label}
+            onClick={v.apply}
+            className="rounded-full border border-ui-border px-3 py-1 text-xs font-medium text-ui-text-secondary transition-colors hover:border-circleTel-orange hover:text-circleTel-orange"
+          >
+            {v.label}
+          </button>
+        ))}
       </div>
 
       {/* search + filters */}
@@ -191,6 +265,20 @@ export function UnifiedProductConsole() {
         product={selected}
         ruleConfig={ruleConfig}
         onClose={() => setSelected(null)}
+        onEdit={(p) => {
+          setSelected(null);
+          setEditing(p);
+        }}
+      />
+
+      {/* edit drawer */}
+      <ProductEditDrawer
+        product={editing}
+        onClose={() => setEditing(null)}
+        onSaved={() => {
+          setEditing(null);
+          refetch();
+        }}
       />
 
       {/* rules studio modal */}
