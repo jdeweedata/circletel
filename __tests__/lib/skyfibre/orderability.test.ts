@@ -146,6 +146,47 @@ describe('SkyFibre orderability decisions', () => {
     expect(cspClient.checkOrderability).not.toHaveBeenCalled();
   });
 
+  it('still calls CSP when an online BN has no RN evidence', async () => {
+    mockCheckBaseStationProximity.mockResolvedValue({
+      ...baseProximity,
+      confidence: 'low',
+      nearestStation: {
+        ...baseProximity.nearestStation!,
+        activeConnections: 0,
+        deviceStatus: 1,
+      },
+    });
+    const cspClient = {
+      checkOrderability: jest.fn().mockResolvedValue({
+        provider: 'mtn-csp',
+        productName: 'Fixed Wireless Broadband',
+        method: 'feasibilityOld',
+        capacityMbps: 50,
+        orderable: true,
+        status: 'orderable',
+        checkedAt: '2026-06-16T10:00:00.000Z',
+      }),
+    };
+
+    const result = await checkSkyFibreOrderability(
+      {
+        latitude: -25.7134413,
+        longitude: 28.3962027,
+        capacityMbps: 50,
+        segment: 'business',
+      },
+      { cspClient: cspClient as any }
+    );
+
+    expect(cspClient.checkOrderability).toHaveBeenCalledWith({
+      latitude: -25.7134413,
+      longitude: 28.3962027,
+      capacityMbps: 50,
+    });
+    expect(result.cspOrderability?.status).toBe('orderable');
+    expect(result.decision).toBe('manual_review');
+  });
+
   it('detects only explicit SkyFibre or Tarana packages for the order gate', () => {
     expect(isSkyFibrePackage({ package_name: 'SkyFibre Business 100' })).toBe(true);
     expect(isSkyFibrePackage({ service_type: 'Tarana FWB' })).toBe(true);

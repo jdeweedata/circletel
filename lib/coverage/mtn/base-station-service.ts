@@ -108,18 +108,20 @@ export async function checkBaseStationProximity(
       };
     }
 
+    const stationsWithStatus = await hydrateBaseStationStatus(supabase, stations);
+
     // Map database results
-    const nearbyStations: TaranaBaseStation[] = stations.map((s: any) => ({
+    const nearbyStations: TaranaBaseStation[] = stationsWithStatus.map((s: any) => ({
       id: s.id,
       serial_number: s.serial_number,
       hostname: s.hostname,
       site_name: s.site_name,
-      active_connections: s.active_connections,
+      active_connections: Number(s.active_connections ?? 0),
       market: s.market,
       lat: Number(s.lat),
       lng: Number(s.lng),
       distance_km: Number(s.distance_km),
-      device_status: s.device_status ?? 0,
+      device_status: normalizeDeviceStatus(s.device_status),
     }));
 
     // Separate online and offline — only online BNs can serve customers
@@ -205,6 +207,61 @@ export async function checkBaseStationProximity(
     console.error('[BaseStationService] Unexpected error:', error);
     return createFallbackResult(coordinates, 'Unexpected error');
   }
+}
+
+async function hydrateBaseStationStatus(
+  supabase: any,
+  stations: any[]
+): Promise<any[]> {
+  const serials = stations
+    .map((station) => station?.serial_number)
+    .filter((serial): serial is string => typeof serial === 'string' && serial.length > 0);
+
+  if (serials.length === 0) return stations;
+
+  const needsHydration = stations.some(
+    (station) => station?.device_status === undefined || station?.device_status === null
+  );
+
+  if (!needsHydration) return stations;
+
+  const { data, error } = await supabase
+    .from('tarana_base_stations')
+    .select('serial_number, device_status, active_connections')
+    .in('serial_number', serials);
+
+  if (error || !Array.isArray(data)) {
+    if (error) {
+      console.warn('[BaseStationService] Failed to hydrate BN statuses:', error.message);
+    }
+    return stations;
+  }
+
+  const statusBySerial = new Map(
+    data.map((row: any) => [row.serial_number, row])
+  );
+
+  return stations.map((station) => {
+    const statusRow = statusBySerial.get(station.serial_number);
+    if (!statusRow) return station;
+
+    return {
+      ...station,
+      device_status: station.device_status ?? statusRow.device_status,
+      active_connections: station.active_connections ?? statusRow.active_connections,
+    };
+  });
+}
+
+function normalizeDeviceStatus(value: unknown): number {
+  if (value === 1 || value === true) return 1;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === '1' || normalized === 'online' || normalized === 'connected' || normalized === 'active') {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 /**
