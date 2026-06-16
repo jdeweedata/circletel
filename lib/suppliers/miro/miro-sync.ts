@@ -11,8 +11,8 @@
 import { readdirSync, statSync } from 'fs'
 import { join, basename } from 'path'
 import { createClient } from '@/lib/supabase/server'
-import { parseMiRoFile } from './miro-parser'
-import type { MiRoSyncConfig, ParsedMiRoProduct } from './miro-types'
+import { parseMiRoCsvContent, parseMiRoFile, parseMiRoXlsxBuffer } from './miro-parser'
+import type { MiRoParseResult, MiRoSyncConfig, ParsedMiRoProduct } from './miro-types'
 import type {
   SyncResult,
   UpsertResult,
@@ -38,7 +38,7 @@ export async function syncMiRoProducts(options: {
 
   const { data: supplier, error: supplierError } = await supabase
     .from('suppliers')
-    .select('id, metadata')
+    .select('id, feed_url, metadata')
     .eq('code', MIRO_SUPPLIER_CODE)
     .single()
 
@@ -48,20 +48,29 @@ export async function syncMiRoProducts(options: {
     )
   }
 
-  const config = (supplier.metadata || {}) as MiRoSyncConfig
+  const config = (supplier.metadata || {}) as Partial<MiRoSyncConfig> & {
+    pricing_csv_url?: string
+  }
   const watchDir = config.watch_dir || DEFAULT_WATCH_DIR
   const filePattern = config.file_pattern || DEFAULT_FILE_PATTERN
+  const csvUrl =
+    process.env.MIRO_PRICING_CSV_URL ||
+    config.pricing_csv_url ||
+    supplier.feed_url
 
-  const filePath =
-    options.file_path || findLatestFile(watchDir, filePattern)
+  const filePath = csvUrl
+    ? null
+    : options.file_path || findLatestFile(watchDir, filePattern)
 
-  if (!filePath) {
+  if (!csvUrl && !filePath) {
     throw new Error(
       `No files matching "${filePattern}" found in ${watchDir}`
     )
   }
 
-  console.log(`[MiRoSync] Using file: ${filePath}`)
+  console.log(
+    csvUrl ? '[MiRoSync] Using live CSV feed' : `[MiRoSync] Using file: ${filePath}`
+  )
 
   // Create sync log
   const { data: syncLog, error: logError } = await supabase
@@ -79,14 +88,16 @@ export async function syncMiRoProducts(options: {
     throw new Error(`Failed to create sync log: ${logError?.message}`)
   }
 
-  await supabase
-    .from('suppliers')
-    .update({ sync_status: 'syncing', sync_error: null })
-    .eq('id', supplier.id)
+  if (!options.dry_run) {
+    await supabase
+      .from('suppliers')
+      .update({ sync_status: 'syncing', sync_error: null })
+      .eq('id', supplier.id)
+  }
 
   try {
-    console.log('[MiRoSync] Parsing xlsx file...')
-    const parseResult = await parseMiRoFile(filePath)
+    const source = await loadMiRoPricingSource({ csvUrl, filePath })
+    const parseResult = source.parseResult
 
     if (!parseResult.success) {
       throw new Error(
@@ -115,7 +126,7 @@ export async function syncMiRoProducts(options: {
           completed_at: new Date().toISOString(),
           error_details: {
             dry_run: true,
-            file: basename(filePath),
+            source: source.description,
             products_parsed: parseResult.products_parsed,
             sheets: parseResult.sheets_processed,
           },
@@ -258,6 +269,86 @@ export async function syncMiRoProducts(options: {
 // =====================================================
 // Helpers
 // =====================================================
+
+async function loadMiRoPricingSource({
+  csvUrl,
+  filePath,
+}: {
+  csvUrl: string | null
+  filePath: string | null
+}): Promise<{ parseResult: MiRoParseResult; description: string }> {
+  if (csvUrl) {
+    console.log('[MiRoSync] Fetching live MiRO pricing feed...')
+    const feed = await fetchMiRoPricingFeed(csvUrl)
+    const isWorkbook =
+      feed.contentType.includes('spreadsheet') ||
+      feed.contentType.includes('excel') ||
+      isZipBuffer(feed.buffer)
+
+    return {
+      parseResult: isWorkbook
+        ? await parseMiRoXlsxBuffer(feed.buffer, 'miro-live-pricing.xlsx')
+        : parseMiRoCsvContent(feed.buffer.toString('utf8'), 'miro-live-pricing.csv'),
+      description: isWorkbook ? 'live XLSX feed' : 'live CSV feed',
+    }
+  }
+
+  if (!filePath) {
+    throw new Error('No MiRO xlsx file path supplied')
+  }
+
+  console.log('[MiRoSync] Parsing xlsx file...')
+  return {
+    parseResult: await parseMiRoFile(filePath),
+    description: basename(filePath),
+  }
+}
+
+async function fetchMiRoPricingFeed(url: string): Promise<{
+  buffer: Buffer
+  contentType: string
+}> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 120000)
+  const headers: Record<string, string> = {
+    'User-Agent': 'CircleTel-Sync/1.0',
+    Accept: 'text/csv,text/plain,*/*',
+  }
+
+  const username = process.env.MIRO_PRICING_USERNAME
+  const password = process.env.MIRO_PRICING_PASSWORD
+  if (username && password) {
+    headers.Authorization = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`
+  }
+
+  try {
+    const response = await fetch(url, {
+      headers,
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch MiRO CSV: ${response.status} ${response.statusText}`)
+    }
+
+    return {
+      buffer: Buffer.from(await response.arrayBuffer()),
+      contentType: response.headers.get('content-type') || '',
+    }
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('MiRO CSV fetch timeout - feed took too long to respond')
+    }
+    throw error
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+function isZipBuffer(buffer: Buffer): boolean {
+  return buffer.length >= 2 && buffer[0] === 0x50 && buffer[1] === 0x4b
+}
 
 function findLatestFile(
   watchDir: string,
