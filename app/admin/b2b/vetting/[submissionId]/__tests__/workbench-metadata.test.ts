@@ -1,4 +1,8 @@
-import { buildDocumentMetadataDraft, buildVettingSummaryItems } from '../workbench-utils';
+import {
+  buildDocumentDrawerSummary,
+  buildDocumentMetadataDraft,
+  buildVettingSummaryItems,
+} from '../workbench-utils';
 
 describe('buildDocumentMetadataDraft', () => {
   it('derives a reviewer-friendly metadata draft from the selected document', () => {
@@ -63,5 +67,20 @@ describe('buildVettingSummaryItems', () => {
         tone: 'neutral',
       },
     ]);
+  });
+});
+
+describe('buildDocumentDrawerSummary', () => {
+  it('builds the document drawer title and subtitle from the selected document context', () => {
+    const summary = buildDocumentDrawerSummary({
+      requirementLabel: 'CIPC registration certificate',
+      documentType: 'company_registration',
+      fileType: 'Image',
+    });
+
+    expect(summary).toEqual({
+      title: 'CIPC registration certificate',
+      subtitle: 'Image · company_registration',
+    });
   });
 });

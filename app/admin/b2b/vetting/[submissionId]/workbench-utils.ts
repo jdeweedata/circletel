@@ -24,6 +24,17 @@ export interface VettingSummaryItem {
   tone: SummaryTone;
 }
 
+export interface DocumentDrawerSummaryInput {
+  requirementLabel: string | null;
+  documentType: string;
+  fileType: string;
+}
+
+export interface DocumentDrawerSummary {
+  title: string;
+  subtitle: string;
+}
+
 interface DocumentMetadataSource {
   document_type: string;
   file_path: string;
@@ -138,4 +149,15 @@ export function buildVettingSummaryItems({
       tone: 'neutral',
     },
   ];
+}
+
+export function buildDocumentDrawerSummary({
+  requirementLabel,
+  documentType,
+  fileType,
+}: DocumentDrawerSummaryInput): DocumentDrawerSummary {
+  return {
+    title: requirementLabel || formatStatusLabel(documentType),
+    subtitle: `${fileType} · ${documentType}`,
+  };
 }
