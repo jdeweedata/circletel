@@ -17,6 +17,7 @@ import ProviderSelector from './components/ProviderSelector';
 import DFAVerdictCard from './components/DFAVerdictCard';
 import DFAProductTiers from './components/DFAProductTiers';
 import DFAInstallationEstimate from './components/DFAInstallationEstimate';
+import SkyFibreOrderabilityCard from './components/SkyFibreOrderabilityCard';
 import RecentChecksPanel, { saveRecentCheck } from './components/RecentChecksPanel';
 import {
   PiRulerBold, PiLightningBold, PiGaugeBold, PiCheckCircleBold,
@@ -347,6 +348,11 @@ export default function CoverageCheckerPage() {
           {provider === 'tarana' && result && !isLoading && (
             <div className="space-y-4">
               <CoverageVerdictCard prediction={result.prediction} liveStatus={result.liveStatus} />
+              <SkyFibreOrderabilityCard
+                lat={result.lat}
+                lng={result.lng}
+                address={result.address}
+              />
               {result.prediction && (
                 <TierEligibilityTable prediction={result.prediction} />
               )}
