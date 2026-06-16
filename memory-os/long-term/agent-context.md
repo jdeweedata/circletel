@@ -56,7 +56,7 @@ Format:
 - **Pattern:** Use `POST /api/coverage/skyfibre/orderability` or `lib/coverage/skyfibre/checkSkyFibreOrderability` to combine TCS BN/RN evidence with MTN CSP orderability. CSP credentials must come from `MTN_CSP_USERNAME`, `MTN_CSP_PASSWORD`, and optional `MTN_CSP_API_BASE`.
 - **Discovered by:** Codex
 - **Notes:** 50/100 Mbps use CSP `feasibilityOld`; 200 Mbps uses `feasibilityCheck`. Active BN with zero active RN evidence downgrades confidence to manual review. Checkout and `/api/orders/create` both gate SkyFibre order creation on final `decision === 'orderable'`.
-- **Admin UI:** `/admin/coverage/checker` now includes a SkyFibre Orderability card under Tarana results. `/admin/sales/feasibility` single-site review also shows the same card for selected SkyFibre/Tarana packages. Both let admins choose 50/100/200 Mbps and call the combined endpoint with `segment: "business"` for MTN CSP validation.
+- **Admin UI:** `/admin/coverage/checker` now includes a SkyFibre Orderability card under Tarana results and auto-runs the combined gate at 100 Mbps after each Tarana address check. Admins can still switch to 50/100/200 Mbps and re-run manually. `/admin/sales/feasibility` single-site review also shows the same card for selected SkyFibre/Tarana packages. Both call the combined endpoint with `segment: "business"` for MTN CSP validation.
 ### YYYY-MM-DD: Pattern
 - **Context:** When this applies
 - **Pattern:** The approach that works

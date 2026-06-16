@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   PiCheckCircleBold,
   PiClockBold,
@@ -27,6 +27,7 @@ interface SkyFibreOrderabilityCardProps {
   leadId?: string | null;
   packageName?: string;
   initialCapacityMbps?: SkyFibreCapacityMbps;
+  autoCheck?: boolean;
 }
 
 const CAPACITIES: SkyFibreCapacityMbps[] = [50, 100, 200];
@@ -76,11 +77,13 @@ export default function SkyFibreOrderabilityCard({
   leadId,
   packageName,
   initialCapacityMbps = 100,
+  autoCheck = false,
 }: SkyFibreOrderabilityCardProps) {
   const [capacityMbps, setCapacityMbps] = useState<SkyFibreCapacityMbps>(initialCapacityMbps);
   const [result, setResult] = useState<SkyFibreOrderabilityResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(false);
+  const lastAutoCheckKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     setCapacityMbps(initialCapacityMbps);
@@ -88,7 +91,8 @@ export default function SkyFibreOrderabilityCard({
     setError(null);
   }, [initialCapacityMbps, lat, lng, leadId]);
 
-  const checkOrderability = async () => {
+  const checkOrderability = useCallback(async (capacityOverride?: SkyFibreCapacityMbps) => {
+    const selectedCapacity = capacityOverride ?? capacityMbps;
     setIsChecking(true);
     setError(null);
 
@@ -97,7 +101,7 @@ export default function SkyFibreOrderabilityCard({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(
-          buildAdminSkyFibreOrderabilityRequest({ leadId, lat, lng, capacityMbps })
+          buildAdminSkyFibreOrderabilityRequest({ leadId, lat, lng, capacityMbps: selectedCapacity })
         ),
       });
 
@@ -113,7 +117,17 @@ export default function SkyFibreOrderabilityCard({
     } finally {
       setIsChecking(false);
     }
-  };
+  }, [capacityMbps, lat, leadId, lng]);
+
+  useEffect(() => {
+    if (!autoCheck) return;
+
+    const autoCheckKey = `${leadId || 'coords'}:${lat}:${lng}:${initialCapacityMbps}`;
+    if (lastAutoCheckKeyRef.current === autoCheckKey) return;
+
+    lastAutoCheckKeyRef.current = autoCheckKey;
+    void checkOrderability(initialCapacityMbps);
+  }, [autoCheck, checkOrderability, initialCapacityMbps, lat, leadId, lng]);
 
   const decision = result?.decision;
   const style = decision ? DECISION_STYLES[decision] : null;
@@ -161,7 +175,7 @@ export default function SkyFibreOrderabilityCard({
           </div>
           <button
             type="button"
-            onClick={checkOrderability}
+            onClick={() => checkOrderability()}
             disabled={isChecking}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-circleTel-orange px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#C45A30] disabled:cursor-not-allowed disabled:opacity-70"
           >

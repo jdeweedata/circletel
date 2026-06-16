@@ -352,6 +352,7 @@ export default function CoverageCheckerPage() {
                 lat={result.lat}
                 lng={result.lng}
                 address={result.address}
+                autoCheck
               />
               {result.prediction && (
                 <TierEligibilityTable prediction={result.prediction} />
