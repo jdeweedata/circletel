@@ -17,11 +17,11 @@ const QUALITY_CONFIG: Record<SignalQuality, {
   bgClass: string;
   borderClass: string;
 }> = {
-  excellent: { label: 'Excellent Coverage', verdict: 'COVERED', variant: 'success', bars: 5, bgClass: 'bg-emerald-50', borderClass: 'border-emerald-400' },
-  good:      { label: 'Good Coverage',      verdict: 'COVERED', variant: 'success', bars: 4, bgClass: 'bg-emerald-50', borderClass: 'border-emerald-400' },
-  fair:      { label: 'Marginal Coverage',  verdict: 'MARGINAL', variant: 'warning', bars: 3, bgClass: 'bg-amber-50', borderClass: 'border-amber-400' },
-  poor:      { label: 'Weak Coverage',      verdict: 'MARGINAL', variant: 'warning', bars: 2, bgClass: 'bg-orange-50', borderClass: 'border-orange-400' },
-  none:      { label: 'No Coverage',        verdict: 'NOT COVERED', variant: 'error', bars: 0, bgClass: 'bg-red-50', borderClass: 'border-red-400' },
+  excellent: { label: 'Excellent signal estimate', verdict: 'COVERED', variant: 'success', bars: 5, bgClass: 'bg-emerald-50', borderClass: 'border-emerald-400' },
+  good:      { label: 'Good signal estimate',      verdict: 'COVERED', variant: 'success', bars: 4, bgClass: 'bg-emerald-50', borderClass: 'border-emerald-400' },
+  fair:      { label: 'Marginal signal estimate',  verdict: 'MARGINAL', variant: 'warning', bars: 3, bgClass: 'bg-amber-50', borderClass: 'border-amber-400' },
+  poor:      { label: 'Weak signal estimate',      verdict: 'MARGINAL', variant: 'warning', bars: 2, bgClass: 'bg-orange-50', borderClass: 'border-orange-400' },
+  none:      { label: 'No signal estimate',        verdict: 'NOT COVERED', variant: 'error', bars: 0, bgClass: 'bg-red-50', borderClass: 'border-red-400' },
 };
 
 const CONFIDENCE_VARIANT: Record<string, 'success' | 'warning' | 'neutral' | 'info'> = {
@@ -56,11 +56,11 @@ export default function CoverageVerdictCard({ prediction, liveStatus }: Coverage
             <SignalBars filled={0} />
           </div>
           <div>
-            <p className="text-xs font-semibold tracking-wider uppercase text-slate-500 mb-0.5">Coverage Status</p>
-            <StatusBadge variant="error" status="No Coverage" />
+            <p className="text-xs font-semibold tracking-wider uppercase text-slate-500 mb-0.5">RF Signal Estimate</p>
+            <StatusBadge variant="error" status="No Tarana signal" />
           </div>
         </div>
-        <p className="text-sm text-slate-500">No Tarana base stations within 8 km</p>
+        <p className="text-sm text-slate-500">No Tarana base stations within 8 km. Use the final sales decision before quoting.</p>
       </div>
     );
   }
@@ -80,7 +80,7 @@ export default function CoverageVerdictCard({ prediction, liveStatus }: Coverage
             <SignalBars filled={cfg.bars} />
           </div>
           <div>
-            <p className="text-xs font-semibold tracking-wider uppercase text-slate-500 mb-1">Coverage Status</p>
+            <p className="text-xs font-semibold tracking-wider uppercase text-slate-500 mb-1">RF Signal Estimate</p>
             <StatusBadge variant={cfg.variant} status={cfg.label} />
           </div>
         </div>

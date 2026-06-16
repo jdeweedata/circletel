@@ -28,6 +28,9 @@ interface SkyFibreOrderabilityCardProps {
   packageName?: string;
   initialCapacityMbps?: SkyFibreCapacityMbps;
   autoCheck?: boolean;
+  onCheckingChange?: (isChecking: boolean) => void;
+  onResult?: (result: SkyFibreOrderabilityResult | null) => void;
+  onError?: (error: string | null) => void;
 }
 
 const CAPACITIES: SkyFibreCapacityMbps[] = [50, 100, 200];
@@ -78,6 +81,9 @@ export default function SkyFibreOrderabilityCard({
   packageName,
   initialCapacityMbps = 100,
   autoCheck = false,
+  onCheckingChange,
+  onResult,
+  onError,
 }: SkyFibreOrderabilityCardProps) {
   const [capacityMbps, setCapacityMbps] = useState<SkyFibreCapacityMbps>(initialCapacityMbps);
   const [result, setResult] = useState<SkyFibreOrderabilityResult | null>(null);
@@ -95,6 +101,8 @@ export default function SkyFibreOrderabilityCard({
     const selectedCapacity = capacityOverride ?? capacityMbps;
     setIsChecking(true);
     setError(null);
+    onCheckingChange?.(true);
+    onError?.(null);
 
     try {
       const response = await fetch('/api/coverage/skyfibre/orderability', {
@@ -110,14 +118,20 @@ export default function SkyFibreOrderabilityCard({
         throw new Error(body?.error || 'SkyFibre orderability check failed');
       }
 
-      setResult(body.data as SkyFibreOrderabilityResult);
+      const nextResult = body.data as SkyFibreOrderabilityResult;
+      setResult(nextResult);
+      onResult?.(nextResult);
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'SkyFibre orderability check failed';
       setResult(null);
-      setError(err instanceof Error ? err.message : 'SkyFibre orderability check failed');
+      setError(message);
+      onResult?.(null);
+      onError?.(message);
     } finally {
       setIsChecking(false);
+      onCheckingChange?.(false);
     }
-  }, [capacityMbps, lat, leadId, lng]);
+  }, [capacityMbps, lat, leadId, lng, onCheckingChange, onError, onResult]);
 
   useEffect(() => {
     if (!autoCheck) return;
