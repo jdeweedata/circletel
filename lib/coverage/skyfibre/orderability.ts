@@ -87,18 +87,18 @@ export function buildSkyFibreDecision(params: {
 
   if (!tcsCoverage.covered || tcsCoverage.confidence === 'none') {
     decision = 'not_covered';
+  } else if (cspOrderability?.orderable === true) {
+    decision = 'orderable';
+  } else if (cspOrderability?.orderable === false) {
+    decision = 'covered_not_orderable';
   } else if (
-    tcsCoverage.nearestBnActiveRnCount === 0 ||
-    tcsCoverage.confidence === 'low' ||
     !cspOrderability ||
     cspOrderability.status === 'unknown' ||
-    cspOrderability.status === 'error'
+    cspOrderability.status === 'error' ||
+    tcsCoverage.nearestBnActiveRnCount === 0 ||
+    tcsCoverage.confidence === 'low'
   ) {
     decision = 'manual_review';
-  } else if (cspOrderability.orderable === true) {
-    decision = 'orderable';
-  } else if (cspOrderability.orderable === false) {
-    decision = 'covered_not_orderable';
   } else {
     decision = 'manual_review';
   }

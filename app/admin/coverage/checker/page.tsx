@@ -132,7 +132,22 @@ function getSalesDecisionBanner(params: {
   }
 
   switch (orderability.decision) {
-    case 'orderable':
+    case 'orderable': {
+      const needsInstallReview =
+        orderability.tcsCoverage.nearestBnActiveRnCount === 0 ||
+        orderability.tcsCoverage.confidence === 'low';
+
+      if (needsInstallReview) {
+        return {
+          title: 'CSP orderable - site survey recommended',
+          text: 'MTN CSP accepts this SkyFibre order. TCS has low confidence or no active RN evidence, so confirm install details before committing the installation date.',
+          badge: 'CSP orderable',
+          variant: 'warning' as const,
+          icon: PiWarningCircleBold,
+          className: 'border-amber-200 bg-amber-50 text-amber-900',
+        };
+      }
+
       return {
         title: 'Available to sell',
         text: 'TCS coverage evidence is acceptable and MTN CSP will accept the selected SkyFibre order.',
@@ -141,6 +156,7 @@ function getSalesDecisionBanner(params: {
         icon: PiCheckCircleBold,
         className: 'border-emerald-200 bg-emerald-50 text-emerald-900',
       };
+    }
     case 'covered_not_orderable':
       return {
         title: 'Covered, but not orderable',

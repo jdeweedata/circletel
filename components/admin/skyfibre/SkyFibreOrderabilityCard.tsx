@@ -73,6 +73,20 @@ const DECISION_STYLES: Record<SkyFibreOrderabilityDecision, {
   },
 };
 
+function getCspStatusVariant(status: string | undefined): 'success' | 'warning' | 'error' | 'neutral' {
+  if (status === 'orderable') return 'success';
+  if (status === 'not_orderable') return 'warning';
+  if (status === 'error') return 'error';
+  return 'neutral';
+}
+
+function getTcsConfidenceVariant(confidence: string): 'success' | 'warning' | 'error' | 'neutral' {
+  if (confidence === 'high') return 'success';
+  if (confidence === 'medium' || confidence === 'low') return 'warning';
+  if (confidence === 'none') return 'error';
+  return 'neutral';
+}
+
 export default function SkyFibreOrderabilityCard({
   lat,
   lng,
@@ -219,8 +233,14 @@ export default function SkyFibreOrderabilityCard({
                   <p className="font-semibold text-slate-900">
                     {getSkyFibreDecisionLabel(result.decision)}
                   </p>
-                  <StatusBadge status={`CSP: ${result.cspOrderability?.status ?? 'not checked'}`} variant={style.variant} />
-                  <StatusBadge status={`TCS: ${result.tcsCoverage.confidence} confidence`} variant={style.variant} />
+                  <StatusBadge
+                    status={`CSP: ${result.cspOrderability?.status ?? 'not checked'}`}
+                    variant={getCspStatusVariant(result.cspOrderability?.status)}
+                  />
+                  <StatusBadge
+                    status={`TCS: ${result.tcsCoverage.confidence} confidence`}
+                    variant={getTcsConfidenceVariant(result.tcsCoverage.confidence)}
+                  />
                 </div>
                 <p className="mt-2 text-sm text-slate-700">{result.tcsCoverage.reason}</p>
               </div>

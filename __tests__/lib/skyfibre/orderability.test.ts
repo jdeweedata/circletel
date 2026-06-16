@@ -74,7 +74,7 @@ describe('SkyFibre orderability decisions', () => {
     expect(decision.decision).toBe('covered_not_orderable');
   });
 
-  it('downgrades active BNs without active RN evidence to manual review', () => {
+  it('allows CSP-orderable addresses even when active BNs have no RN evidence', () => {
     const tcsCoverage = buildTcsCoverageFromProximity({
       ...baseProximity,
       confidence: 'high',
@@ -100,7 +100,8 @@ describe('SkyFibre orderability decisions', () => {
     });
 
     expect(tcsCoverage.confidence).toBe('medium');
-    expect(decision.decision).toBe('manual_review');
+    expect(tcsCoverage.nearestBnActiveRnCount).toBe(0);
+    expect(decision.decision).toBe('orderable');
   });
 
   it('returns not covered when the nearest BN is offline', () => {
@@ -184,7 +185,7 @@ describe('SkyFibre orderability decisions', () => {
       capacityMbps: 50,
     });
     expect(result.cspOrderability?.status).toBe('orderable');
-    expect(result.decision).toBe('manual_review');
+    expect(result.decision).toBe('orderable');
   });
 
   it('detects only explicit SkyFibre or Tarana packages for the order gate', () => {
