@@ -25,6 +25,7 @@ import type {
   ClinicOnboardingParams,
   ClinicDocsReceivedParams,
   DebiCheckReminderParams,
+  WhatsAppLogMeta,
 } from './types';
 
 // =============================================================================
@@ -88,7 +89,8 @@ export class WhatsAppService {
     to: string,
     templateName: CircleTelTemplate,
     components: SendTemplateRequest['template']['components'] = [],
-    languageCode = 'en_ZA' // CircleTel templates are created in English (ZAF) — must match the template's language
+    languageCode = 'en_ZA', // CircleTel templates are created in English (ZAF) — must match the template's language
+    logMeta?: WhatsAppLogMeta
   ): Promise<WhatsAppSendResult> {
     const config = this.getConfig();
 
@@ -145,6 +147,13 @@ export class WhatsAppService {
 
       console.log(`[WhatsApp] Message sent successfully: ${messageId}`);
 
+      // Persist the send to whatsapp_message_log so delivery-status webhooks
+      // have a row to update and admin dashboards reflect it. Best-effort —
+      // a logging failure must never fail the send.
+      if (messageId) {
+        await this.logSend(messageId, waId, formattedPhone, templateName, logMeta);
+      }
+
       return {
         success: true,
         messageId,
@@ -156,6 +165,40 @@ export class WhatsAppService {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to send WhatsApp message',
       };
+    }
+  }
+
+  /**
+   * Best-effort insert of an outbound message into whatsapp_message_log via the
+   * log_whatsapp_message RPC. Never throws — logging is observability, not the
+   * send itself. This is the SINGLE logging point for all template sends.
+   */
+  private async logSend(
+    messageId: string,
+    waId: string | undefined,
+    phone: string,
+    templateName: CircleTelTemplate,
+    logMeta?: WhatsAppLogMeta
+  ): Promise<void> {
+    try {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (!url || !key) return;
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(url, key, {
+        auth: { autoRefreshToken: false, persistSession: false },
+      });
+      await supabase.rpc('log_whatsapp_message', {
+        p_message_id: messageId,
+        p_wa_id: waId || phone,
+        p_phone: phone,
+        p_template_name: templateName,
+        p_customer_id: logMeta?.customerId ?? null,
+        p_invoice_id: logMeta?.invoiceId ?? null,
+        p_created_by: logMeta?.createdBy ?? 'api',
+      });
+    } catch (error) {
+      console.error('[WhatsApp] Failed to log message to whatsapp_message_log', error);
     }
   }
 
@@ -174,7 +217,8 @@ export class WhatsAppService {
    */
   async sendInvoicePayment(
     to: string,
-    params: InvoicePaymentParams
+    params: InvoicePaymentParams,
+    logMeta?: WhatsAppLogMeta
   ): Promise<WhatsAppSendResult> {
     const bodyParams: TemplateParameter[] = [
       { type: 'text', text: params.customerName },
@@ -199,7 +243,7 @@ export class WhatsAppService {
       },
     ];
 
-    return this.sendTemplate(to, 'circletel_invoice_payment', components);
+    return this.sendTemplate(to, 'circletel_invoice_payment', components, 'en_ZA', logMeta);
   }
 
   // ===========================================================================
@@ -216,7 +260,8 @@ export class WhatsAppService {
    */
   async sendPaymentReminder(
     to: string,
-    params: PaymentReminderParams
+    params: PaymentReminderParams,
+    logMeta?: WhatsAppLogMeta
   ): Promise<WhatsAppSendResult> {
     const bodyParams: TemplateParameter[] = [
       { type: 'text', text: params.invoiceNumber },
@@ -237,7 +282,7 @@ export class WhatsAppService {
       },
     ];
 
-    return this.sendTemplate(to, 'circletel_payment_reminder', components);
+    return this.sendTemplate(to, 'circletel_payment_reminder', components, 'en_ZA', logMeta);
   }
 
   // ===========================================================================
@@ -255,7 +300,8 @@ export class WhatsAppService {
    */
   async sendDebitFailed(
     to: string,
-    params: DebitFailedParams
+    params: DebitFailedParams,
+    logMeta?: WhatsAppLogMeta
   ): Promise<WhatsAppSendResult> {
     const bodyParams: TemplateParameter[] = [
       { type: 'text', text: params.customerName },
@@ -278,7 +324,7 @@ export class WhatsAppService {
       // Second button - Update Payment (static URL in template)
     ];
 
-    return this.sendTemplate(to, 'circletel_debit_failed', components);
+    return this.sendTemplate(to, 'circletel_debit_failed', components, 'en_ZA', logMeta);
   }
 
   // ===========================================================================
@@ -358,7 +404,8 @@ export class WhatsAppService {
    */
   async sendClinicOnboarding(
     to: string,
-    params: ClinicOnboardingParams
+    params: ClinicOnboardingParams,
+    logMeta?: WhatsAppLogMeta
   ): Promise<WhatsAppSendResult> {
     const components: SendTemplateRequest['template']['components'] = [
       {
@@ -374,7 +421,7 @@ export class WhatsAppService {
       },
     ];
 
-    return this.sendTemplate(to, 'circletel_clinic_onboarding', components);
+    return this.sendTemplate(to, 'circletel_clinic_onboarding', components, 'en_ZA', logMeta);
   }
 
   /**
@@ -387,7 +434,8 @@ export class WhatsAppService {
    */
   async sendClinicDocsReceived(
     to: string,
-    params: ClinicDocsReceivedParams
+    params: ClinicDocsReceivedParams,
+    logMeta?: WhatsAppLogMeta
   ): Promise<WhatsAppSendResult> {
     const components: SendTemplateRequest['template']['components'] = [
       {
@@ -400,7 +448,7 @@ export class WhatsAppService {
       },
     ];
 
-    return this.sendTemplate(to, 'circletel_docs_received', components);
+    return this.sendTemplate(to, 'circletel_docs_received', components, 'en_ZA', logMeta);
   }
 
   /**
@@ -416,7 +464,8 @@ export class WhatsAppService {
    */
   async sendDebiCheckReminder(
     to: string,
-    params: DebiCheckReminderParams
+    params: DebiCheckReminderParams,
+    logMeta?: WhatsAppLogMeta
   ): Promise<WhatsAppSendResult> {
     const components: SendTemplateRequest['template']['components'] = [
       {
@@ -433,7 +482,7 @@ export class WhatsAppService {
       },
     ];
 
-    return this.sendTemplate(to, 'circletel_debicheck_reminder', components);
+    return this.sendTemplate(to, 'circletel_debicheck_reminder', components, 'en_ZA', logMeta);
   }
 
   // ===========================================================================

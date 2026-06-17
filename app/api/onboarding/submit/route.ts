@@ -294,11 +294,15 @@ export async function POST(request: NextRequest) {
   // Template circletel_docs_received: account number + "we're vetting your documents".
   try {
     if (cust?.phone && cust.account_number) {
-      const result = await whatsAppService.sendClinicDocsReceived(cust.phone, {
-        firstName: cust.first_name || 'there',
-        clinicName: cust.business_name || 'your clinic',
-        accountNumber: cust.account_number,
-      });
+      const result = await whatsAppService.sendClinicDocsReceived(
+        cust.phone,
+        {
+          firstName: cust.first_name || 'there',
+          clinicName: cust.business_name || 'your clinic',
+          accountNumber: cust.account_number,
+        },
+        { customerId, createdBy: 'onboarding-wizard' }
+      );
       if (!result.success) {
         console.warn('[Onboarding] docs-received WhatsApp failed', result.error);
       }

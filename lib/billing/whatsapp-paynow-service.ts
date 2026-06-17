@@ -223,7 +223,11 @@ export class WhatsAppPayNowService {
             dueDate: formatDateForWhatsApp(invoice.due_date),
             paymentUrl,
           };
-          sendResult = await whatsAppService.sendInvoicePayment(customer.phone, params);
+          sendResult = await whatsAppService.sendInvoicePayment(customer.phone, params, {
+            customerId: customer.id,
+            invoiceId,
+            createdBy,
+          });
           break;
         }
 
@@ -234,7 +238,11 @@ export class WhatsAppPayNowService {
             daysOverdue: String(daysOverdue),
             paymentUrl,
           };
-          sendResult = await whatsAppService.sendPaymentReminder(customer.phone, params);
+          sendResult = await whatsAppService.sendPaymentReminder(customer.phone, params, {
+            customerId: customer.id,
+            invoiceId,
+            createdBy,
+          });
           break;
         }
 
@@ -245,7 +253,11 @@ export class WhatsAppPayNowService {
             amount: formatAmountForWhatsApp(invoice.total_amount),
             paymentUrl,
           };
-          sendResult = await whatsAppService.sendDebitFailed(customer.phone, params);
+          sendResult = await whatsAppService.sendDebitFailed(customer.phone, params, {
+            customerId: customer.id,
+            invoiceId,
+            createdBy,
+          });
           break;
         }
       }
@@ -273,16 +285,8 @@ export class WhatsAppPayNowService {
         })
         .eq('id', invoiceId);
 
-      // Log message
-      await supabase.rpc('log_whatsapp_message', {
-        p_message_id: sendResult.messageId,
-        p_wa_id: sendResult.waId,
-        p_phone: customer.phone,
-        p_template_name: `circletel_${notificationType}`,
-        p_customer_id: customer.id,
-        p_invoice_id: invoiceId,
-        p_created_by: createdBy,
-      });
+      // Message is logged centrally in whatsAppService.sendTemplate() (single
+      // logging point) — customer_id/invoice_id/createdBy passed via logMeta above.
 
       billingLogger.info('WhatsApp PayNow: Sent successfully', {
         invoiceId,

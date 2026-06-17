@@ -51,12 +51,16 @@ export async function POST(request: NextRequest) {
   let sent = false;
   let sendError: string | undefined;
   try {
-    const result = await whatsAppService.sendDebiCheckReminder(customer.phone, {
-      firstName: customer.first_name || 'there',
-      clinicName: customer.business_name || 'your clinic',
-      amount,
-      headerImageUrl,
-    });
+    const result = await whatsAppService.sendDebiCheckReminder(
+      customer.phone,
+      {
+        firstName: customer.first_name || 'there',
+        clinicName: customer.business_name || 'your clinic',
+        amount,
+        headerImageUrl,
+      },
+      { customerId: customer.id, createdBy: auth.adminUser.email }
+    );
     sent = result.success;
     if (!result.success) {
       sendError = result.error;
