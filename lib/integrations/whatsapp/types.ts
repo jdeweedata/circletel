@@ -92,7 +92,8 @@ export type CircleTelTemplate =
   | 'circletel_clinic_onboarding'
   | 'circletel_docs_received'
   | 'circletel_docs_approved'
-  | 'circletel_docs_changes';
+  | 'circletel_docs_changes'
+  | 'circletel_debicheck_reminder';
 
 /**
  * Template parameter mappings for CircleTel templates
@@ -142,6 +143,13 @@ export interface ClinicDocsReceivedParams {
   firstName: string;          // {{1}} - Nurse / contact first name
   clinicName: string;         // {{2}} - Clinic name
   accountNumber: string;      // {{3}} - CircleTel account number (CT-YYYY-NNNNN)
+}
+
+export interface DebiCheckReminderParams {
+  firstName: string;          // {{1}} - Nurse / contact first name (body)
+  clinicName: string;         // {{2}} - Clinic name (body)
+  amount: string;             // {{3}} - Monthly amount incl VAT (e.g., "R517.50")
+  headerImageUrl: string;     // IMAGE header media link (the branded "what to expect" card)
 }
 
 // Union type for all template params
