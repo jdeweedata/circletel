@@ -164,6 +164,17 @@ export type TemplateParams =
 // API REQUEST/RESPONSE TYPES
 // =============================================================================
 
+/**
+ * Optional attribution passed to sendTemplate() so every outbound message can be
+ * recorded in whatsapp_message_log (via the log_whatsapp_message RPC). All fields
+ * optional — a send is always logged even with no attribution.
+ */
+export interface WhatsAppLogMeta {
+  customerId?: string;
+  invoiceId?: string;
+  createdBy?: string;   // e.g. admin email or 'api' / 'system'
+}
+
 export interface SendTemplateRequest {
   messaging_product: 'whatsapp';
   to: string;

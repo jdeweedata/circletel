@@ -32,10 +32,14 @@ export async function POST(request: NextRequest) {
     sendError = 'Customer has no phone number';
   } else if (channel === 'whatsapp') {
     try {
-      const result = await whatsAppService.sendClinicOnboarding(customer.phone, {
-        clinicName: customer.business_name || 'there',
-        token,
-      });
+      const result = await whatsAppService.sendClinicOnboarding(
+        customer.phone,
+        {
+          clinicName: customer.business_name || 'there',
+          token,
+        },
+        { customerId, createdBy: auth.adminUser.email }
+      );
       sent = result.success;
       if (!result.success) {
         sendError = result.error;
