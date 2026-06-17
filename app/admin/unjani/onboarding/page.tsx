@@ -372,6 +372,35 @@ export default function UnjaniOnboardingPipelinePage() {
     }
   };
 
+  // Sends the DebiCheck "approve your debit order" WhatsApp heads-up (the
+  // primer card), so the nurse expects the NetCash signing SMS instead of
+  // dismissing it as phishing. Separate from the NetCash-portal mandate resend.
+  const sendMandateReminder = async (clinic: PipelineClinic) => {
+    setActingOn(clinic.customer_id);
+    try {
+      const response = await fetch('/api/admin/unjani/send-mandate-reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ customerId: clinic.customer_id }),
+      });
+      const result = await response.json();
+      if (response.ok && result.success && result.sent) {
+        toast.success(`DebiCheck reminder sent to ${clinic.business_name} via WhatsApp`);
+      } else if (response.ok && result.success) {
+        toast.warning(
+          `Reminder could not be delivered${result.sendError ? `: ${result.sendError}` : ''}`
+        );
+      } else {
+        toast.error(result.error || 'Failed to send DebiCheck reminder');
+      }
+    } catch (error) {
+      console.error('Error sending DebiCheck reminder:', error);
+      toast.error('Failed to send DebiCheck reminder');
+    } finally {
+      setActingOn(null);
+    }
+  };
+
   const issueServiceOrder = async (clinic: PipelineClinic) => {
     setActingOn(clinic.customer_id);
     try {
@@ -1532,27 +1561,41 @@ export default function UnjaniOnboardingPipelinePage() {
                   </ul>
                 </div>
               </div>
-              <div className="border-t border-gray-100 p-4 flex gap-2">
-                {drawerClinic.submission_id && (
+              <div className="border-t border-gray-100 p-4 flex flex-col gap-2">
+                {drawerClinic.stage === 'docs_approved' && (
                   <Button
                     variant="outline"
-                    className="flex-1"
-                    onClick={() =>
-                      router.push(`/admin/b2b/vetting/${drawerClinic.submission_id}`)
-                    }
+                    className="w-full border-circleTel-orange text-circleTel-orange hover:bg-orange-50"
+                    disabled={actingOn === drawerClinic.customer_id}
+                    onClick={() => sendMandateReminder(drawerClinic)}
                   >
-                    View submission
+                    {actingOn === drawerClinic.customer_id
+                      ? 'Working…'
+                      : '📩 Remind: approve DebiCheck'}
                   </Button>
                 )}
-                <Button
-                  className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
-                  disabled={actingOn === drawerClinic.customer_id}
-                  onClick={() => runNextAction(drawerClinic)}
-                >
-                  {actingOn === drawerClinic.customer_id
-                    ? 'Working…'
-                    : stageMeta(drawerClinic.stage).action}
-                </Button>
+                <div className="flex gap-2">
+                  {drawerClinic.submission_id && (
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() =>
+                        router.push(`/admin/b2b/vetting/${drawerClinic.submission_id}`)
+                      }
+                    >
+                      View submission
+                    </Button>
+                  )}
+                  <Button
+                    className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+                    disabled={actingOn === drawerClinic.customer_id}
+                    onClick={() => runNextAction(drawerClinic)}
+                  >
+                    {actingOn === drawerClinic.customer_id
+                      ? 'Working…'
+                      : stageMeta(drawerClinic.stage).action}
+                  </Button>
+                </div>
               </div>
             </>
           )}

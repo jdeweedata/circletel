@@ -24,6 +24,7 @@ import type {
   ServiceActivatedParams,
   ClinicOnboardingParams,
   ClinicDocsReceivedParams,
+  DebiCheckReminderParams,
 } from './types';
 
 // =============================================================================
@@ -400,6 +401,39 @@ export class WhatsAppService {
     ];
 
     return this.sendTemplate(to, 'circletel_docs_received', components);
+  }
+
+  /**
+   * Heads-up before the NetCash DebiCheck signing SMS.
+   * Template: circletel_debicheck_reminder (IMAGE header + body)
+   *
+   * Structure:
+   * - Header: IMAGE — the branded "what to expect" card (params.headerImageUrl)
+   * - Body: Hi {{1}}, one last step for {{2}} — approve the {{3}}/month DebiCheck...
+   *
+   * Primes the nurse so she doesn't dismiss the NetCash SMS (unknown number +
+   * short link + OTP) as phishing — the #1 cause of stalled mandates.
+   */
+  async sendDebiCheckReminder(
+    to: string,
+    params: DebiCheckReminderParams
+  ): Promise<WhatsAppSendResult> {
+    const components: SendTemplateRequest['template']['components'] = [
+      {
+        type: 'header',
+        parameters: [{ type: 'image', image: { link: params.headerImageUrl } }],
+      },
+      {
+        type: 'body',
+        parameters: [
+          { type: 'text', text: params.firstName },
+          { type: 'text', text: params.clinicName },
+          { type: 'text', text: params.amount },
+        ],
+      },
+    ];
+
+    return this.sendTemplate(to, 'circletel_debicheck_reminder', components);
   }
 
   // ===========================================================================
