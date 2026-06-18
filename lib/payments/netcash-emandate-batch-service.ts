@@ -145,6 +145,57 @@ export class NetCashEMandateBatchService {
   }
 
   /**
+   * Build a MandateToMasterfile BatchFileUpload file.
+   * Promotes existing mandates (by account reference) into the active masterfile,
+   * bypassing the eMandate signature gate. Only field 101 is required.
+   */
+  buildMasterfileLoadFile(accountReferences: string[], batchName?: string): string {
+    const TAB = '\t';
+    const NEWLINE = '\n';
+    const today = this.formatDate(new Date());
+    const name = batchName || `CircleTel-MF-${Date.now()}`;
+
+    const header = [
+      'H',
+      this.serviceKey,
+      '1',                       // Version
+      'MandateToMasterfile',     // Instruction
+      name,                      // Batch name
+      today,                     // Action date (CCYYMMDD)
+      this.softwareVendorKey,
+    ].join(TAB);
+
+    const key = ['K', '101'].join(TAB); // 101 = account reference (only required field)
+
+    const transactions = accountReferences.map(ref =>
+      ['T', ref.substring(0, 22)].join(TAB)
+    );
+
+    const footer = ['F', accountReferences.length.toString(), '0', '9999'].join(TAB);
+
+    return [header, key, ...transactions, footer].join(NEWLINE);
+  }
+
+  /**
+   * Submit a MandateToMasterfile load via BatchFileUpload.
+   * Returns a file token; verify the result with requestLoadReport(fileToken).
+   */
+  async loadMandateToMasterfile(
+    accountReferences: string[],
+    batchName?: string
+  ): Promise<EMandateBatchResult> {
+    if (!this.serviceKey) {
+      return { success: false, errorCode: 'CONFIG_ERROR', errorMessage: 'NetCash Debit Order Service Key not configured' };
+    }
+    if (accountReferences.length === 0) {
+      return { success: false, errorCode: 'NO_ITEMS', errorMessage: 'No account references provided' };
+    }
+    const fileContent = this.buildMasterfileLoadFile(accountReferences, batchName);
+    console.log('[Masterfile Load] File content:', fileContent);
+    return this.callBatchFileUpload(fileContent);
+  }
+
+  /**
    * Build the tab-delimited batch file content
    */
   private buildBatchFile(requests: EMandateBatchRequest[], batchName?: string): string {
