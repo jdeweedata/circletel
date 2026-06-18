@@ -3,6 +3,7 @@ import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth'
 import { issueToken, buildMagicLinkUrl, svc } from '@/lib/onboarding/onboarding-service';
 import { clickatellService } from '@/lib/integrations/clickatell/sms-service';
 import { whatsAppService } from '@/lib/integrations/whatsapp/whatsapp-service';
+import { sendOnboardingEmail } from '@/lib/onboarding/onboarding-email';
 import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
 
   const supabase = svc();
   const { data: customer } = await supabase
-    .from('customers').select('id, phone, email, business_name').eq('id', customerId).single();
+    .from('customers').select('id, phone, email, business_name, account_number').eq('id', customerId).single();
   if (!customer) return NextResponse.json({ success: false, error: 'Customer not found' }, { status: 404 });
 
   const token = await issueToken(customerId, channel);
@@ -28,7 +29,28 @@ export async function POST(request: NextRequest) {
   let sent = false;
   let sendError: string | undefined;
 
-  if (!customer.phone) {
+  if (channel === 'email') {
+    if (!customer.email) {
+      sendError = 'Customer has no email address';
+    } else {
+      try {
+        const result = await sendOnboardingEmail({
+          to: customer.email,
+          clinicName: customer.business_name || 'your clinic',
+          accountNumber: customer.account_number || '',
+          url,
+        });
+        sent = result.success;
+        if (!result.success) {
+          sendError = result.error;
+          apiLogger.warn('[Onboarding] email send failed', { customerId, email: customer.email, error: result.error });
+        }
+      } catch (error) {
+        sendError = error instanceof Error ? error.message : 'Unknown error';
+        apiLogger.error('[Onboarding] email send exception', { customerId, email: customer.email, error });
+      }
+    }
+  } else if (!customer.phone) {
     sendError = 'Customer has no phone number';
   } else if (channel === 'whatsapp') {
     try {

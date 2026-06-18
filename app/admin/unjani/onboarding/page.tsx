@@ -401,6 +401,35 @@ export default function UnjaniOnboardingPipelinePage() {
     }
   };
 
+  // Email fallback for nurses without WhatsApp — sends the onboarding
+  // requirements + magic link to the clinic's email address.
+  const emailLink = async (clinic: PipelineClinic) => {
+    setActingOn(clinic.customer_id);
+    try {
+      const response = await fetch('/api/admin/unjani/send-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ customerId: clinic.customer_id, channel: 'email' }),
+      });
+      const result = await response.json();
+      if (response.ok && result.success && result.sent) {
+        toast.success(`Onboarding email sent to ${clinic.business_name}`);
+      } else if (response.ok && result.success) {
+        toast.warning(
+          `Link issued but email failed${result.sendError ? `: ${result.sendError}` : ''}`
+        );
+      } else {
+        toast.error(result.error || 'Failed to send onboarding email');
+      }
+      await fetchPipeline();
+    } catch (error) {
+      console.error('Error sending onboarding email:', error);
+      toast.error('Failed to send onboarding email');
+    } finally {
+      setActingOn(null);
+    }
+  };
+
   const issueServiceOrder = async (clinic: PipelineClinic) => {
     setActingOn(clinic.customer_id);
     try {
@@ -1574,6 +1603,20 @@ export default function UnjaniOnboardingPipelinePage() {
                       : '📩 Remind: approve DebiCheck'}
                   </Button>
                 )}
+                {drawerClinic.email &&
+                  !['docs_approved', 'mandate_active', 'billing_ready'].includes(drawerClinic.stage) && (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      disabled={actingOn === drawerClinic.customer_id}
+                      onClick={() => emailLink(drawerClinic)}
+                      title="Fallback for nurses without WhatsApp"
+                    >
+                      {actingOn === drawerClinic.customer_id
+                        ? 'Working…'
+                        : '✉️ Email onboarding link'}
+                    </Button>
+                  )}
                 <div className="flex gap-2">
                   {drawerClinic.submission_id && (
                     <Button
