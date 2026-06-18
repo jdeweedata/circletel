@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
   PiBuildingsBold,
+  PiCaretDownBold,
   PiCheckCircleBold,
   PiCurrencyCircleDollarBold,
   PiDownloadSimpleBold,
@@ -13,6 +14,12 @@ import {
   PiWarningBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -425,6 +432,39 @@ export default function UnjaniOnboardingPipelinePage() {
     } catch (error) {
       console.error('Error sending onboarding email:', error);
       toast.error('Failed to send onboarding email');
+    } finally {
+      setActingOn(null);
+    }
+  };
+
+  // Send the onboarding link via an explicit channel (the row's channel picker).
+  // The main row button keeps its default behaviour; this powers the caret menu.
+  const sendInviteVia = async (
+    clinic: PipelineClinic,
+    channel: 'whatsapp' | 'email' | 'sms'
+  ) => {
+    const channelLabel = channel === 'whatsapp' ? 'WhatsApp' : channel === 'email' ? 'email' : 'SMS';
+    setActingOn(clinic.customer_id);
+    try {
+      const response = await fetch('/api/admin/unjani/send-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ customerId: clinic.customer_id, channel }),
+      });
+      const result = await response.json();
+      if (response.ok && result.success && result.sent) {
+        toast.success(`Onboarding link sent to ${clinic.business_name} via ${channelLabel}`);
+      } else if (response.ok && result.success) {
+        toast.warning(
+          `Link issued but ${channelLabel} delivery failed${result.sendError ? `: ${result.sendError}` : ''}`
+        );
+      } else {
+        toast.error(result.error || `Failed to send via ${channelLabel}`);
+      }
+      await fetchPipeline();
+    } catch (error) {
+      console.error('Error sending invite:', error);
+      toast.error(`Failed to send via ${channelLabel}`);
     } finally {
       setActingOn(null);
     }
@@ -1100,18 +1140,71 @@ export default function UnjaniOnboardingPipelinePage() {
                         </TableCell>
                         <TableCell className="text-right">
                           {actionable ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              disabled={actingOn === clinic.customer_id}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                runNextAction(clinic);
-                              }}
-                              className="border-circleTel-orange text-circleTel-orange-accessible hover:bg-circleTel-orange hover:text-white whitespace-nowrap"
-                            >
-                              {actingOn === clinic.customer_id ? 'Working…' : meta.action}
-                            </Button>
+                            clinic.stage === 'pending' || clinic.stage === 'invited' ? (
+                              // Invite/reminder stages: split button — default WhatsApp +
+                              // a caret to pick the channel (WhatsApp · Email · SMS).
+                              <div className="inline-flex" onClick={(e) => e.stopPropagation()}>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={actingOn === clinic.customer_id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    runNextAction(clinic);
+                                  }}
+                                  className="border-circleTel-orange text-circleTel-orange-accessible hover:bg-circleTel-orange hover:text-white whitespace-nowrap rounded-r-none border-r-0"
+                                >
+                                  {actingOn === clinic.customer_id ? 'Working…' : meta.action}
+                                </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      disabled={actingOn === clinic.customer_id}
+                                      onClick={(e) => e.stopPropagation()}
+                                      aria-label="Choose channel"
+                                      className="border-circleTel-orange text-circleTel-orange-accessible hover:bg-circleTel-orange hover:text-white rounded-l-none px-2"
+                                    >
+                                      <PiCaretDownBold className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      disabled={!clinic.phone}
+                                      onClick={() => sendInviteVia(clinic, 'whatsapp')}
+                                    >
+                                      📱 Send via WhatsApp
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      disabled={!clinic.email}
+                                      onClick={() => sendInviteVia(clinic, 'email')}
+                                    >
+                                      ✉️ Send via Email
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      disabled={!clinic.phone}
+                                      onClick={() => sendInviteVia(clinic, 'sms')}
+                                    >
+                                      💬 Send via SMS
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={actingOn === clinic.customer_id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  runNextAction(clinic);
+                                }}
+                                className="border-circleTel-orange text-circleTel-orange-accessible hover:bg-circleTel-orange hover:text-white whitespace-nowrap"
+                              >
+                                {actingOn === clinic.customer_id ? 'Working…' : meta.action}
+                              </Button>
+                            )
                           ) : (
                             <span className="text-xs text-gray-400">Handed over</span>
                           )}
