@@ -127,9 +127,18 @@ export async function POST(request: NextRequest) {
       ...(siteAddress !== undefined ? { site_address: siteAddress || null } : {}),
       ...(incumbentIsp !== undefined ? { incumbent_isp: incumbentIsp || null } : {}),
       ...(incumbentCost !== undefined
-        ? { incumbent_cost: incumbentCost === '' || incumbentCost == null ? null : Number(incumbentCost) }
+        ? {
+            incumbent_cost:
+              incumbentCost === '' || incumbentCost == null || !Number.isFinite(Number(incumbentCost))
+                ? null
+                : Number(incumbentCost),
+          }
         : {}),
-      ...(contractStatus !== undefined ? { contract_status: contractStatus } : {}),
+      // Only persist a valid enum value; ignore anything else (don't trust the client).
+      ...(contractStatus !== undefined &&
+      ['in_contract', 'out_of_contract', 'unknown'].includes(contractStatus)
+        ? { contract_status: contractStatus }
+        : {}),
     };
 
     if (
