@@ -8,11 +8,12 @@ import { PiMapPinBold, PiCrosshairBold, PiWifiHighBold } from 'react-icons/pi';
 interface AddressInputProps {
   onCheck: (lat: number, lng: number, address: string) => void;
   isLoading: boolean;
+  subtitle?: string;
 }
 
 const GPS_REGEX = /^(-?\d{1,3}\.?\d*)\s*,\s*(-?\d{1,3}\.?\d*)$/;
 
-export default function AddressInput({ onCheck, isLoading }: AddressInputProps) {
+export default function AddressInput({ onCheck, isLoading, subtitle }: AddressInputProps) {
   const [mode, setMode] = useState<'address' | 'gps'>('address');
   const [addressText, setAddressText] = useState('');
   const [gpsText, setGpsText] = useState('');
@@ -103,7 +104,7 @@ export default function AddressInput({ onCheck, isLoading }: AddressInputProps) 
         </div>
         <div>
           <h2 className="text-sm font-semibold text-slate-900">Enter Location</h2>
-          <p className="text-xs text-slate-500">Check Tarana FWB coverage availability</p>
+          <p className="text-xs text-slate-500">{subtitle ?? 'Check Tarana FWB coverage availability'}</p>
         </div>
       </div>
 

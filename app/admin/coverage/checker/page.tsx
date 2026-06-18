@@ -18,10 +18,11 @@ import DFAVerdictCard from './components/DFAVerdictCard';
 import DFAProductTiers from './components/DFAProductTiers';
 import DFAInstallationEstimate from './components/DFAInstallationEstimate';
 import MTNVerdictCard, { type MTNService } from './components/MTNVerdictCard';
+import MTNProductTiers, { type MTNPackage } from './components/MTNProductTiers';
 import RecentChecksPanel, { saveRecentCheck } from './components/RecentChecksPanel';
 import {
   PiRulerBold, PiLightningBold, PiGaugeBold, PiCheckCircleBold,
-  PiArrowLeftBold,
+  PiArrowLeftBold, PiBroadcastBold,
 } from 'react-icons/pi';
 import Link from 'next/link';
 
@@ -78,7 +79,26 @@ interface MTNResult {
   services: MTNService[];
   available: boolean;
   confidence?: 'high' | 'medium' | 'low';
+  packages: MTNPackage[];
   address: string;
+  lat: number;
+  lng: number;
+}
+
+const MTN_SIGNAL_RANK: Record<string, number> = {
+  excellent: 4, good: 3, fair: 2, poor: 1, none: 0,
+};
+const MTN_TECH_LABEL: Record<string, string> = {
+  '5g': '5G', lte: 'LTE', fixed_lte: 'Fixed LTE',
+};
+
+// Best available service across the MTN results (for the KPI stat row).
+function bestMtnService(services: MTNService[]): MTNService | null {
+  const avail = services.filter((s) => s.available);
+  if (avail.length === 0) return null;
+  return avail.reduce((best, s) =>
+    (MTN_SIGNAL_RANK[s.signal] ?? 0) > (MTN_SIGNAL_RANK[best.signal] ?? 0) ? s : best
+  );
 }
 
 export default function CoverageCheckerPage() {
@@ -211,11 +231,20 @@ export default function CoverageCheckerPage() {
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'MTN coverage check failed');
 
+      // Fetch sellable packages in parallel (5G is the only active catalogue today)
+      const packages = await fetch('/api/coverage/mtn/packages')
+        .then((r) => r.json())
+        .then((p) => (p.success && Array.isArray(p.products) ? (p.products as MTNPackage[]) : []))
+        .catch(() => [] as MTNPackage[]);
+
       setMtnResult({
         services: Array.isArray(data.data?.services) ? data.data.services : [],
         available: Boolean(data.data?.available),
         confidence: data.data?.confidence,
+        packages,
         address,
+        lat,
+        lng,
       });
     } catch (err) {
       setMtnError(err instanceof Error ? err.message : 'MTN coverage check failed');
@@ -232,6 +261,12 @@ export default function CoverageCheckerPage() {
   }, [result, dfaResult, mtnResult]);
 
   const prediction = result?.prediction ?? null;
+  const mtnBest = mtnResult ? bestMtnService(mtnResult.services) : null;
+  const mtnTopSpeed = mtnResult
+    ? mtnResult.services
+        .filter((s) => s.available && s.estimatedSpeed)
+        .reduce((max, s) => Math.max(max, s.estimatedSpeed!.download), 0)
+    : 0;
   const loading = provider === 'tarana' ? isLoading : provider === 'dfa' ? dfaLoading : mtnLoading;
   const currentError = provider === 'tarana' ? error : provider === 'dfa' ? dfaError : mtnError;
   const hasResult = provider === 'tarana' ? result !== null : provider === 'dfa' ? dfaResult !== null : mtnResult !== null;
@@ -355,6 +390,48 @@ export default function CoverageCheckerPage() {
         </div>
       )}
 
+      {/* ── Stat Cards (MTN LTE/5G — shown after first result) ── */}
+      {provider === 'mtn' && mtnResult && (
+        <div ref={statsRef} className="bg-white border-b border-slate-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                icon={<PiBroadcastBold />}
+                label="Best Technology"
+                value={mtnBest ? (MTN_TECH_LABEL[mtnBest.type] ?? mtnBest.type) : 'None'}
+                subtitle={mtnBest ? 'Available at location' : 'No MTN coverage'}
+                iconBgColor="bg-yellow-50"
+                iconColor="text-yellow-500"
+              />
+              <StatCard
+                icon={<PiLightningBold />}
+                label="Best Signal"
+                value={mtnBest ? (QUALITY_LABEL[mtnBest.signal] ?? '—') : 'None'}
+                subtitle={mtnBest ? (MTN_TECH_LABEL[mtnBest.type] ?? mtnBest.type) : '—'}
+                iconBgColor="bg-orange-50"
+                iconColor="text-orange-500"
+              />
+              <StatCard
+                icon={<PiGaugeBold />}
+                label="Top Est. Speed"
+                value={mtnTopSpeed > 0 ? `${mtnTopSpeed} Mbps` : '—'}
+                subtitle="Downlink (est.)"
+                iconBgColor="bg-violet-50"
+                iconColor="text-violet-500"
+              />
+              <StatCard
+                icon={<PiCheckCircleBold />}
+                label="Map Confidence"
+                value={mtnResult.confidence ? mtnResult.confidence.charAt(0).toUpperCase() + mtnResult.confidence.slice(1) : '—'}
+                subtitle="MTN coverage maps"
+                iconBgColor="bg-emerald-50"
+                iconColor="text-emerald-500"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Tab Content ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
@@ -369,6 +446,13 @@ export default function CoverageCheckerPage() {
             <AddressInput
               onCheck={provider === 'tarana' ? handleCheck : provider === 'dfa' ? handleDFACheck : handleMtnCheck}
               isLoading={loading}
+              subtitle={
+                provider === 'tarana'
+                  ? 'Check Tarana FWB coverage availability'
+                  : provider === 'dfa'
+                    ? 'Check DFA fibre coverage availability'
+                    : 'Check MTN LTE / 5G coverage availability'
+              }
             />
           ) : (
             <div className="bg-white rounded-xl border border-slate-200 p-6 text-sm text-slate-500 flex items-center gap-3">
@@ -451,6 +535,17 @@ export default function CoverageCheckerPage() {
           {provider === 'mtn' && mtnResult && !mtnLoading && (
             <div className="space-y-4">
               <MTNVerdictCard services={mtnResult.services} confidence={mtnResult.confidence} />
+              <MTNProductTiers
+                products={mtnResult.packages}
+                fiveGAvailable={mtnResult.services.some((s) => s.type === '5g' && s.available)}
+              />
+              <CoverageMap
+                targetLat={mtnResult.lat}
+                targetLng={mtnResult.lng}
+                targetAddress={mtnResult.address}
+                mode="mtn"
+                mtnAvailable={mtnResult.available}
+              />
             </div>
           )}
 
