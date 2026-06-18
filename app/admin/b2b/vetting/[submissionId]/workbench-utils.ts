@@ -151,6 +151,72 @@ export function buildVettingSummaryItems({
   ];
 }
 
+export interface AutomatedCheckInput {
+  nameMatch: boolean;
+  mismatchAcknowledged: boolean;
+  regNumber: string | undefined;
+  hasSelectedDocument: boolean;
+  submittedAt: string | null;
+  slaDays?: number;
+  now?: number;
+}
+
+export interface AutomatedCheck {
+  key: string;
+  label: string;
+  pass: boolean;
+  note: string;
+}
+
+export function buildAutomatedChecks({
+  nameMatch,
+  mismatchAcknowledged,
+  regNumber,
+  hasSelectedDocument,
+  submittedAt,
+  slaDays = 2,
+  now = Date.now(),
+}: AutomatedCheckInput): AutomatedCheck[] {
+  const holderPass = nameMatch || mismatchAcknowledged;
+  const holderNote = nameMatch
+    ? 'Match'
+    : mismatchAcknowledged
+      ? 'Overridden by reviewer'
+      : 'Names differ';
+
+  const submittedMs = submittedAt ? Date.parse(submittedAt) : NaN;
+  const daysElapsed = Number.isNaN(submittedMs)
+    ? null
+    : Math.floor((now - submittedMs) / (1000 * 60 * 60 * 24));
+  const overdueDays = daysElapsed === null ? null : Math.max(0, daysElapsed - slaDays);
+  const withinSla = overdueDays !== null && overdueDays === 0;
+
+  return [
+    { key: 'holderMatch', label: 'Holder = registered entity', pass: holderPass, note: holderNote },
+    {
+      key: 'regNumber',
+      label: 'Registration number present',
+      pass: Boolean(regNumber && regNumber.trim()),
+      note: regNumber && regNumber.trim() ? 'Captured' : 'Missing',
+    },
+    {
+      key: 'documentReady',
+      label: 'Document uploaded',
+      pass: hasSelectedDocument,
+      note: hasSelectedDocument ? 'File available' : 'No file',
+    },
+    {
+      key: 'withinSla',
+      label: 'Submitted within SLA',
+      pass: withinSla,
+      note:
+        overdueDays === null
+          ? 'No submission date'
+          : `${overdueDays} day${overdueDays === 1 ? '' : 's'} overdue`,
+    },
+  ];
+}
+
 export function buildDocumentDrawerSummary({
   requirementLabel,
   documentType,
