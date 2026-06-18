@@ -11,17 +11,11 @@ import {
   PiCheckBold,
   PiCheckCircleBold,
   PiClipboardTextBold,
-  PiClockCounterClockwiseBold,
   PiFileTextBold,
-  PiFloppyDiskBold,
   PiInfoBold,
   PiLockBold,
-  PiMagnifyingGlassBold,
   PiMinusBold,
-  PiPencilSimpleBold,
   PiPlusBold,
-  PiSignatureBold,
-  PiTagBold,
   PiWarningCircleBold,
   PiXBold,
   PiXCircleBold,
@@ -44,15 +38,15 @@ import {
 import { requiredDocsFor, type DocRequirement } from '@/lib/onboarding/document-requirements';
 import { cn } from '@/lib/utils';
 import {
+  buildAutomatedChecks,
   buildDocumentDrawerSummary,
-  buildDocumentMetadataDraft,
   buildVettingSummaryItems,
   formatDateTime,
   formatStatusLabel,
   isImageDocument,
   isPdfDocument,
+  type AutomatedCheck,
   type DocumentDrawerSummary,
-  type DocumentMetadataDraft,
   type VettingSummaryItem,
 } from './workbench-utils';
 
@@ -126,16 +120,6 @@ interface RequiredDocItem {
 }
 
 type DocumentActionStatus = 'approved' | 'rejected' | 'under_review';
-type InspectorTab = 'approval' | 'metadata' | 'comments' | 'versions' | 'access';
-
-interface WorkbenchComment {
-  id: string;
-  documentId: string;
-  author: string;
-  body: string;
-  createdAt: string;
-  tone: 'info' | 'warning';
-}
 
 function vettingStatusVariant(status: string): 'success' | 'warning' | 'error' | 'info' | 'neutral' {
   switch (status) {
@@ -209,23 +193,23 @@ export default function B2BVettingDetailPage({
   const [changeRequestOpen, setChangeRequestOpen] = useState(false);
   const [reviewReasonText, setReviewReasonText] = useState<string>('');
   const [reviewReasonError, setReviewReasonError] = useState<string | null>(null);
-  const [inspectorTab, setInspectorTab] = useState<InspectorTab>('approval');
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
-  const [metadataDraft, setMetadataDraft] = useState<DocumentMetadataDraft | null>(null);
-  const [metadataSavedAt, setMetadataSavedAt] = useState<string | null>(null);
-  const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState<WorkbenchComment[]>([]);
   const [actionError, setActionError] = useState<string | null>(null);
   const [mandateConfirming, setMandateConfirming] = useState(false);
   const [documentDrawerOpen, setDocumentDrawerOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [mismatchAck, setMismatchAck] = useState(false);
 
   useEffect(() => {
     params.then((p) => {
       setSubmissionId(p.submissionId);
     });
   }, [params]);
+
+  useEffect(() => {
+    setMismatchAck(false);
+  }, [submissionId]);
 
   const fetchSubmission = useCallback(async (options?: { showLoading?: boolean }) => {
     if (!submissionId) return;
@@ -312,30 +296,12 @@ export default function B2BVettingDetailPage({
   }, [requiredDocItems]);
 
   useEffect(() => {
-    if (!selectedDocument) {
-      setMetadataDraft(null);
-      setMetadataSavedAt(null);
-      setCommentText('');
-      setZoom(100);
-      setRotation(0);
-      setDocumentDrawerOpen(false);
-      return;
-    }
-
-    const selectedIsPdf = isPdfDocument(selectedDocument.file_path, docUrl);
-    setMetadataDraft(
-      buildDocumentMetadataDraft(
-        selectedRequirement?.label ?? null,
-        selectedDocument,
-        docUrl,
-        selectedIsPdf
-      )
-    );
-    setMetadataSavedAt(null);
-    setCommentText('');
     setZoom(100);
     setRotation(0);
-  }, [docUrl, selectedDocument, selectedRequirement?.label]);
+    if (!selectedDocument) {
+      setDocumentDrawerOpen(false);
+    }
+  }, [selectedDocument]);
 
   useEffect(() => {
     if (!submission) return;
@@ -528,6 +494,7 @@ export default function B2BVettingDetailPage({
   const selectedActionPrefix = selectedDocument?.id ?? '';
   const decisionDisabled =
     !selectedDocument || docLoading || Boolean(docError) || actionInFlight?.startsWith(selectedActionPrefix);
+  const approveBlocked = Boolean(submission && !submission.nameMatch && !mismatchAck);
   const selectedIsPdf = isPdfDocument(selectedDocument?.file_path, docUrl);
   const selectedIsImage = isImageDocument(selectedDocument?.file_path, docUrl);
   const primaryPaymentMethod = submission.paymentMethods[0];
@@ -540,25 +507,13 @@ export default function B2BVettingDetailPage({
     changesRequested: docCounts.changesRequested,
     lastReviewedAt: submission.admin_reviewed_at,
   });
-  const activeComments = selectedDocument
-    ? comments.filter((comment) => comment.documentId === selectedDocument.id)
-    : [];
-  const drawerSummary =
-    selectedDocument && metadataDraft
-      ? buildDocumentDrawerSummary({
-          requirementLabel: selectedRequirement?.label ?? null,
-          documentType: selectedDocument.document_type,
-          fileType: metadataDraft.fileType,
-        })
-      : null;
-  const openSelectedDocumentDrawer = () => {
-    if (!selectedDocument) return;
-    setDocumentDrawerOpen(true);
-  };
-  const updateMetadataDraft = (updates: Partial<DocumentMetadataDraft>) => {
-    setMetadataDraft((current) => (current ? { ...current, ...updates } : current));
-    setMetadataSavedAt(new Date().toISOString());
-  };
+  const drawerSummary = selectedDocument
+    ? buildDocumentDrawerSummary({
+        requirementLabel: selectedRequirement?.label ?? null,
+        documentType: selectedDocument.document_type,
+        fileType: selectedIsPdf ? 'PDF' : selectedIsImage ? 'Image' : 'Document',
+      })
+    : null;
 
   return (
     <>
@@ -648,7 +603,6 @@ export default function B2BVettingDetailPage({
                     onClick={() => {
                       if (!document) return;
                       setSelectedDoc(document.id);
-                      setInspectorTab('approval');
                       setChangeRequestOpen(false);
                       setReviewReasonText('');
                       setReviewReasonError(null);
@@ -756,49 +710,8 @@ export default function B2BVettingDetailPage({
 
         <aside className="flex min-h-0 flex-col border-t border-gray-200 bg-white xl:border-l xl:border-t-0">
           <div className="shrink-0 border-b border-gray-200 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-semibold text-gray-900">Document inspector</h2>
-                <p className="mt-1 text-xs text-gray-500">Decision tools and review context</p>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => metadataDraft && setMetadataSavedAt(new Date().toISOString())}
-                disabled={!metadataDraft}
-                className="gap-1"
-              >
-                <PiFloppyDiskBold className="h-4 w-4" />
-                Save
-              </Button>
-            </div>
-            <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg bg-gray-100 p-1">
-              <InspectorTabButton
-                active={inspectorTab === 'approval'}
-                label="Approval"
-                onClick={() => setInspectorTab('approval')}
-              />
-              <InspectorTabButton
-                active={inspectorTab === 'metadata'}
-                label="Metadata"
-                onClick={() => setInspectorTab('metadata')}
-              />
-              <InspectorTabButton
-                active={inspectorTab === 'comments'}
-                label={activeComments.length ? `Notes (${activeComments.length})` : 'Notes'}
-                onClick={() => setInspectorTab('comments')}
-              />
-              <InspectorTabButton
-                active={inspectorTab === 'versions'}
-                label="Versions"
-                onClick={() => setInspectorTab('versions')}
-              />
-              <InspectorTabButton
-                active={inspectorTab === 'access'}
-                label="Access"
-                onClick={() => setInspectorTab('access')}
-              />
-            </div>
+            <h2 className="text-sm font-semibold text-gray-900">Document inspector</h2>
+            <p className="mt-1 text-xs text-gray-500">Decision tools and review context</p>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
@@ -810,9 +723,75 @@ export default function B2BVettingDetailPage({
               />
             )}
 
-            {selectedDocument && inspectorTab === 'approval' && (
+            {selectedDocument && (
               <div className="space-y-4">
-                <InspectorSection title="Workflow">
+                {!submission.nameMatch && (
+                  <section
+                    className={cn(
+                      'rounded-lg border p-4',
+                      mismatchAck ? 'border-gray-200 bg-gray-50' : 'border-red-200 bg-red-50'
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      {mismatchAck ? (
+                        <PiCheckCircleBold className="h-4 w-4 text-amber-600" />
+                      ) : (
+                        <PiWarningCircleBold className="h-4 w-4 text-red-600" />
+                      )}
+                      <span
+                        className={cn(
+                          'text-sm font-semibold',
+                          mismatchAck ? 'text-amber-700' : 'text-red-700'
+                        )}
+                      >
+                        {mismatchAck ? 'Mismatch acknowledged' : 'Entity name mismatch'}
+                      </span>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      <div className="rounded-md border border-gray-200 bg-white px-3 py-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                          Registered entity
+                        </p>
+                        <p className="mt-0.5 font-mono text-sm text-gray-900">
+                          {step2?.entityName || '-'}
+                        </p>
+                      </div>
+                      <div
+                        className={cn(
+                          'rounded-md border bg-white px-3 py-2',
+                          mismatchAck ? 'border-gray-200' : 'border-red-200'
+                        )}
+                      >
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                          Account holder on file
+                        </p>
+                        <p
+                          className={cn(
+                            'mt-0.5 font-mono text-sm',
+                            mismatchAck ? 'text-gray-700' : 'text-red-700'
+                          )}
+                        >
+                          {primaryBanking.account_holder_name || '-'}
+                        </p>
+                      </div>
+                    </div>
+                    {mismatchAck ? (
+                      <p className="mt-3 text-xs text-gray-500">
+                        Override recorded against your reviewer ID. Approval is now permitted.
+                      </p>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => setMismatchAck(true)}
+                        className="mt-3 w-full bg-red-600 text-white hover:bg-red-700"
+                      >
+                        Acknowledge &amp; override
+                      </Button>
+                    )}
+                  </section>
+                )}
+
+                <InspectorSection title="Decision">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-sm text-gray-600">Document status</span>
                     {selectedStatus && (
@@ -829,13 +808,19 @@ export default function B2BVettingDetailPage({
                         size="sm"
                         variant="outline"
                         onClick={() => handleDocumentAction(selectedDocument.id, 'approved')}
-                        disabled={decisionDisabled}
-                        className="justify-start gap-1 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
+                        disabled={decisionDisabled || approveBlocked}
+                        className="justify-start gap-1 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 disabled:opacity-60"
                       >
-                        <PiCheckBold className="h-4 w-4" />
-                        {actionInFlight === `${selectedDocument.id}-approved`
-                          ? 'Approving…'
-                          : 'Approve Document'}
+                        {approveBlocked ? (
+                          <PiLockBold className="h-4 w-4" />
+                        ) : (
+                          <PiCheckBold className="h-4 w-4" />
+                        )}
+                        {approveBlocked
+                          ? 'Resolve the flag first'
+                          : actionInFlight === `${selectedDocument.id}-approved`
+                            ? 'Approving…'
+                            : 'Approve Document'}
                       </Button>
                     )}
                     {!selectedIsRejected && (
@@ -937,6 +922,24 @@ export default function B2BVettingDetailPage({
                   )}
                 </InspectorSection>
 
+                <InspectorSection title="Automated checks">
+                  <div>
+                    {buildAutomatedChecks({
+                      nameMatch: submission.nameMatch,
+                      mismatchAcknowledged: mismatchAck,
+                      regNumber: step2?.regNumber,
+                      hasSelectedDocument: Boolean(selectedDocument),
+                      submittedAt: submission.submitted_at,
+                    }).map((check, index, all) => (
+                      <AutomatedCheckRow
+                        key={check.key}
+                        check={check}
+                        last={index === all.length - 1}
+                      />
+                    ))}
+                  </div>
+                </InspectorSection>
+
                 <InspectorSection title="Comparison context">
                   {submission.submission_data?.manual ? (
                     <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 mb-4">
@@ -954,170 +957,6 @@ export default function B2BVettingDetailPage({
                         Account holder should match the registered entity name.
                       </div>
                     )}
-                  </div>
-                </InspectorSection>
-              </div>
-            )}
-
-            {selectedDocument && inspectorTab === 'metadata' && metadataDraft && (
-              <div className="space-y-4">
-                <InspectorSection title="Metadata">
-                  <DraftNotice text="Metadata edits are browser drafts in this staging pass." />
-                  <MetadataField label="Title">
-                    <input
-                      value={metadataDraft.title}
-                      onChange={(event) => updateMetadataDraft({ title: event.target.value })}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    />
-                  </MetadataField>
-                  <MetadataField label="Description">
-                    <textarea
-                      value={metadataDraft.description}
-                      onChange={(event) => updateMetadataDraft({ description: event.target.value })}
-                      rows={4}
-                      className="w-full resize-y rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    />
-                  </MetadataField>
-                  <MetadataField label="Tags">
-                    <input
-                      value={metadataDraft.tags.join(', ')}
-                      onChange={(event) =>
-                        updateMetadataDraft({
-                          tags: event.target.value
-                            .split(',')
-                            .map((tag) => tag.trim())
-                            .filter(Boolean),
-                        })
-                      }
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    />
-                  </MetadataField>
-                  <MetadataField label="Access">
-                    <select
-                      value={metadataDraft.access}
-                      onChange={(event) => updateMetadataDraft({ access: event.target.value })}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    >
-                      <option>KYC reviewers only</option>
-                      <option>Admin operations</option>
-                      <option>Read-only finance</option>
-                    </select>
-                  </MetadataField>
-                  <div className="flex flex-wrap gap-2">
-                    {metadataDraft.tags.map((tag) => (
-                      <span key={tag} className="rounded-full bg-circleTel-orange-light px-2.5 py-1 text-xs font-semibold text-circleTel-orange">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Draft auto-save: {metadataSavedAt ? formatDateTime(metadataSavedAt) : 'Waiting for edits'}
-                  </p>
-                </InspectorSection>
-              </div>
-            )}
-
-            {selectedDocument && inspectorTab === 'comments' && (
-              <div className="space-y-4">
-                <InspectorSection title="Comments">
-                  <DraftNotice text="New notes are local browser drafts until collaboration persistence is added." />
-                  <div className="space-y-3">
-                    {selectedDocument.rejection_reason && (
-                      <CommentBubble
-                        author="System feedback"
-                        body={selectedDocument.rejection_reason}
-                        meta="Current change request"
-                        tone="warning"
-                      />
-                    )}
-                    {activeComments.map((comment) => (
-                      <CommentBubble
-                        key={comment.id}
-                        author={comment.author}
-                        body={comment.body}
-                        meta={formatDateTime(comment.createdAt)}
-                        tone={comment.tone}
-                      />
-                    ))}
-                    {!selectedDocument.rejection_reason && activeComments.length === 0 && (
-                      <p className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
-                        No reviewer comments yet.
-                      </p>
-                    )}
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    <input
-                      value={commentText}
-                      onChange={(event) => setCommentText(event.target.value)}
-                      placeholder="Add comment…"
-                      className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    />
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        const body = commentText.trim();
-                        if (!body || !selectedDocument) return;
-                        setComments((current) => [
-                          {
-                            id: `${selectedDocument.id}-${Date.now()}`,
-                            documentId: selectedDocument.id,
-                            author: 'Admin reviewer',
-                            body,
-                            createdAt: new Date().toISOString(),
-                            tone: 'info',
-                          },
-                          ...current,
-                        ]);
-                        setCommentText('');
-                      }}
-                      disabled={!commentText.trim()}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                </InspectorSection>
-              </div>
-            )}
-
-            {selectedDocument && inspectorTab === 'versions' && (
-              <div className="space-y-4">
-                <InspectorSection title="Version history">
-                  <DraftNotice text="Version rows summarize current review activity; full version history is a backend follow-up." />
-                  <VersionRow
-                    icon={<PiFileTextBold className="h-4 w-4" />}
-                    title="Document uploaded"
-                    meta={formatDateTime(submission.submitted_at)}
-                  />
-                  <VersionRow
-                    icon={<PiClipboardTextBold className="h-4 w-4" />}
-                    title={`Status set to ${formatStatusLabel(selectedDocument.verification_status)}`}
-                    meta={formatDateTime(selectedDocument.verified_at)}
-                  />
-                  <VersionRow
-                    icon={<PiClockCounterClockwiseBold className="h-4 w-4" />}
-                    title="Metadata draft"
-                    meta={metadataSavedAt ? `Saved ${formatDateTime(metadataSavedAt)}` : 'No browser draft edits'}
-                  />
-                </InspectorSection>
-              </div>
-            )}
-
-            {selectedDocument && inspectorTab === 'access' && metadataDraft && (
-              <div className="space-y-4">
-                <InspectorSection title="Permission-based editing">
-                  <DraftNotice text="Access labels are review guidance only; persisted permissions are unchanged." />
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 rounded-lg border border-gray-200 p-3">
-                      <PiLockBold className="mt-0.5 h-4 w-4 text-circleTel-orange" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{metadataDraft.access}</p>
-                        <p className="mt-1 text-xs text-gray-500">Approval actions require the kyc:verify permission.</p>
-                      </div>
-                    </div>
-                    <PermissionRow label="View document" value="Admin operations, KYC reviewers" />
-                    <PermissionRow label="Edit metadata" value={metadataDraft.access} />
-                    <PermissionRow label="Approve or request changes" value="KYC reviewers" />
-                    <PermissionRow label="Open original" value="Signed URL access" />
                   </div>
                 </InspectorSection>
               </div>
@@ -1215,6 +1054,31 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+function AutomatedCheckRow({ check, last }: { check: AutomatedCheck; last: boolean }) {
+  return (
+    <div className={cn('flex gap-2.5 py-2', !last && 'border-b border-gray-100')}>
+      <div
+        className={cn(
+          'mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full',
+          check.pass ? 'bg-green-100' : 'bg-red-100'
+        )}
+      >
+        {check.pass ? (
+          <PiCheckBold className="h-3 w-3 text-green-700" />
+        ) : (
+          <PiXBold className="h-3 w-3 text-red-700" />
+        )}
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-gray-900">{check.label}</p>
+        <p className={cn('mt-0.5 text-xs', check.pass ? 'text-gray-500' : 'text-red-600')}>
+          {check.note}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function SummaryItem({ item }: { item: VettingSummaryItem }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-r border-gray-100 px-4 py-3 last:border-r-0 lg:border-b-0">
@@ -1237,18 +1101,6 @@ function SummaryItem({ item }: { item: VettingSummaryItem }) {
     </div>
   );
 }
-
-function DocumentFact({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-        {label}
-      </p>
-      <div className="mt-1 truncate text-sm font-semibold text-gray-900">{value}</div>
-    </div>
-  );
-}
-
 function DocumentViewer({
   title,
   selectedDocument,
@@ -1448,38 +1300,6 @@ function DocumentViewer({
     </div>
   );
 }
-
-function DraftNotice({ text }: { text: string }) {
-  return (
-    <div className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
-      {text}
-    </div>
-  );
-}
-
-function InspectorTabButton({
-  active,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'rounded-md px-2 py-1.5 text-xs font-semibold transition-colors',
-        active ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
-      )}
-    >
-      {label}
-    </button>
-  );
-}
-
 function InspectorSection({
   title,
   children,
@@ -1492,82 +1312,5 @@ function InspectorSection({
       <h3 className="mb-3 text-sm font-semibold text-gray-900">{title}</h3>
       {children}
     </section>
-  );
-}
-
-function MetadataField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="mb-3 block">
-      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-        {label}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-function CommentBubble({
-  author,
-  body,
-  meta,
-  tone,
-}: {
-  author: string;
-  body: string;
-  meta: string;
-  tone: 'info' | 'warning';
-}) {
-  return (
-    <div
-      className={cn(
-        'rounded-lg border p-3',
-        tone === 'warning'
-          ? 'border-amber-200 bg-amber-50'
-          : 'border-green-100 bg-green-50'
-      )}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-gray-900">{author}</p>
-        <span className="text-xs text-gray-500">{meta}</span>
-      </div>
-      <p className="mt-2 text-sm text-gray-700">{body}</p>
-    </div>
-  );
-}
-
-function VersionRow({
-  icon,
-  title,
-  meta,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  meta: string;
-}) {
-  return (
-    <div className="flex gap-3 border-l-2 border-gray-200 pb-4 pl-3 last:pb-0">
-      <div className="-ml-[23px] flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-circleTel-orange">
-        {icon}
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-gray-900">{title}</p>
-        <p className="mt-1 text-xs text-gray-500">{meta}</p>
-      </div>
-    </div>
-  );
-}
-
-function PermissionRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start justify-between gap-3 border-t border-gray-100 pt-3 text-sm first:border-t-0 first:pt-0">
-      <span className="text-gray-500">{label}</span>
-      <span className="max-w-[190px] text-right font-semibold text-gray-900">{value}</span>
-    </div>
   );
 }
