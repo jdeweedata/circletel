@@ -100,9 +100,12 @@ export function buildOnboardingEmailHtml(params: OnboardingEmailParams): string 
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f4f4f4;">
     <tr><td style="padding:32px 16px;">
       <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="margin:0 auto;background-color:#ffffff;border-radius:8px;overflow:hidden;">
-        <!-- Header -->
-        <tr><td style="background-color:#E87A1E;padding:28px 30px;text-align:center;">
-          <h1 style="color:#ffffff;margin:0;font-size:24px;">CircleTel ClinicConnect</h1>
+        <!-- Header (brand logo — matches emails/slices/CircleTelHeader.tsx) -->
+        <tr><td style="background-color:#ffffff;padding:28px 30px 14px;text-align:center;border-bottom:3px solid #E87A1E;">
+          <a href="https://www.circletel.co.za" style="text-decoration:none;">
+            <img src="https://www.circletel.co.za/images/circletel-enclosed-logo.png" alt="CircleTel" width="120" style="display:block;margin:0 auto;width:120px;height:auto;border:0;" />
+          </a>
+          <p style="color:#1B2A4A;font-size:15px;font-weight:bold;letter-spacing:0.5px;margin:12px 0 0;">ClinicConnect</p>
         </td></tr>
 
         <!-- Intro -->
@@ -117,10 +120,14 @@ export function buildOnboardingEmailHtml(params: OnboardingEmailParams): string 
           </p>
         </td></tr>
 
-        <!-- CTA -->
+        <!-- CTA — bulletproof table button (renders in Outlook/Gmail/Apple Mail) -->
         <tr><td style="padding:24px 30px;text-align:center;">
-          <a href="${url}" style="display:inline-block;background-color:#E87A1E;color:#ffffff;font-size:17px;font-weight:bold;text-decoration:none;padding:15px 44px;border-radius:8px;">Start onboarding</a>
-          <p style="color:#9CA3AF;font-size:13px;margin:12px 0 0;">This link is unique to your clinic and valid for ${validDays} days.</p>
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 auto;">
+            <tr><td align="center" bgcolor="#E87A1E" style="border-radius:8px;">
+              <a href="${url}" style="display:inline-block;padding:15px 46px;font-size:17px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:8px;">Start onboarding</a>
+            </td></tr>
+          </table>
+          <p style="color:#9CA3AF;font-size:13px;margin:14px 0 0;">This link is unique to your clinic and valid for ${validDays} days.</p>
         </td></tr>
 
         <!-- What you'll need -->
