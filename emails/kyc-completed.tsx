@@ -46,9 +46,9 @@ export default function KYCCompletedEmail({
           {/* Logo */}
           <Section style={header}>
             <Img
-              src="https://circletel.co.za/logo.png"
-              width="150"
-              height="50"
+              src="https://www.circletel.co.za/images/circletel-enclosed-logo.png"
+              width="140"
+              height="140"
               alt="CircleTel"
               style={logo}
             />

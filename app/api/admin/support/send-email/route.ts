@@ -183,8 +183,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error: unknown) {
     apiLogger.error('[Support Email] Error', { error });
+    const message = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: message },
       { status: 500 }
     );
   }
@@ -243,7 +244,7 @@ function wrapInEmailTemplate(content: string): string {
 </head>
 <body style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #1F2937; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
   <div style="background-color: #F5831F; padding: 15px 20px; border-radius: 8px 8px 0 0;">
-    <img src="https://circletel.co.za/images/circletel-logo-white.png" alt="CircleTel" style="height: 40px; width: auto;" />
+    <img src="https://www.circletel.co.za/images/circletel-logo-white.png" alt="CircleTel" style="height: 40px; width: auto;" />
   </div>
   
   <div style="background-color: #ffffff; padding: 30px; border: 1px solid #E6E9EF; border-top: none;">

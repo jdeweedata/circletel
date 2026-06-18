@@ -58,9 +58,9 @@ export default function ServiceActivatedEmail(props: Partial<ServiceActivatedEma
           {/* Logo */}
           <Section style={header}>
             <Img
-              src="https://circletel.co.za/logo.png"
-              width="150"
-              height="50"
+              src="https://www.circletel.co.za/images/circletel-logo-white.png"
+              width="140"
+              height="140"
               alt="CircleTel"
               style={logo}
             />
@@ -292,7 +292,7 @@ const header = {
 
 const logo = {
   margin: '0 auto',
-  filter: 'brightness(0) invert(1)', // Make logo white
+  // Uses the white logo asset directly (no filter needed) on the orange header
 };
 
 const celebrationSection = {
