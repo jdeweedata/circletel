@@ -45,7 +45,6 @@ import {
   isImageDocument,
   isPdfDocument,
   type AutomatedCheck,
-  type DocumentDrawerSummary,
   type VettingSummaryItem,
 } from './workbench-utils';
 
