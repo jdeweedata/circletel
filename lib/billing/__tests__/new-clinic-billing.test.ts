@@ -67,5 +67,16 @@ describe('New Clinic Billing Rules', () => {
       const billingDayBefore = new Date('2026-08-30T00:00:00Z'); // 1 day before 1 month
       expect(shouldEmitRecurringInvoice(activation, billingDayBefore)).toBe(false);
     });
+
+    it('correctly handles month-clamp edge case: Aug 31 → Sept 30 (month overflow)', () => {
+      // New clinic (after 2026-06-01): activated August 31, 2026
+      const activation = '2026-08-31'; // last day of August
+      // Adding 1 month should clamp to September 30 (Sept has only 30 days)
+      const billingDay = new Date('2026-09-30T00:00:00Z'); // clamped 1 month later
+      expect(shouldEmitRecurringInvoice(activation, billingDay)).toBe(true);
+
+      const billingDayBefore = new Date('2026-09-29T00:00:00Z'); // 1 day before clamped 1 month
+      expect(shouldEmitRecurringInvoice(activation, billingDayBefore)).toBe(false);
+    });
   });
 });

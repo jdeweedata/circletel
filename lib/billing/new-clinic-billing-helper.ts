@@ -13,6 +13,28 @@
  */
 
 /**
+ * Add one calendar month to a UTC date, clamping to the last day of the target month
+ * if the target month is shorter than the source month.
+ *
+ * @param d - Date to increment (treated as UTC)
+ * @returns New Date with one calendar month added, clamped to last day if needed
+ *
+ * Example:
+ * - 2026-08-31 + 1 month = 2026-09-30 (Sept has 30 days, clamp from 31)
+ * - 2026-07-31 + 1 month = 2026-08-31 (Aug has 31 days, no clamp)
+ */
+function addOneMonthUTC(d: Date): Date {
+  const r = new Date(d);
+  const day = r.getUTCDate();
+  r.setUTCMonth(r.getUTCMonth() + 1);
+  // If the day rolled over (target month is shorter), clamp to last day of target month
+  if (r.getUTCDate() < day) {
+    r.setUTCDate(0);
+  }
+  return r;
+}
+
+/**
  * Check if a recurring invoice should be emitted on a given billing day.
  *
  * @param activationDate - ISO string (YYYY-MM-DD) of service activation
@@ -42,8 +64,7 @@ export function shouldEmitRecurringInvoice(activationDate: string | null, billin
 
   // New clinic: activation > 2026-06-01
   // Suppress until billingDay >= activation + 1 calendar month
-  const firstFullBillDate = new Date(activation);
-  firstFullBillDate.setMonth(firstFullBillDate.getMonth() + 1);
+  const firstFullBillDate = addOneMonthUTC(activation);
 
   return billingDay >= firstFullBillDate;
 }
