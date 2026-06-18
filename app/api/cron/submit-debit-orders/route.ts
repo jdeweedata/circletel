@@ -479,8 +479,9 @@ async function checkMandateStatus(
 
   if (!paymentMethod) return 'none';
 
-  // Check if bank details are present (account_number indicates bank details on file)
-  const hasBankDetails = paymentMethod.encrypted_details?.account_number;
+  // Check if bank details are present (both account_number AND branch_code required)
+  const hasBankDetails = paymentMethod.encrypted_details?.account_number &&
+                         paymentMethod.encrypted_details?.branch_code;
 
   if (hasBankDetails) {
     return 'active';
