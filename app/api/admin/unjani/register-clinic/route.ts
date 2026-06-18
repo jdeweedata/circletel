@@ -21,6 +21,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { svc } from '@/lib/onboarding/onboarding-service';
+import { incumbentForClinic } from '@/lib/onboarding/clinic-incumbent';
 import { apiLogger } from '@/lib/logging/logger';
 // Server-side only: nurse contact details must not ship in the client bundle
 import registerContacts from '@/lib/data/unjani-register-contacts.json';
@@ -158,6 +159,7 @@ export async function POST(request: NextRequest) {
           area_type: areaType,
           nurse_owner_name: nurseName || null,
           site_address: siteAddress || null,
+          ...incumbentForClinic(clinicName),
         },
       })
       .select('id')
