@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { UploadDocumentModal } from '@/components/admin/onboarding/UploadDocumentModal';
 import {
   PiArrowLeftBold,
   PiArrowSquareOutBold,
@@ -71,6 +72,9 @@ interface SubmissionDetail {
   document_vetting_status: string;
   submission_data: {
     step2?: SubmissionStep2;
+    business_name?: string;
+    manual?: boolean;
+    source?: string;
     [key: string]: unknown;
   } | null;
   admin_reviewed_at: string | null;
@@ -213,6 +217,7 @@ export default function B2BVettingDetailPage({
   const [actionError, setActionError] = useState<string | null>(null);
   const [mandateConfirming, setMandateConfirming] = useState(false);
   const [documentDrawerOpen, setDocumentDrawerOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   useEffect(() => {
     params.then((p) => {
@@ -571,6 +576,11 @@ export default function B2BVettingDetailPage({
             showDot
             className="capitalize"
           />
+          {submission && (
+            <Button variant="outline" onClick={() => setUploadOpen(true)}>
+              Add document
+            </Button>
+          )}
           <Button asChild variant="outline" size="sm" className="gap-2">
             <Link href="/admin/b2b/vetting">
               <PiArrowLeftBold className="h-4 w-4" />
@@ -1011,6 +1021,11 @@ export default function B2BVettingDetailPage({
                 </InspectorSection>
 
                 <InspectorSection title="Comparison context">
+                  {submission.submission_data?.manual ? (
+                    <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 mb-4">
+                      📧 Submitted via email — business &amp; banking details pending. Documents below were uploaded by an admin for vetting.
+                    </div>
+                  ) : null}
                   <div className="space-y-3 text-sm">
                     <InfoRow label="Business" value={step2?.entityName || '-'} />
                     <InfoRow label="Reg no." value={<span className="font-mono">{step2?.regNumber || '-'}</span>} />
@@ -1305,6 +1320,20 @@ export default function B2BVettingDetailPage({
           />
         </SheetContent>
       </Sheet>
+
+      {submission && (
+        <UploadDocumentModal
+          open={uploadOpen}
+          onOpenChange={setUploadOpen}
+          customerId={submission.customer_id}
+          clinicName={submission.submission_data?.business_name || 'Clinic'}
+          submissionId={submissionId}
+          authHeaders={() => ({
+            Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
+          })}
+          onUploaded={(count) => { if (count > 0) setDocRefreshKey((k) => k + 1); }}
+        />
+      )}
     </>
   );
 }
