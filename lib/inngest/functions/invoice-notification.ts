@@ -28,6 +28,7 @@ interface InvoiceRecord {
   due_date: string;
   paynow_url: string | null;
   emailed_at: string | null;
+  payment_collection_method: string | null;
   line_items: Array<{
     description: string;
     quantity: number;
@@ -53,7 +54,8 @@ function buildSmsMessage(params: {
   invoice_number: string;
   total_amount: number;
   due_date: string;
-  paynow_url: string;
+  paynow_url?: string;
+  isDebitOrder?: boolean;
 }): string {
   const dueDate = new Date(params.due_date).toLocaleDateString('en-ZA', {
     day: 'numeric',
@@ -61,6 +63,11 @@ function buildSmsMessage(params: {
     year: 'numeric',
   });
   const amount = params.total_amount.toFixed(2);
+
+  if (params.isDebitOrder) {
+    return `Hi ${params.first_name}, your CircleTel invoice ${params.invoice_number} for R${amount} will be collected by debit order on ${dueDate}. No action needed.`;
+  }
+
   return `Hi ${params.first_name}, your CircleTel invoice ${params.invoice_number} for R${amount} is due ${dueDate}. Pay now: ${params.paynow_url}`;
 }
 
@@ -95,6 +102,7 @@ export const invoiceNotificationFunction = inngest.createFunction(
           due_date,
           paynow_url,
           emailed_at,
+          payment_collection_method,
           line_items,
           customer:customers(
             id, first_name, last_name, email, phone, account_number
@@ -128,6 +136,8 @@ export const invoiceNotificationFunction = inngest.createFunction(
     // -------------------------------------------------------------------------
     // Step 2: Send email
     // -------------------------------------------------------------------------
+    const isDebitOrder = invoice.payment_collection_method === 'debit_order';
+
     await step.run('send-email', async () => {
       const emailResult = await sendInvoiceGenerated({
         invoice_id: invoice.id,
@@ -142,6 +152,7 @@ export const invoiceNotificationFunction = inngest.createFunction(
         account_number: invoice.customer.account_number ?? undefined,
         line_items: Array.isArray(invoice.line_items) ? invoice.line_items : [],
         paynow_url: invoice.paynow_url ?? undefined,
+        mode: isDebitOrder ? 'debit_order' : 'paynow',
       });
 
       if (!emailResult.success) {
@@ -161,8 +172,9 @@ export const invoiceNotificationFunction = inngest.createFunction(
         return { skipped: true, reason: 'no_phone' };
       }
 
-      if (!invoice.paynow_url) {
-        billingLogger.warn(`No paynow_url on invoice ${invoice.invoice_number}, skipping SMS`);
+      // Debit-order invoices don't require paynow_url; other invoices do
+      if (!isDebitOrder && !invoice.paynow_url) {
+        billingLogger.warn(`No paynow_url on non-debit invoice ${invoice.invoice_number}, skipping SMS`);
         return { skipped: true, reason: 'no_paynow_url' };
       }
 
@@ -171,7 +183,8 @@ export const invoiceNotificationFunction = inngest.createFunction(
         invoice_number: invoice.invoice_number,
         total_amount: invoice.total_amount,
         due_date: invoice.due_date,
-        paynow_url: invoice.paynow_url,
+        paynow_url: invoice.paynow_url ?? undefined,
+        isDebitOrder,
       });
 
       const clickatell = new ClickatellService();

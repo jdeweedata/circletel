@@ -21,6 +21,7 @@ import PaymentMethodRegistrationEmail from '@/emails/templates/consumer/payment-
 import QuoteSentEmail from '@/emails/templates/business/quote-sent';
 import QuoteApprovedEmail from '@/emails/templates/business/quote-approved';
 import InvoiceGeneratedEmail from '@/emails/templates/business/invoice-generated';
+import InvoiceGeneratedDebitOrderEmail from '@/emails/templates/business/invoice-generated-debit-order';
 import ContractSignedEmail from '@/emails/templates/business/contract-signed';
 import KYCVerificationCompleteEmail from '@/emails/templates/business/kyc-verification-complete';
 
@@ -46,6 +47,7 @@ export type EmailTemplateId =
   | 'quote_sent'
   | 'quote_approved'
   | 'invoice_generated'
+  | 'invoice_generated_debit_order'
   | 'contract_signed'
   | 'kyc_verification_complete'
   // Admin Templates
@@ -87,6 +89,7 @@ const TEMPLATE_REGISTRY: Record<EmailTemplateId, React.FC<any>> = {
   quote_sent: QuoteSentEmail,
   quote_approved: QuoteApprovedEmail,
   invoice_generated: InvoiceGeneratedEmail,
+  invoice_generated_debit_order: InvoiceGeneratedDebitOrderEmail,
   contract_signed: ContractSignedEmail,
   kyc_verification_complete: KYCVerificationCompleteEmail,
 
@@ -115,6 +118,7 @@ const TEMPLATE_SUBJECTS: Record<EmailTemplateId, string> = {
   quote_sent: 'Your CircleTel Quote: {{quoteNumber}}',
   quote_approved: 'Quote Approved: {{quoteNumber}}',
   invoice_generated: 'Invoice {{invoiceNumber}} - Amount Due: {{totalAmount}}',
+  invoice_generated_debit_order: 'Invoice {{invoiceNumber}} - Debit order scheduled for {{dueDate}}',
   contract_signed: 'Contract Signed: {{contractNumber}}',
   kyc_verification_complete: 'KYC Verification Complete',
 
