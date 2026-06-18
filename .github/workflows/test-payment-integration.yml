@@ -31,7 +31,7 @@ concurrency:
 jobs:
   test:
     name: Run Payment Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     timeout-minutes: 15
 
     strategy:
@@ -90,7 +90,7 @@ jobs:
 
   quality-gates:
     name: Quality Gates
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     needs: test
     timeout-minutes: 15
 
@@ -127,7 +127,7 @@ jobs:
 
   security:
     name: Security Scan
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     timeout-minutes: 15
 
     steps:
