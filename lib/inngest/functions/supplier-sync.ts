@@ -72,12 +72,14 @@ export const supplierSyncFunction = inngest.createFunction(
       const supabase = await createClient()
 
       if (supplierCode === 'ALL') {
-        // Get all active HTML-scrape suppliers
+        // Get all active suppliers handled by this Inngest function.
+        // MiRO/Nology moved from HTML scraping to price-list files/feeds,
+        // so scheduled syncs must include xlsx/csv feed types too.
         const { data: suppliers } = await supabase
           .from('suppliers')
           .select('code')
           .eq('is_active', true)
-          .in('feed_type', ['html', 'xml'])
+          .in('feed_type', ['html', 'xml', 'xlsx', 'csv'])
 
         return (suppliers || []).map((s) => s.code)
       }
