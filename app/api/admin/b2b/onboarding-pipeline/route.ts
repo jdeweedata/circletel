@@ -33,6 +33,10 @@ interface PipelineClinic {
     businessDaysLeft: number | null;
   };
   submission_id: string | null;
+  site_address: string | null;
+  incumbent_isp: string | null;
+  incumbent_cost: number | null;
+  contract_status: 'in_contract' | 'out_of_contract' | 'unknown';
 }
 
 interface PipelineResponse {
@@ -215,6 +219,11 @@ export async function GET(request: NextRequest) {
           businessDaysLeft,
         },
         submission_id: submission?.id || null,
+        site_address: (details.site_address as string) ?? null,
+        incumbent_isp: (details.incumbent_isp as string) ?? null,
+        incumbent_cost: (details.incumbent_cost as number) ?? null,
+        contract_status:
+          (details.contract_status as 'in_contract' | 'out_of_contract' | 'unknown') ?? 'unknown',
       };
 
       result.clinics.push(clinic_row);
