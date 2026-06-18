@@ -1,11 +1,3 @@
-export interface DocumentMetadataDraft {
-  title: string;
-  description: string;
-  tags: string[];
-  access: string;
-  fileType: string;
-}
-
 export type SummaryTone = 'neutral' | 'warning' | 'danger';
 
 export interface VettingSummaryInput {
@@ -33,12 +25,6 @@ export interface DocumentDrawerSummaryInput {
 export interface DocumentDrawerSummary {
   title: string;
   subtitle: string;
-}
-
-interface DocumentMetadataSource {
-  document_type: string;
-  file_path: string;
-  verification_status: string;
 }
 
 const dateTimeFormatter = new Intl.DateTimeFormat('en-ZA', {
@@ -81,29 +67,6 @@ export function isImageDocument(documentPath: string | undefined, signedUrl: str
   return ['.png', '.jpg', '.jpeg', '.webp', '.gif'].some((extension) =>
     target.includes(extension)
   );
-}
-
-export function buildDocumentMetadataDraft(
-  requirementLabel: string | null,
-  document: DocumentMetadataSource,
-  signedUrl: string | null,
-  isPdf: boolean
-): DocumentMetadataDraft {
-  const documentType = document.document_type || 'document';
-  const status = document.verification_status || 'pending';
-  const fileType = isPdf
-    ? 'PDF'
-    : isImageDocument(document.file_path, signedUrl)
-      ? 'Image'
-      : 'Document';
-
-  return {
-    title: requirementLabel || formatStatusLabel(documentType),
-    description: `Review ${documentType} for KYC/KYB approval.`,
-    tags: [documentType, status, fileType.toLowerCase()],
-    access: 'KYC reviewers only',
-    fileType,
-  };
 }
 
 export function buildVettingSummaryItems({
