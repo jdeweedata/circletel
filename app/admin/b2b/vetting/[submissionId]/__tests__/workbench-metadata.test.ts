@@ -1,32 +1,59 @@
 import {
+  buildAutomatedChecks,
   buildDocumentDrawerSummary,
-  buildDocumentMetadataDraft,
   buildVettingSummaryItems,
 } from '../workbench-utils';
 
-describe('buildDocumentMetadataDraft', () => {
-  it('derives a reviewer-friendly metadata draft from the selected document', () => {
-    const draft = buildDocumentMetadataDraft(
-      'Bank confirmation letter or statement',
-      {
-        id: 'doc-1',
-        document_type: 'bank_statement',
-        file_path: 'kyc/customer/bank-confirmation.pdf',
-        verification_status: 'pending',
-        rejection_reason: null,
-        verified_at: null,
-      },
-      'https://signed.example.com/bank-confirmation.pdf',
-      true
-    );
+describe('buildAutomatedChecks', () => {
+  const base = {
+    nameMatch: true,
+    mismatchAcknowledged: false,
+    regNumber: '2023/547010/10',
+    hasSelectedDocument: true,
+    submittedAt: '2026-06-18T10:00:00.000Z',
+    slaDays: 2,
+    now: Date.parse('2026-06-18T12:00:00.000Z'),
+  };
 
-    expect(draft).toEqual({
-      title: 'Bank confirmation letter or statement',
-      description: 'Review bank_statement for KYC/KYB approval.',
-      tags: ['bank_statement', 'pending', 'pdf'],
-      access: 'KYC reviewers only',
-      fileType: 'PDF',
-    });
+  it('passes holder check when names match', () => {
+    const holder = buildAutomatedChecks(base).find((c) => c.key === 'holderMatch')!;
+    expect(holder.pass).toBe(true);
+    expect(holder.note).toBe('Match');
+  });
+
+  it('fails holder check on mismatch, passes once acknowledged', () => {
+    const mismatch = buildAutomatedChecks({ ...base, nameMatch: false });
+    const h1 = mismatch.find((c) => c.key === 'holderMatch')!;
+    expect(h1.pass).toBe(false);
+    expect(h1.note).toBe('Names differ');
+
+    const ack = buildAutomatedChecks({ ...base, nameMatch: false, mismatchAcknowledged: true });
+    const h2 = ack.find((c) => c.key === 'holderMatch')!;
+    expect(h2.pass).toBe(true);
+    expect(h2.note).toBe('Overridden by reviewer');
+  });
+
+  it('fails registration check when reg number missing', () => {
+    const checks = buildAutomatedChecks({ ...base, regNumber: '' });
+    expect(checks.find((c) => c.key === 'regNumber')!.pass).toBe(false);
+  });
+
+  it('fails document-ready check when no document selected', () => {
+    const checks = buildAutomatedChecks({ ...base, hasSelectedDocument: false });
+    expect(checks.find((c) => c.key === 'documentReady')!.pass).toBe(false);
+  });
+
+  it('passes SLA check within window and fails when overdue', () => {
+    const withinSla = buildAutomatedChecks(base).find((c) => c.key === 'withinSla')!;
+    expect(withinSla.pass).toBe(true);
+    expect(withinSla.note).toBe('0 days overdue');
+
+    const overdue = buildAutomatedChecks({
+      ...base,
+      submittedAt: '2026-06-10T10:00:00.000Z', // 8 days before `now`
+    }).find((c) => c.key === 'withinSla')!;
+    expect(overdue.pass).toBe(false);
+    expect(overdue.note).toBe('6 days overdue');
   });
 });
 

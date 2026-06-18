@@ -7,20 +7,15 @@ import {
   PiArrowLeftBold,
   PiArrowSquareOutBold,
   PiArrowsClockwiseBold,
+  PiArrowsOutBold,
   PiCheckBold,
   PiCheckCircleBold,
   PiClipboardTextBold,
-  PiClockCounterClockwiseBold,
   PiFileTextBold,
-  PiFloppyDiskBold,
   PiInfoBold,
   PiLockBold,
-  PiMagnifyingGlassBold,
   PiMinusBold,
-  PiPencilSimpleBold,
   PiPlusBold,
-  PiSignatureBold,
-  PiTagBold,
   PiWarningCircleBold,
   PiXBold,
   PiXCircleBold,
@@ -43,15 +38,14 @@ import {
 import { requiredDocsFor, type DocRequirement } from '@/lib/onboarding/document-requirements';
 import { cn } from '@/lib/utils';
 import {
+  buildAutomatedChecks,
   buildDocumentDrawerSummary,
-  buildDocumentMetadataDraft,
   buildVettingSummaryItems,
   formatDateTime,
   formatStatusLabel,
   isImageDocument,
   isPdfDocument,
-  type DocumentDrawerSummary,
-  type DocumentMetadataDraft,
+  type AutomatedCheck,
   type VettingSummaryItem,
 } from './workbench-utils';
 
@@ -125,16 +119,6 @@ interface RequiredDocItem {
 }
 
 type DocumentActionStatus = 'approved' | 'rejected' | 'under_review';
-type InspectorTab = 'approval' | 'metadata' | 'comments' | 'versions' | 'access';
-
-interface WorkbenchComment {
-  id: string;
-  documentId: string;
-  author: string;
-  body: string;
-  createdAt: string;
-  tone: 'info' | 'warning';
-}
 
 function vettingStatusVariant(status: string): 'success' | 'warning' | 'error' | 'info' | 'neutral' {
   switch (status) {
@@ -208,22 +192,23 @@ export default function B2BVettingDetailPage({
   const [changeRequestOpen, setChangeRequestOpen] = useState(false);
   const [reviewReasonText, setReviewReasonText] = useState<string>('');
   const [reviewReasonError, setReviewReasonError] = useState<string | null>(null);
-  const [inspectorTab, setInspectorTab] = useState<InspectorTab>('approval');
   const [zoom, setZoom] = useState(100);
-  const [metadataDraft, setMetadataDraft] = useState<DocumentMetadataDraft | null>(null);
-  const [metadataSavedAt, setMetadataSavedAt] = useState<string | null>(null);
-  const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState<WorkbenchComment[]>([]);
+  const [rotation, setRotation] = useState(0);
   const [actionError, setActionError] = useState<string | null>(null);
   const [mandateConfirming, setMandateConfirming] = useState(false);
   const [documentDrawerOpen, setDocumentDrawerOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [mismatchAck, setMismatchAck] = useState(false);
 
   useEffect(() => {
     params.then((p) => {
       setSubmissionId(p.submissionId);
     });
   }, [params]);
+
+  useEffect(() => {
+    setMismatchAck(false);
+  }, [submissionId]);
 
   const fetchSubmission = useCallback(async (options?: { showLoading?: boolean }) => {
     if (!submissionId) return;
@@ -310,28 +295,12 @@ export default function B2BVettingDetailPage({
   }, [requiredDocItems]);
 
   useEffect(() => {
-    if (!selectedDocument) {
-      setMetadataDraft(null);
-      setMetadataSavedAt(null);
-      setCommentText('');
-      setZoom(100);
-      setDocumentDrawerOpen(false);
-      return;
-    }
-
-    const selectedIsPdf = isPdfDocument(selectedDocument.file_path, docUrl);
-    setMetadataDraft(
-      buildDocumentMetadataDraft(
-        selectedRequirement?.label ?? null,
-        selectedDocument,
-        docUrl,
-        selectedIsPdf
-      )
-    );
-    setMetadataSavedAt(null);
-    setCommentText('');
     setZoom(100);
-  }, [docUrl, selectedDocument, selectedRequirement?.label]);
+    setRotation(0);
+    if (!selectedDocument) {
+      setDocumentDrawerOpen(false);
+    }
+  }, [selectedDocument]);
 
   useEffect(() => {
     if (!submission) return;
@@ -524,6 +493,7 @@ export default function B2BVettingDetailPage({
   const selectedActionPrefix = selectedDocument?.id ?? '';
   const decisionDisabled =
     !selectedDocument || docLoading || Boolean(docError) || actionInFlight?.startsWith(selectedActionPrefix);
+  const approveBlocked = Boolean(submission && !submission.nameMatch && !mismatchAck);
   const selectedIsPdf = isPdfDocument(selectedDocument?.file_path, docUrl);
   const selectedIsImage = isImageDocument(selectedDocument?.file_path, docUrl);
   const primaryPaymentMethod = submission.paymentMethods[0];
@@ -536,25 +506,13 @@ export default function B2BVettingDetailPage({
     changesRequested: docCounts.changesRequested,
     lastReviewedAt: submission.admin_reviewed_at,
   });
-  const activeComments = selectedDocument
-    ? comments.filter((comment) => comment.documentId === selectedDocument.id)
-    : [];
-  const drawerSummary =
-    selectedDocument && metadataDraft
-      ? buildDocumentDrawerSummary({
-          requirementLabel: selectedRequirement?.label ?? null,
-          documentType: selectedDocument.document_type,
-          fileType: metadataDraft.fileType,
-        })
-      : null;
-  const openSelectedDocumentDrawer = () => {
-    if (!selectedDocument) return;
-    setDocumentDrawerOpen(true);
-  };
-  const updateMetadataDraft = (updates: Partial<DocumentMetadataDraft>) => {
-    setMetadataDraft((current) => (current ? { ...current, ...updates } : current));
-    setMetadataSavedAt(new Date().toISOString());
-  };
+  const drawerSummary = selectedDocument
+    ? buildDocumentDrawerSummary({
+        requirementLabel: selectedRequirement?.label ?? null,
+        documentType: selectedDocument.document_type,
+        fileType: selectedIsPdf ? 'PDF' : selectedIsImage ? 'Image' : 'Document',
+      })
+    : null;
 
   return (
     <>
@@ -644,7 +602,6 @@ export default function B2BVettingDetailPage({
                     onClick={() => {
                       if (!document) return;
                       setSelectedDoc(document.id);
-                      setInspectorTab('approval');
                       setChangeRequestOpen(false);
                       setReviewReasonText('');
                       setReviewReasonError(null);
@@ -713,175 +670,47 @@ export default function B2BVettingDetailPage({
 
         <section className="flex min-h-0 min-w-0 flex-col bg-[#f4f5f7]">
           <div className="shrink-0 border-b border-gray-200 bg-white px-4 py-3">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex min-w-0 items-center gap-2">
+              <PiFileTextBold className="h-5 w-5 shrink-0 text-circleTel-orange" />
               <div className="min-w-0">
                 <h2 className="truncate text-base font-semibold text-gray-900">
-                  Selected document
+                  {drawerSummary?.title ?? 'Selected document'}
                 </h2>
-                <p className="mt-1 text-xs text-gray-500">
-                  Review the selected file, then make the decision from the inspector.
+                <p className="truncate text-xs text-gray-500">
+                  {drawerSummary?.subtitle ?? 'Select a document to preview and review.'}
                 </p>
               </div>
-              <Button
-                size="sm"
-                onClick={openSelectedDocumentDrawer}
-                disabled={!selectedDocument}
-                className="gap-2"
-              >
-                <PiArrowSquareOutBold className="h-4 w-4" />
-                View document
-              </Button>
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
-            {!selectedDocument && (
-              <EmptyState
-                icon={<PiFileTextBold />}
-                title="No document selected"
-                description="Choose a required document to inspect it."
-                className="min-h-[420px]"
-              />
-            )}
-
-            {selectedDocument && (
-              <div className="space-y-4">
-                <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <PiFileTextBold className="h-5 w-5 text-circleTel-orange" />
-                        <h3 className="truncate text-lg font-semibold text-gray-950">
-                          {drawerSummary?.title ?? 'Selected document'}
-                        </h3>
-                      </div>
-                      <p className="mt-1 text-sm text-gray-500">
-                        {drawerSummary?.subtitle ?? 'Document ready for review'}
-                      </p>
-                    </div>
-                    {selectedStatus && (
-                      <StatusBadge
-                        status={selectedStatus.label}
-                        variant={selectedStatus.variant}
-                        icon={selectedStatus.icon}
-                      />
-                    )}
-                  </div>
-
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <DocumentFact label="File type" value={metadataDraft?.fileType ?? 'Document'} />
-                    <DocumentFact label="Document key" value={selectedDocument.document_type} />
-                    <DocumentFact
-                      label="Last decision"
-                      value={formatDateTime(selectedDocument.verified_at)}
-                    />
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      onClick={openSelectedDocumentDrawer}
-                      className="gap-2"
-                    >
-                      <PiArrowSquareOutBold className="h-4 w-4" />
-                      View document
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => docUrl && window.open(docUrl, '_blank', 'noopener,noreferrer')}
-                      disabled={!docUrl}
-                      className="gap-2"
-                    >
-                      <PiArrowSquareOutBold className="h-4 w-4" />
-                      Open original
-                    </Button>
-                  </div>
-                </section>
-
-                <section className="rounded-lg border border-dashed border-gray-300 bg-white/80 p-4">
-                  <div className="flex items-start gap-3">
-                    <PiInfoBold className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-900">
-                        Document opens in a focused drawer
-                      </h3>
-                      <p className="mt-1 text-sm text-gray-600">
-                        The main page stays on the review controls while the drawer gives the
-                        file the full viewing width. Use Escape or the close button to return
-                        to this checklist.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="grid gap-3 lg:grid-cols-2">
-                  <div className="rounded-lg border border-gray-200 bg-white p-4">
-                    <h3 className="text-sm font-semibold text-gray-900">Review focus</h3>
-                    <p className="mt-2 text-sm text-gray-600">
-                      Compare this file against the business registration, banking details,
-                      and any existing change request before approving.
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-gray-200 bg-white p-4">
-                    <h3 className="text-sm font-semibold text-gray-900">Current notes</h3>
-                    <p className="mt-2 text-sm text-gray-600">
-                      {activeComments.length > 0
-                        ? `${activeComments.length} browser draft note${activeComments.length === 1 ? '' : 's'} on this document.`
-                        : selectedDocument.rejection_reason || 'No reviewer notes on this document yet.'}
-                    </p>
-                  </div>
-                </section>
-              </div>
-            )}
-          </div>
+          <DocumentViewer
+            title={drawerSummary?.title ?? selectedRequirement?.label ?? 'Selected document'}
+            selectedDocument={selectedDocument}
+            docUrl={docUrl}
+            docLoading={docLoading}
+            docError={docError}
+            selectedIsPdf={selectedIsPdf}
+            selectedIsImage={selectedIsImage}
+            zoom={zoom}
+            rotation={rotation}
+            onZoomIn={() => setZoom((z) => Math.min(140, z + 10))}
+            onZoomOut={() => setZoom((z) => Math.max(70, z - 10))}
+            onReset={() => {
+              setZoom(100);
+              setRotation(0);
+            }}
+            onRotate={() => setRotation((r) => (r + 90) % 360)}
+            onReload={() => setDocRefreshKey((key) => key + 1)}
+            onOpenOriginal={() => docUrl && window.open(docUrl, '_blank', 'noopener,noreferrer')}
+            onExpand={() => selectedDocument && setDocumentDrawerOpen(true)}
+            variant="inline"
+          />
         </section>
 
         <aside className="flex min-h-0 flex-col border-t border-gray-200 bg-white xl:border-l xl:border-t-0">
           <div className="shrink-0 border-b border-gray-200 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-semibold text-gray-900">Document inspector</h2>
-                <p className="mt-1 text-xs text-gray-500">Decision tools and review context</p>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => metadataDraft && setMetadataSavedAt(new Date().toISOString())}
-                disabled={!metadataDraft}
-                className="gap-1"
-              >
-                <PiFloppyDiskBold className="h-4 w-4" />
-                Save
-              </Button>
-            </div>
-            <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg bg-gray-100 p-1">
-              <InspectorTabButton
-                active={inspectorTab === 'approval'}
-                label="Approval"
-                onClick={() => setInspectorTab('approval')}
-              />
-              <InspectorTabButton
-                active={inspectorTab === 'metadata'}
-                label="Metadata"
-                onClick={() => setInspectorTab('metadata')}
-              />
-              <InspectorTabButton
-                active={inspectorTab === 'comments'}
-                label={activeComments.length ? `Notes (${activeComments.length})` : 'Notes'}
-                onClick={() => setInspectorTab('comments')}
-              />
-              <InspectorTabButton
-                active={inspectorTab === 'versions'}
-                label="Versions"
-                onClick={() => setInspectorTab('versions')}
-              />
-              <InspectorTabButton
-                active={inspectorTab === 'access'}
-                label="Access"
-                onClick={() => setInspectorTab('access')}
-              />
-            </div>
+            <h2 className="text-sm font-semibold text-gray-900">Document inspector</h2>
+            <p className="mt-1 text-xs text-gray-500">Decision tools and review context</p>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
@@ -893,9 +722,75 @@ export default function B2BVettingDetailPage({
               />
             )}
 
-            {selectedDocument && inspectorTab === 'approval' && (
+            {selectedDocument && (
               <div className="space-y-4">
-                <InspectorSection title="Workflow">
+                {!submission.nameMatch && (
+                  <section
+                    className={cn(
+                      'rounded-lg border p-4',
+                      mismatchAck ? 'border-gray-200 bg-gray-50' : 'border-red-200 bg-red-50'
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      {mismatchAck ? (
+                        <PiCheckCircleBold className="h-4 w-4 text-amber-600" />
+                      ) : (
+                        <PiWarningCircleBold className="h-4 w-4 text-red-600" />
+                      )}
+                      <span
+                        className={cn(
+                          'text-sm font-semibold',
+                          mismatchAck ? 'text-amber-700' : 'text-red-700'
+                        )}
+                      >
+                        {mismatchAck ? 'Mismatch acknowledged' : 'Entity name mismatch'}
+                      </span>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      <div className="rounded-md border border-gray-200 bg-white px-3 py-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                          Registered entity
+                        </p>
+                        <p className="mt-0.5 font-mono text-sm text-gray-900">
+                          {step2?.entityName || '-'}
+                        </p>
+                      </div>
+                      <div
+                        className={cn(
+                          'rounded-md border bg-white px-3 py-2',
+                          mismatchAck ? 'border-gray-200' : 'border-red-200'
+                        )}
+                      >
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                          Account holder on file
+                        </p>
+                        <p
+                          className={cn(
+                            'mt-0.5 font-mono text-sm',
+                            mismatchAck ? 'text-gray-700' : 'text-red-700'
+                          )}
+                        >
+                          {primaryBanking.account_holder_name || '-'}
+                        </p>
+                      </div>
+                    </div>
+                    {mismatchAck ? (
+                      <p className="mt-3 text-xs text-gray-500">
+                        Override recorded against your reviewer ID. Approval is now permitted.
+                      </p>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => setMismatchAck(true)}
+                        className="mt-3 w-full bg-red-600 text-white hover:bg-red-700"
+                      >
+                        Acknowledge &amp; override
+                      </Button>
+                    )}
+                  </section>
+                )}
+
+                <InspectorSection title="Decision">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-sm text-gray-600">Document status</span>
                     {selectedStatus && (
@@ -912,13 +807,19 @@ export default function B2BVettingDetailPage({
                         size="sm"
                         variant="outline"
                         onClick={() => handleDocumentAction(selectedDocument.id, 'approved')}
-                        disabled={decisionDisabled}
-                        className="justify-start gap-1 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
+                        disabled={decisionDisabled || approveBlocked}
+                        className="justify-start gap-1 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 disabled:opacity-60"
                       >
-                        <PiCheckBold className="h-4 w-4" />
-                        {actionInFlight === `${selectedDocument.id}-approved`
-                          ? 'Approving…'
-                          : 'Approve Document'}
+                        {approveBlocked ? (
+                          <PiLockBold className="h-4 w-4" />
+                        ) : (
+                          <PiCheckBold className="h-4 w-4" />
+                        )}
+                        {approveBlocked
+                          ? 'Resolve the flag first'
+                          : actionInFlight === `${selectedDocument.id}-approved`
+                            ? 'Approving…'
+                            : 'Approve Document'}
                       </Button>
                     )}
                     {!selectedIsRejected && (
@@ -1020,6 +921,24 @@ export default function B2BVettingDetailPage({
                   )}
                 </InspectorSection>
 
+                <InspectorSection title="Automated checks">
+                  <div>
+                    {buildAutomatedChecks({
+                      nameMatch: submission.nameMatch,
+                      mismatchAcknowledged: mismatchAck,
+                      regNumber: step2?.regNumber,
+                      hasSelectedDocument: Boolean(selectedDocument),
+                      submittedAt: submission.submitted_at,
+                    }).map((check, index, all) => (
+                      <AutomatedCheckRow
+                        key={check.key}
+                        check={check}
+                        last={index === all.length - 1}
+                      />
+                    ))}
+                  </div>
+                </InspectorSection>
+
                 <InspectorSection title="Comparison context">
                   {submission.submission_data?.manual ? (
                     <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 mb-4">
@@ -1037,170 +956,6 @@ export default function B2BVettingDetailPage({
                         Account holder should match the registered entity name.
                       </div>
                     )}
-                  </div>
-                </InspectorSection>
-              </div>
-            )}
-
-            {selectedDocument && inspectorTab === 'metadata' && metadataDraft && (
-              <div className="space-y-4">
-                <InspectorSection title="Metadata">
-                  <DraftNotice text="Metadata edits are browser drafts in this staging pass." />
-                  <MetadataField label="Title">
-                    <input
-                      value={metadataDraft.title}
-                      onChange={(event) => updateMetadataDraft({ title: event.target.value })}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    />
-                  </MetadataField>
-                  <MetadataField label="Description">
-                    <textarea
-                      value={metadataDraft.description}
-                      onChange={(event) => updateMetadataDraft({ description: event.target.value })}
-                      rows={4}
-                      className="w-full resize-y rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    />
-                  </MetadataField>
-                  <MetadataField label="Tags">
-                    <input
-                      value={metadataDraft.tags.join(', ')}
-                      onChange={(event) =>
-                        updateMetadataDraft({
-                          tags: event.target.value
-                            .split(',')
-                            .map((tag) => tag.trim())
-                            .filter(Boolean),
-                        })
-                      }
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    />
-                  </MetadataField>
-                  <MetadataField label="Access">
-                    <select
-                      value={metadataDraft.access}
-                      onChange={(event) => updateMetadataDraft({ access: event.target.value })}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    >
-                      <option>KYC reviewers only</option>
-                      <option>Admin operations</option>
-                      <option>Read-only finance</option>
-                    </select>
-                  </MetadataField>
-                  <div className="flex flex-wrap gap-2">
-                    {metadataDraft.tags.map((tag) => (
-                      <span key={tag} className="rounded-full bg-circleTel-orange-light px-2.5 py-1 text-xs font-semibold text-circleTel-orange">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Draft auto-save: {metadataSavedAt ? formatDateTime(metadataSavedAt) : 'Waiting for edits'}
-                  </p>
-                </InspectorSection>
-              </div>
-            )}
-
-            {selectedDocument && inspectorTab === 'comments' && (
-              <div className="space-y-4">
-                <InspectorSection title="Comments">
-                  <DraftNotice text="New notes are local browser drafts until collaboration persistence is added." />
-                  <div className="space-y-3">
-                    {selectedDocument.rejection_reason && (
-                      <CommentBubble
-                        author="System feedback"
-                        body={selectedDocument.rejection_reason}
-                        meta="Current change request"
-                        tone="warning"
-                      />
-                    )}
-                    {activeComments.map((comment) => (
-                      <CommentBubble
-                        key={comment.id}
-                        author={comment.author}
-                        body={comment.body}
-                        meta={formatDateTime(comment.createdAt)}
-                        tone={comment.tone}
-                      />
-                    ))}
-                    {!selectedDocument.rejection_reason && activeComments.length === 0 && (
-                      <p className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
-                        No reviewer comments yet.
-                      </p>
-                    )}
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    <input
-                      value={commentText}
-                      onChange={(event) => setCommentText(event.target.value)}
-                      placeholder="Add comment…"
-                      className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20"
-                    />
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        const body = commentText.trim();
-                        if (!body || !selectedDocument) return;
-                        setComments((current) => [
-                          {
-                            id: `${selectedDocument.id}-${Date.now()}`,
-                            documentId: selectedDocument.id,
-                            author: 'Admin reviewer',
-                            body,
-                            createdAt: new Date().toISOString(),
-                            tone: 'info',
-                          },
-                          ...current,
-                        ]);
-                        setCommentText('');
-                      }}
-                      disabled={!commentText.trim()}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                </InspectorSection>
-              </div>
-            )}
-
-            {selectedDocument && inspectorTab === 'versions' && (
-              <div className="space-y-4">
-                <InspectorSection title="Version history">
-                  <DraftNotice text="Version rows summarize current review activity; full version history is a backend follow-up." />
-                  <VersionRow
-                    icon={<PiFileTextBold className="h-4 w-4" />}
-                    title="Document uploaded"
-                    meta={formatDateTime(submission.submitted_at)}
-                  />
-                  <VersionRow
-                    icon={<PiClipboardTextBold className="h-4 w-4" />}
-                    title={`Status set to ${formatStatusLabel(selectedDocument.verification_status)}`}
-                    meta={formatDateTime(selectedDocument.verified_at)}
-                  />
-                  <VersionRow
-                    icon={<PiClockCounterClockwiseBold className="h-4 w-4" />}
-                    title="Metadata draft"
-                    meta={metadataSavedAt ? `Saved ${formatDateTime(metadataSavedAt)}` : 'No browser draft edits'}
-                  />
-                </InspectorSection>
-              </div>
-            )}
-
-            {selectedDocument && inspectorTab === 'access' && metadataDraft && (
-              <div className="space-y-4">
-                <InspectorSection title="Permission-based editing">
-                  <DraftNotice text="Access labels are review guidance only; persisted permissions are unchanged." />
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 rounded-lg border border-gray-200 p-3">
-                      <PiLockBold className="mt-0.5 h-4 w-4 text-circleTel-orange" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{metadataDraft.access}</p>
-                        <p className="mt-1 text-xs text-gray-500">Approval actions require the kyc:verify permission.</p>
-                      </div>
-                    </div>
-                    <PermissionRow label="View document" value="Admin operations, KYC reviewers" />
-                    <PermissionRow label="Edit metadata" value={metadataDraft.access} />
-                    <PermissionRow label="Approve or request changes" value="KYC reviewers" />
-                    <PermissionRow label="Open original" value="Signed URL access" />
                   </div>
                 </InspectorSection>
               </div>
@@ -1247,76 +1002,27 @@ export default function B2BVettingDetailPage({
             </div>
           </SheetHeader>
 
-          <div className="shrink-0 overflow-x-auto border-b border-gray-200 px-5 py-2">
-            <div className="flex min-w-max items-center gap-1 whitespace-nowrap">
-              <div className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-medium text-gray-600">
-                Page
-                <span className="rounded border border-gray-200 px-2 py-0.5 text-gray-900">1</span>
-                of 1
-              </div>
-              <WorkbenchToolButton
-                icon={<PiArrowsClockwiseBold className="h-4 w-4" />}
-                label="Reload"
-                onClick={() => setDocRefreshKey((key) => key + 1)}
-                disabled={!selectedDocument || docLoading}
-              />
-              <div className="mx-0.5 h-6 w-px bg-gray-200" />
-              <WorkbenchToolButton
-                icon={<PiMagnifyingGlassBold className="h-4 w-4" />}
-                label="Search"
-              />
-              <WorkbenchToolButton
-                icon={<PiFileTextBold className="h-4 w-4" />}
-                label="Note"
-                onClick={() => setInspectorTab('comments')}
-              />
-              <WorkbenchToolButton
-                icon={<PiPencilSimpleBold className="h-4 w-4" />}
-                label="Metadata"
-                onClick={() => setInspectorTab('metadata')}
-              />
-              <WorkbenchToolButton
-                icon={<PiSignatureBold className="h-4 w-4" />}
-                label="Sign"
-                onClick={() => setInspectorTab('approval')}
-              />
-              <div className="mx-0.5 h-6 w-px bg-gray-200" />
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setZoom((current) => Math.max(70, current - 10))}
-                disabled={!selectedDocument}
-                aria-label="Zoom out"
-                className="h-8 w-8 px-0"
-              >
-                <PiMinusBold className="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setZoom((current) => Math.min(140, current + 10))}
-                disabled={!selectedDocument}
-                aria-label="Zoom in"
-                className="h-8 w-8 px-0"
-              >
-                <PiPlusBold className="h-4 w-4" />
-              </Button>
-              <span className="min-w-16 rounded-md border border-gray-200 bg-white px-2 py-1 text-center text-sm font-semibold text-gray-700">
-                {zoom}%
-              </span>
-            </div>
-          </div>
-
-          <DocumentPreviewCanvas
+          <DocumentViewer
+            title={drawerSummary?.title ?? selectedRequirement?.label ?? 'Selected document'}
             selectedDocument={selectedDocument}
-            selectedTitle={drawerSummary?.title ?? selectedRequirement?.label ?? 'Selected document'}
+            docUrl={docUrl}
             docLoading={docLoading}
             docError={docError}
-            docUrl={docUrl}
             selectedIsPdf={selectedIsPdf}
             selectedIsImage={selectedIsImage}
             zoom={zoom}
-            onRetry={() => setDocRefreshKey((key) => key + 1)}
+            rotation={rotation}
+            onZoomIn={() => setZoom((z) => Math.min(140, z + 10))}
+            onZoomOut={() => setZoom((z) => Math.max(70, z - 10))}
+            onReset={() => {
+              setZoom(100);
+              setRotation(0);
+            }}
+            onRotate={() => setRotation((r) => (r + 90) % 360)}
+            onReload={() => setDocRefreshKey((key) => key + 1)}
+            onOpenOriginal={() => docUrl && window.open(docUrl, '_blank', 'noopener,noreferrer')}
+            onClose={() => setDocumentDrawerOpen(false)}
+            variant="fullscreen"
           />
         </SheetContent>
       </Sheet>
@@ -1347,6 +1053,31 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+function AutomatedCheckRow({ check, last }: { check: AutomatedCheck; last: boolean }) {
+  return (
+    <div className={cn('flex gap-2.5 py-2', !last && 'border-b border-gray-100')}>
+      <div
+        className={cn(
+          'mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full',
+          check.pass ? 'bg-green-100' : 'bg-red-100'
+        )}
+      >
+        {check.pass ? (
+          <PiCheckBold className="h-3 w-3 text-green-700" />
+        ) : (
+          <PiXBold className="h-3 w-3 text-red-700" />
+        )}
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-gray-900">{check.label}</p>
+        <p className={cn('mt-0.5 text-xs', check.pass ? 'text-gray-500' : 'text-red-600')}>
+          {check.note}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function SummaryItem({ item }: { item: VettingSummaryItem }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-r border-gray-100 px-4 py-3 last:border-r-0 lg:border-b-0">
@@ -1369,169 +1100,205 @@ function SummaryItem({ item }: { item: VettingSummaryItem }) {
     </div>
   );
 }
-
-function DocumentFact({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-        {label}
-      </p>
-      <div className="mt-1 truncate text-sm font-semibold text-gray-900">{value}</div>
-    </div>
-  );
-}
-
-function DocumentPreviewCanvas({
+function DocumentViewer({
+  title,
   selectedDocument,
-  selectedTitle,
+  docUrl,
   docLoading,
   docError,
-  docUrl,
   selectedIsPdf,
   selectedIsImage,
   zoom,
-  onRetry,
+  rotation,
+  onZoomIn,
+  onZoomOut,
+  onReset,
+  onRotate,
+  onReload,
+  onOpenOriginal,
+  onExpand,
+  onClose,
+  variant,
 }: {
+  title: string;
   selectedDocument: SubmissionDetail['documents'][number] | null;
-  selectedTitle: string;
+  docUrl: string | null;
   docLoading: boolean;
   docError: string | null;
-  docUrl: string | null;
   selectedIsPdf: boolean;
   selectedIsImage: boolean;
   zoom: number;
-  onRetry: () => void;
+  rotation: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onReset: () => void;
+  onRotate: () => void;
+  onReload: () => void;
+  onOpenOriginal: () => void;
+  onExpand?: () => void;
+  onClose?: () => void;
+  variant: 'inline' | 'fullscreen';
 }) {
+  const transform = `scale(${zoom / 100}) rotate(${rotation}deg)`;
+
   return (
-    <div className="min-h-0 flex-1 overflow-auto bg-[#f4f5f7] p-4">
-      <div className="mx-auto flex min-h-full max-w-5xl items-start justify-center rounded-lg border border-gray-200 bg-gray-100 p-3 shadow-inner">
-        {!selectedDocument && (
-          <EmptyState
-            icon={<PiFileTextBold />}
-            title="No document selected"
-            description="Choose a required document to inspect it."
-            className="min-h-[calc(100vh-180px)]"
-          />
+    <div className="flex min-h-0 flex-1 flex-col bg-white">
+      <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-gray-200 px-3 py-2">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onZoomOut}
+          disabled={!selectedDocument || zoom <= 70}
+          aria-label="Zoom out"
+          className="h-8 w-8 px-0"
+        >
+          <PiMinusBold className="h-4 w-4" />
+        </Button>
+        <span className="min-w-14 text-center text-sm font-semibold tabular-nums text-gray-700">
+          {zoom}%
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onZoomIn}
+          disabled={!selectedDocument || zoom >= 140}
+          aria-label="Zoom in"
+          className="h-8 w-8 px-0"
+        >
+          <PiPlusBold className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onReset}
+          disabled={!selectedDocument}
+          className="h-8 px-2 text-xs font-semibold text-gray-700"
+        >
+          Fit
+        </Button>
+        {selectedIsImage && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onRotate}
+            disabled={!selectedDocument}
+            aria-label="Rotate"
+            className="h-8 w-8 px-0 text-gray-700"
+          >
+            <PiArrowsClockwiseBold className="h-4 w-4" />
+          </Button>
         )}
-
-        {selectedDocument && docLoading && (
-          <LoadingState
-            message="Loading document..."
-            className="min-h-[calc(100vh-180px)]"
-          />
+        <div className="mx-1 h-6 w-px bg-gray-200" />
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onReload}
+          disabled={!selectedDocument || docLoading}
+          aria-label="Reload"
+          className="h-8 gap-1.5 px-2 text-xs text-gray-700"
+        >
+          <PiArrowsClockwiseBold className="h-4 w-4" />
+          <span className="hidden sm:inline">Reload</span>
+        </Button>
+        <div className="flex-1" />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onOpenOriginal}
+          disabled={!docUrl}
+          className="h-8 gap-1.5 px-2 text-xs"
+        >
+          <PiArrowSquareOutBold className="h-4 w-4" />
+          <span className="hidden sm:inline">Open original</span>
+        </Button>
+        {variant === 'inline' && onExpand && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onExpand}
+            disabled={!selectedDocument}
+            aria-label="Expand"
+            className="h-8 w-8 px-0 text-gray-700"
+          >
+            <PiArrowsOutBold className="h-4 w-4" />
+          </Button>
         )}
-
-        {selectedDocument && !docLoading && docError && (
-          <ErrorState
-            title="Document preview unavailable"
-            message={docError}
-            onRetry={onRetry}
-            className="min-h-[calc(100vh-180px)]"
-          />
+        {variant === 'fullscreen' && onClose && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onClose}
+            aria-label="Close"
+            className="h-8 w-8 px-0 text-gray-700"
+          >
+            <PiXBold className="h-4 w-4" />
+          </Button>
         )}
+      </div>
 
-        {selectedDocument && !docLoading && !docError && docUrl && selectedIsPdf && (
-          <div className="flex min-h-[calc(100vh-180px)] w-full justify-center overflow-auto">
+      <div className="min-h-0 flex-1 overflow-auto bg-[#f4f5f7] p-4">
+        <div className="mx-auto flex min-h-full max-w-5xl items-start justify-center">
+          {!selectedDocument && (
+            <EmptyState
+              icon={<PiFileTextBold />}
+              title="No document selected"
+              description="Choose a required document to inspect it."
+              className="min-h-[420px]"
+            />
+          )}
+          {selectedDocument && docLoading && (
+            <LoadingState message="Loading document…" className="min-h-[420px]" />
+          )}
+          {selectedDocument && !docLoading && docError && (
+            <ErrorState
+              title="Document preview unavailable"
+              message={docError}
+              onRetry={onReload}
+              className="min-h-[420px]"
+            />
+          )}
+          {selectedDocument && !docLoading && !docError && docUrl && selectedIsPdf && (
             <iframe
               src={docUrl}
-              className="h-[calc(100vh-190px)] min-h-[620px] w-full max-w-5xl rounded-md bg-white shadow-lg transition-transform"
-              style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
-              title={`${selectedTitle} preview`}
+              className="h-[calc(100vh-300px)] min-h-[560px] w-full max-w-5xl rounded-md bg-white shadow-lg"
+              style={{ transform, transformOrigin: 'top center' }}
+              title={`${title} preview`}
             />
-          </div>
-        )}
-
-        {selectedDocument && !docLoading && !docError && docUrl && selectedIsImage && (
-          <div className="flex min-h-[calc(100vh-180px)] w-full items-start justify-center overflow-auto rounded-md bg-white p-4">
+          )}
+          {selectedDocument && !docLoading && !docError && docUrl && selectedIsImage && (
             <img
               src={docUrl}
-              alt={`${selectedTitle} preview`}
-              className="max-w-full rounded object-contain shadow-lg transition-transform"
-              style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
+              alt={`${title} preview`}
+              className="max-w-full rounded object-contain shadow-lg"
+              style={{ transform, transformOrigin: 'top center' }}
             />
-          </div>
-        )}
-
-        {selectedDocument && !docLoading && !docError && docUrl && !selectedIsPdf && !selectedIsImage && (
-          <div className="flex min-h-[calc(100vh-180px)] w-full flex-col items-center justify-center rounded-md bg-white p-6 text-center">
-            <PiFileTextBold className="mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-sm font-semibold text-gray-900">
-              Preview opened in document frame
-            </p>
-            <p className="mt-1 max-w-md text-sm text-gray-500">
-              Some document formats depend on the browser. Use Open original if the inline frame does not render.
-            </p>
-            <iframe
-              src={docUrl}
-              className="mt-5 h-[calc(100vh-280px)] min-h-[420px] w-full max-w-4xl rounded-md border bg-white"
-              title={`${selectedTitle} preview`}
-            />
-          </div>
-        )}
+          )}
+          {selectedDocument &&
+            !docLoading &&
+            !docError &&
+            docUrl &&
+            !selectedIsPdf &&
+            !selectedIsImage && (
+              <div className="flex w-full flex-col items-center justify-center rounded-md bg-white p-6 text-center">
+                <PiFileTextBold className="mb-3 h-12 w-12 text-gray-300" />
+                <p className="text-sm font-semibold text-gray-900">
+                  Preview opened in document frame
+                </p>
+                <p className="mt-1 max-w-md text-sm text-gray-500">
+                  Some formats depend on the browser. Use Open original if the frame does not render.
+                </p>
+                <iframe
+                  src={docUrl}
+                  className="mt-5 h-[calc(100vh-360px)] min-h-[420px] w-full max-w-4xl rounded-md border bg-white"
+                  title={`${title} preview`}
+                />
+              </div>
+            )}
+        </div>
       </div>
     </div>
   );
 }
-
-function WorkbenchToolButton({
-  icon,
-  label,
-  onClick,
-  disabled,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <Button
-      type="button"
-      size="sm"
-      variant="ghost"
-      onClick={onClick}
-      disabled={disabled}
-      title={label}
-      aria-label={label}
-      className="h-8 gap-1.5 px-1.5 text-gray-700 hover:bg-gray-100"
-    >
-      {icon}
-      <span className="hidden min-[1800px]:inline">{label}</span>
-    </Button>
-  );
-}
-
-function DraftNotice({ text }: { text: string }) {
-  return (
-    <div className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
-      {text}
-    </div>
-  );
-}
-
-function InspectorTabButton({
-  active,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'rounded-md px-2 py-1.5 text-xs font-semibold transition-colors',
-        active ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
-      )}
-    >
-      {label}
-    </button>
-  );
-}
-
 function InspectorSection({
   title,
   children,
@@ -1544,82 +1311,5 @@ function InspectorSection({
       <h3 className="mb-3 text-sm font-semibold text-gray-900">{title}</h3>
       {children}
     </section>
-  );
-}
-
-function MetadataField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="mb-3 block">
-      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-        {label}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-function CommentBubble({
-  author,
-  body,
-  meta,
-  tone,
-}: {
-  author: string;
-  body: string;
-  meta: string;
-  tone: 'info' | 'warning';
-}) {
-  return (
-    <div
-      className={cn(
-        'rounded-lg border p-3',
-        tone === 'warning'
-          ? 'border-amber-200 bg-amber-50'
-          : 'border-green-100 bg-green-50'
-      )}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-gray-900">{author}</p>
-        <span className="text-xs text-gray-500">{meta}</span>
-      </div>
-      <p className="mt-2 text-sm text-gray-700">{body}</p>
-    </div>
-  );
-}
-
-function VersionRow({
-  icon,
-  title,
-  meta,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  meta: string;
-}) {
-  return (
-    <div className="flex gap-3 border-l-2 border-gray-200 pb-4 pl-3 last:pb-0">
-      <div className="-ml-[23px] flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-circleTel-orange">
-        {icon}
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-gray-900">{title}</p>
-        <p className="mt-1 text-xs text-gray-500">{meta}</p>
-      </div>
-    </div>
-  );
-}
-
-function PermissionRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start justify-between gap-3 border-t border-gray-100 pt-3 text-sm first:border-t-0 first:pt-0">
-      <span className="text-gray-500">{label}</span>
-      <span className="max-w-[190px] text-right font-semibold text-gray-900">{value}</span>
-    </div>
   );
 }
