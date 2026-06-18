@@ -17,6 +17,7 @@ import ProviderSelector from './components/ProviderSelector';
 import DFAVerdictCard from './components/DFAVerdictCard';
 import DFAProductTiers from './components/DFAProductTiers';
 import DFAInstallationEstimate from './components/DFAInstallationEstimate';
+import MTNVerdictCard, { type MTNService } from './components/MTNVerdictCard';
 import RecentChecksPanel, { saveRecentCheck } from './components/RecentChecksPanel';
 import {
   PiRulerBold, PiLightningBold, PiGaugeBold, PiCheckCircleBold,
@@ -33,7 +34,7 @@ const TABS = [
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
-type ProviderType = 'tarana' | 'dfa';
+type ProviderType = 'tarana' | 'dfa' | 'mtn';
 
 const QUALITY_LABEL: Record<string, string> = {
   excellent: 'Excellent', good: 'Good', fair: 'Marginal', poor: 'Weak', none: 'None',
@@ -73,6 +74,13 @@ interface DFAResult {
   address: string;
 }
 
+interface MTNResult {
+  services: MTNService[];
+  available: boolean;
+  confidence?: 'high' | 'medium' | 'low';
+  address: string;
+}
+
 export default function CoverageCheckerPage() {
   const [provider, setProvider] = useState<ProviderType>('tarana');
   // Tarana state
@@ -83,6 +91,10 @@ export default function CoverageCheckerPage() {
   const [dfaResult, setDfaResult] = useState<DFAResult | null>(null);
   const [dfaLoading, setDfaLoading] = useState(false);
   const [dfaError, setDfaError] = useState<string | null>(null);
+  // MTN LTE/5G state
+  const [mtnResult, setMtnResult] = useState<MTNResult | null>(null);
+  const [mtnLoading, setMtnLoading] = useState(false);
+  const [mtnError, setMtnError] = useState<string | null>(null);
   // Shared
   const [activeTab, setActiveTab] = useState<TabId>('check');
   const statsRef = useRef<HTMLDivElement>(null);
@@ -98,6 +110,7 @@ export default function CoverageCheckerPage() {
     setError(null);
     setResult(null);
     setDfaResult(null);
+    setMtnResult(null);
     setActiveTab('check');
 
     try {
@@ -154,6 +167,7 @@ export default function CoverageCheckerPage() {
     setDfaError(null);
     setDfaResult(null);
     setResult(null);
+    setMtnResult(null);
     setActiveTab('check');
 
     try {
@@ -174,17 +188,53 @@ export default function CoverageCheckerPage() {
     }
   }, []);
 
+  // ── MTN LTE/5G check ──
+  const handleMtnCheck = useCallback(async (lat: number, lng: number, address: string) => {
+    setMtnLoading(true);
+    setMtnError(null);
+    setMtnResult(null);
+    setResult(null);
+    setDfaResult(null);
+    setActiveTab('check');
+
+    try {
+      const res = await fetch('/api/coverage/mtn/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          coordinates: { lat, lng },
+          serviceTypes: ['5g', 'lte', 'fixed_lte'],
+          includeSignalStrength: true,
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'MTN coverage check failed');
+
+      setMtnResult({
+        services: Array.isArray(data.data?.services) ? data.data.services : [],
+        available: Boolean(data.data?.available),
+        confidence: data.data?.confidence,
+        address,
+      });
+    } catch (err) {
+      setMtnError(err instanceof Error ? err.message : 'MTN coverage check failed');
+    } finally {
+      setMtnLoading(false);
+    }
+  }, []);
+
   // Scroll stats row into view after result loads
   useEffect(() => {
-    if ((result || dfaResult) && statsRef.current) {
+    if ((result || dfaResult || mtnResult) && statsRef.current) {
       statsRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-  }, [result, dfaResult]);
+  }, [result, dfaResult, mtnResult]);
 
   const prediction = result?.prediction ?? null;
-  const loading = provider === 'tarana' ? isLoading : dfaLoading;
-  const currentError = provider === 'tarana' ? error : dfaError;
-  const hasResult = provider === 'tarana' ? result !== null : dfaResult !== null;
+  const loading = provider === 'tarana' ? isLoading : provider === 'dfa' ? dfaLoading : mtnLoading;
+  const currentError = provider === 'tarana' ? error : provider === 'dfa' ? dfaError : mtnError;
+  const hasResult = provider === 'tarana' ? result !== null : provider === 'dfa' ? dfaResult !== null : mtnResult !== null;
 
   function getMcsLevel(rssi: number): number {
     if (rssi >= -65)   return 16;
@@ -238,10 +288,16 @@ export default function CoverageCheckerPage() {
                       variant={dfaResult.coverageType === 'connected' ? 'success' : dfaResult.coverageType === 'near-net' ? 'warning' : 'error'}
                     />
                   )}
+                  {mtnResult && (
+                    <StatusBadge
+                      status={mtnResult.available ? 'Coverage Available' : 'No Coverage'}
+                      variant={mtnResult.available ? 'success' : 'error'}
+                    />
+                  )}
                 </div>
-                {(result?.address || dfaResult?.address) && (
+                {(result?.address || dfaResult?.address || mtnResult?.address) && (
                   <p className="text-sm text-slate-500 mt-0.5 truncate max-w-md">
-                    {result?.address || dfaResult?.address}
+                    {result?.address || dfaResult?.address || mtnResult?.address}
                   </p>
                 )}
               </div>
@@ -306,12 +362,12 @@ export default function CoverageCheckerPage() {
         <TabPanel id="check" activeTab={activeTab} className="space-y-5">
 
           {/* Provider Selector */}
-          <ProviderSelector provider={provider} onChange={(p) => { setProvider(p); setResult(null); setDfaResult(null); setError(null); setDfaError(null); }} />
+          <ProviderSelector provider={provider} onChange={(p) => { setProvider(p); setResult(null); setDfaResult(null); setMtnResult(null); setError(null); setDfaError(null); setMtnError(null); }} />
 
           {/* Address input */}
           {mapsLoaded ? (
             <AddressInput
-              onCheck={provider === 'tarana' ? handleCheck : handleDFACheck}
+              onCheck={provider === 'tarana' ? handleCheck : provider === 'dfa' ? handleDFACheck : handleMtnCheck}
               isLoading={loading}
             />
           ) : (
@@ -326,12 +382,18 @@ export default function CoverageCheckerPage() {
             <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
               <div className="w-8 h-8 border-[3px] border-orange-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <p className="text-sm font-medium text-slate-700">
-                {provider === 'tarana' ? 'Checking coverage…' : 'Checking DFA fibre coverage…'}
+                {provider === 'tarana'
+                  ? 'Checking coverage…'
+                  : provider === 'dfa'
+                    ? 'Checking DFA fibre coverage…'
+                    : 'Checking MTN LTE / 5G coverage…'}
               </p>
               <p className="text-xs text-slate-400 mt-1">
                 {provider === 'tarana'
                   ? 'Running terrain analysis and link budget calculation'
-                  : 'Querying DFA ArcGIS connected and near-net buildings'}
+                  : provider === 'dfa'
+                    ? 'Querying DFA ArcGIS connected and near-net buildings'
+                    : 'Querying MTN coverage maps (business + consumer)'}
               </p>
             </div>
           )}
@@ -385,13 +447,22 @@ export default function CoverageCheckerPage() {
             </div>
           )}
 
+          {/* ── MTN LTE/5G Results ── */}
+          {provider === 'mtn' && mtnResult && !mtnLoading && (
+            <div className="space-y-4">
+              <MTNVerdictCard services={mtnResult.services} confidence={mtnResult.confidence} />
+            </div>
+          )}
+
           {/* Empty state */}
           {!hasResult && !loading && !currentError && (
             <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center">
               <p className="text-sm text-slate-400">
                 {provider === 'tarana'
                   ? 'Enter an address above to check Tarana FWB coverage'
-                  : 'Enter an address above to check DFA fibre coverage'}
+                  : provider === 'dfa'
+                    ? 'Enter an address above to check DFA fibre coverage'
+                    : 'Enter an address above to check MTN LTE / 5G coverage'}
               </p>
             </div>
           )}

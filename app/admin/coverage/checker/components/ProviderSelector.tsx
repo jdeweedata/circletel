@@ -1,8 +1,8 @@
 'use client';
 
-import { PiRadioBold, PiBroadcastBold } from 'react-icons/pi';
+import { PiRadioBold, PiBroadcastBold, PiDeviceMobileBold } from 'react-icons/pi';
 
-type ProviderType = 'tarana' | 'dfa';
+type ProviderType = 'tarana' | 'dfa' | 'mtn';
 
 interface ProviderSelectorProps {
   provider: ProviderType;
@@ -35,6 +35,18 @@ export default function ProviderSelector({ provider, onChange }: ProviderSelecto
       >
         <PiBroadcastBold className="h-4 w-4" />
         DFA Fibre
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange('mtn')}
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+          provider === 'mtn'
+            ? 'bg-yellow-500 text-white shadow-sm'
+            : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
+        }`}
+      >
+        <PiDeviceMobileBold className="h-4 w-4" />
+        MTN LTE/5G
       </button>
     </div>
   );
