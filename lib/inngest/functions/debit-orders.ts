@@ -314,18 +314,66 @@ export const debitOrdersFunction = inngest.createFunction(
     const categorizeResult = await step.run('categorize-items', async () => {
       const items: DebitOrderItem[] = [];
       const skippedList: SkippedInvoice[] = [];
+      const supabase = await createClient();
+
+      // Helper to fetch bank details
+      const fetchBankDetails = async (
+        customerId: string
+      ): Promise<{
+        accountName: string;
+        accountType: 'current' | 'savings';
+        branchCode: string;
+        accountNumber: string;
+      } | null> => {
+        const { data: paymentMethod } = await supabase
+          .from('customer_payment_methods')
+          .select('encrypted_details')
+          .eq('customer_id', customerId)
+          .eq('method_type', 'debit_order')
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (!paymentMethod?.encrypted_details) return null;
+
+        const details = paymentMethod.encrypted_details as any;
+        if (!details.account_number || !details.branch_code) return null;
+
+        const accountType: 'current' | 'savings' = String(details.account_type)
+          .toLowerCase()
+          .startsWith('savings')
+          ? 'savings'
+          : 'current';
+
+        return {
+          accountName: details.account_holder_name || 'Customer',
+          accountType,
+          branchCode: details.branch_code,
+          accountNumber: details.account_number,
+        };
+      };
 
       // Process invoices
       for (const invoice of invoices) {
         const mandateStatus = mandateStatusMap[invoice.customer_id] || 'none';
 
         if (mandateStatus === 'active') {
+          const bankDetails = await fetchBankDetails(invoice.customer_id);
+          if (!bankDetails) {
+            console.log(`[DebitOrders] Skipping invoice ${invoice.invoice_number}: No bank details on file`);
+            result.skipped++;
+            continue;
+          }
+
           items.push({
             accountReference: invoice.invoice_number,
             amount: invoice.total_amount,
             actionDate: billingDate,
             customerId: invoice.customer_id,
             invoiceId: invoice.id,
+            accountName: bankDetails.accountName,
+            accountType: bankDetails.accountType,
+            branchCode: bankDetails.branchCode,
+            accountNumber: bankDetails.accountNumber,
           });
         } else {
           skippedList.push({
@@ -351,12 +399,23 @@ export const debitOrdersFunction = inngest.createFunction(
         const mandateStatus = mandateStatusMap[order.customer_id] || 'none';
 
         if (mandateStatus === 'active') {
+          const bankDetails = await fetchBankDetails(order.customer_id);
+          if (!bankDetails) {
+            console.log(`[DebitOrders] Skipping order ${order.order_number}: No bank details on file`);
+            result.skipped++;
+            continue;
+          }
+
           items.push({
             accountReference: `PAY-${order.order_number}`,
             amount: order.package_price,
             actionDate: billingDate,
             customerId: order.customer_id,
             orderId: order.id,
+            accountName: bankDetails.accountName,
+            accountType: bankDetails.accountType,
+            branchCode: bankDetails.branchCode,
+            accountNumber: bankDetails.accountNumber,
           });
         } else {
           // Orders don't generate invoices automatically, just log the skip
@@ -457,7 +516,7 @@ export const debitOrdersFunction = inngest.createFunction(
         if (!res.success) {
           console.error('[DebitOrders] Batch submission failed:', res.errors);
         } else {
-          console.log(`[DebitOrders] Batch submitted: ${res.batchId}`);
+          console.log(`[DebitOrders] Batch submitted: ${res.fileToken}`);
         }
 
         return res;
@@ -466,22 +525,25 @@ export const debitOrdersFunction = inngest.createFunction(
       if (!batchResult.success) {
         result.errors.push(...batchResult.errors);
       } else {
-        batchId = batchResult.batchId;
+        batchId = batchResult.fileToken;
         itemsSubmitted = batchResult.itemsSubmitted;
         result.batchId = batchId;
         result.submitted = itemsSubmitted;
       }
 
-      // Step 8: Authorize the batch
+      // Step 8: Verify batch via load report
       if (batchId) {
-        await step.run('authorize-batch', async () => {
-          const authResult = await netcashDebitBatchService.authoriseBatch(batchId!);
+        await step.run('verify-batch-load-report', async () => {
+          const reportResult = await netcashDebitBatchService.requestLoadReport(batchId!);
 
-          if (!authResult.success) {
-            result.errors.push(`Batch authorisation failed: ${authResult.error}`);
-            console.warn('[DebitOrders] Batch submitted but not authorised:', authResult.error);
+          if (reportResult.result !== 'SUCCESSFUL' && reportResult.result !== 'SUCCESSFUL WITH ERRORS') {
+            result.errors.push(`Load report status: ${reportResult.result || 'unknown'}`);
+            if (reportResult.errors.length > 0) {
+              result.errors.push(...reportResult.errors.map(e => e.message));
+            }
+            console.warn('[DebitOrders] Batch submitted but load report indicates issues:', reportResult.result);
           } else {
-            console.log(`[DebitOrders] Batch ${batchId} authorised successfully`);
+            console.log(`[DebitOrders] Batch ${batchId} load report: ${reportResult.result}`);
           }
         });
       }
