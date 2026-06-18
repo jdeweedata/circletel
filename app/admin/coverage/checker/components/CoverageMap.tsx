@@ -13,8 +13,10 @@ interface CoverageMapProps {
   bnLng?: number | null;
   bnSiteName?: string;
   // DFA mode
-  mode?: 'tarana' | 'dfa';
+  mode?: 'tarana' | 'dfa' | 'mtn';
   dfaCoverageType?: 'connected' | 'near-net' | 'none';
+  // MTN mode
+  mtnAvailable?: boolean;
 }
 
 export default function CoverageMap({
@@ -22,6 +24,7 @@ export default function CoverageMap({
   bnLat, bnLng, bnSiteName,
   mode = 'tarana',
   dfaCoverageType,
+  mtnAvailable,
 }: CoverageMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
@@ -130,8 +133,28 @@ export default function CoverageMap({
       targetMarker.addListener('click', () => dfaInfo.open(map, targetMarker));
     }
 
+    // MTN mode — signal-area indicator around target (no base-station data from WMS)
+    if (mode === 'mtn') {
+      const mtnColor = mtnAvailable ? '#10B981' : '#EF4444';
+      new google.maps.Circle({
+        map,
+        center: { lat: targetLat, lng: targetLng },
+        radius: 600,
+        fillColor: mtnColor,
+        fillOpacity: 0.12,
+        strokeColor: mtnColor,
+        strokeWeight: 2,
+        strokeOpacity: 0.6,
+      });
+
+      const mtnInfo = new google.maps.InfoWindow({
+        content: `<div style="font-size:12px;font-weight:600;padding:2px 4px">📱 MTN ${mtnAvailable ? 'coverage area' : 'no coverage'}</div>`,
+      });
+      targetMarker.addListener('click', () => mtnInfo.open(map, targetMarker));
+    }
+
     map.fitBounds(bounds, 80);
-  }, [targetLat, targetLng, bnLat, bnLng, targetAddress, bnSiteName, mode, dfaCoverageType]);
+  }, [targetLat, targetLng, bnLat, bnLng, targetAddress, bnSiteName, mode, dfaCoverageType, mtnAvailable]);
 
   return (
     <SectionCard title="Coverage Map" icon={PiMapPinBold}>
@@ -147,6 +170,11 @@ export default function CoverageMap({
               dfaCoverageType === 'connected' ? 'bg-emerald-500' : 'bg-amber-500'
             }`} />
             DFA {dfaCoverageType === 'connected' ? 'Connected' : 'Near-Net'} Zone
+          </span>
+        ) : mode === 'mtn' ? (
+          <span className="flex items-center gap-1.5">
+            <span className={`w-3 h-3 rounded-full inline-block ${mtnAvailable ? 'bg-emerald-500' : 'bg-red-500'}`} />
+            MTN {mtnAvailable ? 'Coverage Area' : 'No Coverage'}
           </span>
         ) : (
           <>
