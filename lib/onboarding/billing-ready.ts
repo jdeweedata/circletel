@@ -1,13 +1,20 @@
 /**
  * Billing-ready status computation
- * Sets customers.onboarding_status = 'billing_ready' when docs approved AND mandate verified+active
+ * Sets customers.onboarding_status = 'billing_ready' when:
+ * - Latest onboarding_submissions.document_vetting_status === 'approved'
+ * - At least one customer_services row with status='active'
+ * - An active customer_payment_methods (method_type='debit_order', is_active=true)
+ *   with encrypted_details containing BOTH account_number AND branch_code
+ *
+ * (Drops the signature requirement: mandate_status active + verified)
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Check if an onboarding submission's documents are approved and the
- * associated mandate is verified and active, then mark the customer billing_ready.
+ * Check if an onboarding submission's documents are approved, the customer
+ * has an active service, and valid bank details on file. If all conditions met,
+ * mark the customer billing_ready.
  *
  * Returns true if status was flipped to billing_ready, false otherwise.
  * Safe to call repeatedly — idempotent.
@@ -16,7 +23,7 @@ export async function maybeMarkBillingReady(
   supabase: SupabaseClient,
   customerId: string
 ): Promise<boolean> {
-  // Get the latest submission for this customer
+  // 1. Get the latest submission for this customer
   const { data: submission, error: subError } = await supabase
     .from('onboarding_submissions')
     .select('id, document_vetting_status')
@@ -30,23 +37,33 @@ export async function maybeMarkBillingReady(
   // Docs must be approved
   if (submission.document_vetting_status !== 'approved') return false;
 
-  // Mandate must exist, be verified, be active, and is_active must be true
-  const { data: mandate, error: manError } = await supabase
-    .from('customer_payment_methods')
-    .select('mandate_status, encrypted_details')
+  // 2. Check for at least one active service
+  const { data: activeService } = await supabase
+    .from('customer_services')
+    .select('id')
     .eq('customer_id', customerId)
-    .eq('method_type', 'debit_order')
-    .eq('is_active', true)
+    .eq('status', 'active')
     .maybeSingle();
 
-  if (manError || !mandate) return false;
+  if (!activeService) return false;
 
-  const mandateActive = mandate.mandate_status === 'active' || mandate.mandate_status === 'approved';
-  const verified =
-    mandate.encrypted_details?.verified === true ||
-    mandate.encrypted_details?.verified === 'true';
+  // 3. Check for debit order payment method with bank details (account_number + branch_code)
+  const { data: paymentMethods, error: pmError } = await supabase
+    .from('customer_payment_methods')
+    .select('id, encrypted_details')
+    .eq('customer_id', customerId)
+    .eq('method_type', 'debit_order')
+    .eq('is_active', true);
 
-  if (!mandateActive || !verified) return false;
+  if (pmError || !paymentMethods || paymentMethods.length === 0) return false;
+
+  // Verify at least one payment method has both account_number and branch_code
+  const hasBankDetails = paymentMethods.some((pm: any) => {
+    const details = pm.encrypted_details as any;
+    return details?.account_number && details?.branch_code;
+  });
+
+  if (!hasBankDetails) return false;
 
   // All conditions met: mark customer billing_ready
   const now = new Date().toISOString();
