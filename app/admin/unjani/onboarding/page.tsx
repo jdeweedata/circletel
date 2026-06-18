@@ -78,6 +78,10 @@ interface PipelineClinic {
     businessDaysLeft: number | null;
   };
   submission_id: string | null;
+  site_address: string | null;
+  incumbent_isp: string | null;
+  incumbent_cost: number | null;
+  contract_status: 'in_contract' | 'out_of_contract' | 'unknown';
 }
 
 interface PipelineResponse {
@@ -163,6 +167,24 @@ const SLA_FILL: Record<SlaStatus, string> = {
 
 const fmtRand = (n: number) => 'R' + Math.round(n).toLocaleString('en-ZA');
 
+const CONTRACT_BADGE: Record<string, { label: string; bg: string; fg: string }> = {
+  in_contract: { label: 'In contract', bg: '#FCF6E5', fg: '#CA8A04' },
+  out_of_contract: { label: 'Out of contract', bg: '#EAF7EF', fg: '#16A34A' },
+  unknown: { label: 'Contract unknown', bg: '#F1F3F5', fg: '#6B7280' },
+};
+
+function ContractBadge({ status }: { status: string }) {
+  const b = CONTRACT_BADGE[status] ?? CONTRACT_BADGE.unknown;
+  return (
+    <span
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+      style={{ background: b.bg, color: b.fg }}
+    >
+      {b.label}
+    </span>
+  );
+}
+
 // ---------- Network register (static reference data — MSA savings schedule v1.0) ----------
 
 interface RegisterClinic {
@@ -227,12 +249,29 @@ export default function UnjaniOnboardingPipelinePage() {
   const [actingOn, setActingOn] = useState<string | null>(null);
   const [batchSending, setBatchSending] = useState(false);
   const [drawerClinic, setDrawerClinic] = useState<PipelineClinic | null>(null);
+  const [registerDrawer, setRegisterDrawer] = useState<null | {
+    registerName: string;
+    businessName: string;
+    nurseName: string | null;
+    phone: string | null;
+    email: string | null;
+    province: string | null;
+    siteAddress: string | null;
+    incumbentIsp: string | null;
+    incumbentCost: number | null;
+    contractStatus: 'in_contract' | 'out_of_contract' | 'unknown';
+    savingPerMonth: number | null;
+  }>(null);
 
   // Inline edit of the clinic's contact (e.g. a nurse asks for the invite on a different number)
   const [editingContact, setEditingContact] = useState(false);
   const [editNurse, setEditNurse] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+  const [editIsp, setEditIsp] = useState('');
+  const [editCost, setEditCost] = useState('');
+  const [editContract, setEditContract] = useState<'in_contract' | 'out_of_contract' | 'unknown'>('unknown');
   const [savingContact, setSavingContact] = useState(false);
 
   // "Start onboarding" dialog (Register view → create the clinic in the pipeline)
@@ -549,11 +588,47 @@ export default function UnjaniOnboardingPipelinePage() {
     setRegAddress('');
   };
 
+  const openRegisterClinic = async (clinic: RegisterClinic) => {
+    const existing = clinics.find(
+      (c) => normName(c.business_name) === normName(clinic.name)
+    );
+    if (existing) {
+      setDrawerClinic(existing);
+      return;
+    }
+    setActingOn(clinic.name);
+    try {
+      const res = await fetch(
+        `/api/admin/unjani/register-clinic-details?name=${encodeURIComponent(clinic.name)}`,
+        { headers: { ...authHeaders() } }
+      );
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.alreadyInPipeline) {
+          await fetchPipeline();
+          toast.info('This clinic is already in the pipeline — refresh to see it.');
+        } else {
+          setRegisterDrawer(data.clinic);
+        }
+      } else {
+        toast.error(data.error || 'Could not load clinic details');
+      }
+    } catch {
+      toast.error('Could not load clinic details');
+    } finally {
+      setActingOn(null);
+    }
+  };
+
   const startEditContact = () => {
     if (!drawerClinic) return;
     setEditNurse(drawerClinic.nurse_name ?? '');
     setEditPhone(drawerClinic.phone ?? '');
     setEditEmail(drawerClinic.email ?? '');
+    setEditAddress(drawerClinic.site_address ?? '');
+    setEditIsp(drawerClinic.incumbent_isp ?? '');
+    setEditCost(drawerClinic.incumbent_cost != null ? String(drawerClinic.incumbent_cost) : '');
+    setEditContract(drawerClinic.contract_status ?? 'unknown');
     setEditingContact(true);
   };
 
@@ -569,6 +644,10 @@ export default function UnjaniOnboardingPipelinePage() {
           nurseName: editNurse.trim(),
           phone: editPhone.trim(),
           email: editEmail.trim(),
+          siteAddress: editAddress.trim(),
+          incumbentIsp: editIsp.trim(),
+          incumbentCost: editCost.trim(),
+          contractStatus: editContract,
         }),
       });
       const result = await response.json();
@@ -583,6 +662,10 @@ export default function UnjaniOnboardingPipelinePage() {
                 nurse_name: editNurse.trim() || null,
                 phone: editPhone.trim() || null,
                 email: editEmail.trim() || null,
+                site_address: editAddress.trim() || null,
+                incumbent_isp: editIsp.trim() || null,
+                incumbent_cost: editCost.trim() ? Number(editCost.trim()) : null,
+                contract_status: editContract,
               }
             : c
         );
@@ -1358,7 +1441,11 @@ export default function UnjaniOnboardingPipelinePage() {
                       const stage = pipelineStageByName.get(normName(c.name));
                       const meta = stage ? stageMeta(stage) : null;
                       return (
-                        <TableRow key={c.name}>
+                        <TableRow
+                          key={c.name}
+                          onClick={() => openRegisterClinic(c)}
+                          className="cursor-pointer hover:bg-gray-50"
+                        >
                           <TableCell>
                             <div className="font-semibold text-gray-900">{c.name}</div>
                             <div className="text-xs text-gray-400 mt-0.5">
@@ -1406,7 +1493,10 @@ export default function UnjaniOnboardingPipelinePage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => openRegisterDialog(c)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openRegisterDialog(c);
+                                }}
                                 className="border-circleTel-orange text-circleTel-orange-accessible hover:bg-circleTel-orange hover:text-white whitespace-nowrap"
                               >
                                 Start onboarding
@@ -1603,6 +1693,46 @@ export default function UnjaniOnboardingPipelinePage() {
                           className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
                         />
                       </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Site address</label>
+                        <input
+                          value={editAddress}
+                          onChange={(e) => setEditAddress(e.target.value)}
+                          placeholder="Site address"
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Current provider</label>
+                        <input
+                          value={editIsp}
+                          onChange={(e) => setEditIsp(e.target.value)}
+                          placeholder="Current provider (e.g. MTN)"
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Current monthly cost</label>
+                        <input
+                          value={editCost}
+                          onChange={(e) => setEditCost(e.target.value)}
+                          inputMode="numeric"
+                          placeholder="Current monthly cost (Rands)"
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Contract status</label>
+                        <select
+                          value={editContract}
+                          onChange={(e) => setEditContract(e.target.value as typeof editContract)}
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        >
+                          <option value="unknown">Contract: Unknown</option>
+                          <option value="in_contract">In contract</option>
+                          <option value="out_of_contract">Out of contract</option>
+                        </select>
+                      </div>
                       <div className="flex gap-2 pt-1">
                         <Button
                           size="sm"
@@ -1642,6 +1772,32 @@ export default function UnjaniOnboardingPipelinePage() {
                       </div>
                     ))
                   )}
+                </div>
+                {/* Site & current service */}
+                <div className="px-6 py-4 border-t border-gray-100 -mx-6">
+                  <p className="text-[11px] font-semibold tracking-wide text-gray-400 mb-3">
+                    SITE &amp; CURRENT SERVICE
+                  </p>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-gray-500">Site address</dt>
+                      <dd className="text-gray-900 text-right">
+                        {drawerClinic.site_address || '—'}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-gray-500">Current provider</dt>
+                      <dd className="text-gray-900 text-right">
+                        {drawerClinic.incumbent_isp
+                          ? `${drawerClinic.incumbent_isp}${drawerClinic.incumbent_cost ? ` · ${fmtRand(drawerClinic.incumbent_cost)}/mo` : ''}`
+                          : '—'}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4 items-center">
+                      <dt className="text-gray-500">Contract</dt>
+                      <dd><ContractBadge status={drawerClinic.contract_status} /></dd>
+                    </div>
+                  </dl>
                 </div>
                 <div>
                   <h4 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-3">
@@ -1738,6 +1894,58 @@ export default function UnjaniOnboardingPipelinePage() {
                       : stageMeta(drawerClinic.stage).action}
                   </Button>
                 </div>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Pre-onboarding drawer (register clinic) */}
+      <Sheet open={!!registerDrawer} onOpenChange={(o) => { if (!o) setRegisterDrawer(null); }}>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col gap-0 bg-white">
+          {registerDrawer && (
+            <>
+              <SheetHeader className="bg-circleTel-navy text-white p-6 space-y-1">
+                <span className="text-xs uppercase tracking-wide text-white/70">Not in pipeline</span>
+                <SheetTitle className="text-white">{registerDrawer.businessName}</SheetTitle>
+                <span className="inline-flex w-fit items-center rounded-full bg-white/15 px-2 py-0.5 text-[11px]">
+                  Awaiting onboarding
+                </span>
+              </SheetHeader>
+
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+                <div>
+                  <p className="text-[11px] font-semibold tracking-wide text-gray-400 mb-3">CONTACT</p>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between gap-4"><dt className="text-gray-500">Professional nurse</dt><dd className="text-gray-900 text-right">{registerDrawer.nurseName || '—'}</dd></div>
+                    <div className="flex justify-between gap-4"><dt className="text-gray-500">Phone</dt><dd className="text-gray-900 text-right">{registerDrawer.phone || '—'}</dd></div>
+                    <div className="flex justify-between gap-4"><dt className="text-gray-500">Email</dt><dd className="text-gray-900 text-right">{registerDrawer.email || '—'}</dd></div>
+                    <div className="flex justify-between gap-4"><dt className="text-gray-500">Province</dt><dd className="text-gray-900 text-right">{registerDrawer.province || '—'}</dd></div>
+                  </dl>
+                </div>
+
+                <div>
+                  <p className="text-[11px] font-semibold tracking-wide text-gray-400 mb-3">SITE &amp; CURRENT SERVICE</p>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between gap-4"><dt className="text-gray-500">Site address</dt><dd className="text-gray-900 text-right">{registerDrawer.siteAddress || '—'}</dd></div>
+                    <div className="flex justify-between gap-4"><dt className="text-gray-500">Current provider</dt><dd className="text-gray-900 text-right">{registerDrawer.incumbentIsp ? `${registerDrawer.incumbentIsp}${registerDrawer.incumbentCost ? ` · ${fmtRand(registerDrawer.incumbentCost)}/mo` : ''}` : '—'}</dd></div>
+                    <div className="flex justify-between gap-4 items-center"><dt className="text-gray-500">Contract</dt><dd><ContractBadge status={registerDrawer.contractStatus} /></dd></div>
+                    <div className="flex justify-between gap-4"><dt className="text-gray-500">Saving p/m</dt><dd className="text-right">{savingDisplay(registerDrawer.savingPerMonth)}</dd></div>
+                  </dl>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-100 p-4">
+                <Button
+                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+                  onClick={() => {
+                    const reg = REGISTER.clinics.find((cl) => cl.name === registerDrawer.registerName);
+                    setRegisterDrawer(null);
+                    if (reg) openRegisterDialog(reg);
+                  }}
+                >
+                  Start onboarding
+                </Button>
               </div>
             </>
           )}

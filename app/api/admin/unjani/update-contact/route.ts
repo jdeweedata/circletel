@@ -41,10 +41,22 @@ export async function POST(request: NextRequest) {
       typeof body.phone === 'string' ? normalizeSAPhone(body.phone) : undefined;
     const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : undefined;
     const nurseName = typeof body.nurseName === 'string' ? body.nurseName.trim() : undefined;
+    const siteAddress = typeof body.siteAddress === 'string' ? body.siteAddress.trim() : undefined;
+    const incumbentIsp = typeof body.incumbentIsp === 'string' ? body.incumbentIsp.trim() : undefined;
+    const incumbentCost = body.incumbentCost !== undefined ? body.incumbentCost : undefined;
+    const contractStatus = typeof body.contractStatus === 'string' ? body.contractStatus.trim() : undefined;
 
-    if (phone === undefined && email === undefined && nurseName === undefined) {
+    if (
+      phone === undefined &&
+      email === undefined &&
+      nurseName === undefined &&
+      siteAddress === undefined &&
+      incumbentIsp === undefined &&
+      incumbentCost === undefined &&
+      contractStatus === undefined
+    ) {
       return NextResponse.json(
-        { success: false, error: 'Provide at least one of phone, email or nurseName' },
+        { success: false, error: 'Provide at least one field to update' },
         { status: 400 }
       );
     }
@@ -96,15 +108,47 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fetch current clinic_details for read-modify-write
+    const { data: current } = await supabase
+      .from('customers')
+      .select('clinic_details')
+      .eq('id', customerId)
+      .single();
+    const details = (current?.clinic_details ?? {}) as Record<string, unknown>;
+
     const update: Record<string, unknown> = {};
     if (phone !== undefined) update.phone = phone;
     if (email !== undefined) update.email = email;
-    if (nurseName !== undefined) {
-      const details =
-        customer.clinic_details && typeof customer.clinic_details === 'object'
-          ? (customer.clinic_details as Record<string, unknown>)
-          : {};
-      update.clinic_details = { ...details, nurse_owner_name: nurseName || null };
+
+    // Build merged clinic_details with all provided updates
+    const mergedDetails = {
+      ...details,
+      ...(nurseName !== undefined ? { nurse_owner_name: nurseName || null } : {}),
+      ...(siteAddress !== undefined ? { site_address: siteAddress || null } : {}),
+      ...(incumbentIsp !== undefined ? { incumbent_isp: incumbentIsp || null } : {}),
+      ...(incumbentCost !== undefined
+        ? {
+            incumbent_cost:
+              incumbentCost === '' || incumbentCost == null || !Number.isFinite(Number(incumbentCost))
+                ? null
+                : Number(incumbentCost),
+          }
+        : {}),
+      // Only persist a valid enum value; ignore anything else (don't trust the client).
+      ...(contractStatus !== undefined &&
+      ['in_contract', 'out_of_contract', 'unknown'].includes(contractStatus)
+        ? { contract_status: contractStatus }
+        : {}),
+    };
+
+    if (
+      nurseName !== undefined ||
+      siteAddress !== undefined ||
+      incumbentIsp !== undefined ||
+      incumbentCost !== undefined ||
+      contractStatus !== undefined
+    ) {
+      update.clinic_details = mergedDetails;
     }
 
     const { error: updErr } = await supabase
