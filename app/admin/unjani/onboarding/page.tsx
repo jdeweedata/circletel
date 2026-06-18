@@ -6,12 +6,15 @@ import { toast } from 'sonner';
 import {
   PiBuildingsBold,
   PiCaretDownBold,
+  PiChatCircleTextBold,
   PiCheckCircleBold,
   PiCurrencyCircleDollarBold,
   PiDownloadSimpleBold,
+  PiEnvelopeSimpleBold,
   PiMagnifyingGlassBold,
   PiPaperPlaneTiltBold,
   PiWarningBold,
+  PiWhatsappLogoBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import {
@@ -1174,19 +1177,22 @@ export default function UnjaniOnboardingPipelinePage() {
                                       disabled={!clinic.phone}
                                       onClick={() => sendInviteVia(clinic, 'whatsapp')}
                                     >
-                                      📱 Send via WhatsApp
+                                      <PiWhatsappLogoBold className="mr-2 h-4 w-4" style={{ color: '#25D366' }} />
+                                      Send via WhatsApp
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                       disabled={!clinic.email}
                                       onClick={() => sendInviteVia(clinic, 'email')}
                                     >
-                                      ✉️ Send via Email
+                                      <PiEnvelopeSimpleBold className="mr-2 h-4 w-4 text-circleTel-orange-accessible" />
+                                      Send via Email
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                       disabled={!clinic.phone}
                                       onClick={() => sendInviteVia(clinic, 'sms')}
                                     >
-                                      💬 Send via SMS
+                                      <PiChatCircleTextBold className="mr-2 h-4 w-4 text-gray-500" />
+                                      Send via SMS
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
