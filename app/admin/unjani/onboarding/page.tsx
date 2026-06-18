@@ -255,6 +255,10 @@ export default function UnjaniOnboardingPipelinePage() {
   const [editNurse, setEditNurse] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+  const [editIsp, setEditIsp] = useState('');
+  const [editCost, setEditCost] = useState('');
+  const [editContract, setEditContract] = useState<'in_contract' | 'out_of_contract' | 'unknown'>('unknown');
   const [savingContact, setSavingContact] = useState(false);
 
   // "Start onboarding" dialog (Register view → create the clinic in the pipeline)
@@ -576,6 +580,10 @@ export default function UnjaniOnboardingPipelinePage() {
     setEditNurse(drawerClinic.nurse_name ?? '');
     setEditPhone(drawerClinic.phone ?? '');
     setEditEmail(drawerClinic.email ?? '');
+    setEditAddress(drawerClinic.site_address ?? '');
+    setEditIsp(drawerClinic.incumbent_isp ?? '');
+    setEditCost(drawerClinic.incumbent_cost != null ? String(drawerClinic.incumbent_cost) : '');
+    setEditContract(drawerClinic.contract_status ?? 'unknown');
     setEditingContact(true);
   };
 
@@ -591,6 +599,10 @@ export default function UnjaniOnboardingPipelinePage() {
           nurseName: editNurse.trim(),
           phone: editPhone.trim(),
           email: editEmail.trim(),
+          siteAddress: editAddress.trim(),
+          incumbentIsp: editIsp.trim(),
+          incumbentCost: editCost.trim(),
+          contractStatus: editContract,
         }),
       });
       const result = await response.json();
@@ -605,6 +617,10 @@ export default function UnjaniOnboardingPipelinePage() {
                 nurse_name: editNurse.trim() || null,
                 phone: editPhone.trim() || null,
                 email: editEmail.trim() || null,
+                site_address: editAddress.trim() || null,
+                incumbent_isp: editIsp.trim() || null,
+                incumbent_cost: editCost.trim() ? Number(editCost.trim()) : null,
+                contract_status: editContract,
               }
             : c
         );
@@ -1624,6 +1640,46 @@ export default function UnjaniOnboardingPipelinePage() {
                           onChange={(e) => setEditEmail(e.target.value)}
                           className="w-full rounded-md border border-gray-200 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
                         />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Site address</label>
+                        <input
+                          value={editAddress}
+                          onChange={(e) => setEditAddress(e.target.value)}
+                          placeholder="Site address"
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Current provider</label>
+                        <input
+                          value={editIsp}
+                          onChange={(e) => setEditIsp(e.target.value)}
+                          placeholder="Current provider (e.g. MTN)"
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Current monthly cost</label>
+                        <input
+                          value={editCost}
+                          onChange={(e) => setEditCost(e.target.value)}
+                          inputMode="numeric"
+                          placeholder="Current monthly cost (Rands)"
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Contract status</label>
+                        <select
+                          value={editContract}
+                          onChange={(e) => setEditContract(e.target.value as typeof editContract)}
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                        >
+                          <option value="unknown">Contract: Unknown</option>
+                          <option value="in_contract">In contract</option>
+                          <option value="out_of_contract">Out of contract</option>
+                        </select>
                       </div>
                       <div className="flex gap-2 pt-1">
                         <Button
