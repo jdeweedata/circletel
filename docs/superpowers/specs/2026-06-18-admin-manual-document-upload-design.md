@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-18
 **Surfaces:** `/admin/unjani/onboarding` (clinic drawer) and `/admin/b2b/vetting/[submissionId]` (vetting detail)
-**Status:** Approved design — pending implementation plan
+**Status:** Implemented (PR #563, live)
 
 ## Problem
 
