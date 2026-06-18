@@ -24,6 +24,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/client';
+import type { PackageDetails } from '@/lib/order/types';
+import type {
+  SkyFibreCapacityMbps,
+  SkyFibreOrderabilityResult,
+  SkyFibreSegment,
+} from '@/lib/coverage/skyfibre/types';
 
 type CheckoutStep = 'account' | 'confirm';
 type SubmitStatus = 'idle' | 'creating_order' | 'redirecting';
@@ -65,12 +71,18 @@ export default function CheckoutPage() {
   const [propertyTypeError, setPropertyTypeError] = useState<string | undefined>();
   const [sameAsServiceAddress, setSameAsServiceAddress] = useState(true);
   const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [skyFibreOrderability, setSkyFibreOrderability] = useState<SkyFibreOrderabilityResult | null>(null);
 
   const isWirelessOrMobile =
     pkg?.type === 'wireless' || pkg?.type === 'mobile' ||
     (pkg?.service_type || '').toLowerCase().includes('lte') ||
     (pkg?.service_type || '').toLowerCase().includes('5g') ||
     (pkg?.product_category || '').toLowerCase().includes('mobile');
+
+  const isSkyFibreSelected =
+    hasSkyFibreSignal(pkg?.name) ||
+    hasSkyFibreSignal(pkg?.service_type) ||
+    hasSkyFibreSignal(pkg?.product_category);
 
   // Guard: require package + coverage
   // Wait for auth to settle before redirecting — on return from Google OAuth,
@@ -224,6 +236,41 @@ export default function CheckoutPage() {
 
     setSubmitStatus('creating_order');
 
+    let confirmedSkyFibreOrderability = skyFibreOrderability;
+    if (isSkyFibreSelected) {
+      const capacityMbps = getSkyFibreCapacity(pkg);
+      if (!capacityMbps) {
+        setSubmitStatus('idle');
+        throw new Error('Unable to confirm the selected SkyFibre speed. Please choose the package again.');
+      }
+
+      const orderabilityRes = await fetch('/api/coverage/skyfibre/orderability', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          leadId: coverage?.leadId,
+          latitude: serviceCoordinates?.lat,
+          longitude: serviceCoordinates?.lng,
+          capacityMbps,
+          segment: getSkyFibreSegment(coverage?.coverageType),
+        }),
+      });
+
+      const orderabilityBody = await orderabilityRes.json().catch(() => ({}));
+      if (!orderabilityRes.ok || !orderabilityBody?.success) {
+        setSubmitStatus('idle');
+        throw new Error(orderabilityBody?.error || 'Unable to confirm SkyFibre orderability. Please contact support.');
+      }
+
+      confirmedSkyFibreOrderability = orderabilityBody.data as SkyFibreOrderabilityResult;
+      setSkyFibreOrderability(confirmedSkyFibreOrderability);
+
+      if (confirmedSkyFibreOrderability.decision !== 'orderable') {
+        setSubmitStatus('idle');
+        throw new Error(getSkyFibreDecisionMessage(confirmedSkyFibreOrderability));
+      }
+    }
+
     const orderRes = await fetch('/api/orders/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -236,6 +283,9 @@ export default function CheckoutPage() {
         package_name: pkg.name,
         package_speed: pkg.speed,
         package_price: pkg.monthlyPrice,
+        service_type: pkg.service_type,
+        product_category: pkg.product_category,
+        speed_down: pkg.speed_down,
         installation_fee: pkg.installation_fee ?? 0,
         payment_amount: 1.00,
         is_validation_charge: true,
@@ -244,6 +294,10 @@ export default function CheckoutPage() {
         coordinates: serviceCoordinates,
         installation_location_type: propertyType,
         account_type: coverage?.coverageType === 'business' ? 'business' : 'personal',
+        coverage_lead_id: coverage?.leadId,
+        metadata: confirmedSkyFibreOrderability
+          ? { skyfibre_orderability: confirmedSkyFibreOrderability }
+          : {},
       }),
     });
 
@@ -672,4 +726,39 @@ export default function CheckoutPage() {
       )}
     </div>
   );
+}
+
+function getSkyFibreCapacity(pkg: PackageDetails): SkyFibreCapacityMbps | null {
+  if (pkg.speed_down === 50 || pkg.speed_down === 100 || pkg.speed_down === 200) {
+    return pkg.speed_down;
+  }
+
+  const match = `${pkg.speed || ''} ${pkg.name || ''}`.match(/\b(50|100|200)\b/);
+  if (!match) return null;
+
+  const parsed = Number(match[1]);
+  return parsed === 50 || parsed === 100 || parsed === 200 ? parsed : null;
+}
+
+function getSkyFibreSegment(coverageType: string | undefined): SkyFibreSegment {
+  return coverageType === 'business' ? 'business' : 'residential';
+}
+
+function getSkyFibreDecisionMessage(result: SkyFibreOrderabilityResult): string {
+  switch (result.decision) {
+    case 'covered_not_orderable':
+      return 'SkyFibre coverage looks possible, but MTN CSP is not allowing an order for this address yet. Our sales team will need to review it.';
+    case 'manual_review':
+      return 'SkyFibre needs a manual feasibility review for this address before an order can be placed.';
+    case 'not_covered':
+      return 'SkyFibre is not currently covered at this address.';
+    default:
+      return 'SkyFibre orderability could not be confirmed for this address.';
+  }
+}
+
+function hasSkyFibreSignal(value: unknown): boolean {
+  const normalized = String(value || '').toLowerCase();
+  const compact = normalized.replace(/[^a-z0-9]/g, '');
+  return compact.includes('skyfibre') || normalized.includes('tarana');
 }

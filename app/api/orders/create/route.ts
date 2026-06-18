@@ -3,6 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
 import { apiLogger } from '@/lib/logging';
+import {
+  checkSkyFibreOrderability,
+  extractSkyFibreCapacity,
+  isSkyFibrePackage,
+  redactSkyFibreOrderability,
+} from '@/lib/coverage/skyfibre/orderability';
+import type { SkyFibreOrderabilityResult, SkyFibreSegment } from '@/lib/coverage/skyfibre/types';
 
 // P4: Valid property types (must match ServiceAddressSection.tsx options)
 const VALID_PROPERTY_TYPES = [
@@ -50,6 +57,63 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient();
+    let skyFibreOrderability: SkyFibreOrderabilityResult | null = null;
+
+    if (isSkyFibrePackage(body)) {
+      const capacityMbps = extractSkyFibreCapacity(body);
+      if (!capacityMbps) {
+        return NextResponse.json(
+          { success: false, error: 'Unable to determine SkyFibre capacity for orderability check' },
+          { status: 400 }
+        );
+      }
+
+      const leadId = typeof body.coverage_lead_id === 'string'
+        ? body.coverage_lead_id
+        : typeof body.leadId === 'string'
+          ? body.leadId
+          : undefined;
+      const coordinates = extractOrderCoordinates(body.coordinates);
+
+      if (!leadId && !coordinates) {
+        return NextResponse.json(
+          { success: false, error: 'SkyFibre orders require a coverage lead or installation coordinates' },
+          { status: 400 }
+        );
+      }
+
+      skyFibreOrderability = redactSkyFibreOrderability(
+        await checkSkyFibreOrderability(
+          {
+            leadId,
+            latitude: coordinates?.lat,
+            longitude: coordinates?.lng,
+            capacityMbps,
+            segment: body.account_type === 'business' ? 'business' : 'residential',
+          },
+          { supabase }
+        )
+      );
+
+      if (skyFibreOrderability.decision !== 'orderable') {
+        apiLogger.info('[orders/create] SkyFibre order blocked by orderability gate', {
+          decision: skyFibreOrderability.decision,
+          capacityMbps,
+          leadId: leadId || null,
+          cspStatus: skyFibreOrderability.cspOrderability?.status || null,
+          tcsConfidence: skyFibreOrderability.tcsCoverage.confidence,
+        });
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: `SkyFibre is not orderable at this address (${skyFibreOrderability.decision})`,
+            orderability: skyFibreOrderability,
+          },
+          { status: 409 }
+        );
+      }
+    }
 
     // Check for existing pending/active orders with same email, address, and package
     // This prevents duplicate orders for the same service at the same address
@@ -174,7 +238,7 @@ export async function POST(request: NextRequest) {
         referral_code: body.referral_code || null,
 
         // Metadata
-        metadata: body.metadata || {},
+        metadata: buildOrderMetadata(body.metadata, body.account_type, skyFibreOrderability),
         internal_notes: null,
       })
       .select()
@@ -230,6 +294,41 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function extractOrderCoordinates(value: unknown): { lat: number; lng: number } | null {
+  if (!value || typeof value !== 'object') return null;
+  const coords = value as { lat?: unknown; lng?: unknown; coordinates?: unknown; type?: unknown };
+
+  if (typeof coords.lat === 'number' && typeof coords.lng === 'number') {
+    return { lat: coords.lat, lng: coords.lng };
+  }
+
+  if (coords.type === 'Point' && Array.isArray(coords.coordinates)) {
+    const [lng, lat] = coords.coordinates;
+    if (typeof lat === 'number' && typeof lng === 'number') {
+      return { lat, lng };
+    }
+  }
+
+  return null;
+}
+
+function buildOrderMetadata(
+  metadata: unknown,
+  accountType: unknown,
+  skyFibreOrderability: SkyFibreOrderabilityResult | null
+): Record<string, unknown> {
+  const base = metadata && typeof metadata === 'object' && !Array.isArray(metadata)
+    ? metadata as Record<string, unknown>
+    : {};
+  const normalizedAccountType = accountType === 'business' ? 'business' : 'personal';
+
+  return {
+    ...base,
+    account_type: normalizedAccountType as SkyFibreSegment | 'personal',
+    ...(skyFibreOrderability ? { skyfibre_orderability: skyFibreOrderability } : {}),
+  };
 }
 
 // Helper function to generate unique order number

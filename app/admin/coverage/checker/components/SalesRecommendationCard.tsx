@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import type { CoveragePrediction, LiveNetworkStatus, SignalQuality } from '@/lib/coverage/prediction/types';
+import type { SkyFibreOrderabilityResult } from '@/lib/coverage/skyfibre/types';
 import { SectionCard } from '@/components/admin/shared';
 import { PiSparkleBold, PiCheckCircleBold, PiWarningBold, PiBuildingsBold, PiHouseBold } from 'react-icons/pi';
 
 interface SalesRecommendationCardProps {
   prediction: CoveragePrediction | null;
   liveStatus?: LiveNetworkStatus | null;
+  orderabilityResult?: SkyFibreOrderabilityResult | null;
+  orderabilityChecking?: boolean;
+  orderabilityError?: string | null;
 }
 
 // ── Product catalogue (source of truth: products/connectivity/) ──────────────
@@ -114,10 +118,86 @@ function getRecommendation(
   }
 }
 
-export default function SalesRecommendationCard({ prediction, liveStatus }: SalesRecommendationCardProps) {
+function getGateMessage(
+  orderabilityResult: SkyFibreOrderabilityResult | null | undefined,
+  orderabilityChecking: boolean,
+  orderabilityError: string | null | undefined
+): { title: string; text: string; tone: 'info' | 'warning' | 'error' | 'success' } | null {
+  if (orderabilityChecking) {
+    return {
+      title: 'Confirming SkyFibre orderability',
+      text: 'Waiting for the MTN CSP and TCS gate before recommending a package.',
+      tone: 'info',
+    };
+  }
+
+  if (orderabilityError) {
+    return {
+      title: 'Unable to confirm orderability',
+      text: 'Do not quote SkyFibre yet. Capture the lead and retry the CSP check or escalate for manual review.',
+      tone: 'warning',
+    };
+  }
+
+  if (!orderabilityResult) {
+    return {
+      title: 'Waiting for SkyFibre orderability result',
+      text: 'Do not recommend a package until the combined TCS and MTN CSP check has completed.',
+      tone: 'info',
+    };
+  }
+
+  switch (orderabilityResult.decision) {
+    case 'orderable':
+      return null;
+    case 'covered_not_orderable':
+      return {
+        title: 'Covered by RF model, but MTN CSP will not accept the order',
+        text: 'Do not create a SkyFibre order. Capture the lead for sales follow-up or recommend an alternative service.',
+        tone: 'warning',
+      };
+    case 'manual_review':
+      return {
+        title: 'Manual review required before quoting',
+        text: 'SkyFibre looks promising, but the evidence is not strong enough for a quick sale. Capture the lead and request a site survey or operations review.',
+        tone: 'warning',
+      };
+    case 'not_covered':
+      return {
+        title: 'Not currently covered for SkyFibre',
+        text: 'Do not quote SkyFibre at this address. Recommend another access technology or capture demand for future expansion.',
+        tone: 'error',
+      };
+    case 'error':
+      return {
+        title: 'SkyFibre check returned an error',
+        text: 'Do not quote SkyFibre until the orderability check can be completed.',
+        tone: 'warning',
+      };
+    default:
+      return null;
+  }
+}
+
+const GATE_MESSAGE_CLASS = {
+  info: 'border-blue-200 bg-blue-50 text-blue-800',
+  warning: 'border-amber-200 bg-amber-50 text-amber-800',
+  error: 'border-red-200 bg-red-50 text-red-800',
+  success: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+};
+
+export default function SalesRecommendationCard({
+  prediction,
+  liveStatus,
+  orderabilityResult,
+  orderabilityChecking = false,
+  orderabilityError = null,
+}: SalesRecommendationCardProps) {
   const [customerType, setCustomerType] = useState<CustomerType>('smb');
   const { text, tiers, warning } = getRecommendation(prediction, customerType, liveStatus ?? null);
   const noService = !prediction || prediction.signalQuality === 'none';
+  const gateMessage = getGateMessage(orderabilityResult, orderabilityChecking, orderabilityError);
+  const canRecommendPackages = !gateMessage && orderabilityResult?.decision === 'orderable';
 
   return (
     <SectionCard title="Sales Recommendation" icon={PiSparkleBold}>
@@ -150,9 +230,16 @@ export default function SalesRecommendationCard({ prediction, liveStatus }: Sale
         </button>
       </div>
 
-      <p className="text-sm text-slate-700 mb-4">{text}</p>
+      {gateMessage ? (
+        <div className={`mb-4 rounded-lg border px-3 py-3 ${GATE_MESSAGE_CLASS[gateMessage.tone]}`}>
+          <p className="text-sm font-semibold">{gateMessage.title}</p>
+          <p className="mt-1 text-xs">{gateMessage.text}</p>
+        </div>
+      ) : (
+        <p className="text-sm text-slate-700 mb-4">{text}</p>
+      )}
 
-      {!noService && (
+      {!noService && canRecommendPackages && (
         <div className={`grid gap-3 mb-4 ${tiers.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
           {tiers.map(tier => (
             <div
@@ -189,7 +276,7 @@ export default function SalesRecommendationCard({ prediction, liveStatus }: Sale
         </div>
       )}
 
-      {warning && (
+      {warning && canRecommendPackages && (
         <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
           <PiWarningBold className="text-amber-500 mt-0.5 shrink-0" />
           <p className="text-xs text-amber-800">{warning}</p>

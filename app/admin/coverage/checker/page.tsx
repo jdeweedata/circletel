@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import type { CoveragePrediction, LiveNetworkStatus } from '@/lib/coverage/prediction/types';
+import type { SkyFibreOrderabilityResult } from '@/lib/coverage/skyfibre/types';
 import {
   StatCard, StatusBadge, UnderlineTabs, TabPanel,
 } from '@/components/admin/shared';
@@ -19,10 +20,11 @@ import DFAProductTiers from './components/DFAProductTiers';
 import DFAInstallationEstimate from './components/DFAInstallationEstimate';
 import MTNVerdictCard, { type MTNService } from './components/MTNVerdictCard';
 import MTNProductTiers, { type MTNPackage } from './components/MTNProductTiers';
+import SkyFibreOrderabilityCard from './components/SkyFibreOrderabilityCard';
 import RecentChecksPanel, { saveRecentCheck } from './components/RecentChecksPanel';
 import {
   PiRulerBold, PiLightningBold, PiGaugeBold, PiCheckCircleBold,
-  PiArrowLeftBold, PiBroadcastBold,
+  PiArrowLeftBold, PiBroadcastBold, PiClockBold, PiWarningCircleBold, PiXCircleBold,
 } from 'react-icons/pi';
 import Link from 'next/link';
 
@@ -38,7 +40,7 @@ type TabId = typeof TABS[number]['id'];
 type ProviderType = 'tarana' | 'dfa' | 'mtn';
 
 const QUALITY_LABEL: Record<string, string> = {
-  excellent: 'Excellent', good: 'Good', fair: 'Marginal', poor: 'Weak', none: 'None',
+  excellent: 'Excellent signal', good: 'Good signal', fair: 'Marginal signal', poor: 'Weak signal', none: 'No signal',
 };
 
 const QUALITY_VARIANT: Record<string, 'success' | 'warning' | 'error' | 'neutral'> = {
@@ -101,12 +103,138 @@ function bestMtnService(services: MTNService[]): MTNService | null {
   );
 }
 
+function normalizeName(value: string | null | undefined): string {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function hasBaseStationMismatch(
+  prediction: CoveragePrediction | null,
+  orderability: SkyFibreOrderabilityResult | null
+): boolean {
+  const rfBn = normalizeName(prediction?.nearestBnSiteName);
+  const gateBn = normalizeName(orderability?.tcsCoverage.nearestStation?.siteName);
+  return Boolean(rfBn && gateBn && rfBn !== gateBn);
+}
+
+function getSalesDecisionBanner(params: {
+  orderability: SkyFibreOrderabilityResult | null;
+  checking: boolean;
+  error: string | null;
+  bnMismatch: boolean;
+}) {
+  const { orderability, checking, error, bnMismatch } = params;
+
+  if (checking) {
+    return {
+      title: 'Checking SkyFibre availability',
+      text: 'Running the combined TCS and MTN CSP gate. Wait for this result before advising the customer.',
+      badge: 'Checking',
+      variant: 'info' as const,
+      icon: PiClockBold,
+      className: 'border-blue-200 bg-blue-50 text-blue-900',
+    };
+  }
+
+  if (error) {
+    return {
+      title: 'Unable to confirm SkyFibre availability',
+      text: 'Do not quote SkyFibre yet. Retry the CSP orderability check or capture the lead for manual review.',
+      badge: 'Unable to confirm',
+      variant: 'warning' as const,
+      icon: PiWarningCircleBold,
+      className: 'border-amber-200 bg-amber-50 text-amber-900',
+    };
+  }
+
+  if (!orderability) return null;
+
+  if (bnMismatch) {
+    return {
+      title: 'Manual review required',
+      text: 'The RF model and TCS gate matched different base stations. Capture the lead and ask operations to confirm serviceability before quoting.',
+      badge: 'Manual review',
+      variant: 'warning' as const,
+      icon: PiWarningCircleBold,
+      className: 'border-amber-200 bg-amber-50 text-amber-900',
+    };
+  }
+
+  switch (orderability.decision) {
+    case 'orderable': {
+      const needsInstallReview =
+        orderability.tcsCoverage.nearestBnActiveRnCount === 0 ||
+        orderability.tcsCoverage.confidence === 'low';
+
+      if (needsInstallReview) {
+        return {
+          title: 'CSP orderable - site survey recommended',
+          text: 'MTN CSP accepts this SkyFibre order. TCS has low confidence or no active RN evidence, so confirm install details before committing the installation date.',
+          badge: 'CSP orderable',
+          variant: 'warning' as const,
+          icon: PiWarningCircleBold,
+          className: 'border-amber-200 bg-amber-50 text-amber-900',
+        };
+      }
+
+      return {
+        title: 'Available to sell',
+        text: 'TCS coverage evidence is acceptable and MTN CSP will accept the selected SkyFibre order.',
+        badge: 'Orderable',
+        variant: 'success' as const,
+        icon: PiCheckCircleBold,
+        className: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+      };
+    }
+    case 'covered_not_orderable':
+      return {
+        title: 'Covered, but not orderable',
+        text: 'The RF model is promising, but MTN CSP will not accept an order at this address. Capture the lead for sales follow-up.',
+        badge: 'Do not order',
+        variant: 'warning' as const,
+        icon: PiWarningCircleBold,
+        className: 'border-amber-200 bg-amber-50 text-amber-900',
+      };
+    case 'manual_review':
+      return {
+        title: 'Manual review required',
+        text: 'SkyFibre may be possible, but the coverage evidence is not strong enough for a quick sale. Request site survey or operations review.',
+        badge: 'Manual review',
+        variant: 'warning' as const,
+        icon: PiWarningCircleBold,
+        className: 'border-amber-200 bg-amber-50 text-amber-900',
+      };
+    case 'not_covered':
+      return {
+        title: 'Not currently covered for SkyFibre',
+        text: 'Do not quote SkyFibre at this address. Recommend another access technology or capture demand for future expansion.',
+        badge: 'Not covered',
+        variant: 'error' as const,
+        icon: PiXCircleBold,
+        className: 'border-red-200 bg-red-50 text-red-900',
+      };
+    case 'error':
+      return {
+        title: 'Unable to confirm SkyFibre availability',
+        text: 'The orderability gate returned an error. Do not quote SkyFibre until the check succeeds.',
+        badge: 'Error',
+        variant: 'warning' as const,
+        icon: PiWarningCircleBold,
+        className: 'border-amber-200 bg-amber-50 text-amber-900',
+      };
+    default:
+      return null;
+  }
+}
+
 export default function CoverageCheckerPage() {
   const [provider, setProvider] = useState<ProviderType>('tarana');
   // Tarana state
   const [result, setResult] = useState<CheckResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [skyFibreOrderability, setSkyFibreOrderability] = useState<SkyFibreOrderabilityResult | null>(null);
+  const [skyFibreOrderabilityChecking, setSkyFibreOrderabilityChecking] = useState(false);
+  const [skyFibreOrderabilityError, setSkyFibreOrderabilityError] = useState<string | null>(null);
   // DFA state
   const [dfaResult, setDfaResult] = useState<DFAResult | null>(null);
   const [dfaLoading, setDfaLoading] = useState(false);
@@ -129,6 +257,9 @@ export default function CoverageCheckerPage() {
     setIsLoading(true);
     setError(null);
     setResult(null);
+    setSkyFibreOrderability(null);
+    setSkyFibreOrderabilityChecking(false);
+    setSkyFibreOrderabilityError(null);
     setDfaResult(null);
     setMtnResult(null);
     setActiveTab('check');
@@ -188,6 +319,9 @@ export default function CoverageCheckerPage() {
     setDfaResult(null);
     setResult(null);
     setMtnResult(null);
+    setSkyFibreOrderability(null);
+    setSkyFibreOrderabilityChecking(false);
+    setSkyFibreOrderabilityError(null);
     setActiveTab('check');
 
     try {
@@ -270,6 +404,18 @@ export default function CoverageCheckerPage() {
   const loading = provider === 'tarana' ? isLoading : provider === 'dfa' ? dfaLoading : mtnLoading;
   const currentError = provider === 'tarana' ? error : provider === 'dfa' ? dfaError : mtnError;
   const hasResult = provider === 'tarana' ? result !== null : provider === 'dfa' ? dfaResult !== null : mtnResult !== null;
+  const bnMismatch = provider === 'tarana' && hasBaseStationMismatch(prediction, skyFibreOrderability);
+  const salesDecisionBanner = provider === 'tarana' && result
+    ? getSalesDecisionBanner({
+        orderability: skyFibreOrderability,
+        checking: skyFibreOrderabilityChecking,
+        error: skyFibreOrderabilityError,
+        bnMismatch,
+      })
+    : null;
+  const effectiveSkyFibreOrderability = bnMismatch && skyFibreOrderability
+    ? { ...skyFibreOrderability, decision: 'manual_review' as const }
+    : skyFibreOrderability;
 
   function getMcsLevel(rssi: number): number {
     if (rssi >= -65)   return 16;
@@ -439,7 +585,18 @@ export default function CoverageCheckerPage() {
         <TabPanel id="check" activeTab={activeTab} className="space-y-5">
 
           {/* Provider Selector */}
-          <ProviderSelector provider={provider} onChange={(p) => { setProvider(p); setResult(null); setDfaResult(null); setMtnResult(null); setError(null); setDfaError(null); setMtnError(null); }} />
+          <ProviderSelector provider={provider} onChange={(p) => {
+            setProvider(p);
+            setResult(null);
+            setDfaResult(null);
+            setMtnResult(null);
+            setError(null);
+            setDfaError(null);
+            setMtnError(null);
+            setSkyFibreOrderability(null);
+            setSkyFibreOrderabilityChecking(false);
+            setSkyFibreOrderabilityError(null);
+          }} />
 
           {/* Address input */}
           {mapsLoaded ? (
@@ -492,14 +649,44 @@ export default function CoverageCheckerPage() {
           {/* ── Tarana Results ── */}
           {provider === 'tarana' && result && !isLoading && (
             <div className="space-y-4">
+              {salesDecisionBanner && (
+                <section className={`rounded-xl border p-5 shadow-sm ${salesDecisionBanner.className}`}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start gap-3">
+                      <salesDecisionBanner.icon className="mt-0.5 h-6 w-6 shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Final Sales Decision</p>
+                        <h2 className="mt-1 text-xl font-bold">{salesDecisionBanner.title}</h2>
+                        <p className="mt-1 text-sm">{salesDecisionBanner.text}</p>
+                      </div>
+                    </div>
+                    <StatusBadge status={salesDecisionBanner.badge} variant={salesDecisionBanner.variant} />
+                  </div>
+                </section>
+              )}
               <CoverageVerdictCard prediction={result.prediction} liveStatus={result.liveStatus} />
+              <SkyFibreOrderabilityCard
+                lat={result.lat}
+                lng={result.lng}
+                address={result.address}
+                autoCheck
+                onCheckingChange={setSkyFibreOrderabilityChecking}
+                onResult={setSkyFibreOrderability}
+                onError={setSkyFibreOrderabilityError}
+              />
               {result.prediction && (
                 <TierEligibilityTable prediction={result.prediction} />
               )}
               {result.liveStatus && (
                 <NetworkStatusCard liveStatus={result.liveStatus} />
               )}
-              <SalesRecommendationCard prediction={result.prediction} liveStatus={result.liveStatus} />
+              <SalesRecommendationCard
+                prediction={result.prediction}
+                liveStatus={result.liveStatus}
+                orderabilityResult={effectiveSkyFibreOrderability}
+                orderabilityChecking={skyFibreOrderabilityChecking}
+                orderabilityError={skyFibreOrderabilityError}
+              />
               <CoverageMap
                 targetLat={result.lat}
                 targetLng={result.lng}
