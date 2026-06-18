@@ -458,9 +458,12 @@ async function fetchBankDetails(
 /**
  * Check mandate status for a customer
  * Returns: 'active' | 'pending' | 'none'
- * - 'active': Mandate exists, verified, and ready for debit orders
- * - 'pending': Mandate exists but awaiting customer authentication/approval
+ * - 'active': Debit order payment method exists with bank details (account_number) on file
+ * - 'pending': Payment method exists but missing bank details
  * - 'none': No debit order payment method found
+ *
+ * NOTE: Vetting and active-service gating is enforced upstream by billing_ready.
+ * This function only checks the payment-method-level gate (bank details).
  */
 async function checkMandateStatus(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -468,7 +471,7 @@ async function checkMandateStatus(
 ): Promise<'active' | 'pending' | 'none'> {
   const { data: paymentMethod } = await supabase
     .from('customer_payment_methods')
-    .select('id, method_type, mandate_status, is_active, encrypted_details')
+    .select('id, method_type, is_active, encrypted_details')
     .eq('customer_id', customerId)
     .eq('is_active', true)
     .eq('method_type', 'debit_order')
@@ -476,20 +479,14 @@ async function checkMandateStatus(
 
   if (!paymentMethod) return 'none';
 
-  // Check mandate is active and verified
-  const isVerified = paymentMethod.encrypted_details?.verified === true ||
-                    paymentMethod.encrypted_details?.verified === 'true';
+  // Check if bank details are present (account_number indicates bank details on file)
+  const hasBankDetails = paymentMethod.encrypted_details?.account_number;
 
-  const mandateActive = paymentMethod.mandate_status === 'active' ||
-                       paymentMethod.mandate_status === 'approved';
-
-  // If both verified and active, mandate is ready
-  if (isVerified && mandateActive) {
+  if (hasBankDetails) {
     return 'active';
   }
 
-  // Payment method exists but mandate not complete
-  // This covers: awaiting_authentication, pending, submitted, etc.
+  // Payment method exists but missing bank details
   return 'pending';
 }
 
