@@ -8,9 +8,37 @@
  *   npx tsx scripts/netcash/verify-masterfile-load.ts
  */
 import { NetCashEMandateBatchService } from '@/lib/payments/netcash-emandate-batch-service';
-import { netcashDebitBatchService } from '@/lib/payments/netcash-debit-batch-service';
 
 const REF = `CTTEST${Date.now()}`.substring(0, 22);
+const VENDOR = '24ade73c-98cf-47b3-99be-cc7b867b3080';
+const WS = process.env.NETCASH_WS_URL || 'https://ws.netcash.co.za/NIWS/niws_nif.svc';
+
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const ccyymmdd = (d: Date) =>
+  `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+
+/** Submit a debit-order collection via BatchFileUpload + TwoDay instruction.
+ * TwoDay requires bank details inline: K 101 102 131 132 133 134 136 162. */
+async function collectTwoDay(key: string, ref: string, amountCents: number, actionDate: Date): Promise<string> {
+  const file = [
+    ['H', key, '1', 'TwoDay', `SPIKE-COLLECT-${ref}`, ccyymmdd(actionDate), VENDOR].join('\t'),
+    // 101 ref · 102 name · 131 bankDetailType · 132 acct name · 133 acct type · 134 branch · 136 acct no · 162 amount(cents)
+    ['K', '101', '102', '131', '132', '133', '134', '136', '162'].join('\t'),
+    ['T', ref, 'Spike Test Biz', '1', 'Spike Test Biz', '1', '250655', '62836392449', amountCents.toString()].join('\t'),
+    ['F', '1', amountCents.toString(), '9999'].join('\t'),
+  ].join('\n');
+  console.log('    collection file:\n' + file);
+  const envelope = `<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/"><soap:Body><tem:BatchFileUpload><tem:ServiceKey>${esc(key)}</tem:ServiceKey><tem:File>${esc(file)}</tem:File></tem:BatchFileUpload></soap:Body></soap:Envelope>`;
+  const res = await fetch(WS, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': 'http://tempuri.org/INIWS_NIF/BatchFileUpload' },
+    body: envelope,
+  });
+  const text = await res.text();
+  console.log('    collection upload status:', res.status);
+  console.log('    collection upload body:', text.substring(0, 600));
+  return text.match(/<BatchFileUploadResult>([\s\S]*?)<\/BatchFileUploadResult>/)?.[1] || '';
+}
 
 async function main() {
   const svc = new NetCashEMandateBatchService();
@@ -55,18 +83,25 @@ async function main() {
   const report = await svc.requestLoadReport(load.fileToken);
   console.log('    load report:', JSON.stringify(report, null, 2));
 
-  // 4. Attempt a minimal collection against the (hopefully) loaded masterfile ref.
-  console.log('[4] Attempting R1.00 test collection...');
-  const batch = await netcashDebitBatchService.submitBatch(
-    [{ accountReference: REF, amount: 1.0, actionDate: new Date(Date.now() + 2 * 864e5), customerId: 'spike' }],
-    `SPIKE-COLLECT-${REF}`,
-  );
-  console.log('    collection submit:', batch);
+  // 4. Attempt a minimal collection via BatchFileUpload/TwoDay against the loaded ref.
+  console.log('[4] Attempting R1.00 test collection (BatchFileUpload/TwoDay)...');
+  const key = process.env.NETCASH_DEBIT_ORDER_SERVICE_KEY || '';
+  const collToken = await collectTwoDay(key, REF, 100, new Date(Date.now() + 7 * 864e5));
+  if (!collToken || ['100', '101', '102', '200'].includes(collToken)) {
+    return console.log(`\n=== INCONCLUSIVE: collection upload rejected (code ${collToken}). ===`);
+  }
 
-  const verdict = batch.success && !batch.errors.some(e => e.includes('316'));
-  console.log(verdict
-    ? '\n=== GO: unsigned mandate was promoted and is collectable. ==='
-    : '\n=== NO-GO: collection blocked (likely err 316 — masterfile requires signature first). ===');
+  // 5. Poll the collection load report — this is the authoritative GO/NO-GO signal.
+  console.log('[5] Polling collection load report (~30-90s)...');
+  await new Promise(r => setTimeout(r, 30_000));
+  const collReport = await svc.requestLoadReport(collToken);
+  console.log('    collection load report:', JSON.stringify(collReport, null, 2));
+
+  const masterfileMiss = collReport.errors.some(e => /masterfile|not found|does not exist|316/i.test(e.message));
+  const go = (collReport.result === 'SUCCESSFUL' || collReport.result === 'SUCCESSFUL WITH ERRORS') && !masterfileMiss;
+  console.log(go
+    ? '\n=== GO: unsigned mandate promoted via MandateToMasterfile IS collectable. ==='
+    : '\n=== NO-GO: collection load report shows the account is not collectable (likely masterfile injection deferred until signature). Review report above. ===');
 }
 
 main().catch(e => { console.error('ERROR:', e); process.exit(1); });
