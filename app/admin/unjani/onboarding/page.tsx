@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { UploadDocumentModal } from '@/components/admin/onboarding/UploadDocumentModal';
 import {
   PiBuildingsBold,
   PiCaretDownBold,
@@ -249,6 +250,7 @@ export default function UnjaniOnboardingPipelinePage() {
   const [actingOn, setActingOn] = useState<string | null>(null);
   const [batchSending, setBatchSending] = useState(false);
   const [drawerClinic, setDrawerClinic] = useState<PipelineClinic | null>(null);
+  const [uploadFor, setUploadFor] = useState<PipelineClinic | null>(null);
   const [registerDrawer, setRegisterDrawer] = useState<null | {
     registerName: string;
     businessName: string;
@@ -1872,6 +1874,15 @@ export default function UnjaniOnboardingPipelinePage() {
                         : '✉️ Email onboarding link'}
                     </Button>
                   )}
+                {!['mandate_active', 'billing_ready'].includes(drawerClinic.stage) && (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setUploadFor(drawerClinic)}
+                  >
+                    📎 Upload documents
+                  </Button>
+                )}
                 <div className="flex gap-2">
                   {drawerClinic.submission_id && (
                     <Button
@@ -1951,6 +1962,18 @@ export default function UnjaniOnboardingPipelinePage() {
           )}
         </SheetContent>
       </Sheet>
+
+      {uploadFor && (
+        <UploadDocumentModal
+          open={!!uploadFor}
+          onOpenChange={(o) => { if (!o) setUploadFor(null); }}
+          customerId={uploadFor.customer_id}
+          clinicName={uploadFor.business_name}
+          submissionId={uploadFor.submission_id ?? undefined}
+          authHeaders={authHeaders}
+          onUploaded={(count) => { if (count > 0) fetchPipeline(); }}
+        />
+      )}
     </main>
   );
 }
