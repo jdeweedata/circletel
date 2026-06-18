@@ -240,6 +240,19 @@ async function updateInvoiceAsPaid(
     })
     .eq('id', invoiceId);
 
+  // Idempotency check: don't insert duplicate payment transaction if one already exists
+  const { data: existingPaid } = await supabase
+    .from('payment_transactions')
+    .select('id')
+    .eq('customer_invoice_id', invoiceId)
+    .eq('status', 'completed')
+    .limit(1);
+
+  if (existingPaid && existingPaid.length > 0) {
+    // Already recorded this completed payment, skip insert
+    return;
+  }
+
   // Create payment transaction record linked to the invoice for Zoho Books sync
   await supabase
     .from('payment_transactions')
@@ -305,6 +318,19 @@ async function markInvoiceUnpaid(
       updated_at: now,
     })
     .eq('id', invoiceId);
+
+  // Idempotency check: don't insert duplicate payment transaction if one already exists
+  const { data: existingFailed } = await supabase
+    .from('payment_transactions')
+    .select('id')
+    .eq('customer_invoice_id', invoiceId)
+    .eq('status', 'failed')
+    .limit(1);
+
+  if (existingFailed && existingFailed.length > 0) {
+    // Already recorded this failed payment, skip insert
+    return;
+  }
 
   // Create failed payment transaction record linked to the invoice
   await supabase
