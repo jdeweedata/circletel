@@ -78,6 +78,10 @@ interface PipelineClinic {
     businessDaysLeft: number | null;
   };
   submission_id: string | null;
+  site_address: string | null;
+  incumbent_isp: string | null;
+  incumbent_cost: number | null;
+  contract_status: 'in_contract' | 'out_of_contract' | 'unknown';
 }
 
 interface PipelineResponse {
@@ -162,6 +166,24 @@ const SLA_FILL: Record<SlaStatus, string> = {
 };
 
 const fmtRand = (n: number) => 'R' + Math.round(n).toLocaleString('en-ZA');
+
+const CONTRACT_BADGE: Record<string, { label: string; bg: string; fg: string }> = {
+  in_contract: { label: 'In contract', bg: '#FCF6E5', fg: '#CA8A04' },
+  out_of_contract: { label: 'Out of contract', bg: '#EAF7EF', fg: '#16A34A' },
+  unknown: { label: 'Contract unknown', bg: '#F1F3F5', fg: '#6B7280' },
+};
+
+function ContractBadge({ status }: { status: string }) {
+  const b = CONTRACT_BADGE[status] ?? CONTRACT_BADGE.unknown;
+  return (
+    <span
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+      style={{ background: b.bg, color: b.fg }}
+    >
+      {b.label}
+    </span>
+  );
+}
 
 // ---------- Network register (static reference data — MSA savings schedule v1.0) ----------
 
@@ -1642,6 +1664,32 @@ export default function UnjaniOnboardingPipelinePage() {
                       </div>
                     ))
                   )}
+                </div>
+                {/* Site & current service */}
+                <div className="px-6 py-4 border-t border-gray-100 -mx-6">
+                  <p className="text-[11px] font-semibold tracking-wide text-gray-400 mb-3">
+                    SITE &amp; CURRENT SERVICE
+                  </p>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-gray-500">Site address</dt>
+                      <dd className="text-gray-900 text-right">
+                        {drawerClinic.site_address || '—'}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-gray-500">Current provider</dt>
+                      <dd className="text-gray-900 text-right">
+                        {drawerClinic.incumbent_isp
+                          ? `${drawerClinic.incumbent_isp}${drawerClinic.incumbent_cost ? ` · ${fmtRand(drawerClinic.incumbent_cost)}/mo` : ''}`
+                          : '—'}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4 items-center">
+                      <dt className="text-gray-500">Contract</dt>
+                      <dd><ContractBadge status={drawerClinic.contract_status} /></dd>
+                    </div>
+                  </dl>
                 </div>
                 <div>
                   <h4 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-3">
