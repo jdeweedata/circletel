@@ -12,6 +12,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import type { CoverageDetail, DetailedCoverage } from '../page';
+import SkyFibreOrderabilityCard from '@/components/admin/skyfibre/SkyFibreOrderabilityCard';
+import {
+  getAdminSkyFibreCapacity,
+  isAdminSkyFibrePackage,
+} from '@/lib/coverage/skyfibre/admin-ui';
+import type { SkyFibreCapacityMbps } from '@/lib/coverage/skyfibre/types';
 // import { mapDarkStyle } from './MapStyles';  // Dark styles no longer used
 
 // ============================================================================
@@ -52,6 +58,8 @@ interface SelectedPackage {
   installationFee: number;
   technology: string;
   provider: string;
+  serviceType?: string;
+  productCategory?: string;
   itemType: 'primary' | 'secondary' | 'additional';
 }
 
@@ -219,6 +227,18 @@ export function SingleSiteStepper() {
         default: return 0;
       }
     });
+
+  const selectedSkyFibrePackages = formData.selectedPackages
+    .filter((pkg) => isAdminSkyFibrePackage({
+      name: pkg.name,
+      serviceType: pkg.serviceType,
+      productCategory: pkg.productCategory,
+      technology: pkg.technology,
+    }))
+    .map((pkg) => ({
+      ...pkg,
+      capacityMbps: getAdminSkyFibreCapacity(pkg.speed) ?? (100 as SkyFibreCapacityMbps),
+    }));
 
   // Load Google Maps
   const { isLoaded, loadError } = useJsApiLoader({
@@ -518,6 +538,8 @@ export function SingleSiteStepper() {
               installationFee: pkg.installation_fee || 0,
               technology: pkg.service_type || pkg.product_category,
               provider: pkg.provider || 'CircleTel',
+              serviceType: pkg.service_type,
+              productCategory: pkg.product_category,
               itemType,
             },
           ],
@@ -1011,6 +1033,31 @@ export function SingleSiteStepper() {
                     </div>
                   ))}
                 </div>
+
+                {selectedSkyFibrePackages.length > 0 && formData.coordinates && (
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                        <PiBroadcastBold className="h-5 w-5 text-circleTel-orange" />
+                        SkyFibre CSP Validation
+                      </h3>
+                      <p className="mt-2 text-sm text-slate-600">
+                        Run CSP orderability for selected Tarana/SkyFibre packages before generating the business quote.
+                      </p>
+                    </div>
+                    {selectedSkyFibrePackages.map((pkg) => (
+                      <SkyFibreOrderabilityCard
+                        key={pkg.id}
+                        leadId={formData.leadId}
+                        lat={formData.coordinates!.lat}
+                        lng={formData.coordinates!.lng}
+                        address={formData.address}
+                        packageName={pkg.name}
+                        initialCapacityMbps={pkg.capacityMbps}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {/* Totals Card */}
                 <div className="bg-slate-50 rounded-xl border border-slate-200 p-8 shadow-sm">
