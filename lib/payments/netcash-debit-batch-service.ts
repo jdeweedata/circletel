@@ -39,11 +39,15 @@ export class NetCashDebitBatchService {
     return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  /** Next action date >= 2 business days ahead, never a weekend. */
+  /** Next valid TwoDay action date: >= 3 business days ahead, never a weekend.
+   * Empirically verified against the NetCash TwoDay service: +2 business days is
+   * REJECTED ("Action date is not valid for this instruction"); +3 is the minimum
+   * accepted. NOTE: this skips weekends only — SA public holidays in the lead
+   * window are NOT excluded and could still push the true minimum out by a day. */
   nextValidActionDate(from: Date): Date {
     const d = new Date(from);
     let added = 0;
-    while (added < 2) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) added++; }
+    while (added < 3) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) added++; }
     return d;
   }
 
