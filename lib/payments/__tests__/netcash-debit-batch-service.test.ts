@@ -23,9 +23,19 @@ describe('buildTwoDayFile', () => {
 });
 
 describe('nextValidActionDate', () => {
-  it('returns at least 2 days ahead and never a weekend', () => {
-    const d = svc.nextValidActionDate(new Date('2026-06-18T12:00:00Z')); // Thu
-    expect(d.getTime()).toBeGreaterThan(new Date('2026-06-19T00:00:00Z').getTime());
+  it('returns exactly 3 business days ahead (NetCash TwoDay minimum), never a weekend', () => {
+    // Thu 2026-06-18 → +3 business days = Fri 19, Mon 22, Tue 23 → 2026-06-23
+    const d = svc.nextValidActionDate(new Date('2026-06-18T12:00:00Z'));
+    expect(d.getFullYear()).toBe(2026);
+    expect(d.getMonth()).toBe(5); // June (0-indexed)
+    expect(d.getDate()).toBe(23);
+    expect([0, 6]).not.toContain(d.getDay());
+  });
+
+  it('skips the weekend from a Friday', () => {
+    // Fri 2026-06-19 → +3 business days = Mon 22, Tue 23, Wed 24 → 2026-06-24
+    const d = svc.nextValidActionDate(new Date('2026-06-19T12:00:00Z'));
+    expect(d.getDate()).toBe(24);
     expect([0, 6]).not.toContain(d.getDay());
   });
 });
