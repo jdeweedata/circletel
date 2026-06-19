@@ -367,7 +367,7 @@ export const debitOrdersFunction = inngest.createFunction(
           items.push({
             accountReference: invoice.invoice_number,
             amount: invoice.total_amount,
-            actionDate: billingDate,
+            actionDate: netcashDebitBatchService.nextValidActionDate(billingDate),
             customerId: invoice.customer_id,
             invoiceId: invoice.id,
             accountName: bankDetails.accountName,
@@ -409,7 +409,7 @@ export const debitOrdersFunction = inngest.createFunction(
           items.push({
             accountReference: `PAY-${order.order_number}`,
             amount: order.package_price,
-            actionDate: billingDate,
+            actionDate: netcashDebitBatchService.nextValidActionDate(billingDate),
             customerId: order.customer_id,
             orderId: order.id,
             accountName: bankDetails.accountName,
