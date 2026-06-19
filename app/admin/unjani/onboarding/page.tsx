@@ -1026,7 +1026,7 @@ export default function UnjaniOnboardingPipelinePage() {
                     const issued = !!clinic.service_order_issued_at;
                     const actionable =
                       !issued ||
-                      !['mandate_active', 'billing_ready'].includes(clinic.stage);
+                      !['billing_ready'].includes(clinic.stage);
                     return (
                       <TableRow
                         key={clinic.customer_id}
