@@ -92,7 +92,6 @@ interface PipelineResponse {
     submitted: number;
     changes_requested: number;
     docs_approved: number;
-    mandate_active: number;
     billing_ready: number;
     pending: number;
   };
@@ -116,8 +115,7 @@ const STAGES: StageMeta[] = [
   { id: 'invited', label: 'Invited', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#2563EB', action: 'Send reminder' },
   { id: 'submitted', label: 'Docs submitted', pillBg: '#FDF2E9', pillFg: '#D76026', color: '#E87A1E', action: 'Vet documents' },
   { id: 'changes_requested', label: 'Changes requested', pillBg: '#FCF6E5', pillFg: '#CA8A04', color: '#CA8A04', action: 'Review changes' },
-  { id: 'docs_approved', label: 'Docs approved', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#5B8DEF', action: 'Send mandate link' },
-  { id: 'mandate_active', label: 'Mandate active', pillBg: '#EAF7EF', pillFg: '#16A34A', color: '#3FBF6E', action: 'Issue service order' },
+  { id: 'docs_approved', label: 'Docs approved', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#5B8DEF', action: 'Issue service order' },
   { id: 'billing_ready', label: 'Ready to install', pillBg: '#16A34A', pillFg: '#FFFFFF', color: '#16A34A', action: 'Issue service order' },
 ];
 
@@ -423,34 +421,6 @@ export default function UnjaniOnboardingPipelinePage() {
     }
   };
 
-  // Sends the DebiCheck "approve your debit order" WhatsApp heads-up (the
-  // primer card), so the nurse expects the NetCash signing SMS instead of
-  // dismissing it as phishing. Separate from the NetCash-portal mandate resend.
-  const sendMandateReminder = async (clinic: PipelineClinic) => {
-    setActingOn(clinic.customer_id);
-    try {
-      const response = await fetch('/api/admin/unjani/send-mandate-reminder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ customerId: clinic.customer_id }),
-      });
-      const result = await response.json();
-      if (response.ok && result.success && result.sent) {
-        toast.success(`DebiCheck reminder sent to ${clinic.business_name} via WhatsApp`);
-      } else if (response.ok && result.success) {
-        toast.warning(
-          `Reminder could not be delivered${result.sendError ? `: ${result.sendError}` : ''}`
-        );
-      } else {
-        toast.error(result.error || 'Failed to send DebiCheck reminder');
-      }
-    } catch (error) {
-      console.error('Error sending DebiCheck reminder:', error);
-      toast.error('Failed to send DebiCheck reminder');
-    } finally {
-      setActingOn(null);
-    }
-  };
 
   // Email fallback for nurses without WhatsApp — sends the onboarding
   // requirements + magic link to the clinic's email address.
@@ -781,9 +751,6 @@ export default function UnjaniOnboardingPipelinePage() {
       case 'invited':
         sendLink(clinic, 'Reminder');
         break;
-      case 'docs_approved':
-        sendLink(clinic, 'Mandate link');
-        break;
       case 'submitted':
       case 'changes_requested':
         if (clinic.submission_id) {
@@ -792,7 +759,7 @@ export default function UnjaniOnboardingPipelinePage() {
           toast.info('No submission to review yet');
         }
         break;
-      case 'mandate_active':
+      case 'docs_approved':
       case 'billing_ready':
         issueServiceOrder(clinic);
         break;
@@ -1170,7 +1137,7 @@ export default function UnjaniOnboardingPipelinePage() {
                             {meta.label}
                           </span>
                           <div className="flex gap-0.5 mt-1.5">
-                            {STAGES.slice(0, 6).map((_, i) => (
+                            {STAGES.slice(0, 5).map((_, i) => (
                               <span
                                 key={i}
                                 className={cn(
@@ -1848,20 +1815,8 @@ export default function UnjaniOnboardingPipelinePage() {
                 </div>
               </div>
               <div className="border-t border-gray-100 p-4 flex flex-col gap-2">
-                {drawerClinic.stage === 'docs_approved' && (
-                  <Button
-                    variant="outline"
-                    className="w-full border-circleTel-orange text-circleTel-orange hover:bg-orange-50"
-                    disabled={actingOn === drawerClinic.customer_id}
-                    onClick={() => sendMandateReminder(drawerClinic)}
-                  >
-                    {actingOn === drawerClinic.customer_id
-                      ? 'Working…'
-                      : '📩 Remind: approve DebiCheck'}
-                  </Button>
-                )}
                 {drawerClinic.email &&
-                  !['docs_approved', 'mandate_active', 'billing_ready'].includes(drawerClinic.stage) && (
+                  !['docs_approved', 'billing_ready'].includes(drawerClinic.stage) && (
                     <Button
                       variant="outline"
                       className="w-full"
