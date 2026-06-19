@@ -203,12 +203,24 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
       const mandateStatus = await checkMandateStatus(supabase, invoice.customer_id);
 
       if (mandateStatus === 'active') {
+        // Fetch bank details
+        const bankDetails = await fetchBankDetails(supabase, invoice.customer_id);
+        if (!bankDetails) {
+          result.skipped++;
+          cronLogger.info(`Skipping invoice ${invoice.invoice_number}: No bank details on file`);
+          continue;
+        }
+
         eligibleItems.push({
           accountReference: invoice.invoice_number,
           amount: invoice.total_amount,
-          actionDate: billingDate,
+          actionDate: netcashDebitBatchService.nextValidActionDate(billingDate),
           customerId: invoice.customer_id,
           invoiceId: invoice.id,
+          accountName: bankDetails.accountName,
+          accountType: bankDetails.accountType,
+          branchCode: bankDetails.branchCode,
+          accountNumber: bankDetails.accountNumber,
         });
       } else {
         result.skipped++;
@@ -237,12 +249,24 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
       const mandateStatus = await checkMandateStatus(supabase, order.customer_id);
 
       if (mandateStatus === 'active') {
+        // Fetch bank details
+        const bankDetails = await fetchBankDetails(supabase, order.customer_id);
+        if (!bankDetails) {
+          result.skipped++;
+          cronLogger.info(`Skipping order ${order.order_number}: No bank details on file`);
+          continue;
+        }
+
         eligibleItems.push({
           accountReference: `PAY-${order.order_number}`,
           amount: order.package_price,
-          actionDate: billingDate,
+          actionDate: netcashDebitBatchService.nextValidActionDate(billingDate),
           customerId: order.customer_id,
           orderId: order.id,
+          accountName: bankDetails.accountName,
+          accountType: bankDetails.accountType,
+          branchCode: bankDetails.branchCode,
+          accountNumber: bankDetails.accountNumber,
         });
       } else {
         result.skipped++;
@@ -260,17 +284,29 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
       const alreadyCovered = eligibleItems.some(
         item => item.customerId === service.customer_id
       );
-      
+
       if (alreadyCovered) continue;
 
       const hasMandate = await verifyActiveMandate(supabase, service.customer_id);
-      
+
       if (hasMandate) {
+        // Fetch bank details
+        const bankDetails = await fetchBankDetails(supabase, service.customer_id);
+        if (!bankDetails) {
+          result.skipped++;
+          cronLogger.info(`Skipping service ${service.id}: No bank details on file`);
+          continue;
+        }
+
         eligibleItems.push({
           accountReference: `SVC-${service.id.substring(0, 18)}`,
           amount: service.monthly_price,
-          actionDate: billingDate,
+          actionDate: netcashDebitBatchService.nextValidActionDate(billingDate),
           customerId: service.customer_id,
+          accountName: bankDetails.accountName,
+          accountType: bankDetails.accountType,
+          branchCode: bankDetails.branchCode,
+          accountNumber: bankDetails.accountNumber,
         });
       } else {
         result.skipped++;
@@ -301,33 +337,35 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     return result;
   }
 
-  result.batchId = batchResult.batchId;
+  result.batchId = batchResult.fileToken;
   result.submitted = batchResult.itemsSubmitted;
 
-  cronLogger.info(`Batch submitted successfully: ${batchResult.batchId}`);
+  cronLogger.info(`Batch submitted successfully: ${batchResult.fileToken}`);
 
   // ============================================================================
-  // 5. Authorise the batch
+  // 5. Verify batch via load report
   // ============================================================================
-  
-  if (batchResult.batchId) {
-    const authResult = await netcashDebitBatchService.authoriseBatch(batchResult.batchId);
-    
-    if (!authResult.success) {
-      result.errors.push(`Batch authorisation failed: ${authResult.error}`);
-      // Don't fail the whole job - batch is submitted, just not authorised
-      cronLogger.warn('Batch submitted but not authorised', { error: authResult.error });
+
+  if (batchResult.fileToken) {
+    const reportResult = await netcashDebitBatchService.requestLoadReport(batchResult.fileToken);
+
+    if (reportResult.result !== 'SUCCESSFUL' && reportResult.result !== 'SUCCESSFUL WITH ERRORS') {
+      result.errors.push(`Load report status: ${reportResult.result || 'unknown'}`);
+      if (reportResult.errors.length > 0) {
+        result.errors.push(...reportResult.errors.map(e => e.message));
+      }
+      cronLogger.warn('Batch submitted but load report indicates issues', { result: reportResult.result });
     } else {
-      cronLogger.info(`Batch ${batchResult.batchId} authorised successfully`);
+      cronLogger.info(`Batch ${batchResult.fileToken} load report: ${reportResult.result}`);
     }
   }
 
   // ============================================================================
   // 6. Record batch submission in database
   // ============================================================================
-  
+
   await recordBatchSubmission(supabase, {
-    batchId: batchResult.batchId || '',
+    batchId: batchResult.fileToken || '',
     batchName,
     items: eligibleItems,
     submittedAt: new Date(),
@@ -384,11 +422,48 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
 }
 
 /**
+ * Fetch bank details for a customer from payment methods
+ * Returns: { accountName, accountType, branchCode, accountNumber } or null if not found
+ */
+async function fetchBankDetails(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  customerId: string
+): Promise<{
+  accountName: string;
+  accountType: 'current' | 'savings';
+  branchCode: string;
+  accountNumber: string;
+} | null> {
+  const { data: paymentMethod } = await supabase
+    .from('customer_payment_methods')
+    .select('encrypted_details')
+    .eq('customer_id', customerId)
+    .eq('method_type', 'debit_order')
+    .eq('is_active', true)
+    .maybeSingle();
+
+  if (!paymentMethod?.encrypted_details) return null;
+
+  const details = paymentMethod.encrypted_details as any;
+  if (!details.account_number || !details.branch_code) return null;
+
+  return {
+    accountName: details.account_holder_name || 'Customer',
+    accountType: String(details.account_type).toLowerCase().startsWith('savings') ? 'savings' : 'current',
+    branchCode: details.branch_code,
+    accountNumber: details.account_number,
+  };
+}
+
+/**
  * Check mandate status for a customer
  * Returns: 'active' | 'pending' | 'none'
- * - 'active': Mandate exists, verified, and ready for debit orders
- * - 'pending': Mandate exists but awaiting customer authentication/approval
+ * - 'active': Debit order payment method exists with bank details (account_number) on file
+ * - 'pending': Payment method exists but missing bank details
  * - 'none': No debit order payment method found
+ *
+ * NOTE: Vetting and active-service gating is enforced upstream by billing_ready.
+ * This function only checks the payment-method-level gate (bank details).
  */
 async function checkMandateStatus(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -396,7 +471,7 @@ async function checkMandateStatus(
 ): Promise<'active' | 'pending' | 'none'> {
   const { data: paymentMethod } = await supabase
     .from('customer_payment_methods')
-    .select('id, method_type, mandate_status, is_active, encrypted_details')
+    .select('id, method_type, is_active, encrypted_details')
     .eq('customer_id', customerId)
     .eq('is_active', true)
     .eq('method_type', 'debit_order')
@@ -404,20 +479,15 @@ async function checkMandateStatus(
 
   if (!paymentMethod) return 'none';
 
-  // Check mandate is active and verified
-  const isVerified = paymentMethod.encrypted_details?.verified === true ||
-                    paymentMethod.encrypted_details?.verified === 'true';
+  // Check if bank details are present (both account_number AND branch_code required)
+  const hasBankDetails = paymentMethod.encrypted_details?.account_number &&
+                         paymentMethod.encrypted_details?.branch_code;
 
-  const mandateActive = paymentMethod.mandate_status === 'active' ||
-                       paymentMethod.mandate_status === 'approved';
-
-  // If both verified and active, mandate is ready
-  if (isVerified && mandateActive) {
+  if (hasBankDetails) {
     return 'active';
   }
 
-  // Payment method exists but mandate not complete
-  // This covers: awaiting_authentication, pending, submitted, etc.
+  // Payment method exists but missing bank details
   return 'pending';
 }
 

@@ -239,6 +239,35 @@ async function updateInvoiceAsPaid(
       updated_at: now,
     })
     .eq('id', invoiceId);
+
+  // Idempotency check: don't insert duplicate payment transaction if one already exists
+  const { data: existingPaid } = await supabase
+    .from('payment_transactions')
+    .select('id')
+    .eq('customer_invoice_id', invoiceId)
+    .eq('status', 'completed')
+    .limit(1);
+
+  if (existingPaid && existingPaid.length > 0) {
+    // Already recorded this completed payment, skip insert
+    return;
+  }
+
+  // Create payment transaction record linked to the invoice for Zoho Books sync
+  await supabase
+    .from('payment_transactions')
+    .insert({
+      transaction_id: `NETCASH-RECONCILE-INV-${invoiceId}-${Date.now()}`,
+      customer_invoice_id: invoiceId,
+      amount: debitResult.amount,
+      currency: 'ZAR',
+      payment_type: 'debit_order',
+      status: 'completed',
+      netcash_reference: debitResult.accountReference,
+      netcash_response: debitResult,
+      processed_at: now,
+      transaction_date: now,
+    });
 }
 
 async function updateOrderAsPaid(
@@ -277,7 +306,7 @@ async function updateOrderAsPaid(
 async function markInvoiceUnpaid(
   supabase: Awaited<ReturnType<typeof createClient>>,
   invoiceId: string,
-  debitResult: { unpaidCode?: string; unpaidReason?: string }
+  debitResult: { unpaidCode?: string; unpaidReason?: string; amount: number; transactionDate: string; accountReference: string }
 ) {
   const now = new Date().toISOString();
 
@@ -289,6 +318,35 @@ async function markInvoiceUnpaid(
       updated_at: now,
     })
     .eq('id', invoiceId);
+
+  // Idempotency check: don't insert duplicate payment transaction if one already exists
+  const { data: existingFailed } = await supabase
+    .from('payment_transactions')
+    .select('id')
+    .eq('customer_invoice_id', invoiceId)
+    .eq('status', 'failed')
+    .limit(1);
+
+  if (existingFailed && existingFailed.length > 0) {
+    // Already recorded this failed payment, skip insert
+    return;
+  }
+
+  // Create failed payment transaction record linked to the invoice
+  await supabase
+    .from('payment_transactions')
+    .insert({
+      transaction_id: `NETCASH-FAILED-INV-${invoiceId}-${Date.now()}`,
+      customer_invoice_id: invoiceId,
+      amount: debitResult.amount,
+      currency: 'ZAR',
+      payment_type: 'debit_order',
+      status: 'failed',
+      failure_reason: `${debitResult.unpaidReason || 'Unknown'} (Code: ${debitResult.unpaidCode || 'N/A'})`,
+      netcash_reference: debitResult.accountReference,
+      failed_at: now,
+      transaction_date: now,
+    });
 }
 
 async function markOrderUnpaid(

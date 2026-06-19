@@ -163,7 +163,7 @@ export class EnhancedEmailService {
       console.error('❌ Error sending email:', error);
       return {
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -384,6 +384,7 @@ export class EnhancedEmailService {
     due_date: string;
     account_number?: string;
     paynow_url?: string;  // When provided, used as the Pay Now button URL instead of dashboard URL
+    mode?: 'paynow' | 'debit_order';  // Email variant: 'paynow' (default) or 'debit_order'
     line_items: Array<{
       description: string;
       quantity: number;
@@ -407,10 +408,11 @@ export class EnhancedEmailService {
     });
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
+    const isDebitOrder = invoice.mode === 'debit_order';
 
     return this.sendEmail({
       to: invoice.email,
-      templateId: 'invoice_generated',
+      templateId: isDebitOrder ? 'invoice_generated_debit_order' : 'invoice_generated',
       props: {
         customerName: invoice.customer_name,
         companyName: invoice.company_name || invoice.customer_name,
@@ -423,6 +425,7 @@ export class EnhancedEmailService {
         subtotal: `R ${invoice.subtotal.toFixed(2)}`,
         vatAmount: `R ${invoice.vat_amount.toFixed(2)}`,
         accountNumber: invoice.account_number,
+        isDebitOrder, // Pass flag for template to use
       },
       customerId: invoice.customer_id,
     });

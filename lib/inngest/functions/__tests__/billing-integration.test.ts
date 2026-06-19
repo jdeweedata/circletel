@@ -37,12 +37,15 @@ jest.mock('@/lib/payments/netcash-debit-batch-service', () => ({
     isConfigured: jest.fn(() => true),
     submitBatch: jest.fn(() => Promise.resolve({
       success: true,
-      batchId: 'test-batch-123',
+      fileToken: 'test-file-token-123',
       itemsSubmitted: 5,
       errors: [],
       warnings: [],
     })),
-    authoriseBatch: jest.fn(() => Promise.resolve({ success: true })),
+    requestLoadReport: jest.fn(() => Promise.resolve({
+      result: 'SUCCESSFUL',
+      errors: [],
+    })),
   },
   DebitOrderItem: {},
 }));

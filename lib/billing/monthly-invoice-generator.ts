@@ -24,6 +24,7 @@ import { syncInvoiceToZohoBilling } from '@/lib/integrations/zoho/invoice-sync-s
 import { computeVatInclusiveAmounts, formatInvoiceNumber, nextInvoiceSequence } from './invoice-amounts';
 import { processPayNowForInvoice } from '@/lib/billing/paynow-billing-service';
 import { computeProRata } from '@/lib/onboarding/prorata';
+import { shouldEmitRecurringInvoice } from '@/lib/billing/new-clinic-billing-helper';
 import { billingLogger } from '@/lib/logging';
 
 // =============================================================================
@@ -362,6 +363,26 @@ export class MonthlyInvoiceGenerator {
           skipped: false,
           invoiceId: 'DRY-RUN',
           invoiceNumber: 'DRY-RUN',
+          errors: [],
+        };
+      }
+
+      // 2b. Task F: New-clinic billing delay — suppress recurring invoices until ~1 month after activation
+      // Allow pro-rata first invoice (last_invoice_date === null), but suppress full recurring until billing_day >= activation + 1 month
+      const isFirstInvoice = service.last_invoice_date === null;
+      if (!isFirstInvoice && !shouldEmitRecurringInvoice(service.activation_date, new Date())) {
+        const skipReason = `New clinic: recurring invoice suppressed until ~1 month after activation (${service.activation_date})`;
+        billingLogger.info('MonthlyInvoice: Skipping new-clinic recurring invoice', {
+          serviceId: service.id,
+          activationDate: service.activation_date,
+          reason: skipReason,
+        });
+        return {
+          serviceId: service.id,
+          customerId: service.customer_id,
+          success: true,
+          skipped: true,
+          skipReason,
           errors: [],
         };
       }
