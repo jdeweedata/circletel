@@ -42,7 +42,6 @@ interface PipelineResponse {
     submitted: number;
     changes_requested: number;
     docs_approved: number;
-    mandate_active: number;
     billing_ready: number;
     pending: number;
   };
@@ -51,8 +50,11 @@ interface PipelineResponse {
 
 /**
  * Determine the clinic's current stage in the onboarding pipeline
+ *
+ * Stages flow: pending → invited → submitted → changes_requested/docs_approved → billing_ready
+ * No longer includes mandate_active (billing bypassed eMandate signature via click-wrap).
  */
-function determineStage(
+export function determineStage(
   onboarding_status: string | null,
   submission_status: string | null,
   document_vetting_status: string | null,
@@ -63,12 +65,8 @@ function determineStage(
     return 'billing_ready';
   }
 
-  // mandate_active (docs approved + mandate active but not billing_ready yet)
-  if (mandate_status === 'active') {
-    return 'mandate_active';
-  }
-
-  // docs_approved (vetting approved but mandate not yet active)
+  // docs_approved (vetting approved, bank details on file)
+  // Note: mandate_status is no longer required; we check bank details in the gate
   if (document_vetting_status === 'approved') {
     return 'docs_approved';
   }
@@ -148,7 +146,6 @@ export async function GET(request: NextRequest) {
         submitted: 0,
         changes_requested: 0,
         docs_approved: 0,
-        mandate_active: 0,
         billing_ready: 0,
         pending: 0,
       },
