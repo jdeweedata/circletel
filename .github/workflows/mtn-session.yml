@@ -112,9 +112,11 @@ jobs:
         run: npm ci
 
       - name: Install Playwright Chromium
+        if: needs.validate.outputs.valid != 'true'
         run: npx playwright install --with-deps chromium
 
       - name: Run automated refresh via 2Captcha + Playwright
+        if: needs.validate.outputs.valid != 'true'
         id: refresh
         env:
           MTN_USERNAME: ${{ secrets.MTN_USERNAME }}
@@ -136,11 +138,24 @@ jobs:
           echo "Successfully extracted new session (length: ${#SESSION_BASE64})"
           echo "session_base64=$SESSION_BASE64" >> $GITHUB_OUTPUT
 
+      - name: Sync existing valid session to Coolify
+        if: needs.validate.outputs.valid == 'true'
+        id: sync
+        run: |
+          echo "Fast sync: pushing valid GitHub Secret directly to Coolify env..."
+          SESSION_BASE64="${{ secrets.MTN_SESSION }}"
+          if [ -z "$SESSION_BASE64" ]; then
+            echo "::error::MTN_SESSION secret is empty — cannot sync"
+            exit 1
+          fi
+          echo "Session secret length: ${#SESSION_BASE64}"
+          echo "session_base64=$SESSION_BASE64" >> $GITHUB_OUTPUT
+
       - name: Update Coolify environment variable
         env:
           COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
           COOLIFY_APP_UUID: ${{ secrets.COOLIFY_APP_UUID }}
-          SESSION_BASE64: ${{ steps.refresh.outputs.session_base64 }}
+          SESSION_BASE64: ${{ steps.refresh.outputs.session_base64 || steps.sync.outputs.session_base64 }}
         run: |
           echo "Updating MTN_SESSION env var in Coolify..."
           PATCH_RESPONSE=$(curl -sX PATCH "http://localhost:8000/api/v1/applications/$COOLIFY_APP_UUID/envs" \
