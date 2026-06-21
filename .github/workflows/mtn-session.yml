@@ -8,6 +8,11 @@ on:
   schedule:
     - cron: '0 */6 * * *'
   workflow_dispatch:
+    inputs:
+      force_refresh:
+        description: 'Force session refresh even if validate passes'
+        type: boolean
+        default: false
 
 concurrency:
   group: mtn-session
@@ -27,6 +32,7 @@ jobs:
       message: ${{ steps.validate.outputs.message }}
       tracked_expiry: ${{ steps.validate.outputs.tracked_expiry }}
       minutes_left: ${{ steps.validate.outputs.minutes_left }}
+      prod_authenticated: ${{ steps.prod_auth.outputs.authenticated }}
 
     steps:
       - name: Checkout code
@@ -70,12 +76,27 @@ jobs:
             echo "::notice::Session is invalid or expired — triggering refresh job"
           fi
 
+      - name: Check production auth status
+        id: prod_auth
+        run: |
+          echo "Probing production API auth status..."
+          PROD_RESPONSE=$(curl -s --max-time 30 https://www.circletel.co.za/api/mtn-wholesale/auth 2>/dev/null || echo '{"authenticated":false}')
+          PROD_AUTH=$(echo "$PROD_RESPONSE" | jq -r '.authenticated // false' 2>/dev/null || echo "false")
+          echo "Production authenticated: $PROD_AUTH"
+          echo "authenticated=$PROD_AUTH" >> $GITHUB_OUTPUT
+          if [ "$PROD_AUTH" != "true" ]; then
+            echo "::warning::Production container is unauthenticated — refresh will be forced"
+          fi
+
   refresh:
     name: Refresh MTN Session
     runs-on: self-hosted
     timeout-minutes: 15
     needs: validate
-    if: needs.validate.outputs.valid != 'true'
+    if: |
+      needs.validate.outputs.valid != 'true' ||
+      needs.validate.outputs.prod_authenticated != 'true' ||
+      github.event.inputs.force_refresh == 'true'
 
     steps:
       - name: Checkout code
@@ -141,33 +162,19 @@ jobs:
 
           echo "Coolify env var updated successfully"
 
-      - name: Restart Coolify application
+      - name: Redeploy container with updated env
         env:
-          COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
           COOLIFY_APP_UUID: ${{ secrets.COOLIFY_APP_UUID }}
         run: |
-          echo "Restarting Coolify application..."
-          RESTART_RESPONSE=$(curl -sfX GET "http://localhost:8000/api/v1/applications/$COOLIFY_APP_UUID/restart" \
-            -H "Authorization: Bearer $COOLIFY_API_TOKEN" \
-            -w "\n%{http_code}")
-
-          HTTP_CODE=$(echo "$RESTART_RESPONSE" | tail -n1)
-          BODY=$(echo "$RESTART_RESPONSE" | head -n-1)
-
-          echo "Response body: $BODY"
-          echo "HTTP status: $HTTP_CODE"
-
-          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
-            echo "::error::Coolify restart failed with HTTP $HTTP_CODE"
-            exit 1
-          fi
-
-          echo "Coolify restart triggered successfully"
+          echo "Redeploying container with updated MTN_SESSION env..."
+          cd "/data/coolify/applications/$COOLIFY_APP_UUID"
+          docker compose up -d --force-recreate --no-build --pull never
+          echo "Container redeployed"
 
       - name: Wait for application to come back up
         run: |
-          echo "Waiting 60 seconds for application restart to complete..."
-          sleep 60
+          echo "Waiting 90 seconds for container health check..."
+          sleep 90
 
       - name: Verify session works in production
         id: verify

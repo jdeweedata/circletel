@@ -153,6 +153,7 @@ export class MTNSSOAuthService {
       console.log('[MTN SSO] Launching browser...');
       browser = await chromium.launch({
         headless: true, // Set to false for debugging
+        executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
         args: [
           '--disable-blink-features=AutomationControlled',
           '--disable-dev-shm-usage',
@@ -392,6 +393,7 @@ export class MTNSSOAuthService {
       console.log('[MTN SSO] Launching browser in manual mode...');
       browser = await chromium.launch({
         headless: false, // Visible browser for manual intervention
+        executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
         slowMo: 100
       });
 

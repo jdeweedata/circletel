@@ -4,6 +4,7 @@ node_modules
 .env*
 .claude
 .superpowers
+.cache
 .github
 supabase
 products
