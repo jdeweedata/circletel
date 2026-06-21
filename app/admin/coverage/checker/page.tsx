@@ -20,6 +20,7 @@ import DFAProductTiers from './components/DFAProductTiers';
 import DFAInstallationEstimate from './components/DFAInstallationEstimate';
 import MTNVerdictCard, { type MTNService } from './components/MTNVerdictCard';
 import MTNProductTiers, { type MTNPackage } from './components/MTNProductTiers';
+import MTNWholesaleFeasibilityCard from './components/MTNWholesaleFeasibilityCard';
 import SkyFibreOrderabilityCard from './components/SkyFibreOrderabilityCard';
 import RecentChecksPanel, { saveRecentCheck } from './components/RecentChecksPanel';
 import {
@@ -722,6 +723,12 @@ export default function CoverageCheckerPage() {
           {provider === 'mtn' && mtnResult && !mtnLoading && (
             <div className="space-y-4">
               <MTNVerdictCard services={mtnResult.services} confidence={mtnResult.confidence} />
+              <MTNWholesaleFeasibilityCard
+                lat={mtnResult.lat}
+                lng={mtnResult.lng}
+                address={mtnResult.address}
+                autoCheck
+              />
               <MTNProductTiers
                 products={mtnResult.packages}
                 fiveGAvailable={mtnResult.services.some((s) => s.type === '5g' && s.available)}
