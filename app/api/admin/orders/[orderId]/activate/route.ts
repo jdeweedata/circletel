@@ -583,7 +583,10 @@ async function sendActivationNotification(
       : '';
 
     await resend.emails.send({
-      from: 'CircleTel <service@circletel.co.za>',
+      // Use the verified Resend sender — circletel.co.za is NOT a verified domain, so
+      // hardcoding it silently fails every activation email (Resend rejects unverified domains).
+      from: `CircleTel <${process.env.RESEND_FROM_EMAIL || 'notifications@notify.circletel.co.za'}>`,
+      replyTo: process.env.RESEND_REPLY_TO_EMAIL || 'contactus@circletel.co.za',
       to: order.email,
       subject: `Your CircleTel Service is Now Active!`,
       html: `
