@@ -1,0 +1,25 @@
+name: Export MTN Session (one-shot)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Export session to artifact
+        env:
+          MTN_SESSION: ${{ secrets.MTN_SESSION }}
+        run: |
+          if [ -z "$MTN_SESSION" ]; then
+            echo "ERROR: MTN_SESSION is empty"
+            exit 1
+          fi
+          echo "Session length: ${#MTN_SESSION}"
+          printf '%s' "$MTN_SESSION" > mtn-session.b64
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtn-session
+          path: mtn-session.b64
+          retention-days: 1
