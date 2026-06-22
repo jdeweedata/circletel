@@ -27,57 +27,6 @@ interface FwbResult {
   reference: string | null;
 }
 
-// The live MTN Wholesale API returns a flat `outputs[]` where each output is a
-// product result (boolean `product_feasible`, `product_medium: "FWA"`, etc.).
-// The older typed shape nests `outputs[].product_results[]` with `'Yes'|'No'`.
-// Parse defensively so either shape works.
-function parseFwb(data: unknown): FwbResult | null {
-  const outputs = Array.isArray((data as { outputs?: unknown[] })?.outputs)
-    ? (data as { outputs: Record<string, unknown>[] }).outputs
-    : [];
-
-  const products: Record<string, unknown>[] = [];
-  for (const output of outputs) {
-    const nested = output?.product_results;
-    if (Array.isArray(nested) && nested.length > 0) {
-      products.push(...(nested as Record<string, unknown>[]));
-    } else {
-      products.push(output);
-    }
-  }
-  if (products.length === 0) return null;
-
-  const fwb =
-    products.find(
-      (p) =>
-        String(p?.product_medium ?? '').toUpperCase() === 'FWA' ||
-        String(p?.product_name ?? '').toLowerCase().includes('fixed wireless')
-    ) ?? products[0];
-
-  const feasibleRaw = fwb?.product_feasible;
-  const feasible =
-    feasibleRaw === true ||
-    ['yes', 'true'].includes(String(feasibleRaw).toLowerCase());
-
-  const capRaw = fwb?.product_capacity;
-  const capacityNum = capRaw === '' || capRaw == null ? NaN : Number(capRaw);
-
-  const str = (v: unknown): string | null => {
-    const s = String(v ?? '').trim();
-    return s && s.toLowerCase() !== 'none' ? s : null;
-  };
-
-  return {
-    feasible,
-    region: str(fwb?.product_region),
-    capacityMbps: Number.isFinite(capacityNum) ? capacityNum : null,
-    medium: str(fwb?.product_medium),
-    nni: str(fwb?.product_nni),
-    upNode: str(fwb?.product_up_node),
-    reference: str(fwb?.id),
-  };
-}
-
 export default function MTNWholesaleFeasibilityCard({
   lat,
   lng,
@@ -99,37 +48,20 @@ export default function MTNWholesaleFeasibilityCard({
     setError(null);
 
     try {
-      const response = await fetch('/api/mtn-wholesale/feasibility', {
+      const response = await fetch('/api/coverage/mtn/csp-feasibility', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          inputs: [
-            {
-              latitude: String(lat),
-              longitude: String(lng),
-              customer_name: 'Coverage Checker',
-              address,
-            },
-          ],
-          product_names: ['Fixed Wireless Broadband'],
-          requestor: 'coverage@circletel.co.za',
-        }),
+        body: JSON.stringify({ latitude: lat, longitude: lng, capacityMbps: 100 }),
       });
 
       const body = await response.json().catch(() => ({}));
-      if (!response.ok) {
+      if (!response.ok || !body?.success) {
         throw new Error(
-          (body?.message as string) ||
-            (body?.error as string) ||
-            `MTN Wholesale check failed (${response.status})`
+          (body?.error as string) || `MTN CSP feasibility check failed (${response.status})`
         );
       }
 
-      const parsed = parseFwb(body);
-      if (!parsed) {
-        throw new Error('MTN Wholesale returned no feasibility result for this location');
-      }
-      setResult(parsed);
+      setResult(body.data as FwbResult);
     } catch (err) {
       setResult(null);
       setError(err instanceof Error ? err.message : 'MTN Wholesale feasibility check failed');

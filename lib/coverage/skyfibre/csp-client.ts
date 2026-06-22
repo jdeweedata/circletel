@@ -24,6 +24,40 @@ interface CspSession {
 
 let cachedSession: CspSession | null = null;
 
+/**
+ * Rich Fixed Wireless Broadband feasibility result from the CSP `feasibilityCheck`
+ * method (flat `outputs[0]` shape). Used by the admin coverage checker's MTN tab.
+ */
+export interface CspFwbFeasibility {
+  feasible: boolean;
+  region: string | null;
+  capacityMbps: number | null;
+  medium: string | null;
+  nni: string | null;
+  upNode: string | null;
+  reference: string | null;
+}
+
+function cspString(value: unknown): string | null {
+  const s = String(value ?? '').trim();
+  return s && s.toLowerCase() !== 'none' ? s : null;
+}
+
+export function normalizeFwbFeasibility(raw: unknown): CspFwbFeasibility {
+  const output = firstOutput(raw);
+  const capRaw = output?.product_capacity;
+  const cap = capRaw === '' || capRaw == null ? NaN : Number(capRaw);
+  return {
+    feasible: parseBoolean(output?.product_feasible) === true,
+    region: cspString(output?.product_region),
+    capacityMbps: Number.isFinite(cap) ? cap : null,
+    medium: cspString(output?.product_medium),
+    nni: cspString(output?.product_nni),
+    upNode: cspString(output?.product_up_node),
+    reference: cspString(output?.id),
+  };
+}
+
 export function selectCspFeasibilityMethod(
   capacityMbps: SkyFibreCapacityMbps
 ): CspFeasibilityMethod {
@@ -124,6 +158,40 @@ export class MtnCspClient {
         error: error instanceof Error ? error.message : 'CSP orderability check failed',
       };
     }
+  }
+
+  /**
+   * Rich FWB feasibility via the CSP `feasibilityCheck` method (returns region,
+   * capacity, medium, NNI, up-node, ref). Authenticates with username/password.
+   */
+  async checkFwbFeasibility(params: {
+    latitude: number;
+    longitude: number;
+    capacityMbps?: number;
+  }): Promise<CspFwbFeasibility> {
+    const capacityMbps = params.capacityMbps ?? 100;
+    const session = await this.getSession();
+    const query = new URLSearchParams({
+      method: 'feasibilityCheck',
+      latitude: String(params.latitude),
+      longitude: String(params.longitude),
+      capacity_mbps: String(capacityMbps),
+      product_name: CSP_PRODUCT_NAME,
+    });
+
+    const response = await this.fetchImpl(`${this.baseUrl}/feasibility.cfc?${query.toString()}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        Cookie: session.cookieHeader,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`CSP FWB feasibility failed with status ${response.status}`);
+    }
+
+    return normalizeFwbFeasibility(await response.json());
   }
 
   private async getSession(): Promise<CspSession> {
