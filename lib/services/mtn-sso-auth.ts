@@ -77,10 +77,13 @@ export class MTNSSOAuthService {
    */
   public async getAuthSession(): Promise<AuthResult> {
     try {
-      // Priority 1: PiCheckBold environment variable (for Vercel)
+      // Priority 1: PiCheckBold environment variable (for Vercel/production)
       if (process.env.VERCEL || process.env.MTN_SESSION) {
         const envSession = await this.loadSessionFromEnv();
-        if (envSession && this.isSessionValid(envSession)) {
+        if (envSession) {
+          // Trust env-injected sessions — operator/workflow set it explicitly.
+          // Tracked expiry may be stale (MTN server-side sessions outlive our
+          // 24h estimate by months) but the cookies still authenticate.
           console.log('[MTN SSO] Using session from environment variable');
           this.currentSession = envSession;
           return {
@@ -89,8 +92,6 @@ export class MTNSSOAuthService {
             sessionId: envSession.sessionId,
             expiresAt: envSession.expiresAt
           };
-        } else if (envSession) {
-          console.warn('[MTN SSO] Environment session expired or invalid');
         }
       }
 
