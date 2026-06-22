@@ -136,7 +136,6 @@ export {
 // Most consumers should use coverageAggregationService instead.
 
 export { mtnWMSRealtimeClient, MTN_WMS_LAYERS } from './mtn/wms-realtime-client';
-export { mtnWholesaleClient } from './mtn/wholesale-client';
 export { mtnNADClient } from './mtn/nad-client';
 export { mtnCoverageCache } from './mtn/cache';
 export { geographicValidator } from './mtn/geo-validation';

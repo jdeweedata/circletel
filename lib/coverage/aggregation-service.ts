@@ -4,7 +4,7 @@ import { mtnWMSClient } from './mtn/wms-client';
 import { MTNWMSParser } from './mtn/wms-parser';
 import { MTNServiceCoverage } from './mtn/types';
 import { mtnWMSRealtimeClient } from './mtn/wms-realtime-client';
-import { mtnWholesaleClient } from './mtn/wholesale-client';
+import { mtnCspClient } from './skyfibre/csp-client';
 import { mtnNADClient, NADCorrectionResult } from './mtn/nad-client';
 import { checkBaseStationProximity, shouldShowSkyFibre } from './mtn/base-station-service';
 import { dfaCoverageClient } from './providers/dfa';
@@ -306,43 +306,31 @@ export class CoverageAggregationService {
         if (!hasUncappedWireless) {
           wholesaleDebug.attempted = true;
           try {
-            console.log('[MTN Coverage] WMS missing uncapped_wireless, trying Wholesale API fallback for:', {
+            console.log('[MTN Coverage] WMS missing uncapped_wireless, trying MTN CSP feasibility fallback for:', {
               lat: coordinates.lat,
               lng: coordinates.lng
             });
 
-            const wholesaleResult = await mtnWholesaleClient.checkFeasibility(
-              coordinates,
-              ['Fixed Wireless Broadband']
-            );
-
-            // Log the full result including any errors
-            console.log('[MTN Coverage] Wholesale API result:', {
-              available: wholesaleResult.available,
-              productCount: wholesaleResult.products.length,
-              products: wholesaleResult.products.map(p => ({ name: p.name, feasible: p.feasible, capacity: p.capacity })),
-              error: wholesaleResult.error,
-              responseTime: wholesaleResult.responseTime
+            const cspResult = await mtnCspClient.checkFwbFeasibility({
+              latitude: coordinates.lat,
+              longitude: coordinates.lng,
+              capacityMbps: 100
             });
+
+            console.log('[MTN Coverage] MTN CSP feasibility result:', cspResult);
 
             // Store debug info
             wholesaleDebug.result = {
-              available: wholesaleResult.available,
-              productCount: wholesaleResult.products.length,
-              error: wholesaleResult.error,
-              responseTime: wholesaleResult.responseTime
+              available: cspResult.feasible,
+              productCount: cspResult.feasible ? 1 : 0
             };
 
-            const fwbProduct = wholesaleResult.products.find(
-              p => p.name === 'Fixed Wireless Broadband' && p.feasible
-            );
-
-            if (fwbProduct) {
-              console.log('[MTN Coverage] Wholesale API found Fixed Wireless Broadband coverage:', {
-                capacity: fwbProduct.capacity,
-                region: fwbProduct.region
+            if (cspResult.feasible) {
+              console.log('[MTN Coverage] MTN CSP found Fixed Wireless Broadband coverage:', {
+                capacity: cspResult.capacityMbps,
+                region: cspResult.region
               });
-              // Add uncapped_wireless service from Wholesale API
+              // Add uncapped_wireless service from CSP feasibility
               services.push({
                 type: 'uncapped_wireless' as ServiceType,
                 available: true,
@@ -351,18 +339,15 @@ export class CoverageAggregationService {
                 technology: 'Tarana Wireless G1'
               });
               wholesaleDebug.result.fwbFound = true;
-              wholesaleDebug.result.capacity = fwbProduct.capacity;
-            } else if (wholesaleResult.error) {
-              console.error('[MTN Coverage] Wholesale API returned error:', wholesaleResult.error);
-              wholesaleDebug.error = wholesaleResult.error;
+              wholesaleDebug.result.capacity = cspResult.capacityMbps ?? undefined;
             } else {
-              console.log('[MTN Coverage] Wholesale API found no Fixed Wireless Broadband coverage');
+              console.log('[MTN Coverage] MTN CSP found no Fixed Wireless Broadband coverage');
               wholesaleDebug.result.fwbFound = false;
             }
-          } catch (wholesaleError) {
-            console.error('[MTN Coverage] Wholesale API fallback exception:', wholesaleError);
-            wholesaleDebug.error = wholesaleError instanceof Error ? wholesaleError.message : 'Unknown error';
-            // Continue without Wholesale fallback - WMS results still valid
+          } catch (cspError) {
+            console.error('[MTN Coverage] MTN CSP feasibility fallback exception:', cspError);
+            wholesaleDebug.error = cspError instanceof Error ? cspError.message : 'Unknown error';
+            // Continue without CSP fallback - WMS results still valid
           }
         }
 
@@ -402,45 +387,35 @@ export class CoverageAggregationService {
         };
       }
 
-      // If Consumer API returns no coverage, try Wholesale API as fallback
-      // Use NAD-corrected coordinates for wholesale check as well
-      console.log('[MTN Coverage] Consumer API found no coverage, trying Wholesale API fallback for:', {
+      // If Consumer API returns no coverage, try MTN CSP feasibility as fallback
+      // Use NAD-corrected coordinates for the CSP check as well
+      console.log('[MTN Coverage] Consumer API found no coverage, trying MTN CSP feasibility fallback for:', {
         lat: checkCoordinates.lat,
         lng: checkCoordinates.lng,
         nadCorrected: nadCorrection?.source === 'nad'
       });
 
       try {
-        const wholesaleResult = await mtnWholesaleClient.checkFeasibility(
-          checkCoordinates,
-          ['Fixed Wireless Broadband']
-        );
-
-        // Log the full result including any errors
-        console.log('[MTN Coverage] Wholesale API result (no WMS coverage):', {
-          available: wholesaleResult.available,
-          productCount: wholesaleResult.products.length,
-          products: wholesaleResult.products.map(p => ({ name: p.name, feasible: p.feasible, capacity: p.capacity })),
-          error: wholesaleResult.error,
-          responseTime: wholesaleResult.responseTime
+        const cspResult = await mtnCspClient.checkFwbFeasibility({
+          latitude: checkCoordinates.lat,
+          longitude: checkCoordinates.lng,
+          capacityMbps: 100
         });
 
-        const fwbProduct = wholesaleResult.products.find(
-          p => p.name === 'Fixed Wireless Broadband' && p.feasible
-        );
+        console.log('[MTN Coverage] MTN CSP feasibility result (no WMS coverage):', cspResult);
 
-        if (fwbProduct) {
-          console.log('[MTN Coverage] Wholesale API found Fixed Wireless Broadband coverage:', {
-            capacity: fwbProduct.capacity,
-            region: fwbProduct.region
+        if (cspResult.feasible) {
+          console.log('[MTN Coverage] MTN CSP found Fixed Wireless Broadband coverage:', {
+            capacity: cspResult.capacityMbps,
+            region: cspResult.region
           });
 
-          // PHASE 5: Also validate Wholesale API results with base station proximity
+          // PHASE 5: Also validate CSP results with base station proximity
           const wholesaleBaseStationCheck = await this.validateSkyFibreWithBaseStation(checkCoordinates);
 
           if (wholesaleBaseStationCheck && !shouldShowSkyFibre(wholesaleBaseStationCheck)) {
             // Base station validation failed - don't show SkyFibre
-            console.log('[MTN Coverage] Wholesale coverage rejected by base station validation:', {
+            console.log('[MTN Coverage] CSP coverage rejected by base station validation:', {
               confidence: wholesaleBaseStationCheck.confidence,
               distance: wholesaleBaseStationCheck.nearestStation?.distanceKm
             });
@@ -466,10 +441,10 @@ export class CoverageAggregationService {
               }],
               lastUpdated: new Date().toISOString(),
               metadata: {
-                source: 'mtn_wholesale_api',
-                endpoint: 'https://asp-feasibility.mtnbusiness.co.za',
+                source: 'mtn_csp_feasibility',
+                endpoint: 'https://mtnsi.mtn.co.za/newcsp_api',
                 phase: 'phase_5_base_station_validation',
-                note: 'Coverage found via Wholesale API (WMS returned no coverage)',
+                note: 'Coverage found via MTN CSP feasibility (WMS returned no coverage)',
                 wholesaleFallbackUsed: true,
                 baseStationValidation: wholesaleBaseStationCheck ? {
                   confidence: wholesaleBaseStationCheck.confidence,
@@ -483,11 +458,11 @@ export class CoverageAggregationService {
             };
           }
         }
-      } catch (wholesaleError) {
-        console.error('[MTN Coverage] Wholesale API fallback also failed:', wholesaleError);
+      } catch (cspError) {
+        console.error('[MTN Coverage] MTN CSP feasibility fallback also failed:', cspError);
       }
 
-      // No coverage from either WMS or Wholesale API
+      // No coverage from either WMS or MTN CSP feasibility
       return {
         available: false,
         coordinates,
@@ -503,7 +478,7 @@ export class CoverageAggregationService {
           source: 'mtn_consumer_api',
           endpoint: 'https://mtnsi.mtn.co.za/cache/geoserver/wms',
           phase: 'phase_2_enabled',
-          note: 'No coverage found at location (WMS and Wholesale checked)'
+          note: 'No coverage found at location (WMS and MTN CSP checked)'
         }
       };
 
