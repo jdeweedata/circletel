@@ -36,6 +36,8 @@ interface SubmissionResult {
   skipped: number;
   paynowSent: number; // Invoices sent Pay Now due to pending eMandate
   batchId?: string;
+  authorised: boolean;        // batch released for processing via RequestBatchAuthorise
+  authoriseMessage?: string;  // NetCash authorise response (e.g. 322 = Auto Auth not enabled)
   errors: string[];
 }
 
@@ -112,6 +114,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     submitted: 0,
     skipped: 0,
     paynowSent: 0,
+    authorised: false,
     errors: [],
   };
 
@@ -361,6 +364,29 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   }
 
   // ============================================================================
+  // 5b. Authorise (release) the batch so it actually collects
+  //
+  // Uploaded batches sit unauthorised and expire if not released. This releases
+  // them programmatically. Requires Auto Authorisation enabled on the NetCash
+  // profile; until then NetCash returns 322 (handled — batch must be authorised
+  // manually in the portal in the interim, which is logged as a warning).
+  // ============================================================================
+
+  const authResult = await netcashDebitBatchService.authoriseBatchByName(batchName, { releaseFunds: true });
+  result.authorised = authResult.success;
+  result.authoriseMessage = authResult.message;
+
+  if (authResult.success) {
+    cronLogger.info(`Batch ${batchName} authorised (released) — code ${authResult.code}`);
+  } else if (authResult.authoriseNotAllowed) {
+    result.errors.push('Auto Authorisation not enabled on NetCash profile (322) — batch must be authorised manually in the portal before it expires');
+    cronLogger.warn(`Batch ${batchName} uploaded but NOT authorised: ${authResult.message}. Manual authorisation required.`);
+  } else {
+    result.errors.push(`Batch authorisation failed: ${authResult.message}`);
+    cronLogger.warn(`Batch ${batchName} authorisation failed: ${authResult.message}`);
+  }
+
+  // ============================================================================
   // 6. Record batch submission in database
   // ============================================================================
 
@@ -369,6 +395,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     batchName,
     items: eligibleItems,
     submittedAt: new Date(),
+    authorised: result.authorised,
   });
 
   // ============================================================================
@@ -513,6 +540,7 @@ async function recordBatchSubmission(
     batchName: string;
     items: DebitOrderItem[];
     submittedAt: Date;
+    authorised: boolean;
   }
 ) {
   try {
@@ -524,7 +552,7 @@ async function recordBatchSubmission(
         batch_name: batch.batchName,
         item_count: batch.items.length,
         total_amount: batch.items.reduce((sum, item) => sum + item.amount, 0),
-        status: 'submitted',
+        status: batch.authorised ? 'authorised' : 'submitted',
         submitted_at: batch.submittedAt.toISOString(),
         created_at: new Date().toISOString(),
       }, { onConflict: 'batch_id' });
@@ -604,6 +632,8 @@ async function logExecution(
           submitted: result.submitted,
           skipped: result.skipped,
           batchId: result.batchId,
+          authorised: result.authorised,
+          authoriseMessage: result.authoriseMessage,
           errors: result.errors,
         },
       });
