@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp mock</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#0B141A;color:#E9EDEF;width:390px;height:844px;overflow:hidden;display:flex;flex-direction:column}
+/* status bar */
+.status{height:28px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;font-size:12.5px;color:#E9EDEF;background:#202C33}
+.status .right{display:flex;gap:5px;align-items:center}
+/* header */
+.header{height:58px;background:#202C33;display:flex;align-items:center;gap:10px;padding:0 10px;border-bottom:1px solid rgba(255,255,255,.04)}
+.header .back{font-size:20px;color:#AEBAC1;margin-right:2px}
+.logo{width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative}
+.logo .ring{width:30px;height:30px;border-radius:50%;border:3.5px solid #F5841E;display:flex;align-items:center;justify-content:center}
+.logo .ring span{font-size:6.5px;font-weight:800;color:#1B2A4A;letter-spacing:-.2px;text-align:center;line-height:1}
+.header .name{font-size:16.5px;font-weight:600;color:#E9EDEF}
+.header .name small{display:block;font-size:11.5px;font-weight:400;color:#8696A0}
+.header .icons{margin-left:auto;display:flex;gap:20px;color:#AEBAC1;font-size:17px}
+/* chat */
+.chat{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:10px;overflow:hidden;position:relative;
+  background-color:#0B141A;
+  background-image:radial-gradient(rgba(255,255,255,.028) 1.2px, transparent 1.2px),radial-gradient(rgba(255,255,255,.018) 1px, transparent 1px);
+  background-size:26px 26px,17px 17px;background-position:0 0,9px 13px}
+.day{align-self:center;background:#182229;color:#8696A0;font-size:11.5px;border-radius:8px;padding:5px 12px;box-shadow:0 1px 1px rgba(0,0,0,.3)}
+.encrypted{align-self:center;background:#182229;color:#FFD279;font-size:11px;border-radius:8px;padding:6px 12px;max-width:88%;text-align:center;box-shadow:0 1px 1px rgba(0,0,0,.3)}
+.bubble{background:#202C33;border-radius:10px;border-top-left-radius:2px;max-width:83%;align-self:flex-start;box-shadow:0 1px 1px rgba(0,0,0,.35);overflow:hidden}
+.bubble .body{padding:8px 10px 4px;font-size:14.2px;line-height:1.42;color:#E9EDEF;white-space:pre-line}
+.bubble .footerline{padding:0 10px 2px;font-size:12.5px;color:#8696A0}
+.bubble .meta{display:flex;justify-content:flex-end;padding:0 10px 7px;font-size:11px;color:#8696A0}
+.bubble .btn{border-top:1px solid rgba(134,150,160,.18);padding:11px;display:flex;align-items:center;justify-content:center;gap:8px;color:#53BDEB;color:#00A884;font-size:14.5px;font-weight:500}
+.bubble .btn svg{width:15px;height:15px;stroke:#00A884;fill:none;stroke-width:2}
+/* input bar */
+.inputbar{padding:8px 10px 14px;display:flex;gap:8px;align-items:center;background:transparent}
+.inputbar .field{flex:1;background:#202C33;border-radius:24px;height:46px;display:flex;align-items:center;padding:0 14px;color:#8696A0;font-size:15.5px;gap:12px}
+.inputbar .field .grow{flex:1}
+.inputbar .mic{width:46px;height:46px;border-radius:50%;background:#00A884;display:flex;align-items:center;justify-content:center}
+.inputbar .mic svg{width:20px;height:20px;fill:#fff}
+.icon{opacity:.85}
+</style>
+</head>
+<body>
+  <div class="status"><span id="time">09:12</span><span class="right">📶 <span>Wi-Fi</span> 🔋 78%</span></div>
+  <div class="header">
+    <span class="back">←</span>
+    <div class="logo"><div class="ring"><span>circle<br>TEL</span></div></div>
+    <div class="name">Circle Tel SA <small>Business account</small></div>
+    <div class="icons"><span>📹</span><span>📞</span><span>⋮</span></div>
+  </div>
+  <div class="chat" id="chat"></div>
+  <div class="inputbar">
+    <div class="field"><span>😊</span><span class="grow">Message</span><span>📎</span><span>📷</span></div>
+    <div class="mic"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></div>
+  </div>
+
+<script>
+'use strict';
+const TEMPLATE_BTN = `
+  <div class="btn"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 15l6-6M10 9h5v5"/></svg>Start setup</div>`;
+
+function bubble(body, footer, time, withBtn) {
+  return `<div class="bubble">
+    <div class="body">${body}</div>
+    ${footer ? `<div class="footerline">${footer}</div>` : ''}
+    <div class="meta">${time}</div>
+    ${withBtn ? TEMPLATE_BTN : ''}
+  </div>`;
+}
+
+const templateText = (clinic) =>
+  `Hi ${clinic}, let’s set up your CircleTel ClinicConnect billing. Tap the button below to confirm your clinic details, add your banking and documents, and activate your account. It only takes a few minutes, and the link is valid for 7 days.`;
+
+const VARIANTS = {
+  existing: [
+    '<div class="encrypted">🔒 Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to or share them.</div>',
+    '<div class="day">Today</div>',
+    bubble(templateText('Unjani Clinic - Cosmo City'), 'CircleTel SA (Pty) Ltd', '09:14', true),
+  ],
+  new: [
+    '<div class="day">Today</div>',
+    bubble(
+      'Hi Lesedi 👋 It’s Thandi from CircleTel. Great news — your installation at Unjani Clinic - Delmas is complete and your Wi-Fi is live! 🎉 Next step is your monthly billing setup. I’m sending you a secure link now — just tap the green “Start setup” button. It takes about 5 minutes. Have your CIPC number, bank details and document photos ready. I’m here if you get stuck 🙂',
+      null, '08:55', false
+    ),
+    bubble(templateText('Unjani Clinic - Delmas'), 'CircleTel SA (Pty) Ltd', '08:56', true),
+  ],
+};
+
+const v = new URLSearchParams(location.search).get('v') || 'existing';
+document.getElementById('chat').innerHTML = VARIANTS[v].join('');
+document.getElementById('time').textContent = v === 'new' ? '08:56' : '09:14';
+</script>
+</body>
+</html>

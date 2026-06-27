@@ -50,6 +50,14 @@ _Patterns discovered by agents while working in this codebase._
 
 Format:
 ```
+
+### 2026-06-16: SkyFibre Combined Orderability Gate
+- **Context:** SkyFibre checkout must not rely on Tarana/TCS coverage alone because MTN CSP can reject otherwise covered addresses.
+- **Pattern:** Use `POST /api/coverage/skyfibre/orderability` or `lib/coverage/skyfibre/checkSkyFibreOrderability` to combine TCS BN/RN evidence with MTN CSP orderability. CSP credentials must come from `MTN_CSP_USERNAME`, `MTN_CSP_PASSWORD`, and optional `MTN_CSP_API_BASE`.
+- **Discovered by:** Codex
+- **Notes:** 50/100 Mbps use CSP `feasibilityOld`; 200 Mbps uses `feasibilityCheck`. CSP `orderable` is the final orderability authority when TCS has an online/covered BN; active BN with zero active RN evidence lowers confidence and should show a site-survey/install caution, but does not by itself block CSP-orderable coverage.
+- **Admin UI:** `/admin/coverage/checker` now includes a SkyFibre Orderability card under Tarana results and auto-runs the combined gate at 100 Mbps after each Tarana address check. The page shows a "Final Sales Decision" banner that treats the combined TCS + CSP result as the sales authority, renames the old coverage verdict to an RF signal estimate, blocks package recommendations unless the gate is `orderable`, and treats RF-vs-TCS BN mismatches as manual review. Admins can still switch to 50/100/200 Mbps and re-run manually. `/admin/sales/feasibility` single-site review also shows the same card for selected SkyFibre/Tarana packages. Both call the combined endpoint with `segment: "business"` for MTN CSP validation.
+- **RPC quirk:** The deployed `find_nearest_tarana_base_station` RPC may omit `device_status`. `lib/coverage/mtn/base-station-service.ts` hydrates missing BN status from `tarana_base_stations` before deciding whether the BN is online; otherwise online BNs can be misread as offline and CSP will be skipped.
 ### YYYY-MM-DD: Pattern
 - **Context:** When this applies
 - **Pattern:** The approach that works
@@ -94,3 +102,10 @@ Format:
 ### Team
 - Jeffrey (MD, sole sales), TK (marketing), Tamsyn (back office), Jarryd (ops)
 - No dedicated sales person — Jeffrey closes ~4/mo
+
+### Second Brain (Knowledge Base)
+- Location: `/root/second-brain/` (Claude Code-managed knowledge base)
+- Wiki index: `/root/second-brain/knowledge-base/wiki/index.md`
+- Raw pages: `/root/second-brain/knowledge-base/raw/pages/`
+- Contains: CircleTel business analysis, unit economics, profitability diagnosis, market benchmarks, competitor intelligence
+- **Competitor landscape (2026-06-19):** [[sa-isp-competitor-landscape-june-2026]] — full intel on Vox, SuperSonic, Afrihost, WebAfrica with pricing, product rules, moats, threats, and 10 competitive plays

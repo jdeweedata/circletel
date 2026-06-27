@@ -443,14 +443,24 @@ export async function GET(request: NextRequest) {
     }
 
     // Update lead with coverage check result
-    await supabase
+    const { error: leadUpdateError } = await supabase
       .from('coverage_leads')
       .update({
         coverage_available: coverageAvailable,
         available_services: availableServices,
+        coverage_check_status: 'complete',
         checked_at: new Date().toISOString()
       })
       .eq('id', leadId);
+
+    if (leadUpdateError) {
+      // Don't fail the request — the page recomputes coverage live — but surface
+      // the failure so it isn't swallowed (this was previously a silent no-op).
+      apiLogger.error('[Packages API] Failed to persist coverage result to lead', {
+        leadId,
+        error: leadUpdateError.message
+      });
+    }
 
     // Log analytics
     const responseTime = Date.now() - startTime;

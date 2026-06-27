@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Management Module — Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#F5841E; --orange-dk:#D76026; --orange-soft:#FDEEDD;
+    --navy:#13274A; --navy-2:#0F1427; --grey:#747474; --grey-2:#9AA0A6;
+    --line:#E7E9EE; --bg:#F4F6F9; --white:#fff;
+    --green:#1F9D57; --green-soft:#E6F6EC;
+    --amber:#C9821A; --amber-soft:#FCF1DD;
+    --red:#C53434; --red-soft:#FBE9E9;
+    --shadow:0 1px 2px rgba(16,20,39,.06),0 4px 16px rgba(16,20,39,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Montserrat,system-ui,sans-serif;background:var(--bg);color:var(--navy);font-size:13px;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4,.font-head{font-family:Poppins,sans-serif}
+  .app{display:flex;min-height:100vh}
+
+  /* sidebar */
+  .side{width:212px;background:var(--navy-2);color:#C7CDDA;flex-shrink:0;display:flex;flex-direction:column;padding:18px 0}
+  .brand{display:flex;align-items:center;gap:9px;padding:0 20px 22px}
+  .brand .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--orange),var(--orange-dk));display:flex;align-items:center;justify-content:center;font-family:Poppins;font-weight:700;color:#fff;font-size:15px}
+  .brand b{color:#fff;font-family:Poppins;font-weight:600;font-size:15px;letter-spacing:.2px}
+  .brand b span{color:var(--orange)}
+  .nav-group{font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#5C6680;padding:14px 20px 6px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;color:#AEB6C8;cursor:pointer;font-size:12.5px;font-weight:500;border-left:3px solid transparent}
+  .nav-item:hover{color:#fff;background:rgba(255,255,255,.03)}
+  .nav-item.active{color:#fff;background:rgba(245,132,30,.12);border-left-color:var(--orange)}
+  .nav-item .ic{width:16px;text-align:center;opacity:.85}
+
+  /* main */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .topbar{height:54px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:5}
+  .crumbs{font-size:12px;color:var(--grey)}
+  .crumbs b{color:var(--navy);font-weight:600}
+  .topbar .right{display:flex;align-items:center;gap:14px}
+  .pill{background:var(--orange-soft);color:var(--orange-dk);font-weight:600;padding:5px 11px;border-radius:20px;font-size:11px}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px}
+
+  .page{padding:22px 24px;max-width:1280px;width:100%}
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+  .page-head h1{font-size:21px;font-weight:600;color:var(--navy)}
+  .page-head p{color:var(--grey);font-size:12.5px;margin-top:3px}
+
+  /* workspace tabs */
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:18px;flex-wrap:wrap}
+  .tab{padding:9px 15px;font-size:12.5px;font-weight:600;color:var(--grey);cursor:pointer;border-bottom:2px solid transparent;position:relative;white-space:nowrap}
+  .tab:hover{color:var(--navy)}
+  .tab.active{color:var(--orange-dk);border-bottom-color:var(--orange)}
+  .tab .new{font-size:8.5px;background:var(--orange);color:#fff;border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;letter-spacing:.5px}
+  .tab .count{background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:6px}
+
+  /* summary strip */
+  .strip{display:flex;align-items:center;gap:16px;background:linear-gradient(100deg,var(--navy),#1c3760);color:#fff;border-radius:12px;padding:14px 18px;margin-bottom:18px;box-shadow:var(--shadow)}
+  .strip .bolt{width:38px;height:38px;border-radius:10px;background:rgba(245,132,30,.22);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .strip .txt{flex:1}
+  .strip .txt h4{font-size:13.5px;font-weight:600;margin-bottom:2px}
+  .strip .txt span{font-size:11.5px;color:#B9C4DA}
+  .strip .stat{text-align:center;padding:0 14px;border-left:1px solid rgba(255,255,255,.12)}
+  .strip .stat b{display:block;font-family:Poppins;font-size:19px;font-weight:600;line-height:1}
+  .strip .stat small{font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:#9FB0CC}
+  .strip .stat.crit b{color:#FF8E8E}
+  .strip .stat.warn b{color:#FFCB7A}
+
+  /* filter row */
+  .filters{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .chip{padding:5px 12px;border:1px solid var(--line);background:#fff;border-radius:20px;font-size:11.5px;font-weight:600;color:var(--grey);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .chip .dot{width:7px;height:7px;border-radius:50%}
+  .chip .dot.c{background:var(--red)} .chip .dot.w{background:var(--amber)} .chip .dot.i{background:var(--green)}
+  .filters .spacer{flex:1}
+  .search{border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:12px;width:210px;font-family:inherit;color:var(--navy)}
+
+  /* impact cards */
+  .impact{background:#fff;border:1px solid var(--line);border-left-width:4px;border-radius:11px;padding:15px 17px;margin-bottom:11px;box-shadow:var(--shadow);display:flex;gap:16px;align-items:flex-start;cursor:pointer;transition:.12s}
+  .impact:hover{border-color:#cfd6e2;transform:translateY(-1px)}
+  .impact.crit{border-left-color:var(--red)}
+  .impact.warn{border-left-color:var(--amber)}
+  .impact.info{border-left-color:var(--green)}
+  .impact .body{flex:1;min-width:0}
+  .impact .row1{display:flex;align-items:center;gap:9px;margin-bottom:5px;flex-wrap:wrap}
+  .sev{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:3px 8px;border-radius:5px}
+  .sev.crit{background:var(--red-soft);color:var(--red)}
+  .sev.warn{background:var(--amber-soft);color:var(--amber)}
+  .sev.info{background:var(--green-soft);color:var(--green)}
+  .impact h3{font-size:14.5px;font-weight:600;color:var(--navy)}
+  .impact .trigger{font-size:12px;color:var(--grey);margin-bottom:10px}
+  .impact .trigger b{color:var(--navy);font-weight:600}
+  .metrics{display:flex;gap:22px;flex-wrap:wrap}
+  .metric small{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--grey-2);margin-bottom:2px}
+  .metric b{font-family:Poppins;font-size:14px;font-weight:600}
+  .marg{display:flex;align-items:center;gap:7px;font-family:Poppins;font-weight:600;font-size:14px}
+  .marg .old{color:var(--grey-2);text-decoration:line-through;font-size:12px;font-weight:500}
+  .marg .arr{color:var(--grey-2)}
+  .marg .up{color:var(--green)} .marg .down{color:var(--red)}
+  .propose{margin-top:11px;background:var(--bg);border-radius:8px;padding:9px 12px;font-size:12px;display:flex;align-items:center;gap:8px}
+  .propose .lbl{font-weight:700;color:var(--navy)}
+  .impact .actions{display:flex;flex-direction:column;gap:7px;flex-shrink:0;width:118px}
+  .btn{padding:7px 10px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--navy);text-align:center;font-family:inherit}
+  .btn:hover{border-color:#cfd6e2}
+  .btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+  .btn.primary:hover{background:var(--orange-dk);border-color:var(--orange-dk)}
+  .btn.ghost{color:var(--grey)}
+
+  /* inputs table */
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+  .supplier-head{display:flex;align-items:center;gap:9px;padding:12px 16px;background:#FAFBFC;border-bottom:1px solid var(--line);font-family:Poppins;font-weight:600;font-size:12.5px}
+  .supplier-head .tag{font-size:9.5px;font-weight:600;color:#fff;background:var(--navy);padding:2px 8px;border-radius:5px;letter-spacing:.4px}
+  .supplier-head .muted{font-weight:500;color:var(--grey);font-family:Montserrat;font-size:11.5px}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--grey-2);font-weight:600;padding:9px 16px;border-bottom:1px solid var(--line);background:#fff}
+  td{padding:11px 16px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#FCFCFD}
+  .badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:5px}
+  .badge.ok{background:var(--green-soft);color:var(--green)}
+  .badge.ret{background:var(--red-soft);color:var(--red)}
+  .badge.eol{background:var(--amber-soft);color:var(--amber)}
+  .mono{font-family:Poppins;font-weight:600}
+  .rowbtn{font-size:11px;color:var(--orange-dk);font-weight:600;cursor:pointer;background:none;border:none;font-family:inherit}
+  .dep-link{color:var(--grey-2);font-size:11px}
+
+  /* detail drawer */
+  .scrim{position:fixed;inset:0;background:rgba(15,20,39,.35);opacity:0;pointer-events:none;transition:.2s;z-index:20}
+  .scrim.open{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:392px;background:#fff;box-shadow:-8px 0 30px rgba(16,20,39,.18);transform:translateX(100%);transition:.24s cubic-bezier(.4,0,.2,1);z-index:21;display:flex;flex-direction:column}
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{padding:18px 20px;border-bottom:1px solid var(--line)}
+  .drawer-head .x{float:right;cursor:pointer;color:var(--grey-2);font-size:18px;line-height:1}
+  .drawer-head h2{font-size:16px;font-weight:600}
+  .drawer-head .sub{font-size:11.5px;color:var(--grey);margin-top:3px}
+  .drawer-body{padding:18px 20px;overflow-y:auto;flex:1}
+  .kpis{display:flex;gap:10px;margin-bottom:20px}
+  .kpi{flex:1;background:var(--bg);border-radius:9px;padding:11px}
+  .kpi small{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--grey-2);display:block;margin-bottom:4px}
+  .kpi b{font-family:Poppins;font-size:16px;font-weight:600}
+  .kpi b.g{color:var(--green)}
+  .sec-title{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--grey-2);font-weight:600;margin:4px 0 10px}
+  .dep{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+  .dep:last-child{border-bottom:none}
+  .dep .l{display:flex;align-items:center;gap:10px}
+  .dep .role{font-size:8.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:3px 7px;border-radius:5px;background:var(--orange-soft);color:var(--orange-dk);width:62px;text-align:center}
+  .dep .nm{font-size:12px;font-weight:500}
+  .dep .nm small{display:block;color:var(--grey-2);font-size:10.5px;font-weight:400}
+  .dep .amt{font-family:Poppins;font-weight:600;font-size:12.5px}
+  .dep.flag .nm{color:var(--red)}
+  .costline{display:flex;justify-content:space-between;padding:12px 0 0;margin-top:6px;border-top:2px solid var(--navy);font-family:Poppins;font-weight:600}
+  .hint{font-size:11px;color:var(--grey);background:var(--orange-soft);border-radius:8px;padding:10px 12px;margin-top:16px;line-height:1.5}
+
+  .hidden{display:none}
+  .foot{font-size:10.5px;color:var(--grey-2);text-align:center;padding:18px}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="brand"><div class="logo">c</div><b>circle<span>TEL</span></b></div>
+    <div class="nav-group">Admin</div>
+    <div class="nav-item"><span class="ic">▦</span> Dashboard</div>
+    <div class="nav-item"><span class="ic">◐</span> Coverage</div>
+    <div class="nav-item active"><span class="ic">◆</span> Products</div>
+    <div class="nav-item"><span class="ic">☷</span> Customers</div>
+    <div class="nav-item"><span class="ic">⊞</span> Orders</div>
+    <div class="nav-item"><span class="ic">⎙</span> Billing</div>
+    <div class="nav-group">Product Mgmt</div>
+    <div class="nav-item"><span class="ic">⊟</span> Suppliers</div>
+    <div class="nav-item active" style="background:rgba(245,132,30,.12);border-left-color:var(--orange)"><span class="ic">⚡</span> Change Impact</div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumbs">Products &nbsp;›&nbsp; <b>Product Workspace</b></div>
+      <div class="right">
+        <span class="pill">Staging · en-ZA</span>
+        <div class="avatar">JD</div>
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <h1>Product Workspace</h1>
+          <p>Cross-portfolio product master, wholesale inputs &amp; change-impact governance</p>
+        </div>
+        <button class="btn primary" style="width:auto;padding:9px 16px">＋ New product</button>
+      </div>
+
+      <!-- WORKSPACE TABS -->
+      <div class="tabs">
+        <div class="tab">Drafts</div>
+        <div class="tab">Archived</div>
+        <div class="tab">Hardware</div>
+        <div class="tab">Relationships</div>
+        <div class="tab">Unified Console</div>
+        <div class="tab">MTN Deals</div>
+        <div class="tab" onclick="showTab('inputs',this)">Wholesale Inputs <span class="new">NEW</span></div>
+        <div class="tab active" onclick="showTab('impact',this)">Change Impact <span class="new">NEW</span><span class="count">7</span></div>
+      </div>
+
+      <!-- ===== CHANGE IMPACT TAB ===== -->
+      <div id="tab-impact">
+        <div class="strip">
+          <div class="bolt">⚡</div>
+          <div class="txt">
+            <h4>MTN FWB Commercial Schedule — 30 Jul 2025</h4>
+            <span>5/10/20 Mbps tiers retired · 50/100/200 Mbps repriced (R542→R499, R626→R599, R737→R699) · detected 2 sec ago</span>
+          </div>
+          <div class="stat crit"><b>2</b><small>Grandfather</small></div>
+          <div class="stat warn"><b>1</b><small>Breach</small></div>
+          <div class="stat"><b>9</b><small>Products hit</small></div>
+          <div class="stat"><b>31</b><small>Active subs</small></div>
+        </div>
+
+        <div class="filters">
+          <div class="chip active">All <span style="opacity:.6">7</span></div>
+          <div class="chip"><span class="dot c"></span>Critical 3</div>
+          <div class="chip"><span class="dot w"></span>Warning 1</div>
+          <div class="chip"><span class="dot i"></span>Info 3</div>
+          <div class="spacer"></div>
+          <input class="search" placeholder="Search products…">
+        </div>
+
+        <!-- CRITICAL — grandfather -->
+        <div class="impact crit" onclick="openDrawer('sky20')">
+          <div class="body">
+            <div class="row1"><span class="sev crit">Critical</span><h3>SkyFibre SMB 20/5</h3></div>
+            <div class="trigger">Input <b>retired</b> — MTN Tarana FWB 20 Mbps no longer available for new sales</div>
+            <div class="metrics">
+              <div class="metric"><small>Margin</small><div class="marg"><span>57.4%</span></div></div>
+              <div class="metric"><small>Active subs</small><b>8</b></div>
+              <div class="metric"><small>Inflight orders</small><b style="color:var(--amber)">2</b></div>
+              <div class="metric"><small>Successor</small><b>SkyFibre SMB 50/50</b></div>
+            </div>
+            <div class="propose"><span class="lbl">Proposed:</span> Move to <b>Grandfathered</b> — block new sales, keep serving 8 subs. Migrate 2 inflight orders to 50/50 before cut-off.</div>
+          </div>
+          <div class="actions">
+            <button class="btn primary">Grandfather</button>
+            <button class="btn">Acknowledge</button>
+            <button class="btn ghost">Resolve</button>
+          </div>
+        </div>
+
+        <!-- CRITICAL — grandfather 2 -->
+        <div class="impact crit" onclick="openDrawer('sky10')">
+          <div class="body">
+            <div class="row1"><span class="sev crit">Critical</span><h3>SkyFibre SMB 10/2</h3></div>
+            <div class="trigger">Input <b>retired</b> — MTN Tarana FWB 10 Mbps no longer available for new sales</div>
+            <div class="metrics">
+              <div class="metric"><small>Margin</small><div class="marg"><span>55.1%</span></div></div>
+              <div class="metric"><small>Active subs</small><b>5</b></div>
+              <div class="metric"><small>Inflight orders</small><b>0</b></div>
+              <div class="metric"><small>Successor</small><b>SkyFibre SMB 50/50</b></div>
+            </div>
+            <div class="propose"><span class="lbl">Proposed:</span> Move to <b>Grandfathered</b> — block new sales, keep serving 5 subs.</div>
+          </div>
+          <div class="actions">
+            <button class="btn primary">Grandfather</button>
+            <button class="btn">Acknowledge</button>
+            <button class="btn ghost">Resolve</button>
+          </div>
+        </div>
+
+        <!-- CRITICAL — margin breach (different trigger) -->
+        <div class="impact crit" onclick="openDrawer('biz100')">
+          <div class="body">
+            <div class="row1"><span class="sev crit">Critical</span><h3>BizFibreConnect 100/100</h3><span style="font-size:10.5px;color:var(--grey-2)">· DFA backhaul reprice</span></div>
+            <div class="trigger">Input <b>cost increased</b> — DFA Magellan backhaul R86.27 → R104.00 / user</div>
+            <div class="metrics">
+              <div class="metric"><small>Margin</small><div class="marg"><span class="old">28.4%</span><span class="arr">→</span><span class="down">23.9%</span></div></div>
+              <div class="metric"><small>Floor</small><b>25.0%</b></div>
+              <div class="metric"><small>Active subs</small><b>11</b></div>
+              <div class="metric"><small>Monthly Δ</small><b class="" style="color:var(--red)">−R17.73</b></div>
+            </div>
+            <div class="propose"><span class="lbl">Proposed:</span> <b>Review price</b> — now <b style="color:var(--red)">1.1% below the 25% floor</b>. Reprice or seek MD margin approval.</div>
+          </div>
+          <div class="actions">
+            <button class="btn primary">Review price</button>
+            <button class="btn">Acknowledge</button>
+            <button class="btn ghost">Resolve</button>
+          </div>
+        </div>
+
+        <!-- WARNING -->
+        <div class="impact warn" onclick="openDrawer('sky200')">
+          <div class="body">
+            <div class="row1"><span class="sev warn">Warning</span><h3>SkyFibre SMB 200/200</h3></div>
+            <div class="trigger">Input <b>cost changed</b> — MTN Tarana FWB 200 Mbps R737 → R699</div>
+            <div class="metrics">
+              <div class="metric"><small>Margin</small><div class="marg"><span class="old">52.1%</span><span class="arr">→</span><span class="up">54.6%</span></div></div>
+              <div class="metric"><small>Floor</small><b>25.0%</b></div>
+              <div class="metric"><small>Active subs</small><b>4</b></div>
+              <div class="metric"><small>Monthly Δ</small><b style="color:var(--green)">+R38.00</b></div>
+            </div>
+            <div class="propose"><span class="lbl">Proposed:</span> No action required — margin improved. Optional: pass saving to a more competitive retail price.</div>
+          </div>
+          <div class="actions">
+            <button class="btn primary">Acknowledge</button>
+            <button class="btn ghost">Resolve</button>
+          </div>
+        </div>
+
+        <!-- INFO x3 -->
+        <div class="impact info" onclick="openDrawer('sky50')">
+          <div class="body">
+            <div class="row1"><span class="sev info">Info</span><h3>SkyFibre SMB 50/50</h3></div>
+            <div class="trigger">Input <b>cost changed</b> — MTN Tarana FWB 50 Mbps R542 → R499</div>
+            <div class="metrics">
+              <div class="metric"><small>Margin</small><div class="marg"><span class="old">58.3%</span><span class="arr">→</span><span class="up">61.6%</span></div></div>
+              <div class="metric"><small>Active subs</small><b>9</b></div>
+              <div class="metric"><small>Monthly Δ</small><b style="color:var(--green)">+R43.00</b></div>
+            </div>
+            <div class="propose"><span class="lbl">Proposed:</span> Logged — margin improved, above floor. No action.</div>
+          </div>
+          <div class="actions"><button class="btn">Acknowledge</button><button class="btn ghost">Resolve</button></div>
+        </div>
+
+        <div class="impact info" onclick="openDrawer('sky100')">
+          <div class="body">
+            <div class="row1"><span class="sev info">Info</span><h3>SkyFibre SMB 100/100</h3></div>
+            <div class="trigger">Input <b>cost changed</b> — MTN Tarana FWB 100 Mbps R626 → R599</div>
+            <div class="metrics">
+              <div class="metric"><small>Margin</small><div class="marg"><span class="old">60.9%</span><span class="arr">→</span><span class="up">62.5%</span></div></div>
+              <div class="metric"><small>Active subs</small><b>14</b></div>
+              <div class="metric"><small>Monthly Δ</small><b style="color:var(--green)">+R27.00</b></div>
+            </div>
+            <div class="propose"><span class="lbl">Proposed:</span> Logged — margin improved, above floor. No action.</div>
+          </div>
+          <div class="actions"><button class="btn">Acknowledge</button><button class="btn ghost">Resolve</button></div>
+        </div>
+
+        <div class="impact info" onclick="openDrawer('clinic')">
+          <div class="body">
+            <div class="row1"><span class="sev info">Info</span><h3>ClinicConnect Site</h3></div>
+            <div class="trigger">Input <b>cost changed</b> — shares MTN Tarana 50 Mbps access (hybrid + LTE failover)</div>
+            <div class="metrics">
+              <div class="metric"><small>Margin</small><div class="marg"><span class="old">35.2%</span><span class="arr">→</span><span class="up">37.1%</span></div></div>
+              <div class="metric"><small>Active subs</small><b>22</b></div>
+              <div class="metric"><small>Monthly Δ</small><b style="color:var(--green)">+R43.00</b></div>
+            </div>
+            <div class="propose"><span class="lbl">Proposed:</span> Logged — Unjani sites unaffected operationally; margin improved.</div>
+          </div>
+          <div class="actions"><button class="btn">Acknowledge</button><button class="btn ghost">Resolve</button></div>
+        </div>
+      </div>
+
+      <!-- ===== WHOLESALE INPUTS TAB ===== -->
+      <div id="tab-inputs" class="hidden">
+        <div class="filters">
+          <div class="chip active">All suppliers</div>
+          <div class="chip">MTN</div>
+          <div class="chip">DFA</div>
+          <div class="chip">Echo SP</div>
+          <div class="spacer"></div>
+          <button class="btn primary" style="width:auto;padding:7px 14px">＋ Add input</button>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="supplier-head"><span class="tag">MTN_DIRECT</span> MTN Wholesale — Tarana G1 FWB <span class="muted">· 24-month MSC · 5 inputs</span></div>
+          <table>
+            <thead><tr><th>Input</th><th>Code</th><th>Unit cost</th><th>Status</th><th>Used by</th><th>Effective</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Tarana FWB 20 Mbps</td><td class="mono">FWB-20</td><td class="mono">R350.00</td><td><span class="badge ret">● Retired</span></td><td class="dep-link">1 product</td><td>30 Jul 2025</td><td><button class="rowbtn">Edit</button></td></tr>
+              <tr><td>Tarana FWB 10 Mbps</td><td class="mono">FWB-10</td><td class="mono">R300.00</td><td><span class="badge ret">● Retired</span></td><td class="dep-link">1 product</td><td>30 Jul 2025</td><td><button class="rowbtn">Edit</button></td></tr>
+              <tr><td>Tarana FWB 50 Mbps</td><td class="mono">FWB-50</td><td class="mono" style="color:var(--green)">R499.00</td><td><span class="badge ok">● Available</span></td><td class="dep-link">2 products</td><td>30 Jul 2025</td><td><button class="rowbtn">Edit</button></td></tr>
+              <tr><td>Tarana FWB 100 Mbps</td><td class="mono" style="color:var(--green)">R599.00</td><td class="mono">R599.00</td><td><span class="badge ok">● Available</span></td><td class="dep-link">1 product</td><td>30 Jul 2025</td><td><button class="rowbtn">Edit</button></td></tr>
+              <tr><td>Tarana FWB 200 Mbps</td><td class="mono">FWB-200</td><td class="mono">R699.00</td><td><span class="badge ok">● Available</span></td><td class="dep-link">1 product</td><td>30 Jul 2025</td><td><button class="rowbtn">Edit</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="supplier-head"><span class="tag">ECHO_SP</span> Echo SP — Managed BNG <span class="muted">· volume-tiered · shared across all subscribers</span></div>
+          <table>
+            <thead><tr><th>Input</th><th>Code</th><th>Unit cost</th><th>Status</th><th>Used by</th><th>Effective</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Managed BNG — Tier 3 (501–1,000)</td><td class="mono">BNG-T3</td><td class="mono">R23.57</td><td><span class="badge ok">● Available</span></td><td class="dep-link">all products</td><td>01 Apr 2026</td><td><button class="rowbtn">Edit</button></td></tr>
+              <tr><td>IP Transit (per user ~4 Mbps)</td><td class="mono">TRANSIT</td><td class="mono">R28.00</td><td><span class="badge ok">● Available</span></td><td class="dep-link">all products</td><td>01 Apr 2026</td><td><button class="rowbtn">Edit</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="supplier-head"><span class="tag">DFA</span> DFA — Magellan backhaul &amp; access <span class="muted">· shared across BizFibreConnect</span></div>
+          <table>
+            <thead><tr><th>Input</th><th>Code</th><th>Unit cost</th><th>Status</th><th>Used by</th><th>Effective</th><th></th></tr></thead>
+            <tbody>
+              <tr style="background:var(--red-soft)"><td>Magellan backhaul (per user)</td><td class="mono">DFA-BH</td><td class="mono" style="color:var(--red)">R104.00 ▲</td><td><span class="badge ok">● Available</span></td><td class="dep-link">4 products</td><td>Today</td><td><button class="rowbtn">Edit</button></td></tr>
+              <tr><td>Business Broadband 100 Mbps port</td><td class="mono">DFA-BB100</td><td class="mono">R1,180.00</td><td><span class="badge ok">● Available</span></td><td class="dep-link">1 product</td><td>01 Apr 2026</td><td><button class="rowbtn">Edit</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="foot">Editing any cost, or marking an input retired / end-of-life, fires <b>run_change_impact</b> and posts results to the Change Impact tab.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== DETAIL DRAWER (Depends on) ===== -->
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <span class="x" onclick="closeDrawer()">✕</span>
+    <h2 id="d-name">SkyFibre SMB 100/100</h2>
+    <div class="sub" id="d-sub">service_packages · CircleTel · Fixed Wireless (MTN Tarana G1)</div>
+  </div>
+  <div class="drawer-body">
+    <div class="kpis">
+      <div class="kpi"><small>Retail / mo</small><b id="d-retail">R1,599</b></div>
+      <div class="kpi"><small>Direct cost</small><b id="d-cost">R599</b></div>
+      <div class="kpi"><small>Margin</small><b class="g" id="d-margin">62.5%</b></div>
+    </div>
+    <div class="sec-title">Depends on — wholesale inputs</div>
+    <div id="d-deps">
+      <div class="dep"><div class="l"><span class="role">Access</span><div class="nm">MTN Tarana FWB 100 Mbps<small>MTN_DIRECT · FWB-100</small></div></div><div class="amt">R599.00</div></div>
+      <div class="dep"><div class="l"><span class="role">BNG</span><div class="nm">Echo SP Managed BNG T3<small>ECHO_SP · BNG-T3</small></div></div><div class="amt">R23.57</div></div>
+      <div class="dep"><div class="l"><span class="role">Transit</span><div class="nm">IP Transit<small>ECHO_SP · TRANSIT</small></div></div><div class="amt">R28.00</div></div>
+      <div class="dep"><div class="l"><span class="role">Support</span><div class="nm">Level-1 support<small>INTERNAL</small></div></div><div class="amt">R30.00</div></div>
+      <div class="dep"><div class="l"><span class="role">Billing</span><div class="nm">AgilityGIS BSS<small>AGILITYGIS</small></div></div><div class="amt">R10.96</div></div>
+    </div>
+    <div class="costline"><span>Total direct cost</span><span>R691.53</span></div>
+    <div class="hint" id="d-hint">💡 This product shares the <b>Echo SP BNG</b> and <b>IP Transit</b> inputs with every other subscriber — a volume-tier change ripples here automatically. The access input (Tarana 100 Mbps) is unique to this tier.</div>
+  </div>
+</aside>
+
+<script>
+  function showTab(which,el){
+    document.getElementById('tab-impact').classList.toggle('hidden',which!=='impact');
+    document.getElementById('tab-inputs').classList.toggle('hidden',which!=='inputs');
+    document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+  }
+  const DATA={
+    sky20:{name:'SkyFibre SMB 20/5',sub:'service_packages · CircleTel · Fixed Wireless — GRANDFATHER proposed',retail:'R899',cost:'R442',margin:'57.4%',
+      deps:[['Access','MTN Tarana FWB 20 Mbps','MTN_DIRECT · FWB-20 · RETIRED','R350.00',true],['BNG','Echo SP Managed BNG T3','ECHO_SP','R23.57',false],['Transit','IP Transit','ECHO_SP','R28.00',false],['Support','Level-1 support','INTERNAL','R30.00',false],['Billing','AgilityGIS BSS','AGILITYGIS','R10.96',false]],
+      total:'R442.53',hint:'⚠️ The <b>Tarana 20 Mbps</b> access input was <b>retired</b> by MTN. No new sales possible — propose Grandfathered, migrate the 2 inflight orders to 50/50.'},
+    sky10:{name:'SkyFibre SMB 10/2',sub:'service_packages · CircleTel · Fixed Wireless — GRANDFATHER proposed',retail:'R699',cost:'R392',margin:'55.1%',
+      deps:[['Access','MTN Tarana FWB 10 Mbps','MTN_DIRECT · FWB-10 · RETIRED','R300.00',true],['BNG','Echo SP Managed BNG T3','ECHO_SP','R23.57',false],['Transit','IP Transit','ECHO_SP','R28.00',false],['Support','Level-1 support','INTERNAL','R30.00',false],['Billing','AgilityGIS BSS','AGILITYGIS','R10.96',false]],
+      total:'R392.53',hint:'⚠️ The <b>Tarana 10 Mbps</b> access input was <b>retired</b>. Propose Grandfathered — keep serving 5 subs.'},
+    biz100:{name:'BizFibreConnect 100/100',sub:'service_packages · CircleTel · Fibre (DFA FTTB) — MARGIN BREACH',retail:'R1,699',cost:'R1,293',margin:'23.9%',
+      deps:[['Access','DFA Business Broadband 100','DFA · DFA-BB100','R1,180.00',false],['Backhaul','DFA Magellan backhaul','DFA · DFA-BH ▲ increased','R104.00',true],['Support','Level-1 support','INTERNAL','R30.00',false],['Billing','AgilityGIS BSS','AGILITYGIS','R10.96',false]],
+      total:'R1,324.96',hint:'🔴 DFA backhaul rose R86.27 → R104.00, dropping margin to <b>23.9%</b> — below the 25% floor. Reprice or obtain MD approval before it can stay Active.'},
+    sky200:{name:'SkyFibre SMB 200/200',sub:'service_packages · CircleTel · Fixed Wireless (MTN Tarana G1)',retail:'R1,899',cost:'R768',margin:'54.6%',
+      deps:[['Access','MTN Tarana FWB 200 Mbps','MTN_DIRECT · FWB-200','R699.00',false],['BNG','Echo SP Managed BNG T3','ECHO_SP','R23.57',false],['Transit','IP Transit','ECHO_SP','R28.00',false],['Support','Level-1 support','INTERNAL','R30.00',false],['Billing','AgilityGIS BSS','AGILITYGIS','R10.96',false]],
+      total:'R791.53',hint:'✅ Access cost dropped R737 → R699; margin improved to 54.6%. No action needed.'},
+    sky50:{name:'SkyFibre SMB 50/50',sub:'service_packages · CircleTel · Fixed Wireless (MTN Tarana G1)',retail:'R1,299',cost:'R499',margin:'61.6%',
+      deps:[['Access','MTN Tarana FWB 50 Mbps','MTN_DIRECT · FWB-50','R499.00',false],['BNG','Echo SP Managed BNG T3','ECHO_SP','R23.57',false],['Transit','IP Transit','ECHO_SP','R28.00',false],['Support','Level-1 support','INTERNAL','R30.00',false],['Billing','AgilityGIS BSS','AGILITYGIS','R10.96',false]],
+      total:'R591.53',hint:'✅ Successor product for the retired 10/20 Mbps tiers. Access cost dropped R542 → R499; margin improved to 61.6%.'},
+    sky100:{name:'SkyFibre SMB 100/100',sub:'service_packages · CircleTel · Fixed Wireless (MTN Tarana G1)',retail:'R1,599',cost:'R599',margin:'62.5%',
+      deps:[['Access','MTN Tarana FWB 100 Mbps','MTN_DIRECT · FWB-100','R599.00',false],['BNG','Echo SP Managed BNG T3','ECHO_SP','R23.57',false],['Transit','IP Transit','ECHO_SP','R28.00',false],['Support','Level-1 support','INTERNAL','R30.00',false],['Billing','AgilityGIS BSS','AGILITYGIS','R10.96',false]],
+      total:'R691.53',hint:'💡 Shares Echo SP BNG &amp; IP Transit with every subscriber — a volume-tier change ripples here automatically.'},
+    clinic:{name:'ClinicConnect Site',sub:'service_packages · CircleTel · Hybrid Tarana + LTE failover',retail:'R450',cost:'R283',margin:'37.1%',
+      deps:[['Access','MTN Tarana FWB 50 Mbps','MTN_DIRECT · FWB-50','R499.00',false],['Failover','MTN LTE failover','MTN_ARLAN','R120.00',false],['Support','Managed support','INTERNAL','R30.00',false],['Billing','AgilityGIS BSS','AGILITYGIS','R10.96',false]],
+      total:'shared / site',hint:'💡 Unjani sites bill at R450/site. Shares the Tarana 50 Mbps access input with SkyFibre SMB 50/50 — repricing it improved this margin too.'}
+  };
+  function openDrawer(key){
+    const d=DATA[key]; if(!d) return;
+    document.getElementById('d-name').textContent=d.name;
+    document.getElementById('d-sub').textContent=d.sub;
+    document.getElementById('d-retail').textContent=d.retail;
+    document.getElementById('d-cost').textContent=d.cost;
+    document.getElementById('d-margin').textContent=d.margin;
+    const mg=document.getElementById('d-margin');
+    mg.className = parseFloat(d.margin)<25 ? '' : 'g';
+    mg.style.color = parseFloat(d.margin)<25 ? 'var(--red)' : '';
+    document.getElementById('d-deps').innerHTML=d.deps.map(x=>
+      `<div class="dep${x[4]?' flag':''}"><div class="l"><span class="role">${x[0]}</span><div class="nm">${x[1]}<small>${x[2]}</small></div></div><div class="amt">${x[3]}</div></div>`).join('');
+    document.querySelector('.costline').innerHTML=`<span>Total direct cost</span><span>${d.total}</span>`;
+    document.getElementById('d-hint').innerHTML=d.hint;
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('scrim').classList.add('open');
+  }
+  function closeDrawer(){
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('scrim').classList.remove('open');
+  }
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+</script>
+</body>
+</html>

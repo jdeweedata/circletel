@@ -221,6 +221,12 @@ designs/
 # Large binary brand assets (store in Google Drive instead)
 docs/brand/*.zip
 
+# Large onboarding / wholesale binaries (keep on disk, store master copies in Drive)
+docs/onboarding/screenshots/
+docs/onboarding/examples/
+docs/onboarding/*.pptx
+products/wholesale/arlan/june-2026/
+
 # Build / session artifacts
 graphify-out/
 .claude/mem/

@@ -46,7 +46,8 @@ async function main() {
   console.log('Collecting:', items.map((i) => ({ ref: i.accountReference, amount: i.amount, last4: i.accountNumber.slice(-4), date: i.actionDate.toISOString().slice(0, 10) })));
   if (!items.length) return console.log('Nothing to collect.');
 
-  const res = await netcashDebitBatchService.submitBatch(items, `UNJANI-PILOT-${new Date().getFullYear()}`);
+  // Unique batch name per invoice — NetCash overwrites same-named unauthorised batches.
+  const res = await netcashDebitBatchService.submitBatch(items, `UNJANI-${INVOICE_NUMBERS.join('-')}`);
   console.log('submitBatch:', res);
   if (!res.success || !res.fileToken) return console.log('SUBMIT FAILED — no debit lodged.');
 
