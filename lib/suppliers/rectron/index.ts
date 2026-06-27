@@ -15,3 +15,4 @@
 export * from './rectron-types'
 export * from './rectron-parser'
 export * from './rectron-sync'
+export * from './rectron-downloader'
