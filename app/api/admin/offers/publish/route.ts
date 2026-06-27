@@ -52,17 +52,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         page: 1,
         perPage: 1000,
       });
+      const failedUids: string[] = [];
       for (const p of products) {
         try {
           offerIds.push(await publishFromUnified(p));
-        } catch {
-          // Skip individual failures
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          console.error(`[offers/publish] Failed to publish ${p.uid}: ${message}`);
+          failedUids.push(p.uid);
         }
       }
       // Fire recompute event for pricing updates
       await inngest.send({
         name: 'offer/pricing.recompute.requested',
         data: { all: true, triggeredBy: 'manual' },
+      });
+      return NextResponse.json({
+        success: failedUids.length === 0,
+        published: offerIds.length,
+        offerIds,
+        failedUids: failedUids.length > 0 ? failedUids : undefined,
       });
     } else {
       return NextResponse.json(

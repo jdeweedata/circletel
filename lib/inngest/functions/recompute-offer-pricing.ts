@@ -88,7 +88,9 @@ export const recomputeOfferPricing = inngest.createFunction(
           await writeSnapshot(id, snapshot);
         });
         recomputed++;
-      } catch {
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`[recompute-offer-pricing] Failed to recompute offer ${id}: ${message}`);
         failed++;
       }
     }
