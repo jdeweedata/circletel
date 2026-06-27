@@ -1,12 +1,12 @@
 /**
  * Rectron Product Sync Service
  *
- * Syncs products from a locally-downloaded Rectron .xlsm price list file.
- * Unlike other suppliers, Rectron requires manual file download from the
- * RectronZone reseller portal (CAPTCHA-protected).
+ * Syncs products from the Rectron .xlsm price list file. The latest file is
+ * auto-downloaded from the public RectronZone CDN (no authentication required)
+ * via downloadRectronPricelist(). If download fails, falls back to the latest
+ * locally-cached file in the watch directory.
  *
- * The sync scans a watch directory for the latest matching .xlsm file,
- * parses it, and upserts products to the supplier_products table.
+ * The sync parses the .xlsm file and upserts products to the supplier_products table.
  *
  * Note: Rectron does not provide stock levels — stock fields will be 0.
  */

@@ -49,7 +49,7 @@ export async function resolveLatestRectronFile(
   const match = html.match(RECTRON_FILENAME_RE)
   if (!match) {
     throw new Error(
-      `No matching RECTRON_PRICE_LIST filename found on the download page`
+      `Could not find a RECTRON_PRICE_LIST filename on the download page`
     )
   }
   const filename = match[0]

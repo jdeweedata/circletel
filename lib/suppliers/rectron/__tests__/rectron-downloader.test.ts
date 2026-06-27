@@ -63,7 +63,7 @@ describe('rectron-downloader', () => {
     global.fetch = jest.fn(async () => ({
       ok: true, status: 200, text: async () => '<html>no file here</html>',
     })) as any
-    await expect(resolveLatestRectronFile()).rejects.toThrow(/no .*filename/i)
+    await expect(resolveLatestRectronFile()).rejects.toThrow(/could not find.*filename/i)
   })
 
   it('downloads and validates the file when not already present', async () => {
@@ -88,5 +88,46 @@ describe('rectron-downloader', () => {
       String(u).startsWith(RECTRON_CDN_BASE)
     )
     expect(cdnCalls.length).toBe(0)
+  })
+
+  it('throws on a CDN HTTP error', async () => {
+    global.fetch = jest.fn(async (input: any) => {
+      const url = String(input)
+      if (url.startsWith(RECTRON_CDN_BASE)) {
+        return { ok: false, status: 404 } as any
+      }
+      return { ok: true, status: 200, text: async () => FIXTURE_HTML } as any
+    }) as any
+    await expect(downloadRectronPricelist({ watchDir: dir })).rejects.toThrow(/HTTP 404/)
+  })
+
+  it('rejects an undersized download', async () => {
+    global.fetch = jest.fn(async (input: any) => {
+      const url = String(input)
+      if (url.startsWith(RECTRON_CDN_BASE)) {
+        const tiny = Buffer.concat([Buffer.from([0x50, 0x4b, 0x03, 0x04]), Buffer.alloc(9_000)])
+        return {
+          ok: true, status: 200,
+          arrayBuffer: async () => tiny.buffer.slice(tiny.byteOffset, tiny.byteOffset + tiny.byteLength),
+        } as any
+      }
+      return { ok: true, status: 200, text: async () => FIXTURE_HTML } as any
+    }) as any
+    await expect(downloadRectronPricelist({ watchDir: dir })).rejects.toThrow(/too small/)
+  })
+
+  it('rejects a download with bad magic bytes', async () => {
+    global.fetch = jest.fn(async (input: any) => {
+      const url = String(input)
+      if (url.startsWith(RECTRON_CDN_BASE)) {
+        const notZip = Buffer.concat([Buffer.from('<html>404</html>'), Buffer.alloc(11_000)])
+        return {
+          ok: true, status: 200,
+          arrayBuffer: async () => notZip.buffer.slice(notZip.byteOffset, notZip.byteOffset + notZip.byteLength),
+        } as any
+      }
+      return { ok: true, status: 200, text: async () => FIXTURE_HTML } as any
+    }) as any
+    await expect(downloadRectronPricelist({ watchDir: dir })).rejects.toThrow(/magic bytes/)
   })
 })
