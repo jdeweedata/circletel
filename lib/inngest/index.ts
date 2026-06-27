@@ -148,6 +148,10 @@ export {
   clinicMandatePollFunction,
 } from './functions/clinic-mandate-poll';
 
+export {
+  recomputeOfferPricing,
+} from './functions/recompute-offer-pricing';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -289,6 +293,10 @@ import {
   clinicMandatePollFunction,
 } from './functions/clinic-mandate-poll';
 
+import {
+  recomputeOfferPricing,
+} from './functions/recompute-offer-pricing';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -376,4 +384,6 @@ export const functions = [
   // Clinic mandate status poll — NetCash eMandate backstop (daily at 08:00 SAST)
   // NOTE: This cron must be wired in Coolify; vercel.json crons are inactive
   clinicMandatePollFunction,
+  // Offer pricing recomputation
+  recomputeOfferPricing,
 ];
