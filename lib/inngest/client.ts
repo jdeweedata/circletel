@@ -777,6 +777,28 @@ export type B2BSiteActivationInvoiceFailedEvent = {
   };
 };
 
+// =============================================================================
+// OFFER PRICING EVENTS
+// =============================================================================
+
+export type OfferPricingRecomputeRequestedEvent = {
+  name: 'offer/pricing.recompute.requested';
+  data: {
+    offerId?: string;
+    all?: boolean;
+    triggeredBy: 'cron' | 'manual' | 'source_change';
+  };
+};
+
+export type OfferPricingRecomputeCompletedEvent = {
+  name: 'offer/pricing.recompute.completed';
+  data: {
+    recomputed: number;
+    failed: number;
+    triggeredBy: string;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -855,4 +877,7 @@ export type InngestEvents = {
   // B2B site activation events
   'b2b/site.activated': B2BSiteActivatedEvent;
   'b2b/site.activation-invoice.failed': B2BSiteActivationInvoiceFailedEvent;
+  // Offer pricing events
+  'offer/pricing.recompute.requested': OfferPricingRecomputeRequestedEvent;
+  'offer/pricing.recompute.completed': OfferPricingRecomputeCompletedEvent;
 };
