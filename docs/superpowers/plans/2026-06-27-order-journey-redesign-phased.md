@@ -128,12 +128,24 @@ interface OrderState {
 **Goal:** the one place even the redesign currently leaves open.
 
 > **GATING DEPENDENCY — do NOT ship payment changes before this.**
-> `PAYMENT_JOURNEY_AUDIT_2026-05-11.md` flags real bugs in this exact step:
-> webhook hits the wrong table (payments never confirm), client-controlled amount,
-> no auth on initiation. These security fixes must land FIRST or alongside.
-> They are more urgent than any UX item above and are a separate track.
+> `PAYMENT_JOURNEY_AUDIT_2026-05-11.md` flagged bugs in this exact step. Status after
+> verifying each against live code (2026-06-28):
+> - **Wrong webhook table** — ✅ ALREADY FIXED. `netcash-webhook-processor.ts` uses
+>   `consumer_orders` throughout; the audit's `.from('orders')` claim no longer applies.
+> - **Client-controlled amount (#2)** — ✅ FIXED in the security PR (`payment-amount-server-authoritative`):
+>   amount is now persisted on the order (`consumer_orders.payment_amount`, server-set at
+>   creation) and the initiate route derives the charge + recipient + reference from the
+>   order, ignoring the request body.
+> - **Unauth initiation (#3)** — ⚠️ PARTIAL. Active protections shipped (payable-state guard:
+>   reject paid/cancelled/failed orders; recipient derived server-side). The **hard owner-gate
+>   is deferred to Phase 2**, because consumer orders are currently guest/unowned
+>   (`auth_user_id`/`customer_id` are null at creation) — a hard gate today would break checkout.
+> - **Deferred fast-follow:** #4 browser-exposed NetCash keys (needs key rotation, ops action)
+>   and #5 webhook-signature fail-closed.
 
-- [ ] **Pre-req:** fix payment-security audit items (wrong webhook table, client-controlled amount, unauth initiation).
+- [x] **Pre-req (#2):** client-controlled amount — server-authoritative amount shipped (separate security PR).
+- [ ] **Pre-req (#3, Phase 2):** hard owner-gate on initiation, once orders carry an `auth_user_id`.
+- [ ] **Pre-req (fast-follow):** rotate browser-exposed NetCash keys (#4); webhook-signature fail-closed (#5).
 - [ ] Render in-app **debit-order** form (bank details, debit-date choice 26th/1st like Vox).
 - [ ] Render in-app **credit-card** form (debit-date as Vox restricts it).
 - [ ] Replace/supplement the NetCash redirect with in-app method selection.
