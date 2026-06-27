@@ -20,9 +20,10 @@ single-purpose-per-page funnel **while keeping CircleTel's existing advantages**
 (`circletel_order_state`), so pages can be split out incrementally. Ship → measure → next.
 Each phase is independently shippable and conversion-measurable.
 
-> **Doc-accuracy note:** `CLAUDE.md` and `CIRCLETEL_ORDER_JOURNEY_REDESIGN.md` say the flow uses
-> **Zustand**. It actually uses **React Context + localStorage**. Correct this before a future
-> implementer chases the wrong state layer.
+> **Doc-accuracy note (resolved in Phase 0, 2026-06-27):** several docs said the order flow uses
+> **Zustand**; it actually uses **React Context + localStorage**. Corrected in `CLAUDE.md`,
+> `CIRCLETEL_ORDER_JOURNEY_REDESIGN.md`, and `CIRCLETEL_ORDER_JOURNEY.md`. See the
+> **Order State Reference** under Phase 0 for the authoritative shape.
 
 ---
 
@@ -42,16 +43,39 @@ Phases 2–4 are the "real redesign" tranche. Hold Phase 5 until the payment-sec
 
 ---
 
-## Phase 0 — Foundation
+## Phase 0 — Foundation ✅ (done 2026-06-27)
 
 **Goal:** make incremental page-splitting safe. No user-visible change.
 
-- [ ] Add a persistent **progress-bar component** (`components/order/OrderProgressBar.tsx`) driven by order state — cheap now, painful to retrofit.
-- [ ] Verify `circletel_order_state` survives navigation between **separate routes** (localStorage-backed; verify, don't assume).
-- [ ] Document the order-state shape (single source of truth) in the plan/architecture doc.
-- [ ] Correct the Zustand → React Context note in `CLAUDE.md` and the redesign doc.
+- [x] ~~Add a persistent progress-bar component (`components/order/OrderProgressBar.tsx`)~~ — **NOT NEEDED.** A polished 3-step bar already exists and is in active use: **`components/order/CheckoutProgressBar.tsx`** (stages `packages → account → checkout` = "Choose Plan › Sign In › Confirm & Pay", `default`/`hero` variants, ships a `stepNumberToStage()` helper to map the state's numeric `currentStage`). Building a new one would duplicate it. Mounting strategy stays **per-page** for now; consolidating to a single persistent mount is deferred to **Phase 3**, when the checkout actually splits into separate routes (a layout-level mount is premature today — the order routes are split and `/packages/[leadId]` lives outside `/order/`).
+- [x] Verify `circletel_order_state` survives cross-route navigation — **inherent**: the provider (`OrderContextProvider`) is mounted at the **root** `app/layout.tsx`, and state is localStorage-backed (`circletel_order_state`) with a debounced write + server sync to `/api/order-drafts` for authed users. It survives hard navigations and OAuth redirects by construction; no code needed.
+- [x] Document the order-state shape (single source of truth) — see **Order State Reference** below.
+- [x] Correct the Zustand → React Context note — fixed in `CLAUDE.md`, `docs/architecture/CIRCLETEL_ORDER_JOURNEY_REDESIGN.md` (×3), `docs/architecture/CIRCLETEL_ORDER_JOURNEY.md`. (Zustand IS still used elsewhere — admin auth store, cart, CMS editor — those mentions are correct and were left alone.)
 
-**Success criteria:** progress bar renders on existing checkout; state persists across a hard navigation between two test routes.
+**Outcome:** no new component, no behaviour change. Phase 0 was largely already satisfied by existing infrastructure; the real deliverable was correcting the docs and recording the state shape so Phases 2–3 build on accurate foundations.
+
+### Order State Reference
+
+**Source of truth:** `components/order/context/OrderContext.tsx` — React Context + `useReducer`, persisted to `localStorage['circletel_order_state']` (debounced) and synced to `/api/order-drafts` for authenticated users. Provider mounted at root `app/layout.tsx`. Hook: `useOrderContext()`. Legacy `contexts/OrderContext.tsx` is **dead code** (zero imports).
+
+```ts
+interface OrderState {
+  currentStage: number;        // 1 | 2 | 3 (see OrderStage in lib/order/types.ts)
+  orderData: OrderData;        // coverage + package + account data
+  errors: ValidationErrors;    // field validation errors
+  isLoading: boolean;
+  savedAt?: Date;
+  completedSteps: number[];    // e.g. [1, 2] — drives canNavigateToStep()
+}
+```
+
+**Stage constants** (`lib/order/types.ts`): `OrderStage = 1 | 2 | 3`; `OrderStageId = 'coverage' | 'packages' | 'checkout'`; `STAGE_NAMES = ['Location', 'Choose Plan', 'Account & Pay']`; `TOTAL_STAGES = 3`; `getStageId(stage)`. A legacy 5-stage shape is clamped to stage 2 on hydration.
+
+**Actions:** `setCurrentStage(n)`, `updateOrderData(partial)`, `markStepComplete(n)`, `resetOrder()`, `setErrors()`, `setLoading()`. Navigation guard `canNavigateToStep(target)` allows backward freely, forward only if the current step is complete.
+
+**Step sequence / routes:** Stage 1 `coverage` (`/order/coverage` → redirects to `/` for the homepage coverage check) → Stage 2 `packages` (`/order/packages`, guarded: requires coverage) → Stage 3 `checkout` (`/order/checkout`, guarded: requires coverage + package). The active progress UI for these is `CheckoutProgressBar` (mounted per-page).
+
+**Success criteria:** ✅ existing checkout already renders `CheckoutProgressBar`; ✅ state persists across hard navigation via root-level provider + localStorage; ✅ docs corrected; ✅ state shape recorded.
 
 ## Phase 1 — No-coverage cross-sell 🥇 (gap #1, highest ROI)
 

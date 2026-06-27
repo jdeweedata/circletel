@@ -200,7 +200,7 @@ All detailed patterns are in `.claude/rules/`:
 ## Architecture Overview
 
 - **Coverage**: 4-layer fallback (MTN WMS → MTN Consumer → Provider APIs → Mock)
-- **Orders**: 3-stage flow (Coverage → Package → Account) via Zustand store
+- **Orders**: 3-stage flow (Coverage → Package → Account) via React Context + localStorage (`circletel_order_state`) — see `components/order/context/OrderContext.tsx` (NOT Zustand)
 - **Payments**: NetCash Pay Now (20+ methods) — See `components/checkout/InlinePaymentForm.tsx`
 - **B2B KYC**: 7-stage workflow — See `docs/architecture/ADMIN_SUPABASE_ZOHO_INTEGRATION.md`
 - **Product Pages**: CRO-optimized structure — See `components/products/ProductHowItWorks.tsx`, `WhyCircleTel.tsx`
