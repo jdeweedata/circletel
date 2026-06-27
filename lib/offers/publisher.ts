@@ -1,3 +1,6 @@
+import { createClient } from '@/lib/supabase/server';
+import { resolveOfferPricing } from '@/lib/offers/pricing-resolver';
+import { writeSnapshot } from '@/lib/offers/snapshot-writer';
 import type { UnifiedProduct, UnifiedProductSourceTable } from '@/lib/types/unified-product';
 import type { OfferDraft, OfferSourceType, OfferCustomerType } from '@/lib/types/offer';
 
@@ -46,4 +49,64 @@ export function buildOfferDraftFromUnified(u: UnifiedProduct): OfferDraft {
       },
     ],
   };
+}
+
+export async function persistOfferDraft(draft: OfferDraft): Promise<string> {
+  const supabase = await createClient();
+
+  const { data: offer, error: offerErr } = await supabase
+    .from('offers')
+    .upsert(
+      {
+        slug: draft.slug,
+        title: draft.title,
+        customer_type: draft.customerType,
+        channel_visibility: draft.channelVisibility,
+        base_price: draft.basePrice,
+        source_uid: draft.sourceUid,
+        lifecycle_state: 'active',
+        status: 'active',
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'source_uid' },
+    )
+    .select('id')
+    .single();
+  if (offerErr || !offer) throw new Error(`persist offer failed: ${offerErr?.message}`);
+
+  const offerId = offer.id as string;
+
+  // Replace components (idempotent republish).
+  const { error: delErr } = await supabase
+    .from('offer_components')
+    .delete()
+    .eq('offer_id', offerId);
+  if (delErr) throw new Error(`clear components failed: ${delErr.message}`);
+
+  const rows = draft.components.map((c, i) => ({
+    offer_id: offerId,
+    source_type: c.sourceType,
+    source_id: c.sourceId,
+    qty: c.qty,
+    role: c.role,
+    unit_cost: c.unitCost,
+    unit_price: c.unitPrice,
+    label: c.label,
+    position: i,
+  }));
+  const { error: insErr } = await supabase.from('offer_components').insert(rows);
+  if (insErr) throw new Error(`insert components failed: ${insErr.message}`);
+
+  return offerId;
+}
+
+export async function publishFromUnified(
+  u: UnifiedProduct,
+  opts: { marginFloorPct?: number } = {},
+): Promise<string> {
+  const draft = buildOfferDraftFromUnified(u);
+  const offerId = await persistOfferDraft(draft);
+  const snapshot = resolveOfferPricing(draft, opts);
+  await writeSnapshot(offerId, snapshot);
+  return offerId;
 }
