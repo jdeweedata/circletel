@@ -12,7 +12,7 @@ import {
 } from 'react-icons/pi';
 import { toast } from 'sonner';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
-import { NoCoverageLeadCapture } from '@/components/coverage/NoCoverageLeadCapture';
+import { NoCoverageOptions } from '@/components/coverage/NoCoverageOptions';
 import { getWhatsAppLink, CONTACT } from '@/lib/constants/contact';
 import Link from 'next/link';
 
@@ -109,7 +109,7 @@ export function CheckCoverageContent() {
           </p>
 
           {noCoverage ? (
-            <NoCoverageLeadCapture
+            <NoCoverageOptions
               address={location?.address ?? ''}
               latitude={location?.latitude}
               longitude={location?.longitude}

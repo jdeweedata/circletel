@@ -7,7 +7,7 @@ import { PiBellBold, PiCheckCircleBold, PiMapPinBold, PiSpinnerBold, PiWarningCi
  * Captures contact info for future expansion opportunities
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,14 +22,29 @@ interface NoCoverageLeadCaptureProps {
   address: string;
   latitude?: number;
   longitude?: number;
+  /** Pre-selects the "Interested in" service (e.g. '5g', 'lte') when the visitor picks a cross-sell option. */
+  defaultServiceType?: string;
+  /** Human label for a chosen cross-sell package; folded into the lead notes on submit. */
+  selectedPackageLabel?: string;
+  /** Optional header overrides — used by the cross-sell context where "No Coverage" wording is wrong. */
+  title?: string;
+  description?: string;
 }
 
-export function NoCoverageLeadCapture({ address, latitude, longitude }: NoCoverageLeadCaptureProps) {
+export function NoCoverageLeadCapture({
+  address,
+  latitude,
+  longitude,
+  defaultServiceType,
+  selectedPackageLabel,
+  title,
+  description,
+}: NoCoverageLeadCaptureProps) {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
     phone: '',
-    service_type: 'any',
+    service_type: defaultServiceType ?? 'any',
     expected_usage: 'moderate',
     budget_range: '500_1000',
     urgency: 'medium',
@@ -39,6 +54,18 @@ export function NoCoverageLeadCapture({ address, latitude, longitude }: NoCovera
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Sync the selected service when a cross-sell option is picked after mount,
+  // without disturbing fields the visitor may have already typed.
+  useEffect(() => {
+    if (defaultServiceType) {
+      setFormData((prev) =>
+        prev.service_type === defaultServiceType
+          ? prev
+          : { ...prev, service_type: defaultServiceType }
+      );
+    }
+  }, [defaultServiceType]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,12 +78,21 @@ export function NoCoverageLeadCapture({ address, latitude, longitude }: NoCovera
 
     setIsSubmitting(true);
 
+    // Fold a chosen cross-sell package into the notes so sales sees the intent.
+    const mergedNotes = [
+      selectedPackageLabel ? `Interested in: ${selectedPackageLabel}` : null,
+      formData.notes.trim() || null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
     try {
       const response = await fetch('/api/leads/no-coverage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          notes: mergedNotes,
           address,
           latitude,
           longitude,
@@ -123,11 +159,16 @@ export function NoCoverageLeadCapture({ address, latitude, longitude }: NoCovera
           </div>
         </div>
         <CardTitle className="text-2xl text-gray-900">
-          No Coverage Available Yet
+          {title ?? 'No Coverage Available Yet'}
         </CardTitle>
         <CardDescription className="text-base text-gray-600 max-w-xl mx-auto">
-          We don't currently offer service at <span className="font-semibold">{address}</span>, but we're expanding!
-          Leave your details and we'll notify you when coverage becomes available.
+          {description ?? (
+            <>
+              We don&apos;t currently offer service at{' '}
+              <span className="font-semibold">{address}</span>, but we&apos;re expanding! Leave
+              your details and we&apos;ll notify you when coverage becomes available.
+            </>
+          )}
         </CardDescription>
       </CardHeader>
 
@@ -139,6 +180,15 @@ export function NoCoverageLeadCapture({ address, latitude, longitude }: NoCovera
             Get priority access when we launch in your area.
           </AlertDescription>
         </Alert>
+
+        {selectedPackageLabel && (
+          <Alert className="mb-6 border-circleTel-orange/30 bg-orange-50/50">
+            <PiCheckCircleBold className="h-5 w-5 text-circleTel-orange" />
+            <AlertDescription className="text-gray-800">
+              Registering interest in: <span className="font-semibold">{selectedPackageLabel}</span>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Contact Information */}

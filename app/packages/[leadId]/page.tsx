@@ -16,7 +16,7 @@ import { useOrderContext } from '@/components/order/context/OrderContext';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import type { PackageDetails, SelectedAddon } from '@/lib/order/types';
 import { AddonsSelection } from '@/components/order/AddonsSelection';
-import { NoCoverageLeadCapture } from '@/components/coverage/NoCoverageLeadCapture';
+import { NoCoverageOptions } from '@/components/coverage/NoCoverageOptions';
 import { LicensedWirelessLeadCapture } from '@/components/coverage/LicensedWirelessLeadCapture';
 import {
   Tooltip,
@@ -549,9 +549,9 @@ function PackagesContent() {
             />
           </div>
         ) : packages.length === 0 ? (
-          /* No Coverage - Show Lead Capture */
+          /* No Coverage - Show mobile cross-sell + lead capture */
           <div className="max-w-4xl mx-auto">
-            <NoCoverageLeadCapture
+            <NoCoverageOptions
               address={address}
               latitude={coordinates?.lat}
               longitude={coordinates?.lng}
