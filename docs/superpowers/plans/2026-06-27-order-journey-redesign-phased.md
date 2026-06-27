@@ -20,9 +20,10 @@ single-purpose-per-page funnel **while keeping CircleTel's existing advantages**
 (`circletel_order_state`), so pages can be split out incrementally. Ship → measure → next.
 Each phase is independently shippable and conversion-measurable.
 
-> **Doc-accuracy note:** `CLAUDE.md` and `CIRCLETEL_ORDER_JOURNEY_REDESIGN.md` say the flow uses
-> **Zustand**. It actually uses **React Context + localStorage**. Correct this before a future
-> implementer chases the wrong state layer.
+> **Doc-accuracy note (resolved in Phase 0, 2026-06-27):** several docs said the order flow uses
+> **Zustand**; it actually uses **React Context + localStorage**. Corrected in `CLAUDE.md`,
+> `CIRCLETEL_ORDER_JOURNEY_REDESIGN.md`, and `CIRCLETEL_ORDER_JOURNEY.md`. See the
+> **Order State Reference** under Phase 0 for the authoritative shape.
 
 ---
 
@@ -42,16 +43,39 @@ Phases 2–4 are the "real redesign" tranche. Hold Phase 5 until the payment-sec
 
 ---
 
-## Phase 0 — Foundation
+## Phase 0 — Foundation ✅ (done 2026-06-27)
 
 **Goal:** make incremental page-splitting safe. No user-visible change.
 
-- [ ] Add a persistent **progress-bar component** (`components/order/OrderProgressBar.tsx`) driven by order state — cheap now, painful to retrofit.
-- [ ] Verify `circletel_order_state` survives navigation between **separate routes** (localStorage-backed; verify, don't assume).
-- [ ] Document the order-state shape (single source of truth) in the plan/architecture doc.
-- [ ] Correct the Zustand → React Context note in `CLAUDE.md` and the redesign doc.
+- [x] ~~Add a persistent progress-bar component (`components/order/OrderProgressBar.tsx`)~~ — **NOT NEEDED.** A polished 3-step bar already exists and is in active use: **`components/order/CheckoutProgressBar.tsx`** (stages `packages → account → checkout` = "Choose Plan › Sign In › Confirm & Pay", `default`/`hero` variants, ships a `stepNumberToStage()` helper to map the state's numeric `currentStage`). Building a new one would duplicate it. Mounting strategy stays **per-page** for now; consolidating to a single persistent mount is deferred to **Phase 3**, when the checkout actually splits into separate routes (a layout-level mount is premature today — the order routes are split and `/packages/[leadId]` lives outside `/order/`).
+- [x] Verify `circletel_order_state` survives cross-route navigation — **inherent**: the provider (`OrderContextProvider`) is mounted at the **root** `app/layout.tsx`, and state is localStorage-backed (`circletel_order_state`) with a debounced write + server sync to `/api/order-drafts` for authed users. It survives hard navigations and OAuth redirects by construction; no code needed.
+- [x] Document the order-state shape (single source of truth) — see **Order State Reference** below.
+- [x] Correct the Zustand → React Context note — fixed in `CLAUDE.md`, `docs/architecture/CIRCLETEL_ORDER_JOURNEY_REDESIGN.md` (×3), `docs/architecture/CIRCLETEL_ORDER_JOURNEY.md`. (Zustand IS still used elsewhere — admin auth store, cart, CMS editor — those mentions are correct and were left alone.)
 
-**Success criteria:** progress bar renders on existing checkout; state persists across a hard navigation between two test routes.
+**Outcome:** no new component, no behaviour change. Phase 0 was largely already satisfied by existing infrastructure; the real deliverable was correcting the docs and recording the state shape so Phases 2–3 build on accurate foundations.
+
+### Order State Reference
+
+**Source of truth:** `components/order/context/OrderContext.tsx` — React Context + `useReducer`, persisted to `localStorage['circletel_order_state']` (debounced) and synced to `/api/order-drafts` for authenticated users. Provider mounted at root `app/layout.tsx`. Hook: `useOrderContext()`. Legacy `contexts/OrderContext.tsx` is **dead code** (zero imports).
+
+```ts
+interface OrderState {
+  currentStage: number;        // 1 | 2 | 3 (see OrderStage in lib/order/types.ts)
+  orderData: OrderData;        // coverage + package + account data
+  errors: ValidationErrors;    // field validation errors
+  isLoading: boolean;
+  savedAt?: Date;
+  completedSteps: number[];    // e.g. [1, 2] — drives canNavigateToStep()
+}
+```
+
+**Stage constants** (`lib/order/types.ts`): `OrderStage = 1 | 2 | 3`; `OrderStageId = 'coverage' | 'packages' | 'checkout'`; `STAGE_NAMES = ['Location', 'Choose Plan', 'Account & Pay']`; `TOTAL_STAGES = 3`; `getStageId(stage)`. A legacy 5-stage shape is clamped to stage 2 on hydration.
+
+**Actions:** `setCurrentStage(n)`, `updateOrderData(partial)`, `markStepComplete(n)`, `resetOrder()`, `setErrors()`, `setLoading()`. Navigation guard `canNavigateToStep(target)` allows backward freely, forward only if the current step is complete.
+
+**Step sequence / routes:** Stage 1 `coverage` (`/order/coverage` → redirects to `/` for the homepage coverage check) → Stage 2 `packages` (`/order/packages`, guarded: requires coverage) → Stage 3 `checkout` (`/order/checkout`, guarded: requires coverage + package). The active progress UI for these is `CheckoutProgressBar` (mounted per-page).
+
+**Success criteria:** ✅ existing checkout already renders `CheckoutProgressBar`; ✅ state persists across hard navigation via root-level provider + localStorage; ✅ docs corrected; ✅ state shape recorded.
 
 ## Phase 1 — No-coverage cross-sell 🥇 (gap #1, highest ROI)
 
@@ -104,12 +128,24 @@ Phases 2–4 are the "real redesign" tranche. Hold Phase 5 until the payment-sec
 **Goal:** the one place even the redesign currently leaves open.
 
 > **GATING DEPENDENCY — do NOT ship payment changes before this.**
-> `PAYMENT_JOURNEY_AUDIT_2026-05-11.md` flags real bugs in this exact step:
-> webhook hits the wrong table (payments never confirm), client-controlled amount,
-> no auth on initiation. These security fixes must land FIRST or alongside.
-> They are more urgent than any UX item above and are a separate track.
+> `PAYMENT_JOURNEY_AUDIT_2026-05-11.md` flagged bugs in this exact step. Status after
+> verifying each against live code (2026-06-28):
+> - **Wrong webhook table** — ✅ ALREADY FIXED. `netcash-webhook-processor.ts` uses
+>   `consumer_orders` throughout; the audit's `.from('orders')` claim no longer applies.
+> - **Client-controlled amount (#2)** — ✅ FIXED in the security PR (`payment-amount-server-authoritative`):
+>   amount is now persisted on the order (`consumer_orders.payment_amount`, server-set at
+>   creation) and the initiate route derives the charge + recipient + reference from the
+>   order, ignoring the request body.
+> - **Unauth initiation (#3)** — ⚠️ PARTIAL. Active protections shipped (payable-state guard:
+>   reject paid/cancelled/failed orders; recipient derived server-side). The **hard owner-gate
+>   is deferred to Phase 2**, because consumer orders are currently guest/unowned
+>   (`auth_user_id`/`customer_id` are null at creation) — a hard gate today would break checkout.
+> - **Deferred fast-follow:** #4 browser-exposed NetCash keys (needs key rotation, ops action)
+>   and #5 webhook-signature fail-closed.
 
-- [ ] **Pre-req:** fix payment-security audit items (wrong webhook table, client-controlled amount, unauth initiation).
+- [x] **Pre-req (#2):** client-controlled amount — server-authoritative amount shipped (separate security PR).
+- [ ] **Pre-req (#3, Phase 2):** hard owner-gate on initiation, once orders carry an `auth_user_id`.
+- [ ] **Pre-req (fast-follow):** rotate browser-exposed NetCash keys (#4); webhook-signature fail-closed (#5).
 - [ ] Render in-app **debit-order** form (bank details, debit-date choice 26th/1st like Vox).
 - [ ] Render in-app **credit-card** form (debit-date as Vox restricts it).
 - [ ] Replace/supplement the NetCash redirect with in-app method selection.

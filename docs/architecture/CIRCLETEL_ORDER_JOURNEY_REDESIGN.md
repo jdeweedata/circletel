@@ -22,7 +22,7 @@ Redesigned consumer order flow borrowing Vox's linear, single-purpose-per-page p
 - Homepage coverage check (already good)
 - Google Places autocomplete + geocoding
 - Package selection page with service type toggle
-- Zustand `OrderContext` for state persistence
+- `OrderContext` (React Context + localStorage) for state persistence
 - NetCash Pay Now payment gateway
 - Payment callback handling
 
@@ -258,7 +258,7 @@ After the customer enters their SA ID:
 | Session manager | `lib/integrations/didit/session-manager.ts` | New `createConsumerKYCSession(customerId, idNumber)` function alongside existing `createKYCSessionForQuote()` |
 | Consumer KYC table | `supabase/migrations/` | New `consumer_kyc_sessions` table (or add `context` column to `kyc_sessions` to distinguish B2B vs consumer) |
 | Details page | `app/order/checkout/details/page.tsx` | Embed `LightKYCSession` conditionally after SA ID input |
-| Order context | `lib/stores/order-store.ts` | Add `kycStatus` and `kycSessionId` to Zustand store |
+| Order context | `components/order/context/OrderContext.tsx` | Add `kycStatus` and `kycSessionId` to the React Context state (reducer + `OrderState`) |
 
 ### Existing Infrastructure Reused
 
@@ -293,7 +293,7 @@ After the customer enters their SA ID:
 
 ## State Management
 
-No changes to `OrderContext` (Zustand + localStorage). The store already persists across page navigation. Google OAuth checkout state still uses `sessionStorage` for the redirect round-trip.
+No changes to `OrderContext` (React Context + localStorage, key `circletel_order_state`). The state already persists across page navigation. Google OAuth checkout state still uses `sessionStorage` for the redirect round-trip.
 
 New fields added to `OrderContext`:
 

@@ -12,11 +12,7 @@
  */
 
 import { inngest } from '../client'
-import { createClient } from '@/lib/supabase/server'
-import { syncMiRoProducts } from '@/lib/suppliers/miro'
-import { syncNologyProducts } from '@/lib/suppliers/nology'
-import { syncScoopProducts } from '@/lib/suppliers/scoop-sync'
-import type { SyncResult } from '@/lib/suppliers/types'
+import { syncAllSuppliers } from '@/lib/suppliers/sync-orchestrator'
 
 // =============================================================================
 // SUPPLIER SYNC FUNCTION
@@ -50,12 +46,10 @@ export const supplierSyncFunction = inngest.createFunction(
     // Extract options from event data
     const eventData = event?.data as {
       sync_log_id?: string
-      supplier_code?: string // 'MIRO', 'NOLOGY', 'SCOOP', or 'ALL'
+      supplier_code?: string // 'MIRO' | 'NOLOGY' | 'SCOOP' | 'RECTRON' | 'ALL'
       triggered_by?: 'cron' | 'manual'
       admin_user_id?: string
-      options?: {
-        dryRun?: boolean
-      }
+      options?: { dryRun?: boolean }
     } | undefined
 
     const supplierCode = eventData?.supplier_code || 'ALL'
@@ -64,201 +58,69 @@ export const supplierSyncFunction = inngest.createFunction(
     const dryRun = eventData?.options?.dryRun ?? false
 
     const startTime = Date.now()
-    const results: Record<string, SyncResult> = {}
-    const errors: string[] = []
 
-    // Step 1: Determine which suppliers to sync
-    const suppliersToSync = await step.run('determine-suppliers', async () => {
-      const supabase = await createClient()
-
-      if (supplierCode === 'ALL') {
-        // Get all active suppliers handled by this Inngest function.
-        // MiRO/Nology moved from HTML scraping to price-list files/feeds,
-        // so scheduled syncs must include xlsx/csv feed types too.
-        const { data: suppliers } = await supabase
-          .from('suppliers')
-          .select('code')
-          .eq('is_active', true)
-          .in('feed_type', ['html', 'xml', 'xlsx', 'csv'])
-
-        return (suppliers || []).map((s) => s.code)
-      }
-
-      return [supplierCode]
+    // Step 1: Run all (or one) suppliers via the registry-based orchestrator.
+    // The orchestrator's registry includes MiRO/Nology/Scoop/Rectron and filters
+    // by the suppliers' is_active flag. Rectron auto-downloads its file internally.
+    const agg = await step.run('sync-all-suppliers', async () => {
+      return await syncAllSuppliers({
+        triggered_by: triggeredBy === 'cron' ? 'scheduled' : 'manual',
+        triggered_by_user_id: adminUserId,
+        dry_run: dryRun,
+        suppliers: supplierCode === 'ALL' ? undefined : supplierCode,
+      })
     })
 
-    console.log(`[SupplierSync] Syncing suppliers: ${suppliersToSync.join(', ')}`)
+    // Codes that actually ran (exclude inactive/skipped entries)
+    const suppliersToSync = agg.suppliers
+      .filter((o) => !o.skipped)
+      .map((o) => o.supplier_code)
 
-    // Step 2: Sync MiRO (if requested)
-    if (suppliersToSync.includes('MIRO')) {
-      const miroResult = await step.run('sync-miro-products', async () => {
-        console.log('[SupplierSync] Starting MiRO sync...')
-        try {
-          return await syncMiRoProducts({
-            triggered_by: triggeredBy === 'cron' ? 'scheduled' : 'manual',
-            triggered_by_user_id: adminUserId,
-            dry_run: dryRun,
-          })
-        } catch (error) {
-          const errorMsg = `MiRO sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-          console.error(`[SupplierSync] ${errorMsg}`)
-          return {
-            success: false,
-            supplier_id: '',
-            log_id: '',
-            stats: {
-              products_found: 0,
-              products_created: 0,
-              products_updated: 0,
-              products_unchanged: 0,
-              products_deactivated: 0,
-              images_cached: 0,
-            },
-            duration_ms: 0,
-            error: errorMsg,
-          }
-        }
-      })
+    const errors = agg.suppliers
+      .filter((o) => !o.success && o.error)
+      .map((o) => `${o.supplier_code}: ${o.error}`)
 
-      results.MIRO = miroResult
-      if (!miroResult.success) {
-        errors.push(`MIRO: ${miroResult.error}`)
-      }
-
-      // Add delay between suppliers
-      if (suppliersToSync.length > 1) {
-        await step.sleep('wait-after-miro', '5s')
-      }
+    // Map the orchestrator totals onto the legacy event shape the
+    // completion handler already expects.
+    const totals = {
+      totalProducts: agg.totals.products_found,
+      totalCreated: agg.totals.products_created,
+      totalUpdated: agg.totals.products_updated,
+      totalUnchanged: agg.totals.products_unchanged,
+      totalDeactivated: agg.totals.products_deactivated,
+      suppliers_synced: agg.suppliers_synced,
+      suppliers_failed: agg.suppliers_failed,
     }
 
-    // Step 3: Sync Nology (if requested)
-    if (suppliersToSync.includes('NOLOGY')) {
-      const nologyResult = await step.run('sync-nology-products', async () => {
-        console.log('[SupplierSync] Starting Nology sync...')
-        try {
-          return await syncNologyProducts({
-            triggered_by: triggeredBy === 'cron' ? 'scheduled' : 'manual',
-            triggered_by_user_id: adminUserId,
-            dry_run: dryRun,
-          })
-        } catch (error) {
-          const errorMsg = `Nology sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-          console.error(`[SupplierSync] ${errorMsg}`)
-          return {
-            success: false,
-            supplier_id: '',
-            log_id: '',
-            stats: {
-              products_found: 0,
-              products_created: 0,
-              products_updated: 0,
-              products_unchanged: 0,
-              products_deactivated: 0,
-              images_cached: 0,
-            },
-            duration_ms: 0,
-            error: errorMsg,
-          }
-        }
-      })
+    console.log(
+      `[SupplierSync] Syncing suppliers: ${suppliersToSync.join(', ') || '(none)'}`
+    )
 
-      results.NOLOGY = nologyResult
-      if (!nologyResult.success) {
-        errors.push(`NOLOGY: ${nologyResult.error}`)
-      }
-
-      // Add delay between suppliers
-      if (suppliersToSync.includes('SCOOP')) {
-        await step.sleep('wait-after-nology', '5s')
-      }
-    }
-
-    // Step 4: Sync Scoop (if requested)
-    if (suppliersToSync.includes('SCOOP')) {
-      const scoopResult = await step.run('sync-scoop-products', async () => {
-        console.log('[SupplierSync] Starting Scoop sync...')
-        try {
-          return await syncScoopProducts({
-            triggered_by: triggeredBy === 'cron' ? 'scheduled' : 'manual',
-            triggered_by_user_id: adminUserId,
-          })
-        } catch (error) {
-          const errorMsg = `Scoop sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-          console.error(`[SupplierSync] ${errorMsg}`)
-          return {
-            success: false,
-            supplier_id: '',
-            log_id: '',
-            stats: {
-              products_found: 0,
-              products_created: 0,
-              products_updated: 0,
-              products_unchanged: 0,
-              products_deactivated: 0,
-              images_cached: 0,
-            },
-            duration_ms: 0,
-            error: errorMsg,
-          }
-        }
-      })
-
-      results.SCOOP = scoopResult
-      if (!scoopResult.success) {
-        errors.push(`SCOOP: ${scoopResult.error}`)
-      }
-    }
-
-    // Step 5: Calculate totals and send completion event
-    const totals = await step.run('calculate-totals', async () => {
-      let totalProducts = 0
-      let totalCreated = 0
-      let totalUpdated = 0
-      let totalUnchanged = 0
-      let totalDeactivated = 0
-
-      for (const result of Object.values(results)) {
-        if (result.success) {
-          totalProducts += result.stats.products_found
-          totalCreated += result.stats.products_created
-          totalUpdated += result.stats.products_updated
-          totalUnchanged += result.stats.products_unchanged
-          totalDeactivated += result.stats.products_deactivated
-        }
-      }
-
-      return {
-        totalProducts,
-        totalCreated,
-        totalUpdated,
-        totalUnchanged,
-        totalDeactivated,
-        suppliers_synced: suppliersToSync.length,
-        suppliers_failed: errors.length,
-      }
-    })
-
-    // Step 6: PiPaperPlaneRightBold completion event
+    // Step 2: Emit completion event (shape unchanged from before).
     await step.run('send-completion-event', async () => {
       const hasErrors = errors.length > 0
-      const eventName = hasErrors ? 'supplier/sync.completed_with_errors' : 'supplier/sync.completed'
+      const eventName = hasErrors
+        ? 'supplier/sync.completed_with_errors'
+        : 'supplier/sync.completed'
 
       await inngest.send({
         name: eventName,
         data: {
           suppliers_synced: suppliersToSync,
           results: Object.fromEntries(
-            Object.entries(results).map(([code, result]) => [
-              code,
-              {
-                success: result.success,
-                log_id: result.log_id,
-                products_found: result.stats.products_found,
-                products_created: result.stats.products_created,
-                products_updated: result.stats.products_updated,
-                error: result.error,
-              },
-            ])
+            agg.suppliers
+              .filter((o) => o.result)
+              .map((o) => [
+                o.supplier_code,
+                {
+                  success: o.success,
+                  log_id: o.result!.log_id,
+                  products_found: o.result!.stats.products_found,
+                  products_created: o.result!.stats.products_created,
+                  products_updated: o.result!.stats.products_updated,
+                  error: o.error,
+                },
+              ])
           ),
           totals,
           errors: hasErrors ? errors : undefined,

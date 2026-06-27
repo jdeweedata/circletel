@@ -10,6 +10,7 @@ import {
   redactSkyFibreOrderability,
 } from '@/lib/coverage/skyfibre/orderability';
 import type { SkyFibreOrderabilityResult, SkyFibreSegment } from '@/lib/coverage/skyfibre/types';
+import { VALIDATION_CHARGE_AMOUNT } from '@/lib/payments/payment-amounts';
 
 // P4: Valid property types (must match ServiceAddressSection.tsx options)
 const VALID_PROPERTY_TYPES = [
@@ -218,6 +219,9 @@ export async function POST(request: NextRequest) {
         payment_method: null,
         payment_status: 'pending',
         total_paid: 0,
+        // Authoritative charge for initiation — server-set, never client-trusted.
+        // Currently the R1.00 validation charge (see payment-amounts.ts).
+        payment_amount: VALIDATION_CHARGE_AMOUNT,
 
         // Status
         status: 'pending',
