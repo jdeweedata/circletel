@@ -221,6 +221,72 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
   return result;
 }
 
+// ============================================================================
+// Pure payload builders (schema-correct; unit-tested in
+// __tests__/api/cron/payment-reconciliation-payloads.test.ts).
+//
+// These exist because the previous writers targeted columns that DO NOT EXIST
+// (customer_invoices.payment_reference/payment_method; payment_transactions
+// .payment_type/netcash_reference/netcash_response/processed_at/transaction_date
+// /failed_at). Postgres rejected every write, but the calls never checked the
+// returned error — so reconciliation reported success while persisting nothing.
+// Keeping the row shapes as pure functions lets a test lock the column contract.
+// ============================================================================
+
+/** customer_invoices update for a successful collection. */
+export function buildPaidInvoiceUpdate(amount: number, nowISO: string) {
+  return { status: 'paid', amount_paid: amount, paid_at: nowISO, updated_at: nowISO };
+}
+
+/** customer_invoices update for a failed/unpaid collection. */
+export function buildUnpaidInvoiceUpdate(reason: string | undefined, code: string | undefined, nowISO: string) {
+  return {
+    status: 'overdue',
+    notes: `Debit order failed: ${reason || 'Unknown reason'} (Code: ${code || 'N/A'})`,
+    updated_at: nowISO,
+  };
+}
+
+interface TxnInput {
+  invoiceId?: string;
+  orderId?: string;
+  amount: number;
+  reference: string;        // NetCash account reference (= invoice/order number)
+  nowISO: string;
+  outcome: 'completed' | 'failed';
+  unpaidCode?: string;
+  unpaidReason?: string;
+  response?: unknown;       // raw statement result, stored as provider_response (jsonb)
+}
+
+/** payment_transactions row for a reconciled debit (completed or failed). */
+export function buildPaymentTxnRow(input: TxnInput): Record<string, unknown> {
+  const subject = input.invoiceId ? `INV-${input.invoiceId}` : input.orderId;
+  const prefix = input.outcome === 'failed' ? 'NETCASH-FAILED-' : 'NETCASH-RECONCILE-';
+  const row: Record<string, unknown> = {
+    transaction_id: `${prefix}${subject}-${Date.now()}`,
+    amount: input.amount,
+    currency: 'ZAR',
+    status: input.outcome,
+    payment_method: 'debit_order',
+    provider: 'netcash',
+    provider_reference: input.reference,
+    reference: input.reference,
+    reconciliation_source: 'netcash_statement',
+  };
+  if (input.invoiceId) row.customer_invoice_id = input.invoiceId;
+  if (input.orderId) row.order_id = input.orderId;
+  if (input.outcome === 'completed') {
+    row.completed_at = input.nowISO;
+    if (input.response !== undefined) row.provider_response = input.response;
+  } else {
+    row.failure_reason = `${input.unpaidReason || 'Unknown'} (Code: ${input.unpaidCode || 'N/A'})`;
+    row.error_code = input.unpaidCode ?? null;
+    row.error_message = input.unpaidReason ?? null;
+  }
+  return row;
+}
+
 async function updateInvoiceAsPaid(
   supabase: Awaited<ReturnType<typeof createClient>>,
   invoiceId: string,
@@ -228,17 +294,11 @@ async function updateInvoiceAsPaid(
 ) {
   const now = new Date().toISOString();
 
-  await supabase
+  const { error: updateError } = await supabase
     .from('customer_invoices')
-    .update({
-      status: 'paid',
-      amount_paid: debitResult.amount,
-      paid_at: now,
-      payment_method: 'debit_order',
-      payment_reference: debitResult.accountReference,
-      updated_at: now,
-    })
+    .update(buildPaidInvoiceUpdate(debitResult.amount, now))
     .eq('id', invoiceId);
+  if (updateError) throw new Error(`customer_invoices paid update failed: ${updateError.message}`);
 
   // Idempotency check: don't insert duplicate payment transaction if one already exists
   const { data: existingPaid } = await supabase
@@ -254,20 +314,17 @@ async function updateInvoiceAsPaid(
   }
 
   // Create payment transaction record linked to the invoice for Zoho Books sync
-  await supabase
+  const { error: insertError } = await supabase
     .from('payment_transactions')
-    .insert({
-      transaction_id: `NETCASH-RECONCILE-INV-${invoiceId}-${Date.now()}`,
-      customer_invoice_id: invoiceId,
+    .insert(buildPaymentTxnRow({
+      invoiceId,
       amount: debitResult.amount,
-      currency: 'ZAR',
-      payment_type: 'debit_order',
-      status: 'completed',
-      netcash_reference: debitResult.accountReference,
-      netcash_response: debitResult,
-      processed_at: now,
-      transaction_date: now,
-    });
+      reference: debitResult.accountReference,
+      nowISO: now,
+      outcome: 'completed',
+      response: debitResult,
+    }));
+  if (insertError) throw new Error(`payment_transactions insert failed: ${insertError.message}`);
 }
 
 async function updateOrderAsPaid(
@@ -277,7 +334,7 @@ async function updateOrderAsPaid(
 ) {
   const now = new Date().toISOString();
 
-  await supabase
+  const { error: updateError } = await supabase
     .from('consumer_orders')
     .update({
       payment_status: 'paid',
@@ -285,22 +342,28 @@ async function updateOrderAsPaid(
       updated_at: now,
     })
     .eq('id', orderId);
+  if (updateError) throw new Error(`consumer_orders paid update failed: ${updateError.message}`);
 
-  // Create payment transaction record
-  await supabase
+  // Idempotency check: don't insert duplicate payment transaction if one already exists
+  const { data: existingPaid } = await supabase
     .from('payment_transactions')
-    .insert({
-      transaction_id: `NETCASH-RECONCILE-${orderId}-${Date.now()}`,
-      order_id: orderId,
+    .select('id')
+    .eq('order_id', orderId)
+    .eq('status', 'completed')
+    .limit(1);
+  if (existingPaid && existingPaid.length > 0) return;
+
+  const { error: insertError } = await supabase
+    .from('payment_transactions')
+    .insert(buildPaymentTxnRow({
+      orderId,
       amount: debitResult.amount,
-      currency: 'ZAR',
-      payment_type: 'debit_order',
-      status: 'completed',
-      netcash_reference: debitResult.accountReference,
-      netcash_response: debitResult,
-      processed_at: now,
-      transaction_date: now,
-    });
+      reference: debitResult.accountReference,
+      nowISO: now,
+      outcome: 'completed',
+      response: debitResult,
+    }));
+  if (insertError) throw new Error(`payment_transactions insert failed: ${insertError.message}`);
 }
 
 async function markInvoiceUnpaid(
@@ -310,14 +373,11 @@ async function markInvoiceUnpaid(
 ) {
   const now = new Date().toISOString();
 
-  await supabase
+  const { error: updateError } = await supabase
     .from('customer_invoices')
-    .update({
-      status: 'overdue',
-      notes: `Debit order failed: ${debitResult.unpaidReason || 'Unknown reason'} (Code: ${debitResult.unpaidCode || 'N/A'})`,
-      updated_at: now,
-    })
+    .update(buildUnpaidInvoiceUpdate(debitResult.unpaidReason, debitResult.unpaidCode, now))
     .eq('id', invoiceId);
+  if (updateError) throw new Error(`customer_invoices unpaid update failed: ${updateError.message}`);
 
   // Idempotency check: don't insert duplicate payment transaction if one already exists
   const { data: existingFailed } = await supabase
@@ -333,50 +393,48 @@ async function markInvoiceUnpaid(
   }
 
   // Create failed payment transaction record linked to the invoice
-  await supabase
+  const { error: insertError } = await supabase
     .from('payment_transactions')
-    .insert({
-      transaction_id: `NETCASH-FAILED-INV-${invoiceId}-${Date.now()}`,
-      customer_invoice_id: invoiceId,
+    .insert(buildPaymentTxnRow({
+      invoiceId,
       amount: debitResult.amount,
-      currency: 'ZAR',
-      payment_type: 'debit_order',
-      status: 'failed',
-      failure_reason: `${debitResult.unpaidReason || 'Unknown'} (Code: ${debitResult.unpaidCode || 'N/A'})`,
-      netcash_reference: debitResult.accountReference,
-      failed_at: now,
-      transaction_date: now,
-    });
+      reference: debitResult.accountReference,
+      nowISO: now,
+      outcome: 'failed',
+      unpaidCode: debitResult.unpaidCode,
+      unpaidReason: debitResult.unpaidReason,
+    }));
+  if (insertError) throw new Error(`payment_transactions failed-insert failed: ${insertError.message}`);
 }
 
 async function markOrderUnpaid(
   supabase: Awaited<ReturnType<typeof createClient>>,
   orderId: string,
-  debitResult: { unpaidCode?: string; unpaidReason?: string; amount: number; transactionCode: string }
+  debitResult: { unpaidCode?: string; unpaidReason?: string; amount: number; transactionCode: string; accountReference: string }
 ) {
   const now = new Date().toISOString();
 
-  await supabase
+  const { error: updateError } = await supabase
     .from('consumer_orders')
     .update({
       payment_status: 'failed',
       updated_at: now,
     })
     .eq('id', orderId);
+  if (updateError) throw new Error(`consumer_orders unpaid update failed: ${updateError.message}`);
 
   // Create failed payment transaction record
-  await supabase
+  const { error: insertError } = await supabase
     .from('payment_transactions')
-    .insert({
-      transaction_id: `NETCASH-FAILED-${orderId}-${Date.now()}`,
-      order_id: orderId,
+    .insert(buildPaymentTxnRow({
+      orderId,
       amount: debitResult.amount,
-      currency: 'ZAR',
-      payment_type: 'debit_order',
-      status: 'failed',
-      failure_reason: `${debitResult.unpaidReason || 'Unknown'} (Code: ${debitResult.unpaidCode || 'N/A'})`,
-      failed_at: now,
-      transaction_date: now,
-    });
+      reference: debitResult.accountReference,
+      nowISO: now,
+      outcome: 'failed',
+      unpaidCode: debitResult.unpaidCode,
+      unpaidReason: debitResult.unpaidReason,
+    }));
+  if (insertError) throw new Error(`payment_transactions failed-insert failed: ${insertError.message}`);
 }
 
