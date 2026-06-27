@@ -143,4 +143,4 @@ flowchart TD
 
 ## State Management
 
-Order state persisted via `OrderContext` (Zustand + localStorage). Survives page navigation and OAuth redirects. Google OAuth checkout state (service address, property type) saved to `sessionStorage` before redirect and restored on return.
+Order state persisted via `OrderContext` (React Context + localStorage, key `circletel_order_state`). Survives page navigation and OAuth redirects. Google OAuth checkout state (service address, property type) saved to `sessionStorage` before redirect and restored on return.
