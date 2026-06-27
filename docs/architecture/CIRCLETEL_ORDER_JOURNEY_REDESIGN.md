@@ -4,6 +4,9 @@ Redesigned consumer order flow borrowing Vox's linear, single-purpose-per-page p
 
 ## What Changes (and Why)
 
+> Full side-by-side (Vox vs shipped vs redesign, production-validated 2026-06-27):
+> [`VOX_VS_CIRCLETEL_ORDER_JOURNEY.md`](./VOX_VS_CIRCLETEL_ORDER_JOURNEY.md)
+
 | Vox pattern borrowed | Current CircleTel problem | Redesign |
 |---|---|---|
 | **Dedicated enhancements page** | Add-ons buried in package sidebar | New `/order/enhancements` page after package selection |

@@ -23,7 +23,12 @@ export function OrderSummarySidebar({
   isSimOnly = false,
   address,
 }: OrderSummarySidebarProps) {
-  const displayPrice = promotionPrice ?? monthlyPrice;
+  // Prices arrive EX-VAT (raw service_packages.price), matching the package card's convention.
+  // The card displays incl-VAT via Math.round(price * 1.15) — mirror that here so the
+  // advertised price (e.g. R899) reconciles with checkout instead of being re-divided.
+  const VAT_RATE = 0.15;
+  const inclVAT = (exVat: number): number => Math.round(exVat * (1 + VAT_RATE));
+  const effectivePrice = promotionPrice ?? monthlyPrice; // ex-VAT
 
   return (
     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden sticky top-6">
@@ -45,29 +50,29 @@ export function OrderSummarySidebar({
             <div className="text-right">
               {promotionPrice ? (
                 <>
-                  <span className="text-sm font-semibold text-gray-900">R{(promotionPrice / 1.15).toFixed(2)}</span>
-                  <span className="text-gray-400 line-through text-xs ml-1.5">R{(monthlyPrice / 1.15).toFixed(2)}</span>
+                  <span className="text-sm font-semibold text-gray-900">R{promotionPrice.toFixed(2)}</span>
+                  <span className="text-gray-400 line-through text-xs ml-1.5">R{monthlyPrice.toFixed(2)}</span>
                 </>
               ) : (
-                <span className="text-sm font-semibold text-gray-900">R{(monthlyPrice / 1.15).toFixed(2)}</span>
+                <span className="text-sm font-semibold text-gray-900">R{monthlyPrice.toFixed(2)}</span>
               )}
               <span className="text-gray-400 text-xs">/mo</span>
             </div>
           </div>
           <div className="flex items-baseline justify-between text-xs text-gray-400">
             <span>VAT (15%)</span>
-            <span>R{(displayPrice - displayPrice / 1.15).toFixed(2)}</span>
+            <span>R{(inclVAT(effectivePrice) - effectivePrice).toFixed(2)}</span>
           </div>
           <div className="flex items-baseline justify-between">
             <span className="text-sm font-medium text-gray-700">Monthly (incl. VAT)</span>
             <div className="text-right">
               {promotionPrice ? (
                 <>
-                  <span className="text-lg font-bold text-gray-900">R{promotionPrice.toFixed(2)}</span>
-                  <span className="text-gray-400 line-through text-xs ml-1.5">R{monthlyPrice.toFixed(2)}</span>
+                  <span className="text-lg font-bold text-gray-900">R{inclVAT(promotionPrice).toFixed(2)}</span>
+                  <span className="text-gray-400 line-through text-xs ml-1.5">R{inclVAT(monthlyPrice).toFixed(2)}</span>
                 </>
               ) : (
-                <span className="text-lg font-bold text-gray-900">R{monthlyPrice.toFixed(2)}</span>
+                <span className="text-lg font-bold text-gray-900">R{inclVAT(monthlyPrice).toFixed(2)}</span>
               )}
               <span className="text-gray-400 text-xs">/mo</span>
             </div>
