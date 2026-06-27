@@ -1,8 +1,10 @@
 import {
   buildBatchAuthoriseEnvelope,
   parseBatchAuthoriseResult,
+  partitionByLimits,
   BATCH_AUTH_CODES,
   type BatchAuthoriseOptions,
+  type DebitOrderItem,
 } from '@/lib/payments/netcash-debit-batch-service';
 
 const FULL_OPTS: Required<BatchAuthoriseOptions> = {
@@ -91,5 +93,82 @@ describe('parseBatchAuthoriseResult', () => {
     expect(r.success).toBe(false);
     expect(r.code).toBe('');
     expect(r.message).toMatch(/empty response/i);
+  });
+});
+
+// Default NetCash profile limits (no env overrides): line R1,500, daily R20,000,
+// warn at 80% (R16,000). See netcash-debit-batch-service.ts.
+function item(ref: string, amount: number): DebitOrderItem {
+  return {
+    accountReference: ref,
+    amount,
+    actionDate: new Date('2026-06-29'),
+    customerId: `cust-${ref}`,
+    accountName: 'Test Account',
+    accountType: 'current',
+    branchCode: '250655',
+    accountNumber: '1234567890',
+  };
+}
+
+describe('partitionByLimits', () => {
+  it('keeps a normal batch fully submittable with no warning or daily breach', () => {
+    const p = partitionByLimits([item('A', 450), item('B', 999), item('C', 450)]);
+    expect(p.submittable).toHaveLength(3);
+    expect(p.overLine).toHaveLength(0);
+    expect(p.totalRands).toBe(1899);
+    expect(p.dailyExceeded).toBe(false);
+    expect(p.warning).toBeUndefined();
+  });
+
+  it('splits out items above the per-item line limit (skip & flag) but keeps the rest', () => {
+    const p = partitionByLimits([item('clinic', 450), item('bizfibre', 4373), item('clinic2', 999)]);
+    expect(p.overLine.map((i) => i.accountReference)).toEqual(['bizfibre']);
+    expect(p.submittable.map((i) => i.accountReference)).toEqual(['clinic', 'clinic2']);
+    // total reflects SUBMITTABLE only — the over-line item is excluded
+    expect(p.totalRands).toBe(1449);
+    expect(p.dailyExceeded).toBe(false);
+  });
+
+  it('treats an item exactly at the line limit as submittable (boundary)', () => {
+    const p = partitionByLimits([item('edge', 1500)]);
+    expect(p.overLine).toHaveLength(0);
+    expect(p.submittable).toHaveLength(1);
+  });
+
+  it('warns when the submittable total crosses 80% of the daily cap but still submits', () => {
+    // 40 x R450 = R18,000 (> R16,000 warn threshold, <= R20,000 cap)
+    const items = Array.from({ length: 40 }, (_, i) => item(`x${i}`, 450));
+    const p = partitionByLimits(items);
+    expect(p.totalRands).toBe(18000);
+    expect(p.dailyExceeded).toBe(false);
+    expect(p.warning).toMatch(/approaching the cap/i);
+  });
+
+  it('flags dailyExceeded when the submittable total breaches the daily cap', () => {
+    // 50 x R450 = R22,500 (> R20,000)
+    const items = Array.from({ length: 50 }, (_, i) => item(`x${i}`, 450));
+    const p = partitionByLimits(items);
+    expect(p.totalRands).toBe(22500);
+    expect(p.dailyExceeded).toBe(true);
+    expect(p.warning).toBeUndefined(); // breach takes precedence over the warn band
+  });
+
+  it('computes the daily cap AFTER excluding over-line items', () => {
+    // One R5,000 over-line item would push a naive sum over R20k, but it is
+    // excluded; the submittable R15,000 is under the cap.
+    const items = [item('big', 5000), ...Array.from({ length: 30 }, (_, i) => item(`x${i}`, 500))];
+    const p = partitionByLimits(items);
+    expect(p.overLine.map((i) => i.accountReference)).toEqual(['big']);
+    expect(p.totalRands).toBe(15000);
+    expect(p.dailyExceeded).toBe(false);
+  });
+
+  it('handles an empty batch', () => {
+    const p = partitionByLimits([]);
+    expect(p.submittable).toHaveLength(0);
+    expect(p.overLine).toHaveLength(0);
+    expect(p.totalRands).toBe(0);
+    expect(p.dailyExceeded).toBe(false);
   });
 });
