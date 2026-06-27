@@ -15,6 +15,7 @@ import { readdirSync, statSync } from 'fs'
 import { join, basename } from 'path'
 import { createClient } from '@/lib/supabase/server'
 import { parseRectronFile } from './rectron-parser'
+import { downloadRectronPricelist } from './rectron-downloader'
 import type { RectronSyncConfig, ParsedRectronProduct } from './rectron-types'
 import type {
   SyncResult,
@@ -39,6 +40,8 @@ export async function syncRectronProducts(options: {
   dry_run?: boolean
   /** Override file path for testing */
   file_path?: string
+  /** Auto-download the latest file before syncing (default: true) */
+  download?: boolean
 } = {}): Promise<SyncResult> {
   const startTime = Date.now()
   const supabase = await createClient()
@@ -60,8 +63,33 @@ export async function syncRectronProducts(options: {
   const watchDir = config.watch_dir || DEFAULT_WATCH_DIR
   const filePattern = config.file_pattern || DEFAULT_FILE_PATTERN
 
-  // Find the latest file
-  const filePath = options.file_path || findLatestFile(watchDir, filePattern)
+  // Resolve the file to parse:
+  // 1. explicit override, else 2. auto-download latest, else 3. latest local file.
+  let filePath: string | undefined | null = options.file_path
+  let downloadWarning: string | null = null
+
+  if (!filePath && (options.download ?? true)) {
+    try {
+      const dl = await downloadRectronPricelist({
+        watchDir,
+        pageUrl: config.download_page_url,
+        cdnBase: config.cdn_base_url,
+      })
+      filePath = dl.filePath
+      console.log(
+        `[RectronSync] Auto-download: ${dl.filename} (downloaded=${dl.downloaded})`
+      )
+    } catch (error) {
+      downloadWarning = `Auto-download failed, using latest local file: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+      console.warn(`[RectronSync] ${downloadWarning}`)
+    }
+  }
+
+  if (!filePath) {
+    filePath = findLatestFile(watchDir, filePattern)
+  }
 
   if (!filePath) {
     throw new Error(
@@ -128,6 +156,7 @@ export async function syncRectronProducts(options: {
             dry_run: true,
             file: basename(filePath),
             products_parsed: parseResult.products_parsed,
+            download_warning: downloadWarning || undefined,
           },
         })
         .eq('id', syncLog.id)
@@ -180,14 +209,14 @@ export async function syncRectronProducts(options: {
         images_cached: 0,
         duration_ms: durationMs,
         completed_at: new Date().toISOString(),
-        error_message: hasErrors
-          ? [
-              ...parseResult.errors,
-              ...upsertResult.errors.map((e) => `${e.sku}: ${e.error}`),
-            ]
-              .slice(0, 5)
-              .join('; ')
-          : null,
+        error_message: (() => {
+          const messages = [
+            ...(downloadWarning ? [downloadWarning] : []),
+            ...parseResult.errors,
+            ...upsertResult.errors.map((e) => `${e.sku}: ${e.error}`),
+          ]
+          return messages.length ? messages.slice(0, 5).join('; ') : null
+        })(),
       })
       .eq('id', syncLog.id)
 

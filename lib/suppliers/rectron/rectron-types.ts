@@ -85,6 +85,10 @@ export interface RectronSyncConfig {
   file_pattern: string
   /** Whether to archive processed files */
   archive_processed: boolean
+  /** Optional override for the public download page URL */
+  download_page_url?: string
+  /** Optional override for the CDN base URL */
+  cdn_base_url?: string
 }
 
 // =====================================================
