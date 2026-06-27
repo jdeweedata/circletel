@@ -25,6 +25,18 @@ export interface BatchSubmissionResult {
 const VENDOR_KEY = '24ade73c-98cf-47b3-99be-cc7b867b3080';
 
 // ============================================================================
+// NetCash collection limits (profile 52552945156, observed 2026-06-27).
+// Env-overridable so a NetCash limit increase is a config change, not a code
+// change. See docs/netcash/2026-06-27_netcash-debit-limit-increase-request.md.
+//   LINE_LIMIT  — max per debit-order item; NetCash rejects any line above it
+//   DAILY_LIMIT — max batch total per action date
+//   WARN_RATIO  — warn once a batch crosses this fraction of the daily cap
+// ============================================================================
+const LINE_LIMIT_RANDS = Number(process.env.NETCASH_LINE_LIMIT_RANDS) || 1500;
+const DAILY_LIMIT_RANDS = Number(process.env.NETCASH_DAILY_LIMIT_RANDS) || 20000;
+const DAILY_WARN_RATIO = Number(process.env.NETCASH_DAILY_WARN_RATIO) || 0.8;
+
+// ============================================================================
 // Batch authorisation (RequestBatchAuthorise)
 //
 // Uploaded TwoDay batches sit UNAUTHORISED and expire if not released within
@@ -95,6 +107,31 @@ export function parseBatchAuthoriseResult(xml: string): BatchAuthoriseResult {
     message: BATCH_AUTH_CODES[code] || (isError ? `Authorisation failed (code ${code})` : `Authorised (response ${code})`),
     authoriseNotAllowed: code === '322',
   };
+}
+
+export interface BatchLimitPartition {
+  submittable: DebitOrderItem[];  // items within the per-item line limit — safe to upload
+  overLine: DebitOrderItem[];     // items above the line limit — cannot be collected as a debit-order line
+  totalRands: number;             // total of the SUBMITTABLE items only
+  dailyExceeded: boolean;         // submittable total breaches the daily cap
+  warning?: string;               // advisory when the submittable total approaches the cap
+}
+
+/** Partition a batch by the NetCash collection limits. Pure — unit-tested.
+ * Over-line items are split out (caller skips & flags them — they can't be
+ * collected as a single debit-order line); `dailyExceeded` blocks the run. */
+export function partitionByLimits(items: DebitOrderItem[]): BatchLimitPartition {
+  const overLine = items.filter((i) => i.amount > LINE_LIMIT_RANDS);
+  const submittable = items.filter((i) => i.amount <= LINE_LIMIT_RANDS);
+  const totalRands = submittable.reduce((sum, i) => sum + i.amount, 0);
+  const dailyExceeded = totalRands > DAILY_LIMIT_RANDS;
+  const warning =
+    !dailyExceeded && totalRands > DAILY_LIMIT_RANDS * DAILY_WARN_RATIO
+      ? `Batch total R${totalRands.toFixed(2)} is over ${Math.round(
+          DAILY_WARN_RATIO * 100,
+        )}% of the NetCash daily limit R${DAILY_LIMIT_RANDS.toFixed(2)} — approaching the cap.`
+      : undefined;
+  return { submittable, overLine, totalRands, dailyExceeded, warning };
 }
 
 export class NetCashDebitBatchService {

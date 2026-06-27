@@ -20,6 +20,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
   netcashDebitBatchService,
+  partitionByLimits,
   DebitOrderItem
 } from '@/lib/payments/netcash-debit-batch-service';
 import { PayNowBillingService } from '@/lib/billing/paynow-billing-service';
@@ -328,11 +329,53 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   cronLogger.info(`Found ${eligibleItems.length} eligible debit orders to submit`);
 
   // ============================================================================
+  // 3b. Apply NetCash collection limits (per-item line limit + daily cap)
+  //
+  // Items above the per-item line limit cannot be collected as a debit-order
+  // line on this profile — skip & flag them (they need an alternative method,
+  // e.g. a Pay Now link, or the NetCash line limit must be raised). The daily
+  // cap blocks the whole run only if the SUBMITTABLE total breaches it.
+  // See docs/netcash/2026-06-27_netcash-debit-limit-increase-request.md.
+  // ============================================================================
+  const limits = partitionByLimits(eligibleItems);
+
+  for (const item of limits.overLine) {
+    result.skipped++;
+    result.errors.push(
+      `Skipped ${item.accountReference}: R${item.amount.toFixed(2)} exceeds the NetCash per-item line limit — cannot be debit-collected on this profile (collect via Pay Now or raise the NetCash line limit)`
+    );
+    cronLogger.warn(
+      `Over line-limit, skipped: ${item.accountReference} R${item.amount.toFixed(2)} (customer ${item.customerId})`
+    );
+  }
+
+  if (limits.dailyExceeded) {
+    result.errors.push(
+      `Submittable batch total R${limits.totalRands.toFixed(2)} exceeds the NetCash daily limit — batch not submitted. Raise the NetCash daily limit or split across action dates.`
+    );
+    cronLogger.error(
+      `Daily limit exceeded — batch not submitted (submittable total R${limits.totalRands.toFixed(2)})`
+    );
+    await logExecution(supabase, result, 'failed');
+    return result;
+  }
+
+  if (limits.warning) cronLogger.warn(limits.warning);
+
+  const itemsToSubmit = limits.submittable;
+
+  if (itemsToSubmit.length === 0) {
+    cronLogger.info('No submittable debit orders after applying collection limits');
+    await logExecution(supabase, result, result.errors.length > 0 ? 'completed_with_errors' : 'completed');
+    return result;
+  }
+
+  // ============================================================================
   // 4. Submit batch to NetCash
   // ============================================================================
-  
+
   const batchName = `CircleTel-${dateStr}-${Date.now()}`;
-  const batchResult = await netcashDebitBatchService.submitBatch(eligibleItems, batchName);
+  const batchResult = await netcashDebitBatchService.submitBatch(itemsToSubmit, batchName);
 
   if (!batchResult.success) {
     result.errors.push(...batchResult.errors);
@@ -393,7 +436,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   await recordBatchSubmission(supabase, {
     batchId: batchResult.fileToken || '',
     batchName,
-    items: eligibleItems,
+    items: itemsToSubmit,
     submittedAt: new Date(),
     authorised: result.authorised,
   });
@@ -402,7 +445,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   // 7. Update next billing dates
   // ============================================================================
 
-  await updateNextBillingDates(supabase, eligibleItems, billingDate);
+  await updateNextBillingDates(supabase, itemsToSubmit, billingDate);
 
   // ============================================================================
   // 8. Send Pay Now to customers with pending/missing eMandate
