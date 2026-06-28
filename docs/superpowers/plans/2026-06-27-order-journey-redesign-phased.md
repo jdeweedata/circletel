@@ -89,16 +89,18 @@ interface OrderState {
 
 **Success criteria:** entering a fibre-uncovered address surfaces at least one alternative service tab with selectable packages; `% no-coverage sessions → package` rises from ~0.
 
-## Phase 2 — Move auth after the cart (gap #2)
+## Phase 2 — Move auth after the cart (gap #2) ✅ (security core merged #582; UX follow-up PR #584)
 
 **Goal:** stop gating commitment behind sign-in.
 
-- [ ] Extract auth out of the monolithic `/order/checkout` into a step **after** review.
-- [ ] Lead with **OTP** (already live as secondary); keep email/pw + Google as options.
-- [ ] Ensure order state (selected package + enhancements) persists through the auth redirect/round-trip.
-- [ ] RBAC/session: confirm an authed session attaches to the in-progress order, not a fresh one.
+- [x] Reveal auth **after** review — done via **inline just-in-time sign-in** at Place Order (PR #584). A separate `/order/auth` *route* was deliberately deferred to Phase 3 (route-splitting, spec §E); the auth-after-review intent is met inline.
+- [x] Lead with **OTP** (already live as secondary); keep email/pw + Google as options — reused `AccountSection` (OTP-first) inline.
+- [x] Ensure order state persists through the auth redirect/round-trip — OAuth round-trip persists address/property-type + `pendingPlaceOrder` in `sessionStorage`; order draft already survives via root `OrderContextProvider` + localStorage.
+- [x] RBAC/session: an authed session attaches to the in-progress order — **security core (#582)**: `orders/create` requires a verified session and stamps `auth_user_id` + `customer_id`; `initiate` enforces the owner-gate (401/403).
 
-**Success criteria:** a guest can build a full cart before any auth prompt; auth-step drop-off measurable and lower.
+**Success criteria:** a guest can review a full cart before any auth prompt ✅; auth-step drop-off measurable and lower — to confirm via staging/analytics once #584 ships.
+
+> **Outstanding:** #584 awaits **staging visual verification** before merge to `main` (verify up to the inline-auth reveal only; do NOT place orders on staging — shared prod Supabase).
 
 ## Phase 3 — Split checkout into single-purpose pages (gap #3)
 
