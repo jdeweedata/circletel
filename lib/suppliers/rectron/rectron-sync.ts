@@ -344,6 +344,44 @@ function findLatestFile(
 /**
  * Upsert products to database
  */
+/**
+ * Fetch ALL supplier_products rows for a supplier, paginating past Supabase's
+ * default 1000-row select cap. A plain `.select()` silently returns at most
+ * 1000 rows; this catalogue exceeds that, which previously caused partial
+ * upserts (missed updates, false "new" inserts) and broken deactivation.
+ */
+async function fetchAllSupplierProducts(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  supplierId: string,
+  columns: string,
+  activeOnly = false
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<any[]> {
+  const pageSize = 1000
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const all: any[] = []
+  for (let from = 0; ; from += pageSize) {
+    let q = supabase
+      .from('supplier_products')
+      .select(columns)
+      .eq('supplier_id', supplierId)
+    if (activeOnly) q = q.eq('is_active', true)
+    const { data, error } = await q
+      .order('id', { ascending: true })
+      .range(from, from + pageSize - 1)
+    if (error) {
+      throw new Error(
+        `Failed to fetch existing supplier products: ${error.message}`
+      )
+    }
+    if (!data || data.length === 0) break
+    all.push(...data)
+    if (data.length < pageSize) break
+  }
+  return all
+}
+
 async function upsertProducts(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
@@ -357,11 +395,12 @@ async function upsertProducts(
     errors: [],
   }
 
-  // Get existing products for comparison
-  const { data: existingProducts } = await supabase
-    .from('supplier_products')
-    .select('id, sku, cost_price, stock_total')
-    .eq('supplier_id', supplierId)
+  // Get ALL existing products for comparison (paginated past the 1000-row cap).
+  const existingProducts = await fetchAllSupplierProducts(
+    supabase,
+    supplierId,
+    'id, sku, cost_price, stock_total'
+  )
 
   interface ExistingProduct {
     sku: string
@@ -505,25 +544,50 @@ async function deactivateMissingProducts(
 ): Promise<number> {
   if (activeSKUs.length === 0) return 0
 
-  const { data, error } = await supabase
-    .from('supplier_products')
-    .update({
-      is_active: false,
-      is_discontinued: true,
-      last_synced_at: new Date().toISOString(),
-    })
-    .eq('supplier_id', supplierId)
-    .eq('is_active', true)
-    .not('sku', 'in', activeSKUs)
-    .select('id')
+  const activeSet = new Set(activeSKUs)
 
-  if (error) {
-    console.warn(
-      '[RectronSync] Failed to deactivate missing products:',
-      error
-    )
-    return 0
+  // Fetch ALL currently-active products (paginated) and compute, in JS, the ones
+  // whose SKU is no longer in the file. The previous `.not('sku','in', array)`
+  // filter was malformed (array not serialized to a PostgREST list) and, with
+  // hundreds of SKUs, would also overflow the request URL — so it deactivated
+  // nothing, leaving obsolete products active.
+  const existingActive = await fetchAllSupplierProducts(
+    supabase,
+    supplierId,
+    'id, sku',
+    true
+  )
+  const toDeactivate = existingActive
+    .filter((p: { sku: string }) => !activeSet.has(p.sku))
+    .map((p: { id: string }) => p.id)
+
+  if (toDeactivate.length === 0) return 0
+
+  const now = new Date().toISOString()
+  const batchSize = 500
+  let deactivated = 0
+
+  for (let i = 0; i < toDeactivate.length; i += batchSize) {
+    const batch = toDeactivate.slice(i, i + batchSize)
+    const { data, error } = await supabase
+      .from('supplier_products')
+      .update({
+        is_active: false,
+        is_discontinued: true,
+        last_synced_at: now,
+      })
+      .in('id', batch)
+      .select('id')
+
+    if (error) {
+      console.warn(
+        '[RectronSync] Failed to deactivate missing products batch:',
+        error
+      )
+      continue
+    }
+    deactivated += data?.length || 0
   }
 
-  return data?.length || 0
+  return deactivated
 }
