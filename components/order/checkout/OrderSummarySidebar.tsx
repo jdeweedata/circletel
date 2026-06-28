@@ -1,6 +1,11 @@
 'use client';
 
-import { PiLockSimpleBold, PiWifiHighBold, PiShieldBold, PiHeartBold } from 'react-icons/pi';
+import { PiLockSimpleBold, PiMapPinBold, PiWifiHighBold, PiShieldBold, PiHeartBold } from 'react-icons/pi';
+import {
+  ORDER_PROCESSING_FEE_AMOUNT,
+  ORDER_PROCESSING_FEE_DESCRIPTION,
+  ORDER_PROCESSING_FEE_LABEL,
+} from '@/lib/payments/payment-amounts';
 
 interface OrderSummarySidebarProps {
   packageName: string;
@@ -31,19 +36,26 @@ export function OrderSummarySidebar({
   const effectivePrice = promotionPrice ?? monthlyPrice; // ex-VAT
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden sticky top-6">
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg shadow-gray-200/60 lg:sticky lg:top-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-4">
-        <div className="flex items-center gap-2 mb-1">
+      <div className="bg-circleTel-orange px-6 py-6">
+        <div className="mb-3 flex items-center gap-2">
           <PiWifiHighBold className="w-4 h-4 text-white/80" />
-          <span className="text-sm font-semibold text-white/90 uppercase tracking-wide">Your plan</span>
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/90">Your plan</span>
         </div>
-        <p className="text-white font-extrabold text-xl leading-tight">{packageName}</p>
-        <p className="text-white/70 text-sm">{speed}</p>
+        <p className="text-xl font-extrabold leading-tight text-white">{packageName}</p>
+        <p className="mt-1 text-sm text-white/90">{speed}</p>
       </div>
 
       {/* Pricing breakdown */}
-      <div className="px-5 py-4 space-y-3">
+      <div className="space-y-4 px-6 py-6">
+        {address && (
+          <div className="flex gap-2.5 text-sm leading-relaxed text-gray-500">
+            <PiMapPinBold className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+            <p>{address}</p>
+          </div>
+        )}
+
         <div className="space-y-1">
           <div className="flex items-baseline justify-between">
             <span className="text-sm text-gray-500">Monthly (excl. VAT)</span>
@@ -59,11 +71,11 @@ export function OrderSummarySidebar({
               <span className="text-gray-400 text-xs">/mo</span>
             </div>
           </div>
-          <div className="flex items-baseline justify-between text-xs text-gray-400">
+          <div className="flex items-baseline justify-between text-sm text-gray-500">
             <span>VAT (15%)</span>
             <span>R{(inclVAT(effectivePrice) - effectivePrice).toFixed(2)}</span>
           </div>
-          <div className="flex items-baseline justify-between">
+          <div className="flex items-baseline justify-between border-t border-gray-200 pt-3">
             <span className="text-sm font-medium text-gray-700">Monthly (incl. VAT)</span>
             <div className="text-right">
               {promotionPrice ? (
@@ -89,26 +101,24 @@ export function OrderSummarySidebar({
           </div>
         )}
 
-        {address && (
-          <div className="pt-1 border-t border-gray-50">
-            <p className="text-xs text-gray-400 leading-relaxed">{address}</p>
-          </div>
-        )}
-
         {/* Today's charge */}
-        <div className="bg-gray-50 rounded-lg px-4 py-3 mt-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Charged today</span>
-            <span className="text-3xl font-extrabold text-circleTel-orange">R1.00</span>
+        <div className="mt-5 rounded-xl bg-circleTel-orange-light px-4 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <span className="text-sm font-semibold text-circleTel-navy">{ORDER_PROCESSING_FEE_LABEL}</span>
+              <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                {ORDER_PROCESSING_FEE_DESCRIPTION}
+              </p>
+            </div>
+            <span className="text-3xl font-extrabold text-circleTel-orange">
+              R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}
+            </span>
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">
-            Validation charge · credited to your account
-          </p>
         </div>
       </div>
 
       {/* Trust strip */}
-      <div className="px-5 py-4 border-t border-gray-50">
+      <div className="border-t border-gray-200 px-6 py-5">
         <div className="grid grid-cols-3 gap-2 text-center">
           <div>
             <div className="inline-flex items-center justify-center w-8 h-8 bg-orange-100 rounded-full mb-1">

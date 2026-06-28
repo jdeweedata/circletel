@@ -9,7 +9,6 @@ import {
   PiLightningBold,
   PiShieldBold,
   PiWifiHighBold,
-  PiMapPinBold,
   PiArrowLeftBold,
 } from 'react-icons/pi';
 import { CheckoutProgressBar } from '@/components/order/CheckoutProgressBar';
@@ -18,12 +17,15 @@ import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { AccountSection } from '@/components/order/checkout/AccountSection';
 import { OrderingAsCard } from '@/components/order/checkout/OrderingAsCard';
 import { OrderSummarySidebar } from '@/components/order/checkout/OrderSummarySidebar';
-import { PaymentDetailCard } from '@/components/order/checkout/PaymentDetailCard';
 import { ServiceAddressSection } from '@/components/order/checkout/ServiceAddressSection';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/client';
+import {
+  ORDER_PROCESSING_FEE_AMOUNT,
+  ORDER_PROCESSING_FEE_LABEL,
+} from '@/lib/payments/payment-amounts';
 import type { PackageDetails } from '@/lib/order/types';
 import type {
   SkyFibreCapacityMbps,
@@ -287,8 +289,8 @@ export default function CheckoutPage() {
         product_category: pkg.product_category,
         speed_down: pkg.speed_down,
         installation_fee: pkg.installation_fee ?? 0,
-        payment_amount: 1.00,
-        is_validation_charge: true,
+        payment_amount: ORDER_PROCESSING_FEE_AMOUNT,
+        checkout_charge_type: 'order_processing_fee',
         installation_address: serviceAddress,
         delivery_address: finalDeliveryAddress,
         coordinates: serviceCoordinates,
@@ -317,7 +319,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId: order.id,
-          amount: 1.00,
+          amount: ORDER_PROCESSING_FEE_AMOUNT,
           customerEmail: email,
           customerName: `${firstName} ${lastName}`.trim(),
           paymentReference: order.payment_reference,
@@ -442,36 +444,42 @@ export default function CheckoutPage() {
 
   return (
     <div className="pb-24 lg:pb-0">
-      {/* Orange gradient hero */}
-      <div className="relative bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-3xl p-8 lg:p-12 mb-8 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2" />
-        </div>
-        <div className="relative z-10 text-center">
-          <CheckoutProgressBar currentStage={currentProgressStage} variant="hero" className="mb-6" />
-          <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-            {checkoutStep === 'account' ? 'Sign In or Create Account' : 'Confirm Your Order'}
+      {/* Slim checkout band */}
+      <div className="relative left-1/2 -mt-8 mb-9 w-screen -translate-x-1/2 bg-circleTel-orange text-white">
+        <div className="mx-auto max-w-screen-xl px-4 py-7 text-center sm:px-8 lg:px-16">
+          <CheckoutProgressBar
+            currentStage={currentProgressStage}
+            variant="hero"
+            className="mb-4 flex-wrap gap-x-2 gap-y-2"
+          />
+          <h1 className="font-heading text-2xl font-bold leading-tight text-white lg:text-3xl">
+            {checkoutStep === 'account' ? 'Sign in or create account' : 'Confirm and pay'}
           </h1>
-          {pkg && (
-            <p className="text-lg text-orange-100 font-medium">{pkg.name} · {pkg.speed}</p>
-          )}
-          {coverage?.address && (
-            <p className="flex items-center justify-center gap-1.5 text-sm text-orange-100/80 mt-2">
-              <PiMapPinBold className="w-4 h-4 flex-shrink-0" />
-              {coverage.address}
-            </p>
-          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-12">
+      {pkg && (
+        <div className="mb-5 lg:hidden">
+          <OrderSummarySidebar
+            packageName={pkg.name}
+            speed={pkg.speed}
+            monthlyPrice={pkg.monthlyPrice}
+            promotionPrice={typeof pkg.promotion_price === 'number' ? pkg.promotion_price : undefined}
+            promotionMonths={pkg.promotion_months ?? undefined}
+            installationFee={pkg.installation_fee ?? 0}
+            isSimOnly={pkg.type === 'mobile'}
+            address={coverage?.address}
+          />
+        </div>
+      )}
+
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-7 lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* Main column */}
-        <div className="lg:col-span-3 flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
 
           {/* Step: Account (auth) */}
           {checkoutStep === 'account' && (
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-7 sm:p-8">
+            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-lg shadow-gray-200/60 sm:p-8">
               <AccountSection
                 isSubmitting={isSubmitting}
                 onGoogleSignIn={handleGoogleSignIn}
@@ -623,7 +631,7 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={handlePlaceOrder}
                   disabled={isSubmitting || placeOrderBlocked}
-                  className="mt-4 w-full bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-4 py-4 text-base shadow-lg transition-all flex items-center justify-center gap-2"
+                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-circleTel-orange px-4 py-4 text-base font-bold text-white shadow-lg transition-colors hover:bg-circleTel-orange-dark disabled:opacity-60"
                 >
                   <PiLockSimpleBold className="w-5 h-5" />
                   {submitLabel}
@@ -642,20 +650,6 @@ export default function CheckoutPage() {
                   Back to sign in
                 </button>
               </div>
-
-              {/* Mobile payment detail card */}
-              {pkg && (
-                <div className="lg:hidden">
-                  <PaymentDetailCard
-                    packageName={pkg.name}
-                    speed={pkg.speed}
-                    monthlyPrice={pkg.monthlyPrice}
-                    promotionPrice={typeof pkg.promotion_price === 'number' ? pkg.promotion_price : undefined}
-                    installationFee={pkg.installation_fee ?? 0}
-                    isSimOnly={pkg.type === 'mobile'}
-                  />
-                </div>
-              )}
 
               {/* Trust strip */}
               <div className="bg-white rounded-3xl p-6 lg:p-8 shadow-sm border border-gray-100">
@@ -688,7 +682,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="hidden lg:block lg:col-span-2">
+        <div className="hidden lg:block">
           {pkg && (
             <OrderSummarySidebar
               packageName={pkg.name}
@@ -710,13 +704,15 @@ export default function CheckoutPage() {
           <div className="flex items-center gap-4 max-w-lg mx-auto">
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-gray-900 truncate">{pkg.name}</p>
-              <p className="text-xs text-gray-500">R{monthlyPrice}/mo · R1.00 today</p>
+              <p className="text-xs text-gray-500">
+                R{monthlyPrice}/mo · {ORDER_PROCESSING_FEE_LABEL} R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}
+              </p>
             </div>
             <button
               type="button"
               onClick={handlePlaceOrder}
               disabled={isSubmitting || placeOrderBlocked}
-              className="bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-5 py-3 text-sm flex items-center gap-2 flex-shrink-0 min-h-[44px]"
+              className="flex min-h-[44px] flex-shrink-0 items-center gap-2 rounded-xl bg-circleTel-orange px-5 py-3 text-sm font-bold text-white hover:bg-circleTel-orange-dark disabled:opacity-60"
             >
               <PiLockSimpleBold className="w-4 h-4" />
               {submitLabel}

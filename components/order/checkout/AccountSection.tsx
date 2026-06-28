@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { PhoneOTPSection } from './PhoneOTPSection';
 
 type AuthMode = 'signin' | 'signup';
+type AuthMethod = 'email' | 'phone';
 
 interface PhoneSignupSession {
   access_token: string;
@@ -44,6 +45,7 @@ export function AccountSection({
   signInError,
 }: AccountSectionProps) {
   const [mode, setMode] = useState<AuthMode>('signin');
+  const [signInMethod, setSignInMethod] = useState<AuthMethod>('email');
 
   // Sign in state
   const [signInEmail, setSignInEmail] = useState('');
@@ -96,7 +98,7 @@ export function AccountSection({
       type="button"
       onClick={onGoogleSignIn}
       disabled={isSubmitting || isSigningIn || isSigningUp}
-      className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors disabled:opacity-50"
+      className="flex h-[52px] w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-circleTel-navy shadow-sm transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:opacity-50"
     >
       <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -109,89 +111,110 @@ export function AccountSection({
   );
 
   const divider = (label: string) => (
-    <div className="relative my-4">
+    <div className="relative my-6">
       <div className="absolute inset-0 flex items-center">
-        <div className="w-full border-t border-gray-100" />
+        <div className="w-full border-t border-gray-200" />
       </div>
       <div className="relative flex justify-center text-xs">
-        <span className="px-3 bg-white text-gray-400">{label}</span>
+        <span className="bg-white px-4 text-gray-500">{label}</span>
       </div>
+    </div>
+  );
+
+  const methodTabs = (
+    <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-gray-100 p-1" role="tablist" aria-label="Sign-in method">
+      {(['email', 'phone'] as const).map((method) => (
+        <button
+          key={method}
+          type="button"
+          role="tab"
+          aria-selected={signInMethod === method}
+          onClick={() => setSignInMethod(method)}
+          className={`h-11 rounded-lg text-sm font-semibold transition-all ${
+            signInMethod === method
+              ? 'bg-white text-circleTel-navy shadow-sm'
+              : 'text-gray-500 hover:text-circleTel-navy'
+          }`}
+        >
+          {method === 'email' ? 'Email' : 'Mobile'}
+        </button>
+      ))}
     </div>
   );
 
   if (mode === 'signin') {
     return (
       <div>
-        <p className="text-sm font-bold text-circleTel-navy mb-5">Sign in to your account</p>
+        <h2 className="mb-6 font-heading text-xl font-bold text-circleTel-navy">Sign in to continue</h2>
 
         {googleButton}
 
-        {divider('or sign in with')}
+        {divider('or')}
 
-        {/* Email + password login */}
-        <form onSubmit={handleSignIn} className="space-y-3">
-          <div>
-            <Label htmlFor="signInEmail" className="text-xs font-semibold text-circleTel-navy">Email</Label>
-            <Input
-              id="signInEmail"
-              type="email"
-              placeholder="jane@example.com"
-              value={signInEmail}
-              onChange={(e) => setSignInEmail(e.target.value)}
-              className="mt-1 h-10 text-sm"
-              autoComplete="email"
-            />
-          </div>
-          <div>
-            <Label htmlFor="signInPassword" className="text-xs font-semibold text-circleTel-navy">Password</Label>
-            <div className="relative mt-1">
+        {methodTabs}
+
+        {signInMethod === 'email' ? (
+          <form onSubmit={handleSignIn} className="space-y-5">
+            <div>
+              <Label htmlFor="signInEmail" className="text-sm font-semibold text-circleTel-navy">Email</Label>
               <Input
-                id="signInPassword"
-                type={showSignInPassword ? 'text' : 'password'}
-                placeholder="Your password"
-                value={signInPassword}
-                onChange={(e) => setSignInPassword(e.target.value)}
-                className="h-10 text-sm pr-14"
-                autoComplete="current-password"
+                id="signInEmail"
+                type="email"
+                placeholder="jane@example.com"
+                value={signInEmail}
+                onChange={(e) => setSignInEmail(e.target.value)}
+                className="mt-2 h-[52px] rounded-xl text-base"
+                autoComplete="email"
               />
-              <button
-                type="button"
-                onClick={() => setShowSignInPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
-              >
-                {showSignInPassword ? 'Hide' : 'Show'}
-              </button>
             </div>
-            <div className="flex justify-end mt-1">
-              <a href="/auth/forgot-password" className="text-xs text-circleTel-orange hover:underline">
-                Forgot password?
-              </a>
+            <div>
+              <Label htmlFor="signInPassword" className="text-sm font-semibold text-circleTel-navy">Password</Label>
+              <div className="relative mt-2">
+                <Input
+                  id="signInPassword"
+                  type={showSignInPassword ? 'text' : 'password'}
+                  placeholder="Your password"
+                  value={signInPassword}
+                  onChange={(e) => setSignInPassword(e.target.value)}
+                  className="h-[52px] rounded-xl pr-16 text-base"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSignInPassword((v) => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500 hover:text-circleTel-navy"
+                >
+                  {showSignInPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              <div className="mt-2 flex justify-end">
+                <a href="/auth/forgot-password" className="text-sm font-semibold text-circleTel-orange hover:text-circleTel-orange-dark hover:underline">
+                  Forgot password?
+                </a>
+              </div>
             </div>
-          </div>
 
-          {(signInLocalError || signInError) && (
-            <p className="text-red-500 text-xs">{signInLocalError || signInError}</p>
-          )}
+            {(signInLocalError || signInError) && (
+              <p className="text-red-500 text-xs">{signInLocalError || signInError}</p>
+            )}
 
-          <button
-            type="submit"
-            disabled={isSigningIn || !signInEmail || !signInPassword}
-            className="w-full bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-4 py-3 text-sm shadow transition-all"
-          >
-            {isSigningIn ? 'Signing in…' : 'Sign In'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={isSigningIn || !signInEmail || !signInPassword}
+              className="flex h-[52px] w-full items-center justify-center rounded-xl bg-circleTel-orange px-4 py-3 text-base font-bold text-white shadow-sm transition-colors hover:bg-circleTel-orange-dark disabled:opacity-60"
+            >
+              {isSigningIn ? 'Signing in…' : 'Sign in'}
+            </button>
+          </form>
+        ) : (
+          <PhoneOTPSection
+            isSubmitting={isSubmitting || isSigningIn}
+            onSignupComplete={onPhoneSignupComplete}
+            onError={onPhoneSignupError}
+          />
+        )}
 
-        {divider('or sign in with')}
-
-        {/* Phone OTP */}
-        <PhoneOTPSection
-          isSubmitting={isSubmitting || isSigningIn}
-          onSignupComplete={onPhoneSignupComplete}
-          onError={onPhoneSignupError}
-        />
-
-        <p className="text-center text-xs text-gray-500 mt-5">
+        <p className="mt-6 text-center text-sm text-gray-500">
           New customer?{' '}
           <button
             type="button"
@@ -208,11 +231,11 @@ export function AccountSection({
   // Signup mode
   return (
     <div>
-      <p className="text-sm font-bold text-circleTel-navy mb-5">Create your account</p>
+      <h2 className="mb-6 font-heading text-xl font-bold text-circleTel-navy">Create your account</h2>
 
       {googleButton}
 
-      {divider('or sign up with')}
+      {divider('or')}
 
       {/* Tab toggle */}
       <div className="flex rounded-xl border border-gray-200 p-1 mb-5 bg-gray-50">

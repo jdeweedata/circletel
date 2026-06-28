@@ -1,6 +1,10 @@
 'use client';
 
 import { PiCreditCardBold } from 'react-icons/pi';
+import {
+  ORDER_PROCESSING_FEE_AMOUNT,
+  ORDER_PROCESSING_FEE_LABEL,
+} from '@/lib/payments/payment-amounts';
 
 interface PaymentDetailCardProps {
   packageName: string;
@@ -52,13 +56,15 @@ export function PaymentDetailCard({
           </div>
         )}
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-500">Payment Fee</span>
-          <span className="text-gray-400 text-xs">R1.00 validation</span>
+          <span className="text-gray-500">{ORDER_PROCESSING_FEE_LABEL}</span>
+          <span className="text-gray-700">R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}</span>
         </div>
 
         <div className="border-t border-gray-100 pt-2.5 flex items-center justify-between">
           <span className="text-sm font-semibold text-gray-800">Total today</span>
-          <span className="text-2xl font-extrabold text-circleTel-orange">R1.00</span>
+          <span className="text-2xl font-extrabold text-circleTel-orange">
+            R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}
+          </span>
         </div>
       </div>
 
