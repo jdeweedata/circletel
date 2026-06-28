@@ -5,6 +5,7 @@ import { tmpdir } from 'os'
 import {
   resolveLatestRectronFile,
   downloadRectronPricelist,
+  downloadRectronBuffer,
   RECTRON_CDN_BASE,
 } from '../rectron-downloader'
 
@@ -129,5 +130,28 @@ describe('rectron-downloader', () => {
       return { ok: true, status: 200, text: async () => FIXTURE_HTML } as any
     }) as any
     await expect(downloadRectronPricelist({ watchDir: dir })).rejects.toThrow(/magic bytes/)
+  })
+
+  it('downloadRectronBuffer returns the validated bytes in memory (no disk)', async () => {
+    global.fetch = mockFetchRouting() as any
+    const { filename, buffer } = await downloadRectronBuffer()
+    expect(filename).toBe(FILENAME)
+    expect(buffer.length).toBe(ZIP_BYTES.length)
+    expect(Array.from(buffer.subarray(0, 4))).toEqual([0x50, 0x4b, 0x03, 0x04])
+  })
+
+  it('downloadRectronBuffer propagates validation failures (bad magic)', async () => {
+    global.fetch = jest.fn(async (input: any) => {
+      const url = String(input)
+      if (url.startsWith(RECTRON_CDN_BASE)) {
+        const notZip = Buffer.concat([Buffer.from('<html>nope</html>'), Buffer.alloc(11_000)])
+        return {
+          ok: true, status: 200,
+          arrayBuffer: async () => notZip.buffer.slice(notZip.byteOffset, notZip.byteOffset + notZip.byteLength),
+        } as any
+      }
+      return { ok: true, status: 200, text: async () => FIXTURE_HTML } as any
+    }) as any
+    await expect(downloadRectronBuffer()).rejects.toThrow(/magic bytes/)
   })
 })

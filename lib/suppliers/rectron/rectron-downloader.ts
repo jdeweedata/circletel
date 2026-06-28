@@ -4,7 +4,10 @@
  * The RectronZone download page is public (no login) and lists the current
  * datestamped price-list filename. The file itself is served publicly by the
  * storefront7 CDN. This module resolves the current filename from the page and
- * downloads it into the watch directory for the existing Rectron sync to parse.
+ * downloads the file — either into memory (`downloadRectronBuffer`, used by the
+ * automated sync so it works in serverless/containerized runtimes with no
+ * writable disk) or onto disk (`downloadRectronPricelist`, for the manual
+ * file-drop workflow on a persistent host).
  *
  * No authentication or credentials are required.
  */
@@ -57,23 +60,10 @@ export async function resolveLatestRectronFile(
 }
 
 /**
- * Ensure the latest Rectron price-list file is present in `watchDir`.
- * Skips the download if a file of that name already exists.
+ * Fetch the file from the CDN and validate it (zip magic bytes + size floor).
+ * Returns the validated bytes in memory.
  */
-export async function downloadRectronPricelist(config: {
-  watchDir: string
-  pageUrl?: string
-  cdnBase?: string
-}): Promise<RectronDownloadResult> {
-  const { filename, url } = await resolveLatestRectronFile(config)
-
-  mkdirSync(config.watchDir, { recursive: true })
-  const filePath = join(config.watchDir, filename)
-
-  if (existsSync(filePath)) {
-    return { filePath, filename, downloaded: false }
-  }
-
+async function fetchValidatedBuffer(url: string, filename: string): Promise<Buffer> {
   const res = await fetch(url)
   if (!res.ok) {
     throw new Error(`Rectron CDN returned HTTP ${res.status} for ${filename}`)
@@ -91,6 +81,41 @@ export async function downloadRectronPricelist(config: {
       `Downloaded Rectron file is not a valid xlsx/zip (bad magic bytes)`
     )
   }
+  return buf
+}
+
+/**
+ * Resolve the latest price-list and download it into memory (no disk).
+ * Preferred path for the automated sync — works in any runtime.
+ */
+export async function downloadRectronBuffer(
+  config: { pageUrl?: string; cdnBase?: string } = {}
+): Promise<{ filename: string; buffer: Buffer }> {
+  const { filename, url } = await resolveLatestRectronFile(config)
+  const buffer = await fetchValidatedBuffer(url, filename)
+  return { filename, buffer }
+}
+
+/**
+ * Ensure the latest Rectron price-list file is present in `watchDir`.
+ * Skips the download if a file of that name already exists. For the manual
+ * file-drop workflow on a host with persistent, writable storage.
+ */
+export async function downloadRectronPricelist(config: {
+  watchDir: string
+  pageUrl?: string
+  cdnBase?: string
+}): Promise<RectronDownloadResult> {
+  const { filename, url } = await resolveLatestRectronFile(config)
+
+  mkdirSync(config.watchDir, { recursive: true })
+  const filePath = join(config.watchDir, filename)
+
+  if (existsSync(filePath)) {
+    return { filePath, filename, downloaded: false }
+  }
+
+  const buf = await fetchValidatedBuffer(url, filename)
 
   // Write to a temp file then atomically rename, so the parser never sees a partial file.
   const tmpPath = `${filePath}.tmp`
