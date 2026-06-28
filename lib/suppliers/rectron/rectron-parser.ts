@@ -57,19 +57,37 @@ const MIN_SKU_LENGTH = 3
 // =====================================================
 
 /**
- * Parse a Rectron .xlsm price list file
+ * Parse a Rectron .xlsm price list from a file path (manual file-drop workflow).
  */
 export async function parseRectronFile(filePath: string): Promise<RectronParseResult> {
-  const startTime = Date.now()
-  const errors: string[] = []
-  const products: ParsedRectronProduct[] = []
-  let rowsSkipped = 0
-
   const fileName = filePath.split('/').pop() || 'unknown'
+  return parseLoaded(fileName, (wb) => wb.xlsx.readFile(filePath))
+}
+
+/**
+ * Parse a Rectron .xlsm price list from an in-memory buffer.
+ * Used by the automated sync, which downloads the file into memory and never
+ * writes it to disk — so it works in serverless/containerized runtimes.
+ */
+export async function parseRectronBuffer(
+  buffer: Buffer,
+  fileName = 'unknown'
+): Promise<RectronParseResult> {
+  return parseLoaded(fileName, (wb) => wb.xlsx.load(buffer))
+}
+
+/**
+ * Shared parse driver: load the workbook via `load`, then extract products.
+ */
+async function parseLoaded(
+  fileName: string,
+  load: (wb: ExcelJS.Workbook) => Promise<unknown>
+): Promise<RectronParseResult> {
+  const startTime = Date.now()
 
   try {
     const wb = new ExcelJS.Workbook()
-    await wb.xlsx.readFile(filePath)
+    await load(wb)
 
     const ws = wb.getWorksheet(SHEET_NAME)
     if (!ws) {
@@ -79,6 +97,10 @@ export async function parseRectronFile(filePath: string): Promise<RectronParseRe
     console.log(
       `[RectronParser] Parsing ${fileName}: ${ws.rowCount} rows, ${ws.columnCount} cols`
     )
+
+    const errors: string[] = []
+    const products: ParsedRectronProduct[] = []
+    let rowsSkipped = 0
 
     for (let r = DATA_START_ROW; r <= ws.rowCount; r++) {
       const row = readRow(ws, r)

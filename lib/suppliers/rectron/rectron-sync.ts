@@ -14,8 +14,8 @@
 import { readdirSync, statSync } from 'fs'
 import { join, basename } from 'path'
 import { createClient } from '@/lib/supabase/server'
-import { parseRectronFile } from './rectron-parser'
-import { downloadRectronPricelist } from './rectron-downloader'
+import { parseRectronFile, parseRectronBuffer } from './rectron-parser'
+import { downloadRectronBuffer } from './rectron-downloader'
 import type { RectronSyncConfig, ParsedRectronProduct } from './rectron-types'
 import type {
   SyncResult,
@@ -63,21 +63,24 @@ export async function syncRectronProducts(options: {
   const watchDir = config.watch_dir || DEFAULT_WATCH_DIR
   const filePattern = config.file_pattern || DEFAULT_FILE_PATTERN
 
-  // Resolve the file to parse:
-  // 1. explicit override, else 2. auto-download latest, else 3. latest local file.
+  // Resolve the catalogue source:
+  // 1. explicit file override, else 2. auto-download into memory (no disk —
+  //    works in serverless/containers), else 3. latest local file.
+  let downloadBuffer: Buffer | null = null
   let filePath: string | undefined | null = options.file_path
+  let sourceName = ''
   let downloadWarning: string | null = null
 
   if (!filePath && (options.download ?? true)) {
     try {
-      const dl = await downloadRectronPricelist({
-        watchDir,
+      const dl = await downloadRectronBuffer({
         pageUrl: config.download_page_url,
         cdnBase: config.cdn_base_url,
       })
-      filePath = dl.filePath
+      downloadBuffer = dl.buffer
+      sourceName = dl.filename
       console.log(
-        `[RectronSync] Auto-download: ${dl.filename} (downloaded=${dl.downloaded})`
+        `[RectronSync] Auto-download: ${dl.filename} (${dl.buffer.length} bytes, in-memory)`
       )
     } catch (error) {
       downloadWarning = `Auto-download failed, using latest local file: ${
@@ -87,17 +90,16 @@ export async function syncRectronProducts(options: {
     }
   }
 
-  if (!filePath) {
-    filePath = findLatestFile(watchDir, filePattern)
+  if (!downloadBuffer) {
+    filePath = filePath || findLatestFile(watchDir, filePattern)
+    if (!filePath) {
+      throw new Error(
+        `No files matching "${filePattern}" found in ${watchDir}`
+      )
+    }
+    sourceName = basename(filePath)
+    console.log(`[RectronSync] Using file: ${filePath}`)
   }
-
-  if (!filePath) {
-    throw new Error(
-      `No files matching "${filePattern}" found in ${watchDir}`
-    )
-  }
-
-  console.log(`[RectronSync] Using file: ${filePath}`)
 
   // Create sync log entry
   const { data: syncLog, error: logError } = await supabase
@@ -122,9 +124,11 @@ export async function syncRectronProducts(options: {
     .eq('id', supplier.id)
 
   try {
-    // Parse the xlsm file
+    // Parse the xlsm — from the in-memory download when available, else from disk.
     console.log('[RectronSync] Parsing xlsm file...')
-    const parseResult = await parseRectronFile(filePath)
+    const parseResult = downloadBuffer
+      ? await parseRectronBuffer(downloadBuffer, sourceName)
+      : await parseRectronFile(filePath!)
 
     if (!parseResult.success) {
       throw new Error(
@@ -154,7 +158,7 @@ export async function syncRectronProducts(options: {
           completed_at: new Date().toISOString(),
           error_details: {
             dry_run: true,
-            file: basename(filePath),
+            file: sourceName,
             products_parsed: parseResult.products_parsed,
             download_warning: downloadWarning || undefined,
           },
