@@ -12,6 +12,11 @@ function isValidSegment(value: string | null): value is SegmentType {
   return value !== null && VALID_SEGMENTS.includes(value as SegmentType);
 }
 
+// Pure helper to extract offer slug from URLSearchParams
+export function offerSlugFromParams(params: URLSearchParams): string | null {
+  return params.get('offer');
+}
+
 export default function Home() {
   const searchParams = useSearchParams();
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -28,6 +33,12 @@ export default function Home() {
       setActiveSegment(urlSegment);
     }
   }, [searchParams, activeSegment]);
+
+  // Carry offer attribution from /offers CTAs (read-only Plan 2: client-side only, no DB write).
+  useEffect(() => {
+    const offer = offerSlugFromParams(searchParams);
+    if (offer) sessionStorage.setItem('circletel_offer_slug', offer);
+  }, [searchParams]);
 
   // Update URL when segment changes
   const handleSegmentChange = useCallback((segment: SegmentType) => {

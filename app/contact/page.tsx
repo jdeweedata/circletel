@@ -3,6 +3,14 @@ import { PiCalendarBold, PiChatCircleBold, PiCheckBold, PiCheckCircleBold, PiClo
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+
+// Pure helper to build offer enquiry message prefix
+export function offerEnquiryPrefix(subject: string | null, offer: string | null): string {
+  if (!subject) return '';
+  let s = `Enquiry about: ${subject}\n`;
+  if (offer) s += `Offer reference: ${offer}\n`;
+  return s + '\n';
+}
 import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
 import ContactHero from '@/components/contact/ContactHero';
@@ -36,16 +44,21 @@ const Contact = () => {
     message: '',
   });
 
-  // Pre-fill form with URL parameters (from coverage check)
+  // Pre-fill form with URL parameters (from coverage check and offers)
   useEffect(() => {
     const address = searchParams.get('address');
     const coverage = searchParams.get('coverage');
     const serviceType = searchParams.get('service');
     const speeds = searchParams.get('speeds');
     const nearest = searchParams.get('nearest');
+    const subject = searchParams.get('subject');
+    const offer = searchParams.get('offer');
 
-    if (address || coverage || serviceType || speeds || nearest) {
+    if (address || coverage || serviceType || speeds || nearest || subject || offer) {
       let message = '';
+
+      // Prepend offer enquiry information (before coverage check details)
+      message += offerEnquiryPrefix(subject, offer);
 
       if (address) {
         message += `I'm interested in connectivity for the following address:\n${address}\n\n`;
