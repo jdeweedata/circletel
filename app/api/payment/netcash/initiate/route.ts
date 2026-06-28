@@ -5,6 +5,7 @@ import { buildOrderDescription } from '@/lib/payments/description-builder';
 import { logPaymentConsents, extractIpAddress, extractUserAgent } from '@/lib/payments/consent-logger';
 import type { PaymentConsents } from '@/components/payments/PaymentConsentCheckboxes';
 import { paymentLogger } from '@/lib/logging';
+import { VALIDATION_CHARGE_AMOUNT } from '@/lib/payments/payment-amounts';
 
 interface InitiatePaymentRequest {
   orderId: string;
@@ -24,13 +25,15 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
     const body: InitiatePaymentRequest = await request.json();
 
-    // Validate required fields
-    const { orderId, amount, customerEmail, customerName, paymentReference } = body;
-    if (!orderId || !amount || !customerEmail || !customerName || !paymentReference) {
+    // SECURITY: only the orderId is trusted from the client. The amount,
+    // recipient and reference are derived from the order record below — a
+    // client-supplied amount must never determine what gets charged.
+    const { orderId } = body;
+    if (!orderId) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Missing required payment fields'
+          error: 'Missing orderId'
         },
         { status: 400 }
       );
@@ -52,6 +55,32 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    // Guard: only initiate payment for an order that is awaiting one. Blocks
+    // re-charging an already-paid order or charging a cancelled/failed one.
+    if (order.payment_status === 'paid') {
+      return NextResponse.json(
+        { success: false, error: 'Order has already been paid' },
+        { status: 409 }
+      );
+    }
+    if (order.status === 'cancelled' || order.status === 'failed') {
+      return NextResponse.json(
+        { success: false, error: 'Order is no longer active' },
+        { status: 409 }
+      );
+    }
+
+    // SECURITY: derive every payment input from the order, not the request body.
+    // payment_amount is server-set at order creation; legacy rows (created before
+    // the column existed) fall back to the validation-charge constant.
+    // NOTE (Phase 2): once orders carry an owner (auth_user_id), bind this to the
+    // authenticated session and reject mismatches. Today orders are guest/unowned,
+    // so a hard owner-gate would break checkout — see the order-journey plan.
+    const amount = Number(order.payment_amount ?? VALIDATION_CHARGE_AMOUNT);
+    const customerEmail: string = order.email;
+    const customerName: string = `${order.first_name ?? ''} ${order.last_name ?? ''}`.trim();
+    const paymentReference: string = order.payment_reference;
 
     // Get payment provider
     const provider = getPaymentProvider();
