@@ -2,6 +2,7 @@ import 'server-only';
 import { addVat, VAT_RATE } from '@/lib/billing/vat';
 import type { PublicOffer, OfferCustomerType } from '@/lib/types/offer';
 import { apiLogger } from '@/lib/logging/logger';
+import { createClient } from '@/lib/supabase/server';
 
 export type { PublicOffer, PublicOfferDetail } from '@/lib/types/offer';
 
@@ -62,4 +63,55 @@ export function mapOfferRow(row: OfferReadRow): PublicOffer | null {
     ...(description ? { description } : {}),
     ...(image ? { image } : {}),
   };
+}
+
+// --- DB functions below ---
+
+export type OfferSegment = 'consumer' | 'business' | 'all';
+
+/** PostgREST select: offer + its snapshot (inner) + components, public-safe columns only. */
+export const OFFER_SELECT =
+  'slug,title,customer_type,source_uid,media,' +
+  'offer_pricing_snapshot!inner(resolved_price),' +
+  'offer_components(role,source_type)';
+
+function matchesSegment(customerType: string, segment: OfferSegment): boolean {
+  if (segment === 'all') return true;
+  if (segment === 'consumer') return customerType === 'consumer' || customerType === 'both';
+  return customerType === 'business' || customerType === 'both';
+}
+
+export async function listPublicOffers(segment: OfferSegment = 'all'): Promise<PublicOffer[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('offers')
+    .select(OFFER_SELECT)
+    .eq('status', 'active')
+    .eq('lifecycle_state', 'active');
+
+  if (error || !data) {
+    if (error) apiLogger.error('[offers/public-read] list failed', { error: error.message });
+    return [];
+  }
+
+  return (data as unknown as OfferReadRow[])
+    .filter((r) => matchesSegment(r.customer_type, segment))
+    .map(mapOfferRow)
+    .filter((o): o is PublicOffer => o !== null);
+}
+
+export async function getPublicOfferBySlug(slug: string): Promise<PublicOfferDetail | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('offers')
+    .select(OFFER_SELECT)
+    .eq('status', 'active')
+    .eq('lifecycle_state', 'active')
+    .eq('slug', slug);
+
+  if (error || !data || data.length === 0) {
+    if (error) apiLogger.error('[offers/public-read] detail failed', { error: error.message, slug });
+    return null;
+  }
+  return mapOfferRow((data as unknown as OfferReadRow[])[0]);
 }
