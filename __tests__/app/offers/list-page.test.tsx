@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { renderToString } from 'react-dom/server';
 
@@ -13,7 +12,6 @@ describe('/offers list page', () => {
   let OffersPage: any;
 
   beforeEach(async () => {
-    jest.resetModules();
     jest.clearAllMocks();
 
     const publicRead = await import('@/lib/offers/public-read');
