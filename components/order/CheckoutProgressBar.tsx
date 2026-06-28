@@ -12,10 +12,13 @@ interface CheckoutProgressBarProps {
   variant?: 'default' | 'hero';
 }
 
+// Labels reflect the auth-after-cart journey: review the order, then pay (auth
+// folds into the Pay step via inline just-in-time sign-in). Stage `id`s are
+// unchanged for backwards compatibility with stepNumberToStage() and callers.
 const STEPS: { id: CheckoutStage; label: string }[] = [
   { id: 'packages', label: 'Choose Plan' },
-  { id: 'account', label: 'Sign In' },
-  { id: 'checkout', label: 'Confirm & Pay' },
+  { id: 'account', label: 'Review' },
+  { id: 'checkout', label: 'Pay' },
 ];
 
 // Map old numeric step to new stage names for backwards compatibility
