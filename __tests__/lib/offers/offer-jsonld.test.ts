@@ -22,7 +22,7 @@ describe('offer JSON-LD', () => {
 
   it('never leaks internal fields', () => {
     const s = JSON.stringify(offerProductJsonLd({ ...base, description: 'fast' }));
-    for (const k of ['resolved_price', 'total_cost', 'margin_pct', 'cost_buildup', 'source_uid', 'priceExclVat']) {
+    for (const k of ['resolved_price', 'total_cost', 'margin_pct', 'guardrail_status', 'cost_buildup', 'source_uid', 'source_type', 'source_id', 'unit_cost', 'unit_price', 'priceExclVat']) {
       expect(s).not.toContain(k);
     }
   });
