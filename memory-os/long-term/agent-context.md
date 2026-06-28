@@ -65,6 +65,11 @@ Format:
 - **Guard caveat:** `offer_components.source_type = 'service_package'` is not enough to prove the underlying source table because Phase 0 maps both `admin_products` and `service_packages` to that component type. Use internal `offers.source_uid` prefixes (for example `service_packages:*`) when the source table matters.
 - **Staleness quirk:** `lib/offers/staleness.ts` currently appears only in tests; `recompute-offer-pricing.loadDraft` sets `sourceUpdatedAt` from `offers.updated_at`, but changing that alone will not create an admin stale signal unless a read/admin path actually calls `isSnapshotStale`.
 - **Discovered by:** Codex
+
+### 2026-06-28: Consumer Checkout Fee Split
+- **Context:** Consumer/Vox-style checkout no longer uses the old "R1 validation charge credited back" copy.
+- **Pattern:** New checkout orders use `ORDER_PROCESSING_FEE_AMOUNT` (R149.00) from `lib/payments/payment-amounts.ts`; order creation stamps this amount server-side, Netcash initiation derives it from the order row and describes it as "CircleTel - Order processing fee", and the webhook marks that R149 payment as `confirmed` without activating service. The R1 constants/helpers remain intentionally for legacy rows and dashboard/payment-method validation flows only.
+- **Discovered by:** Codex
 ### YYYY-MM-DD: Pattern
 - **Context:** When this applies
 - **Pattern:** The approach that works
