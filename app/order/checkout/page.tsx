@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
@@ -10,7 +10,6 @@ import {
   PiShieldBold,
   PiWifiHighBold,
   PiMapPinBold,
-  PiArrowLeftBold,
 } from 'react-icons/pi';
 import { CheckoutProgressBar } from '@/components/order/CheckoutProgressBar';
 import { useOrderContext } from '@/components/order/context/OrderContext';
@@ -45,9 +44,12 @@ export default function CheckoutPage() {
   const { state: orderState, actions } = useOrderContext();
   const { isAuthenticated, customer, user, signOut, signUp, signIn, signInWithGoogle, loading: authLoading } = useCustomerAuth();
 
-  const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>(
-    isAuthenticated ? 'confirm' : 'account'
-  );
+  // Auth-after-cart: everyone starts on the review/confirm step. A guest reviews
+  // and accepts terms first, then authenticates inline at Place Order. The
+  // 'account' step survives only as the post-sign-out re-auth screen.
+  const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>('confirm');
+  const [showInlineAuth, setShowInlineAuth] = useState(false);
+  const pendingPlaceOrder = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -107,7 +109,7 @@ export default function CheckoutPage() {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(
         'circletel_checkout_return',
-        JSON.stringify({ serviceAddress, propertyType })
+        JSON.stringify({ serviceAddress, propertyType, pendingPlaceOrder: pendingPlaceOrder.current })
       );
     }
     await signInWithGoogle();
@@ -234,6 +236,16 @@ export default function CheckoutPage() {
     const finalDeliveryAddress =
       isWirelessOrMobile && !sameAsServiceAddress ? deliveryAddress : serviceAddress;
 
+    // Phase 2: attach the authenticated session so the order is created owned
+    // (orders/create stamps auth_user_id + customer_id) and payment initiation can
+    // enforce the owner-gate. The just-in-time auth step guarantees a session here.
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    const authHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+    };
+
     setSubmitStatus('creating_order');
 
     let confirmedSkyFibreOrderability = skyFibreOrderability;
@@ -273,7 +285,7 @@ export default function CheckoutPage() {
 
     const orderRes = await fetch('/api/orders/create', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders,
       body: JSON.stringify({
         first_name: firstName,
         last_name: lastName,
@@ -314,7 +326,7 @@ export default function CheckoutPage() {
     try {
       paymentRes = await fetch('/api/payment/netcash/initiate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({
           orderId: order.id,
           amount: 1.00,
@@ -365,6 +377,17 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
     if (!validateBeforeOrder()) return;
+
+    // Auth-after-cart: a guest reviews the order + accepts terms first, then signs
+    // in inline. Defer placement until a session exists; the auto-resume effect
+    // below finishes the order once isAuthenticated flips true (inline OTP/email).
+    if (!isAuthenticated) {
+      pendingPlaceOrder.current = true;
+      setShowInlineAuth(true);
+      setErrorMessage(undefined);
+      return;
+    }
+
     const email = customer?.email || user?.email || '';
     if (!email) {
       toast.error('No account found. Please sign in again.');
@@ -415,6 +438,19 @@ export default function CheckoutPage() {
       setSubmitStatus('idle');
     }
   };
+
+  // Auto-resume an inline (no-redirect) sign-in: when a guest authenticates via
+  // OTP/email after clicking Place Order, finish the order automatically. Google
+  // OAuth does NOT auto-resume — pendingPlaceOrder.current resets across the page
+  // redirect, so the returning user lands on review with the Pay button ready (§D).
+  useEffect(() => {
+    if (isAuthenticated && pendingPlaceOrder.current) {
+      pendingPlaceOrder.current = false;
+      setShowInlineAuth(false);
+      void handlePlaceOrder();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   const fullName = customer
     ? `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim()
@@ -515,14 +551,16 @@ export default function CheckoutPage() {
               />
 
               <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-7 sm:p-8">
-                <OrderingAsCard
-                  fullName={fullName || 'You'}
-                  email={customer?.email || user?.email || ''}
-                  onSignOut={handleSignOut}
-                />
+                {isAuthenticated && (
+                  <OrderingAsCard
+                    fullName={fullName || 'You'}
+                    email={customer?.email || user?.email || ''}
+                    onSignOut={handleSignOut}
+                  />
+                )}
 
                 {/* Collect missing profile details (Google OAuth users) */}
-                {(!customer?.first_name || !customer?.phone) && (
+                {isAuthenticated && (!customer?.first_name || !customer?.phone) && (
                   <div className="mt-5 space-y-3">
                     <p className="text-sm font-bold text-circleTel-navy">Your details</p>
                     {!customer?.first_name && (
@@ -613,34 +651,44 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {placeOrderBlocked && (
-                  <p className="mt-5 text-xs text-amber-600 text-center font-medium">
-                    Please complete your profile details above before placing your order.
-                  </p>
+                {showInlineAuth && !isAuthenticated ? (
+                  /* Auth-after-cart: reveal sign-in inline once the guest commits */
+                  <div className="mt-6 border-t border-gray-100 pt-6">
+                    <p className="text-sm font-bold text-circleTel-navy mb-1">Sign in to place your order</p>
+                    <p className="text-xs text-gray-500 mb-4">
+                      Your selection is saved — sign in or create an account to finish.
+                    </p>
+                    <AccountSection
+                      isSubmitting={isSubmitting}
+                      onGoogleSignIn={handleGoogleSignIn}
+                      onSignIn={handleSignIn}
+                      onSignUp={handleSignUp}
+                      onPhoneSignupComplete={handlePhoneSignupComplete}
+                      onPhoneSignupError={(msg) => setErrorMessage(msg)}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {placeOrderBlocked && (
+                      <p className="mt-5 text-xs text-amber-600 text-center font-medium">
+                        Please complete your profile details above before placing your order.
+                      </p>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handlePlaceOrder}
+                      disabled={isSubmitting || placeOrderBlocked}
+                      className="mt-4 w-full bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-4 py-4 text-base shadow-lg transition-all flex items-center justify-center gap-2"
+                    >
+                      <PiLockSimpleBold className="w-5 h-5" />
+                      {submitLabel}
+                    </button>
+                    <p className="text-center text-xs text-gray-400 mt-3">
+                      R{monthlyPrice}/month billed after activation · No lock-in
+                    </p>
+                  </>
                 )}
-
-                <button
-                  type="button"
-                  onClick={handlePlaceOrder}
-                  disabled={isSubmitting || placeOrderBlocked}
-                  className="mt-4 w-full bg-gradient-to-r from-circleTel-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-60 text-white font-bold rounded-xl px-4 py-4 text-base shadow-lg transition-all flex items-center justify-center gap-2"
-                >
-                  <PiLockSimpleBold className="w-5 h-5" />
-                  {submitLabel}
-                </button>
-                <p className="text-center text-xs text-gray-400 mt-3">
-                  R{monthlyPrice}/month billed after activation · No lock-in
-                </p>
-
-                {/* Back link */}
-                <button
-                  type="button"
-                  onClick={() => setCheckoutStep('account')}
-                  className="mt-4 w-full flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <PiArrowLeftBold className="w-3 h-3" />
-                  Back to sign in
-                </button>
               </div>
 
               {/* Mobile payment detail card */}
@@ -704,8 +752,8 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {/* Floating mobile CTA bar */}
-      {pkg && checkoutStep === 'confirm' && (
+      {/* Floating mobile CTA bar — hidden while inline auth is showing */}
+      {pkg && checkoutStep === 'confirm' && !showInlineAuth && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-circleTel-orange shadow-2xl px-4 py-3 z-40">
           <div className="flex items-center gap-4 max-w-lg mx-auto">
             <div className="flex-1 min-w-0">

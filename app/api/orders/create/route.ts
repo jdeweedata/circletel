@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
 import { apiLogger } from '@/lib/logging';
@@ -58,6 +59,92 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient();
+
+    // SECURITY (Phase 2): an order must belong to an authenticated user. Resolve
+    // the user from a verified session — Authorization header first, then cookies
+    // (see auth-patterns.md) — and NEVER from the request body. The owner stamped
+    // on the order below is what the payment-initiation owner-gate enforces.
+    let user = null;
+    let authError = null;
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const tokenClient = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      const { data, error } = await tokenClient.auth.getUser(token);
+      user = data?.user ?? null;
+      authError = error;
+    } else {
+      try {
+        const sessionClient = await createClientWithSession();
+        const { data, error } = await sessionClient.auth.getUser();
+        user = data?.user ?? null;
+        authError = error;
+      } catch (e) {
+        apiLogger.warn('[orders/create] Cookie auth failed', { error: e });
+      }
+    }
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Please sign in to place your order' },
+        { status: 401 }
+      );
+    }
+
+    // Resolve the owning customer record. It normally exists (created at signup or
+    // by /api/customers/ensure); if it is somehow missing, create it here via the
+    // same ensure-path so every order is linked to a customer. customer_id is
+    // server-derived from the verified session — never taken from the request body.
+    let customerId: string | null = null;
+    const { data: existingCustomer } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (existingCustomer) {
+      customerId = existingCustomer.id;
+    } else {
+      const accountNumber = `CT-${Date.now().toString().slice(-8)}`;
+      const { data: createdCustomer, error: createCustomerError } = await supabase
+        .from('customers')
+        .insert({
+          auth_user_id: user.id,
+          email: user.email,
+          first_name: user.user_metadata?.first_name || 'Customer',
+          last_name: user.user_metadata?.last_name || '',
+          phone: user.user_metadata?.phone || user.phone || '',
+          account_number: accountNumber,
+          account_status: 'active',
+          account_type: 'personal',
+        })
+        .select('id')
+        .single();
+
+      if (createCustomerError) {
+        // Concurrent ensure calls can race the insert (unique auth_user_id).
+        if (createCustomerError.code === '23505') {
+          const { data: racedCustomer } = await supabase
+            .from('customers')
+            .select('id')
+            .eq('auth_user_id', user.id)
+            .single();
+          customerId = racedCustomer?.id ?? null;
+        } else {
+          apiLogger.error('[orders/create] Failed to ensure customer', { error: createCustomerError.message });
+          return NextResponse.json(
+            { success: false, error: 'Could not link your account. Please try again.' },
+            { status: 500 }
+          );
+        }
+      } else {
+        customerId = createdCustomer?.id ?? null;
+      }
+    }
+
     let skyFibreOrderability: SkyFibreOrderabilityResult | null = null;
 
     if (isSkyFibrePackage(body)) {
@@ -177,6 +264,10 @@ export async function POST(request: NextRequest) {
       .insert({
         order_number: orderNumber,
         payment_reference: paymentReference,
+
+        // Ownership — server-derived from the verified session, never the body.
+        auth_user_id: user.id,
+        customer_id: customerId,
 
         // Customer details
         first_name: body.first_name,
