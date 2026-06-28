@@ -136,15 +136,17 @@ interface OrderState {
 >   amount is now persisted on the order (`consumer_orders.payment_amount`, server-set at
 >   creation) and the initiate route derives the charge + recipient + reference from the
 >   order, ignoring the request body.
-> - **Unauth initiation (#3)** — ⚠️ PARTIAL. Active protections shipped (payable-state guard:
->   reject paid/cancelled/failed orders; recipient derived server-side). The **hard owner-gate
->   is deferred to Phase 2**, because consumer orders are currently guest/unowned
->   (`auth_user_id`/`customer_id` are null at creation) — a hard gate today would break checkout.
+> - **Unauth initiation (#3)** — ✅ CLOSED (Phase 2 security core, `feat/phase2-auth-after-cart`).
+>   `orders/create` now requires a verified session and stamps `auth_user_id` + `customer_id`
+>   on every order; `initiate` resolves the verified user and rejects an owner mismatch (403) or
+>   a missing session (401). The earlier payable-state guard + server-derived recipient/amount
+>   remain. Legacy guest orders (`auth_user_id` null) skip the 403 and stay covered by the guard.
 > - **Deferred fast-follow:** #4 browser-exposed NetCash keys (needs key rotation, ops action)
 >   and #5 webhook-signature fail-closed.
 
 - [x] **Pre-req (#2):** client-controlled amount — server-authoritative amount shipped (separate security PR).
-- [ ] **Pre-req (#3, Phase 2):** hard owner-gate on initiation, once orders carry an `auth_user_id`.
+- [x] **Pre-req (#3, Phase 2):** hard owner-gate on initiation — orders now carry `auth_user_id`;
+      `initiate` enforces owner match (403) and requires a session (401). ✅ done in the security core.
 - [ ] **Pre-req (fast-follow):** rotate browser-exposed NetCash keys (#4); webhook-signature fail-closed (#5).
 - [ ] Render in-app **debit-order** form (bank details, debit-date choice 26th/1st like Vox).
 - [ ] Render in-app **credit-card** form (debit-date as Vox restricts it).

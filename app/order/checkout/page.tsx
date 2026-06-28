@@ -234,6 +234,16 @@ export default function CheckoutPage() {
     const finalDeliveryAddress =
       isWirelessOrMobile && !sameAsServiceAddress ? deliveryAddress : serviceAddress;
 
+    // Phase 2: attach the authenticated session so the order is created owned
+    // (orders/create stamps auth_user_id + customer_id) and payment initiation can
+    // enforce the owner-gate. The just-in-time auth step guarantees a session here.
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    const authHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+    };
+
     setSubmitStatus('creating_order');
 
     let confirmedSkyFibreOrderability = skyFibreOrderability;
@@ -273,7 +283,7 @@ export default function CheckoutPage() {
 
     const orderRes = await fetch('/api/orders/create', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders,
       body: JSON.stringify({
         first_name: firstName,
         last_name: lastName,
@@ -314,7 +324,7 @@ export default function CheckoutPage() {
     try {
       paymentRes = await fetch('/api/payment/netcash/initiate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({
           orderId: order.id,
           amount: 1.00,
