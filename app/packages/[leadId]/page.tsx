@@ -15,7 +15,6 @@ import { cn } from '@/lib/utils';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import type { PackageDetails, SelectedAddon } from '@/lib/order/types';
-import { AddonsSelection } from '@/components/order/AddonsSelection';
 import { NoCoverageOptions } from '@/components/coverage/NoCoverageOptions';
 import { LicensedWirelessLeadCapture } from '@/components/coverage/LicensedWirelessLeadCapture';
 import {
@@ -92,7 +91,7 @@ function PackagesContent() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [hasLicensedWireless, setHasLicensedWireless] = useState(false);
   const [requiresQuote, setRequiresQuote] = useState(false);
-  const [selectedAddons, setSelectedAddons] = useState<SelectedAddon[]>([]);
+  const [selectedAddons] = useState<SelectedAddon[]>([]);
 
   // Phase 3: Pagination state - show 8 packages initially
   const [showAllPackages, setShowAllPackages] = useState(false);
@@ -783,13 +782,6 @@ function PackagesContent() {
                     }}
                     recommended={filteredPackages.indexOf(selectedPackage) === 0}
                     onOrderClick={handleContinue}
-                  />
-
-                  {/* Add-ons Selection */}
-                  <AddonsSelection
-                    productCategory={selectedPackage.product_category}
-                    selectedAddons={selectedAddons}
-                    onAddonsChange={setSelectedAddons}
                   />
                 </div>
               )}
