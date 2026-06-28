@@ -1,8 +1,13 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { renderToString } from 'react-dom/server';
 
-// ts-jest does not reliably hoist and bind factory mocks with @/-aliased ESM-interop modules.
-// Use jest.resetModules() + dynamic import() in beforeEach to ensure a fresh, correctly-bound mock per test.
+// Renders the REAL OfferTabs -> OfferCard tree and the REAL ItemList JSON-LD: only the
+// data source (public-read) and the isolated layout chrome (Navbar/Footer) are mocked, so
+// the leak assertions below exercise the actual rendered component output, not stubs.
+// NOTE: do NOT add jest.resetModules() here — with the real OfferTabs ('use client' + useState)
+// rendered under the top-level renderToString, a module reset loads a second React instance
+// and React throws "Invalid hook call" from the dispatcher mismatch. clearAllMocks is enough;
+// the bare automock of public-read binds correctly through the dynamic import without a reset.
 jest.mock('@/lib/offers/public-read');
 jest.mock('@/components/layout/Navbar', () => ({ Navbar: () => null }));
 jest.mock('@/components/layout/Footer', () => ({ Footer: () => null }));
@@ -29,9 +34,15 @@ describe('/offers list page', () => {
     const ui = await OffersPage();
     const html = renderToString(ui);
 
+    // Real OfferCard markup (initial 'consumer' tab shows the consumer offer).
     expect(html).toContain('incl. VAT');
     expect(html).toContain('SkyFibre 50');
-    for (const k of ['total_cost', 'margin_pct', 'cost_buildup', 'source_uid', 'resolved_price']) {
+    // Real ItemList JSON-LD <script> rendered by the page (offersItemListJsonLd is not mocked).
+    expect(html).toContain('application/ld+json');
+    expect(html).toContain('ItemList');
+    // Full never-expose set must be absent from the real rendered tree AND the JSON-LD.
+    for (const k of ['total_cost', 'margin_pct', 'guardrail_status', 'cost_buildup',
+      'source_uid', 'source_type', 'source_id', 'unit_cost', 'unit_price', 'resolved_price', 'priceExclVat']) {
       expect(html).not.toContain(k);
     }
   });
