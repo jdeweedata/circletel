@@ -10,7 +10,10 @@ import {
   redactSkyFibreOrderability,
 } from '@/lib/coverage/skyfibre/orderability';
 import type { SkyFibreOrderabilityResult, SkyFibreSegment } from '@/lib/coverage/skyfibre/types';
-import { VALIDATION_CHARGE_AMOUNT } from '@/lib/payments/payment-amounts';
+import {
+  ORDER_PROCESSING_FEE_AMOUNT,
+  ORDER_PROCESSING_FEE_LABEL,
+} from '@/lib/payments/payment-amounts';
 
 // P4: Valid property types (must match ServiceAddressSection.tsx options)
 const VALID_PROPERTY_TYPES = [
@@ -220,8 +223,8 @@ export async function POST(request: NextRequest) {
         payment_status: 'pending',
         total_paid: 0,
         // Authoritative charge for initiation — server-set, never client-trusted.
-        // Currently the R1.00 validation charge (see payment-amounts.ts).
-        payment_amount: VALIDATION_CHARGE_AMOUNT,
+        // Once-off checkout fee (see payment-amounts.ts). Never client-trusted.
+        payment_amount: ORDER_PROCESSING_FEE_AMOUNT,
 
         // Status
         status: 'pending',
@@ -331,6 +334,12 @@ function buildOrderMetadata(
   return {
     ...base,
     account_type: normalizedAccountType as SkyFibreSegment | 'personal',
+    checkout_charge: {
+      type: 'order_processing_fee',
+      label: ORDER_PROCESSING_FEE_LABEL,
+      amount: ORDER_PROCESSING_FEE_AMOUNT,
+      refundable: false,
+    },
     ...(skyFibreOrderability ? { skyfibre_orderability: skyFibreOrderability } : {}),
   };
 }

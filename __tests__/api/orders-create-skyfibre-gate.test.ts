@@ -7,6 +7,7 @@ import {
   isSkyFibrePackage,
 } from '@/lib/coverage/skyfibre/orderability';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { ORDER_PROCESSING_FEE_AMOUNT } from '@/lib/payments/payment-amounts';
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
@@ -30,6 +31,7 @@ const mockCheckSkyFibreOrderability = checkSkyFibreOrderability as jest.MockedFu
 const mockExtractSkyFibreCapacity = extractSkyFibreCapacity as jest.MockedFunction<typeof extractSkyFibreCapacity>;
 const mockIsSkyFibrePackage = isSkyFibrePackage as jest.MockedFunction<typeof isSkyFibrePackage>;
 const mockSendOrderConfirmation = EmailNotificationService.sendOrderConfirmation as jest.MockedFunction<typeof EmailNotificationService.sendOrderConfirmation>;
+let insertOrderMock: jest.Mock;
 
 function request(body: Record<string, unknown>) {
   return new Request('http://localhost/api/orders/create', {
@@ -57,26 +59,27 @@ describe('POST /api/orders/create SkyFibre gate', () => {
       eq: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({ data: null, error: null }),
     };
-    const insertQuery = {
-      insert: jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: {
-              id: 'order-1',
-              order_number: 'ORD-20260616-0001',
-              payment_reference: 'PAY-ORD-20260616-0001',
-              first_name: 'Test',
-              last_name: 'Customer',
-              email: 'test@example.com',
-              status: 'pending',
-              package_name: 'SkyFibre Home Max',
-              package_price: 999,
-              created_at: '2026-06-16T10:00:00.000Z',
-            },
-            error: null,
-          }),
+    insertOrderMock = jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        single: jest.fn().mockResolvedValue({
+          data: {
+            id: 'order-1',
+            order_number: 'ORD-20260616-0001',
+            payment_reference: 'PAY-ORD-20260616-0001',
+            first_name: 'Test',
+            last_name: 'Customer',
+            email: 'test@example.com',
+            status: 'pending',
+            package_name: 'SkyFibre Home Max',
+            package_price: 999,
+            created_at: '2026-06-16T10:00:00.000Z',
+          },
+          error: null,
         }),
       }),
+    });
+    const insertQuery = {
+      insert: insertOrderMock,
     };
 
     mockCreateClient.mockResolvedValue({
@@ -136,5 +139,30 @@ describe('POST /api/orders/create SkyFibre gate', () => {
       expect.objectContaining({ supabase: expect.any(Object) })
     );
     expect(mockSendOrderConfirmation).not.toHaveBeenCalled();
+  });
+
+  it('stamps new orders with the once-off order processing fee', async () => {
+    mockIsSkyFibrePackage.mockReturnValue(false);
+
+    const response = await POST(
+      request({
+        first_name: 'Test',
+        last_name: 'Customer',
+        email: 'test@example.com',
+        phone: '0821234567',
+        installation_address: '1 Test Street, Sandton',
+        installation_location_type: 'freestanding_home',
+        package_name: 'Home Fibre',
+        package_speed: '50/25 Mbps',
+        package_price: 899,
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(insertOrderMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payment_amount: ORDER_PROCESSING_FEE_AMOUNT,
+      })
+    );
   });
 });

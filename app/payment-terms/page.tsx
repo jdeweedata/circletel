@@ -1,5 +1,9 @@
 import { PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiFileTextBold, PiProhibitBold, PiShieldBold, PiWarningBold } from 'react-icons/pi';
 import Link from 'next/link';
+import {
+  ORDER_PROCESSING_FEE_AMOUNT,
+  ORDER_PROCESSING_FEE_LABEL,
+} from '@/lib/payments/payment-amounts';
 
 export const metadata = {
   title: 'Payment Terms | CircleTel',
@@ -20,7 +24,7 @@ export default function PaymentTermsPage() {
             Secure payment processing via NetCash - Understanding how your payments are handled
           </p>
           <p className="mt-4 text-sm opacity-90">
-            Last updated: 20 January 2025 | Version 1.0
+            Last updated: 28 June 2026 | Version 1.1
           </p>
         </div>
       </div>
@@ -261,7 +265,7 @@ export default function PaymentTermsPage() {
           </div>
 
           <p className="text-gray-700 leading-relaxed mb-4">
-            CircleTel absorbs all NetCash payment processing fees. <strong>Customers are not charged any additional transaction fees</strong> for using our payment gateway.
+            CircleTel absorbs NetCash gateway processing fees for supported payment methods. New connectivity orders include a once-off <strong>{ORDER_PROCESSING_FEE_LABEL}</strong> of <strong>R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}</strong>, shown before checkout and charged when the order is placed.
           </p>
 
           <div className="bg-green-50 border-l-4 border-green-500 p-6 mb-6">
@@ -269,7 +273,8 @@ export default function PaymentTermsPage() {
               ✓ No transaction fees for credit/debit cards<br />
               ✓ No fees for instant EFT payments<br />
               ✓ No fees for digital wallet payments<br />
-              ✓ No monthly fees for saved payment methods
+              ✓ No monthly fees for saved payment methods<br />
+              ✓ Once-off order processing fee shown before checkout
             </p>
           </div>
 

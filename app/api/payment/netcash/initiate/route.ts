@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
-import { buildOrderDescription } from '@/lib/payments/description-builder';
+import {
+  buildGenericDescription,
+  buildOrderDescription,
+  buildPaymentMethodDescription,
+} from '@/lib/payments/description-builder';
 import { logPaymentConsents, extractIpAddress, extractUserAgent } from '@/lib/payments/consent-logger';
 import type { PaymentConsents } from '@/components/payments/PaymentConsentCheckboxes';
 import { paymentLogger } from '@/lib/logging';
-import { VALIDATION_CHARGE_AMOUNT } from '@/lib/payments/payment-amounts';
+import {
+  LEGACY_VALIDATION_CHARGE_AMOUNT,
+  ORDER_PROCESSING_FEE_LABEL,
+  isLegacyValidationChargeAmount,
+  isOrderProcessingFeeAmount,
+} from '@/lib/payments/payment-amounts';
 
 interface InitiatePaymentRequest {
   orderId: string;
@@ -72,12 +81,13 @@ export async function POST(request: NextRequest) {
     }
 
     // SECURITY: derive every payment input from the order, not the request body.
-    // payment_amount is server-set at order creation; legacy rows (created before
-    // the column existed) fall back to the validation-charge constant.
+    // payment_amount is server-set at order creation. Legacy rows created before
+    // the column existed fall back to the old R1 validation amount so they are
+    // not surprise-repriced at initiation time.
     // NOTE (Phase 2): once orders carry an owner (auth_user_id), bind this to the
     // authenticated session and reject mismatches. Today orders are guest/unowned,
     // so a hard owner-gate would break checkout — see the order-journey plan.
-    const amount = Number(order.payment_amount ?? VALIDATION_CHARGE_AMOUNT);
+    const amount = Number(order.payment_amount ?? LEGACY_VALIDATION_CHARGE_AMOUNT);
     const customerEmail: string = order.email;
     const customerName: string = `${order.first_name ?? ''} ${order.last_name ?? ''}`.trim();
     const paymentReference: string = order.payment_reference;
@@ -101,14 +111,19 @@ export async function POST(request: NextRequest) {
     const successUrl = process.env.NEXT_PUBLIC_PAYMENT_SUCCESS_URL || `${baseUrl}/payment/success`;
     const cancelUrl = process.env.NEXT_PUBLIC_PAYMENT_CANCEL_URL || `${baseUrl}/payment/cancelled`;
 
-    // Build customer-friendly description for bank statement
-    const description = buildOrderDescription({
-      account_number: order.account_number,
-      order_number: order.order_number,
-      package_name: order.package_name,
-      city: order.city,
-      suburb: order.suburb,
-    });
+    // Build a customer-friendly payment description. New checkout orders are a
+    // once-off processing fee, while legacy R1 rows remain payment verification.
+    const description = isOrderProcessingFeeAmount(amount)
+      ? buildGenericDescription(ORDER_PROCESSING_FEE_LABEL)
+      : isLegacyValidationChargeAmount(amount)
+        ? buildPaymentMethodDescription()
+        : buildOrderDescription({
+            account_number: order.account_number,
+            order_number: order.order_number,
+            package_name: order.package_name,
+            city: order.city,
+            suburb: order.suburb,
+          });
 
     paymentLogger.info('[Payment Initiate] Building payment with description', { description });
 

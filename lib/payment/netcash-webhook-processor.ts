@@ -8,6 +8,11 @@ import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 import type { NetcashWebhookPayload } from './netcash-webhook-validator';
 import { normalizeNetcashReference } from './netcash-webhook-validator';
+import {
+  ORDER_PROCESSING_FEE_LABEL,
+  isLegacyValidationChargeAmount,
+  isOrderProcessingFeeAmount,
+} from '@/lib/payments/payment-amounts';
 
 // ==================================================================
 // TYPES
@@ -66,9 +71,10 @@ function getResend() {
 /**
  * Process successful payment webhook
  *
- * Handles two scenarios:
- * 1. R1.00 card validation → stores payment method, does NOT activate order
- * 2. Full payment → updates order status, stores payment method, sends emails
+ * Handles three scenarios:
+ * 1. Legacy R1.00 card validation → stores payment method, does NOT activate order
+ * 2. Once-off order processing fee → confirms checkout, does NOT activate service
+ * 3. Full payment → updates order status, stores payment method, sends emails
  */
 export async function processPaymentSuccess(
   payload: NetcashWebhookPayload,
@@ -79,7 +85,8 @@ export async function processPaymentSuccess(
     const supabase = await createClient();
 
     const amountPaid = parseFloat(payload.Amount) / 100;
-    const isCardValidation = amountPaid <= 1.01; // R1.00 card validation
+    const isLegacyCardValidation = isLegacyValidationChargeAmount(amountPaid);
+    const isOrderProcessingFee = isOrderProcessingFeeAmount(amountPaid);
 
     // 1. Find order by payment reference — try exact match first, then normalized
     let { data: order, error: orderError } = await supabase
@@ -129,8 +136,8 @@ export async function processPaymentSuccess(
       }
     }
 
-    // 3. For R1.00 card validations, don't activate the order — just store payment method
-    if (isCardValidation) {
+    // 3. For legacy R1.00 card validations, don't activate the order — just store payment method
+    if (isLegacyCardValidation) {
       console.log('[Webhook Processor] R1.00 card validation detected — payment method stored, order NOT activated');
 
       // Update order with payment method validation metadata (keep status as pending)
@@ -163,7 +170,51 @@ export async function processPaymentSuccess(
       };
     }
 
-    // 4. Full payment: update order status
+    // 4. The checkout processing fee confirms the order but should not activate
+    // service. Installation and service activation still happen through ops.
+    if (isOrderProcessingFee) {
+      console.log('[Webhook Processor] Order processing fee detected — order confirmed, service NOT activated');
+
+      const updateData: OrderUpdateData = {
+        payment_status: 'paid',
+        status: 'confirmed',
+        payment_date: new Date().toISOString(),
+        total_paid: amountPaid,
+        metadata: {
+          ...(order.metadata as Record<string, unknown> || {}),
+          netcash_transaction_id: payload.TransactionID || '',
+          payment_confirmed_at: new Date().toISOString(),
+          payment_confirmed_via: 'webhook',
+          checkout_charge_type: 'order_processing_fee',
+          checkout_charge_label: ORDER_PROCESSING_FEE_LABEL,
+          card_last_four: payload.CardNumber?.slice(-4) || null,
+          card_type: payload.CardType || null,
+        },
+      };
+
+      const { error: updateError } = await supabase
+        .from('consumer_orders')
+        .update(updateData)
+        .eq('id', order.id);
+
+      if (updateError) {
+        throw new Error(`Failed to update order: ${updateError.message}`);
+      }
+
+      await createWebhookAudit(webhookId, 'order_processing_fee_paid', {
+        order_id: order.id,
+        transaction_id: payload.TransactionID,
+        amount: amountPaid,
+      });
+
+      return {
+        success: true,
+        orderId: order.id,
+        message: 'Order processing fee processed — order confirmed',
+      };
+    }
+
+    // 5. Full payment: update order status
     const updateData: OrderUpdateData = {
       payment_status: 'paid',
       status: 'active',
