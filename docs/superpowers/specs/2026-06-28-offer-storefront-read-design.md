@@ -81,7 +81,6 @@ from the source, carrying that ex-VAT basis through unchanged.
 | Public field | Definition |
 |---|---|
 | `priceInclVat` | `round(resolved_price * (1 + VAT_RATE) * 100) / 100` — **the only price shown in UI and JSON-LD** |
-| `priceExclVat` | `resolved_price` (provided for completeness; UI shows incl-VAT) |
 | `vatRate` | `0.15` |
 | `vatLabel` | `"incl. VAT"` (rendered next to every price) |
 
@@ -91,17 +90,23 @@ duplicated across `lib/invoices/*`, `lib/contracts/*`, `lib/integrations/zoho/*`
 single shared helper and uses it; it does **not** refactor those existing call sites (out of scope).
 
 #### Mixed-VAT precondition guard (P0)
-The spine has **no per-source VAT-basis flag**. Only `service_packages` (uniformly ex-VAT) are
-published as offers today, so grossing every `resolved_price` up by 15% is correct **now**. But
-MTN/hardware/supplier sources may normalize to **incl-VAT**, which would be **double-taxed** if
-published and grossed again.
+The spine has **no per-source VAT-basis flag**. For this public surface, only `service_packages`
+(uniformly ex-VAT) are eligible, so grossing every exposed `resolved_price` up by 15% is correct.
+But Phase 0 can publish other sources into offers, and MTN/hardware/supplier sources may normalize
+to **incl-VAT**, which would be **double-taxed** if exposed and grossed again.
 
-Therefore Plan 2 enforces an explicit invariant: **only ex-VAT-basis sources may be exposed
-publicly.** The read layer filters to offers whose primary component `source_type = 'service_package'`
-(the only proven ex-VAT source) and **logs + excludes** any active+snapshotted offer from another
-source type, rather than guessing its VAT basis. A test asserts a non-`service_package` offer is
-excluded. When future sources are published, a per-source VAT-basis flag must be added to the spine
-**before** they appear here — captured as an explicit out-of-scope item (§11).
+Therefore Plan 2 enforces an explicit invariant: **only offers sourced from the `service_packages`
+table may be exposed publicly.** The read layer filters to offers whose internal
+`offers.source_uid` starts with `service_packages:` **and** whose primary component
+`source_type = 'service_package'`. The `source_type` check alone is not enough, because Phase 0 maps
+both `admin_products` and `service_packages` to `source_type = 'service_package'`; the `source_uid`
+prefix is the source-table proof.
+
+The read layer **logs + excludes** any active+snapshotted offer from another source, rather than
+guessing its VAT basis. Tests assert that `admin_products:*`, `mtn_dealer_products:*`, and hardware
+offers are excluded, while `service_packages:*` offers pass. When future sources are published, a
+per-source VAT-basis flag must be added to the spine **before** they appear here — captured as an
+explicit out-of-scope item (§11).
 
 ### 4.2 Field policy
 
@@ -112,9 +117,9 @@ excluded. When future sources are published, a per-source VAT-basis flag must be
 | `description` | `media.description` (string) only | ✅ exposed when present, else omitted |
 | `image` | `media.image` (string) only | ✅ exposed when present, else omitted |
 | `customer_type` | offers | ✅ exposed (drives tabs) |
-| `priceInclVat`, `priceExclVat`, `vatRate`, `vatLabel` | derived (§4.1) | ✅ exposed |
+| `priceInclVat`, `vatRate`, `vatLabel` | derived (§4.1) | ✅ exposed |
 | **raw `media` blob** | offers | ❌ **never exposed whole** — only the two whitelisted keys above are read |
-| `resolved_price` (raw, unlabelled) | snapshot | ❌ never exposed raw (only via `priceInclVat`/`priceExclVat`) |
+| `resolved_price` / `priceExclVat` | snapshot / derived | ❌ never exposed publicly; used server-side only to compute `priceInclVat` |
 | `cost_buildup`, `total_cost`, `margin_pct`, `guardrail_status` | snapshot | ❌ **NEVER** |
 | `source_uid`, `source_type`, `source_id` | offers / components | ❌ never (provenance) |
 | component `unit_cost`, `unit_price` | offer_components | ❌ never |
@@ -125,7 +130,8 @@ excluded. When future sources are published, a per-source VAT-basis flag must be
 
 ### 4.3 Behaviour
 - Filter: `status = 'active' AND lifecycle_state = 'active'`, a snapshot row must exist (inner join
-  on `offer_pricing_snapshot`), and the VAT-basis guard (§4.1) excludes non-`service_package` sources.
+  on `offer_pricing_snapshot`), and the VAT-basis guard (§4.1) excludes non-`service_packages:*`
+  source UIDs.
 - Segment filter (used by the API; the page filters client-side, §6): `consumer` →
   `customer_type IN ('consumer','both')`; `business` → `customer_type IN ('business','both')`;
   `all` → no filter.
@@ -183,8 +189,11 @@ Both routes are public (no auth) and read-only.
 Offer intent/attribution is carried on the query string so it survives the hop:
 - **Connectivity offers** (primary component `service_package`): CTA "Check availability" →
   **`/coverage-check?offer=<slug>`**. (`app/coverage-check` is the existing standalone entry; the
-  `offer` param is read for attribution and to pre-select intent.)
+  `offer` param is read for attribution and to pre-select intent; Plan 2 updates this redirect
+  route because it currently only understands `plan`.)
 - **Hardware / non-coverage offers**: CTA "Request a quote" → **`/contact?subject=<title>&offer=<slug>`**.
+  Plan 2 updates the contact page to read `subject`/`offer` into the form message; it currently only
+  pre-fills coverage-related params.
 - No "Add to cart" yet — that CTA swap is Plan 3. No disabled/placeholder buttons.
 
 > Note: in Plan 2 only `service_package` offers are exposed (§4.1 guard), so the connectivity CTA is
@@ -250,11 +259,12 @@ deferred item with this corrected scope.
 
 - `lib/billing/vat.ts`: `addVat` rounds correctly (e.g. `1899 → 2183.85`).
 - `public-read` unit tests:
-  - **VAT:** output `priceInclVat` equals `resolved_price * 1.15` rounded; `priceExclVat` equals raw;
-    no raw/unlabelled price leaks.
+  - **VAT:** output `priceInclVat` equals `resolved_price * 1.15` rounded; public objects contain no
+    `priceExclVat`, `resolved_price`, raw/unlabelled price, or ex-VAT price.
   - **No leakage:** cost/margin/provenance fields are absent from returned objects.
   - **Media whitelist:** unknown `media` keys are dropped; only `description`/`image` strings pass.
-  - **VAT-basis guard:** a non-`service_package` offer is excluded; a `service_package` offer passes.
+  - **VAT-basis guard:** `service_packages:*` offers pass; `admin_products:*`, MTN, and hardware
+    offers are excluded even if their component `source_type` would otherwise look eligible.
   - **Filtering:** segment membership (`consumer`/`business`/`all`, `both`), active-only, snapshot-required.
 - API route tests: response shape, `404` (unknown/excluded slug), `400` (invalid segment).
 - **Rendered-output leakage test (P2):** render `/offers` and a detail page (or fetch their HTML) and
@@ -294,6 +304,8 @@ refactoring existing duplicated VAT constants.
 | `app/offers/page.tsx` | NEW — static list page + ItemList JSON-LD |
 | `components/offers/OfferTabs.tsx` | NEW — client tab/filter component |
 | `app/offers/[slug]/page.tsx` | NEW — detail page + Product/Offer JSON-LD |
+| `app/coverage-check/page.tsx` | EDIT — preserve `offer=<slug>` attribution/preselect intent instead of redirecting home |
+| `app/contact/page.tsx` | EDIT — read `subject`/`offer` params into the form message |
 | `__tests__/lib/billing/vat.test.ts` | NEW |
 | `__tests__/lib/offers/public-read.test.ts` | NEW — VAT, sanitization, whitelist, guard, filtering |
 | `__tests__/app/api/offers/*` | NEW — route tests |
