@@ -98,6 +98,15 @@ Current migrated reference list:
 - `app/admin/customers/page.tsx`
 - `app/admin/unjani/onboarding/page.tsx` (keeps a custom SLA/stage table, but uses the same header/card/state rules)
 
+## Admin Workbenches
+
+Document review, vetting, network device, and customer detail workbenches should use the viewport instead of creating short panels above empty page space:
+
+- Shell/sidebar should be viewport-bound (`h-screen`, sticky/fixed, internal scrolling) so long nav content does not stretch the page.
+- Workbench pages use a flex column main area: header/actions and summary rows are `shrink-0`, while the primary review surface is `flex-1 min-h-0`.
+- Multi-pane workbenches scroll inside their own panes: left list, center preview/workspace, and right inspector.
+- Preview panes should fill available height and reserve drawers/sheets for mobile or expanded inspection.
+
 ## Status variants
 
 `success` (paid/active/approved) · `warning` (pending/unpaid/scheduled) · `error` (failed/overdue/cancelled) · `info` (new/draft) · `neutral` (fallback). All bordered pills (`bg-*-100 text-*-800 border-*-200`).

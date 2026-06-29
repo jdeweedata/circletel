@@ -451,9 +451,9 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
     <TooltipProvider delayDuration={300}>
       <div
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
+          'fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white border-r border-gray-200 transition-all duration-300',
           // Mobile: Full overlay sidebar that slides in/out
-          'lg:relative lg:z-auto',
+          'lg:sticky lg:top-0 lg:z-auto',
           isOpen
             ? 'translate-x-0 w-64'
             : '-translate-x-full lg:translate-x-0 lg:w-16',
