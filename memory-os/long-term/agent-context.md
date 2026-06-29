@@ -44,6 +44,11 @@ Format:
 - **Workaround:** How to handle it
 ```
 
+### 2026-06-29: Admin UI Local Visual Checks
+- **What:** Local Playwright checks for `/admin/*` can be obscured by the Next dev overlay even when the target page renders.
+- **Why:** The app currently has an existing hydration mismatch around `#zcb-banner`; admin header notifications can also crash local stubbed checks if `/api/notifications` does not return `data` plus `pagination.unread_count`.
+- **Workaround:** For layout-only checks, stub `/api/notifications` as `{ success: true, data: [], pagination: { total: 0, limit: 10, offset: 0, unread_count: 0 } }` and hide/remove `nextjs-portal` overlay nodes before screenshots.
+
 ## Agent-Discovered Patterns
 
 _Patterns discovered by agents while working in this codebase._

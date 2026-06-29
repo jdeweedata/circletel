@@ -11,6 +11,7 @@ interface DataTableProps<T> {
   rows: T[];
   getRowId?: (row: T, index: number) => string;
   rowActions?: (row: T) => React.ReactNode;
+  onRowClick?: (row: T) => void;
   loading?: boolean;
   loadingMessage?: string;
   emptyIcon?: React.ReactNode;
@@ -33,6 +34,7 @@ export function DataTable<T>({
   rows,
   getRowId,
   rowActions,
+  onRowClick,
   loading,
   loadingMessage = 'Loading records...',
   emptyIcon,
@@ -44,6 +46,7 @@ export function DataTable<T>({
   className,
 }: DataTableProps<T>) {
   const hasActions = !!rowActions;
+  const isRowClickable = !!onRowClick;
 
   return (
     <div className={cn('overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm', className)}>
@@ -100,7 +103,23 @@ export function DataTable<T>({
             </thead>
             <tbody className="divide-y divide-gray-100">
               {rows.map((row, rowIndex) => (
-                <tr key={getRowId?.(row, rowIndex) ?? rowIndex} className="transition-colors hover:bg-gray-50">
+                <tr
+                  key={getRowId?.(row, rowIndex) ?? rowIndex}
+                  onClick={() => onRowClick?.(row)}
+                  onKeyDown={(event) => {
+                    if (!isRowClickable) return;
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onRowClick?.(row);
+                    }
+                  }}
+                  role={isRowClickable ? 'button' : undefined}
+                  tabIndex={isRowClickable ? 0 : undefined}
+                  className={cn(
+                    'transition-colors hover:bg-gray-50',
+                    isRowClickable && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-circleTel-orange/25'
+                  )}
+                >
                   {columns.map((column) => (
                     <td
                       key={column.id}
@@ -113,7 +132,11 @@ export function DataTable<T>({
                       {column.cell?.(row) ?? column.accessor?.(row) ?? null}
                     </td>
                   ))}
-                  {hasActions && <td className="whitespace-nowrap px-3 py-2.5 text-right">{rowActions?.(row)}</td>}
+                  {hasActions && (
+                    <td className="whitespace-nowrap px-3 py-2.5 text-right" onClick={(event) => event.stopPropagation()}>
+                      {rowActions?.(row)}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

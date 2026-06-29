@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   PiArrowSquareOutBold,
@@ -17,7 +16,6 @@ import {
   PiListBold,
   PiMagnifyingGlassBold,
   PiMapPinBold,
-  PiPhoneBold,
   PiPlusBold,
   PiUsersBold,
 } from 'react-icons/pi';
@@ -28,9 +26,12 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-} from '@/components/ui/table';
-import { StatCard } from '@/components/admin/shared/StatCard';
+  DataTable,
+  FilterToolbar,
+  MetricPanel,
+  PageHeader,
+  type DataTableColumn,
+} from '@/components/backend';
 import { cn } from '@/lib/utils';
 
 // =============================================================================
@@ -239,90 +240,181 @@ export default function CorporateListPage() {
     fetchCorporates();
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 -m-6 p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
-          <Link href="/admin" className="hover:text-slate-700">Admin</Link>
-          <PiCaretRightBold className="w-3 h-3" />
-          <span className="text-slate-900">Corporate Clients</span>
+  const columns: DataTableColumn<CorporateAccount>[] = [
+    {
+      id: 'code',
+      header: 'Code',
+      cell: (corporate) => (
+        <span className="rounded-md bg-orange-50 px-2 py-1 font-mono text-xs font-semibold text-orange-700">
+          {corporate.corporateCode}
+        </span>
+      ),
+    },
+    {
+      id: 'company',
+      header: 'Company',
+      cell: (corporate) => (
+        <div className="min-w-[220px]">
+          <p className="font-medium text-gray-900">{corporate.companyName}</p>
+          {corporate.tradingName && (
+            <p className="text-xs text-gray-500">t/a {corporate.tradingName}</p>
+          )}
         </div>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Corporate Clients</h1>
-            <p className="text-slate-500 mt-1">Manage enterprise multi-site accounts</p>
-          </div>
+      ),
+    },
+    {
+      id: 'contact',
+      header: 'Contact',
+      cell: (corporate) => (
+        <div className="min-w-[220px]">
+          <p className="font-medium text-gray-700">{corporate.primaryContactName}</p>
+          <p className="text-xs text-gray-500">{corporate.primaryContactEmail}</p>
+        </div>
+      ),
+    },
+    {
+      id: 'sites',
+      header: 'Sites',
+      cell: (corporate) => (
+        <div className="flex items-center gap-1.5">
+          <span className="font-semibold text-green-600">{corporate.activeSites}</span>
+          <span className="text-gray-300">/</span>
+          <span className="text-gray-600">{corporate.totalSites}</span>
+          {corporate.pendingSites > 0 && (
+            <span className="ml-1 rounded bg-amber-50 px-1.5 py-0.5 text-xs text-amber-700">
+              +{corporate.pendingSites}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: 'industry',
+      header: 'Industry',
+      cell: (corporate) => <span className="text-sm text-gray-500">{corporate.industry || '-'}</span>,
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      cell: (corporate) => {
+        const status = STATUS_CONFIG[corporate.accountStatus] ?? STATUS_CONFIG.archived;
+        return (
+          <Badge variant="outline" className={cn('text-xs border', status.color)}>
+            <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', status.dot)} />
+            {corporate.accountStatus}
+          </Badge>
+        );
+      },
+    },
+    {
+      id: 'created',
+      header: 'Created',
+      cell: (corporate) => (
+        <span className="text-sm text-gray-500">
+          {new Date(corporate.createdAt).toLocaleDateString('en-ZA', {
+            day: 'numeric',
+            month: 'short',
+          })}
+        </span>
+      ),
+    },
+    {
+      id: 'open',
+      header: '',
+      align: 'center',
+      cell: () => <PiArrowSquareOutBold className="mx-auto h-4 w-4 text-gray-400" />,
+    },
+  ];
+
+  return (
+    <div className="space-y-6 pb-12">
+      <PageHeader
+        title="Corporate Clients"
+        subtitle="Manage enterprise multi-site accounts"
+        actions={
           <Button onClick={() => router.push('/admin/corporate/new')}>
-            <PiPlusBold className="w-4 h-4 mr-2" />
+            <PiPlusBold className="mr-2 h-4 w-4" />
             Add Corporate
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-        <StatCard
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        <MetricPanel
           label="Total Corporates"
           value={String(stats.totalCorporates)}
-          icon={<PiBriefcaseBold className="w-5 h-5" />}
-          iconBgColor="bg-orange-100"
-          iconColor="text-orange-600"
+          icon={<PiBriefcaseBold className="h-4 w-4" />}
         />
-        <StatCard
+        <MetricPanel
           label="Active Corporates"
           value={String(stats.activeCorporates)}
-          icon={<PiCheckCircleBold className="w-5 h-5" />}
-          iconBgColor="bg-emerald-100"
-          iconColor="text-emerald-600"
-          subtitle={stats.totalCorporates > 0 ? `${Math.round((stats.activeCorporates / stats.totalCorporates) * 100)}% of total` : undefined}
+          icon={<PiCheckCircleBold className="h-4 w-4" />}
+          description={stats.totalCorporates > 0 ? `${Math.round((stats.activeCorporates / stats.totalCorporates) * 100)}% of total` : undefined}
         />
-        <StatCard
+        <MetricPanel
           label="Total Sites"
           value={String(stats.totalSites)}
-          icon={<PiMapPinBold className="w-5 h-5" />}
-          iconBgColor="bg-violet-100"
-          iconColor="text-violet-600"
+          icon={<PiMapPinBold className="h-4 w-4" />}
         />
-        <StatCard
+        <MetricPanel
           label="Active Sites"
           value={String(stats.activeSites)}
-          icon={<PiUsersBold className="w-5 h-5" />}
-          iconBgColor="bg-sky-100"
-          iconColor="text-sky-600"
-          subtitle={stats.totalSites > 0 ? `${Math.round((stats.activeSites / stats.totalSites) * 100)}% deployed` : undefined}
+          icon={<PiUsersBold className="h-4 w-4" />}
+          description={stats.totalSites > 0 ? `${Math.round((stats.activeSites / stats.totalSites) * 100)}% deployed` : undefined}
         />
-        <StatCard
+        <MetricPanel
           label="Pending Sites"
           value={String(stats.pendingSites)}
-          icon={<PiClockBold className="w-5 h-5" />}
-          iconBgColor="bg-amber-100"
-          iconColor="text-amber-600"
-          subtitle="Awaiting deployment"
+          icon={<PiClockBold className="h-4 w-4" />}
+          description="Awaiting deployment"
         />
       </div>
 
-      {/* Search & Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <form onSubmit={handleSearch} className="flex-1 min-w-[240px] relative">
-          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <FilterToolbar
+        action={
+          <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={cn(
+                'inline-flex h-9 items-center gap-1.5 px-3 text-sm font-medium transition',
+                viewMode === 'list' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-50'
+              )}
+            >
+              <PiListBold className="h-4 w-4" />
+              Table
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={cn(
+                'inline-flex h-9 items-center gap-1.5 px-3 text-sm font-medium transition',
+                viewMode === 'grid' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-50'
+              )}
+            >
+              <PiGridFourBold className="h-4 w-4" />
+              Cards
+            </button>
+          </div>
+        }
+      >
+        <form onSubmit={handleSearch} className="relative min-w-0 flex-1">
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             placeholder="Search by company name, code, or contact..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-9 text-sm"
+            className="h-10 pl-10"
           />
         </form>
-
-        <div className="flex items-center gap-1 text-sm text-slate-500">
-          <PiFunnelBold className="w-4 h-4" />
-        </div>
 
         <Select value={statusFilter} onValueChange={(value) => {
           setStatusFilter(value);
           setPagination(prev => ({ ...prev, page: 1 }));
         }}>
-          <SelectTrigger className="w-[150px] h-9 text-sm">
+          <SelectTrigger className="h-10 w-full sm:w-[180px]">
+            <PiFunnelBold className="mr-2 h-4 w-4" />
             <SelectValue placeholder="All Statuses" />
           </SelectTrigger>
           <SelectContent>
@@ -337,60 +429,14 @@ export default function CorporateListPage() {
         <Button type="submit" variant="outline" size="sm" onClick={() => { setPagination(p => ({ ...p, page: 1 })); fetchCorporates(); }}>
           Search
         </Button>
-
-        <div className="ml-auto flex items-center border border-slate-200 rounded-lg overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setViewMode('list')}
-            className={cn(
-              'px-3 py-1.5 text-sm',
-              viewMode === 'list' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
-            )}
-          >
-            Table
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('grid')}
-            className={cn(
-              'px-3 py-1.5 text-sm',
-              viewMode === 'grid' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
-            )}
-          >
-            Cards
-          </button>
-        </div>
-      </div>
+      </FilterToolbar>
 
       {/* Results Count */}
-      <div className="flex items-center gap-4 text-sm text-slate-500 mb-4">
-        <span>{loading ? 'Loading...' : <><span className="font-semibold text-slate-900">{pagination.total}</span> corporate{pagination.total !== 1 ? 's' : ''} found</>}</span>
+      <div className="flex items-center gap-4 text-sm text-gray-500">
+        <span>{loading ? 'Loading...' : <><span className="font-semibold text-gray-900">{pagination.total}</span> corporate{pagination.total !== 1 ? 's' : ''} found</>}</span>
       </div>
 
-      {/* Corporate List */}
-      {loading ? (
-        <div className="space-y-3">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-16 bg-white rounded-xl border border-slate-200 animate-pulse" />
-          ))}
-        </div>
-      ) : corporates.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-16 text-center">
-          <PiBuildingsBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="font-semibold text-slate-900 mb-1">No corporate accounts found</p>
-          <p className="text-slate-500 text-sm mb-6">
-            {searchQuery || statusFilter !== 'all'
-              ? 'Try adjusting your search or filters'
-              : 'Get started by adding your first corporate client'}
-          </p>
-          {!searchQuery && statusFilter === 'all' && (
-            <Button onClick={() => router.push('/admin/corporate/new')}>
-              <PiPlusBold className="w-4 h-4 mr-2" />
-              Add First Corporate
-            </Button>
-          )}
-        </div>
-      ) : viewMode === 'grid' ? (
+      {viewMode === 'grid' && !loading && corporates.length > 0 ? (
         /* ---- CARDS VIEW ---- */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {corporates.map((corporate) => (
@@ -402,94 +448,29 @@ export default function CorporateListPage() {
           ))}
         </div>
       ) : (
-        /* ---- TABLE VIEW ---- */
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-slate-50">
-                <TableHead>Code</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Sites</TableHead>
-                <TableHead>Industry</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="w-10"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {corporates.map((corporate) => {
-                const status = STATUS_CONFIG[corporate.accountStatus] ?? STATUS_CONFIG.archived;
-                return (
-                  <TableRow
-                    key={corporate.id}
-                    onClick={() => router.push(`/admin/corporate/${corporate.id}`)}
-                    className="cursor-pointer group"
-                  >
-                    <TableCell>
-                      <span className="font-mono font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded text-sm">
-                        {corporate.corporateCode}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="min-w-0">
-                        <p className="font-medium text-slate-900 truncate group-hover:text-blue-600 transition-colors">
-                          {corporate.companyName}
-                        </p>
-                        {corporate.tradingName && (
-                          <p className="text-xs text-slate-400 truncate">t/a {corporate.tradingName}</p>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="min-w-0">
-                        <p className="font-medium text-slate-700 truncate">{corporate.primaryContactName}</p>
-                        <p className="text-xs text-slate-400 truncate">{corporate.primaryContactEmail}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-emerald-600 font-semibold">{corporate.activeSites}</span>
-                        <span className="text-slate-300">/</span>
-                        <span className="text-slate-600">{corporate.totalSites}</span>
-                        {corporate.pendingSites > 0 && (
-                          <span className="text-xs text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded ml-1">
-                            +{corporate.pendingSites}
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-slate-500 text-sm">{corporate.industry || '—'}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={cn('text-xs border', status.color)}>
-                        <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', status.dot)} />
-                        {corporate.accountStatus}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-400">
-                      {new Date(corporate.createdAt).toLocaleDateString('en-ZA', {
-                        day: 'numeric', month: 'short',
-                      })}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-slate-400 hover:text-blue-600"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/admin/corporate/${corporate.id}`);
-                        }}
-                      >
-                        <PiArrowSquareOutBold className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable
+          columns={columns}
+          rows={corporates}
+          getRowId={(corporate) => corporate.id}
+          loading={loading}
+          loadingMessage="Loading corporate accounts..."
+          emptyIcon={<PiBuildingsBold />}
+          emptyTitle="No corporate accounts found"
+          emptyDescription={
+            searchQuery || statusFilter !== 'all'
+              ? 'Try adjusting your search or filters.'
+              : 'Get started by adding your first corporate client.'
+          }
+          emptyAction={
+            !searchQuery && statusFilter === 'all' ? (
+              <Button onClick={() => router.push('/admin/corporate/new')}>
+                <PiPlusBold className="mr-2 h-4 w-4" />
+                Add First Corporate
+              </Button>
+            ) : undefined
+          }
+          onRowClick={(corporate) => router.push(`/admin/corporate/${corporate.id}`)}
+        />
       )}
 
       {/* Pagination */}

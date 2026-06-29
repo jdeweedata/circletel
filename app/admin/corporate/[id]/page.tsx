@@ -37,7 +37,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
-import { StatCard } from '@/components/admin/shared/StatCard';
+import { MetricPanel } from '@/components/backend';
 import { SectionCard } from '@/components/admin/shared/SectionCard';
 import { UnderlineTabs, TabPanel } from '@/components/admin/shared/UnderlineTabs';
 import { cn } from '@/lib/utils';
@@ -347,11 +347,11 @@ export default function CorporateDetailPage() {
   // Loading
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 -m-6 p-6 space-y-6">
+      <div className="space-y-6 pb-12">
         <div className="h-8 w-64 bg-slate-200 rounded animate-pulse" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+            <div key={i} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3">
               <div className="h-4 w-20 bg-slate-200 rounded animate-pulse" />
               <div className="h-8 w-16 bg-slate-200 rounded animate-pulse" />
             </div>
@@ -364,7 +364,7 @@ export default function CorporateDetailPage() {
   // Not Found
   if (!corporate) {
     return (
-      <div className="min-h-screen bg-slate-50 -m-6 p-6 flex items-center justify-center">
+      <div className="flex min-h-[420px] items-center justify-center">
         <div className="text-center">
           <PiWarningCircleBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
           <p className="font-semibold text-slate-900 mb-1">Corporate Not Found</p>
@@ -383,7 +383,7 @@ export default function CorporateDetailPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 -m-6 p-6">
+    <div className="space-y-6 pb-12">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
@@ -421,36 +421,28 @@ export default function CorporateDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <MetricPanel
           label="Total Sites"
           value={String(corporate.totalSites)}
-          icon={<PiMapPinBold className="w-5 h-5" />}
-          iconBgColor="bg-violet-100"
-          iconColor="text-violet-600"
+          icon={<PiMapPinBold className="h-4 w-4" />}
         />
-        <StatCard
+        <MetricPanel
           label="Active Sites"
           value={String(corporate.activeSites)}
-          icon={<PiCheckCircleBold className="w-5 h-5" />}
-          iconBgColor="bg-emerald-100"
-          iconColor="text-emerald-600"
-          subtitle={corporate.totalSites > 0 ? `${Math.round((corporate.activeSites / corporate.totalSites) * 100)}% of total` : undefined}
+          icon={<PiCheckCircleBold className="h-4 w-4" />}
+          description={corporate.totalSites > 0 ? `${Math.round((corporate.activeSites / corporate.totalSites) * 100)}% of total` : undefined}
         />
-        <StatCard
+        <MetricPanel
           label="Pending Sites"
           value={String(corporate.pendingSites)}
-          icon={<PiClockBold className="w-5 h-5" />}
-          iconBgColor="bg-amber-100"
-          iconColor="text-amber-600"
+          icon={<PiClockBold className="h-4 w-4" />}
         />
-        <StatCard
+        <MetricPanel
           label="Target Sites"
           value={String(corporate.expectedSites ?? '—')}
-          icon={<PiTargetBold className="w-5 h-5" />}
-          iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
-          subtitle={corporate.expectedSites ? `${deploymentProgress}% deployed` : undefined}
+          icon={<PiTargetBold className="h-4 w-4" />}
+          description={corporate.expectedSites ? `${deploymentProgress}% deployed` : undefined}
         />
       </div>
 
@@ -708,12 +700,12 @@ export default function CorporateDetailPage() {
       <TabPanel id="pppoe" activeTab={activeTab} className="space-y-6">
         {/* Credential Stats */}
         {credentialStats && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <StatCard label="Total Sites" value={String(credentialStats.totalSites)} icon={<PiMapPinBold className="w-5 h-5" />} iconBgColor="bg-slate-100" iconColor="text-slate-600" />
-            <StatCard label="With Credentials" value={String(credentialStats.withCredentials)} icon={<PiKeyBold className="w-5 h-5" />} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
-            <StatCard label="Provisioned" value={String(credentialStats.provisioned)} icon={<PiCheckCircleBold className="w-5 h-5" />} iconBgColor="bg-emerald-100" iconColor="text-emerald-600" />
-            <StatCard label="Pending" value={String(credentialStats.pending)} icon={<PiClockBold className="w-5 h-5" />} iconBgColor="bg-amber-100" iconColor="text-amber-600" />
-            <StatCard label="Failed" value={String(credentialStats.failed)} icon={<PiWarningCircleBold className="w-5 h-5" />} iconBgColor="bg-red-100" iconColor="text-red-600" />
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-5">
+            <MetricPanel label="Total Sites" value={String(credentialStats.totalSites)} icon={<PiMapPinBold className="h-4 w-4" />} />
+            <MetricPanel label="With Credentials" value={String(credentialStats.withCredentials)} icon={<PiKeyBold className="h-4 w-4" />} />
+            <MetricPanel label="Provisioned" value={String(credentialStats.provisioned)} icon={<PiCheckCircleBold className="h-4 w-4" />} />
+            <MetricPanel label="Pending" value={String(credentialStats.pending)} icon={<PiClockBold className="h-4 w-4" />} />
+            <MetricPanel label="Failed" value={String(credentialStats.failed)} icon={<PiWarningCircleBold className="h-4 w-4" />} />
           </div>
         )}
 
@@ -821,34 +813,26 @@ export default function CorporateDetailPage() {
         ) : billingData ? (
           <>
             {/* Billing Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <StatCard
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <MetricPanel
                 label="Total Invoices"
                 value={String(billingData.summary.total_invoices)}
-                icon={<PiFileTextBold className="w-5 h-5" />}
-                iconBgColor="bg-slate-100"
-                iconColor="text-slate-600"
+                icon={<PiFileTextBold className="h-4 w-4" />}
               />
-              <StatCard
+              <MetricPanel
                 label="Total Collected"
                 value={formatCurrency(billingData.summary.total_collected)}
-                icon={<PiCheckCircleBold className="w-5 h-5" />}
-                iconBgColor="bg-emerald-100"
-                iconColor="text-emerald-600"
+                icon={<PiCheckCircleBold className="h-4 w-4" />}
               />
-              <StatCard
+              <MetricPanel
                 label="Outstanding"
                 value={formatCurrency(billingData.summary.total_outstanding)}
-                icon={<PiWarningCircleBold className="w-5 h-5" />}
-                iconBgColor="bg-amber-100"
-                iconColor="text-amber-600"
+                icon={<PiWarningCircleBold className="h-4 w-4" />}
               />
-              <StatCard
+              <MetricPanel
                 label="Overdue Invoices"
                 value={String(billingData.summary.overdue_count)}
-                icon={<PiClockBold className="w-5 h-5" />}
-                iconBgColor="bg-red-100"
-                iconColor="text-red-600"
+                icon={<PiClockBold className="h-4 w-4" />}
               />
             </div>
 
