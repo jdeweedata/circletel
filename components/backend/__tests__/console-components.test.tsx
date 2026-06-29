@@ -16,14 +16,28 @@ describe('console backend components', () => {
         { id: 'status', header: 'Status', accessor: (row: { status: string }) => row.status },
       ],
       rows: [],
+      emptyIcon: <span>customers</span>,
       emptyTitle: 'No customers found',
       emptyDescription: 'Adjust your filters and try again.',
+      emptyAction: <button>Clear filters</button>,
     });
 
     expect(React.isValidElement(table)).toBe(true);
     expect(table.props.className).toContain('rounded-lg');
     expect(JSON.stringify(table)).toContain('No customers found');
+    expect(JSON.stringify(table)).toContain('Clear filters');
     expect(JSON.stringify(table)).toContain('text-xs');
+  });
+
+  it('uses page-specific loading copy in data tables', () => {
+    const table = DataTable({
+      columns: [{ id: 'name', header: 'Name', accessor: (row: { name: string }) => row.name }],
+      rows: [],
+      loading: true,
+      loadingMessage: 'Loading customers...',
+    });
+
+    expect(JSON.stringify(table)).toContain('Loading customers...');
   });
 
   it('keeps inspector panels sticky on desktop and sheet-backed on mobile', () => {

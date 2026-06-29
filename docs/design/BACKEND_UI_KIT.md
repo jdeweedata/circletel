@@ -83,6 +83,21 @@ The first adoption phase moves shared shells onto `ConsoleShell` without changin
 
 Next page migrations should replace local table/stat/filter/detail markup with the primitives above. Do not redesign public marketing pages or checkout acquisition pages as part of this console kit.
 
+## Admin List Pages
+
+Admin list/index pages must follow the same operational stack so `/admin/dashboard`, `/admin/customers`, `/admin/unjani/onboarding`, and future pages feel like one console:
+
+1. `PageHeader` with one concise title, one subtitle, and right-aligned actions.
+2. Optional `StatCard`/`MetricPanel` row directly below the header when the page has summary counts.
+3. `FilterToolbar` for search, selects, bulk actions, and reset controls.
+4. `DataTable` for records, with `StatusBadge` for all statuses and shared loading/empty/error states.
+5. No local shadcn `Card` wrappers around tables unless the table has a bespoke interaction that `DataTable` cannot express yet.
+
+Current migrated reference list:
+
+- `app/admin/customers/page.tsx`
+- `app/admin/unjani/onboarding/page.tsx` (keeps a custom SLA/stage table, but uses the same header/card/state rules)
+
 ## Status variants
 
 `success` (paid/active/approved) · `warning` (pending/unpaid/scheduled) · `error` (failed/overdue/cancelled) · `info` (new/draft) · `neutral` (fallback). All bordered pills (`bg-*-100 text-*-800 border-*-200`).

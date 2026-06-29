@@ -12,8 +12,11 @@ interface DataTableProps<T> {
   getRowId?: (row: T, index: number) => string;
   rowActions?: (row: T) => React.ReactNode;
   loading?: boolean;
+  loadingMessage?: string;
+  emptyIcon?: React.ReactNode;
   emptyTitle?: string;
   emptyDescription?: string;
+  emptyAction?: React.ReactNode;
   sort?: DataTableSortState | null;
   onSortChange?: (sort: DataTableSortState | null) => void;
   className?: string;
@@ -31,8 +34,11 @@ export function DataTable<T>({
   getRowId,
   rowActions,
   loading,
+  loadingMessage = 'Loading records...',
+  emptyIcon,
   emptyTitle = 'No records found',
   emptyDescription,
+  emptyAction,
   sort = null,
   onSortChange,
   className,
@@ -42,9 +48,15 @@ export function DataTable<T>({
   return (
     <div className={cn('overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm', className)}>
       {loading ? (
-        <LoadingState message="Loading records..." className="min-h-[240px]" />
+        <LoadingState message={loadingMessage} className="min-h-[240px]" />
       ) : rows.length === 0 ? (
-        <EmptyState title={emptyTitle} description={emptyDescription} icon={<span aria-hidden />} className="text-xs" />
+        <EmptyState
+          title={emptyTitle}
+          description={emptyDescription}
+          icon={emptyIcon ?? <span aria-hidden />}
+          action={emptyAction}
+          className="text-xs"
+        />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full caption-bottom text-sm">

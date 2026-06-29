@@ -43,6 +43,20 @@ export default function AdminLayout({
   const fullScreenRoutes = ['/admin/cms/builder'];
   const isFullScreenRoute = fullScreenRoutes.some(route => pathname?.startsWith(route));
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+    const syncSidebarToViewport = () => setSidebarOpen(mediaQuery.matches);
+
+    syncSidebarToViewport();
+    mediaQuery.addEventListener('change', syncSidebarToViewport);
+
+    return () => {
+      mediaQuery.removeEventListener('change', syncSidebarToViewport);
+    };
+  }, []);
+
   // Fetch admin user from API (server-side validates session from cookies)
   useEffect(() => {
     if (isPublicRoute) {
