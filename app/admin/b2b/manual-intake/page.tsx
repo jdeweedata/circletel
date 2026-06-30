@@ -807,6 +807,11 @@ export default function ManualB2BIntakePage() {
           <p className="mt-1 text-sm text-gray-500">
             Admin-assisted capture for emailed client onboarding packs
           </p>
+          <span className="mt-3 inline-flex items-center gap-2 rounded-full border border-orange-100 bg-orange-50 px-3 py-1 text-xs font-semibold text-circleTel-orange-dark">
+            Step {activeStepIndex + 1} of {intakeSteps.length}
+            <span className="text-gray-400">·</span>
+            {activeStepMeta.label}
+          </span>
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -1622,9 +1627,10 @@ export default function ManualB2BIntakePage() {
                 <div className="grid gap-4">
                   <div className="rounded-lg border border-gray-200 p-4">
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-gray-950">
-                        Customer Record
-                      </h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-semibold text-gray-950">Customer Record</h3>
+                        <ReviewTag ready={stepReadiness.customer} />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -1665,9 +1671,10 @@ export default function ManualB2BIntakePage() {
 
                   <div className="rounded-lg border border-gray-200 p-4">
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-gray-950">
-                        Contact & Site
-                      </h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-semibold text-gray-950">Contact &amp; Site</h3>
+                        <ReviewTag ready={stepReadiness.contact} />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -1698,9 +1705,10 @@ export default function ManualB2BIntakePage() {
 
                   <div className="rounded-lg border border-gray-200 p-4">
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-gray-950">
-                        Billable Service
-                      </h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-semibold text-gray-950">Billable Service</h3>
+                        <ReviewTag ready={stepReadiness.service} />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -1730,9 +1738,10 @@ export default function ManualB2BIntakePage() {
 
                   <div className="rounded-lg border border-gray-200 p-4">
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-gray-950">
-                        Documents
-                      </h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-semibold text-gray-950">Documents</h3>
+                        <ReviewTag ready={stepReadiness.documents} />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -1754,9 +1763,10 @@ export default function ManualB2BIntakePage() {
 
                   <div className="rounded-lg border border-gray-200 p-4">
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-gray-950">
-                        Debit Order
-                      </h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-semibold text-gray-950">Debit Order</h3>
+                        <ReviewTag ready={stepReadiness.debit} />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -1887,9 +1897,25 @@ export default function ManualB2BIntakePage() {
               )}
 
               <div className="border-t border-gray-100 pt-4">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Required items
-                </p>
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Required items
+                  </p>
+                  <span className="text-xs font-semibold text-gray-700">
+                    {completion}%
+                  </span>
+                </div>
+                <div className="mb-3 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-circleTel-orange transition-all"
+                    style={{ width: `${completion}%` }}
+                    role="progressbar"
+                    aria-valuenow={completion}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="Required items complete"
+                  />
+                </div>
                 <div className="space-y-3">
                   {intakeSteps.slice(0, 5).map((step) => {
                     const active = activeStep === step.id;
