@@ -1,6 +1,6 @@
 import 'server-only';
 import { addVat, VAT_RATE } from '@/lib/billing/vat';
-import type { PublicOffer, OfferCustomerType } from '@/lib/types/offer';
+import type { PublicOffer, PublicOfferDetail, OfferCustomerType } from '@/lib/types/offer';
 import { apiLogger } from '@/lib/logging/logger';
 import { createClient } from '@/lib/supabase/server';
 
