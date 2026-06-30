@@ -143,7 +143,7 @@ const navigationSections: NavSection[] = [
         description: 'Business customer journey',
         children: [
           { name: 'Clinic Onboarding', href: '/admin/unjani/onboarding', icon: PiUserPlusBold },
-          { name: 'Manual Intake', href: '/admin/b2b/manual-intake', icon: PiClipboardTextBold },
+          { name: 'Manual Onboarding', href: '/admin/b2b/manual-intake', icon: PiClipboardTextBold },
           { name: 'Document Vetting', href: '/admin/b2b/vetting', icon: PiUserCheckBold },
           { name: 'All B2B Customers', href: '/admin/b2b-customers', icon: PiBuildingsBold },
           { name: 'Site Details', href: '/admin/b2b-customers/site-details', icon: PiMapPinBold },

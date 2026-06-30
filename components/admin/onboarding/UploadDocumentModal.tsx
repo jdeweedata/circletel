@@ -45,6 +45,7 @@ interface UploadDocumentModalProps {
 }
 
 type UploadQueueItem = QueuedDocumentUpload & {
+  docType: DocType;
   uploadError?: string;
 };
 
@@ -58,7 +59,6 @@ export function UploadDocumentModal({
   authHeaders,
   onUploaded,
 }: UploadDocumentModalProps) {
-  const [docType, setDocType] = useState<DocType>("company_registration");
   const [segment, setSegment] = useState(defaultSegment);
   const [emailFrom, setEmailFrom] = useState("");
   const [emailSubject, setEmailSubject] = useState("");
@@ -81,7 +81,6 @@ export function UploadDocumentModal({
   );
 
   const reset = () => {
-    setDocType("company_registration");
     setSegment(defaultSegment);
     setEmailFrom("");
     setEmailSubject("");
@@ -99,6 +98,7 @@ export function UploadDocumentModal({
     const next = buildDocumentUploadQueue(files).map((item, index) => ({
       ...item,
       id: `${item.id}-${batchStamp}-${index}`,
+      docType: "company_registration" as DocType,
     }));
     setQueuedFiles((current) => [...current, ...next]);
 
@@ -125,10 +125,16 @@ export function UploadDocumentModal({
     setQueuedFiles((current) => current.filter((item) => item.id !== id));
   };
 
+  const updateQueuedFileDocType = (id: string, docType: DocType) => {
+    setQueuedFiles((current) =>
+      current.map((item) => (item.id === id ? { ...item, docType } : item)),
+    );
+  };
+
   const uploadOne = async (item: UploadQueueItem) => {
     const fd = new FormData();
     fd.append("customerId", customerId);
-    fd.append("documentType", docType);
+    fd.append("documentType", item.docType);
     fd.append("segment", segment);
     if (emailFrom.trim()) fd.append("emailFrom", emailFrom.trim());
     if (emailSubject.trim()) fd.append("emailSubject", emailSubject.trim());
@@ -155,8 +161,6 @@ export function UploadDocumentModal({
       return;
     }
 
-    const label =
-      DOC_TYPE_OPTIONS.find((o) => o.value === docType)?.label ?? docType;
     const successfulIds = new Set<string>();
     const failures = new Map<string, string>();
 
@@ -166,6 +170,9 @@ export function UploadDocumentModal({
         setCurrentUpload(item.name);
         try {
           await uploadOne(item);
+          const label =
+            DOC_TYPE_OPTIONS.find((o) => o.value === item.docType)?.label ??
+            item.docType;
           successfulIds.add(item.id);
           setUploaded((current) => [
             ...current,
@@ -217,99 +224,86 @@ export function UploadDocumentModal({
         nextOpen ? onOpenChange(nextOpen) : handleClose()
       }
     >
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Upload documents - {clinicName}</DialogTitle>
+          <DialogTitle>
+            Upload client onboarding documents - {clinicName}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="upload-document-type"
-                className="text-xs font-semibold text-gray-500"
-              >
-                Document type
-              </Label>
-              <select
-                id="upload-document-type"
-                value={docType}
-                onChange={(e) => setDocType(e.target.value as DocType)}
-                className="h-10 w-full rounded-md border border-gray-300 px-2 py-2 text-sm"
-              >
-                {DOC_TYPE_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Client onboarding pack
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="upload-segment"
+                  className="text-xs font-semibold text-gray-500"
+                >
+                  Segment
+                </Label>
+                <select
+                  id="upload-segment"
+                  value={segment}
+                  onChange={(e) => setSegment(e.target.value)}
+                  className="h-10 w-full rounded-md border border-gray-300 px-2 py-2 text-sm"
+                >
+                  <option value="unjani">Unjani</option>
+                  <option value="smb">SMB</option>
+                  <option value="edu">Education</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="upload-email-received-at"
+                  className="text-xs font-semibold text-gray-500"
+                >
+                  Email received
+                </Label>
+                <Input
+                  id="upload-email-received-at"
+                  type="datetime-local"
+                  value={emailReceivedAt}
+                  onChange={(event) => setEmailReceivedAt(event.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="upload-segment"
-                className="text-xs font-semibold text-gray-500"
-              >
-                Segment
-              </Label>
-              <select
-                id="upload-segment"
-                value={segment}
-                onChange={(e) => setSegment(e.target.value)}
-                className="h-10 w-full rounded-md border border-gray-300 px-2 py-2 text-sm"
-              >
-                <option value="unjani">Unjani</option>
-                <option value="smb">SMB</option>
-                <option value="edu">Education</option>
-                <option value="enterprise">Enterprise</option>
-              </select>
-            </div>
-          </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="upload-email-from"
+                  className="text-xs font-semibold text-gray-500"
+                >
+                  Email from
+                </Label>
+                <Input
+                  id="upload-email-from"
+                  type="email"
+                  value={emailFrom}
+                  onChange={(event) => setEmailFrom(event.target.value)}
+                />
+              </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="upload-email-from"
-                className="text-xs font-semibold text-gray-500"
-              >
-                Email from
-              </Label>
-              <Input
-                id="upload-email-from"
-                type="email"
-                value={emailFrom}
-                onChange={(event) => setEmailFrom(event.target.value)}
-              />
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="upload-email-subject"
+                  className="text-xs font-semibold text-gray-500"
+                >
+                  Email subject
+                </Label>
+                <Input
+                  id="upload-email-subject"
+                  value={emailSubject}
+                  onChange={(event) => setEmailSubject(event.target.value)}
+                />
+              </div>
             </div>
-
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="upload-email-received-at"
-                className="text-xs font-semibold text-gray-500"
-              >
-                Email received
-              </Label>
-              <Input
-                id="upload-email-received-at"
-                type="datetime-local"
-                value={emailReceivedAt}
-                onChange={(event) => setEmailReceivedAt(event.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="upload-email-subject"
-              className="text-xs font-semibold text-gray-500"
-            >
-              Email subject
-            </Label>
-            <Input
-              id="upload-email-subject"
-              value={emailSubject}
-              onChange={(event) => setEmailSubject(event.target.value)}
-            />
           </div>
 
           <label
@@ -351,49 +345,83 @@ export function UploadDocumentModal({
           {queuedFiles.length > 0 && (
             <div className="overflow-hidden rounded-md border border-gray-200">
               <div className="border-b border-gray-100 bg-gray-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Upload queue ({queuedFiles.length})
+                Documents in this pack ({queuedFiles.length})
               </div>
               <div className="max-h-52 divide-y divide-gray-100 overflow-y-auto">
                 {queuedFiles.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-start gap-3 px-3 py-3"
+                    className="grid gap-3 px-3 py-3 md:grid-cols-[minmax(0,1fr)_260px_auto]"
                   >
-                    <PiFileBold className="mt-0.5 h-5 w-5 flex-none text-gray-400" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-gray-900">
-                        {item.name}
-                      </p>
-                      <p className="text-xs text-gray-500">{item.sizeLabel}</p>
-                      {item.error && (
-                        <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
-                          <PiWarningCircleBold className="h-3.5 w-3.5" />
-                          {item.error}
+                    <div className="flex min-w-0 items-start gap-3">
+                      <PiFileBold className="mt-0.5 h-5 w-5 flex-none text-gray-400" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-gray-900">
+                          {item.name}
                         </p>
-                      )}
-                      {item.uploadError && (
-                        <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
-                          <PiWarningCircleBold className="h-3.5 w-3.5" />
-                          {item.uploadError}
+                        <p className="text-xs text-gray-500">
+                          {item.sizeLabel}
                         </p>
-                      )}
-                      {currentUpload === item.name && (
-                        <p className="mt-1 text-xs font-medium text-circleTel-orange">
-                          Uploading...
-                        </p>
-                      )}
+                        {item.error && (
+                          <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+                            <PiWarningCircleBold className="h-3.5 w-3.5" />
+                            {item.error}
+                          </p>
+                        )}
+                        {item.uploadError && (
+                          <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+                            <PiWarningCircleBold className="h-3.5 w-3.5" />
+                            {item.uploadError}
+                          </p>
+                        )}
+                        {currentUpload === item.name && (
+                          <p className="mt-1 text-xs font-medium text-circleTel-orange">
+                            Uploading...
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 flex-none"
-                      onClick={() => removeQueuedFile(item.id)}
-                      disabled={uploading}
-                      aria-label={`Remove ${item.name}`}
-                    >
-                      <PiXBold className="h-4 w-4" />
-                    </Button>
+
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor={`queued-document-type-${item.id}`}
+                        className="text-[11px] font-semibold uppercase tracking-wide text-gray-500"
+                      >
+                        Document type
+                      </Label>
+                      <select
+                        id={`queued-document-type-${item.id}`}
+                        value={item.docType}
+                        onChange={(event) =>
+                          updateQueuedFileDocType(
+                            item.id,
+                            event.target.value as DocType,
+                          )
+                        }
+                        disabled={uploading || !item.valid}
+                        className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm disabled:bg-gray-50 disabled:text-gray-400"
+                      >
+                        {DOC_TYPE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => removeQueuedFile(item.id)}
+                        disabled={uploading}
+                        aria-label={`Remove ${item.name}`}
+                      >
+                        <PiXBold className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
