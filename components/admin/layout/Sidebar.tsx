@@ -82,6 +82,7 @@ const navigationSections: NavSection[] = [
         icon: PiPackageBold,
         children: [
           { name: 'Product Workspace', href: '/admin/products', icon: PiSquaresFourBold },
+          { name: 'Publishing Studio', href: '/admin/product-publishing', icon: PiMegaphoneBold },
           { name: 'Add Product', href: '/admin/products/new', icon: PiPlusBold },
         ]
       },
@@ -229,6 +230,7 @@ const navigationSections: NavSection[] = [
         icon: PiMegaphoneBold,
         children: [
           { name: 'Dashboard', href: '/admin/marketing', icon: PiSquaresFourBold },
+          { name: 'Product Publishing Studio', href: '/admin/product-publishing', icon: PiMegaphoneBold },
           { name: 'Promotions', href: '/admin/marketing/promotions', icon: PiPercentBold },
           { name: 'Campaigns', href: '/admin/marketing/campaigns', icon: PiTargetBold },
           { name: 'No Coverage Leads', href: '/admin/marketing/no-coverage-leads', icon: PiMapPinBold },

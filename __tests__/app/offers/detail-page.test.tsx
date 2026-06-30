@@ -22,6 +22,7 @@ jest.mock('next/navigation', () => ({ notFound: () => mockNotFound() }));
 // renders no hook component, so resetModules is safe. offerProductJsonLd is left REAL so the
 // rendered Product JSON-LD is exercised for leaks at the page level.
 jest.mock('@/lib/offers/public-read');
+jest.mock('@/lib/publishing/public-read');
 
 const INTERNAL_FIELDS = [
   'total_cost', 'margin_pct', 'guardrail_status', 'cost_buildup', 'source_uid',
@@ -30,6 +31,7 @@ const INTERNAL_FIELDS = [
 
 describe('/offers/[slug] detail page', () => {
   let getPublicOfferBySlug: any;
+  let getPublicCampaignBySlug: any;
   let OfferDetailPage: any;
   let renderToString: any;
 
@@ -46,6 +48,9 @@ describe('/offers/[slug] detail page', () => {
 
     const publicRead = await import('@/lib/offers/public-read');
     getPublicOfferBySlug = publicRead.getPublicOfferBySlug;
+    const publishingRead = await import('@/lib/publishing/public-read');
+    getPublicCampaignBySlug = publishingRead.getPublicCampaignBySlug;
+    jest.mocked(getPublicCampaignBySlug).mockResolvedValue(null);
 
     const page = await import('@/app/offers/[slug]/page');
     OfferDetailPage = page.default;

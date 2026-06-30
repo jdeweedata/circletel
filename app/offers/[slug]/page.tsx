@@ -1,19 +1,51 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { getPublicOfferBySlug, listPublicOffers } from '@/lib/offers/public-read';
 import { offerProductJsonLd } from '@/lib/offers/offer-jsonld';
+import { CampaignShowcase } from '@/components/publishing/CampaignShowcase';
+import { getPublicCampaignBySlug, listPublicCampaigns } from '@/lib/publishing/public-read';
 
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  const offers = await listPublicOffers('all');
-  return offers.map((o) => ({ slug: o.slug }));
+  const [offers, offerPages] = await Promise.all([
+    listPublicOffers('all'),
+    listPublicCampaigns('offer'),
+  ]);
+  const slugs = new Set([
+    ...offers.map((o) => o.slug),
+    ...offerPages.map((page) => page.slug),
+  ]);
+  return Array.from(slugs).map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const campaignPage = await getPublicCampaignBySlug(slug, 'offer');
+  if (campaignPage) {
+    return {
+      title: campaignPage.seo.title ?? campaignPage.title,
+      description: campaignPage.seo.description ?? campaignPage.summary,
+    };
+  }
+
+  const offer = await getPublicOfferBySlug(slug);
+  if (!offer) return {};
+
+  return {
+    title: offer.title,
+    description: offer.description,
+  };
 }
 
 export default async function OfferDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const campaignPage = await getPublicCampaignBySlug(slug, 'offer');
+  if (campaignPage) return <CampaignShowcase page={campaignPage} />;
+
   const offer = await getPublicOfferBySlug(slug);
   if (!offer) notFound();
 
