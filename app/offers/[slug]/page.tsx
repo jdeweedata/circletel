@@ -3,23 +3,16 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { getPublicOfferBySlug, listPublicOffers } from '@/lib/offers/public-read';
+import { getPublicOfferBySlug } from '@/lib/offers/public-read';
 import { offerProductJsonLd } from '@/lib/offers/offer-jsonld';
 import { CampaignShowcase } from '@/components/publishing/CampaignShowcase';
-import { getPublicCampaignBySlug, listPublicCampaigns } from '@/lib/publishing/public-read';
+import { getPublicCampaignBySlug } from '@/lib/publishing/public-read';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  const [offers, offerPages] = await Promise.all([
-    listPublicOffers('all'),
-    listPublicCampaigns('offer'),
-  ]);
-  const slugs = new Set([
-    ...offers.map((o) => o.slug),
-    ...offerPages.map((page) => page.slug),
-  ]);
-  return Array.from(slugs).map((slug) => ({ slug }));
+  return [];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

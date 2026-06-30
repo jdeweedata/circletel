@@ -5,6 +5,7 @@ import { OfferTabs } from '@/components/offers/OfferTabs';
 import { listPublicOffers } from '@/lib/offers/public-read';
 import { offersItemListJsonLd } from '@/lib/offers/offer-jsonld';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 300;
 
 export const metadata: Metadata = {
