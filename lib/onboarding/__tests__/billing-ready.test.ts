@@ -1,6 +1,6 @@
 /**
  * Tests for maybeMarkBillingReady
- * Verifies the new gate: vetting approved + active service + bank details (drop signature)
+ * Verifies the gate: vetting approved + service order accepted + active service + bank details.
  */
 
 import { maybeMarkBillingReady } from '../billing-ready';
@@ -96,7 +96,16 @@ describe('maybeMarkBillingReady', () => {
                 order: jest.fn().mockReturnValue({
                   limit: jest.fn().mockReturnValue({
                     maybeSingle: jest.fn().mockResolvedValue({
-                      data: { id: 'sub-1', document_vetting_status: 'approved' },
+                      data: {
+                        id: 'sub-1',
+                        document_vetting_status: 'approved',
+                        service_order_pdf_path: 'service-orders/customer-123/SO.pdf',
+                        submission_data: {
+                          service_order_acceptance: {
+                            accepted_at: '2026-06-30T09:00:00.000Z',
+                          },
+                        },
+                      },
                       error: null,
                     }),
                   }),
@@ -137,7 +146,16 @@ describe('maybeMarkBillingReady', () => {
                 order: jest.fn().mockReturnValue({
                   limit: jest.fn().mockReturnValue({
                     maybeSingle: jest.fn().mockResolvedValue({
-                      data: { id: 'sub-1', document_vetting_status: 'approved' },
+                      data: {
+                        id: 'sub-1',
+                        document_vetting_status: 'approved',
+                        service_order_pdf_path: 'service-orders/customer-123/SO.pdf',
+                        submission_data: {
+                          service_order_acceptance: {
+                            accepted_at: '2026-06-30T09:00:00.000Z',
+                          },
+                        },
+                      },
                       error: null,
                     }),
                   }),
@@ -198,7 +216,7 @@ describe('maybeMarkBillingReady', () => {
     expect(result).toBe(false);
   });
 
-  it('returns true when vetting approved + active service + bank details present', async () => {
+  it('returns false when service order has not been accepted', async () => {
     const supabase = {
       from: jest.fn((table) => {
         if (table === 'onboarding_submissions') {
@@ -208,7 +226,12 @@ describe('maybeMarkBillingReady', () => {
                 order: jest.fn().mockReturnValue({
                   limit: jest.fn().mockReturnValue({
                     maybeSingle: jest.fn().mockResolvedValue({
-                      data: { id: 'sub-1', document_vetting_status: 'approved' },
+                      data: {
+                        id: 'sub-1',
+                        document_vetting_status: 'approved',
+                        service_order_pdf_path: 'service-orders/customer-123/SO.pdf',
+                        submission_data: {},
+                      },
                       error: null,
                     }),
                   }),
@@ -275,10 +298,10 @@ describe('maybeMarkBillingReady', () => {
     } as any as SupabaseClient;
 
     const result = await maybeMarkBillingReady(supabase, 'customer-123');
-    expect(result).toBe(true);
+    expect(result).toBe(false);
   });
 
-  it('returns true even when mandate_status is pending (drops signature requirement)', async () => {
+  it('returns true when vetting approved + accepted service order + active service + bank details present', async () => {
     const supabase = {
       from: jest.fn((table) => {
         if (table === 'onboarding_submissions') {
@@ -288,7 +311,107 @@ describe('maybeMarkBillingReady', () => {
                 order: jest.fn().mockReturnValue({
                   limit: jest.fn().mockReturnValue({
                     maybeSingle: jest.fn().mockResolvedValue({
-                      data: { id: 'sub-1', document_vetting_status: 'approved' },
+                      data: {
+                        id: 'sub-1',
+                        document_vetting_status: 'approved',
+                        service_order_pdf_path: 'service-orders/customer-123/SO.pdf',
+                        submission_data: {
+                          service_order_acceptance: {
+                            accepted_at: '2026-06-30T09:00:00.000Z',
+                          },
+                        },
+                      },
+                      error: null,
+                    }),
+                  }),
+                }),
+              }),
+            }),
+          };
+        }
+        if (table === 'customer_services') {
+          return {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  maybeSingle: jest.fn().mockResolvedValue({
+                    data: { id: 'svc-1', status: 'active' },
+                    error: null,
+                  }),
+                }),
+              }),
+            }),
+          };
+        }
+        if (table === 'customer_payment_methods') {
+          return {
+            select: jest.fn().mockReturnValue({
+              eq: jest
+                .fn()
+                .mockReturnValue({
+                  eq: jest
+                    .fn()
+                    .mockReturnValue({
+                      eq: jest.fn().mockResolvedValue({
+                        data: [
+                          {
+                            id: 'pm-1',
+                            is_active: true,
+                            method_type: 'debit_order',
+                            mandate_status: 'pending',
+                            encrypted_details: {
+                              account_holder_name: 'Test Clinic',
+                              account_type: 'Cheque',
+                              account_number: '62836392449',
+                              branch_code: '250655',
+                              verified: false,
+                            },
+                          },
+                        ],
+                        error: null,
+                      }),
+                    }),
+                }),
+            }),
+          };
+        }
+        if (table === 'customers') {
+          return {
+            update: jest
+              .fn()
+              .mockReturnValue({
+                eq: jest.fn().mockResolvedValue({ error: null }),
+              }),
+          };
+        }
+        return { select: jest.fn() };
+      }),
+    } as any as SupabaseClient;
+
+    const result = await maybeMarkBillingReady(supabase, 'customer-123');
+    expect(result).toBe(true);
+  });
+
+  it('returns true even when mandate_status is pending if the service order was accepted', async () => {
+    const supabase = {
+      from: jest.fn((table) => {
+        if (table === 'onboarding_submissions') {
+          return {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                order: jest.fn().mockReturnValue({
+                  limit: jest.fn().mockReturnValue({
+                    maybeSingle: jest.fn().mockResolvedValue({
+                      data: {
+                        id: 'sub-1',
+                        document_vetting_status: 'approved',
+                        service_order_pdf_path: 'service-orders/customer-123/SO.pdf',
+                        submission_data: {
+                          service_order_acceptance: {
+                            accepted_at: '2026-06-30T09:00:00.000Z',
+                          },
+                        },
+                      },
                       error: null,
                     }),
                   }),
@@ -370,7 +493,16 @@ describe('maybeMarkBillingReady', () => {
                 order: jest.fn().mockReturnValue({
                   limit: jest.fn().mockReturnValue({
                     maybeSingle: jest.fn().mockResolvedValue({
-                      data: { id: 'sub-1', document_vetting_status: 'approved' },
+                      data: {
+                        id: 'sub-1',
+                        document_vetting_status: 'approved',
+                        service_order_pdf_path: 'service-orders/customer-123/SO.pdf',
+                        submission_data: {
+                          service_order_acceptance: {
+                            accepted_at: '2026-06-30T09:00:00.000Z',
+                          },
+                        },
+                      },
                       error: null,
                     }),
                   }),
