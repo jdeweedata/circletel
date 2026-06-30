@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   PiArrowRightBold,
@@ -21,6 +21,13 @@ import { UploadDocumentModal } from "@/components/admin/onboarding/UploadDocumen
 import { SectionCard } from "@/components/backend";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -179,6 +186,25 @@ const intakeSteps: {
   },
 ];
 
+function stepFieldKeys(stepId: IntakeStepId, includeDebitOrder: boolean): string[] {
+  switch (stepId) {
+    case "customer":
+      return ["businessName", "registrationNumber", "vatNumber", "registeredAddress"];
+    case "contact":
+      return ["contactName", "email", "phone", "siteAddress"];
+    case "service":
+      return ["packageName", "serviceType", "monthlyPrice"];
+    case "debit":
+      return includeDebitOrder
+        ? ["accountHolderName", "bankName", "accountNumber", "branchCode", "mandate"]
+        : [];
+    case "documents":
+    case "review":
+    default:
+      return [];
+  }
+}
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-ZA", {
     style: "currency",
@@ -189,6 +215,69 @@ function formatCurrency(value: number) {
 function trimOrUndefined(value: string) {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+const phoneOk = (v: string) => {
+  const d = v.replace(/\D/g, "");
+  return d.length === 10 || (d.length === 11 && d.startsWith("27"));
+};
+const vatOk = (v: string) => /^\d{10}$/.test(v.trim());
+const acctOk = (v: string) => /^\d{6,13}$/.test(v.replace(/\s/g, ""));
+const branchOk = (v: string) => /^\d{6}$/.test(v.trim());
+
+// Returns "" when valid, otherwise a human message. Pure — depends only on args.
+function fieldError(
+  key: string,
+  form: FormState,
+  mandateAuthorised: boolean,
+): string {
+  switch (key) {
+    case "businessName":
+      return form.businessName.trim() ? "" : "Enter the registered business name.";
+    case "registrationNumber":
+      return form.registrationNumber.trim()
+        ? ""
+        : "Enter the registration or owner ID.";
+    case "vatNumber":
+      if (!form.vatRegistered) return "";
+      if (!form.vatNumber.trim()) return "Enter the 10-digit VAT number.";
+      return vatOk(form.vatNumber) ? "" : "VAT number must be 10 digits.";
+    case "registeredAddress":
+      return form.registeredAddress.trim() ? "" : "Enter the registered address.";
+    case "contactName":
+      return form.contactName.trim() ? "" : "Enter the contact person's name.";
+    case "email":
+      if (!form.email.trim()) return "Enter an email address.";
+      return emailOk(form.email) ? "" : "Enter a valid email address.";
+    case "phone":
+      if (!form.phone.trim()) return "Enter a contact number.";
+      return phoneOk(form.phone) ? "" : "Enter a valid 10-digit number.";
+    case "siteAddress":
+      return form.siteAddress.trim() ? "" : "Enter the service address.";
+    case "packageName":
+      return form.packageName.trim() ? "" : "Enter the package name.";
+    case "serviceType":
+      return form.serviceType.trim() ? "" : "Enter the service type.";
+    case "monthlyPrice":
+      return Number(form.monthlyPrice) > 0
+        ? ""
+        : "Enter a monthly price greater than zero.";
+    case "accountHolderName":
+      return form.accountHolderName.trim() ? "" : "Enter the account holder name.";
+    case "bankName":
+      return form.bankName.trim() ? "" : "Enter the bank name.";
+    case "accountNumber":
+      if (!form.accountNumber.trim()) return "Enter the account number.";
+      return acctOk(form.accountNumber) ? "" : "Account number must be 6-13 digits.";
+    case "branchCode":
+      if (!form.branchCode.trim()) return "Enter the branch code.";
+      return branchOk(form.branchCode) ? "" : "Branch code must be 6 digits.";
+    case "mandate":
+      return mandateAuthorised ? "" : "Authorise the debit order mandate to continue.";
+    default:
+      return "";
+  }
 }
 
 function authHeaders() {
@@ -213,11 +302,13 @@ function Field({
   label,
   children,
   className,
+  error,
 }: {
   id: string;
   label: string;
   children: React.ReactNode;
   className?: string;
+  error?: string;
 }) {
   return (
     <div className={`space-y-2 ${className ?? ""}`}>
@@ -228,6 +319,16 @@ function Field({
         {label}
       </Label>
       {children}
+      {error ? (
+        <p
+          id={`${id}-error`}
+          className="flex items-center gap-1.5 text-xs font-medium text-red-600"
+          role="alert"
+        >
+          <PiWarningCircleBold className="h-3.5 w-3.5 shrink-0" />
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -303,6 +404,20 @@ function ReviewRow({ label, value }: { label: string; value?: string | null }) {
   );
 }
 
+function ReviewTag({ ready }: { ready: boolean }) {
+  return ready ? (
+    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+      <PiCheckCircleBold className="h-3.5 w-3.5" />
+      Complete
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-semibold text-circleTel-orange-dark">
+      <PiWarningCircleBold className="h-3.5 w-3.5" />
+      Incomplete
+    </span>
+  );
+}
+
 export default function ManualB2BIntakePage() {
   const [form, setForm] = useState<FormState>(initialState);
   const [saving, setSaving] = useState(false);
@@ -317,6 +432,11 @@ export default function ManualB2BIntakePage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadedCount, setUploadedCount] = useState(0);
   const [activeStep, setActiveStep] = useState<IntakeStepId>("customer");
+  const [visited, setVisited] = useState<Record<string, boolean>>({});
+  const [attempted, setAttempted] = useState<Partial<Record<IntakeStepId, boolean>>>({});
+  const [mandateAuthorised, setMandateAuthorised] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const summaryRef = useRef<HTMLDivElement>(null);
 
   const serviceMonthlyPrice = useMemo(() => {
     const parsed = Number(form.monthlyPrice);
@@ -339,31 +459,22 @@ export default function ManualB2BIntakePage() {
     selectedCustomer?.accountNumber ||
     result?.accountNumber ||
     (form.customerId ? "Customer linked" : "New customer");
-  const customerReady = Boolean(
-    form.businessName.trim() &&
-    form.registrationNumber.trim() &&
-    form.registeredAddress.trim(),
-  );
-  const contactReady = Boolean(
-    form.contactName.trim() &&
-    form.email.trim() &&
-    form.phone.trim() &&
-    form.siteAddress.trim(),
-  );
-  const serviceReady = Boolean(
-    form.packageName.trim() &&
-    form.serviceType.trim() &&
-    Number(form.monthlyPrice) > 0,
-  );
+  const stepErrors = (stepId: IntakeStepId): { key: string; msg: string }[] => {
+    if (stepId === "documents") {
+      return uploadedCount > 0
+        ? []
+        : [{ key: "documents", msg: "Upload at least one document for this onboarding pack." }];
+    }
+    return stepFieldKeys(stepId, form.includeDebitOrder)
+      .map((key) => ({ key, msg: fieldError(key, form, mandateAuthorised) }))
+      .filter((entry) => entry.msg.length > 0);
+  };
+
+  const customerReady = stepErrors("customer").length === 0;
+  const contactReady = stepErrors("contact").length === 0;
+  const serviceReady = stepErrors("service").length === 0;
   const documentsReady = uploadedCount > 0;
-  const debitReady =
-    !form.includeDebitOrder ||
-    Boolean(
-      form.accountHolderName.trim() &&
-      form.bankName.trim() &&
-      form.accountNumber.trim() &&
-      form.branchCode.trim(),
-    );
+  const debitReady = stepErrors("debit").length === 0;
   const stepReadiness: Record<IntakeStepId, boolean> = {
     customer: customerReady,
     contact: contactReady,
@@ -371,13 +482,16 @@ export default function ManualB2BIntakePage() {
     documents: documentsReady,
     debit: debitReady,
     review:
-      customerReady &&
-      contactReady &&
-      serviceReady &&
-      documentsReady &&
-      debitReady,
+      customerReady && contactReady && serviceReady && documentsReady && debitReady,
   };
   const allRequiredReady = stepReadiness.review;
+  const completion = Math.round(
+    ([customerReady, contactReady, serviceReady, documentsReady, debitReady].filter(
+      Boolean,
+    ).length /
+      5) *
+      100,
+  );
   const missingItems = [
     !customerReady ? "Customer record" : null,
     !contactReady ? "Contact & site details" : null,
@@ -385,6 +499,7 @@ export default function ManualB2BIntakePage() {
     !documentsReady ? "Documents" : null,
     !debitReady ? "Debit order" : null,
   ].filter((item): item is string => item !== null);
+  const visibleStepErrors = attempted[activeStep] ? stepErrors(activeStep) : [];
   const linkedRecords = [
     {
       label: "Customer",
@@ -423,12 +538,34 @@ export default function ManualB2BIntakePage() {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
+  function blur(key: string) {
+    setVisited((current) => ({ ...current, [key]: true }));
+  }
+
+  function errFor(key: string) {
+    return visited[key] || attempted[activeStep]
+      ? fieldError(key, form, mandateAuthorised)
+      : "";
+  }
+
+  function errClass(key: string) {
+    return errFor(key)
+      ? "border-red-400 focus-visible:ring-red-400/40"
+      : "";
+  }
+
   function goToStep(index: number) {
     const next = intakeSteps[index];
     if (next) setActiveStep(next.id);
   }
 
   function goToNextStep() {
+    const errs = stepErrors(activeStep);
+    if (errs.length > 0) {
+      setAttempted((current) => ({ ...current, [activeStep]: true }));
+      requestAnimationFrame(() => summaryRef.current?.focus());
+      return;
+    }
     goToStep(Math.min(activeStepIndex + 1, intakeSteps.length - 1));
   }
 
@@ -512,6 +649,9 @@ export default function ManualB2BIntakePage() {
     setCustomerSearch("");
     setResult(null);
     setUploadedCount(0);
+    setVisited({});
+    setAttempted({});
+    setMandateAuthorised(false);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -527,7 +667,9 @@ export default function ManualB2BIntakePage() {
         : "save";
 
     if (!customerReady || !contactReady) {
-      setActiveStep(!customerReady ? "customer" : "contact");
+      const target: IntakeStepId = !customerReady ? "customer" : "contact";
+      setActiveStep(target);
+      setAttempted((current) => ({ ...current, [target]: true }));
       toast.error(
         "Complete customer, contact, and site details before saving onboarding.",
       );
@@ -538,7 +680,10 @@ export default function ManualB2BIntakePage() {
       const firstMissingStep = intakeSteps
         .slice(0, 5)
         .find((step) => !stepReadiness[step.id]);
-      if (firstMissingStep) setActiveStep(firstMissingStep.id);
+      if (firstMissingStep) {
+        setActiveStep(firstMissingStep.id);
+        setAttempted((current) => ({ ...current, [firstMissingStep.id]: true }));
+      }
       toast.error(
         "Complete all required onboarding items before submitting for vetting.",
       );
