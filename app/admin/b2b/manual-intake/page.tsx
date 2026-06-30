@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   PiArrowRightBold,
@@ -485,12 +485,9 @@ export default function ManualB2BIntakePage() {
       customerReady && contactReady && serviceReady && documentsReady && debitReady,
   };
   const allRequiredReady = stepReadiness.review;
+  const readySteps = [customerReady, contactReady, serviceReady, documentsReady, debitReady];
   const completion = Math.round(
-    ([customerReady, contactReady, serviceReady, documentsReady, debitReady].filter(
-      Boolean,
-    ).length /
-      5) *
-      100,
+    (readySteps.filter(Boolean).length / readySteps.length) * 100,
   );
   const missingItems = [
     !customerReady ? "Customer record" : null,
@@ -554,6 +551,14 @@ export default function ManualB2BIntakePage() {
       : "";
   }
 
+  useEffect(() => {
+    if (attempted[activeStep] && stepErrors(activeStep).length > 0) {
+      summaryRef.current?.focus();
+    }
+    // Focus only on the Next/submit attempt transition, not on every field edit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attempted, activeStep]);
+
   function goToStep(index: number) {
     const next = intakeSteps[index];
     if (next) setActiveStep(next.id);
@@ -563,7 +568,6 @@ export default function ManualB2BIntakePage() {
     const errs = stepErrors(activeStep);
     if (errs.length > 0) {
       setAttempted((current) => ({ ...current, [activeStep]: true }));
-      requestAnimationFrame(() => summaryRef.current?.focus());
       return;
     }
     goToStep(Math.min(activeStepIndex + 1, intakeSteps.length - 1));
@@ -630,6 +634,9 @@ export default function ManualB2BIntakePage() {
       setResult(null);
       setCustomerResults([]);
       setCustomerSearch(prefill.customer.businessName);
+      setMandateAuthorised(false);
+      setVisited({});
+      setAttempted({});
       toast.success("Customer details loaded into manual onboarding");
     } catch (error) {
       toast.error(
@@ -1070,6 +1077,7 @@ export default function ManualB2BIntakePage() {
                         }
                         onBlur={() => blur("businessName")}
                         aria-invalid={Boolean(errFor("businessName"))}
+                        aria-describedby={errFor("businessName") ? "businessName-error" : undefined}
                         className={errClass("businessName")}
                         required
                       />
@@ -1112,6 +1120,7 @@ export default function ManualB2BIntakePage() {
                         }
                         onBlur={() => blur("registrationNumber")}
                         aria-invalid={Boolean(errFor("registrationNumber"))}
+                        aria-describedby={errFor("registrationNumber") ? "registrationNumber-error" : undefined}
                         className={errClass("registrationNumber")}
                         required
                       />
@@ -1137,6 +1146,7 @@ export default function ManualB2BIntakePage() {
                           }
                           onBlur={() => blur("vatNumber")}
                           aria-invalid={Boolean(errFor("vatNumber"))}
+                          aria-describedby={errFor("vatNumber") ? "vatNumber-error" : undefined}
                           className={errClass("vatNumber")}
                           disabled={!form.vatRegistered}
                         />
@@ -1156,6 +1166,7 @@ export default function ManualB2BIntakePage() {
                         }
                         onBlur={() => blur("registeredAddress")}
                         aria-invalid={Boolean(errFor("registeredAddress"))}
+                        aria-describedby={errFor("registeredAddress") ? "registeredAddress-error" : undefined}
                         className={`min-h-28 ${errClass("registeredAddress")}`}
                         required
                       />
@@ -1194,6 +1205,7 @@ export default function ManualB2BIntakePage() {
                       }
                       onBlur={() => blur("contactName")}
                       aria-invalid={Boolean(errFor("contactName"))}
+                      aria-describedby={errFor("contactName") ? "contactName-error" : undefined}
                       className={errClass("contactName")}
                       required
                     />
@@ -1206,6 +1218,7 @@ export default function ManualB2BIntakePage() {
                       onChange={(event) => update("email", event.target.value)}
                       onBlur={() => blur("email")}
                       aria-invalid={Boolean(errFor("email"))}
+                      aria-describedby={errFor("email") ? "email-error" : undefined}
                       className={errClass("email")}
                       required
                     />
@@ -1217,6 +1230,7 @@ export default function ManualB2BIntakePage() {
                       onChange={(event) => update("phone", event.target.value)}
                       onBlur={() => blur("phone")}
                       aria-invalid={Boolean(errFor("phone"))}
+                      aria-describedby={errFor("phone") ? "phone-error" : undefined}
                       className={errClass("phone")}
                       required
                     />
@@ -1253,6 +1267,7 @@ export default function ManualB2BIntakePage() {
                       }
                       onBlur={() => blur("siteAddress")}
                       aria-invalid={Boolean(errFor("siteAddress"))}
+                      aria-describedby={errFor("siteAddress") ? "siteAddress-error" : undefined}
                       className={`min-h-28 ${errClass("siteAddress")}`}
                     />
                   </Field>
@@ -1272,6 +1287,7 @@ export default function ManualB2BIntakePage() {
                       }
                       onBlur={() => blur("packageName")}
                       aria-invalid={Boolean(errFor("packageName"))}
+                      aria-describedby={errFor("packageName") ? "packageName-error" : undefined}
                       className={errClass("packageName")}
                       required
                     />
@@ -1285,6 +1301,7 @@ export default function ManualB2BIntakePage() {
                       }
                       onBlur={() => blur("serviceType")}
                       aria-invalid={Boolean(errFor("serviceType"))}
+                      aria-describedby={errFor("serviceType") ? "serviceType-error" : undefined}
                       className={errClass("serviceType")}
                       required
                     />
@@ -1301,6 +1318,7 @@ export default function ManualB2BIntakePage() {
                       }
                       onBlur={() => blur("monthlyPrice")}
                       aria-invalid={Boolean(errFor("monthlyPrice"))}
+                      aria-describedby={errFor("monthlyPrice") ? "monthlyPrice-error" : undefined}
                       className={errClass("monthlyPrice")}
                       required
                     />
@@ -1471,6 +1489,7 @@ export default function ManualB2BIntakePage() {
                       }
                       onBlur={() => blur("accountHolderName")}
                       aria-invalid={Boolean(errFor("accountHolderName"))}
+                      aria-describedby={errFor("accountHolderName") ? "accountHolderName-error" : undefined}
                       className={errClass("accountHolderName")}
                       required={form.includeDebitOrder}
                       disabled={!form.includeDebitOrder}
@@ -1485,6 +1504,7 @@ export default function ManualB2BIntakePage() {
                       }
                       onBlur={() => blur("bankName")}
                       aria-invalid={Boolean(errFor("bankName"))}
+                      aria-describedby={errFor("bankName") ? "bankName-error" : undefined}
                       className={errClass("bankName")}
                       required={form.includeDebitOrder}
                       disabled={!form.includeDebitOrder}
@@ -1517,6 +1537,7 @@ export default function ManualB2BIntakePage() {
                       }
                       onBlur={() => blur("accountNumber")}
                       aria-invalid={Boolean(errFor("accountNumber"))}
+                      aria-describedby={errFor("accountNumber") ? "accountNumber-error" : undefined}
                       className={errClass("accountNumber")}
                       required={form.includeDebitOrder}
                       disabled={!form.includeDebitOrder}
@@ -1531,6 +1552,7 @@ export default function ManualB2BIntakePage() {
                       }
                       onBlur={() => blur("branchCode")}
                       aria-invalid={Boolean(errFor("branchCode"))}
+                      aria-describedby={errFor("branchCode") ? "branchCode-error" : undefined}
                       className={errClass("branchCode")}
                       required={form.includeDebitOrder}
                       disabled={!form.includeDebitOrder}
