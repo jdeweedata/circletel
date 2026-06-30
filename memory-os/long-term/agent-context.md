@@ -44,6 +44,16 @@ Format:
 - **Workaround:** How to handle it
 ```
 
+### 2026-06-29: Admin UI Local Visual Checks
+- **What:** Local Playwright checks for `/admin/*` can be obscured by the Next dev overlay even when the target page renders.
+- **Why:** The app currently has an existing hydration mismatch around `#zcb-banner`; admin header notifications can also crash local stubbed checks if `/api/notifications` does not return `data` plus `pagination.unread_count`.
+- **Workaround:** For layout-only checks, stub `/api/notifications` as `{ success: true, data: [], pagination: { total: 0, limit: 10, offset: 0, unread_count: 0 } }` and hide/remove `nextjs-portal` overlay nodes before screenshots.
+
+### 2026-06-30: Admin-Assisted B2B Onboarding Gate
+- **What:** Admins can create/update B2B customers from emailed onboarding packs at `/admin/b2b/manual-intake`; uploaded emailed docs can carry sender/subject/received-at provenance.
+- **Why:** Unjani and future B2B customers may send onboarding documents by email instead of completing the self-service wizard.
+- **Workaround:** Do not mark a B2B customer `billing_ready` from docs + bank details alone. `maybeMarkBillingReady` now also requires an issued Service Order PDF and `submission_data.service_order_acceptance.accepted_at` (or legacy `acceptance.accepted_at`). Service Order signoff tokens use `onboarding_tokens.purpose = 'service_order_signoff'` and resolve at `/service-order/{token}`.
+
 ## Agent-Discovered Patterns
 
 _Patterns discovered by agents while working in this codebase._
@@ -70,6 +80,13 @@ Format:
 - **Context:** Consumer/Vox-style checkout no longer uses the old "R1 validation charge credited back" copy.
 - **Pattern:** New checkout orders use `ORDER_PROCESSING_FEE_AMOUNT` (R149.00) from `lib/payments/payment-amounts.ts`; order creation stamps this amount server-side, Netcash initiation derives it from the order row and describes it as "CircleTel - Order processing fee", and the webhook marks that R149 payment as `confirmed` without activating service. The R1 constants/helpers remain intentionally for legacy rows and dashboard/payment-method validation flows only.
 - **Discovered by:** Codex
+
+### 2026-06-30: Worktree Verification Tooling
+- **Context:** Feature worktrees under `/home/circletel/.worktrees/*` may not have their own `node_modules`.
+- **Pattern:** Run tooling from the root checkout when needed, e.g. `/home/circletel/node_modules/.bin/prettier`, `/home/circletel/node_modules/.bin/playwright`, or `node /home/circletel/node_modules/typescript/bin/tsc` from the worktree. Browser smoke checks can launch Playwright with system Chrome at `/usr/bin/google-chrome` if bundled Playwright browsers are missing.
+- **Discovered by:** Codex
+- **Notes:** Full-project TypeScript checks can take several minutes from a worktree; use a bounded timeout and report if it does not complete.
+
 ### YYYY-MM-DD: Pattern
 - **Context:** When this applies
 - **Pattern:** The approach that works

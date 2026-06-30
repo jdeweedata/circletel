@@ -73,6 +73,7 @@ interface PipelineClinic {
   vetting_due_date: string | null;
   submitted_at: string | null;
   service_order_issued_at: string | null;
+  service_order_status: 'not_issued' | 'pending_signoff' | 'accepted';
   sla: {
     dueDate: string | null;
     overdue: boolean;
@@ -92,6 +93,7 @@ interface PipelineResponse {
     submitted: number;
     changes_requested: number;
     docs_approved: number;
+    service_order_pending: number;
     billing_ready: number;
     pending: number;
   };
@@ -116,6 +118,7 @@ const STAGES: StageMeta[] = [
   { id: 'submitted', label: 'Docs submitted', pillBg: '#FDF2E9', pillFg: '#D76026', color: '#E87A1E', action: 'Vet documents' },
   { id: 'changes_requested', label: 'Changes requested', pillBg: '#FCF6E5', pillFg: '#CA8A04', color: '#CA8A04', action: 'Review changes' },
   { id: 'docs_approved', label: 'Docs approved', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#5B8DEF', action: 'Issue service order' },
+  { id: 'service_order_pending', label: 'SO signoff', pillBg: '#F5F3FF', pillFg: '#6D28D9', color: '#7C3AED', action: 'Resend service order' },
   { id: 'billing_ready', label: 'Ready to install', pillBg: '#16A34A', pillFg: '#FFFFFF', color: '#16A34A', action: 'Issue service order' },
 ];
 
@@ -760,6 +763,7 @@ export default function UnjaniOnboardingPipelinePage() {
         }
         break;
       case 'docs_approved':
+      case 'service_order_pending':
       case 'billing_ready':
         issueServiceOrder(clinic);
         break;
@@ -1137,7 +1141,7 @@ export default function UnjaniOnboardingPipelinePage() {
                             {meta.label}
                           </span>
                           <div className="flex gap-0.5 mt-1.5">
-                            {STAGES.slice(0, 5).map((_, i) => (
+                            {STAGES.map((_, i) => (
                               <span
                                 key={i}
                                 className={cn(
@@ -1182,7 +1186,18 @@ export default function UnjaniOnboardingPipelinePage() {
                         <TableCell>
                           {issued ? (
                             <div className="text-sm">
-                              <span className="text-green-600 font-medium">Issued</span>
+                              <span
+                                className={cn(
+                                  'font-medium',
+                                  clinic.service_order_status === 'accepted'
+                                    ? 'text-green-600'
+                                    : 'text-purple-700'
+                                )}
+                              >
+                                {clinic.service_order_status === 'accepted'
+                                  ? 'Accepted'
+                                  : 'Awaiting signoff'}
+                              </span>
                               <div className="text-xs text-gray-400">
                                 {new Date(
                                   clinic.service_order_issued_at!
@@ -1816,7 +1831,7 @@ export default function UnjaniOnboardingPipelinePage() {
               </div>
               <div className="border-t border-gray-100 p-4 flex flex-col gap-2">
                 {drawerClinic.email &&
-                  !['docs_approved', 'billing_ready'].includes(drawerClinic.stage) && (
+                  !['docs_approved', 'service_order_pending', 'billing_ready'].includes(drawerClinic.stage) && (
                     <Button
                       variant="outline"
                       className="w-full"

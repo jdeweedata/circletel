@@ -516,7 +516,7 @@ export default function B2BVettingDetailPage({
 
   return (
     <>
-      <main className="min-h-[calc(100vh-64px)] max-w-none px-4 py-5 lg:px-6">
+      <main className="flex min-h-[calc(100vh-64px)] max-w-none flex-col px-4 py-5 lg:px-6">
       <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
           <h1 className="truncate text-2xl font-semibold text-gray-950">
@@ -562,7 +562,7 @@ export default function B2BVettingDetailPage({
         ))}
       </section>
 
-      <section className="grid grid-cols-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm xl:h-[calc(100vh-220px)] xl:min-h-[680px] xl:grid-cols-[260px_minmax(0,1fr)_360px]">
+      <section className="grid grid-cols-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm xl:min-h-[680px] xl:flex-1 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
         <aside className="flex min-h-0 flex-col border-b border-gray-200 bg-gray-50/80 xl:border-b-0 xl:border-r">
           <div className="shrink-0 border-b border-gray-200 bg-white px-3 py-3">
             <div className="flex items-center justify-between gap-3">
@@ -1236,8 +1236,8 @@ function DocumentViewer({
         )}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto bg-[#f4f5f7] p-4">
-        <div className="mx-auto flex min-h-full max-w-5xl items-start justify-center">
+      <div className="min-h-0 flex-1 overflow-auto bg-[#f4f5f7] p-3">
+        <div className="mx-auto flex min-h-full w-full max-w-6xl items-start justify-center">
           {!selectedDocument && (
             <EmptyState
               icon={<PiFileTextBold />}
@@ -1260,7 +1260,7 @@ function DocumentViewer({
           {selectedDocument && !docLoading && !docError && docUrl && selectedIsPdf && (
             <iframe
               src={docUrl}
-              className="h-[calc(100vh-300px)] min-h-[560px] w-full max-w-5xl rounded-md bg-white shadow-lg"
+              className="h-[calc(100vh-250px)] min-h-[640px] w-full max-w-6xl rounded-md bg-white shadow-lg"
               style={{ transform, transformOrigin: 'top center' }}
               title={`${title} preview`}
             />
@@ -1269,7 +1269,7 @@ function DocumentViewer({
             <img
               src={docUrl}
               alt={`${title} preview`}
-              className="max-w-full rounded object-contain shadow-lg"
+              className="max-h-[calc(100vh-250px)] min-h-[520px] max-w-full rounded object-contain shadow-lg"
               style={{ transform, transformOrigin: 'top center' }}
             />
           )}
@@ -1289,7 +1289,7 @@ function DocumentViewer({
                 </p>
                 <iframe
                   src={docUrl}
-                  className="mt-5 h-[calc(100vh-360px)] min-h-[420px] w-full max-w-4xl rounded-md border bg-white"
+                  className="mt-5 h-[calc(100vh-300px)] min-h-[520px] w-full max-w-5xl rounded-md border bg-white"
                   title={`${title} preview`}
                 />
               </div>

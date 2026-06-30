@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { PortalAuthProvider, usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { ConsoleShell } from '@/components/backend';
 import {
   PiSquaresFourBold,
   PiBuildings,
@@ -184,24 +185,26 @@ function PortalContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PortalNav />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
-      </main>
-      <footer className="border-t bg-white mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-            <p>&copy; 2026 CircleTel. All rights reserved.</p>
-            <div className="flex gap-6">
-              <Link href="/privacy-policy" className="hover:text-circleTel-orange">Privacy Policy</Link>
-              <Link href="/terms-of-service" className="hover:text-circleTel-orange">Terms of Service</Link>
-              <Link href="/contact" className="hover:text-circleTel-orange">Support</Link>
+    <ConsoleShell
+      topbar={<PortalNav />}
+      contentClassName="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
+      footer={
+        <footer className="mt-auto border-t bg-white">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+              <p>&copy; 2026 CircleTel. All rights reserved.</p>
+              <div className="flex gap-6">
+                <Link href="/privacy-policy" className="hover:text-circleTel-orange">Privacy Policy</Link>
+                <Link href="/terms-of-service" className="hover:text-circleTel-orange">Terms of Service</Link>
+                <Link href="/contact" className="hover:text-circleTel-orange">Support</Link>
+              </div>
             </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      }
+    >
+      {children}
+    </ConsoleShell>
   );
 }
 

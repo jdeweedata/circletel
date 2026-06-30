@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
 import {
   buildGenericDescription,
@@ -48,6 +49,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // SECURITY (Phase 2): payment initiation requires an authenticated session.
+    // Resolve the user from the Authorization header first, then cookies — never
+    // from the request body (same pattern as orders/create). Orders are no longer
+    // guest-created, so the absence of a session is a hard failure.
+    let user = null;
+    let authError = null;
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const tokenClient = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      const { data, error } = await tokenClient.auth.getUser(token);
+      user = data?.user ?? null;
+      authError = error;
+    } else {
+      try {
+        const sessionClient = await createClientWithSession();
+        const { data, error } = await sessionClient.auth.getUser();
+        user = data?.user ?? null;
+        authError = error;
+      } catch (e) {
+        paymentLogger.warn('[Payment Initiate] Cookie auth failed', { error: e instanceof Error ? e.message : String(e) });
+      }
+    }
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Please sign in to continue payment' },
+        { status: 401 }
+      );
+    }
+
     // Verify order exists and get full order details
     const { data: order, error: orderError } = await supabase
       .from('consumer_orders')
@@ -80,13 +115,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // SECURITY (Phase 2 — closes payment-audit #3): an owned order may only be
+    // paid for by its owner. Reject a verified session that doesn't match the
+    // order's owner. Legacy guest orders (auth_user_id null) skip this check and
+    // remain covered by the payable-state guard above.
+    if (order.auth_user_id && user.id !== order.auth_user_id) {
+      paymentLogger.warn('[Payment Initiate] Owner mismatch', { orderId, userId: user.id });
+      return NextResponse.json(
+        { success: false, error: 'This order belongs to a different account' },
+        { status: 403 }
+      );
+    }
+
     // SECURITY: derive every payment input from the order, not the request body.
     // payment_amount is server-set at order creation. Legacy rows created before
     // the column existed fall back to the old R1 validation amount so they are
     // not surprise-repriced at initiation time.
-    // NOTE (Phase 2): once orders carry an owner (auth_user_id), bind this to the
-    // authenticated session and reject mismatches. Today orders are guest/unowned,
-    // so a hard owner-gate would break checkout — see the order-journey plan.
     const amount = Number(order.payment_amount ?? LEGACY_VALIDATION_CHARGE_AMOUNT);
     const customerEmail: string = order.email;
     const customerName: string = `${order.first_name ?? ''} ${order.last_name ?? ''}`.trim();

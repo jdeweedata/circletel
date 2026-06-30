@@ -81,14 +81,14 @@ export default function AdminQuotesPage() {
         }
       } catch (fetchErr: unknown) {
         clearTimeout(timeoutId);
-        if (fetchErr.name === 'AbortError') {
+        if (fetchErr instanceof Error && fetchErr.name === 'AbortError') {
           throw new Error('Request timed out after 30 seconds. The server may be experiencing issues.');
         }
         throw fetchErr;
       }
     } catch (err: unknown) {
       console.error('Error fetching quotes:', err);
-      setError(err.message || 'Failed to load quotes');
+      setError(err instanceof Error ? err.message : 'Failed to load quotes');
     } finally {
       setLoading(false);
     }
@@ -121,25 +121,23 @@ export default function AdminQuotesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <QuotesListHeader />
-        
-        <QuotesListStatCards stats={stats} />
-        
-        <QuotesFilters
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-        />
-        
-        <QuotesTable 
-          quotes={filteredQuotes} 
-          loading={loading}
-          onRowClick={(id) => router.push(`/admin/quotes/${id}`)}
-        />
-      </div>
+    <div className="space-y-6 pb-12">
+      <QuotesListHeader />
+
+      <QuotesListStatCards stats={stats} />
+
+      <QuotesFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+      />
+
+      <QuotesTable
+        quotes={filteredQuotes}
+        loading={loading}
+        onRowClick={(id) => router.push(`/admin/quotes/${id}`)}
+      />
     </div>
   );
 }

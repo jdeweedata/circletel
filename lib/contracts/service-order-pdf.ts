@@ -163,6 +163,9 @@ export interface ServiceOrderInput {
   clinicProvince: string;
   clinicEmail: string;
   clinicPhone?: string;
+  customerLabel?: string;
+  serviceName?: string;
+  serviceReference?: string;
   monthlyFeeExclVat: number;
   vatPercentage: number; // Usually 15
   billingDay: '1' | '15' | '20' | '25';
@@ -266,11 +269,12 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
 
   yPos += 15;
 
-  // === CLINIC DETAILS ===
-  let clinicY = addSectionHeader(doc, 'CLINIC DETAILS', leftCol, yPos, colWidth);
+  // === CUSTOMER DETAILS ===
+  const customerLabel = input.customerLabel ?? 'CLINIC';
+  let clinicY = addSectionHeader(doc, `${customerLabel.toUpperCase()} DETAILS`, leftCol, yPos, colWidth);
 
   const clinicFields = [
-    ['Clinic Name:', input.clinicName],
+    [`${customerLabel} Name:`, input.clinicName],
     ['Account Number:', input.accountNumber],
     ['Address:', input.clinicAddress],
     ['Province:', input.clinicProvince],
@@ -300,7 +304,7 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
   doc.setTextColor(...COLORS.secondaryText);
   doc.text('Service:', leftCol, serviceY);
   doc.setTextColor(...COLORS.darkText);
-  doc.text('CircleTel ClinicConnect — Managed Connectivity', leftCol + 50, serviceY);
+  doc.text(input.serviceName ?? 'CircleTel ClinicConnect — Managed Connectivity', leftCol + 50, serviceY);
   serviceY += 8;
 
   // Billing day
@@ -346,7 +350,7 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...COLORS.secondaryText);
-  const msaLines = doc.splitTextToSize(SERVICE_ORDER_MSA_REFERENCE, colWidth);
+  const msaLines = doc.splitTextToSize(input.serviceReference ?? SERVICE_ORDER_MSA_REFERENCE, colWidth);
   doc.text(msaLines, leftCol, yPos);
   yPos += 4 * msaLines.length + 4;
 
@@ -429,8 +433,8 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
       `Transactions Act 25 of 2002.${linkSentence}${ipSentence} No manual signature is required.`;
   } else {
     acceptanceText =
-      `This Service Order was accepted electronically by the clinic on ${formatDate(input.submittedAt)} ` +
-      `via the CircleTel onboarding portal (click-accept). No manual signature is required.`;
+      `This Service Order is pending electronic acceptance by the customer. ` +
+      `No debit-order billing readiness should be granted until the acceptance record is captured.`;
   }
   const acceptanceLines = doc.splitTextToSize(acceptanceText, colWidth);
   doc.text(acceptanceLines, leftCol, yPos);

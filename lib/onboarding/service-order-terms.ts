@@ -84,8 +84,15 @@ export function convertTermsToPlainText(terms: string[]): string[] {
 export const SERVICE_ORDER_MSA_REFERENCE =
   'This Service Order is issued back-to-back with, and incorporates by reference, the Unjani Master Service Agreement between CircleTel and the Unjani Clinic Network.';
 
+export const SERVICE_ORDER_STANDARD_REFERENCE =
+  'This Service Order is issued under CircleTel standard business service terms and the customer-specific commercial terms recorded in this Service Order.';
+
 /**
  * MSA reference text (shown in UI)
  */
 export const SERVICE_ORDER_MSA_REFERENCE_UI =
   'These terms are back-to-back with the Master Service Agreement between CircleTel and Unjani Clinics NPC (the "MSA"). In the event of any conflict, the MSA prevails.';
+
+export function getServiceOrderReference(segment?: string | null): string {
+  return segment === 'unjani' ? SERVICE_ORDER_MSA_REFERENCE : SERVICE_ORDER_STANDARD_REFERENCE;
+}

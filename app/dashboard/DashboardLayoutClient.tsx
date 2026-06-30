@@ -11,6 +11,7 @@ import {
   MobileBottomNav,
   DashboardNavProvider,
 } from '@/components/dashboard/navigation';
+import { ConsoleShell } from '@/components/backend';
 
 export default function DashboardLayout({
   children,
@@ -144,62 +145,58 @@ export default function DashboardLayout({
 
   return (
     <DashboardNavProvider>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Header with tabs (desktop) */}
-        <DashboardHeader
-          displayName={displayName}
-          email={currentUser?.email || ''}
-          onSignOut={handleSignOut}
-        />
-
-        {/* Main content area */}
-        <div className="flex flex-1">
-          {/* Context-aware sidebar - desktop only */}
-          <DashboardSidebar
-            collapsed={sidebarCollapsed}
-            onToggleCollapse={handleSidebarToggle}
-          />
-
-          {/* Page content */}
-          <main className="flex-1 min-w-0">
-            <div className="p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-              <DashboardErrorBoundary>{children}</DashboardErrorBoundary>
-            </div>
-          </main>
-        </div>
-
-        {/* Footer - hidden on mobile to avoid overlap with bottom nav */}
-        <footer className="hidden lg:block border-t bg-white/80 backdrop-blur-sm mt-auto">
-          <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-circleTel-secondaryNeutral">
-              <p>&copy; 2025 CircleTel. All rights reserved.</p>
-              <div className="flex gap-6">
-                <Link
-                  href="/privacy-policy"
-                  className="hover:text-circleTel-orange transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-                <Link
-                  href="/terms-of-service"
-                  className="hover:text-circleTel-orange transition-colors"
-                >
-                  Terms of Service
-                </Link>
-                <Link
-                  href="/contact"
-                  className="hover:text-circleTel-orange transition-colors"
-                >
-                  Contact Us
-                </Link>
+      <>
+        <ConsoleShell
+          topbar={
+            <DashboardHeader
+              displayName={displayName}
+              email={currentUser?.email || ''}
+              onSignOut={handleSignOut}
+            />
+          }
+          sidebar={
+            <DashboardSidebar
+              collapsed={sidebarCollapsed}
+              onToggleCollapse={handleSidebarToggle}
+            />
+          }
+          contentClassName="pb-24 lg:pb-8"
+          footer={
+            <footer className="hidden border-t bg-white/80 backdrop-blur-sm lg:block">
+              <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-circleTel-secondaryNeutral">
+                  <p>&copy; 2025 CircleTel. All rights reserved.</p>
+                  <div className="flex gap-6">
+                    <Link
+                      href="/privacy-policy"
+                      className="hover:text-circleTel-orange transition-colors"
+                    >
+                      Privacy Policy
+                    </Link>
+                    <Link
+                      href="/terms-of-service"
+                      className="hover:text-circleTel-orange transition-colors"
+                    >
+                      Terms of Service
+                    </Link>
+                    <Link
+                      href="/contact"
+                      className="hover:text-circleTel-orange transition-colors"
+                    >
+                      Contact Us
+                    </Link>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </footer>
+            </footer>
+          }
+        >
+          <DashboardErrorBoundary>{children}</DashboardErrorBoundary>
+        </ConsoleShell>
 
         {/* Mobile bottom navigation */}
         <MobileBottomNav />
-      </div>
+      </>
     </DashboardNavProvider>
   );
 }

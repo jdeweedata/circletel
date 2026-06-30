@@ -11,6 +11,20 @@ import { ORDER_PROCESSING_FEE_AMOUNT } from '@/lib/payments/payment-amounts';
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
+  createClientWithSession: jest.fn(),
+}));
+
+// Phase 2: orders/create now requires a verified session. Resolve the Bearer
+// token path to an authenticated user so the test exercises the SkyFibre gate.
+jest.mock('@supabase/supabase-js', () => ({
+  createClient: () => ({
+    auth: {
+      getUser: () => Promise.resolve({
+        data: { user: { id: 'user-1', email: 'test@example.com', user_metadata: {} } },
+        error: null,
+      }),
+    },
+  }),
 }));
 
 jest.mock('@/lib/coverage/skyfibre/orderability', () => ({
@@ -36,7 +50,7 @@ let insertOrderMock: jest.Mock;
 function request(body: Record<string, unknown>) {
   return new Request('http://localhost/api/orders/create', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer test-token' },
     body: JSON.stringify(body),
   }) as NextRequest;
 }
@@ -48,6 +62,12 @@ describe('POST /api/orders/create SkyFibre gate', () => {
     mockExtractSkyFibreCapacity.mockReturnValue(100);
     mockSendOrderConfirmation.mockResolvedValue({ success: true } as any);
 
+    // Phase 2: orders/create looks up the owning customer first.
+    const customerQuery = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({ data: { id: 'cust-1' }, error: null }),
+    };
     const duplicateQuery = {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
@@ -85,6 +105,7 @@ describe('POST /api/orders/create SkyFibre gate', () => {
     mockCreateClient.mockResolvedValue({
       from: jest
         .fn()
+        .mockReturnValueOnce(customerQuery)
         .mockReturnValueOnce(duplicateQuery)
         .mockReturnValueOnce(orderNumberQuery)
         .mockReturnValueOnce(insertQuery),

@@ -27,6 +27,7 @@ interface PipelineClinic {
   vetting_due_date: string | null;
   submitted_at: string | null;
   service_order_issued_at: string | null;
+  service_order_status: 'not_issued' | 'pending_signoff' | 'accepted';
   sla: {
     dueDate: string | null;
     overdue: boolean;
@@ -46,6 +47,7 @@ interface PipelineResponse {
     submitted: number;
     changes_requested: number;
     docs_approved: number;
+    service_order_pending: number;
     billing_ready: number;
     pending: number;
   };
@@ -55,23 +57,25 @@ interface PipelineResponse {
 /**
  * Determine the clinic's current stage in the onboarding pipeline
  *
- * Stages flow: pending → invited → submitted → changes_requested/docs_approved → billing_ready
- * No longer includes mandate_active (billing bypassed eMandate signature via click-wrap).
+ * Stages flow: pending → invited → submitted → changes_requested/docs_approved
+ * → service_order_pending → billing_ready.
  */
 export function determineStage(
   onboarding_status: string | null,
   submission_status: string | null,
   document_vetting_status: string | null,
-  mandate_status: string | null
+  mandate_status: string | null,
+  service_order_status: 'not_issued' | 'pending_signoff' | 'accepted' = 'not_issued'
 ): string {
   // billing_ready takes precedence
   if (onboarding_status === 'billing_ready') {
     return 'billing_ready';
   }
 
-  // docs_approved (vetting approved, bank details on file)
-  // Note: mandate_status is no longer required; we check bank details in the gate
   if (document_vetting_status === 'approved') {
+    if (service_order_status === 'pending_signoff') {
+      return 'service_order_pending';
+    }
     return 'docs_approved';
   }
 
@@ -122,7 +126,9 @@ export async function GET(request: NextRequest) {
           document_vetting_status,
           submitted_at,
           vetting_due_date,
-          service_order_issued_at
+          service_order_issued_at,
+          service_order_pdf_path,
+          submission_data
         ),
         customer_payment_methods!customer_payment_methods_customer_id_fkey (
           id,
@@ -150,6 +156,7 @@ export async function GET(request: NextRequest) {
         submitted: 0,
         changes_requested: 0,
         docs_approved: 0,
+        service_order_pending: 0,
         billing_ready: 0,
         pending: 0,
       },
@@ -175,12 +182,25 @@ export async function GET(request: NextRequest) {
       const province = typeof details.province === 'string' ? details.province : '';
       const nurseName =
         typeof details.nurse_owner_name === 'string' ? details.nurse_owner_name : null;
+      const submissionData =
+        submission?.submission_data && typeof submission.submission_data === 'object'
+          ? (submission.submission_data as Record<string, any>)
+          : {};
+      const serviceOrderAcceptedAt =
+        submissionData.service_order_acceptance?.accepted_at || submissionData.acceptance?.accepted_at;
+      const serviceOrderStatus =
+        serviceOrderAcceptedAt
+          ? 'accepted'
+          : submission?.service_order_issued_at || submission?.service_order_pdf_path
+            ? 'pending_signoff'
+            : 'not_issued';
 
       const stage = determineStage(
         clinic.onboarding_status,
         submission?.status || null,
         submission?.document_vetting_status || null,
-        debitOrderPm?.mandate_status || null
+        debitOrderPm?.mandate_status || null,
+        serviceOrderStatus
       );
 
       // SLA calculation: vetting_due_date (if submitted) vs now
@@ -210,6 +230,7 @@ export async function GET(request: NextRequest) {
         vetting_due_date: submission?.vetting_due_date || null,
         submitted_at: submission?.submitted_at || null,
         service_order_issued_at: submission?.service_order_issued_at || null,
+        service_order_status: serviceOrderStatus,
         sla: {
           dueDate: submission?.vetting_due_date || null,
           overdue: isOverdue,
