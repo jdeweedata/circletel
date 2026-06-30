@@ -12,6 +12,7 @@ import {
   PiFileTextBold,
   PiFloppyDiskBold,
   PiMagnifyingGlassBold,
+  PiUserCircleBold,
   PiUploadSimpleBold,
   PiXBold,
 } from "react-icons/pi";
@@ -152,13 +153,15 @@ function Field({
   id,
   label,
   children,
+  className,
 }: {
   id: string;
   label: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="space-y-2">
+    <div className={`space-y-2 ${className ?? ""}`}>
       <Label
         htmlFor={id}
         className="text-xs font-semibold uppercase tracking-wide text-gray-500"
@@ -195,6 +198,36 @@ export default function ManualB2BIntakePage() {
     form.clinicName ||
     selectedCustomer?.businessName ||
     "Business customer";
+  const accountLabel =
+    selectedCustomer?.accountNumber ||
+    result?.accountNumber ||
+    (form.customerId ? "Customer linked" : "New customer");
+  const linkedRecords = [
+    {
+      label: "Customer",
+      value: form.customerId ? accountLabel : "Will be created on save",
+      ready: Boolean(form.customerId),
+    },
+    {
+      label: "Submission",
+      value: form.submissionId ? "Linked" : "Will be created or matched",
+      ready: Boolean(form.submissionId),
+    },
+    {
+      label: "Active service",
+      value: form.serviceId ? "Linked" : "Will be created or updated",
+      ready: Boolean(form.serviceId),
+    },
+    {
+      label: "Debit order",
+      value: form.paymentMethodId
+        ? `Linked${selectedCustomer?.paymentLastFour ? ` ending ${selectedCustomer.paymentLastFour}` : ""}`
+        : form.includeDebitOrder
+          ? "Capture required"
+          : "Not captured",
+      ready: Boolean(form.paymentMethodId) || !form.includeDebitOrder,
+    },
+  ];
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -401,7 +434,11 @@ export default function ManualB2BIntakePage() {
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form
+          id="manual-b2b-intake-form"
+          className="space-y-6"
+          onSubmit={handleSubmit}
+        >
           <SectionCard
             title="Customer Record"
             icon={PiClipboardTextBold}
@@ -420,7 +457,7 @@ export default function ManualB2BIntakePage() {
             }
           >
             <div className="space-y-5">
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
                   <Field id="customerSearch" label="Find existing customer">
                     <Input
@@ -452,24 +489,26 @@ export default function ManualB2BIntakePage() {
                 </div>
 
                 {customerResults.length > 0 && (
-                  <div className="mt-3 overflow-hidden rounded-md border border-gray-200 bg-white">
+                  <div className="overflow-hidden rounded-md border border-gray-200 bg-white">
                     {customerResults.map((customer) => (
                       <button
                         key={customer.id}
                         type="button"
                         onClick={() => void loadCustomerPrefill(customer.id)}
-                        className="flex w-full flex-col gap-1 border-b border-gray-100 px-3 py-3 text-left last:border-b-0 hover:bg-orange-50"
+                        className="flex w-full items-center justify-between gap-3 border-b border-gray-100 px-3 py-2.5 text-left last:border-b-0 hover:bg-gray-50"
                       >
-                        <span className="font-semibold text-gray-900">
-                          {customer.businessName}
-                        </span>
-                        <span className="text-sm text-gray-600">
-                          {customer.accountNumber || "No account number"}
-                          {customer.email ? ` - ${customer.email}` : ""}
-                          {customer.phone ? ` - ${customer.phone}` : ""}
+                        <span className="min-w-0">
+                          <span className="block truncate font-semibold text-gray-900">
+                            {customer.businessName}
+                          </span>
+                          <span className="block truncate text-sm text-gray-600">
+                            {customer.accountNumber || "No account number"}
+                            {customer.email ? ` - ${customer.email}` : ""}
+                            {customer.phone ? ` - ${customer.phone}` : ""}
+                          </span>
                         </span>
                         {customer.onboardingStatus && (
-                          <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                          <span className="shrink-0 rounded-full bg-gray-100 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
                             {customer.onboardingStatus.replace(/_/g, " ")}
                           </span>
                         )}
@@ -479,37 +518,47 @@ export default function ManualB2BIntakePage() {
                 )}
 
                 {selectedCustomer && (
-                  <div className="mt-3 rounded-md border border-orange-200 bg-orange-50 px-3 py-2 text-sm">
-                    <p className="font-semibold text-gray-900">
-                      {selectedCustomer.businessName}
-                    </p>
-                    <p className="text-gray-600">
-                      {selectedCustomer.accountNumber || selectedCustomer.id}
-                      {selectedCustomer.latestSubmissionId
-                        ? " - submission linked"
-                        : ""}
-                      {selectedCustomer.activeServiceId
-                        ? " - active service linked"
-                        : ""}
-                      {selectedCustomer.paymentLastFour
-                        ? ` - debit order ending ${selectedCustomer.paymentLastFour}`
-                        : ""}
-                    </p>
+                  <div className="flex items-start gap-3 rounded-md border border-gray-200 border-l-4 border-l-circleTel-orange bg-gray-50 px-3 py-3 text-sm">
+                    <PiUserCircleBold className="mt-0.5 h-5 w-5 shrink-0 text-circleTel-orange" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate font-semibold text-gray-900">
+                          {selectedCustomer.businessName}
+                        </p>
+                        <span className="rounded-full bg-circleTel-orange-light px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-circleTel-orange-dark">
+                          Linked
+                        </span>
+                      </div>
+                      <p className="mt-0.5 truncate text-gray-600">
+                        {selectedCustomer.accountNumber || "No account number"}
+                        {selectedCustomer.email
+                          ? ` - ${selectedCustomer.email}`
+                          : ""}
+                        {selectedCustomer.phone
+                          ? ` - ${selectedCustomer.phone}`
+                          : ""}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {!selectedCustomer && !form.customerId && (
+                  <div className="flex items-start gap-3 rounded-md border border-dashed border-gray-200 px-3 py-3 text-sm">
+                    <PiUserCircleBold className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        New business customer
+                      </p>
+                      <p className="mt-0.5 text-gray-500">
+                        Leave unlinked to create a new customer when this intake
+                        is saved.
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <Field id="customerId" label="Customer ID">
-                  <Input
-                    id="customerId"
-                    value={form.customerId}
-                    onChange={(event) =>
-                      update("customerId", event.target.value)
-                    }
-                    placeholder="Leave blank for a new customer"
-                  />
-                </Field>
                 <Field id="segment" label="Segment">
                   <Select
                     value={form.segment}
@@ -596,7 +645,11 @@ export default function ManualB2BIntakePage() {
                     />
                   </div>
                 </Field>
-                <Field id="registeredAddress" label="Registered address">
+                <Field
+                  id="registeredAddress"
+                  label="Registered address"
+                  className="md:col-span-2"
+                >
                   <Textarea
                     id="registeredAddress"
                     value={form.registeredAddress}
@@ -604,7 +657,7 @@ export default function ManualB2BIntakePage() {
                       update("registeredAddress", event.target.value)
                     }
                     required
-                    className="min-h-24 md:col-span-2"
+                    className="min-h-24"
                   />
                 </Field>
               </div>
@@ -654,20 +707,25 @@ export default function ManualB2BIntakePage() {
                   onChange={(event) => update("province", event.target.value)}
                 />
               </Field>
-              <Field id="siteAddress" label="Service address">
-                <Input
+              <Field
+                id="siteAddress"
+                label="Service address"
+                className="md:col-span-2"
+              >
+                <Textarea
                   id="siteAddress"
                   value={form.siteAddress}
                   onChange={(event) =>
                     update("siteAddress", event.target.value)
                   }
+                  className="min-h-20"
                 />
               </Field>
             </div>
           </SectionCard>
 
           <SectionCard title="Billable Service" icon={PiCheckCircleBold}>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <Field id="packageName" label="Package">
                 <Input
                   id="packageName"
@@ -812,13 +870,6 @@ export default function ManualB2BIntakePage() {
               </Field>
             </div>
           </SectionCard>
-
-          <div className="flex justify-end">
-            <Button type="submit" disabled={saving}>
-              <PiFloppyDiskBold className="mr-2 h-4 w-4" />
-              {saving ? "Saving..." : "Save Intake"}
-            </Button>
-          </div>
         </form>
 
         <aside className="space-y-4">
@@ -845,7 +896,7 @@ export default function ManualB2BIntakePage() {
                       Account
                     </p>
                     <p className="font-medium text-gray-900">
-                      {result.accountNumber || result.customerId}
+                      {result.accountNumber || documentCustomerName}
                     </p>
                   </div>
                   <div className="grid gap-2">
@@ -883,6 +934,48 @@ export default function ManualB2BIntakePage() {
                   />
                 </div>
               )}
+
+              <div className="border-t border-gray-100 pt-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Linked records
+                </p>
+                <div className="space-y-2">
+                  {linkedRecords.map((record) => (
+                    <div
+                      key={record.label}
+                      className="flex items-start justify-between gap-3 text-sm"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-900">
+                          {record.label}
+                        </p>
+                        <p className="truncate text-xs text-gray-500">
+                          {record.value}
+                        </p>
+                      </div>
+                      <span
+                        className={
+                          record.ready
+                            ? "mt-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700"
+                            : "mt-0.5 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-600"
+                        }
+                      >
+                        {record.ready ? "Ready" : "Pending"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                form="manual-b2b-intake-form"
+                disabled={saving}
+                className="w-full bg-circleTel-orange text-white hover:bg-circleTel-orange-dark"
+              >
+                <PiFloppyDiskBold className="h-4 w-4" />
+                {saving ? "Saving..." : "Save intake"}
+              </Button>
             </div>
           </SectionCard>
 
