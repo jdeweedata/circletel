@@ -17,6 +17,17 @@ describe('determineStage', () => {
       expect(stage).toBe('docs_approved');
     });
 
+    it('should return service_order_pending when docs are approved and the service order is awaiting signoff', () => {
+      const stage = determineStage(
+        'in_progress',
+        'submitted',
+        'approved',
+        'pending',
+        'pending_signoff'
+      );
+      expect(stage).toBe('service_order_pending');
+    });
+
     it('should NOT return mandate_active for any input (stage is retired)', () => {
       // Verify that no combination of inputs returns 'mandate_active'
       const inputs = [
