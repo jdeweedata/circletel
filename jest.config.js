@@ -20,6 +20,7 @@ const customJestConfig = {
 
   // Module name mapper for path aliases
   moduleNameMapper: {
+    '^server-only$': '<rootDir>/__mocks__/empty-module.js',
     '^@/(.*)$': '<rootDir>/$1',
     '^@/lib/(.*)$': '<rootDir>/lib/$1',
     '^@/components/(.*)$': '<rootDir>/components/$1',

@@ -63,3 +63,18 @@ export interface OfferPricingSnapshot extends OfferPricingSnapshotInput {
   offerId: string;
   computedAt: string;     // ISO
 }
+
+/** Public, sanitized offer for the storefront (no cost/margin/provenance). */
+export interface PublicOffer {
+  slug: string;
+  title: string;
+  customerType: OfferCustomerType;
+  priceInclVat: number;   // ZAR incl. 15% VAT — the only price ever shown
+  vatRate: number;        // 0.15
+  vatLabel: string;       // "incl. VAT"
+  description?: string;   // from media.description (string) only
+  image?: string;         // from media.image (string) only
+}
+
+/** Detail-page shape — identical to PublicOffer in Plan 2. */
+export type PublicOfferDetail = PublicOffer;

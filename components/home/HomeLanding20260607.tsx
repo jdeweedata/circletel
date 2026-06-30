@@ -220,6 +220,10 @@ export function HomeLanding20260607({
           address: nextAddress.trim(),
           coordinates: nextCoordinates,
           coverageType,
+          // Forward-prep: lead API ignores this today (Plan 3 persists it). Carry is sessionStorage.
+          offerSlug: typeof window !== 'undefined'
+            ? sessionStorage.getItem('circletel_offer_slug') ?? undefined
+            : undefined,
         }),
       });
 

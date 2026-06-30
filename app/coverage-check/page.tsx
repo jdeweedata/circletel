@@ -15,15 +15,21 @@ const PLAN_ALIASES: Record<string, string> = {
 };
 
 interface CoverageCheckPageProps {
-  searchParams: Promise<{ plan?: string }>;
+  searchParams: Promise<{ plan?: string; offer?: string }>;
 }
 
 export default async function CoverageCheckPage({ searchParams }: CoverageCheckPageProps) {
-  const { plan } = await searchParams;
+  const { plan, offer } = await searchParams;
   const planId = plan ? PLAN_ALIASES[plan.toLowerCase()] ?? plan : null;
 
   if (planId) {
     redirect(`/packages?plan=${planId}`);
+  }
+
+  // Offer-sourced visitors have no lead yet — send them to the homepage coverage
+  // checker, preserving the offer slug for attribution.
+  if (offer) {
+    redirect(`/?offer=${encodeURIComponent(offer)}`);
   }
 
   redirect('/');

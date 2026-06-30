@@ -58,6 +58,49 @@ Format:
 - **Notes:** 50/100 Mbps use CSP `feasibilityOld`; 200 Mbps uses `feasibilityCheck`. CSP `orderable` is the final orderability authority when TCS has an online/covered BN; active BN with zero active RN evidence lowers confidence and should show a site-survey/install caution, but does not by itself block CSP-orderable coverage.
 - **Admin UI:** `/admin/coverage/checker` now includes a SkyFibre Orderability card under Tarana results and auto-runs the combined gate at 100 Mbps after each Tarana address check. The page shows a "Final Sales Decision" banner that treats the combined TCS + CSP result as the sales authority, renames the old coverage verdict to an RF signal estimate, blocks package recommendations unless the gate is `orderable`, and treats RF-vs-TCS BN mismatches as manual review. Admins can still switch to 50/100/200 Mbps and re-run manually. `/admin/sales/feasibility` single-site review also shows the same card for selected SkyFibre/Tarana packages. Both call the combined endpoint with `segment: "business"` for MTN CSP validation.
 - **RPC quirk:** The deployed `find_nearest_tarana_base_station` RPC may omit `device_status`. `lib/coverage/mtn/base-station-service.ts` hydrates missing BN status from `tarana_base_stations` before deciding whether the BN is online; otherwise online BNs can be misread as offline and CSP will be skipped.
+
+### 2026-06-28: Offer Spine storefront review caveats
+- **Context:** Review of `docs/superpowers/specs/2026-06-28-offer-storefront-read-design.md` for the planned public `/offers` catalogue.
+- **Pattern:** Treat public offer pricing as a separate sanitized contract from internal snapshots. `service_packages` prices are commonly stored/displayed as ex-VAT in the DB while MTN and hardware normalized products can already be incl-VAT, so `/offers` must define/normalize VAT basis before exposing JSON-LD or UI prices.
+- **Guard caveat:** `offer_components.source_type = 'service_package'` is not enough to prove the underlying source table because Phase 0 maps both `admin_products` and `service_packages` to that component type. Use internal `offers.source_uid` prefixes (for example `service_packages:*`) when the source table matters.
+- **Staleness quirk:** `lib/offers/staleness.ts` currently appears only in tests; `recompute-offer-pricing.loadDraft` sets `sourceUpdatedAt` from `offers.updated_at`, but changing that alone will not create an admin stale signal unless a read/admin path actually calls `isSnapshotStale`.
+- **Discovered by:** Codex
+
+### 2026-06-28: Consumer Checkout Fee Split
+- **Context:** Consumer/Vox-style checkout no longer uses the old "R1 validation charge credited back" copy.
+- **Pattern:** New checkout orders use `ORDER_PROCESSING_FEE_AMOUNT` (R149.00) from `lib/payments/payment-amounts.ts`; order creation stamps this amount server-side, Netcash initiation derives it from the order row and describes it as "CircleTel - Order processing fee", and the webhook marks that R149 payment as `confirmed` without activating service. The R1 constants/helpers remain intentionally for legacy rows and dashboard/payment-method validation flows only.
+- **Discovered by:** Codex
+
+### 2026-06-30: Admin-Assisted B2B Manual Intake Direction
+- **Context:** Planning for admin-assisted B2B onboarding/manual intake from documents received by email, covering Unjani and future business customers.
+- **Pattern:** Manual intake must support both selecting an existing B2B/Unjani customer and creating a new pending business customer shell. New shells must stay non-billable until documents are approved, debit-order banking details are captured, the customer accepts the Service Order through a secure signoff link, a final Service Order PDF is issued, and the service is active/billable.
+- **Plan:** Executable implementation plan saved at `docs/superpowers/plans/2026-06-30-admin-assisted-b2b-onboarding.md`.
+- **Discovered by:** Codex
+
+### 2026-06-30: Staging Runner Disk Pressure Cleanup
+- **Context:** Staging deploy run `28447363810` failed before checkout because `/dev/sda1` had only ~3.4GB free after cleanup, below the workflow's 4GB guard.
+- **Pattern:** First safe reclaim batch is runner workspace/cache plus merged worktrees: remove `/home/actions-runner/_work/circletel/circletel`, `/home/actions-runner/.next-cache`, `/home/actions-runner/node_modules.tar`, `/home/actions-runner/.nm-cache-key`, and merged worktree `/home/circletel/.worktrees/admin-assisted-b2b-onboarding`. This reclaimed ~14GB and left `/` at 18GB free.
+- **Discovered by:** Codex
+
+### 2026-06-30: Product Docs Residential Pricing Drift
+- **Context:** Read-through of `products/` found conflicting SkyFibre Home residential references.
+- **Pattern:** Treat `products/connectivity/residential/SkyFibre_Residential_Product_Document_v3_0.md`, the standalone March 31 DOCX files, and `skyfibre_home_residential_products_v2_0.json` as the corrected residential sources for Plus/Max: 50/12.5 Mbps at R899 incl. VAT and 100/25 Mbps at R999 incl. VAT, both 4:1 asymmetric. Older catalogue/spec files still show outdated higher/ex-VAT-style pricing, and the Ultra DOCX exists at R1,299 incl. VAT but is absent from the JSON.
+- **Discovered by:** Codex
+
+### 2026-06-30: Offer-Driven No-Code Product Publishing Direction
+- **Context:** User wants to stop coding a bespoke Next.js frontend page for every new product, hardware sale, bundle, or solution.
+- **Pattern:** Treat `Offer` as the customer-buyable commercial source, then attach marketing/content/channel publishing metadata to Offers. Public website pages, campaign landing pages, Google Shopping, Facebook/Meta catalog, WhatsApp sales flows, and partner/admin quote flows should consume published Offers instead of each querying product source tables directly. Source product tables remain systems of record; CMS/page-builder blocks should reference Offer IDs so sales and marketing can publish pages/promotions without manually duplicating price, VAT, availability, or fulfilment rules.
+- **Discovered by:** Codex
+
+### 2026-06-30: Astro CMS Fit Decision
+- **Context:** User asked whether Astro should be hosted in this repo to make CMS/product pages easier.
+- **Pattern:** Astro is viable only as a separate marketing/static-content zone with unique path ownership, but the recommended first move for CircleTel is Next-native dynamic CMS pages because the repo already has `pb_pages`, CMS block renderers, admin CMS builder APIs, Offer public read code, auth, Supabase, checkout, and channel/order flows in Next. Do not put Astro inside the existing Next `app/` tree. If Astro is adopted later, isolate it as a monorepo app or separate container under a route prefix such as `/blog/*`, `/resources/*`, or `/campaign-static/*`, and keep buyable products/pricing/stock/checkout driven by Next Offers.
+- **Discovered by:** Codex
+
+### 2026-06-30: Product CMS Should Be Template-Driven First
+- **Context:** User clarified that the existing CircleTel CMS/page builder is not polished or fully functional today, and showed Teljoy-style storefront, product detail, category, modal, and campaign examples as the target.
+- **Pattern:** Treat the current CMS as an unfinished prototype, not the launch dependency. The recommended product-publishing path is a template-driven Product Publishing Studio: Offer data supplies commercial truth, curated templates render storefront/category/product/campaign pages, AI generates draft copy/assets from approved Offer context, and marketing approves/schedules publication. Avoid a broad freeform drag-and-drop rebuild as Phase 1; Teljoy-like commerce pages are mostly structured templates plus promotional creative, not arbitrary page composition.
+- **Discovered by:** Codex
 ### YYYY-MM-DD: Pattern
 - **Context:** When this applies
 - **Pattern:** The approach that works
