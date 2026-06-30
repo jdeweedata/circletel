@@ -290,7 +290,7 @@ export default function ManualB2BIntakePage() {
       setResult(null);
       setCustomerResults([]);
       setCustomerSearch(prefill.customer.businessName);
-      toast.success("Customer details loaded into manual intake");
+      toast.success("Customer details loaded into manual onboarding");
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -371,7 +371,7 @@ export default function ManualB2BIntakePage() {
       });
       const data = await response.json();
       if (!response.ok || !data.success) {
-        throw new Error(data.error || "Manual intake failed");
+        throw new Error(data.error || "Manual onboarding failed");
       }
       const intake = data.intake as IntakeResult;
       setResult(intake);
@@ -403,7 +403,7 @@ export default function ManualB2BIntakePage() {
       );
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Manual intake failed",
+        error instanceof Error ? error.message : "Manual onboarding failed",
       );
     } finally {
       setSaving(false);
@@ -413,8 +413,8 @@ export default function ManualB2BIntakePage() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-8">
       <PageHeader
-        title="Manual B2B Intake"
-        subtitle="Admin-assisted capture for emailed onboarding packs"
+        title="Manual B2B Onboarding"
+        subtitle="Admin-assisted capture for emailed client onboarding packs"
         actions={
           <>
             <Button asChild variant="outline" size="sm">
@@ -550,8 +550,8 @@ export default function ManualB2BIntakePage() {
                         New business customer
                       </p>
                       <p className="mt-0.5 text-gray-500">
-                        Leave unlinked to create a new customer when this intake
-                        is saved.
+                        Leave unlinked to create a new customer when this
+                        onboarding is saved.
                       </p>
                     </div>
                   </div>
@@ -974,7 +974,7 @@ export default function ManualB2BIntakePage() {
                 className="w-full bg-circleTel-orange text-white hover:bg-circleTel-orange-dark"
               >
                 <PiFloppyDiskBold className="h-4 w-4" />
-                {saving ? "Saving..." : "Save intake"}
+                {saving ? "Saving..." : "Save onboarding"}
               </Button>
             </div>
           </SectionCard>
@@ -1012,7 +1012,7 @@ export default function ManualB2BIntakePage() {
 
               {!canUploadDocuments && (
                 <p className="text-xs leading-5 text-gray-500">
-                  Select an existing customer or save this intake first.
+                  Select an existing customer or save this onboarding first.
                 </p>
               )}
             </div>
