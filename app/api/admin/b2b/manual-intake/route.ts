@@ -206,7 +206,6 @@ export async function GET(request: NextRequest) {
         .select("id, segment, submission_data")
         .eq("customer_id", customerId)
         .order("submitted_at", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
       if (submissionError) throw submissionError;

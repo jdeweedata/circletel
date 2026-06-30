@@ -5,39 +5,57 @@
  * none exists), uploads to the kyc-documents bucket, inserts a pending
  * kyc_documents row tagged source: 'admin_email'. Documents-only — no banking.
  */
-import { NextRequest, NextResponse } from 'next/server';
-import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
-import { svc } from '@/lib/onboarding/onboarding-service';
-import { uploadFile } from '@/lib/storage/supabase-upload';
-import { validateDocumentUpload } from '@/lib/onboarding/document-upload';
-import { addBusinessDays, now } from '@/lib/dates';
-import { apiLogger } from '@/lib/logging/logger';
+import { NextRequest, NextResponse } from "next/server";
+import {
+  authenticateAdmin,
+  requirePermission,
+} from "@/lib/auth/admin-api-auth";
+import { svc } from "@/lib/onboarding/onboarding-service";
+import { uploadFile } from "@/lib/storage/supabase-upload";
+import { validateDocumentUpload } from "@/lib/onboarding/document-upload";
+import { addBusinessDays, now } from "@/lib/dates";
+import { apiLogger } from "@/lib/logging/logger";
 
 export async function POST(request: NextRequest) {
   const auth = await authenticateAdmin(request);
   if (!auth.success) return auth.response;
-  const perm = requirePermission(auth.adminUser, ['kyc:verify', 'customers:write']);
+  const perm = requirePermission(auth.adminUser, [
+    "kyc:verify",
+    "customers:write",
+  ]);
   if (perm) return perm;
 
   const form = await request.formData();
-  const customerId = form.get('customerId') as string | null;
-  const documentType = form.get('documentType') as string | null;
-  const submissionIdIn = (form.get('submissionId') as string | null) || null;
-  const segment = ((form.get('segment') as string | null) || 'unjani').trim() || 'unjani';
-  const emailFrom = ((form.get('emailFrom') as string | null) || '').trim();
-  const emailSubject = ((form.get('emailSubject') as string | null) || '').trim();
-  const emailReceivedAt = ((form.get('emailReceivedAt') as string | null) || '').trim();
-  const file = form.get('file') as File | null;
+  const customerId = form.get("customerId") as string | null;
+  const documentType = form.get("documentType") as string | null;
+  const submissionIdIn = (form.get("submissionId") as string | null) || null;
+  const segment =
+    ((form.get("segment") as string | null) || "unjani").trim() || "unjani";
+  const emailFrom = ((form.get("emailFrom") as string | null) || "").trim();
+  const emailSubject = (
+    (form.get("emailSubject") as string | null) || ""
+  ).trim();
+  const emailReceivedAt = (
+    (form.get("emailReceivedAt") as string | null) || ""
+  ).trim();
+  const file = form.get("file") as File | null;
 
   if (!customerId || !documentType || !file) {
     return NextResponse.json(
-      { success: false, error: 'customerId, documentType, file required' },
-      { status: 400 }
+      { success: false, error: "customerId, documentType, file required" },
+      { status: 400 },
     );
   }
-  const v = validateDocumentUpload({ documentType, fileType: file.type, fileSize: file.size });
+  const v = validateDocumentUpload({
+    documentType,
+    fileType: file.type,
+    fileSize: file.size,
+  });
   if (!v.valid) {
-    return NextResponse.json({ success: false, error: v.error }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: v.error },
+      { status: 400 },
+    );
   }
 
   const supabase = svc();
@@ -52,82 +70,93 @@ export async function POST(request: NextRequest) {
       : null;
 
   const { data: customer } = await supabase
-    .from('customers')
-    .select('business_name, email, phone, onboarding_status')
-    .eq('id', customerId)
+    .from("customers")
+    .select("business_name, email, phone, onboarding_status")
+    .eq("id", customerId)
     .single();
   if (!customer) {
-    return NextResponse.json({ success: false, error: 'Customer not found' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, error: "Customer not found" },
+      { status: 404 },
+    );
   }
 
   let submissionId = submissionIdIn;
   let createdShell = false;
   if (!submissionId) {
     const { data: existing } = await supabase
-      .from('onboarding_submissions')
-      .select('id')
-      .eq('customer_id', customerId)
-      .order('submitted_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false })
+      .from("onboarding_submissions")
+      .select("id")
+      .eq("customer_id", customerId)
+      .order("submitted_at", { ascending: false, nullsFirst: false })
       .limit(1)
       .maybeSingle();
     if (existing) {
       submissionId = existing.id;
     } else {
       const { data: shell, error: shellErr } = await supabase
-        .from('onboarding_submissions')
+        .from("onboarding_submissions")
         .insert({
           customer_id: customerId,
           segment,
-          status: 'submitted',
-          document_vetting_status: 'documents_pending',
+          status: "submitted",
+          document_vetting_status: "documents_pending",
           submitted_at: now().toISOString(),
           vetting_due_date: addBusinessDays(now(), 2).toISOString(),
           submission_data: {
             manual: true,
-            source: 'admin_email',
+            source: "admin_email",
             segment,
             uploaded_by: adminEmail,
             ...(emailProvenance ? { email_provenance: emailProvenance } : {}),
           },
         })
-        .select('id')
+        .select("id")
         .single();
       if (shellErr || !shell) {
-        apiLogger.error('[Admin Upload] shell create failed', { customerId, error: shellErr });
+        apiLogger.error("[Admin Upload] shell create failed", {
+          customerId,
+          error: shellErr,
+        });
         return NextResponse.json(
-          { success: false, error: shellErr?.message || 'Failed to create submission' },
-          { status: 500 }
+          {
+            success: false,
+            error: shellErr?.message || "Failed to create submission",
+          },
+          { status: 500 },
         );
       }
       submissionId = shell.id;
       createdShell = true;
       await supabase
-        .from('customers')
-        .update({ onboarding_status: 'submitted' })
-        .eq('id', customerId)
-        .neq('onboarding_status', 'submitted');
+        .from("customers")
+        .update({ onboarding_status: "submitted" })
+        .eq("id", customerId)
+        .neq("onboarding_status", "submitted");
     }
   }
 
   const up = await uploadFile(file, {
-    bucket: 'kyc-documents',
+    bucket: "kyc-documents",
     folder: `onboarding/${customerId}/${documentType}`,
     maxSizeBytes: 5 * 1024 * 1024,
-    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
+    allowedTypes: ["image/jpeg", "image/jpg", "image/png", "application/pdf"],
     supabaseClient: supabase,
   });
   if (!up.success) {
-    return NextResponse.json({ success: false, error: up.error }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: up.error },
+      { status: 500 },
+    );
   }
 
   const { data: doc, error: docErr } = await supabase
-    .from('kyc_documents')
+    .from("kyc_documents")
     .insert({
-      customer_type: 'smme',
+      customer_type: "smme",
       customer_id: customerId,
       onboarding_submission_id: submissionId,
-      customer_name: customer.business_name ?? 'Clinic',
+      customer_name: customer.business_name ?? "Clinic",
       company_name: customer.business_name ?? null,
       customer_email: customer.email ?? null,
       customer_phone: customer.phone ?? null,
@@ -137,31 +166,39 @@ export async function POST(request: NextRequest) {
       file_path: up.path,
       file_size: file.size,
       file_type: file.type,
-      verification_status: 'pending',
+      verification_status: "pending",
       is_sensitive: true,
       metadata: {
-        source: 'admin_email',
+        source: "admin_email",
         segment,
         uploaded_by: adminEmail,
         ...(emailProvenance ? { email_provenance: emailProvenance } : {}),
       },
     })
-    .select('id')
+    .select("id")
     .single();
   if (docErr || !doc) {
-    apiLogger.error('[Admin Upload] kyc_documents insert failed', { customerId, error: docErr });
+    apiLogger.error("[Admin Upload] kyc_documents insert failed", {
+      customerId,
+      error: docErr,
+    });
     return NextResponse.json(
-      { success: false, error: docErr?.message || 'Failed to record document' },
-      { status: 500 }
+      { success: false, error: docErr?.message || "Failed to record document" },
+      { status: 500 },
     );
   }
 
-  apiLogger.info('[Admin Upload] document uploaded', {
+  apiLogger.info("[Admin Upload] document uploaded", {
     customerId,
     submissionId,
     documentType,
     createdShell,
     by: adminEmail,
   });
-  return NextResponse.json({ success: true, documentId: doc.id, submissionId, createdShell });
+  return NextResponse.json({
+    success: true,
+    documentId: doc.id,
+    submissionId,
+    createdShell,
+  });
 }

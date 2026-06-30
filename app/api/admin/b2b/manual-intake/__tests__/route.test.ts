@@ -82,7 +82,12 @@ function createManualIntakeSupabaseMock() {
       select: jest.fn(() => builder),
       eq: jest.fn(() => builder),
       or: jest.fn(() => builder),
-      order: jest.fn(() => builder),
+      order: jest.fn((column: string) => {
+        if (table === "onboarding_submissions" && column === "created_at") {
+          throw new Error("onboarding_submissions.created_at does not exist");
+        }
+        return builder;
+      }),
       limit: jest.fn(() => builder),
       maybeSingle: jest.fn(() => {
         if (table === "onboarding_submissions") {
