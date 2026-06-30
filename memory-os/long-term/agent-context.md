@@ -49,6 +49,11 @@ Format:
 - **Why:** The app currently has an existing hydration mismatch around `#zcb-banner`; admin header notifications can also crash local stubbed checks if `/api/notifications` does not return `data` plus `pagination.unread_count`.
 - **Workaround:** For layout-only checks, stub `/api/notifications` as `{ success: true, data: [], pagination: { total: 0, limit: 10, offset: 0, unread_count: 0 } }` and hide/remove `nextjs-portal` overlay nodes before screenshots.
 
+### 2026-06-30: Admin-Assisted B2B Onboarding Gate
+- **What:** Admins can create/update B2B customers from emailed onboarding packs at `/admin/b2b/manual-intake`; uploaded emailed docs can carry sender/subject/received-at provenance.
+- **Why:** Unjani and future B2B customers may send onboarding documents by email instead of completing the self-service wizard.
+- **Workaround:** Do not mark a B2B customer `billing_ready` from docs + bank details alone. `maybeMarkBillingReady` now also requires an issued Service Order PDF and `submission_data.service_order_acceptance.accepted_at` (or legacy `acceptance.accepted_at`). Service Order signoff tokens use `onboarding_tokens.purpose = 'service_order_signoff'` and resolve at `/service-order/{token}`.
+
 ## Agent-Discovered Patterns
 
 _Patterns discovered by agents while working in this codebase._

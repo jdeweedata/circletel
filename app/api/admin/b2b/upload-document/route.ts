@@ -23,6 +23,10 @@ export async function POST(request: NextRequest) {
   const customerId = form.get('customerId') as string | null;
   const documentType = form.get('documentType') as string | null;
   const submissionIdIn = (form.get('submissionId') as string | null) || null;
+  const segment = ((form.get('segment') as string | null) || 'unjani').trim() || 'unjani';
+  const emailFrom = ((form.get('emailFrom') as string | null) || '').trim();
+  const emailSubject = ((form.get('emailSubject') as string | null) || '').trim();
+  const emailReceivedAt = ((form.get('emailReceivedAt') as string | null) || '').trim();
   const file = form.get('file') as File | null;
 
   if (!customerId || !documentType || !file) {
@@ -38,6 +42,14 @@ export async function POST(request: NextRequest) {
 
   const supabase = svc();
   const adminEmail = auth.adminUser.email;
+  const emailProvenance =
+    emailFrom || emailSubject || emailReceivedAt
+      ? {
+          from: emailFrom || null,
+          subject: emailSubject || null,
+          received_at: emailReceivedAt || null,
+        }
+      : null;
 
   const { data: customer } = await supabase
     .from('customers')
@@ -66,12 +78,18 @@ export async function POST(request: NextRequest) {
         .from('onboarding_submissions')
         .insert({
           customer_id: customerId,
-          segment: 'unjani',
+          segment,
           status: 'submitted',
           document_vetting_status: 'documents_pending',
           submitted_at: now().toISOString(),
           vetting_due_date: addBusinessDays(now(), 2).toISOString(),
-          submission_data: { manual: true, source: 'admin_email', uploaded_by: adminEmail },
+          submission_data: {
+            manual: true,
+            source: 'admin_email',
+            segment,
+            uploaded_by: adminEmail,
+            ...(emailProvenance ? { email_provenance: emailProvenance } : {}),
+          },
         })
         .select('id')
         .single();
@@ -121,7 +139,12 @@ export async function POST(request: NextRequest) {
       file_type: file.type,
       verification_status: 'pending',
       is_sensitive: true,
-      metadata: { source: 'admin_email', uploaded_by: adminEmail },
+      metadata: {
+        source: 'admin_email',
+        segment,
+        uploaded_by: adminEmail,
+        ...(emailProvenance ? { email_provenance: emailProvenance } : {}),
+      },
     })
     .select('id')
     .single();

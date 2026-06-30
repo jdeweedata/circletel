@@ -1,6 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateToken, hashToken, tokenExpiry } from './token-service';
 
+export type OnboardingTokenPurpose = 'onboarding' | 'service_order_signoff';
+
+export interface IssueTokenOptions {
+  purpose?: OnboardingTokenPurpose;
+  onboardingSubmissionId?: string | null;
+  metadata?: Record<string, unknown>;
+}
+
+export interface ResolvedPurposeToken {
+  customerId: string;
+  tokenId: string;
+  purpose: OnboardingTokenPurpose;
+  onboardingSubmissionId: string | null;
+  metadata: Record<string, unknown>;
+}
+
 export function svc() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,7 +30,11 @@ export function buildMagicLinkUrl(base: string, token: string): string {
 }
 
 /** Issue a fresh single-use token for a customer; returns the plaintext token. */
-export async function issueToken(customerId: string, sentVia: string): Promise<string> {
+export async function issueToken(
+  customerId: string,
+  sentVia: string,
+  options: IssueTokenOptions = {}
+): Promise<string> {
   const supabase = svc();
   const token = generateToken();
   const { error } = await supabase.from('onboarding_tokens').insert({
@@ -23,6 +43,9 @@ export async function issueToken(customerId: string, sentVia: string): Promise<s
     expires_at: tokenExpiry(),
     sent_via: sentVia,
     sent_at: new Date().toISOString(),
+    purpose: options.purpose ?? 'onboarding',
+    onboarding_submission_id: options.onboardingSubmissionId ?? null,
+    metadata: options.metadata ?? {},
   });
   if (error) throw new Error(`Failed to issue token: ${error.message}`);
   return token;
@@ -30,16 +53,33 @@ export async function issueToken(customerId: string, sentVia: string): Promise<s
 
 /** Resolve a plaintext token to a customer id, enforcing expiry + single use. */
 export async function resolveToken(token: string): Promise<{ customerId: string; tokenId: string } | null> {
+  const resolved = await resolveTokenForPurpose(token, 'onboarding');
+  if (!resolved) return null;
+  return { customerId: resolved.customerId, tokenId: resolved.tokenId };
+}
+
+/** Resolve a plaintext token for a specific purpose, enforcing expiry + single use. */
+export async function resolveTokenForPurpose(
+  token: string,
+  purpose: OnboardingTokenPurpose
+): Promise<ResolvedPurposeToken | null> {
   const supabase = svc();
   const { data, error } = await supabase
     .from('onboarding_tokens')
-    .select('id, customer_id, expires_at, used_at')
+    .select('id, customer_id, onboarding_submission_id, purpose, metadata, expires_at, used_at')
     .eq('token_hash', hashToken(token))
     .maybeSingle();
   if (error || !data) return null;
   if (data.used_at) return null;
   if (new Date(data.expires_at).getTime() < Date.now()) return null;
-  return { customerId: data.customer_id, tokenId: data.id };
+  if (data.purpose !== purpose) return null;
+  return {
+    customerId: data.customer_id,
+    tokenId: data.id,
+    purpose: data.purpose,
+    onboardingSubmissionId: data.onboarding_submission_id ?? null,
+    metadata: data.metadata ?? {},
+  };
 }
 
 /** Pre-fill payload for the wizard from the existing customer record. */

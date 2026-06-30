@@ -2,19 +2,18 @@
  * Billing-ready status computation
  * Sets customers.onboarding_status = 'billing_ready' when:
  * - Latest onboarding_submissions.document_vetting_status === 'approved'
+ * - Service Order PDF has been issued and accepted by the customer
  * - At least one customer_services row with status='active'
  * - An active customer_payment_methods (method_type='debit_order', is_active=true)
  *   with encrypted_details containing BOTH account_number AND branch_code
- *
- * (Drops the signature requirement: mandate_status active + verified)
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Check if an onboarding submission's documents are approved, the customer
- * has an active service, and valid bank details on file. If all conditions met,
- * mark the customer billing_ready.
+ * Check if an onboarding submission's documents are approved, the customer has
+ * accepted the Service Order, has an active service, and valid bank details on
+ * file. If all conditions are met, mark the customer billing_ready.
  *
  * Returns true if status was flipped to billing_ready, false otherwise.
  * Safe to call repeatedly — idempotent.
@@ -26,7 +25,7 @@ export async function maybeMarkBillingReady(
   // 1. Get the latest submission for this customer
   const { data: submission, error: subError } = await supabase
     .from('onboarding_submissions')
-    .select('id, document_vetting_status')
+    .select('id, document_vetting_status, service_order_pdf_path, submission_data')
     .eq('customer_id', customerId)
     .order('submitted_at', { ascending: false })
     .limit(1)
@@ -36,6 +35,15 @@ export async function maybeMarkBillingReady(
 
   // Docs must be approved
   if (submission.document_vetting_status !== 'approved') return false;
+
+  const submissionData =
+    submission.submission_data && typeof submission.submission_data === 'object'
+      ? (submission.submission_data as Record<string, any>)
+      : {};
+  const serviceOrderAcceptedAt =
+    submissionData.service_order_acceptance?.accepted_at || submissionData.acceptance?.accepted_at;
+
+  if (!submission.service_order_pdf_path || !serviceOrderAcceptedAt) return false;
 
   // 2. Check for at least one active service
   const { data: activeService } = await supabase
