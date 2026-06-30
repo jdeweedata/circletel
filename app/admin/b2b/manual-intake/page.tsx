@@ -1963,7 +1963,7 @@ export default function ManualB2BIntakePage() {
                   type="button"
                   variant="outline"
                   className="w-full"
-                  onClick={clearSelectedCustomer}
+                  onClick={() => setConfirmDiscard(true)}
                 >
                   Discard Onboarding
                 </Button>
@@ -2028,6 +2028,37 @@ export default function ManualB2BIntakePage() {
           }}
         />
       )}
+
+      <Dialog open={confirmDiscard} onOpenChange={setConfirmDiscard}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Discard this onboarding?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600">
+            All captured details will be cleared. This cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setConfirmDiscard(false)}
+            >
+              Keep editing
+            </Button>
+            <Button
+              type="button"
+              className="bg-red-600 text-white hover:bg-red-700"
+              onClick={() => {
+                clearSelectedCustomer();
+                setConfirmDiscard(false);
+                toast.success("Onboarding discarded.");
+              }}
+            >
+              Discard
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
