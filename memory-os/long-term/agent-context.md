@@ -68,6 +68,12 @@ Format:
 - **Notes:** 50/100 Mbps use CSP `feasibilityOld`; 200 Mbps uses `feasibilityCheck`. CSP `orderable` is the final orderability authority when TCS has an online/covered BN; active BN with zero active RN evidence lowers confidence and should show a site-survey/install caution, but does not by itself block CSP-orderable coverage.
 - **Admin UI:** `/admin/coverage/checker` now includes a SkyFibre Orderability card under Tarana results and auto-runs the combined gate at 100 Mbps after each Tarana address check. The page shows a "Final Sales Decision" banner that treats the combined TCS + CSP result as the sales authority, renames the old coverage verdict to an RF signal estimate, blocks package recommendations unless the gate is `orderable`, and treats RF-vs-TCS BN mismatches as manual review. Admins can still switch to 50/100/200 Mbps and re-run manually. `/admin/sales/feasibility` single-site review also shows the same card for selected SkyFibre/Tarana packages. Both call the combined endpoint with `segment: "business"` for MTN CSP validation.
 - **RPC quirk:** The deployed `find_nearest_tarana_base_station` RPC may omit `device_status`. `lib/coverage/mtn/base-station-service.ts` hydrates missing BN status from `tarana_base_stations` before deciding whether the BN is online; otherwise online BNs can be misread as offline and CSP will be skipped.
+
+### 2026-06-30: Worktree Verification Tooling
+- **Context:** Feature worktrees under `/home/circletel/.worktrees/*` may not have their own `node_modules`.
+- **Pattern:** Run tooling from the root checkout when needed, e.g. `/home/circletel/node_modules/.bin/prettier`, `/home/circletel/node_modules/.bin/playwright`, or `node /home/circletel/node_modules/typescript/bin/tsc` from the worktree. Browser smoke checks can launch Playwright with system Chrome at `/usr/bin/google-chrome` if bundled Playwright browsers are missing.
+- **Discovered by:** Codex
+- **Notes:** Full-project TypeScript checks can take several minutes from a worktree; use a bounded timeout and report if it does not complete.
 ### YYYY-MM-DD: Pattern
 - **Context:** When this applies
 - **Pattern:** The approach that works
