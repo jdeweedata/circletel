@@ -916,6 +916,26 @@ export default function ManualB2BIntakePage() {
               {activeStepMeta.description}
             </p>
 
+            {visibleStepErrors.length > 0 ? (
+              <div
+                ref={summaryRef}
+                tabIndex={-1}
+                role="alert"
+                className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 outline-none"
+              >
+                <p className="flex items-center gap-2 text-sm font-semibold text-red-700">
+                  <PiWarningCircleBold className="h-4 w-4" />
+                  Please fix {visibleStepErrors.length}{" "}
+                  {visibleStepErrors.length === 1 ? "item" : "items"} on this step:
+                </p>
+                <ul className="mt-2 list-disc pl-6 text-sm text-red-700">
+                  {visibleStepErrors.map((entry) => (
+                    <li key={entry.key}>{entry.msg}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             {activeStep === "customer" && (
               <div className="space-y-6">
                 <div className="space-y-3 border-b border-gray-100 pb-6">
@@ -1041,13 +1061,16 @@ export default function ManualB2BIntakePage() {
                         </SelectContent>
                       </Select>
                     </Field>
-                    <Field id="businessName" label="Registered business name">
+                    <Field id="businessName" label="Registered business name" error={errFor("businessName")}>
                       <Input
                         id="businessName"
                         value={form.businessName}
                         onChange={(event) =>
                           update("businessName", event.target.value)
                         }
+                        onBlur={() => blur("businessName")}
+                        aria-invalid={Boolean(errFor("businessName"))}
+                        className={errClass("businessName")}
                         required
                       />
                     </Field>
@@ -1079,6 +1102,7 @@ export default function ManualB2BIntakePage() {
                     <Field
                       id="registrationNumber"
                       label="Registration or owner ID"
+                      error={errFor("registrationNumber")}
                     >
                       <Input
                         id="registrationNumber"
@@ -1086,25 +1110,24 @@ export default function ManualB2BIntakePage() {
                         onChange={(event) =>
                           update("registrationNumber", event.target.value)
                         }
+                        onBlur={() => blur("registrationNumber")}
+                        aria-invalid={Boolean(errFor("registrationNumber"))}
+                        className={errClass("registrationNumber")}
                         required
                       />
                     </Field>
-                    <Field id="vatNumber" label="VAT number">
+                    <Field id="vatNumber" label="VAT number" error={errFor("vatNumber")}>
                       <div className="flex gap-3">
                         <div className="flex h-10 items-center gap-2 rounded-md border border-gray-200 px-3">
                           <Checkbox
                             id="vatRegistered"
                             checked={form.vatRegistered}
-                            onCheckedChange={(checked) =>
-                              update("vatRegistered", checked === true)
-                            }
+                            onCheckedChange={(checked) => {
+                              update("vatRegistered", checked === true);
+                              blur("vatNumber");
+                            }}
                           />
-                          <Label
-                            htmlFor="vatRegistered"
-                            className="text-sm text-gray-700"
-                          >
-                            VAT
-                          </Label>
+                          <Label htmlFor="vatRegistered" className="text-sm text-gray-700">VAT</Label>
                         </div>
                         <Input
                           id="vatNumber"
@@ -1112,6 +1135,9 @@ export default function ManualB2BIntakePage() {
                           onChange={(event) =>
                             update("vatNumber", event.target.value)
                           }
+                          onBlur={() => blur("vatNumber")}
+                          aria-invalid={Boolean(errFor("vatNumber"))}
+                          className={errClass("vatNumber")}
                           disabled={!form.vatRegistered}
                         />
                       </div>
@@ -1120,6 +1146,7 @@ export default function ManualB2BIntakePage() {
                       id="registeredAddress"
                       label="Registered address"
                       className="md:col-span-2"
+                      error={errFor("registeredAddress")}
                     >
                       <Textarea
                         id="registeredAddress"
@@ -1127,8 +1154,10 @@ export default function ManualB2BIntakePage() {
                         onChange={(event) =>
                           update("registeredAddress", event.target.value)
                         }
+                        onBlur={() => blur("registeredAddress")}
+                        aria-invalid={Boolean(errFor("registeredAddress"))}
+                        className={`min-h-28 ${errClass("registeredAddress")}`}
                         required
-                        className="min-h-28"
                       />
                     </Field>
                   </div>
@@ -1156,30 +1185,39 @@ export default function ManualB2BIntakePage() {
                 )}
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <Field id="contactName" label="Authorized contact">
+                  <Field id="contactName" label="Authorized contact" error={errFor("contactName")}>
                     <Input
                       id="contactName"
                       value={form.contactName}
                       onChange={(event) =>
                         update("contactName", event.target.value)
                       }
+                      onBlur={() => blur("contactName")}
+                      aria-invalid={Boolean(errFor("contactName"))}
+                      className={errClass("contactName")}
                       required
                     />
                   </Field>
-                  <Field id="email" label="Email">
+                  <Field id="email" label="Email" error={errFor("email")}>
                     <Input
                       id="email"
                       type="email"
                       value={form.email}
                       onChange={(event) => update("email", event.target.value)}
+                      onBlur={() => blur("email")}
+                      aria-invalid={Boolean(errFor("email"))}
+                      className={errClass("email")}
                       required
                     />
                   </Field>
-                  <Field id="phone" label="Phone">
+                  <Field id="phone" label="Phone" error={errFor("phone")}>
                     <Input
                       id="phone"
                       value={form.phone}
                       onChange={(event) => update("phone", event.target.value)}
+                      onBlur={() => blur("phone")}
+                      aria-invalid={Boolean(errFor("phone"))}
+                      className={errClass("phone")}
                       required
                     />
                   </Field>
@@ -1205,6 +1243,7 @@ export default function ManualB2BIntakePage() {
                     id="siteAddress"
                     label="Service address"
                     className="md:col-span-2"
+                    error={errFor("siteAddress")}
                   >
                     <Textarea
                       id="siteAddress"
@@ -1212,7 +1251,9 @@ export default function ManualB2BIntakePage() {
                       onChange={(event) =>
                         update("siteAddress", event.target.value)
                       }
-                      className="min-h-28"
+                      onBlur={() => blur("siteAddress")}
+                      aria-invalid={Boolean(errFor("siteAddress"))}
+                      className={`min-h-28 ${errClass("siteAddress")}`}
                     />
                   </Field>
                 </div>
@@ -1222,27 +1263,33 @@ export default function ManualB2BIntakePage() {
             {activeStep === "service" && (
               <div className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
-                  <Field id="packageName" label="Package">
+                  <Field id="packageName" label="Package" error={errFor("packageName")}>
                     <Input
                       id="packageName"
                       value={form.packageName}
                       onChange={(event) =>
                         update("packageName", event.target.value)
                       }
+                      onBlur={() => blur("packageName")}
+                      aria-invalid={Boolean(errFor("packageName"))}
+                      className={errClass("packageName")}
                       required
                     />
                   </Field>
-                  <Field id="serviceType" label="Service type">
+                  <Field id="serviceType" label="Service type" error={errFor("serviceType")}>
                     <Input
                       id="serviceType"
                       value={form.serviceType}
                       onChange={(event) =>
                         update("serviceType", event.target.value)
                       }
+                      onBlur={() => blur("serviceType")}
+                      aria-invalid={Boolean(errFor("serviceType"))}
+                      className={errClass("serviceType")}
                       required
                     />
                   </Field>
-                  <Field id="monthlyPrice" label="Monthly ex VAT">
+                  <Field id="monthlyPrice" label="Monthly ex VAT" error={errFor("monthlyPrice")}>
                     <Input
                       id="monthlyPrice"
                       type="number"
@@ -1252,6 +1299,9 @@ export default function ManualB2BIntakePage() {
                       onChange={(event) =>
                         update("monthlyPrice", event.target.value)
                       }
+                      onBlur={() => blur("monthlyPrice")}
+                      aria-invalid={Boolean(errFor("monthlyPrice"))}
+                      className={errClass("monthlyPrice")}
                       required
                     />
                   </Field>
@@ -1412,24 +1462,30 @@ export default function ManualB2BIntakePage() {
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <Field id="accountHolderName" label="Account holder">
+                  <Field id="accountHolderName" label="Account holder" error={errFor("accountHolderName")}>
                     <Input
                       id="accountHolderName"
                       value={form.accountHolderName}
                       onChange={(event) =>
                         update("accountHolderName", event.target.value)
                       }
+                      onBlur={() => blur("accountHolderName")}
+                      aria-invalid={Boolean(errFor("accountHolderName"))}
+                      className={errClass("accountHolderName")}
                       required={form.includeDebitOrder}
                       disabled={!form.includeDebitOrder}
                     />
                   </Field>
-                  <Field id="bankName" label="Bank">
+                  <Field id="bankName" label="Bank" error={errFor("bankName")}>
                     <Input
                       id="bankName"
                       value={form.bankName}
                       onChange={(event) =>
                         update("bankName", event.target.value)
                       }
+                      onBlur={() => blur("bankName")}
+                      aria-invalid={Boolean(errFor("bankName"))}
+                      className={errClass("bankName")}
                       required={form.includeDebitOrder}
                       disabled={!form.includeDebitOrder}
                     />
@@ -1452,38 +1508,61 @@ export default function ManualB2BIntakePage() {
                       </SelectContent>
                     </Select>
                   </Field>
-                  <Field id="accountNumber" label="Account number">
+                  <Field id="accountNumber" label="Account number" error={errFor("accountNumber")}>
                     <Input
                       id="accountNumber"
                       value={form.accountNumber}
                       onChange={(event) =>
                         update("accountNumber", event.target.value)
                       }
+                      onBlur={() => blur("accountNumber")}
+                      aria-invalid={Boolean(errFor("accountNumber"))}
+                      className={errClass("accountNumber")}
                       required={form.includeDebitOrder}
                       disabled={!form.includeDebitOrder}
                     />
                   </Field>
-                  <Field id="branchCode" label="Branch code">
+                  <Field id="branchCode" label="Branch code" error={errFor("branchCode")}>
                     <Input
                       id="branchCode"
                       value={form.branchCode}
                       onChange={(event) =>
                         update("branchCode", event.target.value)
                       }
+                      onBlur={() => blur("branchCode")}
+                      aria-invalid={Boolean(errFor("branchCode"))}
+                      className={errClass("branchCode")}
                       required={form.includeDebitOrder}
                       disabled={!form.includeDebitOrder}
                     />
                   </Field>
                 </div>
 
-                <div className="rounded-md border border-gray-200 p-4">
+                <div
+                  className={`rounded-md border p-4 ${
+                    errFor("mandate") ? "border-red-300 bg-red-50" : "border-gray-200"
+                  }`}
+                >
                   <label className="flex items-start gap-2 text-sm text-gray-700">
-                    <Checkbox disabled={!form.includeDebitOrder} />
+                    <Checkbox
+                      checked={mandateAuthorised}
+                      disabled={!form.includeDebitOrder}
+                      onCheckedChange={(checked) => {
+                        setMandateAuthorised(checked === true);
+                        blur("mandate");
+                      }}
+                    />
                     <span>
                       I/we authorise CircleTel to debit the customer account
                       according to the selected billable service.
                     </span>
                   </label>
+                  {errFor("mandate") ? (
+                    <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-600" role="alert">
+                      <PiWarningCircleBold className="h-3.5 w-3.5 shrink-0" />
+                      {errFor("mandate")}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             )}
