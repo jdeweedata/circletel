@@ -5,7 +5,9 @@ import { OfferTabs } from '@/components/offers/OfferTabs';
 import { listPublicOffers } from '@/lib/offers/public-read';
 import { offersItemListJsonLd } from '@/lib/offers/offer-jsonld';
 
-export const revalidate = 300;
+// Renders at request time — these pages read offers from Supabase, which is not
+// available at build time (no key in the build env). See PR #587 build failure.
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Plans & Pricing | CircleTel',

@@ -2,14 +2,16 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { getPublicOfferBySlug, listPublicOffers } from '@/lib/offers/public-read';
+import { getPublicOfferBySlug } from '@/lib/offers/public-read';
 import { offerProductJsonLd } from '@/lib/offers/offer-jsonld';
 
-export const revalidate = 300;
+// Renders at request time — offer data is read from Supabase, which is not
+// available at build time (no key in the build env). See PR #587 build failure.
+export const dynamic = 'force-dynamic';
 
 export async function generateStaticParams() {
-  const offers = await listPublicOffers('all');
-  return offers.map((o) => ({ slug: o.slug }));
+  // Do not enumerate slugs at build time (would hit Supabase without a key).
+  return [];
 }
 
 export default async function OfferDetailPage({ params }: { params: Promise<{ slug: string }> }) {
