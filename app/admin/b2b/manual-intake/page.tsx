@@ -18,6 +18,7 @@ import {
   PiXBold,
 } from "react-icons/pi";
 import { UploadDocumentModal } from "@/components/admin/onboarding/UploadDocumentModal";
+import { computeDocChecklist } from "@/lib/onboarding/document-checklist";
 import { SectionCard } from "@/components/backend";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -109,6 +110,7 @@ interface SelectedCustomer extends CustomerSearchResult {
 interface ManualIntakePrefill {
   customer: SelectedCustomer;
   form: Partial<FormState>;
+  documents?: string[];
 }
 
 const initialState: FormState = {
@@ -430,7 +432,7 @@ export default function ManualB2BIntakePage() {
   const [selectedCustomer, setSelectedCustomer] =
     useState<SelectedCustomer | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [uploadedCount, setUploadedCount] = useState(0);
+  const [receivedTypes, setReceivedTypes] = useState<string[]>([]);
   const [activeStep, setActiveStep] = useState<IntakeStepId>("customer");
   const [visited, setVisited] = useState<Record<string, boolean>>({});
   const [attempted, setAttempted] = useState<Partial<Record<IntakeStepId, boolean>>>({});
@@ -442,6 +444,7 @@ export default function ManualB2BIntakePage() {
     const parsed = Number(form.monthlyPrice);
     return Number.isFinite(parsed) ? parsed : 0;
   }, [form.monthlyPrice]);
+  const docChecklist = computeDocChecklist(receivedTypes, form.vatRegistered);
   const activeStepIndex = intakeSteps.findIndex(
     (step) => step.id === activeStep,
   );
@@ -461,9 +464,16 @@ export default function ManualB2BIntakePage() {
     (form.customerId ? "Customer linked" : "New customer");
   const stepErrors = (stepId: IntakeStepId): { key: string; msg: string }[] => {
     if (stepId === "documents") {
-      return uploadedCount > 0
+      return docChecklist.allRequiredReceived
         ? []
-        : [{ key: "documents", msg: "Upload at least one document for this onboarding pack." }];
+        : [
+            {
+              key: "documents",
+              msg: `Upload the required documents (${
+                docChecklist.requiredCount - docChecklist.receivedRequiredCount
+              } outstanding).`,
+            },
+          ];
     }
     return stepFieldKeys(stepId, form.includeDebitOrder)
       .map((key) => ({ key, msg: fieldError(key, form, mandateAuthorised) }))
@@ -473,7 +483,7 @@ export default function ManualB2BIntakePage() {
   const customerReady = stepErrors("customer").length === 0;
   const contactReady = stepErrors("contact").length === 0;
   const serviceReady = stepErrors("service").length === 0;
-  const documentsReady = uploadedCount > 0;
+  const documentsReady = docChecklist.allRequiredReceived;
   const debitReady = stepErrors("debit").length === 0;
   const stepReadiness: Record<IntakeStepId, boolean> = {
     customer: customerReady,
@@ -493,7 +503,7 @@ export default function ManualB2BIntakePage() {
     !customerReady ? "Customer record" : null,
     !contactReady ? "Contact & site details" : null,
     !serviceReady ? "Billable service" : null,
-    !documentsReady ? "Documents" : null,
+    !docChecklist.allRequiredReceived ? "Documents" : null,
     !debitReady ? "Debit order" : null,
   ].filter((item): item is string => item !== null);
   const visibleStepErrors = attempted[activeStep] ? stepErrors(activeStep) : [];
@@ -527,7 +537,7 @@ export default function ManualB2BIntakePage() {
     { label: "Customer record is complete", ready: customerReady },
     { label: "Contact and site details are complete", ready: contactReady },
     { label: "Billable service is defined", ready: serviceReady },
-    { label: "Required documents are uploaded", ready: documentsReady },
+    { label: "Required documents are uploaded", ready: docChecklist.allRequiredReceived },
     { label: "Debit order details are provided", ready: debitReady },
   ];
 
@@ -631,6 +641,7 @@ export default function ManualB2BIntakePage() {
       const prefill = data.prefill as ManualIntakePrefill;
       setForm((current) => ({ ...current, ...prefill.form }));
       setSelectedCustomer(prefill.customer);
+      setReceivedTypes(prefill.documents ?? []);
       setResult(null);
       setCustomerResults([]);
       setCustomerSearch(prefill.customer.businessName);
@@ -655,7 +666,7 @@ export default function ManualB2BIntakePage() {
     setCustomerResults([]);
     setCustomerSearch("");
     setResult(null);
-    setUploadedCount(0);
+    setReceivedTypes([]);
     setVisited({});
     setAttempted({});
     setMandateAuthorised(false);
@@ -2071,9 +2082,12 @@ export default function ManualB2BIntakePage() {
           submissionId={trimOrUndefined(form.submissionId)}
           defaultSegment={form.segment}
           authHeaders={authHeaders}
-          onUploaded={(count) => {
-            if (count > 0) setUploadedCount((current) => current + count);
-          }}
+          onUploaded={() => {}}
+          onUploadedTypes={(types) =>
+            setReceivedTypes((current) =>
+              Array.from(new Set([...current, ...types])),
+            )
+          }
         />
       )}
 
