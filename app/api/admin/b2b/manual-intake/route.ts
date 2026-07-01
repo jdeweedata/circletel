@@ -72,11 +72,13 @@ function mapCustomerPrefill({
   submission,
   service,
   paymentMethod,
+  documents,
 }: {
   customer: JsonRecord;
   submission: JsonRecord | null;
   service: JsonRecord | null;
   paymentMethod: JsonRecord | null;
+  documents: string[];
 }) {
   const submissionData = asRecord(submission?.submission_data);
   const step1 = asRecord(submissionData.step1);
@@ -159,6 +161,7 @@ function mapCustomerPrefill({
       accountNumber: "",
       branchCode: stringValue(paymentDetails.branch_code),
     },
+    documents,
   };
 }
 
@@ -235,6 +238,23 @@ export async function GET(request: NextRequest) {
         .maybeSingle();
       if (paymentError) throw paymentError;
 
+      const { data: docRows, error: docsError } = await supabase
+        .from("kyc_documents")
+        .select("document_type")
+        .eq("customer_id", customerId);
+      if (docsError) {
+        apiLogger.error("[manual-intake] documents read failed", {
+          error: docsError.message,
+        });
+      }
+      const documents = Array.from(
+        new Set(
+          (docRows ?? [])
+            .map((row) => stringValue(asRecord(row).document_type))
+            .filter((t) => t.length > 0),
+        ),
+      );
+
       return NextResponse.json({
         success: true,
         prefill: mapCustomerPrefill({
@@ -242,6 +262,7 @@ export async function GET(request: NextRequest) {
           submission: submission ? asRecord(submission) : null,
           service: service ? asRecord(service) : null,
           paymentMethod: paymentMethod ? asRecord(paymentMethod) : null,
+          documents,
         }),
       });
     }
