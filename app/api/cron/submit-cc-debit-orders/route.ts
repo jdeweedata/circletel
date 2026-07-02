@@ -22,6 +22,7 @@ import {
   netcashCCDebitBatchService,
   CreditCardDebitItem,
 } from '@/lib/payments/netcash-cc-debit-batch-service';
+import { sendBatchAuthorisationAlert } from '@/lib/billing/debit-batch-alert';
 import { cronLogger } from '@/lib/logging';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -276,14 +277,34 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
   // 6. Authorise the batch
   // ============================================================================
 
+  let authFailureReason: string | undefined;
+
   if (batchResult.batchId) {
     const authResult = await netcashCCDebitBatchService.authoriseBatch(batchResult.batchId);
 
     if (!authResult.success) {
+      authFailureReason = `Auto-authorisation failed: ${authResult.error}`;
       result.errors.push(`Batch authorisation failed: ${authResult.error}`);
       cronLogger.warn('[CC Debit Cron] Batch not authorised', { error: authResult.error });
     } else {
       cronLogger.info(`[CC Debit Cron] Batch ${batchResult.batchId} authorised`);
+    }
+  } else {
+    authFailureReason = 'No batch ID returned — auto-authorisation never ran';
+  }
+
+  if (authFailureReason) {
+    const alertResult = await sendBatchAuthorisationAlert({
+      batchType: 'credit_card',
+      batchName,
+      fileToken: batchResult.batchId,
+      itemCount: batchResult.itemsSubmitted,
+      totalAmount: eligibleItems.reduce((sum, item) => sum + item.amount, 0),
+      actionDate: eligibleItems[0].actionDate.toISOString().split('T')[0],
+      reason: authFailureReason,
+    });
+    if (!alertResult.success) {
+      result.warnings.push(`Authorisation alert email failed: ${alertResult.error}`);
     }
   }
 
