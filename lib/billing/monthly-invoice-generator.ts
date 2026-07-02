@@ -25,6 +25,7 @@ import { computeVatInclusiveAmounts, formatInvoiceNumber, nextInvoiceSequence } 
 import { processPayNowForInvoice } from '@/lib/billing/paynow-billing-service';
 import { computeProRata } from '@/lib/onboarding/prorata';
 import { shouldEmitRecurringInvoice } from '@/lib/billing/new-clinic-billing-helper';
+import { isBeforeBillingStart } from '@/lib/billing/billing-eligibility';
 import { billingLogger } from '@/lib/logging';
 
 // =============================================================================
@@ -43,6 +44,7 @@ export interface ServiceToBill {
   monthly_price: number;
   billing_day: number;
   last_invoice_date: string | null;
+  billing_start_date: string | null;
   status: string;
   activation_date: string | null;
   customer: {
@@ -259,6 +261,7 @@ export class MonthlyInvoiceGenerator {
         monthly_price,
         billing_day,
         last_invoice_date,
+        billing_start_date,
         activation_date,
         status,
         customer:customers(
@@ -304,9 +307,24 @@ export class MonthlyInvoiceGenerator {
         : service.package,
     })) as ServiceToBill[];
 
-    // GATE: Exclude customers in onboarding flow unless they are billing_ready.
+    // GATE 1: Deferral date. A service with a future billing_start_date is in an
+    // approved free/extension period and must not be invoiced yet. Applies regardless
+    // of onboarding state (covers clinics seeded without an onboarding_submissions row).
+    const runDate = new Date();
+    const notDeferred = transformed.filter(service => {
+      if (isBeforeBillingStart(service.billing_start_date, runDate)) {
+        billingLogger.info('MonthlyInvoice: Skipping service — billing deferred', {
+          serviceId: service.id,
+          billingStartDate: service.billing_start_date,
+        });
+        return false;
+      }
+      return true;
+    });
+
+    // GATE 2: Exclude customers in onboarding flow unless they are billing_ready.
     // Legacy customers (no onboarding_submission) continue to bill normally.
-    const customerIds = transformed.map(s => s.customer_id);
+    const customerIds = notDeferred.map(s => s.customer_id);
     if (customerIds.length > 0) {
       const { data: onboardingByCustomer } = await supabase
         .from('onboarding_submissions')
@@ -314,7 +332,7 @@ export class MonthlyInvoiceGenerator {
         .in('customer_id', customerIds);
       const inOnboardingSet = new Set((onboardingByCustomer || []).map(row => row.customer_id));
 
-      return transformed.filter(service => {
+      return notDeferred.filter(service => {
         const inOnboarding = inOnboardingSet.has(service.customer_id);
         // If NOT in onboarding: bill (legacy customer)
         if (!inOnboarding) return true;
@@ -323,7 +341,7 @@ export class MonthlyInvoiceGenerator {
       });
     }
 
-    return transformed;
+    return notDeferred;
   }
 
   /**
