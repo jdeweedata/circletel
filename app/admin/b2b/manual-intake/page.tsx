@@ -672,18 +672,9 @@ export default function ManualB2BIntakePage() {
     setMandateAuthorised(false);
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const submitter =
-      "submitter" in event.nativeEvent
-        ? (event.nativeEvent as SubmitEvent).submitter
-        : null;
-    const submitIntent =
-      submitter instanceof HTMLButtonElement
-        ? submitter.dataset.intent
-        : "save";
-
+  async function persistIntake(
+    submitIntent: "save" | "vetting",
+  ): Promise<IntakeResult | null> {
     if (!customerReady || !contactReady) {
       const target: IntakeStepId = !customerReady ? "customer" : "contact";
       setActiveStep(target);
@@ -691,7 +682,7 @@ export default function ManualB2BIntakePage() {
       toast.error(
         "Complete customer, contact, and site details before saving onboarding.",
       );
-      return;
+      return null;
     }
 
     if (submitIntent === "vetting" && !allRequiredReady) {
@@ -705,7 +696,7 @@ export default function ManualB2BIntakePage() {
       toast.error(
         "Complete all required onboarding items before submitting for vetting.",
       );
-      return;
+      return null;
     }
 
     setSaving(true);
@@ -797,13 +788,42 @@ export default function ManualB2BIntakePage() {
           : "Business customer updated",
       );
       if (allRequiredReady) setActiveStep("review");
+      return intake;
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Manual onboarding failed",
       );
+      return null;
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const submitter =
+      "submitter" in event.nativeEvent
+        ? (event.nativeEvent as SubmitEvent).submitter
+        : null;
+    const submitIntent =
+      submitter instanceof HTMLButtonElement &&
+      submitter.dataset.intent === "vetting"
+        ? "vetting"
+        : "save";
+    await persistIntake(submitIntent);
+  }
+
+  // Documents attach to a saved customer (kyc_documents.customer_id). If the
+  // onboarding hasn't been saved yet, save it first (creating the customer),
+  // then open the uploader. persistIntake handles the "prerequisites missing"
+  // case with its own toast + step jump, so this is never a silent no-op.
+  async function handleOpenUploader() {
+    if (canUploadDocuments) {
+      setUploadOpen(true);
+      return;
+    }
+    const intake = await persistIntake("save");
+    if (intake?.customerId) setUploadOpen(true);
   }
 
   const ActiveIcon = activeStepMeta.icon;
@@ -1399,19 +1419,22 @@ export default function ManualB2BIntakePage() {
               <div className="space-y-6">
                 <button
                   type="button"
-                  className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-9 text-center transition hover:border-circleTel-orange hover:bg-orange-50"
-                  onClick={() => {
-                    if (canUploadDocuments) setUploadOpen(true);
-                  }}
-                  disabled={!canUploadDocuments}
+                  className="flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-9 text-center transition hover:border-circleTel-orange hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={handleOpenUploader}
+                  disabled={saving}
                 >
                   <PiUploadSimpleBold className="h-9 w-9 text-circleTel-orange" />
                   <span className="mt-3 font-semibold text-gray-950">
-                    Open the document uploader
+                    {canUploadDocuments
+                      ? "Open the document uploader"
+                      : saving
+                        ? "Saving onboarding…"
+                        : "Save & open the document uploader"}
                   </span>
                   <span className="mt-1 text-sm text-gray-500">
-                    Drag and drop PDF, JPG, or PNG files, then classify each
-                    document inside this client onboarding pack.
+                    {canUploadDocuments
+                      ? "Drag and drop PDF, JPG, or PNG files, then classify each document inside this client onboarding pack."
+                      : "We'll save this onboarding first (creating the customer record), then open the uploader so documents can attach."}
                   </span>
                 </button>
 
@@ -1424,7 +1447,7 @@ export default function ManualB2BIntakePage() {
                       <p className="text-sm text-gray-500">
                         {canUploadDocuments
                           ? documentCustomerName
-                          : "Save this onboarding first to create an upload target."}
+                          : "The onboarding saves automatically when you upload, then documents attach here."}
                       </p>
                     </div>
                     <StatusPill
@@ -1479,11 +1502,15 @@ export default function ManualB2BIntakePage() {
                 <Button
                   type="button"
                   className="w-full bg-circleTel-orange text-white hover:bg-circleTel-orange-dark"
-                  disabled={!canUploadDocuments}
-                  onClick={() => setUploadOpen(true)}
+                  disabled={saving}
+                  onClick={handleOpenUploader}
                 >
                   <PiUploadSimpleBold className="h-4 w-4" />
-                  Upload documents
+                  {canUploadDocuments
+                    ? "Upload documents"
+                    : saving
+                      ? "Saving…"
+                      : "Save & upload documents"}
                 </Button>
               </div>
             )}
