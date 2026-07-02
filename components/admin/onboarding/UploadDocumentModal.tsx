@@ -42,6 +42,7 @@ interface UploadDocumentModalProps {
   defaultSegment?: string;
   authHeaders: () => Record<string, string>;
   onUploaded: (count: number) => void;
+  onUploadedTypes?: (types: DocType[]) => void;
 }
 
 type UploadQueueItem = QueuedDocumentUpload & {
@@ -58,6 +59,7 @@ export function UploadDocumentModal({
   defaultSegment = "unjani",
   authHeaders,
   onUploaded,
+  onUploadedTypes,
 }: UploadDocumentModalProps) {
   const [segment, setSegment] = useState(defaultSegment);
   const [emailFrom, setEmailFrom] = useState("");
@@ -213,6 +215,7 @@ export function UploadDocumentModal({
 
   const handleClose = () => {
     onUploaded(uploaded.length);
+    onUploadedTypes?.(uploaded.map((u) => u.type as DocType));
     reset();
     onOpenChange(false);
   };

@@ -78,6 +78,22 @@ const validBody = {
 
 function createManualIntakeSupabaseMock() {
   const from = jest.fn((table: string) => {
+    if (table === "kyc_documents") {
+      return {
+        select: () => ({
+          eq: () =>
+            Promise.resolve({
+              data: [
+                { document_type: "company_registration" },
+                { document_type: "company_registration" },
+                { document_type: "proof_of_address" },
+              ],
+              error: null,
+            }),
+        }),
+      } as any;
+    }
+
     const builder: any = {
       select: jest.fn(() => builder),
       eq: jest.fn(() => builder),
@@ -351,5 +367,9 @@ describe("GET /api/admin/b2b/manual-intake", () => {
         }),
       }),
     );
+    expect(body.prefill.documents).toEqual(
+      expect.arrayContaining(["company_registration", "proof_of_address"]),
+    );
+    expect(body.prefill.documents).toHaveLength(2);
   });
 });
