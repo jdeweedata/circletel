@@ -133,9 +133,7 @@ export async function POST(request: NextRequest) {
         const required = requiredDocsFor(submission.segment as any, {
           vatRegistered: step2?.vat === 'Yes',
           entityType: step2?.entityType || '',
-        })
-          .filter((r) => r.required)
-          .map((r) => r.type);
+        }).filter((r) => r.required);
 
         // Fetch this submission's documents
         const { data: submissionDocs, error: docsError } = await supabase

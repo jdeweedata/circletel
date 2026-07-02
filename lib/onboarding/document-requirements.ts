@@ -10,6 +10,21 @@ export interface DocRequirement {
   type: KycDocType;
   label: string;
   required: boolean;
+  /** Extra kyc_document_type values that also satisfy this requirement. The enum
+   *  carries both `id_document` and `director_id` for the owner/director ID, and
+   *  uploads use either — so the slot must accept both. */
+  aliases?: KycDocType[];
+}
+
+/** True when an uploaded document's type satisfies a requirement (incl. aliases). */
+export function documentMatchesRequirement(
+  documentType: string,
+  requirement: DocRequirement,
+): boolean {
+  return (
+    documentType === requirement.type ||
+    (requirement.aliases?.includes(documentType as KycDocType) ?? false)
+  );
 }
 
 export interface EntityContext {
@@ -22,10 +37,10 @@ export function requiredDocsFor(_segment: B2BSegment, ctx: EntityContext): DocRe
   const isSoleProp = ctx.entityType === 'Sole Proprietor';
   const docs: DocRequirement[] = [];
   if (isSoleProp) {
-    docs.push({ type: 'director_id', label: 'Owner ID document', required: true });
+    docs.push({ type: 'director_id', label: 'Owner ID document', required: true, aliases: ['id_document'] });
   } else {
     docs.push({ type: 'company_registration', label: 'CIPC registration certificate', required: true });
-    docs.push({ type: 'director_id', label: 'Director / owner ID', required: true });
+    docs.push({ type: 'director_id', label: 'Director / owner ID', required: true, aliases: ['id_document'] });
   }
   docs.push({ type: 'bank_statement', label: 'Bank confirmation letter or statement', required: true });
   docs.push({ type: 'proof_of_address', label: 'Proof of business address', required: true });
@@ -39,13 +54,14 @@ export type VettingStatus = 'not_started' | 'documents_pending' | 'under_review'
 
 interface DocStatusRow { document_type: string; verification_status: string }
 
-/** Roll up per-document statuses into the account-level vetting status. */
-export function computeVettingStatus(requiredTypes: string[], docs: DocStatusRow[]): VettingStatus {
+/** Roll up per-document statuses into the account-level vetting status.
+ *  Alias-aware: a requirement is satisfied by its `type` OR any of its `aliases`. */
+export function computeVettingStatus(requirements: DocRequirement[], docs: DocStatusRow[]): VettingStatus {
   if (docs.length === 0) return 'documents_pending';
-  const requiredSet = new Set(requiredTypes);
-  const statusByType = new Map(docs.map(d => [d.document_type, d.verification_status]));
-  if (requiredTypes.some(t => statusByType.get(t) === 'rejected')) return 'rejected';
-  const allApproved = requiredTypes.every(t => statusByType.get(t) === 'approved');
+  const statusFor = (req: DocRequirement): string | undefined =>
+    docs.find(d => documentMatchesRequirement(d.document_type, req))?.verification_status;
+  if (requirements.some(req => statusFor(req) === 'rejected')) return 'rejected';
+  const allApproved = requirements.every(req => statusFor(req) === 'approved');
   if (allApproved) return 'approved';
   return 'under_review';
 }
