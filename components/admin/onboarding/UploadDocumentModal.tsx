@@ -69,7 +69,7 @@ export function UploadDocumentModal({
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [currentUpload, setCurrentUpload] = useState<string | null>(null);
-  const [uploaded, setUploaded] = useState<{ type: string; name: string }[]>(
+  const [uploaded, setUploaded] = useState<{ docType: DocType; name: string }[]>(
     [],
   );
 
@@ -172,13 +172,10 @@ export function UploadDocumentModal({
         setCurrentUpload(item.name);
         try {
           await uploadOne(item);
-          const label =
-            DOC_TYPE_OPTIONS.find((o) => o.value === item.docType)?.label ??
-            item.docType;
           successfulIds.add(item.id);
           setUploaded((current) => [
             ...current,
-            { type: label, name: item.name },
+            { docType: item.docType, name: item.name },
           ]);
         } catch (error) {
           failures.set(
@@ -215,7 +212,7 @@ export function UploadDocumentModal({
 
   const handleClose = () => {
     onUploaded(uploaded.length);
-    onUploadedTypes?.(uploaded.map((u) => u.type as DocType));
+    onUploadedTypes?.(uploaded.map((u) => u.docType));
     reset();
     onOpenChange(false);
   };
@@ -457,7 +454,9 @@ export function UploadDocumentModal({
                   key={`${u.name}-${i}`}
                   className="truncate text-emerald-700"
                 >
-                  {u.type} - {u.name}
+                  {DOC_TYPE_OPTIONS.find((o) => o.value === u.docType)?.label ??
+                    u.docType}{" "}
+                  - {u.name}
                 </li>
               ))}
             </ul>
