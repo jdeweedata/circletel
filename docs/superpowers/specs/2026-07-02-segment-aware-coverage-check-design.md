@@ -149,14 +149,19 @@ Per-package CTA, keyed on the package's `customer_type`:
 - Manual staging pass across all three segments at a fibre-covered and a
   wireless-only address before PR to main.
 
-## Blast radius (~7 files + tests)
+## Blast radius (~9 files + 1 data migration + tests)
 
 | File | Change |
 |---|---|
-| `app/api/coverage/packages/route.ts` | filter sets + soho ordering |
-| `app/api/coverage/lead/route.ts` | accept `wfh` |
+| `lib/coverage/customer-segments.ts` (new) | pure segment logic module + unit tests |
+| `supabase/migrations/20260702100000_soho_service_type_mapping.sql` (new) | map MTN FWB technical types → `product_category='soho'` (without this, WorkConnect is unreachable via the coverage mapping) |
+| `app/api/coverage/packages/route.ts` | filter sets + soho ordering + `customer_type` in response |
+| `app/api/coverage/lead/route.ts` | accept `wfh` (comment only — already maps to consumer) |
 | `components/home/NewHero.tsx` | `wfh` serialises to `type=wfh` |
-| `app/packages/[leadId]/page.tsx` | SegmentToggle + refetch + business CTA |
+| `app/packages/[leadId]/page.tsx` | SegmentToggle + refetch + business CTA + WorkConnect visible on Wireless tab (its `service_type`/`product_category` matched no tab filter) |
 | `components/coverage/SegmentToggle.tsx` (new) | pill toggle |
+| `components/ui/package-detail-sidebar.tsx` | optional `orderButtonLabel` prop |
 | `app/quotes/request/page.tsx` | URL prefill (`packageId`, `leadId`) |
-| `components/order/*` (account step) | accountType default from segment |
+| `lib/order/types.ts` + `app/order/checkout/page.tsx` | `PackageDetails.customer_type`; SOHO personal/business choice |
+
+Implementation plan: `docs/superpowers/plans/2026-07-02-segment-aware-coverage-check.md`
