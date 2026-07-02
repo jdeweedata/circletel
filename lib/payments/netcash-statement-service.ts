@@ -102,6 +102,65 @@ export const UNPAID_CODES: Record<string, string> = {
 // SERVICE CLASS
 // ============================================================================
 
+/**
+ * Parse a NetCash RetrieveBatchStatus SOAP response into batch records.
+ * Pure — unit-tested. NetCash uses an `s:`-prefixed envelope and returns the
+ * batches as a tab-delimited string (same shape as the merchant statement).
+ */
+export async function parseBatchStatusXml(xmlResponse: string): Promise<BatchStatus[]> {
+  const mapStatus = (code: number): BatchStatusCode => {
+    switch (code) {
+      case 1: return 'unauthorised';
+      case 2: return 'authorised';
+      case 3: return 'locked';
+      case 4: return 'processed';
+      case 5: return 'insufficient_funds';
+      default: return 'unauthorised';
+    }
+  };
+
+  try {
+    const parsed = await parseStringPromise(xmlResponse, { explicitArray: false });
+    const envelope = parsed['s:Envelope'] || parsed['soap:Envelope'] || parsed['SOAP-ENV:Envelope'];
+    const body = envelope?.['s:Body'] || envelope?.['soap:Body'] || envelope?.['SOAP-ENV:Body'];
+    const response = body?.['RetrieveBatchStatusResponse'];
+    let result = response?.['RetrieveBatchStatusResult'];
+    result = Array.isArray(result) ? result[0] : result;
+
+    if (typeof result !== 'string' || !result.trim()) return [];
+
+    if (['100', '200', '311'].includes(result.trim())) {
+      console.error('Batch status error code:', result.trim());
+      return [];
+    }
+
+    const batches: BatchStatus[] = [];
+    for (const line of result.split('\n')) {
+      if (!line.trim()) continue;
+      const fields = line.split('\t');
+      if (fields.length < 9) continue;
+
+      const [serviceKey, batchId, batchName, statusCode, volume, value, createdOn, authorisedOn, unauthorisedOn] = fields;
+
+      batches.push({
+        serviceKey,
+        batchId,
+        batchName,
+        status: mapStatus(parseInt(statusCode)),
+        volume: parseInt(volume) || 0,
+        value: parseFloat(value) || 0,
+        createdOn: new Date(createdOn),
+        authorisedOn: authorisedOn && !authorisedOn.includes('1900') ? new Date(authorisedOn) : null,
+        unauthorisedOn: unauthorisedOn && !unauthorisedOn.includes('1900') ? new Date(unauthorisedOn) : null,
+      });
+    }
+    return batches;
+  } catch (error) {
+    console.error('Error parsing batch status:', error);
+    return [];
+  }
+}
+
 export class NetCashStatementService {
   private accountServiceKey: string;
   private debitOrderServiceKey: string;
@@ -443,57 +502,7 @@ export class NetCashStatementService {
   }
 
   private async parseBatchStatusResponse(xmlResponse: string): Promise<BatchStatus[]> {
-    try {
-      const parsed = await parseStringPromise(xmlResponse);
-      const body = parsed['soap:Envelope']?.['soap:Body']?.[0];
-      const response = body?.['RetrieveBatchStatusResponse']?.[0];
-      const result = response?.['RetrieveBatchStatusResult']?.[0];
-
-      // Check for error codes
-      if (['100', '200', '311'].includes(result)) {
-        console.error('Batch status error:', this.getErrorMessage(result));
-        return [];
-      }
-
-      // Parse tab-delimited batch status
-      const batches: BatchStatus[] = [];
-      const lines = result.split('\n').filter((line: string) => line.trim());
-
-      for (const line of lines) {
-        const fields = line.split('\t');
-        if (fields.length < 9) continue;
-
-        const [serviceKey, batchId, batchName, statusCode, volume, value, createdOn, authorisedOn, unauthorisedOn] = fields;
-
-        batches.push({
-          serviceKey,
-          batchId,
-          batchName,
-          status: this.mapBatchStatusCode(parseInt(statusCode)),
-          volume: parseInt(volume) || 0,
-          value: parseFloat(value) || 0,
-          createdOn: new Date(createdOn),
-          authorisedOn: authorisedOn && !authorisedOn.includes('1900') ? new Date(authorisedOn) : null,
-          unauthorisedOn: unauthorisedOn && !unauthorisedOn.includes('1900') ? new Date(unauthorisedOn) : null,
-        });
-      }
-
-      return batches;
-    } catch (error) {
-      console.error('Error parsing batch status:', error);
-      return [];
-    }
-  }
-
-  private mapBatchStatusCode(code: number): BatchStatusCode {
-    switch (code) {
-      case 1: return 'unauthorised';
-      case 2: return 'authorised';
-      case 3: return 'locked';
-      case 4: return 'processed';
-      case 5: return 'insufficient_funds';
-      default: return 'unauthorised';
-    }
+    return parseBatchStatusXml(xmlResponse);
   }
 
   private getErrorMessage(code: string): string {
