@@ -131,6 +131,31 @@ export async function POST(request: NextRequest) {
       allFields: Object.keys(bodyParsed)
     });
 
+    // 3b. Source-IP allowlist — LOG-ONLY by default (observe before enforcing).
+    // NetCash's notify service has originated from a single stable IP for 7+ months.
+    // This logs any webhook from an unexpected IP so we can confirm the allowlist is
+    // complete before switching to enforcement. To enforce (return 403 for non-allowlisted
+    // IPs), set NETCASH_WEBHOOK_ENFORCE_IP=true. Override the list with
+    // NETCASH_WEBHOOK_IP_ALLOWLIST (comma-separated); defaults to the observed NetCash IP.
+    const ipAllowlist = (process.env.NETCASH_WEBHOOK_IP_ALLOWLIST || '40.123.255.71')
+      .split(',').map((s) => s.trim()).filter(Boolean);
+    // x-forwarded-for may be a comma-separated chain; the left-most entry is the client.
+    const clientIp = sourceIp.split(',')[0].trim();
+    const enforceIp = process.env.NETCASH_WEBHOOK_ENFORCE_IP === 'true';
+    if (!ipAllowlist.includes(clientIp)) {
+      webhookLogger.warn('[NetCash Webhook] Source IP not in allowlist', {
+        clientIp,
+        sourceIp,
+        allowlist: ipAllowlist,
+        reference,
+        transactionId,
+        enforcing: enforceIp,
+      });
+      if (enforceIp) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
+
     // 4. Verify signature (if secret is configured)
     const webhookSecret = process.env.NETCASH_WEBHOOK_SECRET || process.env.NETCASH_SERVICE_KEY || '';
     let signatureVerified = false;
