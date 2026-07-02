@@ -18,10 +18,16 @@ if (!authCode) {
   process.exit(1);
 }
 
-// Zoho OAuth credentials
-const CLIENT_ID = '1000.VTYBCTZDCMNAABFD7R91IG2KPLGVRO';
-const CLIENT_SECRET = '13e418a304edeaaf1d4fd99dcf08c488c739dd9e86';
-const REDIRECT_URI = 'https://circletel.co.za/api/integrations/zoho/callback';
+// Zoho OAuth credentials — read from env, never hardcode (secrets in git = leak).
+// Run with: set -a && source .env.local && set +a && node scripts/exchange-zoho-token.js <code>
+const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
+const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
+const REDIRECT_URI = process.env.ZOHO_REDIRECT_URI || 'https://circletel.co.za/api/integrations/zoho/callback';
+
+if (!CLIENT_ID || !CLIENT_SECRET) {
+  console.error('❌ ZOHO_CLIENT_ID and ZOHO_CLIENT_SECRET must be set in the environment (.env.local).');
+  process.exit(1);
+}
 
 // Build request parameters
 const params = new URLSearchParams({
