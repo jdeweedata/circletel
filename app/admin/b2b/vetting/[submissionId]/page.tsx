@@ -35,7 +35,7 @@ import {
   LoadingState,
   StatusBadge,
 } from '@/components/backend';
-import { requiredDocsFor, type DocRequirement } from '@/lib/onboarding/document-requirements';
+import { requiredDocsFor, documentMatchesRequirement, type DocRequirement } from '@/lib/onboarding/document-requirements';
 import { cn } from '@/lib/utils';
 import {
   buildAutomatedChecks,
@@ -254,8 +254,8 @@ export default function B2BVettingDetailPage({
       .map((requirement) => ({
         requirement,
         document:
-          submission.documents.find(
-            (document) => document.document_type === requirement.type
+          submission.documents.find((document) =>
+            documentMatchesRequirement(document.document_type, requirement)
           ) ?? null,
       }));
   }, [submission, step2?.entityType, step2?.vat]);
