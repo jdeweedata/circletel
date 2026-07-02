@@ -15,9 +15,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Determine customer type from coverageType parameter
-    // Database enum has: 'consumer', 'smme', 'enterprise'
-    // Map: residential -> consumer, business -> smme (covers both SME and enterprise)
+    // Determine customer type from coverageType parameter.
+    // Database enum has: 'consumer', 'smme', 'enterprise' (no soho value).
+    // Map: business -> smme; residential AND wfh -> consumer.
+    // The wfh segment lives in the URL/order state, not on the lead row.
     const customerType = coverageType === 'business' ? 'smme' : 'consumer';
 
     let finalCoordinates: { lat: number; lng: number } | null = coordinates ? { lat: coordinates.lat, lng: coordinates.lng } : null;
