@@ -493,7 +493,13 @@ export default function B2BVettingDetailPage({
   const selectedActionPrefix = selectedDocument?.id ?? '';
   const decisionDisabled =
     !selectedDocument || docLoading || Boolean(docError) || actionInFlight?.startsWith(selectedActionPrefix);
-  const approveBlocked = Boolean(submission && !submission.nameMatch && !mismatchAck);
+  // Unjani clinics often bank under a different registered entity than the captured
+  // clinic name, so an entity-name mismatch is informational (warn) and does NOT
+  // block approval for that segment. Other segments keep the hard block + override.
+  const isUnjani = submission?.segment === 'unjani';
+  const approveBlocked = Boolean(
+    submission && !submission.nameMatch && !mismatchAck && !isUnjani,
+  );
   const selectedIsPdf = isPdfDocument(selectedDocument?.file_path, docUrl);
   const selectedIsImage = isImageDocument(selectedDocument?.file_path, docUrl);
   const primaryPaymentMethod = submission.paymentMethods[0];
@@ -728,22 +734,28 @@ export default function B2BVettingDetailPage({
                   <section
                     className={cn(
                       'rounded-lg border p-4',
-                      mismatchAck ? 'border-gray-200 bg-gray-50' : 'border-red-200 bg-red-50'
+                      isUnjani || mismatchAck
+                        ? 'border-amber-200 bg-amber-50'
+                        : 'border-red-200 bg-red-50'
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      {mismatchAck ? (
-                        <PiCheckCircleBold className="h-4 w-4 text-amber-600" />
+                      {isUnjani || mismatchAck ? (
+                        <PiWarningCircleBold className="h-4 w-4 text-amber-600" />
                       ) : (
                         <PiWarningCircleBold className="h-4 w-4 text-red-600" />
                       )}
                       <span
                         className={cn(
                           'text-sm font-semibold',
-                          mismatchAck ? 'text-amber-700' : 'text-red-700'
+                          isUnjani || mismatchAck ? 'text-amber-700' : 'text-red-700'
                         )}
                       >
-                        {mismatchAck ? 'Mismatch acknowledged' : 'Entity name mismatch'}
+                        {isUnjani
+                          ? 'Entity name mismatch — review only'
+                          : mismatchAck
+                            ? 'Mismatch acknowledged'
+                            : 'Entity name mismatch'}
                       </span>
                     </div>
                     <div className="mt-3 space-y-2">
@@ -758,7 +770,7 @@ export default function B2BVettingDetailPage({
                       <div
                         className={cn(
                           'rounded-md border bg-white px-3 py-2',
-                          mismatchAck ? 'border-gray-200' : 'border-red-200'
+                          isUnjani || mismatchAck ? 'border-gray-200' : 'border-red-200'
                         )}
                       >
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -767,14 +779,19 @@ export default function B2BVettingDetailPage({
                         <p
                           className={cn(
                             'mt-0.5 font-mono text-sm',
-                            mismatchAck ? 'text-gray-700' : 'text-red-700'
+                            isUnjani || mismatchAck ? 'text-gray-700' : 'text-red-700'
                           )}
                         >
                           {primaryBanking.account_holder_name || '-'}
                         </p>
                       </div>
                     </div>
-                    {mismatchAck ? (
+                    {isUnjani ? (
+                      <p className="mt-3 text-xs text-gray-500">
+                        Unjani clinics often bank under a different registered entity than the
+                        captured clinic name. Flagged for your review — approval is not blocked.
+                      </p>
+                    ) : mismatchAck ? (
                       <p className="mt-3 text-xs text-gray-500">
                         Override recorded against your reviewer ID. Approval is now permitted.
                       </p>
