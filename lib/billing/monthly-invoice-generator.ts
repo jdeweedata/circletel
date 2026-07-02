@@ -40,6 +40,7 @@ export interface ServiceToBill {
   package_id: string | null;
   package_name: string;
   service_type: string;
+  product_category: string | null;
   monthly_price: number;
   billing_day: number;
   last_invoice_date: string | null;
@@ -256,6 +257,7 @@ export class MonthlyInvoiceGenerator {
         package_id,
         package_name,
         service_type,
+        product_category,
         monthly_price,
         billing_day,
         last_invoice_date,
@@ -367,10 +369,11 @@ export class MonthlyInvoiceGenerator {
         };
       }
 
-      // 2b. Task F: New-clinic billing delay — suppress recurring invoices until ~1 month after activation
+      // 2b. Task F: New-clinic billing delay (CLINIC/CORPORATE ONLY) — suppress recurring
+      // invoices until ~1 month after activation. Consumer services always bill monthly.
       // Allow pro-rata first invoice (last_invoice_date === null), but suppress full recurring until billing_day >= activation + 1 month
       const isFirstInvoice = service.last_invoice_date === null;
-      if (!isFirstInvoice && !shouldEmitRecurringInvoice(service.activation_date, new Date())) {
+      if (!isFirstInvoice && !shouldEmitRecurringInvoice(service.activation_date, new Date(), service.product_category)) {
         const skipReason = `New clinic: recurring invoice suppressed until ~1 month after activation (${service.activation_date})`;
         billingLogger.info('MonthlyInvoice: Skipping new-clinic recurring invoice', {
           serviceId: service.id,
