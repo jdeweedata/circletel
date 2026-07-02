@@ -702,6 +702,17 @@ export default function ManualB2BIntakePage() {
     setSaving(true);
     setResult(null);
 
+    // Only send debitOrder when its fields actually satisfy the schema (min
+    // lengths). includeDebitOrder defaults on, so a mid-wizard save (before the
+    // Debit Order step) would otherwise post an empty debit object and 400.
+    const debitDetailsComplete =
+      form.includeDebitOrder &&
+      form.accountHolderName.trim().length >= 2 &&
+      form.bankName.trim().length >= 2 &&
+      form.accountType.trim().length >= 2 &&
+      form.accountNumber.trim().length >= 6 &&
+      form.branchCode.trim().length >= 5;
+
     const payload = {
       customerId: trimOrUndefined(form.customerId),
       submissionId: trimOrUndefined(form.submissionId),
@@ -734,7 +745,7 @@ export default function ManualB2BIntakePage() {
         activationDate: trimOrUndefined(form.activationDate),
         billingDay: form.billingDay,
       },
-      debitOrder: form.includeDebitOrder
+      debitOrder: debitDetailsComplete
         ? {
             paymentMethodId: trimOrUndefined(form.paymentMethodId),
             accountHolderName: form.accountHolderName.trim(),
