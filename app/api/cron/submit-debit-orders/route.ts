@@ -23,6 +23,7 @@ import {
   DebitOrderItem
 } from '@/lib/payments/netcash-debit-batch-service';
 import { PayNowBillingService } from '@/lib/billing/paynow-billing-service';
+import { sendBatchAuthorisationAlert } from '@/lib/billing/debit-batch-alert';
 import { cronLogger } from '@/lib/logging';
 
 // Vercel cron configuration
@@ -346,8 +347,11 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   // 5. Verify batch via load report
   // ============================================================================
 
+  let loadReportStatus: string | undefined;
+
   if (batchResult.fileToken) {
     const reportResult = await netcashDebitBatchService.requestLoadReport(batchResult.fileToken);
+    loadReportStatus = reportResult.result;
 
     if (reportResult.result !== 'SUCCESSFUL' && reportResult.result !== 'SUCCESSFUL WITH ERRORS') {
       result.errors.push(`Load report status: ${reportResult.result || 'unknown'}`);
@@ -359,6 +363,22 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
       cronLogger.info(`Batch ${batchResult.fileToken} load report: ${reportResult.result}`);
     }
   }
+
+  // ============================================================================
+  // 5b. Alert finance: batch requires MANUAL authorisation (interim measure
+  // until NetCash Auto Auth is enabled — see docs/superpowers/specs/
+  // 2026-07-02-debit-batch-auth-alert-design.md)
+  // ============================================================================
+
+  await sendBatchAuthorisationAlert({
+    batchType: 'bank_debit_order',
+    batchName,
+    fileToken: batchResult.fileToken,
+    itemCount: batchResult.itemsSubmitted,
+    totalAmount: eligibleItems.reduce((sum, item) => sum + item.amount, 0),
+    actionDate: eligibleItems[0].actionDate.toISOString().split('T')[0],
+    loadReportStatus,
+  });
 
   // ============================================================================
   // 6. Record batch submission in database
