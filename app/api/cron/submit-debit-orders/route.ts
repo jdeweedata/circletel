@@ -31,6 +31,10 @@ import { cronLogger } from '@/lib/logging';
 export const runtime = 'nodejs';
 export const maxDuration = 60; // 60 seconds max
 
+// How far back (days) past-due debit-order invoices remain collectable by this
+// cron. Older unpaids need a deliberate decision, not an automatic debit.
+const DUE_DATE_WINDOW_DAYS = Number(process.env.DEBIT_ORDER_DUE_WINDOW_DAYS) || 45;
+
 interface SubmissionResult {
   date: string;
   totalEligible: number;
@@ -131,9 +135,18 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   }
 
   // ============================================================================
-  // 1. Get unpaid invoices due today with debit order payment method
+  // 1. Get unpaid debit-order invoices due on or before today
+  //
+  // A rolling window (not `due_date = today`) so a missed cron day, a late
+  // invoice, or a previously skipped item is retried on the next run instead
+  // of being lost forever (root cause of the uncollected June/July 2026
+  // invoices). Double-collection is prevented by the batch-item dedupe below.
   // ============================================================================
-  
+
+  const windowStart = new Date(billingDate);
+  windowStart.setDate(windowStart.getDate() - DUE_DATE_WINDOW_DAYS);
+  const windowStartStr = windowStart.toISOString().split('T')[0];
+
   const { data: invoices, error: invoiceError } = await supabase
     .from('customer_invoices')
     .select(`
@@ -153,13 +166,51 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
       )
     `)
     .in('status', ['draft', 'sent', 'partial', 'overdue'])
-    .eq('due_date', dateStr)
+    .lte('due_date', dateStr)
+    .gte('due_date', windowStartStr)
     .in('payment_collection_method', ['debit_order', 'Debit Order']);
 
   if (invoiceError) {
     result.errors.push(`Failed to fetch invoices: ${invoiceError.message}`);
     await logExecution(supabase, result, 'failed');
     return result;
+  }
+
+  // Dedupe: never re-collect an invoice that is already in a live batch or
+  // already has a completed payment. (Batch items are written by
+  // recordBatchSubmission on every successful upload.)
+  let dueInvoices = invoices || [];
+  if (dueInvoices.length > 0) {
+    const invoiceIds = dueInvoices.map((inv) => inv.id);
+    const invoiceRefs = dueInvoices.map((inv) => inv.invoice_number);
+
+    const [{ data: existingItems }, { data: completedTxs }] = await Promise.all([
+      supabase
+        .from('debit_order_batch_items')
+        .select('invoice_id, status')
+        .in('invoice_id', invoiceIds)
+        .not('status', 'in', '("unpaid","failed","cancelled")'),
+      supabase
+        .from('payment_transactions')
+        .select('reference')
+        .in('reference', invoiceRefs)
+        .eq('status', 'completed'),
+    ]);
+
+    const inLiveBatch = new Set((existingItems || []).map((i) => i.invoice_id));
+    const alreadyPaid = new Set((completedTxs || []).map((t) => t.reference));
+
+    dueInvoices = dueInvoices.filter((inv) => {
+      if (inLiveBatch.has(inv.id)) {
+        cronLogger.info(`Skipping ${inv.invoice_number}: already in a live debit batch`);
+        return false;
+      }
+      if (alreadyPaid.has(inv.invoice_number)) {
+        cronLogger.info(`Skipping ${inv.invoice_number}: completed payment already recorded`);
+        return false;
+      }
+      return true;
+    });
   }
 
   // ============================================================================
@@ -202,8 +253,8 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   const eligibleItems: DebitOrderItem[] = [];
 
   // Add invoices
-  if (invoices) {
-    for (const invoice of invoices) {
+  {
+    for (const invoice of dueInvoices) {
       // Verify customer has active debit order mandate
       const mandateStatus = await checkMandateStatus(supabase, invoice.customer_id);
 
@@ -485,6 +536,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
             sendSms: true,
             smsTemplate: 'emandatePending',
             includeEmandateReminder: true,
+            allowCollectionMethodOverride: true, // no usable mandate — PayNow becomes the collection method
           }
         );
 

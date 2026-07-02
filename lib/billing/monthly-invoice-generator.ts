@@ -23,6 +23,7 @@ import { createClient } from '@/lib/supabase/server';
 import { syncInvoiceToZohoBilling } from '@/lib/integrations/zoho/invoice-sync-service';
 import { computeVatInclusiveAmounts, formatInvoiceNumber, nextInvoiceSequence } from './invoice-amounts';
 import { processPayNowForInvoice } from '@/lib/billing/paynow-billing-service';
+import { sendInvoiceGenerated } from '@/lib/emails/enhanced-notification-service';
 import { computeProRata } from '@/lib/onboarding/prorata';
 import { shouldEmitRecurringInvoice } from '@/lib/billing/new-clinic-billing-helper';
 import { isBeforeBillingStart } from '@/lib/billing/billing-eligibility';
@@ -439,9 +440,56 @@ export class MonthlyInvoiceGenerator {
         }
       }
 
-      // 6. Send Pay Now notification (non-blocking, continue on failure)
+      // 6. Notify the customer (non-blocking, continue on failure)
+      //
+      // Debit-order (billing_ready) customers get a debit-order NOTICE email —
+      // never a Pay Now link: processPayNowForInvoice overwrites
+      // payment_collection_method to 'paynow', which hides the invoice from the
+      // submit-debit-orders cron (root cause of the missed July 2026 collections).
       let paynowSent = false;
-      if (!skipPayNow) {
+      const collectsByDebitOrder = service.customer?.onboarding_status === 'billing_ready';
+      if (collectsByDebitOrder) {
+        try {
+          if (service.customer?.email) {
+            const emailResult = await sendInvoiceGenerated({
+              invoice_id: invoice.id,
+              customer_id: service.customer_id,
+              email: service.customer.email,
+              customer_name:
+                `${service.customer.first_name ?? ''} ${service.customer.last_name ?? ''}`.trim() ||
+                service.customer.email,
+              invoice_number: invoice.invoice_number,
+              total_amount: Number(invoice.total_amount),
+              subtotal: Number(invoice.subtotal),
+              vat_amount: Number(invoice.tax_amount),
+              due_date: invoice.due_date,
+              account_number: service.customer.account_number ?? undefined,
+              mode: 'debit_order',
+              line_items: invoice.line_items ?? [],
+            });
+            if (emailResult.success) {
+              await (await this.getClient())
+                .from('customer_invoices')
+                .update({ emailed_at: new Date().toISOString() })
+                .eq('id', invoice.id);
+            } else {
+              errors.push(`Debit-order notice email failed: ${emailResult.error ?? 'unknown'}`);
+            }
+          } else {
+            billingLogger.warn('MonthlyInvoice: No email on file for debit-order notice', {
+              invoiceId: invoice.id,
+              customerId: service.customer_id,
+            });
+          }
+        } catch (noticeError) {
+          const msg = noticeError instanceof Error ? noticeError.message : 'Debit-order notice error';
+          errors.push(`Debit-order notice error: ${msg}`);
+          billingLogger.error('MonthlyInvoice: Debit-order notice failed', {
+            invoiceId: invoice.id,
+            error: msg,
+          });
+        }
+      } else if (!skipPayNow) {
         try {
           const paynowResult = await processPayNowForInvoice(invoice.id, {
             sendEmail: true,
@@ -523,9 +571,15 @@ export class MonthlyInvoiceGenerator {
   /**
    * Create invoice for a service
    */
-  async createInvoice(
-    service: ServiceToBill
-  ): Promise<{ id: string; invoice_number: string } | null> {
+  async createInvoice(service: ServiceToBill): Promise<{
+    id: string;
+    invoice_number: string;
+    total_amount: number;
+    subtotal: number;
+    tax_amount: number;
+    due_date: string;
+    line_items: Array<{ description: string; quantity: number; unit_price: number; amount: number }>;
+  } | null> {
     const supabase = await this.getClient();
     const now = new Date();
     const invoiceDate = now.toISOString().split('T')[0];
@@ -634,7 +688,7 @@ export class MonthlyInvoiceGenerator {
     const { data: invoice, error } = await supabase
       .from('customer_invoices')
       .insert(invoicePayload)
-      .select('id, invoice_number')
+      .select('id, invoice_number, total_amount, subtotal, tax_amount, due_date, line_items')
       .single();
 
     if (error) {

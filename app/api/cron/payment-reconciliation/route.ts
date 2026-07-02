@@ -10,10 +10,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { netcashStatementService } from '@/lib/payments/netcash-statement-service';
+import { handleFailedDebit, hasRecentFailure } from '@/lib/billing/failed-debit-handler';
 import { withCronLogging, verifyCronSecret, cronLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const maxDuration = 300; // rolling window fetches several statements (polling each)
+
+// How many days of statements each run re-reads. NetCash posts debit-order
+// result lines (TDD/SDD/DRU) onto the ACTION-DATE statement only once the item
+// settles — 1-2 days later for TwoDay — so a yesterday-only pass permanently
+// misses them (observed June/July 2026). Posting is idempotent, so re-reading
+// the same statement is safe.
+const RECON_WINDOW_DAYS = Number(process.env.RECON_WINDOW_DAYS) || 5;
 
 interface ReconciliationResult {
   date: string;
@@ -31,7 +39,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const result = await withCronLogging('payment-reconciliation', 'vercel_cron', async () => {
-      const reconciliation = await runReconciliation();
+      const reconciliation = await runReconciliationWindow();
       return {
         records_processed: reconciliation.totalProcessed,
         records_failed: reconciliation.errors.length,
@@ -71,6 +79,39 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Reconcile each of the last RECON_WINDOW_DAYS days of NetCash statements.
+ * "Statement not available" on recent dates is expected (published 08:30 the
+ * next day) and is not treated as an error.
+ */
+async function runReconciliationWindow(days = RECON_WINDOW_DAYS): Promise<ReconciliationResult> {
+  const aggregate: ReconciliationResult = {
+    date: `last ${days} days`,
+    totalProcessed: 0,
+    successful: 0,
+    unpaid: 0,
+    notFound: 0,
+    errors: [],
+  };
+
+  for (let back = 1; back <= days; back++) {
+    const date = new Date(Date.now() - back * 24 * 60 * 60 * 1000);
+    const dayResult = await runReconciliation(date);
+    aggregate.totalProcessed += dayResult.totalProcessed;
+    aggregate.successful += dayResult.successful;
+    aggregate.unpaid += dayResult.unpaid;
+    aggregate.notFound += dayResult.notFound;
+    aggregate.errors.push(
+      ...dayResult.errors.filter((e) => !e.includes('Statement not available'))
+    );
+  }
+
+  cronLogger.info(
+    `Reconciliation window complete: ${aggregate.successful} paid, ${aggregate.unpaid} unpaid across ${days} days`
+  );
+  return aggregate;
 }
 
 async function runReconciliation(customDate?: Date): Promise<ReconciliationResult> {
@@ -147,13 +188,26 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
   }
 
   // Combine references to check
+  interface MappedRef {
+    type: 'invoice' | 'order';
+    id: string;
+    amount: number;
+    reference: string;
+    customerId: string | null;
+  }
   const references: string[] = [];
-  const referenceMap = new Map<string, { type: 'invoice' | 'order'; id: string; amount: number }>();
+  const referenceMap = new Map<string, MappedRef>();
 
   for (const invoice of pendingInvoices) {
     const ref = invoice.invoice_number;
     references.push(ref);
-    referenceMap.set(ref.toLowerCase(), { type: 'invoice', id: invoice.id, amount: invoice.total_amount });
+    referenceMap.set(ref.toLowerCase(), {
+      type: 'invoice',
+      id: invoice.id,
+      amount: invoice.total_amount,
+      reference: ref,
+      customerId: invoice.customer_id,
+    });
   }
 
   if (pendingOrders) {
@@ -163,8 +217,9 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
       const orderTotal = Number(order.package_price || 0) + Number(order.installation_fee || 0) + Number(order.router_fee || 0);
       references.push(ref);
       references.push(`PAY-${ref}`);
-      referenceMap.set(ref.toLowerCase(), { type: 'order', id: order.id, amount: orderTotal });
-      referenceMap.set(`pay-${ref}`.toLowerCase(), { type: 'order', id: order.id, amount: orderTotal });
+      const mappedOrder: MappedRef = { type: 'order', id: order.id, amount: orderTotal, reference: ref, customerId: order.customer_id };
+      referenceMap.set(ref.toLowerCase(), mappedOrder);
+      referenceMap.set(`pay-${ref}`.toLowerCase(), mappedOrder);
     }
   }
 
@@ -199,17 +254,17 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
         result.successful++;
 
         if (mapped.type === 'invoice') {
-          await updateInvoiceAsPaid(supabase, mapped.id, debitResult);
+          await updateInvoiceAsPaid(supabase, mapped, debitResult);
         } else {
-          await updateOrderAsPaid(supabase, mapped.id, debitResult);
+          await updateOrderAsPaid(supabase, mapped, debitResult);
         }
       } else if (debitResult.status === 'unpaid') {
         result.unpaid++;
 
         if (mapped.type === 'invoice') {
-          await markInvoiceUnpaid(supabase, mapped.id, debitResult);
+          await markInvoiceUnpaid(mapped.id, debitResult);
         } else {
-          await markOrderUnpaid(supabase, mapped.id, debitResult);
+          await markOrderUnpaid(supabase, mapped, debitResult);
         }
       }
     } catch (error) {
@@ -221,140 +276,183 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
   return result;
 }
 
+/** The paid timestamp: the statement's action date at 08:00 SAST (matches how
+ * historical debit collections were posted), falling back to now. */
+function debitPaidAt(transactionDate: string | undefined): string {
+  return transactionDate ? `${transactionDate}T08:00:00+02:00` : new Date().toISOString();
+}
+
 async function updateInvoiceAsPaid(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  invoiceId: string,
-  debitResult: { amount: number; transactionDate: string; accountReference: string }
+  mapped: { id: string; reference: string; customerId: string | null },
+  debitResult: { amount: number; transactionDate: string; accountReference: string; transactionCode: string }
 ) {
   const now = new Date().toISOString();
+  const paidAt = debitPaidAt(debitResult.transactionDate);
 
-  await supabase
-    .from('customer_invoices')
-    .update({
-      status: 'paid',
-      amount_paid: debitResult.amount,
-      paid_at: now,
-      payment_method: 'debit_order',
-      payment_reference: debitResult.accountReference,
-      updated_at: now,
-    })
-    .eq('id', invoiceId);
-
-  // Idempotency check: don't insert duplicate payment transaction if one already exists
+  // Idempotency: one completed transaction per invoice. Checked BEFORE any
+  // write so re-reading the same statement (rolling window) is a no-op.
   const { data: existingPaid } = await supabase
     .from('payment_transactions')
     .select('id')
-    .eq('customer_invoice_id', invoiceId)
+    .eq('customer_invoice_id', mapped.id)
     .eq('status', 'completed')
     .limit(1);
 
   if (existingPaid && existingPaid.length > 0) {
-    // Already recorded this completed payment, skip insert
     return;
   }
 
-  // Create payment transaction record linked to the invoice for Zoho Books sync
-  await supabase
-    .from('payment_transactions')
-    .insert({
-      transaction_id: `NETCASH-RECONCILE-INV-${invoiceId}-${Date.now()}`,
-      customer_invoice_id: invoiceId,
+  const { error: txError } = await supabase.from('payment_transactions').insert({
+    transaction_id: `NETCASH-RECONCILE-${mapped.reference}`,
+    reference: mapped.reference,
+    provider: 'netcash',
+    amount: debitResult.amount,
+    currency: 'ZAR',
+    status: 'completed',
+    payment_method: 'debit_order',
+    customer_id: mapped.customerId,
+    customer_invoice_id: mapped.id,
+    provider_reference: debitResult.accountReference,
+    provider_response: {
       amount: debitResult.amount,
-      currency: 'ZAR',
-      payment_type: 'debit_order',
-      status: 'completed',
-      netcash_reference: debitResult.accountReference,
-      netcash_response: debitResult,
-      processed_at: now,
-      transaction_date: now,
-    });
+      status: 'successful',
+      transactionCode: debitResult.transactionCode,
+      transactionDate: debitResult.transactionDate,
+      accountReference: debitResult.accountReference,
+    },
+    initiated_at: now,
+    completed_at: paidAt,
+    reconciliation_source: 'netcash_statement',
+  });
+
+  if (txError) {
+    cronLogger.error(`Reconciliation: failed to insert payment transaction for ${mapped.reference}`, { error: txError.message });
+    throw new Error(`payment_transactions insert failed: ${txError.message}`);
+  }
+
+  const { error: invError } = await supabase
+    .from('customer_invoices')
+    .update({
+      status: 'paid',
+      amount_paid: debitResult.amount,
+      paid_at: paidAt,
+      payment_collection_method: 'debit_order',
+      updated_at: now,
+    })
+    .eq('id', mapped.id);
+
+  if (invError) {
+    cronLogger.error(`Reconciliation: failed to mark ${mapped.reference} paid`, { error: invError.message });
+    throw new Error(`customer_invoices update failed: ${invError.message}`);
+  }
+
+  cronLogger.info(`Reconciliation: ${mapped.reference} marked paid (R${debitResult.amount}, ${debitResult.transactionDate})`);
 }
 
 async function updateOrderAsPaid(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  orderId: string,
+  mapped: { id: string; reference: string; customerId: string | null },
   debitResult: { amount: number; transactionDate: string; accountReference: string; transactionCode: string }
 ) {
   const now = new Date().toISOString();
+  const paidAt = debitPaidAt(debitResult.transactionDate);
 
-  await supabase
-    .from('consumer_orders')
-    .update({
-      payment_status: 'paid',
-      total_paid: debitResult.amount,
-      updated_at: now,
-    })
-    .eq('id', orderId);
-
-  // Create payment transaction record
-  await supabase
-    .from('payment_transactions')
-    .insert({
-      transaction_id: `NETCASH-RECONCILE-${orderId}-${Date.now()}`,
-      order_id: orderId,
-      amount: debitResult.amount,
-      currency: 'ZAR',
-      payment_type: 'debit_order',
-      status: 'completed',
-      netcash_reference: debitResult.accountReference,
-      netcash_response: debitResult,
-      processed_at: now,
-      transaction_date: now,
-    });
-}
-
-async function markInvoiceUnpaid(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  invoiceId: string,
-  debitResult: { unpaidCode?: string; unpaidReason?: string; amount: number; transactionDate: string; accountReference: string }
-) {
-  const now = new Date().toISOString();
-
-  await supabase
-    .from('customer_invoices')
-    .update({
-      status: 'overdue',
-      notes: `Debit order failed: ${debitResult.unpaidReason || 'Unknown reason'} (Code: ${debitResult.unpaidCode || 'N/A'})`,
-      updated_at: now,
-    })
-    .eq('id', invoiceId);
-
-  // Idempotency check: don't insert duplicate payment transaction if one already exists
-  const { data: existingFailed } = await supabase
+  // Idempotency: one completed transaction per order
+  const { data: existingPaid } = await supabase
     .from('payment_transactions')
     .select('id')
-    .eq('customer_invoice_id', invoiceId)
-    .eq('status', 'failed')
+    .eq('order_id', mapped.id)
+    .eq('status', 'completed')
     .limit(1);
 
-  if (existingFailed && existingFailed.length > 0) {
-    // Already recorded this failed payment, skip insert
+  if (existingPaid && existingPaid.length > 0) {
     return;
   }
 
-  // Create failed payment transaction record linked to the invoice
-  await supabase
-    .from('payment_transactions')
-    .insert({
-      transaction_id: `NETCASH-FAILED-INV-${invoiceId}-${Date.now()}`,
-      customer_invoice_id: invoiceId,
+  const { error: txError } = await supabase.from('payment_transactions').insert({
+    transaction_id: `NETCASH-RECONCILE-${debitResult.accountReference}`,
+    reference: mapped.reference,
+    provider: 'netcash',
+    amount: debitResult.amount,
+    currency: 'ZAR',
+    status: 'completed',
+    payment_method: 'debit_order',
+    customer_id: mapped.customerId,
+    order_id: mapped.id,
+    provider_reference: debitResult.accountReference,
+    provider_response: {
       amount: debitResult.amount,
-      currency: 'ZAR',
-      payment_type: 'debit_order',
-      status: 'failed',
-      failure_reason: `${debitResult.unpaidReason || 'Unknown'} (Code: ${debitResult.unpaidCode || 'N/A'})`,
-      netcash_reference: debitResult.accountReference,
-      failed_at: now,
-      transaction_date: now,
-    });
+      status: 'successful',
+      transactionCode: debitResult.transactionCode,
+      transactionDate: debitResult.transactionDate,
+      accountReference: debitResult.accountReference,
+    },
+    initiated_at: now,
+    completed_at: paidAt,
+    reconciliation_source: 'netcash_statement',
+  });
+
+  if (txError) {
+    cronLogger.error(`Reconciliation: failed to insert payment transaction for order ${mapped.reference}`, { error: txError.message });
+    throw new Error(`payment_transactions insert failed: ${txError.message}`);
+  }
+
+  const { error: orderError } = await supabase
+    .from('consumer_orders')
+    .update({
+      payment_status: 'paid',
+      updated_at: now,
+    })
+    .eq('id', mapped.id);
+
+  if (orderError) {
+    cronLogger.error(`Reconciliation: failed to mark order ${mapped.reference} paid`, { error: orderError.message });
+    throw new Error(`consumer_orders update failed: ${orderError.message}`);
+  }
+}
+
+/**
+ * A DRU/unpaid line: delegate to the failed-debit handler, which records the
+ * failure (debit_order_failed_at + reason, collection method 'debit_order_failed')
+ * and sends the customer a Pay Now link to settle another way. hasRecentFailure
+ * guards against re-processing the same DRU line on every rolling-window pass.
+ */
+async function markInvoiceUnpaid(
+  invoiceId: string,
+  debitResult: { unpaidCode?: string; unpaidReason?: string; amount: number; transactionDate: string; accountReference: string }
+) {
+  if (await hasRecentFailure(invoiceId, 24 * 7)) {
+    return;
+  }
+
+  await handleFailedDebit({
+    invoiceId,
+    transactionRef: debitResult.accountReference,
+    failureReason: debitResult.unpaidReason || 'Unknown reason',
+    failureCode: debitResult.unpaidCode,
+    failedAt: debitResult.transactionDate ? new Date(debitResult.transactionDate) : new Date(),
+  });
 }
 
 async function markOrderUnpaid(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  orderId: string,
-  debitResult: { unpaidCode?: string; unpaidReason?: string; amount: number; transactionCode: string }
+  mapped: { id: string; reference: string; customerId: string | null },
+  debitResult: { unpaidCode?: string; unpaidReason?: string; amount: number; transactionCode: string; accountReference: string }
 ) {
   const now = new Date().toISOString();
+
+  // Idempotency: one failed transaction per order per reference
+  const { data: existingFailed } = await supabase
+    .from('payment_transactions')
+    .select('id')
+    .eq('order_id', mapped.id)
+    .eq('status', 'failed')
+    .limit(1);
+
+  if (existingFailed && existingFailed.length > 0) {
+    return;
+  }
 
   await supabase
     .from('consumer_orders')
@@ -362,21 +460,26 @@ async function markOrderUnpaid(
       payment_status: 'failed',
       updated_at: now,
     })
-    .eq('id', orderId);
+    .eq('id', mapped.id);
 
-  // Create failed payment transaction record
-  await supabase
-    .from('payment_transactions')
-    .insert({
-      transaction_id: `NETCASH-FAILED-${orderId}-${Date.now()}`,
-      order_id: orderId,
-      amount: debitResult.amount,
-      currency: 'ZAR',
-      payment_type: 'debit_order',
-      status: 'failed',
-      failure_reason: `${debitResult.unpaidReason || 'Unknown'} (Code: ${debitResult.unpaidCode || 'N/A'})`,
-      failed_at: now,
-      transaction_date: now,
-    });
+  const { error: txError } = await supabase.from('payment_transactions').insert({
+    transaction_id: `NETCASH-FAILED-${debitResult.accountReference}`,
+    reference: mapped.reference,
+    provider: 'netcash',
+    amount: debitResult.amount,
+    currency: 'ZAR',
+    status: 'failed',
+    payment_method: 'debit_order',
+    customer_id: mapped.customerId,
+    order_id: mapped.id,
+    provider_reference: debitResult.accountReference,
+    failure_reason: `${debitResult.unpaidReason || 'Unknown'} (Code: ${debitResult.unpaidCode || 'N/A'})`,
+    initiated_at: now,
+    reconciliation_source: 'netcash_statement',
+  });
+
+  if (txError) {
+    cronLogger.error(`Reconciliation: failed to insert failed-payment transaction for order ${mapped.reference}`, { error: txError.message });
+  }
 }
 

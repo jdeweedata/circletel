@@ -47,6 +47,7 @@ export async function POST(
       sendSms: true,
       smsTemplate: 'paymentReminder',
       forceRegenerate: false,
+      allowCollectionMethodOverride: true, // explicit admin action
     });
 
     return NextResponse.json({
