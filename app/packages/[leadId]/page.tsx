@@ -494,7 +494,7 @@ function PackagesContent() {
         return 'blue';  // Wireless/LTE
       } else if (serviceType.includes('5g')) {
         return 'yellow';  // 5G
-      } else if (serviceType.includes('workconnect') || serviceType === 'soho') {
+      } else if (serviceType.includes('workconnect') || serviceType.includes('soho')) {
         return 'orange';  // WorkConnect
       }
       return 'pink';  // Default
@@ -702,6 +702,8 @@ function PackagesContent() {
                             return 'blue';
                           } else if (serviceType.includes('5g')) {
                             return 'yellow';
+                          } else if (serviceType.includes('workconnect') || serviceType.includes('soho')) {
+                            return 'orange';
                           }
                           return 'pink';
                         };
