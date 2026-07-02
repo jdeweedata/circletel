@@ -26,12 +26,13 @@ import {
 import { extractBenefits, extractAdditionalInfo } from '@/lib/products/feature-formatter';
 import { ENTERTAINMENT_BUNDLES, type EntertainmentBundle } from '@/lib/data/entertainment-bundles';
 import { SegmentToggle } from '@/components/coverage/SegmentToggle';
-import { normalizeSegment, type CoverageSegment } from '@/lib/coverage/customer-segments';
+import { normalizeSegment, isQuoteOnlyPackage, type CoverageSegment } from '@/lib/coverage/customer-segments';
 
 interface Package {
   id: string;
   name: string;
   service_type: string;
+  customer_type?: string;
   product_category?: string;
   speed_down: number;
   speed_up: number;
@@ -231,6 +232,7 @@ function PackagesContent() {
       id: pkg.id,
       name: pkg.name,
       service_type: pkg.service_type,
+      customer_type: pkg.customer_type,
       product_category: pkg.product_category,
       speed_down: pkg.speed_down,
       speed_up: pkg.speed_up,
@@ -268,12 +270,19 @@ function PackagesContent() {
   };
 
   const handleContinue = () => {
+    if (selectedPackage && isQuoteOnlyPackage(selectedPackage)) {
+      // Business packages onboard via the B2B quote pipeline, not self-checkout
+      router.push(`/quotes/request?packageId=${selectedPackage.id}&leadId=${leadId}`);
+      return;
+    }
+
     if (selectedPackage) {
       // Convert Package to PackageDetails and save to context
       const packageDetails: PackageDetails = {
         id: selectedPackage.id,
         name: selectedPackage.name,
         service_type: selectedPackage.service_type,
+        customer_type: selectedPackage.customer_type,
         product_category: selectedPackage.product_category,
         speed_down: selectedPackage.speed_down,
         speed_up: selectedPackage.speed_up,
@@ -416,6 +425,10 @@ function PackagesContent() {
   };
 
   const filteredPackages = getFilteredPackages();
+
+  const continueLabel = selectedPackage && isQuoteOnlyPackage(selectedPackage)
+    ? 'Request a Quote'
+    : undefined;
 
   // Auto-select first package for the current service
   useEffect(() => {
@@ -809,6 +822,7 @@ function PackagesContent() {
                     }}
                     recommended={filteredPackages.indexOf(selectedPackage) === 0}
                     onOrderClick={handleContinue}
+                    orderButtonLabel={continueLabel}
                   />
                 </div>
               )}
@@ -895,6 +909,7 @@ function PackagesContent() {
           }}
           recommended={filteredPackages.indexOf(selectedPackage) === 0}
           onOrderClick={handleContinue}
+          orderButtonLabel={continueLabel}
         />
       )}
 
@@ -928,7 +943,7 @@ function PackagesContent() {
                 className="flex-1 sm:flex-none bg-circleTel-orange hover:bg-orange-600 text-white min-h-[44px]"
                 size="default"
               >
-                Continue →
+                {continueLabel ? `${continueLabel} →` : 'Continue →'}
               </Button>
             </div>
           </div>

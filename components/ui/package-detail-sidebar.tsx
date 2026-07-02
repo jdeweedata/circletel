@@ -56,6 +56,7 @@ export interface PackageDetailSidebarProps {
   // Actions
   onOrderClick?: () => void;
   onClose?: () => void;
+  orderButtonLabel?: string;
 
   // Styling
   className?: string;
@@ -116,6 +117,7 @@ export function PackageDetailSidebar({
   recommended = false,
   onOrderClick,
   onClose,
+  orderButtonLabel = 'Order Now',
   className,
   isOpen = true,
 }: PackageDetailSidebarProps) {
@@ -317,7 +319,7 @@ export function PackageDetailSidebar({
             className="w-full bg-circleTel-navy hover:bg-circleTel-navy/90 text-white font-semibold py-4 rounded-lg transition-colors text-lg shadow-md hover:shadow-lg"
             size="lg"
           >
-            Order Now
+            {orderButtonLabel}
           </Button>
         )}
       </div>
