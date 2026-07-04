@@ -5,9 +5,11 @@ import {
   PiArrowRightBold,
   PiCheckCircleBold,
   PiMapPinBold,
-  PiPhoneBold,
   PiShieldCheckBold,
 } from 'react-icons/pi';
+import { FaWhatsapp } from 'react-icons/fa';
+
+import { getWhatsAppLink } from '@/lib/constants/contact';
 
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
@@ -147,6 +149,7 @@ export function HomeLanding20260607({
   const [coordinates, setCoordinates] = React.useState<{ lat: number; lng: number } | null>(null);
   const [addressComponents, setAddressComponents] = React.useState<Record<string, string>>({});
   const [isChecking, setIsChecking] = React.useState(false);
+  const [checkError, setCheckError] = React.useState(false);
   const [showMapModal, setShowMapModal] = React.useState(false);
 
   const activeConfig = SEGMENT_CONFIG[activeSegment];
@@ -201,6 +204,7 @@ export function HomeLanding20260607({
     if (!nextAddress.trim()) return;
 
     setIsChecking(true);
+    setCheckError(false);
 
     try {
       const coverageType = activeSegment === 'business' ? 'business' : 'residential';
@@ -233,7 +237,7 @@ export function HomeLanding20260607({
       window.location.href = `/packages/${data.leadId}?type=${coverageType}`;
     } catch (error) {
       console.error('Coverage check failed:', error);
-      alert('Coverage check failed. Please try again.');
+      setCheckError(true);
       setIsChecking(false);
     }
   };
@@ -285,33 +289,9 @@ export function HomeLanding20260607({
             R0 setup, and professional installation without the usual runaround.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Button
-              type="button"
-              size="xl"
-              className="rounded-full bg-circleTel-orange px-7 text-white shadow-xl shadow-circleTel-orange/25 hover:bg-circleTel-orange-dark"
-              onClick={() => scrollToSection('coverage-checker')}
-            >
-              Check coverage
-              <PiArrowRightBold className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              size="xl"
-              className="rounded-full bg-white px-7 text-circleTel-navy hover:bg-white/90"
-              onClick={() => scrollToSection('plans')}
-            >
-              View packages
-            </Button>
-          </div>
-
-        </div>
-      </section>
-
-      <section id="coverage-checker" className="relative z-10 -mt-14 px-4">
-        <div className="container mx-auto">
           <form
-            className="grid gap-3 rounded-3xl border border-circleTel-lightNeutral bg-white p-4 shadow-2xl shadow-circleTel-navy/15 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end md:p-5"
+            id="coverage-checker"
+            className="mt-9 grid max-w-3xl gap-3 rounded-3xl border border-circleTel-lightNeutral bg-white p-4 shadow-2xl shadow-circleTel-midnight-navy/40 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end md:p-5"
             onSubmit={(event) => {
               event.preventDefault();
               void runCoverageCheck();
@@ -350,7 +330,34 @@ export function HomeLanding20260607({
             >
               Use map
             </Button>
+
+            {checkError && (
+              <p className="text-sm leading-6 text-red-600 md:col-span-3" role="alert">
+                We couldn&apos;t run the coverage check right now.{' '}
+                <a
+                  href={getWhatsAppLink(`Hi CircleTel, please check coverage at: ${address}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-circleTel-orange-accessible underline"
+                >
+                  WhatsApp us your address
+                </a>{' '}
+                and we&apos;ll confirm coverage for you, or try again in a minute.
+              </p>
+            )}
           </form>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              size="xl"
+              className="rounded-full bg-white px-7 text-circleTel-navy hover:bg-white/90"
+              onClick={() => scrollToSection('plans')}
+            >
+              View packages
+            </Button>
+          </div>
+
         </div>
       </section>
 
@@ -464,9 +471,13 @@ export function HomeLanding20260607({
             size="xl"
             className="rounded-full bg-circleTel-midnight-navy px-7 text-white hover:bg-circleTel-navy"
           >
-            <a href="mailto:sales@circletel.co.za">
-              Get my quote
-              <PiPhoneBold className="h-4 w-4" />
+            <a
+              href={getWhatsAppLink('Hi CircleTel, I would like a quote')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get my quote on WhatsApp
+              <FaWhatsapp className="h-4 w-4" />
             </a>
           </Button>
         </div>
