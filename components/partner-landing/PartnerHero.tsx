@@ -20,14 +20,14 @@ export function PartnerHero() {
         <div className="text-center max-w-5xl mx-auto mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-circleTel-orange/10 border border-circleTel-orange/30 text-white mb-6">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-sm font-medium">Partner Programme Now Open</span>
+            <span className="text-sm font-medium">Founding Partner Pilot — limited spots</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2">
-            Build <span className="text-circleTel-orange">recurring income</span> — no business required
+            Earn <span className="text-circleTel-orange">10% of every bill</span>, every month
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 sm:mb-8 px-2 max-w-3xl mx-auto">
-            Earn up to 30% commission every month, for as long as your customers stay connected.
+            Refer people to CircleTel and earn 10% of their monthly subscription — paid every month, for as long as they stay connected.
           </p>
         </div>
 
@@ -36,10 +36,10 @@ export function PartnerHero() {
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10">
             <div className="text-center mb-6">
               <h2 className="text-2xl sm:text-3xl font-bold text-circleTel-navy mb-2">
-                Start earning today
+                Apply to become a founding partner
               </h2>
               <p className="text-circleTel-grey600">
-                No experience needed. No upfront costs. Just your network and a smartphone.
+                We are onboarding a small first group personally. No upfront costs — just your network and a smartphone.
               </p>
             </div>
 
@@ -49,7 +49,7 @@ export function PartnerHero() {
                   size="lg"
                   className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold text-lg px-10 py-6 rounded-xl transition-all shadow-lg hover:shadow-xl w-full"
                 >
-                  Sign up now
+                  Apply now
                   <PiArrowRightBold className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -78,15 +78,15 @@ export function PartnerHero() {
             <div className="w-16 h-16 bg-circleTel-orange rounded-full flex items-center justify-center mb-3">
               <PiMoneyBold className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">Up to 30% commission</h3>
-            <p className="text-white/80 text-sm">Recurring monthly payments</p>
+            <h3 className="text-lg font-semibold mb-1">10% recurring commission</h3>
+            <p className="text-white/80 text-sm">On the monthly bill, month after month</p>
           </div>
           <div className="flex flex-col items-center text-white">
             <div className="w-16 h-16 bg-circleTel-orange rounded-full flex items-center justify-center mb-3">
               <PiUsersBold className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-lg font-semibold mb-1">200+ active partners</h3>
-            <p className="text-white/80 text-sm">Join our growing network</p>
+            <h3 className="text-lg font-semibold mb-1">Founding partner spots</h3>
+            <p className="text-white/80 text-sm">A small pilot group with direct access to the team</p>
           </div>
           <div className="flex flex-col items-center text-white">
             <div className="w-16 h-16 bg-circleTel-orange rounded-full flex items-center justify-center mb-3">
