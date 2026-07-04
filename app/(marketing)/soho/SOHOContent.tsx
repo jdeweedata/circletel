@@ -55,6 +55,7 @@ const WHY_CIRCLETEL = [
 
 interface SOHOContentProps {
   plans: Plan[];
+  productSlugs?: string[];
 }
 
 export default function SOHOContent({ plans }: SOHOContentProps) {
