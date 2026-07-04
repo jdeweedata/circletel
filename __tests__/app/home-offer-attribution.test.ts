@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { offerSlugFromParams } from '@/app/(marketing)/page';
+import { offerSlugFromParams } from '@/components/home/HomePageClient';
 
 describe('home offer attribution helper', () => {
   it('extracts offer slug from URLSearchParams', () => {

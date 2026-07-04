@@ -5,9 +5,11 @@ import {
   PiArrowRightBold,
   PiCheckCircleBold,
   PiMapPinBold,
-  PiPhoneBold,
   PiShieldCheckBold,
 } from 'react-icons/pi';
+import { FaWhatsapp } from 'react-icons/fa';
+
+import { getWhatsAppLink } from '@/lib/constants/contact';
 
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
@@ -105,6 +107,21 @@ const BUSINESS_PROOF = [
   },
 ];
 
+const CLOSING_CTA: Record<SegmentType, { headline: string; sub: string }> = {
+  home: {
+    headline: 'Uncapped internet, sorted this week.',
+    sub: 'Check your address, pick your plan, and we handle the install. No contracts, R0 setup — if you’re not happy, you can walk away anytime.',
+  },
+  wfh: {
+    headline: 'Never say “sorry, my internet dropped” again.',
+    sub: 'Check your address, pick your plan, and we handle the install. No contracts, R0 setup — and support that answers when your workday depends on it.',
+  },
+  business: {
+    headline: 'One provider. One bill. Your office runs.',
+    sub: 'Tell us where you are and what your team needs — we’ll send a quote on WhatsApp today, no meetings required.',
+  },
+};
+
 interface HomeLanding20260607Props {
   activeSegment: SegmentType;
   onSegmentChange: (segment: SegmentType) => void;
@@ -147,6 +164,7 @@ export function HomeLanding20260607({
   const [coordinates, setCoordinates] = React.useState<{ lat: number; lng: number } | null>(null);
   const [addressComponents, setAddressComponents] = React.useState<Record<string, string>>({});
   const [isChecking, setIsChecking] = React.useState(false);
+  const [checkError, setCheckError] = React.useState(false);
   const [showMapModal, setShowMapModal] = React.useState(false);
 
   const activeConfig = SEGMENT_CONFIG[activeSegment];
@@ -201,6 +219,7 @@ export function HomeLanding20260607({
     if (!nextAddress.trim()) return;
 
     setIsChecking(true);
+    setCheckError(false);
 
     try {
       const coverageType = activeSegment === 'business' ? 'business' : 'residential';
@@ -233,7 +252,7 @@ export function HomeLanding20260607({
       window.location.href = `/packages/${data.leadId}?type=${coverageType}`;
     } catch (error) {
       console.error('Coverage check failed:', error);
-      alert('Coverage check failed. Please try again.');
+      setCheckError(true);
       setIsChecking(false);
     }
   };
@@ -285,33 +304,9 @@ export function HomeLanding20260607({
             R0 setup, and professional installation without the usual runaround.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Button
-              type="button"
-              size="xl"
-              className="rounded-full bg-circleTel-orange px-7 text-white shadow-xl shadow-circleTel-orange/25 hover:bg-circleTel-orange-dark"
-              onClick={() => scrollToSection('coverage-checker')}
-            >
-              Check coverage
-              <PiArrowRightBold className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              size="xl"
-              className="rounded-full bg-white px-7 text-circleTel-navy hover:bg-white/90"
-              onClick={() => scrollToSection('plans')}
-            >
-              View packages
-            </Button>
-          </div>
-
-        </div>
-      </section>
-
-      <section id="coverage-checker" className="relative z-10 -mt-14 px-4">
-        <div className="container mx-auto">
           <form
-            className="grid gap-3 rounded-3xl border border-circleTel-lightNeutral bg-white p-4 shadow-2xl shadow-circleTel-navy/15 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end md:p-5"
+            id="coverage-checker"
+            className="mt-9 grid max-w-3xl gap-3 rounded-3xl border border-circleTel-lightNeutral bg-white p-4 shadow-2xl shadow-circleTel-midnight-navy/40 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end md:p-5"
             onSubmit={(event) => {
               event.preventDefault();
               void runCoverageCheck();
@@ -350,7 +345,34 @@ export function HomeLanding20260607({
             >
               Use map
             </Button>
+
+            {checkError && (
+              <p className="text-sm leading-6 text-red-600 md:col-span-3" role="alert">
+                We couldn&apos;t run the coverage check right now.{' '}
+                <a
+                  href={getWhatsAppLink(`Hi CircleTel, please check coverage at: ${address}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-circleTel-orange-accessible underline"
+                >
+                  WhatsApp us your address
+                </a>{' '}
+                and we&apos;ll confirm coverage for you, or try again in a minute.
+              </p>
+            )}
           </form>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              size="xl"
+              className="rounded-full bg-white px-7 text-circleTel-navy hover:bg-white/90"
+              onClick={() => scrollToSection('plans')}
+            >
+              View packages
+            </Button>
+          </div>
+
         </div>
       </section>
 
@@ -453,22 +475,49 @@ export function HomeLanding20260607({
         <div className="container mx-auto flex flex-col gap-6 px-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="max-w-3xl font-heading text-4xl font-extrabold leading-none tracking-[-0.03em] text-white md:text-5xl">
-              Ready to stop babysitting your connection?
+              {CLOSING_CTA[activeSegment].headline}
             </h2>
             <p className="mt-4 max-w-2xl text-white/85">
-              Check coverage, get the right plan, and let CircleTel handle the setup.
+              {CLOSING_CTA[activeSegment].sub}
             </p>
           </div>
-          <Button
-            asChild
-            size="xl"
-            className="rounded-full bg-circleTel-midnight-navy px-7 text-white hover:bg-circleTel-navy"
-          >
-            <a href="mailto:sales@circletel.co.za">
-              Get my quote
-              <PiPhoneBold className="h-4 w-4" />
-            </a>
-          </Button>
+          {activeSegment === 'business' ? (
+            <Button
+              asChild
+              size="xl"
+              className="rounded-full bg-circleTel-midnight-navy px-7 text-white hover:bg-circleTel-navy"
+            >
+              <a
+                href={getWhatsAppLink('Hi CircleTel, I would like a quote for my business')}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get my quote on WhatsApp
+                <FaWhatsapp className="h-4 w-4" />
+              </a>
+            </Button>
+          ) : (
+            <div className="flex flex-col items-start gap-3">
+              <Button
+                type="button"
+                size="xl"
+                className="rounded-full bg-circleTel-midnight-navy px-7 text-white hover:bg-circleTel-navy"
+                onClick={() => scrollToSection('coverage-checker')}
+              >
+                Check my coverage
+                <PiArrowRightBold className="h-4 w-4" />
+              </Button>
+              <a
+                href={getWhatsAppLink('Hi CircleTel, I have a question about your plans')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/90 underline underline-offset-4 hover:text-white"
+              >
+                <FaWhatsapp className="h-4 w-4" />
+                Rather chat? WhatsApp us
+              </a>
+            </div>
+          )}
         </div>
       </section>
 
