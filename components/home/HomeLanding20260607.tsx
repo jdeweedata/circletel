@@ -109,12 +109,12 @@ const BUSINESS_PROOF = [
 
 const CLOSING_CTA: Record<SegmentType, { headline: string; sub: string }> = {
   home: {
-    headline: 'Uncapped internet, sorted this week.',
-    sub: 'Check your address, pick your plan, and we handle the install. No contracts, R0 setup — if you’re not happy, you can walk away anytime.',
+    headline: 'Uncapped internet, minus the runaround.',
+    sub: 'Check your address, pick your plan, and we handle the install. Month-to-month plans with no long-term contracts.',
   },
   wfh: {
     headline: 'Never say “sorry, my internet dropped” again.',
-    sub: 'Check your address, pick your plan, and we handle the install. No contracts, R0 setup — and support that answers when your workday depends on it.',
+    sub: 'Check your address, pick your plan, and we handle the install. Month-to-month plans — and support that answers when your workday depends on it.',
   },
   business: {
     headline: 'One provider. One bill. Your office runs.',
