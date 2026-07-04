@@ -107,6 +107,21 @@ const BUSINESS_PROOF = [
   },
 ];
 
+const CLOSING_CTA: Record<SegmentType, { headline: string; sub: string }> = {
+  home: {
+    headline: 'Uncapped internet, sorted this week.',
+    sub: 'Check your address, pick your plan, and we handle the install. No contracts, R0 setup — if you’re not happy, you can walk away anytime.',
+  },
+  wfh: {
+    headline: 'Never say “sorry, my internet dropped” again.',
+    sub: 'Check your address, pick your plan, and we handle the install. No contracts, R0 setup — and support that answers when your workday depends on it.',
+  },
+  business: {
+    headline: 'One provider. One bill. Your office runs.',
+    sub: 'Tell us where you are and what your team needs — we’ll send a quote on WhatsApp today, no meetings required.',
+  },
+};
+
 interface HomeLanding20260607Props {
   activeSegment: SegmentType;
   onSegmentChange: (segment: SegmentType) => void;
@@ -460,26 +475,49 @@ export function HomeLanding20260607({
         <div className="container mx-auto flex flex-col gap-6 px-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="max-w-3xl font-heading text-4xl font-extrabold leading-none tracking-[-0.03em] text-white md:text-5xl">
-              Ready to stop babysitting your connection?
+              {CLOSING_CTA[activeSegment].headline}
             </h2>
             <p className="mt-4 max-w-2xl text-white/85">
-              Check coverage, get the right plan, and let CircleTel handle the setup.
+              {CLOSING_CTA[activeSegment].sub}
             </p>
           </div>
-          <Button
-            asChild
-            size="xl"
-            className="rounded-full bg-circleTel-midnight-navy px-7 text-white hover:bg-circleTel-navy"
-          >
-            <a
-              href={getWhatsAppLink('Hi CircleTel, I would like a quote')}
-              target="_blank"
-              rel="noopener noreferrer"
+          {activeSegment === 'business' ? (
+            <Button
+              asChild
+              size="xl"
+              className="rounded-full bg-circleTel-midnight-navy px-7 text-white hover:bg-circleTel-navy"
             >
-              Get my quote on WhatsApp
-              <FaWhatsapp className="h-4 w-4" />
-            </a>
-          </Button>
+              <a
+                href={getWhatsAppLink('Hi CircleTel, I would like a quote for my business')}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get my quote on WhatsApp
+                <FaWhatsapp className="h-4 w-4" />
+              </a>
+            </Button>
+          ) : (
+            <div className="flex flex-col items-start gap-3">
+              <Button
+                type="button"
+                size="xl"
+                className="rounded-full bg-circleTel-midnight-navy px-7 text-white hover:bg-circleTel-navy"
+                onClick={() => scrollToSection('coverage-checker')}
+              >
+                Check my coverage
+                <PiArrowRightBold className="h-4 w-4" />
+              </Button>
+              <a
+                href={getWhatsAppLink('Hi CircleTel, I have a question about your plans')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/90 underline underline-offset-4 hover:text-white"
+              >
+                <FaWhatsapp className="h-4 w-4" />
+                Rather chat? WhatsApp us
+              </a>
+            </div>
+          )}
         </div>
       </section>
 
