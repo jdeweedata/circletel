@@ -359,32 +359,6 @@ function Field({
   );
 }
 
-function StepStatusPill({
-  ready,
-  active,
-}: {
-  ready: boolean;
-  active: boolean;
-}) {
-  if (ready) {
-    return (
-      <span className="text-xs font-semibold text-emerald-700">Completed</span>
-    );
-  }
-
-  return (
-    <span
-      className={
-        active
-          ? "text-xs font-semibold text-circleTel-orange"
-          : "text-xs text-gray-500"
-      }
-    >
-      {active ? "In progress" : "Not started"}
-    </span>
-  );
-}
-
 function StatusPill({
   ready,
   warning,
@@ -880,184 +854,116 @@ export default function ManualB2BIntakePage() {
   const ActiveIcon = activeStepMeta.icon;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1560px] space-y-6">
-        <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="bg-[#101828] px-5 py-5 text-white sm:px-6">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-300">
-                  <span>Admin</span>
-                  <span className="text-slate-500">/</span>
-                  <span>B2B</span>
-                  <span className="text-slate-500">/</span>
-                  <span className="text-white">Manual intake</span>
-                </div>
-                <h1 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
-                  Manual B2B Onboarding
-                </h1>
-                <p className="mt-2 max-w-2xl text-sm text-slate-300">
-                  Capture emailed onboarding packs, attach KYC documents, and
-                  prepare the client record for vetting.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-                <Button
-                  type="submit"
-                  form="manual-b2b-intake-form"
-                  data-intent="save"
-                  variant="outline"
-                  disabled={saving}
-                  className="border-white/20 bg-white/10 text-white hover:bg-white/20"
-                >
-                  <PiFloppyDiskBold className="h-4 w-4" />
-                  {saving ? "Saving..." : "Save Onboarding"}
-                </Button>
-                <Button
-                  type="submit"
-                  form="manual-b2b-intake-form"
-                  data-intent="vetting"
-                  disabled={saving || !allRequiredReady}
-                  className="bg-circleTel-orange text-white hover:bg-circleTel-orange-dark disabled:bg-white/20 disabled:text-slate-300"
-                >
-                  {saving ? "Saving..." : "Submit for Vetting"}
-                  <PiArrowRightBold className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
-              <div>
-                <div className="mb-3 flex items-center justify-between gap-3 text-xs font-semibold text-slate-300">
-                  <span>
-                    Step {activeStepIndex + 1} of {intakeSteps.length}:{" "}
-                    {activeStepMeta.label}
-                  </span>
-                  <span>{completion}% complete</span>
-                </div>
-                <div className="grid grid-cols-6 gap-1.5">
-                  {intakeSteps.map((step, index) => {
-                    const active = step.id === activeStep;
-                    const ready = stepReadiness[step.id];
-                    return (
-                      <button
-                        key={step.id}
-                        type="button"
-                        onClick={() => setActiveStep(step.id)}
-                        aria-label={`Go to ${step.label}`}
-                        className={
-                          ready
-                            ? "h-2 rounded-full bg-emerald-400"
-                            : active
-                              ? "h-2 rounded-full bg-circleTel-orange"
-                              : index < activeStepIndex
-                                ? "h-2 rounded-full bg-slate-400"
-                                : "h-2 rounded-full bg-white/20"
-                        }
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-white/10 bg-white/10 px-4 py-3">
-                <p className="text-xs font-semibold text-slate-300">
-                  Current focus
-                </p>
-                <div className="mt-2 flex items-center gap-2">
-                  <ActiveIcon className="h-4 w-4 text-circleTel-orange" />
-                  <span className="text-sm font-semibold text-white">
-                    {activeStepMeta.label}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div className="grid gap-6 xl:grid-cols-[210px_minmax(480px,1fr)_290px]">
-          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-100 px-5 py-4">
-                <p className="text-xs font-semibold uppercase text-slate-500">
-                  Onboarding flow
-                </p>
-                <h2 className="mt-1 text-base font-semibold text-slate-950">
-                  Progress tracker
-                </h2>
-              </div>
-              <div className="space-y-1 p-3">
-                {intakeSteps.map((step, index) => {
-                  const active = step.id === activeStep;
-                  const ready = stepReadiness[step.id];
-                  return (
-                    <button
-                      key={step.id}
-                      type="button"
-                      onClick={() => setActiveStep(step.id)}
-                      className={
-                        active
-                          ? "grid w-full grid-cols-[34px_minmax(0,1fr)] gap-3 rounded-lg border border-orange-100 bg-orange-50 px-3 py-3 text-left shadow-sm"
-                          : "grid w-full grid-cols-[34px_minmax(0,1fr)] gap-3 rounded-lg border border-transparent px-3 py-3 text-left transition hover:border-slate-200 hover:bg-slate-50"
-                      }
-                    >
-                      <span
-                        className={
-                          ready
-                            ? "flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-xs font-semibold text-white"
-                            : active
-                              ? "flex h-8 w-8 items-center justify-center rounded-full bg-circleTel-orange text-xs font-semibold text-white"
-                              : "flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600"
-                        }
-                      >
-                        {ready ? (
-                          <PiCheckCircleBold className="h-4 w-4" />
-                        ) : (
-                          index + 1
-                        )}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-sm font-semibold text-slate-950">
-                          {step.label}
-                        </span>
-                        <span className="mt-1 block text-xs leading-5 text-slate-500">
-                          <StepStatusPill ready={ready} active={active} />
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-50 text-circleTel-orange">
-                <PiFileTextBold className="h-5 w-5" />
-              </div>
-              <p className="mt-3 font-semibold text-slate-950">
-                Pipeline guide
+    <main className="min-h-screen bg-[#F4F6FA]">
+      <div className="border-b border-slate-200 bg-white px-4 py-5 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1640px]">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h1 className="text-xl font-semibold text-slate-950">
+                Manual B2B Onboarding
+              </h1>
+              <p className="mt-1 text-sm text-slate-500">
+                Admin workflow for enabled client onboarding packs
               </p>
-              <p className="mt-1 text-slate-600">
-                Use the reference flow when a manual pack needs extra context.
-              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Button
-                asChild
+                type="submit"
+                form="manual-b2b-intake-form"
+                data-intent="save"
                 variant="outline"
-                size="sm"
-                className="mt-4 w-full"
+                disabled={saving}
+                className="border-slate-200 bg-white text-slate-800 shadow-sm"
               >
-                <Link href="/admin/unjani/onboarding">
-                  View pipeline
-                  <PiArrowRightBold className="h-4 w-4" />
-                </Link>
+                <PiFloppyDiskBold className="h-4 w-4" />
+                {saving ? "Saving..." : "Save Onboarding"}
+              </Button>
+              <Button
+                type="submit"
+                form="manual-b2b-intake-form"
+                data-intent="vetting"
+                disabled={saving || !allRequiredReady}
+                className="bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-500"
+              >
+                {saving ? "Saving..." : "Submit for Vetting"}
+                <PiArrowRightBold className="h-4 w-4" />
               </Button>
             </div>
-          </aside>
+          </div>
 
+          <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center">
+            {intakeSteps.map((step, index) => {
+              const active = step.id === activeStep;
+              const ready = stepReadiness[step.id];
+              return (
+                <div
+                  key={step.id}
+                  className="flex min-w-0 flex-1 items-center gap-2"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveStep(step.id)}
+                    aria-label={`Go to ${step.label}`}
+                    className="flex min-w-0 items-center gap-2 text-left"
+                  >
+                    <span
+                      className={
+                        ready
+                          ? "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-sm"
+                          : active
+                            ? "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-sm ring-4 ring-indigo-100"
+                            : "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-slate-200 bg-white text-slate-300"
+                      }
+                    >
+                      {ready ? (
+                        <PiCheckCircleBold className="h-4 w-4" />
+                      ) : active ? (
+                        <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                      ) : (
+                        <span className="h-2 w-2 rounded-full bg-slate-300" />
+                      )}
+                    </span>
+                    <span
+                      className={
+                        active
+                          ? "truncate text-sm font-semibold text-indigo-700"
+                          : ready
+                            ? "truncate text-sm font-medium text-slate-600"
+                            : "truncate text-sm text-slate-400"
+                      }
+                    >
+                      {step.label}
+                    </span>
+                  </button>
+                  {index < intakeSteps.length - 1 ? (
+                    <span
+                      className={
+                        ready
+                          ? "hidden h-px flex-1 bg-indigo-300 lg:block"
+                          : "hidden h-px flex-1 bg-slate-200 lg:block"
+                      }
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-[1640px] px-4 py-5 sm:px-6 lg:px-8">
+        <div className="mb-4 flex items-center gap-2 text-sm">
+          <span className="rounded-md bg-indigo-50 px-2.5 py-1 font-semibold text-indigo-700 ring-1 ring-indigo-200">
+            Step {activeStepIndex + 1} of {intakeSteps.length}
+          </span>
+          <span className="text-slate-500">{activeStepMeta.label}</span>
+        </div>
+
+        <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_260px]">
           <form
             id="manual-b2b-intake-form"
-            className="space-y-6"
+            className="min-w-0"
             onSubmit={handleSubmit}
           >
             <SectionCard
@@ -1618,153 +1524,93 @@ export default function ManualB2BIntakePage() {
 
               {activeStep === "documents" && (
                 <div className="space-y-6">
-                  <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
-                    <button
-                      type="button"
-                      className="flex min-h-[280px] w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center transition hover:border-circleTel-orange hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      onClick={handleOpenUploader}
-                      disabled={saving}
-                    >
-                      <span className="flex h-14 w-14 items-center justify-center rounded-lg bg-white text-circleTel-orange shadow-sm">
-                        <PiUploadSimpleBold className="h-8 w-8" />
-                      </span>
-                      <span className="mt-4 text-lg font-semibold text-slate-950">
-                        {canUploadDocuments
-                          ? "Upload onboarding documents"
-                          : saving
-                            ? "Saving onboarding..."
-                            : "Save before document upload"}
-                      </span>
-                      <span className="mt-2 max-w-md text-sm leading-6 text-slate-600">
-                        {canUploadDocuments
-                          ? "Attach PDF, JPG, or PNG files and classify each document in the saved client onboarding pack."
-                          : "The customer record is created first, then the uploader opens with the documents attached to this intake."}
-                      </span>
-                      <span className="mt-5 inline-flex items-center gap-2 rounded-lg bg-circleTel-orange px-4 py-2 text-sm font-semibold text-white">
-                        <PiUploadSimpleBold className="h-4 w-4" />
-                        {canUploadDocuments ? "Open uploader" : "Save & upload"}
-                      </span>
-                    </button>
-
-                    <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
-                      <div className="grid grid-cols-[1fr_auto] gap-3 border-b border-slate-100 px-4 py-3">
-                        <div>
-                          <p className="font-semibold text-slate-950">
-                            Required pack
-                          </p>
-                          <p className="text-sm text-slate-500">
-                            {docChecklist.receivedRequiredCount} of{" "}
-                            {docChecklist.requiredCount} required documents
-                          </p>
-                        </div>
-                        <StatusPill
-                          ready={documentsReady}
-                          warning={canUploadDocuments && !documentsReady}
-                          label={`${docChecklist.receivedRequiredCount}/${docChecklist.requiredCount}`}
-                        />
-                      </div>
-                      <ul className="divide-y divide-slate-100">
-                        {docChecklist.rows.map((row) => (
-                          <li
-                            key={row.key}
-                            className="flex items-center justify-between gap-3 px-4 py-3"
-                          >
-                            <span className="flex min-w-0 items-center gap-2 text-sm text-slate-800">
-                              {row.received ? (
-                                <PiCheckCircleBold className="h-4 w-4 shrink-0 text-emerald-600" />
-                              ) : (
-                                <PiWarningCircleBold
-                                  className={
-                                    row.required
-                                      ? "h-4 w-4 shrink-0 text-circleTel-orange"
-                                      : "h-4 w-4 shrink-0 text-slate-300"
-                                  }
-                                />
-                              )}
-                              <span className="min-w-0 truncate">
-                                {row.label}
-                              </span>
-                            </span>
-                            <span
-                              className={
-                                row.received
-                                  ? "shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700"
-                                  : row.required
-                                    ? "shrink-0 rounded-full bg-orange-50 px-2 py-1 text-[11px] font-semibold text-circleTel-orange-dark"
-                                    : "shrink-0 rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-500"
-                              }
-                            >
-                              {row.received
-                                ? "Received"
-                                : row.required
-                                  ? "Required"
-                                  : "Optional"}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg border border-slate-200 bg-slate-50">
-                    <div className="grid grid-cols-[1fr_auto] gap-3 border-b border-slate-200 px-4 py-3">
-                      <div>
-                        <p className="font-semibold text-slate-950">
-                          Upload target
-                        </p>
-                        <p className="text-sm text-slate-500">
-                          {canUploadDocuments
-                            ? documentCustomerName
-                            : "The onboarding saves automatically when you upload, then documents attach here."}
-                        </p>
-                      </div>
-                      <StatusPill
-                        ready={documentsReady}
-                        warning={canUploadDocuments && !documentsReady}
-                        label={`${docChecklist.receivedRequiredCount}/${docChecklist.requiredCount} required`}
-                      />
-                    </div>
-                    <div className="grid gap-3 px-4 py-4 sm:grid-cols-3">
-                      <div className="rounded-lg bg-white p-3">
-                        <p className="text-xs font-semibold uppercase text-slate-500">
-                          Customer
-                        </p>
-                        <p className="mt-1 truncate text-sm font-semibold text-slate-950">
-                          {documentCustomerName}
-                        </p>
-                      </div>
-                      <div className="rounded-lg bg-white p-3">
-                        <p className="text-xs font-semibold uppercase text-slate-500">
-                          File types
-                        </p>
-                        <p className="mt-1 text-sm font-semibold text-slate-950">
-                          PDF, JPG, PNG
-                        </p>
-                      </div>
-                      <div className="rounded-lg bg-white p-3">
-                        <p className="text-xs font-semibold uppercase text-slate-500">
-                          Intake state
-                        </p>
-                        <p className="mt-1 text-sm font-semibold text-slate-950">
-                          {canUploadDocuments ? "Saved" : "Save required"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button
+                  <button
                     type="button"
-                    className="w-full bg-circleTel-orange text-white hover:bg-circleTel-orange-dark"
-                    disabled={saving}
+                    className="flex min-h-[260px] w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-5 py-10 text-center transition hover:border-indigo-300 hover:bg-indigo-50/40 disabled:cursor-not-allowed disabled:opacity-60"
                     onClick={handleOpenUploader}
+                    disabled={saving}
                   >
-                    <PiUploadSimpleBold className="h-4 w-4" />
-                    {canUploadDocuments
-                      ? "Upload documents"
-                      : saving
-                        ? "Saving…"
-                        : "Save & upload documents"}
-                  </Button>
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+                      <PiUploadSimpleBold className="h-6 w-6" />
+                    </span>
+                    <span className="mt-4 text-sm font-semibold text-slate-800">
+                      {canUploadDocuments
+                        ? "Open the document uploader"
+                        : saving
+                          ? "Saving onboarding..."
+                          : "Save before document upload"}
+                    </span>
+                    <span className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+                      {canUploadDocuments
+                        ? "Drag PDF, JPG, or PNG files here, then classify each document inside this client onboarding pack."
+                        : "The customer record is created first, then the uploader opens with the documents attached to this intake."}
+                    </span>
+                    <span className="mt-5 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm">
+                      <PiUploadSimpleBold className="h-4 w-4" />
+                      {canUploadDocuments
+                        ? "Upload documents"
+                        : "Save & upload"}
+                    </span>
+                  </button>
+
+                  <div className="flex flex-col gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-sm sm:flex-row sm:items-center">
+                    <span className="text-slate-500">Upload target</span>
+                    <span className="font-semibold text-slate-800">
+                      {canUploadDocuments
+                        ? documentCustomerName
+                        : "Save required"}
+                    </span>
+                    <span className="text-indigo-600 sm:ml-auto">
+                      {docChecklist.receivedRequiredCount}/
+                      {docChecklist.requiredCount} required
+                    </span>
+                  </div>
+
+                  <div className="overflow-hidden rounded-xl border border-slate-100 bg-white">
+                    {docChecklist.rows.map((row) => (
+                      <div
+                        key={row.key}
+                        className="flex items-center justify-between gap-3 border-b border-slate-50 px-4 py-3 last:border-b-0"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          {row.received ? (
+                            <PiCheckCircleBold className="h-4 w-4 shrink-0 text-emerald-500" />
+                          ) : (
+                            <PiWarningCircleBold
+                              className={
+                                row.required
+                                  ? "h-4 w-4 shrink-0 text-amber-500"
+                                  : "h-4 w-4 shrink-0 text-slate-300"
+                              }
+                            />
+                          )}
+                          <span className="truncate text-sm font-medium text-slate-800">
+                            {row.label}
+                          </span>
+                          {row.required ? (
+                            <span className="hidden text-[10px] font-bold uppercase text-slate-400 sm:inline">
+                              Required
+                            </span>
+                          ) : null}
+                        </div>
+                        <span
+                          className={
+                            row.received
+                              ? "shrink-0 rounded-md bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200"
+                              : row.required
+                                ? "shrink-0 rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200"
+                                : "shrink-0 rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-500 ring-1 ring-slate-200"
+                          }
+                        >
+                          {row.received
+                            ? "Received"
+                            : row.required
+                              ? "Required"
+                              : "Outstanding"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -2227,7 +2073,7 @@ export default function ManualB2BIntakePage() {
                 {activeStepIndex < intakeSteps.length - 1 ? (
                   <Button
                     type="button"
-                    className="bg-circleTel-orange text-white hover:bg-circleTel-orange-dark"
+                    className="bg-indigo-600 text-white hover:bg-indigo-700"
                     onClick={goToNextStep}
                   >
                     Next
@@ -2238,7 +2084,7 @@ export default function ManualB2BIntakePage() {
                     type="submit"
                     data-intent="vetting"
                     disabled={saving || !allRequiredReady}
-                    className="bg-circleTel-orange text-white hover:bg-circleTel-orange-dark"
+                    className="bg-indigo-600 text-white hover:bg-indigo-700"
                   >
                     {saving ? "Saving..." : "Submit for Vetting"}
                     <PiArrowRightBold className="h-4 w-4" />
@@ -2248,33 +2094,32 @@ export default function ManualB2BIntakePage() {
             </SectionCard>
           </form>
 
-          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-            <SectionCard
-              title="Vetting Readiness"
-              icon={PiClipboardTextBold}
-              compact
-              className="rounded-lg border-slate-200 shadow-sm"
-            >
-              <div className="space-y-5">
-                <div className="rounded-lg bg-slate-50 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-slate-500">
-                        Overall status
-                      </p>
-                      <p className="mt-1 text-xl font-semibold text-slate-950">
-                        {completion}%
-                      </p>
-                    </div>
-                    <StatusPill
-                      ready={allRequiredReady}
-                      warning={!allRequiredReady}
-                      label={allRequiredReady ? "Ready" : "In progress"}
-                    />
+          <aside className="mt-6 bg-white xl:mt-0 xl:border-l xl:border-slate-200">
+            <div className="sticky top-0 divide-y divide-slate-100">
+              <section className="space-y-4 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-xs font-bold uppercase text-slate-900">
+                    Capture Status
+                  </h2>
+                  <StatusPill
+                    ready={allRequiredReady}
+                    warning={!allRequiredReady}
+                    label={allRequiredReady ? "Ready" : "In progress"}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-500">
+                      Required items
+                    </span>
+                    <span className="text-sm font-bold text-indigo-600">
+                      {completion}%
+                    </span>
                   </div>
-                  <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="h-full rounded-full bg-circleTel-orange transition-all"
+                      className="h-full rounded-full bg-indigo-600 transition-all"
                       style={{ width: `${completion}%` }}
                       role="progressbar"
                       aria-valuenow={completion}
@@ -2285,89 +2130,64 @@ export default function ManualB2BIntakePage() {
                   </div>
                 </div>
 
-                {result && (
-                  <div className="rounded-md border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm">
-                    <p className="font-semibold text-emerald-800">
-                      {result.createdCustomer
-                        ? "New customer created"
-                        : "Customer updated"}
-                    </p>
-                    <p className="mt-1 text-emerald-700">
-                      {result.accountNumber || documentCustomerName}
-                    </p>
-                  </div>
-                )}
-
-                <div className="border-t border-slate-100 pt-4">
-                  <p className="mb-3 text-xs font-semibold uppercase text-slate-500">
-                    Required items
-                  </p>
-                  <div className="space-y-2">
-                    {intakeSteps.slice(0, 5).map((step) => {
-                      const active = activeStep === step.id;
-                      const ready = stepReadiness[step.id];
-                      return (
-                        <button
-                          key={step.id}
-                          type="button"
-                          onClick={() => setActiveStep(step.id)}
-                          className={
-                            active
-                              ? "flex w-full items-center justify-between gap-3 rounded-lg border border-orange-100 bg-orange-50 px-3 py-2 text-left text-sm"
-                              : "flex w-full items-center justify-between gap-3 rounded-lg border border-transparent px-3 py-2 text-left text-sm transition hover:border-slate-200 hover:bg-slate-50"
-                          }
-                        >
-                          <span className="font-medium text-slate-800">
-                            {step.label}
-                          </span>
-                          <StatusPill
-                            ready={ready}
-                            warning={active && !ready}
-                          />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-100 pt-4">
-                  <p className="mb-3 text-xs font-semibold uppercase text-slate-500">
-                    Linked records
-                  </p>
-                  <div className="space-y-3">
-                    {linkedRecords.map((record) => (
-                      <div
-                        key={record.label}
-                        className="flex items-start justify-between gap-3 text-sm"
+                <div className="space-y-3">
+                  {intakeSteps.slice(0, 5).map((step) => {
+                    const ready = stepReadiness[step.id];
+                    return (
+                      <button
+                        key={step.id}
+                        type="button"
+                        onClick={() => setActiveStep(step.id)}
+                        className="flex w-full items-center justify-between gap-3 text-left text-sm"
                       >
-                        <div className="min-w-0">
-                          <p className="font-medium text-slate-900">
-                            {record.label}
-                          </p>
-                          <p className="truncate text-xs text-slate-500">
-                            {record.value}
-                          </p>
-                        </div>
-                        <StatusPill ready={record.ready} />
+                        <span className="text-slate-700">{step.label}</span>
+                        <StatusPill
+                          ready={ready}
+                          warning={step.id === activeStep && !ready}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section className="space-y-4 p-5">
+                <h2 className="text-xs font-bold uppercase text-slate-900">
+                  Linked Records
+                </h2>
+                <div className="space-y-3">
+                  {linkedRecords.map((record) => (
+                    <div
+                      key={record.label}
+                      className="flex items-start justify-between gap-3 text-sm"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-slate-900">
+                          {record.label}
+                        </p>
+                        <p className="truncate text-xs text-slate-500">
+                          {record.value}
+                        </p>
                       </div>
-                    ))}
-                  </div>
+                      <StatusPill ready={record.ready} />
+                    </div>
+                  ))}
                 </div>
 
                 {missingItems.length > 0 ? (
-                  <div className="rounded-lg border border-orange-100 bg-orange-50 p-4 text-sm">
-                    <div className="flex items-center gap-2 font-semibold text-circleTel-orange-dark">
+                  <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 text-sm">
+                    <div className="flex items-center gap-2 font-semibold text-amber-700">
                       <PiWarningCircleBold className="h-4 w-4" />
                       Missing required details
                     </div>
-                    <ul className="mt-3 space-y-1 text-slate-700">
+                    <ul className="mt-2 space-y-1 text-amber-700">
                       {missingItems.map((item) => (
                         <li key={item}>- {item}</li>
                       ))}
                     </ul>
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-sm">
+                  <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-3 text-sm">
                     <div className="flex items-center gap-2 font-semibold text-emerald-800">
                       <PiCheckCircleBold className="h-4 w-4" />
                       All set
@@ -2377,41 +2197,41 @@ export default function ManualB2BIntakePage() {
                     </p>
                   </div>
                 )}
+              </section>
 
-                <div className="space-y-2">
-                  <Button
-                    type="submit"
-                    form="manual-b2b-intake-form"
-                    data-intent="vetting"
-                    disabled={saving || !allRequiredReady}
-                    className="w-full bg-circleTel-orange text-white hover:bg-circleTel-orange-dark"
-                  >
-                    <PiArrowRightBold className="h-4 w-4" />
-                    {saving ? "Saving..." : "Submit for Vetting"}
-                  </Button>
-                  <Button
-                    type="submit"
-                    form="manual-b2b-intake-form"
-                    data-intent="save"
-                    variant="outline"
-                    disabled={saving}
-                    className="w-full"
-                  >
-                    <PiFloppyDiskBold className="h-4 w-4" />
-                    {saving ? "Saving..." : "Save Onboarding"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full border-slate-200"
-                    onClick={() => setConfirmDiscard(true)}
-                  >
-                    Discard Onboarding
-                  </Button>
-                </div>
+              <section className="space-y-2 p-5">
+                <Button
+                  type="submit"
+                  form="manual-b2b-intake-form"
+                  data-intent="vetting"
+                  disabled={saving || !allRequiredReady}
+                  className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
+                >
+                  <PiArrowRightBold className="h-4 w-4" />
+                  {saving ? "Saving..." : "Submit for Vetting"}
+                </Button>
+                <Button
+                  type="submit"
+                  form="manual-b2b-intake-form"
+                  data-intent="save"
+                  variant="outline"
+                  disabled={saving}
+                  className="w-full border-slate-200"
+                >
+                  <PiFloppyDiskBold className="h-4 w-4" />
+                  {saving ? "Saving..." : "Save Onboarding"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-red-100 text-red-600 hover:bg-red-50"
+                  onClick={() => setConfirmDiscard(true)}
+                >
+                  Discard Onboarding
+                </Button>
 
                 {result && (
-                  <div className="grid gap-2">
+                  <div className="grid gap-2 pt-2">
                     <Button
                       asChild
                       variant="outline"
@@ -2436,28 +2256,8 @@ export default function ManualB2BIntakePage() {
                     </Button>
                   </div>
                 )}
-              </div>
-            </SectionCard>
-
-            <SectionCard
-              title="Guidance"
-              icon={PiFileTextBold}
-              compact
-              className="rounded-lg border-slate-200 shadow-sm"
-            >
-              <div className="space-y-3 text-sm">
-                <p className="text-slate-600">
-                  Follow each step, then send the pack through the vetting
-                  workbench when every required item is ready.
-                </p>
-                <Button asChild variant="ghost" size="sm" className="px-0">
-                  <Link href="/admin/unjani/onboarding">
-                    View onboarding guide
-                    <PiArrowRightBold className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </SectionCard>
+              </section>
+            </div>
           </aside>
         </div>
 
