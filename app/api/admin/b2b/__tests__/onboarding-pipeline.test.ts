@@ -2,7 +2,7 @@
  * Tests for onboarding-pipeline determineStage function
  */
 
-import { determineStage } from '../onboarding-pipeline/route';
+import { calculateVettingSla, determineStage } from '../onboarding-pipeline/route';
 
 describe('determineStage', () => {
   describe('stage transitions without eMandate signature', () => {
@@ -63,5 +63,69 @@ describe('determineStage', () => {
       const stage = determineStage('billing_ready', 'submitted', 'approved', 'pending');
       expect(stage).toBe('billing_ready');
     });
+  });
+});
+
+describe('calculateVettingSla', () => {
+  const now = new Date('2026-07-06T08:00:00+02:00');
+
+  it('clears SLA for approved vetting even when the due date is in the past', () => {
+    const sla = calculateVettingSla(
+      {
+        document_vetting_status: 'approved',
+        vetting_due_date: '2026-06-18T17:27:43.267+02:00',
+      },
+      now
+    );
+
+    expect(sla).toEqual({
+      dueDate: null,
+      overdue: false,
+      businessDaysLeft: null,
+    });
+  });
+
+  it('clears SLA for rejected vetting because internal review has completed', () => {
+    const sla = calculateVettingSla(
+      {
+        document_vetting_status: 'rejected',
+        vetting_due_date: '2026-06-18T17:27:43.267+02:00',
+      },
+      now
+    );
+
+    expect(sla).toEqual({
+      dueDate: null,
+      overdue: false,
+      businessDaysLeft: null,
+    });
+  });
+
+  it('keeps overdue SLA for submitted documents still awaiting review', () => {
+    const sla = calculateVettingSla(
+      {
+        document_vetting_status: 'documents_pending',
+        vetting_due_date: '2026-07-02T08:00:00+02:00',
+      },
+      now
+    );
+
+    expect(sla.dueDate).toBe('2026-07-02T08:00:00+02:00');
+    expect(sla.overdue).toBe(true);
+    expect(sla.businessDaysLeft).toBeLessThan(0);
+  });
+
+  it('keeps SLA open for under-review documents that are not yet overdue', () => {
+    const sla = calculateVettingSla(
+      {
+        document_vetting_status: 'under_review',
+        vetting_due_date: '2026-07-07T08:00:00+02:00',
+      },
+      now
+    );
+
+    expect(sla.dueDate).toBe('2026-07-07T08:00:00+02:00');
+    expect(sla.overdue).toBe(false);
+    expect(sla.businessDaysLeft).toBeGreaterThanOrEqual(0);
   });
 });

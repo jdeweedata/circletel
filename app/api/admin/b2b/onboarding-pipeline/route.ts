@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
-import { differenceInDays } from 'date-fns';
+import { getBusinessDaysUntil } from '@/lib/dates/business-days';
 
 interface PipelineClinic {
   account_number: string;
@@ -50,6 +50,55 @@ interface PipelineResponse {
     pending: number;
   };
   overdueCount: number;
+}
+
+interface VettingSla {
+  dueDate: string | null;
+  overdue: boolean;
+  businessDaysLeft: number | null;
+}
+
+const CLOSED_VETTING_STATUSES = new Set(['approved', 'rejected', 'expired']);
+
+/**
+ * Vetting SLA only applies while documents are awaiting internal review.
+ * Once vetting resolves, completed rows stay in their pipeline stage but drop
+ * out of overdue counts and SLA filters.
+ */
+export function calculateVettingSla(
+  submission: {
+    document_vetting_status?: string | null;
+    vetting_due_date?: string | null;
+  } | null,
+  now = new Date()
+): VettingSla {
+  const status = submission?.document_vetting_status ?? null;
+  const isClosed = status !== null && CLOSED_VETTING_STATUSES.has(status);
+
+  if (!submission?.vetting_due_date || isClosed) {
+    return {
+      dueDate: null,
+      overdue: false,
+      businessDaysLeft: null,
+    };
+  }
+
+  const dueDate = new Date(submission.vetting_due_date);
+  if (Number.isNaN(dueDate.getTime())) {
+    return {
+      dueDate: null,
+      overdue: false,
+      businessDaysLeft: null,
+    };
+  }
+
+  const businessDaysLeft = getBusinessDaysUntil(now, dueDate);
+
+  return {
+    dueDate: submission.vetting_due_date,
+    overdue: businessDaysLeft < 0,
+    businessDaysLeft,
+  };
 }
 
 /**
@@ -183,17 +232,9 @@ export async function GET(request: NextRequest) {
         debitOrderPm?.mandate_status || null
       );
 
-      // SLA calculation: vetting_due_date (if submitted) vs now
-      let businessDaysLeft: number | null = null;
-      let isOverdue = false;
-
-      if (submission?.vetting_due_date) {
-        const dueDate = new Date(submission.vetting_due_date);
-        businessDaysLeft = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        isOverdue = businessDaysLeft < 0;
-        if (isOverdue) {
-          result.overdueCount++;
-        }
+      const sla = calculateVettingSla(submission, now);
+      if (sla.overdue) {
+        result.overdueCount++;
       }
 
       const clinic_row: PipelineClinic = {
@@ -210,11 +251,7 @@ export async function GET(request: NextRequest) {
         vetting_due_date: submission?.vetting_due_date || null,
         submitted_at: submission?.submitted_at || null,
         service_order_issued_at: submission?.service_order_issued_at || null,
-        sla: {
-          dueDate: submission?.vetting_due_date || null,
-          overdue: isOverdue,
-          businessDaysLeft,
-        },
+        sla,
         submission_id: submission?.id || null,
         site_address: (details.site_address as string) ?? null,
         incumbent_isp: (details.incumbent_isp as string) ?? null,
