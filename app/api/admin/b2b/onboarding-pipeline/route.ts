@@ -37,6 +37,8 @@ interface PipelineClinic {
   incumbent_isp: string | null;
   incumbent_cost: number | null;
   contract_status: 'in_contract' | 'out_of_contract' | 'unknown';
+  current_service: PipelineService | null;
+  latest_invoice: PipelineInvoice | null;
 }
 
 interface PipelineResponse {
@@ -58,7 +60,35 @@ interface VettingSla {
   businessDaysLeft: number | null;
 }
 
+interface PipelineService {
+  status: string | null;
+  active: boolean | null;
+  package_name: string | null;
+  monthly_price: number | null;
+  activation_date: string | null;
+  billing_day: number | null;
+  last_invoice_date: string | null;
+}
+
+interface PipelineInvoice {
+  invoice_number: string | null;
+  invoice_date: string | null;
+  due_date: string | null;
+  status: string | null;
+  total_amount: number | null;
+  amount_paid: number | null;
+  amount_due: number | null;
+  paid_at: string | null;
+  payment_collection_method: string | null;
+}
+
 const CLOSED_VETTING_STATUSES = new Set(['approved', 'rejected', 'expired']);
+
+function dateTimeValue(value?: string | null): number {
+  if (!value) return 0;
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
 
 /**
  * Vetting SLA only applies while documents are awaiting internal review.
@@ -98,6 +128,61 @@ export function calculateVettingSla(
     dueDate: submission.vetting_due_date,
     overdue: businessDaysLeft < 0,
     businessDaysLeft,
+  };
+}
+
+export function pickCurrentService(
+  services: Array<PipelineService & { created_at?: string | null }> | null | undefined
+): PipelineService | null {
+  if (!services || services.length === 0) return null;
+
+  const sorted = [...services].sort((a, b) => {
+    const aActive = a.status === 'active' || a.active === true ? 1 : 0;
+    const bActive = b.status === 'active' || b.active === true ? 1 : 0;
+    if (aActive !== bActive) return bActive - aActive;
+
+    return (
+      dateTimeValue(b.activation_date) - dateTimeValue(a.activation_date) ||
+      dateTimeValue(b.created_at) - dateTimeValue(a.created_at)
+    );
+  });
+
+  const service = sorted[0];
+
+  return {
+    status: service.status,
+    active: service.active,
+    package_name: service.package_name,
+    monthly_price: service.monthly_price,
+    activation_date: service.activation_date,
+    billing_day: service.billing_day,
+    last_invoice_date: service.last_invoice_date,
+  };
+}
+
+export function pickLatestInvoice(
+  invoices: Array<PipelineInvoice & { created_at?: string | null }> | null | undefined
+): PipelineInvoice | null {
+  if (!invoices || invoices.length === 0) return null;
+
+  const sorted = [...invoices].sort(
+    (a, b) =>
+      dateTimeValue(b.invoice_date) - dateTimeValue(a.invoice_date) ||
+      dateTimeValue(b.created_at) - dateTimeValue(a.created_at)
+  );
+
+  const invoice = sorted[0];
+
+  return {
+    invoice_number: invoice.invoice_number,
+    invoice_date: invoice.invoice_date,
+    due_date: invoice.due_date,
+    status: invoice.status,
+    total_amount: invoice.total_amount,
+    amount_paid: invoice.amount_paid,
+    amount_due: invoice.amount_due,
+    paid_at: invoice.paid_at,
+    payment_collection_method: invoice.payment_collection_method,
   };
 }
 
@@ -177,6 +262,28 @@ export async function GET(request: NextRequest) {
           id,
           mandate_status,
           method_type
+        ),
+        customer_services!customer_services_customer_id_fkey (
+          status,
+          active,
+          package_name,
+          monthly_price,
+          activation_date,
+          billing_day,
+          last_invoice_date,
+          created_at
+        ),
+        customer_invoices!customer_invoices_customer_id_fkey (
+          invoice_number,
+          invoice_date,
+          due_date,
+          status,
+          total_amount,
+          amount_paid,
+          amount_due,
+          paid_at,
+          payment_collection_method,
+          created_at
         )
       `
       )
@@ -216,6 +323,12 @@ export async function GET(request: NextRequest) {
       const debitOrderPm = Array.isArray(clinic.customer_payment_methods)
         ? clinic.customer_payment_methods.find((pm: any) => pm.method_type === 'debit_order')
         : null;
+      const currentService = pickCurrentService(
+        Array.isArray(clinic.customer_services) ? clinic.customer_services : null
+      );
+      const latestInvoice = pickLatestInvoice(
+        Array.isArray(clinic.customer_invoices) ? clinic.customer_invoices : null
+      );
 
       const details =
         clinic.clinic_details && typeof clinic.clinic_details === 'object'
@@ -258,6 +371,8 @@ export async function GET(request: NextRequest) {
         incumbent_cost: (details.incumbent_cost as number) ?? null,
         contract_status:
           (details.contract_status as 'in_contract' | 'out_of_contract' | 'unknown') ?? 'unknown',
+        current_service: currentService,
+        latest_invoice: latestInvoice,
       };
 
       result.clinics.push(clinic_row);

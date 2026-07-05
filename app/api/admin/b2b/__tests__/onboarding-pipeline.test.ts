@@ -2,7 +2,12 @@
  * Tests for onboarding-pipeline determineStage function
  */
 
-import { calculateVettingSla, determineStage } from '../onboarding-pipeline/route';
+import {
+  calculateVettingSla,
+  determineStage,
+  pickCurrentService,
+  pickLatestInvoice,
+} from '../onboarding-pipeline/route';
 
 describe('determineStage', () => {
   describe('stage transitions without eMandate signature', () => {
@@ -127,5 +132,74 @@ describe('calculateVettingSla', () => {
     expect(sla.dueDate).toBe('2026-07-07T08:00:00+02:00');
     expect(sla.overdue).toBe(false);
     expect(sla.businessDaysLeft).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('pipeline service and invoice summaries', () => {
+  it('prefers an active service over newer inactive service shells', () => {
+    const service = pickCurrentService([
+      {
+        status: 'pending',
+        active: false,
+        package_name: 'Future setup',
+        monthly_price: 450,
+        activation_date: null,
+        billing_day: 1,
+        last_invoice_date: null,
+        created_at: '2026-07-01T08:00:00+02:00',
+      },
+      {
+        status: 'active',
+        active: true,
+        package_name: 'Unjani Connectivity',
+        monthly_price: 450,
+        activation_date: '2026-06-01',
+        billing_day: 1,
+        last_invoice_date: '2026-07-01',
+        created_at: '2026-06-01T08:00:00+02:00',
+      },
+    ]);
+
+    expect(service).toMatchObject({
+      status: 'active',
+      active: true,
+      package_name: 'Unjani Connectivity',
+      activation_date: '2026-06-01',
+    });
+  });
+
+  it('uses the most recent invoice by invoice date for the drawer summary', () => {
+    const invoice = pickLatestInvoice([
+      {
+        invoice_number: 'INV-2026-00015',
+        invoice_date: '2026-06-19',
+        due_date: '2026-06-24',
+        status: 'paid',
+        total_amount: 276,
+        amount_paid: 276,
+        amount_due: 0,
+        paid_at: '2026-06-26T08:00:00+02:00',
+        payment_collection_method: 'debit_order',
+        created_at: '2026-06-19T08:00:00+02:00',
+      },
+      {
+        invoice_number: 'INV-2026-00025',
+        invoice_date: '2026-07-01',
+        due_date: '2026-07-01',
+        status: 'sent',
+        total_amount: 450,
+        amount_paid: 0,
+        amount_due: 450,
+        paid_at: null,
+        payment_collection_method: 'debit_order',
+        created_at: '2026-07-01T08:00:00+02:00',
+      },
+    ]);
+
+    expect(invoice).toMatchObject({
+      invoice_number: 'INV-2026-00025',
+      status: 'sent',
+      payment_collection_method: 'debit_order',
+    });
   });
 });
