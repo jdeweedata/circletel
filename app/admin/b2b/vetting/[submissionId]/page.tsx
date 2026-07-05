@@ -10,6 +10,7 @@ import {
   PiArrowsOutBold,
   PiCheckBold,
   PiCheckCircleBold,
+  PiCircleDashedBold,
   PiClipboardTextBold,
   PiFileTextBold,
   PiInfoBold,
@@ -363,6 +364,31 @@ export default function B2BVettingDetailPage({
     };
   }, [requiredDocItems]);
 
+  const selectDocumentRow = useCallback((documentId: string) => {
+    setSelectedDoc(documentId);
+    setChangeRequestOpen(false);
+    setReviewReasonText('');
+    setReviewReasonError(null);
+  }, []);
+
+  const focusAdjacentDocument = useCallback(
+    (fromIndex: number, direction: 1 | -1) => {
+      for (
+        let i = fromIndex + direction;
+        i >= 0 && i < requiredDocItems.length;
+        i += direction
+      ) {
+        const target = requiredDocItems[i]?.document;
+        if (target) {
+          selectDocumentRow(target.id);
+          window.document.getElementById(`vetting-doc-${target.id}`)?.focus();
+          return;
+        }
+      }
+    },
+    [requiredDocItems, selectDocumentRow]
+  );
+
   useEffect(() => {
     setZoom(100);
     setRotation(0);
@@ -658,14 +684,33 @@ export default function B2BVettingDetailPage({
         <aside className="flex min-h-0 flex-col border-b border-gray-200 bg-white xl:border-b-0 xl:border-r">
           <div className="shrink-0 border-b border-gray-200 bg-white px-3 py-3">
             <div className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-600">
-                  Documents
-                </h2>
-              </div>
+              <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-600">
+                Documents
+              </h2>
               <span className="font-mono text-xs text-gray-500">
                 {docCounts.approved}/{docCounts.total}
               </span>
+            </div>
+            <div
+              className="mt-2 flex h-1.5 gap-0.5"
+              role="img"
+              aria-label={`${docCounts.approved} of ${docCounts.total} required documents approved`}
+            >
+              {requiredDocItems.map((item) => (
+                <div
+                  key={item.requirement.type}
+                  className={cn(
+                    'flex-1 rounded-full',
+                    !item.document
+                      ? 'bg-gray-200'
+                      : item.document.verification_status === 'approved'
+                        ? 'bg-emerald-500'
+                        : item.document.verification_status === 'rejected'
+                          ? 'bg-red-400'
+                          : 'bg-amber-400'
+                  )}
+                />
+              ))}
             </div>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto">
@@ -676,102 +721,90 @@ export default function B2BVettingDetailPage({
                 : {
                     label: 'Missing',
                     variant: 'neutral' as const,
-                    icon: <PiFileTextBold className="h-4 w-4 text-gray-400" />,
+                    icon: <PiCircleDashedBold className="h-4 w-4 text-gray-300" />,
                   };
               const active = document?.id === selectedDocument?.id;
+              const needsDecision =
+                document?.verification_status === 'pending' ||
+                document?.verification_status === 'under_review';
+              const statusTextClass = {
+                success: 'text-emerald-600',
+                warning: 'text-amber-700',
+                error: 'text-red-700',
+                info: 'text-blue-700',
+                neutral: 'text-gray-400',
+              }[status.variant];
 
               return (
                 <div
                   key={item.requirement.type}
                   className={cn(
-                    'group border-b border-gray-100 transition-colors',
+                    'group relative border-b border-gray-100 border-l-[3px] transition-colors',
                     active
-                      ? 'bg-blue-50'
-                      : 'bg-white hover:bg-gray-50',
-                    !document && 'opacity-70'
+                      ? 'border-l-blue-500 bg-blue-50'
+                      : needsDecision
+                        ? 'border-l-amber-400 bg-amber-50/60 hover:bg-amber-50'
+                        : 'border-l-transparent bg-white hover:bg-gray-50'
                   )}
                 >
                   <button
                     type="button"
+                    id={document ? `vetting-doc-${document.id}` : undefined}
                     disabled={!document}
-                    onClick={() => {
-                      if (!document) return;
-                      setSelectedDoc(document.id);
-                      setChangeRequestOpen(false);
-                      setReviewReasonText('');
-                      setReviewReasonError(null);
+                    onClick={() => document && selectDocumentRow(document.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                        event.preventDefault();
+                        focusAdjacentDocument(index, event.key === 'ArrowDown' ? 1 : -1);
+                      } else if (event.key === 'Enter' && active) {
+                        event.preventDefault();
+                        setDocumentDrawerOpen(true);
+                      }
                     }}
                     className={cn(
-                      'grid w-full grid-cols-[24px_minmax(0,1fr)] gap-2.5 border-l-[3px] px-3 pb-2 pt-3 text-left transition-colors',
-                      active ? 'border-l-blue-500' : 'border-l-transparent',
-                      !document && 'cursor-not-allowed'
+                      'grid w-full grid-cols-[16px_minmax(0,1fr)_auto] items-center gap-2 px-3 py-2.5 pr-8 text-left',
+                      !document && 'cursor-not-allowed opacity-60'
                     )}
                     aria-pressed={active}
                     title={item.requirement.label}
                   >
-                    <div
-                      className={cn(
-                        'flex h-5 w-5 items-center justify-center rounded text-[11px] font-bold',
-                        document?.verification_status === 'approved'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : active
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-gray-100 text-gray-500'
-                      )}
-                    >
-                      {index + 1}
-                    </div>
-                    <div className="min-w-0">
-                      <p
+                    <span className="flex items-center justify-center">{status.icon}</span>
+                    <span className="min-w-0">
+                      <span
                         className={cn(
-                          'line-clamp-2 text-[13px] leading-5',
+                          'block truncate text-[13px] leading-5',
                           active ? 'font-semibold text-gray-950' : 'font-medium text-gray-800'
                         )}
                       >
                         {item.requirement.label}
-                      </p>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                        <StatusBadge
-                          status={status.label}
-                          variant={status.variant}
-                          className="capitalize"
-                        />
-                        {document && (
-                          <span className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] font-medium text-gray-600">
-                            {isPdfDocument(document.file_path, null) ? 'PDF' : 'File'}
-                          </span>
-                        )}
-                        {document?.ocr && (
-                          <StatusBadge
-                            status={ocrStatusMeta(document.ocr.status).label}
-                            variant={ocrStatusMeta(document.ocr.status).variant}
-                            className="capitalize"
-                          />
-                        )}
-                      </div>
+                      </span>
                       {document?.rejection_reason && (
-                        <p className="mt-2 line-clamp-2 rounded-md bg-red-50 p-2 text-xs font-medium text-red-700">
+                        <span className="mt-0.5 text-xs font-medium leading-4 text-red-700 line-clamp-2">
                           {document.rejection_reason}
-                        </p>
+                        </span>
                       )}
-                    </div>
+                    </span>
+                    <span
+                      className={cn(
+                        'whitespace-nowrap text-[11px] font-medium',
+                        statusTextClass
+                      )}
+                    >
+                      {status.label}
+                    </span>
                   </button>
                   {document && (
-                    <div className="px-3 pb-3 pl-10">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="h-6 gap-1.5 px-0 text-xs text-blue-700 hover:bg-transparent hover:text-blue-800"
-                        onClick={() => {
-                          setSelectedDoc(document.id);
-                          setDocumentDrawerOpen(true);
-                        }}
-                      >
-                        <PiArrowSquareOutBold className="h-3.5 w-3.5" />
-                        View document
-                      </Button>
-                    </div>
+                    <button
+                      type="button"
+                      aria-label={`Open ${item.requirement.label} in full viewer`}
+                      onClick={() => {
+                        selectDocumentRow(document.id);
+                        setDocumentDrawerOpen(true);
+                      }}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 opacity-0 transition-opacity hover:bg-blue-100 hover:text-blue-700 focus-visible:opacity-100 group-hover:opacity-100"
+                    >
+                      <PiArrowSquareOutBold className="h-3.5 w-3.5" />
+                    </button>
                   )}
                 </div>
               );
