@@ -6,20 +6,22 @@ import {
   calculateVettingSla,
   determineStage,
   displayStageForClinic,
+  pickDebitOrderPaymentMethod,
   pickCurrentService,
   pickLatestInvoice,
+  pickLatestSubmission,
 } from '../onboarding-pipeline/route';
 
 describe('determineStage', () => {
   describe('stage transitions without eMandate signature', () => {
     it('should return billing_ready when onboarding_status is billing_ready', () => {
-      const stage = determineStage('billing_ready', 'submitted', 'approved', 'pending');
+      const stage = determineStage('billing_ready', 'submitted', 'approved');
       expect(stage).toBe('billing_ready');
     });
 
     it('should return docs_approved when vetting_status is approved, regardless of mandate_status', () => {
       // This is the key change: docs_approved no longer requires mandate_status='active'
-      const stage = determineStage('in_progress', 'submitted', 'approved', 'pending');
+      const stage = determineStage('in_progress', 'submitted', 'approved');
       expect(stage).toBe('docs_approved');
     });
 
@@ -31,7 +33,7 @@ describe('determineStage', () => {
         { onboarding: null, submission: 'submitted', vetting: 'approved', mandate: 'active' },
       ];
       for (const input of inputs) {
-        const stage = determineStage(input.onboarding, input.submission, input.vetting, input.mandate);
+        const stage = determineStage(input.onboarding, input.submission, input.vetting);
         expect(stage).not.toBe('mandate_active');
       }
     });
@@ -39,34 +41,34 @@ describe('determineStage', () => {
 
   describe('other stage transitions (unchanged)', () => {
     it('should return changes_requested when vetting_status is rejected', () => {
-      const stage = determineStage('in_progress', 'submitted', 'rejected', null);
+      const stage = determineStage('in_progress', 'submitted', 'rejected');
       expect(stage).toBe('changes_requested');
     });
 
     it('should return submitted when submission_status is submitted', () => {
-      const stage = determineStage('in_progress', 'submitted', null, null);
+      const stage = determineStage('in_progress', 'submitted', null);
       expect(stage).toBe('submitted');
     });
 
     it('should return invited when onboarding_status is in_progress (no submission yet)', () => {
-      const stage = determineStage('in_progress', null, null, null);
+      const stage = determineStage('in_progress', null, null);
       expect(stage).toBe('invited');
     });
 
     it('should return pending as default', () => {
-      const stage = determineStage(null, null, null, null);
+      const stage = determineStage(null, null, null);
       expect(stage).toBe('pending');
     });
   });
 
   describe('billing_ready precedence', () => {
     it('billing_ready should override all other states', () => {
-      const stage = determineStage('billing_ready', null, null, null);
+      const stage = determineStage('billing_ready', null, null);
       expect(stage).toBe('billing_ready');
     });
 
     it('billing_ready should override even if docs_approved', () => {
-      const stage = determineStage('billing_ready', 'submitted', 'approved', 'pending');
+      const stage = determineStage('billing_ready', 'submitted', 'approved');
       expect(stage).toBe('billing_ready');
     });
   });
@@ -169,20 +171,122 @@ describe('pipeline service and invoice summaries', () => {
     });
   });
 
-  it('groups active services into a separate display bucket', () => {
+  it('groups only fully onboarded active services into the billing-active display bucket', () => {
+    const collectibleDebitOrder = {
+      method_type: 'debit_order',
+      mandate_status: 'active',
+      is_active: true,
+      encrypted_details: {
+        verified: true,
+        account_number: '1234567890',
+        branch_code: '250655',
+      },
+    };
+
     expect(
-      displayStageForClinic('billing_ready', {
-        status: 'active',
-        active: true,
-      })
+      displayStageForClinic(
+        'billing_ready',
+        {
+          document_vetting_status: 'approved',
+          service_order_issued_at: '2026-06-24T08:00:00+02:00',
+        },
+        {
+          status: 'active',
+          active: true,
+        },
+        collectibleDebitOrder
+      )
     ).toBe('service_active');
 
     expect(
-      displayStageForClinic('billing_ready', {
-        status: 'pending',
-        active: false,
-      })
+      displayStageForClinic(
+        'billing_ready',
+        {
+          document_vetting_status: 'approved',
+          service_order_issued_at: null,
+        },
+        {
+          status: 'active',
+          active: true,
+        },
+        collectibleDebitOrder
+      )
     ).toBe('billing_ready');
+
+    expect(
+      displayStageForClinic(
+        'submitted',
+        {
+          document_vetting_status: 'documents_pending',
+          service_order_issued_at: null,
+        },
+        {
+          status: 'active',
+          active: true,
+        },
+        collectibleDebitOrder
+      )
+    ).toBe('submitted');
+
+    expect(
+      displayStageForClinic(
+        'pending',
+        null,
+        {
+          status: 'active',
+          active: true,
+        },
+        null
+      )
+    ).toBe('pending');
+  });
+
+  it('uses the newest submitted onboarding record when several exist', () => {
+    const submission = pickLatestSubmission([
+      {
+        status: 'submitted',
+        document_vetting_status: 'documents_pending',
+        submitted_at: '2026-06-20T08:00:00+02:00',
+      },
+      {
+        status: 'submitted',
+        document_vetting_status: 'approved',
+        submitted_at: '2026-06-24T08:00:00+02:00',
+      },
+    ]);
+
+    expect(submission).toMatchObject({
+      document_vetting_status: 'approved',
+      submitted_at: '2026-06-24T08:00:00+02:00',
+    });
+  });
+
+  it('prefers a collectible debit-order method over an inactive one', () => {
+    const paymentMethod = pickDebitOrderPaymentMethod([
+      {
+        method_type: 'debit_order',
+        mandate_status: 'pending',
+        is_active: false,
+        encrypted_details: {
+          verified: false,
+        },
+      },
+      {
+        method_type: 'debit_order',
+        mandate_status: 'approved',
+        is_active: true,
+        encrypted_details: {
+          verified: 'true',
+          account_number: '1234567890',
+          branch_code: '250655',
+        },
+      },
+    ]);
+
+    expect(paymentMethod).toMatchObject({
+      mandate_status: 'approved',
+      is_active: true,
+    });
   });
 
   it('uses the most recent invoice by invoice date for the drawer summary', () => {

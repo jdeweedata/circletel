@@ -139,7 +139,7 @@ const STAGES: StageMeta[] = [
   { id: 'changes_requested', label: 'Changes requested', pillBg: '#FCF6E5', pillFg: '#CA8A04', color: '#CA8A04', action: 'Review changes' },
   { id: 'docs_approved', label: 'Docs approved', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#5B8DEF', action: 'Issue service order' },
   { id: 'billing_ready', label: 'Ready to install', pillBg: '#16A34A', pillFg: '#FFFFFF', color: '#16A34A', action: 'Issue service order' },
-  { id: 'service_active', label: 'Service active', pillBg: '#DFF7EA', pillFg: '#0F7A3D', color: '#0F7A3D', action: 'Service active' },
+  { id: 'service_active', label: 'Billing active', pillBg: '#DFF7EA', pillFg: '#0F7A3D', color: '#0F7A3D', action: 'Billing active' },
 ];
 
 const STAGE_INDEX = Object.fromEntries(STAGES.map((s, i) => [s.id, i]));
@@ -154,7 +154,11 @@ function serviceIsActive(clinic: PipelineClinic): boolean {
 }
 
 function displayStageId(clinic: PipelineClinic): string {
-  return clinic.display_stage || (serviceIsActive(clinic) ? 'service_active' : clinic.stage);
+  return clinic.display_stage || clinic.stage;
+}
+
+function billingIsActive(clinic: PipelineClinic): boolean {
+  return displayStageId(clinic) === 'service_active';
 }
 
 function displayStageMeta(clinic: PipelineClinic): StageMeta {
@@ -166,7 +170,7 @@ function stageCount(data: PipelineResponse, stage: StageMeta['id']): number {
 }
 
 function canRunPrimaryAction(clinic: PipelineClinic): boolean {
-  if (serviceIsActive(clinic)) return false;
+  if (billingIsActive(clinic)) return false;
   if (clinic.stage === 'billing_ready' && clinic.service_order_issued_at) return false;
   return true;
 }
@@ -1326,7 +1330,7 @@ export default function UnjaniOnboardingPipelinePage() {
                             )
                           ) : (
                             <span className="text-xs text-gray-400">
-                              {serviceIsActive(clinic) ? 'Active' : 'Handed over'}
+                              {billingIsActive(clinic) ? 'Billing active' : 'Handed over'}
                             </span>
                           )}
                         </TableCell>
@@ -1365,7 +1369,6 @@ export default function UnjaniOnboardingPipelinePage() {
                 <div className="space-y-1.5">
                   {cards.map((clinic) => {
                     const st = slaStatus(clinic);
-                    const meta = displayStageMeta(clinic);
                     return (
                       <button
                         key={clinic.customer_id}
@@ -1385,7 +1388,7 @@ export default function UnjaniOnboardingPipelinePage() {
                         </div>
                         {s.id !== 'service_active' && serviceIsActive(clinic) && (
                           <div className="text-[11px] font-semibold text-green-600 mt-1">
-                            {meta.label}
+                            Pilot service active
                           </div>
                         )}
                         {st !== null && (
@@ -2000,7 +2003,7 @@ export default function UnjaniOnboardingPipelinePage() {
                     </Button>
                   ) : (
                     <div className="flex-1 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-center text-sm font-semibold text-green-700">
-                      {serviceIsActive(drawerClinic) ? 'Service active' : 'Service order issued'}
+                      {billingIsActive(drawerClinic) ? 'Billing active' : 'Service order issued'}
                     </div>
                   )}
                 </div>

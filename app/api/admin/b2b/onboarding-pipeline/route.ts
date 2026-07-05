@@ -84,6 +84,21 @@ interface PipelineInvoice {
   payment_collection_method: string | null;
 }
 
+interface PipelineSubmission {
+  status?: string | null;
+  document_vetting_status?: string | null;
+  submitted_at?: string | null;
+  vetting_due_date?: string | null;
+  service_order_issued_at?: string | null;
+}
+
+interface PipelinePaymentMethod {
+  method_type?: string | null;
+  mandate_status?: string | null;
+  is_active?: boolean | null;
+  encrypted_details?: unknown;
+}
+
 const CLOSED_VETTING_STATUSES = new Set(['approved', 'rejected', 'expired']);
 
 function dateTimeValue(value?: string | null): number {
@@ -194,11 +209,79 @@ export function isPipelineServiceActive(
   return service?.status === 'active' || service?.active === true;
 }
 
+function detailsObject(details: unknown): Record<string, unknown> {
+  return details && typeof details === 'object' && !Array.isArray(details)
+    ? (details as Record<string, unknown>)
+    : {};
+}
+
+export function paymentMethodIsCollectible(
+  paymentMethod: PipelinePaymentMethod | null | undefined
+): boolean {
+  const details = detailsObject(paymentMethod?.encrypted_details);
+  const verified = details.verified === true || details.verified === 'true';
+  const mandateActive =
+    paymentMethod?.mandate_status === 'active' || paymentMethod?.mandate_status === 'approved';
+
+  return (
+    paymentMethod?.method_type === 'debit_order' &&
+    paymentMethod?.is_active === true &&
+    mandateActive &&
+    verified &&
+    Boolean(details.account_number) &&
+    Boolean(details.branch_code)
+  );
+}
+
+export function pickDebitOrderPaymentMethod(
+  paymentMethods: PipelinePaymentMethod[] | null | undefined
+): PipelinePaymentMethod | null {
+  const debitOrderMethods = (paymentMethods || []).filter(
+    (paymentMethod) => paymentMethod.method_type === 'debit_order'
+  );
+
+  return (
+    debitOrderMethods.find(paymentMethodIsCollectible) ||
+    debitOrderMethods.find((paymentMethod) => paymentMethod.is_active === true) ||
+    debitOrderMethods[0] ||
+    null
+  );
+}
+
+export function pickLatestSubmission<T extends PipelineSubmission>(
+  submissions: T[] | null | undefined
+): T | null {
+  if (!submissions || submissions.length === 0) return null;
+
+  return [...submissions].sort(
+    (a, b) => dateTimeValue(b.submitted_at) - dateTimeValue(a.submitted_at)
+  )[0];
+}
+
+export function clinicIsBillingActivated(
+  stage: string,
+  submission: PipelineSubmission | null | undefined,
+  service: Pick<PipelineService, 'status' | 'active'> | null | undefined,
+  paymentMethod: PipelinePaymentMethod | null | undefined
+): boolean {
+  return (
+    stage === 'billing_ready' &&
+    submission?.document_vetting_status === 'approved' &&
+    Boolean(submission.service_order_issued_at) &&
+    isPipelineServiceActive(service) &&
+    paymentMethodIsCollectible(paymentMethod)
+  );
+}
+
 export function displayStageForClinic(
   stage: string,
-  service: Pick<PipelineService, 'status' | 'active'> | null | undefined
+  submission: PipelineSubmission | null | undefined,
+  service: Pick<PipelineService, 'status' | 'active'> | null | undefined,
+  paymentMethod: PipelinePaymentMethod | null | undefined
 ): string {
-  return isPipelineServiceActive(service) ? 'service_active' : stage;
+  return clinicIsBillingActivated(stage, submission, service, paymentMethod)
+    ? 'service_active'
+    : stage;
 }
 
 /**
@@ -210,8 +293,7 @@ export function displayStageForClinic(
 export function determineStage(
   onboarding_status: string | null,
   submission_status: string | null,
-  document_vetting_status: string | null,
-  mandate_status: string | null
+  document_vetting_status: string | null
 ): string {
   // billing_ready takes precedence
   if (onboarding_status === 'billing_ready') {
@@ -276,7 +358,9 @@ export async function GET(request: NextRequest) {
         customer_payment_methods!customer_payment_methods_customer_id_fkey (
           id,
           mandate_status,
-          method_type
+          method_type,
+          is_active,
+          encrypted_details
         ),
         customer_services!customer_services_customer_id_fkey (
           status,
@@ -331,14 +415,14 @@ export async function GET(request: NextRequest) {
     // Transform each clinic row
     for (const clinic of clinics || []) {
       // Latest submission (most recent, if any)
-      const submission = Array.isArray(clinic.onboarding_submissions)
-        ? clinic.onboarding_submissions[0]
-        : null;
+      const submission = pickLatestSubmission(
+        Array.isArray(clinic.onboarding_submissions) ? clinic.onboarding_submissions : null
+      );
 
       // Debit-order payment method (method_type='debit_order')
-      const debitOrderPm = Array.isArray(clinic.customer_payment_methods)
-        ? clinic.customer_payment_methods.find((pm: any) => pm.method_type === 'debit_order')
-        : null;
+      const debitOrderPm = pickDebitOrderPaymentMethod(
+        Array.isArray(clinic.customer_payment_methods) ? clinic.customer_payment_methods : null
+      );
       const currentService = pickCurrentService(
         Array.isArray(clinic.customer_services) ? clinic.customer_services : null
       );
@@ -357,10 +441,9 @@ export async function GET(request: NextRequest) {
       const stage = determineStage(
         clinic.onboarding_status,
         submission?.status || null,
-        submission?.document_vetting_status || null,
-        debitOrderPm?.mandate_status || null
+        submission?.document_vetting_status || null
       );
-      const displayStage = displayStageForClinic(stage, currentService);
+      const displayStage = displayStageForClinic(stage, submission, currentService, debitOrderPm);
 
       const sla = calculateVettingSla(submission, now);
       if (sla.overdue) {
