@@ -585,15 +585,27 @@ export default function B2BVettingDetailPage({
 
   return (
     <>
-      <main className="min-h-[calc(100vh-64px)] max-w-none px-4 py-5 lg:px-6">
+      <main className="min-h-[calc(100vh-64px)] max-w-none bg-gray-50 px-4 py-4 lg:px-5">
+      <nav className="mb-3 flex items-center gap-2 text-sm text-gray-500" aria-label="Breadcrumb">
+        <Link href="/admin/dashboard" className="hover:text-gray-900">
+          Admin Panel
+        </Link>
+        <span aria-hidden="true">/</span>
+        <span className="text-gray-700">B2B document vetting</span>
+      </nav>
+
       <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-semibold text-gray-950">
-            {submission.customers?.business_name || 'Vetting submission'}
-          </h1>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h1 className="truncate text-xl font-semibold text-gray-950">
+              {submission.customers?.business_name || 'Vetting submission'}
+            </h1>
+            <span className="rounded-md bg-white px-2 py-1 font-mono text-xs text-gray-600 ring-1 ring-gray-200">
+              {submission.customers?.account_number ?? 'No account number'}
+            </span>
+          </div>
           <p className="mt-1 text-sm text-gray-600">
-            {submission.customers?.account_number ?? 'No account number'} · {submission.segment} · Submitted{' '}
-            {formatDateTime(submission.submitted_at)}
+            {submission.segment} · Submitted {formatDateTime(submission.submitted_at)}
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -604,7 +616,12 @@ export default function B2BVettingDetailPage({
             className="capitalize"
           />
           {submission && (
-            <Button variant="outline" onClick={() => setUploadOpen(true)}>
+            <Button
+              variant="default"
+              onClick={() => setUploadOpen(true)}
+              className="gap-2 bg-blue-600 text-white hover:bg-blue-700"
+            >
+              <PiPlusBold className="h-4 w-4" />
               Add document
             </Button>
           )}
@@ -625,24 +642,27 @@ export default function B2BVettingDetailPage({
         </Card>
       )}
 
-      <section className="mb-4 grid grid-cols-2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm lg:grid-cols-4">
+      <section className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {summaryItems.map((item) => (
           <SummaryItem key={item.label} item={item} />
         ))}
       </section>
 
-      <section className="grid grid-cols-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm xl:h-[calc(100vh-220px)] xl:min-h-[680px] xl:grid-cols-[260px_minmax(0,1fr)_360px]">
-        <aside className="flex min-h-0 flex-col border-b border-gray-200 bg-gray-50/80 xl:border-b-0 xl:border-r">
+      <section className="grid grid-cols-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm xl:h-[calc(100vh-238px)] xl:min-h-[680px] xl:grid-cols-[280px_minmax(0,1fr)_300px]">
+        <aside className="flex min-h-0 flex-col border-b border-gray-200 bg-white xl:border-b-0 xl:border-r">
           <div className="shrink-0 border-b border-gray-200 bg-white px-3 py-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">Documents</h2>
-                <p className="mt-1 text-xs text-gray-500">{docCounts.total} required files</p>
+                <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-600">
+                  Documents
+                </h2>
               </div>
-              <StatusBadge status={`${docCounts.approved}/${docCounts.total}`} variant="neutral" />
+              <span className="font-mono text-xs text-gray-500">
+                {docCounts.approved}/{docCounts.total}
+              </span>
             </div>
           </div>
-          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-2.5">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             {requiredDocItems.map((item, index) => {
               const document = item.document;
               const status = document
@@ -658,10 +678,10 @@ export default function B2BVettingDetailPage({
                 <div
                   key={item.requirement.type}
                   className={cn(
-                    'group rounded-lg border transition-colors',
+                    'group border-b border-gray-100 transition-colors',
                     active
-                      ? 'border-circleTel-orange bg-orange-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300',
+                      ? 'bg-blue-50'
+                      : 'bg-white hover:bg-gray-50',
                     !document && 'opacity-70'
                   )}
                 >
@@ -676,7 +696,8 @@ export default function B2BVettingDetailPage({
                       setReviewReasonError(null);
                     }}
                     className={cn(
-                      'grid w-full grid-cols-[34px_minmax(0,1fr)] gap-2.5 px-2.5 pb-1.5 pt-2 text-left',
+                      'grid w-full grid-cols-[24px_minmax(0,1fr)] gap-2.5 border-l-[3px] px-3 pb-2 pt-3 text-left transition-colors',
+                      active ? 'border-l-blue-500' : 'border-l-transparent',
                       !document && 'cursor-not-allowed'
                     )}
                     aria-pressed={active}
@@ -684,25 +705,33 @@ export default function B2BVettingDetailPage({
                   >
                     <div
                       className={cn(
-                        'flex h-9 w-9 items-center justify-center rounded-md border bg-white text-xs font-bold',
-                        active ? 'border-circleTel-orange text-circleTel-orange' : 'border-gray-200 text-gray-400'
+                        'flex h-5 w-5 items-center justify-center rounded text-[11px] font-bold',
+                        document?.verification_status === 'approved'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : active
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-500'
                       )}
                     >
                       {index + 1}
                     </div>
                     <div className="min-w-0">
-                      <p className="line-clamp-2 text-sm font-semibold leading-5 text-gray-900">
+                      <p
+                        className={cn(
+                          'line-clamp-2 text-[13px] leading-5',
+                          active ? 'font-semibold text-gray-950' : 'font-medium text-gray-800'
+                        )}
+                      >
                         {item.requirement.label}
                       </p>
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                         <StatusBadge
                           status={status.label}
                           variant={status.variant}
-                          icon={status.icon}
                           className="capitalize"
                         />
                         {document && (
-                          <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-[11px] font-medium text-gray-600">
+                          <span className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] font-medium text-gray-600">
                             {isPdfDocument(document.file_path, null) ? 'PDF' : 'File'}
                           </span>
                         )}
@@ -722,12 +751,12 @@ export default function B2BVettingDetailPage({
                     </div>
                   </button>
                   {document && (
-                    <div className="flex items-center justify-end border-t border-gray-100 px-2.5 py-1.5">
+                    <div className="px-3 pb-3 pl-10">
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
-                        className="h-7 gap-1.5 px-2 text-xs text-gray-700 hover:bg-white"
+                        className="h-6 gap-1.5 px-0 text-xs text-blue-700 hover:bg-transparent hover:text-blue-800"
                         onClick={() => {
                           setSelectedDoc(document.id);
                           setDocumentDrawerOpen(true);
@@ -745,20 +774,6 @@ export default function B2BVettingDetailPage({
         </aside>
 
         <section className="flex min-h-0 min-w-0 flex-col bg-[#f4f5f7]">
-          <div className="shrink-0 border-b border-gray-200 bg-white px-4 py-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <PiFileTextBold className="h-5 w-5 shrink-0 text-circleTel-orange" />
-              <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold text-gray-900">
-                  {drawerSummary?.title ?? 'Selected document'}
-                </h2>
-                <p className="truncate text-xs text-gray-500">
-                  {drawerSummary?.subtitle ?? 'Select a document to preview and review.'}
-                </p>
-              </div>
-            </div>
-          </div>
-
           <DocumentViewer
             title={drawerSummary?.title ?? selectedRequirement?.label ?? 'Selected document'}
             selectedDocument={selectedDocument}
@@ -784,12 +799,14 @@ export default function B2BVettingDetailPage({
         </section>
 
         <aside className="flex min-h-0 flex-col border-t border-gray-200 bg-white xl:border-l xl:border-t-0">
-          <div className="shrink-0 border-b border-gray-200 p-4">
-            <h2 className="text-sm font-semibold text-gray-900">Document inspector</h2>
-            <p className="mt-1 text-xs text-gray-500">Decision tools and review context</p>
+          <div className="shrink-0 border-b border-gray-200 px-4 py-3">
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-700">
+              Document inspector
+            </h2>
+            <p className="mt-1 text-xs text-gray-500">Check details and review content</p>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
             {!selectedDocument && (
               <EmptyState
                 icon={<PiFileTextBold />}
@@ -804,22 +821,22 @@ export default function B2BVettingDetailPage({
                   <section
                     className={cn(
                       'rounded-lg border p-4',
-                      mismatchAck ? 'border-gray-200 bg-gray-50' : 'border-red-200 bg-red-50'
+                      mismatchAck ? 'border-gray-200 bg-gray-50' : 'border-amber-200 bg-amber-50'
                     )}
                   >
                     <div className="flex items-center gap-2">
                       {mismatchAck ? (
                         <PiCheckCircleBold className="h-4 w-4 text-amber-600" />
                       ) : (
-                        <PiWarningCircleBold className="h-4 w-4 text-red-600" />
+                        <PiWarningCircleBold className="h-4 w-4 text-amber-600" />
                       )}
                       <span
                         className={cn(
                           'text-sm font-semibold',
-                          mismatchAck ? 'text-amber-700' : 'text-red-700'
+                          mismatchAck ? 'text-amber-700' : 'text-amber-900'
                         )}
                       >
-                        {mismatchAck ? 'Mismatch acknowledged' : 'Entity name mismatch'}
+                        {mismatchAck ? 'Mismatch acknowledged' : 'Entity name mismatch - review only'}
                       </span>
                     </div>
                     <div className="mt-3 space-y-2">
@@ -855,13 +872,19 @@ export default function B2BVettingDetailPage({
                         Override recorded against your reviewer ID. Approval is now permitted.
                       </p>
                     ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => setMismatchAck(true)}
-                        className="mt-3 w-full bg-red-600 text-white hover:bg-red-700"
-                      >
-                        Acknowledge &amp; override
-                      </Button>
+                      <>
+                        <p className="mt-3 text-xs leading-5 text-amber-800">
+                          Unjani clinics often trade under a different entity name. Flagged for review -
+                          not necessarily an error.
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={() => setMismatchAck(true)}
+                          className="mt-3 w-full bg-amber-600 text-white hover:bg-amber-700"
+                        >
+                          Acknowledge review flag
+                        </Button>
+                      </>
                     )}
                   </section>
                 )}
@@ -908,9 +931,9 @@ export default function B2BVettingDetailPage({
                           setReviewReasonError(null);
                         }}
                         disabled={decisionDisabled}
-                        className="justify-start gap-1 border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+                        className="justify-start gap-1 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 hover:text-orange-800"
                       >
-                        <PiXBold className="h-4 w-4" />
+                        <PiArrowsClockwiseBold className="h-4 w-4" />
                         Request Changes
                       </Button>
                     )}
@@ -919,7 +942,7 @@ export default function B2BVettingDetailPage({
                       variant="outline"
                       onClick={() => handleDocumentAction(selectedDocument.id, 'under_review')}
                       disabled={decisionDisabled}
-                      className="justify-start gap-1 border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
+                      className="justify-start gap-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
                     >
                       <PiClipboardTextBold className="h-4 w-4" />
                       {actionInFlight === `${selectedDocument.id}-under_review`
@@ -1164,24 +1187,29 @@ function AutomatedCheckRow({ check, last }: { check: AutomatedCheck; last: boole
 }
 
 function SummaryItem({ item }: { item: VettingSummaryItem }) {
+  const valueTone =
+    item.label === 'Approved'
+      ? 'text-emerald-600'
+      : item.tone === 'danger'
+        ? 'text-red-700'
+        : item.tone === 'warning'
+          ? 'text-amber-600'
+          : 'text-gray-700';
+
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-r border-gray-100 px-4 py-3 last:border-r-0 lg:border-b-0">
-      <div className="min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          {item.label}
-        </p>
-        <p className="mt-1 truncate text-xs text-gray-500">{item.helper}</p>
-      </div>
+    <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
       <p
         className={cn(
-          'shrink-0 text-xl font-semibold tabular-nums',
-          item.tone === 'danger' && 'text-red-700',
-          item.tone === 'warning' && 'text-amber-700',
-          item.tone === 'neutral' && 'text-gray-950'
+          'text-xl font-semibold leading-none tabular-nums',
+          item.value === '-' ? 'text-gray-400' : valueTone
         )}
       >
         {item.value}
       </p>
+      <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-600">
+        {item.label}
+      </p>
+      <p className="mt-1 truncate text-xs text-gray-500">{item.helper}</p>
     </div>
   );
 }
@@ -1361,101 +1389,114 @@ function DocumentViewer({
   const transform = `scale(${zoom / 100}) rotate(${rotation}deg)`;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-white">
-      <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-gray-200 px-3 py-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onZoomOut}
-          disabled={!selectedDocument || zoom <= 70}
-          aria-label="Zoom out"
-          className="h-8 w-8 px-0"
-        >
-          <PiMinusBold className="h-4 w-4" />
-        </Button>
-        <span className="min-w-14 text-center text-sm font-semibold tabular-nums text-gray-700">
-          {zoom}%
-        </span>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onZoomIn}
-          disabled={!selectedDocument || zoom >= 140}
-          aria-label="Zoom in"
-          className="h-8 w-8 px-0"
-        >
-          <PiPlusBold className="h-4 w-4" />
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={onReset}
-          disabled={!selectedDocument}
-          className="h-8 px-2 text-xs font-semibold text-gray-700"
-        >
-          Fit
-        </Button>
-        {selectedIsImage && (
+    <div className="flex min-h-0 flex-1 flex-col bg-[#e8edf2]">
+      <div className="flex h-10 shrink-0 items-center gap-3 overflow-x-auto border-b border-gray-200 bg-white px-3">
+        <div className="flex min-w-[180px] flex-1 items-center gap-2">
+          <PiFileTextBold className="h-4 w-4 shrink-0 text-gray-500" />
+          <span className="truncate text-sm font-semibold text-gray-900">
+            {title}
+          </span>
+          {selectedDocument && (
+            <span className="shrink-0 rounded bg-gray-100 px-2 py-1 font-mono text-[10px] font-medium text-gray-600">
+              {selectedIsPdf ? 'PDF' : selectedIsImage ? 'IMG' : 'FILE'}
+            </span>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <div className="hidden h-5 w-px bg-gray-200 sm:block" />
           <Button
             size="sm"
-            variant="ghost"
-            onClick={onRotate}
-            disabled={!selectedDocument}
-            aria-label="Rotate"
-            className="h-8 w-8 px-0 text-gray-700"
+            variant="outline"
+            onClick={onZoomOut}
+            disabled={!selectedDocument || zoom <= 70}
+            aria-label="Zoom out"
+            className="h-8 w-8 px-0"
           >
-            <PiArrowsClockwiseBold className="h-4 w-4" />
+            <PiMinusBold className="h-4 w-4" />
           </Button>
-        )}
-        <div className="mx-1 h-6 w-px bg-gray-200" />
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={onReload}
-          disabled={!selectedDocument || docLoading}
-          aria-label="Reload"
-          className="h-8 gap-1.5 px-2 text-xs text-gray-700"
-        >
-          <PiArrowsClockwiseBold className="h-4 w-4" />
-          <span className="hidden sm:inline">Reload</span>
-        </Button>
-        <div className="flex-1" />
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onOpenOriginal}
-          disabled={!docUrl}
-          className="h-8 gap-1.5 px-2 text-xs"
-        >
-          <PiArrowSquareOutBold className="h-4 w-4" />
-          <span className="hidden sm:inline">Open original</span>
-        </Button>
-        {variant === 'inline' && onExpand && (
+          <span className="min-w-14 text-center text-sm font-semibold tabular-nums text-gray-700">
+            {zoom}%
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onZoomIn}
+            disabled={!selectedDocument || zoom >= 140}
+            aria-label="Zoom in"
+            className="h-8 w-8 px-0"
+          >
+            <PiPlusBold className="h-4 w-4" />
+          </Button>
           <Button
             size="sm"
             variant="ghost"
-            onClick={onExpand}
+            onClick={onReset}
             disabled={!selectedDocument}
-            aria-label="Expand"
+            aria-label="Fit page"
             className="h-8 w-8 px-0 text-gray-700"
           >
             <PiArrowsOutBold className="h-4 w-4" />
           </Button>
-        )}
-        {variant === 'fullscreen' && onClose && (
+          {selectedIsImage && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onRotate}
+              disabled={!selectedDocument}
+              aria-label="Rotate"
+              className="h-8 w-8 px-0 text-gray-700"
+            >
+              <PiArrowsClockwiseBold className="h-4 w-4" />
+            </Button>
+          )}
+          <div className="mx-1 h-6 w-px bg-gray-200" />
           <Button
             size="sm"
             variant="ghost"
-            onClick={onClose}
-            aria-label="Close"
+            onClick={onReload}
+            disabled={!selectedDocument || docLoading}
+            aria-label="Reload"
             className="h-8 w-8 px-0 text-gray-700"
           >
-            <PiXBold className="h-4 w-4" />
+            <PiArrowsClockwiseBold className="h-4 w-4" />
           </Button>
-        )}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onOpenOriginal}
+            disabled={!docUrl}
+            className="h-8 gap-1.5 px-2 text-xs"
+          >
+            <PiArrowSquareOutBold className="h-4 w-4" />
+            <span className="hidden 2xl:inline">Open original</span>
+          </Button>
+          {variant === 'inline' && onExpand && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onExpand}
+              disabled={!selectedDocument}
+              aria-label="Expand"
+              className="h-8 w-8 px-0 text-gray-700"
+            >
+              <PiArrowsOutBold className="h-4 w-4" />
+            </Button>
+          )}
+          {variant === 'fullscreen' && onClose && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onClose}
+              aria-label="Close"
+              className="h-8 w-8 px-0 text-gray-700"
+            >
+              <PiXBold className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto bg-[#f4f5f7] p-4">
+      <div className="min-h-0 flex-1 overflow-auto bg-[#e8edf2] p-6 lg:p-8">
         <div className="mx-auto flex min-h-full max-w-5xl items-start justify-center">
           {!selectedDocument && (
             <EmptyState
@@ -1526,8 +1567,10 @@ function InspectorSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-4">
-      <h3 className="mb-3 text-sm font-semibold text-gray-900">{title}</h3>
+    <section className="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
+      <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-600">
+        {title}
+      </h3>
       {children}
     </section>
   );
