@@ -22,6 +22,7 @@ interface PipelineClinic {
   phone: string | null;
   email: string | null;
   stage: string;
+  display_stage: string;
   document_vetting_status: string | null;
   mandate_status: string | null;
   vetting_due_date: string | null;
@@ -49,6 +50,7 @@ interface PipelineResponse {
     changes_requested: number;
     docs_approved: number;
     billing_ready: number;
+    service_active: number;
     pending: number;
   };
   overdueCount: number;
@@ -186,6 +188,19 @@ export function pickLatestInvoice(
   };
 }
 
+export function isPipelineServiceActive(
+  service: Pick<PipelineService, 'status' | 'active'> | null | undefined
+): boolean {
+  return service?.status === 'active' || service?.active === true;
+}
+
+export function displayStageForClinic(
+  stage: string,
+  service: Pick<PipelineService, 'status' | 'active'> | null | undefined
+): string {
+  return isPipelineServiceActive(service) ? 'service_active' : stage;
+}
+
 /**
  * Determine the clinic's current stage in the onboarding pipeline
  *
@@ -307,6 +322,7 @@ export async function GET(request: NextRequest) {
         changes_requested: 0,
         docs_approved: 0,
         billing_ready: 0,
+        service_active: 0,
         pending: 0,
       },
       overdueCount: 0,
@@ -344,6 +360,7 @@ export async function GET(request: NextRequest) {
         submission?.document_vetting_status || null,
         debitOrderPm?.mandate_status || null
       );
+      const displayStage = displayStageForClinic(stage, currentService);
 
       const sla = calculateVettingSla(submission, now);
       if (sla.overdue) {
@@ -359,6 +376,7 @@ export async function GET(request: NextRequest) {
         phone: clinic.phone || null,
         email: clinic.email || null,
         stage,
+        display_stage: displayStage,
         document_vetting_status: submission?.document_vetting_status || null,
         mandate_status: debitOrderPm?.mandate_status || null,
         vetting_due_date: submission?.vetting_due_date || null,
@@ -378,8 +396,8 @@ export async function GET(request: NextRequest) {
       result.clinics.push(clinic_row);
 
       // Increment stage count
-      if (stage in result.stageCounts) {
-        result.stageCounts[stage as keyof typeof result.stageCounts]++;
+      if (displayStage in result.stageCounts) {
+        result.stageCounts[displayStage as keyof typeof result.stageCounts]++;
       }
     }
 

@@ -5,6 +5,7 @@
 import {
   calculateVettingSla,
   determineStage,
+  displayStageForClinic,
   pickCurrentService,
   pickLatestInvoice,
 } from '../onboarding-pipeline/route';
@@ -166,6 +167,22 @@ describe('pipeline service and invoice summaries', () => {
       package_name: 'Unjani Connectivity',
       activation_date: '2026-06-01',
     });
+  });
+
+  it('groups active services into a separate display bucket', () => {
+    expect(
+      displayStageForClinic('billing_ready', {
+        status: 'active',
+        active: true,
+      })
+    ).toBe('service_active');
+
+    expect(
+      displayStageForClinic('billing_ready', {
+        status: 'pending',
+        active: false,
+      })
+    ).toBe('billing_ready');
   });
 
   it('uses the most recent invoice by invoice date for the drawer summary', () => {

@@ -68,6 +68,7 @@ interface PipelineClinic {
   phone: string | null;
   email: string | null;
   stage: string;
+  display_stage: string;
   document_vetting_status: string | null;
   mandate_status: string | null;
   vetting_due_date: string | null;
@@ -113,6 +114,7 @@ interface PipelineResponse {
     changes_requested: number;
     docs_approved: number;
     billing_ready: number;
+    service_active: number;
     pending: number;
   };
   overdueCount: number;
@@ -137,9 +139,11 @@ const STAGES: StageMeta[] = [
   { id: 'changes_requested', label: 'Changes requested', pillBg: '#FCF6E5', pillFg: '#CA8A04', color: '#CA8A04', action: 'Review changes' },
   { id: 'docs_approved', label: 'Docs approved', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#5B8DEF', action: 'Issue service order' },
   { id: 'billing_ready', label: 'Ready to install', pillBg: '#16A34A', pillFg: '#FFFFFF', color: '#16A34A', action: 'Issue service order' },
+  { id: 'service_active', label: 'Service active', pillBg: '#DFF7EA', pillFg: '#0F7A3D', color: '#0F7A3D', action: 'Service active' },
 ];
 
 const STAGE_INDEX = Object.fromEntries(STAGES.map((s, i) => [s.id, i]));
+const PROGRESS_STAGES = STAGES.filter((s) => s.id !== 'service_active');
 
 function stageMeta(stage: string): StageMeta {
   return STAGES[STAGE_INDEX[stage]] ?? STAGES[0];
@@ -149,15 +153,16 @@ function serviceIsActive(clinic: PipelineClinic): boolean {
   return clinic.current_service?.status === 'active' || clinic.current_service?.active === true;
 }
 
-function displayStageMeta(clinic: PipelineClinic): StageMeta {
-  const meta = stageMeta(clinic.stage);
-  if (!serviceIsActive(clinic)) return meta;
+function displayStageId(clinic: PipelineClinic): string {
+  return clinic.display_stage || (serviceIsActive(clinic) ? 'service_active' : clinic.stage);
+}
 
-  return {
-    ...meta,
-    label: 'Service active',
-    action: 'Service active',
-  };
+function displayStageMeta(clinic: PipelineClinic): StageMeta {
+  return stageMeta(displayStageId(clinic));
+}
+
+function stageCount(data: PipelineResponse, stage: StageMeta['id']): number {
+  return data.stageCounts[stage] ?? 0;
 }
 
 function canRunPrimaryAction(clinic: PipelineClinic): boolean {
@@ -380,7 +385,7 @@ export default function UnjaniOnboardingPipelinePage() {
 
   /** Pipeline stage by normalised clinic name — cross-references the register view. */
   const pipelineStageByName = useMemo(
-    () => new Map(clinics.map((c) => [normName(c.business_name), c.stage])),
+    () => new Map(clinics.map((c) => [normName(c.business_name), displayStageId(c)])),
     [clinics]
   );
 
@@ -399,7 +404,7 @@ export default function UnjaniOnboardingPipelinePage() {
     const q = query.trim().toLowerCase();
     return clinics.filter(
       (c) =>
-        (!stageFilter || c.stage === stageFilter) &&
+        (!stageFilter || displayStageId(c) === stageFilter) &&
         (!provinceFilter || c.province === provinceFilter) &&
         (!slaFilter || slaStatus(c) === slaFilter) &&
         (!q ||
@@ -416,8 +421,8 @@ export default function UnjaniOnboardingPipelinePage() {
       let vb: string | number;
       switch (sortKey) {
         case 'stage':
-          va = STAGE_INDEX[a.stage] ?? 0;
-          vb = STAGE_INDEX[b.stage] ?? 0;
+          va = STAGE_INDEX[displayStageId(a)] ?? 0;
+          vb = STAGE_INDEX[displayStageId(b)] ?? 0;
           break;
         case 'sla':
           va = a.sla.businessDaysLeft ?? 999;
@@ -854,9 +859,9 @@ export default function UnjaniOnboardingPipelinePage() {
   }
 
   const total = clinics.length;
-  const readyCount = data.stageCounts.billing_ready;
-  const awaitingInvite = data.stageCounts.pending;
-  const maxStageCount = Math.max(...STAGES.map((s) => data.stageCounts[s.id]), 1);
+  const readyCount = data.stageCounts.billing_ready ?? 0;
+  const awaitingInvite = data.stageCounts.pending ?? 0;
+  const maxStageCount = Math.max(...STAGES.map((s) => stageCount(data, s.id)), 1);
   const maxProvinceCount = provinceCounts[0]?.[1] ?? 1;
 
   return (
@@ -941,9 +946,9 @@ export default function UnjaniOnboardingPipelinePage() {
       >
         <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2">
           {STAGES.map((s) => {
-            const count = data.stageCounts[s.id];
+            const count = stageCount(data, s.id);
             const overdueInStage = clinics.filter(
-              (c) => c.stage === s.id && slaStatus(c) === 'err'
+              (c) => displayStageId(c) === s.id && slaStatus(c) === 'err'
             ).length;
             const selected = stageFilter === s.id;
             return (
@@ -996,8 +1001,8 @@ export default function UnjaniOnboardingPipelinePage() {
               >
                 {(() => {
                   let offset = 25;
-                  return STAGES.filter((s) => data.stageCounts[s.id] > 0).map((s) => {
-                    const pct = (data.stageCounts[s.id] / total) * 100;
+                  return STAGES.filter((s) => stageCount(data, s.id) > 0).map((s) => {
+                    const pct = (stageCount(data, s.id) / total) * 100;
                     const seg = (
                       <circle
                         key={s.id}
@@ -1030,7 +1035,7 @@ export default function UnjaniOnboardingPipelinePage() {
                 </text>
               </svg>
               <div className="flex flex-col gap-1.5 text-xs min-w-0">
-                {STAGES.filter((s) => data.stageCounts[s.id] > 0).map((s) => (
+                {STAGES.filter((s) => stageCount(data, s.id) > 0).map((s) => (
                   <div key={s.id} className="flex items-center gap-2 text-gray-600">
                     <span
                       className="w-2.5 h-2.5 rounded-sm shrink-0"
@@ -1038,7 +1043,7 @@ export default function UnjaniOnboardingPipelinePage() {
                     />
                     <span className="truncate">{s.label}</span>
                     <span className="ml-auto pl-3 font-semibold text-gray-900 tabular-nums">
-                      {data.stageCounts[s.id]}
+                      {stageCount(data, s.id)}
                     </span>
                   </div>
                 ))}
@@ -1160,7 +1165,10 @@ export default function UnjaniOnboardingPipelinePage() {
                   {sorted.map((clinic) => {
                     const meta = displayStageMeta(clinic);
                     const st = slaStatus(clinic);
-                    const stageIdx = STAGE_INDEX[clinic.stage] ?? 0;
+                    const stageIdx =
+                      displayStageId(clinic) === 'service_active'
+                        ? PROGRESS_STAGES.length
+                        : STAGE_INDEX[clinic.stage] ?? 0;
                     const issued = !!clinic.service_order_issued_at;
                     const actionable = canRunPrimaryAction(clinic) &&
                       (!issued || !['billing_ready'].includes(clinic.stage));
@@ -1189,13 +1197,14 @@ export default function UnjaniOnboardingPipelinePage() {
                             {meta.label}
                           </span>
                           <div className="flex gap-0.5 mt-1.5">
-                            {STAGES.slice(0, 5).map((_, i) => (
+                            {PROGRESS_STAGES.map((_, i) => (
                               <span
                                 key={i}
                                 className={cn(
                                   'w-3 h-1 rounded-full',
                                   i < stageIdx ||
-                                    clinic.stage === 'billing_ready'
+                                    clinic.stage === 'billing_ready' ||
+                                    displayStageId(clinic) === 'service_active'
                                     ? 'bg-circleTel-orange'
                                     : 'bg-gray-200'
                                 )}
@@ -1341,7 +1350,7 @@ export default function UnjaniOnboardingPipelinePage() {
       {view === 'kanban' && (
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2 items-start">
           {STAGES.map((s) => {
-            const cards = filtered.filter((c) => c.stage === s.id);
+            const cards = filtered.filter((c) => displayStageId(c) === s.id);
             return (
               <div
                 key={s.id}
@@ -1374,7 +1383,7 @@ export default function UnjaniOnboardingPipelinePage() {
                           {clinic.province || '—'}
                           {clinic.nurse_name && <> · {clinic.nurse_name}</>}
                         </div>
-                        {serviceIsActive(clinic) && (
+                        {s.id !== 'service_active' && serviceIsActive(clinic) && (
                           <div className="text-[11px] font-semibold text-green-600 mt-1">
                             {meta.label}
                           </div>
@@ -1903,12 +1912,8 @@ export default function UnjaniOnboardingPipelinePage() {
                   </h4>
                   <ul>
                     {STAGES.map((s, i) => {
-                      const idx = STAGE_INDEX[drawerClinic.stage] ?? 0;
+                      const idx = STAGE_INDEX[displayStageId(drawerClinic)] ?? 0;
                       const state = i < idx ? 'done' : i === idx ? 'now' : 'todo';
-                      const label =
-                        s.id === 'billing_ready' && serviceIsActive(drawerClinic)
-                          ? 'Service active'
-                          : s.label;
                       return (
                         <li key={s.id} className="relative pl-6 pb-4 text-sm last:pb-0">
                           <span
@@ -1930,7 +1935,7 @@ export default function UnjaniOnboardingPipelinePage() {
                                 : 'text-gray-600'
                             )}
                           >
-                            {label}
+                            {s.label}
                           </span>
                           {state === 'now' && drawerClinic.sla.dueDate && (
                             <div className="text-xs text-gray-400 mt-0.5">
