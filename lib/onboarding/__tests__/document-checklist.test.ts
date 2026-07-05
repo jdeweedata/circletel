@@ -20,11 +20,16 @@ describe("computeDocChecklist", () => {
     expect(r.receivedRequiredCount).toBe(4);
   });
 
-  it("requires the VAT certificate only when vatRegistered is true", () => {
+  it("keeps the VAT certificate optional even when vatRegistered is true", () => {
     const base = ["company_registration", "id_document", "proof_of_address", "bank_statement"];
-    expect(computeDocChecklist(base, true).allRequiredReceived).toBe(false);
-    expect(computeDocChecklist(base, true).requiredCount).toBe(5);
+    expect(computeDocChecklist(base, true).allRequiredReceived).toBe(true);
+    expect(computeDocChecklist(base, true).requiredCount).toBe(4);
     expect(computeDocChecklist([...base, "vat_certificate"], true).allRequiredReceived).toBe(true);
+    expect(
+      computeDocChecklist([...base, "vat_certificate"], true).rows.find(
+        (row) => row.key === "vat_certificate",
+      )!.required,
+    ).toBe(false);
   });
 
   it("accepts director_id as satisfying the Owner/Director ID row", () => {

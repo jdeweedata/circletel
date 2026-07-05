@@ -20,7 +20,7 @@ export const DOC_CHECKLIST: DocChecklistDef[] = [
   { key: "id_document", label: "Owner / Director ID", match: ["id_document", "director_id"], requirement: "always" },
   { key: "proof_of_address", label: "Proof of address", match: ["proof_of_address"], requirement: "always" },
   { key: "bank_statement", label: "Bank confirmation", match: ["bank_statement"], requirement: "always" },
-  { key: "vat_certificate", label: "VAT certificate", match: ["vat_certificate"], requirement: "ifVat" },
+  { key: "vat_certificate", label: "VAT certificate", match: ["vat_certificate"], requirement: "optional" },
   { key: "tax_certificate", label: "Tax certificate", match: ["tax_certificate"], requirement: "optional" },
   { key: "other", label: "Other supporting docs", match: ["other", "shareholder_agreement"], requirement: "optional" },
 ];

@@ -44,9 +44,11 @@ export function requiredDocsFor(_segment: B2BSegment, ctx: EntityContext): DocRe
   }
   docs.push({ type: 'bank_statement', label: 'Bank confirmation letter or statement', required: true });
   docs.push({ type: 'proof_of_address', label: 'Proof of business address', required: true });
-  if (ctx.vatRegistered) {
-    docs.push({ type: 'vat_certificate', label: 'VAT registration certificate', required: true });
-  }
+  docs.push({
+    type: 'vat_certificate',
+    label: 'VAT registration certificate',
+    required: false,
+  });
   return docs;
 }
 
