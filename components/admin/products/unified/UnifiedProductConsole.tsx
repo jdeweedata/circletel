@@ -18,7 +18,7 @@ import {
   WORKSPACE_DEFAULTS,
 } from '@/lib/products/workspace-params';
 import { UnifiedProductSearch, type UnifiedSort } from './UnifiedProductSearch';
-import { UnifiedProductGrid } from './UnifiedProductGrid';
+import { UnifiedProductTable } from './UnifiedProductTable';
 import { UnifiedProductDetailSidebar } from './UnifiedProductDetailSidebar';
 import { ProductEditDrawer } from './ProductEditDrawer';
 import { RulesStudio } from './RulesStudio';
@@ -32,7 +32,9 @@ const SOURCE_TABS: Array<{ id: SourceTab; label: string }> = [
   { id: 'Hardware', label: 'Hardware' },
 ];
 
-const PER_PAGE = 20;
+// Dense table shows ~25–30 rows/screen; 50/page halves pagination for
+// an operator working across 25k+ SKUs (API caps per_page at 100).
+const PER_PAGE = 50;
 
 /**
  * Unified Product Console — Phase 5 (data wired).
@@ -225,8 +227,8 @@ export function UnifiedProductConsole() {
         </div>
       )}
 
-      {/* grid */}
-      <UnifiedProductGrid
+      {/* table */}
+      <UnifiedProductTable
         products={products}
         isLoading={loading}
         ruleSummaries={ruleSummaries}
