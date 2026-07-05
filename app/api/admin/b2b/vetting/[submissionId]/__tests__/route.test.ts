@@ -77,7 +77,8 @@ describe('GET /api/admin/b2b/vetting/[submissionId]', () => {
     };
     const documentsBuilder = {
       select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockResolvedValue({
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockResolvedValue({
         data: [
           {
             id: 'doc-1',
@@ -86,6 +87,7 @@ describe('GET /api/admin/b2b/vetting/[submissionId]', () => {
             verification_status: 'pending',
             rejection_reason: null,
             verified_at: null,
+            uploaded_at: '2026-07-05T08:00:00.000Z',
           },
         ],
         error: null,
@@ -134,6 +136,9 @@ describe('GET /api/admin/b2b/vetting/[submissionId]', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(documentsBuilder.order).toHaveBeenCalledWith('uploaded_at', {
+      ascending: false,
+    });
     expect(mockGetOcrResultsByDocumentIds).toHaveBeenCalledWith(supabase, ['doc-1']);
     expect(body.submission.documents[0].ocr).toMatchObject({
       status: 'succeeded',

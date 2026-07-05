@@ -55,8 +55,9 @@ export async function GET(
     // Fetch this submission's documents
     const { data: documents, error: docsError } = await supabase
       .from('kyc_documents')
-      .select('id, document_type, file_path, verification_status, rejection_reason, verified_at')
-      .eq('onboarding_submission_id', submissionId);
+      .select('id, document_type, file_path, verification_status, rejection_reason, verified_at, uploaded_at')
+      .eq('onboarding_submission_id', submissionId)
+      .order('uploaded_at', { ascending: false });
 
     if (docsError) {
       apiLogger.error('Failed to fetch documents', { error: docsError });
