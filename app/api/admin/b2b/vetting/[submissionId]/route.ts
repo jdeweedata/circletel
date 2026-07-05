@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
+import { getOcrResultsByDocumentIds } from '@/lib/kyc/document-ocr';
 
 export async function GET(
   request: NextRequest,
@@ -65,6 +66,16 @@ export async function GET(
       );
     }
 
+    const documentIds = (documents || []).map((document) => document.id);
+    const ocrResultsByDocumentId = await getOcrResultsByDocumentIds(
+      supabase,
+      documentIds
+    );
+    const documentsWithOcr = (documents || []).map((document) => ({
+      ...document,
+      ocr: ocrResultsByDocumentId.get(document.id) || null,
+    }));
+
     // Fetch the customer's payment method(s) created by this submission
     const { data: paymentMethods, error: pmError } = await supabase
       .from('customer_payment_methods')
@@ -89,7 +100,7 @@ export async function GET(
       success: true,
       submission: {
         ...submission,
-        documents: documents || [],
+        documents: documentsWithOcr,
         paymentMethods: paymentMethods || [],
         nameMatch,
       },

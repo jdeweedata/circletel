@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveToken, svc } from '@/lib/onboarding/onboarding-service';
 import { uploadFile } from '@/lib/storage/supabase-upload';
+import { enrichKycDocumentWithOcr } from '@/lib/kyc/document-ocr';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
   const supabase = svc();
@@ -68,6 +70,17 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+
+  const ocr = await enrichKycDocumentWithOcr({
+    supabase,
+    documentId: doc.id,
+    file,
+  });
+  apiLogger.info('[KYC OCR] onboarding upload OCR finished', {
+    documentId: doc.id,
+    status: ocr.status,
+    model: ocr.model,
+  });
 
   return NextResponse.json({ success: true, documentId: doc.id });
 }

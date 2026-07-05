@@ -12,6 +12,7 @@ import { uploadFile } from '@/lib/storage/supabase-upload';
 import { validateDocumentUpload } from '@/lib/onboarding/document-upload';
 import { addBusinessDays, now } from '@/lib/dates';
 import { apiLogger } from '@/lib/logging/logger';
+import { enrichKycDocumentWithOcr } from '@/lib/kyc/document-ocr';
 
 export async function POST(request: NextRequest) {
   const auth = await authenticateAdmin(request);
@@ -139,6 +140,18 @@ export async function POST(request: NextRequest) {
     documentType,
     createdShell,
     by: adminEmail,
+  });
+  const ocr = await enrichKycDocumentWithOcr({
+    supabase,
+    documentId: doc.id,
+    file,
+  });
+  apiLogger.info('[KYC OCR] admin upload OCR finished', {
+    customerId,
+    submissionId,
+    documentId: doc.id,
+    status: ocr.status,
+    model: ocr.model,
   });
   return NextResponse.json({ success: true, documentId: doc.id, submissionId, createdShell });
 }
