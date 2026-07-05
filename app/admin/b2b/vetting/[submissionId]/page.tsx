@@ -96,6 +96,30 @@ interface SubmissionDetail {
     verification_status: string;
     rejection_reason: string | null;
     verified_at: string | null;
+    ocr: {
+      id?: string;
+      status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'skipped';
+      model: string | null;
+      markdown: string | null;
+      markdownExcerpt: string | null;
+      pages: Array<{
+        index: number;
+        confidence?: Record<string, unknown> | null;
+        blockCount?: number;
+        [key: string]: unknown;
+      }> | null;
+      blocks: Array<{
+        pageIndex?: number;
+        type?: string;
+        content?: string;
+        bbox?: unknown;
+        [key: string]: unknown;
+      }> | null;
+      confidence: Record<string, unknown> | null;
+      usageInfo: Record<string, unknown> | null;
+      errorMessage: string | null;
+      processedAt: string | null;
+    } | null;
   }>;
   paymentMethods: Array<{
     id: string;
@@ -167,6 +191,51 @@ function documentStatusMeta(status: string): {
         icon: <PiWarningCircleBold className="h-4 w-4 text-amber-600" />,
       };
   }
+}
+
+function ocrStatusMeta(status: string | null | undefined): {
+  label: string;
+  variant: 'success' | 'warning' | 'error' | 'info' | 'neutral';
+  icon: React.ReactNode;
+} {
+  switch (status) {
+    case 'succeeded':
+      return {
+        label: 'OCR ready',
+        variant: 'success',
+        icon: <PiCheckCircleBold className="h-4 w-4 text-green-600" />,
+      };
+    case 'processing':
+    case 'pending':
+      return {
+        label: 'OCR processing',
+        variant: 'info',
+        icon: <PiInfoBold className="h-4 w-4 text-blue-600" />,
+      };
+    case 'failed':
+      return {
+        label: 'OCR failed',
+        variant: 'error',
+        icon: <PiWarningCircleBold className="h-4 w-4 text-red-600" />,
+      };
+    case 'skipped':
+      return {
+        label: 'OCR skipped',
+        variant: 'neutral',
+        icon: <PiMinusBold className="h-4 w-4 text-gray-500" />,
+      };
+    default:
+      return {
+        label: 'No OCR',
+        variant: 'neutral',
+        icon: <PiFileTextBold className="h-4 w-4 text-gray-400" />,
+      };
+  }
+}
+
+function formatConfidence(value: unknown) {
+  if (typeof value !== 'number') return '-';
+  return `${Math.round(value * 100)}%`;
 }
 
 function maskAccountNumber(value: string | undefined) {
@@ -643,6 +712,13 @@ export default function B2BVettingDetailPage({
                             {isPdfDocument(document.file_path, null) ? 'PDF' : 'File'}
                           </span>
                         )}
+                        {document?.ocr && (
+                          <StatusBadge
+                            status={ocrStatusMeta(document.ocr.status).label}
+                            variant={ocrStatusMeta(document.ocr.status).variant}
+                            className="capitalize"
+                          />
+                        )}
                       </div>
                       {document?.rejection_reason && (
                         <p className="mt-2 line-clamp-2 rounded-md bg-red-50 p-2 text-xs font-medium text-red-700">
@@ -938,6 +1014,10 @@ export default function B2BVettingDetailPage({
                   )}
                 </InspectorSection>
 
+                <InspectorSection title="OCR assistance">
+                  <OcrAssistancePanel ocr={selectedDocument.ocr} />
+                </InspectorSection>
+
                 <InspectorSection title="Automated checks">
                   <div>
                     {buildAutomatedChecks({
@@ -1054,7 +1134,12 @@ export default function B2BVettingDetailPage({
           authHeaders={() => ({
             Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
           })}
-          onUploaded={(count) => { if (count > 0) setDocRefreshKey((k) => k + 1); }}
+          onUploaded={(count) => {
+            if (count > 0) {
+              setDocRefreshKey((k) => k + 1);
+              fetchSubmission({ showLoading: false });
+            }
+          }}
         />
       )}
     </>
@@ -1117,6 +1202,140 @@ function SummaryItem({ item }: { item: VettingSummaryItem }) {
     </div>
   );
 }
+
+function OcrAssistancePanel({
+  ocr,
+}: {
+  ocr: SubmissionDetail['documents'][number]['ocr'];
+}) {
+  const meta = ocrStatusMeta(ocr?.status);
+  const averageConfidence = ocr?.confidence?.averagePageConfidenceScore;
+  const minimumConfidence = ocr?.confidence?.minimumPageConfidenceScore;
+  const pagesProcessed = ocr?.usageInfo?.pagesProcessed;
+  const blocks = Array.isArray(ocr?.blocks) ? ocr.blocks : [];
+  const blockCounts = blocks.reduce<Record<string, number>>((counts, block) => {
+    const type = typeof block.type === 'string' ? block.type : 'unknown';
+    counts[type] = (counts[type] || 0) + 1;
+    return counts;
+  }, {});
+  const keyBlocks = blocks.filter((block) =>
+    ['signature', 'table', 'header', 'footer'].includes(String(block.type))
+  );
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm text-gray-600">Extraction status</span>
+        <StatusBadge
+          status={meta.label}
+          variant={meta.variant}
+          icon={meta.icon}
+          className="capitalize"
+        />
+      </div>
+
+      {!ocr && (
+        <p className="rounded-md border border-gray-200 bg-gray-50 p-3 text-sm text-gray-600">
+          No OCR enrichment has been recorded for this document yet.
+        </p>
+      )}
+
+      {ocr && ocr.status !== 'succeeded' && (
+        <p
+          className={cn(
+            'rounded-md border p-3 text-sm',
+            ocr.status === 'failed'
+              ? 'border-red-200 bg-red-50 text-red-700'
+              : 'border-gray-200 bg-gray-50 text-gray-600'
+          )}
+        >
+          {ocr.errorMessage ||
+            (ocr.status === 'skipped'
+              ? 'OCR is disabled for this environment.'
+              : 'OCR is still being prepared.')}
+        </p>
+      )}
+
+      {ocr?.status === 'succeeded' && (
+        <>
+          <div className="grid grid-cols-3 gap-2">
+            <OcrMetric label="Avg confidence" value={formatConfidence(averageConfidence)} />
+            <OcrMetric label="Min confidence" value={formatConfidence(minimumConfidence)} />
+            <OcrMetric
+              label="Pages"
+              value={typeof pagesProcessed === 'number' ? String(pagesProcessed) : '-'}
+            />
+          </div>
+
+          {Object.keys(blockCounts).length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Structural blocks
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {Object.entries(blockCounts).map(([type, count]) => (
+                  <span
+                    key={type}
+                    className="rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700"
+                  >
+                    {type}: {count}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {keyBlocks.length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Review cues
+              </p>
+              <div className="space-y-2">
+                {keyBlocks.slice(0, 4).map((block, index) => (
+                  <div
+                    key={`${block.type}-${index}`}
+                    className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700"
+                  >
+                    <span className="font-semibold capitalize">{block.type || 'block'}</span>
+                    {typeof block.pageIndex === 'number' && (
+                      <span className="ml-2 text-gray-500">Page {block.pageIndex + 1}</span>
+                    )}
+                    {block.content && (
+                      <p className="mt-1 line-clamp-2 text-gray-600">{block.content}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(ocr.markdown || ocr.markdownExcerpt) && (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Extracted text
+              </p>
+              <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 p-3 text-xs leading-5 text-gray-800">
+                {ocr.markdown || ocr.markdownExcerpt}
+              </pre>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function OcrMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-gray-200 bg-gray-50 px-2 py-2">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-semibold tabular-nums text-gray-900">{value}</p>
+    </div>
+  );
+}
+
 function DocumentViewer({
   title,
   selectedDocument,
