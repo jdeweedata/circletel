@@ -13,6 +13,12 @@ import { BillingService } from '@/lib/billing/billing-service';
 import { apiLogger } from '@/lib/logging';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
+function onboardingBillingBlocked(
+  customer: { onboarding_status?: string | null } | null | undefined
+): boolean {
+  return Boolean(customer?.onboarding_status && customer.onboarding_status !== 'billing_ready');
+}
+
 /**
  * POST /api/admin/billing/generate-invoices-now
  * 
@@ -40,7 +46,15 @@ export async function POST(request: NextRequest) {
     
     let query = supabase
       .from('customer_services')
-      .select('*')
+      .select(`
+        *,
+        customer:customers(
+          id,
+          account_number,
+          business_name,
+          onboarding_status
+        )
+      `)
       .eq('status', 'active');
     
     // Filter by specific service IDs if provided
@@ -77,6 +91,14 @@ export async function POST(request: NextRequest) {
     
     for (const service of services) {
       try {
+        if (onboardingBillingBlocked(service.customer)) {
+          apiLogger.info(
+            `Service ${service.id} onboarding status is ${service.customer?.onboarding_status}, skipping invoice generation`
+          );
+          skipped++;
+          continue;
+        }
+
         // Check if invoice already exists for current billing period
         const periodStart = service.last_billing_date || service.activation_date;
         const periodEnd = service.next_billing_date;
@@ -145,8 +167,11 @@ export async function POST(request: NextRequest) {
         generated++;
         
       } catch (error: unknown) {
-        apiLogger.error(`Failed to generate invoice for service ${service.id}:`, error);
-        errors.push(`Service ${service.id}: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        apiLogger.error(`Failed to generate invoice for service ${service.id}:`, {
+          error: errorMessage,
+        });
+        errors.push(`Service ${service.id}: ${errorMessage}`);
         failed++;
       }
     }
@@ -161,9 +186,10 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: unknown) {
-    apiLogger.error('Manual invoice generation failed:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    apiLogger.error('Manual invoice generation failed:', { error: errorMessage });
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage || 'Internal server error' },
       { status: 500 }
     );
   }

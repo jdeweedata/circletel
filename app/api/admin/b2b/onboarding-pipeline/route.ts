@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
-import { differenceInDays } from 'date-fns';
+import { getBusinessDaysUntil } from '@/lib/dates/business-days';
 
 interface PipelineClinic {
   account_number: string;
@@ -22,6 +22,7 @@ interface PipelineClinic {
   phone: string | null;
   email: string | null;
   stage: string;
+  display_stage: string;
   document_vetting_status: string | null;
   mandate_status: string | null;
   vetting_due_date: string | null;
@@ -38,6 +39,8 @@ interface PipelineClinic {
   incumbent_isp: string | null;
   incumbent_cost: number | null;
   contract_status: 'in_contract' | 'out_of_contract' | 'unknown';
+  current_service: PipelineService | null;
+  latest_invoice: PipelineInvoice | null;
 }
 
 interface PipelineResponse {
@@ -49,9 +52,238 @@ interface PipelineResponse {
     docs_approved: number;
     service_order_pending: number;
     billing_ready: number;
+    service_active: number;
     pending: number;
   };
   overdueCount: number;
+}
+
+interface VettingSla {
+  dueDate: string | null;
+  overdue: boolean;
+  businessDaysLeft: number | null;
+}
+
+interface PipelineService {
+  status: string | null;
+  active: boolean | null;
+  package_name: string | null;
+  monthly_price: number | null;
+  activation_date: string | null;
+  billing_day: number | null;
+  last_invoice_date: string | null;
+}
+
+interface PipelineInvoice {
+  invoice_number: string | null;
+  invoice_date: string | null;
+  due_date: string | null;
+  status: string | null;
+  total_amount: number | null;
+  amount_paid: number | null;
+  amount_due: number | null;
+  paid_at: string | null;
+  payment_collection_method: string | null;
+}
+
+interface PipelineSubmission {
+  status?: string | null;
+  document_vetting_status?: string | null;
+  submitted_at?: string | null;
+  vetting_due_date?: string | null;
+  service_order_issued_at?: string | null;
+}
+
+interface PipelinePaymentMethod {
+  method_type?: string | null;
+  mandate_status?: string | null;
+  is_active?: boolean | null;
+  encrypted_details?: unknown;
+}
+
+const CLOSED_VETTING_STATUSES = new Set(['approved', 'rejected', 'expired']);
+
+function dateTimeValue(value?: string | null): number {
+  if (!value) return 0;
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
+
+/**
+ * Vetting SLA only applies while documents are awaiting internal review.
+ * Once vetting resolves, completed rows stay in their pipeline stage but drop
+ * out of overdue counts and SLA filters.
+ */
+export function calculateVettingSla(
+  submission: {
+    document_vetting_status?: string | null;
+    vetting_due_date?: string | null;
+  } | null,
+  now = new Date()
+): VettingSla {
+  const status = submission?.document_vetting_status ?? null;
+  const isClosed = status !== null && CLOSED_VETTING_STATUSES.has(status);
+
+  if (!submission?.vetting_due_date || isClosed) {
+    return {
+      dueDate: null,
+      overdue: false,
+      businessDaysLeft: null,
+    };
+  }
+
+  const dueDate = new Date(submission.vetting_due_date);
+  if (Number.isNaN(dueDate.getTime())) {
+    return {
+      dueDate: null,
+      overdue: false,
+      businessDaysLeft: null,
+    };
+  }
+
+  const businessDaysLeft = getBusinessDaysUntil(now, dueDate);
+
+  return {
+    dueDate: submission.vetting_due_date,
+    overdue: businessDaysLeft < 0,
+    businessDaysLeft,
+  };
+}
+
+export function pickCurrentService(
+  services: Array<PipelineService & { created_at?: string | null }> | null | undefined
+): PipelineService | null {
+  if (!services || services.length === 0) return null;
+
+  const sorted = [...services].sort((a, b) => {
+    const aActive = a.status === 'active' || a.active === true ? 1 : 0;
+    const bActive = b.status === 'active' || b.active === true ? 1 : 0;
+    if (aActive !== bActive) return bActive - aActive;
+
+    return (
+      dateTimeValue(b.activation_date) - dateTimeValue(a.activation_date) ||
+      dateTimeValue(b.created_at) - dateTimeValue(a.created_at)
+    );
+  });
+
+  const service = sorted[0];
+
+  return {
+    status: service.status,
+    active: service.active,
+    package_name: service.package_name,
+    monthly_price: service.monthly_price,
+    activation_date: service.activation_date,
+    billing_day: service.billing_day,
+    last_invoice_date: service.last_invoice_date,
+  };
+}
+
+export function pickLatestInvoice(
+  invoices: Array<PipelineInvoice & { created_at?: string | null }> | null | undefined
+): PipelineInvoice | null {
+  if (!invoices || invoices.length === 0) return null;
+
+  const sorted = [...invoices].sort(
+    (a, b) =>
+      dateTimeValue(b.invoice_date) - dateTimeValue(a.invoice_date) ||
+      dateTimeValue(b.created_at) - dateTimeValue(a.created_at)
+  );
+
+  const invoice = sorted[0];
+
+  return {
+    invoice_number: invoice.invoice_number,
+    invoice_date: invoice.invoice_date,
+    due_date: invoice.due_date,
+    status: invoice.status,
+    total_amount: invoice.total_amount,
+    amount_paid: invoice.amount_paid,
+    amount_due: invoice.amount_due,
+    paid_at: invoice.paid_at,
+    payment_collection_method: invoice.payment_collection_method,
+  };
+}
+
+export function isPipelineServiceActive(
+  service: Pick<PipelineService, 'status' | 'active'> | null | undefined
+): boolean {
+  return service?.status === 'active' || service?.active === true;
+}
+
+function detailsObject(details: unknown): Record<string, unknown> {
+  return details && typeof details === 'object' && !Array.isArray(details)
+    ? (details as Record<string, unknown>)
+    : {};
+}
+
+export function paymentMethodIsCollectible(
+  paymentMethod: PipelinePaymentMethod | null | undefined
+): boolean {
+  const details = detailsObject(paymentMethod?.encrypted_details);
+  const verified = details.verified === true || details.verified === 'true';
+  const mandateActive =
+    paymentMethod?.mandate_status === 'active' || paymentMethod?.mandate_status === 'approved';
+
+  return (
+    paymentMethod?.method_type === 'debit_order' &&
+    paymentMethod?.is_active === true &&
+    mandateActive &&
+    verified &&
+    Boolean(details.account_number) &&
+    Boolean(details.branch_code)
+  );
+}
+
+export function pickDebitOrderPaymentMethod(
+  paymentMethods: PipelinePaymentMethod[] | null | undefined
+): PipelinePaymentMethod | null {
+  const debitOrderMethods = (paymentMethods || []).filter(
+    (paymentMethod) => paymentMethod.method_type === 'debit_order'
+  );
+
+  return (
+    debitOrderMethods.find(paymentMethodIsCollectible) ||
+    debitOrderMethods.find((paymentMethod) => paymentMethod.is_active === true) ||
+    debitOrderMethods[0] ||
+    null
+  );
+}
+
+export function pickLatestSubmission<T extends PipelineSubmission>(
+  submissions: T[] | null | undefined
+): T | null {
+  if (!submissions || submissions.length === 0) return null;
+
+  return [...submissions].sort(
+    (a, b) => dateTimeValue(b.submitted_at) - dateTimeValue(a.submitted_at)
+  )[0];
+}
+
+export function clinicIsBillingActivated(
+  stage: string,
+  submission: PipelineSubmission | null | undefined,
+  service: Pick<PipelineService, 'status' | 'active'> | null | undefined,
+  paymentMethod: PipelinePaymentMethod | null | undefined
+): boolean {
+  return (
+    stage === 'billing_ready' &&
+    submission?.document_vetting_status === 'approved' &&
+    Boolean(submission.service_order_issued_at) &&
+    isPipelineServiceActive(service) &&
+    paymentMethodIsCollectible(paymentMethod)
+  );
+}
+
+export function displayStageForClinic(
+  stage: string,
+  submission: PipelineSubmission | null | undefined,
+  service: Pick<PipelineService, 'status' | 'active'> | null | undefined,
+  paymentMethod: PipelinePaymentMethod | null | undefined
+): string {
+  return clinicIsBillingActivated(stage, submission, service, paymentMethod)
+    ? 'service_active'
+    : stage;
 }
 
 /**
@@ -133,7 +365,31 @@ export async function GET(request: NextRequest) {
         customer_payment_methods!customer_payment_methods_customer_id_fkey (
           id,
           mandate_status,
-          method_type
+          method_type,
+          is_active,
+          encrypted_details
+        ),
+        customer_services!customer_services_customer_id_fkey (
+          status,
+          active,
+          package_name,
+          monthly_price,
+          activation_date,
+          billing_day,
+          last_invoice_date,
+          created_at
+        ),
+        customer_invoices!customer_invoices_customer_id_fkey (
+          invoice_number,
+          invoice_date,
+          due_date,
+          status,
+          total_amount,
+          amount_paid,
+          amount_due,
+          paid_at,
+          payment_collection_method,
+          created_at
         )
       `
       )
@@ -158,6 +414,7 @@ export async function GET(request: NextRequest) {
         docs_approved: 0,
         service_order_pending: 0,
         billing_ready: 0,
+        service_active: 0,
         pending: 0,
       },
       overdueCount: 0,
@@ -166,14 +423,20 @@ export async function GET(request: NextRequest) {
     // Transform each clinic row
     for (const clinic of clinics || []) {
       // Latest submission (most recent, if any)
-      const submission = Array.isArray(clinic.onboarding_submissions)
-        ? clinic.onboarding_submissions[0]
-        : null;
+      const submission = pickLatestSubmission(
+        Array.isArray(clinic.onboarding_submissions) ? clinic.onboarding_submissions : null
+      );
 
       // Debit-order payment method (method_type='debit_order')
-      const debitOrderPm = Array.isArray(clinic.customer_payment_methods)
-        ? clinic.customer_payment_methods.find((pm: any) => pm.method_type === 'debit_order')
-        : null;
+      const debitOrderPm = pickDebitOrderPaymentMethod(
+        Array.isArray(clinic.customer_payment_methods) ? clinic.customer_payment_methods : null
+      );
+      const currentService = pickCurrentService(
+        Array.isArray(clinic.customer_services) ? clinic.customer_services : null
+      );
+      const latestInvoice = pickLatestInvoice(
+        Array.isArray(clinic.customer_invoices) ? clinic.customer_invoices : null
+      );
 
       const details =
         clinic.clinic_details && typeof clinic.clinic_details === 'object'
@@ -202,18 +465,11 @@ export async function GET(request: NextRequest) {
         debitOrderPm?.mandate_status || null,
         serviceOrderStatus
       );
+      const displayStage = displayStageForClinic(stage, submission, currentService, debitOrderPm);
 
-      // SLA calculation: vetting_due_date (if submitted) vs now
-      let businessDaysLeft: number | null = null;
-      let isOverdue = false;
-
-      if (submission?.vetting_due_date) {
-        const dueDate = new Date(submission.vetting_due_date);
-        businessDaysLeft = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        isOverdue = businessDaysLeft < 0;
-        if (isOverdue) {
-          result.overdueCount++;
-        }
+      const sla = calculateVettingSla(submission, now);
+      if (sla.overdue) {
+        result.overdueCount++;
       }
 
       const clinic_row: PipelineClinic = {
@@ -225,30 +481,29 @@ export async function GET(request: NextRequest) {
         phone: clinic.phone || null,
         email: clinic.email || null,
         stage,
+        display_stage: displayStage,
         document_vetting_status: submission?.document_vetting_status || null,
         mandate_status: debitOrderPm?.mandate_status || null,
         vetting_due_date: submission?.vetting_due_date || null,
         submitted_at: submission?.submitted_at || null,
         service_order_issued_at: submission?.service_order_issued_at || null,
         service_order_status: serviceOrderStatus,
-        sla: {
-          dueDate: submission?.vetting_due_date || null,
-          overdue: isOverdue,
-          businessDaysLeft,
-        },
+        sla,
         submission_id: submission?.id || null,
         site_address: (details.site_address as string) ?? null,
         incumbent_isp: (details.incumbent_isp as string) ?? null,
         incumbent_cost: (details.incumbent_cost as number) ?? null,
         contract_status:
           (details.contract_status as 'in_contract' | 'out_of_contract' | 'unknown') ?? 'unknown',
+        current_service: currentService,
+        latest_invoice: latestInvoice,
       };
 
       result.clinics.push(clinic_row);
 
       // Increment stage count
-      if (stage in result.stageCounts) {
-        result.stageCounts[stage as keyof typeof result.stageCounts]++;
+      if (displayStage in result.stageCounts) {
+        result.stageCounts[displayStage as keyof typeof result.stageCounts]++;
       }
     }
 

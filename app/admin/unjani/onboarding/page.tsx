@@ -68,6 +68,7 @@ interface PipelineClinic {
   phone: string | null;
   email: string | null;
   stage: string;
+  display_stage: string;
   document_vetting_status: string | null;
   mandate_status: string | null;
   vetting_due_date: string | null;
@@ -84,6 +85,26 @@ interface PipelineClinic {
   incumbent_isp: string | null;
   incumbent_cost: number | null;
   contract_status: 'in_contract' | 'out_of_contract' | 'unknown';
+  current_service: {
+    status: string | null;
+    active: boolean | null;
+    package_name: string | null;
+    monthly_price: number | null;
+    activation_date: string | null;
+    billing_day: number | null;
+    last_invoice_date: string | null;
+  } | null;
+  latest_invoice: {
+    invoice_number: string | null;
+    invoice_date: string | null;
+    due_date: string | null;
+    status: string | null;
+    total_amount: number | null;
+    amount_paid: number | null;
+    amount_due: number | null;
+    paid_at: string | null;
+    payment_collection_method: string | null;
+  } | null;
 }
 
 interface PipelineResponse {
@@ -95,6 +116,7 @@ interface PipelineResponse {
     docs_approved: number;
     service_order_pending: number;
     billing_ready: number;
+    service_active: number;
     pending: number;
   };
   overdueCount: number;
@@ -120,12 +142,52 @@ const STAGES: StageMeta[] = [
   { id: 'docs_approved', label: 'Docs approved', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#5B8DEF', action: 'Issue service order' },
   { id: 'service_order_pending', label: 'SO signoff', pillBg: '#F5F3FF', pillFg: '#6D28D9', color: '#7C3AED', action: 'Resend service order' },
   { id: 'billing_ready', label: 'Ready to install', pillBg: '#16A34A', pillFg: '#FFFFFF', color: '#16A34A', action: 'Issue service order' },
+  { id: 'service_active', label: 'Billing active', pillBg: '#DFF7EA', pillFg: '#0F7A3D', color: '#0F7A3D', action: 'Billing active' },
 ];
 
 const STAGE_INDEX = Object.fromEntries(STAGES.map((s, i) => [s.id, i]));
+const PROGRESS_STAGES = STAGES.filter((s) => s.id !== 'service_active');
 
 function stageMeta(stage: string): StageMeta {
   return STAGES[STAGE_INDEX[stage]] ?? STAGES[0];
+}
+
+function serviceIsActive(clinic: PipelineClinic): boolean {
+  return clinic.current_service?.status === 'active' || clinic.current_service?.active === true;
+}
+
+function displayStageId(clinic: PipelineClinic): string {
+  return clinic.display_stage || clinic.stage;
+}
+
+function billingIsActive(clinic: PipelineClinic): boolean {
+  return displayStageId(clinic) === 'service_active';
+}
+
+function displayStageMeta(clinic: PipelineClinic): StageMeta {
+  return stageMeta(displayStageId(clinic));
+}
+
+function stageCount(data: PipelineResponse, stage: StageMeta['id']): number {
+  return data.stageCounts[stage] ?? 0;
+}
+
+function canRunPrimaryAction(clinic: PipelineClinic): boolean {
+  if (billingIsActive(clinic)) return false;
+  if (clinic.stage === 'billing_ready' && clinic.service_order_issued_at) return false;
+  return true;
+}
+
+function displayDate(value: string | null | undefined): string {
+  return value ? new Date(value).toLocaleDateString('en-ZA') : '—';
+}
+
+function displayStatus(value: string | null | undefined): string {
+  if (!value) return '—';
+  return value
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
 // ---------- SLA helpers (vetting SLA from the API) ----------
@@ -330,7 +392,7 @@ export default function UnjaniOnboardingPipelinePage() {
 
   /** Pipeline stage by normalised clinic name — cross-references the register view. */
   const pipelineStageByName = useMemo(
-    () => new Map(clinics.map((c) => [normName(c.business_name), c.stage])),
+    () => new Map(clinics.map((c) => [normName(c.business_name), displayStageId(c)])),
     [clinics]
   );
 
@@ -349,7 +411,7 @@ export default function UnjaniOnboardingPipelinePage() {
     const q = query.trim().toLowerCase();
     return clinics.filter(
       (c) =>
-        (!stageFilter || c.stage === stageFilter) &&
+        (!stageFilter || displayStageId(c) === stageFilter) &&
         (!provinceFilter || c.province === provinceFilter) &&
         (!slaFilter || slaStatus(c) === slaFilter) &&
         (!q ||
@@ -366,8 +428,8 @@ export default function UnjaniOnboardingPipelinePage() {
       let vb: string | number;
       switch (sortKey) {
         case 'stage':
-          va = STAGE_INDEX[a.stage] ?? 0;
-          vb = STAGE_INDEX[b.stage] ?? 0;
+          va = STAGE_INDEX[displayStageId(a)] ?? 0;
+          vb = STAGE_INDEX[displayStageId(b)] ?? 0;
           break;
         case 'sla':
           va = a.sla.businessDaysLeft ?? 999;
@@ -726,7 +788,7 @@ export default function UnjaniOnboardingPipelinePage() {
         `"${c.business_name}"`,
         c.province,
         `"${c.nurse_name ?? ''}"`,
-        stageMeta(c.stage).label,
+        displayStageMeta(c).label,
         st === 'err' ? 'Overdue' : st === 'warn' ? 'At risk' : st === 'ok' ? 'On track' : '',
         c.sla.businessDaysLeft ?? '',
         c.submitted_at ? new Date(c.submitted_at).toLocaleDateString('en-ZA') : '',
@@ -805,9 +867,9 @@ export default function UnjaniOnboardingPipelinePage() {
   }
 
   const total = clinics.length;
-  const readyCount = data.stageCounts.billing_ready;
-  const awaitingInvite = data.stageCounts.pending;
-  const maxStageCount = Math.max(...STAGES.map((s) => data.stageCounts[s.id]), 1);
+  const readyCount = data.stageCounts.billing_ready ?? 0;
+  const awaitingInvite = data.stageCounts.pending ?? 0;
+  const maxStageCount = Math.max(...STAGES.map((s) => stageCount(data, s.id)), 1);
   const maxProvinceCount = provinceCounts[0]?.[1] ?? 1;
 
   return (
@@ -892,9 +954,9 @@ export default function UnjaniOnboardingPipelinePage() {
       >
         <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2">
           {STAGES.map((s) => {
-            const count = data.stageCounts[s.id];
+            const count = stageCount(data, s.id);
             const overdueInStage = clinics.filter(
-              (c) => c.stage === s.id && slaStatus(c) === 'err'
+              (c) => displayStageId(c) === s.id && slaStatus(c) === 'err'
             ).length;
             const selected = stageFilter === s.id;
             return (
@@ -947,8 +1009,8 @@ export default function UnjaniOnboardingPipelinePage() {
               >
                 {(() => {
                   let offset = 25;
-                  return STAGES.filter((s) => data.stageCounts[s.id] > 0).map((s) => {
-                    const pct = (data.stageCounts[s.id] / total) * 100;
+                  return STAGES.filter((s) => stageCount(data, s.id) > 0).map((s) => {
+                    const pct = (stageCount(data, s.id) / total) * 100;
                     const seg = (
                       <circle
                         key={s.id}
@@ -981,7 +1043,7 @@ export default function UnjaniOnboardingPipelinePage() {
                 </text>
               </svg>
               <div className="flex flex-col gap-1.5 text-xs min-w-0">
-                {STAGES.filter((s) => data.stageCounts[s.id] > 0).map((s) => (
+                {STAGES.filter((s) => stageCount(data, s.id) > 0).map((s) => (
                   <div key={s.id} className="flex items-center gap-2 text-gray-600">
                     <span
                       className="w-2.5 h-2.5 rounded-sm shrink-0"
@@ -989,7 +1051,7 @@ export default function UnjaniOnboardingPipelinePage() {
                     />
                     <span className="truncate">{s.label}</span>
                     <span className="ml-auto pl-3 font-semibold text-gray-900 tabular-nums">
-                      {data.stageCounts[s.id]}
+                      {stageCount(data, s.id)}
                     </span>
                   </div>
                 ))}
@@ -1109,13 +1171,15 @@ export default function UnjaniOnboardingPipelinePage() {
                 </TableHeader>
                 <TableBody>
                   {sorted.map((clinic) => {
-                    const meta = stageMeta(clinic.stage);
+                    const meta = displayStageMeta(clinic);
                     const st = slaStatus(clinic);
-                    const stageIdx = STAGE_INDEX[clinic.stage] ?? 0;
+                    const stageIdx =
+                      displayStageId(clinic) === 'service_active'
+                        ? PROGRESS_STAGES.length
+                        : STAGE_INDEX[clinic.stage] ?? 0;
                     const issued = !!clinic.service_order_issued_at;
-                    const actionable =
-                      !issued ||
-                      !['billing_ready'].includes(clinic.stage);
+                    const actionable = canRunPrimaryAction(clinic) &&
+                      (!issued || !['billing_ready'].includes(clinic.stage));
                     return (
                       <TableRow
                         key={clinic.customer_id}
@@ -1141,13 +1205,14 @@ export default function UnjaniOnboardingPipelinePage() {
                             {meta.label}
                           </span>
                           <div className="flex gap-0.5 mt-1.5">
-                            {STAGES.map((_, i) => (
+                            {PROGRESS_STAGES.map((_, i) => (
                               <span
                                 key={i}
                                 className={cn(
                                   'w-3 h-1 rounded-full',
                                   i < stageIdx ||
-                                    clinic.stage === 'billing_ready'
+                                    clinic.stage === 'billing_ready' ||
+                                    displayStageId(clinic) === 'service_active'
                                     ? 'bg-circleTel-orange'
                                     : 'bg-gray-200'
                                 )}
@@ -1279,7 +1344,9 @@ export default function UnjaniOnboardingPipelinePage() {
                               </Button>
                             )
                           ) : (
-                            <span className="text-xs text-gray-400">Handed over</span>
+                            <span className="text-xs text-gray-400">
+                              {billingIsActive(clinic) ? 'Billing active' : 'Handed over'}
+                            </span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -1302,7 +1369,7 @@ export default function UnjaniOnboardingPipelinePage() {
       {view === 'kanban' && (
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2 items-start">
           {STAGES.map((s) => {
-            const cards = filtered.filter((c) => c.stage === s.id);
+            const cards = filtered.filter((c) => displayStageId(c) === s.id);
             return (
               <div
                 key={s.id}
@@ -1334,6 +1401,11 @@ export default function UnjaniOnboardingPipelinePage() {
                           {clinic.province || '—'}
                           {clinic.nurse_name && <> · {clinic.nurse_name}</>}
                         </div>
+                        {s.id !== 'service_active' && serviceIsActive(clinic) && (
+                          <div className="text-[11px] font-semibold text-green-600 mt-1">
+                            Pilot service active
+                          </div>
+                        )}
                         {st !== null && (
                           <div className={cn('text-[11px] font-semibold mt-1', SLA_TEXT[st])}>
                             {slaLabel(clinic)}
@@ -1626,7 +1698,7 @@ export default function UnjaniOnboardingPipelinePage() {
                   className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/15 text-white"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                  {stageMeta(drawerClinic.stage).label}
+                  {displayStageMeta(drawerClinic).label}
                 </span>
               </SheetHeader>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -1781,6 +1853,75 @@ export default function UnjaniOnboardingPipelinePage() {
                       <dt className="text-gray-500">Contract</dt>
                       <dd><ContractBadge status={drawerClinic.contract_status} /></dd>
                     </div>
+                    {drawerClinic.current_service && (
+                      <>
+                        <div className="flex justify-between gap-4 border-t border-gray-100 pt-2">
+                          <dt className="text-gray-500">CircleTel service</dt>
+                          <dd className="text-gray-900 text-right">
+                            <span
+                              className={cn(
+                                'inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                serviceIsActive(drawerClinic)
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-gray-100 text-gray-600'
+                              )}
+                            >
+                              {displayStatus(drawerClinic.current_service.status)}
+                            </span>
+                            <div className="mt-1 text-xs text-gray-500">
+                              {drawerClinic.current_service.package_name || 'Connectivity'}
+                              {drawerClinic.current_service.monthly_price != null &&
+                                ` · ${fmtRand(Number(drawerClinic.current_service.monthly_price))}/mo`}
+                            </div>
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-gray-500">Activated</dt>
+                          <dd className="text-gray-900 text-right">
+                            {displayDate(drawerClinic.current_service.activation_date)}
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-gray-500">Billing day</dt>
+                          <dd className="text-gray-900 text-right">
+                            {drawerClinic.current_service.billing_day
+                              ? `Day ${drawerClinic.current_service.billing_day}`
+                              : '—'}
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-gray-500">Last invoice date</dt>
+                          <dd className="text-gray-900 text-right">
+                            {displayDate(drawerClinic.current_service.last_invoice_date)}
+                          </dd>
+                        </div>
+                      </>
+                    )}
+                    {drawerClinic.latest_invoice && (
+                      <div className="flex justify-between gap-4 border-t border-gray-100 pt-2">
+                        <dt className="text-gray-500">Latest invoice</dt>
+                        <dd className="text-gray-900 text-right">
+                          <div className="font-medium">
+                            {drawerClinic.latest_invoice.invoice_number || '—'} ·{' '}
+                            {displayStatus(drawerClinic.latest_invoice.status)}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {displayDate(drawerClinic.latest_invoice.invoice_date)}
+                            {drawerClinic.latest_invoice.total_amount != null &&
+                              ` · ${fmtRand(Number(drawerClinic.latest_invoice.total_amount))}`}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {displayStatus(drawerClinic.latest_invoice.payment_collection_method)}
+                            {drawerClinic.latest_invoice.paid_at
+                              ? ` · paid ${displayDate(drawerClinic.latest_invoice.paid_at)}`
+                              : drawerClinic.latest_invoice.amount_due != null &&
+                                  Number(drawerClinic.latest_invoice.amount_due) > 0
+                                ? ` · ${fmtRand(Number(drawerClinic.latest_invoice.amount_due))} due`
+                                : ''}
+                          </div>
+                        </dd>
+                      </div>
+                    )}
                   </dl>
                 </div>
                 <div>
@@ -1789,7 +1930,7 @@ export default function UnjaniOnboardingPipelinePage() {
                   </h4>
                   <ul>
                     {STAGES.map((s, i) => {
-                      const idx = STAGE_INDEX[drawerClinic.stage] ?? 0;
+                      const idx = STAGE_INDEX[displayStageId(drawerClinic)] ?? 0;
                       const state = i < idx ? 'done' : i === idx ? 'now' : 'todo';
                       return (
                         <li key={s.id} className="relative pl-6 pb-4 text-sm last:pb-0">
@@ -1865,15 +2006,21 @@ export default function UnjaniOnboardingPipelinePage() {
                       View submission
                     </Button>
                   )}
-                  <Button
-                    className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
-                    disabled={actingOn === drawerClinic.customer_id}
-                    onClick={() => runNextAction(drawerClinic)}
-                  >
-                    {actingOn === drawerClinic.customer_id
-                      ? 'Working…'
-                      : stageMeta(drawerClinic.stage).action}
-                  </Button>
+                  {canRunPrimaryAction(drawerClinic) ? (
+                    <Button
+                      className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+                      disabled={actingOn === drawerClinic.customer_id}
+                      onClick={() => runNextAction(drawerClinic)}
+                    >
+                      {actingOn === drawerClinic.customer_id
+                        ? 'Working…'
+                        : stageMeta(drawerClinic.stage).action}
+                    </Button>
+                  ) : (
+                    <div className="flex-1 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-center text-sm font-semibold text-green-700">
+                      {billingIsActive(drawerClinic) ? 'Billing active' : 'Service order issued'}
+                    </div>
+                  )}
                 </div>
               </div>
             </>

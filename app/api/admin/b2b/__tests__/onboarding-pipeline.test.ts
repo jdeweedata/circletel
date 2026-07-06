@@ -2,18 +2,26 @@
  * Tests for onboarding-pipeline determineStage function
  */
 
-import { determineStage } from '../onboarding-pipeline/route';
+import {
+  calculateVettingSla,
+  determineStage,
+  displayStageForClinic,
+  pickDebitOrderPaymentMethod,
+  pickCurrentService,
+  pickLatestInvoice,
+  pickLatestSubmission,
+} from '../onboarding-pipeline/route';
 
 describe('determineStage', () => {
   describe('stage transitions without eMandate signature', () => {
     it('should return billing_ready when onboarding_status is billing_ready', () => {
-      const stage = determineStage('billing_ready', 'submitted', 'approved', 'pending');
+      const stage = determineStage('billing_ready', 'submitted', 'approved');
       expect(stage).toBe('billing_ready');
     });
 
     it('should return docs_approved when vetting_status is approved, regardless of mandate_status', () => {
       // This is the key change: docs_approved no longer requires mandate_status='active'
-      const stage = determineStage('in_progress', 'submitted', 'approved', 'pending');
+      const stage = determineStage('in_progress', 'submitted', 'approved');
       expect(stage).toBe('docs_approved');
     });
 
@@ -36,7 +44,7 @@ describe('determineStage', () => {
         { onboarding: null, submission: 'submitted', vetting: 'approved', mandate: 'active' },
       ];
       for (const input of inputs) {
-        const stage = determineStage(input.onboarding, input.submission, input.vetting, input.mandate);
+        const stage = determineStage(input.onboarding, input.submission, input.vetting);
         expect(stage).not.toBe('mandate_active');
       }
     });
@@ -44,35 +52,286 @@ describe('determineStage', () => {
 
   describe('other stage transitions (unchanged)', () => {
     it('should return changes_requested when vetting_status is rejected', () => {
-      const stage = determineStage('in_progress', 'submitted', 'rejected', null);
+      const stage = determineStage('in_progress', 'submitted', 'rejected');
       expect(stage).toBe('changes_requested');
     });
 
     it('should return submitted when submission_status is submitted', () => {
-      const stage = determineStage('in_progress', 'submitted', null, null);
+      const stage = determineStage('in_progress', 'submitted', null);
       expect(stage).toBe('submitted');
     });
 
     it('should return invited when onboarding_status is in_progress (no submission yet)', () => {
-      const stage = determineStage('in_progress', null, null, null);
+      const stage = determineStage('in_progress', null, null);
       expect(stage).toBe('invited');
     });
 
     it('should return pending as default', () => {
-      const stage = determineStage(null, null, null, null);
+      const stage = determineStage(null, null, null);
       expect(stage).toBe('pending');
     });
   });
 
   describe('billing_ready precedence', () => {
     it('billing_ready should override all other states', () => {
-      const stage = determineStage('billing_ready', null, null, null);
+      const stage = determineStage('billing_ready', null, null);
       expect(stage).toBe('billing_ready');
     });
 
     it('billing_ready should override even if docs_approved', () => {
-      const stage = determineStage('billing_ready', 'submitted', 'approved', 'pending');
+      const stage = determineStage('billing_ready', 'submitted', 'approved');
       expect(stage).toBe('billing_ready');
+    });
+  });
+});
+
+describe('calculateVettingSla', () => {
+  const now = new Date('2026-07-06T08:00:00+02:00');
+
+  it('clears SLA for approved vetting even when the due date is in the past', () => {
+    const sla = calculateVettingSla(
+      {
+        document_vetting_status: 'approved',
+        vetting_due_date: '2026-06-18T17:27:43.267+02:00',
+      },
+      now
+    );
+
+    expect(sla).toEqual({
+      dueDate: null,
+      overdue: false,
+      businessDaysLeft: null,
+    });
+  });
+
+  it('clears SLA for rejected vetting because internal review has completed', () => {
+    const sla = calculateVettingSla(
+      {
+        document_vetting_status: 'rejected',
+        vetting_due_date: '2026-06-18T17:27:43.267+02:00',
+      },
+      now
+    );
+
+    expect(sla).toEqual({
+      dueDate: null,
+      overdue: false,
+      businessDaysLeft: null,
+    });
+  });
+
+  it('keeps overdue SLA for submitted documents still awaiting review', () => {
+    const sla = calculateVettingSla(
+      {
+        document_vetting_status: 'documents_pending',
+        vetting_due_date: '2026-07-02T08:00:00+02:00',
+      },
+      now
+    );
+
+    expect(sla.dueDate).toBe('2026-07-02T08:00:00+02:00');
+    expect(sla.overdue).toBe(true);
+    expect(sla.businessDaysLeft).toBeLessThan(0);
+  });
+
+  it('keeps SLA open for under-review documents that are not yet overdue', () => {
+    const sla = calculateVettingSla(
+      {
+        document_vetting_status: 'under_review',
+        vetting_due_date: '2026-07-07T08:00:00+02:00',
+      },
+      now
+    );
+
+    expect(sla.dueDate).toBe('2026-07-07T08:00:00+02:00');
+    expect(sla.overdue).toBe(false);
+    expect(sla.businessDaysLeft).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('pipeline service and invoice summaries', () => {
+  it('prefers an active service over newer inactive service shells', () => {
+    const service = pickCurrentService([
+      {
+        status: 'pending',
+        active: false,
+        package_name: 'Future setup',
+        monthly_price: 450,
+        activation_date: null,
+        billing_day: 1,
+        last_invoice_date: null,
+        created_at: '2026-07-01T08:00:00+02:00',
+      },
+      {
+        status: 'active',
+        active: true,
+        package_name: 'Unjani Connectivity',
+        monthly_price: 450,
+        activation_date: '2026-06-01',
+        billing_day: 1,
+        last_invoice_date: '2026-07-01',
+        created_at: '2026-06-01T08:00:00+02:00',
+      },
+    ]);
+
+    expect(service).toMatchObject({
+      status: 'active',
+      active: true,
+      package_name: 'Unjani Connectivity',
+      activation_date: '2026-06-01',
+    });
+  });
+
+  it('groups only fully onboarded active services into the billing-active display bucket', () => {
+    const collectibleDebitOrder = {
+      method_type: 'debit_order',
+      mandate_status: 'active',
+      is_active: true,
+      encrypted_details: {
+        verified: true,
+        account_number: '1234567890',
+        branch_code: '250655',
+      },
+    };
+
+    expect(
+      displayStageForClinic(
+        'billing_ready',
+        {
+          document_vetting_status: 'approved',
+          service_order_issued_at: '2026-06-24T08:00:00+02:00',
+        },
+        {
+          status: 'active',
+          active: true,
+        },
+        collectibleDebitOrder
+      )
+    ).toBe('service_active');
+
+    expect(
+      displayStageForClinic(
+        'billing_ready',
+        {
+          document_vetting_status: 'approved',
+          service_order_issued_at: null,
+        },
+        {
+          status: 'active',
+          active: true,
+        },
+        collectibleDebitOrder
+      )
+    ).toBe('billing_ready');
+
+    expect(
+      displayStageForClinic(
+        'submitted',
+        {
+          document_vetting_status: 'documents_pending',
+          service_order_issued_at: null,
+        },
+        {
+          status: 'active',
+          active: true,
+        },
+        collectibleDebitOrder
+      )
+    ).toBe('submitted');
+
+    expect(
+      displayStageForClinic(
+        'pending',
+        null,
+        {
+          status: 'active',
+          active: true,
+        },
+        null
+      )
+    ).toBe('pending');
+  });
+
+  it('uses the newest submitted onboarding record when several exist', () => {
+    const submission = pickLatestSubmission([
+      {
+        status: 'submitted',
+        document_vetting_status: 'documents_pending',
+        submitted_at: '2026-06-20T08:00:00+02:00',
+      },
+      {
+        status: 'submitted',
+        document_vetting_status: 'approved',
+        submitted_at: '2026-06-24T08:00:00+02:00',
+      },
+    ]);
+
+    expect(submission).toMatchObject({
+      document_vetting_status: 'approved',
+      submitted_at: '2026-06-24T08:00:00+02:00',
+    });
+  });
+
+  it('prefers a collectible debit-order method over an inactive one', () => {
+    const paymentMethod = pickDebitOrderPaymentMethod([
+      {
+        method_type: 'debit_order',
+        mandate_status: 'pending',
+        is_active: false,
+        encrypted_details: {
+          verified: false,
+        },
+      },
+      {
+        method_type: 'debit_order',
+        mandate_status: 'approved',
+        is_active: true,
+        encrypted_details: {
+          verified: 'true',
+          account_number: '1234567890',
+          branch_code: '250655',
+        },
+      },
+    ]);
+
+    expect(paymentMethod).toMatchObject({
+      mandate_status: 'approved',
+      is_active: true,
+    });
+  });
+
+  it('uses the most recent invoice by invoice date for the drawer summary', () => {
+    const invoice = pickLatestInvoice([
+      {
+        invoice_number: 'INV-2026-00015',
+        invoice_date: '2026-06-19',
+        due_date: '2026-06-24',
+        status: 'paid',
+        total_amount: 276,
+        amount_paid: 276,
+        amount_due: 0,
+        paid_at: '2026-06-26T08:00:00+02:00',
+        payment_collection_method: 'debit_order',
+        created_at: '2026-06-19T08:00:00+02:00',
+      },
+      {
+        invoice_number: 'INV-2026-00025',
+        invoice_date: '2026-07-01',
+        due_date: '2026-07-01',
+        status: 'sent',
+        total_amount: 450,
+        amount_paid: 0,
+        amount_due: 450,
+        paid_at: null,
+        payment_collection_method: 'debit_order',
+        created_at: '2026-07-01T08:00:00+02:00',
+      },
+    ]);
+
+    expect(invoice).toMatchObject({
+      invoice_number: 'INV-2026-00025',
+      status: 'sent',
+      payment_collection_method: 'debit_order',
     });
   });
 });

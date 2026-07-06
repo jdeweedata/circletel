@@ -13,6 +13,12 @@ import { BillingService } from '@/lib/billing/billing-service';
 import { sendInvoiceGenerated } from '@/lib/emails/enhanced-notification-service';
 import { cronLogger } from '@/lib/logging';
 
+function onboardingBillingBlocked(
+  customer: { onboarding_status?: string | null } | null | undefined
+): boolean {
+  return Boolean(customer?.onboarding_status && customer.onboarding_status !== 'billing_ready');
+}
+
 /**
  * POST /api/cron/generate-invoices
  * 
@@ -77,7 +83,9 @@ export async function POST(request: NextRequest) {
           last_name,
           email,
           phone,
-          account_number
+          account_number,
+          business_name,
+          onboarding_status
         )
       `)
       .eq('status', 'active')
@@ -116,6 +124,14 @@ export async function POST(request: NextRequest) {
     // Process each service
     for (const service of services) {
       try {
+        if (onboardingBillingBlocked(service.customer)) {
+          cronLogger.info(
+            `Skipping service ${service.id}: customer onboarding status is ${service.customer?.onboarding_status}`
+          );
+          recordsSkipped++;
+          continue;
+        }
+
         // Check if invoice already exists for this billing period
         const periodStart = service.last_billing_date || service.activation_date;
         const periodEnd = service.next_billing_date;
@@ -184,8 +200,11 @@ export async function POST(request: NextRequest) {
         recordsProcessed++;
         
       } catch (error: unknown) {
-        cronLogger.error(`[GenerateInvoices] Failed to process service ${service.id}`, { error: error instanceof Error ? error.message : String(error) });
-        errors.push(`Service ${service.id}: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        cronLogger.error(`[GenerateInvoices] Failed to process service ${service.id}`, {
+          error: errorMessage,
+        });
+        errors.push(`Service ${service.id}: ${errorMessage}`);
         recordsFailed++;
       }
     }
@@ -220,7 +239,9 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: unknown) {
-    cronLogger.error('[GenerateInvoices] Invoice generation job failed', { error: error instanceof Error ? error.message : String(error) });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    cronLogger.error('[GenerateInvoices] Invoice generation job failed', { error: errorMessage });
     
     // Log failed execution
     const supabase = await createClient();
@@ -232,14 +253,14 @@ export async function POST(request: NextRequest) {
       records_processed: recordsProcessed,
       records_failed: recordsFailed,
       records_skipped: recordsSkipped,
-      error_message: error.message,
+      error_message: errorMessage,
       error_details: {
-        stack: error.stack
+        stack: errorStack
       }
     });
     
     return NextResponse.json(
-      { error: 'Invoice generation failed', details: error.message },
+      { error: 'Invoice generation failed', details: errorMessage },
       { status: 500 }
     );
   }

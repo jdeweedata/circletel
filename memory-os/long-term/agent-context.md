@@ -87,6 +87,37 @@ Format:
 - **Discovered by:** Codex
 - **Notes:** Full-project TypeScript checks can take several minutes from a worktree; use a bounded timeout and report if it does not complete.
 
+### 2026-06-30: Admin-Assisted B2B Manual Intake Direction
+- **Context:** Planning for admin-assisted B2B onboarding/manual intake from documents received by email, covering Unjani and future business customers.
+- **Pattern:** Manual intake must support both selecting an existing B2B/Unjani customer and creating a new pending business customer shell. New shells must stay non-billable until documents are approved, debit-order banking details are captured, the customer accepts the Service Order through a secure signoff link, a final Service Order PDF is issued, and the service is active/billable.
+- **Plan:** Executable implementation plan saved at `docs/superpowers/plans/2026-06-30-admin-assisted-b2b-onboarding.md`.
+- **Discovered by:** Codex
+
+### 2026-06-30: Staging Runner Disk Pressure Cleanup
+- **Context:** Staging deploy run `28447363810` failed before checkout because `/dev/sda1` had only ~3.4GB free after cleanup, below the workflow's 4GB guard.
+- **Pattern:** First safe reclaim batch is runner workspace/cache plus merged worktrees: remove `/home/actions-runner/_work/circletel/circletel`, `/home/actions-runner/.next-cache`, `/home/actions-runner/node_modules.tar`, `/home/actions-runner/.nm-cache-key`, and merged worktree `/home/circletel/.worktrees/admin-assisted-b2b-onboarding`. This reclaimed ~14GB and left `/` at 18GB free.
+- **Discovered by:** Codex
+
+### 2026-06-30: Product Docs Residential Pricing Drift
+- **Context:** Read-through of `products/` found conflicting SkyFibre Home residential references.
+- **Pattern:** Treat `products/connectivity/residential/SkyFibre_Residential_Product_Document_v3_0.md`, the standalone March 31 DOCX files, and `skyfibre_home_residential_products_v2_0.json` as the corrected residential sources for Plus/Max: 50/12.5 Mbps at R899 incl. VAT and 100/25 Mbps at R999 incl. VAT, both 4:1 asymmetric. Older catalogue/spec files still show outdated higher/ex-VAT-style pricing, and the Ultra DOCX exists at R1,299 incl. VAT but is absent from the JSON.
+- **Discovered by:** Codex
+
+### 2026-06-30: Offer-Driven No-Code Product Publishing Direction
+- **Context:** User wants to stop coding a bespoke Next.js frontend page for every new product, hardware sale, bundle, or solution.
+- **Pattern:** Treat `Offer` as the customer-buyable commercial source, then attach marketing/content/channel publishing metadata to Offers. Public website pages, campaign landing pages, Google Shopping, Facebook/Meta catalog, WhatsApp sales flows, and partner/admin quote flows should consume published Offers instead of each querying product source tables directly. Source product tables remain systems of record; CMS/page-builder blocks should reference Offer IDs so sales and marketing can publish pages/promotions without manually duplicating price, VAT, availability, or fulfilment rules.
+- **Discovered by:** Codex
+
+### 2026-06-30: Astro CMS Fit Decision
+- **Context:** User asked whether Astro should be hosted in this repo to make CMS/product pages easier.
+- **Pattern:** Astro is viable only as a separate marketing/static-content zone with unique path ownership, but the recommended first move for CircleTel is Next-native dynamic CMS pages because the repo already has `pb_pages`, CMS block renderers, admin CMS builder APIs, Offer public read code, auth, Supabase, checkout, and channel/order flows in Next. Do not put Astro inside the existing Next `app/` tree. If Astro is adopted later, isolate it as a monorepo app or separate container under a route prefix such as `/blog/*`, `/resources/*`, or `/campaign-static/*`, and keep buyable products/pricing/stock/checkout driven by Next Offers.
+- **Discovered by:** Codex
+
+### 2026-06-30: Product CMS Should Be Template-Driven First
+- **Context:** User clarified that the existing CircleTel CMS/page builder is not polished or fully functional today, and showed Teljoy-style storefront, product detail, category, modal, and campaign examples as the target.
+- **Pattern:** Treat the current CMS as an unfinished prototype, not the launch dependency. The recommended product-publishing path is a template-driven Product Publishing Studio: Offer data supplies commercial truth, curated templates render storefront/category/product/campaign pages, AI generates draft copy/assets from approved Offer context, and marketing approves/schedules publication. Avoid a broad freeform drag-and-drop rebuild as Phase 1; Teljoy-like commerce pages are mostly structured templates plus promotional creative, not arbitrary page composition.
+- **Discovered by:** Codex
+
 ### YYYY-MM-DD: Pattern
 - **Context:** When this applies
 - **Pattern:** The approach that works
