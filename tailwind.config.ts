@@ -179,7 +179,6 @@ export default {
 				'body': ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
 				'mono': ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
 				'display': ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-				'poppins': ['var(--font-poppins)', 'var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],  // Admin display font
 				'data': ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],  // Inter for data (better number legibility)
 			},
 			// Typography Scale - 1.32× modular (Payfast-inspired)
