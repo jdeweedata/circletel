@@ -150,3 +150,11 @@ jobs:
                     '**Ready to approve and auto-merge!**\n\n' +
                     '_Note: Add Supabase secrets for full build validation._'
             })
+
+  brand-literal-ratchet:
+    name: Brand-literal ratchet (whitelabel)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check brand-literal count vs baseline
+        run: bash scripts/check-brand-literals.sh
