@@ -42,6 +42,16 @@ export default function AdminLayout({
   const fullScreenRoutes = ['/admin/cms/builder'];
   const isFullScreenRoute = fullScreenRoutes.some(route => pathname?.startsWith(route));
 
+  // Admin theme scope: attribute goes on <body> (not a wrapper div) so Radix
+  // portals (dialogs, dropdowns, toasts) inherit the tokens too.
+  // Token definitions live in app/admin/admin-theme.css.
+  useEffect(() => {
+    document.body.setAttribute('data-admin-theme', '');
+    return () => {
+      document.body.removeAttribute('data-admin-theme');
+    };
+  }, []);
+
   // Fetch admin user from API (server-side validates session from cookies)
   useEffect(() => {
     if (isPublicRoute) {
