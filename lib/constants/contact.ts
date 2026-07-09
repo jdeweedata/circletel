@@ -1,61 +1,13 @@
 /**
- * CircleTel Contact Information Constants
+ * Contact Information Constants (legacy path)
  *
- * Centralized contact details for use across the application.
- * Update these values here to propagate changes site-wide.
+ * Now DERIVED from the tenant config layer — see lib/tenant/ and
+ * docs/architecture/TENANT_CONFIG.md. Do not add values here; add them
+ * to lib/tenant/ instead. Kept so 23 existing consumers work unchanged.
  */
+import { getTenantConfig } from '@/lib/tenant';
 
-export const CONTACT = {
-  // WhatsApp (Primary support channel)
-  WHATSAPP_NUMBER: '082 487 3900',
-  WHATSAPP_LINK: 'https://wa.me/27824873900',
-  WHATSAPP_INTERNATIONAL: '+27 82 487 3900',
-
-  // Sales phone (OUTBOUND only - not for public display)
-  // Inbound sales: WhatsApp or sales@circletel.co.za → ZOHO Desk
-  PHONE_SALES_OUTBOUND: '010 880 3663',
-
-  // Email addresses
-  EMAIL_PRIMARY: 'contactus@circletel.co.za', // Use this for all public-facing contact
-  EMAIL_SUPPORT: 'contactus@circletel.co.za', // Alias for backward compatibility
-  EMAIL_SALES: 'sales@circletel.co.za',
-  EMAIL_BILLING: 'billing@circletel.co.za',
-  EMAIL_LEGAL: 'legal@circletelsa.co.za',
-  EMAIL_NOTIFICATIONS: 'no-reply@notify.circletel.co.za',
-
-  // Business hours
-  BUSINESS_HOURS: 'Monday - Friday: 08:00 - 17:00 SAST',
-  SUPPORT_HOURS: 'Mon-Fri, 8am-5pm', // NOT 24/7 - WhatsApp + AI assistance during business hours
-
-  // Physical address (CIPC registered — M2008026404)
-  PHYSICAL_ADDRESS: {
-    name: 'Circle Tel SA (Pty) Ltd',
-    attention: 'Contracts and Commercial Manager',
-    building: 'Imagine House',
-    street: '2 Mellis Road',
-    suburb: 'Rivonia',
-    city: 'Sandton',
-    province: 'Gauteng',
-    postalCode: '2191',
-    country: 'South Africa',
-  },
-
-  // Postal address (same as physical)
-  POSTAL_ADDRESS: {
-    street: '2 Mellis Road',
-    building: 'Imagine House',
-    suburb: 'Rivonia',
-    city: 'Sandton',
-    postalCode: '2191',
-  },
-
-  // Phone for PDFs/formal documents
-  PHONE_FORMAL: '+27 87 087 6307',
-
-  // Website
-  WEBSITE: 'https://www.circletel.co.za',
-  WEBSITE_SHORT: 'circletel.co.za',
-} as const
+export const CONTACT = getTenantConfig().contacts;
 
 /**
  * Format a phone number for international calling
