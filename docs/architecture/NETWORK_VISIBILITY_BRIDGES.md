@@ -2,6 +2,8 @@
 
 **Date:** 2026-07-09 · **Status:** verified live · **Scope:** how CircleTel sees active sites across the on-site device stack.
 
+> **Whitelabel alignment:** these bridges are Seam-3 (Integration Gateway) integrations — they will conform to the `lib/integrations/core/` adapter contract and resolve credentials via the tenant config layer (not `process.env`). See `docs/superpowers/specs/2026-07-09-whitelabel-alignment-network-billing.md`.
+
 ## 1. Site topology — three device layers
 
 Every **managed** site (Unjani clinic, business connectivity) has the same stack:

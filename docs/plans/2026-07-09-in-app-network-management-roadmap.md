@@ -4,6 +4,8 @@
 **Owner:** CircleTel platform
 **Goal:** Run and manage the entire device fleet from inside the CircleTel admin app — a real NOC — built on the live Ruijie Cloud API (and, later, MikroTik + other vendors).
 
+> **Whitelabel alignment (Seam 3 — Integration Gateway):** the vendor-neutral `NetworkDeviceAdapter` (Phase 0/6 below) is an *implementation of* the future `lib/integrations/core/` adapter contract (`authenticate/healthCheck/capabilities`), not a parallel abstraction; the `ruijie/tarana/mikrotik_sync_logs` tables consolidate into `integration_runs`; credentials resolve via the tenant config layer, not `process.env`; per-tenant enable/disable via the feature registry. See `docs/superpowers/specs/2026-07-09-whitelabel-alignment-network-billing.md`.
+
 ---
 
 ## 1. Vision & Scope

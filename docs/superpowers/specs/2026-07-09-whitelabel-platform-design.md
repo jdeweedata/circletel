@@ -301,6 +301,8 @@ Ordered by business value to CircleTel *now* — every phase pays for itself eve
 tenant ever signs. **Each phase gets its own spec → plan → implementation cycle**; this
 document is the umbrella, not one giant plan.
 
+> **Companion spec (cross-cutting, not a phase):** `docs/superpowers/specs/2026-07-09-whitelabel-alignment-network-billing.md` maps the 2026-07 network-management + revenue-assurance work onto Seam 3 (Integration Gateway) and Seam 1 (Billing Engine); its items are woven into the relevant phase plans.
+
 | Phase | Duration (est.) | Scope | Why this order |
 |---|---|---|---|
 | **0** | ~1–2 wks | Guardrails: `lib/tenant/` skeleton + config accessor, feature registry + generated nav, brand-literal CI gate, docs-in-DoD PR template, portable scheduler decision (§12), security quick wins (close criticals) | Cheap; stops the holes getting deeper; everything after builds on it |

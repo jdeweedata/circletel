@@ -4,6 +4,8 @@
 **Parent:** `docs/plans/2026-07-09-in-app-network-management-roadmap.md` (§6a Revenue Assurance)
 **Evidence:** `docs/plans/2026-07-09-revenue-assurance-map-coverage-audit.md`
 
+> **Whitelabel alignment (Seam 1 — Billing Engine):** Revenue Assurance is a **detect-only** layer — it produces `ra_exceptions`; *remediation* (advance-to-billing-ready, catch-up invoice, credit note) is executed by the billing engine / `CompliantBillingService`, never RA raw SQL. `ra_exceptions` emit to `platform_events`; `ra_recipients` route through the unified `notify()`. See `docs/superpowers/specs/2026-07-09-whitelabel-alignment-network-billing.md`.
+
 ## 1. Why
 Consumer cellular customers (5G/LTE on MTN SIM+router, e.g. Ashwyn R449, Raymund R649) have **no pollable active-signal** — they sit behind MTN CGNAT, don't touch Interstellio, and have no mapped Reyee AP (static-IP polling rejected as uneconomic). The pragmatic active-signal is a **monthly SIM-management report** from the carrier, uploaded and reconciled against billing. Built as a **reusable framework**, this is the first slice of the Revenue Assurance module and delivers the unified mapping table the audit flagged as prerequisite.
 
