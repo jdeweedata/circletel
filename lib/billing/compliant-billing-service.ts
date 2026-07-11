@@ -386,8 +386,7 @@ export class CompliantBillingService {
       .from('customer_invoices')
       .update({
         amount_paid: newAmountPaid,
-        status: newStatus,
-        payment_reference: `Credit Note: ${creditNote.credit_note_number}`
+        status: newStatus
       })
       .eq('id', originalInvoice.id);
 
