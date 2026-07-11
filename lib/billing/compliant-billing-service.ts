@@ -492,8 +492,8 @@ export class CompliantBillingService {
       .update({
         amount_paid: newAmountPaid,
         status: newStatus,
-        payment_method: paymentMethod,
-        payment_reference: paymentReference,
+        // NOTE: payment_method / payment_reference are NOT columns on
+        // customer_invoices — they are captured in the audit log below.
         paid_at: newStatus === 'paid' ? nowISO() : null
       })
       .eq('id', invoiceId);
