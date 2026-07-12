@@ -86,8 +86,17 @@ function CollapsedFlyout({
   useEffect(() => {
     if (!open) return;
     const reposition = () => {
-      const r = btnRef.current?.getBoundingClientRect();
-      if (r) setCoords({ top: r.top, left: r.right });
+      const btn = btnRef.current;
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      // The panel is `position: fixed`, but the sidebar's `lg:translate-x-0`
+      // transform makes the SIDEBAR its containing block — so fixed coords are
+      // relative to the sidebar box, not the viewport. Subtract the sidebar
+      // origin so the panel tracks the trigger at any scroll position (verified:
+      // without this, bottom items in a scrolled long page fly off-screen).
+      const host = btn.closest('[data-testid="sidebar"]');
+      const h = host?.getBoundingClientRect();
+      setCoords({ top: r.top - (h?.top ?? 0), left: r.right - (h?.left ?? 0) });
     };
     reposition();
     window.addEventListener('scroll', reposition, true);

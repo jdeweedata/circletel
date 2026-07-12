@@ -64,10 +64,13 @@ applies the same visual language to per-item children.
   the panel can't escape, so it loses the paint order to the content column. Confirmed live via
   `document.elementFromPoint` (panel CSS-visible but not the hit-target). Raising the sidebar's
   z-index does **not** fix it (the occluder is in a different context). The fix is the spec's escape
-  hatch: render the panel **`position: fixed`**, positioned from the trigger's
-  `getBoundingClientRect` (top = rect.top, left = rect.right), `z-60`, re-read on scroll/resize while
-  open. It stays a DOM child of the wrapper so the hover-bridge is preserved. Re-verified live:
-  `hitInsidePanel: true`.
+  hatch: render the panel **`position: fixed`**, `z-60`, re-read on scroll/resize while open, kept a
+  DOM child of the wrapper so the hover-bridge **and** keyboard tab-order are preserved (a portal
+  would break both). Because the sidebar's transform makes it the containing block for the fixed
+  panel, coords are **relative to the sidebar box, not the viewport**:
+  `top = rect.top − sidebarRect.top`, `left = rect.right − sidebarRect.left`. Without the subtraction,
+  items low in a scrolled long page fly off-screen (`top` negative). Verified live at top and bottom
+  of a long workspace: `hitInsidePanel: true`, `withinViewport: true`.
 
 ---
 
