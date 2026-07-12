@@ -482,18 +482,19 @@ export interface WorkspaceMeta {
 }
 
 const ELEVATED: AdminRole[] = ['super_admin', 'product_manager'];
+const OPERATIONAL: AdminRole[] = ['super_admin', 'product_manager', 'editor'];
 const ALL_ADMIN_ROLES: AdminRole[] = ['super_admin', 'product_manager', 'editor', 'viewer'];
 
-// Parity with today's getVisibleSections({isAdmin}): everyone sees the feature
-// workspaces; only elevated roles see Administration. Persona-role refinement
-// (editor vs viewer) is a later decision (spec §5 / porting-plan B1).
+// B1a: viewer -> read-oriented (Executive/Support); editor -> operational
+// feature workspaces; elevated -> all incl. Administration (parity with
+// today's getVisibleSections({isAdmin})).
 export const WORKSPACES: WorkspaceMeta[] = [
   { id: 'executive', label: 'Executive',         roles: ALL_ADMIN_ROLES, order: 0 },
-  { id: 'finance',   label: 'Finance',           roles: ALL_ADMIN_ROLES, order: 1 },
-  { id: 'sales',     label: 'Sales & Marketing', roles: ALL_ADMIN_ROLES, order: 2 },
-  { id: 'ops',       label: 'Ops & Onboarding',  roles: ALL_ADMIN_ROLES, order: 3 },
+  { id: 'finance',   label: 'Finance',           roles: OPERATIONAL,     order: 1 },
+  { id: 'sales',     label: 'Sales & Marketing', roles: OPERATIONAL,     order: 2 },
+  { id: 'ops',       label: 'Ops & Onboarding',  roles: OPERATIONAL,     order: 3 },
   { id: 'support',   label: 'Support',           roles: ALL_ADMIN_ROLES, order: 4 },
-  { id: 'platform',  label: 'Platform',          roles: ALL_ADMIN_ROLES, order: 5 },
+  { id: 'platform',  label: 'Platform',          roles: OPERATIONAL,     order: 5 },
   { id: 'admin',     label: 'Administration',    roles: ELEVATED,        order: 6 },
 ];
 

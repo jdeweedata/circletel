@@ -119,3 +119,21 @@ describe('module + workspace axes', () => {
     expect(workspaceForPath('/admin/nonexistent')).toBeNull();
   });
 });
+
+describe('B1a role -> workspace mapping', () => {
+  it('viewer sees only read-oriented workspaces (executive, support)', () => {
+    const ws = getWorkspaceNav({ role: 'viewer' }).map((w) => w.id);
+    expect(ws.every((id) => id === 'executive' || id === 'support')).toBe(true);
+    expect(ws).toContain('support');
+  });
+  it('editor sees operational workspaces but not Administration', () => {
+    const ws = getWorkspaceNav({ role: 'editor' }).map((w) => w.id);
+    expect(ws).toEqual(expect.arrayContaining(['finance', 'sales', 'ops', 'platform']));
+    expect(ws).not.toContain('admin');
+  });
+  it('elevated roles see Administration', () => {
+    for (const role of ['super_admin', 'product_manager'] as const) {
+      expect(getWorkspaceNav({ role }).map((w) => w.id)).toContain('admin');
+    }
+  });
+});
