@@ -592,7 +592,7 @@ function moduleItemVisible(item: NavItem, role: AdminRole): boolean {
 
 /**
  * Role-scoped, module-gated nav grouped by workspace.
- * @param modules enabled ModuleIds for the tenant; omit = all on (CircleTel #1).
+ * @param modules enabled ModuleIds for the tenant; omit = all on (tenant #1).
  *                This is the whitelabel per-module entitlement switch (Phase 2).
  */
 export function getWorkspaceNav(opts: {
