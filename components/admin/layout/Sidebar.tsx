@@ -16,7 +16,7 @@ import type { IconType } from 'react-icons';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
   Tooltip,
@@ -62,8 +62,15 @@ const WORKSPACE_ICON: Record<WorkspaceId, IconType> = {
  * links (PR4). Leaf items keep a name Tooltip; expanded rail uses the inline
  * accordion. ponytail: CSS transition (not framer) matches the sidebar's motion
  * vocabulary and `motion-reduce:` handles reduced-motion in one class — swap for
- * motion.div + useReducedMotion() only if spring physics is wanted. The panel is
- * `left-full pl-2`: contiguous with the icon (no hover dead-zone), pl-2 = the gap.
+ * motion.div + useReducedMotion() only if spring physics is wanted.
+ *
+ * The panel is `position: fixed`, positioned from the trigger's
+ * getBoundingClientRect (spec §3 escalation). An `absolute left-full` panel is
+ * painted BEHIND the main content because the sidebar's `lg:translate-x-0`
+ * transform creates a stacking context the panel can't escape (verified live via
+ * elementFromPoint). `fixed` lifts it above content; it stays a DOM child of the
+ * wrapper so the hover-bridge (icon→panel without a dead-zone) still works, and
+ * it re-reads the rect on scroll/resize while open.
  */
 function CollapsedFlyout({
   item,
@@ -73,6 +80,24 @@ function CollapsedFlyout({
   isActiveLink: (href: string, end?: boolean) => boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (!open) return;
+    const reposition = () => {
+      const r = btnRef.current?.getBoundingClientRect();
+      if (r) setCoords({ top: r.top, left: r.right });
+    };
+    reposition();
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [open]);
+
   if (!hasChildren(item)) return null;
   return (
     <div
@@ -85,6 +110,7 @@ function CollapsedFlyout({
       }}
     >
       <button
+        ref={btnRef}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={item.name}
@@ -95,8 +121,9 @@ function CollapsedFlyout({
 
       <div
         role="menu"
+        style={{ position: 'fixed', top: coords.top, left: coords.left, zIndex: 60 }}
         className={cn(
-          'absolute left-full top-0 z-50 min-w-56 pl-2 transition duration-150 ease-out',
+          'min-w-56 pl-2 transition duration-150 ease-out',
           'motion-reduce:transition-none',
           open
             ? 'visible translate-x-0 opacity-100'

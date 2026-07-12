@@ -59,10 +59,15 @@ applies the same visual language to per-item children.
 - **Keyboard:** icon button is tab-focusable (`aria-haspopup="menu"`, `aria-expanded`); focus opens
   the panel; child `<Link>`s live inside the focus-within container, so tabbing through them keeps
   it open; tabbing out (relatedTarget outside) closes it. No focus trap — it's a menu, not a modal.
-- **Scroll-clip risk:** the panel is `absolute` inside `<nav class="overflow-y-auto">`. A parent low
-  in a long workspace could clip against the scroll area. Verified live (§5). If it clips, the fix
-  is the switcher's escape hatch — render the panel `fixed` and position via `getBoundingClientRect`
-  on the trigger. Start `absolute`; escalate only if clipping is observed.
+- **Stacking / clip — escalation APPLIED:** an `absolute left-full` panel is painted *behind* the
+  main content. The collapsed sidebar has `lg:translate-x-0` (a transform → stacking context) that
+  the panel can't escape, so it loses the paint order to the content column. Confirmed live via
+  `document.elementFromPoint` (panel CSS-visible but not the hit-target). Raising the sidebar's
+  z-index does **not** fix it (the occluder is in a different context). The fix is the spec's escape
+  hatch: render the panel **`position: fixed`**, positioned from the trigger's
+  `getBoundingClientRect` (top = rect.top, left = rect.right), `z-60`, re-read on scroll/resize while
+  open. It stays a DOM child of the wrapper so the hover-bridge is preserved. Re-verified live:
+  `hitInsidePanel: true`.
 
 ---
 
