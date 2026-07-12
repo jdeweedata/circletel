@@ -64,3 +64,58 @@ describe('getVisibleSections', () => {
     expect(getVisibleSections(onlyHidden, { isAdmin: true })).toEqual([]);
   });
 });
+
+import {
+  ITEM_MODULE,
+  ITEM_WORKSPACE,
+  WORKSPACES,
+  getWorkspaceNav,
+  workspaceForPath,
+} from '@/lib/admin/feature-registry';
+
+describe('module + workspace axes', () => {
+  const allItems = [...featureSections, ...bottomSections].flatMap((s) => s.items);
+
+  it('every top-level item has a workspace and a module tag', () => {
+    for (const item of allItems) {
+      expect(ITEM_WORKSPACE[item.name]).toBeDefined();
+      expect(ITEM_MODULE[item.name]).toBeDefined();
+    }
+  });
+
+  it('tag maps reference only real item names (no typos / stale keys)', () => {
+    const names = new Set(allItems.map((i) => i.name));
+    for (const k of Object.keys(ITEM_WORKSPACE)) expect(names.has(k)).toBe(true);
+    for (const k of Object.keys(ITEM_MODULE)) expect(names.has(k)).toBe(true);
+  });
+
+  it('WORKSPACES ids cover every workspace referenced by items', () => {
+    const wsIds = new Set(WORKSPACES.map((w) => w.id));
+    for (const ws of Object.values(ITEM_WORKSPACE)) expect(wsIds.has(ws)).toBe(true);
+  });
+
+  it('super_admin sees all workspaces incl. Administration', () => {
+    const ws = getWorkspaceNav({ role: 'super_admin' }).map((w) => w.id);
+    expect(ws).toContain('admin');
+    expect(ws).toContain('finance');
+  });
+
+  it('editor and viewer never see the Administration workspace', () => {
+    for (const role of ['editor', 'viewer'] as const) {
+      expect(getWorkspaceNav({ role }).map((w) => w.id)).not.toContain('admin');
+    }
+  });
+
+  it('module entitlement hides a disabled module’s items', () => {
+    const withoutBilling = getWorkspaceNav({ role: 'super_admin', modules: ['core'] });
+    const finance = withoutBilling.find((w) => w.id === 'finance');
+    expect(finance).toBeUndefined(); // Billing & Revenue + Payments are module "billing"
+  });
+
+  it('workspaceForPath resolves known routes', () => {
+    expect(workspaceForPath('/admin/quotes')).toBe('sales');
+    expect(workspaceForPath('/admin/billing/invoices')).toBe('finance');
+    expect(workspaceForPath('/admin/settings')).toBe('admin');
+    expect(workspaceForPath('/admin/nonexistent')).toBeNull();
+  });
+});

@@ -55,6 +55,7 @@ import {
   PiWrenchBold,
 } from 'react-icons/pi';
 import { RandSign } from '@/components/ui/icons/rand-sign';
+import type { AdminRole } from '@/lib/auth/constants';
 
 export type Maturity = 'stable' | 'beta' | 'internal' | 'hidden';
 
@@ -457,4 +458,172 @@ export function getVisibleSections(
     .filter((s) => (s.maturity ?? 'stable') !== 'hidden' && (s.maturity ?? 'stable') !== 'internal')
     .map((s) => ({ ...s, items: s.items.filter(itemVisible) }))
     .filter((s) => s.items.length > 0);
+}
+
+// ── Module + Workspace axes (whitelabel productization) ───────────
+// Additive: existing data/exports above are untouched. See
+// docs/2026-07-11-modular-product-catalog.md and the role-scoped-admin spec.
+
+/** Sellable module a section belongs to (the whitelabel product axis). */
+export type ModuleId =
+  | 'billing' | 'ra' | 'offers' | 'sales' | 'crm' | 'orders' | 'field'
+  | 'coverage' | 'network' | 'compliance' | 'portal' | 'checkout'
+  | 'workflows' | 'integrations' | 'core';
+
+/** Role-area a section renders in (the admin-console nav axis). */
+export type WorkspaceId =
+  | 'finance' | 'sales' | 'ops' | 'support' | 'executive' | 'platform' | 'admin';
+
+export interface WorkspaceMeta {
+  id: WorkspaceId;
+  label: string;
+  roles: AdminRole[]; // roles that may enter this workspace (porting-plan B1a)
+  order: number;
+}
+
+const ELEVATED: AdminRole[] = ['super_admin', 'product_manager'];
+const ALL_ADMIN_ROLES: AdminRole[] = ['super_admin', 'product_manager', 'editor', 'viewer'];
+
+// Parity with today's getVisibleSections({isAdmin}): everyone sees the feature
+// workspaces; only elevated roles see Administration. Persona-role refinement
+// (editor vs viewer) is a later decision (spec §5 / porting-plan B1).
+export const WORKSPACES: WorkspaceMeta[] = [
+  { id: 'executive', label: 'Executive',         roles: ALL_ADMIN_ROLES, order: 0 },
+  { id: 'finance',   label: 'Finance',           roles: ALL_ADMIN_ROLES, order: 1 },
+  { id: 'sales',     label: 'Sales & Marketing', roles: ALL_ADMIN_ROLES, order: 2 },
+  { id: 'ops',       label: 'Ops & Onboarding',  roles: ALL_ADMIN_ROLES, order: 3 },
+  { id: 'support',   label: 'Support',           roles: ALL_ADMIN_ROLES, order: 4 },
+  { id: 'platform',  label: 'Platform',          roles: ALL_ADMIN_ROLES, order: 5 },
+  { id: 'admin',     label: 'Administration',    roles: ELEVATED,        order: 6 },
+];
+
+/** Which workspace each top-level item renders in. Keyed by item.name (unique). */
+export const ITEM_WORKSPACE: Record<string, WorkspaceId> = {
+  Dashboard: 'executive',
+  'Billing & Revenue': 'finance',
+  Payments: 'finance',
+  Products: 'sales',
+  Quotes: 'sales',
+  Suppliers: 'sales',
+  'Sales Engine': 'sales',
+  'B2B Feasibility': 'sales',
+  'Coverage Checker': 'sales',
+  'CPQ Builder': 'sales',
+  Partners: 'sales',
+  'Competitor Analysis': 'sales',
+  Marketing: 'sales',
+  'CMS Management': 'sales',
+  Contracts: 'ops',
+  Orders: 'ops',
+  'Order Fulfillment': 'ops',
+  'Field Operations': 'ops',
+  'B2B Customers': 'ops',
+  'Corporate Clients': 'ops',
+  Approvals: 'ops',
+  'KYC Review': 'ops',
+  'KYB Compliance': 'ops',
+  'Document Reviews': 'ops',
+  Customers: 'support',
+  'Customer Devices': 'support',
+  Diagnostics: 'support',
+  Coverage: 'platform',
+  'Network Management': 'platform',
+  Notifications: 'platform',
+  Integrations: 'platform',
+  Orchestrator: 'admin',
+  Users: 'admin',
+  Settings: 'admin',
+};
+
+/** Which sellable module each top-level item belongs to. Keyed by item.name. */
+export const ITEM_MODULE: Record<string, ModuleId> = {
+  Dashboard: 'core',
+  'Billing & Revenue': 'billing',
+  Payments: 'billing',
+  Products: 'offers',
+  Quotes: 'offers',
+  Suppliers: 'offers',
+  'CPQ Builder': 'offers',
+  'Sales Engine': 'sales',
+  Partners: 'sales',
+  'Competitor Analysis': 'sales',
+  Marketing: 'sales',
+  'CMS Management': 'sales',
+  'B2B Feasibility': 'coverage',
+  'Coverage Checker': 'coverage',
+  Coverage: 'coverage',
+  'Network Management': 'network',
+  Contracts: 'orders',
+  Orders: 'orders',
+  'Order Fulfillment': 'orders',
+  'Field Operations': 'field',
+  Customers: 'crm',
+  'B2B Customers': 'crm',
+  'Corporate Clients': 'crm',
+  'Customer Devices': 'crm',
+  Diagnostics: 'crm',
+  Approvals: 'compliance',
+  'KYC Review': 'compliance',
+  'KYB Compliance': 'compliance',
+  'Document Reviews': 'compliance',
+  Notifications: 'core',
+  Integrations: 'integrations',
+  Orchestrator: 'workflows',
+  Users: 'core',
+  Settings: 'core',
+};
+
+export interface WorkspaceNav {
+  id: WorkspaceId;
+  label: string;
+  items: NavItem[];
+}
+
+const isElevated = (role: AdminRole) => ELEVATED.includes(role);
+
+// Mirrors getVisibleSections' item rule (hide internal/hidden; honour adminOnly).
+function moduleItemVisible(item: NavItem, role: AdminRole): boolean {
+  const m = item.maturity ?? 'stable';
+  if (m === 'hidden' || m === 'internal') return false;
+  if (item.adminOnly && !isElevated(role)) return false;
+  return true;
+}
+
+/**
+ * Role-scoped, module-gated nav grouped by workspace.
+ * @param modules enabled ModuleIds for the tenant; omit = all on (CircleTel #1).
+ *                This is the whitelabel per-module entitlement switch (Phase 2).
+ */
+export function getWorkspaceNav(opts: {
+  role: AdminRole;
+  modules?: ModuleId[];
+}): WorkspaceNav[] {
+  const { role, modules } = opts;
+  const allItems: NavItem[] = [...featureSections, ...bottomSections].flatMap((s) => s.items);
+  return WORKSPACES.filter((w) => w.roles.includes(role))
+    .sort((a, b) => a.order - b.order)
+    .map((w) => ({
+      id: w.id,
+      label: w.label,
+      items: allItems.filter(
+        (i) =>
+          ITEM_WORKSPACE[i.name] === w.id &&
+          moduleItemVisible(i, role) &&
+          (!modules || modules.includes(ITEM_MODULE[i.name] ?? 'core'))
+      ),
+    }))
+    .filter((w) => w.items.length > 0);
+}
+
+/** Which workspace owns a route (for deep-link / cross-workspace nav). */
+export function workspaceForPath(pathname: string): WorkspaceId | null {
+  const path = pathname.split('?')[0];
+  const allItems: NavItem[] = [...featureSections, ...bottomSections].flatMap((s) => s.items);
+  for (const item of allItems) {
+    const match = hasChildren(item)
+      ? item.children.some((c) => c.href.split('?')[0] === path)
+      : item.href.split('?')[0] === path;
+    if (match) return ITEM_WORKSPACE[item.name] ?? null;
+  }
+  return null;
 }
