@@ -32,6 +32,7 @@ import {
   type WorkspaceId,
 } from '@/lib/admin/feature-registry';
 import type { AdminRole } from '@/lib/auth/constants';
+import { getTenantConfig } from '@/lib/tenant';
 
 interface User {
   full_name?: string;
@@ -66,7 +67,7 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
     : 'viewer';
 
   // Role-scoped, workspace-grouped nav (feature-registry, PR #613).
-  const workspaces = getWorkspaceNav({ role });
+  const workspaces = getWorkspaceNav({ role, modules: getTenantConfig().modules });
 
   const [activeWs, setActiveWs] = useState<WorkspaceId>(
     () => workspaceForPath(pathname) ?? workspaces[0]?.id ?? 'executive'

@@ -9,6 +9,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { canAccessAdminPath, workspaceForPathname } from '@/lib/admin/workspace-access';
 import type { AdminRole } from '@/lib/auth/constants';
+import { getTenantConfig } from '@/lib/tenant';
 
 // Note: Using console.log in middleware as @/lib/logging may not work in edge runtime
 
@@ -139,7 +140,7 @@ export async function handleAdminAuth(
   }
 
   const role = adminRow.role as AdminRole;
-  if (!canAccessAdminPath(role, pathname)) {
+  if (!canAccessAdminPath(role, pathname, getTenantConfig().modules)) {
     const ws = workspaceForPathname(pathname);
     console.warn('[admin-auth] workspace denied', { pathname, role, ws });
     const url = request.nextUrl.clone();

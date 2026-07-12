@@ -10,6 +10,8 @@
  * own values via NEXT_PUBLIC_TENANT_* env vars.
  */
 
+import type { ModuleId } from '@/lib/admin/feature-registry';
+
 export interface TenantAddress {
   name?: string;
   attention?: string;
@@ -58,6 +60,8 @@ export interface TenantBranding {
 }
 
 export interface TenantConfig {
+  /** Sellable modules enabled for this tenant ('core' is always present). */
+  modules: ModuleId[];
   branding: TenantBranding;
   contacts: TenantContacts;
 }

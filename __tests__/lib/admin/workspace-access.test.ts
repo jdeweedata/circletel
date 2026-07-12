@@ -49,3 +49,32 @@ describe('canAccessAdminPath (PR5 route guard)', () => {
     expect(canAccessAdminPath('viewer', '/admin/some-unmapped-route')).toBe(true);
   });
 });
+
+describe('canAccessAdminPath module entitlement (PR2.5)', () => {
+  it('a disabled module denies its routes even for super_admin', () => {
+    const noBilling = ['core', 'crm', 'orders'] as const;
+    expect(canAccessAdminPath('super_admin', '/admin/billing', [...noBilling])).toBe(false);
+    expect(canAccessAdminPath('super_admin', '/admin/payments/transactions', [...noBilling])).toBe(false);
+    expect(canAccessAdminPath('super_admin', '/admin/finance/outstanding', [...noBilling])).toBe(false);
+  });
+
+  it('core routes stay reachable whenever core is enabled', () => {
+    for (const p of ['/admin', '/admin/dashboard', '/admin/settings', '/admin/users']) {
+      expect(canAccessAdminPath('super_admin', p, ['core'])).toBe(true);
+    }
+  });
+
+  it('enabled modules pass; role gating still applies on top', () => {
+    const mods = ['core', 'billing'] as const;
+    expect(canAccessAdminPath('editor', '/admin/billing', [...mods])).toBe(true);
+    expect(canAccessAdminPath('viewer', '/admin/billing', [...mods])).toBe(false); // role, not module
+  });
+
+  it('omitted modules = all on (pre-PR2.5 behaviour unchanged)', () => {
+    expect(canAccessAdminPath('super_admin', '/admin/billing')).toBe(true);
+  });
+
+  it('unmapped routes still fail open regardless of modules', () => {
+    expect(canAccessAdminPath('viewer', '/admin/some-unmapped-route', ['core'])).toBe(true);
+  });
+});
