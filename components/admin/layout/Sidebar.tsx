@@ -57,6 +57,78 @@ const WORKSPACE_ICON: Record<WorkspaceId, IconType> = {
   admin: PiGearBold,
 };
 
+/**
+ * Collapsed-rail (w-16) flyout for a parent item: hover/focus reveals its child
+ * links (PR4). Leaf items keep a name Tooltip; expanded rail uses the inline
+ * accordion. ponytail: CSS transition (not framer) matches the sidebar's motion
+ * vocabulary and `motion-reduce:` handles reduced-motion in one class — swap for
+ * motion.div + useReducedMotion() only if spring physics is wanted. The panel is
+ * `left-full pl-2`: contiguous with the icon (no hover dead-zone), pl-2 = the gap.
+ */
+function CollapsedFlyout({
+  item,
+  isActiveLink,
+}: {
+  item: NavItem;
+  isActiveLink: (href: string, end?: boolean) => boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  if (!hasChildren(item)) return null;
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false);
+      }}
+    >
+      <button
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={item.name}
+        className="flex w-full items-center justify-center rounded-lg px-0 py-2.5 text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+      >
+        <item.icon className="h-5 w-5 flex-shrink-0" />
+      </button>
+
+      <div
+        role="menu"
+        className={cn(
+          'absolute left-full top-0 z-50 min-w-56 pl-2 transition duration-150 ease-out',
+          'motion-reduce:transition-none',
+          open
+            ? 'visible translate-x-0 opacity-100'
+            : 'pointer-events-none invisible -translate-x-1 opacity-0'
+        )}
+      >
+        <div className="rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+          <p className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+            {item.name}
+          </p>
+          {item.children.map((child) => (
+            <Link
+              key={child.href}
+              href={child.href}
+              role="menuitem"
+              className={cn(
+                'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
+                isActiveLink(child.href)
+                  ? 'bg-gray-100 text-gray-900 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              )}
+            >
+              <child.icon className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{child.name}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
   const pathname = usePathname();
 
@@ -220,58 +292,44 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
           {items.map((item) => (
             <div key={item.name}>
               {hasChildren(item) ? (
-                <div className="space-y-1">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => isOpen && toggleDropdown(item.name)}
-                        className={cn(
-                          'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                          'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                          isOpen && 'cursor-pointer',
-                          !isOpen && 'cursor-default'
-                        )}
-                      >
-                        <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                        {isOpen && (
-                          <>
-                            <span className="flex-1 text-left">{item.name}</span>
-                            {isExpanded(item.name) ? (
-                              <PiCaretDownBold className="h-4 w-4 transition-transform duration-200" />
-                            ) : (
-                              <PiCaretRightBold className="h-4 w-4 transition-transform duration-200" />
-                            )}
-                          </>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    {!isOpen && (
-                      <TooltipContent side="right" className="font-medium">
-                        {item.name}
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
+                !isOpen ? (
+                  <CollapsedFlyout item={item} isActiveLink={isActiveLink} />
+                ) : (
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => toggleDropdown(item.name)}
+                      className="flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 cursor-pointer transition-all"
+                    >
+                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                      <span className="flex-1 text-left">{item.name}</span>
+                      {isExpanded(item.name) ? (
+                        <PiCaretDownBold className="h-4 w-4 transition-transform duration-200" />
+                      ) : (
+                        <PiCaretRightBold className="h-4 w-4 transition-transform duration-200" />
+                      )}
+                    </button>
 
-                  {isOpen && isExpanded(item.name) && (
-                    <div className="ml-9 space-y-1 pl-4">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className={cn(
-                            'flex items-center px-3 py-2 text-sm rounded-lg transition-all',
-                            isActiveLink(child.href)
-                              ? 'bg-gray-100 text-gray-900 font-medium'
-                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                          )}
-                        >
-                          <child.icon className="mr-2 h-4 w-4" />
-                          {child.name}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                    {isExpanded(item.name) && (
+                      <div className="ml-9 space-y-1 pl-4">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className={cn(
+                              'flex items-center px-3 py-2 text-sm rounded-lg transition-all',
+                              isActiveLink(child.href)
+                                ? 'bg-gray-100 text-gray-900 font-medium'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            )}
+                          >
+                            <child.icon className="mr-2 h-4 w-4" />
+                            {child.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>

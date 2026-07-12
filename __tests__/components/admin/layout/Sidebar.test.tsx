@@ -209,4 +209,35 @@ describe('Sidebar workspace switcher', () => {
     expect(activeAnchor.length).toBeGreaterThan(0);
     expect(activeAnchor[0].props.className || '').toMatch(/bg-gray-100/);
   });
+
+  // ---- PR4: collapsed-rail child flyouts ----
+  const firstParent = () => {
+    for (const w of getWorkspaceNav({ role: 'super_admin' })) {
+      for (const it of w.items) if (hasChildren(it)) return { ws: w.id, item: it };
+    }
+    return null;
+  };
+
+  it('renders a child flyout (aria-haspopup) for a collapsed parent item', () => {
+    const found = firstParent();
+    expect(found).toBeTruthy();
+    const root = mount('super_admin', false, '/admin'); // collapsed rail
+    const wsLabel = getWorkspaceNav({ role: 'super_admin' }).find((w) => w.id === found!.ws)!.label;
+    const wsBtn = openSwitcher(root).find((m: any) => text(m) === wsLabel);
+    act(() => wsBtn!.props.onClick());
+    const triggers = root.findAll((n: any) => n.props && n.props['aria-haspopup'] === 'menu');
+    expect(triggers.length).toBeGreaterThan(0);
+  });
+
+  it('collapsed flyout exposes every child of the parent (reachable in the tree)', () => {
+    const found = firstParent();
+    const root = mount('super_admin', false, '/admin');
+    const wsLabel = getWorkspaceNav({ role: 'super_admin' }).find((w) => w.id === found!.ws)!.label;
+    const wsBtn = openSwitcher(root).find((m: any) => text(m) === wsLabel);
+    act(() => wsBtn!.props.onClick());
+    for (const child of (found!.item as any).children) {
+      const links = root.findAll((n: any) => n.type === 'a' && n.props.href === child.href);
+      expect(links.length).toBeGreaterThan(0);
+    }
+  });
 });
