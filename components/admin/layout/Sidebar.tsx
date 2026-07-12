@@ -84,7 +84,7 @@ function CollapsedFlyout({
   const [coords, setCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || typeof window === 'undefined') return;
     const reposition = () => {
       const btn = btnRef.current;
       if (!btn) return;
@@ -193,6 +193,29 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
   const ActiveIcon = active ? WORKSPACE_ICON[active.id] : PiTrendUpBold;
 
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  // Collapsed switcher dropdown: same transform-occlusion fix as CollapsedFlyout —
+  // render `fixed` with coords relative to the sidebar box (its transform is the
+  // containing block), else the `left-full` panel is painted behind the content.
+  const switcherBtnRef = useRef<HTMLButtonElement>(null);
+  const [switcherCoords, setSwitcherCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  useEffect(() => {
+    if (!switcherOpen || isOpen || typeof window === 'undefined') return; // only the collapsed rail needs fixed positioning
+    const reposition = () => {
+      const btn = switcherBtnRef.current;
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      const host = btn.closest('[data-testid="sidebar"]');
+      const h = host?.getBoundingClientRect();
+      setSwitcherCoords({ top: r.top - (h?.top ?? 0), left: r.right - (h?.left ?? 0) });
+    };
+    reposition();
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [switcherOpen, isOpen]);
 
   // Auto-expand the dropdown that contains the active route.
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -267,6 +290,7 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
         {/* Workspace switcher */}
         <div className="relative border-b border-gray-200 px-2 py-2">
           <button
+            ref={switcherBtnRef}
             onClick={() => setSwitcherOpen((o) => !o)}
             aria-label="Switch workspace"
             aria-expanded={switcherOpen}
@@ -291,9 +315,10 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
               <div className="fixed inset-0 z-40" onClick={() => setSwitcherOpen(false)} aria-hidden />
               <div
                 className={cn(
-                  'absolute z-50 rounded-lg border border-gray-200 bg-white p-1 shadow-lg',
-                  isOpen ? 'inset-x-2 top-full mt-1' : 'left-full top-0 ml-2 w-56'
+                  'rounded-lg border border-gray-200 bg-white p-1 shadow-lg',
+                  isOpen ? 'absolute z-50 inset-x-2 top-full mt-1' : 'fixed z-[60] ml-2 w-56'
                 )}
+                style={!isOpen ? { top: switcherCoords.top, left: switcherCoords.left } : undefined}
                 role="menu"
               >
                 {workspaces.map((w) => {
