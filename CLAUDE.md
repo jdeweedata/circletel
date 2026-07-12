@@ -194,6 +194,7 @@ All detailed patterns are in `.claude/rules/`:
 | `vercel-deployment.md` | Manual deployment trigger API, monitoring, CircleTel project IDs |
 | `invoice-pdf-patterns.md` | VAT calc (excl-VAT multiply), fetch/blob download, print:hidden, jsPDF patterns |
 | `pre-push-hook.md` | Shared `.githooks/pre-push` — build-config + scoped type-check, escape hatches |
+| `gpt-5-6-prompting.md` | GPT-5.6 (Sol/Terra/Luna) prompt contracts — 8-block structure, lean-prompt migration, Codex default model |
 
 ---
 
