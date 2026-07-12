@@ -7,6 +7,9 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
+import { canAccessAdminPath, workspaceForPathname } from '@/lib/admin/workspace-access';
+import type { AdminRole } from '@/lib/auth/constants';
+import { getTenantConfig } from '@/lib/tenant';
 
 // Note: Using console.log in middleware as @/lib/logging may not work in edge runtime
 
@@ -117,7 +120,34 @@ export async function handleAdminAuth(
     };
   }
 
-  // User is authenticated - let client-side verify admin_users table
-  // This avoids redirect loops and works with existing layout auth logic
+  // Authenticated. Authorize by workspace (PR5). Dashboard/Executive is open to
+  // every admin role, so it is always a safe, loop-free landing on denial.
+  // ponytail: one admin_users read per protected admin request. Upgrade path is a
+  // JWT app_metadata.admin_role claim (zero-DB); see docs/2026-07-12-pr5-server-route-guards.md.
+  const { data: adminRow } = await supabase
+    .from('admin_users')
+    .select('role')
+    .eq('email', user.email!)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  if (!adminRow) {
+    // Authenticated but not an active admin - send to login (parity with client).
+    const url = request.nextUrl.clone();
+    url.pathname = '/admin/login';
+    url.searchParams.set('error', 'unauthorized');
+    return { shouldRedirect: true, redirectResponse: NextResponse.redirect(url), user };
+  }
+
+  const role = adminRow.role as AdminRole;
+  if (!canAccessAdminPath(role, pathname, getTenantConfig().modules)) {
+    const ws = workspaceForPathname(pathname);
+    console.warn('[admin-auth] workspace denied', { pathname, role, ws });
+    const url = request.nextUrl.clone();
+    url.pathname = '/admin/dashboard';
+    url.searchParams.set('denied', ws ?? 'unknown');
+    return { shouldRedirect: true, redirectResponse: NextResponse.redirect(url), user };
+  }
+
   return { shouldRedirect: false, user };
 }

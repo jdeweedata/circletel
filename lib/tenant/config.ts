@@ -1,7 +1,31 @@
 import { CIRCLETEL_DEFAULTS } from './defaults';
+import { isModuleId } from '@/lib/admin/workspace-access';
+import type { ModuleId } from '@/lib/admin/feature-registry';
 import type { TenantConfig } from './types';
 
 let cached: TenantConfig | null = null;
+
+/**
+ * Parse NEXT_PUBLIC_TENANT_MODULES ("billing,crm,orders"). Unknown ids are
+ * dropped with a warning; 'core' is always force-included (Dashboard/Users/
+ * Settings and the guard's deny-landing live there — disabling it would brick
+ * the admin). Returns null for unset/blank -> caller falls back to defaults.
+ */
+function parseModules(raw: string | undefined): ModuleId[] | null {
+  if (!raw || !raw.trim()) return null;
+  const modules: ModuleId[] = [];
+  for (const part of raw.split(',')) {
+    const id = part.trim();
+    if (!id) continue;
+    if (isModuleId(id)) {
+      if (!modules.includes(id)) modules.push(id);
+    } else {
+      console.warn(`[tenant-config] Unknown module id in NEXT_PUBLIC_TENANT_MODULES: "${id}" (dropped)`);
+    }
+  }
+  if (!modules.includes('core')) modules.push('core');
+  return modules;
+}
 
 /**
  * Resolve the tenant's config: CircleTel defaults overridden by
@@ -32,6 +56,7 @@ export function getTenantConfig(): TenantConfig {
       },
     },
     contacts: { ...d.contacts },
+    modules: parseModules(process.env.NEXT_PUBLIC_TENANT_MODULES) ?? [...d.modules],
   };
   return cached;
 }

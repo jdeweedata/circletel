@@ -1,3 +1,4 @@
+import { ALL_MODULES } from '@/lib/admin/workspace-access';
 import type { TenantConfig } from './types';
 
 /**
@@ -6,6 +7,8 @@ import type { TenantConfig } from './types';
  * (excluded from the brand-literal CI ratchet).
  */
 export const CIRCLETEL_DEFAULTS: TenantConfig = {
+  // Tenant #1 sells nothing to itself: every module on.
+  modules: ALL_MODULES,
   branding: {
     companyName: 'CircleTel',
     legalName: 'Circle Tel SA (Pty) Ltd',
