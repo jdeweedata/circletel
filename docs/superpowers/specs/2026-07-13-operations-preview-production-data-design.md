@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-13
 
-**Status:** Conversation design approved — pending written-spec review
+**Status:** Approved — implementation planning authorized 2026-07-13
 
 **Target:** `staging` only
 
@@ -472,6 +472,7 @@ data migration or restoration step.
 
 ## 13. Approval checkpoint
 
-Implementation planning begins only after the user reviews this written specification. Any change to
-the route, access level, metric definitions, PII boundary, production-data source, or read-only
-constraint requires an explicit design update before implementation.
+The user authorized implementation planning after reviewing this written specification on
+2026-07-13. Any change to the route, access level, metric definitions, PII boundary,
+production-data source, or read-only constraint requires an explicit design update before
+implementation.
