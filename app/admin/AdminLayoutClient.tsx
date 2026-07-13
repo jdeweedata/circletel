@@ -15,15 +15,34 @@ const Agentation = dynamic(
   { ssr: false }
 );
 
+interface AdminUser {
+  id?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
+  role?: string;
+}
+
+interface AdminAuthState {
+  pathname: string | null;
+  status: 'idle' | 'checking' | 'authenticated' | 'unauthenticated';
+  user: AdminUser | null;
+}
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [authState, setAuthState] = useState<AdminAuthState>({
+    pathname: null,
+    status: 'checking',
+    user: null,
+  });
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
+  const protectedPathname = pathname ?? '';
   const supabase = createClient();
 
   // Check if we're on the studio subdomain (for Sanity CMS)
@@ -45,74 +64,100 @@ export default function AdminLayout({
   // Fetch admin user from API (server-side validates session from cookies)
   useEffect(() => {
     if (skipsAdminAuth) {
-      setIsLoading(false);
+      setAuthState({ pathname: null, status: 'idle', user: null });
       return;
     }
 
     // DEV BYPASS: Use mock user on localhost in development
     if (devBypass) {
-      setUser({
-        id: 'dev-user',
-        email: 'dev@localhost',
-        first_name: 'Dev',
-        last_name: 'User',
-        role: 'super_admin',
+      setAuthState({
+        pathname: protectedPathname,
+        status: 'authenticated',
+        user: {
+          id: 'dev-user',
+          email: 'dev@localhost',
+          first_name: 'Dev',
+          last_name: 'User',
+          role: 'super_admin',
+        },
       });
-      setIsLoading(false);
       return;
     }
 
-    let isMounted = true;
+    let isCurrentPath = true;
+    setAuthState({
+      pathname: protectedPathname,
+      status: 'checking',
+      user: null,
+    });
+
+    const redirectUnauthorized = async (
+      message: string,
+      error: unknown
+    ) => {
+      if (!isCurrentPath) return;
+
+      console.error(message, error);
+      setAuthState({
+        pathname: protectedPathname,
+        status: 'unauthenticated',
+        user: null,
+      });
+      await supabase.auth.signOut();
+
+      if (isCurrentPath) {
+        window.location.href = '/admin/login?error=unauthorized';
+      }
+    };
+
     const checkAuth = async () => {
       try {
         // Call API endpoint which validates session server-side from cookies
         const response = await fetch('/api/admin/me');
         const result = await response.json();
 
-        if (!isMounted) return;
+        if (!isCurrentPath) return;
 
         if (!response.ok || !result.success || !result.user) {
-          // Not authenticated or not an admin user
-          console.error('Admin user fetch error:', result.error);
-          await supabase.auth.signOut(); // Clear any client-side session
-          window.location.href = '/admin/login?error=unauthorized';
+          await redirectUnauthorized('Admin user fetch error:', result.error);
           return;
         }
 
-        // Set user from API response
-        setUser(result.user);
+        setAuthState({
+          pathname: protectedPathname,
+          status: 'authenticated',
+          user: result.user,
+        });
 
         // If user just logged in and is on /admin root, redirect to dashboard
-        if (pathname === '/admin') {
+        if (protectedPathname === '/admin') {
           window.location.href = '/admin/dashboard';
         }
       } catch (error) {
-        console.error('Error loading user:', error);
-        if (isMounted) {
-          await supabase.auth.signOut();
-          window.location.href = '/admin/login?error=unauthorized';
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        await redirectUnauthorized('Error loading user:', error);
       }
     };
 
     checkAuth();
 
     return () => {
-      isMounted = false;
+      isCurrentPath = false;
     };
-  }, [skipsAdminAuth, devBypass, supabase, pathname]);
+  }, [skipsAdminAuth, devBypass, supabase, protectedPathname]);
 
   // Public routes and the CMS builder preserve their existing auth bypass.
   if (skipsAdminAuth) {
     return <>{children}</>;
   }
 
-  // Show loading while checking auth
-  if (isLoading) {
+  const authIsCurrent = authState.pathname === protectedPathname;
+
+  // Never reveal a protected route until that exact pathname is validated.
+  if (
+    !authIsCurrent ||
+    authState.status === 'idle' ||
+    authState.status === 'checking'
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
@@ -120,14 +165,12 @@ export default function AdminLayout({
     );
   }
 
-  // If no user after loading completes, middleware should have redirected
-  // This is a safety check
-  if (!user) {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/admin/login?error=unauthorized';
-    }
+  // Redirects are initiated only by an explicit failed result for this path.
+  if (authState.status !== 'authenticated' || !authState.user) {
     return null;
   }
+
+  const user = authState.user;
 
   // Authenticated full-screen routes skip only the standard admin shell.
   if (routeMode === 'full-screen-authenticated') {
