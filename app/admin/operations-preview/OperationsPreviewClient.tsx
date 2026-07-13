@@ -28,6 +28,10 @@ const ADMIN_LOGIN_REDIRECT = "/admin/login?redirect=/admin/operations-preview";
 const EXPECTED_GROWTH_MONTHS = 12;
 const SAFE_REQUEST_ID = /^[A-Za-z0-9._:-]{1,128}$/;
 const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat("en-ZA", {
+  month: "short",
+  timeZone: "Africa/Johannesburg",
+});
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -79,6 +83,13 @@ function isMonth(value: unknown): value is string {
   if (!match) return false;
   const month = Number(match[2]);
   return month >= 1 && month <= 12;
+}
+
+function deriveMonthLabel(month: string): string {
+  const [year, monthNumber] = month.split("-").map(Number);
+  return MONTH_LABEL_FORMATTER.format(
+    new Date(Date.UTC(year, monthNumber - 1, 1, 12)),
+  );
 }
 
 function parseKpis(value: unknown): OperationsPreviewData["kpis"] | null {
@@ -142,14 +153,13 @@ function parseGrowth(value: unknown): OperationsPreviewData["growth"] | null {
         "billedCents",
       ]) ||
       !isMonth(item.month) ||
-      typeof item.label !== "string" ||
-      item.label.trim() !== item.label ||
-      item.label.length < 1 ||
-      item.label.length > 32 ||
       (previousMonth !== "" && item.month <= previousMonth)
     ) {
       return null;
     }
+
+    const label = deriveMonthLabel(item.month);
+    if (item.label !== label) return null;
 
     const totalCustomers = readNonNegativeSafeInteger(item.totalCustomers);
     const billedCents = readNonNegativeSafeInteger(item.billedCents);
@@ -157,7 +167,7 @@ function parseGrowth(value: unknown): OperationsPreviewData["growth"] | null {
 
     growth.push({
       month: item.month,
-      label: item.label,
+      label,
       totalCustomers,
       billedCents,
     });

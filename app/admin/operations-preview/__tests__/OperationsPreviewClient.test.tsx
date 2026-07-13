@@ -9,6 +9,7 @@ import { OperationsPreviewClient } from "../OperationsPreviewClient";
 ).IS_REACT_ACT_ENVIRONMENT = true;
 
 const mockReplace = jest.fn();
+const mockOperationsDashboard = jest.fn();
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ replace: mockReplace }),
@@ -25,8 +26,12 @@ jest.mock("../OperationsDashboard", () => ({
     isRefreshing: boolean;
   }) => (
     <section data-testid="dashboard">
+      {mockOperationsDashboard({ data, onRefresh, isRefreshing })}
       <p>{data.generatedAt}</p>
       <p>{data.kpis.activeCustomers}</p>
+      <p data-testid="growth-labels">
+        {data.growth.map((item) => item.label).join("|")}
+      </p>
       <p>{isRefreshing ? "refreshing" : "current"}</p>
       <button data-testid="dashboard-refresh" onClick={onRefresh}>
         Refresh dashboard
@@ -34,6 +39,18 @@ jest.mock("../OperationsDashboard", () => ({
     </section>
   ),
 }));
+
+const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat("en-ZA", {
+  month: "short",
+  timeZone: "Africa/Johannesburg",
+});
+
+function expectedMonthLabel(month: string): string {
+  const [year, monthNumber] = month.split("-").map(Number);
+  return MONTH_LABEL_FORMATTER.format(
+    new Date(Date.UTC(year, monthNumber - 1, 1, 12)),
+  );
+}
 
 const DATA: OperationsPreviewData = {
   generatedAt: "2026-07-13T10:00:00.000Z",
@@ -47,12 +64,17 @@ const DATA: OperationsPreviewData = {
     networkIncidents: 2,
     servicesImpacted: 11,
   },
-  growth: Array.from({ length: 12 }, (_, index) => ({
-    month: new Date(Date.UTC(2025, 7 + index, 1)).toISOString().slice(0, 7),
-    label: `M${index + 1}`,
-    totalCustomers: index + 1,
-    billedCents: (index + 1) * 10_000,
-  })),
+  growth: Array.from({ length: 12 }, (_, index) => {
+    const month = new Date(Date.UTC(2025, 7 + index, 1))
+      .toISOString()
+      .slice(0, 7);
+    return {
+      month,
+      label: expectedMonthLabel(month),
+      totalCustomers: index + 1,
+      billedCents: (index + 1) * 10_000,
+    };
+  }),
   operations: {
     scheduledInstalls: 2,
     ordersInProgress: 17,
@@ -128,6 +150,20 @@ function serialized(renderer: TestRenderer.ReactTestRenderer): string {
 describe("OperationsPreviewClient", () => {
   const originalFetch = global.fetch;
   let mockFetch: jest.MockedFunction<typeof fetch>;
+
+  async function expectMalformedDataUnavailable(
+    mutate: (data: OperationsPreviewData) => void,
+  ) {
+    const data = cloneData();
+    mutate(data);
+    mockFetch.mockResolvedValue(success(data));
+
+    const renderer = await renderClient();
+
+    expect(serialized(renderer)).toContain("Operations data unavailable");
+    expect(serialized(renderer)).not.toContain(DATA.generatedAt);
+    expect(mockOperationsDashboard).not.toHaveBeenCalled();
+  }
 
   beforeEach(() => {
     mockFetch = jest.fn();
@@ -233,6 +269,31 @@ describe("OperationsPreviewClient", () => {
     expect(serialized(renderer)).toContain(String(DATA.kpis.activeCustomers));
     expect(serialized(renderer)).toContain("current");
     expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockOperationsDashboard).toHaveBeenCalledTimes(1);
+  });
+
+  it("accepts exact server month labels and keeps January and December timezone-stable", async () => {
+    mockFetch.mockResolvedValue(success());
+
+    const renderer = await renderClient();
+    const labels = renderer.root
+      .findByProps({
+        "data-testid": "growth-labels",
+      })
+      .children.join("");
+
+    expect(labels).toContain(expectedMonthLabel("2025-12"));
+    expect(labels).toContain(expectedMonthLabel("2026-01"));
+    expect(labels).toContain("Dec|Jan");
+  });
+
+  it.each([
+    ["a PII-looking label", "customer@example.test"],
+    ["a control-character label", "J\u0000an"],
+  ])("rejects %s at the growth-label boundary", async (_label, wireLabel) => {
+    await expectMalformedDataUnavailable((data) => {
+      data.growth[0].label = wireLabel;
+    });
   });
 
   it.each([
@@ -247,15 +308,69 @@ describe("OperationsPreviewClient", () => {
 
     expect(serialized(renderer)).toContain("Operations data unavailable");
     expect(serialized(renderer)).not.toContain(DATA.generatedAt);
+    expect(mockOperationsDashboard).not.toHaveBeenCalled();
   });
 
-  it.each([
+  const invalidDataMutations: Array<
+    [string, (data: OperationsPreviewData) => void]
+  > = [
     [
-      "negative count",
-      (data: OperationsPreviewData) => (data.kpis.openTickets = -1),
+      "wrong source",
+      (data: OperationsPreviewData) =>
+        (data.source = "fixture" as "production"),
     ],
     [
-      "unsafe cents",
+      "wrong timezone",
+      (data: OperationsPreviewData) =>
+        (data.timeZone = "UTC" as "Africa/Johannesburg"),
+    ],
+    ...(
+      [
+        "activeCustomers",
+        "activeMrrCents",
+        "openTickets",
+        "needsAttention",
+        "networkIncidents",
+        "servicesImpacted",
+      ] as const
+    ).map<[string, (data: OperationsPreviewData) => void]>((key) => [
+      `negative KPI ${key}`,
+      (data: OperationsPreviewData) => (data.kpis[key] = -1),
+    ]),
+    ...(
+      [
+        "scheduledInstalls",
+        "ordersInProgress",
+        "priorityTickets",
+        "availableTechnicians",
+      ] as const
+    ).map<[string, (data: OperationsPreviewData) => void]>((key) => [
+      `negative operations ${key}`,
+      (data: OperationsPreviewData) => (data.operations[key] = -1),
+    ]),
+    ...(
+      [
+        "billedCents",
+        "collectedCents",
+        "outstandingCents",
+        "paidInvoices",
+      ] as const
+    ).map<[string, (data: OperationsPreviewData) => void]>((key) => [
+      `negative finance ${key}`,
+      (data: OperationsPreviewData) => (data.finance[key] = -1),
+    ]),
+    [
+      "unsafe KPI value",
+      (data: OperationsPreviewData) =>
+        (data.kpis.activeCustomers = Number.MAX_SAFE_INTEGER + 1),
+    ],
+    [
+      "unsafe operations value",
+      (data: OperationsPreviewData) =>
+        (data.operations.ordersInProgress = Number.MAX_SAFE_INTEGER + 1),
+    ],
+    [
+      "unsafe finance value",
       (data: OperationsPreviewData) =>
         (data.finance.billedCents = Number.MAX_SAFE_INTEGER + 1),
     ],
@@ -268,8 +383,27 @@ describe("OperationsPreviewClient", () => {
       (data: OperationsPreviewData) => (data.finance.periodEnd = "2026-02-31"),
     ],
     [
+      "reversed finance period",
+      (data: OperationsPreviewData) => {
+        data.finance.periodStart = "2026-08-01";
+      },
+    ],
+    [
       "invalid growth month",
       (data: OperationsPreviewData) => (data.growth[0].month = "2026-13"),
+    ],
+    [
+      "duplicate growth month",
+      (data: OperationsPreviewData) => {
+        data.growth[1].month = data.growth[0].month;
+        data.growth[1].label = data.growth[0].label;
+      },
+    ],
+    [
+      "out-of-order growth months",
+      (data: OperationsPreviewData) => {
+        [data.growth[0], data.growth[1]] = [data.growth[1], data.growth[0]];
+      },
     ],
     [
       "missing growth row",
@@ -278,22 +412,57 @@ describe("OperationsPreviewClient", () => {
       },
     ],
     [
-      "extra nested field",
+      "extra root data key",
+      (data: OperationsPreviewData) => {
+        (data as OperationsPreviewData & { email: string }).email =
+          "customer@example.test";
+      },
+    ],
+    [
+      "extra KPI key",
       (data: OperationsPreviewData) => {
         (data.kpis as OperationsPreviewData["kpis"] & { email: string }).email =
           "customer@example.test";
       },
     ],
-  ])("fails closed for %s", async (_label, mutate) => {
-    const data = cloneData();
-    mutate(data);
-    mockFetch.mockResolvedValue(success(data));
+    [
+      "extra growth-row key",
+      (data: OperationsPreviewData) => {
+        (
+          data.growth[0] as OperationsPreviewData["growth"][number] & {
+            customerId: string;
+          }
+        ).customerId = "customer-1";
+      },
+    ],
+    [
+      "extra operations key",
+      (data: OperationsPreviewData) => {
+        (
+          data.operations as OperationsPreviewData["operations"] & {
+            technicianName: string;
+          }
+        ).technicianName = "Private Person";
+      },
+    ],
+    [
+      "extra finance key",
+      (data: OperationsPreviewData) => {
+        (
+          data.finance as OperationsPreviewData["finance"] & {
+            invoiceNumber: string;
+          }
+        ).invoiceNumber = "INV-PRIVATE";
+      },
+    ],
+  ];
 
-    const renderer = await renderClient();
-
-    expect(serialized(renderer)).toContain("Operations data unavailable");
-    expect(serialized(renderer)).not.toContain(DATA.generatedAt);
-  });
+  it.each(invalidDataMutations)(
+    "fails closed for %s",
+    async (_label, mutate) => {
+      await expectMalformedDataUnavailable(mutate);
+    },
+  );
 
   it("fails closed when response JSON is malformed", async () => {
     mockFetch.mockResolvedValue(jsonFailure(200));
@@ -386,7 +555,7 @@ describe("OperationsPreviewClient", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
-  it("ignores an older refresh response when a newer request finishes first", async () => {
+  it("state-suppresses obsolete responses without aborting the exact fetch contract", async () => {
     const older = deferred<Response>();
     const newer = deferred<Response>();
     const newerData = cloneData();
@@ -406,6 +575,19 @@ describe("OperationsPreviewClient", () => {
       refresh();
       refresh();
     });
+
+    expect(mockFetch).toHaveBeenNthCalledWith(
+      2,
+      "/api/admin/operations-preview",
+      FETCH_OPTIONS,
+    );
+    expect(mockFetch).toHaveBeenNthCalledWith(
+      3,
+      "/api/admin/operations-preview",
+      FETCH_OPTIONS,
+    );
+    expect(mockFetch.mock.calls[1][1]).not.toHaveProperty("signal");
+    expect(mockFetch.mock.calls[2][1]).not.toHaveProperty("signal");
 
     await act(async () => {
       newer.resolve(success(newerData));
