@@ -245,6 +245,16 @@ describe("GET /api/admin/operations-preview", () => {
     );
   });
 
+  it("clears the timeout immediately when the reader resolves early", async () => {
+    jest.useFakeTimers();
+
+    const response = await route.GET(request());
+
+    expect(response.status).toBe(200);
+    expectPrivateNoStore(response);
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
   it("times out after eight seconds, clears its timer, and returns a 503", async () => {
     jest.useFakeTimers();
     mockReadOperationsPreview.mockImplementation(
