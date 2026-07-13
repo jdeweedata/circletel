@@ -7,10 +7,9 @@ import {
   PiBellBold,
   PiCalendarCheckBold,
   PiCaretDownBold,
-  PiChartLineUpBold,
+  PiCaretRightBold,
   PiCheckCircleBold,
   PiClockBold,
-  PiCreditCardBold,
   PiCurrencyDollarBold,
   PiGearBold,
   PiHeadsetBold,
@@ -19,8 +18,6 @@ import {
   PiPaperPlaneTiltBold,
   PiPlusBold,
   PiQuestionBold,
-  PiReceiptBold,
-  PiShieldCheckBold,
   PiShoppingCartSimpleBold,
   PiSignOutBold,
   PiSquaresFourBold,
@@ -31,7 +28,6 @@ import {
   PiUsersThreeBold,
   PiWarningBold,
   PiWifiHighBold,
-  PiWrenchBold,
 } from 'react-icons/pi';
 import {
   CartesianGrid,
@@ -64,6 +60,11 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart';
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -84,10 +85,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   Table,
@@ -104,7 +109,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { hasChildren } from '@/lib/admin/feature-registry';
 import { cn } from '@/lib/utils';
+import { dashboardNavigation } from './navigation';
 
 export type TrendRange = '30d' | '6m' | '12m';
 
@@ -117,17 +124,6 @@ interface DashboardKpi {
   detail: string;
   icon: IconType;
   tone: StatusTone;
-}
-
-interface NavigationItem {
-  label: string;
-  icon: IconType;
-  badge?: string;
-}
-
-interface NavigationSection {
-  label: string;
-  items: NavigationItem[];
 }
 
 export const dashboardKpis: DashboardKpi[] = [
@@ -162,39 +158,6 @@ export const dashboardKpis: DashboardKpi[] = [
     detail: 'Last update 8 min ago',
     icon: PiWifiHighBold,
     tone: 'critical',
-  },
-];
-
-export const dashboardNavigation: NavigationSection[] = [
-  {
-    label: 'Customers',
-    items: [
-      { label: 'Customers', icon: PiUsersThreeBold },
-      { label: 'Sales pipeline', icon: PiChartLineUpBold, badge: '24' },
-      { label: 'Orders', icon: PiShoppingCartSimpleBold, badge: '7' },
-    ],
-  },
-  {
-    label: 'Operations',
-    items: [
-      { label: 'Installations', icon: PiWrenchBold, badge: '12' },
-      { label: 'Support tickets', icon: PiHeadsetBold, badge: '18' },
-      { label: 'Network health', icon: PiWifiHighBold },
-    ],
-  },
-  {
-    label: 'Finance',
-    items: [
-      { label: 'Billing', icon: PiReceiptBold },
-      { label: 'Collections', icon: PiCreditCardBold, badge: '9' },
-    ],
-  },
-  {
-    label: 'System',
-    items: [
-      { label: 'Administration', icon: PiShieldCheckBold },
-      { label: 'Settings', icon: PiGearBold },
-    ],
   },
 ];
 
@@ -330,6 +293,17 @@ function OperationsSidebar({
 }: {
   onNavigate: (label: string) => void;
 }) {
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const { isMobile, setOpen, setOpenMobile, state } = useSidebar();
+
+  const setItemExpanded = (name: string, expanded: boolean) => {
+    setExpandedItems((current) =>
+      expanded
+        ? [...new Set([...current, name])]
+        : current.filter((itemName) => itemName !== name)
+    );
+  };
+
   return (
     <Sidebar
       collapsible="icon"
@@ -363,7 +337,10 @@ function OperationsSidebar({
                 <SidebarMenuButton
                   isActive
                   tooltip="Dashboard"
-                  onClick={() => onNavigate('Dashboard')}
+                  onClick={() => {
+                    onNavigate('Dashboard');
+                    if (isMobile) setOpenMobile(false);
+                  }}
                   className="h-10 data-[active=true]:bg-circleTel-orange-light data-[active=true]:text-circleTel-orange-accessible"
                 >
                   <PiSquaresFourBold />
@@ -383,26 +360,80 @@ function OperationsSidebar({
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {section.items.map((item) => (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton
-                      tooltip={item.label}
-                      onClick={() => onNavigate(item.label)}
-                      className="h-9 text-ui-text-secondary hover:text-circleTel-navy"
-                    >
-                      <item.icon />
-                      <span>{item.label}</span>
-                      {item.badge ? (
-                        <Badge
-                          variant="secondary"
-                          className="ml-auto group-data-[collapsible=icon]:hidden"
+                {section.items.map((item) => {
+                  if (hasChildren(item)) {
+                    return (
+                      <Collapsible
+                        key={item.name}
+                        asChild
+                        open={expandedItems.includes(item.name)}
+                        onOpenChange={(expanded) => {
+                          if (expanded && !isMobile && state === 'collapsed') {
+                            setOpen(true);
+                          }
+                          setItemExpanded(item.name, expanded);
+                        }}
+                      >
+                        <SidebarMenuItem className="group/collapsible">
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton
+                              tooltip={item.name}
+                              className="h-9 text-ui-text-secondary hover:text-circleTel-navy"
+                            >
+                              <item.icon />
+                              <span className="truncate">{item.name}</span>
+                              <PiCaretRightBold className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <SidebarMenuSub>
+                              {item.children.map((child) => (
+                                <SidebarMenuSubItem key={child.href}>
+                                  <SidebarMenuSubButton
+                                    href={child.href}
+                                    onClick={(event) => {
+                                      event.preventDefault();
+                                      onNavigate(child.name);
+                                      if (isMobile) setOpenMobile(false);
+                                    }}
+                                    className="text-ui-text-secondary hover:text-circleTel-navy"
+                                  >
+                                    <child.icon />
+                                    <span className="truncate">
+                                      {child.name}
+                                    </span>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </SidebarMenuItem>
+                      </Collapsible>
+                    );
+                  }
+
+                  return (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton
+                        asChild
+                        tooltip={item.name}
+                        className="h-9 text-ui-text-secondary hover:text-circleTel-navy"
+                      >
+                        <a
+                          href={item.href}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            onNavigate(item.name);
+                            if (isMobile) setOpenMobile(false);
+                          }}
                         >
-                          {item.badge}
-                        </Badge>
-                      ) : null}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                          <item.icon />
+                          <span className="truncate">{item.name}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
