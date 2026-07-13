@@ -6,13 +6,72 @@ import {
 
 describe('CircleTel operations dashboard navigation', () => {
   it('groups production navigation into the approved operations taxonomy', () => {
-    expect(dashboardNavigation.map((section) => section.label)).toEqual([
-      'Customer & Sales',
-      'Orders & Delivery',
-      'Network Operations',
-      'Finance',
-      'Compliance',
-      'Platform & Admin',
+    expect(
+      dashboardNavigation.map((section) => ({
+        label: section.label,
+        itemNames: section.items.map((item) => item.name),
+      }))
+    ).toEqual([
+      {
+        label: 'Customer & Sales',
+        itemNames: [
+          'Customers',
+          'B2B Customers',
+          'Corporate Clients',
+          'Sales Engine',
+          'Quotes',
+          'CPQ Builder',
+          'Contracts',
+          'Partners',
+          'Competitor Analysis',
+          'Marketing',
+        ],
+      },
+      {
+        label: 'Orders & Delivery',
+        itemNames: [
+          'Products',
+          'Orders',
+          'Order Fulfillment',
+          'Field Operations',
+          'Suppliers',
+          'Customer Devices',
+        ],
+      },
+      {
+        label: 'Network Operations',
+        itemNames: [
+          'B2B Feasibility',
+          'Coverage Checker',
+          'Coverage',
+          'Diagnostics',
+          'Network Management',
+        ],
+      },
+      {
+        label: 'Finance',
+        itemNames: ['Billing & Revenue', 'Payments'],
+      },
+      {
+        label: 'Compliance',
+        itemNames: [
+          'Approvals',
+          'KYC Review',
+          'KYB Compliance',
+          'Document Reviews',
+        ],
+      },
+      {
+        label: 'Platform & Admin',
+        itemNames: [
+          'Notifications',
+          'Integrations',
+          'CMS Management',
+          'Orchestrator',
+          'Users',
+          'Settings',
+        ],
+      },
     ]);
   });
 
@@ -41,8 +100,13 @@ describe('CircleTel operations dashboard navigation', () => {
     const item = dashboardNavigation
       .flatMap((section) => section.items)
       .find((candidate) => candidate.name === itemName);
+    const productionItem = visibleProductionNavigationItems.find(
+      (candidate) => candidate.name === itemName
+    );
 
     expect(item).toBeDefined();
+    expect(productionItem).toBeDefined();
+    expect(item).toBe(productionItem);
     expect(item && hasChildren(item)).toBe(true);
 
     if (!item || !hasChildren(item)) {
