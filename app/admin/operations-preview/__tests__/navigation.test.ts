@@ -92,6 +92,38 @@ describe("CircleTel read-only preview navigation", () => {
     );
   });
 
+  it("preserves strict production identity for every item and nested child array", () => {
+    const productionItemsByName = new Map(
+      visibleProductionNavigationItems.map((item) => [item.name, item]),
+    );
+
+    for (const item of dashboardNavigation.flatMap(
+      (section) => section.items,
+    )) {
+      const productionItem = productionItemsByName.get(item.name);
+
+      expect(productionItem).toBeDefined();
+      expect(item).toBe(productionItem);
+
+      if (hasChildren(item)) {
+        expect(productionItem && hasChildren(productionItem)).toBe(true);
+
+        if (!productionItem || !hasChildren(productionItem)) {
+          throw new Error(`Expected production ${item.name} to have children`);
+        }
+
+        expect(item.children).toBe(productionItem.children);
+        expect(item.children).toEqual(
+          productionItem.children.map((child) => ({
+            name: child.name,
+            href: child.href,
+            icon: child.icon,
+          })),
+        );
+      }
+    }
+  });
+
   it("rejects duplicate visible production item names before lookup construction", () => {
     expect(() =>
       assertUniqueProductionNavigationItemNames([
