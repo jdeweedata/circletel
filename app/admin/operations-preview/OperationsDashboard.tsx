@@ -25,7 +25,7 @@ import {
 } from "react-icons/pi";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,9 @@ import {
   buildGrowthSeries,
   buildKpis,
   buildOperationsRows,
+  formatDateOnly,
   formatGeneratedAt,
+  formatGrowthTooltipItem,
   formatZar,
   type DashboardKpiLabel,
   type GrowthRange,
@@ -377,7 +379,10 @@ function OperationsHeader({
           aria-label="Refresh production data"
         >
           {isRefreshing ? (
-            <PiSpinnerBold data-icon="inline-start" className="animate-spin" />
+            <PiSpinnerBold
+              data-icon="inline-start"
+              className="animate-spin motion-reduce:animate-none"
+            />
           ) : (
             <PiArrowsClockwiseBold data-icon="inline-start" />
           )}
@@ -440,7 +445,9 @@ function ContainedNavigationAlert({ message }: { message: string }) {
   return (
     <Alert>
       <PiInfoBold />
-      <AlertTitle>Read-only navigation</AlertTitle>
+      <h2 className="mb-1 font-medium leading-none tracking-tight">
+        Read-only navigation
+      </h2>
       <AlertDescription>{message}</AlertDescription>
     </Alert>
   );
@@ -452,6 +459,7 @@ function KpiGrid({ data }: { data: OperationsPreviewData }) {
       aria-label="Key performance indicators"
       className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
     >
+      <h2 className="sr-only">Key performance indicators</h2>
       {buildKpis(data).map((item) => {
         const Icon = kpiIcons[item.label];
 
@@ -459,10 +467,12 @@ function KpiGrid({ data }: { data: OperationsPreviewData }) {
           <Card key={item.label} className="border-ui-border shadow-sm">
             <CardHeader className="flex-row items-start justify-between gap-4">
               <div className="flex min-w-0 flex-col gap-1">
-                <CardDescription>{item.label}</CardDescription>
-                <CardTitle className="text-3xl text-circleTel-navy">
-                  {item.value}
+                <CardTitle className="text-sm font-normal text-muted-foreground">
+                  {item.label}
                 </CardTitle>
+                <p className="text-3xl font-semibold leading-none tracking-tight text-circleTel-navy">
+                  {item.value}
+                </p>
               </div>
               <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-circleTel-orange-light text-circleTel-orange-accessible">
                 <Icon className="size-5" aria-hidden="true" />
@@ -521,9 +531,9 @@ function QuickActionsDisabled() {
     <Card className="min-w-0 border-ui-border shadow-sm">
       <CardHeader className="flex-col items-start gap-4 sm:flex-row sm:justify-between">
         <div className="flex flex-col gap-1">
-          <CardTitle className="text-lg text-circleTel-navy">
+          <h2 className="text-lg font-semibold leading-none tracking-tight text-circleTel-navy">
             Quick actions
-          </CardTitle>
+          </h2>
           <CardDescription>
             Staff workflows are visible but unavailable in this preview.
           </CardDescription>
@@ -547,9 +557,9 @@ function GrowthChart({ data }: { data: OperationsPreviewData }) {
     <Card className="min-w-0 border-ui-border shadow-sm">
       <CardHeader className="flex-col items-start gap-4 sm:flex-row sm:justify-between">
         <div className="flex flex-col gap-1">
-          <CardTitle className="text-lg text-circleTel-navy">
+          <h2 className="text-lg font-semibold leading-none tracking-tight text-circleTel-navy">
             Growth &amp; revenue
-          </CardTitle>
+          </h2>
           <CardDescription>
             Cumulative customers and monthly billed invoice totals.
           </CardDescription>
@@ -611,11 +621,39 @@ function GrowthChart({ data }: { data: OperationsPreviewData }) {
                 cursor={false}
                 content={
                   <ChartTooltipContent
-                    formatter={(value, name) =>
-                      name === "billedCents"
-                        ? formatZar(Number(value))
-                        : new Intl.NumberFormat("en-ZA").format(Number(value))
-                    }
+                    formatter={(value, name) => {
+                      if (name !== "totalCustomers" && name !== "billedCents") {
+                        return null;
+                      }
+
+                      const tooltipItem = formatGrowthTooltipItem(
+                        name,
+                        Number(value),
+                      );
+
+                      return (
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                          <span
+                            data-tooltip-indicator
+                            aria-hidden="true"
+                            className={cn(
+                              "size-2 shrink-0 rounded-sm",
+                              name === "billedCents"
+                                ? "bg-circleTel-orange"
+                                : "bg-circleTel-navy",
+                            )}
+                          />
+                          <span className="flex min-w-0 flex-1 items-center justify-between gap-4">
+                            <span className="text-muted-foreground">
+                              {tooltipItem.label}
+                            </span>
+                            <span className="font-mono font-medium tabular-nums text-foreground">
+                              {tooltipItem.value}
+                            </span>
+                          </span>
+                        </div>
+                      );
+                    }}
                   />
                 }
               />
@@ -695,9 +733,9 @@ function OperationsAndFinancePanel({ data }: { data: OperationsPreviewData }) {
       <Card className="min-w-0 border-ui-border shadow-sm">
         <CardHeader className="flex-col items-start gap-4 sm:flex-row sm:justify-between">
           <div className="flex flex-col gap-1">
-            <CardTitle className="text-lg text-circleTel-navy">
+            <h2 className="text-lg font-semibold leading-none tracking-tight text-circleTel-navy">
               Command center
-            </CardTitle>
+            </h2>
             <CardDescription>
               Current operations and invoice-cohort finance.
             </CardDescription>
@@ -731,7 +769,8 @@ function OperationsAndFinancePanel({ data }: { data: OperationsPreviewData }) {
                   Current invoice cohort
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {data.finance.periodStart} to {data.finance.periodEnd}
+                  {formatDateOnly(data.finance.periodStart)} to{" "}
+                  {formatDateOnly(data.finance.periodEnd)}
                 </span>
               </div>
               <Badge variant="outline">Current month</Badge>

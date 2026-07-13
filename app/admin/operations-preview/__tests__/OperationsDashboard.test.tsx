@@ -68,6 +68,29 @@ jest.mock("recharts", () => {
   };
 });
 
+jest.mock("@/components/ui/chart", () => ({
+  ChartContainer: ({
+    children,
+    config: _config,
+    ...props
+  }: React.PropsWithChildren<
+    Record<string, unknown> & { config?: Record<string, unknown> }
+  >) => <div {...props}>{children}</div>,
+  ChartTooltip: ({ content }: { content: React.ReactNode }) => (
+    <div>{content}</div>
+  ),
+  ChartTooltipContent: ({
+    formatter,
+  }: {
+    formatter?: (...args: unknown[]) => React.ReactNode;
+  }) => (
+    <div data-testid="growth-tooltip-probe">
+      {formatter?.(0, "totalCustomers", {}, 0, {})}
+      {formatter?.(0, "billedCents", {}, 1, {})}
+    </div>
+  ),
+}));
+
 jest.mock("@/components/ui/tooltip", () => ({
   TooltipProvider: ({ children }: React.PropsWithChildren) => children,
   Tooltip: ({ children }: React.PropsWithChildren) => children,
@@ -347,6 +370,33 @@ describe("OperationsDashboard", () => {
     });
     expect(refreshing.props.disabled).toBe(true);
     expect(textOf(refreshing)).toContain("Refreshing");
+    const spinner = refreshing.find(
+      (node) =>
+        typeof node.props.className === "string" &&
+        node.props.className.includes("animate-spin"),
+    );
+    expect(spinner.props.className).toContain("motion-reduce:animate-none");
+  });
+
+  it("renders labeled, formatted tooltip rows for zero values", () => {
+    const renderer = renderDashboard();
+    const tooltip = renderer.root.findByProps({
+      "data-testid": "growth-tooltip-probe",
+    });
+    const renderedText = textOf(tooltip);
+
+    expect(renderedText).toContain("Total customers");
+    expect(renderedText).toContain("0");
+    expect(renderedText).toContain("Billed revenue");
+    expect(renderedText).toContain(
+      new Intl.NumberFormat("en-ZA", {
+        style: "currency",
+        currency: "ZAR",
+      }).format(0),
+    );
+    expect(
+      tooltip.findAllByProps({ "data-tooltip-indicator": true }),
+    ).toHaveLength(2);
   });
 
   it("renders production navigation as contained buttons without hrefs", () => {
@@ -441,5 +491,37 @@ describe("OperationsDashboard", () => {
     expect(textOf(renderer.root)).toContain("Billed");
     expect(textOf(renderer.root)).toContain("Paid invoices");
     expect(textOf(renderer.root)).not.toContain("Scheduled installs");
+  });
+
+  it("uses a coherent page and section heading outline", () => {
+    const renderer = renderDashboard();
+    const customerButton = renderer.root.find(
+      (node) =>
+        node.type === "button" &&
+        node.props["data-preview-href"] === "/admin/customers",
+    );
+    act(() => customerButton.props.onClick({ preventDefault: jest.fn() }));
+
+    expect(renderer.root.findAllByType("h1").map(textOf)).toEqual([
+      "CircleTel operations",
+    ]);
+    expect(renderer.root.findAllByType("h2").map(textOf)).toEqual(
+      expect.arrayContaining([
+        "Read-only navigation",
+        "Key performance indicators",
+        "Quick actions",
+        "Growth & revenue",
+        "Command center",
+      ]),
+    );
+    expect(renderer.root.findAllByType("h3").map(textOf)).toEqual([
+      "Active customers",
+      "Active MRR",
+      "Open tickets",
+      "Network incidents",
+    ]);
+    for (const level of ["h4", "h5", "h6"] as const) {
+      expect(renderer.root.findAllByType(level)).toHaveLength(0);
+    }
   });
 });

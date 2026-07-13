@@ -4,6 +4,12 @@ import {
 } from "@/lib/admin/operations-preview/types";
 
 export type GrowthRange = "6m" | "12m";
+export type GrowthTooltipSeries = "totalCustomers" | "billedCents";
+
+export interface GrowthTooltipItem {
+  label: "Total customers" | "Billed revenue";
+  value: string;
+}
 
 export type DashboardKpiLabel =
   | "Active customers"
@@ -54,6 +60,11 @@ const generatedAtFormatter = new Intl.DateTimeFormat("en-ZA", {
   timeZone: OPERATIONS_PREVIEW_TIME_ZONE,
 });
 
+const dateOnlyFormatter = new Intl.DateTimeFormat("en-ZA", {
+  dateStyle: "medium",
+  timeZone: "UTC",
+});
+
 function assertSafeInteger(value: number, label: string): void {
   if (!Number.isSafeInteger(value)) {
     throw new RangeError(`${label} must be a safe integer`);
@@ -85,6 +96,41 @@ export function formatGeneratedAt(iso: string): string {
   }
 
   return generatedAtFormatter.format(generatedAt);
+}
+
+export function formatDateOnly(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) {
+    throw new RangeError("Date must be a valid YYYY-MM-DD date");
+  }
+
+  const [, yearText, monthText, dayText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(`${value}T00:00:00.000Z`);
+
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    throw new RangeError("Date must be a valid YYYY-MM-DD date");
+  }
+
+  return dateOnlyFormatter.format(date);
+}
+
+export function formatGrowthTooltipItem(
+  series: GrowthTooltipSeries,
+  value: number,
+): GrowthTooltipItem {
+  if (series === "billedCents") {
+    return { label: "Billed revenue", value: formatZar(value) };
+  }
+
+  return { label: "Total customers", value: formatCount(value) };
 }
 
 export function buildKpis(data: OperationsPreviewData): DashboardKpi[] {

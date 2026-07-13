@@ -4,7 +4,9 @@ import {
   buildGrowthSeries,
   buildKpis,
   buildOperationsRows,
+  formatDateOnly,
   formatGeneratedAt,
+  formatGrowthTooltipItem,
   formatZar,
 } from "../view-model";
 
@@ -115,5 +117,29 @@ describe("operations preview view model", () => {
     expect(() => formatGeneratedAt("not-a-date")).toThrow(
       "valid ISO timestamp",
     );
+  });
+
+  it("formats PostgreSQL date-only values without a timezone shift", () => {
+    expect(formatDateOnly("2026-07-01")).toBe(
+      new Intl.DateTimeFormat("en-ZA", {
+        dateStyle: "medium",
+        timeZone: "UTC",
+      }).format(new Date(Date.UTC(2026, 6, 1))),
+    );
+    expect(() => formatDateOnly("2026-02-30")).toThrow("valid YYYY-MM-DD date");
+    expect(() => formatDateOnly("2026-07-01T00:00:00Z")).toThrow(
+      "valid YYYY-MM-DD date",
+    );
+  });
+
+  it("formats both growth tooltip series, including zero values", () => {
+    expect(formatGrowthTooltipItem("totalCustomers", 0)).toEqual({
+      label: "Total customers",
+      value: "0",
+    });
+    expect(formatGrowthTooltipItem("billedCents", 0)).toEqual({
+      label: "Billed revenue",
+      value: formatZar(0),
+    });
   });
 });
