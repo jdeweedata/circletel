@@ -111,6 +111,7 @@ import {
 } from '@/components/ui/tooltip';
 import { hasChildren } from '@/lib/admin/feature-registry';
 import { cn } from '@/lib/utils';
+import { createPrototypeNavigationHandlers } from './interaction';
 import { dashboardNavigation } from './navigation';
 
 export type TrendRange = '30d' | '6m' | '12m';
@@ -304,6 +305,13 @@ function OperationsSidebar({
     );
   };
 
+  const getNavigationHandlers = (label: string) =>
+    createPrototypeNavigationHandlers({
+      label,
+      onNavigate,
+      onMobileClose: isMobile ? () => setOpenMobile(false) : undefined,
+    });
+
   return (
     <Sidebar
       collapsible="icon"
@@ -330,114 +338,108 @@ function OperationsSidebar({
       </SidebarHeader>
 
       <SidebarContent className="bg-white py-3">
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive
-                  tooltip="Dashboard"
-                  onClick={() => {
-                    onNavigate('Dashboard');
-                    if (isMobile) setOpenMobile(false);
-                  }}
-                  className="h-10 data-[active=true]:bg-circleTel-orange-light data-[active=true]:text-circleTel-orange-accessible"
-                >
-                  <PiSquaresFourBold />
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        {dashboardNavigation.map((section) => (
-          <SidebarGroup key={section.label}>
-            <SidebarGroupLabel className="uppercase tracking-[0.12em]">
-              {section.label}
-            </SidebarGroupLabel>
+        <nav aria-label="Operations navigation" className="flex flex-col gap-2">
+          <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {section.items.map((item) => {
-                  if (hasChildren(item)) {
-                    return (
-                      <Collapsible
-                        key={item.name}
-                        asChild
-                        open={expandedItems.includes(item.name)}
-                        onOpenChange={(expanded) => {
-                          if (expanded && !isMobile && state === 'collapsed') {
-                            setOpen(true);
-                          }
-                          setItemExpanded(item.name, expanded);
-                        }}
-                      >
-                        <SidebarMenuItem className="group/collapsible">
-                          <CollapsibleTrigger asChild>
-                            <SidebarMenuButton
-                              tooltip={item.name}
-                              className="h-9 text-ui-text-secondary hover:text-circleTel-navy"
-                            >
-                              <item.icon />
-                              <span className="truncate">{item.name}</span>
-                              <PiCaretRightBold className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
-                            </SidebarMenuButton>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <SidebarMenuSub>
-                              {item.children.map((child) => (
-                                <SidebarMenuSubItem key={child.href}>
-                                  <SidebarMenuSubButton
-                                    href={child.href}
-                                    onClick={(event) => {
-                                      event.preventDefault();
-                                      onNavigate(child.name);
-                                      if (isMobile) setOpenMobile(false);
-                                    }}
-                                    className="text-ui-text-secondary hover:text-circleTel-navy"
-                                  >
-                                    <child.icon />
-                                    <span className="truncate">
-                                      {child.name}
-                                    </span>
-                                  </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
-                              ))}
-                            </SidebarMenuSub>
-                          </CollapsibleContent>
-                        </SidebarMenuItem>
-                      </Collapsible>
-                    );
-                  }
-
-                  return (
-                    <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton
-                        asChild
-                        tooltip={item.name}
-                        className="h-9 text-ui-text-secondary hover:text-circleTel-navy"
-                      >
-                        <a
-                          href={item.href}
-                          onClick={(event) => {
-                            event.preventDefault();
-                            onNavigate(item.name);
-                            if (isMobile) setOpenMobile(false);
-                          }}
-                        >
-                          <item.icon />
-                          <span className="truncate">{item.name}</span>
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive
+                    tooltip="Dashboard"
+                    onClick={() => {
+                      onNavigate('Dashboard');
+                      if (isMobile) setOpenMobile(false);
+                    }}
+                    className="h-10 data-[active=true]:bg-circleTel-orange-light data-[active=true]:text-circleTel-orange-accessible"
+                  >
+                    <PiSquaresFourBold />
+                    <span>Dashboard</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        ))}
+
+          <SidebarSeparator />
+
+          {dashboardNavigation.map((section) => (
+            <SidebarGroup key={section.label}>
+              <SidebarGroupLabel className="uppercase tracking-[0.12em]">
+                {section.label}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {section.items.map((item) => {
+                    if (hasChildren(item)) {
+                      return (
+                        <Collapsible
+                          key={item.name}
+                          asChild
+                          open={expandedItems.includes(item.name)}
+                          onOpenChange={(expanded) => {
+                            if (expanded && !isMobile && state === 'collapsed') {
+                              setOpen(true);
+                            }
+                            setItemExpanded(item.name, expanded);
+                          }}
+                        >
+                          <SidebarMenuItem className="group/collapsible">
+                            <CollapsibleTrigger asChild>
+                              <SidebarMenuButton
+                                tooltip={item.name}
+                                className="h-9 text-ui-text-secondary hover:text-circleTel-navy"
+                              >
+                                <item.icon />
+                                <span className="truncate">{item.name}</span>
+                                <PiCaretRightBold className="ml-auto motion-safe:transition-transform motion-reduce:transition-none group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
+                              </SidebarMenuButton>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                              <SidebarMenuSub>
+                                {item.children.map((child) => (
+                                  <SidebarMenuSubItem key={child.href}>
+                                    <SidebarMenuSubButton
+                                      href={child.href}
+                                      {...getNavigationHandlers(child.name)}
+                                      className="text-ui-text-secondary hover:text-circleTel-navy"
+                                    >
+                                      <child.icon />
+                                      <span className="truncate">
+                                        {child.name}
+                                      </span>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                ))}
+                              </SidebarMenuSub>
+                            </CollapsibleContent>
+                          </SidebarMenuItem>
+                        </Collapsible>
+                      );
+                    }
+
+                    return (
+                      <SidebarMenuItem key={item.name}>
+                        <SidebarMenuButton
+                          asChild
+                          tooltip={item.name}
+                          className="h-9 text-ui-text-secondary hover:text-circleTel-navy"
+                        >
+                          <a
+                            href={item.href}
+                            {...getNavigationHandlers(item.name)}
+                          >
+                            <item.icon />
+                            <span className="truncate">{item.name}</span>
+                          </a>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
+        </nav>
       </SidebarContent>
 
       <SidebarFooter className="border-t border-ui-border bg-white p-3">

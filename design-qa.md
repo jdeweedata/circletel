@@ -49,7 +49,7 @@ final result: passed
 
 ### Validation
 
-- Focused Jest: both dashboard suites passed (2 suites, 10 tests).
+- Focused Jest: all dashboard suites passed (3 suites, 14 tests).
 - Scoped TypeScript: passed with no diagnostics.
 - `git diff --check`: passed with no whitespace errors.
 

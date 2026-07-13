@@ -1,5 +1,6 @@
 import { hasChildren } from '@/lib/admin/feature-registry';
 import {
+  assertUniqueProductionNavigationItemNames,
   dashboardNavigation,
   visibleProductionNavigationItems,
 } from '../navigation';
@@ -87,6 +88,18 @@ describe('CircleTel operations dashboard navigation', () => {
       [...visibleItemNames].sort()
     );
     expect(new Set(categorizedItemNames).size).toBe(categorizedItemNames.length);
+  });
+
+  it('rejects duplicate visible production item names before lookup construction', () => {
+    expect(() =>
+      assertUniqueProductionNavigationItemNames([
+        { name: 'Customers' },
+        { name: 'Orders' },
+        { name: 'Customers' },
+      ])
+    ).toThrow(
+      'Operations navigation has duplicate visible production item names: Customers'
+    );
   });
 
   it.each([

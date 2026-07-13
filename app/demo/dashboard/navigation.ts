@@ -80,6 +80,31 @@ export const visibleProductionNavigationItems = getVisibleSections(
   .flatMap((section) => section.items)
   .filter((item) => item.name !== 'Dashboard');
 
+export function assertUniqueProductionNavigationItemNames(
+  items: ReadonlyArray<Pick<NavItem, 'name'>>
+): void {
+  const seenNames = new Set<string>();
+  const duplicateNames = new Set<string>();
+
+  for (const item of items) {
+    if (seenNames.has(item.name)) {
+      duplicateNames.add(item.name);
+    }
+
+    seenNames.add(item.name);
+  }
+
+  if (duplicateNames.size > 0) {
+    throw new Error(
+      `Operations navigation has duplicate visible production item names: ${[
+        ...duplicateNames,
+      ].join(', ')}`
+    );
+  }
+}
+
+assertUniqueProductionNavigationItemNames(visibleProductionNavigationItems);
+
 const assignedProductionItemNames = categoryAssignments.flatMap(
   (section) => section.itemNames
 );
