@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
 import { createClient } from '@/lib/supabase/client';
+import { getAdminRouteMode } from './admin-route-policy';
 import dynamic from 'next/dynamic';
 
 // Agentation: Visual UI feedback for AI coding agents (dev-only)
@@ -26,25 +27,24 @@ export default function AdminLayout({
   const supabase = createClient();
 
   // Check if we're on the studio subdomain (for Sanity CMS)
-  const isStudioSubdomain = typeof window !== 'undefined' && window.location.hostname.startsWith('studio.');
-
-  // Public routes that don't require authentication
-  const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password', '/admin/sales/feasibility/designs'];
-  const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route)) || isStudioSubdomain;
+  const isStudioSubdomain =
+    typeof window !== 'undefined' &&
+    window.location.hostname.startsWith('studio.');
+  const routeMode = getAdminRouteMode(pathname, isStudioSubdomain);
+  const skipsAdminAuth =
+    routeMode === 'public' || routeMode === 'full-screen-unguarded';
 
   // DEV BYPASS: Skip auth for all admin routes on localhost in development
   const isDev = process.env.NODE_ENV === 'development';
-  const isLocalhost = typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  const isLocalhost =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1');
   const devBypass = isDev && isLocalhost;
-
-  // Full-screen routes that use their own layout (no admin sidebar/header)
-  const fullScreenRoutes = ['/admin/cms/builder'];
-  const isFullScreenRoute = fullScreenRoutes.some(route => pathname?.startsWith(route));
 
   // Fetch admin user from API (server-side validates session from cookies)
   useEffect(() => {
-    if (isPublicRoute) {
+    if (skipsAdminAuth) {
       setIsLoading(false);
       return;
     }
@@ -61,9 +61,6 @@ export default function AdminLayout({
       setIsLoading(false);
       return;
     }
-
-    // For full-screen routes, still check auth but don't set user state
-    // (the page will handle its own loading state)
 
     let isMounted = true;
     const checkAuth = async () => {
@@ -107,16 +104,10 @@ export default function AdminLayout({
     return () => {
       isMounted = false;
     };
-  }, [isPublicRoute, devBypass, supabase, pathname]);
+  }, [skipsAdminAuth, devBypass, supabase, pathname]);
 
-  // For public routes (login/signup), render without authentication check
-  if (isPublicRoute) {
-    return <>{children}</>;
-  }
-
-  // For full-screen routes (like CMS builder), render without admin wrapper
-  // These routes handle their own auth and layout
-  if (isFullScreenRoute) {
+  // Public routes and the CMS builder preserve their existing auth bypass.
+  if (skipsAdminAuth) {
     return <>{children}</>;
   }
 
@@ -136,6 +127,11 @@ export default function AdminLayout({
       window.location.href = '/admin/login?error=unauthorized';
     }
     return null;
+  }
+
+  // Authenticated full-screen routes skip only the standard admin shell.
+  if (routeMode === 'full-screen-authenticated') {
+    return <>{children}</>;
   }
 
   const handleLogout = async () => {
