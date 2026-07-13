@@ -149,6 +149,79 @@ describe('aggregateOperationsPreview', () => {
     expect(result.finance.billedCents).toBe(2_000);
   });
 
+  it.each([
+    '2026-02-31',
+    '2025-02-29',
+    '2026-13-01',
+    '2026-07-01T24:00:00Z',
+    '2026-07-01T12:00:00+24:00',
+    '2026-07-01T12:00',
+    '2026-07-01 12:00:00',
+    '2026-7-1',
+    '07/01/2026',
+    'July 1, 2026',
+  ])('rejects invalid or ambiguous invoice date %s', (invoiceDate) => {
+    expect(() =>
+      aggregateOperationsPreview(
+        validInput({
+          invoices: [
+            {
+              invoice_date: '2026-07-01',
+              total_amount: 10,
+              amount_paid: 10,
+              amount_due: 0,
+              status: 'paid',
+            },
+            {
+              invoice_date: invoiceDate,
+              total_amount: 20,
+              amount_paid: 20,
+              amount_due: 0,
+              status: 'paid',
+            },
+          ],
+        }),
+        NOW
+      )
+    ).toThrow('Invalid invoice date');
+  });
+
+  it('accepts explicit PostgreSQL timestamp forms without host-dependent parsing', () => {
+    const result = aggregateOperationsPreview(
+      validInput({
+        invoices: [
+          {
+            invoice_date: '2026-07-31 23:30:00.123456+02',
+            total_amount: 10,
+            amount_paid: 10,
+            amount_due: 0,
+            status: 'paid',
+          },
+          {
+            invoice_date: '2026-08-01T00:30:00+02:00',
+            total_amount: 20,
+            amount_paid: 20,
+            amount_due: 0,
+            status: 'paid',
+          },
+          {
+            invoice_date: '2026-08-01 01:00:00+0200',
+            total_amount: 30,
+            amount_paid: 30,
+            amount_due: 0,
+            status: 'paid',
+          },
+        ],
+      }),
+      new Date('2026-08-15T10:00:00.000Z')
+    );
+
+    expect(result.growth.slice(-2).map(({ billedCents }) => billedCents)).toEqual([
+      1_000,
+      5_000,
+    ]);
+  });
+
   it('throws rather than converting invalid money to zero', () => {
     expect(() => moneyToCents('not-money')).toThrow('Invalid monetary value');
     expect(() => moneyToCents(Number.POSITIVE_INFINITY)).toThrow('Invalid monetary value');
@@ -167,10 +240,61 @@ describe('aggregateOperationsPreview', () => {
     [...Array(11).fill(0), -1],
     [...Array(11).fill(0), 1.5],
     [...Array(11).fill(0), Number.POSITIVE_INFINITY],
+    [...Array(11).fill(0), Number.MAX_SAFE_INTEGER + 1],
   ])('rejects an invalid customerCounts shape or value', (customerCounts) => {
     expect(() =>
       aggregateOperationsPreview(validInput({ customerCounts }), NOW)
     ).toThrow('customerCounts');
+  });
+
+  it('rejects unsafe top-level counts and impacted-service overflow', () => {
+    expect(() =>
+      aggregateOperationsPreview(
+        validInput({ openTickets: Number.MAX_SAFE_INTEGER + 1 }),
+        NOW
+      )
+    ).toThrow('openTickets');
+
+    expect(() =>
+      aggregateOperationsPreview(
+        validInput({
+          unresolvedIncidents: [
+            { affected_customer_count: Number.MAX_SAFE_INTEGER },
+            { affected_customer_count: 1 },
+          ],
+        }),
+        NOW
+      )
+    ).toThrow('servicesImpacted');
+  });
+
+  it('returns exact end-exclusive UTC windows with adjacent boundaries', () => {
+    const windows = buildJohannesburgMonthWindows(
+      new Date('2026-07-15T10:00:00.000Z')
+    );
+    const current = windows.at(-1);
+
+    expect(current?.start.toISOString()).toBe('2026-06-30T22:00:00.000Z');
+    expect(current?.endExclusive.toISOString()).toBe('2026-07-31T22:00:00.000Z');
+    windows.slice(0, -1).forEach((window, index) => {
+      expect(window.endExclusive.toISOString()).toBe(
+        windows[index + 1].start.toISOString()
+      );
+    });
+  });
+
+  it('keeps exact boundaries through a year transition and leap February', () => {
+    const windows = buildJohannesburgMonthWindows(
+      new Date('2024-03-15T10:00:00.000Z')
+    );
+    const december = windows.find(({ key }) => key === '2023-12');
+    const january = windows.find(({ key }) => key === '2024-01');
+    const february = windows.find(({ key }) => key === '2024-02');
+
+    expect(december?.endExclusive.toISOString()).toBe('2023-12-31T22:00:00.000Z');
+    expect(january?.start.toISOString()).toBe('2023-12-31T22:00:00.000Z');
+    expect(february?.start.toISOString()).toBe('2024-01-31T22:00:00.000Z');
+    expect(february?.endExclusive.toISOString()).toBe('2024-02-29T22:00:00.000Z');
   });
 
   it('returns 12 ordered calendar buckets and an inclusive current finance period', () => {

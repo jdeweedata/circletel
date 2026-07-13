@@ -14,6 +14,8 @@ const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat('en-ZA', {
   month: 'short',
   timeZone: OPERATIONS_PREVIEW_TIME_ZONE,
 });
+const POSTGRES_INVOICE_DATE_PATTERN =
+  /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?(?:(Z)|([+-])(\d{2})(?::?(\d{2}))?)?)?$/i;
 
 export interface AggregateInput {
   activeServices: ActiveServiceRow[];
@@ -60,32 +62,91 @@ function monthStartUtc(year: number, monthIndex: number): Date {
   return new Date(Date.UTC(year, monthIndex, 1) - JOHANNESBURG_UTC_OFFSET_MS);
 }
 
-function monthKeyForInvoiceDate(value: string): string {
-  const normalized = value.trim();
-  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(normalized);
-  let parsed: Date;
+function isLeapYear(year: number): boolean {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
 
-  if (dateOnly) {
-    parsed = new Date(`${normalized}T00:00:00+02:00`);
-  } else if (
-    /^\d{4}-\d{2}-\d{2}[T ]/.test(normalized) &&
-    !/(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalized)
-  ) {
-    parsed = new Date(`${normalized.replace(' ', 'T')}+02:00`);
-  } else {
-    parsed = new Date(normalized);
+function daysInMonth(year: number, month: number): number {
+  const days = [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return days[month - 1] ?? 0;
+}
+
+function monthKeyForInvoiceDate(value: string): string {
+  const match = POSTGRES_INVOICE_DATE_PATTERN.exec(value);
+  if (!match) throw new Error('Invalid invoice date');
+
+  const [
+    ,
+    yearText,
+    monthText,
+    dayText,
+    hourText,
+    minuteText,
+    secondText,
+    fractionText,
+    utcMarker,
+    offsetSign,
+    offsetHourText,
+    offsetMinuteText,
+  ] = match;
+  if (hourText !== undefined && !utcMarker && !offsetSign) {
+    throw new Error('Invalid invoice date');
   }
 
-  assertValidDate(parsed, 'invoice date');
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText ?? 0);
+  const minute = Number(minuteText ?? 0);
+  const second = Number(secondText ?? 0);
+  const millisecond = Number((fractionText ?? '').padEnd(3, '0').slice(0, 3));
+  const offsetHour = Number(offsetHourText ?? 0);
+  const offsetMinute = Number(offsetMinuteText ?? 0);
 
-  const { year, monthIndex } = localCalendarParts(parsed);
-  return monthKey(year, monthIndex);
+  if (
+    year < 1 ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > daysInMonth(year, month) ||
+    hour > 23 ||
+    minute > 59 ||
+    second > 59 ||
+    offsetHour > 15 ||
+    offsetMinute > 59
+  ) {
+    throw new Error('Invalid invoice date');
+  }
+
+  let offsetMinutes = 2 * 60;
+  if (utcMarker) {
+    offsetMinutes = 0;
+  } else if (offsetSign) {
+    const magnitude = offsetHour * 60 + offsetMinute;
+    offsetMinutes = offsetSign === '+' ? magnitude : -magnitude;
+  }
+
+  const localTime = new Date(0);
+  localTime.setUTCFullYear(year, month - 1, day);
+  localTime.setUTCHours(hour, minute, second, millisecond);
+  const parsed = new Date(localTime.getTime() - offsetMinutes * 60 * 1_000);
+
+  const invoiceMonth = localCalendarParts(parsed);
+  return monthKey(invoiceMonth.year, invoiceMonth.monthIndex);
 }
 
 function assertCount(value: number, name: string): void {
-  if (!Number.isFinite(value) || !Number.isInteger(value) || value < 0) {
-    throw new Error(`${name} must be a non-negative finite integer`);
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new Error(`${name} must be a non-negative safe integer`);
   }
+}
+
+function addCounts(left: number, right: number, name: string): number {
+  assertCount(left, name);
+  assertCount(right, name);
+  const total = left + right;
+  assertCount(total, name);
+  return total;
 }
 
 function assertCustomerCounts(customerCounts: number[]): void {
@@ -158,8 +219,11 @@ export function aggregateOperationsPreview(
   let servicesImpacted = 0;
   for (const incident of input.unresolvedIncidents) {
     if (incident.affected_customer_count !== null) {
-      assertCount(incident.affected_customer_count, 'affected_customer_count');
-      servicesImpacted += incident.affected_customer_count;
+      servicesImpacted = addCounts(
+        servicesImpacted,
+        incident.affected_customer_count,
+        'servicesImpacted'
+      );
     }
   }
 
@@ -195,7 +259,7 @@ export function aggregateOperationsPreview(
       billedCents = addCents(billedCents, invoiceBilledCents);
       collectedCents = addCents(collectedCents, invoiceCollectedCents);
       outstandingCents = addCents(outstandingCents, invoiceOutstandingCents);
-      if (status === 'paid') paidInvoices += 1;
+      if (status === 'paid') paidInvoices = addCounts(paidInvoices, 1, 'paidInvoices');
     }
   }
 
