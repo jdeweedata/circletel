@@ -1,6 +1,9 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { getAdminRouteMode } from '../admin-route-policy';
+import {
+  getAdminRouteMode,
+  getProtectedRouteRenderMode
+} from '../admin-route-policy';
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -128,6 +131,32 @@ describe('getAdminRouteMode', () => {
   );
 });
 
+describe('getProtectedRouteRenderMode', () => {
+  it('loads when authentication belongs to a different full-screen pathname', () => {
+    expect(
+      getProtectedRouteRenderMode({
+        routeMode: 'full-screen-authenticated',
+        currentPathname: '/admin/operations-preview',
+        authPathname: '/admin/dashboard',
+        authStatus: 'authenticated',
+        hasValidatedUser: true
+      })
+    ).toBe('loading');
+  });
+
+  it('keeps standard routes authenticated while a known admin revalidates', () => {
+    expect(
+      getProtectedRouteRenderMode({
+        routeMode: 'standard',
+        currentPathname: '/admin/customers',
+        authPathname: '/admin/customers',
+        authStatus: 'checking',
+        hasValidatedUser: true
+      })
+    ).toBe('authenticated');
+  });
+});
+
 describe('AdminLayoutClient route policy', () => {
   afterEach(() => {
     Reflect.deleteProperty(globalThis, 'window');
@@ -225,6 +254,53 @@ describe('AdminLayoutClient route policy', () => {
     expect(rendered).not.toContain('data-admin-shell');
   });
 
+  it('keeps the standard shell visible while a standard route revalidates', async () => {
+    mockPathname = '/admin/dashboard';
+    const customersAuth = deferredResponse();
+    const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;
+    fetchMock
+      .mockResolvedValueOnce(successfulAuthResponse('dashboard-admin'))
+      .mockReturnValueOnce(customersAuth.promise);
+
+    let renderer!: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        React.createElement(
+          AdminLayoutClient,
+          null,
+          React.createElement('div', { 'data-dashboard': true })
+        )
+      );
+      await Promise.resolve();
+    });
+
+    mockPathname = '/admin/customers';
+    await act(async () => {
+      renderer.update(
+        React.createElement(
+          AdminLayoutClient,
+          null,
+          React.createElement('div', { 'data-customers': true })
+        )
+      );
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const pending = JSON.stringify(renderer.toJSON());
+    expect(pending).toContain('data-admin-shell');
+    expect(pending).toContain('data-customers');
+
+    await act(async () => {
+      customersAuth.resolve(successfulAuthResponse('customers-admin'));
+      await customersAuth.promise;
+      await Promise.resolve();
+    });
+
+    const validated = JSON.stringify(renderer.toJSON());
+    expect(validated).toContain('data-admin-shell');
+    expect(validated).toContain('data-customers');
+  });
+
   it('does not redirect before checking auth after public navigation', async () => {
     const mockWindow = {
       location: {
@@ -283,6 +359,67 @@ describe('AdminLayoutClient route policy', () => {
     expect(rendered).not.toContain('data-admin-shell');
     expect(mockWindow.location.href).toBe(
       'https://admin.circletel.test/admin/login'
+    );
+  });
+
+  it('does not redirect or reveal preview after CMS builder navigation', async () => {
+    const mockWindow = {
+      location: {
+        hostname: 'admin.circletel.test',
+        href: 'https://admin.circletel.test/admin/cms/builder'
+      }
+    };
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: mockWindow
+    });
+
+    mockPathname = '/admin/cms/builder/page-1';
+    const operationsAuth = deferredResponse();
+    const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;
+    fetchMock.mockReturnValueOnce(operationsAuth.promise);
+
+    let renderer!: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        React.createElement(
+          AdminLayoutClient,
+          null,
+          React.createElement('div', { 'data-cms-builder': true })
+        )
+      );
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    mockPathname = '/admin/operations-preview';
+    await act(async () => {
+      renderer.update(
+        React.createElement(
+          AdminLayoutClient,
+          null,
+          React.createElement('div', { 'data-preview': true })
+        )
+      );
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(mockWindow.location.href).toBe(
+      'https://admin.circletel.test/admin/cms/builder'
+    );
+    expect(JSON.stringify(renderer.toJSON())).not.toContain('data-preview');
+
+    await act(async () => {
+      operationsAuth.resolve(successfulAuthResponse());
+      await operationsAuth.promise;
+      await Promise.resolve();
+    });
+
+    const rendered = JSON.stringify(renderer.toJSON());
+    expect(rendered).toContain('data-preview');
+    expect(rendered).not.toContain('data-admin-shell');
+    expect(mockWindow.location.href).toBe(
+      'https://admin.circletel.test/admin/cms/builder'
     );
   });
 

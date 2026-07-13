@@ -6,7 +6,11 @@ import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
 import { createClient } from '@/lib/supabase/client';
-import { getAdminRouteMode } from './admin-route-policy';
+import {
+  getAdminRouteMode,
+  getProtectedRouteRenderMode,
+  type AdminAuthValidationStatus,
+} from './admin-route-policy';
 import dynamic from 'next/dynamic';
 
 // Agentation: Visual UI feedback for AI coding agents (dev-only)
@@ -26,8 +30,8 @@ interface AdminUser {
 
 interface AdminAuthState {
   pathname: string | null;
-  status: 'idle' | 'checking' | 'authenticated' | 'unauthenticated';
-  user: AdminUser | null;
+  status: AdminAuthValidationStatus;
+  lastValidatedUser: AdminUser | null;
 }
 
 export default function AdminLayout({
@@ -38,7 +42,7 @@ export default function AdminLayout({
   const [authState, setAuthState] = useState<AdminAuthState>({
     pathname: null,
     status: 'checking',
-    user: null,
+    lastValidatedUser: null,
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
@@ -64,7 +68,11 @@ export default function AdminLayout({
   // Fetch admin user from API (server-side validates session from cookies)
   useEffect(() => {
     if (skipsAdminAuth) {
-      setAuthState({ pathname: null, status: 'idle', user: null });
+      setAuthState({
+        pathname: null,
+        status: 'idle',
+        lastValidatedUser: null,
+      });
       return;
     }
 
@@ -73,7 +81,7 @@ export default function AdminLayout({
       setAuthState({
         pathname: protectedPathname,
         status: 'authenticated',
-        user: {
+        lastValidatedUser: {
           id: 'dev-user',
           email: 'dev@localhost',
           first_name: 'Dev',
@@ -85,11 +93,11 @@ export default function AdminLayout({
     }
 
     let isCurrentPath = true;
-    setAuthState({
+    setAuthState((current) => ({
       pathname: protectedPathname,
       status: 'checking',
-      user: null,
-    });
+      lastValidatedUser: current.lastValidatedUser,
+    }));
 
     const redirectUnauthorized = async (
       message: string,
@@ -101,7 +109,7 @@ export default function AdminLayout({
       setAuthState({
         pathname: protectedPathname,
         status: 'unauthenticated',
-        user: null,
+        lastValidatedUser: null,
       });
       await supabase.auth.signOut();
 
@@ -126,7 +134,7 @@ export default function AdminLayout({
         setAuthState({
           pathname: protectedPathname,
           status: 'authenticated',
-          user: result.user,
+          lastValidatedUser: result.user,
         });
 
         // If user just logged in and is on /admin root, redirect to dashboard
@@ -150,14 +158,15 @@ export default function AdminLayout({
     return <>{children}</>;
   }
 
-  const authIsCurrent = authState.pathname === protectedPathname;
+  const protectedRouteRenderMode = getProtectedRouteRenderMode({
+    routeMode,
+    currentPathname: protectedPathname,
+    authPathname: authState.pathname,
+    authStatus: authState.status,
+    hasValidatedUser: authState.lastValidatedUser !== null,
+  });
 
-  // Never reveal a protected route until that exact pathname is validated.
-  if (
-    !authIsCurrent ||
-    authState.status === 'idle' ||
-    authState.status === 'checking'
-  ) {
+  if (protectedRouteRenderMode === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
@@ -166,11 +175,14 @@ export default function AdminLayout({
   }
 
   // Redirects are initiated only by an explicit failed result for this path.
-  if (authState.status !== 'authenticated' || !authState.user) {
+  if (
+    protectedRouteRenderMode === 'unauthenticated' ||
+    !authState.lastValidatedUser
+  ) {
     return null;
   }
 
-  const user = authState.user;
+  const user = authState.lastValidatedUser;
 
   // Authenticated full-screen routes skip only the standard admin shell.
   if (routeMode === 'full-screen-authenticated') {

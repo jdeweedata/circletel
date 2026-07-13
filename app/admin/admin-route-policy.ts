@@ -4,6 +4,25 @@ export type AdminRouteMode =
   | 'full-screen-authenticated'
   | 'standard';
 
+export type AdminAuthValidationStatus =
+  | 'idle'
+  | 'checking'
+  | 'authenticated'
+  | 'unauthenticated';
+
+export type ProtectedRouteRenderMode =
+  | 'loading'
+  | 'authenticated'
+  | 'unauthenticated';
+
+interface ProtectedRouteRenderInput {
+  routeMode: AdminRouteMode;
+  currentPathname: string;
+  authPathname: string | null;
+  authStatus: AdminAuthValidationStatus;
+  hasValidatedUser: boolean;
+}
+
 const PUBLIC_ROUTES = [
   '/admin/login',
   '/admin/signup',
@@ -18,6 +37,34 @@ const AUTHENTICATED_FULL_SCREEN_ROUTES = ['/admin/operations-preview'] as const;
 
 function isRouteOrDescendant(pathname: string | null, route: string): boolean {
   return pathname === route || pathname?.startsWith(`${route}/`) === true;
+}
+
+export function getProtectedRouteRenderMode({
+  routeMode,
+  currentPathname,
+  authPathname,
+  authStatus,
+  hasValidatedUser
+}: ProtectedRouteRenderInput): ProtectedRouteRenderMode {
+  const authIsCurrent = authPathname === currentPathname;
+
+  if (
+    routeMode === 'standard' &&
+    hasValidatedUser &&
+    !(authIsCurrent && authStatus === 'unauthenticated')
+  ) {
+    return 'authenticated';
+  }
+
+  if (!authIsCurrent || authStatus === 'idle' || authStatus === 'checking') {
+    return 'loading';
+  }
+
+  if (authStatus === 'authenticated' && hasValidatedUser) {
+    return 'authenticated';
+  }
+
+  return 'unauthenticated';
 }
 
 export function getAdminRouteMode(
