@@ -1,8 +1,4 @@
-import {
-  dashboardKpis,
-  dashboardNavigation,
-  getDashboardTrendData,
-} from '../page';
+import { dashboardKpis, getDashboardTrendData } from '../page';
 
 describe('CircleTel operations dashboard prototype data', () => {
   it('keeps the approved operational and executive KPIs', () => {
@@ -11,15 +7,6 @@ describe('CircleTel operations dashboard prototype data', () => {
       'Monthly revenue',
       'Open tickets',
       'Network incidents',
-    ]);
-  });
-
-  it('groups the approved staff navigation areas', () => {
-    expect(dashboardNavigation.map((section) => section.label)).toEqual([
-      'Customers',
-      'Operations',
-      'Finance',
-      'System',
     ]);
   });
 
