@@ -16,7 +16,7 @@ import type {
 import { apiLogger } from "@/lib/logging/logger";
 import { PERMISSIONS } from "@/lib/rbac/permissions";
 
-export const OPERATIONS_PREVIEW_TIMEOUT_MS = 8_000;
+const OPERATIONS_PREVIEW_TIMEOUT_MS = 8_000;
 
 class OperationsPreviewTimeoutError extends Error {
   constructor() {
@@ -25,7 +25,7 @@ class OperationsPreviewTimeoutError extends Error {
   }
 }
 
-export function withPrivateNoStore(
+function withPrivateNoStore(
   response: NextResponse,
   requestId: string,
 ): NextResponse {
@@ -151,3 +151,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
   }
 }
+
+function methodNotAllowed(): NextResponse {
+  const response = new NextResponse(null, { status: 405 });
+  response.headers.set("Allow", "GET");
+  return withPrivateNoStore(response, randomUUID());
+}
+
+export const POST = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;

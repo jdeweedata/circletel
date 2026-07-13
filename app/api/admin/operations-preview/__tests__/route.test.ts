@@ -262,11 +262,10 @@ describe("GET /api/admin/operations-preview", () => {
     );
 
     const responsePromise = route.GET(request());
-    await jest.advanceTimersByTimeAsync(route.OPERATIONS_PREVIEW_TIMEOUT_MS);
+    await jest.advanceTimersByTimeAsync(8_000);
     const response = await responsePromise;
     const body = await response.json();
 
-    expect(route.OPERATIONS_PREVIEW_TIMEOUT_MS).toBe(8_000);
     expect(response.status).toBe(503);
     expectPrivateNoStore(response);
     expect(body.code).toBe("OPERATIONS_PREVIEW_DATA_UNAVAILABLE");
@@ -282,10 +281,23 @@ describe("GET /api/admin/operations-preview", () => {
     );
   });
 
-  it("exports only the GET HTTP method", () => {
-    expect(route).not.toHaveProperty("POST");
-    expect(route).not.toHaveProperty("PUT");
-    expect(route).not.toHaveProperty("PATCH");
-    expect(route).not.toHaveProperty("DELETE");
-  });
+  it.each(["POST", "PUT", "PATCH", "DELETE"] as const)(
+    "rejects %s without auth, data access, or a cacheable response",
+    async (method) => {
+      const handler = (route as Record<string, unknown>)[method];
+
+      expect(typeof handler).toBe("function");
+      if (typeof handler !== "function") return;
+
+      const response = await (handler as () => Promise<NextResponse>)();
+
+      expect(response.status).toBe(405);
+      expect(await response.text()).toBe("");
+      expect(response.headers.get("allow")).toBe("GET");
+      expectPrivateNoStore(response);
+      expect(mockAuthenticateAdmin).not.toHaveBeenCalled();
+      expect(mockRequirePermission).not.toHaveBeenCalled();
+      expect(mockReadOperationsPreview).not.toHaveBeenCalled();
+    },
+  );
 });
