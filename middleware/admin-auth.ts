@@ -75,12 +75,15 @@ export async function handleAdminAuth(
 ): Promise<AdminAuthResult> {
   const pathname = request.nextUrl.pathname;
 
-  // DEV BYPASS: Skip auth for localhost in development mode
+  // DEV BYPASS: Skip auth for localhost in development mode.
+  // Requires an explicit opt-in env var so a mis-set NODE_ENV in a hosted
+  // environment can never silently grant unauthenticated admin access.
+  const bypassEnabled = process.env.ALLOW_DEV_ADMIN_BYPASS === 'true';
   const isDev = process.env.NODE_ENV === 'development';
   const isLocalhost = request.headers.get('host')?.includes('localhost') ||
                       request.headers.get('host')?.startsWith('127.0.0.1');
 
-  if (isDev && isLocalhost && isAdminRoute(pathname)) {
+  if (bypassEnabled && isDev && isLocalhost && isAdminRoute(pathname)) {
     // Return mock user for dev - allows full admin access without login
     return {
       shouldRedirect: false,
