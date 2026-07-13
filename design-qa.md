@@ -39,3 +39,20 @@ Evidence: `circletel-operations-dashboard-desktop-v1.png` and `circletel-operati
 - The Next.js development issue badge is caused by the repository's pre-existing duplicate `/middleware` pages warning, not this route.
 
 final result: passed
+
+## Production navigation refinement
+
+- Desktop (1440 × 1000): all six navigation categories were reachable by scrolling. B2B Customers, Sales Engine, Coverage, Billing & Revenue, Integrations, and Users expanded independently, with multiple submenus retained at once. A submenu child and a leaf both kept the URL at `/demo/dashboard` and updated the prototype feedback alert. From icon mode, activating a collapsed parent reopened the sidebar and revealed its submenu.
+- Mobile (390 × 844): the navigation sheet opened correctly; B2B Customers and Integrations expanded independently, Platform & Admin was reachable by scrolling, and both a child and a leaf closed the sheet while preserving `/demo/dashboard` and showing updated feedback. The page had no horizontal overflow (`scrollWidth === clientWidth === 390`).
+- Console: clean desktop and mobile sessions reported no page errors or route-specific console errors. Expected auth initialization logs remained informational.
+- Screenshots: `/root/.codex/visualizations/2026/07/13/019f5a1d-0ac3-79c1-9666-907b9757a42e/circletel-operations-navigation-desktop.png` and `/root/.codex/visualizations/2026/07/13/019f5a1d-0ac3-79c1-9666-907b9757a42e/circletel-operations-navigation-mobile.png`.
+
+### Validation
+
+- Focused Jest: both dashboard suites passed (2 suites, 10 tests).
+- Scoped TypeScript: passed with no diagnostics.
+- `git diff --check`: passed with no whitespace errors.
+
+Known pre-existing dev-only warning: Next.js reports the duplicate `/middleware` pages and disabled PWA support. In an unfiltered headless session, the external Zoho PageSense script also injected its cookie banner and raised `SyntaxError: Invalid or unexpected token`; blocking only that third-party script produced clean route QA sessions.
+
+Result: passed
