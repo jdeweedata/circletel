@@ -107,6 +107,13 @@ Format:
 - **Discovered by:** Hermes / Claude Code
 ```
 
+### 2026-07-14: CloudWiFi Product Page Architecture
+- **Context:** The bespoke `/products/cloudwifi` page was rebuilt from the approved screenshot/spec on branch `codex/cloudwifi-product-page` in worktree `/home/circletel/.worktrees/cloudwifi-product-page`.
+- **Pattern:** Keep the route and metadata server-rendered in `app/products/cloudwifi/page.tsx`; keep interactive estimator, shared survey state, CTA, and four-step wizard components in `components/cloudwifi/`; keep recommendation rules, validation, and lead mapping in `lib/cloudwifi/`; and accept bounded, validated submissions through `app/api/leads/cloudwifi/route.ts` into the existing `coverage_leads` workflow.
+- **Verification:** The focused CloudWiFi suite passes 199/199. Desktop and mobile browser QA intercepted the lead endpoint, proving no request before submit, one failed request, then one successful retry (`0 -> 1 -> 2` POSTs) without writing to the database. Reference screenshots are `/tmp/cloudwifi-desktop.png` and `/tmp/cloudwifi-mobile.png`.
+- **Known shared noise:** Repo-wide TypeScript baseline errors and unrelated full-suite failures remain outside this feature. Browser/test output can also show the existing Zoho `zcb` hydration mismatch and `react-test-renderer` deprecation warning.
+- **Discovered by:** Codex
+
 ## Known State (updated 2026-05-24)
 
 ### DFA Integration
