@@ -248,11 +248,11 @@ The server:
    - `company_name`
    - `address` or city-level location value supported by the existing schema
    - `city`
-   - `lead_source`: `cloudwifi_product_page`
-   - `service_interest`: `CloudWiFi`
+   - `lead_source`: `website_form` (an existing PostgreSQL enum value)
+   - `requested_service_type`: `cloudwifi`
    - `status`: `new`
-   - `notes`: concise human-readable survey summary
-   - `metadata`: structured venue, network, add-on, tier, consent, and attribution data
+   - `follow_up_notes`: concise human-readable survey summary
+   - `metadata`: structured venue, network, add-on, tier, consent, and attribution data, including `page_source: cloudwifi_product_page`
 4. Triggers the existing sales-alert integration asynchronously.
 5. Returns a stable success response containing the lead ID.
 
