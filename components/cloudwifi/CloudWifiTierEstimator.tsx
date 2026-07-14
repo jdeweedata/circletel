@@ -259,7 +259,7 @@ export function CloudWifiTierEstimator() {
               type="button"
               variant="cta"
               size="lg"
-              className="w-full focus-visible:ring-circleTel-orange focus-visible:ring-offset-2"
+              className="w-full bg-circleTel-orange-accessible hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2"
               onClick={() =>
                 requestSurvey({
                   venueType: recommendation.venueType,

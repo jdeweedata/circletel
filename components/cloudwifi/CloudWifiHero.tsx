@@ -58,7 +58,7 @@ export function CloudWifiHero() {
             <CloudWifiSurveyCta
               variant="cta"
               size="xl"
-              className="min-h-12 rounded-xl px-8 focus-visible:ring-white"
+              className="min-h-12 rounded-xl bg-circleTel-orange-accessible px-8 hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-white"
             >
               Request a site survey
               <PiArrowRightBold aria-hidden="true" />

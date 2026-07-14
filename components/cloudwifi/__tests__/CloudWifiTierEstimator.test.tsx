@@ -162,10 +162,15 @@ describe("CloudWifiTierEstimator", () => {
     expect(serialized).toContain(
       "A site survey confirms the final tier and price.",
     );
-
-    act(() =>
-      buttonWithText(renderer, "Use this recommendation").props.onClick({}),
+    const recommendationCta = buttonWithText(
+      renderer,
+      "Use this recommendation",
     );
+    expect(recommendationCta.props.className).toContain(
+      "bg-circleTel-orange-accessible",
+    );
+
+    act(() => recommendationCta.props.onClick({}));
 
     expect(surveyContext.draft.venue).toMatchObject({
       venueType: "hospitality",

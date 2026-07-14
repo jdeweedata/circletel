@@ -229,6 +229,9 @@ describe("CloudWifiSurveyWizard", () => {
       renderer.root.findByProps({ "aria-current": "step" }).children,
     ).toContain("Venue");
     expect(renderer.root.findAllByType("form")).toHaveLength(1);
+    expect(button("Continue").props.className).toContain(
+      "bg-circleTel-orange-accessible",
+    );
     const aside = renderer.root.findByType("aside");
     expect(aside.props.id).toBe("cloudwifi-survey");
     expect(aside.props.className).toContain("lg:sticky");
@@ -432,6 +435,9 @@ describe("CloudWifiSurveyWizard", () => {
     renderWizard();
     reachReview();
     const expectedDraft = JSON.parse(JSON.stringify(surveyContext.draft));
+    expect(button("Submit site survey request").props.className).toContain(
+      "bg-circleTel-orange-accessible",
+    );
 
     let firstSubmit!: Promise<void>;
     await act(async () => {
@@ -485,6 +491,10 @@ describe("CloudWifiSurveyWizard", () => {
     expect(renderer.root.findByProps({ role: "alert" })).toBeDefined();
     expect(textOf(renderer.root)).toContain("Please try again");
     expect(surveyContext.draft.contact.email).toBe("nandi@example.co.za");
+    expect(button("Retry submission").props.className).toContain(
+      "bg-circleTel-orange-accessible",
+    );
+    expect(button("Retry submission").props.className).toContain("text-white");
 
     await act(async () => button("Retry submission").props.onClick());
     expect(fetchMock).toHaveBeenCalledTimes(2);

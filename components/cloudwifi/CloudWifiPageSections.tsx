@@ -27,10 +27,12 @@ const expertMessage =
   "Hi CircleTel, I would like to speak to an expert about CloudWiFi.";
 
 function SectionIntro({
+  id,
   eyebrow,
   title,
   description,
 }: {
+  id: string;
   eyebrow: string;
   title: string;
   description?: string;
@@ -40,7 +42,10 @@ function SectionIntro({
       <p className="font-heading text-sm font-bold uppercase tracking-[0.14em] text-circleTel-orange-accessible">
         {eyebrow}
       </p>
-      <h2 className="mt-3 font-heading text-3xl font-bold tracking-[-0.01em] text-circleTel-navy md:text-4xl">
+      <h2
+        id={id}
+        className="mt-3 font-heading text-3xl font-bold tracking-[-0.01em] text-circleTel-navy md:text-4xl"
+      >
         {title}
       </h2>
       {description ? (
@@ -72,15 +77,14 @@ function VenueSection() {
   return (
     <section
       aria-labelledby="cloudwifi-venues-heading"
-      className="bg-white py-16 md:py-24"
+      className="bg-circleTel-lightNeutral py-16 md:py-24"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div id="cloudwifi-venues-heading">
-          <SectionIntro
-            eyebrow="Built for every venue"
-            title="Great Wi-Fi experiences for your visitors and teams."
-          />
-        </div>
+        <SectionIntro
+          id="cloudwifi-venues-heading"
+          eyebrow="Built for every venue"
+          title="Great Wi-Fi experiences for your visitors and teams."
+        />
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {venueTypes.map((venue) => {
@@ -138,13 +142,12 @@ function PricingSection() {
       className="py-16 md:py-24"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div id="cloudwifi-pricing-heading">
-          <SectionIntro
-            eyebrow="Simple, transparent pricing"
-            title="Survey-led and access point based."
-            description="Choose a guide tier now. The site survey confirms the network design and your final monthly price."
-          />
-        </div>
+        <SectionIntro
+          id="cloudwifi-pricing-heading"
+          eyebrow="Simple, transparent pricing"
+          title="Survey-led and access point based."
+          description="Choose a guide tier now. The site survey confirms the network design and your final monthly price."
+        />
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {pricingTiers.map((tier) => (
@@ -155,22 +158,22 @@ function PricingSection() {
               <h3 className="font-heading text-xl font-bold text-circleTel-navy">
                 {tier.name}
               </h3>
-              <p className="mt-5 text-base font-semibold text-circleTel-secondaryNeutral">
+              <p className="mt-5 text-base font-semibold tabular-nums text-circleTel-secondaryNeutral">
                 {tier.guide}
               </p>
-              <p className="mt-1 text-base text-circleTel-secondaryNeutral">
+              <p className="mt-1 text-base tabular-nums text-circleTel-secondaryNeutral">
                 {tier.apRange}
               </p>
               <p className="mt-7 text-base text-circleTel-secondaryNeutral">
                 from
               </p>
-              <p className="mt-1 font-heading text-3xl font-bold text-circleTel-navy">
+              <p className="mt-1 font-heading text-3xl font-bold tabular-nums text-circleTel-navy">
                 {tier.price}
                 <span className="ml-1 font-body text-base font-normal text-circleTel-secondaryNeutral">
                   /mo
                 </span>
               </p>
-              <p className="mt-2 text-base font-medium text-circleTel-navy">
+              <p className="mt-2 text-base font-medium tabular-nums text-circleTel-navy">
                 {tier.capacity}
               </p>
               <CheckList items={tier.features} />
@@ -267,7 +270,7 @@ function ProcessSection() {
                   className="absolute left-[calc(50%+2.25rem)] right-[-50%] top-6 hidden border-t border-dashed border-circleTel-navy/35 md:block"
                 />
               ) : null}
-              <div className="relative z-10 flex h-12 w-12 flex-none items-center justify-center rounded-full bg-circleTel-orange font-heading font-bold text-white">
+              <div className="relative z-10 flex h-12 w-12 flex-none items-center justify-center rounded-full bg-circleTel-orange-accessible font-heading font-bold text-white">
                 {index + 1}
               </div>
               <div className="md:mt-5">
@@ -294,7 +297,7 @@ function LowerInformationSection() {
   return (
     <section
       aria-labelledby="cloudwifi-price-drivers-heading"
-      className="bg-white py-16 md:py-24"
+      className="bg-circleTel-lightNeutral py-16 md:py-24"
     >
       <div className="container mx-auto grid gap-12 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8 xl:grid-cols-[minmax(0,1fr)_420px]">
         <div className="min-w-0">
@@ -399,7 +402,7 @@ function FinalCtaSection() {
             <CloudWifiSurveyCta
               variant="cta"
               size="xl"
-              className="min-h-12 w-full rounded-xl focus-visible:ring-white"
+              className="min-h-12 w-full rounded-xl bg-circleTel-orange-accessible hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-white"
             >
               Request a site survey
               <PiArrowRightBold aria-hidden="true" />
@@ -410,7 +413,11 @@ function FinalCtaSection() {
               size="xl"
               className="min-h-12 w-full rounded-xl border-2 border-white/75 bg-transparent text-white hover:bg-white hover:text-circleTel-navy focus-visible:ring-white"
             >
-              <Link href={getWhatsAppLink(expertMessage)}>
+              <Link
+                href={getWhatsAppLink(expertMessage)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <PiChatCircleDotsBold aria-hidden="true" />
                 Talk to an expert
               </Link>

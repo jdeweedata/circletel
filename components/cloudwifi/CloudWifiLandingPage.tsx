@@ -3,7 +3,7 @@ import { CloudWifiPageSections } from "@/components/cloudwifi/CloudWifiPageSecti
 
 export function CloudWifiLandingPage() {
   return (
-    <main>
+    <main id="main-content">
       <CloudWifiHero />
       <CloudWifiPageSections />
     </main>

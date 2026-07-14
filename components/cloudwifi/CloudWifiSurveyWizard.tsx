@@ -1610,7 +1610,7 @@ export function CloudWifiSurveyWizard() {
             size="lg"
             disabled={submitting}
             onClick={() => submitDraft()}
-            className="w-full text-base"
+            className="w-full bg-circleTel-orange-accessible text-base text-white hover:bg-circleTel-orange-accessible hover:text-white hover:brightness-90"
           >
             Retry submission
           </Button>
@@ -1635,7 +1635,7 @@ export function CloudWifiSurveyWizard() {
             type="button"
             variant="cta"
             size="lg"
-            className="w-full text-base"
+            className="w-full bg-circleTel-orange-accessible text-base hover:bg-circleTel-orange-accessible hover:brightness-90"
             disabled={submitting}
             onClick={continueToNextStep}
           >
@@ -1646,7 +1646,7 @@ export function CloudWifiSurveyWizard() {
             type="submit"
             variant="cta"
             size="lg"
-            className="w-full text-base"
+            className="w-full bg-circleTel-orange-accessible text-base hover:bg-circleTel-orange-accessible hover:brightness-90"
             disabled={submitting}
           >
             {submitting ? "Sending request…" : "Submit site survey request"}
