@@ -326,7 +326,13 @@ export class ZohoBooksSyncOrchestrator {
         customer:customers(id, email, zoho_books_contact_id)
       `)
       .is('zoho_books_invoice_id', null)
-      .or('zoho_sync_status.eq.pending,zoho_sync_status.is.null')
+      // Only post real, open invoices to the books — never voided/draft/cancelled.
+      .in('status', ['sent', 'paid', 'partial', 'overdue'])
+      // Decoupled from the Zoho *Billing* sync, which shares this zoho_sync_status
+      // column and stamps 'failed' on invoice types it legitimately skips
+      // (e.g. recurring). Books syncs ALL types, so also pick those up — but never
+      // the deliberate skip markers (closed period / waived) or in-flight rows.
+      .or('zoho_sync_status.eq.pending,zoho_sync_status.is.null,zoho_sync_status.eq.failed')
       .limit(options.maxInvoices || 40);
 
     if (error || !invoices) {
@@ -411,11 +417,11 @@ export class ZohoBooksSyncOrchestrator {
           line_items: lineItems,
           notes: invoice.notes || undefined,
           terms: invoice.terms || undefined,
-          custom_fields: [
-            { label: 'CircleTel Invoice ID', value: invoice.id },
-            { label: 'Invoice Type', value: invoice.invoice_type || '' },
-            { label: 'Service ID', value: invoice.service_id || '' },
-          ].filter(f => f.value),
+          // NOTE: custom_fields removed — these labels ('CircleTel Invoice ID',
+          // 'Invoice Type', 'Service ID') do not exist in the Zoho Books org and
+          // cause a 400 (code 120129). Traceability is preserved via the matching
+          // invoice_number and the zoho_books_invoice_id we store back in Supabase.
+          // Re-add only after the corresponding custom fields are created in Books.
         };
 
         // Create invoice in Zoho Books

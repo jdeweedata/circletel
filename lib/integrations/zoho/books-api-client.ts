@@ -109,10 +109,14 @@ export class ZohoBooksClient extends ZohoAPIClient {
 
   constructor() {
     super({
-      clientId: process.env.ZOHO_CLIENT_ID!,
-      clientSecret: process.env.ZOHO_CLIENT_SECRET!,
-      refreshToken: process.env.ZOHO_REFRESH_TOKEN!,
-      region: (process.env.ZOHO_REGION as any) || 'US',
+      // Use the dedicated Zoho BOOKS credentials — the generic ZOHO_* refresh
+      // token is CRM-scoped and returns 401 (code 57, "not authorized") against
+      // the Books API. ZOHO_BOOKS_REFRESH_TOKEN carries the ZohoBooks scope.
+      // Fall back to the generic creds for backward compatibility.
+      clientId: process.env.ZOHO_BOOKS_CLIENT_ID || process.env.ZOHO_CLIENT_ID!,
+      clientSecret: process.env.ZOHO_BOOKS_CLIENT_SECRET || process.env.ZOHO_CLIENT_SECRET!,
+      refreshToken: process.env.ZOHO_BOOKS_REFRESH_TOKEN || process.env.ZOHO_REFRESH_TOKEN!,
+      region: (process.env.ZOHO_BOOKS_REGION as any) || (process.env.ZOHO_REGION as any) || 'US',
     });
 
     // Zoho Books uses its own org ID (may differ from Billing org ID)
