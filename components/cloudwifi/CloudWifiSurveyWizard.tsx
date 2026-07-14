@@ -1652,17 +1652,22 @@ export function CloudWifiSurveyWizard() {
         ) : null}
         {step < 4 ? (
           <Button
+            key="continue"
             type="button"
             variant="cta"
             size="lg"
             className="w-full bg-circleTel-orange-accessible text-base hover:bg-circleTel-orange-accessible hover:brightness-90"
             disabled={submitting}
-            onClick={continueToNextStep}
+            onClick={(event) => {
+              event.preventDefault();
+              continueToNextStep();
+            }}
           >
             Continue
           </Button>
         ) : (
           <Button
+            key="submit"
             type="submit"
             variant="cta"
             size="lg"

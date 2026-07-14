@@ -409,6 +409,19 @@ describe("CloudWifiSurveyWizard", () => {
     expect(review.props.className).toContain("break-words");
   });
 
+  it("prevents the Contact continue action from reusing itself as a submit control", () => {
+    renderWizard();
+    reachContact();
+    fillContact();
+    const contactContinue = button("Continue");
+    const preventDefault = jest.fn();
+
+    act(() => contactContinue.props.onClick({ preventDefault }));
+
+    expect(preventDefault).toHaveBeenCalledTimes(1);
+    expect(button("Submit site survey request")).not.toBe(contactContinue);
+  });
+
   it("keeps long valid review values in overflow-safe containers", () => {
     renderWizard();
     reachReview();
