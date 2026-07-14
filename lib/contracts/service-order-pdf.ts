@@ -164,9 +164,8 @@ export interface ServiceOrderInput {
   clinicEmail: string;
   clinicPhone?: string;
   /**
-   * Monthly fee as stored on `customer_services.monthly_price` — VAT-inclusive
-   * collectible amount (e.g. R450 Unjani, R899 SkyFibre). Name kept for API
-   * compatibility; VAT is backed out for display, not added on top.
+   * Unjani MSA monthly fee **excluding VAT** (R450). Field name matches
+   * historical API; VAT is added on top for the incl-VAT display line.
    */
   monthlyFeeExclVat: number;
   vatPercentage: number; // Usually 15
@@ -221,11 +220,11 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  // monthlyFee* is VAT-inclusive collectible (same as invoice total). Back VAT out.
-  const monthlyFeeInclVat = Math.round(input.monthlyFeeExclVat * 100) / 100;
-  const monthlyFeeNet =
-    Math.round((monthlyFeeInclVat / (1 + input.vatPercentage / 100)) * 100) / 100;
-  const vatAmount = Math.round((monthlyFeeInclVat - monthlyFeeNet) * 100) / 100;
+  // Unjani MSA: monthlyFeeExclVat is ex-VAT (R450); add VAT for collectible total.
+  const monthlyFeeNet = Math.round(input.monthlyFeeExclVat * 100) / 100;
+  const vatAmount =
+    Math.round(monthlyFeeNet * (input.vatPercentage / 100) * 100) / 100;
+  const monthlyFeeInclVat = Math.round((monthlyFeeNet + vatAmount) * 100) / 100;
 
   // Service Order number: SO-<account_number>
   const soNumber = `SO-${input.accountNumber}`;

@@ -21,7 +21,11 @@ import { nowISO } from '@/lib/dates';
 
 import { createClient } from '@/lib/supabase/server';
 import { syncInvoiceToZohoBilling } from '@/lib/integrations/zoho/invoice-sync-service';
-import { computeVatInclusiveAmounts, formatInvoiceNumber, nextInvoiceSequence } from './invoice-amounts';
+import { formatInvoiceNumber, nextInvoiceSequence } from './invoice-amounts';
+import {
+  computeMonthlyInvoiceAmounts,
+  resolveServicePriceVatBasis,
+} from './invoice-vat-contract';
 import { processPayNowForInvoice } from '@/lib/billing/paynow-billing-service';
 import { computeProRata } from '@/lib/onboarding/prorata';
 import { shouldEmitRecurringInvoice } from '@/lib/billing/new-clinic-billing-helper';
@@ -544,21 +548,25 @@ export class MonthlyInvoiceGenerator {
       .toISOString()
       .split('T')[0];
 
-    // Amounts — consumer + Unjani monthly_price is VAT-INCLUSIVE (gross); back VAT out so total === price.
-    // Matches every existing paid invoice (e.g. R899 -> net 781.74 + VAT 117.26 = 899;
-    // Unjani R450 -> net 391.30 + VAT 58.70 = 450). See invoice-vat-contract.ts.
+    // VAT basis by product (see invoice-vat-contract.ts):
+    // - Consumer SkyFibre: monthly_price INCL VAT → total = price
+    // - Unjani Managed Connectivity (MSA): monthly_price EXCL VAT → total = price × 1.15
+    //   e.g. R450 excl → R517.50 incl
     const vatRate = 15.0;
-
-    // Always compute full-month amounts from the existing function on the unchanged price.
-    const { subtotal: fullSubtotal, vatAmount: fullVat } = computeVatInclusiveAmounts(service.monthly_price);
+    const priceBasis = resolveServicePriceVatBasis(service);
+    const {
+      subtotal: fullSubtotal,
+      vatAmount: fullVat,
+      totalAmount: fullTotal,
+    } = computeMonthlyInvoiceAmounts(service.monthly_price, priceBasis);
 
     // Pro-rata first invoice: detect via last_invoice_date === null and apply fraction
-    // Only use computeProRata to get days/daysInMonth; ignore its amount fields (VAT base is already set above).
+    // Only use computeProRata to get days/daysInMonth; money comes from full* above.
     const isFirstInvoice = service.last_invoice_date === null;
     let fraction = 1;
     if (isFirstInvoice && service.activation_date) {
       const pr = computeProRata({
-        monthlyExVat: service.monthly_price, // only days/daysInMonth are used; VAT treatment irrelevant here
+        monthlyExVat: service.monthly_price,
         vatPct: 15,
         activationDate: service.activation_date,
         billingDay: service.billing_day,
@@ -567,6 +575,7 @@ export class MonthlyInvoiceGenerator {
       billingLogger.info('MonthlyInvoice: Pro-rata first invoice', {
         serviceId: service.id,
         activationDate: service.activation_date,
+        priceBasis,
         days: pr.days,
         daysInMonth: pr.daysInMonth,
         fraction,
@@ -576,7 +585,18 @@ export class MonthlyInvoiceGenerator {
     const round2 = (n: number) => Math.round(n * 100) / 100;
     const subtotal = round2(fullSubtotal * fraction);
     const vatAmount = round2(fullVat * fraction);
-    const totalAmount = round2(subtotal + vatAmount);
+    const totalAmount = fraction === 1 ? fullTotal : round2(subtotal + vatAmount);
+
+    billingLogger.info('MonthlyInvoice: amounts', {
+      serviceId: service.id,
+      packageName: service.package_name,
+      priceBasis,
+      monthlyPrice: service.monthly_price,
+      subtotal,
+      vatAmount,
+      totalAmount,
+      fraction,
+    });
 
     // Generate INV-YYYY-NNNNN — customer_invoices has NO DB sequence/trigger for invoice_number
     // (the legacy sequence was dropped in the baseline squash), so the app must supply it.

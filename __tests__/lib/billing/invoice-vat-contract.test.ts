@@ -1,10 +1,45 @@
 import {
   assertInvoiceVatHeaders,
   buildZohoTaxInclusiveInvoicePayload,
+  computeMonthlyInvoiceAmounts,
   nearlyEqual,
   readLineMoney,
+  resolveServicePriceVatBasis,
   roundMoney,
 } from '@/lib/billing/invoice-vat-contract';
+
+describe('service price VAT basis', () => {
+  it('treats Unjani / Managed Connectivity as exclusive (MSA R450 excl)', () => {
+    expect(
+      resolveServicePriceVatBasis({ package_name: 'Unjani Managed Connectivity' })
+    ).toBe('exclusive');
+  });
+
+  it('treats consumer SkyFibre as inclusive', () => {
+    expect(
+      resolveServicePriceVatBasis({ package_name: 'SkyFibre Home Plus' })
+    ).toBe('inclusive');
+    expect(
+      resolveServicePriceVatBasis({ package_name: 'WorkConnect SOHO' })
+    ).toBe('inclusive');
+  });
+
+  it('computes Unjani R450 excl → R517.50 total', () => {
+    expect(computeMonthlyInvoiceAmounts(450, 'exclusive')).toEqual({
+      subtotal: 450,
+      vatAmount: 67.5,
+      totalAmount: 517.5,
+    });
+  });
+
+  it('computes consumer R899 incl → total 899', () => {
+    expect(computeMonthlyInvoiceAmounts(899, 'inclusive')).toEqual({
+      subtotal: 781.74,
+      vatAmount: 117.26,
+      totalAmount: 899,
+    });
+  });
+});
 
 describe('invoice VAT contract → Zoho tax-inclusive payload', () => {
   it('maps Unjani-style net lines to gross rates with is_inclusive_tax', () => {

@@ -7,22 +7,25 @@
  * - `total_amount` — amount **including** VAT (gross / collectible)
  * - `line_items[].unit_price` and `amount` — **excluding** VAT (must sum to subtotal)
  *
- * ## Product price bases
- * - **Recurring / consumer / Unjani clinic services** (`customer_services.monthly_price`):
- *   stored and billed as **VAT-inclusive** gross. Invoice total equals that price;
- *   VAT is backed out via `computeVatInclusiveAmounts` (see `invoice-amounts.ts`).
- * - **B2B activation / some manual generators**: line amounts are **ex-VAT**; total =
- *   subtotal × 1.15 (`addVat` / BillingService.generateInvoice).
+ * ## Product price bases (`customer_services.monthly_price`)
+ * - **Consumer residential** (SkyFibre etc.): **VAT-inclusive** list price.
+ *   Invoice total = monthly_price; VAT backed out via `computeVatInclusiveAmounts`.
+ * - **Unjani / clinic Managed Connectivity** (MSA): **VAT-exclusive** R450.
+ *   Invoice subtotal = monthly_price; total = addVat(monthly_price) → R517.50.
+ * - **B2B activation / some manual generators**: line amounts are **ex-VAT**.
  *
  * Both paths must produce correct header triples (subtotal + tax = total).
- * Zoho Books/Billing must **never** re-derive VAT from product folklore — they
- * mirror these headers so Books total === Supabase total_amount.
+ * Zoho Books/Billing mirrors these headers so Books total === Supabase total_amount.
  */
 
 import { VAT_RATE, addVat } from '@/lib/billing/vat';
-import { computeVatInclusiveAmounts } from '@/lib/billing/invoice-amounts';
+import {
+  computeVatInclusiveAmounts,
+  type InvoiceAmounts,
+} from '@/lib/billing/invoice-amounts';
 
 export { VAT_RATE, addVat, computeVatInclusiveAmounts };
+export type { InvoiceAmounts };
 
 const MONEY_EPS = 0.02;
 
@@ -32,6 +35,46 @@ export function roundMoney(n: number): number {
 
 export function nearlyEqual(a: number, b: number, eps = MONEY_EPS): boolean {
   return Math.abs(a - b) <= eps;
+}
+
+/** How `monthly_price` on a service should be interpreted for invoicing. */
+export type ServicePriceVatBasis = 'inclusive' | 'exclusive';
+
+/**
+ * Resolve VAT basis for a billable service.
+ * Unjani MSA: R450 excl VAT. Consumer SkyFibre: list price incl VAT.
+ */
+export function resolveServicePriceVatBasis(service: {
+  package_name?: string | null;
+  package?: { name?: string | null } | null;
+  service_type?: string | null;
+  product_category?: string | null;
+}): ServicePriceVatBasis {
+  const name = `${service.package_name || ''} ${service.package?.name || ''}`.toLowerCase();
+  // Unjani subsidised clinic product (MSA: R450 excl VAT)
+  // Unjani package names in catalogue / services (do not match generic SOHO ClinicConnect)
+  if (name.includes('unjani') || name.includes('managed connectivity')) {
+    return 'exclusive';
+  }
+  return 'inclusive';
+}
+
+/**
+ * Build full-month invoice amounts from monthly_price + VAT basis.
+ * - inclusive: total = price, VAT backed out (consumer)
+ * - exclusive: subtotal = price, total = price × 1.15 (Unjani)
+ */
+export function computeMonthlyInvoiceAmounts(
+  monthlyPrice: number,
+  basis: ServicePriceVatBasis
+): InvoiceAmounts {
+  if (basis === 'exclusive') {
+    const subtotal = roundMoney(monthlyPrice);
+    const totalAmount = addVat(subtotal);
+    const vatAmount = roundMoney(totalAmount - subtotal);
+    return { subtotal, vatAmount, totalAmount };
+  }
+  return computeVatInclusiveAmounts(monthlyPrice);
 }
 
 export interface InvoiceLineSource {
