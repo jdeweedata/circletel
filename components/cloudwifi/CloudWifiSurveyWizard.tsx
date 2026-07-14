@@ -493,6 +493,13 @@ function formatPrice(price: number): string {
   return `R${price.toLocaleString("en-US")}`;
 }
 
+function shouldDisableFormSubmit(
+  submitting: boolean,
+  submitError: string,
+): boolean {
+  return submitting || submitError.length > 0;
+}
+
 export function CloudWifiSurveyWizard() {
   const {
     draft,
@@ -512,6 +519,7 @@ export function CloudWifiSurveyWizard() {
   const successHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const controlRefs = useRef<Record<string, HTMLElement | null>>({});
   const submittingRef = useRef(false);
+  const formSubmissionLockedRef = useRef(false);
 
   const recommendation = useMemo(() => {
     const { venueType, floorArea, peakUsers, backhaul } = draft.venue;
@@ -644,6 +652,7 @@ export function CloudWifiSurveyWizard() {
     }
 
     if (step < 4) {
+      formSubmissionLockedRef.current = false;
       setStep((step + 1) as WizardStep);
       onNextFrame(() => headingRef.current?.focus());
     }
@@ -651,6 +660,7 @@ export function CloudWifiSurveyWizard() {
 
   function goBack(): void {
     if (submitting || step === 1) return;
+    formSubmissionLockedRef.current = false;
     setErrors({});
     setSubmitError("");
     setStep((step - 1) as WizardStep);
@@ -659,6 +669,7 @@ export function CloudWifiSurveyWizard() {
 
   function editStep(nextStep: WizardStep): void {
     if (submitting) return;
+    formSubmissionLockedRef.current = false;
     setErrors({});
     setSubmitError("");
     setStep(nextStep);
@@ -742,6 +753,8 @@ export function CloudWifiSurveyWizard() {
       continueToNextStep();
       return;
     }
+    if (formSubmissionLockedRef.current) return;
+    formSubmissionLockedRef.current = true;
     await submitDraft();
   }
 
@@ -753,6 +766,7 @@ export function CloudWifiSurveyWizard() {
     setLeadId("");
     setSubmitting(false);
     submittingRef.current = false;
+    formSubmissionLockedRef.current = false;
     if (!isMobile) onNextFrame(() => headingRef.current?.focus());
   }
 
@@ -1653,7 +1667,7 @@ export function CloudWifiSurveyWizard() {
             variant="cta"
             size="lg"
             className="w-full bg-circleTel-orange-accessible text-base hover:bg-circleTel-orange-accessible hover:brightness-90"
-            disabled={submitting}
+            disabled={shouldDisableFormSubmit(submitting, submitError)}
           >
             {submitting ? "Sending request…" : "Submit site survey request"}
           </Button>

@@ -510,6 +510,35 @@ describe("CloudWifiSurveyWizard", () => {
     expect(textOf(renderer.root)).toContain("CW-RETRY");
   });
 
+  it("coalesces a replayed form submit after a fast failure until explicit retry", async () => {
+    const fetchMock = globalThis.fetch as jest.MockedFunction<typeof fetch>;
+    fetchMock
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: "Service unavailable" }), {
+          status: 503,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ success: true, leadId: "CW-RETRY" }), {
+          status: 201,
+        }),
+      );
+    renderWizard();
+    reachReview();
+    const replayedSubmit = renderer.root.findByType("form").props.onSubmit;
+
+    await act(async () => replayedSubmit({ preventDefault: jest.fn() }));
+    await act(async () => replayedSubmit({ preventDefault: jest.fn() }));
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(button("Submit site survey request").props.disabled).toBe(true);
+    expect(button("Retry submission").props.disabled).toBe(false);
+
+    await act(async () => button("Retry submission").props.onClick());
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(textOf(renderer.root)).toContain("CW-RETRY");
+  });
+
   it("maps bounded API field errors to the earliest relevant step and focus target", async () => {
     (globalThis.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
       new Response(
