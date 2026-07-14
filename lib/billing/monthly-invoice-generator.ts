@@ -26,7 +26,10 @@ import {
   computeMonthlyInvoiceAmounts,
   resolveServicePriceVatBasis,
 } from './invoice-vat-contract';
-import { buildUnjaniVatCatchupPlan } from './unjani-vat-catchup';
+import {
+  buildUnjaniVatCatchupPlan,
+  formatUnjaniCatchupAbsorbedNote,
+} from './unjani-vat-catchup';
 import { processPayNowForInvoice } from '@/lib/billing/paynow-billing-service';
 import { computeProRata } from '@/lib/onboarding/prorata';
 import { shouldEmitRecurringInvoice } from '@/lib/billing/new-clinic-billing-helper';
@@ -591,11 +594,17 @@ export class MonthlyInvoiceGenerator {
     // Deferred Unjani VAT catch-up: do not amend history now — fold shortfalls
     // into *this* next invoice so statements show current period + adjustments.
     let catchupPlan = buildUnjaniVatCatchupPlan([]);
+    /** Existing notes for priors we absorb (preserve non-marker content). */
+    const priorNotesById = new Map<string, string | null>();
     if (priceBasis === 'exclusive') {
+      // Include notes + line_items so catch-up is idempotent:
+      // - notes may carry [UNJANI_MSA_CATCHUP_ABSORBED]
+      // - sibling invoices may already reference prior_invoice_id on adjustment lines
+      // Voided/cancelled are excluded (cannot re-collect); paid/partial wrong rows stay.
       const { data: priorInvoices, error: priorErr } = await supabase
         .from('customer_invoices')
         .select(
-          'id, invoice_number, status, subtotal, tax_amount, total_amount, amount_paid, period_start, period_end'
+          'id, invoice_number, status, subtotal, tax_amount, total_amount, amount_paid, period_start, period_end, notes, line_items'
         )
         .eq('service_id', service.id)
         .not('status', 'in', '(voided,cancelled)');
@@ -605,6 +614,9 @@ export class MonthlyInvoiceGenerator {
           error: priorErr.message,
         });
       } else {
+        for (const p of priorInvoices || []) {
+          priorNotesById.set(p.id, p.notes ?? null);
+        }
         catchupPlan = buildUnjaniVatCatchupPlan(priorInvoices || []);
         if (catchupPlan.totalIncl > 0) {
           subtotal = round2(subtotal + catchupPlan.subtotalExcl);
@@ -726,47 +738,60 @@ export class MonthlyInvoiceGenerator {
     }
 
     // Prevent double collection: absorb priors whose shortfall is on this invoice.
+    // Write [UNJANI_MSA_CATCHUP_ABSORBED] so later monthly runs skip these priors.
+    // Also durable via line_items[].prior_invoice_id on the new invoice.
     if (invoice && catchupPlan.priorInvoiceIdsToVoid.length > 0) {
-      const { error: voidErr } = await supabase
-        .from('customer_invoices')
-        .update({
-          status: 'voided',
-          amount_due: 0,
-          notes: `Superseded by ${invoice.invoice_number}: deferred Unjani MSA catch-up on next invoice run`,
-        })
-        .in('id', catchupPlan.priorInvoiceIdsToVoid)
-        .in('status', ['sent', 'overdue', 'draft', 'partial']);
-      if (voidErr) {
-        billingLogger.warn('MonthlyInvoice: failed to void superseded prior invoices', {
-          serviceId: service.id,
-          newInvoice: invoice.invoice_number,
-          priorIds: catchupPlan.priorInvoiceIdsToVoid,
-          error: voidErr.message,
-        });
-      } else {
-        billingLogger.info('MonthlyInvoice: voided superseded under-billed priors', {
-          serviceId: service.id,
-          newInvoice: invoice.invoice_number,
-          voidedIds: catchupPlan.priorInvoiceIdsToVoid,
-        });
+      for (const priorId of catchupPlan.priorInvoiceIdsToVoid) {
+        const { error: voidErr } = await supabase
+          .from('customer_invoices')
+          .update({
+            status: 'voided',
+            amount_due: 0,
+            notes: formatUnjaniCatchupAbsorbedNote(
+              invoice.invoice_number,
+              'void',
+              priorNotesById.get(priorId)
+            ),
+          })
+          .eq('id', priorId)
+          .in('status', ['sent', 'overdue', 'draft', 'partial']);
+        if (voidErr) {
+          billingLogger.warn('MonthlyInvoice: failed to void superseded prior invoice', {
+            serviceId: service.id,
+            newInvoice: invoice.invoice_number,
+            priorId,
+            error: voidErr.message,
+          });
+        }
       }
+      billingLogger.info('MonthlyInvoice: voided superseded under-billed priors', {
+        serviceId: service.id,
+        newInvoice: invoice.invoice_number,
+        voidedIds: catchupPlan.priorInvoiceIdsToVoid,
+      });
     }
 
     if (invoice && catchupPlan.priorInvoiceIdsToCloseDue.length > 0) {
-      const { error: closeErr } = await supabase
-        .from('customer_invoices')
-        .update({
-          amount_due: 0,
-          notes: `Remaining balance moved to ${invoice.invoice_number} (Unjani MSA catch-up on next invoice run)`,
-        })
-        .in('id', catchupPlan.priorInvoiceIdsToCloseDue);
-      if (closeErr) {
-        billingLogger.warn('MonthlyInvoice: failed to close due on paid/partial priors', {
-          serviceId: service.id,
-          newInvoice: invoice.invoice_number,
-          priorIds: catchupPlan.priorInvoiceIdsToCloseDue,
-          error: closeErr.message,
-        });
+      for (const priorId of catchupPlan.priorInvoiceIdsToCloseDue) {
+        const { error: closeErr } = await supabase
+          .from('customer_invoices')
+          .update({
+            amount_due: 0,
+            notes: formatUnjaniCatchupAbsorbedNote(
+              invoice.invoice_number,
+              'close_due',
+              priorNotesById.get(priorId)
+            ),
+          })
+          .eq('id', priorId);
+        if (closeErr) {
+          billingLogger.warn('MonthlyInvoice: failed to close due on paid/partial prior', {
+            serviceId: service.id,
+            newInvoice: invoice.invoice_number,
+            priorId,
+            error: closeErr.message,
+          });
+        }
       }
     }
 

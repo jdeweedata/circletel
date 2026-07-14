@@ -15,6 +15,11 @@ Corrections apply on the **next monthly invoice run** for Unjani / Managed Conne
 | **Open unpaid (sent)** | +**R517.50** for that period; **void** the open wrong invoice after issue (absorbed) |
 | **Partial (e.g. paid R276)** | +**(517.50 − paid)** adjustment; do not auto-void if paid &gt; 0 unless status open with residual logic |
 | **Already correct R517.50 / pro-rata R276** | No catch-up |
+| **Already absorbed** (notes marker or `prior_invoice_id` on a later invoice) | No catch-up (idempotent — no monthly re-bill) |
+
+Catch-up is **once per prior invoice**. After apply, priors get note marker `[UNJANI_MSA_CATCHUP_ABSORBED]` (void open / close-due paid·partial). Sibling invoices also record `line_items[].prior_invoice_id` so a second monthly run cannot re-add the same shortfall even if notes were missing.
+
+**Voided** wrong invoices (status voided before catch-up) are **not** auto-recovered — ops must re-issue July manually if needed.
 
 ## What we are not doing now
 

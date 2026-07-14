@@ -1,5 +1,5 @@
 /**
- * CircleTel invoice VAT contract (source of truth for money + Zoho sync).
+ * Invoice VAT contract (source of truth for money + Zoho sync).
  *
  * ## Canonical fields on `customer_invoices`
  * - `subtotal`     — amount **excluding** VAT (net)
@@ -159,7 +159,7 @@ export interface ZohoTaxInclusiveLine {
 
 export interface ZohoBooksInvoiceMoneyPayload {
   /**
-   * Always true for CircleTel → Zoho: line rates are **gross (incl VAT)** so
+   * Always true for Zoho mapping: line rates are **gross (incl VAT)** so
    * Zoho does not add another 15% on top of collectible totals.
    */
   is_inclusive_tax: true;
