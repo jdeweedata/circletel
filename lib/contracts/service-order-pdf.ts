@@ -386,24 +386,41 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
 
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
+
+  // jsPDF renders multi-line text at fontSize × lineHeightFactor (default 1.15).
+  // At 8pt that is ~3.25mm per rendered line — the previous 2.5mm advance
+  // under-counted this, so long clauses (e.g. clause 3) drew over the next
+  // clause's heading. These values reserve the true rendered height.
+  const bodyLineH = 3.3; // mm per rendered body line at 8pt
+  const titleGap = 4; // mm below a clause title before its body
+  const clauseGap = 3.5; // mm between one clause and the next
+
   plainTerms.forEach((term, index) => {
     // Extract title (before colon)
     const colonIndex = term.indexOf(':');
-    if (colonIndex > 0) {
-      const title = term.substring(0, colonIndex + 1);
-      const body = term.substring(colonIndex + 1).trim();
+    if (colonIndex <= 0) return;
 
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...COLORS.darkText);
-      doc.text(`${index + 1}. ${title}`, leftCol, yPos);
-      yPos += 3;
+    const title = term.substring(0, colonIndex + 1);
+    const body = term.substring(colonIndex + 1).trim();
+    const bodyLines = doc.splitTextToSize(body, colWidth - 10);
 
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...COLORS.secondaryText);
-      const bodyLines = doc.splitTextToSize(body, colWidth - 10);
-      doc.text(bodyLines, leftCol + 5, yPos);
-      yPos += 2 + (bodyLines.length * 2.5);
+    // Page-break guard: if this clause won't fit above the footer band,
+    // start it on a fresh page rather than overrunning the footer.
+    const clauseHeight = titleGap + bodyLines.length * bodyLineH + clauseGap;
+    if (yPos + clauseHeight > pageHeight - 45) {
+      doc.addPage();
+      yPos = addHeader(doc, pageWidth);
     }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...COLORS.darkText);
+    doc.text(`${index + 1}. ${title}`, leftCol, yPos);
+    yPos += titleGap;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...COLORS.secondaryText);
+    doc.text(bodyLines, leftCol + 5, yPos);
+    yPos += bodyLines.length * bodyLineH + clauseGap;
   });
 
   yPos += 5;
