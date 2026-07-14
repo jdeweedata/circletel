@@ -24,10 +24,12 @@ export function CloudWifiSurveyCta({
   return (
     <Button
       {...buttonProps}
+      data-cloudwifi-survey-opener="true"
       type={type}
       onClick={(event) => {
         onClick?.(event);
-        if (!event.defaultPrevented) requestSurvey(prefill);
+        if (!event.defaultPrevented)
+          requestSurvey(prefill, event.currentTarget);
       }}
     >
       {children}

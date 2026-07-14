@@ -257,16 +257,20 @@ export function CloudWifiTierEstimator() {
 
             <Button
               type="button"
+              data-cloudwifi-survey-opener="true"
               variant="cta"
               size="lg"
               className="w-full bg-circleTel-orange-accessible hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2"
-              onClick={() =>
-                requestSurvey({
-                  venueType: recommendation.venueType,
-                  floorArea: recommendation.floorArea,
-                  peakUsers: recommendation.peakUsers,
-                  backhaul: recommendation.backhaul,
-                })
+              onClick={(event) =>
+                requestSurvey(
+                  {
+                    venueType: recommendation.venueType,
+                    floorArea: recommendation.floorArea,
+                    peakUsers: recommendation.peakUsers,
+                    backhaul: recommendation.backhaul,
+                  },
+                  event.currentTarget,
+                )
               }
             >
               Use this recommendation

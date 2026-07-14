@@ -86,6 +86,7 @@ describe("CloudWifiTierEstimator", () => {
   let scrollIntoView: jest.Mock;
   let focus: jest.Mock;
   let animationFrames: FrameRequestCallback[];
+  let fallbackOpener: { focus: jest.Mock; isConnected: boolean } | null;
   let mobile = false;
   let reducedMotion = false;
 
@@ -95,6 +96,7 @@ describe("CloudWifiTierEstimator", () => {
     animationFrames = [];
     mobile = false;
     reducedMotion = false;
+    fallbackOpener = null;
 
     Object.defineProperty(globalThis, "window", {
       configurable: true,
@@ -116,6 +118,7 @@ describe("CloudWifiTierEstimator", () => {
           if (id === "cloudwifi-survey-heading") return { focus };
           return null;
         }),
+        querySelector: jest.fn(() => fallbackOpener),
       },
     });
   });
@@ -180,7 +183,11 @@ describe("CloudWifiTierEstimator", () => {
       "focus-visible:ring-circleTel-orange-accessible",
     );
 
-    act(() => recommendationCta.props.onClick({}));
+    const estimatorOpener = { focus: jest.fn(), isConnected: true };
+    mobile = true;
+    act(() =>
+      recommendationCta.props.onClick({ currentTarget: estimatorOpener }),
+    );
 
     expect(surveyContext.draft.venue).toMatchObject({
       venueType: "hospitality",
@@ -188,6 +195,9 @@ describe("CloudWifiTierEstimator", () => {
       peakUsers: 120,
       backhaul: "lte",
     });
+    expect(surveyContext.mobileOpen).toBe(true);
+    expect(surveyContext.restoreSurveyFocus()).toBe(true);
+    expect(estimatorOpener.focus).toHaveBeenCalledWith({ preventScroll: true });
   });
 
   it("preserves raw decimal input while deriving only valid positive values", () => {
@@ -393,6 +403,7 @@ describe("CloudWifiTierEstimator", () => {
   });
 
   it("uses a real reusable button CTA to prefill and request the survey", () => {
+    mobile = true;
     const renderer = renderHarness(
       <CloudWifiSurveyCta prefill={{ venueType: "retail" }}>
         Request a site survey
@@ -403,9 +414,36 @@ describe("CloudWifiTierEstimator", () => {
     expect(cta.type).toBe("button");
     expect(cta.props.type).toBe("button");
 
-    act(() => cta.props.onClick({ defaultPrevented: false }));
+    const ctaOpener = { focus: jest.fn(), isConnected: true };
+    act(() =>
+      cta.props.onClick({
+        defaultPrevented: false,
+        currentTarget: ctaOpener,
+      }),
+    );
 
     expect(surveyContext.draft.venue.venueType).toBe("retail");
+    expect(surveyContext.mobileOpen).toBe(true);
+    expect(surveyContext.restoreSurveyFocus()).toBe(true);
+    expect(ctaOpener.focus).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  it("falls back to a connected survey CTA when the original opener unmounts", () => {
+    mobile = true;
+    const detachedOpener = { focus: jest.fn(), isConnected: false };
+    fallbackOpener = { focus: jest.fn(), isConnected: true };
+    renderHarness(<CloudWifiTierEstimator />);
+
+    act(() =>
+      surveyContext.requestSurvey(
+        undefined,
+        detachedOpener as unknown as HTMLElement,
+      ),
+    );
+
+    expect(surveyContext.restoreSurveyFocus()).toBe(true);
+    expect(detachedOpener.focus).not.toHaveBeenCalled();
+    expect(fallbackOpener.focus).toHaveBeenCalledWith({ preventScroll: true });
   });
 
   it("does not request the survey when a CTA click handler prevents default", () => {

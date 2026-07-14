@@ -32,7 +32,9 @@ jest.mock("@/components/ui/sheet", () => ({
   SheetContent: ({
     children,
     ...props
-  }: React.HTMLAttributes<HTMLDivElement>) => <div {...props}>{children}</div>,
+  }: React.HTMLAttributes<HTMLDivElement> & {
+    onCloseAutoFocus?: (event: { preventDefault: () => void }) => void;
+  }) => <div {...props}>{children}</div>,
   SheetHeader: ({ children }: { children: React.ReactNode }) => (
     <header>{children}</header>
   ),
@@ -671,7 +673,14 @@ describe("CloudWifiSurveyWizard", () => {
     renderWizard();
     expect(renderer.root.findAllByType("form")).toHaveLength(0);
 
-    act(() => surveyContext.setMobileOpen(true));
+    const opener = { focus: jest.fn(), isConnected: true };
+    (globalThis.window.matchMedia as jest.Mock).mockImplementation(
+      (query: string) => ({ matches: query === "(max-width: 767px)" }),
+    );
+    act(() => {
+      surveyContext.requestSurvey(undefined, opener as unknown as HTMLElement);
+      surveyContext.setMobileOpen(true);
+    });
     const sheet = renderer.root.findByProps({ "data-testid": "mobile-sheet" });
     expect(sheet.props["data-open"]).toBe(true);
     expect(renderer.root.findAllByType("form")).toHaveLength(1);
@@ -690,6 +699,11 @@ describe("CloudWifiSurveyWizard", () => {
     expect(sheetContent!.props.className).toContain("safe-area-inset-bottom");
     expect(sheetContent!.props.className).toContain("[&>button]:!top-");
     expect(sheetContent!.props.className).toContain("[&>button]:!right-");
+
+    const closeAutoFocusEvent = { preventDefault: jest.fn() };
+    act(() => sheetContent!.props.onCloseAutoFocus(closeAutoFocusEvent));
+    expect(closeAutoFocusEvent.preventDefault).toHaveBeenCalledTimes(1);
+    expect(opener.focus).toHaveBeenCalledWith({ preventScroll: true });
 
     act(() => sheet.props["data-on-open-change"](false));
     expect(surveyContext.mobileOpen).toBe(false);

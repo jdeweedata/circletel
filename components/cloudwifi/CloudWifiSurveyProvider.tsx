@@ -6,6 +6,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -63,7 +64,11 @@ export interface CloudWifiSurveyContextValue {
   setDraft: React.Dispatch<React.SetStateAction<CloudWifiSurveyDraft>>;
   mobileOpen: boolean;
   setMobileOpen: (open: boolean) => void;
-  requestSurvey: (prefill?: Partial<CloudWifiSurveyDraft["venue"]>) => void;
+  requestSurvey: (
+    prefill?: Partial<CloudWifiSurveyDraft["venue"]>,
+    opener?: HTMLElement | null,
+  ) => void;
+  restoreSurveyFocus: () => boolean;
   resetSurvey: () => void;
 }
 
@@ -121,6 +126,40 @@ function focusSurveyHeading(): void {
   document.getElementById("cloudwifi-survey-heading")?.focus();
 }
 
+function focusSurveyOpener(target: HTMLElement | null): boolean {
+  if (
+    !target ||
+    target.isConnected === false ||
+    typeof target.focus !== "function"
+  ) {
+    return false;
+  }
+
+  try {
+    target.focus({ preventScroll: true });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function restoreStoredSurveyFocus(storedOpener: HTMLElement | null): boolean {
+  if (focusSurveyOpener(storedOpener)) return true;
+
+  if (
+    typeof document === "undefined" ||
+    typeof document.querySelector !== "function"
+  ) {
+    return false;
+  }
+
+  return focusSurveyOpener(
+    document.querySelector<HTMLElement>(
+      '[data-cloudwifi-survey-opener="true"]',
+    ),
+  );
+}
+
 function acquisitionAttribution(): Partial<SurveyDraftAttribution> {
   const attribution: Partial<SurveyDraftAttribution> = {};
 
@@ -168,6 +207,7 @@ export function CloudWifiSurveyProvider({
 }) {
   const [draft, setDraft] = useState<CloudWifiSurveyDraft>(createSurveyDraft);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const surveyOpenerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const captured = acquisitionAttribution();
@@ -193,7 +233,10 @@ export function CloudWifiSurveyProvider({
   }, []);
 
   const requestSurvey = useCallback(
-    (prefill?: Partial<CloudWifiSurveyDraft["venue"]>) => {
+    (
+      prefill?: Partial<CloudWifiSurveyDraft["venue"]>,
+      opener?: HTMLElement | null,
+    ) => {
       if (prefill) {
         setDraft((current) => ({
           ...current,
@@ -202,6 +245,7 @@ export function CloudWifiSurveyProvider({
       }
 
       if (matchesMedia("(max-width: 767px)")) {
+        surveyOpenerRef.current = opener ?? null;
         setMobileOpen(true);
       } else if (typeof document !== "undefined") {
         document.getElementById("cloudwifi-survey")?.scrollIntoView({
@@ -224,6 +268,12 @@ export function CloudWifiSurveyProvider({
     [],
   );
 
+  const restoreSurveyFocus = useCallback((): boolean => {
+    const storedOpener = surveyOpenerRef.current;
+    surveyOpenerRef.current = null;
+    return restoreStoredSurveyFocus(storedOpener);
+  }, []);
+
   const resetSurvey = useCallback(() => {
     setDraft((current) => createSurveyDraft(current.attribution));
     setMobileOpen(false);
@@ -236,9 +286,10 @@ export function CloudWifiSurveyProvider({
       mobileOpen,
       setMobileOpen,
       requestSurvey,
+      restoreSurveyFocus,
       resetSurvey,
     }),
-    [draft, mobileOpen, requestSurvey, resetSurvey],
+    [draft, mobileOpen, requestSurvey, resetSurvey, restoreSurveyFocus],
   );
 
   return (

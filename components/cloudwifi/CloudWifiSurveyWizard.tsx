@@ -494,8 +494,14 @@ function formatPrice(price: number): string {
 }
 
 export function CloudWifiSurveyWizard() {
-  const { draft, setDraft, mobileOpen, setMobileOpen, resetSurvey } =
-    useCloudWifiSurvey();
+  const {
+    draft,
+    setDraft,
+    mobileOpen,
+    setMobileOpen,
+    restoreSurveyFocus,
+    resetSurvey,
+  } = useCloudWifiSurvey();
   const isMobile = useIsMobile();
   const [step, setStep] = useState<WizardStep>(1);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -1666,6 +1672,9 @@ export function CloudWifiSurveyWizard() {
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent
           side="right"
+          onCloseAutoFocus={(event) => {
+            if (restoreSurveyFocus()) event.preventDefault();
+          }}
           className="w-full max-w-none overscroll-contain overflow-y-auto px-0 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-[calc(3.5rem+env(safe-area-inset-top))] sm:max-w-none [&>button]:!right-[calc(1rem+env(safe-area-inset-right))] [&>button]:!top-[calc(1rem+env(safe-area-inset-top))] [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center [&>button]:focus-visible:ring-2 [&>button]:focus-visible:ring-circleTel-orange-accessible [&>button]:focus-visible:ring-offset-2"
         >
           <SheetHeader className="sr-only">
