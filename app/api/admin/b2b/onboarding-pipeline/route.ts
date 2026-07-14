@@ -28,6 +28,8 @@ interface PipelineClinic {
   vetting_due_date: string | null;
   submitted_at: string | null;
   service_order_issued_at: string | null;
+  /** Storage path in kyc-documents when a Service Order PDF was issued */
+  service_order_pdf_path: string | null;
   sla: {
     dueDate: string | null;
     overdue: boolean;
@@ -85,11 +87,13 @@ interface PipelineInvoice {
 }
 
 interface PipelineSubmission {
+  id?: string | null;
   status?: string | null;
   document_vetting_status?: string | null;
   submitted_at?: string | null;
   vetting_due_date?: string | null;
   service_order_issued_at?: string | null;
+  service_order_pdf_path?: string | null;
 }
 
 interface PipelinePaymentMethod {
@@ -353,7 +357,8 @@ export async function GET(request: NextRequest) {
           document_vetting_status,
           submitted_at,
           vetting_due_date,
-          service_order_issued_at
+          service_order_issued_at,
+          service_order_pdf_path
         ),
         customer_payment_methods!customer_payment_methods_customer_id_fkey (
           id,
@@ -465,6 +470,7 @@ export async function GET(request: NextRequest) {
         vetting_due_date: submission?.vetting_due_date || null,
         submitted_at: submission?.submitted_at || null,
         service_order_issued_at: submission?.service_order_issued_at || null,
+        service_order_pdf_path: submission?.service_order_pdf_path || null,
         sla,
         submission_id: submission?.id || null,
         site_address: (details.site_address as string) ?? null,

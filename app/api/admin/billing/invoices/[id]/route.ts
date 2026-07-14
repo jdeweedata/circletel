@@ -100,6 +100,28 @@ export async function GET(
     // Extract customer from relationship
     const customer = Array.isArray(invoice.customer) ? invoice.customer[0] : invoice.customer;
 
+    // Latest Unjani/B2B service order PDF (if any) for this customer
+    let serviceOrder: {
+      pdf_path: string | null;
+      issued_at: string | null;
+    } | null = null;
+    if (customer?.id) {
+      const { data: submission } = await supabase
+        .from('onboarding_submissions')
+        .select('service_order_pdf_path, service_order_issued_at')
+        .eq('customer_id', customer.id)
+        .not('service_order_pdf_path', 'is', null)
+        .order('service_order_issued_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (submission?.service_order_pdf_path) {
+        serviceOrder = {
+          pdf_path: submission.service_order_pdf_path,
+          issued_at: submission.service_order_issued_at ?? null,
+        };
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -109,6 +131,7 @@ export async function GET(
         },
         payments: payments || [],
         lineItems: lineItems || [],
+        serviceOrder,
         summary: {
           totalPaid: payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0,
           paymentCount: payments?.length || 0,

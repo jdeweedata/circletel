@@ -12,11 +12,14 @@ import {
   PiCurrencyCircleDollarBold,
   PiDownloadSimpleBold,
   PiEnvelopeSimpleBold,
+  PiFileTextBold,
   PiMagnifyingGlassBold,
   PiPaperPlaneTiltBold,
+  PiSpinnerBold,
   PiWarningBold,
   PiWhatsappLogoBold,
 } from 'react-icons/pi';
+import { openKycDocument } from '@/lib/admin/open-kyc-document';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -74,6 +77,7 @@ interface PipelineClinic {
   vetting_due_date: string | null;
   submitted_at: string | null;
   service_order_issued_at: string | null;
+  service_order_pdf_path: string | null;
   sla: {
     dueDate: string | null;
     overdue: boolean;
@@ -310,6 +314,7 @@ export default function UnjaniOnboardingPipelinePage() {
   const [actingOn, setActingOn] = useState<string | null>(null);
   const [batchSending, setBatchSending] = useState(false);
   const [drawerClinic, setDrawerClinic] = useState<PipelineClinic | null>(null);
+  const [openingServiceOrderId, setOpeningServiceOrderId] = useState<string | null>(null);
   const [uploadFor, setUploadFor] = useState<PipelineClinic | null>(null);
   const [registerDrawer, setRegisterDrawer] = useState<null | {
     registerName: string;
@@ -566,6 +571,22 @@ export default function UnjaniOnboardingPipelinePage() {
       toast.error('Failed to issue service order');
     } finally {
       setActingOn(null);
+    }
+  };
+
+  const viewServiceOrder = async (clinic: PipelineClinic) => {
+    if (!clinic.service_order_pdf_path) {
+      toast.error('No Service Order PDF on file for this clinic');
+      return;
+    }
+    setOpeningServiceOrderId(clinic.customer_id);
+    try {
+      await openKycDocument(clinic.service_order_pdf_path);
+    } catch (error) {
+      console.error('Error opening service order:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to open Service Order');
+    } finally {
+      setOpeningServiceOrderId(null);
     }
   };
 
@@ -1246,13 +1267,30 @@ export default function UnjaniOnboardingPipelinePage() {
                         </TableCell>
                         <TableCell>
                           {issued ? (
-                            <div className="text-sm">
+                            <div className="text-sm" onClick={(e) => e.stopPropagation()}>
                               <span className="text-green-600 font-medium">Issued</span>
                               <div className="text-xs text-gray-400">
                                 {new Date(
                                   clinic.service_order_issued_at!
                                 ).toLocaleDateString('en-ZA')}
                               </div>
+                              {clinic.service_order_pdf_path ? (
+                                <button
+                                  type="button"
+                                  className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-circleTel-orange-accessible hover:underline"
+                                  disabled={openingServiceOrderId === clinic.customer_id}
+                                  onClick={() => viewServiceOrder(clinic)}
+                                >
+                                  {openingServiceOrderId === clinic.customer_id ? (
+                                    <PiSpinnerBold className="h-3 w-3 animate-spin" />
+                                  ) : (
+                                    <PiFileTextBold className="h-3 w-3" />
+                                  )}
+                                  View PDF
+                                </button>
+                              ) : (
+                                <div className="mt-1 text-[11px] text-gray-400">No PDF path</div>
+                              )}
                             </div>
                           ) : (
                             <span className="text-xs text-gray-400">Pending</span>
@@ -1882,6 +1920,38 @@ export default function UnjaniOnboardingPipelinePage() {
                         </div>
                       </>
                     )}
+                    <div className="flex justify-between gap-4 border-t border-gray-100 pt-2 items-start">
+                      <dt className="text-gray-500">Service order</dt>
+                      <dd className="text-gray-900 text-right">
+                        {drawerClinic.service_order_issued_at ? (
+                          <>
+                            <div className="text-sm font-medium text-green-700">Issued</div>
+                            <div className="text-xs text-gray-500">
+                              {displayDate(drawerClinic.service_order_issued_at)}
+                            </div>
+                            {drawerClinic.service_order_pdf_path ? (
+                              <button
+                                type="button"
+                                className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-circleTel-orange-accessible hover:underline"
+                                disabled={openingServiceOrderId === drawerClinic.customer_id}
+                                onClick={() => viewServiceOrder(drawerClinic)}
+                              >
+                                {openingServiceOrderId === drawerClinic.customer_id ? (
+                                  <PiSpinnerBold className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <PiFileTextBold className="h-3 w-3" />
+                                )}
+                                View Service Order PDF
+                              </button>
+                            ) : (
+                              <div className="mt-1 text-xs text-gray-400">No PDF on file</div>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-sm text-gray-400">Not issued</span>
+                        )}
+                      </dd>
+                    </div>
                     {drawerClinic.latest_invoice && (
                       <div className="flex justify-between gap-4 border-t border-gray-100 pt-2">
                         <dt className="text-gray-500">Latest invoice</dt>
