@@ -1686,6 +1686,23 @@ export function CloudWifiSurveyWizard() {
 
   const panel = leadId ? success : form;
 
+  // Wait for viewport measurement so mobile never paints the desktop sticky
+  // form first (which would flash then collapse into a closed Sheet).
+  if (isMobile === undefined) {
+    return (
+      <aside
+        id="cloudwifi-survey"
+        aria-labelledby="cloudwifi-survey-heading"
+        aria-busy="true"
+        className="self-start rounded-2xl border border-circleTel-navy/10 bg-white shadow-lg lg:sticky lg:top-24"
+      >
+        <div className="p-6 text-base text-circleTel-secondaryNeutral">
+          Preparing site survey form…
+        </div>
+      </aside>
+    );
+  }
+
   if (isMobile) {
     return (
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

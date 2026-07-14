@@ -231,11 +231,14 @@ export function CloudWifiTierEstimator() {
                 {recommendation.tierDetails.name}
               </h3>
               <p className="mt-2 text-circleTel-navy">
+                <span className="text-base text-circleTel-secondaryNeutral">
+                  from{" "}
+                </span>
                 <span className="font-heading text-3xl font-bold">
                   {formatMonthlyPrice(recommendation.tierDetails.startingPrice)}
                 </span>{" "}
                 <span className="text-base text-circleTel-secondaryNeutral">
-                  /mo
+                  /mo excl. VAT
                 </span>
               </p>
               <p className="mt-1 text-base font-semibold text-circleTel-navy">

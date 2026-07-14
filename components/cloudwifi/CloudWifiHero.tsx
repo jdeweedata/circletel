@@ -64,10 +64,10 @@ export function CloudWifiHero() {
               <PiArrowRightBold aria-hidden="true" />
             </CloudWifiSurveyCta>
             <Link
-              href="/resources/wifi-toolkit"
+              href="/resources/connectivity-guide"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-white/75 px-8 py-3 font-semibold text-white outline-none hover:bg-white hover:text-circleTel-navy focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-circleTel-navy"
             >
-              Open Wi-Fi toolkit
+              Open connectivity guide
               <PiArrowRightBold aria-hidden="true" className="h-4 w-4" />
             </Link>
           </div>

@@ -490,7 +490,7 @@ describe("CloudWiFi coverage lead payload", () => {
       best_contact_time: "morning",
       status: "new",
       follow_up_notes:
-        "CloudWiFi site survey requested. Recommended tier: Professional.",
+        "CloudWiFi site survey requested. Recommended tier: Professional. Venue: hospitality, 450 sqm, 120 peak users, fibre backhaul.",
       requirements: {
         venue_type: "hospitality",
         floor_area_sqm: 450,
@@ -503,6 +503,7 @@ describe("CloudWiFi coverage lead payload", () => {
       },
       metadata: {
         page_source: "cloudwifi_product_page",
+        full_name: "Naledi van der Merwe",
         recommended_tier: "professional",
         recommendation_reasons: [
           "Floor area and peak users both support the Professional tier.",

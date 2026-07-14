@@ -1,4 +1,5 @@
 import { POST } from "@/app/api/leads/cloudwifi/route";
+import { __resetLeadAbuseGuardsForTests } from "@/lib/cloudwifi/lead-abuse-guards";
 import { apiLogger } from "@/lib/logging";
 import { sendCoverageLeadAlert } from "@/lib/notifications/sales-alerts";
 import { createClient } from "@/lib/supabase/server";
@@ -29,7 +30,7 @@ const mockAfter = after as jest.MockedFunction<typeof after>;
 
 const MAX_BODY_BYTES = 32 * 1024;
 const SELECTED_LEAD_COLUMNS =
-  "id, customer_type, first_name, last_name, email, phone, company_name, address, city, postal_code, requested_service_type, lead_source";
+  "id, customer_type, first_name, last_name, email, phone, company_name, address, city, postal_code, requested_service_type, lead_source, follow_up_notes";
 
 const validRequest = {
   venue: {
@@ -76,6 +77,8 @@ const persistedLead = {
   postal_code: "8001",
   requested_service_type: "cloudwifi",
   lead_source: "website_form",
+  follow_up_notes:
+    "CloudWiFi site survey requested. Recommended tier: Professional. Venue: hospitality, 450 sqm, 120 peak users, fibre backhaul.",
 };
 
 type InsertResult = {
@@ -87,6 +90,7 @@ let from: jest.Mock;
 let insert: jest.Mock;
 let select: jest.Mock;
 let insertSingle: jest.Mock<Promise<InsertResult>>;
+let emailCountResult: { count: number | null; error: { message: string } | null };
 let afterCallbacks: Array<() => unknown>;
 
 function makeRequest(
@@ -158,7 +162,9 @@ describe("POST /api/leads/cloudwifi", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2026-07-14T10:30:00.000Z"));
+    __resetLeadAbuseGuardsForTests();
     afterCallbacks = [];
+    emailCountResult = { count: 0, error: null };
     mockAfter.mockImplementation((task) => {
       if (typeof task !== "function") {
         throw new TypeError("Expected after() to receive a callback.");
@@ -172,13 +178,30 @@ describe("POST /api/leads/cloudwifi", () => {
     });
     select = jest.fn().mockReturnValue({ single: insertSingle });
     insert = jest.fn().mockReturnValue({ select });
-    from = jest.fn().mockReturnValue({ insert });
+
+    const emailRateLimitChain = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      gte: jest.fn().mockImplementation(async () => emailCountResult),
+    };
+
+    from = jest.fn().mockImplementation(() => ({
+      insert,
+      select: emailRateLimitChain.select,
+      eq: emailRateLimitChain.eq,
+      gte: emailRateLimitChain.gte,
+    }));
+    // Support fluent .select().eq().eq().gte() on the same object
+    emailRateLimitChain.select.mockReturnValue(emailRateLimitChain);
+    emailRateLimitChain.eq.mockReturnValue(emailRateLimitChain);
+
     mockCreateClient.mockResolvedValue({ from } as never);
     mockSendCoverageLeadAlert.mockResolvedValue({ success: true });
   });
 
   afterEach(() => {
     jest.useRealTimers();
+    __resetLeadAbuseGuardsForTests();
   });
 
   it("returns a bounded 400 response for malformed JSON", async () => {
@@ -338,7 +361,8 @@ describe("POST /api/leads/cloudwifi", () => {
       leadId: "persisted-cloudwifi-9",
     });
     expect(mockCreateClient).toHaveBeenCalledTimes(1);
-    expect(from).toHaveBeenCalledTimes(1);
+    // Email rate-limit count query + insert
+    expect(from).toHaveBeenCalledTimes(2);
     expect(from).toHaveBeenCalledWith("coverage_leads");
     expect(insert).toHaveBeenCalledTimes(1);
     expect(insert).toHaveBeenCalledWith(
@@ -358,18 +382,80 @@ describe("POST /api/leads/cloudwifi", () => {
     expect(mockSendCoverageLeadAlert).not.toHaveBeenCalled();
   });
 
-  it("alerts sales using only the returned persisted lead row", async () => {
+  it("alerts sales using the persisted lead without a false coverage flag", async () => {
     await POST(makeRequest());
     await runAfterCallbacks();
 
     expect(mockSendCoverageLeadAlert).toHaveBeenCalledTimes(1);
     expect(mockSendCoverageLeadAlert).toHaveBeenCalledWith({
-      ...persistedLead,
+      id: "persisted-cloudwifi-9",
+      customer_type: "smme",
+      first_name: "Returned",
+      last_name: "Record",
+      email: "persisted@example.net",
+      phone: "+27820000000",
       company_name: "Persisted Venue",
+      address: "99 Saved Street",
       city: "Cape Town",
       postal_code: "8001",
       requested_service_type: "cloudwifi",
+      lead_source: "website_form",
+      source_campaign: "cloudwifi_site_survey",
+      follow_up_notes: persistedLead.follow_up_notes,
     });
+    expect(mockSendCoverageLeadAlert.mock.calls[0][0]).not.toHaveProperty(
+      "coverage_available",
+    );
+  });
+
+  it("returns a silent 201 when the honeypot field is filled", async () => {
+    const response = await POST(
+      makeRequest(
+        JSON.stringify({
+          ...validRequest,
+          website: "https://spam.example",
+        }),
+      ),
+    );
+
+    expect(response.status).toBe(201);
+    await expect(response.json()).resolves.toEqual({
+      success: true,
+      leadId: "received",
+    });
+    expect(insert).not.toHaveBeenCalled();
+    expect(mockAfter).not.toHaveBeenCalled();
+  });
+
+  it("returns the cached lead for a repeated Idempotency-Key", async () => {
+    const headers = { "idempotency-key": "cloudwifi-retry-key-001" };
+    const first = await POST(makeRequest(JSON.stringify(validRequest), headers));
+    expect(first.status).toBe(201);
+    expect(insert).toHaveBeenCalledTimes(1);
+
+    const second = await POST(
+      makeRequest(JSON.stringify(validRequest), headers),
+    );
+    expect(second.status).toBe(201);
+    await expect(second.json()).resolves.toEqual({
+      success: true,
+      leadId: "persisted-cloudwifi-9",
+    });
+    expect(insert).toHaveBeenCalledTimes(1);
+  });
+
+  it("rate limits when the email has too many recent CloudWiFi leads", async () => {
+    emailCountResult = { count: 5, error: null };
+
+    const response = await POST(makeRequest());
+
+    expect(response.status).toBe(429);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: "Too many requests. Please try again later.",
+    });
+    expect(insert).not.toHaveBeenCalled();
+    expect(mockAfter).not.toHaveBeenCalled();
   });
 
   it("returns a bounded 500 response and does not alert when insertion fails", async () => {

@@ -38,9 +38,49 @@ export interface CoverageLeadData {
   requested_speed?: string;
   budget_range?: string;
   coordinates?: { lat: number; lng: number };
+  /**
+   * True/false only when a real coverage check ran.
+   * Omit (undefined) for product survey leads that never assessed coverage —
+   * never treat missing as "No".
+   */
   coverage_available?: boolean;
   lead_source?: string;
   source_campaign?: string;
+  /** Free-text summary for sales (e.g. CloudWiFi tier + venue sizing). */
+  follow_up_notes?: string;
+}
+
+/** Format coverage for human channels. Missing check ≠ no coverage. */
+export function formatCoverageAvailableLabel(
+  coverageAvailable: boolean | undefined
+): 'Yes' | 'No' | 'Not assessed' {
+  if (coverageAvailable === true) return 'Yes';
+  if (coverageAvailable === false) return 'No';
+  return 'Not assessed';
+}
+
+function formatCoverageAvailableSms(
+  coverageAvailable: boolean | undefined
+): string {
+  if (coverageAvailable === true) return 'Yes';
+  if (coverageAvailable === false) return 'No';
+  return 'N/A';
+}
+
+function formatCoverageAvailableSlack(
+  coverageAvailable: boolean | undefined
+): { emoji: string; label: string } {
+  if (coverageAvailable === true) {
+    return { emoji: '✅', label: 'Available' };
+  }
+  if (coverageAvailable === false) {
+    return { emoji: '❌', label: 'Not Available' };
+  }
+  return { emoji: 'ℹ️', label: 'Not assessed' };
+}
+
+function isCloudWifiSurveyLead(leadData: CoverageLeadData): boolean {
+  return (leadData.requested_service_type || '').toLowerCase() === 'cloudwifi';
 }
 
 export interface BusinessQuoteData {
@@ -140,7 +180,10 @@ export async function sendCoverageLeadAlert(
           requested_service: leadData.requested_service_type || 'Not specified',
           requested_speed: leadData.requested_speed || 'Not specified',
           budget_range: leadData.budget_range || 'Not specified',
-          coverage_available: leadData.coverage_available ? 'Yes' : 'No',
+          coverage_available: formatCoverageAvailableLabel(
+            leadData.coverage_available
+          ),
+          follow_up_notes: leadData.follow_up_notes,
           lead_source: leadData.lead_source || 'Website',
           source_campaign: leadData.source_campaign,
           zoho_lead_id: result.zohoLeadId,
@@ -165,7 +208,10 @@ export async function sendCoverageLeadAlert(
     if (SALES_TEAM_PHONE && SALES_TEAM_PHONE !== '+27123456789') {
       try {
         const customerTypeLabel = getCustomerTypeLabel(leadData.customer_type);
-        const message = `CircleTel: New ${customerTypeLabel} lead - ${leadData.first_name} ${leadData.last_name} (${leadData.phone}). Coverage: ${leadData.coverage_available ? 'Yes' : 'No'}. Check email for details.`;
+        const name = `${leadData.first_name} ${leadData.last_name}`;
+        const message = isCloudWifiSurveyLead(leadData)
+          ? `CircleTel: New CloudWiFi site survey - ${name} (${leadData.phone}). ${leadData.follow_up_notes || 'Check email for survey details.'}`
+          : `CircleTel: New ${customerTypeLabel} lead - ${name} (${leadData.phone}). Coverage: ${formatCoverageAvailableSms(leadData.coverage_available)}. Check email for details.`;
 
         const smsResult = await SmsChannel.send({
           to: SALES_TEAM_PHONE,
@@ -340,7 +386,9 @@ async function createZohoCRMLead(
       Requested_Service: leadData.requested_service_type || 'Not specified',
       Requested_Speed: leadData.requested_speed || 'Not specified',
       Budget_Range: leadData.budget_range || 'Not specified',
-      Coverage_Available: leadData.coverage_available ? 'Yes' : 'No',
+      Coverage_Available: formatCoverageAvailableLabel(
+        leadData.coverage_available
+      ),
       Coverage_Check_ID: leadData.id,
 
       // Coordinates (if available)
@@ -356,15 +404,15 @@ async function createZohoCRMLead(
 
       // Description with all details
       Description: `
-Coverage Lead from CircleTel Website
+${isCloudWifiSurveyLead(leadData) ? 'CloudWiFi Site Survey from CircleTel Website' : 'Coverage Lead from CircleTel Website'}
 
 Customer Type: ${getCustomerTypeLabel(leadData.customer_type)}
 ${leadData.company_name ? `Company: ${leadData.company_name}\n` : ''}
 Requested Service: ${leadData.requested_service_type || 'Not specified'}
 Requested Speed: ${leadData.requested_speed || 'Not specified'}
 Budget Range: ${leadData.budget_range || 'Not specified'}
-Coverage Available: ${leadData.coverage_available ? 'Yes ✓' : 'No ✗'}
-
+Coverage Available: ${formatCoverageAvailableLabel(leadData.coverage_available)}
+${leadData.follow_up_notes ? `Survey summary: ${leadData.follow_up_notes}\n` : ''}
 Address: ${leadData.address}${leadData.suburb ? `, ${leadData.suburb}` : ''}${leadData.city ? `, ${leadData.city}` : ''}${leadData.province ? `, ${leadData.province}` : ''}${leadData.postal_code ? ` ${leadData.postal_code}` : ''}
 
 Lead Source: ${leadData.lead_source || 'Website - Coverage Checker'}
@@ -419,7 +467,7 @@ async function sendSlackNotification(data: {
 }): Promise<void> {
   if (!SLACK_WEBHOOK_URL) return;
 
-  const coverageEmoji = data.coverageAvailable ? '✅' : '❌';
+  const coverage = formatCoverageAvailableSlack(data.coverageAvailable);
   const typeEmoji = data.customerType === 'enterprise' ? '🏢' : data.customerType === 'smme' ? '🏪' : '👤';
 
   const slackPayload = {
@@ -450,7 +498,7 @@ async function sendSlackNotification(data: {
           },
           {
             type: 'mrkdwn',
-            text: `*Coverage:*\n${coverageEmoji} ${data.coverageAvailable ? 'Available' : 'Not Available'}`,
+            text: `*Coverage:*\n${coverage.emoji} ${coverage.label}`,
           },
         ],
       },

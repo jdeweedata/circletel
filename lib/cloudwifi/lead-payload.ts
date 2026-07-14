@@ -34,6 +34,7 @@ export interface CloudWifiLeadPayload {
   };
   readonly metadata: {
     readonly page_source: "cloudwifi_product_page";
+    readonly full_name: string;
     readonly recommended_tier: ReturnType<
       typeof recommendCloudWifiTier
     >["tier"];
@@ -48,11 +49,14 @@ export interface CloudWifiLeadPayload {
       utm_campaign?: string;
       referrer?: string;
     }>;
+    readonly idempotency_key?: string;
   };
 }
 
 export interface CloudWifiLeadBuildContext {
   readonly receivedAt: string;
+  /** Optional client-supplied key for retry-safe lead creation. */
+  readonly idempotencyKey?: string;
 }
 
 const receivedAtSchema = z.string().max(64).datetime({ offset: true });
@@ -77,7 +81,8 @@ export function buildCloudWifiLeadPayload(
     peakUsers: request.venue.peakUsers,
     backhaul: request.venue.backhaul,
   });
-  const [firstName, ...lastNameParts] = request.contact.fullName.split(/\s+/);
+  const fullName = request.contact.fullName.trim();
+  const [firstName, ...lastNameParts] = fullName.split(/\s+/);
   const attribution = {
     ...(request.attribution.utmSource
       ? { utm_source: request.attribution.utmSource }
@@ -92,6 +97,12 @@ export function buildCloudWifiLeadPayload(
       ? { referrer: request.attribution.referrer }
       : {}),
   };
+  const venueSummary = [
+    request.venue.venueType.replaceAll("_", " "),
+    `${request.venue.floorArea} sqm`,
+    `${request.venue.peakUsers} peak users`,
+    `${request.venue.backhaul.replaceAll("_", " ")} backhaul`,
+  ].join(", ");
 
   return {
     customer_type: "smme" as const,
@@ -108,7 +119,7 @@ export function buildCloudWifiLeadPayload(
     contact_preference: "phone" as const,
     best_contact_time: request.contact.preferredContactTime,
     status: "new" as const,
-    follow_up_notes: `CloudWiFi site survey requested. Recommended tier: ${recommendation.tierDetails.name}.`,
+    follow_up_notes: `CloudWiFi site survey requested. Recommended tier: ${recommendation.tierDetails.name}. Venue: ${venueSummary}.`,
     requirements: {
       venue_type: request.venue.venueType,
       floor_area_sqm: request.venue.floorArea,
@@ -121,6 +132,7 @@ export function buildCloudWifiLeadPayload(
     },
     metadata: {
       page_source: "cloudwifi_product_page" as const,
+      full_name: fullName,
       recommended_tier: recommendation.tier,
       recommendation_reasons: [...recommendation.reasons],
       backhaul_guidance: recommendation.backhaulGuidance,
@@ -128,6 +140,9 @@ export function buildCloudWifiLeadPayload(
       client_consented_at: request.contact.consentedAt,
       requirements_text: request.details.requirements,
       attribution,
+      ...(context.idempotencyKey
+        ? { idempotency_key: context.idempotencyKey }
+        : {}),
     },
   };
 }

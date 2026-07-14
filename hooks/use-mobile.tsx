@@ -4,7 +4,12 @@ import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
 
-export function useIsMobile() {
+/**
+ * Returns whether the viewport is mobile-sized.
+ * `undefined` until the first client measurement so callers can avoid
+ * painting the desktop layout and then remounting as a mobile sheet.
+ */
+export function useIsMobile(): boolean | undefined {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 
   React.useEffect(() => {
@@ -17,5 +22,5 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
-  return !!isMobile
+  return isMobile
 }

@@ -177,7 +177,7 @@ export const includedFeatures = [
   "Enterprise Wi-Fi 6 access points",
   "Guest network",
   "Ruijie Cloud management",
-  "24/7 monitoring and support",
+  "24/7 network monitoring",
   "Proactive maintenance",
   "Firmware and security updates",
   "Monthly reporting",

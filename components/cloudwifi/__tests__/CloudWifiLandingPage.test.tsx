@@ -149,7 +149,7 @@ describe("CloudWiFi product page", () => {
     }
 
     expect(text).toContain("Request a site survey");
-    expect(text).toContain("Open Wi-Fi toolkit");
+    expect(text).toContain("Open connectivity guide");
     expect(text).toContain("Let's get your venue's Wi-Fi right.");
     expect(text).toContain("Talk to an expert");
     expect(text).toContain("Production navigation");
@@ -178,9 +178,9 @@ describe("CloudWiFi product page", () => {
 
     const anchors = renderer!.root.findAllByType("a");
     const toolkit = anchors.find((anchor) =>
-      textOf(anchor).includes("Open Wi-Fi toolkit"),
+      textOf(anchor).includes("Open connectivity guide"),
     );
-    expect(toolkit?.props.href).toBe("/resources/wifi-toolkit");
+    expect(toolkit?.props.href).toBe("/resources/connectivity-guide");
 
     const expert = anchors.find((anchor) =>
       textOf(anchor).includes("Talk to an expert"),

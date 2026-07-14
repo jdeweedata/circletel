@@ -156,7 +156,8 @@ describe("CloudWifiTierEstimator", () => {
     const serialized = JSON.stringify(renderer.toJSON());
     expect(serialized).toContain("Professional");
     expect(serialized).toContain("R3,499");
-    expect(serialized).toContain("/mo");
+    expect(serialized).toContain("from");
+    expect(serialized).toContain("/mo excl. VAT");
     expect(serialized).toContain("3–5 APs");
     expect(serialized).toContain(
       "Floor area and peak users both support the Professional tier.",
