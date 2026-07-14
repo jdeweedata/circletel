@@ -2,7 +2,12 @@ import { POST } from "@/app/api/leads/cloudwifi/route";
 import { apiLogger } from "@/lib/logging";
 import { sendCoverageLeadAlert } from "@/lib/notifications/sales-alerts";
 import { createClient } from "@/lib/supabase/server";
+import { after } from "next/server";
 
+jest.mock("next/server", () => ({
+  ...jest.requireActual("next/server"),
+  after: jest.fn(),
+}));
 jest.mock("@/lib/supabase/server", () => ({ createClient: jest.fn() }));
 jest.mock("@/lib/notifications/sales-alerts", () => ({
   sendCoverageLeadAlert: jest.fn(),
@@ -20,6 +25,7 @@ const mockSendCoverageLeadAlert = sendCoverageLeadAlert as jest.MockedFunction<
   typeof sendCoverageLeadAlert
 >;
 const mockApiLogger = apiLogger as jest.Mocked<typeof apiLogger>;
+const mockAfter = after as jest.MockedFunction<typeof after>;
 
 const MAX_BODY_BYTES = 32 * 1024;
 const SELECTED_LEAD_COLUMNS =
@@ -58,16 +64,16 @@ const validRequest = {
 };
 
 const persistedLead = {
-  id: "lead-cloudwifi-1",
+  id: "persisted-cloudwifi-9",
   customer_type: "smme" as const,
-  first_name: "Naledi",
-  last_name: "Mokoena",
-  email: "naledi@example.co.za",
-  phone: "+27821234567",
-  company_name: "Mokoena Hospitality",
-  address: "10 Main Road, Sandton",
-  city: "Johannesburg",
-  postal_code: "2196",
+  first_name: "Returned",
+  last_name: "Record",
+  email: "persisted@example.net",
+  phone: "+27820000000",
+  company_name: "Persisted Venue",
+  address: "99 Saved Street",
+  city: "Cape Town",
+  postal_code: "8001",
   requested_service_type: "cloudwifi",
   lead_source: "website_form",
 };
@@ -81,6 +87,7 @@ let from: jest.Mock;
 let insert: jest.Mock;
 let select: jest.Mock;
 let insertSingle: jest.Mock<Promise<InsertResult>>;
+let afterCallbacks: Array<() => unknown>;
 
 function makeRequest(
   body: string = JSON.stringify(validRequest),
@@ -93,17 +100,71 @@ function makeRequest(
   });
 }
 
+function makeStreamRequest(
+  chunks: Uint8Array[],
+  {
+    contentType = "application/json",
+    onPull,
+    onCancel,
+  }: {
+    contentType?: string | null;
+    onPull?: () => void;
+    onCancel?: () => void;
+  } = {},
+): Request {
+  let chunkIndex = 0;
+  const stream = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        onPull?.();
+        const chunk = chunks[chunkIndex++];
+        if (chunk) {
+          controller.enqueue(chunk);
+        } else {
+          controller.close();
+        }
+      },
+      cancel() {
+        onCancel?.();
+      },
+    },
+    { highWaterMark: 0 },
+  );
+  const headers = contentType === null ? {} : { "content-type": contentType };
+
+  return new Request("http://localhost/api/leads/cloudwifi", {
+    method: "POST",
+    headers,
+    body: stream,
+    duplex: "half",
+  } as RequestInit & { duplex: "half" });
+}
+
+async function runAfterCallbacks(): Promise<void> {
+  for (const callback of afterCallbacks) {
+    await callback();
+  }
+}
+
 function expectNoPersistence(): void {
   expect(mockCreateClient).not.toHaveBeenCalled();
   expect(from).not.toHaveBeenCalled();
   expect(insert).not.toHaveBeenCalled();
   expect(mockSendCoverageLeadAlert).not.toHaveBeenCalled();
+  expect(mockAfter).not.toHaveBeenCalled();
 }
 
 describe("POST /api/leads/cloudwifi", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2026-07-14T10:30:00.000Z"));
+    afterCallbacks = [];
+    mockAfter.mockImplementation((task) => {
+      if (typeof task !== "function") {
+        throw new TypeError("Expected after() to receive a callback.");
+      }
+      afterCallbacks.push(task);
+    });
 
     insertSingle = jest.fn().mockResolvedValue({
       data: persistedLead,
@@ -154,11 +215,26 @@ describe("POST /api/leads/cloudwifi", () => {
     expectNoPersistence();
   });
 
+  it.each([null, "text/plain", "application/ld+json"])(
+    "returns a bounded 415 response for unsupported content type %p",
+    async (contentType) => {
+      const body = new TextEncoder().encode(JSON.stringify(validRequest));
+      const response = await POST(makeStreamRequest([body], { contentType }));
+
+      expect(response.status).toBe(415);
+      await expect(response.json()).resolves.toEqual({
+        success: false,
+        error: "Content-Type must be application/json.",
+      });
+      expectNoPersistence();
+    },
+  );
+
   it("rejects a declared oversized body before reading it", async () => {
     const request = makeRequest(JSON.stringify(validRequest), {
       "content-length": String(MAX_BODY_BYTES + 1),
     });
-    const textSpy = jest.spyOn(request, "text");
+    const getReaderSpy = jest.spyOn(request.body!, "getReader");
 
     const response = await POST(request);
 
@@ -167,7 +243,7 @@ describe("POST /api/leads/cloudwifi", () => {
       success: false,
       error: "Request body is too large.",
     });
-    expect(textSpy).not.toHaveBeenCalled();
+    expect(getReaderSpy).not.toHaveBeenCalled();
     expectNoPersistence();
   });
 
@@ -204,13 +280,62 @@ describe("POST /api/leads/cloudwifi", () => {
     expectNoPersistence();
   });
 
+  it("cancels a multi-chunk stream immediately after crossing the byte limit", async () => {
+    const onPull = jest.fn();
+    const onCancel = jest.fn();
+    const response = await POST(
+      makeStreamRequest(
+        [
+          new Uint8Array(20 * 1024),
+          new Uint8Array(13 * 1024),
+          new Uint8Array(8 * 1024),
+        ],
+        { onPull, onCancel },
+      ),
+    );
+
+    expect(response.status).toBe(413);
+    expect(onPull).toHaveBeenCalledTimes(2);
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expectNoPersistence();
+  });
+
+  it("decodes valid JSON when a multi-byte character straddles chunks", async () => {
+    const requirements = "Lobby 😀 coverage";
+    const json = JSON.stringify({
+      ...validRequest,
+      details: { ...validRequest.details, requirements },
+    });
+    const emojiByteIndex = new TextEncoder().encode(
+      json.slice(0, json.indexOf("😀")),
+    ).byteLength;
+    const encoded = new TextEncoder().encode(json);
+
+    const response = await POST(
+      makeStreamRequest(
+        [
+          encoded.slice(0, emojiByteIndex + 2),
+          encoded.slice(emojiByteIndex + 2),
+        ],
+        { contentType: "Application/JSON; Charset=UTF-8" },
+      ),
+    );
+
+    expect(response.status).toBe(201);
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({ requirements_text: requirements }),
+      }),
+    );
+  });
+
   it("persists exactly one validated lead with a server timestamp", async () => {
     const response = await POST(makeRequest());
 
     expect(response.status).toBe(201);
     await expect(response.json()).resolves.toEqual({
       success: true,
-      leadId: "lead-cloudwifi-1",
+      leadId: "persisted-cloudwifi-9",
     });
     expect(mockCreateClient).toHaveBeenCalledTimes(1);
     expect(from).toHaveBeenCalledTimes(1);
@@ -229,17 +354,20 @@ describe("POST /api/leads/cloudwifi", () => {
     expect(select).toHaveBeenCalledTimes(1);
     expect(select).toHaveBeenCalledWith(SELECTED_LEAD_COLUMNS);
     expect(insertSingle).toHaveBeenCalledTimes(1);
+    expect(mockAfter).toHaveBeenCalledTimes(1);
+    expect(mockSendCoverageLeadAlert).not.toHaveBeenCalled();
   });
 
   it("alerts sales using only the returned persisted lead row", async () => {
     await POST(makeRequest());
+    await runAfterCallbacks();
 
     expect(mockSendCoverageLeadAlert).toHaveBeenCalledTimes(1);
     expect(mockSendCoverageLeadAlert).toHaveBeenCalledWith({
       ...persistedLead,
-      company_name: "Mokoena Hospitality",
-      city: "Johannesburg",
-      postal_code: "2196",
+      company_name: "Persisted Venue",
+      city: "Cape Town",
+      postal_code: "8001",
       requested_service_type: "cloudwifi",
     });
   });
@@ -258,6 +386,7 @@ describe("POST /api/leads/cloudwifi", () => {
       error: "We could not save your request. Please try again.",
     });
     expect(mockSendCoverageLeadAlert).not.toHaveBeenCalled();
+    expect(mockAfter).not.toHaveBeenCalled();
     expect(mockApiLogger.error).toHaveBeenCalledWith(
       "Failed to create CloudWiFi site survey lead",
       { error: "database unavailable" },
@@ -271,6 +400,10 @@ describe("POST /api/leads/cloudwifi", () => {
 
     expect(response.status).toBe(500);
     expect(mockSendCoverageLeadAlert).not.toHaveBeenCalled();
+    expect(mockApiLogger.error).toHaveBeenCalledWith(
+      "Failed to create CloudWiFi site survey lead",
+      { error: "insert returned no row" },
+    );
   });
 
   it("keeps the persisted lead successful when the alert rejects", async () => {
@@ -279,12 +412,34 @@ describe("POST /api/leads/cloudwifi", () => {
     );
 
     const response = await POST(makeRequest());
-    await Promise.resolve();
+    await runAfterCallbacks();
 
     expect(response.status).toBe(201);
     expect(mockApiLogger.error).toHaveBeenCalledWith(
       "CloudWiFi sales alert failed",
-      { leadId: "lead-cloudwifi-1", error: "notification offline" },
+      {
+        leadId: "persisted-cloudwifi-9",
+        error: "Sales alert request rejected",
+      },
+    );
+  });
+
+  it("logs a failed sales-alert result without changing the response", async () => {
+    mockSendCoverageLeadAlert.mockResolvedValue({
+      success: false,
+      errors: ["Email service unavailable"],
+    });
+
+    const response = await POST(makeRequest());
+    await runAfterCallbacks();
+
+    expect(response.status).toBe(201);
+    expect(mockApiLogger.error).toHaveBeenCalledWith(
+      "CloudWiFi sales alert failed",
+      {
+        leadId: "persisted-cloudwifi-9",
+        errors: ["Email service unavailable"],
+      },
     );
   });
 });

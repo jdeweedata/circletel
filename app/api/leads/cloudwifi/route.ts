@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import { buildCloudWifiLeadPayload } from "@/lib/cloudwifi/lead-payload";
 import {
@@ -17,6 +17,12 @@ const invalidJsonResponse = () =>
   NextResponse.json(
     { success: false, error: "Invalid JSON request body." },
     { status: 400 },
+  );
+
+const unsupportedMediaTypeResponse = () =>
+  NextResponse.json(
+    { success: false, error: "Content-Type must be application/json." },
+    { status: 415 },
   );
 
 const oversizedBodyResponse = () =>
@@ -42,20 +48,64 @@ function declaredBodyIsOversized(request: Request): boolean {
     : false;
 }
 
+function hasJsonContentType(request: Request): boolean {
+  const contentType = request.headers.get("content-type");
+  const mediaType = contentType?.split(";", 1)[0].trim().toLowerCase();
+
+  return mediaType === "application/json";
+}
+
+async function readBoundedBody(request: Request): Promise<string | null> {
+  if (!request.body) {
+    return "";
+  }
+
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let byteLength = 0;
+  let bodyText = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+
+      byteLength += value.byteLength;
+      if (byteLength > MAX_BODY_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        return null;
+      }
+
+      bodyText += decoder.decode(value, { stream: true });
+    }
+
+    return bodyText + decoder.decode();
+  } catch {
+    await reader.cancel().catch(() => undefined);
+    throw new Error("request body could not be read");
+  }
+}
+
 export async function POST(request: Request) {
+  if (!hasJsonContentType(request)) {
+    return unsupportedMediaTypeResponse();
+  }
+
   if (declaredBodyIsOversized(request)) {
     return oversizedBodyResponse();
   }
 
   let bodyText: string;
   try {
-    bodyText = await request.text();
+    const boundedBody = await readBoundedBody(request);
+    if (boundedBody === null) {
+      return oversizedBodyResponse();
+    }
+    bodyText = boundedBody;
   } catch {
     return invalidJsonResponse();
-  }
-
-  if (new TextEncoder().encode(bodyText).byteLength > MAX_BODY_BYTES) {
-    return oversizedBodyResponse();
   }
 
   let body: unknown;
@@ -91,12 +141,12 @@ export async function POST(request: Request) {
 
     if (error || !lead) {
       apiLogger.error("Failed to create CloudWiFi site survey lead", {
-        error: error?.message,
+        error: error?.message ?? "insert returned no row",
       });
       return persistenceFailureResponse();
     }
 
-    void sendCoverageLeadAlert({
+    const alertLead = {
       id: lead.id,
       customer_type: lead.customer_type,
       first_name: lead.first_name,
@@ -109,12 +159,23 @@ export async function POST(request: Request) {
       postal_code: lead.postal_code || undefined,
       requested_service_type: lead.requested_service_type || "cloudwifi",
       lead_source: lead.lead_source,
-    }).catch((alertError: unknown) => {
-      apiLogger.error("CloudWiFi sales alert failed", {
-        leadId: lead.id,
-        error:
-          alertError instanceof Error ? alertError.message : String(alertError),
-      });
+    };
+
+    after(async () => {
+      try {
+        const result = await sendCoverageLeadAlert(alertLead);
+        if (!result.success) {
+          apiLogger.error("CloudWiFi sales alert failed", {
+            leadId: lead.id,
+            errors: result.errors ?? [],
+          });
+        }
+      } catch {
+        apiLogger.error("CloudWiFi sales alert failed", {
+          leadId: lead.id,
+          error: "Sales alert request rejected",
+        });
+      }
     });
 
     return NextResponse.json(
