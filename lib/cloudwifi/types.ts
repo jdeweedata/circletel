@@ -28,24 +28,24 @@ export type CloudWifiBackhaul = typeof CLOUDWIFI_BACKHAUL_TYPES[number];
 export type CloudWifiTierId = typeof CLOUDWIFI_TIER_IDS[number];
 
 export interface TierRecommendationInput {
-  venueType: CloudWifiVenueType;
-  floorArea: number;
-  peakUsers: number;
-  backhaul: CloudWifiBackhaul;
+  readonly venueType: CloudWifiVenueType;
+  readonly floorArea: number;
+  readonly peakUsers: number;
+  readonly backhaul: CloudWifiBackhaul;
 }
 
 export interface CloudWifiTier {
-  id: CloudWifiTierId;
-  name: string;
-  areaLabel: string;
-  apRange: string;
-  startingPrice: number;
-  includedAccessPoints: number;
+  readonly id: CloudWifiTierId;
+  readonly name: string;
+  readonly areaLabel: string;
+  readonly apRange: string;
+  readonly startingPrice: number;
+  readonly includedAccessPoints: number;
 }
 
 export interface TierRecommendation extends TierRecommendationInput {
-  tier: CloudWifiTierId;
-  tierDetails: CloudWifiTier;
-  reasons: string[];
-  backhaulGuidance: string | null;
+  readonly tier: CloudWifiTierId;
+  readonly tierDetails: CloudWifiTier;
+  readonly reasons: readonly string[];
+  readonly backhaulGuidance: string | null;
 }

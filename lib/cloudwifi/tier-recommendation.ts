@@ -8,40 +8,40 @@ import type {
   TierRecommendationInput,
 } from './types';
 
-export const CLOUDWIFI_TIERS = [
-  {
+export const CLOUDWIFI_TIERS = Object.freeze([
+  Object.freeze({
     id: 'essential',
     name: 'Essential',
     areaLabel: 'Up to 300 sqm',
     apRange: '1–2 APs',
     startingPrice: 1499,
     includedAccessPoints: 2,
-  },
-  {
+  }),
+  Object.freeze({
     id: 'professional',
     name: 'Professional',
     areaLabel: '300–800 sqm',
     apRange: '3–5 APs',
     startingPrice: 3499,
     includedAccessPoints: 5,
-  },
-  {
+  }),
+  Object.freeze({
     id: 'enterprise',
     name: 'Enterprise',
     areaLabel: '800–2,000 sqm',
     apRange: '6–12 APs',
     startingPrice: 7999,
     includedAccessPoints: 12,
-  },
-  {
+  }),
+  Object.freeze({
     id: 'campus',
     name: 'Campus',
     areaLabel: 'Large sites and multiple buildings',
     apRange: '12–30+ APs',
     startingPrice: 14999,
     includedAccessPoints: 20,
-  },
-] as const satisfies readonly CloudWifiTier[];
+  }),
+] as const) satisfies readonly CloudWifiTier[];
 
 const AREA_UPPER_BOUNDS = [300, 800, 2000] as const;
 const USER_UPPER_BOUNDS = [50, 150, 400] as const;
@@ -66,15 +66,15 @@ function tierIndex(tier: CloudWifiTierId): number {
   return CLOUDWIFI_TIER_IDS.indexOf(tier);
 }
 
-export function tierForArea(floorArea: number): CloudWifiTierId {
+function tierForArea(floorArea: number): CloudWifiTierId {
   return tierForValue(floorArea, AREA_UPPER_BOUNDS);
 }
 
-export function tierForUsers(peakUsers: number): CloudWifiTierId {
+function tierForUsers(peakUsers: number): CloudWifiTierId {
   return tierForValue(peakUsers, USER_UPPER_BOUNDS);
 }
 
-export function promoteTier(tier: CloudWifiTierId): CloudWifiTierId {
+function promoteTier(tier: CloudWifiTierId): CloudWifiTierId {
   const promotedIndex = Math.min(tierIndex(tier) + 1, CLOUDWIFI_TIER_IDS.length - 1);
   return CLOUDWIFI_TIER_IDS[promotedIndex];
 }
@@ -91,7 +91,23 @@ function backhaulGuidance(backhaul: CloudWifiBackhaul): string | null {
   return null;
 }
 
+function validateRecommendationInput(input: TierRecommendationInput): void {
+  if (!Number.isFinite(input.floorArea) || input.floorArea <= 0) {
+    throw new RangeError('floorArea must be a finite number greater than 0.');
+  }
+
+  if (
+    !Number.isFinite(input.peakUsers) ||
+    input.peakUsers <= 0 ||
+    !Number.isInteger(input.peakUsers)
+  ) {
+    throw new RangeError('peakUsers must be a finite positive integer.');
+  }
+}
+
 export function recommendCloudWifiTier(input: TierRecommendationInput): TierRecommendation {
+  validateRecommendationInput(input);
+
   const areaTier = tierForArea(input.floorArea);
   const userTier = tierForUsers(input.peakUsers);
   const areaTierIndex = tierIndex(areaTier);
@@ -130,7 +146,7 @@ export function recommendCloudWifiTier(input: TierRecommendationInput): TierReco
   return {
     ...input,
     tier: recommendedTier,
-    tierDetails: CLOUDWIFI_TIERS[tierIndex(recommendedTier)],
+    tierDetails: { ...CLOUDWIFI_TIERS[tierIndex(recommendedTier)] },
     reasons,
     backhaulGuidance: backhaulGuidance(input.backhaul),
   };

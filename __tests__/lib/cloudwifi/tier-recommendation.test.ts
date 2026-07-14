@@ -1,15 +1,23 @@
 import {
   CLOUDWIFI_TIERS,
-  promoteTier,
   recommendCloudWifiTier,
-  tierForArea,
-  tierForUsers,
 } from '@/lib/cloudwifi/tier-recommendation';
 import type {
   CloudWifiBackhaul,
+  CloudWifiTier,
   CloudWifiTierId,
   CloudWifiVenueType,
+  TierRecommendation,
 } from '@/lib/cloudwifi/types';
+
+type Equal<X, Y> =
+  (<T>() => T extends X ? 1 : 2) extends
+  (<T>() => T extends Y ? 1 : 2) ? true : false;
+type Assert<T extends true> = T;
+type CloudWifiTierIsReadonly = Assert<Equal<CloudWifiTier, Readonly<CloudWifiTier>>>;
+type TierRecommendationIsReadonly = Assert<
+  Equal<TierRecommendation, Readonly<TierRecommendation>>
+>;
 
 describe('CloudWiFi tier recommendation', () => {
   describe('catalogue', () => {
@@ -60,7 +68,12 @@ describe('CloudWiFi tier recommendation', () => {
       [2000, 'enterprise'],
       [2001, 'campus'],
     ] as const)('maps %i sqm to %s', (floorArea, expectedTier) => {
-      expect(tierForArea(floorArea)).toBe(expectedTier);
+      expect(recommendCloudWifiTier({
+        venueType: 'property',
+        floorArea,
+        peakUsers: 1,
+        backhaul: 'fibre',
+      }).tier).toBe(expectedTier);
     });
 
     it.each([
@@ -71,8 +84,45 @@ describe('CloudWiFi tier recommendation', () => {
       [400, 'enterprise'],
       [401, 'campus'],
     ] as const)('maps %i peak users to %s', (peakUsers, expectedTier) => {
-      expect(tierForUsers(peakUsers)).toBe(expectedTier);
+      expect(recommendCloudWifiTier({
+        venueType: 'property',
+        floorArea: 1,
+        peakUsers,
+        backhaul: 'fibre',
+      }).tier).toBe(expectedTier);
     });
+  });
+
+  describe('input validation', () => {
+    it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
+      'rejects invalid floor area %p',
+      (floorArea) => {
+        const recommend = () => recommendCloudWifiTier({
+          venueType: 'property',
+          floorArea,
+          peakUsers: 20,
+          backhaul: 'fibre',
+        });
+
+        expect(recommend).toThrow(RangeError);
+        expect(recommend).toThrow('floorArea must be a finite number greater than 0.');
+      }
+    );
+
+    it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 1.5])(
+      'rejects invalid peak user count %p',
+      (peakUsers) => {
+        const recommend = () => recommendCloudWifiTier({
+          venueType: 'property',
+          floorArea: 250,
+          peakUsers,
+          backhaul: 'fibre',
+        });
+
+        expect(recommend).toThrow(RangeError);
+        expect(recommend).toThrow('peakUsers must be a finite positive integer.');
+      }
+    );
   });
 
   describe('base-tier selection', () => {
@@ -97,12 +147,15 @@ describe('CloudWiFi tier recommendation', () => {
 
   describe('venue-density promotion', () => {
     it.each([
-      ['hospitality', 250, 38, 'professional'],
-      ['retail', 500, 126, 'enterprise'],
-      ['education', 1000, 338, 'campus'],
+      ['hospitality', 250, 37, 'essential', false],
+      ['hospitality', 250, 38, 'professional', true],
+      ['retail', 500, 125, 'professional', false],
+      ['retail', 500, 126, 'enterprise', true],
+      ['education', 1000, 337, 'enterprise', false],
+      ['education', 1000, 338, 'campus', true],
     ] as const)(
-      'promotes dense %s venues at the inclusive upper-quartile threshold',
-      (venueType, floorArea, peakUsers, expectedTier) => {
+      'maps %s at %i sqm and %i users to %s at the density boundary',
+      (venueType, floorArea, peakUsers, expectedTier, isPromoted) => {
         const result = recommendCloudWifiTier({
           venueType,
           floorArea,
@@ -111,22 +164,13 @@ describe('CloudWiFi tier recommendation', () => {
         });
 
         expect(result.tier).toBe(expectedTier);
-        expect(result.reasons.join(' ')).toMatch(/density/i);
+        if (isPromoted) {
+          expect(result.reasons.join(' ')).toMatch(/density/i);
+        } else {
+          expect(result.reasons.join(' ')).not.toMatch(/density/i);
+        }
       }
     );
-
-    it.each([
-      ['hospitality', 37],
-      ['retail', 37],
-      ['education', 37],
-    ] as const)('does not promote %s below the Essential density threshold', (venueType, peakUsers) => {
-      expect(recommendCloudWifiTier({
-        venueType,
-        floorArea: 250,
-        peakUsers,
-        backhaul: 'fibre',
-      }).tier).toBe('essential');
-    });
 
     it.each([
       ['healthcare', 40],
@@ -171,10 +215,6 @@ describe('CloudWiFi tier recommendation', () => {
         backhaul: 'fibre',
       }).tier).toBe('campus');
     });
-
-    it('caps direct promotion at Campus', () => {
-      expect(promoteTier('campus')).toBe('campus');
-    });
   });
 
   describe('backhaul guidance', () => {
@@ -217,5 +257,38 @@ describe('CloudWiFi tier recommendation', () => {
       tier: 'professional' as CloudWifiTierId,
       tierDetails: CLOUDWIFI_TIERS[1],
     });
+  });
+
+  it('does not expose shared catalogue state through tier details', () => {
+    const firstResult = recommendCloudWifiTier({
+      venueType: 'property',
+      floorArea: 250,
+      peakUsers: 20,
+      backhaul: 'fibre',
+    });
+    const canonicalTier = {
+      id: 'essential',
+      name: 'Essential',
+      startingPrice: 1499,
+    } as const;
+
+    try {
+      Object.assign(firstResult.tierDetails as any, {
+        id: 'campus',
+        name: 'Tampered',
+        startingPrice: 1,
+      });
+
+      const nextResult = recommendCloudWifiTier({
+        venueType: 'property',
+        floorArea: 250,
+        peakUsers: 20,
+        backhaul: 'fibre',
+      });
+
+      expect(nextResult.tierDetails).toMatchObject(canonicalTier);
+    } finally {
+      Object.assign(firstResult.tierDetails as any, canonicalTier);
+    }
   });
 });
