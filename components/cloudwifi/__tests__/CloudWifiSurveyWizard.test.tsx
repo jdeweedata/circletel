@@ -668,7 +668,11 @@ describe("CloudWifiSurveyWizard", () => {
     expect(sheetContent).toBeDefined();
     expect(sheetContent!.props.className).toContain("[&>button]:h-11");
     expect(sheetContent!.props.className).toContain("[&>button]:w-11");
+    expect(sheetContent!.props.className).toContain("safe-area-inset-top");
+    expect(sheetContent!.props.className).toContain("safe-area-inset-right");
     expect(sheetContent!.props.className).toContain("safe-area-inset-bottom");
+    expect(sheetContent!.props.className).toContain("[&>button]:!top-");
+    expect(sheetContent!.props.className).toContain("[&>button]:!right-");
 
     act(() => sheet.props["data-on-open-change"](false));
     expect(surveyContext.mobileOpen).toBe(false);
