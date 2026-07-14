@@ -21,6 +21,7 @@ import { getWhatsAppLink } from "@/lib/constants/contact";
 import { recommendCloudWifiTier } from "@/lib/cloudwifi/tier-recommendation";
 import {
   CLOUDWIFI_BACKHAUL_TYPES,
+  CLOUDWIFI_EMAIL_PATTERN,
   CLOUDWIFI_SURVEY_NUMERIC_LIMITS,
   CLOUDWIFI_VENUE_TYPES,
   type CloudWifiBackhaul,
@@ -30,7 +31,115 @@ import {
 type WizardStep = 1 | 2 | 3 | 4;
 type FieldErrors = Record<string, string>;
 
+interface ApiFieldTarget {
+  field: string;
+  step: WizardStep;
+  message: string;
+}
+
 const STEP_NAMES = ["Venue", "Details", "Contact", "Review"] as const;
+const MAX_API_RESPONSE_BYTES = 16 * 1024;
+const MAX_API_FIELDS = 20;
+const SAFE_LEAD_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
+
+const API_FIELD_TARGETS: Readonly<Record<string, ApiFieldTarget>> =
+  Object.freeze({
+    "venue.venueType": {
+      field: "venueType",
+      step: 1,
+      message: "Select the type of venue.",
+    },
+    "venue.floorArea": {
+      field: "floorArea",
+      step: 1,
+      message: "Enter the usable floor area in square metres.",
+    },
+    "venue.city": {
+      field: "city",
+      step: 1,
+      message: "Enter the city where the venue is located.",
+    },
+    "venue.peakUsers": {
+      field: "peakUsers",
+      step: 1,
+      message: "Enter the expected number of users at peak.",
+    },
+    "venue.backhaul": {
+      field: "backhaul",
+      step: 1,
+      message: "Select the venue's current internet connection.",
+    },
+    "venue.siteAddress": {
+      field: "siteAddress",
+      step: 2,
+      message: "Enter the full site address for the survey.",
+    },
+    "venue.postalCode": {
+      field: "postalCode",
+      step: 2,
+      message: "Enter a four-digit postal code.",
+    },
+    "details.floors": {
+      field: "floors",
+      step: 2,
+      message: "Enter the number of floors.",
+    },
+    "details.wallMaterial": {
+      field: "wallMaterial",
+      step: 2,
+      message: "Select the main wall or building material.",
+    },
+    "details.networks": {
+      field: "networks",
+      step: 2,
+      message: "Select at least one network requirement.",
+    },
+    "details.addOns": {
+      field: "addOns",
+      step: 2,
+      message: "Select only the supported add-ons.",
+    },
+    "details.requirements": {
+      field: "requirements",
+      step: 2,
+      message: "Check the additional requirements.",
+    },
+    "contact.fullName": {
+      field: "fullName",
+      step: 3,
+      message: "Enter your first and last name.",
+    },
+    "contact.companyName": {
+      field: "companyName",
+      step: 3,
+      message: "Enter the venue or company name.",
+    },
+    "contact.email": {
+      field: "email",
+      step: 3,
+      message: "Enter a valid email such as name@company.co.za.",
+    },
+    "contact.phone": {
+      field: "phone",
+      step: 3,
+      message: "Enter a valid South African phone number.",
+    },
+    "contact.preferredContactTime": {
+      field: "preferredContactTime",
+      step: 3,
+      message: "Select a preferred contact time.",
+    },
+    "contact.consent": {
+      field: "consent",
+      step: 3,
+      message: "Consent is required so CircleTel can arrange the survey.",
+    },
+    "contact.consentedAt": {
+      field: "consent",
+      step: 3,
+      message: "Consent is required so CircleTel can arrange the survey.",
+    },
+  });
 
 const VENUE_OPTIONS: ReadonlyArray<{
   value: CloudWifiVenueType;
@@ -206,7 +315,7 @@ function validateStep(
         "Keep the venue or company name to 160 characters or fewer.";
     }
     if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.contact.email.trim()) ||
+      !CLOUDWIFI_EMAIL_PATTERN.test(draft.contact.email.trim()) ||
       draft.contact.email.trim().length > 254
     ) {
       errors.email = "Enter a valid email such as name@company.co.za.";
@@ -225,6 +334,126 @@ function validateStep(
   }
 
   return errors;
+}
+
+function validateDraft(draft: CloudWifiSurveyDraft): {
+  errors: FieldErrors;
+  step: WizardStep | null;
+  field: string | null;
+} {
+  const errors: FieldErrors = {};
+  let firstStep: WizardStep | null = null;
+  let firstField: string | null = null;
+
+  for (const currentStep of [1, 2, 3] as const) {
+    const stepErrors = validateStep(currentStep, draft);
+    for (const [field, message] of Object.entries(stepErrors)) {
+      errors[field] = message;
+      if (firstStep === null) {
+        firstStep = currentStep;
+        firstField = field;
+      }
+    }
+  }
+
+  return { errors, step: firstStep, field: firstField };
+}
+
+async function readBoundedJson(response: Response): Promise<unknown> {
+  const declaredLength = response.headers.get("content-length");
+  if (
+    declaredLength &&
+    /^\d+$/.test(declaredLength) &&
+    Number(declaredLength) > MAX_API_RESPONSE_BYTES
+  ) {
+    return null;
+  }
+
+  if (!response.body) return null;
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let byteLength = 0;
+  let body = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      byteLength += value.byteLength;
+      if (byteLength > MAX_API_RESPONSE_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        return null;
+      }
+      body += decoder.decode(value, { stream: true });
+    }
+    body += decoder.decode();
+  } catch {
+    await reader.cancel().catch(() => undefined);
+    return null;
+  }
+
+  try {
+    return JSON.parse(body) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+function mapApiFieldErrors(
+  result: unknown,
+  draft: CloudWifiSurveyDraft,
+): { errors: FieldErrors; step: WizardStep; field: string } | null {
+  if (
+    !result ||
+    typeof result !== "object" ||
+    !("fields" in result) ||
+    !Array.isArray(result.fields)
+  ) {
+    return null;
+  }
+
+  const localErrorsByStep = {
+    1: validateStep(1, draft),
+    2: validateStep(2, draft),
+    3: validateStep(3, draft),
+  } as const;
+  const targets: ApiFieldTarget[] = [];
+  const seenFields = new Set<string>();
+
+  for (const item of result.fields.slice(0, MAX_API_FIELDS)) {
+    if (
+      !item ||
+      typeof item !== "object" ||
+      !("field" in item) ||
+      typeof item.field !== "string" ||
+      item.field.length > 100
+    ) {
+      continue;
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(API_FIELD_TARGETS, item.field)) {
+      continue;
+    }
+    const target = API_FIELD_TARGETS[item.field];
+    if (!target || seenFields.has(target.field)) continue;
+    seenFields.add(target.field);
+    targets.push(target);
+  }
+
+  if (targets.length === 0) return null;
+  targets.sort((first, second) => first.step - second.step);
+  const earliestStep = targets[0].step;
+  const errors: FieldErrors = {};
+  for (const target of targets) {
+    errors[target.field] =
+      localErrorsByStep[target.step as 1 | 2 | 3][target.field] ??
+      target.message;
+  }
+  const firstTarget = targets.find((target) => target.step === earliestStep)!;
+
+  return { errors, step: earliestStep, field: firstTarget.field };
 }
 
 function FieldError({ field, errors }: { field: string; errors: FieldErrors }) {
@@ -312,10 +541,6 @@ export function CloudWifiSurveyWizard() {
   }
 
   useEffect(() => {
-    if (!leadId) onNextFrame(() => headingRef.current?.focus());
-  }, [step, leadId]);
-
-  useEffect(() => {
     if (leadId) onNextFrame(() => successHeadingRef.current?.focus());
   }, [leadId]);
 
@@ -325,43 +550,60 @@ export function CloudWifiSurveyWizard() {
     };
   }
 
+  function retainErrorUntilValid(
+    field: string,
+    fieldStep: WizardStep,
+    nextDraft: CloudWifiSurveyDraft,
+  ): void {
+    if (!errors[field]) return;
+
+    const nextMessage = validateStep(fieldStep, nextDraft)[field];
+    setErrors((current) => {
+      const nextErrors = { ...current };
+      if (nextMessage) nextErrors[field] = nextMessage;
+      else delete nextErrors[field];
+      return nextErrors;
+    });
+  }
+
   function updateVenue<Key extends keyof CloudWifiSurveyDraft["venue"]>(
     field: Key,
     value: CloudWifiSurveyDraft["venue"][Key],
   ): void {
-    setDraft((current) => ({
-      ...current,
-      venue: { ...current.venue, [field]: value },
-    }));
-    if (errors[field]) {
-      setErrors((current) => ({ ...current, [field]: "" }));
-    }
+    const nextDraft: CloudWifiSurveyDraft = {
+      ...draft,
+      venue: { ...draft.venue, [field]: value },
+    };
+    setDraft(nextDraft);
+    retainErrorUntilValid(
+      String(field),
+      field === "siteAddress" || field === "postalCode" ? 2 : 1,
+      nextDraft,
+    );
   }
 
   function updateDetails<Key extends keyof CloudWifiSurveyDraft["details"]>(
     field: Key,
     value: CloudWifiSurveyDraft["details"][Key],
   ): void {
-    setDraft((current) => ({
-      ...current,
-      details: { ...current.details, [field]: value },
-    }));
-    if (errors[field]) {
-      setErrors((current) => ({ ...current, [field]: "" }));
-    }
+    const nextDraft: CloudWifiSurveyDraft = {
+      ...draft,
+      details: { ...draft.details, [field]: value },
+    };
+    setDraft(nextDraft);
+    retainErrorUntilValid(String(field), 2, nextDraft);
   }
 
   function updateContact<Key extends keyof CloudWifiSurveyDraft["contact"]>(
     field: Key,
     value: CloudWifiSurveyDraft["contact"][Key],
   ): void {
-    setDraft((current) => ({
-      ...current,
-      contact: { ...current.contact, [field]: value },
-    }));
-    if (errors[field]) {
-      setErrors((current) => ({ ...current, [field]: "" }));
-    }
+    const nextDraft: CloudWifiSurveyDraft = {
+      ...draft,
+      contact: { ...draft.contact, [field]: value },
+    };
+    setDraft(nextDraft);
+    retainErrorUntilValid(String(field), 3, nextDraft);
   }
 
   function toggleNetwork(
@@ -397,6 +639,7 @@ export function CloudWifiSurveyWizard() {
 
     if (step < 4) {
       setStep((step + 1) as WizardStep);
+      onNextFrame(() => headingRef.current?.focus());
     }
   }
 
@@ -405,6 +648,7 @@ export function CloudWifiSurveyWizard() {
     setErrors({});
     setSubmitError("");
     setStep((step - 1) as WizardStep);
+    onNextFrame(() => headingRef.current?.focus());
   }
 
   function editStep(nextStep: WizardStep): void {
@@ -412,10 +656,21 @@ export function CloudWifiSurveyWizard() {
     setErrors({});
     setSubmitError("");
     setStep(nextStep);
+    onNextFrame(() => headingRef.current?.focus());
   }
 
   async function submitDraft(): Promise<void> {
     if (submittingRef.current) return;
+
+    const validation = validateDraft(draft);
+    if (validation.step !== null && validation.field !== null) {
+      setErrors(validation.errors);
+      setSubmitError("");
+      setStep(validation.step);
+      onNextFrame(() => controlRefs.current[validation.field!]?.focus());
+      return;
+    }
+
     submittingRef.current = true;
     setSubmitting(true);
     setSubmitError("");
@@ -428,28 +683,34 @@ export function CloudWifiSurveyWizard() {
       });
 
       if (!response.ok) {
-        setSubmitError(
-          "We could not send your request. Please try again, or contact us on WhatsApp.",
-        );
+        const result = await readBoundedJson(response);
+        const mappedErrors = mapApiFieldErrors(result, draft);
+        if (mappedErrors) {
+          setErrors(mappedErrors.errors);
+          setStep(mappedErrors.step);
+          setSubmitError("Check the highlighted fields and try again.");
+          onNextFrame(() => controlRefs.current[mappedErrors.field]?.focus());
+        } else {
+          setSubmitError(
+            "We could not send your request. Please try again, or contact us on WhatsApp.",
+          );
+        }
         return;
       }
 
-      let result: unknown;
-      try {
-        result = await response.json();
-      } catch {
-        result = null;
-      }
+      const result = await readBoundedJson(response);
 
       const responseLeadId =
         result &&
         typeof result === "object" &&
+        "success" in result &&
+        result.success === true &&
         "leadId" in result &&
         typeof result.leadId === "string"
           ? result.leadId.trim()
           : "";
 
-      if (!responseLeadId) {
+      if (!SAFE_LEAD_ID_PATTERN.test(responseLeadId)) {
         setSubmitError(
           "We could not confirm your request. Please try again, or contact us on WhatsApp.",
         );
@@ -486,6 +747,7 @@ export function CloudWifiSurveyWizard() {
     setLeadId("");
     setSubmitting(false);
     submittingRef.current = false;
+    if (!isMobile) onNextFrame(() => headingRef.current?.focus());
   }
 
   const progress = (
@@ -525,7 +787,10 @@ export function CloudWifiSurveyWizard() {
         <select
           ref={registerControl("venueType")}
           id="cloudwifi-venueType"
+          name="venue.venueType"
           aria-label="Venue type"
+          aria-required="true"
+          required
           aria-invalid={Boolean(errors.venueType)}
           aria-describedby={describedBy("venueType", errors)}
           className={`${controlClassName} mt-2`}
@@ -557,7 +822,11 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("floorArea")}
           id="cloudwifi-floorArea"
+          name="venue.floorArea"
           aria-label="Usable floor area in square metres"
+          aria-required="true"
+          required
+          autoComplete="off"
           aria-invalid={Boolean(errors.floorArea)}
           aria-describedby={describedBy("floorArea", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -584,7 +853,11 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("city")}
           id="cloudwifi-city"
+          name="venue.city"
           aria-label="City"
+          aria-required="true"
+          required
+          autoComplete="address-level2"
           aria-invalid={Boolean(errors.city)}
           aria-describedby={describedBy("city", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -605,7 +878,11 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("peakUsers")}
           id="cloudwifi-peakUsers"
+          name="venue.peakUsers"
           aria-label="Expected peak concurrent users"
+          aria-required="true"
+          required
+          autoComplete="off"
           aria-invalid={Boolean(errors.peakUsers)}
           aria-describedby={describedBy("peakUsers", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -632,7 +909,10 @@ export function CloudWifiSurveyWizard() {
         <select
           ref={registerControl("backhaul")}
           id="cloudwifi-backhaul"
+          name="venue.backhaul"
           aria-label="Internet backhaul"
+          aria-required="true"
+          required
           aria-invalid={Boolean(errors.backhaul)}
           aria-describedby={describedBy("backhaul", errors)}
           className={`${controlClassName} mt-2`}
@@ -668,7 +948,11 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("siteAddress")}
           id="cloudwifi-siteAddress"
+          name="venue.siteAddress"
           aria-label="Site address"
+          aria-required="true"
+          required
+          autoComplete="street-address"
           aria-invalid={Boolean(errors.siteAddress)}
           aria-describedby={describedBy("siteAddress", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -689,7 +973,9 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("postalCode")}
           id="cloudwifi-postalCode"
+          name="venue.postalCode"
           aria-label="Postal code (optional)"
+          autoComplete="postal-code"
           aria-invalid={Boolean(errors.postalCode)}
           aria-describedby={describedBy("postalCode", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -711,7 +997,11 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("floors")}
           id="cloudwifi-floors"
+          name="details.floors"
           aria-label="Number of floors"
+          aria-required="true"
+          required
+          autoComplete="off"
           aria-invalid={Boolean(errors.floors)}
           aria-describedby={describedBy("floors", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -738,7 +1028,10 @@ export function CloudWifiSurveyWizard() {
         <select
           ref={registerControl("wallMaterial")}
           id="cloudwifi-wallMaterial"
+          name="details.wallMaterial"
           aria-label="Main wall or building material"
+          aria-required="true"
+          required
           aria-invalid={Boolean(errors.wallMaterial)}
           aria-describedby={describedBy("wallMaterial", errors)}
           className={`${controlClassName} mt-2`}
@@ -764,6 +1057,7 @@ export function CloudWifiSurveyWizard() {
       <fieldset
         ref={registerControl("networks")}
         tabIndex={-1}
+        aria-required="true"
         aria-invalid={Boolean(errors.networks)}
         aria-describedby={describedBy("networks", errors)}
         className="space-y-2"
@@ -779,6 +1073,7 @@ export function CloudWifiSurveyWizard() {
             >
               <input
                 type="checkbox"
+                name="details.networks"
                 aria-label={option.label}
                 aria-invalid={Boolean(errors.networks)}
                 aria-describedby={describedBy("networks", errors)}
@@ -813,6 +1108,7 @@ export function CloudWifiSurveyWizard() {
             >
               <input
                 type="checkbox"
+                name="details.addOns"
                 aria-label={option.label}
                 aria-invalid={Boolean(errors.addOns)}
                 aria-describedby={describedBy("addOns", errors)}
@@ -839,6 +1135,7 @@ export function CloudWifiSurveyWizard() {
         <textarea
           ref={registerControl("requirements")}
           id="cloudwifi-requirements"
+          name="details.requirements"
           aria-label="Additional requirements (optional)"
           aria-invalid={Boolean(errors.requirements)}
           aria-describedby={describedBy("requirements", errors)}
@@ -866,7 +1163,10 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("fullName")}
           id="cloudwifi-fullName"
+          name="contact.fullName"
           aria-label="Full name"
+          aria-required="true"
+          required
           aria-invalid={Boolean(errors.fullName)}
           aria-describedby={describedBy("fullName", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -888,7 +1188,10 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("companyName")}
           id="cloudwifi-companyName"
+          name="contact.companyName"
           aria-label="Venue or company name"
+          aria-required="true"
+          required
           aria-invalid={Boolean(errors.companyName)}
           aria-describedby={describedBy("companyName", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -910,7 +1213,10 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("email")}
           id="cloudwifi-email"
+          name="contact.email"
           aria-label="Email address"
+          aria-required="true"
+          required
           aria-invalid={Boolean(errors.email)}
           aria-describedby={describedBy("email", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -933,7 +1239,10 @@ export function CloudWifiSurveyWizard() {
         <Input
           ref={registerControl("phone")}
           id="cloudwifi-phone"
+          name="contact.phone"
           aria-label="South African phone number"
+          aria-required="true"
+          required
           aria-invalid={Boolean(errors.phone)}
           aria-describedby={describedBy("phone", errors)}
           className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
@@ -956,7 +1265,10 @@ export function CloudWifiSurveyWizard() {
         <select
           ref={registerControl("preferredContactTime")}
           id="cloudwifi-preferredContactTime"
+          name="contact.preferredContactTime"
           aria-label="Preferred contact time"
+          aria-required="true"
+          required
           aria-invalid={Boolean(errors.preferredContactTime)}
           aria-describedby={describedBy("preferredContactTime", errors)}
           className={`${controlClassName} mt-2`}
@@ -984,23 +1296,33 @@ export function CloudWifiSurveyWizard() {
           <input
             ref={registerControl("consent") as React.Ref<HTMLInputElement>}
             type="checkbox"
+            name="contact.consent"
             aria-label="Consent to contact"
+            aria-required="true"
+            required
             aria-invalid={Boolean(errors.consent)}
             aria-describedby={describedBy("consent", errors)}
             checked={draft.contact.consent}
             onChange={(event) => {
               const consent = event.target.checked;
-              setDraft((current) => ({
-                ...current,
+              const nextDraft: CloudWifiSurveyDraft = {
+                ...draft,
                 contact: {
-                  ...current.contact,
+                  ...draft.contact,
                   consent,
                   consentedAt: consent ? new Date().toISOString() : "",
                 },
-              }));
-              if (errors.consent) {
-                setErrors((current) => ({ ...current, consent: "" }));
-              }
+              };
+              setDraft(nextDraft);
+              setErrors((current) => {
+                const nextErrors = { ...current };
+                if (consent) delete nextErrors.consent;
+                else {
+                  nextErrors.consent =
+                    "Consent is required so CircleTel can arrange the survey.";
+                }
+                return nextErrors;
+              });
             }}
             className="mt-0.5 h-5 w-5 shrink-0 accent-circleTel-orange"
           />
@@ -1015,7 +1337,10 @@ export function CloudWifiSurveyWizard() {
   );
 
   const reviewStep = (
-    <div className="space-y-5 text-base text-circleTel-navy">
+    <div
+      data-testid="cloudwifi-review"
+      className="min-w-0 space-y-5 break-words text-base text-circleTel-navy [overflow-wrap:anywhere] [&_dd]:min-w-0 [&_div]:min-w-0 [&_dl]:min-w-0 [&_section]:min-w-0"
+    >
       {recommendation ? (
         <section className="rounded-lg border border-circleTel-orange/40 bg-circleTel-orange-light p-4">
           <p className="font-semibold">Current recommendation</p>
@@ -1220,7 +1545,7 @@ export function CloudWifiSurveyWizard() {
         ref={successHeadingRef}
         id="cloudwifi-survey-heading"
         tabIndex={-1}
-        className="font-heading text-2xl font-bold text-circleTel-navy outline-none"
+        className="rounded-md font-heading text-2xl font-bold text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2"
       >
         Request received
       </h2>
@@ -1234,7 +1559,7 @@ export function CloudWifiSurveyWizard() {
         href={getWhatsAppLink(
           `Hi CircleTel, I need help with CloudWiFi survey request ${leadId}.`,
         )}
-        className="inline-flex min-h-11 w-full items-center justify-center rounded-md border-2 border-circleTel-orange px-4 text-base font-semibold text-circleTel-orange"
+        className="inline-flex min-h-11 w-full items-center justify-center rounded-md border-2 border-circleTel-orange px-4 text-base font-semibold text-circleTel-orange-accessible transition-colors hover:bg-circleTel-orange-light hover:text-circleTel-orange-accessible focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -1260,7 +1585,7 @@ export function CloudWifiSurveyWizard() {
           ref={headingRef}
           id="cloudwifi-survey-heading"
           tabIndex={-1}
-          className="font-heading text-2xl font-bold text-circleTel-navy outline-none"
+          className="rounded-md font-heading text-2xl font-bold text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2"
         >
           {stepHeadings[step].title}
         </h2>
@@ -1341,7 +1666,7 @@ export function CloudWifiSurveyWizard() {
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent
           side="right"
-          className="w-full max-w-none overflow-y-auto p-0 sm:max-w-none"
+          className="w-full max-w-none overscroll-contain overflow-y-auto px-0 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-14 sm:max-w-none [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center [&>button]:focus-visible:ring-2 [&>button]:focus-visible:ring-circleTel-orange [&>button]:focus-visible:ring-offset-2"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Request a CloudWiFi site survey</SheetTitle>

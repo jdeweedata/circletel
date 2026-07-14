@@ -3,6 +3,7 @@ import {
   cloudWifiSurveySchema,
   formatSurveyErrors,
 } from "@/lib/cloudwifi/survey-schema";
+import { CLOUDWIFI_EMAIL_PATTERN } from "@/lib/cloudwifi/types";
 import { ZodError, ZodIssueCode } from "zod";
 
 const receivedContext = {
@@ -183,6 +184,29 @@ describe("CloudWiFi survey request schema", () => {
     expect(
       cloudWifiSurveySchema.safeParse(requestWith(path, value)).success,
     ).toBe(false);
+  });
+
+  it.each(["a@b.c", "a..b@example.com", "a@x..com"])(
+    "shares exact email rejection semantics for %s",
+    (email) => {
+      expect(CLOUDWIFI_EMAIL_PATTERN.test(email)).toBe(false);
+      expect(
+        cloudWifiSurveySchema.safeParse(requestWith("contact.email", email))
+          .success,
+      ).toBe(false);
+    },
+  );
+
+  it.each([
+    "person@example.com",
+    "first.last+survey@example.co.za",
+    "CUSTOMER_1@VENUE.CO.ZA",
+  ])("shares exact email acceptance semantics for %s", (email) => {
+    expect(CLOUDWIFI_EMAIL_PATTERN.test(email)).toBe(true);
+    expect(
+      cloudWifiSurveySchema.safeParse(requestWith("contact.email", email))
+        .success,
+    ).toBe(true);
   });
 
   it.each([

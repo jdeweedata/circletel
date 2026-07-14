@@ -2,6 +2,7 @@ import { z, type ZodError } from "zod";
 
 import {
   CLOUDWIFI_BACKHAUL_TYPES,
+  CLOUDWIFI_EMAIL_PATTERN,
   CLOUDWIFI_SURVEY_NUMERIC_LIMITS,
   CLOUDWIFI_VENUE_TYPES,
 } from "./types";
@@ -213,7 +214,7 @@ export const cloudWifiSurveySchema = z.object({
       .max(160, "Company name must contain at most 160 characters."),
     email: textSchema("Email")
       .trim()
-      .email("Enter a valid email address.")
+      .regex(CLOUDWIFI_EMAIL_PATTERN, "Enter a valid email address.")
       .max(254, "Email must contain at most 254 characters.")
       .transform((email) => email.toLowerCase()),
     phone: phoneSchema,

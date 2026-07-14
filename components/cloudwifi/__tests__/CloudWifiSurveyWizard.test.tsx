@@ -233,6 +233,21 @@ describe("CloudWifiSurveyWizard", () => {
     expect(aside.props.id).toBe("cloudwifi-survey");
     expect(aside.props.className).toContain("lg:sticky");
     expect(aside.props.className).toContain("lg:top-24");
+    expect(animationFrames).toHaveLength(0);
+    expect(focusById["cloudwifi-survey-heading"]).not.toHaveBeenCalled();
+    expect(control("Venue type").props).toMatchObject({
+      name: "venue.venueType",
+      required: true,
+      "aria-required": "true",
+    });
+    expect(control("City").props).toMatchObject({
+      name: "venue.city",
+      autoComplete: "address-level2",
+    });
+    expect(
+      renderer.root.findByProps({ id: "cloudwifi-survey-heading" }).props
+        .className,
+    ).toContain("focus-visible:ring-2");
   });
 
   it("shows exact required errors, links them accessibly, and focuses the first invalid field", () => {
@@ -270,6 +285,12 @@ describe("CloudWifiSurveyWizard", () => {
     click("Continue");
     flushFrame();
     expect(textOf(renderer.root)).toContain("Site and network details");
+    expect(focusById["cloudwifi-survey-heading"]).toHaveBeenCalled();
+    expect(control("Site address").props).toMatchObject({
+      name: "venue.siteAddress",
+      required: true,
+      autoComplete: "street-address",
+    });
     click("Back");
     flushFrame();
     expect(control("City").props.value).toBe("Pretoria");
@@ -296,6 +317,7 @@ describe("CloudWifiSurveyWizard", () => {
     change("Number of floors", "101");
     click("Continue");
     expect(textOf(renderer.root)).toContain("Enter no more than 100 floors.");
+    expect(control("Staff network").props.name).toBe("details.networks");
   });
 
   it("requires consent and records or clears its timestamp", () => {
@@ -318,6 +340,38 @@ describe("CloudWifiSurveyWizard", () => {
     );
     toggle("Consent to contact", false);
     expect(surveyContext.draft.contact.consentedAt).toBe("");
+    expect(textOf(renderer.root)).toContain(
+      "Consent is required so CircleTel can arrange the survey.",
+    );
+    expect(control("Consent to contact").props.name).toBe("contact.consent");
+  });
+
+  it("retains a live field error until the changed value becomes valid", () => {
+    renderWizard();
+    reachContact();
+    fillContact({ consent: false });
+    change("Email address", "a@b.c");
+    click("Continue");
+
+    expect(textOf(renderer.root)).toContain(
+      "Enter a valid email such as name@company.co.za.",
+    );
+    change("Email address", "a..b@example.com");
+    expect(textOf(renderer.root)).toContain(
+      "Enter a valid email such as name@company.co.za.",
+    );
+    expect(control("Email address").props["aria-invalid"]).toBe(true);
+
+    change("Email address", "first.last+survey@example.co.za");
+    expect(textOf(renderer.root)).not.toContain(
+      "Enter a valid email such as name@company.co.za.",
+    );
+    expect(control("Email address").props).toMatchObject({
+      name: "contact.email",
+      required: true,
+      autoComplete: "email",
+      "aria-invalid": false,
+    });
   });
 
   it("reviews captured information and its deterministic recommendation", () => {
@@ -336,6 +390,38 @@ describe("CloudWifiSurveyWizard", () => {
     expect(text).toContain("R3,499");
     expect(text).toContain("3–5 APs");
     expect(text).toContain("A site survey confirms the final tier and price.");
+    const review = renderer.root.findByProps({
+      "data-testid": "cloudwifi-review",
+    });
+    expect(review.props.className).toContain("min-w-0");
+    expect(review.props.className).toContain("break-words");
+  });
+
+  it("keeps long valid review values in overflow-safe containers", () => {
+    renderWizard();
+    reachReview();
+    const longRequirements = "Courtyard coverage ".repeat(50);
+    act(() =>
+      surveyContext.setDraft((current) => ({
+        ...current,
+        venue: {
+          ...current.venue,
+          siteAddress: `${"Long Building Name ".repeat(10)}Cape Town`,
+        },
+        details: { ...current.details, requirements: longRequirements },
+        contact: {
+          ...current.contact,
+          email: `${"long".repeat(20)}@example.co.za`,
+        },
+      })),
+    );
+
+    const review = renderer.root.findByProps({
+      "data-testid": "cloudwifi-review",
+    });
+    expect(review.props.className).toContain("min-w-0");
+    expect(review.props.className).toContain("break-words");
+    expect(textOf(review)).toContain(longRequirements);
   });
 
   it("posts the exact complete draft contract and prevents duplicate submission", async () => {
@@ -384,7 +470,9 @@ describe("CloudWifiSurveyWizard", () => {
         }),
       )
       .mockResolvedValueOnce(
-        new Response(JSON.stringify({ leadId: "CW-RETRY" }), { status: 201 }),
+        new Response(JSON.stringify({ success: true, leadId: "CW-RETRY" }), {
+          status: 201,
+        }),
       );
     renderWizard();
     reachReview();
@@ -403,11 +491,89 @@ describe("CloudWifiSurveyWizard", () => {
     expect(textOf(renderer.root)).toContain("CW-RETRY");
   });
 
+  it("maps bounded API field errors to the earliest relevant step and focus target", async () => {
+    (globalThis.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          success: false,
+          error: "raw server body must not be displayed",
+          fields: [
+            { field: "contact.email", message: "x".repeat(5000) },
+            { field: "venue.postalCode", message: "unsafe raw detail" },
+            ...Array.from({ length: 30 }, (_, index) => ({
+              field: `unknown.${index}`,
+              message: "private raw value",
+            })),
+          ],
+        }),
+        { status: 400 },
+      ),
+    );
+    renderWizard();
+    reachReview();
+
+    await act(async () =>
+      renderer.root
+        .findByType("form")
+        .props.onSubmit({ preventDefault: jest.fn() }),
+    );
+    flushFrame();
+
+    expect(textOf(renderer.root)).toContain("Site and network details");
+    expect(textOf(renderer.root)).toContain("Check the highlighted fields");
+    expect(textOf(renderer.root)).not.toContain("unsafe raw detail");
+    expect(textOf(renderer.root)).not.toContain("private raw value");
+    expect(control("Postal code (optional)").props["aria-invalid"]).toBe(true);
+    expect(focusById["cloudwifi-postalCode"]).toHaveBeenCalled();
+    expect(surveyContext.draft.contact.email).toBe("nandi@example.co.za");
+  });
+
+  it("revalidates every client step before fetch after shared draft mutation", async () => {
+    renderWizard();
+    reachReview();
+    act(() =>
+      surveyContext.setDraft((current) => ({
+        ...current,
+        contact: { ...current.contact, email: "a@b.c" },
+      })),
+    );
+
+    await act(async () =>
+      renderer.root
+        .findByType("form")
+        .props.onSubmit({ preventDefault: jest.fn() }),
+    );
+    flushFrame();
+
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    expect(textOf(renderer.root)).toContain("How should we contact you?");
+    expect(control("Email address").props["aria-invalid"]).toBe(true);
+    expect(focusById["cloudwifi-email"]).toHaveBeenCalled();
+  });
+
   it.each([
     ["malformed JSON", new Response("not-json", { status: 201 })],
     [
       "missing lead reference",
       new Response(JSON.stringify({ success: true }), { status: 201 }),
+    ],
+    [
+      "explicit failure with a lead reference",
+      new Response(JSON.stringify({ success: false, leadId: "CW-NO" }), {
+        status: 201,
+      }),
+    ],
+    [
+      "unsafe lead reference",
+      new Response(JSON.stringify({ success: true, leadId: "../../private" }), {
+        status: 201,
+      }),
+    ],
+    [
+      "oversized lead reference",
+      new Response(JSON.stringify({ success: true, leadId: "A".repeat(129) }), {
+        status: 201,
+      }),
     ],
   ])("does not claim success for %s", async (_case, response) => {
     (globalThis.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -465,6 +631,12 @@ describe("CloudWifiSurveyWizard", () => {
     expect(successText).toContain("within one business day");
     expect(successText).not.toContain("nandi@example.co.za");
     expect(renderer.root.findByType("a").props.href).toContain("wa.me");
+    expect(renderer.root.findByType("a").props.className).toContain(
+      "text-circleTel-orange-accessible",
+    );
+    expect(renderer.root.findByType("a").props.className).toContain(
+      "focus-visible:ring-2",
+    );
     expect(
       renderer.root.findByProps({ id: "cloudwifi-survey-heading" }).props
         .tabIndex,
@@ -488,6 +660,15 @@ describe("CloudWifiSurveyWizard", () => {
     expect(renderer.root.findAllByType("form")).toHaveLength(1);
     expect(renderer.root.findAllByType("aside")).toHaveLength(0);
     expect(JSON.stringify(renderer.toJSON())).toContain("w-full");
+    const sheetContent = renderer.root
+      .findAllByType("div")
+      .find((node) =>
+        String(node.props.className).includes("overscroll-contain"),
+      );
+    expect(sheetContent).toBeDefined();
+    expect(sheetContent!.props.className).toContain("[&>button]:h-11");
+    expect(sheetContent!.props.className).toContain("[&>button]:w-11");
+    expect(sheetContent!.props.className).toContain("safe-area-inset-bottom");
 
     act(() => sheet.props["data-on-open-change"](false));
     expect(surveyContext.mobileOpen).toBe(false);

@@ -28,6 +28,10 @@ export const CLOUDWIFI_SURVEY_NUMERIC_LIMITS = Object.freeze({
   peakUsers: 100_000,
 } as const);
 
+// Mirrors Zod v3 email semantics without pulling Zod into the client bundle.
+export const CLOUDWIFI_EMAIL_PATTERN =
+  /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i;
+
 export type CloudWifiVenueType = (typeof CLOUDWIFI_VENUE_TYPES)[number];
 export type CloudWifiBackhaul = (typeof CLOUDWIFI_BACKHAUL_TYPES)[number];
 export type CloudWifiTierId = (typeof CLOUDWIFI_TIER_IDS)[number];
