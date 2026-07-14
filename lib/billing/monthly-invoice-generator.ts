@@ -26,6 +26,7 @@ import {
   computeMonthlyInvoiceAmounts,
   resolveServicePriceVatBasis,
 } from './invoice-vat-contract';
+import { buildUnjaniVatCatchupPlan } from './unjani-vat-catchup';
 import { processPayNowForInvoice } from '@/lib/billing/paynow-billing-service';
 import { computeProRata } from '@/lib/onboarding/prorata';
 import { shouldEmitRecurringInvoice } from '@/lib/billing/new-clinic-billing-helper';
@@ -583,9 +584,42 @@ export class MonthlyInvoiceGenerator {
     }
 
     const round2 = (n: number) => Math.round(n * 100) / 100;
-    const subtotal = round2(fullSubtotal * fraction);
-    const vatAmount = round2(fullVat * fraction);
-    const totalAmount = fraction === 1 ? fullTotal : round2(subtotal + vatAmount);
+    let subtotal = round2(fullSubtotal * fraction);
+    let vatAmount = round2(fullVat * fraction);
+    let totalAmount = fraction === 1 ? fullTotal : round2(subtotal + vatAmount);
+
+    // Deferred Unjani VAT catch-up: do not amend history now — fold shortfalls
+    // into *this* next invoice so statements show current period + adjustments.
+    let catchupPlan = buildUnjaniVatCatchupPlan([]);
+    if (priceBasis === 'exclusive') {
+      const { data: priorInvoices, error: priorErr } = await supabase
+        .from('customer_invoices')
+        .select(
+          'id, invoice_number, status, subtotal, tax_amount, total_amount, amount_paid, period_start, period_end'
+        )
+        .eq('service_id', service.id)
+        .not('status', 'in', '(voided,cancelled)');
+      if (priorErr) {
+        billingLogger.warn('MonthlyInvoice: could not load prior invoices for catch-up', {
+          serviceId: service.id,
+          error: priorErr.message,
+        });
+      } else {
+        catchupPlan = buildUnjaniVatCatchupPlan(priorInvoices || []);
+        if (catchupPlan.totalIncl > 0) {
+          subtotal = round2(subtotal + catchupPlan.subtotalExcl);
+          vatAmount = round2(vatAmount + catchupPlan.vatAmount);
+          totalAmount = round2(totalAmount + catchupPlan.totalIncl);
+          billingLogger.info('MonthlyInvoice: Unjani VAT catch-up applied', {
+            serviceId: service.id,
+            catchupTotalIncl: catchupPlan.totalIncl,
+            catchupLines: catchupPlan.lineItems.length,
+            notes: catchupPlan.notes,
+            priorToVoid: catchupPlan.priorInvoiceIdsToVoid,
+          });
+        }
+      }
+    }
 
     billingLogger.info('MonthlyInvoice: amounts', {
       serviceId: service.id,
@@ -596,6 +630,7 @@ export class MonthlyInvoiceGenerator {
       vatAmount,
       totalAmount,
       fraction,
+      catchupIncl: catchupPlan.totalIncl,
     });
 
     // Generate INV-YYYY-NNNNN — customer_invoices has NO DB sequence/trigger for invoice_number
@@ -610,25 +645,42 @@ export class MonthlyInvoiceGenerator {
       nextInvoiceSequence((yearInvoices || []).map((r) => r.invoice_number as string), invoiceYear)
     );
 
-    // Build line items
+    // Build line items (current period + optional deferred catch-up adjustments)
     const periodName = now.toLocaleDateString('en-ZA', {
       month: 'long',
       year: 'numeric',
     });
-    const lineItems = [
+    const lineItems: Array<Record<string, unknown>> = [
       {
         description: `${service.package_name} - ${periodName}`,
         quantity: 1,
-        unit_price: subtotal,
-        amount: subtotal,
+        unit_price: round2(fullSubtotal * fraction),
+        amount: round2(fullSubtotal * fraction),
         type: 'recurring',
       },
+      ...catchupPlan.lineItems.map((l) => ({
+        description: l.description,
+        quantity: l.quantity,
+        unit_price: l.unit_price,
+        amount: l.amount,
+        type: l.type,
+        prior_invoice_id: l.prior_invoice_id,
+        prior_invoice_number: l.prior_invoice_number,
+      })),
     ];
 
     // Determine collection method: onboarding customers use debit_order, others default to existing behavior
     let paymentCollectionMethod: string | null = null;
     if (service.customer?.onboarding_status === 'billing_ready') {
       paymentCollectionMethod = 'debit_order';
+    }
+
+    const notesParts: string[] = [];
+    if (catchupPlan.notes.length) {
+      notesParts.push(
+        'Includes deferred Unjani MSA VAT/billing corrections from prior under-billed periods:',
+        ...catchupPlan.notes
+      );
     }
 
     // Insert invoice (invoice_number generated above — no DB trigger exists for customer_invoices)
@@ -651,6 +703,10 @@ export class MonthlyInvoiceGenerator {
       status: 'sent', // valid_invoice_status CHECK allows draft|sent|paid|partial|overdue|cancelled|voided ('unpaid' is invalid)
     };
 
+    if (notesParts.length) {
+      invoicePayload.notes = notesParts.join('\n');
+    }
+
     if (paymentCollectionMethod) {
       invoicePayload.payment_collection_method = paymentCollectionMethod;
     }
@@ -667,6 +723,51 @@ export class MonthlyInvoiceGenerator {
         error: error.message,
       });
       return null;
+    }
+
+    // Prevent double collection: absorb priors whose shortfall is on this invoice.
+    if (invoice && catchupPlan.priorInvoiceIdsToVoid.length > 0) {
+      const { error: voidErr } = await supabase
+        .from('customer_invoices')
+        .update({
+          status: 'voided',
+          amount_due: 0,
+          notes: `Superseded by ${invoice.invoice_number}: deferred Unjani MSA catch-up on next invoice run`,
+        })
+        .in('id', catchupPlan.priorInvoiceIdsToVoid)
+        .in('status', ['sent', 'overdue', 'draft', 'partial']);
+      if (voidErr) {
+        billingLogger.warn('MonthlyInvoice: failed to void superseded prior invoices', {
+          serviceId: service.id,
+          newInvoice: invoice.invoice_number,
+          priorIds: catchupPlan.priorInvoiceIdsToVoid,
+          error: voidErr.message,
+        });
+      } else {
+        billingLogger.info('MonthlyInvoice: voided superseded under-billed priors', {
+          serviceId: service.id,
+          newInvoice: invoice.invoice_number,
+          voidedIds: catchupPlan.priorInvoiceIdsToVoid,
+        });
+      }
+    }
+
+    if (invoice && catchupPlan.priorInvoiceIdsToCloseDue.length > 0) {
+      const { error: closeErr } = await supabase
+        .from('customer_invoices')
+        .update({
+          amount_due: 0,
+          notes: `Remaining balance moved to ${invoice.invoice_number} (Unjani MSA catch-up on next invoice run)`,
+        })
+        .in('id', catchupPlan.priorInvoiceIdsToCloseDue);
+      if (closeErr) {
+        billingLogger.warn('MonthlyInvoice: failed to close due on paid/partial priors', {
+          serviceId: service.id,
+          newInvoice: invoice.invoice_number,
+          priorIds: catchupPlan.priorInvoiceIdsToCloseDue,
+          error: closeErr.message,
+        });
+      }
     }
 
     return invoice;
