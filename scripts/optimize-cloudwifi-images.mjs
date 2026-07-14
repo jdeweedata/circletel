@@ -18,42 +18,49 @@ const images = [
     basename: "cloudwifi-hero",
     width: 1920,
     height: 1080,
+    maxJpegBytes: 750_000,
   },
   {
     source: "venue-hospitality.jpg",
     basename: "venue-hospitality",
     width: 960,
     height: 720,
+    maxJpegBytes: 450_000,
   },
   {
     source: "venue-retail.jpg",
     basename: "venue-retail",
     width: 960,
     height: 720,
+    maxJpegBytes: 450_000,
   },
   {
     source: "venue-property.jpg",
     basename: "venue-property",
     width: 960,
     height: 720,
+    maxJpegBytes: 450_000,
   },
   {
     source: "venue-healthcare.jpg",
     basename: "venue-healthcare",
     width: 960,
     height: 720,
+    maxJpegBytes: 450_000,
   },
   {
     source: "venue-education.jpg",
     basename: "venue-education",
     width: 960,
     height: 720,
+    maxJpegBytes: 450_000,
   },
   {
     source: "venue-public.jpg",
     basename: "venue-public",
     width: 960,
     height: 720,
+    maxJpegBytes: 450_000,
   },
 ];
 
@@ -100,6 +107,21 @@ async function assertRequiredSourcesExist() {
   }
 }
 
+async function assertValidJpeg(jpegPath, image) {
+  const metadata = await sharp(jpegPath).metadata();
+  const withinBounds =
+    metadata.width &&
+    metadata.height &&
+    metadata.width <= image.width &&
+    metadata.height <= image.height;
+
+  if (metadata.format !== "jpeg" || !withinBounds) {
+    throw new Error(
+      `Invalid optimized JPEG ${image.source}: expected JPEG within ${image.width}x${image.height}, received ${metadata.format ?? "unknown"} ${metadata.width ?? "unknown"}x${metadata.height ?? "unknown"}`,
+    );
+  }
+}
+
 async function optimizeImage(image) {
   const sourcePath = path.join(outputDirectory, image.source);
   const jpegPath = path.join(outputDirectory, `${image.basename}.jpg`);
@@ -107,27 +129,50 @@ async function optimizeImage(image) {
     width: image.width,
     height: image.height,
     fit: "cover",
-    position: "centre",
+    position: "attention",
     withoutEnlargement: true,
   };
 
-  // The checked-in JPEG is bootstrapped once from the approved lossless source at
-  // quality 86 with mozjpeg. Reruns copy it through an atomic temporary file instead
-  // of recompressing it, preventing cumulative generational loss.
-  await replaceAtomically(jpegPath, (temporary) =>
-    copyFile(sourcePath, temporary),
-  );
+  const [sourceMetadata, sourceStat] = await Promise.all([
+    sharp(sourcePath).metadata(),
+    stat(sourcePath),
+  ]);
+  const needsJpegOptimization =
+    sourceMetadata.format !== "jpeg" ||
+    !sourceMetadata.width ||
+    !sourceMetadata.height ||
+    sourceMetadata.width > image.width ||
+    sourceMetadata.height > image.height ||
+    sourceStat.size > image.maxJpegBytes;
+
+  // Normal reruns preserve an already-bounded checked-in JPEG to prevent cumulative
+  // lossy recompression. Replaced, oversized, or unusually large sources are repaired.
+  if (needsJpegOptimization) {
+    await replaceAtomically(jpegPath, (temporary) =>
+      sharp(sourcePath)
+        .resize(resize)
+        .jpeg({ quality: 86, mozjpeg: true })
+        .toFile(temporary),
+    );
+    console.log(`Optimized JPEG source: ${image.source}`);
+  } else {
+    await replaceAtomically(jpegPath, (temporary) =>
+      copyFile(sourcePath, temporary),
+    );
+  }
+
+  await assertValidJpeg(jpegPath, image);
 
   await replaceAtomically(
     path.join(outputDirectory, `${image.basename}.webp`),
     (temporary) =>
-      sharp(sourcePath).resize(resize).webp({ quality: 82 }).toFile(temporary),
+      sharp(jpegPath).resize(resize).webp({ quality: 82 }).toFile(temporary),
   );
 
   await replaceAtomically(
     path.join(outputDirectory, `${image.basename}.avif`),
     (temporary) =>
-      sharp(sourcePath)
+      sharp(jpegPath)
         .resize(resize)
         .avif({ quality: 58, effort: 5 })
         .toFile(temporary),
