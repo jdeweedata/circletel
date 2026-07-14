@@ -520,6 +520,10 @@ export function CloudWifiSurveyWizard() {
   const controlRefs = useRef<Record<string, HTMLElement | null>>({});
   const submittingRef = useRef(false);
   const formSubmissionLockedRef = useRef(false);
+  /** Stable per-attempt key so retries after a lost 201 do not double-create leads. */
+  const idempotencyKeyRef = useRef<string | null>(null);
+  /** Honeypot — left empty by humans; bots often autofill `website`. */
+  const [honeypot, setHoneypot] = useState("");
 
   const recommendation = useMemo(() => {
     const { venueType, floorArea, peakUsers, backhaul } = draft.venue;
@@ -676,6 +680,17 @@ export function CloudWifiSurveyWizard() {
     onNextFrame(() => headingRef.current?.focus());
   }
 
+  function ensureIdempotencyKey(): string {
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current =
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `cw-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+    }
+    return idempotencyKeyRef.current;
+  }
+
   async function submitDraft(): Promise<void> {
     if (submittingRef.current) return;
 
@@ -692,11 +707,19 @@ export function CloudWifiSurveyWizard() {
     setSubmitting(true);
     setSubmitError("");
 
+    const idempotencyKey = ensureIdempotencyKey();
+
     try {
       const response = await fetch("/api/leads/cloudwifi", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(draft),
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKey,
+        },
+        body: JSON.stringify({
+          ...draft,
+          website: honeypot,
+        }),
       });
 
       if (!response.ok) {
@@ -734,6 +757,7 @@ export function CloudWifiSurveyWizard() {
         return;
       }
 
+      idempotencyKeyRef.current = null;
       setLeadId(responseLeadId);
     } catch {
       setSubmitError(
@@ -764,9 +788,11 @@ export function CloudWifiSurveyWizard() {
     setErrors({});
     setSubmitError("");
     setLeadId("");
+    setHoneypot("");
     setSubmitting(false);
     submittingRef.current = false;
     formSubmissionLockedRef.current = false;
+    idempotencyKeyRef.current = null;
     if (!isMobile) onNextFrame(() => headingRef.current?.focus());
   }
 
@@ -1598,7 +1624,27 @@ export function CloudWifiSurveyWizard() {
   );
 
   const form = (
-    <form onSubmit={handleSubmit} noValidate className="space-y-6 p-5 sm:p-6">
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      className="relative space-y-6 p-5 sm:p-6"
+    >
+      {/* Honeypot: hidden from assistive tech; bots often autofill `website`. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-[10000px] h-px w-px overflow-hidden opacity-0"
+      >
+        <label htmlFor="cloudwifi-website">Company website</label>
+        <input
+          id="cloudwifi-website"
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honeypot}
+          onChange={(event) => setHoneypot(event.target.value)}
+        />
+      </div>
       {progress}
       <header>
         <h2

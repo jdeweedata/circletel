@@ -1,12 +1,13 @@
 import { after, NextResponse } from "next/server";
 
 import {
-  allowIpLeadRequest,
   cacheIdempotentLead,
   clientIpFromRequest,
   getCachedIdempotentLead,
   isHoneypotFilled,
+  isIpLeadRequestAllowed,
   normalizeIdempotencyKey,
+  recordIpLeadRequest,
 } from "@/lib/cloudwifi/lead-abuse-guards";
 import { buildCloudWifiLeadPayload } from "@/lib/cloudwifi/lead-payload";
 import {
@@ -116,12 +117,6 @@ export async function POST(request: Request) {
     return oversizedBodyResponse();
   }
 
-  const clientIp = clientIpFromRequest(request);
-  if (!allowIpLeadRequest(clientIp)) {
-    apiLogger.error("CloudWiFi lead rate limited by IP", { ip: clientIp });
-    return rateLimitedResponse();
-  }
-
   let bodyText: string;
   try {
     const boundedBody = await readBoundedBody(request);
@@ -159,6 +154,15 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+
+  // Consume IP budget only after the request is a well-formed survey (not on
+  // invalid JSON, schema failures, or honeypot probes).
+  const clientIp = clientIpFromRequest(request);
+  if (!isIpLeadRequestAllowed(clientIp)) {
+    apiLogger.error("CloudWiFi lead rate limited by IP", { ip: clientIp });
+    return rateLimitedResponse();
+  }
+  recordIpLeadRequest(clientIp);
 
   const idempotencyKey = normalizeIdempotencyKey(
     request.headers.get("idempotency-key") ??

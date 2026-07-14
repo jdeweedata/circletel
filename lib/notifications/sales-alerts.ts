@@ -386,9 +386,14 @@ async function createZohoCRMLead(
       Requested_Service: leadData.requested_service_type || 'Not specified',
       Requested_Speed: leadData.requested_speed || 'Not specified',
       Budget_Range: leadData.budget_range || 'Not specified',
-      Coverage_Available: formatCoverageAvailableLabel(
-        leadData.coverage_available
-      ),
+      // Zoho picklists are typically Yes/No only — omit when no check ran
+      // (human channels still use "Not assessed" via formatCoverageAvailableLabel).
+      ...(leadData.coverage_available === true ||
+      leadData.coverage_available === false
+        ? {
+            Coverage_Available: leadData.coverage_available ? 'Yes' : 'No',
+          }
+        : {}),
       Coverage_Check_ID: leadData.id,
 
       // Coordinates (if available)

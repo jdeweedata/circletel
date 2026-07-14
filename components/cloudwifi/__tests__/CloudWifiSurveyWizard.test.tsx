@@ -472,10 +472,16 @@ describe("CloudWifiSurveyWizard", () => {
     });
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-    expect(globalThis.fetch).toHaveBeenCalledWith("/api/leads/cloudwifi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(expectedDraft),
+    const fetchCall = (globalThis.fetch as jest.Mock).mock.calls[0];
+    expect(fetchCall[0]).toBe("/api/leads/cloudwifi");
+    expect(fetchCall[1].method).toBe("POST");
+    expect(fetchCall[1].headers["Content-Type"]).toBe("application/json");
+    expect(fetchCall[1].headers["Idempotency-Key"]).toEqual(
+      expect.stringMatching(/^[A-Za-z0-9._:-]{8,128}$/),
+    );
+    expect(JSON.parse(fetchCall[1].body)).toEqual({
+      ...expectedDraft,
+      website: "",
     });
     expect(textOf(renderer.root)).toContain("Sending request…");
     expect(button("Sending request…").props.disabled).toBe(true);
