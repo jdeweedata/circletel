@@ -18,7 +18,7 @@ For most code changes, start with:
 
 - `CLAUDE.md` for repository workflow and architecture.
 - `docs/architecture/SYSTEM_OVERVIEW.md` for system context when the task touches architecture, auth, coverage, admin, orders, payments, or data flow.
-- `.claude/rules/` for detailed local rules. Especially check `coding-standards.md`, `auth-patterns.md`, `file-organization.md`, and `verify-schema-first.md` when relevant.
+- `.claude/rules/` for detailed local rules. Especially check `coding-standards.md`, `auth-patterns.md`, `file-organization.md`, `icon-system.md`, and `verify-schema-first.md` when relevant.
 - The files you intend to edit and their immediate callers.
 
 Do not invent file paths, APIs, table names, or component names. Search the repo first.
@@ -34,6 +34,7 @@ Do not invent file paths, APIs, table names, or component names. Search the repo
 - For database-related changes, verify the current schema and existing migrations before writing code.
 - For auth/admin work, follow the three-context Supabase auth patterns described in `.claude/rules/auth-patterns.md`.
 - For UI changes, use existing components from `components/ui/` and project feature components before creating new primitives.
+- For icons, follow `.claude/rules/icon-system.md`: use Phosphor for interface symbols, reserve Iconify for approved brand or specialist icons, and store production-critical Iconify assets locally instead of fetching them from the public API at runtime.
 
 ## Commands
 

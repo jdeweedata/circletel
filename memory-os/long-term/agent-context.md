@@ -21,10 +21,15 @@ This file captures project-specific knowledge that AI agents accumulate while wo
 - `npm run build:memory` — production build (8GB heap)
 - Scripts needing .env.local: `set -a && source .env.local && set +a && npx tsx scripts/...`
 
-### Stack
-- Next.js 15 App Router, React 18, TypeScript, Tailwind CSS, shadcn/ui
-- Supabase/PostgreSQL with PostGIS
-- Zustand, TanStack Query
+### Technology Stack
+**Last refreshed:** 2026-07-14 21:41:11 CEST
+**Refresh expectation:** Review and update this stack note when platform, UI, database, integration, or icon-system choices change.
+
+- Frontend/App: Next.js 15 App Router, React 18, TypeScript
+- Styling/UI: Tailwind CSS, shadcn/ui
+- Icons: Phosphor for interface symbols; Iconify only for approved brand or specialist icons; production-critical Iconify assets must be stored locally rather than fetched from the public API at runtime
+- State/Data: Zustand, TanStack Query
+- Backend/Data: Supabase, PostgreSQL, PostGIS
 - Integrations: MTN coverage APIs, Google Maps, Netcash payments, Zoho, Resend, Strapi CMS
 
 ### Database
@@ -55,6 +60,12 @@ Format:
 - **Context:** Tarana, DFA, ward, and sales-zone spatial RPCs repeatedly rebuilt `ST_MakePoint(... )::geography` expressions. Tarana had a matching expression GiST index, but DFA, ward centroid, and sales-zone center queries lacked matching spatial indexes, and `suggest_zones_from_demographics` referenced `tarana_base_stations.location` before that column existed.
 - **Pattern:** Add stored generated geography point columns (`location`, `center_location`, `centroid_location`) and GiST indexes, then rewrite RPCs to use those columns for `ST_DWithin`, KNN `<->`, and distance calculation. Keep RPC names/return contracts stable for Supabase callers.
 - **Validation:** `supabase db start` is currently blocked by the existing baseline dump's `\restrict` meta-command, so validate this class of migration with a disposable Supabase Postgres/PostGIS container plus a minimal schema and sample `EXPLAIN` checks when full local reset is blocked.
+- **Discovered by:** Codex
+
+### 2026-07-13: Production-backed operations prototype navigation
+- **Context:** The standalone `/demo/dashboard` prototype needed to reflect actual admin capabilities without coupling the prototype to admin auth or data fetching.
+- **Pattern:** Treat `lib/admin/feature-registry.ts` as the source of truth. The route-local `app/demo/dashboard/navigation.ts` maps every visible non-Dashboard item into six operations groups, preserves the original `NavItem` objects, and fails fast on missing, duplicate, or newly unassigned items. Keep the dedicated prototype Dashboard row separate.
+- **Interaction:** Render production hrefs for inspectability, but contain click, auxiliary-click, and context-menu activation through `app/demo/dashboard/interaction.ts` so the standalone prototype cannot escape into `/admin` routes.
 - **Discovered by:** Codex
 
 ### 2026-06-16: SkyFibre Combined Orderability Gate
