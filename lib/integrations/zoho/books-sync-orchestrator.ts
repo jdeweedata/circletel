@@ -202,10 +202,8 @@ export class ZohoBooksSyncOrchestrator {
                 country: customer.billing_address?.country || customer.address?.country || 'South Africa',
               }
             : undefined,
-          custom_fields: [
-            { label: 'CircleTel Customer ID', value: customer.id },
-            { label: 'Account Number', value: customer.account_number || '' },
-          ].filter(f => f.value),
+          // custom_fields omitted: labels must exist in the Books org or create
+          // returns 400 code 120129. Trace via email / zoho_books_contact_id instead.
         };
 
         // Upsert to Zoho Books
@@ -411,11 +409,9 @@ export class ZohoBooksSyncOrchestrator {
           line_items: lineItems,
           notes: invoice.notes || undefined,
           terms: invoice.terms || undefined,
-          custom_fields: [
-            { label: 'CircleTel Invoice ID', value: invoice.id },
-            { label: 'Invoice Type', value: invoice.invoice_type || '' },
-            { label: 'Service ID', value: invoice.service_id || '' },
-          ].filter(f => f.value),
+          // custom_fields omitted: 'CircleTel Invoice ID' etc. do not exist in the
+          // Books org (400 code 120129). Trace via matching invoice_number + DB
+          // zoho_books_invoice_id instead.
         };
 
         // Create invoice in Zoho Books
