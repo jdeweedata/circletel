@@ -51,6 +51,12 @@ _Patterns discovered by agents while working in this codebase._
 Format:
 ```
 
+### 2026-07-14: PostGIS spatial RPC optimization pattern
+- **Context:** Tarana, DFA, ward, and sales-zone spatial RPCs repeatedly rebuilt `ST_MakePoint(... )::geography` expressions. Tarana had a matching expression GiST index, but DFA, ward centroid, and sales-zone center queries lacked matching spatial indexes, and `suggest_zones_from_demographics` referenced `tarana_base_stations.location` before that column existed.
+- **Pattern:** Add stored generated geography point columns (`location`, `center_location`, `centroid_location`) and GiST indexes, then rewrite RPCs to use those columns for `ST_DWithin`, KNN `<->`, and distance calculation. Keep RPC names/return contracts stable for Supabase callers.
+- **Validation:** `supabase db start` is currently blocked by the existing baseline dump's `\restrict` meta-command, so validate this class of migration with a disposable Supabase Postgres/PostGIS container plus a minimal schema and sample `EXPLAIN` checks when full local reset is blocked.
+- **Discovered by:** Codex
+
 ### 2026-06-16: SkyFibre Combined Orderability Gate
 - **Context:** SkyFibre checkout must not rely on Tarana/TCS coverage alone because MTN CSP can reject otherwise covered addresses.
 - **Pattern:** Use `POST /api/coverage/skyfibre/orderability` or `lib/coverage/skyfibre/checkSkyFibreOrderability` to combine TCS BN/RN evidence with MTN CSP orderability. CSP credentials must come from `MTN_CSP_USERNAME`, `MTN_CSP_PASSWORD`, and optional `MTN_CSP_API_BASE`.
