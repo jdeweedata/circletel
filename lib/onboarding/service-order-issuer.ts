@@ -122,6 +122,8 @@ function buildPdfInput(
     customerLabel,
     serviceName,
     serviceReference,
+    // monthly_price is VAT-inclusive (same contract as MonthlyInvoiceGenerator).
+    // Field name kept for PDF template compatibility; value is the collectible gross.
     monthlyFeeExclVat: Number(service.monthly_price ?? 450),
     vatPercentage: 15,
     billingDay: (step5.paymentDate || '1') as '1' | '15' | '20' | '25',
@@ -143,7 +145,7 @@ function serviceOrderEmailHtml(input: {
     <p>Your Service Order is ready for sign-off.</p>
     <div style="background-color:#f5f5f5;padding:16px;border-radius:8px;margin:16px 0;">
       <p style="margin:8px 0;"><strong>Account Number:</strong> ${input.accountNumber}</p>
-      <p style="margin:8px 0;"><strong>Monthly Fee:</strong> R${input.monthlyFee.toFixed(2)} ex VAT</p>
+      <p style="margin:8px 0;"><strong>Monthly Fee:</strong> R${input.monthlyFee.toFixed(2)} incl. VAT</p>
     </div>
     <p><a href="${input.signoffUrl}" style="display:inline-block;background:#E87A1E;color:#ffffff;padding:12px 18px;border-radius:6px;text-decoration:none;font-weight:700;">Review and sign off</a></p>
     <p>The generated PDF is attached for your records.</p>

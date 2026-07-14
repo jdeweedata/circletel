@@ -1,10 +1,14 @@
 /**
  * Pure helpers for recurring-invoice amounts and numbering.
  *
- * CircleTel consumer `customer_services.monthly_price` is VAT-INCLUSIVE (gross) —
- * it is the all-in amount the customer pays (e.g. R899). The invoice total equals
- * that price; VAT is backed OUT of it for the subtotal. This matches every existing
- * paid invoice (e.g. INV-2026-00008: 781.74 net + 117.26 VAT = 899 total).
+ * CircleTel consumer **and Unjani clinic** `customer_services.monthly_price` is
+ * VAT-INCLUSIVE (gross) — the all-in amount collected (e.g. R899 / R450).
+ * Invoice total equals that price; VAT is backed OUT for subtotal/tax_amount.
+ * Matches existing paid invoices (e.g. INV-2026-00008: 781.74 + 117.26 = 899;
+ * Unjani: 391.30 + 58.70 = 450).
+ *
+ * See also `lib/billing/invoice-vat-contract.ts` for the full header/line contract
+ * and Zoho Books/Billing mapping (`is_inclusive_tax` + gross rates).
  *
  * Kept pure (no DB/IO) so the money math is unit-testable in isolation.
  */

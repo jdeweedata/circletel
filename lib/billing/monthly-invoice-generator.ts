@@ -544,8 +544,9 @@ export class MonthlyInvoiceGenerator {
       .toISOString()
       .split('T')[0];
 
-    // Amounts — consumer monthly_price is VAT-INCLUSIVE (gross); back VAT out so total === price.
-    // Matches every existing paid invoice (e.g. R899 -> net 781.74 + VAT 117.26 = 899).
+    // Amounts — consumer + Unjani monthly_price is VAT-INCLUSIVE (gross); back VAT out so total === price.
+    // Matches every existing paid invoice (e.g. R899 -> net 781.74 + VAT 117.26 = 899;
+    // Unjani R450 -> net 391.30 + VAT 58.70 = 450). See invoice-vat-contract.ts.
     const vatRate = 15.0;
 
     // Always compute full-month amounts from the existing function on the unchanged price.

@@ -21,6 +21,10 @@ import { createClient } from '@/lib/supabase/server';
 import { getZohoBooksClient, ZohoBooksClient } from './books-api-client';
 import { logZohoSync } from './billing-sync-logger';
 import { zohoLogger } from '@/lib/logging';
+import {
+  assertInvoiceVatHeaders,
+  buildZohoTaxInclusiveInvoicePayload,
+} from '@/lib/billing/invoice-vat-contract';
 
 // ============================================================================
 // Types
@@ -382,22 +386,29 @@ export class ZohoBooksSyncOrchestrator {
           .update({ zoho_sync_status: 'syncing' })
           .eq('id', invoice.id);
 
-        // Build invoice payload
-        const lineItems = Array.isArray(invoice.line_items)
-          ? invoice.line_items.map((item: any) => ({
-              name: item.name || item.description || 'Service',
-              description: item.description || undefined,
-              rate: parseFloat(item.price || item.rate || 0),
-              quantity: parseInt(item.quantity || 1),
-            }))
-          : [
-              {
-                name: this.getInvoiceDescription(invoice.invoice_type),
-                description: invoice.notes || undefined,
-                rate: parseFloat(invoice.total_amount || 0),
-                quantity: 1,
-              },
-            ];
+        // VAT: mirror Supabase headers. Line rates are VAT-inclusive so Books
+        // does not add another 15% on consumer/Unjani/B2B collectible totals.
+        const headerCheck = assertInvoiceVatHeaders(invoice);
+        if (!headerCheck.ok) {
+          zohoLogger.warn('[BooksOrchestrator] Invoice VAT headers inconsistent; syncing with best effort', {
+            invoice_id: invoice.id,
+            error: headerCheck.error,
+            subtotal: invoice.subtotal,
+            tax_amount: invoice.tax_amount,
+            total_amount: invoice.total_amount,
+          });
+        }
+
+        const money = buildZohoTaxInclusiveInvoicePayload(
+          {
+            subtotal: invoice.subtotal,
+            tax_amount: invoice.tax_amount,
+            total_amount: invoice.total_amount,
+            line_items: invoice.line_items,
+            notes: invoice.notes,
+          },
+          this.getInvoiceDescription(invoice.invoice_type)
+        );
 
         const invoicePayload = {
           customer_id: invoice.customer.zoho_books_contact_id,
@@ -406,7 +417,8 @@ export class ZohoBooksSyncOrchestrator {
           due_date: invoice.due_date || undefined,
           payment_terms: invoice.payment_terms || 30,
           payment_terms_label: invoice.payment_terms_label || 'Net 30',
-          line_items: lineItems,
+          is_inclusive_tax: money.is_inclusive_tax,
+          line_items: money.line_items,
           notes: invoice.notes || undefined,
           terms: invoice.terms || undefined,
           // custom_fields omitted: 'CircleTel Invoice ID' etc. do not exist in the

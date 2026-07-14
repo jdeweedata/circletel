@@ -163,6 +163,11 @@ export interface ServiceOrderInput {
   clinicProvince: string;
   clinicEmail: string;
   clinicPhone?: string;
+  /**
+   * Monthly fee as stored on `customer_services.monthly_price` — VAT-inclusive
+   * collectible amount (e.g. R450 Unjani, R899 SkyFibre). Name kept for API
+   * compatibility; VAT is backed out for display, not added on top.
+   */
   monthlyFeeExclVat: number;
   vatPercentage: number; // Usually 15
   billingDay: '1' | '15' | '20' | '25';
@@ -216,9 +221,11 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  // Calculate pricing
-  const vatAmount = input.monthlyFeeExclVat * (input.vatPercentage / 100);
-  const monthlyFeeInclVat = input.monthlyFeeExclVat + vatAmount;
+  // monthlyFee* is VAT-inclusive collectible (same as invoice total). Back VAT out.
+  const monthlyFeeInclVat = Math.round(input.monthlyFeeExclVat * 100) / 100;
+  const monthlyFeeNet =
+    Math.round((monthlyFeeInclVat / (1 + input.vatPercentage / 100)) * 100) / 100;
+  const vatAmount = Math.round((monthlyFeeInclVat - monthlyFeeNet) * 100) / 100;
 
   // Service Order number: SO-<account_number>
   const soNumber = `SO-${input.accountNumber}`;
@@ -322,7 +329,7 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
   doc.text('Monthly Fee (Excl. VAT):', leftCol + 5, serviceY);
   doc.setTextColor(...COLORS.darkText);
   doc.setFont('helvetica', 'bold');
-  doc.text(formatCurrency(input.monthlyFeeExclVat), leftCol + colWidth - 5, serviceY, { align: 'right' });
+  doc.text(formatCurrency(monthlyFeeNet), leftCol + colWidth - 5, serviceY, { align: 'right' });
 
   serviceY += 6;
   doc.setFont('helvetica', 'normal');
