@@ -57,6 +57,26 @@ function buttonWithText(
   return button!;
 }
 
+function setCompleteEstimator(
+  renderer: TestRenderer.ReactTestRenderer,
+  values: { floorArea?: string; peakUsers?: string } = {},
+) {
+  act(() => {
+    renderer.root.findByProps({ "aria-label": "Venue type" }).props.onChange({
+      target: { value: "hospitality" },
+    });
+    renderer.root
+      .findByProps({ "aria-label": "Usable floor area" })
+      .props.onChange({ target: { value: values.floorArea ?? "450" } });
+    renderer.root
+      .findByProps({ "aria-label": "Expected peak concurrent users" })
+      .props.onChange({ target: { value: values.peakUsers ?? "120" } });
+    renderer.root
+      .findByProps({ "aria-label": "Internet backhaul" })
+      .props.onChange({ target: { value: "lte" } });
+  });
+}
+
 describe("CloudWifiTierEstimator", () => {
   const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
   const originalDocument = Object.getOwnPropertyDescriptor(
@@ -128,25 +148,7 @@ describe("CloudWifiTierEstimator", () => {
 
   it("renders a deterministic recommendation and transfers it into the survey draft", () => {
     const renderer = renderHarness(<CloudWifiTierEstimator />);
-
-    act(() => {
-      renderer.root.findByProps({ "aria-label": "Venue type" }).props.onChange({
-        target: { value: "hospitality" },
-      });
-      renderer.root
-        .findByProps({ "aria-label": "Usable floor area" })
-        .props.onChange({
-          target: { value: "450" },
-        });
-      renderer.root
-        .findByProps({ "aria-label": "Expected peak concurrent users" })
-        .props.onChange({ target: { value: "120" } });
-      renderer.root
-        .findByProps({ "aria-label": "Internet backhaul" })
-        .props.onChange({
-          target: { value: "lte" },
-        });
-    });
+    setCompleteEstimator(renderer);
 
     const serialized = JSON.stringify(renderer.toJSON());
     expect(serialized).toContain("Professional");
@@ -173,14 +175,90 @@ describe("CloudWifiTierEstimator", () => {
     });
   });
 
-  it("returns to the incomplete state when a number is cleared or made invalid", () => {
+  it("preserves raw decimal input while deriving only valid positive values", () => {
     const renderer = renderHarness(<CloudWifiTierEstimator />);
     const floorArea = renderer.root.findByProps({
       "aria-label": "Usable floor area",
     });
 
     act(() => floorArea.props.onChange({ target: { value: "0" } }));
+    expect(floorArea.props.value).toBe("0");
+
+    act(() => floorArea.props.onChange({ target: { value: "0." } }));
+    expect(floorArea.props.value).toBe("0.");
+    expect(JSON.stringify(renderer.toJSON())).toContain(
+      "Select your details to see a recommendation",
+    );
+
+    setCompleteEstimator(renderer, { floorArea: "0.5", peakUsers: "1" });
+    expect(floorArea.props.value).toBe("0.5");
+    expect(JSON.stringify(renderer.toJSON())).toContain("Essential");
+
+    act(() =>
+      buttonWithText(renderer, "Use this recommendation").props.onClick({}),
+    );
+    expect(surveyContext.draft.venue.floorArea).toBe(0.5);
+  });
+
+  it("removes a stale recommendation after clearing or invalidating a number", () => {
+    const renderer = renderHarness(<CloudWifiTierEstimator />);
+    setCompleteEstimator(renderer);
+    expect(JSON.stringify(renderer.toJSON())).toContain("Professional");
+
+    const floorArea = renderer.root.findByProps({
+      "aria-label": "Usable floor area",
+    });
+    act(() => floorArea.props.onChange({ target: { value: "" } }));
+
+    let serialized = JSON.stringify(renderer.toJSON());
     expect(floorArea.props.value).toBe("");
+    expect(serialized).toContain("Select your details to see a recommendation");
+    expect(serialized).not.toContain("Professional");
+    expect(renderer.root.findAllByType("button").map(textOf)).not.toContain(
+      "Use this recommendation",
+    );
+
+    act(() => floorArea.props.onChange({ target: { value: "450" } }));
+    expect(JSON.stringify(renderer.toJSON())).toContain("Professional");
+
+    const peakUsers = renderer.root.findByProps({
+      "aria-label": "Expected peak concurrent users",
+    });
+    act(() => peakUsers.props.onChange({ target: { value: "1.5" } }));
+
+    serialized = JSON.stringify(renderer.toJSON());
+    expect(peakUsers.props.value).toBe("1.5");
+    expect(serialized).toContain("Select your details to see a recommendation");
+    expect(serialized).not.toContain("Professional");
+
+    for (const invalidValue of ["1e3", "Infinity", "-1"]) {
+      act(() => peakUsers.props.onChange({ target: { value: invalidValue } }));
+      expect(peakUsers.props.value).toBe(invalidValue);
+      expect(JSON.stringify(renderer.toJSON())).toContain(
+        "Select your details to see a recommendation",
+      );
+    }
+  });
+
+  it("accepts the shared numeric maximum and rejects values above it", () => {
+    const renderer = renderHarness(<CloudWifiTierEstimator />);
+    setCompleteEstimator(renderer, {
+      floorArea: "100000",
+      peakUsers: "100000",
+    });
+
+    const floorArea = renderer.root.findByProps({
+      "aria-label": "Usable floor area",
+    });
+    const peakUsers = renderer.root.findByProps({
+      "aria-label": "Expected peak concurrent users",
+    });
+    expect(floorArea.props.max).toBe(100000);
+    expect(peakUsers.props.max).toBe(100000);
+    expect(JSON.stringify(renderer.toJSON())).toContain("Campus");
+
+    act(() => peakUsers.props.onChange({ target: { value: "100001" } }));
+    expect(peakUsers.props.value).toBe("100001");
     expect(JSON.stringify(renderer.toJSON())).toContain(
       "Select your details to see a recommendation",
     );
@@ -259,6 +337,46 @@ describe("CloudWifiTierEstimator", () => {
     expect(surveyContext.draft.details.networks).toEqual([]);
   });
 
+  it("captures privacy-safe attribution after hydration and preserves it across reset", () => {
+    const campaign = "c".repeat(205);
+    (
+      globalThis as unknown as { window: { location: { search: string } } }
+    ).window.location = {
+      search: `?utm_source=%20google%20&utm_medium=%20%20&utm_campaign=${campaign}`,
+    };
+    (
+      globalThis as unknown as { document: { referrer: string } }
+    ).document.referrer =
+      "https://partner.example/path/to/page?token=secret#private";
+
+    renderHarness(<CloudWifiTierEstimator />);
+
+    expect(surveyContext.draft.attribution).toEqual({
+      pageSource: "cloudwifi_product_page",
+      utmSource: "google",
+      utmCampaign: "c".repeat(200),
+      referrer: "https://partner.example/path/to/page",
+    });
+
+    act(() => {
+      surveyContext.setDraft((current) => ({
+        ...current,
+        venue: { ...current.venue, city: "Pretoria" },
+      }));
+      surveyContext.setMobileOpen(true);
+    });
+    act(() => surveyContext.resetSurvey());
+
+    expect(surveyContext.mobileOpen).toBe(false);
+    expect(surveyContext.draft.venue.city).toBe("");
+    expect(surveyContext.draft.attribution).toEqual({
+      pageSource: "cloudwifi_product_page",
+      utmSource: "google",
+      utmCampaign: "c".repeat(200),
+      referrer: "https://partner.example/path/to/page",
+    });
+  });
+
   it("uses a real reusable button CTA to prefill and request the survey", () => {
     const renderer = renderHarness(
       <CloudWifiSurveyCta prefill={{ venueType: "retail" }}>
@@ -273,5 +391,29 @@ describe("CloudWifiTierEstimator", () => {
     act(() => cta.props.onClick({ defaultPrevented: false }));
 
     expect(surveyContext.draft.venue.venueType).toBe("retail");
+  });
+
+  it("does not request the survey when a CTA click handler prevents default", () => {
+    const renderer = renderHarness(
+      <CloudWifiSurveyCta
+        prefill={{ venueType: "retail" }}
+        onClick={(event) => event.preventDefault()}
+      >
+        Cancelled survey request
+      </CloudWifiSurveyCta>,
+    );
+    const cta = buttonWithText(renderer, "Cancelled survey request");
+    const clickEvent = {
+      defaultPrevented: false,
+      preventDefault() {
+        this.defaultPrevented = true;
+      },
+    };
+
+    act(() => cta.props.onClick(clickEvent));
+
+    expect(clickEvent.defaultPrevented).toBe(true);
+    expect(surveyContext.draft.venue.venueType).toBe("");
+    expect(scrollIntoView).not.toHaveBeenCalled();
   });
 });

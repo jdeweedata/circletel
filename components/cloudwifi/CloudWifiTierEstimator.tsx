@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { recommendCloudWifiTier } from "@/lib/cloudwifi/tier-recommendation";
-import type {
-  CloudWifiBackhaul,
-  CloudWifiVenueType,
+import {
+  CLOUDWIFI_SURVEY_NUMERIC_LIMITS,
+  type CloudWifiBackhaul,
+  type CloudWifiVenueType,
 } from "@/lib/cloudwifi/types";
 
 const VENUE_OPTIONS: ReadonlyArray<{
@@ -39,7 +40,11 @@ const BACKHAUL_OPTIONS: ReadonlyArray<{
 const controlClassName =
   "h-11 w-full rounded-md border border-circleTel-navy/20 bg-white px-3 text-base text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2";
 
-function positiveNumber(value: string, integer = false): number | undefined {
+function positiveNumber(
+  value: string,
+  maximum: number,
+  integer = false,
+): number | undefined {
   const normalized = value.trim();
   if (!/^\d+(?:\.\d+)?$/.test(normalized)) return undefined;
 
@@ -47,6 +52,7 @@ function positiveNumber(value: string, integer = false): number | undefined {
   if (
     !Number.isFinite(parsed) ||
     parsed <= 0 ||
+    parsed > maximum ||
     (integer && !Number.isInteger(parsed))
   ) {
     return undefined;
@@ -62,9 +68,18 @@ function formatMonthlyPrice(price: number): string {
 export function CloudWifiTierEstimator() {
   const { requestSurvey } = useCloudWifiSurvey();
   const [venueType, setVenueType] = useState<CloudWifiVenueType | "">("");
-  const [floorArea, setFloorArea] = useState<number | undefined>();
-  const [peakUsers, setPeakUsers] = useState<number | undefined>();
+  const [floorAreaInput, setFloorAreaInput] = useState("");
+  const [peakUsersInput, setPeakUsersInput] = useState("");
   const [backhaul, setBackhaul] = useState<CloudWifiBackhaul | "">("");
+  const floorArea = positiveNumber(
+    floorAreaInput,
+    CLOUDWIFI_SURVEY_NUMERIC_LIMITS.floorArea,
+  );
+  const peakUsers = positiveNumber(
+    peakUsersInput,
+    CLOUDWIFI_SURVEY_NUMERIC_LIMITS.peakUsers,
+    true,
+  );
 
   const recommendation = useMemo(() => {
     if (
@@ -139,13 +154,12 @@ export function CloudWifiTierEstimator() {
             aria-label="Usable floor area"
             inputMode="decimal"
             min="0.1"
+            max={CLOUDWIFI_SURVEY_NUMERIC_LIMITS.floorArea}
             step="0.1"
             type="number"
-            value={floorArea ?? ""}
-            onChange={(event) =>
-              setFloorArea(positiveNumber(event.target.value))
-            }
-            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange"
+            value={floorAreaInput}
+            onChange={(event) => setFloorAreaInput(event.target.value)}
+            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange md:text-base"
           />
           <p className="text-sm text-circleTel-secondaryNeutral">
             Approximate square metres
@@ -164,13 +178,12 @@ export function CloudWifiTierEstimator() {
             aria-label="Expected peak concurrent users"
             inputMode="numeric"
             min="1"
+            max={CLOUDWIFI_SURVEY_NUMERIC_LIMITS.peakUsers}
             step="1"
             type="number"
-            value={peakUsers ?? ""}
-            onChange={(event) =>
-              setPeakUsers(positiveNumber(event.target.value, true))
-            }
-            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange"
+            value={peakUsersInput}
+            onChange={(event) => setPeakUsersInput(event.target.value)}
+            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange md:text-base"
           />
         </div>
 

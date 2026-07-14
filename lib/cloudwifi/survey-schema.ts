@@ -1,6 +1,10 @@
 import { z, type ZodError } from "zod";
 
-import { CLOUDWIFI_BACKHAUL_TYPES, CLOUDWIFI_VENUE_TYPES } from "./types";
+import {
+  CLOUDWIFI_BACKHAUL_TYPES,
+  CLOUDWIFI_SURVEY_NUMERIC_LIMITS,
+  CLOUDWIFI_VENUE_TYPES,
+} from "./types";
 
 const WALL_MATERIALS = [
   "drywall",
@@ -129,8 +133,16 @@ export const cloudWifiSurveySchema = z.object({
     venueType: z.enum(CLOUDWIFI_VENUE_TYPES, {
       errorMap: () => ({ message: "Select a supported venue type." }),
     }),
-    floorArea: strictPositiveNumber("Floor area", 100000, false),
-    peakUsers: strictPositiveNumber("Peak users", 100000, true),
+    floorArea: strictPositiveNumber(
+      "Floor area",
+      CLOUDWIFI_SURVEY_NUMERIC_LIMITS.floorArea,
+      false,
+    ),
+    peakUsers: strictPositiveNumber(
+      "Peak users",
+      CLOUDWIFI_SURVEY_NUMERIC_LIMITS.peakUsers,
+      true,
+    ),
     city: textSchema("City")
       .trim()
       .min(2, "City must contain at least 2 characters.")

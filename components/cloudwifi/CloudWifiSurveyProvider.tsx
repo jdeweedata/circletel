@@ -4,6 +4,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -17,6 +18,10 @@ import type {
 type SurveyDetails = CloudWifiSurveyRequest["details"];
 type SurveyContact = CloudWifiSurveyRequest["contact"];
 type SurveyAttribution = CloudWifiSurveyRequest["attribution"];
+type SurveyDraftAttribution = CloudWifiSurveyDraft["attribution"];
+
+const UTM_VALUE_MAX_LENGTH = 200;
+const REFERRER_MAX_LENGTH = 2048;
 
 export interface CloudWifiSurveyDraft {
   venue: {
@@ -62,7 +67,11 @@ export interface CloudWifiSurveyContextValue {
   resetSurvey: () => void;
 }
 
-function createSurveyDraft(): CloudWifiSurveyDraft {
+function createSurveyDraft(
+  attribution: SurveyDraftAttribution = {
+    pageSource: "cloudwifi_product_page",
+  },
+): CloudWifiSurveyDraft {
   return {
     venue: {
       venueType: "",
@@ -89,9 +98,7 @@ function createSurveyDraft(): CloudWifiSurveyDraft {
       consent: false,
       consentedAt: "",
     },
-    attribution: {
-      pageSource: "cloudwifi_product_page",
-    },
+    attribution: { ...attribution, pageSource: "cloudwifi_product_page" },
   };
 }
 
@@ -114,6 +121,46 @@ function focusSurveyHeading(): void {
   document.getElementById("cloudwifi-survey-heading")?.focus();
 }
 
+function acquisitionAttribution(): Partial<SurveyDraftAttribution> {
+  const attribution: Partial<SurveyDraftAttribution> = {};
+
+  try {
+    const search =
+      typeof window.location?.search === "string" ? window.location.search : "";
+    const searchParams = new URLSearchParams(search);
+    const utmValues = [
+      ["utm_source", "utmSource"],
+      ["utm_medium", "utmMedium"],
+      ["utm_campaign", "utmCampaign"],
+    ] as const;
+
+    for (const [parameter, field] of utmValues) {
+      const value = searchParams.get(parameter)?.trim();
+      if (value) attribution[field] = value.slice(0, UTM_VALUE_MAX_LENGTH);
+    }
+  } catch {
+    // Browser privacy settings may make location unavailable.
+  }
+
+  try {
+    const rawReferrer =
+      typeof document.referrer === "string" ? document.referrer.trim() : "";
+    if (rawReferrer) {
+      const referrer = new URL(rawReferrer);
+      if (referrer.protocol === "http:" || referrer.protocol === "https:") {
+        attribution.referrer = `${referrer.origin}${referrer.pathname}`.slice(
+          0,
+          REFERRER_MAX_LENGTH,
+        );
+      }
+    }
+  } catch {
+    // Ignore unavailable, malformed, and non-HTTP referrers.
+  }
+
+  return attribution;
+}
+
 export function CloudWifiSurveyProvider({
   children,
 }: {
@@ -121,6 +168,29 @@ export function CloudWifiSurveyProvider({
 }) {
   const [draft, setDraft] = useState<CloudWifiSurveyDraft>(createSurveyDraft);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const captured = acquisitionAttribution();
+    if (Object.keys(captured).length === 0) return;
+
+    setDraft((current) => {
+      const attribution = { ...current.attribution };
+      if (!attribution.utmSource && captured.utmSource) {
+        attribution.utmSource = captured.utmSource;
+      }
+      if (!attribution.utmMedium && captured.utmMedium) {
+        attribution.utmMedium = captured.utmMedium;
+      }
+      if (!attribution.utmCampaign && captured.utmCampaign) {
+        attribution.utmCampaign = captured.utmCampaign;
+      }
+      if (!attribution.referrer && captured.referrer) {
+        attribution.referrer = captured.referrer;
+      }
+
+      return { ...current, attribution };
+    });
+  }, []);
 
   const requestSurvey = useCallback(
     (prefill?: Partial<CloudWifiSurveyDraft["venue"]>) => {
@@ -155,7 +225,7 @@ export function CloudWifiSurveyProvider({
   );
 
   const resetSurvey = useCallback(() => {
-    setDraft(createSurveyDraft());
+    setDraft((current) => createSurveyDraft(current.attribution));
     setMobileOpen(false);
   }, []);
 

@@ -8,7 +8,7 @@ import {
 } from "@/components/cloudwifi/CloudWifiSurveyProvider";
 import { Button, type ButtonProps } from "@/components/ui/button";
 
-export interface CloudWifiSurveyCtaProps extends ButtonProps {
+export interface CloudWifiSurveyCtaProps extends Omit<ButtonProps, "asChild"> {
   prefill?: Partial<CloudWifiSurveyDraft["venue"]>;
 }
 
