@@ -28,13 +28,16 @@ const PREFERRED_CONTACT_TIMES = ["morning", "afternoon", "anytime"] as const;
 const BASE_TEN_DECIMAL = /^\d+(?:\.\d+)?$/;
 const BASE_TEN_INTEGER = /^\d+$/;
 const MAX_FORMATTED_ERRORS = 20;
+const MAX_RAW_SELECTIONS = 32;
+
+const textSchema = (label: string) =>
+  z.string({
+    required_error: `${label} is required.`,
+    invalid_type_error: `${label} must be text.`,
+  });
 
 const optionalAttribution = (label: string, maxLength: number) =>
-  z
-    .string({
-      required_error: `${label} is required.`,
-      invalid_type_error: `${label} must be text.`,
-    })
+  textSchema(label)
     .trim()
     .max(maxLength, `${label} must contain at most ${maxLength} characters.`)
     .transform((value) => value || undefined)
@@ -128,18 +131,15 @@ export const cloudWifiSurveySchema = z.object({
     }),
     floorArea: strictPositiveNumber("Floor area", 100000, false),
     peakUsers: strictPositiveNumber("Peak users", 100000, true),
-    city: z
-      .string()
+    city: textSchema("City")
       .trim()
       .min(2, "City must contain at least 2 characters.")
       .max(100, "City must contain at most 100 characters."),
-    siteAddress: z
-      .string()
+    siteAddress: textSchema("Site address")
       .trim()
       .min(5, "Site address must contain at least 5 characters.")
       .max(300, "Site address must contain at most 300 characters."),
-    postalCode: z
-      .string()
+    postalCode: textSchema("Postal code")
       .trim()
       .regex(/^(?:|\d{4})$/, "Postal code must be exactly four digits.")
       .optional(),
@@ -163,8 +163,11 @@ export const cloudWifiSurveySchema = z.object({
         },
       )
       .min(1, "Select at least one network.")
-      .max(4, "Select no more than 4 networks.")
-      .transform(uniqueValues),
+      .max(MAX_RAW_SELECTIONS, "Select no more than 32 network entries.")
+      .transform(uniqueValues)
+      .refine((networks) => networks.length <= NETWORKS.length, {
+        message: "Select no more than 4 unique networks.",
+      }),
     addOns: z
       .array(
         z.enum(ADD_ONS, {
@@ -172,32 +175,31 @@ export const cloudWifiSurveySchema = z.object({
         }),
         { invalid_type_error: "Add-ons must be a list." },
       )
-      .max(8, "Select no more than 8 add-ons.")
+      .max(MAX_RAW_SELECTIONS, "Select no more than 32 add-on entries.")
       .transform(uniqueValues)
+      .refine((addOns) => addOns.length <= ADD_ONS.length, {
+        message: "Select no more than 8 unique add-ons.",
+      })
       .optional()
       .default([]),
-    requirements: z
-      .string()
+    requirements: textSchema("Requirements")
       .trim()
       .max(2000, "Requirements must contain at most 2000 characters.")
       .optional()
       .default(""),
   }),
   contact: z.object({
-    fullName: z
-      .string()
+    fullName: textSchema("Full name")
       .trim()
       .max(120, "Full name must contain at most 120 characters.")
       .refine((name) => name.split(/\s+/).filter(Boolean).length >= 2, {
         message: "Enter your first name and surname.",
       }),
-    companyName: z
-      .string()
+    companyName: textSchema("Company name")
       .trim()
       .min(2, "Company name must contain at least 2 characters.")
       .max(160, "Company name must contain at most 160 characters."),
-    email: z
-      .string()
+    email: textSchema("Email")
       .trim()
       .email("Enter a valid email address.")
       .max(254, "Email must contain at most 254 characters.")

@@ -185,6 +185,34 @@ describe("CloudWiFi survey request schema", () => {
     ).toBe(false);
   });
 
+  it.each([
+    ["venue.city", undefined, "City is required."],
+    ["venue.city", 123, "City must be text."],
+    ["venue.siteAddress", undefined, "Site address is required."],
+    ["venue.siteAddress", 123, "Site address must be text."],
+    ["venue.postalCode", 2196, "Postal code must be text."],
+    ["details.requirements", 123, "Requirements must be text."],
+    ["contact.fullName", undefined, "Full name is required."],
+    ["contact.fullName", 123, "Full name must be text."],
+    ["contact.companyName", undefined, "Company name is required."],
+    ["contact.companyName", 123, "Company name must be text."],
+    ["contact.email", undefined, "Email is required."],
+    ["contact.email", 123, "Email must be text."],
+  ] as Array<[string, unknown, string]>)(
+    "uses an application-owned string error for %s with %p",
+    (path, value, message) => {
+      const result = cloudWifiSurveySchema.safeParse(requestWith(path, value));
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(formatSurveyErrors(result.error)).toContainEqual({
+          field: path,
+          message,
+        });
+      }
+    },
+  );
+
   it("accepts an empty or omitted postal code and normalizes an empty value in the mapper", () => {
     const emptyPostalCode = cloudWifiSurveySchema.parse(
       requestWith("venue.postalCode", ""),
@@ -221,23 +249,13 @@ describe("CloudWiFi survey request schema", () => {
   it.each([
     [
       "details.networks",
-      ["staff", "guest", "operations", "other", "staff"],
-      "Select no more than 4 networks.",
+      Array.from({ length: 33 }, () => "staff"),
+      "Select no more than 32 network entries.",
     ],
     [
       "details.addOns",
-      [
-        "captive_portal",
-        "analytics",
-        "content_filtering",
-        "failover",
-        "bandwidth_shaping",
-        "lan_wifi_optimisation",
-        "multi_site_management",
-        "integrations",
-        "analytics",
-      ],
-      "Select no more than 8 add-ons.",
+      Array.from({ length: 33 }, () => "analytics"),
+      "Select no more than 32 add-on entries.",
     ],
     [
       "contact.phone",
@@ -312,6 +330,47 @@ describe("CloudWiFi survey request schema", () => {
 
     expect(parsed.details.networks).toEqual(["staff", "guest"]);
     expect(parsed.details.addOns).toEqual(["analytics", "failover"]);
+  });
+
+  it("deduplicates repeated selections before enforcing unique limits", () => {
+    const request = structuredClone(validRequest) as Record<string, any>;
+    request.details.networks = [
+      "staff",
+      "guest",
+      "operations",
+      "other",
+      "staff",
+    ];
+    request.details.addOns = [
+      "captive_portal",
+      "analytics",
+      "content_filtering",
+      "failover",
+      "bandwidth_shaping",
+      "lan_wifi_optimisation",
+      "multi_site_management",
+      "integrations",
+      "analytics",
+    ];
+
+    const parsed = cloudWifiSurveySchema.parse(request);
+
+    expect(parsed.details.networks).toEqual([
+      "staff",
+      "guest",
+      "operations",
+      "other",
+    ]);
+    expect(parsed.details.addOns).toEqual([
+      "captive_portal",
+      "analytics",
+      "content_filtering",
+      "failover",
+      "bandwidth_shaping",
+      "lan_wifi_optimisation",
+      "multi_site_management",
+      "integrations",
+    ]);
   });
 
   it("defaults optional add-ons and requirements to empty values", () => {
