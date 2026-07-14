@@ -169,6 +169,16 @@ describe("CloudWifiTierEstimator", () => {
     expect(recommendationCta.props.className).toContain(
       "bg-circleTel-orange-accessible",
     );
+    for (const node of renderer.root.findAll(
+      (candidate) => typeof candidate.props.className === "string",
+    )) {
+      expect(node.props.className).not.toMatch(
+        /focus-visible:ring-circleTel-orange(?:\s|$)/,
+      );
+    }
+    expect(recommendationCta.props.className).toContain(
+      "focus-visible:ring-circleTel-orange-accessible",
+    );
 
     act(() => recommendationCta.props.onClick({}));
 

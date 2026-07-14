@@ -225,7 +225,13 @@ describe("CloudWiFi product page", () => {
       expect(heading).toHaveLength(1);
     }
 
-    expect(renderer!.root.findByProps({ href: "#main-content" })).toBeDefined();
+    const skipLink = renderer!.root.findByProps({ href: "#main-content" });
+    expect(skipLink.props.className).toContain(
+      "focus:ring-circleTel-orange-accessible",
+    );
+    expect(skipLink.props.className).not.toMatch(
+      /focus:ring-circleTel-orange(?:\s|$)/,
+    );
     expect(renderer!.root.findByProps({ id: "main-content" }).type).toBe(
       "main",
     );

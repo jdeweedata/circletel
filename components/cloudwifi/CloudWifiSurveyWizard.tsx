@@ -198,9 +198,9 @@ const CONTACT_TIME_OPTIONS = [
 ] as const;
 
 const controlClassName =
-  "h-11 w-full rounded-md border border-circleTel-navy/20 bg-white px-3 text-base text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2";
+  "h-11 w-full rounded-md border border-circleTel-navy/20 bg-white px-3 text-base text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2";
 const textAreaClassName =
-  "min-h-24 w-full rounded-md border border-circleTel-navy/20 bg-white px-3 py-2 text-base text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2";
+  "min-h-24 w-full rounded-md border border-circleTel-navy/20 bg-white px-3 py-2 text-base text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2";
 
 function isPositiveNumber(value: number | ""): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
@@ -829,7 +829,7 @@ export function CloudWifiSurveyWizard() {
           autoComplete="off"
           aria-invalid={Boolean(errors.floorArea)}
           aria-describedby={describedBy("floorArea", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           type="number"
           inputMode="decimal"
           min="0.1"
@@ -860,7 +860,7 @@ export function CloudWifiSurveyWizard() {
           autoComplete="address-level2"
           aria-invalid={Boolean(errors.city)}
           aria-describedby={describedBy("city", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           maxLength={100}
           value={draft.venue.city}
           onChange={(event) => updateVenue("city", event.target.value)}
@@ -885,7 +885,7 @@ export function CloudWifiSurveyWizard() {
           autoComplete="off"
           aria-invalid={Boolean(errors.peakUsers)}
           aria-describedby={describedBy("peakUsers", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           type="number"
           inputMode="numeric"
           min="1"
@@ -955,7 +955,7 @@ export function CloudWifiSurveyWizard() {
           autoComplete="street-address"
           aria-invalid={Boolean(errors.siteAddress)}
           aria-describedby={describedBy("siteAddress", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           maxLength={300}
           value={draft.venue.siteAddress}
           onChange={(event) => updateVenue("siteAddress", event.target.value)}
@@ -978,7 +978,7 @@ export function CloudWifiSurveyWizard() {
           autoComplete="postal-code"
           aria-invalid={Boolean(errors.postalCode)}
           aria-describedby={describedBy("postalCode", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           inputMode="numeric"
           maxLength={4}
           value={draft.venue.postalCode}
@@ -1004,7 +1004,7 @@ export function CloudWifiSurveyWizard() {
           autoComplete="off"
           aria-invalid={Boolean(errors.floors)}
           aria-describedby={describedBy("floors", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           type="number"
           inputMode="numeric"
           min="1"
@@ -1169,7 +1169,7 @@ export function CloudWifiSurveyWizard() {
           required
           aria-invalid={Boolean(errors.fullName)}
           aria-describedby={describedBy("fullName", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           autoComplete="name"
           maxLength={120}
           value={draft.contact.fullName}
@@ -1194,7 +1194,7 @@ export function CloudWifiSurveyWizard() {
           required
           aria-invalid={Boolean(errors.companyName)}
           aria-describedby={describedBy("companyName", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           autoComplete="organization"
           maxLength={160}
           value={draft.contact.companyName}
@@ -1219,7 +1219,7 @@ export function CloudWifiSurveyWizard() {
           required
           aria-invalid={Boolean(errors.email)}
           aria-describedby={describedBy("email", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           type="email"
           autoComplete="email"
           maxLength={254}
@@ -1245,7 +1245,7 @@ export function CloudWifiSurveyWizard() {
           required
           aria-invalid={Boolean(errors.phone)}
           aria-describedby={describedBy("phone", errors)}
-          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange md:text-base"
+          className="mt-2 h-11 border-circleTel-navy/20 text-base focus-visible:ring-circleTel-orange-accessible md:text-base"
           type="tel"
           autoComplete="tel"
           maxLength={32}
@@ -1545,7 +1545,7 @@ export function CloudWifiSurveyWizard() {
         ref={successHeadingRef}
         id="cloudwifi-survey-heading"
         tabIndex={-1}
-        className="rounded-md font-heading text-2xl font-bold text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2"
+        className="rounded-md font-heading text-2xl font-bold text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2"
       >
         Request received
       </h2>
@@ -1559,7 +1559,7 @@ export function CloudWifiSurveyWizard() {
         href={getWhatsAppLink(
           `Hi CircleTel, I need help with CloudWiFi survey request ${leadId}.`,
         )}
-        className="inline-flex min-h-11 w-full items-center justify-center rounded-md border-2 border-circleTel-orange px-4 text-base font-semibold text-circleTel-orange-accessible transition-colors hover:bg-circleTel-orange-light hover:text-circleTel-orange-accessible focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2"
+        className="inline-flex min-h-11 w-full items-center justify-center rounded-md border-2 border-circleTel-orange px-4 text-base font-semibold text-circleTel-orange-accessible transition-colors hover:bg-circleTel-orange-light hover:text-circleTel-orange-accessible focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -1585,7 +1585,7 @@ export function CloudWifiSurveyWizard() {
           ref={headingRef}
           id="cloudwifi-survey-heading"
           tabIndex={-1}
-          className="rounded-md font-heading text-2xl font-bold text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2"
+          className="rounded-md font-heading text-2xl font-bold text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2"
         >
           {stepHeadings[step].title}
         </h2>
@@ -1666,7 +1666,7 @@ export function CloudWifiSurveyWizard() {
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent
           side="right"
-          className="w-full max-w-none overscroll-contain overflow-y-auto px-0 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-[calc(3.5rem+env(safe-area-inset-top))] sm:max-w-none [&>button]:!right-[calc(1rem+env(safe-area-inset-right))] [&>button]:!top-[calc(1rem+env(safe-area-inset-top))] [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center [&>button]:focus-visible:ring-2 [&>button]:focus-visible:ring-circleTel-orange [&>button]:focus-visible:ring-offset-2"
+          className="w-full max-w-none overscroll-contain overflow-y-auto px-0 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-[calc(3.5rem+env(safe-area-inset-top))] sm:max-w-none [&>button]:!right-[calc(1rem+env(safe-area-inset-right))] [&>button]:!top-[calc(1rem+env(safe-area-inset-top))] [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center [&>button]:focus-visible:ring-2 [&>button]:focus-visible:ring-circleTel-orange-accessible [&>button]:focus-visible:ring-offset-2"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Request a CloudWiFi site survey</SheetTitle>

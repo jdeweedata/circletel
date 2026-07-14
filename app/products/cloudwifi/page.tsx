@@ -34,7 +34,7 @@ export default function CloudWiFiPage() {
     <div className="min-h-screen bg-circleTel-lightNeutral text-circleTel-navy">
       <a
         href="#main-content"
-        className="sr-only z-50 rounded-md bg-white px-4 py-3 font-semibold text-circleTel-navy shadow-lg focus:fixed focus:left-4 focus:top-4 focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+        className="sr-only z-50 rounded-md bg-white px-4 py-3 font-semibold text-circleTel-navy shadow-lg focus:fixed focus:left-4 focus:top-4 focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-circleTel-orange-accessible"
       >
         Skip to main content
       </a>

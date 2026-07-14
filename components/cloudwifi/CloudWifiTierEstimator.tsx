@@ -38,7 +38,7 @@ const BACKHAUL_OPTIONS: ReadonlyArray<{
 ];
 
 const controlClassName =
-  "h-11 w-full rounded-md border border-circleTel-navy/20 bg-white px-3 text-base text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2";
+  "h-11 w-full rounded-md border border-circleTel-navy/20 bg-white px-3 text-base text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2";
 
 function positiveNumber(
   value: string,
@@ -159,7 +159,7 @@ export function CloudWifiTierEstimator() {
             type="number"
             value={floorAreaInput}
             onChange={(event) => setFloorAreaInput(event.target.value)}
-            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange md:text-base"
+            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange-accessible md:text-base"
           />
           <p className="text-sm text-circleTel-secondaryNeutral">
             Approximate square metres
@@ -183,7 +183,7 @@ export function CloudWifiTierEstimator() {
             type="number"
             value={peakUsersInput}
             onChange={(event) => setPeakUsersInput(event.target.value)}
-            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange md:text-base"
+            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange-accessible md:text-base"
           />
         </div>
 
@@ -259,7 +259,7 @@ export function CloudWifiTierEstimator() {
               type="button"
               variant="cta"
               size="lg"
-              className="w-full bg-circleTel-orange-accessible hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-circleTel-orange focus-visible:ring-offset-2"
+              className="w-full bg-circleTel-orange-accessible hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2"
               onClick={() =>
                 requestSurvey({
                   venueType: recommendation.venueType,

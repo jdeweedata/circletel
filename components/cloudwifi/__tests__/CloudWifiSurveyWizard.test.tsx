@@ -232,6 +232,13 @@ describe("CloudWifiSurveyWizard", () => {
     expect(button("Continue").props.className).toContain(
       "bg-circleTel-orange-accessible",
     );
+    for (const node of renderer.root.findAll(
+      (candidate) => typeof candidate.props.className === "string",
+    )) {
+      expect(node.props.className).not.toMatch(
+        /focus-visible:ring-circleTel-orange(?:\s|$)/,
+      );
+    }
     const aside = renderer.root.findByType("aside");
     expect(aside.props.id).toBe("cloudwifi-survey");
     expect(aside.props.className).toContain("lg:sticky");
