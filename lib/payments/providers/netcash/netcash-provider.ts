@@ -302,8 +302,10 @@ export class NetCashProvider extends BasePaymentProvider {
   verifySignature(payload: string, signature: string): boolean {
     try {
       if (!this.webhookSecret) {
-        this.log('warn', 'Webhook secret not configured, skipping verification');
-        return true; // Skip verification in development
+        // Fail closed: without a configured secret we cannot verify authenticity,
+        // so reject rather than accept forged payment webhooks.
+        this.log('error', 'NETCASH_WEBHOOK_SECRET not configured — rejecting webhook');
+        return false;
       }
 
       const expectedSignature = crypto
