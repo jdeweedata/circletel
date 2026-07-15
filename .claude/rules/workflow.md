@@ -6,19 +6,37 @@ Scope: Superpowers-gated workflow pipeline, blast radius minimization, confirm-b
 
 ## Superpowers Pipeline (MANDATORY)
 
-Every task flows through 6 stages. Each stage has a mandatory skill gate — you MUST invoke the skill via the `Skill` tool before proceeding. Skipping a gate is a rule violation equivalent to writing placeholder code.
+Every task flows through these stages. Each stage has a mandatory gate — you MUST satisfy it before proceeding. Skipping a gate is a rule violation equivalent to writing placeholder code.
 
 ```
-START → PLAN → IMPLEMENT → VERIFY → SHIP → LEARN
-  |       |        |          |        |       |
-  v       v        v          v        v       v
- brainstorming  writing-plans  TDD    verification  finishing-branch  compound
- debugging      executing-plans  parallel-agents  code-review
+BRANCH → START → PLAN → IMPLEMENT → VERIFY → SHIP → LEARN
+   |       |       |        |          |        |       |
+   v       v       v        v          v        v       v
+ clean   brainstorming  writing-plans  TDD    verification  finishing-branch  compound
+ branch  debugging      executing-plans  parallel-agents  code-review
 ```
+
+### Stage 0: BRANCH — Isolate the Work (MANDATORY)
+
+**Before reading files or writing a single line, guarantee a clean, dedicated branch.**
+
+Never commit feature or fix work onto `main` or `staging` — both are deploy targets. One branch = one logical change; don't pile unrelated work onto an existing feature branch.
+
+1. **Check current state**: `git branch --show-current` and `git status --short`.
+2. **Tree must be clean before branching.** If there are uncommitted changes that don't belong to this task, stop and ask — stash or commit them first. Do not branch on top of a dirty, unrelated tree.
+3. **If on `main`/`staging`, or on a branch unrelated to this task, create a fresh branch off up-to-date `main`:**
+   ```bash
+   git checkout main && git pull
+   git checkout -b <prefix>/<short-kebab-description>
+   ```
+4. **Branch prefix** (match existing history): `feat/` · `fix/` · `docs/` · `chore/` · `refactor/`.
+5. **For work that must stay isolated from an in-progress branch**, prefer a git worktree — **INVOKE `superpowers:using-git-worktrees`** instead of switching branches in place.
+
+Skipping this gate pollutes the active branch and tree, exactly as a stray uncommitted file does. Treat it as a rule violation.
 
 ### Stage 1: START — Understand & Design
 
-**Before ANY work begins:**
+**Before ANY work begins (on the branch created in Stage 0):**
 
 1. Read all relevant files
 2. **INVOKE `superpowers:brainstorming`** for new features/pages/components

@@ -93,6 +93,7 @@ No "it should work" — prove it works
 9. **Confirm understanding** — Ask questions when requirements are unclear.
 10. **Know the system** — Read `docs/architecture/SYSTEM_OVERVIEW.md` first.
 11. **Respect file placement** — See `.claude/rules/file-organization.md`.
+12. **Branch first** — Create a dedicated `feat/|fix/|docs/|chore/` branch off a clean tree before any new work; never commit feature/fix work onto `main` or `staging`. See `.claude/rules/workflow.md` (Stage 0).
 
 **Remember: Think first, explain second, code third.**
 
@@ -100,6 +101,7 @@ No "it should work" — prove it works
 
 ## Workflow Rules
 
+- **Branch before you build.** Before reading or writing anything for a new feature/fix, confirm the tree is clean and you're on a dedicated branch (`feat/|fix/|docs/|chore/<short-kebab>` off up-to-date `main`). Never work directly on `main` or `staging`. If the tree has unrelated uncommitted changes, stop and ask before branching. This is Stage 0 of the pipeline — see `.claude/rules/workflow.md`.
 - Before writing any code, read the files you intend to modify and their immediate callers.
 - If a task touches more than one file, enter Plan Mode first. Do not skip this.
 - State your assumptions explicitly before proceeding. If uncertain, ask — do not guess.
