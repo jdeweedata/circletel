@@ -115,6 +115,11 @@ export class PayNowBillingService {
       smsTemplate?: 'paymentDue' | 'paymentReminder' | 'debitFailed' | 'emandatePending';
       forceRegenerate?: boolean;
       includeEmandateReminder?: boolean; // Include CTA to complete eMandate setup
+      // A 'debit_order' invoice keeps its collection method unless the caller
+      // explicitly switches it to PayNow (failed debit / no usable mandate).
+      // Without this, sending a PayNow link silently removed invoices from the
+      // submit-debit-orders cron (missed July 2026 collections).
+      allowCollectionMethodOverride?: boolean;
     } = {}
   ): Promise<PayNowProcessResult> {
     const {
@@ -123,6 +128,7 @@ export class PayNowBillingService {
       smsTemplate = 'paymentDue',
       forceRegenerate = false,
       includeEmandateReminder = false,
+      allowCollectionMethodOverride = false,
     } = options;
 
     const errors: string[] = [];
@@ -162,7 +168,8 @@ export class PayNowBillingService {
           customer_id,
           paynow_url,
           paynow_transaction_ref,
-          paynow_sent_at
+          paynow_sent_at,
+          payment_collection_method
         `)
         .eq('id', invoiceId)
         .single();
@@ -242,14 +249,20 @@ export class PayNowBillingService {
         paymentUrl = generateResult.paymentUrl;
         transactionRef = generateResult.transactionRef;
 
-        // 4. Store Pay Now details in invoice
+        // 4. Store Pay Now details in invoice.
+        // Never silently downgrade a debit_order invoice to paynow — that hides
+        // it from the debit-order cron. Only an explicit override (failed debit,
+        // unusable mandate, admin action) may switch the collection method.
+        const invoiceUpdate: Record<string, unknown> = {
+          paynow_url: paymentUrl,
+          paynow_transaction_ref: transactionRef,
+        };
+        if (invoiceData.payment_collection_method !== 'debit_order' || allowCollectionMethodOverride) {
+          invoiceUpdate.payment_collection_method = 'paynow';
+        }
         const { error: updateError } = await supabase
           .from('customer_invoices')
-          .update({
-            paynow_url: paymentUrl,
-            paynow_transaction_ref: transactionRef,
-            payment_collection_method: 'paynow',
-          })
+          .update(invoiceUpdate)
           .eq('id', invoiceId);
 
         if (updateError) {

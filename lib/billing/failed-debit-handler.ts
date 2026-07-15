@@ -144,6 +144,7 @@ export class FailedDebitHandler {
           sendSms: true,
           smsTemplate: 'debitFailed',
           forceRegenerate: true, // Generate new link even if one exists
+          allowCollectionMethodOverride: true, // debit failed — PayNow becomes the collection method
         }
       );
 
