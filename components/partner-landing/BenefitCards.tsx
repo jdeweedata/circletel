@@ -4,39 +4,39 @@ import { PiDeviceMobileBold, PiHeadphonesBold, PiLightningBold, PiMoneyBold, PiU
 const benefits = [
   {
     icon: PiMoneyBold,
-    title: 'High Commissions',
-    stat: '30%',
-    description: 'recurring commission on every customer you refer.',
+    title: 'Recurring Commission',
+    stat: '10%',
+    description: 'of your referrals\' monthly bills, paid every month they stay connected.',
   },
   {
     icon: PiWifiHighBold,
-    title: 'Full Product Range',
-    stat: 'Fibre, LTE, 5G',
-    description: 'home, business, and rural connectivity solutions.',
+    title: 'Multi-Technology Range',
+    stat: 'Fibre, FWA, LTE/5G',
+    description: 'home and business connectivity — you earn on every qualifying package.',
   },
   {
     icon: PiDeviceMobileBold,
     title: 'Work From Anywhere',
     stat: '100%',
-    description: 'remote. Share links via WhatsApp, social media, or in person.',
+    description: 'remote. Refer via WhatsApp, notice boards, or in person.',
   },
   {
     icon: PiUsersBold,
-    title: 'Dedicated Support',
-    stat: '1-on-1',
-    description: 'partner manager to help you close deals faster.',
+    title: 'Direct Access',
+    stat: 'Pilot',
+    description: 'founding partners deal directly with the team that runs the programme.',
   },
   {
     icon: PiHeadphonesBold,
     title: 'Local Support',
     stat: 'SA-based',
-    description: 'South African support team. No overseas call centres.',
+    description: 'South African support team looks after your referrals. No overseas call centres.',
   },
   {
     icon: PiLightningBold,
-    title: 'Fast Onboarding',
-    stat: '5 min',
-    description: 'to sign up and get your unique referral link.',
+    title: 'Simple Start',
+    stat: '1 form',
+    description: 'apply once — we onboard founding partners personally.',
   },
 ];
 

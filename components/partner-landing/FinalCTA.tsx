@@ -17,7 +17,7 @@ export function FinalCTA() {
 
           {/* Subheadline */}
           <p className="text-white/90 mb-8 max-w-2xl mx-auto text-lg">
-            Join 200+ partners already earning with CircleTel. Sign up takes 5 minutes.
+            Founding partner spots are limited. Applying takes five minutes.
           </p>
 
           {/* Benefits */}
@@ -32,7 +32,7 @@ export function FinalCTA() {
             </div>
             <div className="flex items-center gap-2 text-white/90">
               <PiCheckCircleBold className="h-5 w-5 text-circleTel-orange" />
-              <span>Paid monthly</span>
+              <span>Paid monthly, by the 5th</span>
             </div>
           </div>
 
@@ -43,7 +43,7 @@ export function FinalCTA() {
                 size="lg"
                 className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-10 py-6 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
               >
-                Join 200+ partners
+                Apply to join the pilot
                 <PiArrowRightBold className="ml-2 h-5 w-5" />
               </Button>
             </Link>
