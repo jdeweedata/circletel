@@ -5,6 +5,7 @@ import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
 import { Coordinates } from '@/lib/coverage/types';
 import { CoverageLogger } from '@/lib/analytics/coverage-logger';
 import { apiLogger } from '@/lib/logging';
+import { normalizeSegment, customerTypesForSegment, sortPackagesForSegment } from '@/lib/coverage/customer-segments';
 
 // ============================================================================
 // TYPES
@@ -51,6 +52,7 @@ interface ServicePackage {
   metadata?: Record<string, unknown> | null;
   compatible_providers?: string[];
   active: boolean;
+  customer_type?: string;
 }
 
 interface NetworkProvider {
@@ -108,7 +110,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const leadId = searchParams.get('leadId');
-    const coverageType = searchParams.get('type') || 'residential'; // Get coverage type from URL
+    const coverageType = normalizeSegment(searchParams.get('type')); // 'residential' | 'wfh' | 'business'
 
     if (!leadId) {
       return NextResponse.json(
@@ -324,13 +326,13 @@ export async function GET(request: NextRequest) {
       // Get available packages for the mapped product categories
       // Note: When no mappings exist, availableServices contains service_type values (e.g., 'SkyFibre', 'HomeFibreConnect')
       // When mappings exist, productCategories contains product_category values (e.g., 'wireless', 'fibre_consumer')
-      // Filter by customer_type based on coverage type
-      // Note: service_packages.customer_type is VARCHAR with values: 'business', 'consumer'
-      // coverage_leads.customer_type is ENUM with values: 'consumer', 'smme', 'enterprise'
-      const packageCustomerType = coverageType === 'business' ? 'business' : 'consumer';
+      // Filter by customer_type based on segment.
+      // service_packages.customer_type: 'consumer' | 'business' | 'both' | 'soho'
+      // coverage_leads.customer_type is a separate ENUM: 'consumer' | 'smme' | 'enterprise'
+      const packageCustomerTypes = customerTypesForSegment(coverageType);
 
       apiLogger.info('[Packages API] Querying packages with', {
-        packageCustomerType,
+        packageCustomerTypes,
         productCategories,
         usingMappings: !!(mappings && mappings.length > 0),
         query: mappings && mappings.length > 0
@@ -346,7 +348,7 @@ export async function GET(request: NextRequest) {
             ? `product_category.in.(${productCategories.join(',')})`
             : `service_type.in.(${productCategories.join(',')})`
         )
-        .eq('customer_type', packageCustomerType)
+        .in('customer_type', packageCustomerTypes)
         .eq('active', true)
         .order('price', { ascending: true });
 
@@ -396,6 +398,7 @@ export async function GET(request: NextRequest) {
             id: pkg.id,
             name: pkg.name,
             service_type: pkg.service_type,
+            customer_type: pkg.customer_type,
             product_category: pkg.product_category,
             speed_down: pkg.speed_down,
             speed_up: pkg.speed_up,
@@ -430,12 +433,15 @@ export async function GET(request: NextRequest) {
             });
           }
         }
+
+        // WFH: lead with SOHO (WorkConnect) packages
+        availablePackages = sortPackagesForSegment(coverageType, availablePackages);
       }
 
       // Log for debugging
       apiLogger.info('Coverage check', {
         coverageType,
-        packageCustomerType,
+        packageCustomerTypes,
         availableServices,
         productCategories,
         packagesFound: availablePackages.length

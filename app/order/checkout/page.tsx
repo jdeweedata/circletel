@@ -21,6 +21,7 @@ import { ServiceAddressSection } from '@/components/order/checkout/ServiceAddres
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { createClient } from '@/lib/supabase/client';
 import {
   ORDER_PROCESSING_FEE_AMOUNT,
@@ -66,6 +67,13 @@ export default function CheckoutPage() {
 
   const pkg = orderState.orderData.package?.selectedPackage;
   const coverage = orderState.orderData.coverage;
+
+  // SOHO (WorkConnect) can be signed up personally or as a business — user chooses.
+  const isSohoPackage = pkg?.customer_type === 'soho';
+  const [sohoAccountType, setSohoAccountType] = useState<'personal' | 'business'>('personal');
+  const derivedAccountType: 'personal' | 'business' = isSohoPackage
+    ? sohoAccountType
+    : coverage?.coverageType === 'business' ? 'business' : 'personal';
 
   const [serviceAddress, setServiceAddress] = useState(coverage?.address ?? '');
   const [serviceCoordinates, setServiceCoordinates] = useState(coverage?.coordinates);
@@ -151,7 +159,7 @@ export default function CheckoutPage() {
           lastName: result.customer.last_name,
           phone: result.customer.phone,
           isAuthenticated: true,
-          accountType: coverage?.coverageType === 'business' ? 'business' : 'personal',
+          accountType: derivedAccountType,
           termsAccepted: true,
         },
       });
@@ -197,7 +205,7 @@ export default function CheckoutPage() {
         lastName,
         phone,
         isAuthenticated: true,
-        accountType: coverage?.coverageType === 'business' ? 'business' : 'personal',
+        accountType: derivedAccountType,
         termsAccepted: false,
       },
     });
@@ -295,7 +303,7 @@ export default function CheckoutPage() {
         delivery_address: finalDeliveryAddress,
         coordinates: serviceCoordinates,
         installation_location_type: propertyType,
-        account_type: coverage?.coverageType === 'business' ? 'business' : 'personal',
+        account_type: derivedAccountType,
         coverage_lead_id: coverage?.leadId,
         metadata: confirmedSkyFibreOrderability
           ? { skyfibre_orderability: confirmedSkyFibreOrderability }
@@ -528,6 +536,29 @@ export default function CheckoutPage() {
                   email={customer?.email || user?.email || ''}
                   onSignOut={handleSignOut}
                 />
+
+                {isSohoPackage && (
+                  <div className="mt-5">
+                    <p className="text-sm font-bold text-circleTel-navy mb-2">I&apos;m signing up as</p>
+                    <RadioGroup
+                      value={sohoAccountType}
+                      onValueChange={(v) => setSohoAccountType(v as 'personal' | 'business')}
+                      className="flex gap-6"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="personal" id="soho-personal" />
+                        <Label htmlFor="soho-personal">Personal</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="business" id="soho-business" />
+                        <Label htmlFor="soho-business">Business</Label>
+                      </div>
+                    </RadioGroup>
+                    <p className="text-xs text-gray-500 mt-1">
+                      WorkConnect can be billed to you personally or to your business.
+                    </p>
+                  </div>
+                )}
 
                 {/* Collect missing profile details (Google OAuth users) */}
                 {(!customer?.first_name || !customer?.phone) && (

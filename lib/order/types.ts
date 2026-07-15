@@ -136,6 +136,7 @@ export interface PackageDetails {
   speed: string;
   type?: 'fibre' | 'wireless' | 'mobile';
   service_type?: string;
+  customer_type?: string;
   product_category?: string;
   speed_down?: number;
   speed_up?: number;

@@ -25,11 +25,14 @@ import {
 } from '@/components/ui/tooltip';
 import { extractBenefits, extractAdditionalInfo } from '@/lib/products/feature-formatter';
 import { ENTERTAINMENT_BUNDLES, type EntertainmentBundle } from '@/lib/data/entertainment-bundles';
+import { SegmentToggle } from '@/components/coverage/SegmentToggle';
+import { normalizeSegment, isQuoteOnlyPackage, type CoverageSegment } from '@/lib/coverage/customer-segments';
 
 interface Package {
   id: string;
   name: string;
   service_type: string;
+  customer_type?: string;
   product_category?: string;
   speed_down: number;
   speed_up: number;
@@ -68,7 +71,7 @@ function PackagesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const leadId = params.leadId as string;
-  const coverageType = searchParams.get('type') || 'residential';
+  const coverageType = normalizeSegment(searchParams.get('type'));
   const bundleId = searchParams.get('bundle')
   const activeBundle: EntertainmentBundle | null = bundleId
     ? (ENTERTAINMENT_BUNDLES.find(b => b.id === bundleId) ?? null)
@@ -229,6 +232,7 @@ function PackagesContent() {
       id: pkg.id,
       name: pkg.name,
       service_type: pkg.service_type,
+      customer_type: pkg.customer_type,
       product_category: pkg.product_category,
       speed_down: pkg.speed_down,
       speed_up: pkg.speed_up,
@@ -266,12 +270,19 @@ function PackagesContent() {
   };
 
   const handleContinue = () => {
+    if (selectedPackage && isQuoteOnlyPackage(selectedPackage)) {
+      // Business packages onboard via the B2B quote pipeline, not self-checkout
+      router.push(`/quotes/request?packageId=${selectedPackage.id}&leadId=${leadId}`);
+      return;
+    }
+
     if (selectedPackage) {
       // Convert Package to PackageDetails and save to context
       const packageDetails: PackageDetails = {
         id: selectedPackage.id,
         name: selectedPackage.name,
         service_type: selectedPackage.service_type,
+        customer_type: selectedPackage.customer_type,
         product_category: selectedPackage.product_category,
         speed_down: selectedPackage.speed_down,
         speed_up: selectedPackage.speed_up,
@@ -357,6 +368,15 @@ function PackagesContent() {
     router.push('/#coverage');
   };
 
+  const handleSegmentChange = (segment: CoverageSegment) => {
+    if (segment === coverageType) return;
+    setSelectedPackage(null);
+    setShowAllPackages(false);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('type', segment);
+    router.replace(`/packages/${leadId}?${params.toString()}`, { scroll: false });
+  };
+
   // Map ServiceType to package filtering logic
   // Note: SkyFibre packages use service_type='SkyFibre' and product_category='connectivity'
   const getFilteredPackages = () => {
@@ -385,14 +405,16 @@ function PackagesContent() {
       return packages.filter(p => {
         const serviceType = (p.service_type || '').toLowerCase();
         const productCategory = (p.product_category || '').toLowerCase();
-        // Include: wireless, skyfibre, or connectivity (for SkyFibre products)
+        // Include: wireless, skyfibre, workconnect, or connectivity (for SkyFibre products)
         // Exclude: LTE and 5G (they have their own tabs)
-        const isWireless = serviceType.includes('wireless') || 
+        const isWireless = serviceType.includes('wireless') ||
                           serviceType.includes('skyfibre') ||
+                          serviceType.includes('workconnect') ||
                           productCategory.includes('wireless') ||
+                          productCategory === 'soho' ||
                           // SkyFibre products use connectivity category
                           (serviceType.includes('skyfibre') && productCategory === 'connectivity');
-        const isNotMobile = !serviceType.includes('lte') && 
+        const isNotMobile = !serviceType.includes('lte') &&
                            !serviceType.includes('5g') &&
                            !productCategory.includes('lte') &&
                            !productCategory.includes('5g');
@@ -403,6 +425,10 @@ function PackagesContent() {
   };
 
   const filteredPackages = getFilteredPackages();
+
+  const continueLabel = selectedPackage && isQuoteOnlyPackage(selectedPackage)
+    ? 'Request a Quote'
+    : undefined;
 
   // Auto-select first package for the current service
   useEffect(() => {
@@ -447,11 +473,13 @@ function PackagesContent() {
     wireless: packages.filter(p => {
       const serviceType = (p.service_type || '').toLowerCase();
       const productCategory = (p.product_category || '').toLowerCase();
-      const isWireless = serviceType.includes('wireless') || 
+      const isWireless = serviceType.includes('wireless') ||
                         serviceType.includes('skyfibre') ||
+                        serviceType.includes('workconnect') ||
                         productCategory.includes('wireless') ||
+                        productCategory === 'soho' ||
                         (serviceType.includes('skyfibre') && productCategory === 'connectivity');
-      const isNotMobile = !serviceType.includes('lte') && 
+      const isNotMobile = !serviceType.includes('lte') &&
                          !serviceType.includes('5g') &&
                          !productCategory.includes('lte') &&
                          !productCategory.includes('5g');
@@ -479,6 +507,8 @@ function PackagesContent() {
         return 'blue';  // Wireless/LTE
       } else if (serviceType.includes('5g')) {
         return 'yellow';  // 5G
+      } else if (serviceType.includes('workconnect') || serviceType.includes('soho')) {
+        return 'orange';  // WorkConnect
       }
       return 'pink';  // Default
     };
@@ -604,6 +634,14 @@ function PackagesContent() {
               </p>
             </div>
 
+            {/* Segment Toggle: Home / Work from Home / Business */}
+            <div className="mb-6">
+              <SegmentToggle
+                activeSegment={coverageType}
+                onSegmentChange={handleSegmentChange}
+              />
+            </div>
+
             {/* Service Toggle */}
             <div className="mb-8">
               <ServiceToggle
@@ -677,6 +715,8 @@ function PackagesContent() {
                             return 'blue';
                           } else if (serviceType.includes('5g')) {
                             return 'yellow';
+                          } else if (serviceType.includes('workconnect') || serviceType.includes('soho')) {
+                            return 'orange';
                           }
                           return 'pink';
                         };
@@ -782,6 +822,7 @@ function PackagesContent() {
                     }}
                     recommended={filteredPackages.indexOf(selectedPackage) === 0}
                     onOrderClick={handleContinue}
+                    orderButtonLabel={continueLabel}
                   />
                 </div>
               )}
@@ -868,6 +909,7 @@ function PackagesContent() {
           }}
           recommended={filteredPackages.indexOf(selectedPackage) === 0}
           onOrderClick={handleContinue}
+          orderButtonLabel={continueLabel}
         />
       )}
 
@@ -901,7 +943,7 @@ function PackagesContent() {
                 className="flex-1 sm:flex-none bg-circleTel-orange hover:bg-orange-600 text-white min-h-[44px]"
                 size="default"
               >
-                Continue →
+                {continueLabel ? `${continueLabel} →` : 'Continue →'}
               </Button>
             </div>
           </div>

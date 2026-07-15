@@ -35,7 +35,7 @@ interface AgentInfo {
 interface CoverageResult {
   lead_id: string;
   address: string;
-  coordinates: { lat: number; lng: number };
+  coordinates: { lat: number; lng: number } | null;
   available: boolean;
   packages: any[];
 }
@@ -51,6 +51,8 @@ function QuoteRequestFormContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams?.get('token');
+  const prefillPackageId = searchParams?.get('packageId');
+  const prefillLeadId = searchParams?.get('leadId');
 
   const [step, setStep] = useState<Step>('coverage');
   const [loading, setLoading] = useState(false);
@@ -101,6 +103,44 @@ function QuoteRequestFormContent() {
       console.error('Token validation error:', err);
     }
   };
+
+  // Prefill from the coverage-check results page (business package deep link)
+  useEffect(() => {
+    if (!prefillPackageId || !prefillLeadId) return;
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const [leadRes, pkgRes] = await Promise.all([
+          fetch(`/api/coverage/lead?leadId=${prefillLeadId}`),
+          fetch(`/api/coverage/packages?leadId=${prefillLeadId}&type=business`),
+        ]);
+        if (!leadRes.ok || !pkgRes.ok) return; // best-effort: fall back to blank form
+        const lead = await leadRes.json();
+        const pkgData = await pkgRes.json();
+        if (cancelled) return;
+        const packages = pkgData.packages || [];
+        setCoverageResult({
+          lead_id: prefillLeadId,
+          address: lead.address || pkgData.address || '',
+          coordinates: pkgData.coordinates || null,
+          available: true,
+          packages,
+        });
+        setAddress(lead.address || '');
+        if (packages.some((p: { id: string }) => p.id === prefillPackageId)) {
+          setSelectedPackages([{ package_id: prefillPackageId, item_type: 'primary', quantity: 1 }]);
+        }
+        setStep('details');
+      } catch {
+        // best-effort prefill; user can run the in-form coverage check instead
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefillPackageId, prefillLeadId]);
 
   const handleCoverageCheck = async () => {
     if (!address.trim()) {

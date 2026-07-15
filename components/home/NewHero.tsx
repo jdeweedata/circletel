@@ -6,6 +6,7 @@ import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { heroSegmentToUrlType } from '@/lib/coverage/customer-segments';
 
 export type SegmentType = 'business' | 'wfh' | 'home';
 
@@ -106,10 +107,11 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
     if (!address.trim()) return;
     setIsChecking(true);
     try {
+      const urlType = heroSegmentToUrlType(activeSegment);
       sessionStorage.setItem('circletel_coverage_address', JSON.stringify({
         address: address.trim(),
         coordinates,
-        type: activeSegment === 'business' ? 'business' : 'residential',
+        type: urlType,
         addressComponents,
         timestamp: new Date().toISOString(),
       }));
@@ -120,14 +122,13 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
         body: JSON.stringify({
           address: address.trim(),
           coordinates,
-          coverageType: activeSegment === 'business' ? 'business' : 'residential',
+          coverageType: urlType,
         }),
       });
 
       if (!response.ok) throw new Error('Failed to create coverage lead');
       const data = await response.json();
-      const packageType = activeSegment === 'business' ? 'business' : 'residential';
-      window.location.href = `/packages/${data.leadId}?type=${packageType}`;
+      window.location.href = `/packages/${data.leadId}?type=${urlType}`;
     } catch (error) {
       console.error('Coverage check failed:', error);
       alert('Coverage check failed. Please try again.');

@@ -78,8 +78,8 @@ const customJestConfig = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/.next/',
-    '/coverage/',
-    '/dist/',
+    '<rootDir>/coverage/',
+    '<rootDir>/dist/',
   ],
 
   // Verbose output
