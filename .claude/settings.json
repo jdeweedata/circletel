@@ -53,6 +53,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node /home/circletel/.claude/hooks/memory-rotate.js"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
             "command": "pwsh -NonInteractive -File /home/circletel/.claude/hooks/session-end-check.ps1 -ProjectPath /home/circletel"
           }
         ]
