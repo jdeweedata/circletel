@@ -62,13 +62,15 @@ function getBooksBaseUrl(): string {
 }
 
 async function getAccessToken(): Promise<string> {
-  // Self Client credentials (has ZohoBooks.fullaccess.ALL scope)
-  const refreshToken = process.env.ZOHO_BOOKS_REFRESH_TOKEN || '1000.e10c748912f5df1e0d200340927e2323.7d9a7ccf1f7273b5f78b104ae6bde1a0';
-  const clientId = process.env.ZOHO_BOOKS_CLIENT_ID || '1000.EIDKFRP87CAZYVGZKABAOV1Y4LP8RF';
-  const clientSecret = process.env.ZOHO_BOOKS_CLIENT_SECRET || '3c5ed40803e136bcb749efe8ae02e188fef9df34ff';
+  // Self Client credentials (has ZohoBooks.fullaccess.ALL scope) — env only, never hardcode.
+  // Hardcoded fallbacks removed 2026-07-02: they were the LIVE Books refresh token + client secret
+  // and had leaked into git. Rotate in Zoho console; supply via .env.local / deployment env.
+  const refreshToken = process.env.ZOHO_BOOKS_REFRESH_TOKEN;
+  const clientId = process.env.ZOHO_BOOKS_CLIENT_ID;
+  const clientSecret = process.env.ZOHO_BOOKS_CLIENT_SECRET;
 
   if (!refreshToken || !clientId || !clientSecret) {
-    throw new Error('Missing Zoho OAuth credentials');
+    throw new Error('Missing Zoho Books OAuth credentials — set ZOHO_BOOKS_REFRESH_TOKEN / ZOHO_BOOKS_CLIENT_ID / ZOHO_BOOKS_CLIENT_SECRET in the environment');
   }
 
   const tokenUrl = ZOHO_REGION === 'EU'

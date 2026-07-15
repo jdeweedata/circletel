@@ -9,12 +9,12 @@
 
 **Staging Secret:**
 ```
-CtLE3LsjW5B76VB74goex++4poBSt/4MVX1tZyQHvEc=
+<NETCASH_WEBHOOK_SECRET>
 ```
 
 **Production Secret:**
 ```
-4cjhM5XyfuCOMrdCXhYP6Hky3/4g1mJ3s+iLLKZG2ec=
+<NETCASH_WEBHOOK_SECRET>
 ```
 
 **⚠️ SECURITY NOTE:** These secrets are saved in:
@@ -41,7 +41,7 @@ Add these variables:
 
 | Variable Name | Value |
 |---------------|-------|
-| `NETCASH_WEBHOOK_SECRET` | `CtLE3LsjW5B76VB74goex++4poBSt/4MVX1tZyQHvEc=` |
+| `NETCASH_WEBHOOK_SECRET` | `<NETCASH_WEBHOOK_SECRET>` |
 | `NETCASH_MERCHANT_ID` | `52340889417` |
 | `NETCASH_MERCHANT_KEY` | *(Get from Netcash portal)* |
 | `NETCASH_SERVICE_KEY` | *(Get from Netcash portal)* |
@@ -197,7 +197,7 @@ Go to Vercel Dashboard → **circletel-nextjs** → **Settings** → **Environme
 
 | Variable Name | Value |
 |---------------|-------|
-| `NETCASH_WEBHOOK_SECRET` | `4cjhM5XyfuCOMrdCXhYP6Hky3/4g1mJ3s+iLLKZG2ec=` |
+| `NETCASH_WEBHOOK_SECRET` | `<NETCASH_WEBHOOK_SECRET>` |
 | `NETCASH_MERCHANT_ID` | `52552945156` |
 | `NETCASH_MERCHANT_KEY` | *(Get from Netcash portal - production account)* |
 | `NETCASH_SERVICE_KEY` | *(Get from Netcash portal - production account)* |
