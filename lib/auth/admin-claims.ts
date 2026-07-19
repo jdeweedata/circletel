@@ -44,6 +44,50 @@ export interface AdminClaim {
 }
 
 /**
+ * Exactly the fields allowed into the client-readable JWT claim profile.
+ * This is the security boundary for what an admin_users row may expose: a
+ * new column added to admin_users is NOT embedded unless it is deliberately
+ * added here AND to the AdminUser interface. Keep it free of secrets.
+ */
+export const ADMIN_CLAIM_PROFILE_FIELDS: ReadonlyArray<keyof AdminUser> = [
+  'id',
+  'email',
+  'full_name',
+  'role',
+  'permissions',
+  'custom_permissions',
+  'department',
+  'is_active',
+  'role_template_id',
+  'job_title',
+  'created_at',
+  'updated_at',
+];
+
+/**
+ * Project an admin_users row down to the allowlisted claim profile.
+ * Explicit construction (not a spread) so extra DB columns can never leak
+ * into the JWT, and TypeScript fails the build if AdminUser gains a required
+ * field that isn't projected here.
+ */
+export function buildAdminClaimProfile(row: AdminUser): AdminUser {
+  return {
+    id: row.id,
+    email: row.email,
+    full_name: row.full_name,
+    role: row.role,
+    permissions: row.permissions,
+    custom_permissions: row.custom_permissions,
+    department: row.department,
+    is_active: row.is_active,
+    role_template_id: row.role_template_id,
+    job_title: row.job_title,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+/**
  * Extract a valid, fresh admin claim from a Supabase user, or null.
  */
 export function getAdminClaim(user: User, maxAgeMs: number): AdminClaim | null {
@@ -83,7 +127,8 @@ export async function stampAdminClaim(
       v: ADMIN_CLAIM_VERSION,
       stamped_at: new Date().toISOString(),
       role: adminRow.role,
-      profile: adminRow,
+      // Allowlist projection — never embed the raw row (audit H3 review).
+      profile: buildAdminClaimProfile(adminRow),
     };
     const { error } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
       app_metadata: { admin_claim: claim },

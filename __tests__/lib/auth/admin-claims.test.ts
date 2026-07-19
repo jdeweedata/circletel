@@ -11,8 +11,10 @@ import type { AdminUser } from '@/lib/auth/admin-api-auth';
 import {
   getAdminClaim,
   stampAdminClaim,
+  buildAdminClaimProfile,
   ADMIN_CLAIM_VERSION,
   ADMIN_CLAIM_API_TTL_MS,
+  ADMIN_CLAIM_PROFILE_FIELDS,
 } from '@/lib/auth/admin-claims';
 
 const TTL = ADMIN_CLAIM_API_TTL_MS;
@@ -135,5 +137,50 @@ describe('stampAdminClaim', () => {
 
     await stampAdminClaim(supabaseAdmin, 'auth-1', adminProfile());
     expect(getAdminClaim(userWithClaim(captured), TTL)).not.toBeNull();
+  });
+
+  it('does NOT embed non-allowlisted columns in the JWT claim (leak guard)', async () => {
+    // Simulate an admin_users row that has grown an internal/secret column.
+    const rowWithSecret = {
+      ...adminProfile(),
+      internal_risk_score: 42,
+      partner_api_key: 'sk_live_should_never_ship_to_client',
+    } as never;
+
+    let captured: { profile: Record<string, unknown> } | undefined;
+    const updateUserById = jest.fn().mockImplementation(async (_id, payload) => {
+      captured = payload.app_metadata.admin_claim;
+      return { error: null };
+    });
+    const supabaseAdmin = { auth: { admin: { updateUserById } } } as never;
+
+    await stampAdminClaim(supabaseAdmin, 'auth-1', rowWithSecret);
+
+    const profileKeys = Object.keys(captured!.profile);
+    expect(profileKeys).not.toContain('internal_risk_score');
+    expect(profileKeys).not.toContain('partner_api_key');
+    // Every embedded key must be on the allowlist — fails CI if a field slips in.
+    for (const key of profileKeys) {
+      expect(ADMIN_CLAIM_PROFILE_FIELDS).toContain(key);
+    }
+  });
+});
+
+describe('buildAdminClaimProfile', () => {
+  it('drops any field not on the allowlist', () => {
+    const projected = buildAdminClaimProfile({
+      ...adminProfile(),
+      secret_column: 'nope',
+    } as never);
+    expect(Object.keys(projected)).not.toContain('secret_column');
+    expect(new Set(Object.keys(projected))).toEqual(new Set(ADMIN_CLAIM_PROFILE_FIELDS));
+  });
+
+  it('preserves all allowlisted values', () => {
+    const row = adminProfile({ role: 'product_manager', email: 'pm@circletel.co.za' });
+    const projected = buildAdminClaimProfile(row);
+    expect(projected.role).toBe('product_manager');
+    expect(projected.email).toBe('pm@circletel.co.za');
+    expect(projected.is_active).toBe(true);
   });
 });
