@@ -212,7 +212,6 @@ describe("CloudWiFi survey request schema", () => {
   it.each([
     ["venue.city", undefined, "City is required."],
     ["venue.city", 123, "City must be text."],
-    ["venue.siteAddress", undefined, "Site address is required."],
     ["venue.siteAddress", 123, "Site address must be text."],
     ["venue.postalCode", 2196, "Postal code must be text."],
     ["details.requirements", 123, "Requirements must be text."],
@@ -338,11 +337,18 @@ describe("CloudWiFi survey request schema", () => {
     },
   );
 
-  it("requires at least one network", () => {
-    expect(
-      cloudWifiSurveySchema.safeParse(requestWith("details.networks", []))
-        .success,
-    ).toBe(false);
+  it("defaults an empty networks list to guest for short lead forms", () => {
+    const parsed = cloudWifiSurveySchema.parse(
+      requestWith("details.networks", []),
+    );
+    expect(parsed.details.networks).toEqual(["guest"]);
+  });
+
+  it("falls back site address to city when omitted", () => {
+    const request = structuredClone(validRequest) as Record<string, any>;
+    delete request.venue.siteAddress;
+    const parsed = cloudWifiSurveySchema.parse(request);
+    expect(parsed.venue.siteAddress).toBe("Johannesburg");
   });
 
   it("deduplicates networks and add-ons while preserving selection order", () => {
@@ -411,7 +417,7 @@ describe("CloudWiFi survey request schema", () => {
   it("formats validation errors with stable nested field paths and messages", () => {
     const request = structuredClone(validRequest) as Record<string, any>;
     request.venue.city = "J";
-    request.details.networks = [];
+    request.contact.email = "not-an-email";
 
     const result = cloudWifiSurveySchema.safeParse(request);
     expect(result.success).toBe(false);
@@ -423,8 +429,8 @@ describe("CloudWiFi survey request schema", () => {
           message: "City must contain at least 2 characters.",
         },
         {
-          field: "details.networks",
-          message: "Select at least one network.",
+          field: "contact.email",
+          message: "Enter a valid email address.",
         },
       ]);
     }
@@ -490,7 +496,7 @@ describe("CloudWiFi coverage lead payload", () => {
       best_contact_time: "morning",
       status: "new",
       follow_up_notes:
-        "CloudWiFi site survey requested. Recommended tier: Professional. Venue: hospitality, 450 sqm, 120 peak users, fibre backhaul.",
+        "CloudWiFi site survey requested. Preferred contact: morning. Venue: hospitality in Johannesburg. Estimator hint: Professional. Notes: Include the courtyard",
       requirements: {
         venue_type: "hospitality",
         floor_area_sqm: 450,
@@ -537,8 +543,27 @@ describe("CloudWiFi coverage lead payload", () => {
     const payload = buildLeadPayload(cloudWifiSurveySchema.parse(request));
 
     expect(payload.metadata.recommended_tier).toBe("campus");
-    expect(payload.follow_up_notes).toContain("Recommended tier: Campus.");
+    expect(payload.follow_up_notes).toContain("Estimator hint: Campus.");
     expect(payload.metadata.attribution).toEqual({});
+  });
+
+  it("accepts a short lead form payload and fills technical defaults", () => {
+    const parsed = cloudWifiSurveySchema.parse({
+      venue: {
+        venueType: "retail",
+        city: "Durban",
+      },
+      contact: validRequest.contact,
+      attribution: { pageSource: "cloudwifi_product_page" },
+    });
+
+    expect(parsed.venue.siteAddress).toBe("Durban");
+    expect(parsed.venue.floorArea).toBe(300);
+    expect(parsed.venue.peakUsers).toBe(50);
+    expect(parsed.venue.backhaul).toBe("unknown");
+    expect(parsed.details.networks).toEqual(["guest"]);
+    expect(parsed.details.wallMaterial).toBe("unknown");
+    expect(parsed.details.floors).toBe(1);
   });
 
   it.each(["2000-01-01T00:00:00.000Z", "2099-12-31T23:59:59.000Z"])(

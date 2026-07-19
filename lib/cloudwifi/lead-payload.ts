@@ -5,6 +5,7 @@ import type { CloudWifiSurveyRequest } from "./survey-schema";
 
 type SurveyNetwork = CloudWifiSurveyRequest["details"]["networks"][number];
 type SurveyAddOn = CloudWifiSurveyRequest["details"]["addOns"][number];
+type CloudWifiTierId = ReturnType<typeof recommendCloudWifiTier>["tier"];
 
 export interface CloudWifiLeadPayload {
   readonly customer_type: "smme";
@@ -35,9 +36,7 @@ export interface CloudWifiLeadPayload {
   readonly metadata: {
     readonly page_source: "cloudwifi_product_page";
     readonly full_name: string;
-    readonly recommended_tier: ReturnType<
-      typeof recommendCloudWifiTier
-    >["tier"];
+    readonly recommended_tier: CloudWifiTierId | null;
     readonly recommendation_reasons: readonly string[];
     readonly backhaul_guidance: string | null;
     readonly consented_at: string;
@@ -70,17 +69,34 @@ function validateReceivedAt(receivedAt: string): string {
   return result.data;
 }
 
+const CONTACT_TIME_LABELS: Record<
+  CloudWifiSurveyRequest["contact"]["preferredContactTime"],
+  string
+> = {
+  morning: "morning",
+  afternoon: "afternoon",
+  anytime: "any time",
+};
+
+function tryRecommend(request: CloudWifiSurveyRequest) {
+  try {
+    return recommendCloudWifiTier({
+      venueType: request.venue.venueType,
+      floorArea: request.venue.floorArea,
+      peakUsers: request.venue.peakUsers,
+      backhaul: request.venue.backhaul,
+    });
+  } catch {
+    return null;
+  }
+}
+
 export function buildCloudWifiLeadPayload(
   request: CloudWifiSurveyRequest,
   context: CloudWifiLeadBuildContext,
 ): CloudWifiLeadPayload {
   const receivedAt = validateReceivedAt(context.receivedAt);
-  const recommendation = recommendCloudWifiTier({
-    venueType: request.venue.venueType,
-    floorArea: request.venue.floorArea,
-    peakUsers: request.venue.peakUsers,
-    backhaul: request.venue.backhaul,
-  });
+  const recommendation = tryRecommend(request);
   const fullName = request.contact.fullName.trim();
   const [firstName, ...lastNameParts] = fullName.split(/\s+/);
   const attribution = {
@@ -97,12 +113,16 @@ export function buildCloudWifiLeadPayload(
       ? { referrer: request.attribution.referrer }
       : {}),
   };
-  const venueSummary = [
-    request.venue.venueType.replaceAll("_", " "),
-    `${request.venue.floorArea} sqm`,
-    `${request.venue.peakUsers} peak users`,
-    `${request.venue.backhaul.replaceAll("_", " ")} backhaul`,
-  ].join(", ");
+
+  const venueTypeLabel = request.venue.venueType.replaceAll("_", " ");
+  const contactTime =
+    CONTACT_TIME_LABELS[request.contact.preferredContactTime] ??
+    request.contact.preferredContactTime;
+  const notes = request.details.requirements.trim();
+  const noteClause = notes ? ` Notes: ${notes}` : "";
+  const tierClause = recommendation
+    ? ` Estimator hint: ${recommendation.tierDetails.name}.`
+    : "";
 
   return {
     customer_type: "smme" as const,
@@ -119,7 +139,7 @@ export function buildCloudWifiLeadPayload(
     contact_preference: "phone" as const,
     best_contact_time: request.contact.preferredContactTime,
     status: "new" as const,
-    follow_up_notes: `CloudWiFi site survey requested. Recommended tier: ${recommendation.tierDetails.name}. Venue: ${venueSummary}.`,
+    follow_up_notes: `CloudWiFi site survey requested. Preferred contact: ${contactTime}. Venue: ${venueTypeLabel} in ${request.venue.city}.${tierClause}${noteClause}`,
     requirements: {
       venue_type: request.venue.venueType,
       floor_area_sqm: request.venue.floorArea,
@@ -133,9 +153,11 @@ export function buildCloudWifiLeadPayload(
     metadata: {
       page_source: "cloudwifi_product_page" as const,
       full_name: fullName,
-      recommended_tier: recommendation.tier,
-      recommendation_reasons: [...recommendation.reasons],
-      backhaul_guidance: recommendation.backhaulGuidance,
+      recommended_tier: recommendation?.tier ?? null,
+      recommendation_reasons: recommendation
+        ? [...recommendation.reasons]
+        : [],
+      backhaul_guidance: recommendation?.backhaulGuidance ?? null,
       consented_at: receivedAt,
       client_consented_at: request.contact.consentedAt,
       requirements_text: request.details.requirements,

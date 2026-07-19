@@ -35,6 +35,16 @@ const BASE_TEN_INTEGER = /^\d+$/;
 const MAX_FORMATTED_ERRORS = 20;
 const MAX_RAW_SELECTIONS = 32;
 
+/** Defaults applied when the short lead form omits technical survey fields. */
+const LEAD_DEFAULTS = {
+  floorArea: 300,
+  peakUsers: 50,
+  backhaul: "unknown" as const,
+  floors: 1,
+  wallMaterial: "unknown" as const,
+  networks: ["guest"] as Array<(typeof NETWORKS)[number]>,
+};
+
 const textSchema = (label: string) =>
   z.string({
     required_error: `${label} is required.`,
@@ -83,6 +93,18 @@ function strictPositiveNumber(
   }, constrainedSchema);
 }
 
+const optionalPositiveNumber = (
+  label: string,
+  maximum: number,
+  integer: boolean,
+) =>
+  z.preprocess((value) => {
+    if (value === undefined || value === null || value === "") {
+      return undefined;
+    }
+    return value;
+  }, strictPositiveNumber(label, maximum, integer).optional());
+
 const uniqueValues = <T>(values: T[]): T[] => Array.from(new Set(values));
 
 const phoneSchema = z
@@ -129,17 +151,17 @@ const referrerSchema = z
   })
   .optional();
 
-export const cloudWifiSurveySchema = z.object({
-  venue: z.object({
+const venueSchema = z
+  .object({
     venueType: z.enum(CLOUDWIFI_VENUE_TYPES, {
       errorMap: () => ({ message: "Select a supported venue type." }),
     }),
-    floorArea: strictPositiveNumber(
+    floorArea: optionalPositiveNumber(
       "Floor area",
       CLOUDWIFI_SURVEY_NUMERIC_LIMITS.floorArea,
       false,
     ),
-    peakUsers: strictPositiveNumber(
+    peakUsers: optionalPositiveNumber(
       "Peak users",
       CLOUDWIFI_SURVEY_NUMERIC_LIMITS.peakUsers,
       true,
@@ -148,39 +170,63 @@ export const cloudWifiSurveySchema = z.object({
       .trim()
       .min(2, "City must contain at least 2 characters.")
       .max(100, "City must contain at most 100 characters."),
-    siteAddress: textSchema("Site address")
-      .trim()
-      .min(5, "Site address must contain at least 5 characters.")
-      .max(300, "Site address must contain at most 300 characters."),
+    siteAddress: z.preprocess(
+      (value) => (value === undefined || value === null ? "" : value),
+      textSchema("Site address")
+        .trim()
+        .max(300, "Site address must contain at most 300 characters."),
+    ),
     postalCode: textSchema("Postal code")
       .trim()
       .regex(/^(?:|\d{4})$/, "Postal code must be exactly four digits.")
       .optional(),
-    backhaul: z.enum(CLOUDWIFI_BACKHAUL_TYPES, {
-      errorMap: () => ({ message: "Select a supported backhaul type." }),
-    }),
-  }),
-  details: z.object({
-    floors: strictPositiveNumber("Floors", 100, true),
-    wallMaterial: z.enum(WALL_MATERIALS, {
-      errorMap: () => ({ message: "Select a supported wall material." }),
-    }),
+    backhaul: z
+      .enum(CLOUDWIFI_BACKHAUL_TYPES, {
+        errorMap: () => ({ message: "Select a supported backhaul type." }),
+      })
+      .optional(),
+  })
+  .transform((venue) => {
+    const city = venue.city.trim();
+    const siteAddress =
+      typeof venue.siteAddress === "string" && venue.siteAddress.trim().length >= 5
+        ? venue.siteAddress.trim()
+        : city;
+
+    return {
+      venueType: venue.venueType,
+      floorArea: venue.floorArea ?? LEAD_DEFAULTS.floorArea,
+      peakUsers: venue.peakUsers ?? LEAD_DEFAULTS.peakUsers,
+      city,
+      siteAddress,
+      postalCode: venue.postalCode,
+      backhaul: venue.backhaul ?? LEAD_DEFAULTS.backhaul,
+    };
+  });
+
+const detailsSchema = z
+  .object({
+    floors: optionalPositiveNumber("Floors", 100, true),
+    wallMaterial: z
+      .enum(WALL_MATERIALS, {
+        errorMap: () => ({ message: "Select a supported wall material." }),
+      })
+      .optional(),
     networks: z
       .array(
         z.enum(NETWORKS, {
           errorMap: () => ({ message: "Select a supported network." }),
         }),
         {
-          required_error: "Networks are required.",
           invalid_type_error: "Networks must be a list.",
         },
       )
-      .min(1, "Select at least one network.")
       .max(MAX_RAW_SELECTIONS, "Select no more than 32 network entries.")
       .transform(uniqueValues)
       .refine((networks) => networks.length <= NETWORKS.length, {
         message: "Select no more than 4 unique networks.",
-      }),
+      })
+      .optional(),
     addOns: z
       .array(
         z.enum(ADD_ONS, {
@@ -200,7 +246,21 @@ export const cloudWifiSurveySchema = z.object({
       .max(2000, "Requirements must contain at most 2000 characters.")
       .optional()
       .default(""),
-  }),
+  })
+  .transform((details) => ({
+    floors: details.floors ?? LEAD_DEFAULTS.floors,
+    wallMaterial: details.wallMaterial ?? LEAD_DEFAULTS.wallMaterial,
+    networks:
+      details.networks && details.networks.length > 0
+        ? details.networks
+        : [...LEAD_DEFAULTS.networks],
+    addOns: details.addOns ?? [],
+    requirements: details.requirements ?? "",
+  }));
+
+export const cloudWifiSurveySchema = z.object({
+  venue: venueSchema,
+  details: detailsSchema.default({}),
   contact: z.object({
     fullName: textSchema("Full name")
       .trim()

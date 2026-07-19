@@ -24,6 +24,13 @@ type SurveyDraftAttribution = CloudWifiSurveyDraft["attribution"];
 const UTM_VALUE_MAX_LENGTH = 200;
 const REFERRER_MAX_LENGTH = 2048;
 
+export type CloudWifiVenueSizeBucket =
+  | "small"
+  | "medium"
+  | "large"
+  | "unknown"
+  | "";
+
 export interface CloudWifiSurveyDraft {
   venue: {
     venueType: CloudWifiVenueType | "";
@@ -33,6 +40,8 @@ export interface CloudWifiSurveyDraft {
     siteAddress: string;
     postalCode: string;
     backhaul: CloudWifiBackhaul | "";
+    /** Plain-language size for the short lead form (maps to floorArea on submit). */
+    sizeBucket: CloudWifiVenueSizeBucket;
   };
   details: {
     floors: number | "";
@@ -86,6 +95,7 @@ function createSurveyDraft(
       siteAddress: "",
       postalCode: "",
       backhaul: "",
+      sizeBucket: "",
     },
     details: {
       floors: "",
@@ -238,10 +248,22 @@ export function CloudWifiSurveyProvider({
       opener?: HTMLElement | null,
     ) => {
       if (prefill) {
-        setDraft((current) => ({
-          ...current,
-          venue: { ...current.venue, ...prefill },
-        }));
+        setDraft((current) => {
+          const nextVenue = { ...current.venue, ...prefill };
+          if (
+            typeof prefill.floorArea === "number" &&
+            Number.isFinite(prefill.floorArea) &&
+            !prefill.sizeBucket
+          ) {
+            nextVenue.sizeBucket =
+              prefill.floorArea <= 300
+                ? "small"
+                : prefill.floorArea <= 800
+                  ? "medium"
+                  : "large";
+          }
+          return { ...current, venue: nextVenue };
+        });
       }
 
       if (matchesMedia("(max-width: 767px)")) {
