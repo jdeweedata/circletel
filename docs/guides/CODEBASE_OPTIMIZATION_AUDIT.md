@@ -46,13 +46,15 @@ CircleTel is substantially larger than the documented "254-page app":
 **Evidence:**
 - `unstable_cache`: 0 uses. React `cache()`: 0 uses. Redis/Upstash: 0 uses.
 - `export const revalidate`: only 8 occurrences app-wide. `force-dynamic`: 116 occurrences.
-- `app/api/coverage/packages/route.ts` (524 lines) — the endpoint behind the public coverage check — executes sequential `await supabase.from(...)` queries at lines 123, 248, 267, 303, 341, 361, and 446, plus `coverageAggregationService.aggregateCoverage()` (`lib/coverage/aggregation-service.ts`, 978 lines) — **no `Promise.all`, no caching directives** in the file.
+- `app/api/coverage/packages/route.ts` (524 lines) — the endpoint behind the public coverage check — executes sequential `await supabase.from(...)` queries at lines 123, 248, 267, 303, 341, 361, and 446 with **no `Promise.all` and no caching** on the DB reads.
+- The external-provider aggregation it calls is **already cached**: `lib/coverage/aggregation-service.ts` has a 5-minute in-memory `Map` cache with pending-request deduplication (lines 55–58, 904–917), and the MTN WMS client keeps its own cache. The gap is the **7 uncached database reads around it** — and the existing cache is per-process (effective on the long-lived Coolify standalone container; per-instance only on Vercel functions).
 
-**Impact:** Every coverage check pays full serialized latency (7 round-trips + external aggregation). Reference data queried on this path (`coverage_areas`, `service_type_mapping`, `service_packages`) changes rarely and is highly cacheable. This endpoint is on the conversion-critical customer journey.
+**Impact:** Every coverage check pays serialized latency for 7 DB round-trips even when the provider aggregation is a cache hit. Reference data queried on this path (`coverage_areas`, `service_type_mapping`, `service_packages`) changes rarely and is highly cacheable. This endpoint is on the conversion-critical customer journey.
 
 **Recommendation:**
-- Parallelize independent queries with `Promise.all`.
-- Wrap reference-data reads (`service_packages`, `coverage_areas`, `service_type_mapping`) in `unstable_cache` with a 5–60 min revalidate. **Important:** `unstable_cache` does not invalidate on writes — the same change must add `revalidateTag()` calls to the admin routes that edit these tables (e.g. package management under `app/api/admin/products/`), or admins will see stale coverage data after edits. Ship cache + invalidation together, not as a follow-up.
+- First measure: log/expose the aggregation service's existing cache hit rate (`getCacheStats()` already exists at line ~968) before adding anything — don't rebuild a cache that exists.
+- Parallelize independent DB queries with `Promise.all`.
+- Wrap the **DB reference-data reads** (`service_packages`, `coverage_areas`, `service_type_mapping`) in `unstable_cache` with a 5–60 min revalidate. **Important:** `unstable_cache` does not invalidate on writes — the same change must add `revalidateTag()` calls to the admin routes that edit these tables (e.g. package management under `app/api/admin/products/`), or admins will see stale coverage data after edits. Ship cache + invalidation together, not as a follow-up.
 - Audit the 116 `force-dynamic` files — many are dynamic only out of habit.
 
 **Effort:** M (hot path first: S — one file, measurable immediately)
@@ -80,11 +82,11 @@ CircleTel is substantially larger than the documented "254-page app":
 
 ### H3. Middleware does a database read on every protected `/admin` request
 
-**Evidence:** `middleware/admin-auth.ts` performs an `admin_users` select on each protected admin request. The code itself flags this: *"one admin_users read per protected admin request. Upgrade path is a JWT app_metadata.admin_role claim (zero-DB)."*
+**Evidence:** `middleware/admin-auth.ts` performs an `admin_users` select on each protected admin **page** request (lines 125–128). The code itself flags this: *"one admin_users read per protected admin request. Upgrade path is a JWT app_metadata.admin_role claim (zero-DB)."* Scope note: the middleware predicate is `pathname.startsWith('/admin')` (`isAdminRoute`, line 37), so `/api/admin/*` routes never reach this read — but they pay an equivalent per-request `admin_users` read inside `authenticateAdmin()` (`lib/auth/admin-api-auth.ts:103`) instead.
 
-**Impact:** Adds a DB round-trip of latency to every admin page and admin API call — multiplied by the 335 admin API routes and the client-side fetch waterfalls from H2 (a single admin page load can trigger several middleware-authenticated fetches, each paying the DB read).
+**Impact:** One DB round-trip of latency on every admin page navigation (middleware), and one on every admin API call (`authenticateAdmin`). With the client-side fetch waterfalls from H2, a single admin page load pays the middleware read once plus the auth-helper read on each API fetch it triggers.
 
-**Recommendation:** Implement the upgrade path already identified in the code: stamp `admin_role` into JWT `app_metadata` on login/role change, verify the claim in middleware with zero DB access, and keep the DB check only as a fallback or for sensitive mutations.
+**Recommendation:** Implement the upgrade path already identified in the code: stamp `admin_role` into JWT `app_metadata` on login/role change, verify the claim with zero DB access in **both** layers — middleware and `authenticateAdmin()` — and keep the DB check only as a fallback or for sensitive mutations.
 
 **Effort:** M
 
@@ -135,7 +137,7 @@ CircleTel is substantially larger than the documented "254-page app":
 
 **Recommendation:**
 1. Snapshot the current error count as a baseline and add a **ratchet job** to pr-checks (fail if count increases) — the repo already has this exact pattern working in `brand-literal-ratchet` (baseline 6182 in `.brand-literal-baseline`); reuse it.
-2. Make the *build* job blocking immediately (it currently passes anyway; making it required costs nothing and catches hard breakage).
+2. Make the *build* job blocking immediately — this requires **two** changes, not one: remove `continue-on-error: true` from the job AND remove the `|| true` inside the build step itself (`pr-checks.yml:131` runs `npm run build:ci || true`, so flipping the job to required alone would still pass failed builds).
 3. Burn down the 295 errors incrementally; flip `ignoreBuildErrors` off at zero.
 
 **Effort:** Ratchet + blocking build: S. Error burn-down: L (background task)
@@ -255,7 +257,7 @@ Sequenced for impact-per-effort; each phase is independently shippable.
 2. Remove/consolidate redundant deps; delete dead `optimizePackageImports` entries; upgrade `next-themes` and drop `legacy-peer-deps` (M1)
 3. Re-encode the 8 oversized hero images (M8)
 4. Align Node versions (L1)
-5. Add type-error **ratchet** to pr-checks (reuse the brand-literal-ratchet pattern) and make the build job blocking (H6, part 1)
+5. Add type-error **ratchet** to pr-checks (reuse the brand-literal-ratchet pattern) and make the build job blocking — both `continue-on-error` and the step's `|| true` (H6, part 1)
 
 ### Phase 2 — Performance (1–2 weeks)
 6. Coverage hot path: `Promise.all` + `unstable_cache` on reference data (H1)
