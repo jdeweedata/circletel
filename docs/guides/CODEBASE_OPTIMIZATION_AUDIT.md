@@ -52,7 +52,7 @@ CircleTel is substantially larger than the documented "254-page app":
 
 **Recommendation:**
 - Parallelize independent queries with `Promise.all`.
-- Wrap reference-data reads (`service_packages`, `coverage_areas`, `service_type_mapping`) in `unstable_cache` with a 5–60 min revalidate.
+- Wrap reference-data reads (`service_packages`, `coverage_areas`, `service_type_mapping`) in `unstable_cache` with a 5–60 min revalidate. **Important:** `unstable_cache` does not invalidate on writes — the same change must add `revalidateTag()` calls to the admin routes that edit these tables (e.g. package management under `app/api/admin/products/`), or admins will see stale coverage data after edits. Ship cache + invalidation together, not as a follow-up.
 - Audit the 116 `force-dynamic` files — many are dynamic only out of habit.
 
 **Effort:** M (hot path first: S — one file, measurable immediately)
@@ -102,8 +102,8 @@ CircleTel is substantially larger than the documented "254-page app":
 **Impact:** Data isolation across the entire server codebase rests on manual `.eq('user_id', ...)`-style filters. A single missing filter in any of 584 files exposes other customers' data with no RLS backstop. Compounding footgun: the service-role factory has the **same name** (`createClient`) as the RLS-respecting browser client in `lib/supabase/client.ts`, so a copy-paste or wrong import silently escalates privileges. `.claude/rules/auth-patterns.md` documents service-role as intentional for admin/background work — the risk is user-facing routes (portal, dashboard, customer, orders) inheriting it as the path of least resistance.
 
 **Recommendation:**
-1. Rename the service-role factory to something explicit (e.g. `createServiceRoleClient()`), keeping a deprecated alias during migration — makes every RLS bypass visible and greppable.
-2. Audit user-facing (non-admin, non-cron) API routes among the 584 and migrate those handling per-user data to `createClientWithSession()`.
+1. Rename the service-role factory to something explicit (e.g. `createServiceRoleClient()`), keeping a deprecated alias during migration — makes every RLS bypass visible and greppable. With 584 call sites this is high blast-radius by definition, so scope the first PR to **only** the rename + deprecated alias + CI guard with zero behavior change — reviewable and revertible independently of any route migration.
+2. Audit user-facing (non-admin, non-cron) API routes among the 584 and migrate those handling per-user data to `createClientWithSession()` — as separate, per-area PRs after the rename lands.
 3. Add a lint rule or CI grep blocking new service-role imports outside `app/api/admin`, `app/api/cron`, `lib/inngest`.
 
 **Effort:** Rename + guard: S. Route audit/migration: L (prioritize `app/api/dashboard`, `app/api/orders`, portal routes)
