@@ -35,18 +35,12 @@ const nextConfig = {
   ],
   experimental: {
     optimizePackageImports: [
-      '@radix-ui/react-icons',
       'react-icons',
-      'lucide-react',
-      '@phosphor-icons/react',
-      '@tabler/icons-react',
       'date-fns',
-      '@tanstack/react-table',
       'recharts',
       'zod',
       '@hookform/resolvers',
       'framer-motion',
-      'motion',
       '@tanstack/react-query',
     ],
     outputFileTracingExcludes: {

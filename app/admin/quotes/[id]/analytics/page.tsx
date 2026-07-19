@@ -7,16 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Tooltip,
-  Legend
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip as RechartsTooltip
+} from 'recharts';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -214,55 +211,8 @@ export default function QuoteAnalyticsPage({ params }: Props) {
     return acc;
   }, {} as Record<string, number>);
 
-  const deviceLabels = Object.keys(deviceCounts);
-  const deviceValues = Object.values(deviceCounts);
-
-  const browserLabels = Object.keys(browserCounts);
-  const browserValues = Object.values(browserCounts);
-
-  const commonBarOptions = {
-    indexAxis: 'y' as const,
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: { enabled: true }
-    },
-    scales: {
-      x: {
-        beginAtZero: true,
-        ticks: {
-          precision: 0
-        }
-      }
-    }
-  };
-
-  const deviceChartData = {
-    labels: deviceLabels,
-    datasets: [
-      {
-        label: 'Views',
-        data: deviceValues,
-        backgroundColor: '#F5831F',
-        borderRadius: 9999,
-        barThickness: 18
-      }
-    ]
-  };
-
-  const browserChartData = {
-    labels: browserLabels,
-    datasets: [
-      {
-        label: 'Views',
-        data: browserValues,
-        backgroundColor: '#2563EB',
-        borderRadius: 9999,
-        barThickness: 18
-      }
-    ]
-  };
+  const deviceChartData = Object.entries(deviceCounts).map(([name, views]) => ({ name, views }));
+  const browserChartData = Object.entries(browserCounts).map(([name, views]) => ({ name, views }));
 
   return (
     <div className="p-8 space-y-6">
@@ -502,19 +452,14 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                 <div>
                   <h4 className="text-sm font-medium mb-3">Device Types</h4>
                   <div className="h-40">
-                    <Bar
-                      data={deviceChartData}
-                      options={{
-                        ...commonBarOptions,
-                        plugins: {
-                          ...commonBarOptions.plugins,
-                          title: {
-                            display: false,
-                            text: 'Device Types'
-                          }
-                        }
-                      }}
-                    />
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={deviceChartData} layout="vertical">
+                        <XAxis type="number" allowDecimals={false} />
+                        <YAxis type="category" dataKey="name" width={80} />
+                        <RechartsTooltip />
+                        <Bar dataKey="views" name="Views" fill="#F5831F" radius={[9999, 9999, 9999, 9999]} barSize={18} />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
 
@@ -522,19 +467,14 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                 <div>
                   <h4 className="text-sm font-medium mb-3">Browsers</h4>
                   <div className="h-40">
-                    <Bar
-                      data={browserChartData}
-                      options={{
-                        ...commonBarOptions,
-                        plugins: {
-                          ...commonBarOptions.plugins,
-                          title: {
-                            display: false,
-                            text: 'Browsers'
-                          }
-                        }
-                      }}
-                    />
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={browserChartData} layout="vertical">
+                        <XAxis type="number" allowDecimals={false} />
+                        <YAxis type="category" dataKey="name" width={80} />
+                        <RechartsTooltip />
+                        <Bar dataKey="views" name="Views" fill="#2563EB" radius={[9999, 9999, 9999, 9999]} barSize={18} />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
 
