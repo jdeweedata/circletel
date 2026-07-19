@@ -118,7 +118,7 @@ CircleTel is substantially larger than the documented "254-page app":
 
 **Impact:** Database error text, constraint names, and internal service messages reach clients — an information-disclosure aid to attackers and a source of confusing UX.
 
-**Recommendation:** Introduce a shared API error responder (log full error server-side via the existing `lib/logging` logger, return a generic message + correlation ID — the middleware already sets `x-request-id`). Migrate routes mechanically.
+**Recommendation:** Introduce a shared API error responder (log full error server-side via the existing `lib/logging` logger, return a generic message + correlation ID — the middleware already sets `x-request-id`). Migrate routes mechanically. Since this touches all 145 routes anyway, it's also the natural moment to normalize inconsistent HTTP status codes through the same helper (optional scope addition).
 
 **Effort:** Helper: S. Migration: M (mechanical, scriptable)
 
@@ -284,5 +284,15 @@ Sequenced for impact-per-effort; each phase is independently shippable.
 To make improvements verifiable rather than anecdotal:
 
 - **Before Phase 2**: run `npm run analyze` once and record First Load JS for the top 10 routes; record TTFB for `/api/coverage/packages` (p50/p95).
-- **Ratchet numbers to track**: TypeScript error count (baseline ~295), `select('*')` count (377), `console.*` count (1,920), `'use client'` page count (~320), `force-dynamic` count (116).
-- **After each phase**: re-run the same measurements; the ratchet numbers should only go down.
+- **Ratchet numbers to track** — these counts are scope-sensitive, so each baseline below was captured with the exact command shown (run from repo root); always re-measure with the same command:
+
+| Metric | Baseline | Command |
+|---|---|---|
+| TypeScript errors | ~295 | `npm run type-check:memory` (count from output; per `.githooks/pre-push`) |
+| `select('*')` | 393 | `grep -rF "select('*')" app lib --include='*.ts' --include='*.tsx' \| wc -l` |
+| `console.*` calls | 1,915 | `grep -rE "console\.(log\|error\|warn\|info\|debug)\(" app lib --include='*.ts' --include='*.tsx' \| wc -l` |
+| `'use client'` pages | 271 | `grep -rlE "^['\"]use client['\"]" app --include='page.tsx' \| wc -l` |
+| `'use client'` files (app/) | 320 | `grep -rlE "^['\"]use client['\"]" app --include='*.tsx' --include='*.ts' \| wc -l` |
+| `force-dynamic` | 116 | `grep -rF "dynamic = 'force-dynamic'" app --include='*.ts' --include='*.tsx' \| wc -l` |
+
+- **After each phase**: re-run the same commands; the ratchet numbers should only go down.
