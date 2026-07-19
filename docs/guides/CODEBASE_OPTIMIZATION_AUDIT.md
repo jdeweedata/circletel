@@ -22,7 +22,7 @@ CircleTel is substantially larger than the documented "254-page app":
 
 **The five findings that matter most:**
 
-1. **There is no caching layer anywhere** — every request recomputes everything, including the public coverage-check hot path which runs 7 sequential database queries per hit. (→ H1)
+1. **There is no shared server-side caching layer** — every request recomputes its DB reads, including the public coverage-check hot path which runs ~5 sequential database queries per hit (7 on fallback paths). (→ H1)
 2. **The app is client-rendered where it should be server-rendered** — 90% of admin pages and most public marketing pages are `'use client'`, producing fetch waterfalls and blocking SEO metadata on customer-facing pages. (→ H2)
 3. **Row Level Security is bypassed by default** — 584 files use the service-role Supabase client vs 66 using the RLS-respecting session client; one missing `.eq()` filter anywhere in those 584 files is a data leak with no backstop. (→ H4)
 4. **No quality gate blocks anything** — builds ignore type and lint errors (~295 pre-existing type errors), all CI checks are `continue-on-error`, and auto-merge is enabled. (→ H6)
@@ -41,15 +41,15 @@ CircleTel is substantially larger than the documented "254-page app":
 
 ## High-Priority Findings
 
-### H1. No server-side caching at all; the public coverage hot path runs 7 sequential queries
+### H1. No shared server-side caching; the public coverage hot path runs ~5–7 sequential queries
 
 **Evidence:**
 - `unstable_cache`: 0 uses. React `cache()`: 0 uses. Redis/Upstash: 0 uses.
 - `export const revalidate`: only 8 occurrences app-wide. `force-dynamic`: 116 occurrences.
-- `app/api/coverage/packages/route.ts` (524 lines) — the endpoint behind the public coverage check — executes sequential `await supabase.from(...)` queries at lines 123, 248, 267, 303, 341, 361, and 446 with **no `Promise.all` and no caching** on the DB reads.
+- `app/api/coverage/packages/route.ts` (524 lines) — the endpoint behind the public coverage check — executes sequential Supabase calls at lines 123, 248, 267, 303, 341, 361, and 446 with **no `Promise.all` and no caching** on the DB reads. Five are on the always-executed path; two are fallback-only (line 248 is an `.rpc('check_coverage_at_point')` inside the catch when the real-time check fails; line 267 reads `coverage_areas` only when coverage is still unresolved). So a normal successful request pays ~5 serialized DB round-trips; worst-case fallback chains pay all 7.
 - The external-provider aggregation it calls is **already cached**: `lib/coverage/aggregation-service.ts` has a 5-minute in-memory `Map` cache with pending-request deduplication (lines 55–58, 904–917), and the MTN WMS client keeps its own cache. The gap is the **7 uncached database reads around it** — and the existing cache is per-process (effective on the long-lived Coolify standalone container; per-instance only on Vercel functions).
 
-**Impact:** Every coverage check pays serialized latency for 7 DB round-trips even when the provider aggregation is a cache hit. Reference data queried on this path (`coverage_areas`, `service_type_mapping`, `service_packages`) changes rarely and is highly cacheable. This endpoint is on the conversion-critical customer journey.
+**Impact:** Every coverage check pays serialized latency for ~5 DB round-trips (7 on fallback paths) even when the provider aggregation is a cache hit. Reference data queried on this path (`coverage_areas`, `service_type_mapping`, `service_packages`) changes rarely and is highly cacheable. This endpoint is on the conversion-critical customer journey.
 
 **Recommendation:**
 - First measure: log/expose the aggregation service's existing cache hit rate (`getCacheStats()` already exists at line ~968) before adding anything — don't rebuild a cache that exists.
