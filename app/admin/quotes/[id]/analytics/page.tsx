@@ -109,6 +109,15 @@ export default function QuoteAnalyticsPage({ params }: Props) {
     return `${hours}h ${remainingMinutes}m`;
   };
 
+  const getReferrerHost = (referrer: string | null): string => {
+    if (!referrer) return 'Direct';
+    try {
+      return new URL(referrer).hostname;
+    } catch {
+      return referrer;
+    }
+  };
+
   const getDeviceType = (userAgent: string | null): string => {
     if (!userAgent) return 'Unknown';
     if (/mobile/i.test(userAgent)) return 'Mobile';
@@ -402,7 +411,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                         )}
                         {event.referrer && (
                           <div className="truncate" title={event.referrer}>
-                            Referrer: {new URL(event.referrer).hostname}
+                            Referrer: {getReferrerHost(event.referrer)}
                           </div>
                         )}
                         {(event.utm_source || event.utm_medium || event.utm_campaign) && (
@@ -487,7 +496,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                         events
                           .filter(e => e.referrer)
                           .reduce((acc, event) => {
-                            const hostname = event.referrer ? new URL(event.referrer).hostname : 'Direct';
+                            const hostname = getReferrerHost(event.referrer);
                             acc[hostname] = (acc[hostname] || 0) + 1;
                             return acc;
                           }, {} as Record<string, number>)
