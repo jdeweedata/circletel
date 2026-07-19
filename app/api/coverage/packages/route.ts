@@ -11,6 +11,7 @@ import {
   getActiveServicePackages,
   getActiveNetworkProviders,
 } from '@/lib/coverage/reference-data';
+import { resolveCoverageCategories, selectPackagesForCoverage } from '@/lib/coverage/package-selection';
 
 // ============================================================================
 // TYPES
@@ -321,24 +322,16 @@ export async function GET(request: NextRequest) {
       if (mappingResult.status === 'rejected') {
         apiLogger.error('Mapping error', { error: mappingResult.reason });
       }
-      const mappings = mappingResult.status === 'fulfilled'
-        ? mappingResult.value.filter(m => packageableServices.includes(m.technical_type))
-        : null;
+      const allMappings = mappingResult.status === 'fulfilled' ? mappingResult.value : null;
 
-      // Get unique product categories from mappings, or use services directly if they're already product categories
-      let productCategories: string[];
-      if (mappings && mappings.length > 0) {
-        // Services were technical types, successfully mapped to product categories
-        productCategories = [...new Set(mappings.map((m: ServiceTypeMapping) => m.product_category))];
-      } else {
-        // No mappings found - services are already product categories (from legacy coverage_areas table)
-        productCategories = packageableServices;
-      }
+      // Derive product categories (mapped) or raw service types (legacy) — see
+      // lib/coverage/package-selection.ts for the extracted, unit-tested logic.
+      const { productCategories, useMappedCategories } = resolveCoverageCategories(
+        allMappings,
+        packageableServices
+      );
 
-      // Get available packages for the mapped product categories
-      // Note: When no mappings exist, availableServices contains service_type values (e.g., 'SkyFibre', 'HomeFibreConnect')
-      // When mappings exist, productCategories contains product_category values (e.g., 'wireless', 'fibre_consumer')
-      // Filter by customer_type based on coverage type
+      // Filter by customer_type based on coverage type.
       // Note: service_packages.customer_type is VARCHAR with values: 'business', 'consumer'
       // coverage_leads.customer_type is ENUM with values: 'consumer', 'smme', 'enterprise'
       const packageCustomerType = coverageType === 'business' ? 'business' : 'consumer';
@@ -346,8 +339,8 @@ export async function GET(request: NextRequest) {
       apiLogger.info('[Packages API] Querying packages with', {
         packageCustomerType,
         productCategories,
-        usingMappings: !!(mappings && mappings.length > 0),
-        query: mappings && mappings.length > 0
+        usingMappings: useMappedCategories,
+        query: useMappedCategories
           ? `product_category.in.(${productCategories.join(',')})`
           : `service_type.in.(${productCategories.join(',')})`
       });
@@ -356,14 +349,12 @@ export async function GET(request: NextRequest) {
       // previous DB query: category match (mapped) OR service_type match
       // (legacy), plus customer_type — cache is already active-only and
       // price-ascending.
-      const useMappedCategories = !!(mappings && mappings.length > 0);
       const packages = packagesResult.status === 'fulfilled'
-        ? packagesResult.value.filter(pkg =>
-            pkg.customer_type === packageCustomerType &&
-            (useMappedCategories
-              ? !!pkg.product_category && productCategories.includes(pkg.product_category)
-              : productCategories.includes(pkg.service_type))
-          )
+        ? selectPackagesForCoverage(packagesResult.value, {
+            customerType: packageCustomerType,
+            productCategories,
+            useMappedCategories,
+          })
         : null;
 
       apiLogger.info('[Packages API] Query result', {
