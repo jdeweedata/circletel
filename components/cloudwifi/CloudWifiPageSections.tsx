@@ -12,12 +12,14 @@ import {
 import { CloudWifiSurveyCta } from "@/components/cloudwifi/CloudWifiSurveyCta";
 import { CloudWifiSurveyWizard } from "@/components/cloudwifi/CloudWifiSurveyWizard";
 import {
-  addOns,
-  includedFeatures,
+  addOnHighlights,
+  includedFeatureHighlights,
   priceDrivers,
   pricingTiers,
+  primaryVenueTypes,
   processSteps,
-  venueTypes,
+  proofStripCopy,
+  secondaryVenueLabels,
   whyCircleTel,
 } from "@/components/cloudwifi/content";
 import { Button } from "@/components/ui/button";
@@ -73,6 +75,33 @@ function CheckList({ items }: { items: readonly string[] }) {
   );
 }
 
+function ProofStrip() {
+  return (
+    <aside
+      aria-label="Social proof"
+      className="border-y border-ui-border bg-white py-8"
+    >
+      <div className="container mx-auto flex flex-col gap-6 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <p className="max-w-md text-base font-semibold leading-7 text-circleTel-navy">
+          {proofStripCopy}
+        </p>
+        <ul className="flex flex-wrap gap-3" aria-label="Customer logos pending">
+          {["Operator", "Clinic group", "Retail group", "Campus"].map(
+            (label) => (
+              <li
+                key={label}
+                className="flex h-11 min-w-[7.5rem] items-center justify-center rounded-md border border-dashed border-ui-border bg-circleTel-lightNeutral px-3 text-sm font-bold text-circleTel-secondaryNeutral"
+              >
+                {label}
+              </li>
+            ),
+          )}
+        </ul>
+      </div>
+    </aside>
+  );
+}
+
 function VenueSection() {
   return (
     <section
@@ -82,19 +111,20 @@ function VenueSection() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <SectionIntro
           id="cloudwifi-venues-heading"
-          eyebrow="Built for every venue"
-          title="Great Wi-Fi experiences for your visitors and teams."
+          eyebrow="Built for venues"
+          title="Wi-Fi that matches how your space actually runs."
+          description="Start with the story that fits you. The site survey tunes coverage, capacity and segmentation."
         />
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {venueTypes.map((venue) => {
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {primaryVenueTypes.map((venue) => {
             const Icon = venue.icon;
             return (
               <article
                 key={venue.title}
-                className="overflow-hidden rounded-lg border border-ui-border bg-white"
+                className="overflow-hidden rounded-lg border border-ui-border bg-white transition-transform duration-200 hover:-translate-y-0.5"
               >
-                <picture className="relative block aspect-[4/3] overflow-hidden bg-circleTel-lightNeutral">
+                <picture className="relative block aspect-[16/10] overflow-hidden bg-circleTel-lightNeutral">
                   <source
                     srcSet={`${venue.imageBase}.avif`}
                     type="image/avif"
@@ -108,8 +138,8 @@ function VenueSection() {
                     src={`${venue.imageBase}.jpg`}
                     alt={venue.imageAlt}
                     fill
-                    sizes="(min-width: 1280px) 16vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    className="object-cover"
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    className="object-cover transition-transform duration-300 hover:scale-[1.02]"
                   />
                 </picture>
                 <div className="p-5">
@@ -130,6 +160,20 @@ function VenueSection() {
             );
           })}
         </div>
+
+        <ul
+          className="mt-6 flex flex-wrap gap-2"
+          aria-label="Also suited to"
+        >
+          {secondaryVenueLabels.map((label) => (
+            <li
+              key={label}
+              className="rounded-full border border-ui-border bg-white px-3.5 py-2 text-sm font-semibold text-circleTel-navy"
+            >
+              {label}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -138,13 +182,14 @@ function VenueSection() {
 function PricingSection() {
   return (
     <section
+      id="cloudwifi-pricing"
       aria-labelledby="cloudwifi-pricing-heading"
       className="py-16 md:py-24"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <SectionIntro
           id="cloudwifi-pricing-heading"
-          eyebrow="Simple, transparent pricing"
+          eyebrow="Guide pricing"
           title="Survey-led and access point based."
           description="Choose a guide tier now. The site survey confirms the network design and your final monthly price."
         />
@@ -153,8 +198,17 @@ function PricingSection() {
           {pricingTiers.map((tier) => (
             <article
               key={tier.name}
-              className={`flex h-full flex-col rounded-lg border border-t-4 border-ui-border bg-white p-6 shadow-sm ${tier.accentClassName}`}
+              className={`relative flex h-full flex-col rounded-lg border border-t-4 bg-white p-6 shadow-sm ${
+                tier.recommended
+                  ? "border-[#e2b48a] border-t-circleTel-orange bg-gradient-to-b from-circleTel-orange-light to-white xl:-translate-y-1"
+                  : `border-ui-border ${tier.accentClassName}`
+              }`}
             >
+              {tier.recommended ? (
+                <span className="absolute right-4 top-4 rounded-full bg-circleTel-orange-accessible px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide text-white">
+                  Most venues
+                </span>
+              ) : null}
               <h3 className="font-heading text-xl font-bold text-circleTel-navy">
                 {tier.name}
               </h3>
@@ -200,7 +254,7 @@ function ManagedServiceDetail() {
       aria-labelledby="cloudwifi-managed-heading"
       className="border-t border-ui-border pt-16"
     >
-      <div className="grid overflow-hidden rounded-lg border border-ui-border bg-white md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid overflow-hidden rounded-lg border border-ui-border bg-white md:grid-cols-2">
         <div className="p-6 xl:p-7">
           <h2
             id="cloudwifi-managed-heading"
@@ -211,30 +265,27 @@ function ManagedServiceDetail() {
           <p className="mt-4 text-base leading-7 text-circleTel-secondaryNeutral">
             We take care of every stage so your team can focus on the venue.
           </p>
+          <h3 className="mt-8 font-heading text-lg font-bold text-circleTel-navy">
+            Every tier includes
+          </h3>
+          <CheckList items={includedFeatureHighlights} />
+          <p className="mt-4 text-sm text-circleTel-secondaryNeutral">
+            Plus guest network, Wi-Fi 6 access points, maintenance and monthly
+            reporting.
+          </p>
         </div>
         <div className="border-t border-ui-border p-6 md:border-l md:border-t-0 xl:p-7">
           <h3 className="font-heading text-lg font-bold text-circleTel-navy">
-            Included in every tier
+            Why CircleTel
           </h3>
-          <CheckList items={includedFeatures} />
-        </div>
-        <div className="border-t border-ui-border p-6 xl:border-l xl:border-t-0 xl:p-7">
-          <p className="font-heading text-sm font-bold uppercase tracking-[0.12em] text-circleTel-orange-accessible">
-            Optional enhancements
+          <CheckList items={whyCircleTel} />
+          <p className="mt-8 font-heading text-sm font-bold uppercase tracking-[0.12em] text-circleTel-orange-accessible">
+            Optional add-ons
           </p>
-          <h3 className="mt-2 font-heading text-lg font-bold text-circleTel-navy">
-            Powerful add-ons
-          </h3>
           <p className="mt-2 text-base text-circleTel-secondaryNeutral">
             Quoted separately from the base tier.
           </p>
-          <CheckList items={addOns} />
-        </div>
-        <div className="border-t border-ui-border p-6 md:border-l xl:border-t-0 xl:p-7">
-          <h3 className="font-heading text-lg font-bold text-circleTel-navy">
-            Why CircleTel?
-          </h3>
-          <CheckList items={whyCircleTel} />
+          <CheckList items={addOnHighlights} />
         </div>
       </div>
     </section>
@@ -255,7 +306,7 @@ function ProcessSection() {
           id="cloudwifi-process-heading"
           className="mt-3 font-heading text-3xl font-bold text-circleTel-navy"
         >
-          From survey to seamless operation.
+          From survey to steady operation.
         </h2>
       </header>
 
@@ -306,15 +357,14 @@ function LowerInformationSection() {
               id="cloudwifi-price-drivers-heading"
               className="font-heading text-3xl font-bold text-circleTel-navy md:text-4xl"
             >
-              What drives the price?
+              What shapes the final quote?
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-circleTel-secondaryNeutral">
-              Every site is different. These factors determine the right tier
-              and final cost.
+              Three things matter most. Everything else we settle on the survey.
             </p>
           </header>
 
-          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-ui-border bg-ui-border sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-ui-border bg-ui-border sm:grid-cols-3">
             {priceDrivers.map((driver) => {
               const Icon = driver.icon;
               return (
@@ -376,8 +426,8 @@ function FinalCtaSection() {
               Let&apos;s get your venue&apos;s Wi-Fi right.
             </h2>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/80">
-              A site survey is the best first step to reliable, secure and
-              high-performing Wi-Fi.
+              A site survey is the clearest first step to reliable, secure
+              connectivity.
             </p>
             <ul className="mt-7 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:gap-x-8">
               {trustMarkers.map((marker) => {
@@ -435,6 +485,7 @@ function FinalCtaSection() {
 export function CloudWifiPageSections() {
   return (
     <>
+      <ProofStrip />
       <VenueSection />
       <PricingSection />
       <LowerInformationSection />

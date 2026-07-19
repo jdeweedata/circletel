@@ -59,21 +59,15 @@ function buttonWithText(
 
 function setCompleteEstimator(
   renderer: TestRenderer.ReactTestRenderer,
-  values: { floorArea?: string; peakUsers?: string } = {},
+  size: string = "medium",
 ) {
   act(() => {
     renderer.root.findByProps({ "aria-label": "Venue type" }).props.onChange({
       target: { value: "hospitality" },
     });
     renderer.root
-      .findByProps({ "aria-label": "Usable floor area" })
-      .props.onChange({ target: { value: values.floorArea ?? "450" } });
-    renderer.root
-      .findByProps({ "aria-label": "Expected peak concurrent users" })
-      .props.onChange({ target: { value: values.peakUsers ?? "120" } });
-    renderer.root
-      .findByProps({ "aria-label": "Internet backhaul" })
-      .props.onChange({ target: { value: "lte" } });
+      .findByProps({ "aria-label": "Approximate venue size" })
+      .props.onChange({ target: { value: size } });
   });
 }
 
@@ -132,24 +126,23 @@ describe("CloudWifiTierEstimator", () => {
     else delete (globalThis as { document?: unknown }).document;
   });
 
-  it("keeps all labels visible and shows the incomplete state initially", () => {
+  it("keeps size-aligned labels and shows the incomplete state initially", () => {
     const renderer = renderHarness(<CloudWifiTierEstimator />);
     const serialized = JSON.stringify(renderer.toJSON());
 
     expect(serialized).toContain("Venue type");
-    expect(serialized).toContain("Usable floor area");
-    expect(serialized).toContain("Expected peak concurrent users");
-    expect(serialized).toContain("Internet backhaul");
-    expect(serialized).toContain("Select your details to see a recommendation");
+    expect(serialized).toContain("Roughly how big is the space?");
+    expect(serialized).toContain("Find a guide tier");
+    expect(serialized).toContain(
+      "Select your venue and size to see a guide tier",
+    );
     expect(serialized).toContain("Public venue");
-    expect(serialized).toContain("Licensed wireless");
-    expect(serialized).toContain("Fixed wireless");
-    expect(serialized).toContain("5G");
-    expect(serialized).toContain("LTE");
-    expect(serialized).toContain("Not sure");
+    expect(serialized).toContain("Not sure yet");
+    expect(serialized).not.toContain("Expected peak concurrent users");
+    expect(serialized).not.toContain("Internet backhaul");
   });
 
-  it("renders a deterministic recommendation and transfers it into the survey draft", () => {
+  it("renders a guide tier from venue and size and transfers it into the survey draft", () => {
     const renderer = renderHarness(<CloudWifiTierEstimator />);
     setCompleteEstimator(renderer);
 
@@ -159,27 +152,15 @@ describe("CloudWifiTierEstimator", () => {
     expect(serialized).toContain("from");
     expect(serialized).toContain("/mo excl. VAT");
     expect(serialized).toContain("3–5 APs");
-    expect(serialized).toContain(
-      "Floor area and peak users both support the Professional tier.",
-    );
-    expect(serialized).toContain("A site survey must confirm");
+    expect(serialized).toContain("Fits most mid-size venues");
     expect(serialized).toContain(
       "A site survey confirms the final tier and price.",
     );
-    const recommendationCta = buttonWithText(
-      renderer,
-      "Use this recommendation",
-    );
+
+    const recommendationCta = buttonWithText(renderer, "Request a site survey");
     expect(recommendationCta.props.className).toContain(
       "bg-circleTel-orange-accessible",
     );
-    for (const node of renderer.root.findAll(
-      (candidate) => typeof candidate.props.className === "string",
-    )) {
-      expect(node.props.className).not.toMatch(
-        /focus-visible:ring-circleTel-orange(?:\s|$)/,
-      );
-    }
     expect(recommendationCta.props.className).toContain(
       "focus-visible:ring-circleTel-orange-accessible",
     );
@@ -192,102 +173,59 @@ describe("CloudWifiTierEstimator", () => {
 
     expect(surveyContext.draft.venue).toMatchObject({
       venueType: "hospitality",
-      floorArea: 450,
-      peakUsers: 120,
-      backhaul: "lte",
+      floorArea: 550,
+      sizeBucket: "medium",
+      backhaul: "unknown",
     });
     expect(surveyContext.mobileOpen).toBe(true);
     expect(surveyContext.restoreSurveyFocus()).toBe(true);
     expect(estimatorOpener.focus).toHaveBeenCalledWith({ preventScroll: true });
   });
 
-  it("preserves raw decimal input while deriving only valid positive values", () => {
+  it("maps small and large size buckets to Essential and Enterprise", () => {
     const renderer = renderHarness(<CloudWifiTierEstimator />);
-    const floorArea = renderer.root.findByProps({
-      "aria-label": "Usable floor area",
-    });
-
-    act(() => floorArea.props.onChange({ target: { value: "0" } }));
-    expect(floorArea.props.value).toBe("0");
-
-    act(() => floorArea.props.onChange({ target: { value: "0." } }));
-    expect(floorArea.props.value).toBe("0.");
-    expect(JSON.stringify(renderer.toJSON())).toContain(
-      "Select your details to see a recommendation",
-    );
-
-    setCompleteEstimator(renderer, { floorArea: "0.5", peakUsers: "1" });
-    expect(floorArea.props.value).toBe("0.5");
+    setCompleteEstimator(renderer, "small");
     expect(JSON.stringify(renderer.toJSON())).toContain("Essential");
 
-    act(() =>
-      buttonWithText(renderer, "Use this recommendation").props.onClick({}),
-    );
-    expect(surveyContext.draft.venue.floorArea).toBe(0.5);
+    setCompleteEstimator(renderer, "large");
+    expect(JSON.stringify(renderer.toJSON())).toContain("Enterprise");
   });
 
-  it("removes a stale recommendation after clearing or invalidating a number", () => {
+  it("offers a survey path when size is unknown", () => {
+    const renderer = renderHarness(<CloudWifiTierEstimator />);
+    setCompleteEstimator(renderer, "unknown");
+
+    const serialized = JSON.stringify(renderer.toJSON());
+    expect(serialized).toContain("No problem");
+    expect(serialized).not.toContain("R3,499");
+
+    mobile = true;
+    act(() =>
+      buttonWithText(renderer, "Request a site survey").props.onClick({
+        currentTarget: { focus: jest.fn(), isConnected: true },
+      }),
+    );
+    expect(surveyContext.draft.venue).toMatchObject({
+      venueType: "hospitality",
+      sizeBucket: "unknown",
+    });
+  });
+
+  it("clears the guide when size is reset", () => {
     const renderer = renderHarness(<CloudWifiTierEstimator />);
     setCompleteEstimator(renderer);
     expect(JSON.stringify(renderer.toJSON())).toContain("Professional");
 
-    const floorArea = renderer.root.findByProps({
-      "aria-label": "Usable floor area",
+    const size = renderer.root.findByProps({
+      "aria-label": "Approximate venue size",
     });
-    act(() => floorArea.props.onChange({ target: { value: "" } }));
+    act(() => size.props.onChange({ target: { value: "" } }));
 
-    let serialized = JSON.stringify(renderer.toJSON());
-    expect(floorArea.props.value).toBe("");
-    expect(serialized).toContain("Select your details to see a recommendation");
-    expect(serialized).not.toContain("Professional");
-    expect(renderer.root.findAllByType("button").map(textOf)).not.toContain(
-      "Use this recommendation",
+    const serialized = JSON.stringify(renderer.toJSON());
+    expect(serialized).toContain(
+      "Select your venue and size to see a guide tier",
     );
-
-    act(() => floorArea.props.onChange({ target: { value: "450" } }));
-    expect(JSON.stringify(renderer.toJSON())).toContain("Professional");
-
-    const peakUsers = renderer.root.findByProps({
-      "aria-label": "Expected peak concurrent users",
-    });
-    act(() => peakUsers.props.onChange({ target: { value: "1.5" } }));
-
-    serialized = JSON.stringify(renderer.toJSON());
-    expect(peakUsers.props.value).toBe("1.5");
-    expect(serialized).toContain("Select your details to see a recommendation");
     expect(serialized).not.toContain("Professional");
-
-    for (const invalidValue of ["1e3", "Infinity", "-1"]) {
-      act(() => peakUsers.props.onChange({ target: { value: invalidValue } }));
-      expect(peakUsers.props.value).toBe(invalidValue);
-      expect(JSON.stringify(renderer.toJSON())).toContain(
-        "Select your details to see a recommendation",
-      );
-    }
-  });
-
-  it("accepts the shared numeric maximum and rejects values above it", () => {
-    const renderer = renderHarness(<CloudWifiTierEstimator />);
-    setCompleteEstimator(renderer, {
-      floorArea: "100000",
-      peakUsers: "100000",
-    });
-
-    const floorArea = renderer.root.findByProps({
-      "aria-label": "Usable floor area",
-    });
-    const peakUsers = renderer.root.findByProps({
-      "aria-label": "Expected peak concurrent users",
-    });
-    expect(floorArea.props.max).toBe(100000);
-    expect(peakUsers.props.max).toBe(100000);
-    expect(JSON.stringify(renderer.toJSON())).toContain("Campus");
-
-    act(() => peakUsers.props.onChange({ target: { value: "100001" } }));
-    expect(peakUsers.props.value).toBe("100001");
-    expect(JSON.stringify(renderer.toJSON())).toContain(
-      "Select your details to see a recommendation",
-    );
   });
 
   it("scrolls smoothly on desktop and focuses the survey heading on the next frame", () => {
@@ -349,6 +287,7 @@ describe("CloudWifiTierEstimator", () => {
       city: "Durban",
       siteAddress: "1 Beach Road",
       floorArea: 800,
+      sizeBucket: "medium",
     });
     expect(surveyContext.draft.contact.email).toBe("venue@example.co.za");
 

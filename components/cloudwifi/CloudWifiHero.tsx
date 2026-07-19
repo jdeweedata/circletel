@@ -39,22 +39,23 @@ export function CloudWifiHero() {
 
       <div className="container mx-auto grid min-h-[720px] items-center gap-12 px-4 py-16 sm:px-6 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.78fr)] lg:px-8 lg:py-24">
         <div className="max-w-3xl">
-          <p className="font-heading text-sm font-bold uppercase tracking-[0.16em] text-circleTel-orange-light">
-            Tier finder
+          <p className="font-heading text-2xl font-extrabold tracking-[-0.03em] text-white sm:text-3xl md:text-4xl">
+            CircleTel{" "}
+            <span className="text-circleTel-orange-light">CloudWiFi</span>
           </p>
           <h1
             id="cloudwifi-hero-heading"
-            className="mt-4 max-w-2xl font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.08] tracking-[-0.02em] text-white"
+            className="mt-4 max-w-2xl font-heading text-3xl font-bold leading-[1.08] tracking-[-0.02em] text-white sm:text-4xl md:text-5xl"
           >
-            Find your CloudWiFi tier in minutes.
+            Managed Wi-Fi we design, install and run for your venue.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-white/85">
-            Managed Wi-Fi as a Service for South African venues. We design,
-            install, own, monitor and manage your network, so every visitor and
-            team member gets reliable connectivity.
+            Reliable guest and staff connectivity for South African venues. One
+            local team owns the network end to end, so you stop firefighting
+            Wi-Fi.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <CloudWifiSurveyCta
               variant="cta"
               size="xl"
@@ -64,13 +65,22 @@ export function CloudWifiHero() {
               <PiArrowRightBold aria-hidden="true" />
             </CloudWifiSurveyCta>
             <Link
-              href="/resources/connectivity-guide"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-white/75 px-8 py-3 font-semibold text-white outline-none hover:bg-white hover:text-circleTel-navy focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-circleTel-navy"
+              href="#cloudwifi-pricing"
+              className="inline-flex min-h-12 items-center justify-center px-2 text-base font-semibold text-white/85 underline decoration-white/50 underline-offset-4 outline-none transition hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-circleTel-navy"
             >
-              Open connectivity guide
-              <PiArrowRightBold aria-hidden="true" className="h-4 w-4" />
+              See guide pricing
             </Link>
           </div>
+
+          <p className="mt-4 text-sm text-white/70">
+            Prefer a deeper read?{" "}
+            <Link
+              href="/resources/connectivity-guide"
+              className="font-semibold text-white/85 underline decoration-white/40 underline-offset-4 outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-circleTel-navy"
+            >
+              Open connectivity guide
+            </Link>
+          </p>
 
           <ul className="mt-10 grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-4">
             {serviceAssurances.map((assurance) => {

@@ -2,16 +2,14 @@
 
 import React, { useMemo, useState } from "react";
 
-import { useCloudWifiSurvey } from "@/components/cloudwifi/CloudWifiSurveyProvider";
+import {
+  type CloudWifiVenueSizeBucket,
+  useCloudWifiSurvey,
+} from "@/components/cloudwifi/CloudWifiSurveyProvider";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { recommendCloudWifiTier } from "@/lib/cloudwifi/tier-recommendation";
-import {
-  CLOUDWIFI_SURVEY_NUMERIC_LIMITS,
-  type CloudWifiBackhaul,
-  type CloudWifiVenueType,
-} from "@/lib/cloudwifi/types";
+import type { CloudWifiVenueType } from "@/lib/cloudwifi/types";
 
 const VENUE_OPTIONS: ReadonlyArray<{
   value: CloudWifiVenueType;
@@ -25,41 +23,40 @@ const VENUE_OPTIONS: ReadonlyArray<{
   { value: "public_venue", label: "Public venue" },
 ];
 
-const BACKHAUL_OPTIONS: ReadonlyArray<{
-  value: CloudWifiBackhaul;
+const SIZE_OPTIONS: ReadonlyArray<{
+  value: Exclude<CloudWifiVenueSizeBucket, "">;
   label: string;
 }> = [
-  { value: "fibre", label: "Fibre" },
-  { value: "licensed_wireless", label: "Licensed wireless" },
-  { value: "fixed_wireless", label: "Fixed wireless" },
-  { value: "5g", label: "5G" },
-  { value: "lte", label: "LTE" },
-  { value: "unknown", label: "Not sure" },
+  { value: "small", label: "Small (up to about 300 m²)" },
+  { value: "medium", label: "Medium (about 300–800 m²)" },
+  { value: "large", label: "Large (800 m² or more)" },
+  { value: "unknown", label: "Not sure yet" },
 ];
+
+/** Maps public size buckets to recommendation inputs (peak users stay internal). */
+const SIZE_TO_ESTIMATE: Record<
+  Exclude<CloudWifiVenueSizeBucket, "" | "unknown">,
+  { floorArea: number; peakUsers: number; guideNote: string }
+> = {
+  small: {
+    floorArea: 250,
+    peakUsers: 30,
+    guideNote: "A solid starting point for compact venues.",
+  },
+  medium: {
+    floorArea: 550,
+    peakUsers: 100,
+    guideNote: "Fits most mid-size venues. Survey required before install.",
+  },
+  large: {
+    floorArea: 1200,
+    peakUsers: 250,
+    guideNote: "Built for larger floors and higher capacity needs.",
+  },
+};
 
 const controlClassName =
   "h-11 w-full rounded-md border border-circleTel-navy/20 bg-white px-3 text-base text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2";
-
-function positiveNumber(
-  value: string,
-  maximum: number,
-  integer = false,
-): number | undefined {
-  const normalized = value.trim();
-  if (!/^\d+(?:\.\d+)?$/.test(normalized)) return undefined;
-
-  const parsed = Number(normalized);
-  if (
-    !Number.isFinite(parsed) ||
-    parsed <= 0 ||
-    parsed > maximum ||
-    (integer && !Number.isInteger(parsed))
-  ) {
-    return undefined;
-  }
-
-  return parsed;
-}
 
 function formatMonthlyPrice(price: number): string {
   return `R${price.toLocaleString("en-US")}`;
@@ -68,36 +65,25 @@ function formatMonthlyPrice(price: number): string {
 export function CloudWifiTierEstimator() {
   const { requestSurvey } = useCloudWifiSurvey();
   const [venueType, setVenueType] = useState<CloudWifiVenueType | "">("");
-  const [floorAreaInput, setFloorAreaInput] = useState("");
-  const [peakUsersInput, setPeakUsersInput] = useState("");
-  const [backhaul, setBackhaul] = useState<CloudWifiBackhaul | "">("");
-  const floorArea = positiveNumber(
-    floorAreaInput,
-    CLOUDWIFI_SURVEY_NUMERIC_LIMITS.floorArea,
-  );
-  const peakUsers = positiveNumber(
-    peakUsersInput,
-    CLOUDWIFI_SURVEY_NUMERIC_LIMITS.peakUsers,
-    true,
-  );
+  const [sizeBucket, setSizeBucket] = useState<CloudWifiVenueSizeBucket>("");
 
   const recommendation = useMemo(() => {
-    if (
-      !venueType ||
-      floorArea === undefined ||
-      peakUsers === undefined ||
-      !backhaul
-    ) {
+    if (!venueType || !sizeBucket || sizeBucket === "unknown") {
       return null;
     }
 
-    return recommendCloudWifiTier({
+    const estimate = SIZE_TO_ESTIMATE[sizeBucket];
+    if (!estimate) return null;
+
+    const result = recommendCloudWifiTier({
       venueType,
-      floorArea,
-      peakUsers,
-      backhaul,
+      floorArea: estimate.floorArea,
+      peakUsers: estimate.peakUsers,
+      backhaul: "unknown",
     });
-  }, [backhaul, floorArea, peakUsers, venueType]);
+
+    return { ...result, guideNote: estimate.guideNote, sizeBucket };
+  }, [sizeBucket, venueType]);
 
   return (
     <section
@@ -109,10 +95,10 @@ export function CloudWifiTierEstimator() {
           id="cloudwifi-estimator-heading"
           className="font-heading text-2xl font-bold text-circleTel-navy"
         >
-          Estimate your tier
+          Find a guide tier
         </h2>
         <p className="mt-1 text-base text-circleTel-secondaryNeutral">
-          Answer four questions to see the right range for your site.
+          Two quick details. A site survey confirms the final design and price.
         </p>
       </header>
 
@@ -144,72 +130,30 @@ export function CloudWifiTierEstimator() {
 
         <div className="space-y-2">
           <Label
-            htmlFor="cloudwifi-estimator-area"
+            htmlFor="cloudwifi-estimator-size"
             className="text-circleTel-navy"
           >
-            Usable floor area
-          </Label>
-          <Input
-            id="cloudwifi-estimator-area"
-            aria-label="Usable floor area"
-            inputMode="decimal"
-            min="0.1"
-            max={CLOUDWIFI_SURVEY_NUMERIC_LIMITS.floorArea}
-            step="0.1"
-            type="number"
-            value={floorAreaInput}
-            onChange={(event) => setFloorAreaInput(event.target.value)}
-            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange-accessible md:text-base"
-          />
-          <p className="text-sm text-circleTel-secondaryNeutral">
-            Approximate square metres
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label
-            htmlFor="cloudwifi-estimator-users"
-            className="text-circleTel-navy"
-          >
-            Expected peak concurrent users
-          </Label>
-          <Input
-            id="cloudwifi-estimator-users"
-            aria-label="Expected peak concurrent users"
-            inputMode="numeric"
-            min="1"
-            max={CLOUDWIFI_SURVEY_NUMERIC_LIMITS.peakUsers}
-            step="1"
-            type="number"
-            value={peakUsersInput}
-            onChange={(event) => setPeakUsersInput(event.target.value)}
-            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange-accessible md:text-base"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label
-            htmlFor="cloudwifi-estimator-backhaul"
-            className="text-circleTel-navy"
-          >
-            Internet backhaul
+            Roughly how big is the space?
           </Label>
           <select
-            id="cloudwifi-estimator-backhaul"
-            aria-label="Internet backhaul"
+            id="cloudwifi-estimator-size"
+            aria-label="Approximate venue size"
             className={controlClassName}
-            value={backhaul}
+            value={sizeBucket}
             onChange={(event) =>
-              setBackhaul(event.target.value as CloudWifiBackhaul | "")
+              setSizeBucket(event.target.value as CloudWifiVenueSizeBucket)
             }
           >
-            <option value="">Select backhaul</option>
-            {BACKHAUL_OPTIONS.map((option) => (
+            <option value="">Select a size</option>
+            {SIZE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
           </select>
+          <p className="text-sm text-circleTel-secondaryNeutral">
+            A rough estimate is fine. We confirm this on site.
+          </p>
         </div>
       </div>
 
@@ -217,15 +161,44 @@ export function CloudWifiTierEstimator() {
         aria-live="polite"
         className="mt-6 border-t border-circleTel-navy/10 pt-5"
       >
-        {!recommendation ? (
+        {!venueType || !sizeBucket ? (
           <p className="rounded-lg bg-circleTel-lightNeutral p-4 text-base font-medium text-circleTel-navy">
-            Select your details to see a recommendation
+            Select your venue and size to see a guide tier
+          </p>
+        ) : sizeBucket === "unknown" ? (
+          <div className="space-y-4">
+            <p className="rounded-lg bg-circleTel-orange-light p-4 text-base text-circleTel-navy">
+              No problem. Request a site survey and we will size the network
+              with you on site.
+            </p>
+            <Button
+              type="button"
+              data-cloudwifi-survey-opener="true"
+              variant="cta"
+              size="lg"
+              className="w-full bg-circleTel-orange-accessible hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2"
+              onClick={(event) =>
+                requestSurvey(
+                  {
+                    venueType: venueType as CloudWifiVenueType,
+                    sizeBucket: "unknown",
+                  },
+                  event.currentTarget,
+                )
+              }
+            >
+              Request a site survey
+            </Button>
+          </div>
+        ) : !recommendation ? (
+          <p className="rounded-lg bg-circleTel-lightNeutral p-4 text-base font-medium text-circleTel-navy">
+            Select your venue and size to see a guide tier
           </p>
         ) : (
           <div className="space-y-4">
-            <div>
+            <div className="rounded-lg border border-[#efd2b4] bg-circleTel-orange-light p-4 transition-colors">
               <p className="text-sm font-semibold uppercase tracking-wide text-circleTel-navy">
-                Your recommended tier
+                Guide tier
               </p>
               <h3 className="mt-1 font-heading text-2xl font-bold text-circleTel-navy">
                 {recommendation.tierDetails.name}
@@ -244,19 +217,10 @@ export function CloudWifiTierEstimator() {
               <p className="mt-1 text-base font-semibold text-circleTel-navy">
                 {recommendation.tierDetails.apRange}
               </p>
-            </div>
-
-            <ul className="space-y-2 text-base text-circleTel-secondaryNeutral">
-              {recommendation.reasons.map((reason) => (
-                <li key={reason}>• {reason}</li>
-              ))}
-            </ul>
-
-            {recommendation.backhaulGuidance ? (
-              <p className="rounded-lg bg-circleTel-lightNeutral p-3 text-base text-circleTel-secondaryNeutral">
-                {recommendation.backhaulGuidance}
+              <p className="mt-2 text-base text-circleTel-secondaryNeutral">
+                {recommendation.guideNote}
               </p>
-            ) : null}
+            </div>
 
             <Button
               type="button"
@@ -269,14 +233,14 @@ export function CloudWifiTierEstimator() {
                   {
                     venueType: recommendation.venueType,
                     floorArea: recommendation.floorArea,
-                    peakUsers: recommendation.peakUsers,
-                    backhaul: recommendation.backhaul,
+                    sizeBucket: recommendation.sizeBucket,
+                    backhaul: "unknown",
                   },
                   event.currentTarget,
                 )
               }
             >
-              Use this recommendation
+              Request a site survey
             </Button>
             <p className="text-sm text-circleTel-secondaryNeutral">
               A site survey confirms the final tier and price.

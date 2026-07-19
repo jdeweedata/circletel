@@ -5,7 +5,6 @@ import {
   PiClipboardTextBold,
   PiCloudBold,
   PiDoorOpenBold,
-  PiGaugeBold,
   PiGraduationCapBold,
   PiHeartbeatBold,
   PiMapPinAreaBold,
@@ -35,6 +34,7 @@ export interface PricingTierContent {
   readonly capacity: string;
   readonly features: readonly string[];
   readonly accentClassName: string;
+  readonly recommended?: boolean;
 }
 
 export interface IconContent {
@@ -43,28 +43,42 @@ export interface IconContent {
   readonly icon: IconType;
 }
 
-export const venueTypes = [
+export const primaryVenueTypes = [
   {
     title: "Hospitality",
-    description: "Keep guests connected and encourage longer stays.",
+    description:
+      "Keep guests connected in rooms, lobbies and F&B without congesting staff systems.",
     imageBase: "/images/cloudwifi/venue-hospitality",
     imageAlt: "Guests dining in a warmly lit hospitality venue",
     icon: PiDoorOpenBold,
   },
   {
     title: "Retail",
-    description: "Support smoother visits and repeat engagement.",
+    description:
+      "Support denser floors, guest Wi-Fi and back-of-house devices from one managed design.",
     imageBase: "/images/cloudwifi/venue-retail",
     imageAlt: "Customers browsing a contemporary retail store",
     icon: PiStorefrontBold,
   },
   {
-    title: "Property",
-    description: "Add managed connectivity to valuable shared spaces.",
+    title: "Property & offices",
+    description:
+      "Add reliable shared-space connectivity with clear ownership after handover.",
     imageBase: "/images/cloudwifi/venue-property",
     imageAlt: "Modern multi-storey residential property",
     icon: PiBuildingsBold,
   },
+] as const satisfies readonly VenueTypeContent[];
+
+export const secondaryVenueLabels = [
+  "Healthcare",
+  "Education",
+  "Public venues",
+] as const;
+
+/** Full catalogue kept for image assets and broader references. */
+export const venueTypes = [
+  ...primaryVenueTypes,
   {
     title: "Healthcare",
     description: "Enable staff productivity and patient connectivity.",
@@ -115,7 +129,8 @@ export const pricingTiers = [
       "Multi-zone Wi-Fi design",
       "Priority support",
     ],
-    accentClassName: "border-t-circleTel-navy",
+    accentClassName: "border-t-circleTel-orange",
+    recommended: true,
   },
   {
     name: "Enterprise",
@@ -143,50 +158,52 @@ export const pricingTiers = [
       "Phased rollout planning",
       "Dedicated support",
     ],
-    accentClassName: "border-t-circleTel-orange",
+    accentClassName: "border-t-circleTel-navy",
   },
 ] as const satisfies readonly PricingTierContent[];
 
 export const priceDrivers = [
   {
     title: "Floor area",
-    description: "Usable square metres determine the coverage footprint.",
+    description: "Usable square metres set the coverage footprint and AP count.",
     icon: PiMapPinAreaBold,
   },
   {
-    title: "Walls and building materials",
+    title: "Walls and materials",
     description:
-      "Dense walls and metal reduce signal and can require more APs.",
+      "Dense walls and metal can reduce signal and add access points.",
     icon: PiWallBold,
   },
   {
-    title: "User density",
-    description: "More concurrent users raise capacity and performance needs.",
+    title: "How busy it gets",
+    description: "Peak occupancy and device mix drive capacity, not just speed.",
     icon: PiUsersBold,
-  },
-  {
-    title: "Backhaul capacity",
-    description: "Internet speed and resilience shape the final experience.",
-    icon: PiGaugeBold,
   },
 ] as const satisfies readonly IconContent[];
 
-export const includedFeatures = [
+export const includedFeatureHighlights = [
   "Site survey and Wi-Fi design",
   "Professional installation",
+  "24/7 monitoring and updates",
+] as const;
+
+export const includedFeatures = [
+  ...includedFeatureHighlights,
   "Enterprise Wi-Fi 6 access points",
   "Guest network",
-  "24/7 network monitoring",
   "Proactive maintenance",
-  "Firmware and security updates",
   "Monthly reporting",
 ] as const;
 
-export const addOns = [
+export const addOnHighlights = [
   "Captive portal",
-  "Advanced analytics and insights",
-  "Content filtering",
+  "Advanced analytics",
   "LTE/5G failover",
+  "Content filtering",
+] as const;
+
+export const addOns = [
+  ...addOnHighlights,
   "Bandwidth shaping",
   "LAN and Wi-Fi optimisation",
   "Multi-site management",
@@ -195,11 +212,12 @@ export const addOns = [
 
 export const whyCircleTel = [
   "South African team and support",
-  "Carrier-grade experience",
   "Vendor-agnostic advice",
   "Transparent, survey-led pricing",
-  "Scales as your venue grows",
 ] as const;
+
+export const proofStripCopy =
+  "Trusted by South African operators who need Wi-Fi that just works on busy days.";
 
 export const processSteps = [
   {

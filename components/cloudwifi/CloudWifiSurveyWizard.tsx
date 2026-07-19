@@ -879,7 +879,7 @@ export function CloudWifiSurveyWizard() {
           ))}
         </select>
         <p className="mt-1 text-sm text-circleTel-secondaryNeutral">
-          A rough estimate is fine — we confirm this during the site survey.
+          A rough estimate is fine. We confirm this during the site survey.
         </p>
         <FieldError field="sizeBucket" errors={errors} />
       </div>
@@ -924,7 +924,7 @@ export function CloudWifiSurveyWizard() {
     2: {
       title: "Where should we survey?",
       description:
-        "A few simple details help us prepare — no technical knowledge needed.",
+        "A few simple details help us prepare. No technical knowledge needed.",
     },
   };
 

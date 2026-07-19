@@ -101,16 +101,17 @@ describe("CloudWiFi product page", () => {
 
     expect(h1s).toHaveLength(1);
     expect(h1s[0].children.join("")).toBe(
-      "Find your CloudWiFi tier in minutes.",
+      "Managed Wi-Fi we design, install and run for your venue.",
     );
-    expect(h1s[0].props.className).toContain(
-      "text-3xl sm:text-4xl md:text-5xl lg:text-6xl",
-    );
+    expect(text).toContain("CircleTel");
+    expect(text).toContain("CloudWiFi");
+    expect(text).toContain("See guide pricing");
+    expect(text).toContain("Most venues");
 
     for (const venue of [
       "Hospitality",
       "Retail",
-      "Property",
+      "Property & offices",
       "Healthcare",
       "Education",
       "Public venues",
@@ -133,16 +134,19 @@ describe("CloudWiFi product page", () => {
       for (const detail of tier) expect(text).toContain(detail);
     }
 
-    expect(text).toContain("What drives the price?");
+    expect(text).toContain("What shapes the final quote?");
     expect(text).toContain("Fully managed Wi-Fi, end to end.");
-    expect(text).toContain("Powerful add-ons");
-    expect(text).toContain("Optional enhancements");
+    expect(text).toContain("Optional add-ons");
+    expect(text).toContain("Every tier includes");
     expect(text).toContain("Prices exclude VAT.");
     expect(text).toContain("Fair-usage terms apply.");
     expect(text).toContain(
       "Additional access points are available at extra cost.",
     );
     expect(text).toContain("A site survey confirms the final tier and price.");
+    expect(text).toContain(
+      "Trusted by South African operators who need Wi-Fi that just works on busy days.",
+    );
 
     for (const step of ["Site survey", "Design", "Installation", "Manage"]) {
       expect(text).toContain(step);
@@ -157,6 +161,8 @@ describe("CloudWiFi product page", () => {
     expect(text).not.toContain(
       "CloudWiFi for venues that cannot afford messy guest Wi-Fi",
     );
+    expect(text).not.toContain("Tier finder");
+    expect(text).not.toContain("Find your CloudWiFi tier in minutes.");
 
     expect(includedFeatures).not.toContain("Guest and staff separation");
     expect(pricingTiers.map((tier) => tier.capacity)).toEqual([
@@ -165,6 +171,9 @@ describe("CloudWiFi product page", () => {
       "Up to 12 APs",
       "Up to 20 APs before custom expansion",
     ]);
+    expect(
+      pricingTiers.find((tier) => tier.name === "Professional")?.recommended,
+    ).toBe(true);
     expect(
       pricingTiers.find((tier) => tier.name === "Campus")?.features,
     ).not.toContain("Multi-site management");
@@ -181,6 +190,11 @@ describe("CloudWiFi product page", () => {
       textOf(anchor).includes("Open connectivity guide"),
     );
     expect(toolkit?.props.href).toBe("/resources/connectivity-guide");
+
+    const pricingLink = anchors.find((anchor) =>
+      textOf(anchor).includes("See guide pricing"),
+    );
+    expect(pricingLink?.props.href).toBe("#cloudwifi-pricing");
 
     const expert = anchors.find((anchor) =>
       textOf(anchor).includes("Talk to an expert"),
@@ -207,12 +221,12 @@ describe("CloudWiFi product page", () => {
       "Guests dining in a warmly lit hospitality venue",
       "Customers browsing a contemporary retail store",
       "Modern multi-storey residential property",
-      "Bright modern healthcare reception and waiting area",
-      "Students learning together in a connected classroom",
-      "Audience gathered in a large public venue",
     ]) {
       expect(imageAlts).toContain(alt);
     }
+    expect(imageAlts).not.toContain(
+      "Bright modern healthcare reception and waiting area",
+    );
 
     for (const section of renderer!.root.findAllByType("section")) {
       const labelledBy = section.props["aria-labelledby"];
