@@ -18,9 +18,9 @@
  *   CURRENT app_metadata): claim TTL 15 min → any change takes effect on
  *   every API route within 15 minutes.
  * - Middleware page guard (getSession() decodes the JWT locally, so its
- *   metadata can lag one token-refresh cycle ~1h): claim TTL 24h. The
- *   page shell renders no data without API calls, which are governed by
- *   the 15-min window above.
+ *   metadata can lag one token-refresh cycle ~1h): claim TTL 1h. The page
+ *   shell renders no data without API calls, which are governed by the
+ *   15-min window above, so this window only affects visible chrome/menus.
  *
  * This file must stay edge-safe (imported by middleware): pure functions
  * and types only — the stamping helper takes the caller's service-role
@@ -33,8 +33,10 @@ import type { AdminUser } from '@/lib/auth/admin-api-auth';
 export const ADMIN_CLAIM_VERSION = 1;
 /** Claim freshness for API-route auth (authenticateAdmin). */
 export const ADMIN_CLAIM_API_TTL_MS = 15 * 60 * 1000;
-/** Claim freshness for the middleware page guard. */
-export const ADMIN_CLAIM_PAGE_TTL_MS = 24 * 60 * 60 * 1000;
+/** Claim freshness for the middleware page guard (shell/menu only; data is
+ *  gated by the 15-min API window). Kept short so a direct-DB role change or
+ *  deactivation revokes page-shell access within the hour. */
+export const ADMIN_CLAIM_PAGE_TTL_MS = 60 * 60 * 1000;
 
 export interface AdminClaim {
   v: number;

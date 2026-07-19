@@ -127,7 +127,7 @@ export async function handleAdminAuth(
   // Fast path (audit H3): a fresh JWT admin claim (stamped at login and
   // refreshed by authenticateAdmin) authorizes with zero DB reads. The
   // session JWT's metadata can lag one token-refresh cycle, so this layer
-  // uses the 24h TTL; API routes enforce the tighter 15-min window.
+  // uses the 1h page TTL; API routes enforce the tighter 15-min window.
   // Fallback: one admin_users read (the pre-H3 behavior).
   let role: AdminRole | null = null;
   const claim = getAdminClaim(user, ADMIN_CLAIM_PAGE_TTL_MS);
