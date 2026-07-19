@@ -121,7 +121,7 @@ CircleTel is substantially larger than the documented "254-page app":
 
 **Recommendation:** Introduce a shared API error responder (log full error server-side via the existing `lib/logging` logger, return a generic message + correlation ID — the middleware already sets `x-request-id`). Migrate routes mechanically. Since this touches all 145 routes anyway, it's also the natural moment to normalize inconsistent HTTP status codes through the same helper (optional scope addition).
 
-**Effort:** Helper: S. Migration: M (mechanical, scriptable)
+**Effort:** Helper: S. Migration: M, may slip toward L — mechanical in principle, but 145 routes will have a long tail of non-uniform response shapes needing manual handling
 
 ---
 
