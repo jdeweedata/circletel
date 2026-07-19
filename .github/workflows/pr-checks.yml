@@ -171,6 +171,9 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - name: Install dependencies
+        # --ignore-scripts is deliberate: the only lifecycle script is the
+        # `prepare` githooks setup, which is irrelevant in CI. Revisit if a
+        # postinstall step is ever added.
         run: npm ci --ignore-scripts
       - name: Check type-error count vs baseline
         run: bash scripts/check-type-errors.sh
