@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import ContactPageClient from './ContactPageClient';
 
@@ -22,5 +23,11 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
-  return <ContactPageClient />;
+  // ContactPageClient calls useSearchParams() to prefill the form; the Suspense
+  // boundary keeps the route buildable if the root force-dynamic is ever narrowed.
+  return (
+    <Suspense fallback={null}>
+      <ContactPageClient />
+    </Suspense>
+  );
 }

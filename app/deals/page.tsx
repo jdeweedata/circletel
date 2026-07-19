@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import DealsPageClient from './DealsPageClient';
 
@@ -19,5 +20,11 @@ export const metadata: Metadata = {
 };
 
 export default function DealsPage() {
-  return <DealsPageClient />;
+  // DealsPageClient calls useSearchParams(); the Suspense boundary keeps the
+  // route buildable if the root layout's force-dynamic is ever narrowed.
+  return (
+    <Suspense fallback={null}>
+      <DealsPageClient />
+    </Suspense>
+  );
 }
