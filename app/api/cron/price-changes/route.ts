@@ -278,7 +278,11 @@ export async function GET(request: NextRequest) {
       `[Price Changes Cron] Job completed: ${successCount} succeeded, ${failureCount} failed`
     );
 
-    revalidateCoverageReferenceCache(['servicePackages']);
+    // Only bust the cache when a price change actually landed — skip the no-op
+    // revalidation on empty or all-failed cron runs.
+    if (successCount > 0) {
+      revalidateCoverageReferenceCache(['servicePackages']);
+    }
     return NextResponse.json({
       success: true,
       message: `Processed ${priceChanges.length} price changes`,

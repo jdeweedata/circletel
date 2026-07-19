@@ -71,6 +71,10 @@ export async function POST(request: NextRequest) {
     // Step 1: PiCheckBold if user exists in admin_users
     // Full row: the JWT admin claim stamped below embeds this as the profile
     // used by authenticateAdmin's zero-DB fast path (audit H3).
+    // ⚠️ CONSTRAINT: this row is embedded in the client-readable JWT
+    // app_metadata. Any NEW column added to admin_users is therefore shipped to
+    // the client automatically — keep this table free of internal/secret fields,
+    // or narrow this select before adding one.
     const { data: adminUser, error: adminError } = await supabaseAdmin
       .from('admin_users')
       .select('*')

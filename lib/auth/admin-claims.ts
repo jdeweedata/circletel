@@ -6,10 +6,16 @@
  * fallback in authenticateAdmin() runs. Verifiers accept a claim only
  * while it is fresh, then fall back to the admin_users table — so role
  * changes or deactivations done directly in the database (there is no
- * in-app admin_users mutation path) take effect within a bounded window:
+ * in-app admin_users mutation path) take effect within a bounded window.
+ *
+ * The window applies to ANY admin_users change, not just deactivation: a
+ * role downgrade (e.g. super_admin → viewer while still is_active) also
+ * rides it, because the validator only re-checks is_active/TTL/version and
+ * never compares the embedded role against a current value. A stale role
+ * persists until the claim expires and the DB fallback re-stamps it.
  *
  * - API routes (authenticateAdmin uses auth.getUser(), which returns
- *   CURRENT app_metadata): claim TTL 15 min → deactivation locks out of
+ *   CURRENT app_metadata): claim TTL 15 min → any change takes effect on
  *   every API route within 15 minutes.
  * - Middleware page guard (getSession() decodes the JWT locally, so its
  *   metadata can lag one token-refresh cycle ~1h): claim TTL 24h. The
