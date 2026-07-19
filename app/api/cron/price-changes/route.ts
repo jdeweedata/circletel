@@ -14,6 +14,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateCoverageReferenceCache } from '@/lib/coverage/reference-data';
 import { createClient } from '@/lib/supabase/server';
 import { ZohoBillingClient } from '@/lib/integrations/zoho/billing-client';
 import { cronLogger } from '@/lib/logging';
@@ -277,6 +278,7 @@ export async function GET(request: NextRequest) {
       `[Price Changes Cron] Job completed: ${successCount} succeeded, ${failureCount} failed`
     );
 
+    revalidateCoverageReferenceCache(['servicePackages']);
     return NextResponse.json({
       success: true,
       message: `Processed ${priceChanges.length} price changes`,

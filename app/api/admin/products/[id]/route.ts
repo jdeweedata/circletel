@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
+import { revalidateCoverageReferenceCache } from '@/lib/coverage/reference-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -393,6 +394,7 @@ export async function PUT(
     }
 
     apiLogger.info('[Product Update API] Update successful');
+    revalidateCoverageReferenceCache(['servicePackages']);
     return NextResponse.json({ success: true, data: product });
   } catch (error) {
     apiLogger.error('[Product Update API] Unexpected error:', {
@@ -467,6 +469,7 @@ export async function DELETE(
       .order('changed_at', { ascending: false })
       .limit(1);
 
+    revalidateCoverageReferenceCache(['servicePackages']);
     return NextResponse.json({ success: true, data: product });
   } catch (error) {
     apiLogger.error('Error in DELETE /api/admin/products/[id]', { error: error instanceof Error ? error.message : String(error) });

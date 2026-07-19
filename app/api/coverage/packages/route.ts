@@ -5,6 +5,12 @@ import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
 import { Coordinates } from '@/lib/coverage/types';
 import { CoverageLogger } from '@/lib/analytics/coverage-logger';
 import { apiLogger } from '@/lib/logging';
+import {
+  getActiveCoverageAreas,
+  getActiveServiceTypeMappings,
+  getActiveServicePackages,
+  getActiveNetworkProviders,
+} from '@/lib/coverage/reference-data';
 
 // ============================================================================
 // TYPES
@@ -263,13 +269,16 @@ export async function GET(request: NextRequest) {
     }
 
     if (!coverageAvailable) {
-      // Final fallback: PiCheckBold coverage by area name/address matching (legacy)
-      const { data: areas, error: areasError } = await supabase
-        .from('coverage_areas')
-        .select('*')
-        .eq('status', 'active');
+      // Final fallback: check coverage by area name/address matching (legacy).
+      // Cached reference read — see lib/coverage/reference-data.ts.
+      let areas: CoverageAreaRecord[] | null = null;
+      try {
+        areas = await getActiveCoverageAreas();
+      } catch (areasError) {
+        apiLogger.error('coverage_areas reference read failed', { error: areasError });
+      }
 
-      if (!areasError && areas) {
+      if (areas) {
         const addressLower = lead.address.toLowerCase();
         const matchingAreas = areas.filter((area: CoverageAreaRecord) => {
           const areaName = area.area_name.toLowerCase();
@@ -292,24 +301,29 @@ export async function GET(request: NextRequest) {
     }
 
     if (coverageAvailable && availableServices.length > 0) {
-      // Check for licensed_wireless (P2P microwave) - requires quote/lead form
-      const hasLicensedWireless = availableServices.includes('licensed_wireless');
+      // Check for licensed_wireless (P2P microwave) - requires quote/lead form.
+      // NOTE: assignment to the outer variable — a previous `const` here
+      // shadowed it, so the response flag was permanently false.
+      hasLicensedWireless = availableServices.includes('licensed_wireless');
 
       // Filter out licensed_wireless from normal package display
       const packageableServices = availableServices.filter(s => s !== 'licensed_wireless');
 
       // Map technical service types to product categories using service_type_mapping
       // Note: availableServices may contain either technical types (from MTN API) or product categories (from legacy coverage_areas)
-      const { data: mappings, error: mappingError } = await supabase
-        .from('service_type_mapping')
-        .select('*')
-        .in('technical_type', packageableServices)
-        .eq('active', true)
-        .order('priority', { ascending: true });
+      // Cached reference reads, fetched concurrently — see lib/coverage/reference-data.ts.
+      const [mappingResult, packagesResult, providersResult] = await Promise.allSettled([
+        getActiveServiceTypeMappings(),
+        getActiveServicePackages(),
+        getActiveNetworkProviders(),
+      ]);
 
-      if (mappingError) {
-        apiLogger.error('Mapping error', { error: mappingError });
+      if (mappingResult.status === 'rejected') {
+        apiLogger.error('Mapping error', { error: mappingResult.reason });
       }
+      const mappings = mappingResult.status === 'fulfilled'
+        ? mappingResult.value.filter(m => packageableServices.includes(m.technical_type))
+        : null;
 
       // Get unique product categories from mappings, or use services directly if they're already product categories
       let productCategories: string[];
@@ -338,34 +352,36 @@ export async function GET(request: NextRequest) {
           : `service_type.in.(${productCategories.join(',')})`
       });
 
-      const { data: packages, error: packagesError } = await supabase
-        .from('service_packages')
-        .select('*')
-        .or(
-          mappings && mappings.length > 0
-            ? `product_category.in.(${productCategories.join(',')})`
-            : `service_type.in.(${productCategories.join(',')})`
-        )
-        .eq('customer_type', packageCustomerType)
-        .eq('active', true)
-        .order('price', { ascending: true });
+      // Filter the cached active-package list in code. Semantics match the
+      // previous DB query: category match (mapped) OR service_type match
+      // (legacy), plus customer_type — cache is already active-only and
+      // price-ascending.
+      const useMappedCategories = !!(mappings && mappings.length > 0);
+      const packages = packagesResult.status === 'fulfilled'
+        ? packagesResult.value.filter(pkg =>
+            pkg.customer_type === packageCustomerType &&
+            (useMappedCategories
+              ? !!pkg.product_category && productCategories.includes(pkg.product_category)
+              : productCategories.includes(pkg.service_type))
+          )
+        : null;
 
       apiLogger.info('[Packages API] Query result', {
         packagesFound: packages?.length || 0,
         packageNames: packages?.map((p: ServicePackage) => p.name).slice(0, 5) || [],
-        queryError: packagesError?.message
+        queryError: packagesResult.status === 'rejected' ? String(packagesResult.reason) : undefined
       });
 
-      if (!packagesError && packages) {
-        // Fetch provider data for packages with compatible_providers
-        const { data: providers, error: providersError } = await supabase
-          .from('fttb_network_providers')
-          .select('provider_code, display_name, logo_url, logo_dark_url, logo_light_url, logo_format, logo_aspect_ratio, priority, active')
-          .eq('active', true);
+      if (packages) {
+        // Provider data (logos) from the cached reference read
+        const providers = providersResult.status === 'fulfilled' ? providersResult.value : null;
+        if (providersResult.status === 'rejected') {
+          apiLogger.error('fttb_network_providers reference read failed', { error: providersResult.reason });
+        }
 
         // Create provider lookup map
         const providerMap = new Map<string, NetworkProvider>();
-        if (!providersError && providers) {
+        if (providers) {
           providers.forEach((provider: NetworkProvider) => {
             providerMap.set(provider.provider_code, provider);
           });
@@ -442,8 +458,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Update lead with coverage check result
-    const { error: leadUpdateError } = await supabase
+    // Persist coverage result and log analytics concurrently — independent writes
+    const responseTime = Date.now() - startTime;
+    const leadUpdatePromise = supabase
       .from('coverage_leads')
       .update({
         coverage_available: coverageAvailable,
@@ -451,20 +468,19 @@ export async function GET(request: NextRequest) {
         coverage_check_status: 'complete',
         checked_at: new Date().toISOString()
       })
-      .eq('id', leadId);
-
-    if (leadUpdateError) {
-      // Don't fail the request — the page recomputes coverage live — but surface
-      // the failure so it isn't swallowed (this was previously a silent no-op).
-      apiLogger.error('[Packages API] Failed to persist coverage result to lead', {
-        leadId,
-        error: leadUpdateError.message
+      .eq('id', leadId)
+      .then(({ error: leadUpdateError }) => {
+        if (leadUpdateError) {
+          // Don't fail the request — the page recomputes coverage live — but surface
+          // the failure so it isn't swallowed (this was previously a silent no-op).
+          apiLogger.error('[Packages API] Failed to persist coverage result to lead', {
+            leadId,
+            error: leadUpdateError.message
+          });
+        }
       });
-    }
 
-    // Log analytics
-    const responseTime = Date.now() - startTime;
-    await CoverageLogger.log({
+    const analyticsPromise = CoverageLogger.log({
       endpoint: '/api/coverage/packages',
       method: 'GET',
       address: lead.address,
@@ -484,6 +500,8 @@ export async function GET(request: NextRequest) {
       userAgent: request.headers.get('user-agent') || undefined,
       ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined
     });
+
+    await Promise.all([leadUpdatePromise, analyticsPromise]);
 
     return NextResponse.json({
       available: coverageAvailable,

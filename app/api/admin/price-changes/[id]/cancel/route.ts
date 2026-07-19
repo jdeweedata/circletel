@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateCoverageReferenceCache } from '@/lib/coverage/reference-data';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
@@ -150,6 +151,7 @@ export async function POST(
     // =========================================================================
     // Return Success
     // =========================================================================
+    revalidateCoverageReferenceCache(['servicePackages']);
     return NextResponse.json({
       success: true,
       data: cancelledPriceChange,
