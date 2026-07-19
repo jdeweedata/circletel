@@ -158,3 +158,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check brand-literal count vs baseline
         run: bash scripts/check-brand-literals.sh
+
+  type-error-ratchet:
+    name: Type-error ratchet
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Check type-error count vs baseline
+        run: bash scripts/check-type-errors.sh

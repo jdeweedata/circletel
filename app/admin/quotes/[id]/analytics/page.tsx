@@ -88,7 +88,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
         setError(data.error || 'Failed to load analytics');
       }
     } catch (err: unknown) {
-      setError(err.message || 'An error occurred');
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
       setRefreshing(false);
