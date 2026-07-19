@@ -176,7 +176,6 @@ export const includedFeatures = [
   "Professional installation",
   "Enterprise Wi-Fi 6 access points",
   "Guest network",
-  "Ruijie Cloud management",
   "24/7 network monitoring",
   "Proactive maintenance",
   "Firmware and security updates",
@@ -228,7 +227,7 @@ export const processSteps = [
 export const serviceAssurances = [
   { title: "Wi-Fi 6 access points", icon: PiWifiHighBold },
   { title: "Guest and staff separation", icon: PiUserSwitchBold },
-  { title: "Ruijie Cloud management", icon: PiCloudBold },
+  { title: "Cloud management", icon: PiCloudBold },
   { title: "Managed support", icon: PiShieldCheckBold },
 ] as const satisfies readonly {
   readonly title: string;
