@@ -12,6 +12,7 @@ import {
 } from '@/lib/catalog/publish';
 import { syncWithRetry } from '@/lib/integrations/zoho/sync-retry-service';
 import { syncServicePackageToZohoBilling } from '@/lib/integrations/zoho/billing-sync-service';
+import { revalidateCoverageReferenceCache } from '@/lib/coverage/reference-data';
 import { apiLogger } from '@/lib/logging/logger';
 
 /**
@@ -88,6 +89,11 @@ export async function POST(
 
     // 5. Archive previous versions
     await archivePreviousVersions(servicePackage, payload);
+
+    // Invalidate the coverage reference cache now that service_packages changed —
+    // this is the primary "make a product live" path, so the public coverage
+    // check must reflect it immediately rather than waiting out the TTL.
+    revalidateCoverageReferenceCache(['servicePackages']);
 
     // 6. Update latest audit log entry with user attribution
     await logPublishAudit(
