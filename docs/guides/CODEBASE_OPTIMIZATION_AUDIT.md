@@ -4,6 +4,7 @@
 **Scope**: Full codebase — tech stack, all pages, API/data layer, build & deploy pipeline
 **Method**: Three parallel deep-exploration passes (tech stack/build config, pages/components, API/data layer), with the highest-impact findings verified line-by-line against the actual source.
 **Deliverable**: Audit only — no code changes were made. Each finding includes evidence, expected impact, and an effort estimate (S = hours, M = days, L = a week+).
+**Snapshot note**: All counts and line numbers are a point-in-time snapshot as of the date above and will drift as the codebase changes. Re-measure with the pinned commands in [Measurement](#measurement) before using any figure as a baseline.
 
 ---
 
