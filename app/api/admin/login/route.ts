@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
 import { apiLogger } from '@/lib/logging';
+import { stampAdminClaim } from '@/lib/auth/admin-claims';
 
 /**
  * Admin Login API with Audit Logging and Proper Cookie Management
@@ -68,9 +69,11 @@ export async function POST(request: NextRequest) {
     apiLogger.info('[Login API] Supabase clients created', { elapsed_ms: Date.now() - startTime });
 
     // Step 1: PiCheckBold if user exists in admin_users
+    // Full row: the JWT admin claim stamped below embeds this as the profile
+    // used by authenticateAdmin's zero-DB fast path (audit H3).
     const { data: adminUser, error: adminError } = await supabaseAdmin
       .from('admin_users')
-      .select('id, email, full_name, is_active, role, role_template_id, permissions')
+      .select('*')
       .eq('email', normalizedEmail)
       .maybeSingle();
     apiLogger.info('[Login API] Admin user lookup completed', { elapsed_ms: Date.now() - startTime });
@@ -184,6 +187,12 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Stamp the JWT admin claim (audit H3) so middleware and API routes can
+    // authorize without a DB read. Non-fatal on failure — the DB fallback
+    // path still works. Takes effect for API routes immediately (getUser
+    // reads live metadata) and for middleware on the next token refresh.
+    await stampAdminClaim(supabaseAdmin, authData.user.id, adminUser);
 
     // Step 4: Log successful login with detailed session info
     const loginMetadata = {
