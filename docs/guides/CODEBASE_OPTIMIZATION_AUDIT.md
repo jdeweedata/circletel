@@ -33,7 +33,7 @@ CircleTel is substantially larger than the documented "254-page app":
 - **Admin API auth is centralized and near-universal**: `lib/auth/admin-api-auth.ts` is imported by 338 files; only 3 admin routes lack auth and all 3 are legitimately public (login, signup, forgot-password).
 - **No hardcoded secrets** and no sensitive values behind `NEXT_PUBLIC_` — targeted greps for key patterns came back clean.
 - **Strong database indexing**: 896 `CREATE INDEX` statements, plus a dedicated PostGIS optimization migration (`supabase/migrations/20260714195733_optimize_postgis_spatial_queries.sql`) with STORED geography columns matched to GiST indexes.
-- **Near-universal `next/image`**: 43 files use it; raw `<img>` appears in only 2.
+- **`next/image` is well established**: 43 files use it. (An earlier draft claimed raw `<img>` appeared in only 2 files — a single-line grep that missed multi-line JSX; the real count is 37 files, see M8.)
 - **Clean order-flow architecture**: `components/order/context/OrderContext.tsx` is a compact 262-line reducer store — the best-factored area reviewed.
 - **Well-tuned self-hosted CI**: Turbopack builds (~10 min vs 17–21 min webpack), tar-based `node_modules` cache, rsync'd `.next` cache.
 
@@ -214,7 +214,7 @@ Confirmed committed artifacts:
 
 ### M6. Query hygiene: unbounded lists, `select('*')`, N+1 surface
 
-- `select('*')`: **377 uses** — including all four tables on the coverage hot path.
+- `select('*')`: **393 uses** (per the pinned command in Measurement) — including all four tables on the coverage hot path.
 - Only 125 `.limit()` and 45 `.range()` calls across 608 routes — many list endpoints are unbounded and will degrade as tables grow.
 - 514 loop-with-await sites (`for (const` / `.map(async` / `.forEach(async`) in `app/api` + `lib` — a large N+1 risk surface.
 
@@ -227,11 +227,14 @@ Confirmed committed artifacts:
 **Recommendation:** Enforce via ESLint `no-console` (warn → error over time); migrate hot paths first.
 **Effort:** M (mechanical)
 
-### M8. 6–8 MB source images in `public/`
+### M8. 6–8 MB source images in `public/`; 37 files still use raw `<img>`
 
-Eight hero JPGs at 6–8 MB each (e.g. `public/images/entertainment/entertainment-hero.jpg` 7.9 MB, `public/images/workconnect-mobile-bundle-hero.jpg` 7.5 MB, `public/images/products/business-complete-hero.jpg` 7.3 MB) plus 2–3 MB files in `public/generated-images/`. `next/image` optimizes delivery, but these bloat the repo, Docker image, and every CI build/deploy rsync.
-**Recommendation:** Re-encode to ≤300 KB WebP/AVIF at realistic max display size.
-**Effort:** S
+Eight hero JPGs at 6–8 MB each (e.g. `public/images/entertainment/entertainment-hero.jpg` 7.9 MB, `public/images/workconnect-mobile-bundle-hero.jpg` 7.5 MB, `public/images/products/business-complete-hero.jpg` 7.3 MB) plus 2–3 MB files in `public/generated-images/`. `next/image` optimizes delivery where it's used, but these bloat the repo, Docker image, and every CI build/deploy rsync.
+
+Additionally, **37 files render raw `<img>` tags** (`grep -rl "<img" app components --include='*.tsx'`) and get **zero** automatic optimization/resizing — including customer-facing surfaces (`app/blog/[slug]/page.tsx`, `app/order/consumer/page.tsx`, `components/hardware/ProductCard.tsx`, `components/blog/PostCard.tsx`, `components/ui/enhanced-package-card.tsx`) alongside many admin pages. Where a raw `<img>` renders one of the oversized source images above, the full multi-MB file ships to the browser.
+
+**Recommendation:** Re-encode the source images to ≤300 KB WebP/AVIF at realistic max display size, and migrate the customer-facing raw `<img>` usages to `next/image` first (admin pages can follow opportunistically).
+**Effort:** S for re-encoding; S–M for the img migration
 
 ---
 
