@@ -15,7 +15,7 @@ CircleTel is substantially larger than the documented "254-page app":
 |---|---|
 | Pages (`page.tsx`) | **350** |
 | API route handlers (`route.ts`) | **608** |
-| Components | **700** |
+| Components | **700** (counting `.tsx` + `.ts` files under `components/`) |
 | TypeScript files (app + components + lib) | 2,692 |
 | Lines of code (app + components + lib) | ~530,000 |
 | Admin share | 170 pages (49%), 335 API routes (55%), 238 components (34%) |
@@ -41,7 +41,7 @@ CircleTel is substantially larger than the documented "254-page app":
 
 ## High-Priority Findings
 
-### H1. No shared server-side caching; the public coverage hot path runs ~5–7 sequential queries
+### H1. No shared server-side caching; the public coverage hot path runs ~5 sequential queries (7 on fallback)
 
 **Evidence:**
 - `unstable_cache`: 0 uses. React `cache()`: 0 uses. Redis/Upstash: 0 uses.
