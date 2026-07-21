@@ -1,9 +1,12 @@
 # CircleTel CI/CD Workflows
 
 CircleTel runs on **Coolify** (self-hosted, VPS 30 — 94.72.104.81, 24GB RAM).
-Builds run on a self-hosted GitHub Actions runner on that VPS; deploys are triggered via Coolify webhook.
+Heavy builds run on a **self-hosted GitHub Actions runner** on that VPS; the app runs in Coolify-managed containers.
 
 Migration completed: 2026-04-05. See `docs/architecture/archive/COOLIFY_MIGRATION_PLAN.md`.
+
+**Ops / performance (canonical):** [`docs/deployment/VPS_DEVOPS_OPS_CHECKLIST.md`](../../docs/deployment/VPS_DEVOPS_OPS_CHECKLIST.md)  
+**Agent rules:** [`.claude/rules/vps-devops.md`](../../.claude/rules/vps-devops.md)
 
 ---
 
@@ -11,17 +14,19 @@ Migration completed: 2026-04-05. See `docs/architecture/archive/COOLIFY_MIGRATIO
 
 ```
 PR opened/updated
-  └─ staging-deployment.yml  → push to staging branch → Coolify staging deploy
-  └─ pr-checks.yml           → Dockerfile validation, type-check, lint, build
+  └─ pr-checks.yml              → GitHub-hosted: Dockerfile validation, type-check, lint
+  └─ staging-deployment.yml     → only if label `deploy-staging` → force-push staging branch
+       └─ deploy-staging.yml    → self-hosted build → Coolify staging container
 
-PR approved + 'automerge' label added
-  └─ auto-merge.yml          → squash merge to main
+PR approved + 'automerge' label
+  └─ auto-merge.yml             → squash merge to main
 
-Push to main
-  └─ deploy.yml              → build Docker image → push GHCR → trigger Coolify webhook
+Push to main (non-docs paths)
+  └─ deploy.yml                 → self-hosted: free RAM → disk guard → Turbopack build
+                                  → local Docker image → Coolify compose recreate → health wait
 
 Scheduled (every 6h)
-  └─ mtn-session.yml         → validate MTN session; refresh + redeploy if stale
+  └─ mtn-session.yml            → validate MTN session; refresh + redeploy if stale
 ```
 
 ---
@@ -34,12 +39,17 @@ Scheduled (every 6h)
 
 **Runner**: `self-hosted` (VPS 30 — 24GB RAM; GitHub-hosted ubuntu-latest OOMs on this 254-page app)
 
-**Steps**:
-1. Build Docker image with `NEXT_PUBLIC_*` secrets baked in as build args
-2. Push to `ghcr.io/jdeweedata/circletel:latest`
-3. Trigger Coolify deploy webhook → Coolify pulls the new image and restarts the container
+**Steps** (see `deploy.yml` for authoritative detail):
+1. Free host memory (orphan Next/Chrome) and enforce disk free space
+2. `npm ci` / tar-cached `node_modules` + restore `.next` cache
+3. `NODE_OPTIONS=--max-old-space-size=12288` Turbopack production build
+4. Build Docker image locally (`ghcr.io/jdeweedata/circletel:latest` + SHA tag)
+5. Coolify app directory: `docker compose up -d --force-recreate --no-build --pull never`
+6. Wait until container health is `healthy` (discover via `coolify.name` label)
 
-**Cache**: Local disk cache on VPS (`/tmp/buildx-cache`) — no network round-trip
+**Cache**: `/home/actions-runner/node_modules.tar`, `/home/actions-runner/.next-cache` on VPS
+
+**Host performance rules**: do not run parallel full builds; keep staging label-gated; see VPS devops checklist.
 
 ---
 
