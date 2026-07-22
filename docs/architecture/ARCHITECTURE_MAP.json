@@ -11,8 +11,8 @@
     "method": "Generated from 6 parallel codebase exploration passes (frontend routes, API routes, services/integrations, components/state, database migrations, infrastructure). Counts derived from file enumeration; descriptions verified by reading representative source files."
   },
   "stats": {
-    "pages": 342,
-    "apiEndpoints": 608,
+    "pages": 341,
+    "apiEndpoints": 606,
     "adminApiEndpoints": 335,
     "dbTables": 300,
     "appliedMigrations": 25,
@@ -41,7 +41,7 @@
     "ai": "@google/genai (CMS content/image gen, CPQ AI), internal Claude agent toolkit (lib/agents)"
   },
   "frontend": {
-    "totalPages": 342,
+    "totalPages": 341,
     "routeGroups": [
       { "prefix": "/admin", "name": "Admin Portal", "pageCount": 170, "authProtected": true, "layout": "app/admin/layout.tsx", "description": "Internal staff back-office: products, coverage, network/NOC, billing, CPQ/quotes, orders, CRM, integrations, sales engine. Largest surface of the app.", "keyRoutes": ["/admin/dashboard", "/admin/orders", "/admin/products", "/admin/coverage", "/admin/network", "/admin/billing", "/admin/sales-engine", "/admin/integrations"] },
       { "prefix": "/dashboard", "name": "Customer Dashboard", "pageCount": 20, "authProtected": true, "layout": "app/dashboard/layout.tsx", "description": "Authenticated consumer self-service: services, invoices, statements, payment methods, usage, KYC, tickets.", "keyRoutes": ["/dashboard", "/dashboard/services", "/dashboard/invoices/[id]", "/dashboard/statement", "/dashboard/usage", "/dashboard/kyc", "/dashboard/support"] },
@@ -73,7 +73,7 @@
     ]
   },
   "api": {
-    "totalEndpoints": 608,
+    "totalEndpoints": 606,
     "groups": [
       { "prefix": "/api/admin", "name": "Admin / Back-office", "endpointCount": 335, "description": "Dominant API surface (~55%): billing (32), orders (18), network/MikroTik (15), integrations (26), customers, products, CRM, analytics. Nearly all routes call authenticateAdmin (lib/auth/admin-api-auth).", "integrations": ["Supabase", "MikroTik", "Tarana", "Zoho", "Interstellio", "Inngest", "MTN Dealer"] },
       { "prefix": "/api/admin/sales-engine", "name": "Sales Engine", "endpointCount": 29, "description": "Geospatial B2B sales targeting: zone discovery, demographics/POI import, coverage analysis, pipeline health, competitor intel, Slack briefings.", "integrations": ["Supabase/PostGIS", "Slack", "OpenStreetMap", "Inngest"] },
@@ -85,7 +85,7 @@
       { "prefix": "/api/partners", "name": "Partner Portal API", "endpointCount": 16, "description": "Partner leads, feasibility (with AI chat), commissions, compliance docs, marketing assets.", "integrations": ["Supabase", "AI", "Coverage engine"] },
       { "prefix": "/api/ruijie", "name": "Ruijie Networking", "endpointCount": 14, "description": "Ruijie Cloud device management: inventory, metrics, clients, reboot, tunnels — cached in Supabase, synced via Inngest.", "integrations": ["Ruijie Cloud", "Inngest"] },
       { "prefix": "/api/payments", "name": "Payments v2 (provider-abstracted)", "endpointCount": 13, "description": "Provider-factory payment layer (NetCash primary): initiate, tokenize, status, redirect, webhook (auto-creates order + triggers RICA).", "integrations": ["NetCash", "Zoho", "Supabase"] },
-      { "prefix": "/api/payment", "name": "Payment (legacy NetCash)", "endpointCount": 6, "description": "Older single-provider NetCash routes: initiate, tokenize, e-mandate, webhook. Parallel to /api/payments.", "integrations": ["NetCash"] },
+      { "prefix": "/api/payment", "name": "Payment (NetCash entry points)", "endpointCount": 4, "description": "Older URL paths still used by live frontends and external NetCash webhook config: initiate, e-mandate, method check, webhook. All implemented on the unified lib/payments stack (simulated tokenize/process routes deleted 2026-07-22).", "integrations": ["NetCash"] },
       { "prefix": "/api/cpq + /api/mits-cpq", "name": "CPQ Engines", "endpointCount": 15, "description": "Two CPQ stacks: generic AI-assisted CPQ (analyze/recommend, eligibility, pricing rules, sessions) and MITS-specific CPQ (modules, tiers, pricing calc).", "integrations": ["AI/LLM", "Supabase"] },
       { "prefix": "/api/orders + /api/order-drafts", "name": "Consumer Orders", "endpointCount": 9, "description": "Order creation/lifecycle: create-pending, mobile deals, terms acceptance, device registration, drafts.", "integrations": ["Supabase", "NetCash", "RICA"] },
       { "prefix": "/api/compliance", "name": "Compliance / KYC", "endpointCount": 8, "description": "KYC/KYB workflow tied to quotes: sessions, uploads, approve/decline, Didit webhook (HMAC-verified).", "integrations": ["Didit KYC", "Supabase"] },
@@ -169,7 +169,7 @@
       { "path": "lib/inngest", "name": "Inngest Background Jobs", "fileCount": 34, "description": "Client + ~30 durable functions: billing, reconciliation, provider syncs, notifications, sales engine." },
       { "path": "lib/billing", "name": "Billing & Invoicing", "fileCount": 28, "description": "Monthly invoice generation, pro-rata, VAT, debit-batch alerts, PayNow/WhatsApp billing, statement PDFs." },
       { "path": "lib/sales-engine", "name": "Sales Engine", "fileCount": 24, "description": "Zone discovery/scoring, lead scoring, demographic/OSM enrichment, competitor mapping, pipeline health, Slack briefings." },
-      { "path": "lib/payments", "name": "Payments (NetCash)", "fileCount": 22, "description": "Debit-order/e-mandate batches, PCI-vault tokenisation, statements, provider-factory abstraction." },
+      { "path": "lib/payments", "name": "Payments (NetCash)", "fileCount": 26, "description": "Debit-order/e-mandate batches, PCI-vault tokenisation, statements, provider-factory abstraction, webhook validation/processing, payment error mapping and retry persistence (lib/payment merged in 2026-07-22)." },
       { "path": "lib/suppliers", "name": "Suppliers / Sourcing", "fileCount": 21, "description": "Supplier catalogue sync and product scraping from distributors." },
       { "path": "lib/onboarding", "name": "Onboarding & Service Orders", "fileCount": 20, "description": "Service-order issuing to providers and activation coordination." },
       { "path": "lib/auth", "name": "Auth & Session", "fileCount": 15, "description": "Customer/admin auth services, API guards, admin claims, permission checker, session storage." },
@@ -177,7 +177,6 @@
       { "path": "lib/quotes", "name": "Quotes", "fileCount": 10, "description": "Business/consumer quote generation, storage, emailing." },
       { "path": "lib/cpq + lib/mits-cpq", "name": "CPQ Engines", "fileCount": 14, "description": "Rule engine + AI-assisted quoting; separate MITS variant." },
       { "path": "lib/contracts", "name": "Contracts", "fileCount": 7, "description": "Contract generation/lifecycle with Zoho Sign e-signature." },
-      { "path": "lib/payment", "name": "Payment Webhooks (legacy)", "fileCount": 6, "description": "NetCash webhook validation/processing — parallel to lib/payments." },
       { "path": "lib/tarana + ruijie + mikrotik + pppoe", "name": "Network Device Integrations", "fileCount": 19, "description": "Tarana FWA, Ruijie Cloud, MikroTik sync; PPPoE credential provisioning." },
       { "path": "lib/compliance", "name": "Compliance (RICA/ICASA/KYC)", "fileCount": 5, "description": "RICA submission, KYC risk thresholds, ICASA hooks." },
       { "path": "lib/invoices", "name": "Invoice PDFs", "fileCount": 5, "description": "Invoice data assembly + jsPDF rendering." },
@@ -340,8 +339,8 @@
   },
   "findings": [
     { "severity": "info", "area": "API", "finding": "Admin surface dominates: 335 of 608 endpoints (~55%) and ~238 of ~700 component files." },
-    { "severity": "warning", "area": "Payments", "finding": "Two parallel payment stacks: /api/payment + lib/payment (legacy NetCash-only) vs /api/payments + lib/payments (provider-abstracted). Both define a netcash-service.ts — in-progress consolidation." },
-    { "severity": "warning", "area": "State", "finding": "Two OrderContext implementations coexist: components/order/context/OrderContext.tsx (canonical, useReducer) and contexts/OrderContext.tsx (useState, likely legacy)." },
+    { "severity": "info", "area": "Payments", "finding": "RESOLVED 2026-07-22: lib/payment merged into lib/payments. The simulated netcash-service, its tokenize/process routes, and the orphaned /wireless/checkout flow were deleted. The /api/payment/* URL paths remain as live entry points (frontends + external NetCash webhook config) but all run on the unified lib/payments stack." },
+    { "severity": "info", "area": "State", "finding": "RESOLVED 2026-07-22: dead contexts/OrderContext.tsx deleted. components/order/context/OrderContext.tsx is the single order context." },
     { "severity": "warning", "area": "UI", "finding": "StatusBadge/StatCard/SectionCard trio duplicated in components/admin/shared, components/shared, and components/backend." },
     { "severity": "warning", "area": "Routing", "finding": "Consumer dashboard exists at both app/dashboard/ and app/(dashboard)/dashboard/ — verify which resolves /dashboard." },
     { "severity": "warning", "area": "Database", "finding": "Two product-catalogue models coexist: operational products/service_packages vs admin_products + approval queue feeding offers/CPQ. Also legacy public.invoices vs canonical customer_invoices." },

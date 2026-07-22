@@ -13,13 +13,13 @@ import {
   extractOrderIdFromReference,
   sanitizePayloadForLogging,
   type NetcashWebhookPayload,
-} from '@/lib/payment/netcash-webhook-validator';
+} from '@/lib/payments/netcash-webhook-validator';
 import {
   processPaymentSuccess,
   processPaymentFailure,
   processRefund,
   processChargeback,
-} from '@/lib/payment/netcash-webhook-processor';
+} from '@/lib/payments/netcash-webhook-processor';
 import { webhookLogger } from '@/lib/logging';
 
 export const dynamic = 'force-dynamic';

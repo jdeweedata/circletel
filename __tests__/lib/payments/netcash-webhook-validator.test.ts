@@ -18,7 +18,7 @@ import {
   extractOrderIdFromReference,
   sanitizePayloadForLogging,
   type NetcashWebhookPayload,
-} from '@/lib/payment/netcash-webhook-validator';
+} from '@/lib/payments/netcash-webhook-validator';
 
 describe('NetCash Webhook Validator', () => {
   // ============================================================================

@@ -1,5 +1,5 @@
-import { processPaymentSuccess } from '@/lib/payment/netcash-webhook-processor';
-import type { NetcashWebhookPayload } from '@/lib/payment/netcash-webhook-validator';
+import { processPaymentSuccess } from '@/lib/payments/netcash-webhook-processor';
+import type { NetcashWebhookPayload } from '@/lib/payments/netcash-webhook-validator';
 import {
   ORDER_PROCESSING_FEE_AMOUNT,
   ORDER_PROCESSING_FEE_LABEL,

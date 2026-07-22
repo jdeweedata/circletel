@@ -10,8 +10,8 @@ import React from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mapPaymentError, shouldSuggestAlternative, getAlternativePaymentSuggestion, PaymentErrorCode } from '@/lib/payment/payment-errors';
-import { getRetryInfo } from '@/lib/payment/payment-persistence';
+import { mapPaymentError, shouldSuggestAlternative, getAlternativePaymentSuggestion, PaymentErrorCode } from '@/lib/payments/payment-errors';
+import { getRetryInfo } from '@/lib/payments/payment-persistence';
 
 interface PaymentErrorDisplayProps {
   errorCode: PaymentErrorCode | string;

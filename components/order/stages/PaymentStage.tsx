@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { useOrderContext } from '../context/OrderContext';
 import OrderSummary from '../OrderSummary';
 import { PaymentErrorDisplay } from '@/components/payment/PaymentErrorDisplay';
-import { detectPaymentErrorCode, PaymentErrorCode } from '@/lib/payment/payment-errors';
+import { detectPaymentErrorCode, PaymentErrorCode } from '@/lib/payments/payment-errors';
 import {
   saveOrderData,
   getOrderData,
@@ -23,7 +23,7 @@ import {
   getPaymentError,
   saveOrderId,
   getRetrySession,
-} from '@/lib/payment/payment-persistence';
+} from '@/lib/payments/payment-persistence';
 
 interface PaymentStageProps {
   onComplete: () => void;
