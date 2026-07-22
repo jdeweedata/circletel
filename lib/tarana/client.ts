@@ -210,9 +210,12 @@ export async function getAllRemoteNodes(): Promise<TaranaRadio[]> {
  */
 export async function getDeviceBySerial(serialNumber: string): Promise<TaranaDeviceState> {
   const raw = await taranaFetch<any>(`/api/nqs/v1/devices/${encodeURIComponent(serialNumber)}`);
+  // NQS v1 wraps the device payload in a `data` envelope (same as the bulk
+  // /operators/{op}/devices endpoint). Unwrap it, or every field reads undefined.
+  const d = raw && typeof raw === 'object' && raw.data ? raw.data : raw;
 
-  const carriers: TaranaDeviceState['carriers'] = Array.isArray(raw.carriers)
-    ? raw.carriers.map((c: any) => ({
+  const carriers: TaranaDeviceState['carriers'] = Array.isArray(d.carriers)
+    ? d.carriers.map((c: any) => ({
         id: c.id ?? 0,
         txPower: c.txPower ?? c['tx-power'] ?? undefined,
         rxPower: c.rxPower ?? c['rx-power'] ?? undefined,
@@ -221,22 +224,22 @@ export async function getDeviceBySerial(serialNumber: string): Promise<TaranaDev
     : [];
 
   return {
-    serialNumber: raw.serialNumber ?? serialNumber,
-    deviceType: raw.deviceType ?? raw.type ?? 'RN',
-    deviceId: raw.deviceId ?? undefined,
-    linkState: raw.linkState ?? raw['link-state'] ?? undefined,
-    losRange: typeof raw.losRange === 'number' ? raw.losRange : undefined,
-    sectorId: raw.sectorId ?? undefined,
-    band: raw.band ?? undefined,
+    serialNumber: d.serialNumber ?? serialNumber,
+    deviceType: d.deviceType ?? d.type ?? 'RN',
+    deviceId: d.deviceId ?? undefined,
+    linkState: d.linkState ?? d['link-state'] ?? undefined,
+    losRange: typeof d.losRange === 'number' ? d.losRange : undefined,
+    sectorId: d.sectorId ?? undefined,
+    band: d.band ?? undefined,
     carriers,
     installParams: {
-      latitude: raw.installParams?.latitude ?? raw.latitude ?? undefined,
-      longitude: raw.installParams?.longitude ?? raw.longitude ?? undefined,
-      height: raw.installParams?.height ?? raw.height ?? undefined,
-      azimuth: raw.installParams?.azimuth ?? raw.azimuth ?? undefined,
+      latitude: d.installParams?.latitude ?? d.latitude ?? undefined,
+      longitude: d.installParams?.longitude ?? d.longitude ?? undefined,
+      height: d.installParams?.height ?? d.installParams?.heightAgl ?? d.height ?? undefined,
+      azimuth: d.installParams?.azimuth ?? d.installParams?.antennaAzimuth ?? d.azimuth ?? undefined,
     },
-    ancestry: raw.ancestry ?? undefined,
-    raw,
+    ancestry: d.ancestry ?? undefined,
+    raw: d,
   };
 }
 
