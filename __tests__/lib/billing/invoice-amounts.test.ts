@@ -22,7 +22,8 @@ describe('computeVatInclusiveAmounts (price is VAT-inclusive / gross)', () => {
     });
   });
 
-  it('decomposes R450 Unjani gross into net 391.30 + VAT 58.70', () => {
+  it('decomposes R450 as inclusive gross into net 391.30 + VAT 58.70', () => {
+    // Pure inclusive math (not Unjani product basis — Unjani is exclusive; see invoice-vat-contract)
     expect(computeVatInclusiveAmounts(450)).toEqual({
       subtotal: 391.3,
       vatAmount: 58.7,

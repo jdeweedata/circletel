@@ -1,10 +1,15 @@
 /**
  * Pure helpers for recurring-invoice amounts and numbering.
  *
- * CircleTel consumer `customer_services.monthly_price` is VAT-INCLUSIVE (gross) —
- * it is the all-in amount the customer pays (e.g. R899). The invoice total equals
- * that price; VAT is backed OUT of it for the subtotal. This matches every existing
- * paid invoice (e.g. INV-2026-00008: 781.74 net + 117.26 VAT = 899 total).
+ * Consumer `customer_services.monthly_price` is VAT-INCLUSIVE (gross) —
+ * e.g. SkyFibre R899 → invoice total 899 with VAT backed out.
+ *
+ * Unjani / clinic Managed Connectivity is the opposite: monthly_price is
+ * VAT-EXCLUSIVE (MSA R450) — use `computeMonthlyInvoiceAmounts(..., 'exclusive')`
+ * in `invoice-vat-contract.ts` (R450 → total R517.50).
+ *
+ * See also `lib/billing/invoice-vat-contract.ts` for product basis resolution
+ * and Zoho Books/Billing mapping.
  *
  * Kept pure (no DB/IO) so the money math is unit-testable in isolation.
  */
@@ -19,7 +24,7 @@ function round2(n: number): number {
 export interface InvoiceAmounts {
   subtotal: number; // net (excl VAT)
   vatAmount: number; // VAT portion
-  totalAmount: number; // gross (= the VAT-inclusive monthly_price)
+  totalAmount: number; // gross (= the VAT-inclusive monthly_price for consumer basis)
 }
 
 /**
