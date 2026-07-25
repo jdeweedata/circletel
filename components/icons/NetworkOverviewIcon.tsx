@@ -1,0 +1,166 @@
+/**
+ * Network Overview device icons
+ *
+ * Ported from `/home/omada-clone` Omada SVG sprite (`omada-icons.svg`):
+ * dashboard-gateway-light, dashboard-ap-light, dashboard-switch-light,
+ * clients-light, dashboard-guest-light.
+ *
+ * Outline strokes use currentColor; accent fills keep Omada brand green (#00A870).
+ * Source: TP-Link Omada-style clone assets on this VPS (UI recreation).
+ */
+
+import { cn } from '@/lib/utils';
+
+export type NetworkOverviewIconName =
+  | 'gateway'
+  | 'ap'
+  | 'switch'
+  | 'client'
+  | 'guest';
+
+type NetworkOverviewIconProps = {
+  name: NetworkOverviewIconName;
+  className?: string;
+  size?: number;
+  title?: string;
+};
+
+const ACCENT = '#00A870';
+
+export function NetworkOverviewIcon({
+  name,
+  className,
+  size = 32,
+  title,
+}: NetworkOverviewIconProps) {
+  const common = {
+    xmlns: 'http://www.w3.org/2000/svg',
+    width: size,
+    height: size,
+    className: cn('inline-block shrink-0 text-slate-800', className),
+    'aria-hidden': title ? undefined : true,
+    role: title ? 'img' : undefined,
+  } as const;
+
+  switch (name) {
+    case 'gateway':
+      return (
+        <svg {...common} viewBox="0 0 32 32">
+          {title ? <title>{title}</title> : null}
+          <path
+            d="M5.564 15.207c0-.342.276-.619.618-.619h19.636c.342 0 .618.277.618.619v6.37H5.564v-6.37ZM5.83 14.573 8.12 9.63h15.76l2.29 4.943H5.83Z"
+            stroke="currentColor"
+            strokeWidth=".945"
+            fill="none"
+          />
+          <path d="M8 17.454h1.455v1.455H8v-1.454ZM10.91 17.454h4.363v1.455h-4.364v-1.454Z" fill={ACCENT} />
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M20.874 16.582h1.163v1.163h-1.163zm-2.038 0H20v1.164h-1.164zm5.237 0h-1.164v1.163h1.164zM18.836 18.327H20v1.164h-1.164zm2.038 0h1.163v1.164h-1.163zm3.199 0h-1.164v1.164h1.164z"
+            fill={ACCENT}
+          />
+        </svg>
+      );
+    case 'ap':
+      return (
+        <svg {...common} viewBox="0 0 33 32">
+          {title ? <title>{title}</title> : null}
+          <rect
+            x="7.685"
+            y="7.018"
+            width="17.964"
+            height="17.964"
+            rx="8.982"
+            stroke="currentColor"
+            strokeWidth=".945"
+            fill="none"
+          />
+          <path
+            d="M16.666 19.638c2.008 0 3.637-1.716 3.637-3.637s-1.629-3.637-3.637-3.637c-1.006 0-1.916.43-2.575 1.101l.9.998a2.273 2.273 0 1 1-.55 2.002l-1.302.396c.046.177.104.348.175.515l1.029-.315-.927.534c.092.181.198.355.318.52l.668-.386-.562.524c.668.831 1.685 1.385 2.826 1.385Z"
+            fill={ACCENT}
+          />
+        </svg>
+      );
+    case 'switch':
+      return (
+        <svg {...common} viewBox="0 0 33 32">
+          {title ? <title>{title}</title> : null}
+          <path
+            d="M6.397 15.207c0-.342.277-.619.618-.619h19.636c.342 0 .619.277.619.619v6.37H6.397v-6.37Z"
+            stroke="currentColor"
+            strokeWidth=".945"
+            fill="none"
+          />
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M20.148 17.423h-1.47v1.47h1.47v-1.47Zm-2.573 0h-1.469v1.47h1.47v-1.47Zm3.674 0h1.469v1.47h-1.47v-1.47Zm4.035 0h-1.469v1.47h1.47v-1.47Z"
+            fill={ACCENT}
+          />
+          <path d="M8.833 17.423h4.379v1.47H8.833v-1.47Z" fill={ACCENT} />
+          <path
+            d="m6.664 14.573 2.29-4.943h15.76l2.289 4.943H6.664Z"
+            stroke="currentColor"
+            strokeWidth=".945"
+            fill="none"
+          />
+        </svg>
+      );
+    case 'client':
+      return (
+        <svg {...common} viewBox="0 0 44 44">
+          {title ? <title>{title}</title> : null}
+          <path
+            d="M26.479 11.819H10.555v13.818h21.927V23.85M7.817 29.47a.707.707 0 0 0 .576 1.12h26.25c.576 0 .91-.65.576-1.12l-2.738-3.832H10.555l-2.738 3.833Z"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            fill="none"
+          />
+          <path
+            d="M7.725 32.662c0 .057.047.104.104.104h27.378a.103.103 0 0 0 .103-.104v-2.074H7.725v2.074ZM27.892 10.65h6.331v11.674h-6.331V10.65ZM29.531 20.357h3.053"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            fill="none"
+          />
+          <path fill={ACCENT} d="M13.723 15.069h6.868v2.092h-6.868z" />
+        </svg>
+      );
+    case 'guest':
+      return (
+        <svg {...common} viewBox="0 0 33 32">
+          {title ? <title>{title}</title> : null}
+          <circle
+            cx="13.061"
+            cy="11.273"
+            r="3.527"
+            stroke="currentColor"
+            strokeWidth=".945"
+            fill="none"
+          />
+          <path
+            d="M20.21 23.527H5.91c.233-3.955 3.364-7.054 7.15-7.054 3.787 0 6.918 3.1 7.15 7.054Z"
+            stroke="currentColor"
+            strokeWidth=".945"
+            fill="none"
+          />
+          <circle
+            cx="21.424"
+            cy="14.274"
+            r="2.073"
+            stroke="currentColor"
+            strokeWidth=".945"
+            fill="none"
+          />
+          <path
+            d="M16.333 23.49h10.182a5.09 5.09 0 0 0-5.091-5.09 5.07 5.07 0 0 0-3.182 1.114"
+            stroke="currentColor"
+            strokeWidth=".945"
+            fill="none"
+          />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
