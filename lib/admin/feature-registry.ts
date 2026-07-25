@@ -330,7 +330,7 @@ export const featureSections: NavSection[] = [
         icon: PiWifiHighBold,
         children: [
           { name: 'Devices', href: '/admin/network/devices', icon: PiWifiHighBold },
-          { name: 'Health Monitor', href: '/admin/network/health', icon: PiPulseBold },
+          { name: 'System Health', href: '/admin/network/health', icon: PiPulseBold },
           { name: 'Analytics', href: '/admin/network/analytics', icon: PiChartBarBold },
           { name: 'Network Map', href: '/admin/network/map', icon: PiMapTrifoldBold },
         ],
