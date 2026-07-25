@@ -83,6 +83,10 @@ export {
 } from './functions/ruijie-health-monitor';
 
 export {
+  ruijieTrafficRollupFunction,
+} from './functions/ruijie-traffic-rollup';
+
+export {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -228,6 +232,10 @@ import {
 } from './functions/ruijie-health-monitor';
 
 import {
+  ruijieTrafficRollupFunction,
+} from './functions/ruijie-traffic-rollup';
+
+import {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -344,6 +352,8 @@ export const functions = [
   ruijieOfflineAlertsFunction,
   // Ruijie health monitoring
   ruijieHealthMonitorFunction,
+  // Ruijie traffic rollups for System Health / Analytics
+  ruijieTrafficRollupFunction,
   // MikroTik router sync
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import {
-  PiArrowsClockwiseBold,
   PiDownloadBold,
   PiFunnelBold,
   PiMagnifyingGlassBold,
@@ -24,7 +23,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { cn } from '@/lib/utils';
 
 interface DeviceFiltersProps {
   search: string;
@@ -37,9 +35,7 @@ interface DeviceFiltersProps {
   onModelChange: (value: string) => void;
   groups: string[];
   models: string[];
-  onRefresh: () => void;
   onExport: () => void;
-  refreshing: boolean;
 }
 
 export function DeviceFilters({
@@ -53,9 +49,7 @@ export function DeviceFilters({
   onModelChange,
   groups,
   models,
-  onRefresh,
   onExport,
-  refreshing,
 }: DeviceFiltersProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -69,22 +63,20 @@ export function DeviceFilters({
   };
 
   return (
-    <Card>
+    <Card className="border border-slate-200/80 shadow-sm rounded-xl bg-white">
       <CardContent className="pt-4 pb-4">
         <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
           <div className="flex flex-wrap items-center gap-3">
-            {/* Search */}
             <div className="relative flex-1 min-w-[200px]">
-              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="Search by SN, name, or IP..."
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-9"
+                className="pl-9 border-slate-200"
               />
             </div>
 
-            {/* Filters toggle */}
             <CollapsibleTrigger asChild>
               <Button variant="outline" size="sm">
                 <PiFunnelBold className="h-4 w-4 mr-2" />
@@ -97,27 +89,16 @@ export function DeviceFilters({
               </Button>
             </CollapsibleTrigger>
 
-            {/* Actions */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={refreshing}
-            >
-              <PiArrowsClockwiseBold className={cn('h-4 w-4 mr-2', refreshing && 'animate-spin')} />
-              Refresh
-            </Button>
             <Button variant="outline" size="sm" onClick={onExport}>
               <PiDownloadBold className="h-4 w-4 mr-2" />
               Export
             </Button>
           </div>
 
-          {/* Active filter chips */}
           {hasFilters && (
             <div className="flex flex-wrap items-center gap-2 mt-3">
               {statusFilter && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 bg-slate-100 text-slate-700">
                   Status: {statusFilter}
                   <button onClick={() => onStatusChange('')} className="ml-1 hover:text-red-500">
                     <PiXBold className="h-3 w-3" />
@@ -125,7 +106,7 @@ export function DeviceFilters({
                 </Badge>
               )}
               {groupFilter && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 bg-slate-100 text-slate-700">
                   Group: {groupFilter}
                   <button onClick={() => onGroupChange('')} className="ml-1 hover:text-red-500">
                     <PiXBold className="h-3 w-3" />
@@ -133,7 +114,7 @@ export function DeviceFilters({
                 </Badge>
               )}
               {modelFilter && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 bg-slate-100 text-slate-700">
                   Model: {modelFilter}
                   <button onClick={() => onModelChange('')} className="ml-1 hover:text-red-500">
                     <PiXBold className="h-3 w-3" />
@@ -143,12 +124,14 @@ export function DeviceFilters({
             </div>
           )}
 
-          {/* Expanded filters */}
           <CollapsibleContent>
-            <div className="flex flex-wrap items-end gap-4 mt-4 pt-4 border-t">
+            <div className="flex flex-wrap items-end gap-4 mt-4 pt-4 border-t border-slate-100">
               <div className="w-40">
-                <label className="text-sm font-medium text-gray-700 mb-1 block">Status</label>
-                <Select value={statusFilter || 'all'} onValueChange={(v) => onStatusChange(v === 'all' ? '' : v)}>
+                <label className="text-xs font-medium text-slate-500 mb-1 block">Status</label>
+                <Select
+                  value={statusFilter || 'all'}
+                  onValueChange={(v) => onStatusChange(v === 'all' ? '' : v)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="All" />
                   </SelectTrigger>
@@ -160,29 +143,39 @@ export function DeviceFilters({
                 </Select>
               </div>
               <div className="w-48">
-                <label className="text-sm font-medium text-gray-700 mb-1 block">Group</label>
-                <Select value={groupFilter || 'all'} onValueChange={(v) => onGroupChange(v === 'all' ? '' : v)}>
+                <label className="text-xs font-medium text-slate-500 mb-1 block">Group</label>
+                <Select
+                  value={groupFilter || 'all'}
+                  onValueChange={(v) => onGroupChange(v === 'all' ? '' : v)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="All Groups" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Groups</SelectItem>
                     {groups.map((g) => (
-                      <SelectItem key={g} value={g}>{g}</SelectItem>
+                      <SelectItem key={g} value={g}>
+                        {g}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="w-48">
-                <label className="text-sm font-medium text-gray-700 mb-1 block">Model</label>
-                <Select value={modelFilter || 'all'} onValueChange={(v) => onModelChange(v === 'all' ? '' : v)}>
+                <label className="text-xs font-medium text-slate-500 mb-1 block">Model</label>
+                <Select
+                  value={modelFilter || 'all'}
+                  onValueChange={(v) => onModelChange(v === 'all' ? '' : v)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="All Models" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Models</SelectItem>
                     {models.map((m) => (
-                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                      <SelectItem key={m} value={m}>
+                        {m}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

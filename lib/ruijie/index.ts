@@ -14,15 +14,34 @@ export {
   getAllGroups,
   getAllDevices,
   getDevice,
+  getDeviceMetrics,
+  getDeviceCurrentPerformance,
+  getGroupStaUsers,
+  enrichDevicesWithLiveMetrics,
+  getNetworkTraffic,
+  pickFlowDeviceSn,
   createTunnel,
   deleteTunnel,
   rebootDevice,
   isMockMode,
 } from './client';
 
+export {
+  mapCurrentPerformance,
+  aggregateStaMetricsForDevice,
+  buildHourlyFlowRequest,
+} from './performance-metrics';
+
+export {
+  RUIJIE_ACTIVE_WINDOW_DAYS,
+  isDeviceActiveInWindow,
+  filterActiveDevices,
+} from './active-window';
+
 // Sync Service
 export {
   upsertDevices,
+  pruneDevicesNotInSet,
   logSyncRun,
   createSyncLog,
   getActiveTunnelCount,
