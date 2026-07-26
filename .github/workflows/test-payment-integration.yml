@@ -61,12 +61,16 @@ jobs:
           NODE_ENV: test
 
       - name: Run type utility tests
-        run: npm test -- __tests__/lib/types --coverage
+        # No --coverage: jest file-level payment thresholds would fail at 0%
+        # when only type suites run. Coverage is enforced on payment step above.
+        run: npm test -- __tests__/lib/types
         env:
           NODE_ENV: test
 
       - name: Generate coverage report
-        run: npm test -- --coverage --coverageReporters=text --coverageReporters=lcov
+        # Scope to payment + type suites so global thresholds stay meaningful
+        # and unrelated suites do not flake this workflow.
+        run: npm test -- __tests__/lib/payments __tests__/lib/types --coverage --coverageReporters=text --coverageReporters=lcov
         env:
           NODE_ENV: test
 
