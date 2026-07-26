@@ -90,8 +90,12 @@ export async function GET(
     const hours = parseHours(request.nextUrl.searchParams.get('hours'));
     const groupId = device.group_id;
 
-    // Flow history is keyed by serial, so it works even without a group.
-    const history = await getNetworkTraffic({ sn, hours });
+    // Flow history is keyed by serial (works without a group); clients need the group.
+    // Independent calls — one round-trip's wall time, matching getDeviceMetrics.
+    const [history, clients] = await Promise.all([
+      getNetworkTraffic({ sn, hours }),
+      groupId ? getDeviceClients(sn, groupId) : Promise.resolve([]),
+    ]);
 
     if (!groupId) {
       const response: DeviceTrafficResponse = {
@@ -109,9 +113,6 @@ export async function GET(
       };
       return NextResponse.json(response);
     }
-
-    // Get connected clients with bandwidth info
-    const clients = await getDeviceClients(sn, groupId);
 
     // In mock mode, add simulated bandwidth rates
     const clientBandwidth = clients.map(client => {

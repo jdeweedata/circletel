@@ -16,6 +16,7 @@ import {
   aggregateStaExperienceForDevice,
   deriveUptimeFromLogs,
   estimateSpanSeconds,
+  toNum,
   mapCurrentPerformance,
   pickFlowDeviceSn,
   type CurrentPerformanceRaw,
@@ -699,10 +700,6 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
             : Number.isFinite(parseFloat(String(sta.pktLoseRate ?? '')))
               ? parseFloat(String(sta.pktLoseRate))
               : null;
-        const num = (v: unknown): number | null => {
-          const n = typeof v === 'number' ? v : parseFloat(String(v ?? ''));
-          return Number.isFinite(n) ? n : null;
-        };
         return {
           mac: sta.mac || '',
           userIp: sta.userIp || '',
@@ -716,14 +713,14 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
           uplinkRate: typeof sta.uplinkRate === 'number' ? sta.uplinkRate : null,
           downlinkRate: typeof sta.downlinkRate === 'number' ? sta.downlinkRate : null,
           pktLoseRate,
-          latencyMs: num(sta.timeDelay),
-          score: num(sta.score),
+          latencyMs: toNum(sta.timeDelay),
+          score: toNum(sta.score),
           // Ruijie sends an empty string when the client is healthy.
           scoreReason: sta.scoreReason ? sta.scoreReason : null,
           hostname: sta.userName || null,
           vendor: sta.manufacture || null,
-          sessionBytes: num(sta.wifiUpDown),
-          sessionMs: num(sta.activeTime),
+          sessionBytes: toNum(sta.wifiUpDown),
+          sessionMs: toNum(sta.activeTime),
         };
       });
   } catch (error) {
@@ -935,8 +932,8 @@ export interface TrafficSummary {
   totalBytes: number;
   avgRxRate: number;       // Average download rate in bps
   avgTxRate: number;       // Average upload rate in bps
-  peakRxBytes: number;     // Highest hourly download
-  peakTxBytes: number;     // Highest hourly upload
+  peakRxBytes: number;     // Busiest single bucket, download (buckets are ~10 min)
+  peakTxBytes: number;     // Busiest single bucket, upload
   dataPoints: TrafficDataPoint[];
 }
 

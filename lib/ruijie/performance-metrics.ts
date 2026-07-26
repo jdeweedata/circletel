@@ -11,10 +11,14 @@ export type CurrentPerformanceRaw = {
   memoryFree?: number;
   flashRate?: number;
   processNum?: number;
-  cpuTemp?: number;
   flashFree?: number;
   diskRate?: number;
   diskFree?: number;
+  /**
+   * Always 0 on RAP2200/RAP62 — they have no temperature sensor, so mapCurrentPerformance
+   * maps <= 0 to null. A future model with a real sensor reporting <= 0 C would be hidden too.
+   */
+  cpuTemp?: number;
   /** Device-reported client count. Undocumented but present on live responses. */
   userCnt?: number;
 };
@@ -129,7 +133,7 @@ function modeChannel(channels: number[]): number | null {
 }
 
 /** Coerce a Ruijie numeric that may arrive as a number or a string. */
-function toNum(value: unknown): number | null {
+export function toNum(value: unknown): number | null {
   const n = typeof value === 'number' ? value : parseFloat(String(value ?? ''));
   return Number.isFinite(n) ? n : null;
 }

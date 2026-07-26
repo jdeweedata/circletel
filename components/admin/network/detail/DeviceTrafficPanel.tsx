@@ -7,7 +7,7 @@
  * is genuinely this AP's own throughput — not its group's. Buckets are 10 minutes wide.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { PiArrowsClockwiseBold, PiWarningCircleBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import { TrafficChart } from '@/components/admin/network/TrafficChart';
@@ -71,27 +71,43 @@ export function DeviceTrafficPanel({ sn }: DeviceTrafficPanelProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Only the newest request may write state. Switching window quickly (6h → 7d) fires
+   * two requests, and without this the slower one could land last and paint data for a
+   * window the user is no longer looking at.
+   */
+  const inFlight = useRef<AbortController | null>(null);
+
   const fetchTraffic = useCallback(async () => {
+    inFlight.current?.abort();
+    const controller = new AbortController();
+    inFlight.current = controller;
+
     setLoading(true);
     try {
       const response = await fetch(`/api/ruijie/devices/${sn}/traffic?hours=${hours}`, {
         credentials: 'include',
+        signal: controller.signal,
       });
       if (!response.ok) throw new Error(`Request failed: ${response.status}`);
       const data = await response.json();
+      if (controller.signal.aborted) return;
       setHistory(data.history ?? null);
       setError(null);
     } catch (err) {
+      // A superseded request is expected, not a failure to report.
+      if (controller.signal.aborted || (err as Error)?.name === 'AbortError') return;
       console.error('Failed to fetch device traffic:', err);
       setError('Could not load traffic history from Ruijie Cloud.');
       setHistory(null);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }, [sn, hours]);
 
   useEffect(() => {
     fetchTraffic();
+    return () => inFlight.current?.abort();
   }, [fetchTraffic]);
 
   const points = history?.dataPoints ?? [];

@@ -97,6 +97,35 @@ describe('DeviceTrafficPanel', () => {
     expect(out).toContain('Could not load traffic history');
   });
 
+  it('ignores a superseded response when the window changes mid-flight', async () => {
+    // The 24h request never settles until we say so; 7d resolves immediately.
+    let settleStale!: (v: unknown) => void;
+    const stale = new Promise((resolve) => {
+      settleStale = resolve;
+    });
+    (globalThis as any).fetch = jest.fn((url: string) =>
+      url.includes('hours=24')
+        ? stale
+        : Promise.resolve({ ok: true, json: async () => historyPayload(7) })
+    );
+
+    const tree = await renderPanel();
+    const sevenDay = tree.root.findAllByType('button').find((b) => b.props.children === '7d');
+    await act(async () => {
+      sevenDay!.props.onClick();
+    });
+
+    // The stale 24h request lands last, carrying a distinctly different payload.
+    await act(async () => {
+      settleStale({ ok: true, json: async () => historyPayload(99) });
+      await Promise.resolve();
+    });
+
+    const out = dump(tree);
+    expect(out).toContain('chart:Device Traffic — last 168h:7'); // the window actually selected
+    expect(out).not.toContain(':99'); // the superseded response must not win
+  });
+
   it('refetches with the new window when a range button is pressed', async () => {
     mockFetchOnce(async () => ({ ok: true, json: async () => historyPayload() }));
     const tree = await renderPanel();
