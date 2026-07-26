@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Omada → CircleTel Network UI Preview</title>
+  <style>
+    :root {
+      --brand: #00A870;
+      --brand-deep: #038069;
+      --ink-900: #2B2B2B;
+      --ink-700: #636363;
+      --ink-500: #999;
+      --ink-200: #ECECEC;
+      --ink-100: #F4F4F4;
+      --ink-50: #F7F7F7;
+      --danger: #EE385C;
+      --warning: #FF8C27;
+      --blue: #2563eb;
+      --page: #f0f2f5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Manrope, Arial, Geneva, Verdana, sans-serif;
+      background: var(--page);
+      color: var(--ink-900);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    header.top {
+      background: #fff;
+      border-bottom: 1px solid var(--ink-200);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    header.top h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    header.top p { margin: 4px 0 0; color: var(--ink-700); font-size: 13px; }
+    .links a {
+      color: var(--brand-deep);
+      margin-left: 12px;
+      font-size: 13px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 16px 24px 0;
+      flex-wrap: wrap;
+    }
+    .tabs button {
+      border: 1px solid var(--ink-200);
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font: inherit;
+      color: var(--ink-700);
+    }
+    .tabs button.active {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+      font-weight: 600;
+    }
+    .panel { display: none; padding: 16px 24px 40px; }
+    .panel.active { display: block; }
+    .note {
+      background: #fff;
+      border: 1px solid var(--ink-200);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      color: var(--ink-700);
+      font-size: 13px;
+    }
+    .note strong { color: var(--ink-900); }
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+    .grid-2 { grid-template-columns: 320px 1fr; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-health { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 960px) {
+      .grid-2, .grid-3, .grid-health { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: #fff;
+      border: 0.8px solid var(--ink-200);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .card h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .card .muted { color: var(--ink-500); font-size: 12px; }
+    .tiles {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tile {
+      flex: 1;
+      min-width: 72px;
+      text-align: center;
+      padding: 8px 4px;
+    }
+    .tile .icon {
+      width: 36px; height: 36px; margin: 0 auto 6px;
+      border-radius: 8px; background: var(--ink-100);
+      display: grid; place-items: center; font-size: 16px;
+    }
+    .tile .label { display: block; color: var(--ink-500); font-size: 12px; }
+    .tile .count { display: block; font-size: 22px; font-weight: 600; margin-top: 2px; }
+    .alert-row {
+      display: flex; justify-content: space-between; gap: 8px;
+      padding: 10px 0; border-top: 1px solid var(--ink-100);
+      font-size: 13px;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      border-radius: 999px; padding: 2px 8px; font-size: 12px; font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .badge.ok { background: #DCF0E9; color: var(--brand-deep); }
+    .badge.off { background: rgba(238,56,92,.1); color: var(--danger); }
+    .badge.warn { background: rgba(255,140,39,.12); color: var(--warning); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .ports { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .port {
+      width: 28px; height: 22px; border-radius: 4px; background: var(--ink-100);
+      border: 1px solid var(--ink-200); font-size: 10px; display: grid; place-items: center;
+      color: var(--ink-500);
+    }
+    .port.on { background: #DCF0E9; border-color: var(--brand); color: var(--brand-deep); }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .metric { background: var(--ink-50); border-radius: 8px; padding: 10px; }
+    .metric .k { font-size: 12px; color: var(--ink-500); }
+    .metric .v { font-size: 18px; font-weight: 600; margin-top: 2px; }
+    .bar { height: 6px; background: var(--ink-200); border-radius: 999px; margin-top: 8px; overflow: hidden; }
+    .bar > span { display: block; height: 100%; background: var(--brand); }
+    .apps { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 4px; }
+    .app { text-align: center; min-width: 72px; }
+    .app .circle {
+      width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 6px;
+      background: var(--ink-100); display: grid; place-items: center; font-size: 11px; font-weight: 700;
+      color: var(--ink-700);
+    }
+    .app .name { font-size: 11px; color: var(--ink-700); }
+    .app .bytes { font-size: 11px; color: var(--ink-500); }
+    .density {
+      height: 14px; border-radius: 999px;
+      background: linear-gradient(90deg, #EE385C, #FADB14, #00A870);
+      margin-top: 10px;
+    }
+    .density-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-500); margin-top: 6px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--ink-100); font-size: 13px; }
+    th { color: var(--ink-500); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    .toolbar {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center;
+    }
+    .toolbar input, .toolbar select {
+      border: 1px solid var(--ink-200); border-radius: 6px; padding: 8px 10px; font: inherit; background: #fff;
+    }
+    .chip {
+      border: 1px solid var(--ink-200); background: #fff; border-radius: 999px;
+      padding: 6px 12px; cursor: pointer; font: inherit; color: var(--ink-700);
+    }
+    .chip.on { background: var(--brand-deep); color: #fff; border-color: var(--brand-deep); }
+    .map-target {
+      display: inline-block; margin-top: 8px; padding: 4px 8px; border-radius: 4px;
+      background: #eef4ff; color: #1d4ed8; font-size: 12px; font-weight: 600;
+    }
+    .chart-fake {
+      height: 120px; border-radius: 8px; background:
+        linear-gradient(180deg, transparent 0 20%, rgba(0,168,112,.08) 20% 40%, transparent 40% 60%, rgba(37,99,235,.08) 60% 80%, transparent 80%),
+        repeating-linear-gradient(90deg, transparent, transparent 24px, var(--ink-100) 24px, var(--ink-100) 25px);
+      position: relative; overflow: hidden;
+    }
+    .chart-fake svg { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>Omada-style components → CircleTel Network pages</h1>
+      <p>Static HTML preview (no Vue). Pick which blocks to port into Health / Devices / Analytics.</p>
+    </div>
+    <div class="links">
+      <a href="/admin/network/health" target="_blank">Open System Health</a>
+      <a href="/admin/network/devices" target="_blank">Open Devices</a>
+      <a href="/admin/network/analytics" target="_blank">Open Analytics</a>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="active" data-tab="health">→ /network/health</button>
+    <button data-tab="devices">→ /network/devices</button>
+    <button data-tab="analytics">→ /network/analytics</button>
+  </nav>
+
+  <!-- HEALTH -->
+  <section class="panel active" id="health">
+    <div class="note">
+      <strong>Proposed for System Health:</strong> Omada Network Overview tiles + Gateway/device detail flyout metrics + Pending Alerts —
+      layered on top of the System Health KPI cards you already have.
+      <span class="map-target">Maps to: GatewayInfo, NetworkOverview, PendingAlerts, DevicePanel health strip</span>
+    </div>
+    <div class="grid grid-2">
+      <div class="grid" style="gap:12px">
+        <div class="card">
+          <h3>Gateway / edge device</h3>
+          <div style="font-weight:600">ER7206 · 10-5A-95-7C-EE-53</div>
+          <div class="muted" style="margin-top:4px">Load balancing: - : 1 : - : -</div>
+          <div class="ports">
+            <div class="port">SFP</div>
+            <div class="port on">WAN</div>
+            <div class="port on">3</div>
+            <div class="port">4</div>
+            <div class="port">LTE</div>
+          </div>
+          <div class="muted" style="margin-top:10px">↓ 12.4 Mbps &nbsp; ↑ 3.1 Mbps</div>
+        </div>
+        <div class="card">
+          <h3>Pending Alerts <span class="badge warn" style="margin-left:6px">1</span></h3>
+          <div class="alert-row">
+            <span>Device disconnected · Access_Switch</span>
+            <span class="muted">12m ago</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="card">
+          <h3>Network Overview</h3>
+          <div class="tiles">
+            <div class="tile"><div class="icon">G</div><span class="label">Gateway</span><span class="count">1</span></div>
+            <div class="tile"><div class="icon">AP</div><span class="label">AP</span><span class="count">22</span></div>
+            <div class="tile"><div class="icon">SW</div><span class="label">Switch</span><span class="count">2<span style="color:#999;font-size:14px">/3</span></span></div>
+            <div class="tile"><div class="icon">C</div><span class="label">Client</span><span class="count">0</span></div>
+            <div class="tile"><div class="icon">Gu</div><span class="label">Guest</span><span class="count">0</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Selected device health</h3>
+          <div class="metrics">
+            <div class="metric"><div class="k">Temperature</div><div class="v">48°C</div></div>
+            <div class="metric"><div class="k">CPU</div><div class="v">4%</div><div class="bar"><span style="width:4%"></span></div></div>
+            <div class="metric"><div class="k">Memory</div><div class="v">50%</div><div class="bar"><span style="width:50%"></span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEVICES -->
+  <section class="panel" id="devices">
+    <div class="note">
+      <strong>Proposed for Devices:</strong> Omada-style type chips (All / Gateway / Switch / AP), search, online/offline counts,
+      richer status badges (online / offline / adopting), and a right-hand device detail panel.
+      <span class="map-target">Maps to: DevicesView + DevicePanel</span>
+    </div>
+    <div class="card">
+      <div class="toolbar">
+        <button class="chip on" data-filter="All">All</button>
+        <button class="chip" data-filter="Gateway">Gateway</button>
+        <button class="chip" data-filter="Switch">Switch</button>
+        <button class="chip" data-filter="AP">AP</button>
+        <input id="q" type="search" placeholder="Search name, model, MAC, IP" style="min-width:220px;flex:1" />
+        <span class="muted">Online <strong style="color:var(--brand-deep)">1</strong> · Offline <strong style="color:var(--danger)">2</strong></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Type</th><th>Model</th><th>IP</th><th>Status</th><th>Clients</th><th>Uptime</th>
+          </tr>
+        </thead>
+        <tbody id="device-rows">
+          <tr data-type="Gateway">
+            <td>CircleTel Edge</td><td>Gateway</td><td>TL-ER7206</td><td>192.168.0.1</td>
+            <td><span class="badge ok"><span class="dot"></span>Online</span></td>
+            <td>9</td><td>1d 20h</td>
+          </tr>
+          <tr data-type="Switch">
+            <td>Core Switch</td><td>Switch</td><td>TL-SG2210MP</td><td>192.168.0.12</td>
+            <td><span class="badge off"><span class="dot"></span>Offline</span></td>
+            <td>8</td><td>—</td>
+          </tr>
+          <tr data-type="AP">
+            <td>Waiting for adoption</td><td>AP</td><td>EAP660 HD</td><td>—</td>
+            <td><span class="badge warn"><span class="dot"></span>Adopting</span></td>
+            <td>0</td><td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ANALYTICS -->
+  <section class="panel" id="analytics">
+    <div class="note">
+      <strong>Proposed for Analytics:</strong> SSID / Switch traffic cards, Top Applications strip, Channel Utilization / AP density,
+      kept alongside your existing throughput charts + Supabase rollups.
+      <span class="map-target">Maps to: SSIDTraffic, SwitchTraffic, TopApplications, ChannelUtilization, APDensity</span>
+    </div>
+    <div class="grid grid-health">
+      <div class="card">
+        <h3>Top 5 SSID by Traffic</h3>
+        <div class="chart-fake">
+          <svg viewBox="0 0 400 120" preserveAspectRatio="none">
+            <polyline fill="none" stroke="#00A870" stroke-width="2"
+              points="0,90 40,70 80,75 120,40 160,55 200,30 240,45 280,25 320,50 360,35 400,40" />
+          </svg>
+        </div>
+        <div class="muted" style="margin-top:8px">CircleTel-Staff · 842 MB · last 24h</div>
+      </div>
+      <div class="card">
+        <h3>Top 5 Switch by Traffic</h3>
+        <div class="chart-fake">
+          <svg viewBox="0 0 400 120" preserveAspectRatio="none">
+            <polyline fill="none" stroke="#2563eb" stroke-width="2"
+              points="0,80 50,60 100,65 150,50 200,70 250,40 300,55 350,48 400,52" />
+          </svg>
+        </div>
+        <div class="muted" style="margin-top:8px">Core Switch · No live series yet</div>
+      </div>
+      <div class="card" style="grid-column: 1 / -1">
+        <h3>Top 10 Applications (Traffic)</h3>
+        <div class="apps">
+          <div class="app"><div class="circle">FB</div><div class="name">Facebook</div><div class="bytes">6.81 MB</div></div>
+          <div class="app"><div class="circle">WA</div><div class="name">WhatsApp</div><div class="bytes">4.20 MB</div></div>
+          <div class="app"><div class="circle">YT</div><div class="name">YouTube</div><div class="bytes">18.4 MB</div></div>
+          <div class="app"><div class="circle">MS</div><div class="name">Teams</div><div class="bytes">9.1 MB</div></div>
+          <div class="app"><div class="circle">GP</div><div class="name">Play</div><div class="bytes">2.4 MB</div></div>
+        </div>
+      </div>
+      <div class="card" style="grid-column: 1 / -1">
+        <h3>AP Density / Channel quality</h3>
+        <div class="density"></div>
+        <div class="density-labels"><span>-90 dBm</span><span>-55 dBm</span></div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const tabs = document.querySelectorAll('#tabs button');
+    const panels = document.querySelectorAll('.panel');
+    tabs.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        tabs.forEach((b) => b.classList.remove('active'));
+        panels.forEach((p) => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    const chips = document.querySelectorAll('.chip');
+    const rows = [...document.querySelectorAll('#device-rows tr')];
+    const q = document.getElementById('q');
+    let filter = 'All';
+    function applyFilter() {
+      const term = (q.value || '').toLowerCase();
+      rows.forEach((row) => {
+        const typeOk = filter === 'All' || row.dataset.type === filter;
+        const textOk = !term || row.innerText.toLowerCase().includes(term);
+        row.style.display = typeOk && textOk ? '' : 'none';
+      });
+    }
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((c) => c.classList.remove('on'));
+        chip.classList.add('on');
+        filter = chip.dataset.filter;
+        applyFilter();
+      });
+    });
+    q.addEventListener('input', applyFilter);
+  </script>
+</body>
+</html>
