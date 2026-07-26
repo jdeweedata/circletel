@@ -13,6 +13,7 @@ export { authenticateRuijie, getAccessToken, clearRuijieAuth, hasRuijieAuth } fr
 export {
   getAllGroups,
   getAllDevices,
+  getAllDevicesDetailed,
   getDevice,
   getDeviceMetrics,
   getDeviceCurrentPerformance,
@@ -42,6 +43,7 @@ export {
 export {
   upsertDevices,
   pruneDevicesNotInSet,
+  shouldSkipDevicePrune,
   logSyncRun,
   createSyncLog,
   getActiveTunnelCount,

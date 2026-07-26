@@ -4,7 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 import { inngest } from '@/lib/inngest/client';
 
@@ -12,27 +13,13 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    // Use session client for authentication (reads cookies)
-    const supabase = await createClientWithSession();
-
-    // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
-    // Use service role client to check admin_users (bypasses RLS)
+    const adminUser = authResult.adminUser!;
     const supabaseAdmin = await createClient();
-    const { data: adminUser } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, role')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     // Send Inngest event
     await inngest.send({
@@ -44,7 +31,10 @@ export async function POST(request: NextRequest) {
     });
 
     // Audit log
-    const clientIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const clientIp =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     await supabaseAdmin.from('ruijie_audit_log').insert({
       admin_user_id: adminUser.id,
       device_sn: null,
@@ -58,7 +48,6 @@ export async function POST(request: NextRequest) {
       status: 'queued',
       message: 'Sync triggered successfully',
     });
-
   } catch (error) {
     apiLogger.error('Ruijie sync trigger API error', { error });
     return NextResponse.json({ error: 'Failed to trigger sync' }, { status: 500 });

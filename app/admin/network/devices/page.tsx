@@ -243,6 +243,7 @@ export default function RuijieDevicesPage() {
   }
 
   const devices = data?.devices || [];
+  const hasFilters = Boolean(search || statusFilter || groupFilter || modelFilter);
   const onlineCount = devices.filter((d) => d.status === 'online').length;
   const offlineCount = devices.filter((d) => d.status === 'offline').length;
   const totalClients = devices.reduce((sum, d) => sum + (d.online_clients || 0), 0);
@@ -374,8 +375,13 @@ export default function RuijieDevicesPage() {
         ))}
         {devices.length === 0 && (
           <Card className="border border-slate-200/80 shadow-sm rounded-xl">
-            <CardContent className="py-8 text-center text-slate-400">
-              No devices found
+            <CardContent className="py-8 text-center space-y-2">
+              <p className="text-slate-600 font-medium">No devices in cache</p>
+              <p className="text-sm text-slate-400">
+                {hasFilters
+                  ? 'Try clearing filters, or refresh to re-sync from Ruijie Cloud.'
+                  : 'Click Refresh to sync from Ruijie Cloud into Supabase cache.'}
+              </p>
             </CardContent>
           </Card>
         )}
