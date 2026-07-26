@@ -31,7 +31,9 @@ import {
   GroupTrafficCards,
   SsidActivityCards,
   RadioUtilSummaryCard,
+  UnavailableDataPanel,
 } from '@/components/admin/network/performance';
+import type { UnavailablePanelItem } from '@/components/admin/network/performance';
 import type { GroupTrafficCard, RadioUtilSummary, SsidActivityCard } from '@/lib/network/analytics-aggregates';
 
 interface TrafficDataPoint {
@@ -184,9 +186,46 @@ export default function NetworkAnalyticsPage() {
   const ssidActivity = data?.ssidActivity ?? [];
   const radio = data?.radio ?? emptyRadio;
 
+  const hasApps = appFlow.length > 0;
+  const hasSsid = ssidActivity.length > 0;
+  const hasRadio = radio.devicesWithRadio > 0;
+
+  const panels = [
+    {
+      key: 'apps',
+      title: 'Top Applications',
+      has: hasApps,
+      reason: 'Ruijie EG app-flow returned no data for this group.',
+    },
+    {
+      key: 'categories',
+      title: 'Traffic by Category',
+      has: hasApps,
+      reason: 'Needs app-flow groups from Ruijie.',
+    },
+    {
+      key: 'ssid',
+      title: 'SSID Activity',
+      has: hasSsid,
+      reason: 'No live STA associations carrying SSID names.',
+    },
+    {
+      key: 'radio',
+      title: 'Channel / Radio Util',
+      has: hasRadio,
+      reason: 'No radio utilization in the device cache — sync live metrics first.',
+    },
+  ];
+
+  const unavailablePanels: UnavailablePanelItem[] = panels
+    .filter((p) => !p.has)
+    .map(({ key, title, reason }) => ({ key, title, reason }));
+
+  const availableCount = panels.filter((p) => p.has).length;
+
   return (
-    <div className="space-y-6 -mx-1">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <div className="space-y-5">
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-3">
         <div>
           <p className="text-xs text-slate-400 mb-1">Activity / Infrastructure / Analytics</p>
           <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
@@ -196,13 +235,35 @@ export default function NetworkAnalyticsPage() {
             Group-scoped Ruijie throughput · app-flow · radio util from cache
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/network/health">System Health</Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/network/devices">Devices</Link>
           </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-200/80 bg-white px-3 py-2.5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-2 min-w-0">
+          {data ? (
+            <Badge
+              variant="outline"
+              className={
+                data.source === 'live'
+                  ? 'border-blue-200 bg-blue-50 text-blue-700'
+                  : 'border-slate-200 bg-slate-50 text-slate-600'
+              }
+            >
+              {data.source === 'live' ? 'Ruijie live' : 'Supabase rollups'}
+            </Badge>
+          ) : null}
+          <span className="text-xs text-slate-400 truncate">
+            {selectedGroup?.name || 'Network'} · {formatDuration(parseInt(selectedHours, 10))}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
             <SelectTrigger className="w-[200px] rounded-lg border-slate-200">
               <SelectValue placeholder="Select network group" />
@@ -236,7 +297,7 @@ export default function NetworkAnalyticsPage() {
               fetchTrafficData(true, next);
             }}
           >
-            <PiBroadcastBold className="w-4 h-4 mr-2" />
+            <PiBroadcastBold className="w-4 h-4 mr-2" aria-hidden="true" />
             {preferLive ? 'Live' : 'Cached'}
           </Button>
           <Button
@@ -245,7 +306,10 @@ export default function NetworkAnalyticsPage() {
             onClick={() => fetchTrafficData(true)}
             disabled={refreshing}
           >
-            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold
+              className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`}
+              aria-hidden="true"
+            />
             Refresh
           </Button>
         </div>
@@ -273,22 +337,6 @@ export default function NetworkAnalyticsPage() {
 
       {data ? (
         <>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant="outline"
-              className={
-                data.source === 'live'
-                  ? 'border-blue-200 bg-blue-50 text-blue-700'
-                  : 'border-slate-200 bg-slate-50 text-slate-600'
-              }
-            >
-              Source: {data.source === 'live' ? 'Ruijie live' : 'Supabase rollups'}
-            </Badge>
-            <span className="text-xs text-slate-400">
-              {selectedGroup?.name || 'Network'} · {formatDuration(parseInt(selectedHours, 10))}
-            </span>
-          </div>
-
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <MetricCard
               title="Total Download"
@@ -320,46 +368,51 @@ export default function NetworkAnalyticsPage() {
             </MetricCard>
           </div>
 
-          <GroupTrafficCards
-            groups={groupTraffic}
-            selectedGroupId={selectedGroupId}
-            onSelectGroup={setSelectedGroupId}
-          />
-
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
             <div className="xl:col-span-2">
               <TrafficChart
                 dataPoints={data.traffic.dataPoints}
                 title={`Traffic — ${selectedGroup?.name || 'Network'}`}
-                height={350}
+                height={340}
               />
             </div>
-            <BandwidthChart
-              data={bandwidthSeries}
-              title="Throughput (Mbps)"
-              subtitle="From rollup avg rates"
-              height={300}
-            />
+            <div className="space-y-4">
+              <GroupTrafficCards
+                groups={groupTraffic}
+                selectedGroupId={selectedGroupId}
+                onSelectGroup={setSelectedGroupId}
+                layout="list"
+              />
+              <BandwidthChart
+                data={bandwidthSeries}
+                title="Throughput (Mbps)"
+                subtitle="From rollup avg rates"
+                height={200}
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <TopApplicationsCard data={appFlow} maxItems={10} />
-            <Card className="rounded-xl border-slate-200/80 shadow-sm border bg-white">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-semibold text-slate-900">
-                  Traffic by Category
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AppCategoryBreakdown data={appFlow} />
-              </CardContent>
-            </Card>
-          </div>
+          {availableCount > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {hasApps ? <TopApplicationsCard data={appFlow} maxItems={10} /> : null}
+              {hasApps ? (
+                <Card className="rounded-xl border-slate-200/80 shadow-sm border bg-white">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base font-semibold text-slate-900">
+                      Traffic by Category
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <AppCategoryBreakdown data={appFlow} />
+                  </CardContent>
+                </Card>
+              ) : null}
+              {hasSsid ? <SsidActivityCards ssids={ssidActivity} /> : null}
+              {hasRadio ? <RadioUtilSummaryCard radio={radio} /> : null}
+            </div>
+          ) : null}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <SsidActivityCards ssids={ssidActivity} />
-            <RadioUtilSummaryCard radio={radio} />
-          </div>
+          <UnavailableDataPanel items={unavailablePanels} />
 
           <div className="flex items-center justify-end gap-2 text-sm text-slate-500">
             <PiClockBold className="w-4 h-4" />
