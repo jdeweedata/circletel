@@ -1,6 +1,19 @@
 'use client';
 import { PiArrowRightBold, PiArrowsClockwiseBold, PiCalendarBold, PiChartBarBold, PiGiftBold, PiMapPinBold, PiMegaphoneBold, PiPercentBold, PiPlusBold, PiSpinnerBold, PiTargetBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 /**
  * Marketing Dashboard
  *
@@ -159,16 +172,13 @@ export default function MarketingDashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Marketing</h1>
-          <p className="text-gray-500 mt-1">
-            Manage promotions, campaigns, and track marketing performance
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
+    <AdminPage>
+      <PageHeader
+        title="Marketing"
+        subtitle="Manage promotions, campaigns, and track marketing performance"
+        actions={
+          <div className="flex items-center gap-3">
+
           <Button
             variant="outline"
             size="sm"
@@ -186,8 +196,9 @@ export default function MarketingDashboardPage() {
               New Promotion
             </Button>
           </Link>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
@@ -344,7 +355,6 @@ export default function MarketingDashboardPage() {
             Coming in Phase 4
           </span>
         </div>
-      </div>
-    </div>
+    </AdminPage>
   );
 }

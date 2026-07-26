@@ -1,6 +1,19 @@
 'use client';
 import { PiArchiveBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCalendarBold, PiClockBold, PiDotsThreeBold, PiFileTextBold, PiFunnelBold, PiGlobeBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold } from 'react-icons/pi';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 /**
  * CMS Dashboard - Pages List
  *
@@ -141,12 +154,11 @@ export default function CMSDashboardPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">CMS Pages</h1>
-          <p className="text-gray-500">Manage your website pages with the visual page builder</p>
+          <PageHeader title="CMS Pages" subtitle="Manage your website pages with the visual page builder" />
         </div>
         <button
           onClick={() => router.push('/admin/cms/builder')}
@@ -385,7 +397,6 @@ export default function CMSDashboardPage() {
             </tbody>
           </table>
         )}
-      </div>
-    </div>
+    </AdminPage>
   );
 }

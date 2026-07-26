@@ -30,6 +30,19 @@ import { RoleFormDialog } from '@/components/admin/roles/RoleFormDialog';
 import { DeleteRoleDialog } from '@/components/admin/roles/DeleteRoleDialog';
 import type { RoleWithUserCount } from '@/lib/types/role';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 type RoleDepartment = 'Executive' | 'Management' | 'Finance' | 'Product' | 'Operations' | 'Sales' | 'Marketing' | 'Support' | 'IT' | 'General';
 
 interface RoleTemplate {
@@ -189,21 +202,14 @@ export default function RolesManagementPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-20 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading roles..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -215,13 +221,7 @@ export default function RolesManagementPage() {
               </Button>
             </Link>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <PiShieldBold className="h-8 w-8 text-purple-600" />
-            Role Templates
-          </h1>
-          <p className="text-gray-600 mt-1">
-            View and manage role-based access control templates
-          </p>
+          <PageHeader title="Roles & Permissions" subtitle="Manage role templates and permissions" />
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -502,6 +502,6 @@ export default function RolesManagementPage() {
         role={roleToDelete}
         onSuccess={handleCrudSuccess}
       />
-    </div>
+    </AdminPage>
   );
 }

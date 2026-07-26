@@ -7,6 +7,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
+
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
   Select,
   SelectContent,
   SelectItem,
@@ -182,26 +195,31 @@ export default function PaymentTransactionsPage() {
   };
 
   // Get status badge
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, { color: string; icon: React.ReactNode }> = {
-      completed: { color: 'bg-green-100 text-green-700', icon: <PiCheckCircleBold className="h-3 w-3" /> },
-      pending: { color: 'bg-yellow-100 text-yellow-700', icon: <PiClockBold className="h-3 w-3" /> },
-      processing: { color: 'bg-blue-100 text-blue-700', icon: <PiArrowsClockwiseBold className="h-3 w-3" /> },
-      failed: { color: 'bg-red-100 text-red-700', icon: <PiXCircleBold className="h-3 w-3" /> },
-      refunded: { color: 'bg-purple-100 text-purple-700', icon: <PiArrowCounterClockwiseBold className="h-3 w-3" /> },
-      cancelled: { color: 'bg-gray-100 text-gray-700', icon: <PiProhibitBold className="h-3 w-3" /> },
-      expired: { color: 'bg-orange-100 text-orange-700', icon: <PiWarningCircleBold className="h-3 w-3" /> }
-    };
-
-    const variant = variants[status] || variants.pending;
-
-    return (
-      <Badge variant="outline" className={`${variant.color} flex items-center gap-1`}>
-        {variant.icon}
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Badge>
-    );
+  const TX_STATUS_VARIANT: Record<string, StatusVariant> = {
+    completed: 'success',
+    pending: 'warning',
+    processing: 'info',
+    failed: 'error',
+    refunded: 'info',
+    cancelled: 'neutral',
+    expired: 'warning',
   };
+  const TX_STATUS_ICON: Record<string, React.ReactNode> = {
+    completed: <PiCheckCircleBold className="h-3 w-3" />,
+    pending: <PiClockBold className="h-3 w-3" />,
+    processing: <PiArrowsClockwiseBold className="h-3 w-3" />,
+    failed: <PiXCircleBold className="h-3 w-3" />,
+    refunded: <PiArrowCounterClockwiseBold className="h-3 w-3" />,
+    cancelled: <PiProhibitBold className="h-3 w-3" />,
+    expired: <PiWarningCircleBold className="h-3 w-3" />,
+  };
+  const getStatusBadge = (status: string) => (
+    <StatusBadge
+      status={status.charAt(0).toUpperCase() + status.slice(1)}
+      variant={TX_STATUS_VARIANT[status] ?? 'neutral'}
+      icon={TX_STATUS_ICON[status]}
+    />
+  );
 
   // Get provider badge
   const getProviderBadge = (provider: string) => {
@@ -226,102 +244,29 @@ export default function PaymentTransactionsPage() {
   };
 
   return (
-    <div className="p-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy">Payment Transactions</h1>
-          <p className="text-circleTel-secondaryNeutral mt-1">
-            View and manage all payment transactions across all providers
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={exportToCSV}
-            variant="outline"
-            disabled={transactions.length === 0}
-          >
-            <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
-          <Button
-            onClick={fetchTransactions}
-            disabled={loading}
-            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
-          >
-            {loading ? (
-              <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
-            )}
-            Refresh
-          </Button>
-        </div>
-      </div>
+    <AdminPage>
+      <PageHeader
+        title="Payment Transactions"
+        subtitle="View and manage all payment transactions across all providers"
+        actions={
+          <div className="flex items-center gap-3">
+            <Button onClick={exportToCSV} variant="outline" disabled={transactions.length === 0}>
+              <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button onClick={fetchTransactions} disabled={loading} className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
+              <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
+        }
+      />
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Transactions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{stats.total_count}</div>
-              <PiCurrencyDollarBold className="h-8 w-8 text-blue-500" />
-            </div>
-            <p className="text-sm text-circleTel-secondaryNeutral mt-1">
-              R{stats.total_amount.toFixed(2)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Completed</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold text-green-600">{stats.completed_count}</div>
-              <PiCheckCircleBold className="h-8 w-8 text-green-500" />
-            </div>
-            <p className="text-sm text-green-600 mt-1">
-              R{stats.completed_amount.toFixed(2)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Pending</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold text-yellow-600">{stats.pending_count}</div>
-              <PiClockBold className="h-8 w-8 text-yellow-500" />
-            </div>
-            <p className="text-sm text-circleTel-secondaryNeutral mt-1">
-              Awaiting completion
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Failed</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold text-red-600">{stats.failed_count}</div>
-              <PiXCircleBold className="h-8 w-8 text-red-500" />
-            </div>
-            <p className="text-sm text-red-600 mt-1">
-              {stats.total_count > 0
-                ? ((stats.failed_count / stats.total_count) * 100).toFixed(1)
-                : 0}% failure rate
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard label="Total Transactions" value={stats.total_count} icon={<PiCurrencyDollarBold className="h-5 w-5" />} subtitle={`R${stats.total_amount.toFixed(2)}`} />
+        <StatCard label="Completed" value={stats.completed_count} icon={<PiCheckCircleBold className="h-5 w-5" />} subtitle={`R${stats.completed_amount.toFixed(2)}`} />
+        <StatCard label="Pending" value={stats.pending_count} icon={<PiClockBold className="h-5 w-5" />} subtitle="Awaiting completion" />
+        <StatCard label="Failed" value={stats.failed_count} icon={<PiXCircleBold className="h-5 w-5" />} subtitle={`${stats.total_count > 0 ? ((stats.failed_count / stats.total_count) * 100).toFixed(1) : 0}% failure rate`} />
       </div>
 
       {/* Filters */}
@@ -390,19 +335,17 @@ export default function PaymentTransactionsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
-            </div>
+            <LoadingState message="Loading transactions..." />
           ) : transactions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-center">
-              <PiCurrencyDollarBold className="h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-lg font-medium text-gray-700">No transactions found</p>
-              <p className="text-sm text-gray-500 mt-2">
-                {searchTerm || statusFilter !== 'all' || providerFilter !== 'all'
+            <EmptyState
+              icon={<PiCurrencyDollarBold />}
+              title="No transactions found"
+              description={
+                searchTerm || statusFilter !== 'all' || providerFilter !== 'all'
                   ? 'Try adjusting your filters or search term'
-                  : 'Transactions will appear here once payments are initiated'}
-              </p>
-            </div>
+                  : 'Transactions will appear here once payments are initiated'
+              }
+            />
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -572,6 +515,6 @@ export default function PaymentTransactionsPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

@@ -1,9 +1,17 @@
 'use client';
-import { PiBuildingBold, PiCalendarBold, PiEnvelopeBold, PiMagnifyingGlassBold, PiPhoneBold, PiUserBold, PiUserPlusBold } from 'react-icons/pi';
 
+import {
+  PiBuildingBold,
+  PiCalendarBold,
+  PiEnvelopeBold,
+  PiMagnifyingGlassBold,
+  PiPhoneBold,
+  PiUserBold,
+  PiUserPlusBold,
+  PiUsersBold,
+} from 'react-icons/pi';
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,8 +22,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { PageHeader } from '@/components/backend';
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  type StatusVariant,
+} from '@/components/backend';
 
 interface Customer {
   id: string;
@@ -30,6 +46,13 @@ interface Customer {
   created_at: string;
   updated_at: string;
 }
+
+const CUSTOMER_STATUS_VARIANT: Record<string, StatusVariant> = {
+  active: 'success',
+  inactive: 'neutral',
+  suspended: 'error',
+  pending: 'warning',
+};
 
 export default function CustomersPage() {
   const router = useRouter();
@@ -87,40 +110,8 @@ export default function CustomersPage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      active: 'default',
-      inactive: 'secondary',
-      suspended: 'destructive',
-    };
-
-    return (
-      <Badge variant={variants[status] || 'outline'}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Badge>
-    );
-  };
-
-  const getAccountTypeBadge = (type: string) => {
-    return (
-      <Badge variant={type === 'business' ? 'secondary' : 'outline'}>
-        {type === 'business' ? (
-          <>
-            <PiBuildingBold className="h-3 w-3 mr-1" />
-            Business
-          </>
-        ) : (
-          <>
-            <PiUserBold className="h-3 w-3 mr-1" />
-            Personal
-          </>
-        )}
-      </Badge>
-    );
-  };
-
   return (
-    <div className="space-y-6">
+    <AdminPage>
       <PageHeader
         title="Customer Management"
         subtitle="View and manage customer accounts"
@@ -132,144 +123,139 @@ export default function CustomersPage() {
         }
       />
 
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>All Customers</CardTitle>
-              <CardDescription>
-                {filteredCustomers.length} customer{filteredCustomers.length !== 1 ? 's' : ''} found
-              </CardDescription>
-            </div>
-            <div className="relative w-72">
-              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search customers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Loading customers...</p>
-            </div>
-          ) : filteredCustomers.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">
-                {searchQuery ? 'No customers found matching your search' : 'No customers yet'}
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Account Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCustomers.map((customer) => (
-                    <TableRow key={customer.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
-                            <PiUserBold className="h-5 w-5 text-circleTel-orange" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {customer.first_name} {customer.last_name}
-                            </p>
-                            {customer.business_name && (
-                              <p className="text-sm text-gray-500">{customer.business_name}</p>
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm">
-                            <PiEnvelopeBold className="h-3 w-3 text-gray-400" />
-                            <span className="text-gray-600">{customer.email}</span>
-                            {customer.email_verified && (
-                              <Badge variant="outline" className="text-xs">
-                                Verified
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <PiPhoneBold className="h-3 w-3 text-gray-400" />
-                            <span className="text-gray-600">{customer.phone}</span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{getAccountTypeBadge(customer.account_type)}</TableCell>
-                      <TableCell>{getStatusBadge(customer.status)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <PiCalendarBold className="h-3 w-3 text-gray-400" />
-                          {formatDate(customer.created_at)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => router.push(`/admin/customers/${customer.id}`)}
-                        >
-                          View Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Customers</CardDescription>
-            <CardTitle className="text-3xl">{customers.length}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Personal Accounts</CardDescription>
-            <CardTitle className="text-3xl">
-              {customers.filter((c) => c.account_type === 'personal').length}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Business Accounts</CardDescription>
-            <CardTitle className="text-3xl">
-              {customers.filter((c) => c.account_type === 'business').length}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Active Customers</CardDescription>
-            <CardTitle className="text-3xl">
-              {customers.filter((c) => c.status === 'active').length}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <StatCard
+          label="Total Customers"
+          value={customers.length}
+          icon={<PiUsersBold className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Personal Accounts"
+          value={customers.filter((c) => c.account_type === 'personal').length}
+          icon={<PiUserBold className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Business Accounts"
+          value={customers.filter((c) => c.account_type === 'business').length}
+          icon={<PiBuildingBold className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Active Customers"
+          value={customers.filter((c) => c.status === 'active').length}
+          icon={<PiUserBold className="h-5 w-5" />}
+        />
       </div>
-    </div>
+
+      <SectionCard
+        title="All Customers"
+        action={
+          <div className="relative w-72">
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search customers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        }
+      >
+        {loading ? (
+          <LoadingState message="Loading customers..." />
+        ) : filteredCustomers.length === 0 ? (
+          <EmptyState
+            icon={<PiUsersBold />}
+            title={searchQuery ? 'No customers found matching your search' : 'No customers yet'}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Account Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCustomers.map((customer) => (
+                  <TableRow key={customer.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
+                          <PiUserBold className="h-5 w-5 text-circleTel-orange" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {customer.first_name} {customer.last_name}
+                          </p>
+                          {customer.business_name && (
+                            <p className="text-sm text-gray-500">{customer.business_name}</p>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-sm">
+                          <PiEnvelopeBold className="h-3 w-3 text-gray-400" />
+                          <span className="text-gray-600">{customer.email}</span>
+                          {customer.email_verified && (
+                            <StatusBadge status="Verified" variant="success" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <PiPhoneBold className="h-3 w-3 text-gray-400" />
+                          <span className="text-gray-600">{customer.phone}</span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        status={customer.account_type === 'business' ? 'Business' : 'Personal'}
+                        variant={customer.account_type === 'business' ? 'info' : 'neutral'}
+                        icon={
+                          customer.account_type === 'business' ? (
+                            <PiBuildingBold className="h-3 w-3" />
+                          ) : (
+                            <PiUserBold className="h-3 w-3" />
+                          )
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        status={
+                          customer.status.charAt(0).toUpperCase() + customer.status.slice(1)
+                        }
+                        variant={CUSTOMER_STATUS_VARIANT[customer.status] ?? 'neutral'}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <PiCalendarBold className="h-3 w-3 text-gray-400" />
+                        {formatDate(customer.created_at)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/admin/customers/${customer.id}`)}
+                      >
+                        View Details
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </SectionCard>
+    </AdminPage>
   );
 }

@@ -7,6 +7,19 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -201,38 +214,23 @@ export default function AdminConsumerOrdersPage() {
   };
 
   // Get status badge
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return (
-          <Badge className="bg-green-100 text-green-800 border-green-200">
-            <PiCheckCircleBold className="w-3 h-3 mr-1" />
-            Active
-          </Badge>
-        );
-      case 'cancelled':
-        return (
-          <Badge className="bg-red-100 text-red-800 border-red-200">
-            <PiXCircleBold className="w-3 h-3 mr-1" />
-            Cancelled
-          </Badge>
-        );
-      case 'pending':
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-            <PiClockBold className="w-3 h-3 mr-1" />
-            Pending
-          </Badge>
-        );
-      default:
-        return (
-          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-            <PiWarningCircleBold className="w-3 h-3 mr-1" />
-            {status.replace(/_/g, ' ')}
-          </Badge>
-        );
-    }
+  const ORDER_STATUS_VARIANT: Record<string, StatusVariant> = {
+    pending: 'warning',
+    pending_payment: 'warning',
+    paid: 'success',
+    processing: 'info',
+    active: 'success',
+    completed: 'success',
+    cancelled: 'error',
+    failed: 'error',
+    installed: 'success',
   };
+  const getStatusBadge = (status: string) => (
+    <StatusBadge
+      status={status.replace(/_/g, ' ')}
+      variant={ORDER_STATUS_VARIANT[status] ?? 'neutral'}
+    />
+  );
 
   // Get payment badge
   const getPaymentBadge = (paymentStatus: string) => {
@@ -265,14 +263,14 @@ export default function AdminConsumerOrdersPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <AdminPage>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Consumer Orders</h1>
-          <p className="text-gray-600 mt-1">Manage all consumer service orders</p>
-        </div>
-        <div className="flex gap-2">
+      <PageHeader
+        title="Consumer Orders"
+        subtitle="Manage all consumer service orders"
+        actions={
+          <div className="flex items-center gap-2">
+<div className="flex gap-2">
           <Button variant="outline" onClick={fetchOrders} disabled={loading}>
             <PiArrowsClockwiseBold className={cn('w-4 h-4 mr-2', loading && 'animate-spin')} />
             Refresh
@@ -282,7 +280,9 @@ export default function AdminConsumerOrdersPage() {
             Export CSV
           </Button>
         </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -565,6 +565,6 @@ export default function AdminConsumerOrdersPage() {
           }}
         />
       )}
-    </div>
+    </AdminPage>
   );
 }

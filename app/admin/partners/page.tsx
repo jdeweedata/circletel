@@ -23,6 +23,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface Partner {
   id: string;
   partner_number: string | null;
@@ -128,21 +142,19 @@ export default function PartnersPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const config: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
-      approved: { variant: 'default', icon: <PiCheckCircleBold className="h-3 w-3 mr-1" /> },
-      pending: { variant: 'secondary', icon: <PiClockBold className="h-3 w-3 mr-1" /> },
-      under_review: { variant: 'outline', icon: <PiWarningCircleBold className="h-3 w-3 mr-1" /> },
-      rejected: { variant: 'destructive', icon: <PiXCircleBold className="h-3 w-3 mr-1" /> },
-      suspended: { variant: 'destructive', icon: <PiXCircleBold className="h-3 w-3 mr-1" /> },
+    const map: Record<string, StatusVariant> = {
+      pending: 'warning',
+      under_review: 'info',
+      approved: 'success',
+      rejected: 'error',
+      suspended: 'error',
+      active: 'success',
     };
-
-    const { variant, icon } = config[status] || { variant: 'outline' as const, icon: null };
-
     return (
-      <Badge variant={variant} className="flex items-center w-fit">
-        {icon}
-        {status.replace('_', ' ').charAt(0).toUpperCase() + status.replace('_', ' ').slice(1)}
-      </Badge>
+      <StatusBadge
+        status={status.replace(/_/g, ' ')}
+        variant={map[status] ?? 'neutral'}
+      />
     );
   };
 
@@ -171,17 +183,19 @@ export default function PartnersPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Partner Management</h1>
-          <p className="text-gray-600 mt-1">View and manage sales partner applications</p>
-        </div>
-        <Button onClick={() => router.push('/admin/partners/approvals')}>
+    <AdminPage>
+      <PageHeader
+        title="Partner Management"
+        subtitle="View and manage sales partner applications"
+        actions={
+          <div className="flex items-center gap-2">
+<Button onClick={() => router.push('/admin/partners/approvals')}>
           <PiClockBold className="h-4 w-4 mr-2" />
           Pending Approvals ({stats.pending + stats.under_review})
         </Button>
-      </div>
+          </div>
+        }
+      />
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
@@ -412,6 +426,6 @@ export default function PartnersPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   );
 }

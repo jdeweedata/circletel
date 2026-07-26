@@ -15,6 +15,19 @@ import {
 } from '@/components/ui/select';
 import { formatDistanceToNow, format } from 'date-fns';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface CronJob {
   id: string;
   integrationSlug: string;
@@ -131,23 +144,18 @@ export default function CronJobsPage() {
 
   if (isLoading && !cronJobs.length) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading cron jobs..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy dark:text-white">
-            Cron Jobs Management
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Monitor and manage scheduled tasks across all integrations
-          </p>
+          <PageHeader title="Cron Jobs" subtitle="Monitor and manage scheduled tasks across all integrations" />
         </div>
 
         <div className="flex items-center gap-2">
@@ -405,6 +413,6 @@ export default function CronJobsPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </AdminPage>
   );
 }

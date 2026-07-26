@@ -33,6 +33,20 @@ import {
 import { StatCard } from '@/components/admin/shared/StatCard';
 import { cn } from '@/lib/utils';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -76,7 +90,7 @@ const STATUS_CONFIG: Record<string, { color: string; dot: string }> = {
   active: { color: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
   pending: { color: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
   suspended: { color: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' },
-  archived: { color: 'bg-slate-100 text-slate-600 border-slate-200', dot: 'bg-slate-400' },
+  archived: { color: 'bg-gray-100 text-slate-600 border-gray-200', dot: 'bg-gray-400' },
 };
 
 // =============================================================================
@@ -96,20 +110,20 @@ function CorporateCard({
   return (
     <button
       onClick={onClick}
-      className="group w-full text-left bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-slate-300 transition-all"
+      className="group w-full text-left bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-gray-300 transition-all"
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200">
+          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200">
             <span className="text-xs font-bold font-mono text-orange-600">{corporate.corporateCode}</span>
           </div>
           <div className="min-w-0">
-            <h3 className="font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+            <h3 className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
               {corporate.companyName}
             </h3>
             {corporate.tradingName && (
-              <p className="text-xs text-slate-400 truncate">t/a {corporate.tradingName}</p>
+              <p className="text-xs text-gray-400 truncate">t/a {corporate.tradingName}</p>
             )}
           </div>
         </div>
@@ -122,14 +136,14 @@ function CorporateCard({
       {/* Sites Progress */}
       <div className="mb-4">
         <div className="flex items-center justify-between text-sm mb-1.5">
-          <span className="text-slate-500">Sites</span>
-          <span className="font-semibold text-slate-900">
+          <span className="text-gray-500">Sites</span>
+          <span className="font-semibold text-gray-900">
             <span className="text-emerald-600">{corporate.activeSites}</span>
             <span className="text-slate-300 mx-1">/</span>
             {corporate.totalSites}
           </span>
         </div>
-        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-emerald-500 rounded-full transition-all duration-500"
             style={{ width: `${siteProgress}%` }}
@@ -144,24 +158,24 @@ function CorporateCard({
       </div>
 
       {/* Contact */}
-      <div className="pt-3 border-t border-slate-100">
+      <div className="pt-3 border-t border-gray-100">
         <p className="text-sm font-medium text-slate-700 truncate">{corporate.primaryContactName}</p>
-        <p className="text-xs text-slate-400 truncate flex items-center gap-1 mt-0.5">
+        <p className="text-xs text-gray-400 truncate flex items-center gap-1 mt-0.5">
           <PiEnvelopeBold className="w-3 h-3" />
           {corporate.primaryContactEmail}
         </p>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
         {corporate.industry ? (
-          <span className="text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded">
+          <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded">
             {corporate.industry}
           </span>
         ) : (
           <span />
         )}
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-gray-400">
           {new Date(corporate.createdAt).toLocaleDateString('en-ZA', {
             day: 'numeric', month: 'short', year: 'numeric',
           })}
@@ -240,25 +254,16 @@ export default function CorporateListPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 -m-6 p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
-          <Link href="/admin" className="hover:text-slate-700">Admin</Link>
-          <PiCaretRightBold className="w-3 h-3" />
-          <span className="text-slate-900">Corporate Clients</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Corporate Clients</h1>
-            <p className="text-slate-500 mt-1">Manage enterprise multi-site accounts</p>
-          </div>
-          <Button onClick={() => router.push('/admin/corporate/new')}>
+    <AdminPage>
+      <PageHeader
+        title="Corporate Clients"
+        subtitle="Manage multi-site corporate accounts"
+        actions={<div className="flex items-center gap-2"><Button onClick={() => router.push('/admin/corporate/new')}>
             <PiPlusBold className="w-4 h-4 mr-2" />
             Add Corporate
           </Button>
-        </div>
-      </div>
+        </div>}
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
@@ -305,7 +310,7 @@ export default function CorporateListPage() {
       {/* Search & Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <form onSubmit={handleSearch} className="flex-1 min-w-[240px] relative">
-          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
             placeholder="Search by company name, code, or contact..."
             value={searchQuery}
@@ -314,7 +319,7 @@ export default function CorporateListPage() {
           />
         </form>
 
-        <div className="flex items-center gap-1 text-sm text-slate-500">
+        <div className="flex items-center gap-1 text-sm text-gray-500">
           <PiFunnelBold className="w-4 h-4" />
         </div>
 
@@ -338,13 +343,13 @@ export default function CorporateListPage() {
           Search
         </Button>
 
-        <div className="ml-auto flex items-center border border-slate-200 rounded-lg overflow-hidden">
+        <div className="ml-auto flex items-center border border-gray-200 rounded-lg overflow-hidden">
           <button
             type="button"
             onClick={() => setViewMode('list')}
             className={cn(
               'px-3 py-1.5 text-sm',
-              viewMode === 'list' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+              viewMode === 'list' ? 'bg-gray-900 text-white' : 'bg-white text-slate-600 hover:bg-gray-50'
             )}
           >
             Table
@@ -354,7 +359,7 @@ export default function CorporateListPage() {
             onClick={() => setViewMode('grid')}
             className={cn(
               'px-3 py-1.5 text-sm',
-              viewMode === 'grid' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+              viewMode === 'grid' ? 'bg-gray-900 text-white' : 'bg-white text-slate-600 hover:bg-gray-50'
             )}
           >
             Cards
@@ -363,22 +368,22 @@ export default function CorporateListPage() {
       </div>
 
       {/* Results Count */}
-      <div className="flex items-center gap-4 text-sm text-slate-500 mb-4">
-        <span>{loading ? 'Loading...' : <><span className="font-semibold text-slate-900">{pagination.total}</span> corporate{pagination.total !== 1 ? 's' : ''} found</>}</span>
+      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+        <span>{loading ? 'Loading...' : <><span className="font-semibold text-gray-900">{pagination.total}</span> corporate{pagination.total !== 1 ? 's' : ''} found</>}</span>
       </div>
 
       {/* Corporate List */}
       {loading ? (
         <div className="space-y-3">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-16 bg-white rounded-xl border border-slate-200 animate-pulse" />
+            <div key={i} className="h-16 bg-white rounded-xl border border-gray-200 animate-pulse" />
           ))}
         </div>
       ) : corporates.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-16 text-center">
+        <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
           <PiBuildingsBold className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="font-semibold text-slate-900 mb-1">No corporate accounts found</p>
-          <p className="text-slate-500 text-sm mb-6">
+          <p className="font-semibold text-gray-900 mb-1">No corporate accounts found</p>
+          <p className="text-gray-500 text-sm mb-6">
             {searchQuery || statusFilter !== 'all'
               ? 'Try adjusting your search or filters'
               : 'Get started by adding your first corporate client'}
@@ -403,10 +408,10 @@ export default function CorporateListPage() {
         </div>
       ) : (
         /* ---- TABLE VIEW ---- */
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50">
+              <TableRow className="bg-gray-50">
                 <TableHead>Code</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Contact</TableHead>
@@ -433,18 +438,18 @@ export default function CorporateListPage() {
                     </TableCell>
                     <TableCell>
                       <div className="min-w-0">
-                        <p className="font-medium text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                        <p className="font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
                           {corporate.companyName}
                         </p>
                         {corporate.tradingName && (
-                          <p className="text-xs text-slate-400 truncate">t/a {corporate.tradingName}</p>
+                          <p className="text-xs text-gray-400 truncate">t/a {corporate.tradingName}</p>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="min-w-0">
                         <p className="font-medium text-slate-700 truncate">{corporate.primaryContactName}</p>
-                        <p className="text-xs text-slate-400 truncate">{corporate.primaryContactEmail}</p>
+                        <p className="text-xs text-gray-400 truncate">{corporate.primaryContactEmail}</p>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -459,14 +464,14 @@ export default function CorporateListPage() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-slate-500 text-sm">{corporate.industry || '—'}</TableCell>
+                    <TableCell className="text-gray-500 text-sm">{corporate.industry || '—'}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={cn('text-xs border', status.color)}>
                         <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', status.dot)} />
                         {corporate.accountStatus}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-slate-400">
+                    <TableCell className="text-sm text-gray-400">
                       {new Date(corporate.createdAt).toLocaleDateString('en-ZA', {
                         day: 'numeric', month: 'short',
                       })}
@@ -475,7 +480,7 @@ export default function CorporateListPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-slate-400 hover:text-blue-600"
+                        className="text-gray-400 hover:text-blue-600"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/admin/corporate/${corporate.id}`);
@@ -495,7 +500,7 @@ export default function CorporateListPage() {
       {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-gray-500">
             Showing{' '}
             <span className="font-semibold text-slate-700">
               {(pagination.page - 1) * pagination.limit + 1}
@@ -535,8 +540,8 @@ export default function CorporateListPage() {
                     className={cn(
                       'w-9 h-9 rounded-lg text-sm font-medium transition-colors',
                       pagination.page === pageNum
-                        ? 'bg-slate-900 text-white'
-                        : 'text-slate-600 hover:bg-slate-100'
+                        ? 'bg-gray-900 text-white'
+                        : 'text-slate-600 hover:bg-gray-100'
                     )}
                   >
                     {pageNum}
@@ -556,6 +561,6 @@ export default function CorporateListPage() {
           </div>
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }

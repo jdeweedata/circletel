@@ -33,6 +33,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { formatDistanceToNow, format } from 'date-fns';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface WebhookLog {
   id: string;
   webhook_id: string;
@@ -325,23 +338,18 @@ export default function WebhookMonitorPage() {
 
   if (isLoading && !logs.length) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading webhooks..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy dark:text-white">
-            Webhook Monitor
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Real-time webhook activity across all integrations
-          </p>
+          <PageHeader title="Webhooks" subtitle="Manage integration webhooks" />
         </div>
 
         <div className="flex items-center gap-2">
@@ -757,6 +765,6 @@ export default function WebhookMonitorPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

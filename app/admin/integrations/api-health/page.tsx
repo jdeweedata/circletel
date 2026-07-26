@@ -16,6 +16,19 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface Integration {
   id: string;
   slug: string;
@@ -160,23 +173,18 @@ export default function APIHealthMonitorPage() {
 
   if (isLoading && !integrations.length) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading API health..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy dark:text-white">
-            API Health Monitor
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Real-time health status and monitoring for all integrations
-          </p>
+          <PageHeader title="API Health" subtitle="Real-time health status and monitoring for all integrations" />
         </div>
 
         <div className="flex items-center gap-2">
@@ -440,6 +448,6 @@ export default function APIHealthMonitorPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </AdminPage>
   );
 }

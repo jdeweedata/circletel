@@ -1,11 +1,19 @@
-import { PiBellBold, PiCodeBold, PiCurrencyDollarBold, PiDatabaseBold, PiEnvelopeBold, PiGearBold, PiShieldBold } from 'react-icons/pi';
+import {
+  PiBellBold,
+  PiCodeBold,
+  PiCurrencyDollarBold,
+  PiDatabaseBold,
+  PiEnvelopeBold,
+  PiShieldBold,
+} from 'react-icons/pi';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AdminPage, PageHeader } from '@/components/backend';
 
 export const metadata: Metadata = {
   title: 'Settings - CircleTel Admin',
-  description: 'Configure system settings'
+  description: 'Configure system settings',
 };
 
 const settingsCategories = [
@@ -14,54 +22,52 @@ const settingsCategories = [
     description: 'Email templates and notification logs',
     icon: PiBellBold,
     href: '/admin/settings/notifications',
-    available: true
+    available: true,
   },
   {
     title: 'Finance',
     description: 'Billing rules, fees, and reminder schedules',
     icon: PiCurrencyDollarBold,
     href: '/admin/settings/finance',
-    available: true
+    available: true,
   },
   {
     title: 'Security',
     description: 'Authentication, API keys, and access control',
     icon: PiShieldBold,
     href: '/admin/settings/security',
-    available: false
+    available: false,
   },
   {
     title: 'Email',
     description: 'SMTP configuration and email delivery',
     icon: PiEnvelopeBold,
     href: '/admin/settings/email',
-    available: false
+    available: false,
   },
   {
     title: 'Database',
     description: 'Database connections and migrations',
     icon: PiDatabaseBold,
     href: '/admin/settings/database',
-    available: false
+    available: false,
   },
   {
     title: 'Integrations',
     description: 'Third-party service configurations',
     icon: PiCodeBold,
     href: '/admin/integrations',
-    available: true
-  }
+    available: true,
+  },
 ];
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="mt-2 text-gray-600">
-          Configure system-wide settings and preferences
-        </p>
-      </div>
+    <AdminPage>
+      <PageHeader
+        title="Settings"
+        subtitle="Configure system-wide settings and preferences"
+      />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {settingsCategories.map((category) => {
@@ -72,7 +78,9 @@ export default function SettingsPage() {
             <Component
               key={category.title}
               href={category.available && category.href ? category.href : '#'}
-              className={category.available ? 'block' : 'block opacity-50 cursor-not-allowed'}
+              className={
+                category.available ? 'block' : 'block opacity-50 cursor-not-allowed'
+              }
             >
               <Card className={category.available ? 'hover:shadow-lg transition-shadow' : ''}>
                 <CardHeader>
@@ -96,6 +104,6 @@ export default function SettingsPage() {
           );
         })}
       </div>
-    </div>
+    </AdminPage>
   );
 }

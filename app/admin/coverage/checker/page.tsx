@@ -29,6 +29,19 @@ import {
 } from 'react-icons/pi';
 import Link from 'next/link';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 const MAPS_LIBRARIES: ('places')[] = ['places'];
 
 const TABS = [
@@ -431,7 +444,7 @@ export default function CoverageCheckerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <AdminPage>
 
       {/* ── Page Header ── */}
       <div className="bg-white border-b border-slate-200">
@@ -457,7 +470,7 @@ export default function CoverageCheckerPage() {
               </Link>
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-xl font-bold text-slate-900">Coverage Checker</h1>
+                  <PageHeader title="Coverage Checker" subtitle="Check serviceability for an address" />
                   {prediction && (
                     <StatusBadge
                       status={QUALITY_LABEL[prediction.signalQuality] ?? '—'}
@@ -782,7 +795,6 @@ export default function CoverageCheckerPage() {
           <RecentChecksPanel onRecheck={handleCheck} />
         </TabPanel>
 
-      </div>
-    </div>
+    </AdminPage>
   );
 }

@@ -8,6 +8,8 @@ export type { StatCardProps } from './StatCard';
 export { StatusBadge, getStatusVariant } from './StatusBadge';
 export type { StatusVariant } from './StatusBadge';
 export { PageHeader } from './PageHeader';
+export { DetailPageHeader } from './DetailPageHeader';
+export { AdminPage } from './AdminPage';
 export { SectionCard } from './SectionCard';
 export { InfoRow } from './InfoRow';
 export { LoadingState, EmptyState, ErrorState } from './states';

@@ -1,6 +1,19 @@
 'use client';
 import { PiArrowCounterClockwiseBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 /**
  * ZOHO Billing Sync Monitoring Dashboard
  *
@@ -152,8 +165,7 @@ export default function ZohoSyncDashboard() {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy">ZOHO Billing Sync</h1>
-          <p className="text-gray-600 mt-2">Monitor and manage ZOHO integration sync status</p>
+          <PageHeader title="Zoho Sync" subtitle="Monitor Zoho synchronization status" />
         </div>
         <button
           onClick={() => {
@@ -296,7 +308,7 @@ export default function ZohoSyncDashboard() {
 // Status Card Component
 function StatusCard({ title, value, icon, color, subtitle }: any) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <AdminPage>
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-gray-600 text-sm font-medium">{title}</h3>
         <div className={`${color} text-white p-2 rounded-lg`}>
@@ -398,5 +410,6 @@ function LogRow({ log, onRetry, isRetrying }: any) {
         )}
       </td>
     </tr>
+    </AdminPage>
   );
 }

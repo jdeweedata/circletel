@@ -6,6 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
+
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
   Dialog,
   DialogContent,
   DialogHeader,
@@ -180,15 +193,12 @@ export default function ReconciliationQueuePage() {
     new Date(dateStr).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Payment Reconciliation</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Review and approve unmatched payments from EFT and PayNow
-          </p>
-        </div>
-        <div className="flex gap-2">
+    <AdminPage>
+      <PageHeader
+        title="Payment Reconciliation"
+        subtitle="Review and approve unmatched payments from EFT and PayNow"
+        actions={
+          <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -216,40 +226,26 @@ export default function ReconciliationQueuePage() {
             <PiPlayBold className="mr-1 h-4 w-4" />
             {triggerLoading === 'monthly-sweep' ? 'Running...' : 'Monthly Sweep'}
           </Button>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:ring-2 ring-orange-200" onClick={() => setStatusFilter('pending')}>
-          <CardContent className="pt-4 pb-4">
-            <p className="text-sm text-slate-500">Pending</p>
-            <p className="text-2xl font-bold text-orange-600">{stats.pending}</p>
-          </CardContent>
-        </Card>
-        <Card className="cursor-pointer hover:ring-2 ring-green-200" onClick={() => setStatusFilter('approved')}>
-          <CardContent className="pt-4 pb-4">
-            <p className="text-sm text-slate-500">Approved</p>
-            <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
-          </CardContent>
-        </Card>
-        <Card className="cursor-pointer hover:ring-2 ring-red-200" onClick={() => setStatusFilter('rejected')}>
-          <CardContent className="pt-4 pb-4">
-            <p className="text-sm text-slate-500">Rejected</p>
-            <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4 pb-4">
-            <p className="text-sm text-slate-500">Total</p>
-            <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div onClick={() => setStatusFilter('pending')} className="cursor-pointer">
+          <StatCard label="Pending" value={stats.pending} icon={<PiFunnelBold className="h-5 w-5" />} />
+        </div>
+        <div onClick={() => setStatusFilter('approved')} className="cursor-pointer">
+          <StatCard label="Approved" value={stats.approved} icon={<PiCheckCircleBold className="h-5 w-5" />} />
+        </div>
+        <div onClick={() => setStatusFilter('rejected')} className="cursor-pointer">
+          <StatCard label="Rejected" value={stats.rejected} icon={<PiXCircleBold className="h-5 w-5" />} />
+        </div>
+        <StatCard label="Total" value={stats.total} icon={<PiArrowsClockwiseBold className="h-5 w-5" />} />
       </div>
 
       {/* Filters */}
       <div className="flex items-center gap-3">
-        <PiFunnelBold className="h-4 w-4 text-slate-400" />
+        <PiFunnelBold className="h-4 w-4 text-gray-400" />
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Status" />
@@ -285,14 +281,14 @@ export default function ReconciliationQueuePage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-sm text-slate-500 py-8 text-center">Loading...</p>
+            <LoadingState message="Loading reconciliation queue..." />
           ) : items.length === 0 ? (
-            <p className="text-sm text-slate-500 py-8 text-center">No items in queue</p>
+            <p className="text-sm text-gray-500 py-8 text-center">No items in queue</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-slate-500">
+                  <tr className="border-b text-left text-gray-500">
                     <th className="pb-2 pr-4">Date</th>
                     <th className="pb-2 pr-4">Source</th>
                     <th className="pb-2 pr-4">Reference</th>
@@ -361,7 +357,7 @@ export default function ReconciliationQueuePage() {
                           </div>
                         )}
                         {item.status !== 'pending' && (
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-gray-400">
                             {item.resolved_at ? formatDate(item.resolved_at) : ''}
                           </span>
                         )}
@@ -384,16 +380,16 @@ export default function ReconciliationQueuePage() {
           {selectedItem && (
             <div className="space-y-4">
               <div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm">
-                <p><span className="text-slate-500">Amount:</span> <strong>{formatCurrency(selectedItem.amount)}</strong></p>
-                <p><span className="text-slate-500">Reference:</span> {selectedItem.payer_reference}</p>
-                <p><span className="text-slate-500">Payer:</span> {selectedItem.payer_name || 'Unknown'}</p>
-                <p><span className="text-slate-500">Date:</span> {selectedItem.source_date ? formatDate(selectedItem.source_date) : '—'}</p>
+                <p><span className="text-gray-500">Amount:</span> <strong>{formatCurrency(selectedItem.amount)}</strong></p>
+                <p><span className="text-gray-500">Reference:</span> {selectedItem.payer_reference}</p>
+                <p><span className="text-gray-500">Payer:</span> {selectedItem.payer_name || 'Unknown'}</p>
+                <p><span className="text-gray-500">Date:</span> {selectedItem.source_date ? formatDate(selectedItem.source_date) : '—'}</p>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Search for invoice to match:</label>
                 <div className="relative">
-                  <PiMagnifyingGlassBold className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <PiMagnifyingGlassBold className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                   <Input
                     className="pl-9"
                     placeholder="Invoice number, customer name, or account..."
@@ -418,7 +414,7 @@ export default function ReconciliationQueuePage() {
                           <span className="font-medium">{inv.invoice_number}</span>
                           <span className="font-medium">{formatCurrency(inv.total_amount)}</span>
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div className="text-xs text-gray-500">
                           {inv.customer_name} &middot; {inv.status} &middot; Due {inv.due_date ? formatDate(inv.due_date) : '—'}
                         </div>
                       </button>
@@ -457,8 +453,8 @@ export default function ReconciliationQueuePage() {
           {selectedItem && (
             <div className="space-y-4">
               <div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm">
-                <p><span className="text-slate-500">Amount:</span> <strong>{formatCurrency(selectedItem.amount)}</strong></p>
-                <p><span className="text-slate-500">Reference:</span> {selectedItem.payer_reference}</p>
+                <p><span className="text-gray-500">Amount:</span> <strong>{formatCurrency(selectedItem.amount)}</strong></p>
+                <p><span className="text-gray-500">Reference:</span> {selectedItem.payer_reference}</p>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Reason for rejection (optional):</label>
@@ -484,6 +480,6 @@ export default function ReconciliationQueuePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

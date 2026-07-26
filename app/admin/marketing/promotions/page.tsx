@@ -1,6 +1,19 @@
 'use client';
 import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiCopyBold, PiDotsThreeBold, PiFunnelBold, PiGiftBold, PiMagnifyingGlassBold, PiPauseBold, PiPencilSimpleBold, PiPlayBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiWarningCircleBold } from 'react-icons/pi';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 /**
  * Promotions Management Page
  *
@@ -332,14 +345,11 @@ export default function PromotionsPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Promotions</h1>
-          <p className="text-gray-500 mt-1">
-            Manage discount codes and promotional offers
-          </p>
+          <PageHeader title="Promotions" subtitle="Manage discount codes and promotional offers" />
         </div>
         <Button onClick={openCreateModal}>
           <PiPlusBold className="h-4 w-4 mr-2" />
@@ -833,6 +843,6 @@ export default function PromotionsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

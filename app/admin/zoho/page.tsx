@@ -3,6 +3,19 @@ import { ZohoConnectionStatus } from '@/components/zoho/zoho-connection-status';
 import { ZohoLeadForm } from '@/components/zoho/zoho-lead-form';
 import { ZohoQuickActions } from '@/components/zoho/zoho-quick-actions';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 export const metadata: Metadata = {
   title: 'Zoho Integration | CircleTel Admin',
   description: 'Manage Zoho MCP integration and perform quick actions',
@@ -10,12 +23,9 @@ export const metadata: Metadata = {
 
 export default function ZohoPage() {
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <AdminPage>
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Zoho Integration</h1>
-        <p className="text-muted-foreground">
-          Manage your Zoho MCP integration and perform quick actions across Zoho apps.
-        </p>
+        <PageHeader title="Zoho CRM" subtitle="Manage your Zoho MCP integration and perform quick actions across Zoho apps." />
       </div>
 
       <div className="grid gap-8">
@@ -27,7 +37,6 @@ export default function ZohoPage() {
 
         {/* Lead Creation Form */}
         <ZohoLeadForm />
-      </div>
-    </div>
+    </AdminPage>
   );
 }

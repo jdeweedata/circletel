@@ -49,6 +49,7 @@ import {
 import {
   EmptyState,
   ErrorState,
+  AdminPage,
   LoadingState,
   PageHeader,
   SectionCard,
@@ -841,7 +842,8 @@ export default function UnjaniOnboardingPipelinePage() {
 
   if (loading) {
     return (
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <AdminPage>
+    <main className="max-w-7xl mx-auto">
         <LoadingState message="Loading onboarding pipeline…" />
       </main>
     );
@@ -2077,5 +2079,6 @@ export default function UnjaniOnboardingPipelinePage() {
         />
       )}
     </main>
+    </AdminPage>
   );
 }

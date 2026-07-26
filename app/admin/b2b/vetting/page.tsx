@@ -20,6 +20,7 @@ import {
 import {
   EmptyState,
   ErrorState,
+  AdminPage,
   LoadingState,
   PageHeader,
   StatCard,
@@ -193,7 +194,8 @@ export default function B2BVettingQueuePage() {
 
   if (loading) {
     return (
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <AdminPage>
+    <main className="max-w-7xl mx-auto">
         <LoadingState message="Loading vetting queue…" />
       </main>
     );
@@ -415,5 +417,6 @@ export default function B2BVettingQueuePage() {
         </div>
       </div>
     </main>
+    </AdminPage>
   );
 }

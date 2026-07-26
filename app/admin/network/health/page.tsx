@@ -24,6 +24,19 @@ import {
   type EdgeDeviceInfo,
 } from '@/components/admin/network/performance';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 type HealthOverview = {
   overallScore: number;
   totalDevices: number;
@@ -158,28 +171,17 @@ export default function NetworkHealthPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 w-56 bg-slate-100 rounded animate-pulse" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-48 bg-slate-100 rounded-xl animate-pulse" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="h-56 bg-slate-100 rounded-xl animate-pulse" />
-          <div className="h-56 bg-slate-100 rounded-xl animate-pulse" />
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading health data..." />
+      </AdminPage>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <PiWarningCircleBold className="w-12 h-12 text-red-500" />
-        <p className="text-slate-600">{error || 'No data available'}</p>
-        <Button onClick={() => fetchData()}>Retry</Button>
-      </div>
+      <AdminPage>
+        <ErrorState title="Unable to load data" message={error || 'No data available'} onRetry={() => fetchData()} />
+      </AdminPage>
     );
   }
 
@@ -203,15 +205,11 @@ export default function NetworkHealthPage() {
   };
 
   return (
-    <div className="space-y-6 -mx-1">
+    <AdminPage>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <p className="text-xs text-slate-400 mb-1">Activity / Infrastructure / System Health</p>
-          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">System Health</h1>
-          <p className="text-slate-500 mt-1 text-sm">
-            Aggregate Ruijie Wi-Fi performance from Supabase · {overview.totalDevices} devices ·{' '}
-            {overview.totalClients} clients online
-          </p>
+          <PageHeader title="System Health" subtitle="Aggregate Ruijie Wi-Fi performance from Supabase · {overview.totalDevices} devices ·{' '} {overview.totalClients} clients online" />
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
@@ -347,6 +345,6 @@ export default function NetworkHealthPage() {
       </div>
 
       <DevicesMonitorTable rows={devicesByHealth} />
-    </div>
+    </AdminPage>
   );
 }

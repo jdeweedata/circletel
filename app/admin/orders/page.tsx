@@ -7,6 +7,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { StatusUpdateModal } from '@/components/admin/orders/StatusUpdateModal';
 import { UnderlineTabs, TabPanel } from '@/components/admin/shared/UnderlineTabs';
 import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+import {
   OrdersListHeader,
   OrdersListStatCards,
   OrdersFilters,
@@ -258,32 +271,14 @@ export default function AdminOrdersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <div className="bg-white border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="h-6 bg-slate-200 rounded w-32 animate-pulse mb-2" />
-            <div className="h-9 bg-slate-200 rounded w-48 animate-pulse" />
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
-                <CardContent className="p-6">
-                  <div className="h-10 w-10 bg-slate-200 rounded-lg mb-3" />
-                  <div className="h-4 bg-slate-200 rounded w-3/4 mb-2" />
-                  <div className="h-8 bg-slate-200 rounded w-1/2" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading orders..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <AdminPage>
       <OrdersListHeader
         lastRefreshed={lastRefreshed}
         onRefresh={fetchOrders}
@@ -291,7 +286,7 @@ export default function AdminOrdersPage() {
         isLoading={loading}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4">
+      <div className="space-y-4">
         <OrdersListStatCards
           stats={stats}
           activeFilter={activeStatFilter}
@@ -383,6 +378,6 @@ export default function AdminOrdersPage() {
           }}
         />
       )}
-    </div>
+    </AdminPage>
   );
 }

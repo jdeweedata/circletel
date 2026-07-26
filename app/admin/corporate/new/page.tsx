@@ -17,6 +17,20 @@ import {
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface CorporateFormData {
   corporateCode: string;
   companyName: string;
@@ -122,14 +136,14 @@ function FormInput({
       <Input
         {...props}
         className={cn(
-          "h-11 border-slate-200 bg-white/80 backdrop-blur-sm",
+          "h-11 border-gray-200 bg-white/80 backdrop-blur-sm",
           "focus:border-orange-400 focus:ring-orange-400/20 focus:ring-2",
           "placeholder:text-slate-400 transition-all duration-200",
-          "hover:border-slate-300",
+          "hover:border-gray-300",
           props.className
         )}
       />
-      {hint && <p className="text-xs text-slate-500">{hint}</p>}
+      {hint && <p className="text-xs text-gray-500">{hint}</p>}
     </div>
   );
 }
@@ -163,7 +177,7 @@ function FormSection({
       id={id}
       className={cn(
         "group relative rounded-2xl transition-all duration-300",
-        "bg-white border border-slate-200/80",
+        "bg-white border border-gray-200/80",
         "hover:shadow-lg hover:shadow-slate-200/50",
         isOpen && "shadow-md shadow-slate-100"
       )}
@@ -182,7 +196,7 @@ function FormSection({
             ? "bg-emerald-500 text-white"
             : required
               ? "bg-orange-500 text-white"
-              : "bg-slate-100 text-slate-500"
+              : "bg-gray-100 text-gray-500"
         )}>
           {isComplete ? <PiCheckBold className="w-5 h-5" /> : number}
         </div>
@@ -191,22 +205,22 @@ function FormSection({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <Icon className="w-4 h-4 text-slate-400" />
-            <h3 className="text-lg font-semibold text-slate-900 font-serif">
+            <h3 className="text-lg font-semibold text-gray-900 font-serif">
               {title}
             </h3>
             {!required && (
-              <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-medium text-slate-400 bg-gray-50 px-2 py-0.5 rounded-full">
                 Optional
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-500 mt-0.5">{description}</p>
+          <p className="text-sm text-gray-500 mt-0.5">{description}</p>
         </div>
 
         {/* Toggle Indicator */}
         <div className={cn(
           "w-8 h-8 rounded-lg flex items-center justify-center",
-          "bg-slate-50 text-slate-400 transition-transform duration-200",
+          "bg-gray-50 text-slate-400 transition-transform duration-200",
           isOpen && "rotate-180"
         )}>
           <PiCaretDownBold className="w-5 h-5" />
@@ -232,7 +246,7 @@ function FormSection({
           ? "bg-emerald-500"
           : required
             ? "bg-orange-500"
-            : "bg-transparent group-hover:bg-slate-200"
+            : "bg-transparent group-hover:bg-gray-200"
       )} />
     </div>
   );
@@ -358,7 +372,7 @@ export default function NewCorporatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+    <AdminPage>
       {/* Subtle background pattern */}
       <div
         className="fixed inset-0 opacity-[0.015] pointer-events-none"
@@ -373,7 +387,7 @@ export default function NewCorporatePage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 mb-6 transition-colors"
+            className="inline-flex items-center gap-2 text-gray-500 hover:text-slate-700 mb-6 transition-colors"
           >
             <PiArrowLeftBold className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Corporate Clients</span>
@@ -386,10 +400,10 @@ export default function NewCorporatePage() {
                   <PiBuildingsBold className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-slate-900 font-serif tracking-tight">
+                  <h1 className="text-3xl font-bold text-gray-900 font-serif tracking-tight">
                     New Corporate Client
                   </h1>
-                  <p className="text-slate-500 mt-0.5">
+                  <p className="text-gray-500 mt-0.5">
                     Create an enterprise multi-site account
                   </p>
                 </div>
@@ -399,13 +413,13 @@ export default function NewCorporatePage() {
             {/* Progress Indicator */}
             <div className="hidden sm:flex flex-col items-end">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-2xl font-bold text-slate-900">{completedSections}</span>
+                <span className="text-2xl font-bold text-gray-900">{completedSections}</span>
                 <span className="text-slate-400">/</span>
                 <span className="text-lg text-slate-400">6</span>
               </div>
-              <span className="text-xs text-slate-500">Sections complete</span>
+              <span className="text-xs text-gray-500">Sections complete</span>
               {/* Progress bar */}
-              <div className="mt-2 w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="mt-2 w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-500 rounded-full"
                   style={{ width: `${(completedSections / 6) * 100}%` }}
@@ -430,7 +444,7 @@ export default function NewCorporatePage() {
                       ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                       : section.required
                         ? "bg-orange-50 text-orange-700 hover:bg-orange-100"
-                        : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                        : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                   )}
                 >
                   <section.icon className="w-4 h-4" />
@@ -484,7 +498,7 @@ export default function NewCorporatePage() {
                 value={formData.industry}
                 onValueChange={(value) => handleInputChange('industry', value)}
               >
-                <SelectTrigger className="h-11 border-slate-200 bg-white/80 hover:border-slate-300 focus:border-orange-400 focus:ring-orange-400/20">
+                <SelectTrigger className="h-11 border-gray-200 bg-white/80 hover:border-gray-300 focus:border-orange-400 focus:ring-orange-400/20">
                   <SelectValue placeholder="Select industry" />
                 </SelectTrigger>
                 <SelectContent>
@@ -648,7 +662,7 @@ export default function NewCorporatePage() {
                 value={formData.physicalAddress.province}
                 onValueChange={(value) => handleInputChange('physicalAddress.province', value)}
               >
-                <SelectTrigger className="h-11 border-slate-200 bg-white/80 hover:border-slate-300 focus:border-orange-400 focus:ring-orange-400/20">
+                <SelectTrigger className="h-11 border-gray-200 bg-white/80 hover:border-gray-300 focus:border-orange-400 focus:ring-orange-400/20">
                   <SelectValue placeholder="Select province" />
                 </SelectTrigger>
                 <SelectContent>
@@ -707,14 +721,14 @@ export default function NewCorporatePage() {
                 value={formData.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
                 rows={4}
-                className="border-slate-200 bg-white/80 focus:border-orange-400 focus:ring-orange-400/20 resize-none"
+                className="border-gray-200 bg-white/80 focus:border-orange-400 focus:ring-orange-400/20 resize-none"
               />
             </div>
           </FormSection>
 
           {/* Submit Area */}
           <div className="sticky bottom-0 pt-4 pb-2 bg-gradient-to-t from-slate-50 via-white/95 to-transparent -mx-4 px-4 sm:-mx-6 sm:px-6">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-lg shadow-slate-200/50">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-gray-200 shadow-lg shadow-slate-200/50">
               {/* Status */}
               <div className="flex items-center gap-3">
                 {requiredComplete ? (
@@ -724,7 +738,7 @@ export default function NewCorporatePage() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-emerald-700">Ready to create</p>
-                      <p className="text-xs text-slate-500">All required fields complete</p>
+                      <p className="text-xs text-gray-500">All required fields complete</p>
                     </div>
                   </>
                 ) : (
@@ -734,7 +748,7 @@ export default function NewCorporatePage() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-700">Complete required fields</p>
-                      <p className="text-xs text-slate-500">Company info and primary contact</p>
+                      <p className="text-xs text-gray-500">Company info and primary contact</p>
                     </div>
                   </>
                 )}
@@ -746,7 +760,7 @@ export default function NewCorporatePage() {
                   type="button"
                   variant="outline"
                   onClick={() => router.back()}
-                  className="flex-1 sm:flex-initial h-11 border-slate-200 hover:bg-slate-50"
+                  className="flex-1 sm:flex-initial h-11 border-gray-200 hover:bg-gray-50"
                 >
                   Cancel
                 </Button>
@@ -757,7 +771,7 @@ export default function NewCorporatePage() {
                     "flex-1 sm:flex-initial h-11 gap-2 transition-all duration-300",
                     requiredComplete
                       ? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/25"
-                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                      : "bg-gray-200 text-slate-400 cursor-not-allowed"
                   )}
                 >
                   {loading ? (
@@ -776,7 +790,6 @@ export default function NewCorporatePage() {
             </div>
           </div>
         </form>
-      </div>
-    </div>
+    </AdminPage>
   );
 }
