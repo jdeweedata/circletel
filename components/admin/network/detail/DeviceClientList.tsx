@@ -27,6 +27,14 @@ interface RuijieClient {
   uplinkRate: number | null;
   downlinkRate: number | null;
   pktLoseRate: number | null;
+  latencyMs: number | null;
+  /** Ruijie's own 0-100 connection score, and why it is low. */
+  score: number | null;
+  scoreReason: string | null;
+  hostname: string | null;
+  vendor: string | null;
+  sessionBytes: number | null;
+  sessionMs: number | null;
 }
 
 interface DeviceClientListProps {
@@ -89,6 +97,26 @@ function formatBps(bps: number): string {
   const k = 1000;
   const i = Math.min(Math.floor(Math.log(bps) / Math.log(k)), units.length - 1);
   return `${(bps / Math.pow(k, i)).toFixed(1)} ${units[i]}`;
+}
+
+/** Ruijie scores 0-100; below 60 is a client that will notice problems. */
+function scoreTone(score: number | null): string {
+  if (score == null) return 'text-slate-400';
+  if (score < 60) return 'text-red-600';
+  if (score < 80) return 'text-amber-600';
+  return 'text-emerald-600';
+}
+
+function latencyTone(ms: number | null): string {
+  if (ms == null) return 'text-slate-400';
+  if (ms > 150) return 'text-red-600';
+  if (ms > 60) return 'text-amber-600';
+  return 'text-slate-700';
+}
+
+function formatLatency(ms: number | null): string {
+  if (ms == null || !Number.isFinite(ms)) return '—';
+  return ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`;
 }
 
 function formatRate(bps: number | null | undefined): string {
@@ -276,9 +304,12 @@ export function DeviceClientList({ sn }: DeviceClientListProps) {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[960px]">
+            <table className="w-full min-w-[1180px]">
               <thead>
                 <tr className="border-b border-slate-100">
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Device
+                  </th>
                   <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     MAC
                   </th>
@@ -296,6 +327,12 @@ export function DeviceClientList({ sn }: DeviceClientListProps) {
                   </th>
                   <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Quality
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Latency
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Score
                   </th>
                   <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Rates
@@ -326,7 +363,17 @@ export function DeviceClientList({ sn }: DeviceClientListProps) {
                       className="hover:bg-slate-50/50 transition-colors"
                     >
                       <td className="px-3 py-3">
-                        <span className="font-mono text-sm text-slate-900">{client.mac || '—'}</span>
+                        <div className="text-sm leading-tight">
+                          <div className="font-medium text-slate-900">
+                            {client.hostname || client.vendor || 'Unknown device'}
+                          </div>
+                          {client.hostname && client.vendor && (
+                            <div className="text-xs text-slate-500">{client.vendor}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className="font-mono text-sm text-slate-600">{client.mac || '—'}</span>
                       </td>
                       <td className="px-3 py-3">
                         <span className="font-mono text-sm text-slate-600">{client.userIp || '—'}</span>
@@ -349,6 +396,19 @@ export function DeviceClientList({ sn }: DeviceClientListProps) {
                         <Badge className={`${config.badge} border-0`}>
                           {config.label}
                         </Badge>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className={`font-mono text-sm ${latencyTone(client.latencyMs)}`}>
+                          {formatLatency(client.latencyMs)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className={`font-mono text-sm ${scoreTone(client.score)}`}>
+                          {client.score != null ? client.score : '—'}
+                        </span>
+                        {client.scoreReason && (
+                          <div className="text-xs text-amber-600">{client.scoreReason}</div>
+                        )}
                       </td>
                       <td className="px-3 py-3">
                         <div className="text-xs font-mono text-slate-700 leading-relaxed">
