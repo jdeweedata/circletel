@@ -327,7 +327,7 @@ export default function IntegrationsPage() {
 
       {/* AI Assistant Widget */}
       <AIAssistantWidget />
-    </div>
+    </AdminPage>
   );
 }
 
@@ -638,6 +638,5 @@ function ConfigurationContent() {
         </Card>
       </CardContent>
     </Card>
-    </AdminPage>
   );
 }

@@ -3,23 +3,11 @@ import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDotsThreeBold, PiEnvelopeBo
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { StatCard } from '@/components/admin/shared';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  AdminPage,
-  PageHeader,
-  DetailPageHeader,
-  StatCard,
-  SectionCard,
-  StatusBadge,
-  LoadingState,
-  EmptyState,
-  ErrorState,
-  type StatusVariant,
-} from '@/components/backend';
-
 import {
   Dialog,
   DialogContent,
@@ -52,6 +40,20 @@ import {
   TechnicianSkill,
 } from '@/lib/types/technician-tracking';
 import { cn } from '@/lib/utils';
+
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
 
 const TEAM_OPTIONS: TechnicianTeam[] = [
   'Fibre Installation',
@@ -276,17 +278,18 @@ export default function TechniciansPage() {
   if (loading) {
     return (
       <AdminPage>
-        <LoadingState message="Loading field technicians..." />
+        <LoadingState message="Loading..." />
       </AdminPage>
     );
   }
 
   return (
     <AdminPage>
-      <PageHeader
-        title="Field Technicians"
-        subtitle={`Manage your team of ${technicians.length} field technicians`}
-        actions={
+      <div className="mb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <PageHeader title="Field Technicians" subtitle="Manage field technicians" />
+          </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={fetchTechnicians} className="gap-2"><PiArrowsClockwiseBold className="h-4 w-4" />Refresh</Button>
             <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
@@ -343,8 +346,8 @@ export default function TechniciansPage() {
                           </Badge>
                         ))}
                       </div>
-        }
-      />
+                    </div>
+                  </div>
                   <DialogFooter>
                     <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
                     <Button type="submit" disabled={submitting} className="bg-circleTel-orange hover:bg-orange-600">

@@ -1,19 +1,6 @@
 'use client';
 import { PiArchiveBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCalendarBold, PiClockBold, PiDotsThreeBold, PiFileTextBold, PiFunnelBold, PiGlobeBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold } from 'react-icons/pi';
 
-import {
-  AdminPage,
-  PageHeader,
-  StatCard,
-  SectionCard,
-  StatusBadge,
-  LoadingState,
-  EmptyState,
-  ErrorState,
-  type StatusVariant,
-} from '@/components/backend';
-
-
 /**
  * CMS Dashboard - Pages List
  *
@@ -24,6 +11,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import type { CMSPage, PageStatus, ContentType } from '@/lib/cms/types';
+
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
 
 // Status badge component
 function StatusBadge({ status }: { status: PageStatus }) {
@@ -158,7 +159,7 @@ export default function CMSDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <PageHeader title="CMS Pages" subtitle="Manage your website pages with the visual page builder" />
+          <PageHeader title="CMS Pages" subtitle="Manage website content pages" />
         </div>
         <button
           onClick={() => router.push('/admin/cms/builder')}
@@ -397,6 +398,7 @@ export default function CMSDashboardPage() {
             </tbody>
           </table>
         )}
+      </div>
     </AdminPage>
   );
 }

@@ -32,6 +32,7 @@ import Link from 'next/link';
 import {
   AdminPage,
   PageHeader,
+  DetailPageHeader,
   StatCard,
   SectionCard,
   StatusBadge,
@@ -470,7 +471,7 @@ export default function CoverageCheckerPage() {
               </Link>
               <div>
                 <div className="flex items-center gap-3">
-                  <PageHeader title="Coverage Checker" subtitle="Check serviceability for an address" />
+                  <h1 className="text-xl font-bold text-slate-900">Coverage Checker</h1>
                   {prediction && (
                     <StatusBadge
                       status={QUALITY_LABEL[prediction.signalQuality] ?? '—'}
@@ -795,6 +796,7 @@ export default function CoverageCheckerPage() {
           <RecentChecksPanel onRecheck={handleCheck} />
         </TabPanel>
 
+      </div>
     </AdminPage>
   );
 }

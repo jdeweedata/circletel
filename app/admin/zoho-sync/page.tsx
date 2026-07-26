@@ -1,19 +1,6 @@
 'use client';
 import { PiArrowCounterClockwiseBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
-import {
-  AdminPage,
-  PageHeader,
-  StatCard,
-  SectionCard,
-  StatusBadge,
-  LoadingState,
-  EmptyState,
-  ErrorState,
-  type StatusVariant,
-} from '@/components/backend';
-
-
 /**
  * ZOHO Billing Sync Monitoring Dashboard
  *
@@ -27,6 +14,14 @@ import {
  */
 
 import { useState, useEffect } from 'react';
+
+import {
+  AdminPage,
+  PageHeader,
+  LoadingState,
+  ErrorState,
+} from '@/components/backend';
+
 
 interface SyncStatus {
   total: number;
@@ -161,11 +156,11 @@ export default function ZohoSyncDashboard() {
   }, [filterStatus, filterEntity]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <AdminPage>
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <PageHeader title="Zoho Sync" subtitle="Monitor Zoho synchronization status" />
+          <PageHeader title="ZOHO Billing Sync" subtitle="Monitor and manage ZOHO integration sync status" />
         </div>
         <button
           onClick={() => {
@@ -301,14 +296,14 @@ export default function ZohoSyncDashboard() {
           </div>
         )}
       </div>
-    </div>
+    </AdminPage>
   );
 }
 
 // Status Card Component
 function StatusCard({ title, value, icon, color, subtitle }: any) {
   return (
-    <AdminPage>
+    <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-gray-600 text-sm font-medium">{title}</h3>
         <div className={`${color} text-white p-2 rounded-lg`}>
@@ -410,6 +405,5 @@ function LogRow({ log, onRetry, isRetrying }: any) {
         )}
       </td>
     </tr>
-    </AdminPage>
   );
 }

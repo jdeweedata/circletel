@@ -28,6 +28,7 @@ import { formatDistanceToNow } from 'date-fns';
 import {
   AdminPage,
   PageHeader,
+  DetailPageHeader,
   StatCard,
   SectionCard,
   StatusBadge,
@@ -314,7 +315,7 @@ export default function NoCoverageLeadsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <PageHeader title="No Coverage Leads" subtitle="Demand signals from users searching for service in uncovered areas" />
+            <PageHeader title="No Coverage Leads" subtitle="Leads outside coverage" />
           </div>
           <div className="flex items-center gap-3">
             <Button onClick={fetchData} disabled={loading} variant="outline">
@@ -698,6 +699,7 @@ export default function NoCoverageLeadsPage() {
             </CardContent>
           </Card>
         )}
+      </div>
     </AdminPage>
   );
 }

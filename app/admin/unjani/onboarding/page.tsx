@@ -843,15 +843,14 @@ export default function UnjaniOnboardingPipelinePage() {
   if (loading) {
     return (
       <AdminPage>
-    <main className="max-w-7xl mx-auto">
         <LoadingState message="Loading onboarding pipeline…" />
-      </main>
+      </AdminPage>
     );
   }
 
   if (loadError || !data) {
     return (
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <AdminPage>
         <ErrorState
           title="Failed to load pipeline"
           message="The onboarding pipeline could not be loaded."
@@ -860,7 +859,7 @@ export default function UnjaniOnboardingPipelinePage() {
             fetchPipeline();
           }}
         />
-      </main>
+      </AdminPage>
     );
   }
 
@@ -871,7 +870,7 @@ export default function UnjaniOnboardingPipelinePage() {
   const maxProvinceCount = provinceCounts[0]?.[1] ?? 1;
 
   return (
-    <main className="max-w-7xl mx-auto px-4 py-8">
+    <AdminPage>
       <PageHeader
         title="Unjani Clinic Onboarding"
         subtitle={`${total} clinics in pipeline · ${REGISTER.summary.total_clinics} in network register · vetting target 2 business days`}
@@ -2078,7 +2077,6 @@ export default function UnjaniOnboardingPipelinePage() {
           onUploaded={(count) => { if (count > 0) fetchPipeline(); }}
         />
       )}
-    </main>
     </AdminPage>
   );
 }

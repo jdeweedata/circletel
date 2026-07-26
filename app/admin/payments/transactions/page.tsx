@@ -7,10 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-
-import {
   AdminPage,
   PageHeader,
+  DetailPageHeader,
   StatCard,
   SectionCard,
   StatusBadge,
@@ -20,6 +19,7 @@ import {
   type StatusVariant,
 } from '@/components/backend';
 
+import {
   Select,
   SelectContent,
   SelectItem,

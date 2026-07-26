@@ -1,19 +1,6 @@
 'use client';
 import { PiArrowRightBold, PiArrowsClockwiseBold, PiCalendarBold, PiChartBarBold, PiGiftBold, PiMapPinBold, PiMegaphoneBold, PiPercentBold, PiPlusBold, PiSpinnerBold, PiTargetBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
-import {
-  AdminPage,
-  PageHeader,
-  StatCard,
-  SectionCard,
-  StatusBadge,
-  LoadingState,
-  EmptyState,
-  ErrorState,
-  type StatusVariant,
-} from '@/components/backend';
-
-
 /**
  * Marketing Dashboard
  *
@@ -44,6 +31,20 @@ interface Promotion {
 }
 
 import { StatCard } from '@/components/admin/shared';
+
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
 
 function QuickAction({
   title,
@@ -173,12 +174,12 @@ export default function MarketingDashboardPage() {
 
   return (
     <AdminPage>
-      <PageHeader
-        title="Marketing"
-        subtitle="Manage promotions, campaigns, and track marketing performance"
-        actions={
-          <div className="flex items-center gap-3">
-
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <PageHeader title="Marketing" subtitle="Manage promotions, campaigns, and track marketing performance" />
+        </div>
+        <div className="flex items-center gap-3">
           <Button
             variant="outline"
             size="sm"
@@ -196,9 +197,8 @@ export default function MarketingDashboardPage() {
               New Promotion
             </Button>
           </Link>
-          </div>
-        }
-      />
+        </div>
+      </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
@@ -355,6 +355,7 @@ export default function MarketingDashboardPage() {
             Coming in Phase 4
           </span>
         </div>
+      </div>
     </AdminPage>
   );
 }

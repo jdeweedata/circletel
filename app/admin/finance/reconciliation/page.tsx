@@ -6,10 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-
-import {
   AdminPage,
   PageHeader,
+  DetailPageHeader,
   StatCard,
   SectionCard,
   StatusBadge,
@@ -19,6 +18,7 @@ import {
   type StatusVariant,
 } from '@/components/backend';
 
+import {
   Dialog,
   DialogContent,
   DialogHeader,

@@ -195,15 +195,14 @@ export default function B2BVettingQueuePage() {
   if (loading) {
     return (
       <AdminPage>
-    <main className="max-w-7xl mx-auto">
         <LoadingState message="Loading vetting queue…" />
-      </main>
+      </AdminPage>
     );
   }
 
   if (loadError) {
     return (
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <AdminPage>
         <ErrorState
           title="Failed to load the vetting queue"
           message="Your session may lack the kyc:verify permission, or the server may be unavailable."
@@ -212,12 +211,12 @@ export default function B2BVettingQueuePage() {
             fetchSubmissions();
           }}
         />
-      </main>
+      </AdminPage>
     );
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-4 py-8">
+    <AdminPage>
       <PageHeader
         title="Document Vetting"
         subtitle={`${counts.awaiting} awaiting review · vetting target 2 business days from submission`}
@@ -416,7 +415,6 @@ export default function B2BVettingQueuePage() {
           <span>Click a row to review its documents</span>
         </div>
       </div>
-    </main>
     </AdminPage>
   );
 }
