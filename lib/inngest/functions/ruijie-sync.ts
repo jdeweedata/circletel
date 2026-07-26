@@ -12,10 +12,11 @@
 
 import { inngest } from '../client';
 import {
-  getAllDevices,
+  getAllDevicesDetailed,
   enrichDevicesWithLiveMetrics,
   upsertDevices,
   pruneDevicesNotInSet,
+  shouldSkipDevicePrune,
   filterActiveDevices,
   RUIJIE_ACTIVE_WINDOW_DAYS,
   createSyncLog,
@@ -89,13 +90,31 @@ export const ruijieSyncFunction = inngest.createFunction(
       });
     }
 
-    // Step 3: Fetch devices
-    const devices = await step.run('fetch-devices', async () => {
+    // Step 3: Fetch devices (with per-group failure metadata)
+    const fetchResult = await step.run('fetch-devices', async () => {
       console.log('[RuijieSync] Fetching devices...');
-      const result = await getAllDevices();
-      console.log(`[RuijieSync] Fetched ${result.length} devices`);
+      const result = await getAllDevicesDetailed();
+      console.log(
+        `[RuijieSync] Fetched ${result.devices.length} devices ` +
+          `from ${result.groupIds.length} groups ` +
+          `(${result.failedGroupIds.length} group fetch failures)`
+      );
+
+      // Empty/non-mock fetch is a hard failure — do not continue to prune.
+      if (result.devices.length === 0 && !isMockMode()) {
+        throw new Error(
+          `Ruijie returned 0 devices (groups=${result.groupIds.length}, ` +
+            `failedGroups=${result.failedGroupIds.join(',') || 'none'}). ` +
+            'Aborting sync to protect device cache.'
+        );
+      }
+
       return result;
     });
+
+    const devices = (fetchResult as { devices: RuijieDevice[] }).devices;
+    const failedGroupIds =
+      ((fetchResult as { failedGroupIds?: number[] }).failedGroupIds || []) as number[];
 
     // Step 3b: Keep only online or last_seen within 14 days
     const activeDevices = await step.run('filter-active-window', async () => {
@@ -135,9 +154,30 @@ export const ruijieSyncFunction = inngest.createFunction(
       return result;
     });
 
-    // Step 5b: Remove cache rows outside the active window
+    // Step 5b: Remove cache rows outside the active window.
+    // Skip prune on partial group failures — missing groups would look "inactive"
+    // and wipe real devices from the cache.
     const pruneResult = await step.run('prune-inactive-devices', async () => {
       const keepSns = (enrichedDevices as unknown as RuijieDevice[]).map((d) => d.sn);
+      const guard = shouldSkipDevicePrune({
+        keepCount: keepSns.length,
+        failedGroupIds,
+      });
+      if (guard.skip) {
+        console.warn(
+          `[RuijieSync] Skipping prune (${guard.reason})` +
+            (failedGroupIds.length
+              ? `; failed groups: ${failedGroupIds.join(', ')}`
+              : '')
+        );
+        return {
+          deleted: 0,
+          deletedSns: [] as string[],
+          skipped: true,
+          reason: guard.reason,
+        };
+      }
+
       const result = await pruneDevicesNotInSet(keepSns);
       if (result.deleted > 0) {
         console.log(

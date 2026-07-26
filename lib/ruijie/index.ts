@@ -13,6 +13,7 @@ export { authenticateRuijie, getAccessToken, clearRuijieAuth, hasRuijieAuth } fr
 export {
   getAllGroups,
   getAllDevices,
+  getAllDevicesDetailed,
   getDevice,
   getDeviceMetrics,
   getDeviceCurrentPerformance,
@@ -38,10 +39,18 @@ export {
   filterActiveDevices,
 } from './active-window';
 
+export {
+  RUIJIE_TRAFFIC_HISTORY_HOURS,
+  RUIJIE_TRAFFIC_RETENTION_DAYS,
+  RUIJIE_TRAFFIC_GROUP_DELAY_MS,
+  clampTrafficHistoryHours,
+} from './traffic-history';
+
 // Sync Service
 export {
   upsertDevices,
   pruneDevicesNotInSet,
+  shouldSkipDevicePrune,
   logSyncRun,
   createSyncLog,
   getActiveTunnelCount,

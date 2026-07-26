@@ -92,8 +92,11 @@ export function DeviceTable({
             <tbody>
               {devices.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-slate-400">
-                    No devices found
+                  <td colSpan={10} className="px-4 py-10 text-center">
+                    <p className="text-slate-600 font-medium">No devices in cache</p>
+                    <p className="text-sm text-slate-400 mt-1">
+                      Click Refresh to sync from Ruijie Cloud, or clear any active filters.
+                    </p>
                   </td>
                 </tr>
               ) : (

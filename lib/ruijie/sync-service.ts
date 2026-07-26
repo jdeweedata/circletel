@@ -163,12 +163,45 @@ export async function upsertDevices(
 }
 
 /**
+ * Whether sync should skip pruning the device cache.
+ * Empty keep-sets and partial Ruijie group failures must never wipe the fleet.
+ */
+export function shouldSkipDevicePrune(opts: {
+  keepCount: number;
+  failedGroupIds: number[];
+}): { skip: boolean; reason?: string } {
+  if (opts.failedGroupIds.length > 0) {
+    return { skip: true, reason: 'partial_group_fetch_failure' };
+  }
+  if (opts.keepCount === 0) {
+    return { skip: true, reason: 'empty_keep_set' };
+  }
+  return { skip: false };
+}
+
+/**
  * Delete cache rows whose SN is not in `keepSns`.
  * Used after filtering Ruijie API devices to the 14-day active window.
+ *
+ * SAFETY: never prune when keepSns is empty — an empty Ruijie fetch/timeout
+ * must not wipe the entire fleet cache.
  */
 export async function pruneDevicesNotInSet(
   keepSns: string[]
-): Promise<{ deleted: number; deletedSns: string[] }> {
+): Promise<{ deleted: number; deletedSns: string[]; skipped?: boolean; reason?: string }> {
+  const guard = shouldSkipDevicePrune({ keepCount: keepSns.length, failedGroupIds: [] });
+  if (guard.skip) {
+    console.warn(
+      '[RuijieSync] Refusing to prune device cache with empty keep set (would wipe fleet)'
+    );
+    return {
+      deleted: 0,
+      deletedSns: [],
+      skipped: true,
+      reason: guard.reason,
+    };
+  }
+
   const supabase = await createClient();
   const keep = new Set(keepSns);
 

@@ -4,34 +4,20 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    // Use session client for authentication (reads cookies)
-    const supabase = await createClientWithSession();
-
-    // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
-    // Use service role client to check admin_users (bypasses RLS)
     const supabaseAdmin = await createClient();
-    const { data: adminUser } = await supabaseAdmin
-      .from('admin_users')
-      .select('id, role')
-      .eq('id', user.id)
-      .eq('is_active', true)
-      .single();
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
 
     // Parse query params
     const { searchParams } = new URL(request.url);
@@ -40,7 +26,7 @@ export async function GET(request: NextRequest) {
     const group = searchParams.get('group') || '';
     const model = searchParams.get('model') || '';
 
-    // Build query (use admin client to bypass RLS)
+    // Build query (service role bypasses RLS)
     let query = supabaseAdmin
       .from('ruijie_device_cache')
       .select('*')
@@ -70,18 +56,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch devices' }, { status: 500 });
     }
 
-    // Get last sync time
+    // Get last sync time (maybeSingle — empty logs are normal before first sync)
     const { data: lastSync } = await supabaseAdmin
       .from('ruijie_sync_logs')
       .select('completed_at')
       .eq('status', 'completed')
       .order('completed_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     // Get unique groups and models for filter dropdowns
-    const groups = [...new Set(devices?.map(d => d.group_name).filter(Boolean))] as string[];
-    const models = [...new Set(devices?.map(d => d.model).filter(Boolean))] as string[];
+    const groups = [...new Set(devices?.map((d) => d.group_name).filter(Boolean))] as string[];
+    const models = [...new Set(devices?.map((d) => d.model).filter(Boolean))] as string[];
 
     return NextResponse.json({
       devices: devices || [],
@@ -89,7 +75,6 @@ export async function GET(request: NextRequest) {
       lastSynced: lastSync?.completed_at || null,
       filters: { groups, models },
     });
-
   } catch (error) {
     apiLogger.error('Ruijie devices API error', { error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

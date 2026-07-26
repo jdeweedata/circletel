@@ -247,23 +247,33 @@ export async function getAllGroups(): Promise<number[]> {
 // DEVICE OPERATIONS
 // =============================================================================
 
+export type RuijieDeviceFetchResult = {
+  devices: RuijieDevice[];
+  groupIds: number[];
+  failedGroupIds: number[];
+};
+
 /**
- * Get all devices from Ruijie Cloud
- * Fetches from all groups and deduplicates by serial number
+ * Get all devices from Ruijie Cloud (with per-group failure metadata).
+ * Sync uses this so it can refuse to prune the cache on empty/partial fetches.
  */
-export async function getAllDevices(groupId?: number): Promise<RuijieDevice[]> {
+export async function getAllDevicesDetailed(
+  groupId?: number
+): Promise<RuijieDeviceFetchResult> {
   if (MOCK_MODE) {
-    return getMockDevices();
+    const devices = getMockDevices();
+    return { devices, groupIds: [1, 2], failedGroupIds: [] };
   }
 
   const deviceMap = new Map<string, RuijieDevice>();
+  const failedGroupIds: number[] = [];
 
   // If specific group provided, fetch from that group only
   const groupIds = groupId ? [groupId] : await getAllGroups();
 
   if (groupIds.length === 0) {
     console.warn('[Ruijie] No groups found, cannot fetch devices');
-    return [];
+    return { devices: [], groupIds: [], failedGroupIds: [] };
   }
 
   // Fetch devices from each group
@@ -284,13 +294,33 @@ export async function getAllDevices(groupId?: number): Promise<RuijieDevice[]> {
             deviceMap.set(device.serialNumber, mapApiDevice(device));
           }
         }
+      } else {
+        failedGroupIds.push(gid);
+        console.error(
+          `[Ruijie] Device list failed for group ${gid}:`,
+          response.msg || `code=${response.code}`
+        );
       }
     } catch (error) {
+      failedGroupIds.push(gid);
       console.error(`[Ruijie] Failed to fetch devices from group ${gid}:`, error);
     }
   }
 
-  return Array.from(deviceMap.values());
+  return {
+    devices: Array.from(deviceMap.values()),
+    groupIds,
+    failedGroupIds,
+  };
+}
+
+/**
+ * Get all devices from Ruijie Cloud
+ * Fetches from all groups and deduplicates by serial number
+ */
+export async function getAllDevices(groupId?: number): Promise<RuijieDevice[]> {
+  const result = await getAllDevicesDetailed(groupId);
+  return result.devices;
 }
 
 /**

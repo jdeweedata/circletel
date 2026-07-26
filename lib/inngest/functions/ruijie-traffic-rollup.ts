@@ -1,25 +1,35 @@
 /**
- * Ruijie Traffic Rollup
+ * Ruijie Traffic Rollup / Historic Backfill
  *
- * After each device sync, fetch hourly flow per group (via a representative
- * device SN — API V2.0.3 §2.6.2) and persist one hours_window=1 row per hour
- * so Analytics charts have a usable series (not a single 24h window blob).
+ * After each device sync (and on explicit backfill events), fetch hourly flow
+ * per group via a representative device SN (API V2.0.3 §2.6.2) and upsert
+ * hours_window=1 rows so Analytics can display Supabase-cached history.
  *
- * Trigger: ruijie/sync.completed
+ * Triggers:
+ * - ruijie/sync.completed
+ * - ruijie/traffic.backfill.requested  (manual / recovery)
  */
 
 import { inngest } from '../client';
 import { createClient } from '@/lib/supabase/server';
 import { getNetworkTraffic, pickFlowDeviceSn } from '@/lib/ruijie/client';
 import { buildHourlyRollupUpserts } from '@/lib/network/analytics-aggregates';
-
-const HOURS_WINDOW = 24;
-const RETENTION_DAYS = 14;
-const GROUP_DELAY_MS = 400;
+import {
+  clampTrafficHistoryHours,
+  RUIJIE_TRAFFIC_GROUP_DELAY_MS,
+  RUIJIE_TRAFFIC_HISTORY_HOURS,
+  RUIJIE_TRAFFIC_RETENTION_DAYS,
+} from '@/lib/ruijie/traffic-history';
 
 type GroupRow = {
   group_id: string;
   group_name: string | null;
+};
+
+type BackfillEventData = {
+  hours?: number;
+  triggered_by?: string;
+  admin_user_id?: string;
 };
 
 export const ruijieTrafficRollupFunction = inngest.createFunction(
@@ -28,8 +38,16 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
     name: 'Ruijie Traffic Rollup',
     retries: 2,
   },
-  { event: 'ruijie/sync.completed' },
-  async ({ step }) => {
+  [
+    { event: 'ruijie/sync.completed' },
+    { event: 'ruijie/traffic.backfill.requested' },
+  ],
+  async ({ event, step }) => {
+    const eventData = (event?.data || {}) as BackfillEventData;
+    const hoursWindow = clampTrafficHistoryHours(
+      eventData.hours ?? RUIJIE_TRAFFIC_HISTORY_HOURS
+    );
+
     const groups = await step.run('fetch-groups', async () => {
       const supabase = await createClient();
       const { data, error } = await supabase
@@ -57,7 +75,12 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
     });
 
     if (groups.length === 0) {
-      return { groupsProcessed: 0, rowsInserted: 0 };
+      return {
+        groupsProcessed: 0,
+        rowsInserted: 0,
+        hoursWindow,
+        note: 'no_groups_in_device_cache',
+      };
     }
 
     const rowsInserted = await step.run('rollup-groups', async () => {
@@ -77,7 +100,7 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
             continue;
           }
 
-          const traffic = await getNetworkTraffic({ sn: flowSn, hours: HOURS_WINDOW });
+          const traffic = await getNetworkTraffic({ sn: flowSn, hours: hoursWindow });
           const upserts = buildHourlyRollupUpserts({
             groupId: group.group_id,
             groupName: group.group_name,
@@ -86,8 +109,9 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
           });
 
           if (upserts.length === 0) {
+            // Leave existing historic rows intact when Ruijie returns nothing.
             console.warn(
-              `[TrafficRollup] No hourly points for group ${group.group_id} (sn=${flowSn})`
+              `[TrafficRollup] No hourly points for group ${group.group_id} (sn=${flowSn}); keeping existing rollups`
             );
             continue;
           }
@@ -105,7 +129,7 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
           console.error(`[TrafficRollup] Group ${group.group_id} failed:`, err);
         }
 
-        await new Promise((r) => setTimeout(r, GROUP_DELAY_MS));
+        await new Promise((r) => setTimeout(r, RUIJIE_TRAFFIC_GROUP_DELAY_MS));
       }
 
       return inserted;
@@ -113,7 +137,9 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
 
     await step.run('prune-old-rollups', async () => {
       const supabase = await createClient();
-      const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+      const cutoff = new Date(
+        Date.now() - RUIJIE_TRAFFIC_RETENTION_DAYS * 24 * 60 * 60 * 1000
+      ).toISOString();
       const { error } = await supabase
         .from('ruijie_traffic_rollups')
         .delete()
@@ -124,6 +150,11 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
       }
     });
 
-    return { groupsProcessed: groups.length, rowsInserted };
+    return {
+      groupsProcessed: groups.length,
+      rowsInserted,
+      hoursWindow,
+      triggeredBy: eventData.triggered_by || event?.name || 'unknown',
+    };
   }
 );
