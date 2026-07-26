@@ -21,12 +21,12 @@ import { createClient } from '@/lib/supabase/server';
  */
 export const marketingDfaLeadMatchFunction = inngest.createFunction(
   {
+
     id: 'marketing-dfa-lead-match',
     name: 'Marketing: Match DFA Buildings to No-Coverage Leads',
     retries: 2,
-  },
-  { event: 'dfa/sync.completed' },
-  async ({ event, step }) => {
+  triggers: { event: 'dfa/sync.completed' },
+}, async ({ event, step }) => {
     const result = await step.run('match-leads-to-buildings', async () => {
       const supabase = await createClient();
 
@@ -115,14 +115,14 @@ export const marketingDfaLeadMatchFunction = inngest.createFunction(
  */
 export const marketingDemandThresholdFunction = inngest.createFunction(
   {
+
     id: 'marketing-demand-threshold-check',
     name: 'Marketing: Demand Threshold Alert',
     retries: 2,
-  },
-  [
+  triggers: [
     { cron: '0 8 * * 1' }, // Weekly on Monday at 8 AM
   ],
-  async ({ step }) => {
+}, async ({ step }) => {
     const result = await step.run('check-demand-thresholds', async () => {
       const supabase = await createClient();
       const THRESHOLD = 5; // Minimum leads in an area to flag

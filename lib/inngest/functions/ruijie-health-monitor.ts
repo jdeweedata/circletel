@@ -11,6 +11,7 @@
  */
 
 import { inngest } from '../client';
+import { ruijieSyncCompleted } from '../events/ruijie';
 import { createClient } from '@/lib/supabase/server';
 
 // =============================================================================
@@ -177,12 +178,12 @@ function detectAnomaly(
  */
 export const ruijieHealthMonitorFunction = inngest.createFunction(
   {
+
     id: 'ruijie-health-monitor',
     name: 'Ruijie Device Health Monitor',
     retries: 2,
-  },
-  { event: 'ruijie/sync.completed' },
-  async ({ event, step }) => {
+  triggers: [ruijieSyncCompleted],
+}, async ({ event, step }) => {
     const syncLogId = event.data?.sync_log_id;
     const capturedAt = new Date().toISOString();
 

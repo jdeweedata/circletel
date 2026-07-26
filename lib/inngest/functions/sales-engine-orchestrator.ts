@@ -26,17 +26,17 @@ import { inngest } from '../client';
  */
 export const salesEngineDailyOrchestrator = inngest.createFunction(
   {
+
     id: 'sales-engine-daily-orchestrator',
     name: 'Sales Engine Daily Orchestrator',
     retries: 2,
-  },
-  [
+  triggers: [
     // Cron trigger: 5:30 AM SAST = 3:30 UTC
     { cron: '30 3 * * *' },
     // Manual/programmatic trigger
     { event: 'sales-engine/orchestrator.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const startTime = Date.now();
 
     // =========================================================================
@@ -200,17 +200,17 @@ export const salesEngineDailyOrchestrator = inngest.createFunction(
  */
 export const salesEngineWeeklyReview = inngest.createFunction(
   {
+
     id: 'sales-engine-weekly-review',
     name: 'Sales Engine Weekly Review',
     retries: 2,
-  },
-  [
+  triggers: [
     // Cron trigger: Monday 6:00 AM SAST = 4:00 UTC
     { cron: '0 4 * * 1' },
     // Manual/programmatic trigger
     { event: 'sales-engine/weekly-review.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const startTime = Date.now();
 
     // =========================================================================
@@ -580,11 +580,11 @@ export const salesEngineWeeklyReview = inngest.createFunction(
  */
 export const salesEngineOrchestratorCompleted = inngest.createFunction(
   {
+
     id: 'sales-engine-orchestrator-completed',
     name: 'Sales Engine Orchestrator Completed',
-  },
-  { event: 'sales-engine/orchestrator.completed' },
-  async ({ event }) => {
+  triggers: { event: 'sales-engine/orchestrator.completed' },
+}, async ({ event }) => {
     const { duration_ms, steps, errors } = event.data as {
       duration_ms: number;
       steps: {

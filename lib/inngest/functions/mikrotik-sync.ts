@@ -27,6 +27,7 @@ import { MikrotikRouterService } from '@/lib/mikrotik';
  */
 export const mikrotikSyncFunction = inngest.createFunction(
   {
+
     id: 'mikrotik-sync',
     name: 'MikroTik Router Sync',
     retries: 3,
@@ -36,14 +37,13 @@ export const mikrotikSyncFunction = inngest.createFunction(
         match: 'data.sync_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: every 30 minutes (reduced to stay within Inngest free tier)
     { cron: '*/30 * * * *' },
     // Event trigger: manual requests
     { event: 'mikrotik/sync.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const startTime = Date.now();
 
     // Extract options from event data (if triggered manually)
@@ -104,11 +104,11 @@ export const mikrotikSyncFunction = inngest.createFunction(
  */
 export const mikrotikSyncCompletedFunction = inngest.createFunction(
   {
+
     id: 'mikrotik-sync-completed',
     name: 'MikroTik Sync Completed Handler',
-  },
-  { event: 'mikrotik/sync.completed' },
-  async ({ event, step }) => {
+  triggers: { event: 'mikrotik/sync.completed' },
+}, async ({ event, step }) => {
     const { routers_online, routers_offline, routers_failed, duration_ms } = event.data;
 
     await step.run('log-completion', async () => {

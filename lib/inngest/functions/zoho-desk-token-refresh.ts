@@ -23,17 +23,17 @@ import { zohoLogger } from '@/lib/logging';
  */
 export const zohoDeskTokenRefreshFunction = inngest.createFunction(
   {
+
     id: 'zoho-desk-token-refresh',
     name: 'Zoho Desk Token Refresh',
     retries: 3,
-  },
-  [
+  triggers: [
     // Cron trigger: every 45 minutes
     { cron: '*/45 * * * *' },
     // Event trigger: manual refresh
     { event: 'zoho-desk/token.refresh' },
   ],
-  async ({ step }) => {
+}, async ({ step }) => {
     const result = await step.run('refresh-zoho-desk-token', async () => {
       try {
         const auth = createZohoDeskAuthService();
@@ -85,11 +85,11 @@ export const zohoDeskTokenRefreshFunction = inngest.createFunction(
 
 export const zohoDeskTokenRefreshFailedFunction = inngest.createFunction(
   {
+
     id: 'zoho-desk-token-refresh-failed',
     name: 'Zoho Desk Token Refresh Failed Handler',
-  },
-  { event: 'zoho-desk/token.refresh.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'zoho-desk/token.refresh.failed' },
+}, async ({ event, step }) => {
     const { error, timestamp } = event.data;
 
     await step.run('log-failure', async () => {
