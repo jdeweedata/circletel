@@ -233,3 +233,20 @@ jobs:
           echo "ERROR: Container did not become healthy within 200s"
           docker logs --tail 50 "$CONTAINER"
           exit 1
+
+      - name: Re-register Inngest functions
+        run: |
+          # Coolify deploys do not always push the latest function graph to Inngest Cloud.
+          # Without this, new jobs (e.g. ruijie-traffic-rollup) never receive events even
+          # though the container is healthy and older functions still run.
+          echo "Syncing Inngest app at /api/inngest..."
+          for i in 1 2 3 4 5; do
+            CODE=$(curl -sS -o /tmp/inngest-register.json -w '%{http_code}' -X PUT https://www.circletel.co.za/api/inngest -H 'Content-Type: application/json' || true)
+            BODY=$(head -c 300 /tmp/inngest-register.json 2>/dev/null || true)
+            echo "attempt $i → HTTP $CODE $BODY"
+            if [ "$CODE" = "200" ]; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::warning::Inngest re-register did not return 200 — check app.inngest.com function list"
