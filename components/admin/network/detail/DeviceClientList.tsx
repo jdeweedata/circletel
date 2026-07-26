@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SectionCard } from '@/components/admin/shared';
+import { formatLatency, latencyTone, scoreTone } from './telemetry-format';
 
 interface RuijieClient {
   mac: string;
@@ -97,26 +98,6 @@ function formatBps(bps: number): string {
   const k = 1000;
   const i = Math.min(Math.floor(Math.log(bps) / Math.log(k)), units.length - 1);
   return `${(bps / Math.pow(k, i)).toFixed(1)} ${units[i]}`;
-}
-
-/** Ruijie scores 0-100; below 60 is a client that will notice problems. */
-function scoreTone(score: number | null): string {
-  if (score == null) return 'text-slate-400';
-  if (score < 60) return 'text-red-600';
-  if (score < 80) return 'text-amber-600';
-  return 'text-emerald-600';
-}
-
-function latencyTone(ms: number | null): string {
-  if (ms == null) return 'text-slate-400';
-  if (ms > 150) return 'text-red-600';
-  if (ms > 60) return 'text-amber-600';
-  return 'text-slate-700';
-}
-
-function formatLatency(ms: number | null): string {
-  if (ms == null || !Number.isFinite(ms)) return '—';
-  return ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`;
 }
 
 function formatRate(bps: number | null | undefined): string {

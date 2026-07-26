@@ -480,18 +480,23 @@ export async function getGroupStaUsers(groupId: string): Promise<StaUserRaw[]> {
 export async function getDeviceMetrics(sn: string, groupId?: string): Promise<DeviceMetrics> {
   const metrics = getEmptyMetrics();
 
-  const perf = await getDeviceCurrentPerformance(sn);
+  // All three are independent — one round-trip's wall time, not three.
+  const [perf, stas, logs] = await Promise.all([
+    getDeviceCurrentPerformance(sn),
+    groupId ? getGroupStaUsers(groupId) : Promise.resolve([] as StaUserRaw[]),
+    getDeviceLogs(sn),
+  ]);
+
   metrics.cpu_usage = perf.cpu_usage;
   metrics.memory_usage = perf.memory_usage;
   metrics.system = perf;
 
   if (groupId) {
-    const stas = await getGroupStaUsers(groupId);
     Object.assign(metrics, aggregateStaMetricsForDevice(stas, sn));
     metrics.experience = aggregateStaExperienceForDevice(stas, sn);
   }
 
-  metrics.uptime_seconds = deriveUptimeFromLogs(await getDeviceLogs(sn));
+  metrics.uptime_seconds = deriveUptimeFromLogs(logs);
 
   return metrics;
 }

@@ -34,6 +34,8 @@ import {
 import { UnderlineTabs, TabPanel, SectionCard } from '@/components/admin/shared';
 import { DeviceHeader, DeviceStatCards, DeviceSupportNotes, DeviceCustomerLink, DeviceClientList, DeviceActivityLog, DeviceSystemHealth, DeviceTrafficPanel, formatUptime } from '@/components/admin/network/detail';
 import type { DeviceSystemHealthData } from '@/components/admin/network/detail/DeviceSystemHealth';
+import { formatLatency, scoreTone } from '@/components/admin/network/detail/telemetry-format';
+import type { StaDeviceExperience } from '@/lib/ruijie/performance-metrics';
 
 interface RuijieDevice {
   sn: string;
@@ -65,21 +67,7 @@ interface RuijieDevice {
   corporate_site_id: string | null;
   // Live-only, merged in from /metrics — never persisted on the cache row
   system?: DeviceSystemHealthData;
-  experience?: DeviceExperience;
-}
-
-/** Client-experience summary for this AP, from the STA call the metrics route already makes. */
-interface DeviceExperience {
-  avg_latency_ms: number | null;
-  worst_latency_ms: number | null;
-  avg_score: number | null;
-  worst_score: number | null;
-  worst_score_reason: string | null;
-  noise_floor_2g: number | null;
-  noise_floor_5g: number | null;
-  clients_2g: number;
-  clients_5g: number;
-  longest_session_ms: number | null;
+  experience?: StaDeviceExperience;
 }
 
 interface RuijieTunnel {
@@ -131,19 +119,6 @@ function formatRelativeTime(dateString: string): string {
   if (diffHours < 24) return `${diffHours}h ago`;
   const diffDays = Math.floor(diffHours / 24);
   return `${diffDays}d ago`;
-}
-
-function formatMs(ms: number | null | undefined): string {
-  if (ms == null || !Number.isFinite(ms)) return '—';
-  return ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`;
-}
-
-/** Ruijie scores 0–100; below 60 is a client that will notice problems. */
-function scoreTone(score: number | null): string {
-  if (score == null) return '';
-  if (score < 60) return 'text-red-600';
-  if (score < 80) return 'text-amber-600';
-  return 'text-emerald-600';
 }
 
 function ExperienceStat({
@@ -591,10 +566,10 @@ export default function RuijieDeviceDetailPage({
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <ExperienceStat
                   label="Avg Latency"
-                  value={formatMs(device.experience?.avg_latency_ms)}
+                  value={formatLatency(device.experience?.avg_latency_ms)}
                   hint={
                     device.experience?.worst_latency_ms != null
-                      ? `worst ${formatMs(device.experience.worst_latency_ms)}`
+                      ? `worst ${formatLatency(device.experience.worst_latency_ms)}`
                       : undefined
                   }
                 />
