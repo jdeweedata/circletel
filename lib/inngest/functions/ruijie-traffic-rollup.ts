@@ -15,6 +15,7 @@
  */
 
 import { inngest } from '../client';
+import { ruijieSyncCompleted } from '../events/ruijie';
 import { createClient } from '@/lib/supabase/server';
 import { getNetworkTraffic, pickFlowDeviceSn } from '@/lib/ruijie/client';
 import { buildHourlyRollupUpserts } from '@/lib/network/analytics-aggregates';
@@ -33,6 +34,7 @@ type GroupRow = {
 
 export const ruijieTrafficRollupFunction = inngest.createFunction(
   {
+
     id: 'ruijie-traffic-rollup',
     name: 'Ruijie Traffic Rollup',
     retries: 2,
@@ -40,9 +42,8 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
       // One rollup at a time — avoids Ruijie rate limits when syncs overlap.
       limit: 1,
     },
-  },
-  { event: 'ruijie/sync.completed' },
-  async ({ event, step }) => {
+  triggers: [ruijieSyncCompleted],
+}, async ({ event, step }) => {
     const syncLogId = (event.data as { sync_log_id?: string } | undefined)?.sync_log_id;
 
     await step.sleep('cooldown-after-sync', '12s');

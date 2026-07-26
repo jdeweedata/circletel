@@ -53,12 +53,12 @@ async function loadDraft(offerId: string): Promise<OfferDraft | null> {
 
 export const recomputeOfferPricing = inngest.createFunction(
   {
+
     id: 'recompute-offer-pricing',
     name: 'Recompute Offer Pricing Snapshot',
     retries: 2,
-  },
-  { event: 'offer/pricing.recompute.requested' },
-  async ({ event, step }) => {
+  triggers: { event: 'offer/pricing.recompute.requested' },
+}, async ({ event, step }) => {
     const { offerId, all, triggeredBy } = event.data;
 
     // Resolve which offers to recompute

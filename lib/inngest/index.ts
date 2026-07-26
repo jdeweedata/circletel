@@ -397,3 +397,5 @@ export const functions = [
   // Offer pricing recomputation
   recomputeOfferPricing,
 ];
+
+export { ruijieSyncCompleted, ruijieSyncSessions } from './events/ruijie';

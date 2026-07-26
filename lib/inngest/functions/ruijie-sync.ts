@@ -11,6 +11,7 @@
  */
 
 import { inngest } from '../client';
+import { ruijieSyncCompleted, ruijieSyncSessions } from '../events/ruijie';
 import {
   getAllDevices,
   enrichDevicesWithLiveMetrics,
@@ -38,6 +39,7 @@ import {
  */
 export const ruijieSyncFunction = inngest.createFunction(
   {
+
     id: 'ruijie-sync',
     name: 'Ruijie Device Sync',
     retries: 3,
@@ -47,14 +49,13 @@ export const ruijieSyncFunction = inngest.createFunction(
         match: 'data.sync_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: every 30 minutes (reduced to stay within Inngest free tier)
     { cron: '*/30 * * * *' },
     // Event trigger: manual requests
     { event: 'ruijie/sync.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const startTime = Date.now();
 
     // Extract options from event data (if triggered manually)
@@ -163,11 +164,11 @@ export const ruijieSyncFunction = inngest.createFunction(
       console.log(`[RuijieSync] Updated sync log ${syncLogId}`);
     });
 
-    // Step 7: Send completion event
-    await step.run('send-completion-event', async () => {
-      await inngest.send({
-        name: 'ruijie/sync.completed',
-        data: {
+    // Step 7: Send completion event (session groups fan-out runs in dashboard)
+    await step.sendEvent(
+      'send-completion-event',
+      ruijieSyncCompleted.create(
+        {
           sync_log_id: syncLogId,
           devices_fetched: (activeDevices as unknown as RuijieDevice[]).length,
           added: syncResult.added,
@@ -176,8 +177,13 @@ export const ruijieSyncFunction = inngest.createFunction(
           errors: syncResult.errors.length,
           duration_ms: duration,
         },
-      });
-    });
+        {
+          meta: {
+            sessions: ruijieSyncSessions(syncLogId),
+          },
+        }
+      )
+    );
 
     return {
       success: syncResult.errors.length === 0,
@@ -202,17 +208,18 @@ export const ruijieSyncFunction = inngest.createFunction(
  */
 export const ruijieSyncCompletedFunction = inngest.createFunction(
   {
+
     id: 'ruijie-sync-completed',
     name: 'Ruijie Sync Completed Handler',
-  },
-  { event: 'ruijie/sync.completed' },
-  async ({ event, step }) => {
+  triggers: [ruijieSyncCompleted],
+}, async ({ event, step }) => {
     const { sync_log_id, devices_fetched, added, updated, errors, duration_ms } = event.data;
 
     await step.run('log-completion', async () => {
       console.log(
         `[RuijieSync] Sync ${sync_log_id} completed: ` +
-        `${devices_fetched} fetched, ${added} added, ${updated} updated, ${errors} errors (${duration_ms}ms)`
+        `${devices_fetched} fetched, ${added} added, ${updated} updated, ${errors} errors (${duration_ms}ms)` +
+        ` [session:sync_log_id=${sync_log_id}]`
       );
 
       // Future: Send Slack notification for large syncs or errors

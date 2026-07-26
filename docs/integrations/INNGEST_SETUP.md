@@ -165,3 +165,25 @@ curl -X PUT https://www.circletel.co.za/api/inngest -H 'Content-Type: applicatio
 ```
 
 Also verify at [app.inngest.com](https://app.inngest.com) that `ruijie-traffic-rollup` is listed for the `circletel` app.
+
+## Ruijie pipeline sessions
+
+When device sync finishes it emits `ruijie/sync.completed` with:
+
+```ts
+meta: {
+  sessions: {
+    sync_log_id: "<uuid from ruijie_sync_logs>",
+  },
+}
+```
+
+Fan-out handlers (traffic rollup, health monitor, offline alerts, completion logger)
+share that session. In the Inngest dashboard:
+
+1. Open the correct environment
+2. Go to **AI → Sessions**
+3. Search session key `sync_log_id`
+4. Open the UUID to see all runs for that network refresh
+
+Requires Inngest TS SDK ≥ 4.7. Local: set `INNGEST_DEV=1`.

@@ -33,6 +33,7 @@ import type {
  */
 export const competitorScrapeFunction = inngest.createFunction(
   {
+
     id: 'competitor-scrape',
     name: 'Competitor Product Scrape',
     // Retry configuration
@@ -44,9 +45,8 @@ export const competitorScrapeFunction = inngest.createFunction(
         match: 'data.scrape_log_id',
       },
     ],
-  },
-  { event: 'competitor/scrape.requested' },
-  async ({ event, step }) => {
+  triggers: { event: 'competitor/scrape.requested' },
+}, async ({ event, step }) => {
     const { provider_id, provider_slug, provider_name, scrape_log_id, scrape_urls } = event.data;
 
     // Step 1: Update status to running
@@ -327,11 +327,11 @@ export const competitorScrapeFunction = inngest.createFunction(
  */
 export const priceAlertFunction = inngest.createFunction(
   {
+
     id: 'competitor-price-alert',
     name: 'Competitor Price Alert',
-  },
-  { event: 'competitor/price.alert' },
-  async ({ event, step }) => {
+  triggers: { event: 'competitor/price.alert' },
+}, async ({ event, step }) => {
     const { provider_name, product_name, old_price, new_price, change_percent } = event.data;
 
     await step.run('log-price-alert', async () => {
@@ -360,12 +360,11 @@ export const priceAlertFunction = inngest.createFunction(
  */
 export const scheduledScrapeFunction = inngest.createFunction(
   {
+
     id: 'competitor-scheduled-scrape',
     name: 'Scheduled Competitor Scrape',
-  },
-  // Run daily at 6 AM SAST (4 AM UTC)
-  { cron: '0 4 * * *' },
-  async ({ step }) => {
+  triggers: { cron: '0 4 * * *' },
+}, async ({ step }) => {
     // Get providers due for scraping
     const providers = await step.run('get-due-providers', async () => {
       const supabase = await createClient();
