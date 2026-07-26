@@ -155,34 +155,17 @@ export function TrafficChart({
     }));
   }, [dataPoints]);
 
-  // Calculate summary stats
-  const stats = useMemo(() => {
-    if (dataPoints.length === 0) {
-      return { totalRx: 0, totalTx: 0, avgRxRate: 0, avgTxRate: 0 };
-    }
-
-    const totalRx = dataPoints.reduce((sum, p) => sum + p.rxBytes, 0);
-    const totalTx = dataPoints.reduce((sum, p) => sum + p.txBytes, 0);
-
-    // Assuming hourly data, calculate average rate
-    const hoursSpan = dataPoints.length;
-    const avgRxRate = hoursSpan > 0 ? (totalRx * 8) / (hoursSpan * 3600) : 0;
-    const avgTxRate = hoursSpan > 0 ? (totalTx * 8) / (hoursSpan * 3600) : 0;
-
-    return { totalRx, totalTx, avgRxRate, avgTxRate };
-  }, [dataPoints]);
-
   if (dataPoints.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <PiChartLineBold className="w-5 h-5" />
+      <Card className="border border-slate-200/80 shadow-sm rounded-xl bg-white h-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <PiChartLineBold className="w-4 h-4 text-slate-400" aria-hidden="true" />
             {title}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-[200px] text-gray-500">
+          <div className="flex items-center justify-center h-[200px] text-sm text-slate-500">
             No traffic data available
           </div>
         </CardContent>
@@ -191,30 +174,12 @@ export function TrafficChart({
   }
 
   return (
-    <Card>
+    <Card className="border border-slate-200/80 shadow-sm rounded-xl bg-white h-full">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <PiChartLineBold className="w-5 h-5" />
-            {title}
-          </CardTitle>
-          <div className="flex items-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <PiArrowDownBold className="w-4 h-4 text-emerald-500" />
-              <span className="text-gray-600">Total DL:</span>
-              <span className="font-medium">{formatBytes(stats.totalRx)}</span>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-500">Avg: {formatBps(stats.avgRxRate)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <PiArrowUpBold className="w-4 h-4 text-blue-500" />
-              <span className="text-gray-600">Total UL:</span>
-              <span className="font-medium">{formatBytes(stats.totalTx)}</span>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-500">Avg: {formatBps(stats.avgTxRate)}</span>
-            </div>
-          </div>
-        </div>
+        <CardTitle className="text-base font-semibold text-slate-900 flex items-center gap-2">
+          <PiChartLineBold className="w-4 h-4 text-slate-400" aria-hidden="true" />
+          {title}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={height}>
@@ -232,19 +197,19 @@ export function TrafficChart({
                 <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
             <XAxis
               dataKey="timestamp"
               tickFormatter={formatTime}
               tick={{ fontSize: 12 }}
-              stroke="#9CA3AF"
+              stroke="#94A3B8"
               tickLine={false}
-              axisLine={{ stroke: '#E5E7EB' }}
+              axisLine={{ stroke: '#E2E8F0' }}
             />
             <YAxis
               tickFormatter={(value) => formatBytes(value)}
               tick={{ fontSize: 12 }}
-              stroke="#9CA3AF"
+              stroke="#94A3B8"
               tickLine={false}
               axisLine={false}
               width={70}
