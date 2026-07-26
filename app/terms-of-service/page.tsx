@@ -88,7 +88,7 @@ export default function TermsOfServicePage() {
                       </span>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="prose prose-gray max-w-none pl-16 pr-4 pb-6 text-gray-600 leading-relaxed prose-headings:text-circleTel-navy prose-headings:font-semibold prose-h3:text-base prose-h3:mt-6 prose-h3:mb-3 prose-h4:text-sm prose-h4:mt-4 prose-h4:mb-2 prose-p:my-3 prose-ul:my-3 prose-ul:pl-5 prose-ol:my-3 prose-ol:pl-5 prose-li:my-1 prose-dl:my-3">
+                  <AccordionContent className="typeset typeset-docs max-w-none pl-16 pr-4 pb-6">
                     {section.content}
                   </AccordionContent>
                 </AccordionItem>
