@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PROTOTYPE — CloudWiFi landing hi-fi mockup | CircleTel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #1b2a4a;
+      --navy-deep: #0f1427;
+      --orange: #e87a1e;
+      --orange-accessible: #ae5b16;
+      --orange-light: #fdf2e9;
+      --orange-soft: #f8e4d4;
+      --surface: #f4f6f9;
+      --card: #fbfcfd;
+      --ink: #111827;
+      --muted: #4b5563;
+      --border: #d7dde7;
+      --white: #ffffff;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --shadow: 0 1px 0 rgba(27, 42, 74, 0.04);
+      --font-display: "Manrope", system-ui, sans-serif;
+      --font-body: "Source Sans 3", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--ink);
+      background: var(--surface);
+      line-height: 1.55;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    button, input, select, textarea { font: inherit; }
+
+    .proto-banner {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #fff8e8;
+      border-bottom: 1px solid #f0d9a8;
+      color: #6a4a12;
+      padding: 0.55rem 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 2rem));
+      margin-inline: auto;
+    }
+
+    /* —— Top bar —— */
+    .topbar {
+      background: var(--navy);
+      color: rgba(255,255,255,0.85);
+      font-size: 0.85rem;
+    }
+    .topbar .container {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.45rem 0;
+    }
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 64px;
+      gap: 1rem;
+    }
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      font-size: 1.2rem;
+    }
+    .logo span { color: var(--orange); }
+    .nav-links {
+      display: none;
+      gap: 1.25rem;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    @media (min-width: 900px) {
+      .nav-links { display: flex; }
+    }
+
+    /* —— Hero —— */
+    .hero {
+      position: relative;
+      color: var(--white);
+      overflow: hidden;
+      isolation: isolate;
+      min-height: min(88vh, 760px);
+      display: flex;
+      align-items: center;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      background:
+        linear-gradient(105deg, rgba(15,20,39,0.92) 0%, rgba(27,42,74,0.78) 48%, rgba(27,42,74,0.45) 100%),
+        url("../images/cloudwifi/cloudwifi-hero.jpg") center/cover no-repeat;
+    }
+    .hero-wash {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: radial-gradient(ellipse 70% 80% at 15% 40%, rgba(232,122,30,0.18), transparent 55%);
+    }
+    .hero .container {
+      display: grid;
+      gap: 2.5rem;
+      padding: 3.5rem 0 4rem;
+    }
+    @media (min-width: 1024px) {
+      .hero .container {
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+      }
+    }
+
+    .brand-lockup {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 3vw, 2.35rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin: 0 0 1rem;
+    }
+    .brand-lockup em {
+      font-style: normal;
+      color: #ffc089;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.85rem, 3.4vw, 2.85rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.12;
+      margin: 0 0 1rem;
+      max-width: 16ch;
+    }
+    .hero-lead {
+      font-size: 1.125rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.88);
+      max-width: 36rem;
+      margin: 0 0 1.75rem;
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      align-items: center;
+      margin-bottom: 1.75rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 48px;
+      padding: 0.75rem 1.35rem;
+      border-radius: var(--radius);
+      font-weight: 700;
+      text-decoration: none;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: filter 0.15s ease, transform 0.15s ease, background 0.15s ease;
+    }
+    .btn:hover { filter: brightness(0.96); }
+    .btn-primary {
+      background: var(--orange-accessible);
+      color: var(--white);
+    }
+    .btn-ghost {
+      background: transparent;
+      border-color: rgba(255,255,255,0.55);
+      color: var(--white);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+    .text-link {
+      color: rgba(255,255,255,0.78);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .assurance {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem 1.25rem;
+      max-width: 32rem;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    @media (min-width: 640px) {
+      .assurance { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: none; }
+    }
+    .assurance li {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      font-size: 0.92rem;
+      color: rgba(255,255,255,0.9);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      margin-top: 0.45rem;
+      border-radius: 999px;
+      background: #ffc089;
+      flex: none;
+    }
+
+    /* Estimator card */
+    .panel {
+      background: var(--card);
+      color: var(--ink);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: 0 18px 40px rgba(8, 12, 24, 0.28);
+      padding: 1.35rem 1.35rem 1.5rem;
+    }
+    .panel h2 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      margin: 0 0 0.35rem;
+      color: var(--navy);
+    }
+    .panel-lead {
+      margin: 0 0 1.1rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .field { margin-bottom: 0.85rem; }
+    .field label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
+      color: var(--navy);
+    }
+    .field select,
+    .field input,
+    .field textarea {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      background: var(--white);
+      color: var(--ink);
+    }
+    .field textarea { min-height: 88px; resize: vertical; }
+    .hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0.35rem 0 0;
+    }
+    .result {
+      margin: 1rem 0;
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+      background: var(--orange-light);
+      border: 1px solid #efd2b4;
+    }
+    .result strong {
+      display: block;
+      font-family: var(--font-display);
+      color: var(--navy);
+      font-size: 1.05rem;
+      margin-bottom: 0.2rem;
+    }
+    .result span { color: var(--muted); font-size: 0.92rem; }
+    .panel .btn-primary { width: 100%; }
+
+    /* Sections */
+    section { padding: 4.5rem 0; }
+    .section-kicker {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--orange-accessible);
+      margin: 0 0 0.65rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.7rem, 2.6vw, 2.25rem);
+      letter-spacing: -0.02em;
+      color: var(--navy);
+      margin: 0 0 0.75rem;
+      line-height: 1.15;
+    }
+    .section-lead {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 40rem;
+      margin: 0;
+    }
+    .center { text-align: center; }
+    .center .section-lead { margin-inline: auto; }
+
+    /* Proof */
+    .proof {
+      background: var(--white);
+      border-block: 1px solid var(--border);
+      padding: 1.5rem 0;
+    }
+    .proof .container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem 2rem;
+    }
+    .proof p {
+      margin: 0;
+      font-weight: 600;
+      color: var(--navy);
+      max-width: 22rem;
+    }
+    .logos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .logo-pill {
+      min-width: 120px;
+      height: 42px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: var(--surface);
+    }
+
+    /* Venues — 3 primary + strip */
+    .venues { background: var(--surface); }
+    .venue-grid {
+      display: grid;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    @media (min-width: 900px) {
+      .venue-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .venue-card {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--border);
+    }
+    .venue-card img {
+      aspect-ratio: 16/10;
+      object-fit: cover;
+      width: 100%;
+    }
+    .venue-card .body { padding: 1.15rem 1.2rem 1.35rem; }
+    .venue-card h3 {
+      font-family: var(--font-display);
+      margin: 0 0 0.4rem;
+      color: var(--navy);
+      font-size: 1.2rem;
+    }
+    .venue-card p { margin: 0; color: var(--muted); }
+    .venue-strip {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--white);
+      border-radius: 999px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    /* Pricing */
+    .pricing { background: var(--white); }
+    .tier-grid {
+      display: grid;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    @media (min-width: 900px) {
+      .tier-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .tier {
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--navy);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      position: relative;
+    }
+    .tier.recommended {
+      border-color: #e2b48a;
+      border-top-color: var(--orange);
+      background: linear-gradient(180deg, var(--orange-light), var(--card) 38%);
+      transform: translateY(-4px);
+    }
+    .badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: var(--orange-accessible);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.5rem;
+      border-radius: 999px;
+    }
+    .tier h3 {
+      font-family: var(--font-display);
+      margin: 0 0 0.75rem;
+      color: var(--navy);
+    }
+    .tier .meta { color: var(--muted); font-size: 0.92rem; margin: 0; }
+    .tier .price {
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin: 1rem 0 0.25rem;
+    }
+    .tier .price small {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .tier ul {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 0;
+      flex: 1;
+    }
+    .tier li {
+      position: relative;
+      padding-left: 1.2rem;
+      margin-bottom: 0.45rem;
+      color: var(--ink);
+      font-size: 0.95rem;
+    }
+    .tier li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 999px;
+      background: var(--orange-accessible);
+    }
+    .fineprint {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin: 1.5rem 0 0;
+    }
+
+    /* Lower split */
+    .lower { background: var(--surface); }
+    .lower-grid {
+      display: grid;
+      gap: 2rem;
+    }
+    @media (min-width: 1024px) {
+      .lower-grid {
+        grid-template-columns: 1fr 380px;
+        align-items: start;
+      }
+    }
+    .drivers {
+      display: grid;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 1.5rem 0 2rem;
+    }
+    @media (min-width: 700px) {
+      .drivers { grid-template-columns: repeat(3, 1fr); }
+    }
+    .driver {
+      background: var(--white);
+      padding: 1.15rem;
+    }
+    .driver h3 {
+      font-family: var(--font-display);
+      margin: 0 0 0.4rem;
+      color: var(--navy);
+      font-size: 1.05rem;
+    }
+    .driver p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    .why-block {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (min-width: 700px) {
+      .why-block { grid-template-columns: 1.1fr 1fr; }
+    }
+    .why-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+    .why-card h3 {
+      font-family: var(--font-display);
+      margin: 0 0 0.75rem;
+      color: var(--navy);
+    }
+    .why-card ul { margin: 0; padding-left: 1.1rem; color: var(--muted); }
+    .why-card li { margin-bottom: 0.4rem; }
+
+    .steps {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    @media (min-width: 700px) {
+      .steps { grid-template-columns: repeat(4, 1fr); }
+    }
+    .step {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .step-num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      background: var(--orange-accessible);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-family: var(--font-display);
+      margin-bottom: 0.75rem;
+    }
+    .step h3 {
+      font-family: var(--font-display);
+      margin: 0 0 0.35rem;
+      color: var(--navy);
+      font-size: 1.05rem;
+    }
+    .step p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+    .survey-sticky {
+      position: sticky;
+      top: 4.5rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .progress {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin: 1rem 0 1.25rem;
+    }
+    .progress span {
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.55rem 0.35rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .progress .current {
+      background: var(--orange-light);
+      border-color: #e7c09a;
+      color: var(--navy);
+    }
+    .check {
+      display: flex;
+      gap: 0.55rem;
+      align-items: flex-start;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0.75rem 0 1rem;
+    }
+    .check input { margin-top: 0.2rem; }
+
+    /* Final CTA */
+    .final {
+      padding-top: 0;
+      padding-bottom: 3rem;
+    }
+    .final-panel {
+      background:
+        radial-gradient(ellipse 50% 80% at 85% 20%, rgba(232,122,30,0.22), transparent 50%),
+        var(--navy);
+      color: white;
+      border-radius: 20px;
+      padding: 2rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+    @media (min-width: 900px) {
+      .final-panel {
+        grid-template-columns: 1.3fr 0.7fr;
+        align-items: center;
+        padding: 2.5rem 2.75rem;
+      }
+    }
+    .final-panel h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.7rem, 2.5vw, 2.2rem);
+      margin: 0 0 0.65rem;
+      letter-spacing: -0.02em;
+    }
+    .final-panel p {
+      margin: 0;
+      color: rgba(255,255,255,0.8);
+      font-size: 1.05rem;
+    }
+    .final-actions { display: grid; gap: 0.65rem; }
+    .final-actions .btn-primary { width: 100%; }
+    .final-actions .btn-ghost { width: 100%; }
+    .final-note {
+      text-align: center;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    footer {
+      background: var(--navy-deep);
+      color: rgba(255,255,255,0.55);
+      padding: 1.5rem 0 4.5rem;
+      font-size: 0.85rem;
+    }
+
+    .switcher {
+      position: fixed;
+      left: 50%;
+      bottom: 1rem;
+      transform: translateX(-50%);
+      z-index: 60;
+      display: flex;
+      gap: 0.35rem;
+      background: var(--navy);
+      color: white;
+      padding: 0.4rem;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      font-size: 0.8rem;
+    }
+    .switcher a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .switcher a.active {
+      background: var(--orange-accessible);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="proto-banner">
+    PROTOTYPE mockup (not production) — offer-first hero, aligned estimator + 2-step survey, recommended tier, proof strip
+  </div>
+
+  <div class="topbar">
+    <div class="container">
+      <span>Mon–Fri, 8am–5pm</span>
+      <span>082 487 3900 · sales@circletel.co.za</span>
+    </div>
+  </div>
+
+  <header class="nav">
+    <div class="container">
+      <a class="logo" href="#">CircleTel</a>
+      <nav class="nav-links" aria-label="Primary">
+        <span>Managed IT</span>
+        <span>Connectivity</span>
+        <span>Cloud &amp; Hosting</span>
+        <span>Resources</span>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO: offer-first -->
+    <section class="hero" aria-labelledby="hero-heading">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-wash" aria-hidden="true"></div>
+      <div class="container">
+        <div>
+          <p class="brand-lockup">CircleTel <em>CloudWiFi</em></p>
+          <h1 id="hero-heading">Managed Wi-Fi we design, install and run for your venue.</h1>
+          <p class="hero-lead">
+            Reliable guest and staff connectivity for South African venues.
+            One local team owns the network end to end, so you stop firefighting Wi-Fi.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#survey">Request a site survey</a>
+            <a class="text-link" href="#pricing">See guide pricing</a>
+          </div>
+          <ul class="assurance">
+            <li><span class="dot"></span>Wi-Fi 6 access points</li>
+            <li><span class="dot"></span>Guest and staff separation</li>
+            <li><span class="dot"></span>Cloud management</li>
+            <li><span class="dot"></span>Managed support</li>
+          </ul>
+        </div>
+
+        <aside class="panel" aria-label="Tier guide">
+          <h2>Find a guide tier</h2>
+          <p class="panel-lead">Two quick details. A site survey confirms the final design and price.</p>
+          <div class="field">
+            <label for="venue">Venue type</label>
+            <select id="venue">
+              <option>Hospitality</option>
+              <option>Retail</option>
+              <option>Property / offices</option>
+              <option>Healthcare</option>
+              <option>Education</option>
+              <option>Public venue</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="size">Roughly how big is the space?</label>
+            <select id="size">
+              <option>Small (up to about 300 m²)</option>
+              <option selected>Medium (about 300–800 m²)</option>
+              <option>Large (800 m² or more)</option>
+              <option>Not sure yet</option>
+            </select>
+            <p class="hint">A rough estimate is fine. We confirm this on site.</p>
+          </div>
+          <div class="result">
+            <strong>Guide: Professional · from R3,499/mo</strong>
+            <span>Fits most mid-size venues. Survey required before install.</span>
+          </div>
+          <a class="btn btn-primary" href="#survey">Request a site survey</a>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Proof -->
+    <div class="proof">
+      <div class="container">
+        <p>Trusted by South African operators who need Wi-Fi that just works on busy days.</p>
+        <div class="logos" aria-label="Customer placeholders">
+          <div class="logo-pill">Logo 1</div>
+          <div class="logo-pill">Logo 2</div>
+          <div class="logo-pill">Logo 3</div>
+          <div class="logo-pill">Logo 4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Venues: 3 + strip -->
+    <section class="venues" aria-labelledby="venues-heading">
+      <div class="container">
+        <header class="center">
+          <p class="section-kicker">Built for venues</p>
+          <h2 class="section-title" id="venues-heading">Wi-Fi that matches how your space actually runs.</h2>
+          <p class="section-lead">Start with the story that fits you. The site survey tunes coverage, capacity and segmentation.</p>
+        </header>
+        <div class="venue-grid">
+          <article class="venue-card">
+            <img src="../images/cloudwifi/venue-hospitality.jpg" alt="Hospitality venue" />
+            <div class="body">
+              <h3>Hospitality</h3>
+              <p>Keep guests connected in rooms, lobbies and F&amp;B without congesting staff systems.</p>
+            </div>
+          </article>
+          <article class="venue-card">
+            <img src="../images/cloudwifi/venue-retail.jpg" alt="Retail venue" />
+            <div class="body">
+              <h3>Retail</h3>
+              <p>Support denser floors, guest Wi-Fi and back-of-house devices from one managed design.</p>
+            </div>
+          </article>
+          <article class="venue-card">
+            <img src="../images/cloudwifi/venue-property.jpg" alt="Property venue" />
+            <div class="body">
+              <h3>Property &amp; offices</h3>
+              <p>Add reliable shared-space connectivity with clear ownership after handover.</p>
+            </div>
+          </article>
+        </div>
+        <div class="venue-strip" aria-label="Also suited to">
+          <span class="chip">Healthcare</span>
+          <span class="chip">Education</span>
+          <span class="chip">Public venues</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing" aria-labelledby="pricing-heading">
+      <div class="container">
+        <header class="center">
+          <p class="section-kicker">Guide pricing</p>
+          <h2 class="section-title" id="pricing-heading">Survey-led and access-point based.</h2>
+          <p class="section-lead">Choose a guide tier now. The site survey confirms the network design and your final monthly price.</p>
+        </header>
+        <div class="tier-grid">
+          <article class="tier">
+            <h3>Essential</h3>
+            <p class="meta">Up to 300 m² · 1–2 APs</p>
+            <p class="price">R1,499<small>/mo</small></p>
+            <ul>
+              <li>High-speed Wi-Fi</li>
+              <li>Guest network</li>
+              <li>Cloud monitoring</li>
+            </ul>
+          </article>
+          <article class="tier recommended">
+            <span class="badge">Most venues</span>
+            <h3>Professional</h3>
+            <p class="meta">300–800 m² · 3–5 APs</p>
+            <p class="price">R3,499<small>/mo</small></p>
+            <ul>
+              <li>Guest and staff separation</li>
+              <li>Multi-zone design</li>
+              <li>Priority support</li>
+            </ul>
+          </article>
+          <article class="tier">
+            <h3>Enterprise</h3>
+            <p class="meta">800–2,000 m² · 6–12 APs</p>
+            <p class="price">R7,999<small>/mo</small></p>
+            <ul>
+              <li>Higher-density design</li>
+              <li>Advanced segmentation</li>
+              <li>SLA-backed support</li>
+            </ul>
+          </article>
+          <article class="tier">
+            <h3>Campus</h3>
+            <p class="meta">Large / multi-building</p>
+            <p class="price">R14,999<small>/mo</small></p>
+            <ul>
+              <li>Multi-building design</li>
+              <li>Phased rollout</li>
+              <li>Dedicated support</li>
+            </ul>
+          </article>
+        </div>
+        <p class="fineprint">Prices exclude VAT. Fair-usage terms apply. A site survey confirms the final tier and price.</p>
+      </div>
+    </section>
+
+    <!-- Lower: info + sticky survey -->
+    <section class="lower" id="survey" aria-labelledby="drivers-heading">
+      <div class="container lower-grid">
+        <div>
+          <header>
+            <h2 class="section-title" id="drivers-heading">What shapes the final quote?</h2>
+            <p class="section-lead">Three things matter most. Everything else we settle on the survey.</p>
+          </header>
+          <div class="drivers">
+            <article class="driver">
+              <h3>Floor area</h3>
+              <p>Usable square metres set the coverage footprint and AP count.</p>
+            </article>
+            <article class="driver">
+              <h3>Walls and materials</h3>
+              <p>Dense walls and metal can reduce signal and add access points.</p>
+            </article>
+            <article class="driver">
+              <h3>How busy it gets</h3>
+              <p>Peak occupancy and device mix drive capacity, not just speed.</p>
+            </article>
+          </div>
+
+          <div class="why-block">
+            <article class="why-card">
+              <h3>Every tier includes</h3>
+              <ul>
+                <li>Site survey and Wi-Fi design</li>
+                <li>Professional installation</li>
+                <li>24/7 monitoring and updates</li>
+              </ul>
+              <p class="hint" style="margin-top:0.85rem">Plus guest network, maintenance and monthly reporting.</p>
+            </article>
+            <article class="why-card">
+              <h3>Why CircleTel</h3>
+              <ul>
+                <li>South African team and support</li>
+                <li>Vendor-agnostic advice</li>
+                <li>Transparent, survey-led pricing</li>
+              </ul>
+            </article>
+          </div>
+
+          <header>
+            <p class="section-kicker">Our process</p>
+            <h2 class="section-title">From survey to steady operation.</h2>
+          </header>
+          <div class="steps">
+            <article class="step">
+              <div class="step-num">1</div>
+              <h3>Site survey</h3>
+              <p>We assess coverage needs and expected usage.</p>
+            </article>
+            <article class="step">
+              <div class="step-num">2</div>
+              <h3>Design</h3>
+              <p>AP placement, segmentation and security.</p>
+            </article>
+            <article class="step">
+              <div class="step-num">3</div>
+              <h3>Installation</h3>
+              <p>Install, configure and validate on site.</p>
+            </article>
+            <article class="step">
+              <div class="step-num">4</div>
+              <h3>Manage</h3>
+              <p>We monitor, maintain and optimise for you.</p>
+            </article>
+          </div>
+        </div>
+
+        <aside class="survey-sticky" aria-labelledby="survey-heading">
+          <p class="section-kicker">Site survey request</p>
+          <h2 class="section-title" id="survey-heading" style="font-size:1.45rem">How can we reach you?</h2>
+          <p class="section-lead" style="font-size:0.95rem">Two short steps. No technical knowledge needed.</p>
+          <div class="progress" aria-label="Survey progress">
+            <span class="current">1 · About you</span>
+            <span>2 · About your venue</span>
+          </div>
+          <div class="field">
+            <label>Full name</label>
+            <input placeholder="Nandi Dlamini" />
+          </div>
+          <div class="field">
+            <label>Venue or company</label>
+            <input placeholder="Loop House" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" placeholder="nandi@example.co.za" />
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input placeholder="082 123 4567" />
+          </div>
+          <div class="field">
+            <label>Best time to call</label>
+            <select>
+              <option>Morning</option>
+              <option>Afternoon</option>
+              <option>Any time</option>
+            </select>
+          </div>
+          <label class="check">
+            <input type="checkbox" checked />
+            <span>I agree CircleTel may contact me to arrange a site survey.</span>
+          </label>
+          <a class="btn btn-primary" href="#" style="width:100%">Continue</a>
+          <p class="hint" style="text-align:center">Step 1 of 2 · About two minutes</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="final">
+      <div class="container">
+        <div class="final-panel">
+          <div>
+            <h2>Let’s get your venue’s Wi-Fi right.</h2>
+            <p>A site survey is the clearest first step to reliable, secure connectivity.</p>
+          </div>
+          <div class="final-actions">
+            <a class="btn btn-primary" href="#survey">Request a site survey</a>
+            <a class="btn btn-ghost" href="#">Talk to an expert</a>
+            <p class="final-note">Takes two minutes. No commitment.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">CircleTel prototype mockup · delete after design decision</div>
+  </footer>
+
+  <div class="switcher" aria-label="Prototype notes">
+    <a class="active" href="#">Hi-fi v1</a>
+    <a href="https://staging.circletel.co.za/products/cloudwifi" target="_blank" rel="noopener">Live staging</a>
+  </div>
+</body>
+</html>
