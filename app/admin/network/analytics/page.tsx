@@ -33,6 +33,7 @@ import {
   RadioUtilSummaryCard,
 } from '@/components/admin/network/performance';
 import type { GroupTrafficCard, RadioUtilSummary, SsidActivityCard } from '@/lib/network/analytics-aggregates';
+import { formatRelative } from '@/lib/dates';
 
 interface TrafficDataPoint {
   timestamp: number;
@@ -77,6 +78,8 @@ interface AnalyticsApiResponse {
   groupTraffic?: GroupTrafficCard[];
   ssidActivity?: SsidActivityCard[];
   radio?: RadioUtilSummary;
+  lastRollupAt?: string | null;
+  lastSyncedAt?: string | null;
   fetchedAt: string;
 }
 
@@ -150,10 +153,12 @@ export default function NetworkAnalyticsPage() {
     fetchTrafficData();
   }, [fetchTrafficData]);
 
+  // Auto-refresh only in Cached mode — Live must stay opt-in / manual.
   useEffect(() => {
-    const interval = setInterval(() => fetchTrafficData(true), 5 * 60 * 1000);
+    if (preferLive) return;
+    const interval = setInterval(() => fetchTrafficData(true, false), 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [fetchTrafficData]);
+  }, [fetchTrafficData, preferLive]);
 
   const selectedGroup = groups.find((g) => g.id === selectedGroupId);
 
@@ -193,7 +198,7 @@ export default function NetworkAnalyticsPage() {
             Network Analytics
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
-            Group-scoped Ruijie throughput · app-flow · radio util from cache
+            Traffic and utilization by network group
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -273,7 +278,7 @@ export default function NetworkAnalyticsPage() {
 
       {data ? (
         <>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge
               variant="outline"
               className={
@@ -282,11 +287,23 @@ export default function NetworkAnalyticsPage() {
                   : 'border-slate-200 bg-slate-50 text-slate-600'
               }
             >
-              Source: {data.source === 'live' ? 'Ruijie live' : 'Supabase rollups'}
+              {data.source === 'live' ? 'Ruijie live' : 'Supabase rollups'}
             </Badge>
             <span className="text-xs text-slate-400">
               {selectedGroup?.name || 'Network'} · {formatDuration(parseInt(selectedHours, 10))}
             </span>
+            {data.lastRollupAt ? (
+              <span className="text-xs text-slate-500">
+                Last rollup {formatRelative(data.lastRollupAt)}
+              </span>
+            ) : (
+              <span className="text-xs text-amber-600">No rollup samples yet</span>
+            )}
+            {data.lastSyncedAt ? (
+              <span className="text-xs text-slate-400">
+                · Device sync {formatRelative(data.lastSyncedAt)}
+              </span>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -361,9 +378,18 @@ export default function NetworkAnalyticsPage() {
             <RadioUtilSummaryCard radio={radio} />
           </div>
 
-          <div className="flex items-center justify-end gap-2 text-sm text-slate-500">
-            <PiClockBold className="w-4 h-4" />
-            Last updated: {new Date(data.fetchedAt).toLocaleString('en-ZA')}
+          <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-slate-500">
+            <span className="inline-flex items-center gap-2">
+              <PiClockBold className="w-4 h-4" />
+              {data.source === 'live'
+                ? `Live fetch ${formatRelative(data.fetchedAt)}`
+                : data.lastRollupAt
+                  ? `Rollup data ${formatRelative(data.lastRollupAt)}`
+                  : 'Waiting for first traffic rollup'}
+            </span>
+            {preferLive ? (
+              <span className="text-xs text-slate-400">Auto-refresh paused in Live mode</span>
+            ) : null}
           </div>
         </>
       ) : null}

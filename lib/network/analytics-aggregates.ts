@@ -5,6 +5,9 @@
 
 import { avgOrNull, roundPercent } from './performance-aggregates';
 
+/** Persist one row per Ruijie hourly flow sample (not a rolling 24h window total). */
+export const HOURLY_ROLLUP_WINDOW = 1;
+
 export type GroupRollupRow = {
   group_id: string;
   group_name: string | null;
@@ -12,6 +15,83 @@ export type GroupRollupRow = {
   total_tx_bytes: number | null;
   captured_at: string;
 };
+
+export type HourlyTrafficPoint = {
+  timestamp: number;
+  rxBytes: number;
+  txBytes: number;
+};
+
+export type HourlyRollupUpsert = {
+  group_id: string;
+  group_name: string | null;
+  captured_at: string;
+  hours_window: number;
+  total_rx_bytes: number;
+  total_tx_bytes: number;
+  avg_rx_bps: number;
+  avg_tx_bps: number;
+  peak_rx_bps: number;
+  peak_tx_bps: number;
+  raw_summary: {
+    flowSn: string;
+    source: 'hourly_flow';
+  };
+};
+
+/**
+ * Bucket a timestamp to the UTC hour ISO string used as rollup captured_at.
+ */
+export function hourBucketIso(timestamp: number): string {
+  const d = new Date(timestamp);
+  d.setUTCMinutes(0, 0, 0);
+  return d.toISOString();
+}
+
+/**
+ * Build hours_window=1 upserts from Ruijie hourly flow points.
+ * One row per hour — analytics charts and group cards can sum without double-counting.
+ */
+export function buildHourlyRollupUpserts(params: {
+  groupId: string;
+  groupName: string | null;
+  flowSn: string;
+  dataPoints: HourlyTrafficPoint[];
+}): HourlyRollupUpsert[] {
+  const byHour = new Map<string, { rx: number; tx: number }>();
+
+  for (const point of params.dataPoints) {
+    if (!Number.isFinite(point.timestamp)) continue;
+    const key = hourBucketIso(point.timestamp);
+    const prev = byHour.get(key) || { rx: 0, tx: 0 };
+    prev.rx += Number(point.rxBytes) || 0;
+    prev.tx += Number(point.txBytes) || 0;
+    byHour.set(key, prev);
+  }
+
+  return Array.from(byHour.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([captured_at, { rx, tx }]) => {
+      const avgRxBps = (rx * 8) / 3600;
+      const avgTxBps = (tx * 8) / 3600;
+      return {
+        group_id: params.groupId,
+        group_name: params.groupName,
+        captured_at,
+        hours_window: HOURLY_ROLLUP_WINDOW,
+        total_rx_bytes: Math.round(rx),
+        total_tx_bytes: Math.round(tx),
+        avg_rx_bps: avgRxBps,
+        avg_tx_bps: avgTxBps,
+        peak_rx_bps: avgRxBps,
+        peak_tx_bps: avgTxBps,
+        raw_summary: {
+          flowSn: params.flowSn,
+          source: 'hourly_flow' as const,
+        },
+      };
+    });
+}
 
 export type GroupTrafficCard = {
   groupId: string;
