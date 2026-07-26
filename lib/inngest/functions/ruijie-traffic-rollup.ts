@@ -2,7 +2,8 @@
  * Ruijie Traffic Rollup
  *
  * After each device sync, fetch hourly flow per group (via a representative
- * device SN — API V2.0.3 §2.6.2) and persist rollups for Health / Analytics.
+ * device SN — API V2.0.3 §2.6.2) and persist one hours_window=1 row per hour
+ * so Analytics charts have a usable series (not a single 24h window blob).
  *
  * Trigger: ruijie/sync.completed
  */
@@ -10,6 +11,7 @@
 import { inngest } from '../client';
 import { createClient } from '@/lib/supabase/server';
 import { getNetworkTraffic, pickFlowDeviceSn } from '@/lib/ruijie/client';
+import { buildHourlyRollupUpserts } from '@/lib/network/analytics-aggregates';
 
 const HOURS_WINDOW = 24;
 const RETENTION_DAYS = 14;
@@ -58,11 +60,6 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
       return { groupsProcessed: 0, rowsInserted: 0 };
     }
 
-    // Bucket to the hour so retries/upserts coalesce within the same window
-    const hourBucket = new Date();
-    hourBucket.setUTCMinutes(0, 0, 0);
-    const capturedAt = hourBucket.toISOString();
-
     const rowsInserted = await step.run('rollup-groups', async () => {
       const supabase = await createClient();
       let inserted = 0;
@@ -81,35 +78,28 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
           }
 
           const traffic = await getNetworkTraffic({ sn: flowSn, hours: HOURS_WINDOW });
-          const hoursSeconds = Math.max(HOURS_WINDOW, 1) * 3600;
-          const peakRxBps = (traffic.peakRxBytes * 8) / hoursSeconds;
-          const peakTxBps = (traffic.peakTxBytes * 8) / hoursSeconds;
+          const upserts = buildHourlyRollupUpserts({
+            groupId: group.group_id,
+            groupName: group.group_name,
+            flowSn,
+            dataPoints: traffic.dataPoints,
+          });
 
-          const { error } = await supabase.from('ruijie_traffic_rollups').upsert(
-            {
-              group_id: group.group_id,
-              group_name: group.group_name,
-              captured_at: capturedAt,
-              hours_window: HOURS_WINDOW,
-              total_rx_bytes: Math.round(traffic.totalRxBytes),
-              total_tx_bytes: Math.round(traffic.totalTxBytes),
-              avg_rx_bps: traffic.avgRxRate,
-              avg_tx_bps: traffic.avgTxRate,
-              peak_rx_bps: peakRxBps,
-              peak_tx_bps: peakTxBps,
-              raw_summary: {
-                totalBytes: traffic.totalBytes,
-                dataPointCount: traffic.dataPoints.length,
-                flowSn,
-              },
-            },
-            { onConflict: 'group_id,captured_at,hours_window' }
-          );
+          if (upserts.length === 0) {
+            console.warn(
+              `[TrafficRollup] No hourly points for group ${group.group_id} (sn=${flowSn})`
+            );
+            continue;
+          }
+
+          const { error } = await supabase.from('ruijie_traffic_rollups').upsert(upserts, {
+            onConflict: 'group_id,captured_at,hours_window',
+          });
 
           if (error) {
             console.error(`[TrafficRollup] Upsert failed for ${group.group_id}:`, error);
           } else {
-            inserted += 1;
+            inserted += upserts.length;
           }
         } catch (err) {
           console.error(`[TrafficRollup] Group ${group.group_id} failed:`, err);

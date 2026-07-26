@@ -21,6 +21,9 @@ import {
 const RUIJIE_BASE_URL = process.env.RUIJIE_BASE_URL || 'https://cloud.ruijienetworks.com/service/api';
 const MOCK_MODE = process.env.RUIJIE_MOCK_MODE === 'true';
 
+/** Live Ruijie calls must fail fast — analytics Live mode and rollups depend on this. */
+export const RUIJIE_FETCH_TIMEOUT_MS = 10_000;
+
 /**
  * Logbiz (STA / performance / flow) is hosted at cloud root, NOT under /service/api.
  * Example: https://cloud-eu.ruijienetworks.com/logbizagent/logbiz/api/...
@@ -32,6 +35,24 @@ function getLogbizBaseUrl(): string {
   }
   const host = RUIJIE_BASE_URL.replace(/\/service\/api\/?$/, '');
   return `${host}/logbizagent/logbiz/api`;
+}
+
+function mergeAbortSignals(signals: AbortSignal[]): AbortSignal | undefined {
+  const active = signals.filter(Boolean);
+  if (active.length === 0) return undefined;
+  if (active.length === 1) return active[0];
+  if (typeof AbortSignal.any === 'function') {
+    return AbortSignal.any(active);
+  }
+  const controller = new AbortController();
+  for (const signal of active) {
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      break;
+    }
+    signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+  }
+  return controller.signal;
 }
 
 // =============================================================================
@@ -53,8 +74,14 @@ async function ruijieFetch<T>(
   const url = new URL(`${baseUrl}${endpoint}`);
   url.searchParams.set('access_token', token);
 
+  const timeoutSignal = AbortSignal.timeout(RUIJIE_FETCH_TIMEOUT_MS);
+  const signal = mergeAbortSignals(
+    [options.signal, timeoutSignal].filter((s): s is AbortSignal => Boolean(s))
+  );
+
   const response = await fetch(url.toString(), {
     ...options,
+    signal,
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
