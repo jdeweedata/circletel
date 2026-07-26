@@ -18,6 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Memory OS           | [Memory OS](#️-memory-os) | `memory-os/long-term/`, `short-term/`, `self-improvement/` |
 | Design system       | `DESIGN.md` (project root) | `npx @google/design.md lint DESIGN.md` |
 | Icon system         | [Rules](#rules) | See `.claude/rules/icon-system.md` |
+| Composio browser    | [Rules](#rules) | See `.claude/rules/composio-browser-tool.md` |
 
 ---
 
