@@ -83,51 +83,44 @@ async function main() {
     });
   }
 
-  const hourBucket = new Date();
-  hourBucket.setUTCMinutes(0, 0, 0);
-  const capturedAt = hourBucket.toISOString();
+  // Traffic rollups — hours_window=1 series (required by /admin/network/analytics)
+  const { buildHourlyRollupUpserts } = await import(
+    '../lib/network/analytics-aggregates'
+  );
   let rollups = 0;
 
   for (const [groupId, info] of byGroup) {
     const flowSn = pickFlowDeviceSn(info.devices);
     if (!flowSn) {
-      console.log(`[sync-now] skip traffic group=${groupId} (no sn)`);
+      console.log([sync-now] skip traffic group= (no sn));
       continue;
     }
     try {
       const traffic = await getNetworkTraffic({ sn: flowSn, hours: 24 });
-      const hoursSeconds = 24 * 3600;
-      const { error } = await supabase.from('ruijie_traffic_rollups').upsert(
-        {
-          group_id: groupId,
-          group_name: info.group_name,
-          captured_at: capturedAt,
-          hours_window: 24,
-          total_rx_bytes: Math.round(traffic.totalRxBytes),
-          total_tx_bytes: Math.round(traffic.totalTxBytes),
-          avg_rx_bps: traffic.avgRxRate,
-          avg_tx_bps: traffic.avgTxRate,
-          peak_rx_bps: (traffic.peakRxBytes * 8) / hoursSeconds,
-          peak_tx_bps: (traffic.peakTxBytes * 8) / hoursSeconds,
-          raw_summary: {
-            totalBytes: traffic.totalBytes,
-            dataPointCount: traffic.dataPoints.length,
-            flowSn,
-          },
-        },
-        { onConflict: 'group_id,captured_at,hours_window' }
-      );
+      const upserts = buildHourlyRollupUpserts({
+        groupId,
+        groupName: info.group_name,
+        flowSn,
+        dataPoints: traffic.dataPoints,
+      });
+      if (upserts.length === 0) {
+        console.log([sync-now] no hourly points group= sn=);
+        continue;
+      }
+      const { error } = await supabase
+        .from('ruijie_traffic_rollups')
+        .upsert(upserts, { onConflict: 'group_id,captured_at,hours_window' });
       if (error) {
-        console.log(`[sync-now] traffic upsert fail group=${groupId}: ${error.message}`);
+        console.log([sync-now] traffic upsert fail group=: );
       } else {
-        rollups += 1;
+        rollups += upserts.length;
         console.log(
-          `[sync-now] traffic group=${groupId} sn=${flowSn} points=${traffic.dataPoints.length} bytes=${traffic.totalBytes}`
+          [sync-now] traffic group= sn= points= upserts= bytes=
         );
       }
     } catch (e) {
       console.log(
-        `[sync-now] traffic error group=${groupId}: ${e instanceof Error ? e.message : e}`
+        [sync-now] traffic error group=: 
       );
     }
     await new Promise((r) => setTimeout(r, 400));
