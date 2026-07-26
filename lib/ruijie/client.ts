@@ -532,6 +532,8 @@ export interface RuijieClient {
   utilization: number | null;
   uplinkRate: number | null;
   downlinkRate: number | null;
+  /** Packet loss rate from Ruijie STA (fraction 0–1 or percent 0–100; UI normalizes). */
+  pktLoseRate: number | null;
 }
 
 /**
@@ -572,6 +574,7 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
         utilization: 22,
         uplinkRate: 40_000_000,
         downlinkRate: 120_000_000,
+        pktLoseRate: 0.2,
       },
       {
         mac: '00:1A:2B:3C:4D:5F',
@@ -585,6 +588,7 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
         utilization: 28,
         uplinkRate: 20_000_000,
         downlinkRate: 80_000_000,
+        pktLoseRate: 1.5,
       },
       {
         mac: 'AA:BB:CC:DD:EE:FF',
@@ -598,6 +602,7 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
         utilization: 45,
         uplinkRate: 5_000_000,
         downlinkRate: 15_000_000,
+        pktLoseRate: 6.2,
       },
     ];
   }
@@ -621,6 +626,12 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
             : Number.isFinite(parseFloat(String(sta.utilization ?? '')))
               ? parseFloat(String(sta.utilization))
               : null;
+        const pktLoseRate =
+          typeof sta.pktLoseRate === 'number' && Number.isFinite(sta.pktLoseRate)
+            ? sta.pktLoseRate
+            : Number.isFinite(parseFloat(String(sta.pktLoseRate ?? '')))
+              ? parseFloat(String(sta.pktLoseRate))
+              : null;
         return {
           mac: sta.mac || '',
           userIp: sta.userIp || '',
@@ -633,6 +644,7 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
           utilization,
           uplinkRate: typeof sta.uplinkRate === 'number' ? sta.uplinkRate : null,
           downlinkRate: typeof sta.downlinkRate === 'number' ? sta.downlinkRate : null,
+          pktLoseRate,
         };
       });
   } catch (error) {
