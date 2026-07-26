@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import {
   PiArrowsClockwiseBold,
@@ -109,18 +109,29 @@ export default function NetworkAnalyticsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preferLive, setPreferLive] = useState(false);
+  const hasLoadedRef = useRef(false);
 
   const fetchTrafficData = useCallback(
-    async (isRefresh = false, live = preferLive) => {
+    async (options?: {
+      isRefresh?: boolean;
+      live?: boolean;
+      groupId?: string;
+      hours?: string;
+    }) => {
+      const isRefresh = options?.isRefresh ?? false;
+      const live = options?.live ?? preferLive;
+      const groupId = options?.groupId ?? selectedGroupId;
+      const hours = options?.hours ?? selectedHours;
+
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
       try {
         const params = new URLSearchParams({
-          hours: selectedHours,
+          hours,
           includeApps: 'true',
         });
-        if (selectedGroupId) params.set('groupId', selectedGroupId);
+        if (groupId) params.set('groupId', groupId);
         if (live) params.set('live', 'true');
 
         const response = await fetch(`/api/admin/network/analytics?${params}`, {
@@ -132,9 +143,13 @@ export default function NetworkAnalyticsPage() {
         const result: AnalyticsApiResponse = await response.json();
         setData(result);
         if (result.groups?.length) {
-          setGroups(result.groups);
-          if (!selectedGroupId && result.groupId) {
-            setSelectedGroupId(result.groupId);
+          // Normalize ids to strings — Radix Select rejects empty/non-string values.
+          const normalized = result.groups
+            .map((g) => ({ id: String(g.id), name: g.name || String(g.id) }))
+            .filter((g) => g.id.length > 0);
+          setGroups(normalized);
+          if (!groupId && result.groupId) {
+            setSelectedGroupId(String(result.groupId));
           }
         }
         setError(null);
@@ -150,15 +165,25 @@ export default function NetworkAnalyticsPage() {
   );
 
   useEffect(() => {
-    fetchTrafficData();
+    void fetchTrafficData({ isRefresh: hasLoadedRef.current }).finally(() => {
+      hasLoadedRef.current = true;
+    });
   }, [fetchTrafficData]);
 
   // Auto-refresh only in Cached mode — Live must stay opt-in / manual.
   useEffect(() => {
     if (preferLive) return;
-    const interval = setInterval(() => fetchTrafficData(true, false), 5 * 60 * 1000);
+    const interval = setInterval(
+      () => fetchTrafficData({ isRefresh: true, live: false }),
+      5 * 60 * 1000
+    );
     return () => clearInterval(interval);
   }, [fetchTrafficData, preferLive]);
+
+  const handleGroupChange = (groupId: string) => {
+    if (!groupId || groupId === selectedGroupId) return;
+    setSelectedGroupId(groupId);
+  };
 
   const selectedGroup = groups.find((g) => g.id === selectedGroupId);
 
@@ -208,7 +233,10 @@ export default function NetworkAnalyticsPage() {
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/network/devices">Devices</Link>
           </Button>
-          <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+          <Select
+            value={selectedGroupId || undefined}
+            onValueChange={handleGroupChange}
+          >
             <SelectTrigger className="w-[200px] rounded-lg border-slate-200">
               <SelectValue placeholder="Select network group" />
             </SelectTrigger>
@@ -238,7 +266,7 @@ export default function NetworkAnalyticsPage() {
             onClick={() => {
               const next = !preferLive;
               setPreferLive(next);
-              fetchTrafficData(true, next);
+              void fetchTrafficData({ isRefresh: true, live: next });
             }}
           >
             <PiBroadcastBold className="w-4 h-4 mr-2" />
@@ -247,7 +275,7 @@ export default function NetworkAnalyticsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => fetchTrafficData(true)}
+            onClick={() => void fetchTrafficData({ isRefresh: true })}
             disabled={refreshing}
           >
             <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
@@ -340,7 +368,7 @@ export default function NetworkAnalyticsPage() {
           <GroupTrafficCards
             groups={groupTraffic}
             selectedGroupId={selectedGroupId}
-            onSelectGroup={setSelectedGroupId}
+            onSelectGroup={handleGroupChange}
           />
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
