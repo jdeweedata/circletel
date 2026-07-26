@@ -16,3 +16,5 @@ export { TopApplicationsCard, AppCategoryBreakdown } from './TopApplicationsCard
 export type { AppFlowItem } from './TopApplicationsCard';
 export { GroupTrafficCards, SsidActivityCards } from './GroupTrafficCards';
 export { RadioUtilSummaryCard } from './RadioUtilSummaryCard';
+export { UnavailableDataPanel } from './UnavailableDataPanel';
+export type { UnavailablePanelItem } from './UnavailableDataPanel';
