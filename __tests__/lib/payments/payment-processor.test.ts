@@ -21,20 +21,14 @@ const mockSelect = jest.fn();
 const mockEq = jest.fn();
 const mockSingle = jest.fn();
 
+const mockFrom = jest.fn();
+
 jest.mock('@/lib/supabase/server', () => ({
-  createClient: jest.fn(() =>
-    Promise.resolve({
-      from: jest.fn((table: string) => ({
-        insert: mockInsert,
-        update: mockUpdate,
-        select: mockSelect,
-        eq: mockEq,
-      })),
-    })
-  ),
+  createClient: jest.fn(),
 }));
 
 // Import after mocks are set up
+import { createClient } from '@/lib/supabase/server';
 import {
   verifyNetCashWebhook,
   processPaymentWebhook,
@@ -42,9 +36,25 @@ import {
   getTransactionStatus,
 } from '@/lib/payments/payment-processor';
 
+const mockedCreateClient = createClient as jest.MockedFunction<typeof createClient>;
+
+function buildSupabaseMock() {
+  mockFrom.mockImplementation((_table: string) => ({
+    insert: mockInsert,
+    update: mockUpdate,
+    select: mockSelect,
+    eq: mockEq,
+  }));
+  mockedCreateClient.mockResolvedValue({
+    from: mockFrom,
+  } as any);
+}
+
 describe('Payment Processor', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // resetMocks:true clears mock implementations — rebind createClient every test
+    buildSupabaseMock();
 
     // Default mock chain for successful operations
     mockInsert.mockReturnValue({
