@@ -136,7 +136,15 @@ export default function RuijieDevicesPage() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
+      // Device sync first; traffic backfill needs group SNs in ruijie_device_cache.
       await fetch('/api/ruijie/sync', { method: 'POST', credentials: 'include' });
+      // Also queue historic hourly traffic pull (7d) into ruijie_traffic_rollups.
+      await fetch('/api/ruijie/traffic/backfill', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hours: 168 }),
+      });
       await new Promise((r) => setTimeout(r, 2000));
       await fetchDevices(true);
     } catch (err) {

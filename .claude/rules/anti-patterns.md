@@ -73,3 +73,5 @@ ALWAYS ask before modifying more than 3 files at once
 | Wrong API param | Silent failure | Check working implementation first |
 | Root-level file dump | Cluttered repo | Always use subdirectories |
 | Assumed function exists | Runtime error | Grep for function before calling |
+| Prune Ruijie device cache after empty/partial fetch | Entire fleet disappears from admin UI | Follow `ruijie-cache-and-history.md`; use `shouldSkipDevicePrune` |
+| Live-only Network analytics/devices | Slow/fragile pages, empty on Ruijie outage | Cache-first Supabase display; Live opt-in only |

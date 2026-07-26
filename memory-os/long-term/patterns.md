@@ -74,6 +74,12 @@
 - Export to PNG: `pencil --in designs/filename.pen --export designs/filename.png`
 - Default model: `claude-opus-4-6`
 
+## Ruijie cache-first + historic rollups (2026-07-26)
+- Admin Network UI reads **Supabase** (`ruijie_device_cache`, `ruijie_traffic_rollups`) by default; Live Ruijie is opt-in.
+- **Never prune** device cache on empty/partial Ruijie fetches (`shouldSkipDevicePrune`).
+- Traffic history: upsert hourly `hours_window=1` rows from `flow/show/hour` up to **168h**; retain 14 days.
+- Rule: `.claude/rules/ruijie-cache-and-history.md`. Manual backfill: `POST /api/ruijie/traffic/backfill` or `scripts/ruijie-backfill-traffic.ts`.
+
 ---
 
 > **Rule**: When you discover a new pattern that works, add it here. When a pattern breaks, move it to mistakes.md with explanation.

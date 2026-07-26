@@ -39,6 +39,13 @@ export {
   filterActiveDevices,
 } from './active-window';
 
+export {
+  RUIJIE_TRAFFIC_HISTORY_HOURS,
+  RUIJIE_TRAFFIC_RETENTION_DAYS,
+  RUIJIE_TRAFFIC_GROUP_DELAY_MS,
+  clampTrafficHistoryHours,
+} from './traffic-history';
+
 // Sync Service
 export {
   upsertDevices,
