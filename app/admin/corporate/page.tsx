@@ -30,7 +30,6 @@ import {
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from '@/components/ui/table';
-import { StatCard } from '@/components/admin/shared/StatCard';
 import { cn } from '@/lib/utils';
 
 import {
