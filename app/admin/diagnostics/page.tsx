@@ -30,7 +30,6 @@ import type {
   HealthStatus,
 } from '@/lib/diagnostics/types'
 
-import { StatCard } from '@/components/admin/shared';
 
 import {
   AdminPage,

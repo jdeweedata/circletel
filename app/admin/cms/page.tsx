@@ -18,7 +18,6 @@ import {
   DetailPageHeader,
   StatCard,
   SectionCard,
-  StatusBadge,
   LoadingState,
   EmptyState,
   ErrorState,

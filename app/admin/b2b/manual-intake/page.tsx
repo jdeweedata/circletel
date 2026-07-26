@@ -19,7 +19,6 @@ import {
 } from "react-icons/pi";
 import { UploadDocumentModal } from "@/components/admin/onboarding/UploadDocumentModal";
 import { computeDocChecklist } from "@/lib/onboarding/document-checklist";
-import { SectionCard } from "@/components/backend";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {

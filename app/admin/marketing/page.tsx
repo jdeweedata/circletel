@@ -30,7 +30,6 @@ interface Promotion {
   valid_until: string | null;
 }
 
-import { StatCard } from '@/components/admin/shared';
 
 import {
   AdminPage,

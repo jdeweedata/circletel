@@ -170,7 +170,7 @@ export default function OAuthManagementPage() {
   if (error) {
     return (
       <AdminPage>
-        <ErrorState title="Something went wrong" message={error} onRetry={typeof handleRefresh === 'function' ? handleRefresh : undefined} />
+        <ErrorState title="Something went wrong" message={error} onRetry={fetchTokens} />
       </AdminPage>
     );
   }

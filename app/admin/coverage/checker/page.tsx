@@ -4,9 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import type { CoveragePrediction, LiveNetworkStatus } from '@/lib/coverage/prediction/types';
 import type { SkyFibreOrderabilityResult } from '@/lib/coverage/skyfibre/types';
-import {
-  StatCard, StatusBadge, UnderlineTabs, TabPanel,
-} from '@/components/admin/shared';
+import { UnderlineTabs, TabPanel } from '@/components/admin/shared';
 import AddressInput from './components/AddressInput';
 import CoverageVerdictCard from './components/CoverageVerdictCard';
 import SalesRecommendationCard from './components/SalesRecommendationCard';

@@ -6,7 +6,6 @@ import {
   PageHeader,
   StatCard,
   SectionCard,
-  StatusBadge,
   LoadingState,
   EmptyState,
   ErrorState,
