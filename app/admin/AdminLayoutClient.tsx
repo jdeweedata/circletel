@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
+import { ConsoleShell } from '@/components/backend';
 import { createClient } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
 
@@ -144,40 +145,39 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row print:block">
-      {/* Sidebar - Hidden on mobile when closed, overlay when open */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
-        user={user}
-      />
-
-      {/* Mobile backdrop overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Main content - Full width on mobile, adjusted for sidebar on desktop */}
-      <div className="flex-1 flex flex-col min-h-screen w-full lg:ml-0">
-        <AdminHeader
-          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-          user={user}
-          onLogout={handleLogout}
-          sidebarOpen={sidebarOpen}
-        />
-
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full">
-          <div className="max-w-full mx-auto">
-            {children}
-          </div>
-        </main>
-      </div>
+    <>
+      <ConsoleShell
+        sidebar={
+          <>
+            <Sidebar
+              isOpen={sidebarOpen}
+              onToggle={() => setSidebarOpen(!sidebarOpen)}
+              user={user}
+            />
+            {sidebarOpen && (
+              <div
+                className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                onClick={() => setSidebarOpen(false)}
+              />
+            )}
+          </>
+        }
+        topbar={
+          <AdminHeader
+            onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+            user={user}
+            onLogout={handleLogout}
+            sidebarOpen={sidebarOpen}
+          />
+        }
+        mainClassName="w-full"
+        contentClassName="w-full"
+      >
+        <div className="mx-auto max-w-full">{children}</div>
+      </ConsoleShell>
 
       {/* Agentation: Visual UI feedback for AI coding agents (dev-only) */}
       {process.env.NODE_ENV === 'development' && <Agentation />}
-    </div>
+    </>
   );
 }

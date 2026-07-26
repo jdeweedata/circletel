@@ -64,7 +64,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Check admin user exists
         run: node scripts/check-admin-user.js
@@ -121,7 +121,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Start test server
         run: |
@@ -207,7 +207,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Run type check (auth files only)
         run: npx tsc --noEmit lib/auth/**/*.ts lib/supabase/**/*.ts

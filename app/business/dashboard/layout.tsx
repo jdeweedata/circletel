@@ -19,6 +19,7 @@ import {
   BusinessDashboardSidebar,
   BusinessMobileNav,
 } from '@/components/business-dashboard/navigation';
+import { ConsoleShell } from '@/components/backend';
 
 export default function BusinessDashboardLayout({
   children,
@@ -104,62 +105,58 @@ export default function BusinessDashboardLayout({
     (currentUser?.user_metadata as any)?.company_name || 'Your Business';
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <BusinessDashboardHeader
-        displayName={displayName}
-        companyName={companyName}
-        email={currentUser?.email || ''}
-        onSignOut={handleSignOut}
-      />
-
-      {/* Main content area */}
-      <div className="flex flex-1">
-        {/* Sidebar - desktop only */}
-        <BusinessDashboardSidebar
-          collapsed={sidebarCollapsed}
-          onToggleCollapse={handleSidebarToggle}
-        />
-
-        {/* Page content */}
-        <main className="flex-1 min-w-0">
-          <div className="p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-            <DashboardErrorBoundary>{children}</DashboardErrorBoundary>
-          </div>
-        </main>
-      </div>
-
-      {/* Footer - hidden on mobile */}
-      <footer className="hidden lg:block border-t bg-white/80 backdrop-blur-sm mt-auto">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
-            <p>&copy; 2025 CircleTel Business. All rights reserved.</p>
-            <div className="flex gap-6">
-              <Link
-                href="/privacy-policy"
-                className="hover:text-circleTel-orange transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="/terms-of-service"
-                className="hover:text-circleTel-orange transition-colors"
-              >
-                Terms of Service
-              </Link>
-              <Link
-                href="/contact"
-                className="hover:text-circleTel-orange transition-colors"
-              >
-                Contact Us
-              </Link>
+    <>
+      <ConsoleShell
+        topbar={
+          <BusinessDashboardHeader
+            displayName={displayName}
+            companyName={companyName}
+            email={currentUser?.email || ''}
+            onSignOut={handleSignOut}
+          />
+        }
+        sidebar={
+          <BusinessDashboardSidebar
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={handleSidebarToggle}
+          />
+        }
+        contentClassName="pb-24 lg:pb-8"
+        footer={
+          <footer className="hidden border-t bg-white/80 backdrop-blur-sm lg:block">
+            <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
+                <p>&copy; 2025 CircleTel Business. All rights reserved.</p>
+                <div className="flex gap-6">
+                  <Link
+                    href="/privacy-policy"
+                    className="hover:text-circleTel-orange transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                  <Link
+                    href="/terms-of-service"
+                    className="hover:text-circleTel-orange transition-colors"
+                  >
+                    Terms of Service
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="hover:text-circleTel-orange transition-colors"
+                  >
+                    Contact Us
+                  </Link>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </footer>
+          </footer>
+        }
+      >
+        <DashboardErrorBoundary>{children}</DashboardErrorBoundary>
+      </ConsoleShell>
 
       {/* Mobile bottom navigation */}
       <BusinessMobileNav />
-    </div>
+    </>
   );
 }
