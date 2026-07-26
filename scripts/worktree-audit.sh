@@ -59,11 +59,10 @@ echo "=== Per-worktree verdicts ==="
 
 # Parse porcelain output into parallel arrays; avoids a subshell so the
 # counters below survive.
-paths=(); heads=(); branches=(); flags=()
+paths=(); branches=(); flags=()
 while IFS= read -r line; do
   case "$line" in
-    worktree\ *) paths+=("${line#worktree }"); heads+=(""); branches+=("(detached)"); flags+=("") ;;
-    HEAD\ *)     heads[${#heads[@]}-1]="${line#HEAD }" ;;
+    worktree\ *) paths+=("${line#worktree }"); branches+=("(detached)"); flags+=("") ;;
     branch\ *)   branches[${#branches[@]}-1]="${line#branch refs/heads/}" ;;
     locked*|prunable*) flags[${#flags[@]}-1]="${flags[${#flags[@]}-1]} ${line%% *}" ;;
   esac
@@ -163,7 +162,10 @@ if [[ ${#safe_list[@]} -gt 0 ]]; then
   for entry in "${safe_list[@]}"; do
     IFS='|' read -r w br m <<< "$entry"
     echo "git worktree remove '$w'"
-    [[ "$m" == merged* ]] && echo "git branch -d '$br'   # merged, -d refuses if wrong"
+    # No branch delete for a detached HEAD — there is no branch to name.
+    if [[ "$m" == merged* && "$br" != "(detached)" ]]; then
+      echo "git branch -d '$br'   # merged; -d refuses if that turns out wrong"
+    fi
   done
   echo "git worktree prune"
 fi
