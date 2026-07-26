@@ -182,9 +182,9 @@ export class CoverageAggregationService {
 
       // Add other providers here as they become available
       case 'dfa':
-      case 'openserve':
         return this.getDFACoverage(coordinates, serviceTypes);
 
+      case 'openserve':
       case 'vodacom':
       case 'cell_c':
       case 'telkom':
