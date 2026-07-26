@@ -22,15 +22,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TrafficChart, formatBytes, formatBps } from '@/components/admin/network/TrafficChart';
+import { formatBytes, formatBps } from '@/components/admin/network/TrafficChart';
 import {
   MetricCard,
-  BandwidthChart,
   TopApplicationsCard,
   AppCategoryBreakdown,
   GroupTrafficCards,
   SsidActivityCards,
   RadioUtilSummaryCard,
+  TrafficVolumeAreaChart,
+  ThroughputAreaChart,
 } from '@/components/admin/network/performance';
 import type { GroupTrafficCard, RadioUtilSummary, SsidActivityCard } from '@/lib/network/analytics-aggregates';
 import { formatRelative } from '@/lib/dates';
@@ -188,12 +189,21 @@ export default function NetworkAnalyticsPage() {
   const selectedGroup = groups.find((g) => g.id === selectedGroupId);
 
   const bandwidthSeries =
-    data?.traffic.dataPoints.map((p) => ({
-      captured_at: p.timeString,
-      avgRxMbps: p.avgRxMbps ?? 0,
-      avgTxMbps: p.avgTxMbps ?? 0,
-      avgThroughputMbps: (p.avgRxMbps ?? 0) + (p.avgTxMbps ?? 0),
-    })) ?? [];
+    data?.traffic.dataPoints.map((p) => {
+      // Prefer API Mbps; fall back to hourly bytes → avg Mbps
+      const rxMbps =
+        p.avgRxMbps ??
+        (Number.isFinite(p.rxBytes) ? (p.rxBytes * 8) / 3600 / 1_000_000 : 0);
+      const txMbps =
+        p.avgTxMbps ??
+        (Number.isFinite(p.txBytes) ? (p.txBytes * 8) / 3600 / 1_000_000 : 0);
+      return {
+        captured_at: new Date(p.timestamp).toISOString(),
+        avgRxMbps: rxMbps,
+        avgTxMbps: txMbps,
+        avgThroughputMbps: rxMbps + txMbps,
+      };
+    }) ?? [];
 
   if (loading && !data) {
     return (
@@ -373,19 +383,27 @@ export default function NetworkAnalyticsPage() {
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
             <div className="xl:col-span-2">
-              <TrafficChart
+              <TrafficVolumeAreaChart
                 dataPoints={data.traffic.dataPoints}
-                title={`Traffic — ${selectedGroup?.name || 'Network'}`}
-                height={350}
+                title={`Traffic volume — ${selectedGroup?.name || 'Network'}`}
+                description="Stacked download + upload by hour (shadcn area chart)"
               />
             </div>
-            <BandwidthChart
+            <ThroughputAreaChart
               data={bandwidthSeries}
-              title="Throughput (Mbps)"
-              subtitle="From rollup avg rates"
-              height={300}
+              title="Throughput"
+              description="Average rates from rollups (Mbps)"
+              stacked
             />
           </div>
+
+          <ThroughputAreaChart
+            data={bandwidthSeries}
+            title="Download vs upload throughput"
+            description="Overlay view — compare directions without stacking"
+            stacked={false}
+            heightClassName="aspect-auto h-[260px] w-full"
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <TopApplicationsCard data={appFlow} maxItems={10} />
