@@ -11,19 +11,13 @@
 import { PiPulseBold } from 'react-icons/pi';
 import { Progress } from '@/components/ui/progress';
 import { SectionCard } from '@/components/admin/shared';
+import type { DeviceSystemHealth as LibDeviceSystemHealth } from '@/lib/ruijie/performance-metrics';
 
-export interface DeviceSystemHealthData {
-  cpu_usage: number | null;
-  memory_usage: number | null;
-  cpu_temp: number | null;
-  memory_free_kb: number | null;
-  flash_rate: number | null;
-  flash_free_kb: number | null;
-  disk_rate: number | null;
-  disk_free_kb: number | null;
-  process_num: number | null;
-  user_count: number | null;
-}
+/**
+ * Alias of the lib type rather than a structural twin, so a field rename in
+ * performance-metrics.ts fails the build here instead of silently diverging.
+ */
+export type DeviceSystemHealthData = LibDeviceSystemHealth;
 
 interface DeviceSystemHealthProps {
   system: DeviceSystemHealthData | null | undefined;
