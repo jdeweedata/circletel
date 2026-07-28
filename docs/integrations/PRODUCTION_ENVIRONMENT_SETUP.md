@@ -15,7 +15,7 @@ The production environment is currently using **STAGING/TEST credentials**:
 # CURRENT PRODUCTION VALUES (WRONG):
 NETCASH_MERCHANT_ID="52340889417"        # ← Test account
 NETCASH_SERVICE_KEY="7928c6de-219f-..."  # ← Test key
-NETCASH_WEBHOOK_SECRET="CtLE3LsjW5B7..." # ← Staging secret
+NETCASH_WEBHOOK_SECRET="<NETCASH_WEBHOOK_SECRET>" # ← Staging secret
 NODE_ENV="stagging"                       # ← Typo + wrong value
 NEXT_PUBLIC_APP_URL="https://circletel-nextjs-staging.vercel.app" # ← Staging URL
 ```
@@ -33,7 +33,7 @@ NEXT_PUBLIC_APP_URL="https://circletel-nextjs-staging.vercel.app" # ← Staging 
 | Variable | Production Value | Current Value | Status |
 |----------|------------------|---------------|--------|
 | `NETCASH_MERCHANT_ID` | `52552945156` | `52340889417` | ❌ WRONG (test account) |
-| `NETCASH_WEBHOOK_SECRET` | `4cjhM5XyfuCOMrdCXhYP6Hky3/4g1mJ3s+iLLKZG2ec=` | `CtLE3LsjW5B7...` | ❌ WRONG (staging) |
+| `NETCASH_WEBHOOK_SECRET` | `<NETCASH_WEBHOOK_SECRET>` | `<NETCASH_WEBHOOK_SECRET>` | ❌ WRONG (staging) |
 | `NETCASH_SERVICE_KEY` | **GET FROM PORTAL** | `7928c6de-219f-...` | ❌ WRONG (test key) |
 | `NETCASH_MERCHANT_KEY` | **GET FROM PORTAL** | `3143ee79-0c96-...` | ❌ WRONG (test key) |
 | `NODE_ENV` | `production` | `stagging` | ❌ WRONG |
@@ -77,7 +77,7 @@ NEXT_PUBLIC_APP_URL="https://circletel-nextjs-staging.vercel.app" # ← Staging 
 | Variable | New Value | Action |
 |----------|-----------|--------|
 | `NETCASH_MERCHANT_ID` | `52552945156` | **EDIT** (change from 52340889417) |
-| `NETCASH_WEBHOOK_SECRET` | `4cjhM5XyfuCOMrdCXhYP6Hky3/4g1mJ3s+iLLKZG2ec=` | **EDIT** (change from staging secret) |
+| `NETCASH_WEBHOOK_SECRET` | `<NETCASH_WEBHOOK_SECRET>` | **EDIT** (change from staging secret) |
 | `NETCASH_SERVICE_KEY` | `<paste from portal>` | **EDIT** (change from test key) |
 | `NETCASH_MERCHANT_KEY` | `<paste from portal>` | **EDIT** (change from test key) |
 | `NODE_ENV` | `production` | **EDIT** (fix typo + value) |
@@ -101,7 +101,7 @@ vercel env rm NETCASH_MERCHANT_ID production
 echo "52552945156" | vercel env add NETCASH_MERCHANT_ID production
 
 vercel env rm NETCASH_WEBHOOK_SECRET production
-echo "4cjhM5XyfuCOMrdCXhYP6Hky3/4g1mJ3s+iLLKZG2ec=" | vercel env add NETCASH_WEBHOOK_SECRET production
+echo "<NETCASH_WEBHOOK_SECRET>" | vercel env add NETCASH_WEBHOOK_SECRET production
 
 vercel env rm NETCASH_SERVICE_KEY production
 echo "<paste-from-portal>" | vercel env add NETCASH_SERVICE_KEY production
@@ -174,7 +174,7 @@ grep -E "NETCASH|NODE_ENV|NEXT_PUBLIC_APP_URL" .env.production.verify
 
 # Should show:
 # NETCASH_MERCHANT_ID="52552945156"
-# NETCASH_WEBHOOK_SECRET="4cjhM5XyfuCOMrdCXhYP6Hky3/4g1mJ3s+iLLKZG2ec="
+# NETCASH_WEBHOOK_SECRET="<NETCASH_WEBHOOK_SECRET>"
 # NETCASH_SERVICE_KEY="<production-key>"
 # NODE_ENV="production"
 # NEXT_PUBLIC_APP_URL="https://circletel.co.za"
@@ -323,7 +323,7 @@ URL: https://circletel.co.za/admin/payments/webhooks
 ### **Staging (Test Account - 52340889417):**
 ```env
 NETCASH_MERCHANT_ID=52340889417
-NETCASH_WEBHOOK_SECRET=CtLE3LsjW5B76VB74goex++4poBSt/4MVX1tZyQHvEc=
+NETCASH_WEBHOOK_SECRET=<NETCASH_WEBHOOK_SECRET>
 NETCASH_SERVICE_KEY=7928c6de-219f-4b75-9408-ea0e53be8c87
 NODE_ENV=staging
 NEXT_PUBLIC_APP_URL=https://circletel-staging.vercel.app
@@ -332,7 +332,7 @@ NEXT_PUBLIC_APP_URL=https://circletel-staging.vercel.app
 ### **Production (Live Account - 52552945156):**
 ```env
 NETCASH_MERCHANT_ID=52552945156
-NETCASH_WEBHOOK_SECRET=4cjhM5XyfuCOMrdCXhYP6Hky3/4g1mJ3s+iLLKZG2ec=
+NETCASH_WEBHOOK_SECRET=<NETCASH_WEBHOOK_SECRET>
 NETCASH_SERVICE_KEY=<get-from-portal>
 NETCASH_MERCHANT_KEY=<get-from-portal>
 NODE_ENV=production

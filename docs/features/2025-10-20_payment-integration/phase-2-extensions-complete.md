@@ -78,7 +78,7 @@ NETCASH_NOTIFY_URL=${NEXT_PUBLIC_BASE_URL}/api/payments/callback
 **Actual Configuration** (from `.env.local`):
 ```env
 NETCASH_MERCHANT_ID=52340889417
-NETCASH_WEBHOOK_SECRET=6148290802cdc682c39e4a76b4effddc56ed431d25257d8bc692f05b698bea74
+NETCASH_WEBHOOK_SECRET=<NETCASH_WEBHOOK_SECRET>
 NETCASH_PAYMENT_URL=https://sandbox.netcash.co.za/paynow/process
 ```
 

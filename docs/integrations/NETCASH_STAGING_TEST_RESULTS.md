@@ -104,7 +104,7 @@ https://circletel-staging.vercel.app/api/payment/netcash/webhook
 
 **Staging Values:**
 ```bash
-NETCASH_WEBHOOK_SECRET=CtLE3LsjW5B76VB74goex++4poBSt/4MVX1tZyQHvEc=
+NETCASH_WEBHOOK_SECRET=<NETCASH_WEBHOOK_SECRET>
 NETCASH_MERCHANT_ID=52340889417
 NETCASH_SERVICE_KEY=7928c6de-219f-4b75-9408-ea0e53be8c87
 NODE_ENV=staging
@@ -278,7 +278,7 @@ handleContinue() {
 
 #### Production Environment
 - [ ] Configure production environment variables in Vercel
-  - Use production webhook secret: `4cjhM5XyfuCOMrdCXhYP6Hky3/4g1mJ3s+iLLKZG2ec=`
+  - Use production webhook secret: `<NETCASH_WEBHOOK_SECRET>`
   - Use production Merchant ID: `52552945156`
   - Get production Merchant Key and Service Key from portal
 - [ ] Update Netcash production account webhook URLs

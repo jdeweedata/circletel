@@ -24,7 +24,7 @@ All prerequisites have been configured and tested. You can now begin implementin
 NETCASH_MERCHANT_ID=52340889417                                    # Circle Tel SA - Test account
 NEXT_PUBLIC_NETCASH_SERVICE_KEY=7928c6de-219f-4b75-9408-ea0e53be8c87   # Main API authentication
 NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY=3143ee79-0c96-4909-968e-5a716fd19a65 # Card tokenization (future)
-NETCASH_WEBHOOK_SECRET=6148290802cdc682c39e4a76b4effddc56ed431d25257d8bc692f05b698bea74  # Secure webhook verification
+NETCASH_WEBHOOK_SECRET=<NETCASH_WEBHOOK_SECRET>  # Secure webhook verification
 NETCASH_PAYMENT_URL=https://sandbox.netcash.co.za/paynow/process  # Sandbox for testing
 
 # ✅ Email Service (Resend)
