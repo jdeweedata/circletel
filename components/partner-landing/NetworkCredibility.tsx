@@ -4,13 +4,13 @@ import { PiCheckCircleBold, PiMapPinBold, PiHeadphonesBold, PiUsersBold } from '
 const stats = [
   {
     icon: PiMapPinBold,
-    value: '200+',
-    label: 'suburbs covered',
+    value: 'Multi-tech',
+    label: 'fibre, fixed-wireless and LTE/5G under one roof',
   },
   {
     icon: PiUsersBold,
-    value: '94%',
-    label: 'customer retention',
+    value: 'Month-to-month',
+    label: 'no lock-in contracts — an easy yes for your referrals',
   },
   {
     icon: PiHeadphonesBold,
