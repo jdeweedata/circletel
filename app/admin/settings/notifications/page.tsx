@@ -6,9 +6,22 @@
 
 import { NotificationPreferences } from '@/components/admin/notifications/NotificationPreferences';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 export default function NotificationSettingsPage() {
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
+    <AdminPage>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-circleTel-navy">
           Notification Settings
@@ -19,6 +32,6 @@ export default function NotificationSettingsPage() {
       </div>
 
       <NotificationPreferences />
-    </div>
+    </AdminPage>
   );
 }

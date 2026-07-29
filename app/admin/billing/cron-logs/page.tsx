@@ -1,10 +1,18 @@
 'use client';
-import { PiArrowsClockwiseBold, PiBuildingBold, PiCaretDownBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiPlayBold, PiWarningCircleBold } from 'react-icons/pi';
 
+import {
+  PiArrowsClockwiseBold,
+  PiBuildingBold,
+  PiCaretDownBold,
+  PiChatBold,
+  PiCheckCircleBold,
+  PiClockBold,
+  PiEnvelopeBold,
+  PiPlayBold,
+  PiWarningCircleBold,
+} from 'react-icons/pi';
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +25,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AdminPage,
+  PageHeader,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  ErrorState,
+  EmptyState,
+} from '@/components/backend';
 
 interface CronLog {
   id: string;
@@ -44,6 +61,7 @@ export default function CronLogsPage() {
   const fetchLogs = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/admin/billing/cron-logs');
       if (!response.ok) throw new Error('Failed to fetch logs');
       const data = await response.json();
@@ -79,7 +97,7 @@ export default function CronLogsPage() {
       } else {
         alert(`Error: ${data.error}`);
       }
-    } catch (err) {
+    } catch {
       alert('Failed to run cron');
     } finally {
       setRunningAction(null);
@@ -97,12 +115,8 @@ export default function CronLogsPage() {
   };
 
   const getStatusIcon = (log: CronLog) => {
-    if (log.dry_run) {
-      return <PiClockBold className="h-5 w-5 text-blue-500" />;
-    }
-    if (log.failed > 0) {
-      return <PiWarningCircleBold className="h-5 w-5 text-yellow-500" />;
-    }
+    if (log.dry_run) return <PiClockBold className="h-5 w-5 text-blue-500" />;
+    if (log.failed > 0) return <PiWarningCircleBold className="h-5 w-5 text-yellow-500" />;
     return <PiCheckCircleBold className="h-5 w-5 text-green-500" />;
   };
 
@@ -110,179 +124,138 @@ export default function CronLogsPage() {
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <PiArrowsClockwiseBold className="h-6 w-6 animate-spin text-gray-400" />
-        <span className="ml-2 text-gray-500">Loading cron logs...</span>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading cron logs..." />
+      </AdminPage>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminPage>
+        <ErrorState title="Unable to load cron logs" message={error} onRetry={fetchLogs} />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Billing Cron Logs</h1>
-          <p className="text-gray-500 mt-1">Audit trail for automated billing jobs</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchLogs}>
-            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
-                {runningAction ? (
-                  <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
+    <AdminPage>
+      <PageHeader
+        title="Billing Cron Logs"
+        subtitle="Audit trail for automated billing jobs"
+        actions={
+          <>
+            <Button variant="outline" onClick={fetchLogs}>
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
+                  {runningAction ? (
+                    <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <PiPlayBold className="h-4 w-4 mr-2" />
+                  )}
+                  Run Now
+                  <PiCaretDownBold className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleRunCron(true)}>
+                  <PiClockBold className="h-4 w-4 mr-2" />
+                  Dry Run (Preview)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleRunCron(false)}>
                   <PiPlayBold className="h-4 w-4 mr-2" />
-                )}
-                Run Now
-                <PiCaretDownBold className="h-4 w-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleRunCron(true)}>
-                <PiClockBold className="h-4 w-4 mr-2" />
-                Dry Run (Preview)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleRunCron(false)}>
-                <PiPlayBold className="h-4 w-4 mr-2" />
-                Run Now (Live)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+                  Run Now (Live)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        }
+      />
 
-      {/* Error State */}
-      {error && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-red-600">
-              <PiWarningCircleBold className="h-5 w-5" />
-              <span>{error}</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Summary Stats */}
       {latestRun && !latestRun.dry_run && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Latest Run Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <PiClockBold className="h-4 w-4" />
-              Last Run: {formatDate(latestRun.run_date)}
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-gray-900">
-                  {latestRun.services_processed}
-                </div>
-                <div className="text-xs text-gray-500">Processed</div>
+        <SectionCard title="Latest Run Summary">
+          <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+            <PiClockBold className="h-4 w-4" />
+            Last Run: {formatDate(latestRun.run_date)}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[
+              { label: 'Processed', value: latestRun.services_processed, bg: 'bg-gray-50', text: 'text-gray-900' },
+              { label: 'Invoices', value: latestRun.invoices_created, bg: 'bg-green-50', text: 'text-green-600' },
+              { label: 'ZOHO Synced', value: latestRun.zoho_synced, bg: 'bg-blue-50', text: 'text-blue-600' },
+              { label: 'Emails', value: latestRun.emails_sent, bg: 'bg-purple-50', text: 'text-purple-600' },
+              { label: 'SMS', value: latestRun.sms_sent, bg: 'bg-cyan-50', text: 'text-cyan-600' },
+            ].map((item) => (
+              <div key={item.label} className={`text-center p-3 ${item.bg} rounded-lg`}>
+                <div className={`text-2xl font-bold tabular-nums ${item.text}`}>{item.value}</div>
+                <div className="text-xs text-gray-500">{item.label}</div>
               </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
-                  {latestRun.invoices_created}
-                </div>
-                <div className="text-xs text-gray-500">Invoices</div>
+            ))}
+            {latestRun.failed > 0 && (
+              <div className="text-center p-3 bg-red-50 rounded-lg">
+                <div className="text-2xl font-bold text-red-600 tabular-nums">{latestRun.failed}</div>
+                <div className="text-xs text-gray-500">Failed</div>
               </div>
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
-                  {latestRun.zoho_synced}
-                </div>
-                <div className="text-xs text-gray-500">ZOHO Synced</div>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
-                  {latestRun.emails_sent}
-                </div>
-                <div className="text-xs text-gray-500">Emails</div>
-              </div>
-              <div className="text-center p-3 bg-cyan-50 rounded-lg">
-                <div className="text-2xl font-bold text-cyan-600">
-                  {latestRun.sms_sent}
-                </div>
-                <div className="text-xs text-gray-500">SMS</div>
-              </div>
-              {latestRun.failed > 0 && (
-                <div className="text-center p-3 bg-red-50 rounded-lg">
-                  <div className="text-2xl font-bold text-red-600">
-                    {latestRun.failed}
-                  </div>
-                  <div className="text-xs text-gray-500">Failed</div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            )}
+          </div>
+        </SectionCard>
       )}
 
-      {/* Run History */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Run History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {logs.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No cron runs yet</p>
-          ) : (
-            <div className="space-y-3">
-              {logs.map((log) => (
-                <div
-                  key={log.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                  onClick={() => setSelectedLog(log)}
-                >
-                  <div className="flex items-center gap-4">
-                    {getStatusIcon(log)}
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-900">
-                          {formatDate(log.run_date)}
-                        </span>
-                        {log.dry_run && (
-                          <Badge className="bg-blue-100 text-blue-800">Dry Run</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-500">
-                        {log.cron_type} • {log.services_processed} services →{' '}
-                        {log.invoices_created} invoices
-                      </p>
+      <SectionCard title="Run History">
+        {logs.length === 0 ? (
+          <EmptyState
+            icon={<PiClockBold />}
+            title="No cron runs yet"
+            description="Billing job history will appear here after the first run."
+          />
+        ) : (
+          <div className="space-y-3">
+            {logs.map((log) => (
+              <div
+                key={log.id}
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                onClick={() => setSelectedLog(log)}
+              >
+                <div className="flex items-center gap-4">
+                  {getStatusIcon(log)}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-900">{formatDate(log.run_date)}</span>
+                      {log.dry_run && <StatusBadge status="Dry Run" variant="info" />}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <PiBuildingBold className="h-4 w-4" />
-                      {log.zoho_synced}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <PiEnvelopeBold className="h-4 w-4" />
-                      {log.emails_sent}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <PiChatBold className="h-4 w-4" />
-                      {log.sms_sent}
-                    </div>
-                    {log.failed > 0 && (
-                      <Badge className="bg-red-100 text-red-800">
-                        {log.failed} failed
-                      </Badge>
-                    )}
+                    <p className="text-sm text-gray-500">
+                      {log.cron_type} · {log.services_processed} services → {log.invoices_created}{' '}
+                      invoices
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <PiBuildingBold className="h-4 w-4" />
+                    {log.zoho_synced}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <PiEnvelopeBold className="h-4 w-4" />
+                    {log.emails_sent}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <PiChatBold className="h-4 w-4" />
+                    {log.sms_sent}
+                  </div>
+                  {log.failed > 0 && (
+                    <StatusBadge status={`${log.failed} failed`} variant="error" />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </SectionCard>
 
-      {/* Details Modal */}
       <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -303,27 +276,27 @@ export default function CronLogsPage() {
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Services Processed</span>
-                  <p className="font-medium">{selectedLog.services_processed}</p>
+                  <p className="font-medium tabular-nums">{selectedLog.services_processed}</p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Invoices Created</span>
-                  <p className="font-medium">{selectedLog.invoices_created}</p>
+                  <p className="font-medium tabular-nums">{selectedLog.invoices_created}</p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">ZOHO Synced</span>
-                  <p className="font-medium">{selectedLog.zoho_synced}</p>
+                  <p className="font-medium tabular-nums">{selectedLog.zoho_synced}</p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Emails Sent</span>
-                  <p className="font-medium">{selectedLog.emails_sent}</p>
+                  <p className="font-medium tabular-nums">{selectedLog.emails_sent}</p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">SMS Sent</span>
-                  <p className="font-medium">{selectedLog.sms_sent}</p>
+                  <p className="font-medium tabular-nums">{selectedLog.sms_sent}</p>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Failed</span>
-                  <p className="font-medium text-red-600">{selectedLog.failed}</p>
+                  <p className="font-medium text-red-600 tabular-nums">{selectedLog.failed}</p>
                 </div>
               </div>
               {selectedLog.details && (
@@ -338,6 +311,6 @@ export default function CronLogsPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

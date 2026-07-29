@@ -2,7 +2,7 @@
 
 import { PiArrowsClockwiseBold, PiDownloadSimpleBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
-import { DetailPageHeader } from '@/components/admin/shared/DetailPageHeader';
+import { PageHeader } from '@/components/backend';
 
 interface OrdersListHeaderProps {
   lastRefreshed: Date;
@@ -18,17 +18,11 @@ export function OrdersListHeader({
   isLoading,
 }: OrdersListHeaderProps) {
   return (
-    <DetailPageHeader
-      breadcrumbs={[
-        { label: 'Dashboard', href: '/admin' },
-        { label: 'Orders' },
-      ]}
+    <PageHeader
       title="Customer Orders"
+      subtitle={`Last updated: ${lastRefreshed.toLocaleTimeString()}`}
       actions={
         <>
-          <span className="text-xs text-slate-500 mr-2 hidden sm:inline">
-            Last updated: {lastRefreshed.toLocaleTimeString()}
-          </span>
           <Button
             variant="outline"
             size="sm"
@@ -39,12 +33,7 @@ export function OrdersListHeader({
             <PiArrowsClockwiseBold className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={onExport}
-            className="gap-2"
-          >
+          <Button variant="default" size="sm" onClick={onExport} className="gap-2">
             <PiDownloadSimpleBold className="h-4 w-4" />
             <span className="hidden sm:inline">Export CSV</span>
           </Button>

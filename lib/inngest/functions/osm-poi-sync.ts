@@ -13,17 +13,17 @@ import { createClient } from '@/lib/supabase/server';
 
 export const osmPoiSyncFunction = inngest.createFunction(
   {
+
     id: 'osm-poi-sync',
     name: 'OSM POI Sync',
     retries: 2,
-  },
-  [
+  triggers: [
     // Monthly: 1st at 2AM SAST = midnight UTC
     { cron: '0 0 1 * *' },
     // Manual trigger
     { event: 'osm/poi.sync.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const startTime = Date.now();
 
     // Step 1: Check if ward data exists

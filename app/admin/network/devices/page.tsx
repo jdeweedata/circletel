@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { PiArrowsClockwiseBold, PiWarningBold } from 'react-icons/pi';
+import Link from 'next/link';
+import { PiArrowsClockwiseBold, PiWarningBold, PiWarningCircleBold } from 'react-icons/pi';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,11 +17,29 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  DeviceStatCards,
   DeviceFilters,
   DeviceTable,
   DeviceCard,
 } from '@/components/admin/network';
+import {
+  MetricCard,
+  NetworkOverviewTiles,
+  type NetworkInventory,
+} from '@/components/admin/network/performance';
+import { computeNetworkInventory } from '@/lib/network/performance-aggregates';
+
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
 
 interface RuijieDevice {
   sn: string;
@@ -29,6 +48,8 @@ interface RuijieDevice {
   group_name: string | null;
   management_ip: string | null;
   online_clients: number;
+  cpu_usage?: number | null;
+  memory_usage?: number | null;
   status: string;
   config_status: string | null;
   synced_at: string;
@@ -68,53 +89,52 @@ export default function RuijieDevicesPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters from URL
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
   const [groupFilter, setGroupFilter] = useState(searchParams.get('group') || '');
   const [modelFilter, setModelFilter] = useState(searchParams.get('model') || '');
 
-  // Reboot dialog
   const [rebootDevice, setRebootDevice] = useState<RuijieDevice | null>(null);
   const [rebooting, setRebooting] = useState(false);
 
-  // Tunnel count
-  const [tunnelCount, setTunnelCount] = useState(0);
+  const [tunnelCount] = useState(0);
   const TUNNEL_LIMIT = 10;
 
-  const fetchDevices = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.set('search', search);
-      if (statusFilter) params.set('status', statusFilter);
-      if (groupFilter) params.set('group', groupFilter);
-      if (modelFilter) params.set('model', modelFilter);
+  const fetchDevices = useCallback(
+    async (isRefresh = false) => {
+      if (isRefresh) setRefreshing(true);
+      try {
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (statusFilter) params.set('status', statusFilter);
+        if (groupFilter) params.set('group', groupFilter);
+        if (modelFilter) params.set('model', modelFilter);
 
-      const response = await fetch(`/api/ruijie/devices?${params.toString()}`, {
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Failed to fetch devices');
+        const response = await fetch(`/api/ruijie/devices?${params.toString()}`, {
+          credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to fetch devices');
 
-      const result = await response.json();
-      setData(result);
-      setError(null);
-    } catch (err) {
-      setError('Failed to load devices');
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [search, statusFilter, groupFilter, modelFilter]);
+        const result = await response.json();
+        setData(result);
+        setError(null);
+      } catch (err) {
+        setError('Failed to load devices');
+        console.error(err);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [search, statusFilter, groupFilter, modelFilter]
+  );
 
   useEffect(() => {
     fetchDevices();
-    const interval = setInterval(() => fetchDevices(), 30000); // Refresh every 30s
+    const interval = setInterval(() => fetchDevices(), 30000);
     return () => clearInterval(interval);
   }, [fetchDevices]);
 
-  // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
@@ -130,8 +150,7 @@ export default function RuijieDevicesPage() {
     setRefreshing(true);
     try {
       await fetch('/api/ruijie/sync', { method: 'POST', credentials: 'include' });
-      // Wait a moment for sync to start, then fetch fresh data
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise((r) => setTimeout(r, 2000));
       await fetchDevices(true);
     } catch (err) {
       console.error('Failed to trigger sync:', err);
@@ -146,7 +165,7 @@ export default function RuijieDevicesPage() {
     try {
       const response = await fetch(`/api/ruijie/reboot/${rebootDevice.sn}`, {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Reboot failed');
       setRebootDevice(null);
@@ -160,8 +179,20 @@ export default function RuijieDevicesPage() {
   const handleExportCSV = () => {
     if (!data?.devices) return;
 
-    const headers = ['Device Name', 'Model', 'SN', 'Group', 'Status', 'Config Status', 'Mgmt IP', 'Clients', 'Last Synced'];
-    const rows = data.devices.map(d => [
+    const headers = [
+      'Device Name',
+      'Model',
+      'SN',
+      'Group',
+      'Status',
+      'Config Status',
+      'Mgmt IP',
+      'CPU %',
+      'Mem %',
+      'Clients',
+      'Last Synced',
+    ];
+    const rows = data.devices.map((d) => [
       d.device_name,
       d.model || '',
       d.sn,
@@ -169,11 +200,13 @@ export default function RuijieDevicesPage() {
       d.status,
       d.config_status || '',
       d.management_ip || '',
+      d.cpu_usage == null ? '' : String(Math.round(d.cpu_usage)),
+      d.memory_usage == null ? '' : String(Math.round(d.memory_usage)),
       d.online_clients.toString(),
       d.synced_at,
     ]);
 
-    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -182,53 +215,81 @@ export default function RuijieDevicesPage() {
     a.click();
   };
 
-  // Check if data is stale (> 15 mins)
-  const isStale = data?.lastSynced &&
-    (Date.now() - new Date(data.lastSynced).getTime()) > 15 * 60 * 1000;
+  const isStale =
+    data?.lastSynced &&
+    Date.now() - new Date(data.lastSynced).getTime() > 15 * 60 * 1000;
+
+  const inventory: NetworkInventory = useMemo(() => {
+    const devices = data?.devices || [];
+    const computed = computeNetworkInventory(devices);
+    return {
+      gateway: computed.gateway,
+      ap: computed.ap,
+      switch: { online: computed.switchOnline, total: computed.switchTotal },
+      client: computed.client,
+      guest: computed.guest,
+    };
+  }, [data?.devices]);
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        {/* Skeleton stat cards */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-gray-100 rounded-lg animate-pulse" />
-          ))}
-        </div>
-        {/* Skeleton filter bar */}
-        <div className="h-16 bg-gray-100 rounded-lg animate-pulse" />
-        {/* Skeleton table */}
-        <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
+      <AdminPage>
+        <LoadingState message="Loading devices..." />
+      </AdminPage>
+    );
+  }
+
+  if (error && !data) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <PiWarningCircleBold className="w-12 h-12 text-red-500" />
+        <p className="text-slate-600">{error}</p>
+        <Button onClick={() => fetchDevices()}>Retry</Button>
       </div>
     );
   }
 
-  const onlineCount = data?.devices.filter((d) => d.status === 'online').length || 0;
-  const offlineCount = data?.devices.filter((d) => d.status === 'offline').length || 0;
-  const isMockData = data?.devices.every((d) => d.mock_data) && (data?.devices.length || 0) > 0;
+  const devices = data?.devices || [];
+  const onlineCount = devices.filter((d) => d.status === 'online').length;
+  const offlineCount = devices.filter((d) => d.status === 'offline').length;
+  const totalClients = devices.reduce((sum, d) => sum + (d.online_clients || 0), 0);
+  const withCpu = devices.filter((d) => d.cpu_usage != null).length;
+  const isMockData = devices.length > 0 && devices.every((d) => d.mock_data);
+  const onlinePercent =
+    devices.length > 0 ? Math.round((onlineCount / devices.length) * 100) : 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <AdminPage>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Network Devices</h1>
-          <p className="text-gray-500 mt-1">
-            Ruijie Cloud managed devices
-            {data?.lastSynced && (
-              <span className="ml-2 text-sm">
-                • Last synced {formatRelativeTime(data.lastSynced)}
-              </span>
-            )}
-          </p>
+          <p className="text-xs text-slate-400 mb-1">Activity / Infrastructure / Devices</p>
+          <PageHeader title="Network Devices" subtitle="Manage CPE and network devices" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/network/health">System Health</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/network/analytics">Open Analytics</Link>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            <PiArrowsClockwiseBold
+              className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`}
+            />
+            Refresh
+          </Button>
         </div>
       </div>
 
-      {/* Mock Data Banner */}
       {isMockData && (
-        <Card className="border-purple-200 bg-purple-50">
+        <Card className="border border-purple-200/80 bg-purple-50/80 shadow-sm rounded-xl">
           <CardContent className="py-3">
-            <div className="flex items-center gap-2 text-purple-800">
+            <div className="flex items-center gap-2 text-purple-800 text-sm">
               <span className="w-2 h-2 rounded-full bg-purple-500" />
               <span className="font-medium">
                 Displaying mock data — Connect Ruijie API for live data
@@ -238,15 +299,15 @@ export default function RuijieDevicesPage() {
         </Card>
       )}
 
-      {/* Stale Warning */}
       {isStale && (
-        <Card className="border-2 border-yellow-200 bg-yellow-50">
+        <Card className="border border-amber-200/80 bg-amber-50/80 shadow-sm rounded-xl">
           <CardContent className="py-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <PiWarningBold className="w-5 h-5 text-yellow-600" />
-                <span className="text-yellow-800 font-medium">
-                  Device data may be outdated — last synced {formatRelativeTime(data?.lastSynced || '')}
+                <PiWarningBold className="w-5 h-5 text-amber-600" />
+                <span className="text-amber-800 text-sm font-medium">
+                  Device data may be outdated — last synced{' '}
+                  {formatRelativeTime(data?.lastSynced || '')}
                 </span>
               </div>
               <Button
@@ -254,7 +315,7 @@ export default function RuijieDevicesPage() {
                 size="sm"
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                className="border-amber-300 text-amber-800 hover:bg-amber-100"
               >
                 Refresh Now
               </Button>
@@ -263,18 +324,23 @@ export default function RuijieDevicesPage() {
         </Card>
       )}
 
-      {/* Stat Cards */}
-      <DeviceStatCards
-        total={data?.total || 0}
-        online={onlineCount}
-        offline={offlineCount}
-        activeTunnels={tunnelCount}
-        tunnelLimit={TUNNEL_LIMIT}
-        activeFilter={statusFilter}
-        onFilterChange={setStatusFilter}
-      />
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px_280px] gap-4">
+        <NetworkOverviewTiles inventory={inventory} />
+        <MetricCard
+          title="Online Devices"
+          value={`${onlineCount}`}
+          subtitle={`${onlinePercent}% of visible fleet`}
+          delta={`${offlineCount} offline`}
+          deltaPositive={offlineCount === 0}
+        />
+        <MetricCard
+          title="Telemetry Coverage"
+          value={`${withCpu}`}
+          subtitle="Devices with live CPU/mem"
+          delta={`${totalClients} clients online`}
+        />
+      </div>
 
-      {/* Filters */}
       <DeviceFilters
         search={search}
         onSearchChange={setSearch}
@@ -286,22 +352,19 @@ export default function RuijieDevicesPage() {
         onModelChange={setModelFilter}
         groups={data?.filters.groups || []}
         models={data?.filters.models || []}
-        onRefresh={handleRefresh}
         onExport={handleExportCSV}
-        refreshing={refreshing}
       />
 
-      {/* Device List - Table on desktop, Cards on mobile */}
       <div className="hidden md:block">
         <DeviceTable
-          devices={data?.devices || []}
+          devices={devices}
           tunnelLimitReached={tunnelCount >= TUNNEL_LIMIT}
           onReboot={setRebootDevice}
           formatRelativeTime={formatRelativeTime}
         />
       </div>
       <div className="md:hidden space-y-3">
-        {data?.devices.map((device) => (
+        {devices.map((device) => (
           <DeviceCard
             key={device.sn}
             device={device}
@@ -310,22 +373,24 @@ export default function RuijieDevicesPage() {
             formatRelativeTime={formatRelativeTime}
           />
         ))}
-        {data?.devices.length === 0 && (
-          <Card>
-            <CardContent className="py-8 text-center text-gray-500">
+        {devices.length === 0 && (
+          <Card className="border border-slate-200/80 shadow-sm rounded-xl">
+            <CardContent className="py-8 text-center text-slate-400">
               No devices found
             </CardContent>
           </Card>
         )}
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between text-sm text-gray-500">
-        <span>Showing {data?.devices.length || 0} of {data?.total || 0} devices</span>
-        <span>Active tunnels: {tunnelCount}/{TUNNEL_LIMIT}</span>
+      <div className="flex items-center justify-between text-xs text-slate-500">
+        <span>
+          Showing {devices.length} of {data?.total || 0} devices
+        </span>
+        <span>
+          Active tunnels: {tunnelCount}/{TUNNEL_LIMIT}
+        </span>
       </div>
 
-      {/* Reboot Confirmation Dialog */}
       <AlertDialog open={!!rebootDevice} onOpenChange={() => setRebootDevice(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -347,6 +412,6 @@ export default function RuijieDevicesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminPage>
   );
 }

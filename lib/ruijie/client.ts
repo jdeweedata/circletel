@@ -10,9 +10,57 @@
 import { getAccessToken } from './auth';
 import { getMockDevices, getMockDevice, createMockTunnel } from './mock';
 import { RuijieDevice, RuijieTunnel } from './types';
+import {
+  aggregateStaMetricsForDevice,
+  buildHourlyFlowRequest,
+  aggregateStaExperienceForDevice,
+  deriveUptimeFromLogs,
+  estimateSpanSeconds,
+  toNum,
+  mapCurrentPerformance,
+  pickFlowDeviceSn,
+  type CurrentPerformanceRaw,
+  type DeviceSystemHealth,
+  type StaDeviceExperience,
+  type StaUserRaw,
+} from './performance-metrics';
 
 const RUIJIE_BASE_URL = process.env.RUIJIE_BASE_URL || 'https://cloud.ruijienetworks.com/service/api';
 const MOCK_MODE = process.env.RUIJIE_MOCK_MODE === 'true';
+
+/** Live Ruijie calls must fail fast — analytics Live mode and rollups depend on this. */
+export const RUIJIE_FETCH_TIMEOUT_MS = 10_000;
+
+/**
+ * Logbiz (STA / performance / flow) is hosted at cloud root, NOT under /service/api.
+ * Example: https://cloud-eu.ruijienetworks.com/logbizagent/logbiz/api/...
+ * Override with RUIJIE_LOG_BIZ_BASE if Ruijie documents a separate logbiz host.
+ */
+function getLogbizBaseUrl(): string {
+  if (process.env.RUIJIE_LOG_BIZ_BASE) {
+    return process.env.RUIJIE_LOG_BIZ_BASE.replace(/\/$/, '');
+  }
+  const host = RUIJIE_BASE_URL.replace(/\/service\/api\/?$/, '');
+  return `${host}/logbizagent/logbiz/api`;
+}
+
+function mergeAbortSignals(signals: AbortSignal[]): AbortSignal | undefined {
+  const active = signals.filter(Boolean);
+  if (active.length === 0) return undefined;
+  if (active.length === 1) return active[0];
+  if (typeof AbortSignal.any === 'function') {
+    return AbortSignal.any(active);
+  }
+  const controller = new AbortController();
+  for (const signal of active) {
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      break;
+    }
+    signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+  }
+  return controller.signal;
+}
 
 // =============================================================================
 // API FETCH HELPER
@@ -24,16 +72,23 @@ const MOCK_MODE = process.env.RUIJIE_MOCK_MODE === 'true';
  */
 async function ruijieFetch<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  baseUrl: string = RUIJIE_BASE_URL
 ): Promise<T> {
   const token = await getAccessToken();
 
   // Ruijie API uses query param for auth, not header
-  const url = new URL(`${RUIJIE_BASE_URL}${endpoint}`);
+  const url = new URL(`${baseUrl}${endpoint}`);
   url.searchParams.set('access_token', token);
+
+  const timeoutSignal = AbortSignal.timeout(RUIJIE_FETCH_TIMEOUT_MS);
+  const signal = mergeAbortSignals(
+    [options.signal, timeoutSignal].filter((s): s is AbortSignal => Boolean(s))
+  );
 
   const response = await fetch(url.toString(), {
     ...options,
+    signal,
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -47,6 +102,14 @@ async function ruijieFetch<T>(
   }
 
   return response.json();
+}
+
+/** Authenticated fetch against the logbiz agent (CPU/mem, STA, flow). */
+async function ruijieLogbizFetch<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
+  return ruijieFetch<T>(endpoint, options, getLogbizBaseUrl());
 }
 
 // =============================================================================
@@ -284,21 +347,19 @@ export async function getDevice(sn: string): Promise<RuijieDevice> {
 
 /**
  * Online STA (station/client) response from Ruijie Cloud
- * Endpoint: /logbizagent/logbiz/api/sta/sta_users
+ * Endpoint: /logbizagent/logbiz/api/sta/sta_users (API V2.0.3 §2.5.1)
  */
 interface StaUsersResponse {
   code: number;
   msg?: string;
-  list?: Array<{
-    mac: string;
-    userIp: string;
-    ssid: string;
-    rssi: string;
-    band: string;
-    channel: string;
-    sn: string; // AP serial number
-  }>;
+  list?: StaUserRaw[];
   count?: number;
+}
+
+interface CurrentPerformanceResponse {
+  code: number;
+  msg?: string;
+  data?: CurrentPerformanceRaw;
 }
 
 export interface DeviceMetrics {
@@ -310,46 +371,25 @@ export interface DeviceMetrics {
   radio_5g_channel: number | null;
   radio_2g_utilization: number | null;
   radio_5g_utilization: number | null;
+  /** Flash/disk/memory headroom and process count from the same current_performance call. */
+  system: DeviceSystemHealth;
+  /** Latency, Ruijie experience score and noise floor from the same STA call. */
+  experience: StaDeviceExperience;
 }
 
-/**
- * Get device metrics (client count from STA API)
- *
- * NOTE: Ruijie Cloud API limitations:
- * - CPU/memory metrics are only available at network level, not per-device
- * - Uptime is not exposed via API
- * - Radio channel/utilization requires eWeb tunnel access
- * - Only online_clients can be derived from the STA (station) API
- *
- * Per-device performance data requires direct eWeb tunnel access.
- */
-export async function getDeviceMetrics(sn: string, groupId?: string): Promise<DeviceMetrics> {
-  const metrics = getEmptyMetrics();
+const METRICS_DELAY_MS = 250;
 
-  // Get online client count from STA API
-  if (groupId) {
-    try {
-      const response = await ruijieFetch<StaUsersResponse>(
-        '/logbizagent/logbiz/api/sta/sta_users',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            groupId: parseInt(groupId, 10),
-            pageIndex: 0,
-          }),
-        }
-      );
+function getEmptySystemHealth(): DeviceSystemHealth {
+  return mapCurrentPerformance(null);
+}
 
-      if (response.code === 0 && response.list) {
-        // Count clients connected to this specific AP
-        metrics.online_clients = response.list.filter(sta => sta.sn === sn).length;
-      }
-    } catch (error) {
-      console.error(`[Ruijie] Failed to fetch STA list for ${sn}:`, error);
-    }
-  }
+function getEmptyExperience(): StaDeviceExperience {
+  return aggregateStaExperienceForDevice([], '');
+}
 
-  return metrics;
+/** All-null metrics — used for offline devices, which we never query upstream. */
+export function getEmptyDeviceMetrics(): DeviceMetrics {
+  return getEmptyMetrics();
 }
 
 function getEmptyMetrics(): DeviceMetrics {
@@ -362,7 +402,149 @@ function getEmptyMetrics(): DeviceMetrics {
     radio_5g_channel: null,
     radio_2g_utilization: null,
     radio_5g_utilization: null,
+    system: getEmptySystemHealth(),
+    experience: getEmptyExperience(),
   };
+}
+
+/**
+ * GET /logbizagent/logbiz/api/sys/current_performance (API V2.0.3 §2.6.5)
+ *
+ * Returns the full health payload — callers that only need CPU/memory (the fleet sync)
+ * simply read those two fields.
+ */
+export async function getDeviceCurrentPerformance(sn: string): Promise<DeviceSystemHealth> {
+  if (MOCK_MODE) {
+    const mock = getMockDevice(sn);
+    return mapCurrentPerformance({
+      cpuRate: mock.cpu_usage,
+      memoryRate: mock.memory_usage,
+      memoryFree: 114_336,
+      flashRate: 42,
+      flashFree: 408,
+      processNum: 93,
+      userCnt: mock.online_clients,
+    });
+  }
+
+  try {
+    const params = new URLSearchParams({ sn });
+    const response = await ruijieLogbizFetch<CurrentPerformanceResponse>(
+      `/sys/current_performance?${params}`
+    );
+    if (response.code !== 0) {
+      console.error(`[Ruijie] current_performance failed for ${sn}:`, response.msg);
+      return getEmptySystemHealth();
+    }
+    return mapCurrentPerformance(response.data);
+  } catch (error) {
+    console.error(`[Ruijie] current_performance error for ${sn}:`, error);
+    return getEmptySystemHealth();
+  }
+}
+
+/**
+ * Fetch STA list for a network group (current online users).
+ */
+export async function getGroupStaUsers(groupId: string): Promise<StaUserRaw[]> {
+  if (MOCK_MODE) {
+    return [];
+  }
+
+  try {
+    const response = await ruijieLogbizFetch<StaUsersResponse>(
+      '/sta/sta_users',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          groupId: parseInt(groupId, 10),
+          pageIndex: 0,
+          pageSize: 1000,
+          staType: 'currentUser',
+        }),
+      }
+    );
+    if (response.code !== 0 || !response.list) {
+      return [];
+    }
+    return response.list;
+  } catch (error) {
+    console.error(`[Ruijie] Failed to fetch STA list for group ${groupId}:`, error);
+    return [];
+  }
+}
+
+/**
+ * Live device metrics: current_performance (system health) + STA util/clients/experience,
+ * plus uptime derived from the management log (no Cloud API exposes uptime directly).
+ */
+export async function getDeviceMetrics(sn: string, groupId?: string): Promise<DeviceMetrics> {
+  const metrics = getEmptyMetrics();
+
+  // All three are independent — one round-trip's wall time, not three.
+  const [perf, stas, logs] = await Promise.all([
+    getDeviceCurrentPerformance(sn),
+    groupId ? getGroupStaUsers(groupId) : Promise.resolve([] as StaUserRaw[]),
+    getDeviceLogs(sn),
+  ]);
+
+  metrics.cpu_usage = perf.cpu_usage;
+  metrics.memory_usage = perf.memory_usage;
+  metrics.system = perf;
+
+  if (groupId) {
+    Object.assign(metrics, aggregateStaMetricsForDevice(stas, sn));
+    metrics.experience = aggregateStaExperienceForDevice(stas, sn);
+  }
+
+  metrics.uptime_seconds = deriveUptimeFromLogs(logs);
+
+  return metrics;
+}
+
+/**
+ * Enrich a device list with live CPU/mem + STA metrics (for sync).
+ * One STA fetch per group; current_performance per online device (rate-limited).
+ */
+export async function enrichDevicesWithLiveMetrics(
+  devices: RuijieDevice[]
+): Promise<RuijieDevice[]> {
+  if (MOCK_MODE || devices.length === 0) {
+    return devices;
+  }
+
+  const byGroup = new Map<string, StaUserRaw[]>();
+  const groupIds = [
+    ...new Set(devices.map((d) => d.group_id).filter((id): id is string => Boolean(id))),
+  ];
+
+  for (const groupId of groupIds) {
+    byGroup.set(groupId, await getGroupStaUsers(groupId));
+    await new Promise((r) => setTimeout(r, METRICS_DELAY_MS));
+  }
+
+  const enriched: RuijieDevice[] = [];
+  for (const device of devices) {
+    const next: RuijieDevice = { ...device };
+    const stas = device.group_id ? byGroup.get(device.group_id) || [] : [];
+    const staMetrics = aggregateStaMetricsForDevice(stas, device.sn);
+    next.online_clients = staMetrics.online_clients;
+    next.radio_2g_channel = staMetrics.radio_2g_channel ?? undefined;
+    next.radio_5g_channel = staMetrics.radio_5g_channel ?? undefined;
+    next.radio_2g_utilization = staMetrics.radio_2g_utilization ?? undefined;
+    next.radio_5g_utilization = staMetrics.radio_5g_utilization ?? undefined;
+
+    if (device.status === 'online') {
+      const perf = await getDeviceCurrentPerformance(device.sn);
+      next.cpu_usage = perf.cpu_usage ?? undefined;
+      next.memory_usage = perf.memory_usage ?? undefined;
+      await new Promise((r) => setTimeout(r, METRICS_DELAY_MS));
+    }
+
+    enriched.push(next);
+  }
+
+  return enriched;
 }
 
 // =============================================================================
@@ -381,6 +563,24 @@ export interface RuijieClient {
   channel: number;
   sn: string; // AP serial number this client is connected to
   signalQuality: 'excellent' | 'good' | 'fair' | 'poor';
+  utilization: number | null;
+  uplinkRate: number | null;
+  downlinkRate: number | null;
+  /** Packet loss rate from Ruijie STA (fraction 0–1 or percent 0–100; UI normalizes). */
+  pktLoseRate: number | null;
+  /** Round-trip latency in ms. */
+  latencyMs: number | null;
+  /** Ruijie's own 0–100 connection score, and why it is low (empty when healthy). */
+  score: number | null;
+  scoreReason: string | null;
+  /** Client hostname, when advertised. */
+  hostname: string | null;
+  /** Client hardware vendor, e.g. "HUAWEI". */
+  vendor: string | null;
+  /** Cumulative bytes this session (up + down). */
+  sessionBytes: number | null;
+  /** Session duration in ms. */
+  sessionMs: number | null;
 }
 
 /**
@@ -408,7 +608,6 @@ function getSignalQuality(rssi: number): 'excellent' | 'good' | 'fair' | 'poor' 
  */
 export async function getDeviceClients(sn: string, groupId: string): Promise<RuijieClient[]> {
   if (MOCK_MODE) {
-    // Return mock clients for testing
     return [
       {
         mac: '00:1A:2B:3C:4D:5E',
@@ -419,6 +618,17 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
         channel: 36,
         sn,
         signalQuality: 'excellent',
+        utilization: 22,
+        uplinkRate: 40_000_000,
+        downlinkRate: 120_000_000,
+        pktLoseRate: 0.2,
+        latencyMs: 12,
+        score: 98,
+        scoreReason: null,
+        hostname: 'reception-pc',
+        vendor: 'Intel',
+        sessionBytes: 240_000_000,
+        sessionMs: 5_400_000,
       },
       {
         mac: '00:1A:2B:3C:4D:5F',
@@ -429,6 +639,17 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
         channel: 36,
         sn,
         signalQuality: 'good',
+        utilization: 28,
+        uplinkRate: 20_000_000,
+        downlinkRate: 80_000_000,
+        pktLoseRate: 1.5,
+        latencyMs: 48,
+        score: 82,
+        scoreReason: null,
+        hostname: 'nurse-tablet',
+        vendor: 'HUAWEI',
+        sessionBytes: 31_000_000,
+        sessionMs: 1_800_000,
       },
       {
         mac: 'AA:BB:CC:DD:EE:FF',
@@ -439,40 +660,67 @@ export async function getDeviceClients(sn: string, groupId: string): Promise<Rui
         channel: 6,
         sn,
         signalQuality: 'fair',
+        utilization: 45,
+        uplinkRate: 5_000_000,
+        downlinkRate: 15_000_000,
+        pktLoseRate: 6.2,
+        latencyMs: 210,
+        score: 61,
+        scoreReason: 'heavy interference',
+        hostname: null,
+        vendor: 'ESPRESSIF',
+        sessionBytes: 2_100_000,
+        sessionMs: 600_000,
       },
     ];
   }
 
   try {
-    const response = await ruijieFetch<StaUsersResponse>(
-      '/logbizagent/logbiz/api/sta/sta_users',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          groupId: parseInt(groupId, 10),
-          pageIndex: 0,
-        }),
-      }
-    );
-
-    if (response.code !== 0 || !response.list) {
-      return [];
-    }
-
-    // Filter clients connected to this specific AP and transform
-    return response.list
-      .filter(sta => sta.sn === sn)
-      .map(sta => {
-        const rssi = parseInt(sta.rssi, 10) || -80;
+    const list = await getGroupStaUsers(groupId);
+    return list
+      .filter((sta) => sta.sn === sn)
+      .map((sta) => {
+        const rssi =
+          typeof sta.rssi === 'number'
+            ? sta.rssi
+            : parseInt(String(sta.rssi ?? ''), 10) || -80;
+        const channel =
+          typeof sta.channel === 'number'
+            ? sta.channel
+            : parseInt(String(sta.channel ?? ''), 10) || 0;
+        const utilization =
+          typeof sta.utilization === 'number'
+            ? sta.utilization
+            : Number.isFinite(parseFloat(String(sta.utilization ?? '')))
+              ? parseFloat(String(sta.utilization))
+              : null;
+        const pktLoseRate =
+          typeof sta.pktLoseRate === 'number' && Number.isFinite(sta.pktLoseRate)
+            ? sta.pktLoseRate
+            : Number.isFinite(parseFloat(String(sta.pktLoseRate ?? '')))
+              ? parseFloat(String(sta.pktLoseRate))
+              : null;
         return {
-          mac: sta.mac,
-          userIp: sta.userIp,
-          ssid: sta.ssid,
+          mac: sta.mac || '',
+          userIp: sta.userIp || '',
+          ssid: sta.ssid || '',
           rssi,
-          band: sta.band,
-          channel: parseInt(sta.channel, 10) || 0,
-          sn: sta.sn,
+          band: sta.band || '',
+          channel,
+          sn: sta.sn || sn,
           signalQuality: getSignalQuality(rssi),
+          utilization,
+          uplinkRate: typeof sta.uplinkRate === 'number' ? sta.uplinkRate : null,
+          downlinkRate: typeof sta.downlinkRate === 'number' ? sta.downlinkRate : null,
+          pktLoseRate,
+          latencyMs: toNum(sta.timeDelay),
+          score: toNum(sta.score),
+          // Ruijie sends an empty string when the client is healthy.
+          scoreReason: sta.scoreReason ? sta.scoreReason : null,
+          hostname: sta.userName || null,
+          vendor: sta.manufacture || null,
+          sessionBytes: toNum(sta.wifiUpDown),
+          sessionMs: toNum(sta.activeTime),
         };
       });
   } catch (error) {
@@ -492,6 +740,8 @@ export interface RuijieLogEntry {
   id: number;
   sn: string;
   logType: 'reboot' | 'onoffline' | 'config' | string;
+  /** "ON" | "OFF" on onoffline entries. Undocumented but present on live responses. */
+  logSubType?: string;
   logDetail: string;
   operateTime: number; // timestamp in milliseconds
 }
@@ -508,6 +758,7 @@ interface DeviceLogsResponse {
       id: number;
       sn: string;
       logType: string;
+      logSubType?: string;
       logDetail: string;
       operateTime: number;
     }>;
@@ -529,6 +780,7 @@ export async function getDeviceLogs(sn: string): Promise<RuijieLogEntry[]> {
         id: 1,
         sn,
         logType: 'onoffline',
+        logSubType: 'ON',
         logDetail: 'Device online',
         operateTime: now - 1000 * 60 * 30, // 30 min ago
       },
@@ -550,6 +802,7 @@ export async function getDeviceLogs(sn: string): Promise<RuijieLogEntry[]> {
         id: 4,
         sn,
         logType: 'onoffline',
+        logSubType: 'OFF',
         logDetail: 'Device offline',
         operateTime: now - 1000 * 60 * 60 * 24 - 1000 * 60 * 5, // 1 day + 5 min ago
       },
@@ -557,6 +810,7 @@ export async function getDeviceLogs(sn: string): Promise<RuijieLogEntry[]> {
         id: 5,
         sn,
         logType: 'onoffline',
+        logSubType: 'ON',
         logDetail: 'Device online',
         operateTime: now - 1000 * 60 * 60 * 48, // 2 days ago
       },
@@ -577,6 +831,7 @@ export async function getDeviceLogs(sn: string): Promise<RuijieLogEntry[]> {
       id: log.id,
       sn: log.sn,
       logType: log.logType,
+      logSubType: log.logSubType,
       logDetail: log.logDetail,
       operateTime: log.operateTime,
     }));
@@ -653,7 +908,8 @@ export interface TrafficDataPoint {
   txBytes: number;         // Upload bytes
   rxPkts: number;          // Download packets
   txPkts: number;          // Upload packets
-  buildingId: number;      // Group/building ID
+  buildingId: number;      // Group/building ID (0 when the response is per-device)
+  sn?: string;             // Device serial — live responses return this, not buildingId
 }
 
 /**
@@ -676,8 +932,8 @@ export interface TrafficSummary {
   totalBytes: number;
   avgRxRate: number;       // Average download rate in bps
   avgTxRate: number;       // Average upload rate in bps
-  peakRxBytes: number;     // Highest hourly download
-  peakTxBytes: number;     // Highest hourly upload
+  peakRxBytes: number;     // Busiest single bucket, download (buckets are ~10 min)
+  peakTxBytes: number;     // Busiest single bucket, upload
   dataPoints: TrafficDataPoint[];
 }
 
@@ -690,7 +946,9 @@ interface HourlyTrafficResponse {
   msg?: string;
   count?: number;
   list?: Array<{
-    buildingId: number;
+    // Live per-device responses return `sn` and omit `buildingId`.
+    buildingId?: number;
+    sn?: string;
     rxBytes: number;
     rxPkts: number;
     txBytes: number;
@@ -780,54 +1038,66 @@ function generateMockAppFlowData(): AppFlowData[] {
 }
 
 /**
- * Get network-wide traffic data (hourly)
+ * Get hourly flow trend (API V2.0.3 §2.6.2 — Reyee EG flow).
+ * Docs require sn + startDate + endDate (not groupId).
  *
- * @param groupId - Network group ID
- * @param hours - Number of hours of data to fetch (default 24)
- * @returns Traffic summary with data points
+ * @param snOrOpts - Device serial, or { sn, hours }
+ * @param hours - Window length when first arg is sn (default 24)
  */
-export async function getNetworkTraffic(groupId: string, hours: number = 24): Promise<TrafficSummary> {
+export async function getNetworkTraffic(
+  snOrOpts: string | { sn: string; hours?: number },
+  hours: number = 24
+): Promise<TrafficSummary> {
+  const sn = typeof snOrOpts === 'string' ? snOrOpts : snOrOpts.sn;
+  const windowHours = typeof snOrOpts === 'string' ? hours : (snOrOpts.hours ?? 24);
+
   if (MOCK_MODE) {
-    const dataPoints = generateMockTrafficData(hours);
+    const dataPoints = generateMockTrafficData(windowHours);
     return calculateTrafficSummary(dataPoints);
   }
 
+  if (!sn) {
+    console.error('[Ruijie] getNetworkTraffic requires device sn (API 2.6.2)');
+    return getEmptyTrafficSummary();
+  }
+
   try {
-    const response = await ruijieFetch<HourlyTrafficResponse>(
-      '/logbizagent/logbiz/api/flow/show/hour',
+    const body = buildHourlyFlowRequest({ sn, hours: windowHours });
+    const response = await ruijieLogbizFetch<HourlyTrafficResponse>(
+      '/flow/show/hour',
       {
         method: 'POST',
-        body: JSON.stringify({
-          groupId: parseInt(groupId, 10),
-        }),
+        body: JSON.stringify(body),
       }
     );
 
     if (response.code !== 0 || !response.list) {
-      console.error(`[Ruijie] Failed to fetch traffic data:`, response.msg);
+      console.error(`[Ruijie] Failed to fetch traffic data for ${sn}:`, response.msg);
       return getEmptyTrafficSummary();
     }
 
-    // Filter to requested time range
-    const cutoffTime = Date.now() - (hours * 60 * 60 * 1000);
+    const cutoffTime = body.startDate;
     const filteredData = response.list
-      .filter(item => item.timeStamp >= cutoffTime)
-      .map(item => ({
+      .filter((item) => item.timeStamp >= cutoffTime)
+      .map((item) => ({
         timestamp: item.timeStamp,
         timeString: item.timeString,
         rxBytes: item.rxBytes,
         txBytes: item.txBytes,
         rxPkts: item.rxPkts,
         txPkts: item.txPkts,
-        buildingId: item.buildingId,
+        buildingId: item.buildingId ?? 0,
+        sn: item.sn,
       }));
 
     return calculateTrafficSummary(filteredData);
   } catch (error) {
-    console.error(`[Ruijie] Error fetching network traffic:`, error);
+    console.error(`[Ruijie] Error fetching network traffic for ${sn}:`, error);
     return getEmptyTrafficSummary();
   }
 }
+
+export { pickFlowDeviceSn };
 
 /**
  * Get application flow breakdown
@@ -841,8 +1111,8 @@ export async function getAppFlow(groupId: string): Promise<AppFlowData[]> {
   }
 
   try {
-    const response = await ruijieFetch<AppFlowResponse>(
-      '/logbizagent/logbiz/api/flow/app',
+    const response = await ruijieLogbizFetch<AppFlowResponse>(
+      '/flow/app',
       {
         method: 'POST',
         body: JSON.stringify({
@@ -889,8 +1159,8 @@ function calculateTrafficSummary(dataPoints: TrafficDataPoint[]): TrafficSummary
     if (point.txBytes > peakTxBytes) peakTxBytes = point.txBytes;
   }
 
-  // Calculate average rate (bytes per second)
-  const timeSpanSeconds = dataPoints.length * 60 * 60; // hours to seconds
+  // Span comes from the timestamps — buckets are 10 min, not 1 hour (see estimateSpanSeconds)
+  const timeSpanSeconds = estimateSpanSeconds(dataPoints);
   const avgRxRate = timeSpanSeconds > 0 ? (totalRxBytes * 8) / timeSpanSeconds : 0; // bps
   const avgTxRate = timeSpanSeconds > 0 ? (totalTxBytes * 8) / timeSpanSeconds : 0;
 

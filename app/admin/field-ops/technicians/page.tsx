@@ -3,7 +3,6 @@ import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDotsThreeBold, PiEnvelopeBo
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { StatCard } from '@/components/admin/shared';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -40,6 +39,20 @@ import {
   TechnicianSkill,
 } from '@/lib/types/technician-tracking';
 import { cn } from '@/lib/utils';
+
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
 
 const TEAM_OPTIONS: TechnicianTeam[] = [
   'Fibre Installation',
@@ -262,16 +275,19 @@ export default function TechniciansPage() {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" /></div>;
+    return (
+      <AdminPage>
+        <LoadingState message="Loading..." />
+      </AdminPage>
+    );
   }
 
   return (
-    <div className="space-y-8">
+    <AdminPage>
       <div className="mb-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Field Technicians</h1>
-            <p className="text-sm text-gray-500 mt-1">Manage your team of {technicians.length} field technicians</p>
+            <PageHeader title="Field Technicians" subtitle="Manage field technicians" />
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={fetchTechnicians} className="gap-2"><PiArrowsClockwiseBold className="h-4 w-4" />Refresh</Button>
@@ -410,6 +426,6 @@ export default function TechniciansPage() {
         <p>Showing {filteredTechnicians.length} of {technicians.length} technicians</p>
         <Link href="/admin/field-ops" className="text-circleTel-orange hover:underline font-medium">Back to Field Operations</Link>
       </div>
-    </div>
+    </AdminPage>
   );
 }

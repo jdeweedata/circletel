@@ -23,6 +23,7 @@ import {
 
 export const zoneDemographicEnrichmentFunction = inngest.createFunction(
   {
+
     id: 'zone-demographic-enrichment',
     name: 'Zone Demographic Enrichment',
     retries: 3,
@@ -32,14 +33,13 @@ export const zoneDemographicEnrichmentFunction = inngest.createFunction(
         match: 'data.enrichment_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: Sunday 3AM SAST = 1:00 UTC
     { cron: '0 1 * * 0' },
     // Event trigger: manual requests
     { event: 'zone/demographics.enrichment.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const eventData = event?.data as {
       enrichment_log_id?: string;
       triggered_by?: 'cron' | 'manual';
@@ -151,11 +151,11 @@ export const zoneDemographicEnrichmentFunction = inngest.createFunction(
 
 export const zoneDemographicEnrichmentCompletedFunction = inngest.createFunction(
   {
+
     id: 'zone-demographic-enrichment-completed',
     name: 'Zone Demographic Enrichment Completed',
-  },
-  { event: 'zone/demographics.enrichment.completed' },
-  async ({ event }) => {
+  triggers: { event: 'zone/demographics.enrichment.completed' },
+}, async ({ event }) => {
     const data = event.data;
     console.log(
       `[Demographic Enrichment] Completed: ${data.enriched}/${data.total_zones} zones enriched in ${data.duration_ms}ms`
@@ -169,11 +169,11 @@ export const zoneDemographicEnrichmentCompletedFunction = inngest.createFunction
 
 export const zoneDemographicEnrichmentFailedFunction = inngest.createFunction(
   {
+
     id: 'zone-demographic-enrichment-failed',
     name: 'Zone Demographic Enrichment Failed',
-  },
-  { event: 'zone/demographics.enrichment.failed' },
-  async ({ event }) => {
+  triggers: { event: 'zone/demographics.enrichment.failed' },
+}, async ({ event }) => {
     console.error(
       `[Demographic Enrichment] Failed: ${event.data.error} (attempt ${event.data.attempt})`
     );

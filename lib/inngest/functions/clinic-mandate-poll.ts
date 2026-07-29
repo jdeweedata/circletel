@@ -20,13 +20,13 @@ import { maybeMarkBillingReady } from '@/lib/onboarding/billing-ready';
 
 export const clinicMandatePollFunction = inngest.createFunction(
   {
+
     id: 'clinic-mandate-poll',
     name: 'Clinic Mandate Status Poll (NetCash backstop) - DISABLED',
     retries: 2,
     concurrency: { limit: 1 },
-  },
-  { cron: 'TZ=Africa/Johannesburg 0 8 * * *' }, // Daily at 08:00 SAST
-  async ({ step }) => {
+  triggers: { cron: 'TZ=Africa/Johannesburg 0 8 * * *' },
+}, async ({ step }) => {
     // DISABLED: billing no longer depends on eMandate signing; click-wrap mandate + TwoDay debit is the path
     // The original mandate polling code is retained below but not executed (unreachable after this return).
     apiLogger.info('[Mandate Poll] DISABLED: billing no longer depends on eMandate signing');

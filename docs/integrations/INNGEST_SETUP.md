@@ -149,3 +149,41 @@ Inngest has a generous free tier:
 - 7-day log retention
 
 For CircleTel's competitor scraping (4 providers × 30 days = 120 runs/month), this is well within the free tier.
+
+## Function registration after Coolify deploys
+
+Inngest Cloud must learn the current function list from `PUT/GET /api/inngest`.
+
+Symptoms of a stale registry:
+- Older jobs still run (e.g. `ruijie-sync` cron) but newer event handlers never log (e.g. `ruijie-traffic-rollup` on `ruijie/sync.completed`).
+- Manually `curl -X PUT https://www.circletel.co.za/api/inngest` returns `{"message":"Successfully registered","modified":true}` and handlers start working.
+
+Production deploy workflow re-registers automatically after the container is healthy. For emergency sync:
+
+```bash
+curl -X PUT https://www.circletel.co.za/api/inngest -H 'Content-Type: application/json'
+```
+
+Also verify at [app.inngest.com](https://app.inngest.com) that `ruijie-traffic-rollup` is listed for the `circletel` app.
+
+## Ruijie pipeline sessions
+
+When device sync finishes it emits `ruijie/sync.completed` with:
+
+```ts
+meta: {
+  sessions: {
+    sync_log_id: "<uuid from ruijie_sync_logs>",
+  },
+}
+```
+
+Fan-out handlers (traffic rollup, health monitor, offline alerts, completion logger)
+share that session. In the Inngest dashboard:
+
+1. Open the correct environment
+2. Go to **AI → Sessions**
+3. Search session key `sync_log_id`
+4. Open the UUID to see all runs for that network refresh
+
+Requires Inngest TS SDK ≥ 4.7. Local: set `INNGEST_DEV=1`.

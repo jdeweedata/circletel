@@ -146,6 +146,9 @@ export class NetCashProvider extends BasePaymentProvider {
     try {
       // Validate required parameters
       this.validateParams(params as unknown as Record<string, unknown>, ['amount', 'reference', 'customerEmail']);
+      if (typeof params.amount !== 'number' || !(params.amount > 0)) {
+        throw new Error('Missing required parameters: amount');
+      }
 
       // Generate unique transaction reference
       const transactionId = this.generateTransactionReference(params.reference);

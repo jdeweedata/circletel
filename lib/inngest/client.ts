@@ -10,12 +10,20 @@
 
 import { Inngest } from 'inngest';
 
+/**
+ * v4 defaults to cloud mode (requires INNGEST_SIGNING_KEY in production).
+ * Local: set INNGEST_DEV=1, or rely on NODE_ENV=development.
+ * @see https://www.inngest.com/docs/reference/typescript/v4/migrations/v3-to-v4
+ */
+const isDev =
+  process.env.INNGEST_DEV === '1' || process.env.NODE_ENV === 'development';
+
 // Create the Inngest client
 export const inngest = new Inngest({
   id: 'circletel',
   name: 'CircleTel',
-  // Event key is optional for development
-  // In production, set INNGEST_EVENT_KEY environment variable
+  isDev,
+  // INNGEST_EVENT_KEY / INNGEST_SIGNING_KEY are read from env automatically.
 });
 
 // =============================================================================

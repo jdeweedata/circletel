@@ -61,6 +61,7 @@ interface InvoiceRecord {
  */
 export const billingDayFunction = inngest.createFunction(
   {
+
     id: 'billing-day-processing',
     name: 'Billing Day Processing',
     retries: 3,
@@ -70,14 +71,13 @@ export const billingDayFunction = inngest.createFunction(
         match: 'data.process_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: 07:00 SAST = 05:00 UTC (fallback if not triggered by debit-completion)
     { cron: '0 5 * * *' },
     // Event trigger: manual requests or debit-completion chain
     { event: 'billing/day.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     // Extract options from event data (if triggered manually or by debit-completion)
     const eventData = event?.data as {
       process_log_id?: string;
@@ -544,11 +544,11 @@ export const billingDayFunction = inngest.createFunction(
  */
 export const billingDayCompletedFunction = inngest.createFunction(
   {
+
     id: 'billing-day-completed',
     name: 'Billing Day Completed Handler',
-  },
-  { event: 'billing/day.completed' },
-  async ({ event, step }) => {
+  triggers: { event: 'billing/day.completed' },
+}, async ({ event, step }) => {
     const {
       process_log_id,
       billing_date,
@@ -580,11 +580,11 @@ export const billingDayCompletedFunction = inngest.createFunction(
  */
 export const billingDayFailedFunction = inngest.createFunction(
   {
+
     id: 'billing-day-failed',
     name: 'Billing Day Failed Handler',
-  },
-  { event: 'billing/day.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'billing/day.failed' },
+}, async ({ event, step }) => {
     const { process_log_id, error, attempt } = event.data;
 
     await step.run('handle-failure', async () => {

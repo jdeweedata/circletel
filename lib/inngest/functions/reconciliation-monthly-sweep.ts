@@ -24,6 +24,7 @@ import { cronLogger } from '@/lib/logging';
 
 export const reconciliationMonthlySweepFunction = inngest.createFunction(
   {
+
     id: 'reconciliation-monthly-sweep',
     name: 'Monthly Reconciliation Sweep',
     retries: 2,
@@ -33,12 +34,11 @@ export const reconciliationMonthlySweepFunction = inngest.createFunction(
         match: 'data.process_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     { cron: '0 6 3 * *' },
     { event: 'reconciliation/monthly-sweep.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const eventData = event?.data as {
       process_log_id?: string;
       triggered_by?: 'cron' | 'manual';

@@ -2,24 +2,28 @@
  * Ruijie Device Traffic API
  * GET /api/ruijie/devices/[sn]/traffic - Get traffic data for a specific device
  *
- * Note: Ruijie Cloud API provides traffic at network/group level, not per-device.
- * This endpoint returns client-level bandwidth data from the STA API as a proxy.
+ * Returns two views:
+ * - `history`: real per-device hourly flow (API V2.0.3 §2.5.2 flow/show/hour, keyed by sn)
+ * - `clientBandwidth`: current per-client rates from the STA API
  *
  * Query params:
- * - hours: Number of hours of data (default: 24)
+ * - hours: Size of the history window (default: 24)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
-import { getDeviceClients, isMockMode } from '@/lib/ruijie/client';
+import { getDeviceClients, getNetworkTraffic, isMockMode, type TrafficSummary } from '@/lib/ruijie/client';
 import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
 
+const DEFAULT_HOURS = 24;
+const MAX_HOURS = 168; // Ruijie keeps roughly a week of hourly flow
+
 interface DeviceTrafficResponse {
   sn: string;
   deviceName: string;
-  groupId: string;
+  groupId: string | null;
   onlineClients: number;
   clientBandwidth: {
     mac: string;
@@ -31,8 +35,16 @@ interface DeviceTrafficResponse {
   }[];
   totalDownlinkRate: number;  // Aggregate bps
   totalUplinkRate: number;    // Aggregate bps
+  hours: number;
+  history: TrafficSummary;
   fetchedAt: string;
   note: string;
+}
+
+function parseHours(raw: string | null): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_HOURS;
+  return Math.min(Math.floor(n), MAX_HOURS);
 }
 
 export async function GET(
@@ -75,9 +87,18 @@ export async function GET(
       return NextResponse.json({ error: 'Device not found' }, { status: 404 });
     }
 
+    const hours = parseHours(request.nextUrl.searchParams.get('hours'));
     const groupId = device.group_id;
+
+    // Flow history is keyed by serial (works without a group); clients need the group.
+    // Independent calls — one round-trip's wall time, matching getDeviceMetrics.
+    const [history, clients] = await Promise.all([
+      getNetworkTraffic({ sn, hours }),
+      groupId ? getDeviceClients(sn, groupId) : Promise.resolve([]),
+    ]);
+
     if (!groupId) {
-      return NextResponse.json({
+      const response: DeviceTrafficResponse = {
         sn,
         deviceName: device.device_name,
         groupId: null,
@@ -85,13 +106,13 @@ export async function GET(
         clientBandwidth: [],
         totalDownlinkRate: 0,
         totalUplinkRate: 0,
+        hours,
+        history,
         fetchedAt: new Date().toISOString(),
-        note: 'Device has no associated group ID',
-      });
+        note: 'Device has no group ID — per-client bandwidth unavailable, history is per-device.',
+      };
+      return NextResponse.json(response);
     }
-
-    // Get connected clients with bandwidth info
-    const clients = await getDeviceClients(sn, groupId);
 
     // In mock mode, add simulated bandwidth rates
     const clientBandwidth = clients.map(client => {
@@ -144,8 +165,10 @@ export async function GET(
       clientBandwidth,
       totalDownlinkRate,
       totalUplinkRate,
+      hours,
+      history,
       fetchedAt: new Date().toISOString(),
-      note: 'Bandwidth data is aggregated from connected clients. Historical traffic data is available at network level only.',
+      note: 'History is this device\'s own hourly flow (flow/show/hour). Client rates are instantaneous, from the STA API.',
     };
 
     return NextResponse.json(response);
