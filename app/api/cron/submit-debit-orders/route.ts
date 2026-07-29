@@ -20,6 +20,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
   netcashDebitBatchService,
+  partitionByLimits,
   DebitOrderItem
 } from '@/lib/payments/netcash-debit-batch-service';
 import { PayNowBillingService } from '@/lib/billing/paynow-billing-service';
@@ -30,6 +31,10 @@ import { cronLogger } from '@/lib/logging';
 export const runtime = 'nodejs';
 export const maxDuration = 60; // 60 seconds max
 
+// How far back (days) past-due debit-order invoices remain collectable by this
+// cron. Older unpaids need a deliberate decision, not an automatic debit.
+const DUE_DATE_WINDOW_DAYS = Number(process.env.DEBIT_ORDER_DUE_WINDOW_DAYS) || 45;
+
 interface SubmissionResult {
   date: string;
   totalEligible: number;
@@ -37,6 +42,8 @@ interface SubmissionResult {
   skipped: number;
   paynowSent: number; // Invoices sent Pay Now due to pending eMandate
   batchId?: string;
+  authorised: boolean;        // batch released for processing via RequestBatchAuthorise
+  authoriseMessage?: string;  // NetCash authorise response (e.g. 322 = Auto Auth not enabled)
   errors: string[];
 }
 
@@ -113,6 +120,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     submitted: 0,
     skipped: 0,
     paynowSent: 0,
+    authorised: false,
     errors: [],
   };
 
@@ -127,9 +135,18 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   }
 
   // ============================================================================
-  // 1. Get unpaid invoices due today with debit order payment method
+  // 1. Get unpaid debit-order invoices due on or before today
+  //
+  // A rolling window (not `due_date = today`) so a missed cron day, a late
+  // invoice, or a previously skipped item is retried on the next run instead
+  // of being lost forever (root cause of the uncollected June/July 2026
+  // invoices). Double-collection is prevented by the batch-item dedupe below.
   // ============================================================================
-  
+
+  const windowStart = new Date(billingDate);
+  windowStart.setDate(windowStart.getDate() - DUE_DATE_WINDOW_DAYS);
+  const windowStartStr = windowStart.toISOString().split('T')[0];
+
   const { data: invoices, error: invoiceError } = await supabase
     .from('customer_invoices')
     .select(`
@@ -149,13 +166,51 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
       )
     `)
     .in('status', ['draft', 'sent', 'partial', 'overdue'])
-    .eq('due_date', dateStr)
+    .lte('due_date', dateStr)
+    .gte('due_date', windowStartStr)
     .in('payment_collection_method', ['debit_order', 'Debit Order']);
 
   if (invoiceError) {
     result.errors.push(`Failed to fetch invoices: ${invoiceError.message}`);
     await logExecution(supabase, result, 'failed');
     return result;
+  }
+
+  // Dedupe: never re-collect an invoice that is already in a live batch or
+  // already has a completed payment. (Batch items are written by
+  // recordBatchSubmission on every successful upload.)
+  let dueInvoices = invoices || [];
+  if (dueInvoices.length > 0) {
+    const invoiceIds = dueInvoices.map((inv) => inv.id);
+    const invoiceRefs = dueInvoices.map((inv) => inv.invoice_number);
+
+    const [{ data: existingItems }, { data: completedTxs }] = await Promise.all([
+      supabase
+        .from('debit_order_batch_items')
+        .select('invoice_id, status')
+        .in('invoice_id', invoiceIds)
+        .not('status', 'in', '("unpaid","failed","cancelled")'),
+      supabase
+        .from('payment_transactions')
+        .select('reference')
+        .in('reference', invoiceRefs)
+        .eq('status', 'completed'),
+    ]);
+
+    const inLiveBatch = new Set((existingItems || []).map((i) => i.invoice_id));
+    const alreadyPaid = new Set((completedTxs || []).map((t) => t.reference));
+
+    dueInvoices = dueInvoices.filter((inv) => {
+      if (inLiveBatch.has(inv.id)) {
+        cronLogger.info(`Skipping ${inv.invoice_number}: already in a live debit batch`);
+        return false;
+      }
+      if (alreadyPaid.has(inv.invoice_number)) {
+        cronLogger.info(`Skipping ${inv.invoice_number}: completed payment already recorded`);
+        return false;
+      }
+      return true;
+    });
   }
 
   // ============================================================================
@@ -198,8 +253,8 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   const eligibleItems: DebitOrderItem[] = [];
 
   // Add invoices
-  if (invoices) {
-    for (const invoice of invoices) {
+  {
+    for (const invoice of dueInvoices) {
       // Verify customer has active debit order mandate
       const mandateStatus = await checkMandateStatus(supabase, invoice.customer_id);
 
@@ -326,11 +381,53 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   cronLogger.info(`Found ${eligibleItems.length} eligible debit orders to submit`);
 
   // ============================================================================
+  // 3b. Apply NetCash collection limits (per-item line limit + daily cap)
+  //
+  // Items above the per-item line limit cannot be collected as a debit-order
+  // line on this profile — skip & flag them (they need an alternative method,
+  // e.g. a Pay Now link, or the NetCash line limit must be raised). The daily
+  // cap blocks the whole run only if the SUBMITTABLE total breaches it.
+  // See docs/netcash/2026-06-27_netcash-debit-limit-increase-request.md.
+  // ============================================================================
+  const limits = partitionByLimits(eligibleItems);
+
+  for (const item of limits.overLine) {
+    result.skipped++;
+    result.errors.push(
+      `Skipped ${item.accountReference}: R${item.amount.toFixed(2)} exceeds the NetCash per-item line limit — cannot be debit-collected on this profile (collect via Pay Now or raise the NetCash line limit)`
+    );
+    cronLogger.warn(
+      `Over line-limit, skipped: ${item.accountReference} R${item.amount.toFixed(2)} (customer ${item.customerId})`
+    );
+  }
+
+  if (limits.dailyExceeded) {
+    result.errors.push(
+      `Submittable batch total R${limits.totalRands.toFixed(2)} exceeds the NetCash daily limit — batch not submitted. Raise the NetCash daily limit or split across action dates.`
+    );
+    cronLogger.error(
+      `Daily limit exceeded — batch not submitted (submittable total R${limits.totalRands.toFixed(2)})`
+    );
+    await logExecution(supabase, result, 'failed');
+    return result;
+  }
+
+  if (limits.warning) cronLogger.warn(limits.warning);
+
+  const itemsToSubmit = limits.submittable;
+
+  if (itemsToSubmit.length === 0) {
+    cronLogger.info('No submittable debit orders after applying collection limits');
+    await logExecution(supabase, result, result.errors.length > 0 ? 'completed_with_errors' : 'completed');
+    return result;
+  }
+
+  // ============================================================================
   // 4. Submit batch to NetCash
   // ============================================================================
-  
+
   const batchName = `CircleTel-${dateStr}-${Date.now()}`;
-  const batchResult = await netcashDebitBatchService.submitBatch(eligibleItems, batchName);
+  const batchResult = await netcashDebitBatchService.submitBatch(itemsToSubmit, batchName);
 
   if (!batchResult.success) {
     result.errors.push(...batchResult.errors);
@@ -365,20 +462,45 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   }
 
   // ============================================================================
-  // 5b. Alert finance: batch requires MANUAL authorisation (interim measure
-  // until NetCash Auto Auth is enabled — see docs/superpowers/specs/
-  // 2026-07-02-debit-batch-auth-alert-design.md)
+  // 5b. Authorise (release) the batch so it actually collects
+  //
+  // Uploaded batches sit unauthorised and expire if not released. This releases
+  // them programmatically. Requires Auto Authorisation enabled on the NetCash
+  // profile; until then NetCash returns 322 and the finance alert below covers
+  // the manual portal step.
   // ============================================================================
 
-  await sendBatchAuthorisationAlert({
-    batchType: 'bank_debit_order',
-    batchName,
-    fileToken: batchResult.fileToken,
-    itemCount: batchResult.itemsSubmitted,
-    totalAmount: eligibleItems.reduce((sum, item) => sum + item.amount, 0),
-    actionDate: eligibleItems[0].actionDate.toISOString().split('T')[0],
-    loadReportStatus,
-  });
+  const authResult = await netcashDebitBatchService.authoriseBatchByName(batchName, { releaseFunds: true });
+  result.authorised = authResult.success;
+  result.authoriseMessage = authResult.message;
+
+  if (authResult.success) {
+    cronLogger.info(`Batch ${batchName} authorised (released) — code ${authResult.code}`);
+  } else if (authResult.authoriseNotAllowed) {
+    result.errors.push('Auto Authorisation not enabled on NetCash profile (322) — batch must be authorised manually in the portal before it expires');
+    cronLogger.warn(`Batch ${batchName} uploaded but NOT authorised: ${authResult.message}. Manual authorisation required.`);
+  } else {
+    result.errors.push(`Batch authorisation failed: ${authResult.message}`);
+    cronLogger.warn(`Batch ${batchName} authorisation failed: ${authResult.message}`);
+  }
+
+  // ============================================================================
+  // 5c. Alert finance when the batch still requires MANUAL authorisation
+  // (programmatic authorise failed or Auto Auth not enabled — see
+  // docs/superpowers/specs/2026-07-02-debit-batch-auth-alert-design.md)
+  // ============================================================================
+
+  if (!authResult.success) {
+    await sendBatchAuthorisationAlert({
+      batchType: 'bank_debit_order',
+      batchName,
+      fileToken: batchResult.fileToken,
+      itemCount: batchResult.itemsSubmitted,
+      totalAmount: itemsToSubmit.reduce((sum, item) => sum + item.amount, 0),
+      actionDate: itemsToSubmit[0].actionDate.toISOString().split('T')[0],
+      loadReportStatus,
+    });
+  }
 
   // ============================================================================
   // 6. Record batch submission in database
@@ -387,15 +509,16 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   await recordBatchSubmission(supabase, {
     batchId: batchResult.fileToken || '',
     batchName,
-    items: eligibleItems,
+    items: itemsToSubmit,
     submittedAt: new Date(),
+    authorised: result.authorised,
   });
 
   // ============================================================================
   // 7. Update next billing dates
   // ============================================================================
 
-  await updateNextBillingDates(supabase, eligibleItems, billingDate);
+  await updateNextBillingDates(supabase, itemsToSubmit, billingDate);
 
   // ============================================================================
   // 8. Send Pay Now to customers with pending/missing eMandate
@@ -413,6 +536,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
             sendSms: true,
             smsTemplate: 'emandatePending',
             includeEmandateReminder: true,
+            allowCollectionMethodOverride: true, // no usable mandate — PayNow becomes the collection method
           }
         );
 
@@ -533,6 +657,7 @@ async function recordBatchSubmission(
     batchName: string;
     items: DebitOrderItem[];
     submittedAt: Date;
+    authorised: boolean;
   }
 ) {
   try {
@@ -544,7 +669,7 @@ async function recordBatchSubmission(
         batch_name: batch.batchName,
         item_count: batch.items.length,
         total_amount: batch.items.reduce((sum, item) => sum + item.amount, 0),
-        status: 'submitted',
+        status: batch.authorised ? 'authorised' : 'submitted',
         submitted_at: batch.submittedAt.toISOString(),
         created_at: new Date().toISOString(),
       }, { onConflict: 'batch_id' });
@@ -624,6 +749,8 @@ async function logExecution(
           submitted: result.submitted,
           skipped: result.skipped,
           batchId: result.batchId,
+          authorised: result.authorised,
+          authoriseMessage: result.authoriseMessage,
           errors: result.errors,
         },
       });
