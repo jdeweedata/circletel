@@ -8,6 +8,19 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface Outage {
   id: string;
   incident_number: string;
@@ -82,12 +95,11 @@ export default function OutagesListPage() {
   }, [activeTab]);
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Incident Management</h1>
-          <p className="text-gray-500 mt-1">Track and manage network incidents</p>
+          <PageHeader title="Incident Management" subtitle="Track and manage network incidents" />
         </div>
         <Link href="/admin/network/outages/new">
           <Button className="bg-circleTel-orange hover:bg-orange-600">
@@ -201,6 +213,6 @@ export default function OutagesListPage() {
           )}
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPage>
   );
 }

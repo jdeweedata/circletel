@@ -3,7 +3,12 @@
  *
  * Task F: New clinics get their first FULL recurring bill ~1 month after activation.
  *
- * Cohort Rules:
+ * Scope: this delay is CLINIC/CORPORATE-ONLY. Consumer/residential services always
+ * bill on their normal monthly cycle — see isClinicBillingCategory below. (Applying
+ * the delay to consumers silently skipped a full month of billing for 5G/fixed-wireless
+ * customers activated mid-month — the regression this scoping fixes.)
+ *
+ * Cohort Rules (clinic/corporate services only):
  * - ORIGINAL: activation_date <= 2026-06-01 → billing per existing pro-rata logic (no change)
  * - NEW: activation_date > 2026-06-01 → first recurring invoice delayed ~1 month after activation
  *
@@ -11,6 +16,22 @@
  * (for the partial activation month). For new clinics, it should SUPPRESS full recurring
  * invoices until billing_day >= activation_date + 1 calendar month.
  */
+
+/**
+ * Product categories that receive the new-clinic billing delay.
+ * Unjani clinics use these; consumer/residential services do not.
+ */
+const CLINIC_BILLING_CATEGORIES = new Set(['corporate', 'business_connectivity']);
+
+/**
+ * True when a service's product_category is a clinic/corporate category subject to
+ * the new-clinic billing delay. Consumer categories (residential, null, etc.) → false.
+ *
+ * @param productCategory - customer_services.product_category value
+ */
+export function isClinicBillingCategory(productCategory: string | null | undefined): boolean {
+  return productCategory != null && CLINIC_BILLING_CATEGORIES.has(productCategory);
+}
 
 /**
  * Add one calendar month to a UTC date, clamping to the last day of the target month
@@ -39,13 +60,25 @@ function addOneMonthUTC(d: Date): Date {
  *
  * @param activationDate - ISO string (YYYY-MM-DD) of service activation
  * @param billingDay - Date object of the current billing cycle
+ * @param productCategory - customer_services.product_category; the delay applies
+ *   ONLY to clinic/corporate categories. Consumer/residential services always bill.
  * @returns true if invoice should be emitted, false if it should be skipped
  *
  * Logic:
+ * - If not a clinic/corporate service: return true (consumers always bill monthly)
  * - If activation <= 2026-06-01: return true (original cohort, bill normally)
  * - If activation > 2026-06-01: return true only if billingDay >= activation + 1 month
  */
-export function shouldEmitRecurringInvoice(activationDate: string | null, billingDay: Date): boolean {
+export function shouldEmitRecurringInvoice(
+  activationDate: string | null,
+  billingDay: Date,
+  productCategory: string | null = null
+): boolean {
+  // The new-clinic delay is clinic/corporate-only. Consumer services always bill.
+  if (!isClinicBillingCategory(productCategory)) {
+    return true;
+  }
+
   if (!activationDate) {
     // No activation date; treat as original cohort (allow billing)
     return true;

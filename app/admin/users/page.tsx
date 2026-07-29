@@ -38,6 +38,19 @@ import { PERMISSIONS } from '@/lib/rbac/permissions';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface AdminUser {
   id: string;
   email: string;
@@ -301,33 +314,20 @@ export default function AdminUsersPage() {
 
   if (loading && activeTab === 'users' && users.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-16 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading users..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <PiUsersBold className="h-8 w-8 text-circleTel-orange" />
-            User Management
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Manage admin users, roles, and access requests
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+    <AdminPage>
+      <PageHeader
+        title="User Management"
+        subtitle="Manage admin users, roles, and access requests"
+        actions={
+          <div className="flex items-center gap-2">
+
           <Link href="/admin/users/roles">
             <Button variant="outline">
               <PiGearBold className="mr-2 h-4 w-4" />
@@ -348,8 +348,9 @@ export default function AdminUsersPage() {
             <PiArrowsClockwiseBold className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* Error Alert */}
       {error && (
@@ -788,6 +789,6 @@ export default function AdminUsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

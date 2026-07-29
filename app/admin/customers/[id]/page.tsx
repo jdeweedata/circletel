@@ -26,6 +26,20 @@ import { PPPoECredentialsSection } from '@/components/admin/pppoe';
 import { CustomerBillingTab } from '@/components/admin/customers/CustomerBillingTab';
 import { CustomerComplianceDocuments } from '@/components/admin/compliance/CustomerComplianceDocuments';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface Customer {
   id: string;
   first_name: string;
@@ -213,14 +227,9 @@ export default function CustomerDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500 mx-auto mb-4"></div>
-            <p className="text-gray-500 text-sm">Loading customer details...</p>
-          </div>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading customer..." />
+      </AdminPage>
     );
   }
 
@@ -275,7 +284,7 @@ export default function CustomerDetailPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl relative">
+    <AdminPage>
       {/* Success Toast */}
       {showSuccessToast && createdTicketNumber && (
         <div className="fixed top-4 right-4 z-50 bg-green-50 border border-green-200 rounded-lg shadow-lg p-4 flex items-start gap-3 max-w-md animate-in slide-in-from-top-2">
@@ -720,6 +729,6 @@ export default function CustomerDetailPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPage>
   );
 }

@@ -4,8 +4,8 @@ import { PiCalculatorBold, PiMoneyBold, PiTrendUpBold, PiUsersBold } from 'react
 import { useState } from 'react';
 import { Slider } from '@/components/ui/slider';
 
-// Simplified commission rate - 30% recurring
-const COMMISSION_RATE = 0.30;
+// Pilot programme rate: 10% of MRR, recurring, on qualifying packages
+const COMMISSION_RATE = 0.10;
 
 function calculateCommission(packageValue: number, numCustomers: number): {
   monthlyCommission: number;
@@ -24,7 +24,7 @@ function calculateCommission(packageValue: number, numCustomers: number): {
 }
 
 export function CommissionCalculator() {
-  const [packageValue, setPackageValue] = useState(699);
+  const [packageValue, setPackageValue] = useState(999);
   const [numCustomers, setNumCustomers] = useState(10);
 
   const result = calculateCommission(packageValue, numCustomers);
@@ -60,13 +60,13 @@ export function CommissionCalculator() {
                 <Slider
                   value={[packageValue]}
                   onValueChange={(value) => setPackageValue(value[0])}
-                  min={399}
+                  min={599}
                   max={1999}
                   step={100}
                   className="mb-2"
                 />
                 <div className="flex justify-between text-xs text-gray-400">
-                  <span>R399</span>
+                  <span>R599</span>
                   <span>R1,999</span>
                 </div>
               </div>
@@ -99,7 +99,7 @@ export function CommissionCalculator() {
               <div className="bg-green-50 rounded-xl p-4 border border-green-100">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                    <span className="text-green-600 font-bold text-sm">30%</span>
+                    <span className="text-green-600 font-bold text-sm">10%</span>
                   </div>
                   <div className="text-sm text-gray-600">
                     <strong className="text-gray-900">Recurring commission</strong> on every customer, every month
@@ -154,7 +154,7 @@ export function CommissionCalculator() {
 
         {/* Bottom Note */}
         <p className="text-center text-white/70 text-sm mt-6">
-          * Based on 30% recurring commission. Actual earnings depend on customer retention.
+          * Based on 10% recurring commission on the monthly subscription of qualifying packages. Commission is paid on collected payments — actual earnings depend on your referrals staying connected and paid up. Ts&amp;Cs apply.
         </p>
       </div>
     </section>

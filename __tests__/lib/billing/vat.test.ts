@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { VAT_RATE, addVat } from '@/lib/billing/vat';
+import { VAT_RATE, addVat, removeVat } from '@/lib/billing/vat';
 
 describe('vat helper', () => {
   it('VAT_RATE is 0.15', () => {
@@ -12,5 +12,9 @@ describe('vat helper', () => {
   });
   it('rounds half-cent correctly', () => {
     expect(addVat(100.005)).toBe(115.01); // 100.005*1.15=115.00575 -> 115.01
+  });
+  it('removeVat backs VAT out of inclusive amounts', () => {
+    expect(removeVat(450)).toBe(391.3);
+    expect(removeVat(899)).toBe(781.74);
   });
 });

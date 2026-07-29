@@ -33,13 +33,13 @@ interface OverdueClinic {
 
 export const clinicVettingSlaFunction = inngest.createFunction(
   {
+
     id: 'clinic-vetting-sla',
     name: 'Clinic Vetting SLA Reminder',
     retries: 2,
-    concurrency: { limit: 1 }, // Digest only; no parallelization needed
-  },
-  { cron: 'TZ=Africa/Johannesburg 0 9 * * *' }, // Daily at 09:00 SAST
-  async ({ step }) => {
+    concurrency: { limit: 1 }, // Digest only; no parallelization needed,
+  triggers: { cron: 'TZ=Africa/Johannesburg 0 9 * * *' },
+}, async ({ step }) => {
     const supabase = await createClient();
     const now = new Date();
     const reminderDeadline = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 day from now

@@ -13,6 +13,19 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface CoverageStats {
   totalRequests: number;
   successfulRequests: number;
@@ -197,35 +210,18 @@ export default function AdminCoveragePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
-            <div className="h-96 bg-gray-200 rounded-lg"></div>
-          </div>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading coverage data..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <AdminPage>
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <PiMapTrifoldBold className="h-8 w-8 text-orange-600" />
-              Coverage Management
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Monitor and manage MTN coverage API performance and geographic validation
-            </p>
+            <PageHeader title="Coverage Management" subtitle="Monitor and manage MTN coverage API performance and geographic validation" />
           </div>
           <div className="flex items-center gap-3">
             <Button
@@ -614,7 +610,6 @@ export default function AdminCoveragePage() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-    </div>
+    </AdminPage>
   );
 }

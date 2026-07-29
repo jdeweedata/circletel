@@ -7,8 +7,6 @@ import { CommissionCalculator } from '@/components/partner-landing/CommissionCal
 import { BenefitCards } from '@/components/partner-landing/BenefitCards';
 import { NetworkCredibility } from '@/components/partner-landing/NetworkCredibility';
 import { HowItWorks } from '@/components/partner-landing/HowItWorks';
-import { Leaderboard } from '@/components/partner-landing/Leaderboard';
-import { PartnerTestimonials } from '@/components/partner-landing/PartnerTestimonials';
 import { FAQSection } from '@/components/partner-landing/FAQSection';
 import { FinalCTA } from '@/components/partner-landing/FinalCTA';
 
@@ -32,13 +30,8 @@ export default function BecomeAPartnerPage() {
         {/* 5. How It Works - 3 simple steps */}
         <HowItWorks />
 
-        {/* 5. Leaderboard - Social proof (real earnings) */}
-        <Leaderboard />
-
-        {/* 6. Testimonials - Partner stories */}
-        <PartnerTestimonials />
-
-        {/* 7. FAQ - Objection handling */}
+        {/* 6. FAQ - Objection handling (real programme terms; social proof returns
+            when the pilot produces real partners and payouts) */}
         <FAQSection />
 
         {/* 8. Final CTA - Close with dual CTAs */}

@@ -1,90 +1,46 @@
-'use client';
+import { Suspense } from 'react';
+import { type Metadata } from 'next';
+import { HomePageClient } from '@/components/home/HomePageClient';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { HomeLanding20260607 } from '@/components/home/HomeLanding20260607';
-import type { SegmentType } from '@/components/home/NewHero';
-
-// Valid segment values
-const VALID_SEGMENTS: SegmentType[] = ['business', 'wfh', 'home'];
-
-function isValidSegment(value: string | null): value is SegmentType {
-  return value !== null && VALID_SEGMENTS.includes(value as SegmentType);
-}
-
-// Pure helper to extract offer slug from URLSearchParams
-export function offerSlugFromParams(params: URLSearchParams): string | null {
-  return params.get('offer');
-}
+// Consumer-first metadata for the homepage — overrides the B2B default in app/layout.tsx.
+// Message match: SEO/ad traffic landing on `/` is predominantly residential + WFH intent.
+export const metadata: Metadata = {
+  title: 'CircleTel — Uncapped Fibre & Wireless Internet from R899/mo',
+  description:
+    'Fast, uncapped internet for homes, remote workers and small businesses. No contracts, R0 setup, professional installation. Check coverage at your address in 30 seconds.',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'CircleTel — Uncapped Fibre & Wireless Internet from R899/mo',
+    description:
+      'Fast, uncapped internet for homes, remote workers and small businesses. No contracts, R0 setup. Check coverage at your address in 30 seconds.',
+    url: 'https://www.circletel.co.za',
+    siteName: 'CircleTel',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'CircleTel — Uncapped Fibre & Wireless Internet',
+      },
+    ],
+    locale: 'en_ZA',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CircleTel — Uncapped Fibre & Wireless Internet from R899/mo',
+    description:
+      'Fast, uncapped internet for homes, remote workers and small businesses. No contracts, R0 setup. Check coverage at your address in 30 seconds.',
+    images: ['/og-image.jpg'],
+  },
+};
 
 export default function Home() {
-  const searchParams = useSearchParams();
-  const [isRedirecting, setIsRedirecting] = useState(false);
-
-  // Get initial segment from URL or default to 'home'
-  const urlSegment = searchParams.get('segment');
-  const initialSegment: SegmentType = isValidSegment(urlSegment) ? urlSegment : 'home';
-  const [activeSegment, setActiveSegment] = useState<SegmentType>(initialSegment);
-
-  // Sync segment state with URL param on mount
-  useEffect(() => {
-    const urlSegment = searchParams.get('segment');
-    if (isValidSegment(urlSegment) && urlSegment !== activeSegment) {
-      setActiveSegment(urlSegment);
-    }
-  }, [searchParams, activeSegment]);
-
-  // Carry offer attribution from /offers CTAs (read-only Plan 2: client-side only, no DB write).
-  useEffect(() => {
-    const offer = offerSlugFromParams(searchParams);
-    if (offer) sessionStorage.setItem('circletel_offer_slug', offer);
-  }, [searchParams]);
-
-  // Update URL when segment changes
-  const handleSegmentChange = useCallback((segment: SegmentType) => {
-    setActiveSegment(segment);
-
-    // Update URL without full page reload
-    const url = new URL(window.location.href);
-    if (segment === 'home') {
-      // Remove param for default segment to keep URL clean
-      url.searchParams.delete('segment');
-    } else {
-      url.searchParams.set('segment', segment);
-    }
-    window.history.replaceState({}, '', url.toString());
-  }, []);
-
-  // Detect OAuth redirect and forward to callback page
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.hash) {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-
-      if (accessToken && !isRedirecting) {
-        setIsRedirecting(true);
-        // Forward to callback with hash and add next parameter for order flow
-        window.location.href = `/auth/callback?next=/order/checkout${window.location.hash}`;
-      }
-    }
-  }, [isRedirecting]);
-
-  // Show loading state while redirecting
-  if (isRedirecting) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-circleTel-orange mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirecting...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <HomeLanding20260607
-      activeSegment={activeSegment}
-      onSegmentChange={handleSegmentChange}
-    />
+    <Suspense fallback={null}>
+      <HomePageClient />
+    </Suspense>
   );
 }

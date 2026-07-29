@@ -145,25 +145,25 @@ export default function MITSCPQDashboard() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
-            icon={<FileText className="h-5 w-5" />}
+            icon={<PiFileTextBold className="h-5 w-5" />}
             label="Total Quotes"
             value={stats.total}
             description={`${stats.submitted} submitted`}
           />
           <StatCard
-            icon={<Clock className="h-5 w-5" />}
+            icon={<PiClockBold className="h-5 w-5" />}
             label="In Progress"
             value={stats.inProgress}
             description="Drafts pending completion"
           />
           <StatCard
-            icon={<CheckCircle className="h-5 w-5" />}
+            icon={<PiCheckCircleBold className="h-5 w-5" />}
             label="Submitted"
             value={stats.submitted}
             description="Quotes sent to customers"
           />
           <StatCard
-            icon={<FileText className="h-5 w-5" />}
+            icon={<PiFileTextBold className="h-5 w-5" />}
             label="This Month Revenue"
             value={`R${stats.monthlyRevenue.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}`}
             description="ARR from new quotes"

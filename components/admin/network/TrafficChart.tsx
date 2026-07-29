@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PiArrowDownBold, PiArrowUpBold, PiChartLineBold } from 'react-icons/pi';
+import { estimateSpanSeconds } from '@/lib/ruijie/performance-metrics';
 
 // =============================================================================
 // TYPES
@@ -164,10 +165,10 @@ export function TrafficChart({
     const totalRx = dataPoints.reduce((sum, p) => sum + p.rxBytes, 0);
     const totalTx = dataPoints.reduce((sum, p) => sum + p.txBytes, 0);
 
-    // Assuming hourly data, calculate average rate
-    const hoursSpan = dataPoints.length;
-    const avgRxRate = hoursSpan > 0 ? (totalRx * 8) / (hoursSpan * 3600) : 0;
-    const avgTxRate = hoursSpan > 0 ? (totalTx * 8) / (hoursSpan * 3600) : 0;
+    // Span from the timestamps — flow buckets are 10 min, not 1 hour
+    const spanSeconds = estimateSpanSeconds(dataPoints);
+    const avgRxRate = spanSeconds > 0 ? (totalRx * 8) / spanSeconds : 0;
+    const avgTxRate = spanSeconds > 0 ? (totalTx * 8) / spanSeconds : 0;
 
     return { totalRx, totalTx, avgRxRate, avgTxRate };
   }, [dataPoints]);

@@ -61,6 +61,7 @@ interface MandateStatusMap {
  */
 export const debitOrdersFunction = inngest.createFunction(
   {
+
     id: 'debit-orders-batch',
     name: 'Debit Orders Batch Processing',
     retries: 3,
@@ -70,14 +71,13 @@ export const debitOrdersFunction = inngest.createFunction(
         match: 'data.batch_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: 06:00 SAST = 04:00 UTC
     { cron: '0 4 * * *' },
     // Event trigger: manual requests
     { event: 'billing/debit-orders.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     // Extract options from event data (if triggered manually)
     const eventData = event?.data as {
       batch_log_id?: string;
@@ -749,11 +749,11 @@ export const debitOrdersFunction = inngest.createFunction(
  */
 export const debitOrdersCompletedFunction = inngest.createFunction(
   {
+
     id: 'debit-orders-completed',
     name: 'Debit Orders Completed Handler',
-  },
-  { event: 'billing/debit-orders.completed' },
-  async ({ event, step }) => {
+  triggers: { event: 'billing/debit-orders.completed' },
+}, async ({ event, step }) => {
     const {
       batch_log_id,
       billing_date,
@@ -819,11 +819,11 @@ export const debitOrdersCompletedFunction = inngest.createFunction(
  */
 export const debitOrdersFailedFunction = inngest.createFunction(
   {
+
     id: 'debit-orders-failed',
     name: 'Debit Orders Failed Handler',
-  },
-  { event: 'billing/debit-orders.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'billing/debit-orders.failed' },
+}, async ({ event, step }) => {
     const { batch_log_id, error, attempt } = event.data;
 
     await step.run('handle-failure', async () => {

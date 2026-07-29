@@ -30,7 +30,20 @@ interface Promotion {
   valid_until: string | null;
 }
 
-import { StatCard } from '@/components/admin/shared';
+
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
 
 function QuickAction({
   title,
@@ -159,14 +172,11 @@ export default function MarketingDashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-8">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Marketing</h1>
-          <p className="text-gray-500 mt-1">
-            Manage promotions, campaigns, and track marketing performance
-          </p>
+          <PageHeader title="Marketing" subtitle="Manage promotions, campaigns, and track marketing performance" />
         </div>
         <div className="flex items-center gap-3">
           <Button
@@ -345,6 +355,6 @@ export default function MarketingDashboardPage() {
           </span>
         </div>
       </div>
-    </div>
+    </AdminPage>
   );
 }

@@ -51,6 +51,7 @@ interface ProviderCheckResult {
 
 export const feasibilityCheckFunction = inngest.createFunction(
   {
+
     id: 'feasibility-check',
     name: 'Feasibility Coverage Check',
     retries: 3,
@@ -60,9 +61,8 @@ export const feasibilityCheckFunction = inngest.createFunction(
         match: 'data.lead_id',
       },
     ],
-  },
-  { event: 'feasibility/check.requested' },
-  async ({ event, step }) => {
+  triggers: { event: 'feasibility/check.requested' },
+}, async ({ event, step }) => {
     const { lead_id, coordinates, requirements } = event.data;
     const startTime = Date.now();
 
@@ -434,11 +434,11 @@ async function checkDFA(coordinates: Coordinates): Promise<ProviderCheckResult> 
 
 export const feasibilityCheckCompletedFunction = inngest.createFunction(
   {
+
     id: 'feasibility-check-completed',
     name: 'Feasibility Check Completed Handler',
-  },
-  { event: 'feasibility/check.completed' },
-  async ({ event, step }) => {
+  triggers: { event: 'feasibility/check.completed' },
+}, async ({ event, step }) => {
     const { lead_id, is_feasible, best_technology, duration_ms } = event.data;
 
     await step.run('log-completion', async () => {
@@ -461,11 +461,11 @@ export const feasibilityCheckCompletedFunction = inngest.createFunction(
 
 export const feasibilityCheckFailedFunction = inngest.createFunction(
   {
+
     id: 'feasibility-check-failed',
     name: 'Feasibility Check Failed Handler',
-  },
-  { event: 'feasibility/check.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'feasibility/check.failed' },
+}, async ({ event, step }) => {
     const { lead_id, error, attempt } = event.data;
 
     await step.run('handle-failure', async () => {

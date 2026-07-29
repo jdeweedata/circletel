@@ -18,10 +18,39 @@ For most code changes, start with:
 
 - `CLAUDE.md` for repository workflow and architecture.
 - `docs/architecture/SYSTEM_OVERVIEW.md` for system context when the task touches architecture, auth, coverage, admin, orders, payments, or data flow.
-- `.claude/rules/` for detailed local rules. Especially check `coding-standards.md`, `auth-patterns.md`, `file-organization.md`, and `verify-schema-first.md` when relevant.
+- `.claude/rules/` for detailed local rules. Especially check `coding-standards.md`, `auth-patterns.md`, `file-organization.md`, `icon-system.md`, `verify-schema-first.md`, and `composio-browser-tool.md` when relevant (live browser automation).
 - The files you intend to edit and their immediate callers.
 
 Do not invent file paths, APIs, table names, or component names. Search the repo first.
+
+## External Tools — Composio Browser Tool
+
+When the task needs **live browser automation** (navigate, click, fill forms, extract page content) outside of repo Playwright tests, agents on the Contabo VPS can use **Composio browser_tool**.
+
+- CLI: `/root/.composio/composio` with `export PATH="$HOME/.composio:$PATH"`
+- Logged-in workspace: `jdewee_workspace`
+- Dashboard: `https://dashboard.composio.dev/jdewee_workspace/~/connect/apps/browser_tool`
+- Detailed protocol: `.claude/rules/composio-browser-tool.md`
+
+### Tool slugs
+
+- `BROWSER_TOOL_CREATE_TASK` — start cloud AI browser task
+- `BROWSER_TOOL_GET_SESSION` — liveUrl for user observation
+- `BROWSER_TOOL_WATCH_TASK` — poll result
+- `BROWSER_TOOL_STOP_TASK` — abort
+- `BROWSER_TOOL_GET_OUTPUT_FILE` — download artifacts
+
+### Quick flow
+
+```bash
+export PATH="$HOME/.composio:$PATH"
+composio search browser --toolkits browser_tool
+composio execute BROWSER_TOOL_CREATE_TASK -d @/tmp/browser-task.json
+composio execute BROWSER_TOOL_GET_SESSION -d '{"sessionId":"<id>"}'
+composio execute BROWSER_TOOL_WATCH_TASK -d '{"taskId":"<id>"}'
+```
+
+Prefer Playwright for in-repo E2E tests. Prefer Composio browser_tool for ad-hoc cloud browsing, production site checks, or multi-step agent UI tasks not covered by test suites.
 
 ## Working Rules
 
@@ -34,6 +63,7 @@ Do not invent file paths, APIs, table names, or component names. Search the repo
 - For database-related changes, verify the current schema and existing migrations before writing code.
 - For auth/admin work, follow the three-context Supabase auth patterns described in `.claude/rules/auth-patterns.md`.
 - For UI changes, use existing components from `components/ui/` and project feature components before creating new primitives.
+- For icons, follow `.claude/rules/icon-system.md`: use Phosphor for interface symbols, reserve Iconify for approved brand or specialist icons, and store production-critical Iconify assets locally instead of fetching them from the public API at runtime.
 
 ## Commands
 

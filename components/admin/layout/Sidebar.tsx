@@ -1,18 +1,38 @@
 'use client';
-import { PiArrowsClockwiseBold, PiBellBold, PiBriefcaseBold, PiBuildingsBold, PiCalendarBold, PiCaretDownBold, PiCaretLeftBold, PiCaretRightBold, PiChartBarBold, PiCheckCircleBold, PiClipboardTextBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiImageBold, PiLightningBold, PiLinkBold, PiListBold, PiMapPinBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiPercentBold, PiPlusBold, PiPulseBold, PiRadioBold, PiReceiptBold, PiRocketBold, PiShieldCheckBold, PiShoppingCartBold, PiSidebarSimpleBold, PiSparkleBold, PiSquaresFourBold, PiTargetBold, PiTestTubeBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUserPlusBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
+import {
+  PiCaretDownBold,
+  PiCaretLeftBold,
+  PiCaretRightBold,
+  PiCreditCardBold,
+  PiGearBold,
+  PiGlobeBold,
+  PiMegaphoneBold,
+  PiTrendUpBold,
+  PiUsersBold,
+  PiWrenchBold,
+} from 'react-icons/pi';
+import type { IconType } from 'react-icons';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { RandSign } from '@/components/ui/icons/rand-sign';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  getWorkspaceNav,
+  workspaceForPath,
+  hasChildren,
+  type NavItem,
+  type WorkspaceId,
+} from '@/lib/admin/feature-registry';
+import type { AdminRole } from '@/lib/auth/constants';
+import { getTenantConfig } from '@/lib/tenant';
 
 interface User {
   full_name?: string;
@@ -25,424 +45,202 @@ interface SidebarProps {
   user: User;
 }
 
-// Type definitions for navigation items
-interface NavChild {
-  name: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
+const ADMIN_ROLES: AdminRole[] = ['super_admin', 'product_manager', 'editor', 'viewer'];
+
+const WORKSPACE_ICON: Record<WorkspaceId, IconType> = {
+  executive: PiTrendUpBold,
+  finance: PiCreditCardBold,
+  sales: PiMegaphoneBold,
+  ops: PiWrenchBold,
+  support: PiUsersBold,
+  platform: PiGlobeBold,
+  admin: PiGearBold,
+};
+
+/**
+ * Collapsed-rail (w-16) flyout for a parent item: hover/focus reveals its child
+ * links (PR4). Leaf items keep a name Tooltip; expanded rail uses the inline
+ * accordion. ponytail: CSS transition (not framer) matches the sidebar's motion
+ * vocabulary and `motion-reduce:` handles reduced-motion in one class — swap for
+ * motion.div + useReducedMotion() only if spring physics is wanted.
+ *
+ * The panel is `position: fixed`, positioned from the trigger's
+ * getBoundingClientRect (spec §3 escalation). An `absolute left-full` panel is
+ * painted BEHIND the main content because the sidebar's `lg:translate-x-0`
+ * transform creates a stacking context the panel can't escape (verified live via
+ * elementFromPoint). `fixed` lifts it above content; it stays a DOM child of the
+ * wrapper so the hover-bridge (icon→panel without a dead-zone) still works, and
+ * it re-reads the rect on scroll/resize while open.
+ */
+function CollapsedFlyout({
+  item,
+  isActiveLink,
+}: {
+  item: NavItem;
+  isActiveLink: (href: string, end?: boolean) => boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (!open || typeof window === 'undefined') return;
+    const reposition = () => {
+      const btn = btnRef.current;
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      // The panel is `position: fixed`, but the sidebar's `lg:translate-x-0`
+      // transform makes the SIDEBAR its containing block — so fixed coords are
+      // relative to the sidebar box, not the viewport. Subtract the sidebar
+      // origin so the panel tracks the trigger at any scroll position (verified:
+      // without this, bottom items in a scrolled long page fly off-screen).
+      const host = btn.closest('[data-testid="sidebar"]');
+      const h = host?.getBoundingClientRect();
+      setCoords({ top: r.top - (h?.top ?? 0), left: r.right - (h?.left ?? 0) });
+    };
+    reposition();
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [open]);
+
+  if (!hasChildren(item)) return null;
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false);
+      }}
+    >
+      <button
+        ref={btnRef}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={item.name}
+        className="flex w-full items-center justify-center rounded-lg px-0 py-2.5 text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+      >
+        <item.icon className="h-5 w-5 flex-shrink-0" />
+      </button>
+
+      <div
+        role="menu"
+        style={{ position: 'fixed', top: coords.top, left: coords.left, zIndex: 60 }}
+        className={cn(
+          'min-w-56 pl-2 transition duration-150 ease-out',
+          'motion-reduce:transition-none',
+          open
+            ? 'visible translate-x-0 opacity-100'
+            : 'pointer-events-none invisible -translate-x-1 opacity-0'
+        )}
+      >
+        <div className="rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+          <p className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+            {item.name}
+          </p>
+          {item.children.map((child) => (
+            <Link
+              key={child.href}
+              href={child.href}
+              role="menuitem"
+              className={cn(
+                'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
+                isActiveLink(child.href)
+                  ? 'bg-gray-100 text-gray-900 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              )}
+            >
+              <child.icon className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{child.name}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
-
-interface NavItemWithHref {
-  name: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  end?: boolean;
-  description?: string;
-  adminOnly?: boolean;
-}
-
-interface NavItemWithChildren {
-  name: string;
-  icon: React.ComponentType<{ className?: string }>;
-  children: NavChild[];
-  description?: string;
-  adminOnly?: boolean;
-}
-
-type NavItem = NavItemWithHref | NavItemWithChildren;
-
-interface NavSection {
-  label: string | null;
-  items: NavItem[];
-}
-
-// Type guard to check if item has children
-function hasChildren(item: NavItem): item is NavItemWithChildren {
-  return 'children' in item && Array.isArray(item.children);
-}
-
-// Navigation organized by category
-const navigationSections: NavSection[] = [
-  {
-    label: null, // No label for first section (Dashboard)
-    items: [
-      {
-        name: 'Dashboard',
-        href: '/admin',
-        icon: PiSquaresFourBold,
-        end: true
-      },
-    ]
-  },
-  {
-    label: 'Core Operations',
-    items: [
-      {
-        name: 'Products',
-        icon: PiPackageBold,
-        children: [
-          { name: 'Product Workspace', href: '/admin/products', icon: PiSquaresFourBold },
-          { name: 'Add Product', href: '/admin/products/new', icon: PiPlusBold },
-        ]
-      },
-      {
-        name: 'Quotes',
-        icon: PiFileTextBold,
-        children: [
-          { name: 'All Quotes', href: '/admin/quotes', icon: PiListBold },
-          { name: 'Pending Approval', href: '/admin/quotes?status=pending_approval', icon: PiClockBold },
-          { name: 'Accepted', href: '/admin/quotes?status=accepted', icon: PiCheckCircleBold }
-        ]
-      },
-      {
-        name: 'Contracts',
-        icon: PiReceiptBold,
-        children: [
-          { name: 'All Contracts', href: '/admin/contracts', icon: PiListBold },
-          { name: 'Pending Signature', href: '/admin/contracts?status=pending_signature', icon: PiClockBold },
-          { name: 'Active', href: '/admin/contracts?status=active', icon: PiCheckCircleBold }
-        ]
-      },
-      {
-        name: 'Orders',
-        href: '/admin/orders',
-        icon: PiShoppingCartBold,
-        description: 'Manage customer orders'
-      },
-      {
-        name: 'Order Fulfillment',
-        icon: PiTruckBold,
-        description: 'Device dispatch, delivery & activation',
-        children: [
-          { name: 'Fulfillment Dashboard', href: '/admin/fulfillment', icon: PiSquaresFourBold },
-          { name: 'Device Stock', href: '/admin/fulfillment/devices', icon: PiPackageBold },
-          { name: 'Dispatch Queue', href: '/admin/fulfillment/dispatch', icon: PiTruckBold },
-          { name: 'Pending Activation', href: '/admin/fulfillment/activation', icon: PiLightningBold },
-        ]
-      },
-      {
-        name: 'Field Operations',
-        icon: PiWrenchBold,
-        children: [
-          { name: 'Dashboard', href: '/admin/field-ops', icon: PiSquaresFourBold },
-          { name: 'Technicians', href: '/admin/field-ops/technicians', icon: PiUsersBold },
-          { name: 'Jobs', href: '/admin/field-ops/jobs', icon: PiBriefcaseBold },
-          { name: 'Installation Schedule', href: '/admin/orders/installations', icon: PiCalendarBold }
-        ]
-      },
-      {
-        name: 'Customers',
-        href: '/admin/customers',
-        icon: PiUsersBold,
-        description: 'Manage customer accounts'
-      },
-      {
-        name: 'B2B Customers',
-        icon: PiBuildingsBold,
-        description: 'Business customer journey',
-        children: [
-          { name: 'Clinic Onboarding', href: '/admin/unjani/onboarding', icon: PiUserPlusBold },
-          { name: 'Manual Onboarding', href: '/admin/b2b/manual-intake', icon: PiClipboardTextBold },
-          { name: 'Document Vetting', href: '/admin/b2b/vetting', icon: PiUserCheckBold },
-          { name: 'All B2B Customers', href: '/admin/b2b-customers', icon: PiBuildingsBold },
-          { name: 'Site Details', href: '/admin/b2b-customers/site-details', icon: PiMapPinBold },
-          { name: 'Journey Overview', href: '/admin/b2b-customers?view=journey', icon: PiTrendUpBold },
-          { name: 'Blocked', href: '/admin/b2b-customers?status=blocked', icon: PiWarningCircleBold }
-        ]
-      },
-      {
-        name: 'Corporate Clients',
-        icon: PiBriefcaseBold,
-        description: 'Enterprise multi-site accounts',
-        children: [
-          { name: 'All Corporates', href: '/admin/corporate', icon: PiBuildingsBold },
-          { name: 'Add Corporate', href: '/admin/corporate/new', icon: PiPlusBold },
-        ]
-      },
-      {
-        name: 'Suppliers',
-        icon: PiTruckBold,
-        children: [
-          { name: 'Suppliers', href: '/admin/products?section=suppliers', icon: PiTruckBold },
-        ]
-      },
-    ]
-  },
-  {
-    label: 'Sales & Partners',
-    items: [
-      {
-        name: 'Sales Engine',
-        icon: PiGraphBold,
-        children: [
-          { name: 'Dashboard', href: '/admin/sales-engine', icon: PiSquaresFourBold },
-          { name: 'Briefing', href: '/admin/sales-engine/briefing', icon: PiPulseBold },
-          { name: 'Zones', href: '/admin/sales-engine/zones', icon: PiTargetBold },
-          { name: 'Lead Scoring', href: '/admin/sales-engine/leads', icon: PiChartBarBold },
-          { name: 'Pipeline', href: '/admin/sales-engine/pipeline', icon: PiTrendUpBold },
-          { name: 'Demographics', href: '/admin/sales-engine/demographics', icon: PiUsersBold },
-          { name: 'Heat Map', href: '/admin/sales-engine/map', icon: PiMapPinBold },
-          { name: 'Execution Plan', href: '/admin/sales-engine/execution-plan', icon: PiRocketBold },
-        ]
-      },
-      {
-        name: 'B2B Feasibility',
-        href: '/admin/sales/feasibility',
-        icon: PiLightningBold,
-        description: 'Quick coverage check & quote generation'
-      },
-      {
-        name: 'Coverage Checker',
-        href: '/admin/coverage/checker',
-        icon: PiWifiHighBold,
-        description: 'Quick Tarana FWB coverage check'
-      },
-      {
-        name: 'CPQ Builder',
-        href: '/admin/cpq',
-        icon: PiSparkleBold,
-        description: 'AI-powered quote configuration wizard'
-      },
-      {
-        name: 'Partners',
-        icon: PiHandshakeBold,
-        children: [
-          { name: 'All Partners', href: '/admin/partners', icon: PiUsersBold },
-          { name: 'Pending Approvals', href: '/admin/partners/approvals', icon: PiClockBold },
-        ]
-      },
-      {
-        name: 'Competitor Analysis',
-        icon: PiTargetBold,
-        children: [
-          { name: 'Dashboard', href: '/admin/competitor-analysis', icon: PiSquaresFourBold },
-          { name: 'Providers', href: '/admin/competitor-analysis/providers', icon: PiBuildingsBold },
-          { name: 'Matching', href: '/admin/competitor-analysis/matching', icon: PiLinkBold }
-        ]
-      },
-    ]
-  },
-  {
-    label: 'Marketing',
-    items: [
-      {
-        name: 'Marketing',
-        icon: PiMegaphoneBold,
-        children: [
-          { name: 'Dashboard', href: '/admin/marketing', icon: PiSquaresFourBold },
-          { name: 'Promotions', href: '/admin/marketing/promotions', icon: PiPercentBold },
-          { name: 'Campaigns', href: '/admin/marketing/campaigns', icon: PiTargetBold },
-          { name: 'No Coverage Leads', href: '/admin/marketing/no-coverage-leads', icon: PiMapPinBold },
-          { name: 'Campaign Builder', href: '/admin/marketing/campaign-builder', icon: PiTargetBold },
-          { name: 'Analytics', href: '/admin/marketing/analytics', icon: PiChartBarBold }
-        ]
-      },
-    ]
-  },
-  {
-    label: 'Compliance',
-    items: [
-      {
-        name: 'Approvals',
-        href: '/admin/workflow',
-        icon: PiCheckCircleBold
-      },
-      {
-        name: 'KYC Review',
-        href: '/admin/kyc',
-        icon: PiShieldCheckBold,
-        description: 'Review customer verification documents'
-      },
-      {
-        name: 'KYB Compliance',
-        href: '/admin/compliance/kyb',
-        icon: PiShieldCheckBold,
-        description: 'View KYB subject KYC status and risk'
-      },
-      {
-        name: 'Document Reviews',
-        href: '/admin/compliance/documents',
-        icon: PiFileTextBold,
-        description: 'FICA/RICA documents uploaded via the customer portal'
-      },
-    ]
-  },
-  {
-    label: 'Network',
-    items: [
-      {
-        name: 'Coverage',
-        icon: PiRadioBold,
-        children: [
-          { name: 'Dashboard', href: '/admin/coverage', icon: PiSquaresFourBold },
-          { name: 'Analytics', href: '/admin/coverage/analytics', icon: PiPulseBold },
-          { name: 'Testing', href: '/admin/coverage/testing', icon: PiTestTubeBold },
-          { name: 'Providers', href: '/admin/coverage/providers', icon: PiBuildingsBold },
-          { name: 'Maps', href: '/admin/coverage/maps', icon: PiMapTrifoldBold },
-          { name: 'Base Stations', href: '/admin/coverage/base-stations', icon: PiMapPinBold },
-          { name: 'DFA Buildings', href: '/admin/coverage/dfa-buildings', icon: PiBuildingsBold }
-        ]
-      },
-      {
-        name: 'Diagnostics',
-        href: '/admin/diagnostics',
-        icon: PiPulseBold,
-        description: 'Monitor subscriber connection health'
-      },
-      {
-        name: 'Network Management',
-        icon: PiWifiHighBold,
-        children: [
-          { name: 'Devices', href: '/admin/network/devices', icon: PiWifiHighBold },
-          { name: 'Health Monitor', href: '/admin/network/health', icon: PiPulseBold },
-          { name: 'Analytics', href: '/admin/network/analytics', icon: PiChartBarBold },
-          { name: 'Network Map', href: '/admin/network/map', icon: PiMapTrifoldBold },
-        ]
-      },
-    ]
-  },
-  {
-    label: 'Support',
-    items: [
-      {
-        name: 'Customer Devices',
-        href: '/admin/support/devices',
-        icon: PiUsersBold,
-        description: 'Look up customer linked devices'
-      },
-    ]
-  },
-  {
-    label: 'Finance',
-    items: [
-      {
-        name: 'Billing & Revenue',
-        icon: PiCreditCardBold,
-        children: [
-          { name: 'Dashboard', href: '/admin/billing', icon: PiSquaresFourBold },
-          { name: 'Customers', href: '/admin/billing/customers', icon: PiUserCheckBold },
-          { name: 'Invoices', href: '/admin/billing/invoices', icon: PiReceiptBold },
-          { name: 'Outstanding', href: '/admin/finance/outstanding', icon: PiWarningCircleBold },
-          { name: 'AR Analytics', href: '/admin/finance/ar-analytics', icon: PiTrendUpBold },
-        ]
-      },
-      {
-        name: 'Payments',
-        icon: RandSign,
-        children: [
-          { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: PiPulseBold },
-          { name: 'Transactions', href: '/admin/payments/transactions', icon: PiReceiptBold },
-          { name: 'Reconciliation', href: '/admin/finance/reconciliation', icon: PiArrowsClockwiseBold },
-          { name: 'Webhooks', href: '/admin/payments/webhooks', icon: PiLightningBold },
-          { name: 'Settings', href: '/admin/payments/settings', icon: PiGearBold }
-        ]
-      }
-    ]
-  },
-  {
-    label: 'Platform',
-    items: [
-      {
-        name: 'Notifications',
-        href: '/admin/notifications',
-        icon: PiBellBold,
-        description: 'Email templates and notification logs'
-      },
-      {
-        name: 'Integrations',
-        icon: PiLinkBold,
-        children: [
-          { name: 'Overview', href: '/admin/integrations', icon: PiSquaresFourBold },
-          { name: 'Zoho CRM', href: '/admin/zoho', icon: PiLightningBold },
-          { name: 'Zoho Sign', href: '/admin/integrations/zoho-sign', icon: PiFileTextBold },
-          { name: 'WhatsApp Campaign', href: '/admin/integrations/whatsapp-campaign', icon: PiChartBarBold },
-          { name: 'Interstellio RADIUS', href: '/admin/integrations/interstellio', icon: PiRadioBold },
-          { name: 'OAuth Tokens', href: '/admin/integrations/oauth', icon: PiGearBold },
-          { name: 'Webhooks', href: '/admin/integrations/webhooks', icon: PiLightningBold },
-          { name: 'API Health', href: '/admin/integrations/apis', icon: PiPulseBold },
-          { name: 'Cron Jobs', href: '/admin/integrations/cron', icon: PiClockBold }
-        ]
-      },
-      {
-        name: 'CMS Management',
-        icon: PiGlobeBold,
-        children: [
-          { name: 'Pages', href: '/admin/cms', icon: PiFileTextBold },
-          { name: 'Media Library', href: '/admin/cms/media', icon: PiImageBold },
-          { name: 'Page Builder', href: '/admin/cms/builder', icon: PiSidebarSimpleBold }
-        ]
-      },
-    ]
-  },
-];
-
-const adminNavigation = [
-  {
-    name: 'Orchestrator',
-    href: '/admin/orchestrator',
-    icon: PiGraphBold,
-    adminOnly: true,
-    description: 'AI agent workflows and performance'
-  },
-  {
-    name: 'Users',
-    icon: PiUsersBold,
-    adminOnly: true,
-    children: [
-      { name: 'All Users', href: '/admin/users', icon: PiUsersBold },
-      { name: 'Roles & Permissions', href: '/admin/users/roles', icon: PiUserCheckBold },
-      { name: 'Activity Log', href: '/admin/users/activity', icon: PiClockBold }
-    ]
-  },
-  {
-    name: 'Settings',
-    href: '/admin/settings',
-    icon: PiGearBold,
-    adminOnly: true
-  }
-];
 
 export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
   const pathname = usePathname();
-  const isAdmin = user?.role === 'super_admin' || user?.role === 'product_manager';
 
-  // State to manage which dropdowns are expanded
-  const [expandedItems, setExpandedItems] = useState<string[]>(() => {
-    // Auto-expand dropdowns that contain the current active page
-    const expanded: string[] = [];
-    navigationSections.forEach((section) => {
-      section.items.forEach((item) => {
-        if (hasChildren(item)) {
-          const isCurrentlyActive = item.children.some((child: NavChild) => pathname.startsWith(child.href));
-          if (isCurrentlyActive) {
-            expanded.push(item.name);
-          }
-        }
-      });
-    });
-    adminNavigation.forEach((item) => {
-      if ('children' in item && item.children) {
-        const isCurrentlyActive = item.children.some((child: NavChild) => pathname.startsWith(child.href));
-        if (isCurrentlyActive) {
-          expanded.push(item.name);
-        }
-      }
-    });
-    return expanded;
-  });
+  // Real admin roles are super_admin | product_manager | editor | viewer.
+  // Unknown/absent role falls back to least privilege.
+  const role: AdminRole = ADMIN_ROLES.includes(user?.role as AdminRole)
+    ? (user!.role as AdminRole)
+    : 'viewer';
+
+  // Role-scoped, workspace-grouped nav (feature-registry, PR #613).
+  const workspaces = getWorkspaceNav({ role, modules: getTenantConfig().modules });
+
+  const [activeWs, setActiveWs] = useState<WorkspaceId>(
+    () => workspaceForPath(pathname) ?? workspaces[0]?.id ?? 'executive'
+  );
+
+  // Follow the route into another (accessible) workspace on navigation.
+  useEffect(() => {
+    const w = workspaceForPath(pathname);
+    if (w && w !== activeWs && workspaces.some((x) => x.id === w)) setActiveWs(w);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  const active = workspaces.find((w) => w.id === activeWs) ?? workspaces[0];
+  const items: NavItem[] = active?.items ?? [];
+  const ActiveIcon = active ? WORKSPACE_ICON[active.id] : PiTrendUpBold;
+
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  // Collapsed switcher dropdown: same transform-occlusion fix as CollapsedFlyout —
+  // render `fixed` with coords relative to the sidebar box (its transform is the
+  // containing block), else the `left-full` panel is painted behind the content.
+  const switcherBtnRef = useRef<HTMLButtonElement>(null);
+  const [switcherCoords, setSwitcherCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  useEffect(() => {
+    if (!switcherOpen || isOpen || typeof window === 'undefined') return; // only the collapsed rail needs fixed positioning
+    const reposition = () => {
+      const btn = switcherBtnRef.current;
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      const host = btn.closest('[data-testid="sidebar"]');
+      const h = host?.getBoundingClientRect();
+      setSwitcherCoords({ top: r.top - (h?.top ?? 0), left: r.right - (h?.left ?? 0) });
+    };
+    reposition();
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [switcherOpen, isOpen]);
+
+  // Auto-expand the dropdown that contains the active route.
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  useEffect(() => {
+    const expanded = items
+      .filter(
+        (i) =>
+          hasChildren(i) &&
+          i.children.some((c) => pathname.startsWith(c.href.split('?')[0]))
+      )
+      .map((i) => i.name);
+    if (expanded.length) {
+      setExpandedItems((prev) => Array.from(new Set([...prev, ...expanded])));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeWs, pathname]);
 
   const isActiveLink = (href: string, end?: boolean) => {
-    if (end) {
-      return pathname === href;
-    }
-    return pathname.startsWith(href);
+    const base = href.split('?')[0];
+    return end ? pathname === base : pathname.startsWith(base);
   };
 
   const toggleDropdown = (itemName: string) => {
-    setExpandedItems(prev =>
-      prev.includes(itemName)
-        ? prev.filter(name => name !== itemName)
-        : [...prev, itemName]
+    setExpandedItems((prev) =>
+      prev.includes(itemName) ? prev.filter((name) => name !== itemName) : [...prev, itemName]
     );
   };
 
@@ -453,103 +251,126 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
       <div
         className={cn(
           'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
-          // Mobile: Full overlay sidebar that slides in/out
           'lg:relative lg:z-auto',
-          isOpen
-            ? 'translate-x-0 w-64'
-            : '-translate-x-full lg:translate-x-0 lg:w-16',
-          // On desktop (lg+), sidebar is part of the layout
+          isOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 lg:w-16',
           'lg:flex lg:flex-shrink-0',
-          // Always hidden when printing
           'print:hidden'
         )}
         data-testid="sidebar"
       >
-      {/* Header */}
-      <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
-        {isOpen && (
-          <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 flex items-center justify-center">
-              <Image
-                src="/images/circletel-enclosed-logo.png"
-                alt="CircleTel Logo"
-                width={32}
-                height={32}
-                className="h-full w-full object-contain"
-              />
-            </div>
-            <span className="font-semibold text-gray-900">Admin Panel</span>
-          </div>
-        )}
-        <button
-          onClick={onToggle}
-          className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
-        >
-          <PiCaretLeftBold
-            className={cn(
-              'h-5 w-5 text-gray-500 transition-transform duration-200',
-              !isOpen && 'rotate-180'
-            )}
-          />
-        </button>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-        {navigationSections.map((section, sectionIndex) => (
-          <div key={section.label || 'main'}>
-            {/* Section Label */}
-            {section.label && isOpen && (
-              <div className={cn(
-                'px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider',
-                sectionIndex > 0 && 'mt-4 pt-4 border-t border-gray-200'
-              )}>
-                {section.label}
+        {/* Header */}
+        <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
+          {isOpen && (
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 flex items-center justify-center">
+                <Image
+                  src="/images/circletel-enclosed-logo.png"
+                  alt="CircleTel Logo"
+                  width={32}
+                  height={32}
+                  className="h-full w-full object-contain"
+                />
               </div>
-            )}
-            {section.label && !isOpen && sectionIndex > 0 && (
-              <div className="my-2 border-t border-gray-200" />
-            )}
+              <span className="font-semibold text-gray-900">Admin Panel</span>
+            </div>
+          )}
+          <button
+            onClick={onToggle}
+            className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <PiCaretLeftBold
+              className={cn(
+                'h-5 w-5 text-gray-500 transition-transform duration-200',
+                !isOpen && 'rotate-180'
+              )}
+            />
+          </button>
+        </div>
 
-            {/* Section Items */}
-            {section.items.map((item) => (
-              <div key={item.name}>
-                {hasChildren(item) ? (
-                  <div className="space-y-1">
-                    {/* Dropdown Header - Clickable */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={() => isOpen && toggleDropdown(item.name)}
-                          className={cn(
-                            'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                            'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                            isOpen && 'cursor-pointer',
-                            !isOpen && 'cursor-default'
-                          )}
-                        >
-                          <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                          {isOpen && (
-                            <>
-                              <span className="flex-1 text-left">{item.name}</span>
-                              {isExpanded(item.name) ? (
-                                <PiCaretDownBold className="h-4 w-4 transition-transform duration-200" />
-                              ) : (
-                                <PiCaretRightBold className="h-4 w-4 transition-transform duration-200" />
-                              )}
-                            </>
-                          )}
-                        </button>
-                      </TooltipTrigger>
-                      {!isOpen && (
-                        <TooltipContent side="right" className="font-medium">
-                          {item.name}
-                        </TooltipContent>
+        {/* Workspace switcher */}
+        <div className="relative border-b border-gray-200 px-2 py-2">
+          <button
+            ref={switcherBtnRef}
+            onClick={() => setSwitcherOpen((o) => !o)}
+            aria-label="Switch workspace"
+            aria-expanded={switcherOpen}
+            className={cn(
+              'flex w-full items-center gap-2 rounded-lg py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50',
+              isOpen ? 'px-3' : 'justify-center px-0'
+            )}
+          >
+            <ActiveIcon className="h-5 w-5 flex-shrink-0 text-[#F5841E]" />
+            {isOpen && (
+              <>
+                <span className="flex-1 text-left truncate">{active?.label ?? 'Workspace'}</span>
+                <PiCaretDownBold
+                  className={cn('h-4 w-4 flex-shrink-0 text-gray-400 transition-transform', switcherOpen && 'rotate-180')}
+                />
+              </>
+            )}
+          </button>
+
+          {switcherOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setSwitcherOpen(false)} aria-hidden />
+              <div
+                className={cn(
+                  'rounded-lg border border-gray-200 bg-white p-1 shadow-lg',
+                  isOpen ? 'absolute z-50 inset-x-2 top-full mt-1' : 'fixed z-[60] ml-2 w-56'
+                )}
+                style={!isOpen ? { top: switcherCoords.top, left: switcherCoords.left } : undefined}
+                role="menu"
+              >
+                {workspaces.map((w) => {
+                  const Icon = WORKSPACE_ICON[w.id];
+                  return (
+                    <button
+                      key={w.id}
+                      role="menuitem"
+                      onClick={() => {
+                        setActiveWs(w.id);
+                        setSwitcherOpen(false);
+                      }}
+                      className={cn(
+                        'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
+                        w.id === active?.id
+                          ? 'bg-gray-100 text-gray-900 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       )}
-                    </Tooltip>
+                    >
+                      <Icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="flex-1 text-left truncate">{w.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
 
-                    {/* Dropdown Content */}
-                    {isOpen && isExpanded(item.name) && (
+        {/* Navigation — active workspace's items */}
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+          {items.map((item) => (
+            <div key={item.name}>
+              {hasChildren(item) ? (
+                !isOpen ? (
+                  <CollapsedFlyout item={item} isActiveLink={isActiveLink} />
+                ) : (
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => toggleDropdown(item.name)}
+                      className="flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 cursor-pointer transition-all"
+                    >
+                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                      <span className="flex-1 text-left">{item.name}</span>
+                      {isExpanded(item.name) ? (
+                        <PiCaretDownBold className="h-4 w-4 transition-transform duration-200" />
+                      ) : (
+                        <PiCaretRightBold className="h-4 w-4 transition-transform duration-200" />
+                      )}
+                    </button>
+
+                    {isExpanded(item.name) && (
                       <div className="ml-9 space-y-1 pl-4">
                         {item.children.map((child) => (
                           <Link
@@ -569,153 +390,51 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                       </div>
                     )}
                   </div>
-                ) : (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                          isActiveLink(item.href, item.end)
-                            ? 'bg-gray-100 text-gray-900 shadow-sm'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                        )}
-                      >
-                        <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                        {isOpen && (
-                          <span className="flex-1">{item.name}</span>
-                        )}
-                      </Link>
-                    </TooltipTrigger>
-                    {!isOpen && (
-                      <TooltipContent side="right" className="font-medium">
-                        {item.name}
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                )}
-              </div>
-            ))}
-          </div>
-        ))}
-
-        {/* Admin-only navigation */}
-        {isAdmin && (
-          <>
-            <div className="pt-4 mt-4 border-t border-gray-200">
-              {isOpen && (
-                <div className="px-3 py-2 mb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  Administration
-                </div>
-              )}
-              {adminNavigation.map((item) => (
-                <div key={item.name}>
-                  {item.children ? (
-                    <div className="space-y-1">
-                      {/* Admin Dropdown Header - Clickable */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => isOpen && toggleDropdown(item.name)}
-                            className={cn(
-                              'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                              'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                              isOpen && 'cursor-pointer',
-                              !isOpen && 'cursor-default'
-                            )}
-                          >
-                            <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                            {isOpen && (
-                              <>
-                                <span className="flex-1 text-left">{item.name}</span>
-                                {isExpanded(item.name) ? (
-                                  <PiCaretDownBold className="h-4 w-4 transition-transform duration-200" />
-                                ) : (
-                                  <PiCaretRightBold className="h-4 w-4 transition-transform duration-200" />
-                                )}
-                              </>
-                            )}
-                          </button>
-                        </TooltipTrigger>
-                        {!isOpen && (
-                          <TooltipContent side="right" className="font-medium">
-                            {item.name}
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
-
-                      {/* Admin Dropdown Content */}
-                      {isOpen && isExpanded(item.name) && (
-                        <div className="ml-9 space-y-1 pl-4">
-                          {item.children.map((child) => (
-                            <Link
-                              key={child.href}
-                              href={child.href}
-                              className={cn(
-                                'flex items-center px-3 py-2 text-sm rounded-lg transition-all',
-                                isActiveLink(child.href)
-                                  ? 'bg-gray-100 text-gray-900 font-medium'
-                                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                              )}
-                            >
-                              <child.icon className="mr-2 h-4 w-4" />
-                              {child.name}
-                            </Link>
-                          ))}
-                        </div>
+                )
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
+                        isActiveLink(item.href, item.end)
+                          ? 'bg-gray-100 text-gray-900 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       )}
-                    </div>
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Link
-                          href={item.href!}
-                          className={cn(
-                            'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                            isActiveLink(item.href!)
-                              ? 'bg-gray-100 text-gray-900 shadow-sm'
-                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                          )}
-                        >
-                          <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                          {isOpen && item.name}
-                        </Link>
-                      </TooltipTrigger>
-                      {!isOpen && (
-                        <TooltipContent side="right" className="font-medium">
-                          {item.name}
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
+                    >
+                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                      {isOpen && <span className="flex-1">{item.name}</span>}
+                    </Link>
+                  </TooltipTrigger>
+                  {!isOpen && (
+                    <TooltipContent side="right" className="font-medium">
+                      {item.name}
+                    </TooltipContent>
                   )}
-                </div>
-              ))}
+                </Tooltip>
+              )}
             </div>
-          </>
-        )}
-      </nav>
+          ))}
+        </nav>
 
-      {/* User info */}
-      {isOpen && (
-        <div className="border-t border-gray-200 p-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium text-gray-700">
-                {user?.full_name?.charAt(0) || 'U'}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {user?.full_name}
-              </p>
-              <p className="text-xs text-gray-500 truncate">
-                {user?.role?.replace('_', ' ')}
-              </p>
+        {/* User info */}
+        {isOpen && (
+          <div className="border-t border-gray-200 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
+                <span className="text-sm font-medium text-gray-700">
+                  {user?.full_name?.charAt(0) || 'U'}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{user?.full_name}</p>
+                <p className="text-xs text-gray-500 truncate">{user?.role?.replace('_', ' ')}</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </TooltipProvider>
   );
 }

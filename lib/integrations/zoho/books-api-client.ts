@@ -108,11 +108,14 @@ export class ZohoBooksClient extends ZohoAPIClient {
   private readonly organizationId: string;
 
   constructor() {
+    // Zoho Books requires a Books-scoped OAuth token. Generic ZOHO_REFRESH_TOKEN
+    // is CRM-scoped and returns 401 code 57 on Books API calls.
+    // Prefer ZOHO_BOOKS_*; fall back to generic vars for local/dev compatibility.
     super({
-      clientId: process.env.ZOHO_CLIENT_ID!,
-      clientSecret: process.env.ZOHO_CLIENT_SECRET!,
-      refreshToken: process.env.ZOHO_REFRESH_TOKEN!,
-      region: (process.env.ZOHO_REGION as any) || 'US',
+      clientId: process.env.ZOHO_BOOKS_CLIENT_ID || process.env.ZOHO_CLIENT_ID!,
+      clientSecret: process.env.ZOHO_BOOKS_CLIENT_SECRET || process.env.ZOHO_CLIENT_SECRET!,
+      refreshToken: process.env.ZOHO_BOOKS_REFRESH_TOKEN || process.env.ZOHO_REFRESH_TOKEN!,
+      region: (process.env.ZOHO_BOOKS_REGION as any) || (process.env.ZOHO_REGION as any) || 'US',
     });
 
     // Zoho Books uses its own org ID (may differ from Billing org ID)
@@ -388,6 +391,12 @@ export class ZohoBooksClient extends ZohoAPIClient {
     due_date?: string;
     payment_terms?: number;
     payment_terms_label?: string;
+    /**
+     * When true, line item `rate` values are VAT-inclusive (gross).
+     * Required for CircleTel invoices so Books does not add 15% on top of
+     * collectible totals (see `buildZohoTaxInclusiveInvoicePayload`).
+     */
+    is_inclusive_tax?: boolean;
     line_items: Array<{
       item_id?: string;
       name: string;

@@ -96,15 +96,49 @@ export async function upsertDevices(
   const supabase = await createClient();
   const result: SyncResult = { updated: 0, added: 0, errors: [] };
 
-  // Get existing SNs to determine added vs updated
+  type ExistingMetrics = {
+    sn: string;
+    cpu_usage: number | null;
+    memory_usage: number | null;
+    uptime_seconds: number | null;
+    online_clients: number | null;
+    radio_2g_channel: number | null;
+    radio_5g_channel: number | null;
+    radio_2g_utilization: number | null;
+    radio_5g_utilization: number | null;
+  };
+
+  // Get existing rows — preserve metrics when live enrich leaves them unset
   const { data: existing } = await supabase
     .from('ruijie_device_cache')
-    .select('sn');
+    .select(
+      'sn, cpu_usage, memory_usage, uptime_seconds, online_clients, radio_2g_channel, radio_5g_channel, radio_2g_utilization, radio_5g_utilization'
+    );
 
-  const existingSnSet = new Set(existing?.map(e => e.sn) || []);
+  const existingRows = (existing || []) as ExistingMetrics[];
+  const existingSnSet = new Set(existingRows.map((e) => e.sn));
+  const existingBySn = new Map(existingRows.map((e) => [e.sn, e]));
 
-  // Convert to rows
-  const rows = devices.map(d => deviceToRow(d, mockData));
+  // Convert to rows (keep prior CPU/mem/radio when new sync has null/undefined)
+  const rows = devices.map((d) => {
+    const prev = existingBySn.get(d.sn);
+    return deviceToRow(
+      {
+        ...d,
+        cpu_usage: d.cpu_usage ?? prev?.cpu_usage ?? undefined,
+        memory_usage: d.memory_usage ?? prev?.memory_usage ?? undefined,
+        uptime_seconds: d.uptime_seconds ?? prev?.uptime_seconds ?? undefined,
+        online_clients: d.online_clients || prev?.online_clients || 0,
+        radio_2g_channel: d.radio_2g_channel ?? prev?.radio_2g_channel ?? undefined,
+        radio_5g_channel: d.radio_5g_channel ?? prev?.radio_5g_channel ?? undefined,
+        radio_2g_utilization:
+          d.radio_2g_utilization ?? prev?.radio_2g_utilization ?? undefined,
+        radio_5g_utilization:
+          d.radio_5g_utilization ?? prev?.radio_5g_utilization ?? undefined,
+      },
+      mockData
+    );
+  });
 
   // Upsert all at once
   const { error } = await supabase
@@ -126,6 +160,46 @@ export async function upsertDevices(
   }
 
   return result;
+}
+
+/**
+ * Delete cache rows whose SN is not in `keepSns`.
+ * Used after filtering Ruijie API devices to the 14-day active window.
+ */
+export async function pruneDevicesNotInSet(
+  keepSns: string[]
+): Promise<{ deleted: number; deletedSns: string[] }> {
+  const supabase = await createClient();
+  const keep = new Set(keepSns);
+
+  const { data: existing, error: listError } = await supabase
+    .from('ruijie_device_cache')
+    .select('sn');
+
+  if (listError) {
+    console.error('[RuijieSync] Failed to list devices for prune:', listError);
+    return { deleted: 0, deletedSns: [] };
+  }
+
+  const deletedSns = (existing || [])
+    .map((row) => row.sn as string)
+    .filter((sn) => !keep.has(sn));
+
+  if (deletedSns.length === 0) {
+    return { deleted: 0, deletedSns: [] };
+  }
+
+  const { error: deleteError } = await supabase
+    .from('ruijie_device_cache')
+    .delete()
+    .in('sn', deletedSns);
+
+  if (deleteError) {
+    console.error('[RuijieSync] Failed to prune inactive devices:', deleteError);
+    return { deleted: 0, deletedSns: [] };
+  }
+
+  return { deleted: deletedSns.length, deletedSns };
 }
 
 // =============================================================================

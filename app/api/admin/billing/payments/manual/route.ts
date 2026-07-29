@@ -126,8 +126,10 @@ export async function POST(request: NextRequest) {
         amount_due: Math.max(0, newAmountDue),
         status: isFullyPaid ? 'paid' : 'partial',
         paid_at: isFullyPaid ? new Date().toISOString() : null,
-        payment_method: payment_method,
-        payment_reference: reference,
+        // payment_method / payment_reference are NOT columns on customer_invoices —
+        // writing them makes PostgREST reject the whole update (422), leaving the
+        // invoice unpaid. The payment method + external reference are already
+        // persisted in payment_webhooks.raw_payload and payment_audit_logs below.
         updated_at: new Date().toISOString(),
       })
       .eq('id', invoice_id);

@@ -7,6 +7,10 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
+import { canAccessAdminPath, workspaceForPathname } from '@/lib/admin/workspace-access';
+import type { AdminRole } from '@/lib/auth/constants';
+import { getAdminClaim, ADMIN_CLAIM_PAGE_TTL_MS } from '@/lib/auth/admin-claims';
+import { getTenantConfig } from '@/lib/tenant';
 
 // Note: Using console.log in middleware as @/lib/logging may not work in edge runtime
 
@@ -72,12 +76,15 @@ export async function handleAdminAuth(
 ): Promise<AdminAuthResult> {
   const pathname = request.nextUrl.pathname;
 
-  // DEV BYPASS: Skip auth for localhost in development mode
+  // DEV BYPASS: Skip auth for localhost in development mode.
+  // Requires an explicit opt-in env var so a mis-set NODE_ENV in a hosted
+  // environment can never silently grant unauthenticated admin access.
+  const bypassEnabled = process.env.ALLOW_DEV_ADMIN_BYPASS === 'true';
   const isDev = process.env.NODE_ENV === 'development';
   const isLocalhost = request.headers.get('host')?.includes('localhost') ||
                       request.headers.get('host')?.startsWith('127.0.0.1');
 
-  if (isDev && isLocalhost && isAdminRoute(pathname)) {
+  if (bypassEnabled && isDev && isLocalhost && isAdminRoute(pathname)) {
     // Return mock user for dev - allows full admin access without login
     return {
       shouldRedirect: false,
@@ -117,7 +124,44 @@ export async function handleAdminAuth(
     };
   }
 
-  // User is authenticated - let client-side verify admin_users table
-  // This avoids redirect loops and works with existing layout auth logic
+  // Authenticated. Authorize by workspace (PR5). Dashboard/Executive is open to
+  // every admin role, so it is always a safe, loop-free landing on denial.
+  //
+  // Fast path (audit H3): a fresh JWT admin claim (stamped at login and
+  // refreshed by authenticateAdmin) authorizes with zero DB reads. The
+  // session JWT's metadata can lag one token-refresh cycle, so this layer
+  // uses the 1h page TTL; API routes enforce the tighter 15-min window.
+  // Fallback: one admin_users read (the pre-H3 behavior).
+  let role: AdminRole | null = null;
+  const claim = getAdminClaim(user, ADMIN_CLAIM_PAGE_TTL_MS);
+  if (claim) {
+    role = claim.role as AdminRole;
+  } else {
+    const { data: adminRow } = await supabase
+      .from('admin_users')
+      .select('role')
+      .eq('email', user.email!)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (!adminRow) {
+      // Authenticated but not an active admin - send to login (parity with client).
+      const url = request.nextUrl.clone();
+      url.pathname = '/admin/login';
+      url.searchParams.set('error', 'unauthorized');
+      return { shouldRedirect: true, redirectResponse: NextResponse.redirect(url), user };
+    }
+
+    role = adminRow.role as AdminRole;
+  }
+  if (!canAccessAdminPath(role, pathname, getTenantConfig().modules)) {
+    const ws = workspaceForPathname(pathname);
+    console.warn('[admin-auth] workspace denied', { pathname, role, ws });
+    const url = request.nextUrl.clone();
+    url.pathname = '/admin/dashboard';
+    url.searchParams.set('denied', ws ?? 'unknown');
+    return { shouldRedirect: true, redirectResponse: NextResponse.redirect(url), user };
+  }
+
   return { shouldRedirect: false, user };
 }

@@ -8,6 +8,19 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+import {
   Table,
   TableBody,
   TableCell,
@@ -147,28 +160,27 @@ export default function TechniciansPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading technicians..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <AdminPage>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy flex items-center gap-2">
-            <PiWrenchBold className="h-8 w-8" />
-            Technicians Management
-          </h1>
-          <p className="text-gray-600 mt-1">Manage installation technicians and assignments</p>
-        </div>
-        <Button onClick={() => setShowCreateModal(true)} className="gap-2">
+      <PageHeader
+        title="Technicians"
+        subtitle="Manage installation technicians and assignments"
+        actions={
+          <div className="flex items-center gap-2">
+<Button onClick={() => setShowCreateModal(true)} className="gap-2">
           <PiPlusBold className="h-4 w-4" />
           Add Technician
         </Button>
-      </div>
+          </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -438,6 +450,6 @@ export default function TechniciansPage() {
           technician={editingTechnician}
         />
       )}
-    </div>
+    </AdminPage>
   );
 }

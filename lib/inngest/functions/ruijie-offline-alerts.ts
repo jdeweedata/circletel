@@ -8,6 +8,7 @@
  */
 
 import { inngest } from '../client';
+import { ruijieSyncCompleted } from '../events/ruijie';
 import { createClient } from '@/lib/supabase/server';
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_NETWORK_ALERTS_WEBHOOK;
@@ -32,12 +33,12 @@ interface OfflineDevice {
  */
 export const ruijieOfflineAlertsFunction = inngest.createFunction(
   {
+
     id: 'ruijie-offline-alerts',
     name: 'Ruijie Offline Device Alerts',
     retries: 2,
-  },
-  { event: 'ruijie/sync.completed' },
-  async ({ event, step }) => {
+  triggers: [ruijieSyncCompleted],
+}, async ({ event, step }) => {
     // Step 1: Find devices offline > threshold
     const offlineDevices = await step.run('find-offline-devices', async () => {
       const supabase = await createClient();

@@ -4,9 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import type { CoveragePrediction, LiveNetworkStatus } from '@/lib/coverage/prediction/types';
 import type { SkyFibreOrderabilityResult } from '@/lib/coverage/skyfibre/types';
-import {
-  StatCard, StatusBadge, UnderlineTabs, TabPanel,
-} from '@/components/admin/shared';
+import { UnderlineTabs, TabPanel } from '@/components/admin/shared';
 import AddressInput from './components/AddressInput';
 import CoverageVerdictCard from './components/CoverageVerdictCard';
 import SalesRecommendationCard from './components/SalesRecommendationCard';
@@ -28,6 +26,20 @@ import {
   PiArrowLeftBold, PiBroadcastBold, PiClockBold, PiWarningCircleBold, PiXCircleBold,
 } from 'react-icons/pi';
 import Link from 'next/link';
+
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
 
 const MAPS_LIBRARIES: ('places')[] = ['places'];
 
@@ -431,7 +443,7 @@ export default function CoverageCheckerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <AdminPage>
 
       {/* ── Page Header ── */}
       <div className="bg-white border-b border-slate-200">
@@ -783,6 +795,6 @@ export default function CoverageCheckerPage() {
         </TabPanel>
 
       </div>
-    </div>
+    </AdminPage>
   );
 }

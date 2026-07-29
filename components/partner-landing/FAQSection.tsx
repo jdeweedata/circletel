@@ -5,28 +5,32 @@ import { useState } from 'react';
 
 const faqs = [
   {
-    question: 'Do I need any experience to join?',
-    answer: 'Nope! If you can share a link and chat to people, you\'re qualified. We provide all the training and support you need to succeed.',
+    question: 'What does "founding partner pilot" mean?',
+    answer: 'We are launching the programme with a small first group so every partner gets personal onboarding and a direct line to the team. Founding partners keep their commission terms as the programme grows.',
   },
   {
-    question: 'What can I sell through the programme?',
-    answer: 'Everything CircleTel offers—Fibre packages from R399/month, LTE and 5G for areas without fibre, and business connectivity solutions. You earn on all of it.',
+    question: 'How much do I earn, exactly?',
+    answer: '10% of your referral\'s monthly subscription, every month, for as long as they stay connected. A referral on a R999/month package earns you R99 a month — ten of those is R999 a month, ongoing.',
   },
   {
     question: 'When exactly do I get paid?',
-    answer: 'Commissions are paid after your customer\'s first full billing cycle completes, then monthly thereafter. You can track earnings in real-time via your partner dashboard — no guessing, no waiting around.',
+    answer: 'Monthly, by the 5th, for the previous month\'s collected payments. Your referral pays their March bill; your commission is in your account by 5 April. Balances under R200 roll over to the next month so you\'re never paid in cents.',
+  },
+  {
+    question: 'What can I refer people to?',
+    answer: 'Qualifying CircleTel packages across fibre, fixed-wireless and LTE/5G — for homes and businesses. We\'ll give you the current qualifying list when you join; you earn the same 10% on all of them.',
+  },
+  {
+    question: 'Do I need any experience to join?',
+    answer: 'No. If you know people who need reliable internet — tenants, neighbours, clients, a community group — you have what the programme needs. We handle quotes, installation and support.',
   },
   {
     question: 'Is there a contract or lock-in?',
-    answer: 'No. You can pause or stop at any time. No minimums, no penalties. Some partners do this full-time, others just share their link when it comes up naturally.',
-  },
-  {
-    question: 'What support do I get?',
-    answer: 'You get a dedicated partner manager, WhatsApp support, marketing materials, and access to our partner community. We\'re here to help you succeed.',
+    answer: 'No. You can pause or stop at any time. No minimums, no penalties — and commission already earned still gets paid.',
   },
   {
     question: 'Can I do this alongside my current job?',
-    answer: 'Absolutely! Most of our partners have other jobs or businesses. This is perfect side-income that grows over time as your referrals stay connected.',
+    answer: 'Yes — it\'s designed as side income. Property managers, IT freelancers and community admins are a natural fit, because one referral network can produce many connections.',
   },
 ];
 

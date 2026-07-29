@@ -83,11 +83,20 @@ Relates to #
 - [ ] CORS settings reviewed (if applicable)
 - [ ] Rate limiting considered (if applicable)
 
-### Documentation
-- [ ] README updated (if needed)
-- [ ] API documentation updated (if applicable)
-- [ ] Inline code documentation added
-- [ ] CLAUDE.md updated (if changing conventions)
+### Documentation — Definition of Done (whitelabel spec §8)
+<!-- Docs ship WITH the feature, not after. Tick one line in each pair. -->
+
+**User-facing behavior changed?**
+- [ ] Matching user guide added/updated in `docs/help/<area>/` (interim home until the /help center ships in Phase 4)
+- [ ] N/A — no user-facing change
+
+**API / architecture / integration changed?**
+- [ ] Dev doc added/updated in `docs/` (architecture, integration guide, or API reference)
+- [ ] N/A — no API/architecture change
+
+**Conventions changed?**
+- [ ] CLAUDE.md / `.claude/rules/` updated
+- [ ] N/A
 
 ## Screenshots
 <!-- If applicable, add screenshots to help explain your changes -->

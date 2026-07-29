@@ -28,6 +28,7 @@ import type { TaranaRadio } from '@/lib/tarana/types';
  */
 export const taranaSyncFunction = inngest.createFunction(
   {
+
     id: 'tarana-sync',
     name: 'Tarana Base Station Sync',
     retries: 3,
@@ -37,14 +38,13 @@ export const taranaSyncFunction = inngest.createFunction(
         match: 'data.sync_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: midnight SAST = 22:00 UTC
     { cron: '0 22 * * *' },
     // Event trigger: manual requests
     { event: 'tarana/sync.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     // Extract options from event data (if triggered manually)
     const eventData = event?.data as {
       sync_log_id?: string;
@@ -413,11 +413,11 @@ export const taranaSyncFunction = inngest.createFunction(
  */
 export const taranaSyncCompletedFunction = inngest.createFunction(
   {
+
     id: 'tarana-sync-completed',
     name: 'Tarana Sync Completed Handler',
-  },
-  { event: 'tarana/sync.completed' },
-  async ({ event, step }) => {
+  triggers: { event: 'tarana/sync.completed' },
+}, async ({ event, step }) => {
     const { sync_log_id, inserted, updated, deleted, duration_ms } = event.data;
 
     await step.run('log-completion', async () => {
@@ -445,11 +445,11 @@ export const taranaSyncCompletedFunction = inngest.createFunction(
  */
 export const taranaSyncFailedFunction = inngest.createFunction(
   {
+
     id: 'tarana-sync-failed',
     name: 'Tarana Sync Failed Handler',
-  },
-  { event: 'tarana/sync.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'tarana/sync.failed' },
+}, async ({ event, step }) => {
     const { sync_log_id, error, attempt } = event.data;
 
     await step.run('handle-failure', async () => {

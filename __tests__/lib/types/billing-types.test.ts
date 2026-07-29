@@ -267,8 +267,11 @@ describe('Billing Utility Functions', () => {
 
       const result = calculateProRata(params);
 
-      expect(result.amount.toString()).toMatch(/^\d+\.\d{2}$/); // 2 decimal places
-      expect(result.daily_rate.toString()).toMatch(/^\d+\.\d{2}$/);
+      // Number(x.toFixed(2)) may drop trailing zeros (400 not "400.00")
+      expect(result.amount).toBe(Number(result.amount.toFixed(2)));
+      expect(result.daily_rate).toBe(Number(result.daily_rate.toFixed(2)));
+      expect(result.daily_rate).toBe(26.67); // 799.99 / 30
+      expect(result.amount).toBe(400); // 26.666... * 15 → 399.995 → 400.00
     });
   });
 
