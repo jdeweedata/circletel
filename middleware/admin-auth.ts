@@ -9,6 +9,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { canAccessAdminPath, workspaceForPathname } from '@/lib/admin/workspace-access';
 import type { AdminRole } from '@/lib/auth/constants';
+import { getAdminClaim, ADMIN_CLAIM_PAGE_TTL_MS } from '@/lib/auth/admin-claims';
 import { getTenantConfig } from '@/lib/tenant';
 
 // Note: Using console.log in middleware as @/lib/logging may not work in edge runtime
@@ -122,24 +123,34 @@ export async function handleAdminAuth(
 
   // Authenticated. Authorize by workspace (PR5). Dashboard/Executive is open to
   // every admin role, so it is always a safe, loop-free landing on denial.
-  // ponytail: one admin_users read per protected admin request. Upgrade path is a
-  // JWT app_metadata.admin_role claim (zero-DB); see docs/2026-07-12-pr5-server-route-guards.md.
-  const { data: adminRow } = await supabase
-    .from('admin_users')
-    .select('role')
-    .eq('email', user.email!)
-    .eq('is_active', true)
-    .maybeSingle();
+  //
+  // Fast path (audit H3): a fresh JWT admin claim (stamped at login and
+  // refreshed by authenticateAdmin) authorizes with zero DB reads. The
+  // session JWT's metadata can lag one token-refresh cycle, so this layer
+  // uses the 1h page TTL; API routes enforce the tighter 15-min window.
+  // Fallback: one admin_users read (the pre-H3 behavior).
+  let role: AdminRole | null = null;
+  const claim = getAdminClaim(user, ADMIN_CLAIM_PAGE_TTL_MS);
+  if (claim) {
+    role = claim.role as AdminRole;
+  } else {
+    const { data: adminRow } = await supabase
+      .from('admin_users')
+      .select('role')
+      .eq('email', user.email!)
+      .eq('is_active', true)
+      .maybeSingle();
 
-  if (!adminRow) {
-    // Authenticated but not an active admin - send to login (parity with client).
-    const url = request.nextUrl.clone();
-    url.pathname = '/admin/login';
-    url.searchParams.set('error', 'unauthorized');
-    return { shouldRedirect: true, redirectResponse: NextResponse.redirect(url), user };
+    if (!adminRow) {
+      // Authenticated but not an active admin - send to login (parity with client).
+      const url = request.nextUrl.clone();
+      url.pathname = '/admin/login';
+      url.searchParams.set('error', 'unauthorized');
+      return { shouldRedirect: true, redirectResponse: NextResponse.redirect(url), user };
+    }
+
+    role = adminRow.role as AdminRole;
   }
-
-  const role = adminRow.role as AdminRole;
   if (!canAccessAdminPath(role, pathname, getTenantConfig().modules)) {
     const ws = workspaceForPathname(pathname);
     console.warn('[admin-auth] workspace denied', { pathname, role, ws });

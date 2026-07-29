@@ -77,13 +77,13 @@ function buildSmsMessage(params: {
 
 export const invoiceNotificationFunction = inngest.createFunction(
   {
+
     id: 'invoice-notification',
     name: 'Invoice Notification (Email + SMS)',
     retries: 3,
-    concurrency: { limit: 5 }, // Inngest Hobby plan max = 5; any value >5 makes the ENTIRE app sync fail (no crons register)
-  },
-  { event: 'billing/invoice.generated' },
-  async ({ event, step }) => {
+    concurrency: { limit: 5 }, // Inngest Hobby plan max = 5; any value >5 makes the ENTIRE app sync fail (no crons register),
+  triggers: { event: 'billing/invoice.generated' },
+}, async ({ event, step }) => {
     const { invoice_id, customer_id } = event.data;
 
     // -------------------------------------------------------------------------

@@ -163,3 +163,19 @@ export interface RuijieAuditLogRow {
   error_message: string | null;
   created_at: string;
 }
+
+export interface RuijieTrafficRollupRow {
+  id: string;
+  group_id: string;
+  group_name: string | null;
+  captured_at: string;
+  hours_window: number;
+  total_rx_bytes: number;
+  total_tx_bytes: number;
+  avg_rx_bps: number;
+  avg_tx_bps: number;
+  peak_rx_bps: number;
+  peak_tx_bps: number;
+  raw_summary: Record<string, unknown> | null;
+  created_at: string;
+}

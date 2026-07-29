@@ -1,18 +1,20 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import {
   PiArrowsClockwiseBold,
-  PiChartLineBold,
   PiArrowDownBold,
   PiArrowUpBold,
   PiClockBold,
   PiWifiHighBold,
   PiLightningBold,
   PiDatabaseBold,
+  PiBroadcastBold,
 } from 'react-icons/pi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -20,11 +22,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TrafficChart, AppFlowChart, formatBytes, formatBps } from '@/components/admin/network/TrafficChart';
-
-// =============================================================================
-// TYPES
-// =============================================================================
+import { formatBytes, formatBps } from '@/components/admin/network/TrafficChart';
+import {
+  MetricCard,
+  TopApplicationsCard,
+  AppCategoryBreakdown,
+  GroupTrafficCards,
+  SsidActivityCards,
+  RadioUtilSummaryCard,
+  TrafficVolumeAreaChart,
+  ThroughputAreaChart,
+} from '@/components/admin/network/performance';
+import type { GroupTrafficCard, RadioUtilSummary, SsidActivityCard } from '@/lib/network/analytics-aggregates';
+import { formatRelative } from '@/lib/dates';
 
 interface TrafficDataPoint {
   timestamp: number;
@@ -34,6 +44,8 @@ interface TrafficDataPoint {
   rxPkts: number;
   txPkts: number;
   buildingId: number;
+  avgRxMbps?: number;
+  avgTxMbps?: number;
 }
 
 interface TrafficSummary {
@@ -44,6 +56,8 @@ interface TrafficSummary {
   avgTxRate: number;
   peakRxBytes: number;
   peakTxBytes: number;
+  avgRxMbps?: number;
+  avgTxMbps?: number;
   dataPoints: TrafficDataPoint[];
 }
 
@@ -55,22 +69,20 @@ interface AppFlowData {
   upDownFlow: number;
 }
 
-interface TrafficApiResponse {
-  groupId: string;
+interface AnalyticsApiResponse {
+  groups: Array<{ id: string; name: string }>;
+  groupId: string | null;
   hours: number;
+  source: 'supabase' | 'live';
   traffic: TrafficSummary;
   appFlow?: AppFlowData[];
+  groupTraffic?: GroupTrafficCard[];
+  ssidActivity?: SsidActivityCard[];
+  radio?: RadioUtilSummary;
+  lastRollupAt?: string | null;
+  lastSyncedAt?: string | null;
   fetchedAt: string;
 }
-
-interface NetworkGroup {
-  id: number;
-  name: string;
-}
-
-// =============================================================================
-// HELPERS
-// =============================================================================
 
 function formatDuration(hours: number): string {
   if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''}`;
@@ -78,154 +90,176 @@ function formatDuration(hours: number): string {
   return `${days} day${days > 1 ? 's' : ''}`;
 }
 
-// =============================================================================
-// COMPONENT
-// =============================================================================
+const emptyRadio: RadioUtilSummary = {
+  avg2g: null,
+  avg5g: null,
+  avgBlended: null,
+  devicesWithRadio: 0,
+  totalDevices: 0,
+  channels2g: [],
+  channels5g: [],
+  byDevice: [],
+};
 
 export default function NetworkAnalyticsPage() {
-  const [data, setData] = useState<TrafficApiResponse | null>(null);
-  const [groups, setGroups] = useState<NetworkGroup[]>([]);
+  const [data, setData] = useState<AnalyticsApiResponse | null>(null);
+  const [groups, setGroups] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
   const [selectedHours, setSelectedHours] = useState<string>('24');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [preferLive, setPreferLive] = useState(false);
+  const hasLoadedRef = useRef(false);
 
-  // Fetch available groups
-  const fetchGroups = useCallback(async () => {
-    try {
-      const response = await fetch('/api/ruijie/devices', {
-        credentials: 'include',
-      });
-      if (!response.ok) return;
+  const fetchTrafficData = useCallback(
+    async (options?: {
+      isRefresh?: boolean;
+      live?: boolean;
+      groupId?: string;
+      hours?: string;
+    }) => {
+      const isRefresh = options?.isRefresh ?? false;
+      const live = options?.live ?? preferLive;
+      const groupId = options?.groupId ?? selectedGroupId;
+      const hours = options?.hours ?? selectedHours;
 
-      const result = await response.json();
-      const devices = result.devices || [];
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
 
-      // Extract unique groups from devices
-      const groupMap = new Map<number, string>();
-      for (const device of devices) {
-        if (device.group_id && device.group_name) {
-          groupMap.set(parseInt(device.group_id, 10), device.group_name);
+      try {
+        const params = new URLSearchParams({
+          hours,
+          includeApps: 'true',
+        });
+        if (groupId) params.set('groupId', groupId);
+        if (live) params.set('live', 'true');
+
+        const response = await fetch(`/api/admin/network/analytics?${params}`, {
+          credentials: 'include',
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch analytics');
+
+        const result: AnalyticsApiResponse = await response.json();
+        setData(result);
+        if (result.groups?.length) {
+          // Normalize ids to strings — Radix Select rejects empty/non-string values.
+          const normalized = result.groups
+            .map((g) => ({ id: String(g.id), name: g.name || String(g.id) }))
+            .filter((g) => g.id.length > 0);
+          setGroups(normalized);
+          if (!groupId && result.groupId) {
+            setSelectedGroupId(String(result.groupId));
+          }
         }
+        setError(null);
+      } catch (err) {
+        setError('Failed to load traffic analytics');
+        console.error(err);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
+    },
+    [selectedGroupId, selectedHours, preferLive]
+  );
 
-      const groupList = Array.from(groupMap.entries()).map(([id, name]) => ({
-        id,
-        name,
-      }));
-
-      setGroups(groupList);
-
-      // Select first group if none selected
-      if (groupList.length > 0 && !selectedGroupId) {
-        setSelectedGroupId(String(groupList[0].id));
-      }
-    } catch (err) {
-      console.error('Failed to fetch groups:', err);
-    }
-  }, [selectedGroupId]);
-
-  // Fetch traffic data
-  const fetchTrafficData = useCallback(async (isRefresh = false) => {
-    if (!selectedGroupId) {
-      setLoading(false);
-      return;
-    }
-
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-
-    try {
-      const params = new URLSearchParams({
-        groupId: selectedGroupId,
-        hours: selectedHours,
-        includeApps: 'true',
-      });
-
-      const response = await fetch(`/api/ruijie/traffic?${params}`, {
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch traffic data');
-      }
-
-      const result: TrafficApiResponse = await response.json();
-      setData(result);
-      setError(null);
-    } catch (err) {
-      setError('Failed to load traffic data');
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [selectedGroupId, selectedHours]);
-
-  // Initial load
   useEffect(() => {
-    fetchGroups();
-  }, [fetchGroups]);
+    void fetchTrafficData({ isRefresh: hasLoadedRef.current }).finally(() => {
+      hasLoadedRef.current = true;
+    });
+  }, [fetchTrafficData]);
 
-  // Fetch data when group or time range changes
+  // Auto-refresh only in Cached mode — Live must stay opt-in / manual.
   useEffect(() => {
-    if (selectedGroupId) {
-      fetchTrafficData();
-    }
-  }, [selectedGroupId, selectedHours, fetchTrafficData]);
-
-  // Auto-refresh every 5 minutes
-  useEffect(() => {
-    if (!selectedGroupId) return;
-    const interval = setInterval(() => fetchTrafficData(true), 5 * 60 * 1000);
+    if (preferLive) return;
+    const interval = setInterval(
+      () => fetchTrafficData({ isRefresh: true, live: false }),
+      5 * 60 * 1000
+    );
     return () => clearInterval(interval);
-  }, [selectedGroupId, fetchTrafficData]);
+  }, [fetchTrafficData, preferLive]);
 
-  const selectedGroup = groups.find(g => String(g.id) === selectedGroupId);
+  const handleGroupChange = (groupId: string) => {
+    if (!groupId || groupId === selectedGroupId) return;
+    setSelectedGroupId(groupId);
+  };
+
+  const selectedGroup = groups.find((g) => g.id === selectedGroupId);
+
+  const bandwidthSeries =
+    data?.traffic.dataPoints.map((p) => {
+      // Prefer API Mbps; fall back to hourly bytes → avg Mbps
+      const rxMbps =
+        p.avgRxMbps ??
+        (Number.isFinite(p.rxBytes) ? (p.rxBytes * 8) / 3600 / 1_000_000 : 0);
+      const txMbps =
+        p.avgTxMbps ??
+        (Number.isFinite(p.txBytes) ? (p.txBytes * 8) / 3600 / 1_000_000 : 0);
+      return {
+        captured_at: new Date(p.timestamp).toISOString(),
+        avgRxMbps: rxMbps,
+        avgTxMbps: txMbps,
+        avgThroughputMbps: rxMbps + txMbps,
+      };
+    }) ?? [];
 
   if (loading && !data) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 bg-gray-100 rounded animate-pulse" />
+        <div className="h-8 w-56 bg-slate-100 rounded animate-pulse" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-gray-100 rounded-lg animate-pulse" />
+            <div key={i} className="h-28 bg-slate-100 rounded-xl animate-pulse" />
           ))}
         </div>
-        <div className="h-[400px] bg-gray-100 rounded-lg animate-pulse" />
+        <div className="h-[350px] bg-slate-100 rounded-xl animate-pulse" />
       </div>
     );
   }
 
+  const appFlow = data?.appFlow ?? [];
+  const groupTraffic = data?.groupTraffic ?? [];
+  const ssidActivity = data?.ssidActivity ?? [];
+  const radio = data?.radio ?? emptyRadio;
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 -mx-1">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Bandwidth Analytics</h1>
-          <p className="text-gray-500 mt-1">
-            Network traffic monitoring and application usage
+          <p className="text-xs text-slate-400 mb-1">Activity / Infrastructure / Analytics</p>
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
+            Network Analytics
+          </h1>
+          <p className="text-slate-500 mt-1 text-sm">
+            Traffic and utilization by network group
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Group Selector */}
-          <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
-            <SelectTrigger className="w-[200px]">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/network/health">System Health</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/network/devices">Devices</Link>
+          </Button>
+          <Select
+            value={selectedGroupId || undefined}
+            onValueChange={handleGroupChange}
+          >
+            <SelectTrigger className="w-[200px] rounded-lg border-slate-200">
               <SelectValue placeholder="Select network group" />
             </SelectTrigger>
             <SelectContent>
               {groups.map((group) => (
-                <SelectItem key={group.id} value={String(group.id)}>
+                <SelectItem key={group.id} value={group.id}>
                   {group.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-
-          {/* Time Range Selector */}
           <Select value={selectedHours} onValueChange={setSelectedHours}>
-            <SelectTrigger className="w-[130px]">
+            <SelectTrigger className="w-[140px] rounded-lg border-slate-200">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -236,235 +270,175 @@ export default function NetworkAnalyticsPage() {
               <SelectItem value="168">Last 7 days</SelectItem>
             </SelectContent>
           </Select>
-
-          {/* Refresh Button */}
+          <Button
+            variant={preferLive ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => {
+              const next = !preferLive;
+              setPreferLive(next);
+              void fetchTrafficData({ isRefresh: true, live: next });
+            }}
+          >
+            <PiBroadcastBold className="w-4 h-4 mr-2" />
+            {preferLive ? 'Live' : 'Cached'}
+          </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => fetchTrafficData(true)}
-            disabled={refreshing || !selectedGroupId}
+            onClick={() => void fetchTrafficData({ isRefresh: true })}
+            disabled={refreshing}
           >
-            <PiArrowsClockwiseBold
-              className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`}
-            />
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
       </div>
 
-      {/* Error State */}
-      {error && (
-        <Card className="border-red-200 bg-red-50">
+      {error ? (
+        <Card className="border-red-200 bg-red-50 rounded-xl">
           <CardContent className="py-4">
             <p className="text-red-700">{error}</p>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
-      {/* No Group Selected */}
-      {!selectedGroupId && groups.length === 0 && (
-        <Card>
+      {!selectedGroupId && groups.length === 0 ? (
+        <Card className="rounded-xl border-slate-200">
           <CardContent className="py-12 text-center">
-            <PiWifiHighBold className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-600">No network groups found</p>
-            <p className="text-sm text-gray-500 mt-1">
-              Sync devices first to view traffic analytics
+            <PiWifiHighBold className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+            <p className="text-slate-600">No network groups found</p>
+            <p className="text-sm text-slate-500 mt-1">
+              Sync Ruijie devices first to view traffic analytics
             </p>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
-      {/* Data Display */}
-      {data && (
+      {data ? (
         <>
-          {/* Summary Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Total Download</p>
-                    <p className="text-2xl font-bold text-emerald-600">
-                      {formatBytes(data.traffic.totalRxBytes)}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Avg: {formatBps(data.traffic.avgRxRate)}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-emerald-100 rounded-full">
-                    <PiArrowDownBold className="w-6 h-6 text-emerald-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Total Upload</p>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {formatBytes(data.traffic.totalTxBytes)}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Avg: {formatBps(data.traffic.avgTxRate)}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-blue-100 rounded-full">
-                    <PiArrowUpBold className="w-6 h-6 text-blue-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Peak Download/hr</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {formatBytes(data.traffic.peakRxBytes)}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      In {formatDuration(parseInt(selectedHours))}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-orange-100 rounded-full">
-                    <PiLightningBold className="w-6 h-6 text-orange-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Total Traffic</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {formatBytes(data.traffic.totalBytes)}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {data.traffic.dataPoints.length} data points
-                    </p>
-                  </div>
-                  <div className="p-3 bg-gray-100 rounded-full">
-                    <PiDatabaseBold className="w-6 h-6 text-gray-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge
+              variant="outline"
+              className={
+                data.source === 'live'
+                  ? 'border-blue-200 bg-blue-50 text-blue-700'
+                  : 'border-slate-200 bg-slate-50 text-slate-600'
+              }
+            >
+              {data.source === 'live' ? 'Ruijie live' : 'Supabase rollups'}
+            </Badge>
+            <span className="text-xs text-slate-400">
+              {selectedGroup?.name || 'Network'} · {formatDuration(parseInt(selectedHours, 10))}
+            </span>
+            {data.lastRollupAt ? (
+              <span className="text-xs text-slate-500">
+                Last rollup {formatRelative(data.lastRollupAt)}
+              </span>
+            ) : (
+              <span className="text-xs text-amber-600">No rollup samples yet</span>
+            )}
+            {data.lastSyncedAt ? (
+              <span className="text-xs text-slate-400">
+                · Device sync {formatRelative(data.lastSyncedAt)}
+              </span>
+            ) : null}
           </div>
 
-          {/* Traffic Chart */}
-          <TrafficChart
-            dataPoints={data.traffic.dataPoints}
-            title={`Traffic - ${selectedGroup?.name || 'Network'} (${formatDuration(parseInt(selectedHours))})`}
-            height={350}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricCard
+              title="Total Download"
+              value={formatBytes(data.traffic.totalRxBytes)}
+              subtitle={`Avg ${formatBps(data.traffic.avgRxRate)}`}
+            >
+              <PiArrowDownBold className="w-5 h-5 text-emerald-600" />
+            </MetricCard>
+            <MetricCard
+              title="Total Upload"
+              value={formatBytes(data.traffic.totalTxBytes)}
+              subtitle={`Avg ${formatBps(data.traffic.avgTxRate)}`}
+            >
+              <PiArrowUpBold className="w-5 h-5 text-blue-600" />
+            </MetricCard>
+            <MetricCard
+              title="Peak Download / window"
+              value={formatBytes(data.traffic.peakRxBytes)}
+              subtitle={formatDuration(parseInt(selectedHours, 10))}
+            >
+              <PiLightningBold className="w-5 h-5 text-amber-600" />
+            </MetricCard>
+            <MetricCard
+              title="Total Traffic"
+              value={formatBytes(data.traffic.totalBytes)}
+              subtitle={`${data.traffic.dataPoints.length} data points`}
+            >
+              <PiDatabaseBold className="w-5 h-5 text-slate-500" />
+            </MetricCard>
+          </div>
+
+          <GroupTrafficCards
+            groups={groupTraffic}
+            selectedGroupId={selectedGroupId}
+            onSelectGroup={handleGroupChange}
           />
 
-          {/* App Flow Chart */}
-          {data.appFlow && data.appFlow.length > 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <AppFlowChart
-                data={data.appFlow}
-                title="Top Applications by Traffic"
-                maxItems={10}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div className="xl:col-span-2">
+              <TrafficVolumeAreaChart
+                dataPoints={data.traffic.dataPoints}
+                title={`Traffic volume — ${selectedGroup?.name || 'Network'}`}
+                description="Stacked download + upload by hour (shadcn area chart)"
               />
-
-              {/* App Categories Summary */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Traffic by Category</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CategoryBreakdown data={data.appFlow} />
-                </CardContent>
-              </Card>
             </div>
-          )}
+            <ThroughputAreaChart
+              data={bandwidthSeries}
+              title="Throughput"
+              description="Average rates from rollups (Mbps)"
+              stacked
+            />
+          </div>
 
-          {/* Last Updated */}
-          <div className="flex items-center justify-end gap-2 text-sm text-gray-500">
-            <PiClockBold className="w-4 h-4" />
-            Last updated: {new Date(data.fetchedAt).toLocaleString('en-ZA')}
+          <ThroughputAreaChart
+            data={bandwidthSeries}
+            title="Download vs upload throughput"
+            description="Overlay view — compare directions without stacking"
+            stacked={false}
+            heightClassName="aspect-auto h-[260px] w-full"
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <TopApplicationsCard data={appFlow} maxItems={10} />
+            <Card className="rounded-xl border-slate-200/80 shadow-sm border bg-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold text-slate-900">
+                  Traffic by Category
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AppCategoryBreakdown data={appFlow} />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <SsidActivityCards ssids={ssidActivity} />
+            <RadioUtilSummaryCard radio={radio} />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-slate-500">
+            <span className="inline-flex items-center gap-2">
+              <PiClockBold className="w-4 h-4" />
+              {data.source === 'live'
+                ? `Live fetch ${formatRelative(data.fetchedAt)}`
+                : data.lastRollupAt
+                  ? `Rollup data ${formatRelative(data.lastRollupAt)}`
+                  : 'Waiting for first traffic rollup'}
+            </span>
+            {preferLive ? (
+              <span className="text-xs text-slate-400">Auto-refresh paused in Live mode</span>
+            ) : null}
           </div>
         </>
-      )}
-    </div>
-  );
-}
-
-// =============================================================================
-// CATEGORY BREAKDOWN COMPONENT
-// =============================================================================
-
-interface CategoryBreakdownProps {
-  data: AppFlowData[];
-}
-
-function CategoryBreakdown({ data }: CategoryBreakdownProps) {
-  // Group by category
-  const categories = data.reduce((acc, app) => {
-    const cat = app.appGroupName || 'Other';
-    if (!acc[cat]) {
-      acc[cat] = { total: 0, apps: 0 };
-    }
-    acc[cat].total += app.upDownFlow;
-    acc[cat].apps += 1;
-    return acc;
-  }, {} as Record<string, { total: number; apps: number }>);
-
-  const sortedCategories = Object.entries(categories)
-    .sort(([, a], [, b]) => b.total - a.total);
-
-  const totalTraffic = data.reduce((sum, app) => sum + app.upDownFlow, 0);
-
-  const categoryColors: Record<string, string> = {
-    Streaming: 'bg-purple-500',
-    Social: 'bg-blue-500',
-    Work: 'bg-green-500',
-    Gaming: 'bg-red-500',
-    Other: 'bg-gray-500',
-  };
-
-  return (
-    <div className="space-y-4">
-      {sortedCategories.map(([category, stats]) => {
-        const percentage = totalTraffic > 0
-          ? (stats.total / totalTraffic) * 100
-          : 0;
-
-        return (
-          <div key={category}>
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-3 h-3 rounded-full ${categoryColors[category] || 'bg-gray-400'}`}
-                />
-                <span className="font-medium text-sm text-gray-900">
-                  {category}
-                </span>
-                <span className="text-xs text-gray-500">
-                  ({stats.apps} app{stats.apps > 1 ? 's' : ''})
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="font-medium">{formatBytes(stats.total)}</span>
-                <span className="text-gray-400 w-12 text-right">
-                  {percentage.toFixed(0)}%
-                </span>
-              </div>
-            </div>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full ${categoryColors[category] || 'bg-gray-400'} rounded-full transition-all`}
-                style={{ width: `${percentage}%` }}
-              />
-            </div>
-          </div>
-        );
-      })}
+      ) : null}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { revalidateCoverageReferenceCache } from '@/lib/coverage/reference-data';
 
 interface CreateProviderRequest {
   name: string;
@@ -151,6 +152,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       throw error;
     }
 
+    revalidateCoverageReferenceCache(['networkProviders']);
     return NextResponse.json({
       success: true,
       data
@@ -242,6 +244,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       throw error;
     }
 
+    revalidateCoverageReferenceCache(['networkProviders']);
     return NextResponse.json({
       success: true,
       data
@@ -294,6 +297,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       throw error;
     }
 
+    revalidateCoverageReferenceCache(['networkProviders']);
     return NextResponse.json({
       success: true,
       message: 'Provider deleted successfully'

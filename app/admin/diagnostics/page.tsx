@@ -30,7 +30,19 @@ import type {
   HealthStatus,
 } from '@/lib/diagnostics/types'
 
-import { StatCard } from '@/components/admin/shared';
+
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
 
 export default function DiagnosticsPage() {
   const router = useRouter()
@@ -175,15 +187,12 @@ export default function DiagnosticsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <AdminPage>
       {/* Header - matching dashboard style */}
       <div className="mb-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Network Diagnostics</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Monitor subscriber connection health and troubleshoot issues
-            </p>
+            <PageHeader title="Network Diagnostics" subtitle="Monitor subscriber connection health and troubleshoot issues" />
           </div>
           <Button
             onClick={handleRefresh}
@@ -503,6 +512,6 @@ export default function DiagnosticsPage() {
           )}
         </div>
       </div>
-    </div>
+    </AdminPage>
   )
 }

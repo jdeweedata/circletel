@@ -19,6 +19,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import type { User } from '@supabase/supabase-js';
+import { getAdminClaim, stampAdminClaim, ADMIN_CLAIM_API_TTL_MS } from '@/lib/auth/admin-claims';
 
 export interface AdminUser {
   id: string;
@@ -95,6 +96,19 @@ export async function authenticateAdmin(request: NextRequest): Promise<AuthResul
       };
     }
 
+    // Fast path (audit H3): a fresh JWT admin claim replaces the per-request
+    // admin_users read. getUser() above returned CURRENT app_metadata, so the
+    // 15-min TTL bounds how long an externally-deactivated admin keeps API
+    // access before the DB fallback below denies them.
+    const claim = getAdminClaim(user, ADMIN_CLAIM_API_TTL_MS);
+    if (claim) {
+      return {
+        success: true,
+        user,
+        adminUser: claim.profile,
+      };
+    }
+
     // Use service role client for admin_users check (bypasses RLS)
     const supabaseAdmin = await createClient();
 
@@ -138,6 +152,10 @@ export async function authenticateAdmin(request: NextRequest): Promise<AuthResul
         error: 'Inactive account',
       };
     }
+
+    // Refresh the claim so subsequent requests take the zero-DB fast path.
+    // Non-fatal — auth already succeeded via the DB.
+    await stampAdminClaim(supabaseAdmin, user.id, adminUser);
 
     return {
       success: true,

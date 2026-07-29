@@ -22,6 +22,19 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface AuditLog {
   id: string;
   user_email: string;
@@ -162,13 +175,10 @@ export default function AdminAuditLogsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
-        <p className="text-gray-600 mt-2">
-          Monitor all admin activities, security events, and system changes
-        </p>
+        <PageHeader title="Audit Logs" subtitle="Monitor all admin activities, security events, and system changes" />
       </div>
 
       {/* Stats Cards */}
@@ -349,6 +359,6 @@ export default function AdminAuditLogsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   );
 }

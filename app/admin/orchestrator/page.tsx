@@ -1,26 +1,20 @@
-'use client'
+'use client';
 
 import { OrchestratorDashboard } from '@/components/admin/orchestrator/OrchestratorDashboard';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
+import { AdminPage, PageHeader } from '@/components/backend';
 
 export default function OrchestratorPage() {
   return (
     <PermissionGate permissions={[PERMISSIONS.SYSTEM.VIEW_ORCHESTRATOR]}>
-      <div className="space-y-6">
-        {/* Page Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy">
-            Orchestrator Dashboard
-          </h1>
-          <p className="mt-2 text-circleTel-secondaryNeutral">
-            Monitor AI agent workflows, track performance metrics, and manage multi-agent coordination
-          </p>
-        </div>
-
-        {/* Dashboard Component */}
+      <AdminPage>
+        <PageHeader
+          title="Orchestrator Dashboard"
+          subtitle="Monitor AI agent workflows, track performance metrics, and manage multi-agent coordination"
+        />
         <OrchestratorDashboard />
-      </div>
+      </AdminPage>
     </PermissionGate>
   );
 }

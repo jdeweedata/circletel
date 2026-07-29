@@ -50,6 +50,7 @@ const PAYNOW_TRANSACTION_CODES = new Set([
  */
 export const paynowReconciliationFunction = inngest.createFunction(
   {
+
     id: 'paynow-reconciliation',
     name: 'PayNow Daily Reconciliation',
     retries: 3,
@@ -59,14 +60,13 @@ export const paynowReconciliationFunction = inngest.createFunction(
         match: 'data.process_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: daily at 07:00 UTC (09:00 SAST)
     { cron: '0 7 * * *' },
     // Event trigger: manual requests
     { event: 'paynow/reconciliation.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     // Extract options from event data (if manually triggered)
     const eventData = event?.data as {
       process_log_id?: string;
@@ -535,11 +535,11 @@ export const paynowReconciliationFunction = inngest.createFunction(
  */
 export const paynowReconciliationCompletedFunction = inngest.createFunction(
   {
+
     id: 'paynow-reconciliation-completed',
     name: 'PayNow Reconciliation Completed Handler',
-  },
-  { event: 'paynow/reconciliation.completed' },
-  async ({ event, step }) => {
+  triggers: { event: 'paynow/reconciliation.completed' },
+}, async ({ event, step }) => {
     const {
       process_log_id,
       reconciliation_date,
@@ -575,11 +575,11 @@ export const paynowReconciliationCompletedFunction = inngest.createFunction(
  */
 export const paynowReconciliationFailedFunction = inngest.createFunction(
   {
+
     id: 'paynow-reconciliation-failed',
     name: 'PayNow Reconciliation Failed Handler',
-  },
-  { event: 'paynow/reconciliation.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'paynow/reconciliation.failed' },
+}, async ({ event, step }) => {
     const { process_log_id, error, attempt } = event.data;
 
     await step.run('handle-failure', async () => {

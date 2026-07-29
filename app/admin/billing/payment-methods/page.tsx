@@ -1,11 +1,24 @@
 'use client';
-import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiDotsThreeBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiShieldBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
+import {
+  PiArrowLeftBold,
+  PiArrowsClockwiseBold,
+  PiBuildingsBold,
+  PiCheckCircleBold,
+  PiClockBold,
+  PiCreditCardBold,
+  PiDotsThreeBold,
+  PiEyeBold,
+  PiFunnelBold,
+  PiMagnifyingGlassBold,
+  PiShieldBold,
+  PiUserBold,
+  PiWarningCircleBold,
+  PiXCircleBold,
+} from 'react-icons/pi';
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { StatusBadge } from '@/components/admin/shared';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -24,6 +37,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  type StatusVariant,
+} from '@/components/backend';
 
 interface Customer {
   id: string;
@@ -81,12 +104,20 @@ interface Pagination {
   totalPages: number;
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  active: { label: 'Active', color: 'bg-green-100 text-green-800', icon: <PiCheckCircleBold className="w-3 h-3" /> },
-  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: <PiClockBold className="w-3 h-3" /> },
-  suspended: { label: 'Suspended', color: 'bg-orange-100 text-orange-800', icon: <PiWarningCircleBold className="w-3 h-3" /> },
-  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-800', icon: <PiXCircleBold className="w-3 h-3" /> },
-  expired: { label: 'Expired', color: 'bg-gray-100 text-gray-800', icon: <PiXCircleBold className="w-3 h-3" /> },
+const PM_STATUS_VARIANT: Record<string, StatusVariant> = {
+  active: 'success',
+  pending: 'warning',
+  suspended: 'warning',
+  cancelled: 'error',
+  expired: 'neutral',
+};
+
+const PM_STATUS_LABEL: Record<string, string> = {
+  active: 'Active',
+  pending: 'Pending',
+  suspended: 'Suspended',
+  cancelled: 'Cancelled',
+  expired: 'Expired',
 };
 
 const METHOD_TYPE_CONFIG: Record<string, { label: string; icon: React.ReactNode }> = {
@@ -118,8 +149,10 @@ export default function AdminPaymentMethodsPage() {
       const params = new URLSearchParams();
       params.set('page', pagination.page.toString());
       params.set('limit', pagination.limit.toString());
-      if (filters.status) params.set('status', filters.status);
-      if (filters.method_type) params.set('method_type', filters.method_type);
+      if (filters.status && filters.status !== 'all') params.set('status', filters.status);
+      if (filters.method_type && filters.method_type !== 'all') {
+        params.set('method_type', filters.method_type);
+      }
       if (filters.search) params.set('search', filters.search);
 
       const response = await fetch(`/api/admin/billing/payment-methods?${params}`);
@@ -145,34 +178,32 @@ export default function AdminPaymentMethodsPage() {
   }, [fetchPaymentMethods]);
 
   const handleSearch = () => {
-    setPagination(prev => ({ ...prev, page: 1 }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
     fetchPaymentMethods();
   };
 
   const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    setPagination(prev => ({ ...prev, page: 1 }));
+    setFilters((prev) => ({ ...prev, [key]: value === 'all' ? '' : value }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const clearFilters = () => {
     setFilters({ status: '', method_type: '', search: '' });
-    setPagination(prev => ({ ...prev, page: 1 }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
-  const getStatusBadge = (status: string) => {
-    const config = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
-    return (
-      <StatusBadge
-        status={config.label}
-        showDot={false}
-        icon={config.icon}
-        className={config.color}
-      />
-    );
-  };
+  const getStatusBadge = (status: string) => (
+    <StatusBadge
+      status={PM_STATUS_LABEL[status] ?? status}
+      variant={PM_STATUS_VARIANT[status] ?? 'neutral'}
+    />
+  );
 
   const getMethodDisplay = (pm: PaymentMethod) => {
-    const config = METHOD_TYPE_CONFIG[pm.method_type] || { label: pm.method_type, icon: <PiCreditCardBold className="w-4 h-4" /> };
+    const config = METHOD_TYPE_CONFIG[pm.method_type] || {
+      label: pm.method_type,
+      icon: <PiCreditCardBold className="w-4 h-4" />,
+    };
 
     if (pm.method_type === 'credit_card' || pm.method_type === 'debit_card') {
       return (
@@ -180,10 +211,16 @@ export default function AdminPaymentMethodsPage() {
           {config.icon}
           <div>
             <p className="font-medium text-sm">
-              {pm.card_type ? pm.card_type.charAt(0).toUpperCase() + pm.card_type.slice(1) : 'Card'} ****{pm.card_number_masked || '****'}
+              {pm.card_type
+                ? pm.card_type.charAt(0).toUpperCase() + pm.card_type.slice(1)
+                : 'Card'}{' '}
+              ****{pm.card_number_masked || '****'}
             </p>
             <p className="text-xs text-gray-500">
-              {pm.card_holder_name || 'Unknown'} {pm.card_expiry_month && pm.card_expiry_year ? `| Exp: ${pm.card_expiry_month}/${pm.card_expiry_year}` : ''}
+              {pm.card_holder_name || 'Unknown'}{' '}
+              {pm.card_expiry_month && pm.card_expiry_year
+                ? `| Exp: ${pm.card_expiry_month}/${pm.card_expiry_year}`
+                : ''}
             </p>
           </div>
         </div>
@@ -233,265 +270,223 @@ export default function AdminPaymentMethodsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/billing">
-            <Button variant="ghost" size="sm">
-              <PiArrowLeftBold className="w-4 h-4 mr-2" />
-              Back
+    <AdminPage>
+      <PageHeader
+        title="Payment Methods"
+        subtitle="Manage customer payment methods and mandates"
+        actions={
+          <div className="flex items-center gap-2">
+            <Link href="/admin/billing">
+              <Button variant="ghost" size="sm">
+                <PiArrowLeftBold className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+            </Link>
+            <Button onClick={fetchPaymentMethods} variant="outline" disabled={loading}>
+              <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
             </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Payment Methods</h1>
-            <p className="text-sm text-gray-500">Manage customer payment methods and mandates</p>
           </div>
-        </div>
-        <Button onClick={fetchPaymentMethods} variant="outline" disabled={loading}>
-          <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
+        }
+      />
 
-      {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <PiCreditCardBold className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                  <p className="text-xs text-gray-500">Total Methods</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <PiCheckCircleBold className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.by_status?.active || 0}</p>
-                  <p className="text-xs text-gray-500">Active</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <PiClockBold className="w-5 h-5 text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.by_status?.pending || 0}</p>
-                  <p className="text-xs text-gray-500">Pending</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <PiBuildingsBold className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.by_type?.debit_order || stats.by_type?.bank_account || 0}</p>
-                  <p className="text-xs text-gray-500">Debit Orders</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            label="Total Methods"
+            value={stats.total}
+            icon={<PiCreditCardBold className="h-5 w-5" />}
+          />
+          <StatCard
+            label="Active"
+            value={stats.by_status?.active || 0}
+            icon={<PiCheckCircleBold className="h-5 w-5" />}
+          />
+          <StatCard
+            label="Pending"
+            value={stats.by_status?.pending || 0}
+            icon={<PiClockBold className="h-5 w-5" />}
+          />
+          <StatCard
+            label="Debit Orders"
+            value={stats.by_type?.debit_order || stats.by_type?.bank_account || 0}
+            icon={<PiBuildingsBold className="h-5 w-5" />}
+          />
         </div>
       )}
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-4">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="Search by name, reference..."
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  className="pl-10"
-                />
-              </div>
+      <SectionCard title="Filters">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex-1 min-w-[200px]">
+            <div className="relative">
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Search by name, reference..."
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="pl-10"
+              />
             </div>
-            <Select
-              value={filters.status}
-              onValueChange={(value) => handleFilterChange('status', value)}
-            >
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="suspended">Suspended</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={filters.method_type}
-              onValueChange={(value) => handleFilterChange('method_type', value)}
-            >
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="credit_card">Credit Card</SelectItem>
-                <SelectItem value="debit_card">Debit Card</SelectItem>
-                <SelectItem value="debit_order">Debit Order</SelectItem>
-                <SelectItem value="bank_account">Bank Account</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={handleSearch} variant="default">
-              <PiFunnelBold className="w-4 h-4 mr-2" />
-              Apply
-            </Button>
-            {(filters.status || filters.method_type || filters.search) && (
-              <Button onClick={clearFilters} variant="ghost">
-                Clear
-              </Button>
-            )}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Payment Methods Table */}
-      <Card>
-        <CardContent className="pt-4">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <PiSpinnerBold className="w-8 h-8 animate-spin text-gray-400" />
-            </div>
-          ) : paymentMethods.length === 0 ? (
-            <div className="text-center py-12">
-              <PiCreditCardBold className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">No payment methods found</p>
-              <p className="text-sm text-gray-400">Try adjusting your filters</p>
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Payment Method</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Verified</TableHead>
-                    <TableHead>Reference</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paymentMethods.map((pm) => (
-                    <TableRow key={pm.id}>
-                      <TableCell>{getCustomerDisplay(pm)}</TableCell>
-                      <TableCell>{getMethodDisplay(pm)}</TableCell>
-                      <TableCell>{getStatusBadge(pm.status)}</TableCell>
-                      <TableCell>
-                        {pm.is_verified ? (
-                          <StatusBadge
-                            status="Verified"
-                            showDot={false}
-                            icon={<PiShieldBold className="w-3 h-3" />}
-                            className="bg-green-100 text-green-800"
-                          />
-                        ) : (
-                          <StatusBadge
-                            status="Pending"
-                            showDot={false}
-                            icon={<PiClockBold className="w-3 h-3" />}
-                            className="bg-gray-100 text-gray-600"
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                          {pm.netcash_account_reference || pm.netcash_mandate_reference || '-'}
-                        </code>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-sm">{format(new Date(pm.created_at), 'dd MMM yyyy')}</p>
-                        <p className="text-xs text-gray-500">{format(new Date(pm.created_at), 'HH:mm')}</p>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <PiDotsThreeBold className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <PiEyeBold className="w-4 h-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
-                            {pm.customer && (
-                              <DropdownMenuItem asChild>
-                                <Link href={`/admin/customers/${pm.customer.id}`}>
-                                  <PiUserBold className="w-4 h-4 mr-2" />
-                                  View Customer
-                                </Link>
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Pagination */}
-              {pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                  <p className="text-sm text-gray-500">
-                    Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-                    {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={pagination.page === 1}
-                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                    >
-                      Previous
-                    </Button>
-                    <span className="text-sm text-gray-600">
-                      Page {pagination.page} of {pagination.totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={pagination.page >= pagination.totalPages}
-                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
+          <Select
+            value={filters.status || 'all'}
+            onValueChange={(value) => handleFilterChange('status', value)}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="suspended">Suspended</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={filters.method_type || 'all'}
+            onValueChange={(value) => handleFilterChange('method_type', value)}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="credit_card">Credit Card</SelectItem>
+              <SelectItem value="debit_card">Debit Card</SelectItem>
+              <SelectItem value="debit_order">Debit Order</SelectItem>
+              <SelectItem value="bank_account">Bank Account</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={handleSearch} variant="default">
+            <PiFunnelBold className="w-4 h-4 mr-2" />
+            Apply
+          </Button>
+          {(filters.status || filters.method_type || filters.search) && (
+            <Button onClick={clearFilters} variant="ghost">
+              Clear
+            </Button>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Payment Methods">
+        {loading ? (
+          <LoadingState message="Loading payment methods..." />
+        ) : paymentMethods.length === 0 ? (
+          <EmptyState
+            icon={<PiCreditCardBold />}
+            title="No payment methods found"
+            description="Try adjusting your filters"
+          />
+        ) : (
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Payment Method</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Verified</TableHead>
+                  <TableHead>Reference</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paymentMethods.map((pm) => (
+                  <TableRow key={pm.id}>
+                    <TableCell>{getCustomerDisplay(pm)}</TableCell>
+                    <TableCell>{getMethodDisplay(pm)}</TableCell>
+                    <TableCell>{getStatusBadge(pm.status)}</TableCell>
+                    <TableCell>
+                      {pm.is_verified ? (
+                        <StatusBadge
+                          status="Verified"
+                          variant="success"
+                          icon={<PiShieldBold className="w-3 h-3" />}
+                        />
+                      ) : (
+                        <StatusBadge
+                          status="Pending"
+                          variant="neutral"
+                          icon={<PiClockBold className="w-3 h-3" />}
+                        />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                        {pm.netcash_account_reference || pm.netcash_mandate_reference || '-'}
+                      </code>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm">{format(new Date(pm.created_at), 'dd MMM yyyy')}</p>
+                      <p className="text-xs text-gray-500">
+                        {format(new Date(pm.created_at), 'HH:mm')}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <PiDotsThreeBold className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <PiEyeBold className="w-4 h-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          {pm.customer && (
+                            <DropdownMenuItem asChild>
+                              <Link href={`/admin/customers/${pm.customer.id}`}>
+                                <PiUserBold className="w-4 h-4 mr-2" />
+                                View Customer
+                              </Link>
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            {pagination.totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                <p className="text-sm text-gray-500">
+                  Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+                  {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
+                  {pagination.total}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page === 1}
+                    onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm text-gray-600">
+                    Page {pagination.page} of {pagination.totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.page >= pagination.totalPages}
+                    onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </SectionCard>
+    </AdminPage>
   );
 }

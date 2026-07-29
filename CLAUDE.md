@@ -18,6 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Memory OS           | [Memory OS](#️-memory-os) | `memory-os/long-term/`, `short-term/`, `self-improvement/` |
 | Design system       | `DESIGN.md` (project root) | `npx @google/design.md lint DESIGN.md` |
 | Icon system         | [Rules](#rules) | See `.claude/rules/icon-system.md` |
+| Composio browser    | [Rules](#rules) | See `.claude/rules/composio-browser-tool.md` |
 
 ---
 
@@ -193,6 +194,7 @@ All detailed patterns are in `.claude/rules/`:
 | `shared-memory.md` | Two-tier shared memory protocol — Hermes Agent + Claude Code handoffs |
 | `admin-shared-components.md` | StatusBadge/StatCard/SectionCard prop interfaces — verified signatures |
 | `vercel-deployment.md` | Manual deployment trigger API, monitoring, CircleTel project IDs |
+| `vps-devops.md` | VPS/Coolify/self-hosted runner SLOs, build hygiene, maintenance cadence |
 | `invoice-pdf-patterns.md` | VAT calc (excl-VAT multiply), fetch/blob download, print:hidden, jsPDF patterns |
 | `pre-push-hook.md` | Shared `.githooks/pre-push` — build-config + scoped type-check, escape hatches |
 | `icon-system.md` | Phosphor UI icons, Iconify brand logos, local hosting, licensing, and accessibility |

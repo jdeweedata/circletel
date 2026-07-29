@@ -60,6 +60,7 @@ interface InvoiceRecord {
  */
 export const whatsappBillingNotifications = inngest.createFunction(
   {
+
     id: 'whatsapp-billing-notifications',
     name: 'WhatsApp Billing Notifications',
     retries: 3,
@@ -69,14 +70,13 @@ export const whatsappBillingNotifications = inngest.createFunction(
         match: 'data.process_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: 08:00 SAST = 06:00 UTC
     { cron: '0 6 * * *' },
     // Event trigger: manual requests
     { event: 'billing/whatsapp.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const eventData = event?.data as {
       process_log_id?: string;
       triggered_by?: 'cron' | 'manual';
@@ -486,11 +486,11 @@ export const whatsappBillingNotifications = inngest.createFunction(
  */
 export const whatsappNotificationsCompleted = inngest.createFunction(
   {
+
     id: 'whatsapp-notifications-completed',
     name: 'WhatsApp Notifications Completed Handler',
-  },
-  { event: 'billing/whatsapp.completed' },
-  async ({ event, step }) => {
+  triggers: { event: 'billing/whatsapp.completed' },
+}, async ({ event, step }) => {
     const {
       process_log_id,
       billing_date,
@@ -521,11 +521,11 @@ export const whatsappNotificationsCompleted = inngest.createFunction(
  */
 export const whatsappNotificationsFailed = inngest.createFunction(
   {
+
     id: 'whatsapp-notifications-failed',
     name: 'WhatsApp Notifications Failed Handler',
-  },
-  { event: 'billing/whatsapp.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'billing/whatsapp.failed' },
+}, async ({ event, step }) => {
     const { process_log_id, error, attempt } = event.data;
 
     await step.run('handle-failure', async () => {

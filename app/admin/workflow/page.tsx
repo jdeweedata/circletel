@@ -22,6 +22,19 @@ import {
   AlertDescription,
 } from '@/components/ui/alert';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface PendingApproval {
   id: string;
   type: 'product_create' | 'product_update' | 'pricing_change' | 'product_archive';
@@ -196,13 +209,10 @@ export default function ApprovalWorkflow() {
   const totalUsersAffected = pendingApprovals.reduce((sum, a) => sum + a.estimated_impact.users_affected, 0);
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Approval Workflow</h1>
-          <p className="text-muted-foreground">
-            Review and approve pending product catalogue changes
-          </p>
+          <PageHeader title="Approval Workflow" subtitle="Review and approve pending product catalogue changes" />
         </div>
         <Button
           variant="outline"
@@ -508,6 +518,6 @@ export default function ApprovalWorkflow() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

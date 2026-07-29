@@ -25,6 +25,20 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { formatDistanceToNow } from 'date-fns';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface NoCoverageLead {
   id: string;
   fullName: string;
@@ -296,18 +310,12 @@ export default function NoCoverageLeadsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <AdminPage>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <PiMapPinBold className="h-8 w-8 text-orange-600" />
-              No Coverage Leads
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Demand signals from users searching for service in uncovered areas
-            </p>
+            <PageHeader title="No Coverage Leads" subtitle="Leads outside coverage" />
           </div>
           <div className="flex items-center gap-3">
             <Button onClick={fetchData} disabled={loading} variant="outline">
@@ -692,6 +700,6 @@ export default function NoCoverageLeadsPage() {
           </Card>
         )}
       </div>
-    </div>
+    </AdminPage>
   );
 }

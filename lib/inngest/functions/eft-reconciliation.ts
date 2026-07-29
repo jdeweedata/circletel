@@ -26,6 +26,7 @@ import { cronLogger } from '@/lib/logging';
 
 export const eftReconciliationFunction = inngest.createFunction(
   {
+
     id: 'eft-reconciliation',
     name: 'EFT Daily Reconciliation',
     retries: 3,
@@ -35,12 +36,11 @@ export const eftReconciliationFunction = inngest.createFunction(
         match: 'data.process_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     { cron: '30 7 * * *' },
     { event: 'eft/reconciliation.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const eventData = event?.data as {
       process_log_id?: string;
       triggered_by?: 'cron' | 'manual';
@@ -431,11 +431,11 @@ export const eftReconciliationFunction = inngest.createFunction(
 
 export const eftReconciliationCompletedFunction = inngest.createFunction(
   {
+
     id: 'eft-reconciliation-completed',
     name: 'EFT Reconciliation Completed Handler',
-  },
-  { event: 'eft/reconciliation.completed' },
-  async ({ event }) => {
+  triggers: { event: 'eft/reconciliation.completed' },
+}, async ({ event }) => {
     const {
       process_log_id,
       reconciliation_date,

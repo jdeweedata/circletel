@@ -9,6 +9,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+import {
   Table,
   TableBody,
   TableCell,
@@ -32,9 +45,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  SharedPageHeader,
-} from '@/components/shared/dashboard';
 import { toast } from 'sonner';
 import {
   AdminFieldOpsData,
@@ -607,23 +617,29 @@ export default function FieldOpsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading field operations..." />
+      </AdminPage>
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <AdminPage>
+        <ErrorState title="Failed to load field operations" onRetry={fetchData} />
+      </AdminPage>
+    );
+  }
 
   const { technicians, todays_jobs, stats } = data;
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       {/* Header */}
-      <SharedPageHeader
+      <PageHeader
         title="Field Operations"
         subtitle="Manage technicians and field jobs"
-        action={
+        actions={
           <div className="flex gap-2">
             <Button variant="outline" onClick={fetchData}>
               <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
@@ -1127,6 +1143,6 @@ export default function FieldOpsPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPage>
   );
 }

@@ -26,6 +26,7 @@ import { syncAllSuppliers } from '@/lib/suppliers/sync-orchestrator'
  */
 export const supplierSyncFunction = inngest.createFunction(
   {
+
     id: 'supplier-sync',
     name: 'Supplier Product Sync',
     retries: 3,
@@ -35,14 +36,13 @@ export const supplierSyncFunction = inngest.createFunction(
         match: 'data.sync_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: 2am SAST = midnight UTC
     { cron: '0 0 * * *' },
     // Event trigger: manual requests
     { event: 'supplier/sync.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     // Extract options from event data
     const eventData = event?.data as {
       sync_log_id?: string
@@ -160,14 +160,14 @@ export const supplierSyncFunction = inngest.createFunction(
  */
 export const supplierSyncCompletedFunction = inngest.createFunction(
   {
+
     id: 'supplier-sync-completed',
     name: 'Supplier Sync Completed Handler',
-  },
-  [
+  triggers: [
     { event: 'supplier/sync.completed' },
     { event: 'supplier/sync.completed_with_errors' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     const { suppliers_synced, totals, errors, duration_ms, dry_run } = event.data as {
       suppliers_synced: string[]
       totals: {
@@ -217,11 +217,11 @@ export const supplierSyncCompletedFunction = inngest.createFunction(
  */
 export const supplierSyncFailedFunction = inngest.createFunction(
   {
+
     id: 'supplier-sync-failed',
     name: 'Supplier Sync Failed Handler',
-  },
-  { event: 'supplier/sync.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'supplier/sync.failed' },
+}, async ({ event, step }) => {
     const { supplier_code, error, attempt } = event.data as {
       supplier_code: string
       error: string

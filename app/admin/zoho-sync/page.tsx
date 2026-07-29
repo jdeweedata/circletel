@@ -15,6 +15,14 @@ import { PiArrowCounterClockwiseBold, PiArrowsClockwiseBold, PiCheckCircleBold, 
 
 import { useState, useEffect } from 'react';
 
+import {
+  AdminPage,
+  PageHeader,
+  LoadingState,
+  ErrorState,
+} from '@/components/backend';
+
+
 interface SyncStatus {
   total: number;
   synced: number;
@@ -148,12 +156,11 @@ export default function ZohoSyncDashboard() {
   }, [filterStatus, filterEntity]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <AdminPage>
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy">ZOHO Billing Sync</h1>
-          <p className="text-gray-600 mt-2">Monitor and manage ZOHO integration sync status</p>
+          <PageHeader title="ZOHO Billing Sync" subtitle="Monitor and manage ZOHO integration sync status" />
         </div>
         <button
           onClick={() => {
@@ -289,7 +296,7 @@ export default function ZohoSyncDashboard() {
           </div>
         )}
       </div>
-    </div>
+    </AdminPage>
   );
 }
 

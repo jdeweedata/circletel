@@ -20,17 +20,17 @@ import { authenticateRuijie, clearRuijieAuth, isMockMode } from '@/lib/ruijie';
  */
 export const ruijieTokenRefreshFunction = inngest.createFunction(
   {
+
     id: 'ruijie-token-refresh',
     name: 'Ruijie Token Refresh',
     retries: 3,
-  },
-  [
+  triggers: [
     // Cron trigger: every 7 days at 3am UTC (5am South Africa)
     { cron: '0 3 */7 * *' },
     // Event trigger: manual refresh
     { event: 'ruijie/token.refresh' },
   ],
-  async ({ step }) => {
+}, async ({ step }) => {
     // Skip in mock mode
     if (isMockMode()) {
       return { skipped: true, reason: 'Mock mode enabled' };
@@ -92,11 +92,11 @@ export const ruijieTokenRefreshFunction = inngest.createFunction(
  */
 export const ruijieTokenRefreshFailedFunction = inngest.createFunction(
   {
+
     id: 'ruijie-token-refresh-failed',
     name: 'Ruijie Token Refresh Failed Handler',
-  },
-  { event: 'ruijie/token.refresh.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'ruijie/token.refresh.failed' },
+}, async ({ event, step }) => {
     const { error, timestamp } = event.data;
 
     await step.run('log-failure', async () => {

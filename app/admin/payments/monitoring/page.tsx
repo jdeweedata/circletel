@@ -7,6 +7,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { PaymentProviderType } from '@/lib/types/payment.types';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface ProviderCapabilities {
   supports_cards: boolean;
   supports_eft: boolean;
@@ -98,13 +111,9 @@ export default function PaymentMonitoringDashboard() {
 
   // Get status badge
   const getStatusBadge = (healthy: boolean, configured: boolean) => {
-    if (!configured) {
-      return <Badge variant="outline" className="bg-gray-100 text-gray-700">Not Configured</Badge>;
-    }
-    if (healthy) {
-      return <Badge variant="outline" className="bg-green-100 text-green-700">Healthy</Badge>;
-    }
-    return <Badge variant="outline" className="bg-red-100 text-red-700">Unhealthy</Badge>;
+    if (!configured) return <StatusBadge status="Not Configured" variant="neutral" />;
+    if (healthy) return <StatusBadge status="Healthy" variant="success" />;
+    return <StatusBadge status="Unhealthy" variant="error" />;
   };
 
   // Get provider display name
@@ -127,46 +136,30 @@ export default function PaymentMonitoringDashboard() {
 
   if (loading && !healthData) {
     return (
-      <div className="p-8">
-        <div className="flex items-center justify-center h-64">
-          <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
-          <span className="ml-3 text-lg">Loading payment provider status...</span>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading payment provider status..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="p-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-circleTel-navy">Payment Provider Monitoring</h1>
-          <p className="text-circleTel-secondaryNeutral mt-1">
-            Real-time health status and monitoring for payment gateways
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-circleTel-secondaryNeutral">
-            <div className="flex items-center gap-2">
+    <AdminPage>
+      <PageHeader
+        title="Payment Provider Monitoring"
+        subtitle="Real-time health status and monitoring for payment gateways"
+        actions={
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-500 flex items-center gap-2">
               <PiClockBold className="h-4 w-4" />
               <span>Last refresh: {lastRefresh.toLocaleTimeString()}</span>
             </div>
+            <Button onClick={() => fetchHealthData()} disabled={loading} className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
+              <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           </div>
-          <Button
-            onClick={() => fetchHealthData()}
-            disabled={loading}
-            className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
-          >
-            {loading ? (
-              <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
-            )}
-            Refresh
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Overall Status Card */}
       {healthData && (
@@ -402,6 +395,6 @@ export default function PaymentMonitoringDashboard() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </AdminPage>
   );
 }

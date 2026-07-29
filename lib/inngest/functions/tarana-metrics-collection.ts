@@ -22,17 +22,17 @@ import { collectLinkMetrics } from '@/lib/tarana/metrics-service';
  */
 export const taranaMetricsCollectionFunction = inngest.createFunction(
   {
+
     id: 'tarana-metrics-collection',
     name: 'Tarana Link Metrics Collection',
     retries: 2,
-  },
-  [
+  triggers: [
     // Cron trigger: every 15 minutes
     { cron: '*/15 * * * *' },
     // Event trigger: manual requests
     { event: 'tarana/metrics.collection.requested' },
   ],
-  async ({ step }) => {
+}, async ({ step }) => {
     const startTime = Date.now();
 
     // Step 1 — collect link metrics from TCS Portal
