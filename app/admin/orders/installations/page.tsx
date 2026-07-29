@@ -8,6 +8,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -228,54 +241,20 @@ export default function AdminInstallationsPage() {
     setFilteredInstallations(filtered);
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; className: string; icon: any }> = {
-      kyc_approved: {
-        label: 'Pending Schedule',
-        className: 'bg-yellow-100 text-yellow-800',
-        icon: PiClockBold
-      },
-      payment_method_registered: {
-        label: 'Ready to Schedule',
-        className: 'bg-blue-100 text-blue-800',
-        icon: PiCalendarBold
-      },
-      installation_scheduled: {
-        label: 'Scheduled',
-        className: 'bg-purple-100 text-purple-800',
-        icon: PiCalendarCheckBold
-      },
-      installation_in_progress: {
-        label: 'In Progress',
-        className: 'bg-orange-100 text-orange-800',
-        icon: PiWrenchBold
-      },
-      installation_completed: {
-        label: 'Completed',
-        className: 'bg-green-100 text-green-800',
-        icon: PiCheckCircleBold
-      },
-      active: {
-        label: 'Active',
-        className: 'bg-green-100 text-green-800',
-        icon: PiCheckCircleBold
-      },
-    };
-
-    const config = statusConfig[status] || {
-      label: status,
-      className: 'bg-gray-100 text-gray-800',
-      icon: PiWarningCircleBold
-    };
-    const Icon = config.icon;
-
-    return (
-      <Badge className={`${config.className} flex items-center gap-1`}>
-        <Icon className="h-3 w-3" />
-        {config.label}
-      </Badge>
-    );
+  const INSTALL_STATUS_VARIANT: Record<string, StatusVariant> = {
+    pending: 'warning',
+    scheduled: 'info',
+    in_progress: 'warning',
+    completed: 'success',
+    failed: 'error',
+    cancelled: 'error',
   };
+  const getStatusBadge = (status: string) => (
+    <StatusBadge
+      status={status.replace(/_/g, ' ')}
+      variant={INSTALL_STATUS_VARIANT[status] ?? 'neutral'}
+    />
+  );
 
   const handleScheduleSuccess = () => {
     setSchedulingInstallation(null);
@@ -398,23 +377,19 @@ export default function AdminInstallationsPage() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Installation Management</h1>
-          <p className="text-gray-600 mt-1">
-            Schedule and track fibre installations
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
+    <AdminPage>
+      <PageHeader
+        title="Installation Management"
+        subtitle="Schedule and track fibre installations"
+        actions={
+          <div className="flex items-center gap-3">
           {/* View Toggle */}
           <div className="flex items-center border rounded-lg">
             <Button
@@ -470,7 +445,8 @@ export default function AdminInstallationsPage() {
             Export
           </Button>
         </div>
-      </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
@@ -834,6 +810,6 @@ export default function AdminInstallationsPage() {
           onSuccess={handleScheduleSuccess}
         />
       )}
-    </div>
+    </AdminPage>
   );
 }

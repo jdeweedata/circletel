@@ -16,6 +16,7 @@ import {
   PiXCircleBold,
   PiInfoBold,
   PiGearBold,
+  PiPulseBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,7 +32,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { UnderlineTabs, TabPanel, SectionCard } from '@/components/admin/shared';
-import { DeviceHeader, DeviceStatCards, DeviceSupportNotes, DeviceCustomerLink, DeviceClientList, DeviceActivityLog } from '@/components/admin/network/detail';
+import { DeviceHeader, DeviceStatCards, DeviceSupportNotes, DeviceCustomerLink, DeviceClientList, DeviceActivityLog, DeviceSystemHealth, DeviceTrafficPanel, formatUptime } from '@/components/admin/network/detail';
+import type { DeviceSystemHealthData } from '@/components/admin/network/detail/DeviceSystemHealth';
+import { formatLatency, scoreTone } from '@/components/admin/network/detail/telemetry-format';
+import type { StaDeviceExperience } from '@/lib/ruijie/performance-metrics';
 
 interface RuijieDevice {
   sn: string;
@@ -61,6 +65,9 @@ interface RuijieDevice {
   customer_phone: string | null;
   customer_order_id: string | null;
   corporate_site_id: string | null;
+  // Live-only, merged in from /metrics — never persisted on the cache row
+  system?: DeviceSystemHealthData;
+  experience?: StaDeviceExperience;
 }
 
 interface RuijieTunnel {
@@ -84,6 +91,7 @@ const TAB_CONFIG = [
   { id: 'overview', label: 'Overview' },
   { id: 'clients', label: 'Clients' },
   { id: 'radio', label: 'Radio' },
+  { id: 'traffic', label: 'Traffic' },
   { id: 'tunnel', label: 'Tunnel' },
   { id: 'logs', label: 'Logs' },
   { id: 'history', label: 'History' },
@@ -111,6 +119,79 @@ function formatRelativeTime(dateString: string): string {
   if (diffHours < 24) return `${diffHours}h ago`;
   const diffDays = Math.floor(diffHours / 24);
   return `${diffDays}d ago`;
+}
+
+function ExperienceStat({
+  label,
+  value,
+  hint,
+  tone,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  tone?: string;
+}) {
+  return (
+    <div>
+      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{label}</p>
+      <p className={`text-lg font-bold ${tone || 'text-slate-900'}`}>{value}</p>
+      {hint && <p className="text-xs text-slate-500 mt-0.5">{hint}</p>}
+    </div>
+  );
+}
+
+function RadioCard({
+  title,
+  channel,
+  utilization,
+  clients,
+  noiseFloor,
+}: {
+  title: string;
+  channel: number | null;
+  utilization: number | null;
+  clients: number | null;
+  noiseFloor: number | null;
+}) {
+  return (
+    <SectionCard icon={PiRadioBold} title={title} compact>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-slate-600">Channel</span>
+          <span className="font-bold text-lg">{channel || '-'}</span>
+        </div>
+        <div>
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-slate-600">Channel Utilization</span>
+            <span className="font-medium">{utilization ?? '-'}%</span>
+          </div>
+          <Progress value={utilization || 0} className="h-3" />
+        </div>
+        <div className="grid grid-cols-2 gap-4 pt-1 border-t border-slate-100">
+          <div className="pt-3">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Clients
+            </p>
+            <p className="text-sm font-medium">{clients ?? '—'}</p>
+          </div>
+          <div className="pt-3">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Noise Floor
+            </p>
+            {/* Quieter (more negative) is better; above -85 dBm means real interference. */}
+            <p
+              className={`text-sm font-medium ${
+                noiseFloor != null && noiseFloor > -85 ? 'text-amber-600' : 'text-slate-900'
+              }`}
+            >
+              {noiseFloor != null ? `${noiseFloor} dBm` : '—'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </SectionCard>
+  );
 }
 
 export default function RuijieDeviceDetailPage({
@@ -442,6 +523,9 @@ export default function RuijieDeviceDetailPage({
               </div>
             </SectionCard>
 
+            {/* System Health — live, from the same current_performance call as CPU/memory */}
+            <DeviceSystemHealth system={device.system} uptimeSeconds={device.uptime_seconds} />
+
             {/* Customer Assignment */}
             <DeviceCustomerLink device={device} onUpdate={handleRefresh} />
 
@@ -459,41 +543,76 @@ export default function RuijieDeviceDetailPage({
 
         {/* RADIO TAB */}
         <TabPanel id="radio" activeTab={activeTab} className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 2.4 GHz Radio */}
-            <SectionCard icon={PiRadioBold} title="2.4 GHz Radio" compact>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Channel</span>
-                  <span className="font-bold text-lg">{device.radio_2g_channel || '-'}</span>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-slate-600">Channel Utilization</span>
-                    <span className="font-medium">{device.radio_2g_utilization ?? '-'}%</span>
-                  </div>
-                  <Progress value={device.radio_2g_utilization || 0} className="h-3" />
-                </div>
-              </div>
-            </SectionCard>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <RadioCard
+                title="2.4 GHz Radio"
+                channel={device.radio_2g_channel}
+                utilization={device.radio_2g_utilization}
+                clients={device.experience?.clients_2g ?? null}
+                noiseFloor={device.experience?.noise_floor_2g ?? null}
+              />
+              <RadioCard
+                title="5 GHz Radio"
+                channel={device.radio_5g_channel}
+                utilization={device.radio_5g_utilization}
+                clients={device.experience?.clients_5g ?? null}
+                noiseFloor={device.experience?.noise_floor_5g ?? null}
+              />
+            </div>
 
-            {/* 5 GHz Radio */}
-            <SectionCard icon={PiRadioBold} title="5 GHz Radio" compact>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Channel</span>
-                  <span className="font-bold text-lg">{device.radio_5g_channel || '-'}</span>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-slate-600">Channel Utilization</span>
-                    <span className="font-medium">{device.radio_5g_utilization ?? '-'}%</span>
-                  </div>
-                  <Progress value={device.radio_5g_utilization || 0} className="h-3" />
-                </div>
+            {/* Ruijie's own view of how the clients on this AP are actually doing */}
+            <SectionCard icon={PiPulseBold} title="Client Experience" compact>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <ExperienceStat
+                  label="Avg Latency"
+                  value={formatLatency(device.experience?.avg_latency_ms)}
+                  hint={
+                    device.experience?.worst_latency_ms != null
+                      ? `worst ${formatLatency(device.experience.worst_latency_ms)}`
+                      : undefined
+                  }
+                />
+                <ExperienceStat
+                  label="Avg Score"
+                  value={
+                    device.experience?.avg_score != null
+                      ? `${device.experience.avg_score}/100`
+                      : '—'
+                  }
+                  tone={scoreTone(device.experience?.avg_score ?? null)}
+                />
+                <ExperienceStat
+                  label="Worst Client"
+                  value={
+                    device.experience?.worst_score != null
+                      ? `${device.experience.worst_score}/100`
+                      : '—'
+                  }
+                  hint={device.experience?.worst_score_reason ?? undefined}
+                  tone={scoreTone(device.experience?.worst_score ?? null)}
+                />
+                <ExperienceStat
+                  label="Longest Session"
+                  value={formatUptime(
+                    device.experience?.longest_session_ms != null
+                      ? Math.floor(device.experience.longest_session_ms / 1000)
+                      : null
+                  )}
+                />
               </div>
+              {device.status !== 'online' && (
+                <p className="text-xs text-slate-500 mt-4">
+                  Experience metrics are only collected while the device is online.
+                </p>
+              )}
             </SectionCard>
           </div>
+        </TabPanel>
+
+        {/* TRAFFIC TAB */}
+        <TabPanel id="traffic" activeTab={activeTab} className="mt-6">
+          <DeviceTrafficPanel sn={sn} />
         </TabPanel>
 
         {/* TUNNEL TAB */}

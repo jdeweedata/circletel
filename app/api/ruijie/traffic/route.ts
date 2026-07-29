@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
-import { getNetworkTraffic, getAppFlow } from '@/lib/ruijie/client';
+import { getNetworkTraffic, getAppFlow, pickFlowDeviceSn } from '@/lib/ruijie/client';
 import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
@@ -51,14 +51,28 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    // Fetch traffic data
+    const { data: devices } = await supabaseAdmin
+      .from('ruijie_device_cache')
+      .select('sn, status, model')
+      .eq('group_id', groupId);
+
+    const flowSn = pickFlowDeviceSn(devices || []);
+    if (!flowSn) {
+      return NextResponse.json(
+        { error: 'No device available in group for flow API (requires sn)' },
+        { status: 404 }
+      );
+    }
+
+    // Fetch traffic data (API 2.6.2 requires device sn)
     const [trafficSummary, appFlow] = await Promise.all([
-      getNetworkTraffic(groupId, hours),
+      getNetworkTraffic({ sn: flowSn, hours }),
       includeApps ? getAppFlow(groupId) : Promise.resolve([]),
     ]);
 
     return NextResponse.json({
       groupId,
+      flowSn,
       hours,
       traffic: trafficSummary,
       appFlow: includeApps ? appFlow : undefined,

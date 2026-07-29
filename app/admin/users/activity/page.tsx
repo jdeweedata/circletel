@@ -23,6 +23,19 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface ActivityLog {
   id: string;
   user_email: string;
@@ -98,7 +111,7 @@ export default function AdminUserActivityPage() {
       setTotalPages(result.data.pagination.totalPages);
     } catch (error: unknown) {
       console.error('Error fetching activity logs:', error);
-      toast.error(error.message || 'Failed to load activity logs');
+      toast.error((error instanceof Error ? error.message : String(error)) || 'Failed to load activity logs');
     } finally {
       setIsLoading(false);
     }
@@ -171,17 +184,11 @@ export default function AdminUserActivityPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <PiPulseBold className="w-8 h-8 text-circleTel-orange" />
-            User Activity
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Monitor all admin user activities, security events, and system changes
-          </p>
+          <PageHeader title="User Activity" subtitle="Monitor all admin user activities, security events, and system changes" />
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={isLoading}>
           <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
@@ -489,6 +496,6 @@ export default function AdminUserActivityPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   );
 }

@@ -33,3 +33,37 @@ describe('getTenantConfig', () => {
     expect(b.branding.companyName).toBe('CircleTel');
   });
 });
+
+import { ALL_MODULES } from '@/lib/admin/workspace-access';
+
+describe('getTenantConfig modules (PR2.5)', () => {
+  afterEach(() => {
+    resetTenantConfigForTests();
+    delete process.env.NEXT_PUBLIC_TENANT_MODULES;
+  });
+
+  it('defaults to all modules (CircleTel: everything on)', () => {
+    expect(getTenantConfig().modules).toEqual(ALL_MODULES);
+    expect(getTenantConfig().modules).toContain('core');
+  });
+
+  it('parses NEXT_PUBLIC_TENANT_MODULES and force-includes core', () => {
+    process.env.NEXT_PUBLIC_TENANT_MODULES = 'billing, crm ,orders';
+    const mods = getTenantConfig().modules;
+    expect(mods).toEqual(expect.arrayContaining(['billing', 'crm', 'orders', 'core']));
+    expect(mods).toHaveLength(4);
+  });
+
+  it('drops unknown module ids', () => {
+    process.env.NEXT_PUBLIC_TENANT_MODULES = 'billing,bogus,crm';
+    const mods = getTenantConfig().modules;
+    expect(mods).toEqual(expect.arrayContaining(['billing', 'crm', 'core']));
+    expect(mods).not.toContain('bogus');
+    expect(mods).toHaveLength(3);
+  });
+
+  it('blank env falls back to defaults', () => {
+    process.env.NEXT_PUBLIC_TENANT_MODULES = '  ';
+    expect(getTenantConfig().modules).toEqual(ALL_MODULES);
+  });
+});

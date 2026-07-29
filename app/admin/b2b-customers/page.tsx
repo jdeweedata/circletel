@@ -1,6 +1,20 @@
 'use client';
 import { PiBuildingsBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiFunnelBold, PiMagnifyingGlassBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 /**
  * Admin B2B Customers Page
  *
@@ -86,16 +100,19 @@ interface Stats {
 // ============================================================================
 
 function getStatusBadge(status: string) {
-  const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
-    pending_verification: { variant: 'secondary', label: 'Pending Verification' },
-    verification_in_progress: { variant: 'secondary', label: 'Verifying' },
-    active: { variant: 'default', label: 'Active' },
-    suspended: { variant: 'destructive', label: 'Suspended' },
-    cancelled: { variant: 'outline', label: 'Cancelled' },
-    dormant: { variant: 'outline', label: 'Dormant' },
+  const map: Record<string, StatusVariant> = {
+    active: 'success',
+    pending: 'warning',
+    blocked: 'error',
+    suspended: 'error',
+    inactive: 'neutral',
   };
-  const config = variants[status] || { variant: 'outline', label: status };
-  return <Badge variant={config.variant}>{config.label}</Badge>;
+  return (
+    <StatusBadge
+      status={status.replace(/_/g, ' ')}
+      variant={map[status] ?? 'neutral'}
+    />
+  );
 }
 
 function getStageName(stageId: JourneyStageId): string {
@@ -225,25 +242,24 @@ export default function AdminB2BCustomersPage() {
   }, [search]);
 
   return (
-    <div className="p-6 space-y-6">
+    <AdminPage>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <PiBuildingsBold className="h-6 w-6 text-circleTel-orange" />
-            B2B Customers
-          </h1>
-          <p className="text-gray-600 mt-1">
+      <PageHeader
+        title="B2B Customers"
+        subtitle="
             Manage business customers and track their onboarding journey
-          </p>
-        </div>
-        <Button
+          "
+        actions={
+          <div className="flex items-center gap-2">
+<Button
           onClick={() => router.push('/admin/quotes?type=business')}
           className="bg-circleTel-orange hover:bg-orange-600"
         >
           View Business Quotes
         </Button>
-      </div>
+          </div>
+        }
+      />
 
       {/* Stats */}
       <StatsCards stats={stats} loading={loading} />
@@ -481,6 +497,6 @@ export default function AdminB2BCustomersPage() {
           </Table>
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   );
 }

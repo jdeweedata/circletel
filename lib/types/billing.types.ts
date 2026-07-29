@@ -414,7 +414,13 @@ export function calculateNextBillingDate(
   frequency: BillingFrequency,
   fromDate: Date = new Date()
 ): Date {
+  if (frequency === 'one_time') {
+    return new Date(fromDate);
+  }
+
+  // Advance on day 1 first so JS Date cannot overflow (e.g. Jan 30 + 1 month → Mar 2).
   const nextDate = new Date(fromDate);
+  nextDate.setDate(1);
 
   switch (frequency) {
     case 'monthly':
@@ -426,20 +432,15 @@ export function calculateNextBillingDate(
     case 'annually':
       nextDate.setFullYear(nextDate.getFullYear() + 1);
       break;
-    case 'one_time':
-      return nextDate; // No next billing date
   }
 
-  // Set to billing day
-  nextDate.setDate(billingDay);
-
-  // Handle edge case: if billing day is 30 and month has < 30 days
-  if (billingDay === 30) {
-    const lastDayOfMonth = new Date(nextDate.getFullYear(), nextDate.getMonth() + 1, 0).getDate();
-    if (lastDayOfMonth < 30) {
-      nextDate.setDate(lastDayOfMonth);
-    }
-  }
+  // Clamp billing day to last day of the target month (e.g. 30 → 28 in Feb).
+  const lastDayOfMonth = new Date(
+    nextDate.getFullYear(),
+    nextDate.getMonth() + 1,
+    0
+  ).getDate();
+  nextDate.setDate(Math.min(billingDay, lastDayOfMonth));
 
   return nextDate;
 }

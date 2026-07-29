@@ -154,12 +154,12 @@ ${newSignUps.length > 0 ? `NEW SIGN-UPS YESTERDAY\n${signUpLines}\n` : ''}View f
 
 export const whatsappCampaignReportFunction = inngest.createFunction(
   {
+
     id: 'whatsapp-campaign-daily-report',
     name: 'WhatsApp Campaign Daily Report',
     retries: 2,
-  },
-  { cron: '0 6 * * *' }, // 06:00 UTC = 08:00 SAST
-  async ({ step }) => {
+  triggers: { cron: '0 6 * * *' },
+}, async ({ step }) => {
     const campaignService = createCampaignZohoDeskService();
     const supabase = await createClient();
 

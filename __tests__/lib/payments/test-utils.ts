@@ -162,7 +162,7 @@ export const mockPaymentInitiationParams: PaymentInitiationParams = {
 export const mockNetCashWebhookPayload = {
   TransactionAccepted: 'true',
   Complete: 'true',
-  Amount: '79900', // 799.00 ZAR in cents
+  Amount: '799.00', // NetCash webhook Amount is in Rands (2 dp)
   Reference: 'CT-ORDER-001-1234567890',
   Reason: 'Approved',
   TransactionDate: '2025-11-06T10:30:00Z',
@@ -179,7 +179,7 @@ export const mockNetCashWebhookPayload = {
 export const mockNetCashWebhookPayloadFailed = {
   TransactionAccepted: 'false',
   Complete: 'true',
-  Amount: '79900',
+  Amount: '799.00',
   Reference: 'CT-ORDER-001-1234567890',
   Reason: 'Insufficient funds',
   TransactionDate: '2025-11-06T10:30:00Z',

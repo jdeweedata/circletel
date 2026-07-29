@@ -2,7 +2,7 @@
  * Ruijie Device Clients API
  * GET /api/ruijie/devices/[sn]/clients - Get connected clients for a device
  *
- * Returns connected clients with MAC, IP, SSID, RSSI, channel, and signal quality.
+ * Returns connected clients with MAC, IP, SSID, band/channel, RSSI/quality, rates, airtime util, and packet loss.
  */
 
 import { NextRequest, NextResponse } from 'next/server';

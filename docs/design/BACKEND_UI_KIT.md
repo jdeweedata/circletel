@@ -3,7 +3,7 @@
 Shared component primitives for the **admin** (`/admin/*`) and **consumer** (`/dashboard/*`) dashboards. One kit, one look — so both surfaces feel like the same product.
 
 - **Home:** `components/backend/` — import from `@/components/backend`.
-- **Reference look:** the consumer billing dashboard (`app/dashboard/billing/page.tsx`) — functional minimalism: white surfaces, soft gray borders, restrained orange accent, generous spacing, `tabular-nums` numbers.
+- **Reference look:** the consumer billing dashboard (`app/dashboard/billing/page.tsx`) and the migrated admin billing hub (`app/admin/billing/*`). — functional minimalism: white surfaces, soft gray borders, restrained orange accent, generous spacing, `tabular-nums` numbers.
 - **Tokens:** reuse `tailwind.config.ts` (`circleTel.*`), `app/globals.css`, `DESIGN.md`, `lib/design-system.ts`. Do not invent new tokens.
 
 ## Principles
@@ -17,7 +17,9 @@ Shared component primitives for the **admin** (`/admin/*`) and **consumer** (`/d
 
 | Component | Use for |
 |-----------|---------|
+| `AdminPage` | Page body shell (`space-y-6`). No extra padding/min-h-screen — AdminLayout already shells. |
 | `PageHeader` | List/index page title + subtitle + actions. (Detail pages → `DetailPageHeader`.) |
+| `DetailPageHeader` | Detail title + optional breadcrumbs/status. Type scale matches `PageHeader`. |
 | `StatCard` | Metric cards. Replaces inline stat `<div>`s, admin `StatCard`, and `ModernStatCard`. |
 | `StatusBadge` + `getStatusVariant` | Every status pill. Map raw DB strings with `getStatusVariant()`. |
 | `SectionCard` | Card with a header for grouped content. |
@@ -29,7 +31,7 @@ Shared component primitives for the **admin** (`/admin/*`) and **consumer** (`/d
 
 ```tsx
 import {
-  PageHeader, StatCard, StatusBadge, getStatusVariant,
+  AdminPage, PageHeader, DetailPageHeader, StatCard, StatusBadge, getStatusVariant,
   LoadingState, EmptyState, ErrorState,
   Tabs, ConsoleTabsList, ConsoleTabsContent,
 } from '@/components/backend';
@@ -60,12 +62,13 @@ import { PiFileTextBold } from 'react-icons/pi';
 
 ## Migrating a page
 
-1. Header markup → `PageHeader`.
-2. Stat divs / `ModernStatCard` → `StatCard`.
-3. Local `getStatusBadge()` → `StatusBadge` + `getStatusVariant`.
-4. Loading/empty/error blocks → `LoadingState` / `EmptyState` / `ErrorState`.
-5. Tabs → `ConsoleTabsList` / `ConsoleTabsContent` (where tabs exist).
-6. `npm run type-check:memory`; visual-diff against the billing reference.
+1. Wrap body in `AdminPage` (no page-level `p-6` / `min-h-screen`).
+2. Header markup → `PageHeader` / `DetailPageHeader`.
+3. Stat divs / `ModernStatCard` → `StatCard`.
+4. Local `getStatusBadge()` → `StatusBadge` + `getStatusVariant`.
+5. Loading/empty/error blocks → `LoadingState` / `EmptyState` / `ErrorState`.
+6. Tabs → `ConsoleTabsList` / `ConsoleTabsContent` (where tabs exist).
+7. `npm run type-check:memory`; visual-diff against the billing hub / consumer billing reference.
 
 ## Back-compat
 

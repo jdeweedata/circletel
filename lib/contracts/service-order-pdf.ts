@@ -380,39 +380,56 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
 
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
+
+  // jsPDF renders multi-line text at fontSize × lineHeightFactor (default 1.15).
+  // At 8pt that is ~3.25mm per rendered line — the previous 2.5mm advance
+  // under-counted this, so long clauses (e.g. clause 3) drew over the next
+  // clause's heading. These values reserve the true rendered height.
+  const bodyLineH = 3.3; // mm per rendered body line at 8pt
+  const titleGap = 4; // mm below a clause title before its body
+  const clauseGap = 3.5; // mm between one clause and the next
+  const TERMS_FONT_SIZE = 8; // bodyLineH is calibrated for this size
+  // addFooter draws its separator at pageHeight - 40 (footerY - 8); keep body
+  // content ~5mm clear of it so terms/acceptance never overrun the footer.
+  const contentBottomLimit = pageHeight - 45;
+
   plainTerms.forEach((term, index) => {
     // Extract title (before colon)
     const colonIndex = term.indexOf(':');
-    if (colonIndex > 0) {
-      const title = term.substring(0, colonIndex + 1);
-      const body = term.substring(colonIndex + 1).trim();
+    if (colonIndex <= 0) return;
 
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...COLORS.darkText);
-      doc.text(`${index + 1}. ${title}`, leftCol, yPos);
-      yPos += 3;
+    const title = term.substring(0, colonIndex + 1);
+    const body = term.substring(colonIndex + 1).trim();
+    const bodyLines = doc.splitTextToSize(body, colWidth - 10);
 
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...COLORS.secondaryText);
-      const bodyLines = doc.splitTextToSize(body, colWidth - 10);
-      doc.text(bodyLines, leftCol + 5, yPos);
-      yPos += 2 + (bodyLines.length * 2.5);
+    // Page-break guard: if this clause won't fit above the footer band,
+    // start it on a fresh page rather than overrunning the footer.
+    const clauseHeight = titleGap + bodyLines.length * bodyLineH + clauseGap;
+    if (yPos + clauseHeight > contentBottomLimit) {
+      doc.addPage();
+      yPos = addHeader(doc, pageWidth);
+      // addHeader() leaves the font at 10pt; restore 8pt so bodyLineH stays
+      // valid — otherwise continuation-page clauses render large and overlap.
+      doc.setFontSize(TERMS_FONT_SIZE);
     }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...COLORS.darkText);
+    doc.text(`${index + 1}. ${title}`, leftCol, yPos);
+    yPos += titleGap;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...COLORS.secondaryText);
+    doc.text(bodyLines, leftCol + 5, yPos);
+    yPos += bodyLines.length * bodyLineH + clauseGap;
   });
 
   yPos += 5;
 
   // === ACCEPTANCE DECLARATION ===
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(...COLORS.darkText);
-  doc.text('ACCEPTANCE', leftCol, yPos);
-  yPos += 8;
-
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.secondaryText);
-
+  // Build the acceptance + audit text up front so the block can be measured and
+  // kept whole. splitTextToSize depends on the active font size, so set each
+  // size before measuring the lines it will be drawn at (9pt body, 7pt audit).
   const acc = input.acceptance;
   let acceptanceText: string;
   if (acc) {
@@ -432,20 +449,48 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
       `This Service Order was accepted electronically by the clinic on ${formatDate(input.submittedAt)} ` +
       `via the CircleTel onboarding portal (click-accept). No manual signature is required.`;
   }
+
+  doc.setFontSize(9);
   const acceptanceLines = doc.splitTextToSize(acceptanceText, colWidth);
+
+  const showAudit = Boolean(acc && (acc.submissionId || acc.termsVersion || acc.termsHash));
+  const auditParts = acc
+    ? [
+        acc.submissionId ? `Acceptance record: ${acc.submissionId}` : null,
+        acc.termsVersion ? `Terms version: ${acc.termsVersion}` : null,
+        acc.termsHash ? `Terms SHA-256: ${acc.termsHash}` : null,
+      ].filter(Boolean)
+    : [];
+  doc.setFontSize(7);
+  const auditLines = showAudit ? doc.splitTextToSize(auditParts.join('  ·  '), colWidth) : [];
+
+  // Keep the ACCEPTANCE block whole: measured height = heading(8) + declaration
+  // (9pt ≈ 4mm/line) + gap(4) + audit(7pt ≈ 3mm/line). The block naturally ends
+  // near the footer separator on a normal 2-page order, so break only if it
+  // would reach the footer TEXT (footerY = pageHeight - 32, per addFooter) —
+  // using the separator here would force a needless extra page.
+  const acceptanceBlockHeight = 8 + acceptanceLines.length * 4 + 4 + (showAudit ? auditLines.length * 3 : 0);
+  if (yPos + acceptanceBlockHeight > pageHeight - 33) {
+    doc.addPage();
+    yPos = addHeader(doc, pageWidth);
+  }
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(...COLORS.darkText);
+  doc.text('ACCEPTANCE', leftCol, yPos);
+  yPos += 8;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...COLORS.secondaryText);
   doc.text(acceptanceLines, leftCol, yPos);
   yPos += acceptanceLines.length * 4 + 4;
 
   // Audit reference line — ties this document to the immutable acceptance record
-  if (acc && (acc.submissionId || acc.termsVersion || acc.termsHash)) {
+  if (showAudit) {
     doc.setFontSize(7);
     doc.setTextColor(...COLORS.secondaryText);
-    const auditParts = [
-      acc.submissionId ? `Acceptance record: ${acc.submissionId}` : null,
-      acc.termsVersion ? `Terms version: ${acc.termsVersion}` : null,
-      acc.termsHash ? `Terms SHA-256: ${acc.termsHash}` : null,
-    ].filter(Boolean);
-    const auditLines = doc.splitTextToSize(auditParts.join('  ·  '), colWidth);
     doc.text(auditLines, leftCol, yPos);
   }
 

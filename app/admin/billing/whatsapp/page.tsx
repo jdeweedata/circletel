@@ -1,10 +1,18 @@
 'use client';
-import { PiArrowsClockwiseBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiEyeBold, PiFileTextBold, PiPaperPlaneRightBold, PiSpinnerBold, PiTrendUpBold, PiUsersBold, PiXCircleBold } from 'react-icons/pi';
 
+import {
+  PiArrowsClockwiseBold,
+  PiChatBold,
+  PiCheckCircleBold,
+  PiClockBold,
+  PiEyeBold,
+  PiFileTextBold,
+  PiPaperPlaneRightBold,
+  PiUsersBold,
+  PiXCircleBold,
+} from 'react-icons/pi';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
@@ -16,10 +24,16 @@ import {
 } from '@/components/ui/table';
 import { BulkWhatsAppPanel } from '@/components/admin/billing/BulkWhatsAppPanel';
 import { toast } from 'sonner';
-
-// =============================================================================
-// TYPES
-// =============================================================================
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  type StatusVariant,
+} from '@/components/backend';
 
 interface MessageLog {
   id: string;
@@ -62,9 +76,12 @@ interface Stats {
   customersWithConsent: number;
 }
 
-// =============================================================================
-// PAGE COMPONENT
-// =============================================================================
+const MSG_STATUS_VARIANT: Record<string, StatusVariant> = {
+  sent: 'warning',
+  delivered: 'info',
+  read: 'success',
+  failed: 'error',
+};
 
 export default function WhatsAppDashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -81,21 +98,18 @@ export default function WhatsAppDashboardPage() {
 
   const fetchData = async () => {
     try {
-      // Fetch stats
       const statsRes = await fetch('/api/admin/billing/whatsapp/stats');
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
       }
 
-      // Fetch recent messages
       const messagesRes = await fetch('/api/admin/billing/whatsapp/messages?limit=20');
       if (messagesRes.ok) {
         const messagesData = await messagesRes.json();
         setRecentMessages(messagesData.messages || []);
       }
 
-      // Fetch due invoices for bulk send
       const invoicesRes = await fetch('/api/admin/billing/invoices/due');
       if (invoicesRes.ok) {
         const invoicesData = await invoicesRes.json();
@@ -119,198 +133,101 @@ export default function WhatsAppDashboardPage() {
     fetchData();
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'sent':
-        return <Badge variant="outline"><PiClockBold className="h-3 w-3 mr-1" />Sent</Badge>;
-      case 'delivered':
-        return <Badge className="bg-blue-100 text-blue-800"><PiCheckCircleBold className="h-3 w-3 mr-1" />Delivered</Badge>;
-      case 'read':
-        return <Badge className="bg-emerald-100 text-emerald-800"><PiEyeBold className="h-3 w-3 mr-1" />Read</Badge>;
-      case 'failed':
-        return <Badge variant="destructive"><PiXCircleBold className="h-3 w-3 mr-1" />Failed</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <PiSpinnerBold className="h-8 w-8 animate-spin text-emerald-600" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading WhatsApp data..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <PiChatBold className="h-6 w-6 text-emerald-600" />
-            WhatsApp Notifications
-          </h1>
-          <p className="text-gray-600">
-            Send PayNow links and payment reminders via WhatsApp
-          </p>
-        </div>
-        <Button onClick={handleRefresh} variant="outline" disabled={refreshing}>
-          <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
+    <AdminPage>
+      <PageHeader
+        title="WhatsApp Notifications"
+        subtitle="Send PayNow links and payment reminders via WhatsApp"
+        actions={
+          <Button onClick={handleRefresh} variant="outline" disabled={refreshing}>
+            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        }
+      />
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <PiPaperPlaneRightBold className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.totalSent}</p>
-                <p className="text-sm text-gray-600">Total Sent</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <PiCheckCircleBold className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.delivered}</p>
-                <p className="text-sm text-gray-600">Delivered</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <PiEyeBold className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.read}</p>
-                <p className="text-sm text-gray-600">Read</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <PiXCircleBold className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.failed}</p>
-                <p className="text-sm text-gray-600">Failed</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <PiUsersBold className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.customersWithConsent}</p>
-                <p className="text-sm text-gray-600">With Consent</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          label="Total Sent"
+          value={stats.totalSent}
+          icon={<PiPaperPlaneRightBold className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Delivered"
+          value={stats.delivered}
+          icon={<PiCheckCircleBold className="h-5 w-5" />}
+        />
+        <StatCard label="Read" value={stats.read} icon={<PiEyeBold className="h-5 w-5" />} />
+        <StatCard label="Failed" value={stats.failed} icon={<PiXCircleBold className="h-5 w-5" />} />
+        <StatCard
+          label="With Consent"
+          value={stats.customersWithConsent}
+          icon={<PiUsersBold className="h-5 w-5" />}
+        />
       </div>
 
-      {/* Tabs */}
       <Tabs defaultValue="send" className="space-y-4">
         <TabsList>
           <TabsTrigger value="send">Send Notifications</TabsTrigger>
           <TabsTrigger value="history">Message History</TabsTrigger>
         </TabsList>
 
-        {/* Send Tab */}
         <TabsContent value="send" className="space-y-4">
           <div className="grid lg:grid-cols-2 gap-6">
-            {/* Quick Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PiFileTextBold className="h-5 w-5" />
-                  Today's Invoices
-                </CardTitle>
-                <CardDescription>
-                  Invoices due today that can receive WhatsApp notifications
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-2xl font-bold">{dueInvoices.length}</p>
-                      <p className="text-sm text-gray-600">Due Today</p>
-                    </div>
-                    <div className="bg-emerald-50 rounded-lg p-4">
-                      <p className="text-2xl font-bold text-emerald-700">
-                        {dueInvoices.filter(inv =>
-                          inv.customer?.whatsapp_consent && inv.customer?.phone
-                        ).length}
-                      </p>
-                      <p className="text-sm text-emerald-700">Eligible</p>
-                    </div>
+            <SectionCard title="Today's Invoices">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-2xl font-bold tabular-nums">{dueInvoices.length}</p>
+                    <p className="text-sm text-gray-600">Due Today</p>
                   </div>
-
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">WhatsApp Template Status</h4>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex justify-between">
-                        <span>Invoice Payment</span>
-                        <Badge className="bg-emerald-100 text-emerald-800">Active</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Payment Reminder</span>
-                        <Badge className="bg-emerald-100 text-emerald-800">Active</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Debit Failed</span>
-                        <Badge className="bg-emerald-100 text-emerald-800">Active</Badge>
-                      </div>
-                    </div>
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <p className="text-2xl font-bold text-green-700 tabular-nums">
+                      {
+                        dueInvoices.filter(
+                          (inv) => inv.customer?.whatsapp_consent && inv.customer?.phone
+                        ).length
+                      }
+                    </p>
+                    <p className="text-sm text-green-700">Eligible</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Bulk Send Panel */}
-            <BulkWhatsAppPanel
-              invoices={dueInvoices}
-              onComplete={handleRefresh}
-            />
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">WhatsApp Template Status</h4>
+                  <div className="space-y-1 text-sm">
+                    {['Invoice Payment', 'Payment Reminder', 'Debit Failed'].map((label) => (
+                      <div key={label} className="flex justify-between">
+                        <span>{label}</span>
+                        <StatusBadge status="Active" variant="success" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
+
+            <BulkWhatsAppPanel invoices={dueInvoices} onComplete={handleRefresh} />
           </div>
         </TabsContent>
 
-        {/* History Tab */}
         <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Messages</CardTitle>
-              <CardDescription>
-                WhatsApp notifications sent in the last 7 days
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <SectionCard title="Recent Messages">
+            {recentMessages.length === 0 ? (
+              <EmptyState
+                icon={<PiChatBold />}
+                title="No messages sent yet"
+                description="WhatsApp notifications from the last 7 days will appear here."
+              />
+            ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -322,56 +239,54 @@ export default function WhatsAppDashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recentMessages.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                        No messages sent yet
+                  {recentMessages.map((msg) => (
+                    <TableRow key={msg.id}>
+                      <TableCell className="text-sm">
+                        {new Date(msg.created_at).toLocaleString('en-ZA', {
+                          day: '2-digit',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">
+                            {msg.customer?.first_name} {msg.customer?.last_name}
+                          </p>
+                          <p className="text-sm text-gray-500">{msg.phone}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{msg.invoice?.invoice_number || '-'}</p>
+                          {msg.invoice?.total_amount != null && (
+                            <p className="text-sm text-gray-500 tabular-nums">
+                              R{msg.invoice.total_amount.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge
+                          status={msg.template_name.replace('circletel_', '').replace(/_/g, ' ')}
+                          variant="neutral"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge
+                          status={msg.status.charAt(0).toUpperCase() + msg.status.slice(1)}
+                          variant={MSG_STATUS_VARIANT[msg.status] ?? 'neutral'}
+                        />
                       </TableCell>
                     </TableRow>
-                  ) : (
-                    recentMessages.map((msg) => (
-                      <TableRow key={msg.id}>
-                        <TableCell className="text-sm">
-                          {new Date(msg.created_at).toLocaleString('en-ZA', {
-                            day: '2-digit',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">
-                              {msg.customer?.first_name} {msg.customer?.last_name}
-                            </p>
-                            <p className="text-sm text-gray-500">{msg.phone}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{msg.invoice?.invoice_number || '-'}</p>
-                            {msg.invoice?.total_amount && (
-                              <p className="text-sm text-gray-500">
-                                R{msg.invoice.total_amount.toFixed(2)}
-                              </p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-xs">
-                            {msg.template_name.replace('circletel_', '').replace(/_/g, ' ')}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{getStatusBadge(msg.status)}</TableCell>
-                      </TableRow>
-                    ))
-                  )}
+                  ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            )}
+          </SectionCard>
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPage>
   );
 }

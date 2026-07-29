@@ -1,6 +1,19 @@
 'use client';
 import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiCheckCircleBold, PiFunnelBold, PiGlobeBold, PiMagnifyingGlassBold, PiPlusBold, PiXCircleBold } from 'react-icons/pi';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 /**
  * Provider Management Page
  *
@@ -82,53 +95,32 @@ export default function ProvidersPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
-          ))}
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading providers..." />
+      </AdminPage>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-700">{error}</p>
-        </div>
-      </div>
+      <AdminPage>
+        <ErrorState title="Unable to load providers" message={error} />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/admin/competitor-analysis"
-              className="text-gray-500 hover:text-gray-700"
-            >
-              Competitor Analysis
-            </Link>
-            <span className="text-gray-400">/</span>
-            <h1 className="text-2xl font-bold text-gray-900">Providers</h1>
-          </div>
-          <p className="text-gray-500 mt-1">
-            Manage competitor providers and scraping configuration
-          </p>
-        </div>
-        <button
-          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
-        >
-          <PiPlusBold className="w-5 h-5" />
-          Add Provider
-        </button>
-      </div>
+    <AdminPage>
+      <PageHeader
+        title="Competitor Providers"
+        subtitle="Manage competitor providers and scraping configuration"
+        actions={
+          <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
+            <PiPlusBold className="w-5 h-5" />
+            Add Provider
+          </button>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4">
@@ -198,7 +190,7 @@ export default function ProvidersPage() {
           {providers.filter((p) => p.is_active).length} active
         </span>
       </div>
-    </div>
+    </AdminPage>
   );
 }
 

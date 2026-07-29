@@ -19,7 +19,6 @@ import {
 } from "react-icons/pi";
 import { UploadDocumentModal } from "@/components/admin/onboarding/UploadDocumentModal";
 import { computeDocChecklist } from "@/lib/onboarding/document-checklist";
-import { SectionCard } from "@/components/backend";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -39,6 +38,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
 
 type BillingDay = "1" | "15" | "20" | "25";
 type IntakeStepId =
@@ -840,12 +853,11 @@ export default function ManualB2BIntakePage() {
   const ActiveIcon = activeStepMeta.icon;
 
   return (
-    <main className="mx-auto max-w-[1500px] px-4 py-8">
+    <AdminPage>
+    <main className="mx-auto max-w-[1500px]">
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-gray-950">
-            Manual B2B Onboarding
-          </h1>
+          <PageHeader title="Manual B2B Onboarding" />
           <p className="mt-1 text-sm text-gray-500">
             Admin-assisted capture for emailed client onboarding packs
           </p>
@@ -2198,5 +2210,6 @@ export default function ManualB2BIntakePage() {
         </DialogContent>
       </Dialog>
     </main>
+    </AdminPage>
   );
 }

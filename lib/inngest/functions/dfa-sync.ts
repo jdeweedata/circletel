@@ -27,6 +27,7 @@ import { dfaSyncService } from '@/lib/coverage/providers/dfa/dfa-sync-service';
  */
 export const dfaSyncFunction = inngest.createFunction(
   {
+
     id: 'dfa-sync',
     name: 'DFA Building Sync',
     retries: 3,
@@ -36,14 +37,13 @@ export const dfaSyncFunction = inngest.createFunction(
         match: 'data.sync_log_id',
       },
     ],
-  },
-  [
+  triggers: [
     // Cron trigger: 2 AM SAST = 00:00 UTC
     { cron: '0 0 * * *' },
     // Event trigger: manual requests
     { event: 'dfa/sync.requested' },
   ],
-  async ({ event, step }) => {
+}, async ({ event, step }) => {
     // Extract options from event data (if triggered manually)
     const eventData = event?.data as
       | {
@@ -221,11 +221,11 @@ export const dfaSyncFunction = inngest.createFunction(
  */
 export const dfaSyncCompletedFunction = inngest.createFunction(
   {
+
     id: 'dfa-sync-completed',
     name: 'DFA Sync Completed Handler',
-  },
-  { event: 'dfa/sync.completed' },
-  async ({ event, step }) => {
+  triggers: { event: 'dfa/sync.completed' },
+}, async ({ event, step }) => {
     const {
       sync_log_id,
       connected_count,
@@ -261,11 +261,11 @@ export const dfaSyncCompletedFunction = inngest.createFunction(
  */
 export const dfaSyncFailedFunction = inngest.createFunction(
   {
+
     id: 'dfa-sync-failed',
     name: 'DFA Sync Failed Handler',
-  },
-  { event: 'dfa/sync.failed' },
-  async ({ event, step }) => {
+  triggers: { event: 'dfa/sync.failed' },
+}, async ({ event, step }) => {
     const { sync_log_id, error, attempt } = event.data;
 
     await step.run('handle-failure', async () => {

@@ -1,6 +1,19 @@
 'use client';
 
 import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+import {
   PiPackageBold,
   PiWarningCircleBold,
   PiArrowLeftBold,
@@ -152,17 +165,9 @@ export default function AdminOrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
-              <PiPackageBold className="w-6 h-6 text-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-            </div>
-            <p className="text-slate-500 mt-6 font-medium">Loading order details...</p>
-          </div>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading order..." />
+      </AdminPage>
     );
   }
 
@@ -196,7 +201,7 @@ export default function AdminOrderDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F6F9] overflow-x-hidden">
+    <AdminPage>
       <OrderHeader order={order} onNavigateToTab={handleNavigateToTab} />
 
       <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
@@ -265,6 +270,6 @@ export default function AdminOrderDetailPage() {
           setPaymentMethodModal(false);
         }}
       />
-    </div>
+    </AdminPage>
   );
 }

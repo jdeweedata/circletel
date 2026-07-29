@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateCoverageReferenceCache } from '@/lib/coverage/reference-data';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging/logger';
@@ -120,6 +121,7 @@ export async function POST(
         });
     }
 
+    revalidateCoverageReferenceCache(['servicePackages']);
     return NextResponse.json({
       success: true,
       service_package_id: servicePackageId

@@ -83,13 +83,14 @@ describe('NetCashProvider', () => {
       expect(result.formData?.m2).toBe('test-pci-vault-key');
     });
 
-    it('should convert amount from Rands to cents', async () => {
+    it('should format amount as Rands for p4 (not cents)', async () => {
       const result = await provider.initiate({
         ...mockPaymentInitiationParams,
         amount: 799.0 // Rands
       });
 
-      expect(result.formData?.p4).toBe('79900'); // Cents
+      // Hosted Pay Now expects p4 in Rands (see netcash-paynow-link.test.ts)
+      expect(result.formData?.p4).toBe('799.00');
     });
 
     it('should generate unique transaction reference', async () => {
@@ -194,11 +195,11 @@ describe('NetCashProvider', () => {
       const result = await provider.processWebhook(mockNetCashWebhookPayload, signature);
 
       assertWebhookProcessingSuccess(result, 'completed');
-      expect(result.amount).toBe(799.0); // Converted from cents
+      expect(result.amount).toBe(799.0); // Amount already in Rands
       expect(result.metadata?.payment_method).toBe('card');
     });
 
-    it('should convert amount from cents to Rands', async () => {
+    it('should parse webhook Amount as Rands', async () => {
       const signature = generateMockSignature(
         JSON.stringify(mockNetCashWebhookPayload),
         'test-webhook-secret'
@@ -206,7 +207,7 @@ describe('NetCashProvider', () => {
 
       const result = await provider.processWebhook(mockNetCashWebhookPayload, signature);
 
-      expect(result.amount).toBe(799.0); // 79900 cents = 799.00 Rands
+      expect(result.amount).toBe(799.0); // Amount field is Rands (2 dp)
     });
 
     it('should extract payment method from webhook', async () => {
@@ -260,7 +261,8 @@ describe('NetCashProvider', () => {
     it('should handle cancelled payment', async () => {
       const cancelledPayload = {
         ...mockNetCashWebhookPayload,
-        Result: 'Cancelled'
+        TransactionAccepted: 'false',
+        Result: 'Cancelled',
       };
 
       const signature = generateMockSignature(
@@ -496,16 +498,16 @@ describe('NetCashProvider', () => {
         amount: 999999.99
       });
 
-      expect(result.formData?.p4).toBe('99999999'); // Cents
+      expect(result.formData?.p4).toBe('999999.99'); // Rands
     });
 
-    it('should handle fractional cents correctly', async () => {
+    it('should format fractional rands to 2 decimal places', async () => {
       const result = await provider.initiate({
         ...mockPaymentInitiationParams,
-        amount: 799.995 // Should round to 800.00
+        amount: 799.995 // toFixed(2) → 800.00
       });
 
-      expect(result.formData?.p4).toBe('80000'); // Rounded
+      expect(result.formData?.p4).toBe('800.00');
     });
 
     it('should handle missing optional fields', async () => {
