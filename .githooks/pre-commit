@@ -1,0 +1,32 @@
+#!/bin/sh
+# Shared pre-commit hook (tracked; enabled via core.hooksPath=.githooks).
+# Auto-wired on `npm install`/`npm ci` by the "prepare" script in package.json.
+#
+# Blocks secrets from entering a commit — the root cause of the 2026-07 incident
+# where Zoho/Netcash secrets reached `main`. Mirrors the machine-global hook.
+#
+# Escape hatch (verified false positives only, logged):
+#   GITLEAKS_SKIP=1 git commit …      # skip the scan
+#   git commit --no-verify            # skip ALL hooks (discouraged)
+
+if [ "${GITLEAKS_SKIP:-0}" = "1" ]; then
+  echo "⚠️  GITLEAKS_SKIP=1 — secret scan bypassed ($(git config user.email))"
+  exit 0
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  CFG=""
+  [ -f "$(git rev-parse --show-toplevel)/.gitleaks.toml" ] && \
+    CFG="--config $(git rev-parse --show-toplevel)/.gitleaks.toml"
+  if ! gitleaks git --pre-commit --staged --redact --no-banner $CFG 2>/dev/null; then
+    echo ""
+    echo "🚫 COMMIT BLOCKED — gitleaks found a secret in staged changes."
+    echo "   Remove/rotate it, or (verified false positive only) add to .gitleaks.toml"
+    echo "   or:  GITLEAKS_SKIP=1 git commit …"
+    exit 1
+  fi
+else
+  echo "⚠️  gitleaks not installed — secret scan skipped."
+  echo "   Install: https://github.com/gitleaks/gitleaks"
+fi
+exit 0
