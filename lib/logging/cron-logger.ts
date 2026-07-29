@@ -77,6 +77,11 @@ export async function withCronLogging<T extends CronResult>(
 export function verifyCronSecret(request: Request): boolean {
   const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) return true;
+  // Fail closed: if no secret is configured, deny access rather than
+  // allowing any caller to trigger cron jobs (billing, debit orders, reconciliation).
+  if (!cronSecret) {
+    cronLogger.error('[verifyCronSecret] CRON_SECRET is not configured — denying cron request');
+    return false;
+  }
   return authHeader === `Bearer ${cronSecret}`;
 }
