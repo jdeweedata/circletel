@@ -12,6 +12,19 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import type { CMSPage, PageStatus, ContentType } from '@/lib/cms/types';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 // Status badge component
 function StatusBadge({ status }: { status: PageStatus }) {
   const styles: Record<PageStatus, string> = {
@@ -141,12 +154,11 @@ export default function CMSDashboardPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">CMS Pages</h1>
-          <p className="text-gray-500">Manage your website pages with the visual page builder</p>
+          <PageHeader title="CMS Pages" subtitle="Manage website content pages" />
         </div>
         <button
           onClick={() => router.push('/admin/cms/builder')}
@@ -386,6 +398,6 @@ export default function CMSDashboardPage() {
           </table>
         )}
       </div>
-    </div>
+    </AdminPage>
   );
 }

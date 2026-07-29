@@ -1,6 +1,19 @@
 'use client';
 import { PiArrowsClockwiseBold, PiCalendarBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMinusBold, PiPulseBold, PiTargetBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 /**
  * AR Analytics Dashboard
  * /admin/finance/ar-analytics
@@ -184,50 +197,35 @@ export default function ARAnalyticsPage() {
     }
   };
 
+  const NOTIF_STATUS_VARIANT: Record<string, StatusVariant> = {
+    sent: 'success',
+    delivered: 'success',
+    failed: 'error',
+    bounced: 'error',
+    opened: 'info',
+    clicked: 'info',
+  };
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'sent':
-      case 'delivered':
-        return <Badge variant="default" className="bg-green-500">Delivered</Badge>;
-      case 'failed':
-      case 'bounced':
-        return <Badge variant="destructive">Failed</Badge>;
-      case 'opened':
-        return <Badge variant="default" className="bg-blue-500">Opened</Badge>;
-      case 'clicked':
-        return <Badge variant="default" className="bg-purple-500">Clicked</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
+    const label =
+      status === 'sent' || status === 'delivered'
+        ? 'Delivered'
+        : status.charAt(0).toUpperCase() + status.slice(1);
+    return <StatusBadge status={label} variant={NOTIF_STATUS_VARIANT[status] ?? 'neutral'} />;
   };
 
   if (loading) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
-        <Skeleton className="h-10 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-        <Skeleton className="h-96" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading AR analytics..." />
+      </AdminPage>
     );
   }
 
   if (!data) {
     return (
-      <div className="container mx-auto py-6">
-        <Card>
-          <CardContent className="py-10 text-center">
-            <PiWarningBold className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
-            <p className="text-muted-foreground">Failed to load AR analytics</p>
-            <Button onClick={handleRefresh} className="mt-4">
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AdminPage>
+        <ErrorState title="Failed to load AR analytics" onRetry={handleRefresh} />
+      </AdminPage>
     );
   }
 
@@ -246,32 +244,29 @@ export default function ARAnalyticsPage() {
   ];
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">AR Analytics & Collections</h1>
-          <p className="text-muted-foreground">
-            Accounts Receivable, DSO tracking, and notification effectiveness
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">7 Days</SelectItem>
-              <SelectItem value="30">30 Days</SelectItem>
-              <SelectItem value="60">60 Days</SelectItem>
-              <SelectItem value="90">90 Days</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="icon" onClick={handleRefresh} disabled={refreshing}>
-            <PiArrowsClockwiseBold className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-          </Button>
-        </div>
-      </div>
+    <AdminPage>
+      <PageHeader
+        title="AR Analytics & Collections"
+        subtitle="Accounts Receivable, DSO tracking, and notification effectiveness"
+        actions={
+          <div className="flex items-center gap-2">
+            <Select value={period} onValueChange={setPeriod}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">7 Days</SelectItem>
+                <SelectItem value="30">30 Days</SelectItem>
+                <SelectItem value="60">60 Days</SelectItem>
+                <SelectItem value="90">90 Days</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="icon" onClick={handleRefresh} disabled={refreshing}>
+              <PiArrowsClockwiseBold className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
+        }
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -725,6 +720,6 @@ export default function ARAnalyticsPage() {
           )}
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPage>
   );
 }

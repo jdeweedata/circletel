@@ -5,12 +5,12 @@ const VAT_RATE = 0.15;
 
 export const b2bSiteActivationInvoice = inngest.createFunction(
   {
+
     id: 'b2b-site-activation-invoice',
     name: 'B2B Site Activation Pro-Rata Invoice',
     retries: 3,
-  },
-  { event: 'b2b/site.activated' },
-  async ({ event, step }) => {
+  triggers: { event: 'b2b/site.activated' },
+}, async ({ event, step }) => {
     const { site_id, organisation_id, activated_at, package_id, monthly_fee, service_id } = event.data;
 
     if (!monthly_fee || monthly_fee <= 0) {

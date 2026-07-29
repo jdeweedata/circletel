@@ -1,6 +1,19 @@
 'use client';
 import { PiBuildingOfficeBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 /**
  * Competitor Analysis Dashboard
  *
@@ -118,38 +131,26 @@ export default function CompetitorAnalysisDashboard() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading competitor analysis..." />
+      </AdminPage>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-700">{error}</p>
-        </div>
-      </div>
+      <AdminPage>
+        <ErrorState title="Unable to load competitor analysis" message={error} />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Competitor Analysis</h1>
-          <p className="text-gray-500 mt-1">
-            Track competitor pricing and market positioning
-          </p>
+          <PageHeader title="Competitor Analysis" subtitle="Track competitor pricing and market positioning" />
         </div>
         <div className="flex gap-3">
           <Link
@@ -314,7 +315,7 @@ export default function CompetitorAnalysisDashboard() {
           )}
         </div>
       </div>
-    </div>
+    </AdminPage>
   );
 
   async function triggerScrapeAll() {

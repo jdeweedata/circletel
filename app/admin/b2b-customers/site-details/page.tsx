@@ -1,6 +1,20 @@
 'use client';
 import { PiArrowsClockwiseBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiMapPinBold, PiSpinnerBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 /**
  * Admin B2B Site Details Page
  *
@@ -297,23 +311,17 @@ export default function AdminSiteDetailsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <PiMapPinBold className="h-6 w-6 text-circleTel-orange" />
-            Site Details Review
-          </h1>
-          <p className="text-sm text-gray-500">
-            Review and approve B2B customer site details submissions
-          </p>
-        </div>
-        <Button variant="outline" onClick={fetchData} disabled={loading}>
+    <AdminPage>
+      <PageHeader
+        title="Site Details Review"
+        subtitle="Review and approve B2B customer site details submissions"
+        actions={
+          <Button variant="outline" onClick={fetchData} disabled={loading}>
           <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
-      </div>
+        }
+      />
 
       {/* Stats Cards */}
       {stats && (
@@ -632,6 +640,6 @@ export default function AdminSiteDetailsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

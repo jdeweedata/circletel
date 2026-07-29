@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SectionCard } from '@/components/admin/shared';
+import { formatLatency, latencyTone, scoreTone } from './telemetry-format';
 
 interface RuijieClient {
   mac: string;
@@ -23,6 +24,18 @@ interface RuijieClient {
   channel: number;
   sn: string;
   signalQuality: 'excellent' | 'good' | 'fair' | 'poor';
+  utilization: number | null;
+  uplinkRate: number | null;
+  downlinkRate: number | null;
+  pktLoseRate: number | null;
+  latencyMs: number | null;
+  /** Ruijie's own 0-100 connection score, and why it is low. */
+  score: number | null;
+  scoreReason: string | null;
+  hostname: string | null;
+  vendor: string | null;
+  sessionBytes: number | null;
+  sessionMs: number | null;
 }
 
 interface DeviceClientListProps {
@@ -64,7 +77,56 @@ const QUALITY_CONFIG = {
   },
 };
 
-function SignalIndicator({ rssi, quality }: { rssi: number; quality: 'excellent' | 'good' | 'fair' | 'poor' }) {
+/**
+ * Packet loss from Ruijie is treated as a percent (0–100).
+ * e.g. 0.2 → 0.2%, 6.2 → 6.2%.
+ */
+function normalizePktLosePercent(raw: number | null | undefined): number | null {
+  if (raw == null || !Number.isFinite(raw)) return null;
+  if (raw < 0) return null;
+  return raw;
+}
+
+function formatPercent(value: number | null | undefined, digits = 0): string {
+  if (value == null || !Number.isFinite(value)) return '—';
+  return `${value.toFixed(digits)}%`;
+}
+
+function formatBps(bps: number): string {
+  if (bps === 0) return '0 bps';
+  const units = ['bps', 'Kbps', 'Mbps', 'Gbps'];
+  const k = 1000;
+  const i = Math.min(Math.floor(Math.log(bps) / Math.log(k)), units.length - 1);
+  return `${(bps / Math.pow(k, i)).toFixed(1)} ${units[i]}`;
+}
+
+function formatRate(bps: number | null | undefined): string {
+  if (bps == null || !Number.isFinite(bps) || bps < 0) return '—';
+  if (bps === 0) return '0';
+  return formatBps(bps);
+}
+
+function lossTone(lossPct: number | null): string {
+  if (lossPct == null) return 'text-slate-500';
+  if (lossPct > 5) return 'text-red-600 font-semibold';
+  if (lossPct > 1) return 'text-amber-600 font-medium';
+  return 'text-slate-600';
+}
+
+function utilTone(util: number | null): string {
+  if (util == null) return 'text-slate-500';
+  if (util >= 70) return 'text-red-600 font-semibold';
+  if (util >= 40) return 'text-amber-600 font-medium';
+  return 'text-slate-600';
+}
+
+function SignalIndicator({
+  rssi,
+  quality,
+}: {
+  rssi: number;
+  quality: 'excellent' | 'good' | 'fair' | 'poor';
+}) {
   const config = QUALITY_CONFIG[quality];
   const Icon = config.icon;
 
@@ -117,7 +179,6 @@ export function DeviceClientList({ sn }: DeviceClientListProps) {
     fetchClients();
   };
 
-  // Count clients by quality
   const qualityCounts = clients.reduce(
     (acc, client) => {
       acc[client.signalQuality]++;
@@ -125,6 +186,11 @@ export function DeviceClientList({ sn }: DeviceClientListProps) {
     },
     { excellent: 0, good: 0, fair: 0, poor: 0 }
   );
+
+  const highLossCount = clients.filter((c) => {
+    const pct = normalizePktLosePercent(c.pktLoseRate);
+    return pct != null && pct > 5;
+  }).length;
 
   if (loading) {
     return (
@@ -165,6 +231,9 @@ export function DeviceClientList({ sn }: DeviceClientListProps) {
             <div>
               <p className="text-2xl font-bold text-slate-900">{clients.length}</p>
               <p className="text-xs text-slate-500 uppercase tracking-wider">Total Clients</p>
+              {highLossCount > 0 && (
+                <p className="text-xs text-red-600 mt-0.5">{highLossCount} high loss</p>
+              )}
             </div>
           </div>
         </div>
@@ -174,7 +243,7 @@ export function DeviceClientList({ sn }: DeviceClientListProps) {
           return (
             <div key={quality} className={`rounded-lg border p-4 ${config.bg} ${config.border}`}>
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg bg-white/60`}>
+                <div className="p-2 rounded-lg bg-white/60">
                   <Icon className={`w-5 h-5 ${config.color}`} />
                 </div>
                 <div>
@@ -216,61 +285,129 @@ export function DeviceClientList({ sn }: DeviceClientListProps) {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[1180px]">
               <thead>
                 <tr className="border-b border-slate-100">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    MAC Address
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Device
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    IP Address
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    MAC
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    IP
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     SSID
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Band
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Band / Ch
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Channel
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Signal
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Quality
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Latency
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Score
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Rates
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Air
+                  </th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Loss
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {clients.map((client) => {
                   const config = QUALITY_CONFIG[client.signalQuality];
+                  const lossPct = normalizePktLosePercent(client.pktLoseRate);
+                  const util =
+                    client.utilization != null && Number.isFinite(client.utilization)
+                      ? client.utilization
+                      : null;
+                  const bandLabel = client.band || '—';
+                  const channelLabel =
+                    client.channel != null && client.channel > 0 ? String(client.channel) : '—';
+
                   return (
-                    <tr key={client.mac} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-4 py-3">
-                        <span className="font-mono text-sm text-slate-900">{client.mac}</span>
+                    <tr
+                      key={client.mac || `${client.userIp}-${client.ssid}`}
+                      className="hover:bg-slate-50/50 transition-colors"
+                    >
+                      <td className="px-3 py-3">
+                        <div className="text-sm leading-tight">
+                          <div className="font-medium text-slate-900">
+                            {client.hostname || client.vendor || 'Unknown device'}
+                          </div>
+                          {client.hostname && client.vendor && (
+                            <div className="text-xs text-slate-500">{client.vendor}</div>
+                          )}
+                        </div>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="font-mono text-sm text-slate-600">{client.userIp}</span>
+                      <td className="px-3 py-3">
+                        <span className="font-mono text-sm text-slate-600">{client.mac || '—'}</span>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm font-medium text-slate-900">{client.ssid}</span>
+                      <td className="px-3 py-3">
+                        <span className="font-mono text-sm text-slate-600">{client.userIp || '—'}</span>
                       </td>
-                      <td className="px-4 py-3">
-                        <Badge variant="outline" className="font-mono">
-                          {client.band}
-                        </Badge>
+                      <td className="px-3 py-3">
+                        <span className="text-sm font-medium text-slate-900">{client.ssid || '—'}</span>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="font-mono text-sm text-slate-600">{client.channel}</span>
+                      <td className="px-3 py-3">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {bandLabel}
+                          </Badge>
+                          <span className="font-mono text-xs text-slate-500">ch {channelLabel}</span>
+                        </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-3 py-3">
                         <SignalIndicator rssi={client.rssi} quality={client.signalQuality} />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-3 py-3">
                         <Badge className={`${config.badge} border-0`}>
                           {config.label}
                         </Badge>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className={`font-mono text-sm ${latencyTone(client.latencyMs)}`}>
+                          {formatLatency(client.latencyMs)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className={`font-mono text-sm ${scoreTone(client.score)}`}>
+                          {client.score != null ? client.score : '—'}
+                        </span>
+                        {client.scoreReason && (
+                          <div className="text-xs text-amber-600">{client.scoreReason}</div>
+                        )}
+                      </td>
+                      <td className="px-3 py-3">
+                        <div className="text-xs font-mono text-slate-700 leading-relaxed">
+                          <div title="Downlink rate">↓ {formatRate(client.downlinkRate)}</div>
+                          <div title="Uplink rate" className="text-slate-500">
+                            ↑ {formatRate(client.uplinkRate)}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className={`font-mono text-sm ${utilTone(util)}`}>
+                          {formatPercent(util, util != null && util % 1 !== 0 ? 1 : 0)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className={`font-mono text-sm ${lossTone(lossPct)}`}>
+                          {formatPercent(lossPct, lossPct != null && lossPct < 10 ? 1 : 0)}
+                        </span>
                       </td>
                     </tr>
                   );

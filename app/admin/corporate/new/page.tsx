@@ -17,6 +17,20 @@ import {
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface CorporateFormData {
   corporateCode: string;
   companyName: string;
@@ -358,7 +372,7 @@ export default function NewCorporatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+    <AdminPage>
       {/* Subtle background pattern */}
       <div
         className="fixed inset-0 opacity-[0.015] pointer-events-none"
@@ -777,6 +791,6 @@ export default function NewCorporatePage() {
           </div>
         </form>
       </div>
-    </div>
+    </AdminPage>
   );
 }

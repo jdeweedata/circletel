@@ -15,6 +15,7 @@ export {
   getAllDevices,
   getDevice,
   getDeviceMetrics,
+  getEmptyDeviceMetrics,
   getDeviceCurrentPerformance,
   getGroupStaUsers,
   enrichDevicesWithLiveMetrics,
@@ -29,7 +30,16 @@ export {
 export {
   mapCurrentPerformance,
   aggregateStaMetricsForDevice,
+  aggregateStaExperienceForDevice,
+  deriveUptimeFromLogs,
   buildHourlyFlowRequest,
+  estimateSpanSeconds,
+} from './performance-metrics';
+
+export type {
+  DeviceSystemHealth,
+  StaDeviceExperience,
+  DeviceLogRaw,
 } from './performance-metrics';
 
 export {

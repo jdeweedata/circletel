@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import {
   PiArrowsClockwiseBold,
@@ -22,17 +22,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TrafficChart, formatBytes, formatBps } from '@/components/admin/network/TrafficChart';
+import { formatBytes, formatBps } from '@/components/admin/network/TrafficChart';
 import {
   MetricCard,
-  BandwidthChart,
   TopApplicationsCard,
   AppCategoryBreakdown,
   GroupTrafficCards,
   SsidActivityCards,
   RadioUtilSummaryCard,
+  TrafficVolumeAreaChart,
+  ThroughputAreaChart,
 } from '@/components/admin/network/performance';
 import type { GroupTrafficCard, RadioUtilSummary, SsidActivityCard } from '@/lib/network/analytics-aggregates';
+import { formatRelative } from '@/lib/dates';
 
 interface TrafficDataPoint {
   timestamp: number;
@@ -77,6 +79,8 @@ interface AnalyticsApiResponse {
   groupTraffic?: GroupTrafficCard[];
   ssidActivity?: SsidActivityCard[];
   radio?: RadioUtilSummary;
+  lastRollupAt?: string | null;
+  lastSyncedAt?: string | null;
   fetchedAt: string;
 }
 
@@ -106,18 +110,29 @@ export default function NetworkAnalyticsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preferLive, setPreferLive] = useState(false);
+  const hasLoadedRef = useRef(false);
 
   const fetchTrafficData = useCallback(
-    async (isRefresh = false, live = preferLive) => {
+    async (options?: {
+      isRefresh?: boolean;
+      live?: boolean;
+      groupId?: string;
+      hours?: string;
+    }) => {
+      const isRefresh = options?.isRefresh ?? false;
+      const live = options?.live ?? preferLive;
+      const groupId = options?.groupId ?? selectedGroupId;
+      const hours = options?.hours ?? selectedHours;
+
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
       try {
         const params = new URLSearchParams({
-          hours: selectedHours,
+          hours,
           includeApps: 'true',
         });
-        if (selectedGroupId) params.set('groupId', selectedGroupId);
+        if (groupId) params.set('groupId', groupId);
         if (live) params.set('live', 'true');
 
         const response = await fetch(`/api/admin/network/analytics?${params}`, {
@@ -129,9 +144,13 @@ export default function NetworkAnalyticsPage() {
         const result: AnalyticsApiResponse = await response.json();
         setData(result);
         if (result.groups?.length) {
-          setGroups(result.groups);
-          if (!selectedGroupId && result.groupId) {
-            setSelectedGroupId(result.groupId);
+          // Normalize ids to strings — Radix Select rejects empty/non-string values.
+          const normalized = result.groups
+            .map((g) => ({ id: String(g.id), name: g.name || String(g.id) }))
+            .filter((g) => g.id.length > 0);
+          setGroups(normalized);
+          if (!groupId && result.groupId) {
+            setSelectedGroupId(String(result.groupId));
           }
         }
         setError(null);
@@ -147,23 +166,44 @@ export default function NetworkAnalyticsPage() {
   );
 
   useEffect(() => {
-    fetchTrafficData();
+    void fetchTrafficData({ isRefresh: hasLoadedRef.current }).finally(() => {
+      hasLoadedRef.current = true;
+    });
   }, [fetchTrafficData]);
 
+  // Auto-refresh only in Cached mode — Live must stay opt-in / manual.
   useEffect(() => {
-    const interval = setInterval(() => fetchTrafficData(true), 5 * 60 * 1000);
+    if (preferLive) return;
+    const interval = setInterval(
+      () => fetchTrafficData({ isRefresh: true, live: false }),
+      5 * 60 * 1000
+    );
     return () => clearInterval(interval);
-  }, [fetchTrafficData]);
+  }, [fetchTrafficData, preferLive]);
+
+  const handleGroupChange = (groupId: string) => {
+    if (!groupId || groupId === selectedGroupId) return;
+    setSelectedGroupId(groupId);
+  };
 
   const selectedGroup = groups.find((g) => g.id === selectedGroupId);
 
   const bandwidthSeries =
-    data?.traffic.dataPoints.map((p) => ({
-      captured_at: p.timeString,
-      avgRxMbps: p.avgRxMbps ?? 0,
-      avgTxMbps: p.avgTxMbps ?? 0,
-      avgThroughputMbps: (p.avgRxMbps ?? 0) + (p.avgTxMbps ?? 0),
-    })) ?? [];
+    data?.traffic.dataPoints.map((p) => {
+      // Prefer API Mbps; fall back to hourly bytes → avg Mbps
+      const rxMbps =
+        p.avgRxMbps ??
+        (Number.isFinite(p.rxBytes) ? (p.rxBytes * 8) / 3600 / 1_000_000 : 0);
+      const txMbps =
+        p.avgTxMbps ??
+        (Number.isFinite(p.txBytes) ? (p.txBytes * 8) / 3600 / 1_000_000 : 0);
+      return {
+        captured_at: new Date(p.timestamp).toISOString(),
+        avgRxMbps: rxMbps,
+        avgTxMbps: txMbps,
+        avgThroughputMbps: rxMbps + txMbps,
+      };
+    }) ?? [];
 
   if (loading && !data) {
     return (
@@ -193,7 +233,7 @@ export default function NetworkAnalyticsPage() {
             Network Analytics
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
-            Group-scoped Ruijie throughput · app-flow · radio util from cache
+            Traffic and utilization by network group
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -203,7 +243,10 @@ export default function NetworkAnalyticsPage() {
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/network/devices">Devices</Link>
           </Button>
-          <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+          <Select
+            value={selectedGroupId || undefined}
+            onValueChange={handleGroupChange}
+          >
             <SelectTrigger className="w-[200px] rounded-lg border-slate-200">
               <SelectValue placeholder="Select network group" />
             </SelectTrigger>
@@ -233,7 +276,7 @@ export default function NetworkAnalyticsPage() {
             onClick={() => {
               const next = !preferLive;
               setPreferLive(next);
-              fetchTrafficData(true, next);
+              void fetchTrafficData({ isRefresh: true, live: next });
             }}
           >
             <PiBroadcastBold className="w-4 h-4 mr-2" />
@@ -242,7 +285,7 @@ export default function NetworkAnalyticsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => fetchTrafficData(true)}
+            onClick={() => void fetchTrafficData({ isRefresh: true })}
             disabled={refreshing}
           >
             <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
@@ -273,7 +316,7 @@ export default function NetworkAnalyticsPage() {
 
       {data ? (
         <>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge
               variant="outline"
               className={
@@ -282,11 +325,23 @@ export default function NetworkAnalyticsPage() {
                   : 'border-slate-200 bg-slate-50 text-slate-600'
               }
             >
-              Source: {data.source === 'live' ? 'Ruijie live' : 'Supabase rollups'}
+              {data.source === 'live' ? 'Ruijie live' : 'Supabase rollups'}
             </Badge>
             <span className="text-xs text-slate-400">
               {selectedGroup?.name || 'Network'} · {formatDuration(parseInt(selectedHours, 10))}
             </span>
+            {data.lastRollupAt ? (
+              <span className="text-xs text-slate-500">
+                Last rollup {formatRelative(data.lastRollupAt)}
+              </span>
+            ) : (
+              <span className="text-xs text-amber-600">No rollup samples yet</span>
+            )}
+            {data.lastSyncedAt ? (
+              <span className="text-xs text-slate-400">
+                · Device sync {formatRelative(data.lastSyncedAt)}
+              </span>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -323,24 +378,32 @@ export default function NetworkAnalyticsPage() {
           <GroupTrafficCards
             groups={groupTraffic}
             selectedGroupId={selectedGroupId}
-            onSelectGroup={setSelectedGroupId}
+            onSelectGroup={handleGroupChange}
           />
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
             <div className="xl:col-span-2">
-              <TrafficChart
+              <TrafficVolumeAreaChart
                 dataPoints={data.traffic.dataPoints}
-                title={`Traffic — ${selectedGroup?.name || 'Network'}`}
-                height={350}
+                title={`Traffic volume — ${selectedGroup?.name || 'Network'}`}
+                description="Stacked download + upload by hour (shadcn area chart)"
               />
             </div>
-            <BandwidthChart
+            <ThroughputAreaChart
               data={bandwidthSeries}
-              title="Throughput (Mbps)"
-              subtitle="From rollup avg rates"
-              height={300}
+              title="Throughput"
+              description="Average rates from rollups (Mbps)"
+              stacked
             />
           </div>
+
+          <ThroughputAreaChart
+            data={bandwidthSeries}
+            title="Download vs upload throughput"
+            description="Overlay view — compare directions without stacking"
+            stacked={false}
+            heightClassName="aspect-auto h-[260px] w-full"
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <TopApplicationsCard data={appFlow} maxItems={10} />
@@ -361,9 +424,18 @@ export default function NetworkAnalyticsPage() {
             <RadioUtilSummaryCard radio={radio} />
           </div>
 
-          <div className="flex items-center justify-end gap-2 text-sm text-slate-500">
-            <PiClockBold className="w-4 h-4" />
-            Last updated: {new Date(data.fetchedAt).toLocaleString('en-ZA')}
+          <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-slate-500">
+            <span className="inline-flex items-center gap-2">
+              <PiClockBold className="w-4 h-4" />
+              {data.source === 'live'
+                ? `Live fetch ${formatRelative(data.fetchedAt)}`
+                : data.lastRollupAt
+                  ? `Rollup data ${formatRelative(data.lastRollupAt)}`
+                  : 'Waiting for first traffic rollup'}
+            </span>
+            {preferLive ? (
+              <span className="text-xs text-slate-400">Auto-refresh paused in Live mode</span>
+            ) : null}
           </div>
         </>
       ) : null}

@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
-import { getDeviceMetrics, DeviceMetrics } from '@/lib/ruijie/client';
+import { getDeviceMetrics, getEmptyDeviceMetrics, DeviceMetrics } from '@/lib/ruijie/client';
 import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
@@ -54,16 +54,7 @@ export async function GET(
 
     if (device.status === 'offline') {
       // Don't fetch metrics for offline devices
-      metrics = {
-        cpu_usage: null,
-        memory_usage: null,
-        uptime_seconds: null,
-        online_clients: 0,
-        radio_2g_channel: null,
-        radio_5g_channel: null,
-        radio_2g_utilization: null,
-        radio_5g_utilization: null,
-      };
+      metrics = getEmptyDeviceMetrics();
     } else {
       // Pass group_id for STA query to count online clients
       metrics = await getDeviceMetrics(sn, device.group_id || undefined);

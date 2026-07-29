@@ -26,6 +26,19 @@ import {
 import { formatDistanceToNow, differenceInDays, format } from 'date-fns';
 import { TokenExpiryBadge } from '@/components/admin/integrations/TokenExpiryBadge';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface OAuthToken {
   id: string;
   integration_slug: string;
@@ -148,46 +161,26 @@ export default function OAuthManagementPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <PiSpinnerBold className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
-          <p className="text-gray-600">Loading OAuth tokens...</p>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading OAuth tokens..." />
+      </AdminPage>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle className="text-red-600 flex items-center gap-2">
-              <PiXCircleBold className="h-5 w-5" />
-              Error Loading OAuth Tokens
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={fetchTokens} className="w-full">
-              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AdminPage>
+        <ErrorState title="Something went wrong" message={error} onRetry={fetchTokens} />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">OAuth Management</h1>
-          <p className="text-gray-600 mt-1">
-            Manage OAuth tokens for third-party integrations
-          </p>
+          <PageHeader title="OAuth Tokens" subtitle="Manage OAuth tokens for third-party integrations" />
         </div>
         <Button onClick={fetchTokens} variant="outline">
           <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
@@ -414,6 +407,6 @@ export default function OAuthManagementPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminPage>
   );
 }

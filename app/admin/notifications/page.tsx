@@ -24,6 +24,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 
+import {
+  AdminPage,
+  PageHeader,
+  LoadingState,
+  EmptyState,
+} from '@/components/backend';
+
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -121,13 +129,10 @@ export default function NotificationHistoryPage() {
   );
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
+    <AdminPage>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-circleTel-navy">Notifications</h1>
-        <p className="text-muted-foreground mt-1">
-          View and manage all your notifications
-        </p>
+        <PageHeader title="Notifications" subtitle="View and manage all your notifications" />
       </div>
 
       {/* Filters */}
@@ -226,7 +231,7 @@ export default function NotificationHistoryPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   );
 }
 

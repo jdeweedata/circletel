@@ -9,6 +9,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+import {
   Table,
   TableBody,
   TableCell,
@@ -226,21 +239,21 @@ export default function JobsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading field jobs..." />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Field Jobs</h1>
-          <p className="text-gray-500">Manage installation and service jobs</p>
-        </div>
-        <div className="flex gap-2">
+      <PageHeader
+        title="Field Jobs"
+        subtitle="Manage installation and service jobs"
+        actions={
+          <div className="flex items-center gap-2">
+<div className="flex gap-2">
           <Button variant="outline" onClick={fetchJobs}>
             <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
@@ -420,7 +433,9 @@ export default function JobsPage() {
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -670,6 +685,6 @@ export default function JobsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

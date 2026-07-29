@@ -28,6 +28,19 @@ import {
 } from '@/components/admin/network/performance';
 import { computeNetworkInventory } from '@/lib/network/performance-aggregates';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface RuijieDevice {
   sn: string;
   device_name: string;
@@ -220,15 +233,9 @@ export default function RuijieDevicesPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 w-56 bg-slate-100 rounded animate-pulse" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-48 bg-slate-100 rounded-xl animate-pulse" />
-          ))}
-        </div>
-        <div className="h-64 bg-slate-100 rounded-xl animate-pulse" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading devices..." />
+      </AdminPage>
     );
   }
 
@@ -252,17 +259,11 @@ export default function RuijieDevicesPage() {
     devices.length > 0 ? Math.round((onlineCount / devices.length) * 100) : 0;
 
   return (
-    <div className="space-y-6 -mx-1">
+    <AdminPage>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <p className="text-xs text-slate-400 mb-1">Activity / Infrastructure / Devices</p>
-          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Devices</h1>
-          <p className="text-slate-500 mt-1 text-sm">
-            Ruijie Cloud managed fleet · {data?.total || 0} devices · {totalClients} clients
-            {data?.lastSynced && (
-              <span> · Last synced {formatRelativeTime(data.lastSynced)}</span>
-            )}
-          </p>
+          <PageHeader title="Network Devices" subtitle="Manage CPE and network devices" />
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
@@ -411,6 +412,6 @@ export default function RuijieDevicesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminPage>
   );
 }

@@ -20,6 +20,20 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
+import {
+  AdminPage,
+  PageHeader,
+  DetailPageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface Partner {
   id: string;
   partner_number: string | null;
@@ -191,7 +205,7 @@ export default function PendingApprovalsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <AdminPage>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -200,10 +214,9 @@ export default function PendingApprovalsPage() {
             Back
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Pending Approvals</h1>
-            <p className="text-gray-600 mt-1">
+            <PageHeader title="Pending Approvals" subtitle="
               {partners.length} application{partners.length !== 1 ? 's' : ''} awaiting review
-            </p>
+            " />
           </div>
         </div>
       </div>
@@ -384,6 +397,6 @@ export default function PendingApprovalsPage() {
           ))}
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }

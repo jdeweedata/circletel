@@ -14,6 +14,19 @@ import {
   ZohoSyncTab,
 } from '@/components/admin/integrations';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -130,53 +143,28 @@ export default function IntegrationsPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#f7f8fa]">
-        <Card className="shadow-lg">
-          <CardContent className="p-12 text-center">
-            <PiSpinnerBold className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
-            <p className="text-muted-foreground">Loading integrations...</p>
-          </CardContent>
-        </Card>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading integrations..." />
+      </AdminPage>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#f7f8fa] p-4">
-        <Card className="max-w-md shadow-lg">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-destructive">
-              <PiXCircleBold className="h-5 w-5" />
-              <CardTitle>Error Loading Integrations</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={handleRefresh} variant="outline" className="w-full">
-              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AdminPage>
+        <ErrorState title="Something went wrong" message={error} onRetry={typeof handleRefresh === 'function' ? handleRefresh : undefined} />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#f7f8fa] text-gray-800 p-6 md:p-10 space-y-8">
+    <AdminPage>
       {/* PAGE HEADER */}
-      <header className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-            Integrations
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Monitor and manage all third-party integrations connected to CircleTel
-          </p>
-        </div>
-        <Button
+      <PageHeader
+        title="Integrations"
+        subtitle="Monitor and manage all third-party integrations connected to CircleTel"
+        actions={<Button
           onClick={handleRefresh}
           disabled={isRefreshing}
           variant="outline"
@@ -185,8 +173,8 @@ export default function IntegrationsPage() {
         >
           <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
-        </Button>
-      </header>
+        </Button>}
+      />
 
       {/* TABBED NAVIGATION */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -339,7 +327,7 @@ export default function IntegrationsPage() {
 
       {/* AI Assistant Widget */}
       <AIAssistantWidget />
-    </div>
+    </AdminPage>
   );
 }
 

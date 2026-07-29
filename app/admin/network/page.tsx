@@ -7,6 +7,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  type StatusVariant,
+} from '@/components/backend';
+
+
 interface ProviderHealth {
   provider_name: string;
   status: 'up' | 'degraded' | 'down' | 'maintenance' | 'unknown';
@@ -114,19 +127,17 @@ export default function NetworkDashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <PiArrowsClockwiseBold className="w-8 h-8 animate-spin text-circleTel-orange" />
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading network data..." />
+      </AdminPage>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <PiWarningCircleBold className="w-12 h-12 text-red-500" />
-        <p className="text-gray-600">{error || 'No data available'}</p>
-        <Button onClick={() => fetchData()}>Retry</Button>
-      </div>
+      <AdminPage>
+        <ErrorState title="Unable to load data" message={error || 'No data available'} onRetry={() => fetchData()} />
+      </AdminPage>
     );
   }
 
@@ -134,14 +145,13 @@ export default function NetworkDashboardPage() {
   const hasOpenOutages = data.openOutages.length > 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Network Operations</h1>
-          <p className="text-gray-500 mt-1">Monitor provider health, connections, and incidents</p>
-        </div>
-        <div className="flex items-center gap-3">
+    <AdminPage>
+      <PageHeader
+        title="Network Operations"
+        subtitle="Monitor provider health, connections, and incidents"
+        actions={
+          <div className="flex items-center gap-3">
+
           <Button
             variant="outline"
             size="sm"
@@ -157,8 +167,9 @@ export default function NetworkDashboardPage() {
               Declare Outage
             </Button>
           </Link>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* System Status Banner */}
       <Card className={`border-2 ${allProvidersUp && !hasOpenOutages ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'}`}>
@@ -421,6 +432,6 @@ export default function NetworkDashboardPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   );
 }

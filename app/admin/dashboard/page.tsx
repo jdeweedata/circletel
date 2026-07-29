@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { PageHeader, StatCard, ConsoleTabsList } from '@/components/backend';
+import { AdminPage, PageHeader, StatCard, ConsoleTabsList } from '@/components/backend';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
@@ -413,7 +413,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <AdminPage>
       <PageHeader
         title="Admin Dashboard"
         subtitle={`Welcome back, ${user?.full_name?.split(' ')[0] ?? ''}! Here's your overview`}
@@ -622,6 +622,6 @@ export default function AdminDashboard() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
+    </AdminPage>
   );
 }

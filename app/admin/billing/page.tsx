@@ -1,11 +1,31 @@
 'use client';
-import { PiArrowRightBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiFileTextBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
+import {
+  PiArrowRightBold,
+  PiArrowsClockwiseBold,
+  PiCheckCircleBold,
+  PiClockBold,
+  PiCreditCardBold,
+  PiCurrencyDollarBold,
+  PiFileTextBold,
+  PiTrendUpBold,
+  PiUsersBold,
+  PiWarningCircleBold,
+} from 'react-icons/pi';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import {
+  AdminPage,
+  PageHeader,
+  StatCard,
+  SectionCard,
+  StatusBadge,
+  LoadingState,
+  ErrorState,
+  EmptyState,
+  type StatusVariant,
+} from '@/components/backend';
 
 interface BillingStats {
   totalOutstanding: number;
@@ -35,6 +55,16 @@ interface RecentPayment {
   paid_at: string;
   method: string;
 }
+
+const INVOICE_STATUS_VARIANT: Record<string, StatusVariant> = {
+  paid: 'success',
+  sent: 'info',
+  overdue: 'error',
+  draft: 'neutral',
+  partial: 'warning',
+  voided: 'neutral',
+  cancelled: 'neutral',
+};
 
 export default function BillingDashboard() {
   const [stats, setStats] = useState<BillingStats | null>(null);
@@ -84,283 +114,201 @@ export default function BillingDashboard() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return <Badge className="bg-green-100 text-green-800">Paid</Badge>;
-      case 'sent':
-        return <Badge className="bg-blue-100 text-blue-800">Sent</Badge>;
-      case 'overdue':
-        return <Badge className="bg-red-100 text-red-800">Overdue</Badge>;
-      case 'draft':
-        return <Badge className="bg-gray-100 text-gray-800">Draft</Badge>;
-      case 'partial':
-        return <Badge className="bg-yellow-100 text-yellow-800">Partial</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
+  const getStatusBadge = (status: string) => (
+    <StatusBadge
+      status={status.charAt(0).toUpperCase() + status.slice(1)}
+      variant={INVOICE_STATUS_VARIANT[status] ?? 'neutral'}
+    />
+  );
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2 text-gray-500">
-          <PiArrowsClockwiseBold className="h-5 w-5 animate-spin" />
-          <span>Loading billing data...</span>
-        </div>
-      </div>
+      <AdminPage>
+        <LoadingState message="Loading billing data..." />
+      </AdminPage>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-red-600">
-              <PiWarningCircleBold className="h-5 w-5" />
-              <span>{error}</span>
-            </div>
-            <Button
-              onClick={fetchBillingData}
-              variant="outline"
-              className="mt-4"
-            >
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AdminPage>
+        <ErrorState title="Unable to load billing data" message={error} onRetry={fetchBillingData} />
+      </AdminPage>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Billing Dashboard</h1>
-          <p className="text-gray-500 mt-1">Overview of billing and revenue</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchBillingData}>
-            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          <Link href="/admin/billing/invoices">
-            <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
-              <PiFileTextBold className="h-4 w-4 mr-2" />
-              View All Invoices
+    <AdminPage>
+      <PageHeader
+        title="Billing Dashboard"
+        subtitle="Overview of billing and revenue"
+        actions={
+          <>
+            <Button variant="outline" onClick={fetchBillingData}>
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
+              Refresh
             </Button>
-          </Link>
-        </div>
-      </div>
+            <Link href="/admin/billing/invoices">
+              <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
+                <PiFileTextBold className="h-4 w-4 mr-2" />
+                View All Invoices
+              </Button>
+            </Link>
+          </>
+        }
+      />
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Total Outstanding
-            </CardTitle>
-            <PiCurrencyDollarBold className="h-4 w-4 text-circleTel-orange" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {formatCurrency(stats?.totalOutstanding || 0)}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {stats?.pendingInvoices || 0} pending invoices
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Overdue Invoices
-            </CardTitle>
-            <PiWarningCircleBold className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {stats?.overdueInvoices || 0}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Requires attention
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Collected (30 days)
-            </CardTitle>
-            <PiTrendUpBold className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {formatCurrency(stats?.collectedLast30Days || 0)}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {stats?.paidLast30Days || 0} invoices paid
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Active Services
-            </CardTitle>
-            <PiUsersBold className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {stats?.activeServices || 0}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {stats?.activeCustomers || 0} customers
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          label="Total Outstanding"
+          value={formatCurrency(stats?.totalOutstanding || 0)}
+          icon={<PiCurrencyDollarBold className="h-5 w-5" />}
+          subtitle={`${stats?.pendingInvoices || 0} pending invoices`}
+        />
+        <StatCard
+          label="Overdue Invoices"
+          value={stats?.overdueInvoices || 0}
+          icon={<PiWarningCircleBold className="h-5 w-5" />}
+          subtitle="Requires attention"
+        />
+        <StatCard
+          label="Collected (30 days)"
+          value={formatCurrency(stats?.collectedLast30Days || 0)}
+          icon={<PiTrendUpBold className="h-5 w-5" />}
+          subtitle={`${stats?.paidLast30Days || 0} invoices paid`}
+        />
+        <StatCard
+          label="Active Services"
+          value={stats?.activeServices || 0}
+          icon={<PiUsersBold className="h-5 w-5" />}
+          subtitle={`${stats?.activeCustomers || 0} customers`}
+        />
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Invoices */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg font-semibold">Recent Invoices</CardTitle>
+        <SectionCard
+          title="Recent Invoices"
+          action={
             <Link href="/admin/billing/invoices">
               <Button variant="ghost" size="sm">
                 View All <PiArrowRightBold className="h-4 w-4 ml-1" />
               </Button>
             </Link>
-          </CardHeader>
-          <CardContent>
-            {recentInvoices.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No invoices found</p>
-            ) : (
-              <div className="space-y-4">
-                {recentInvoices.map((invoice) => (
-                  <div
-                    key={invoice.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
-                        <PiFileTextBold className="h-5 w-5 text-circleTel-orange" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {invoice.invoice_number}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {invoice.customer_name}
-                        </p>
-                      </div>
+          }
+        >
+          {recentInvoices.length === 0 ? (
+            <EmptyState
+              icon={<PiFileTextBold />}
+              title="No invoices found"
+              description="New invoices will appear here once generated."
+            />
+          ) : (
+            <div className="space-y-3">
+              {recentInvoices.map((invoice) => (
+                <Link
+                  key={invoice.id}
+                  href={`/admin/billing/invoices/${invoice.id}`}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
+                      <PiFileTextBold className="h-5 w-5 text-circleTel-orange" />
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900">
-                        {formatCurrency(invoice.total_amount)}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        {getStatusBadge(invoice.status)}
-                        <span className="text-xs text-gray-500">
-                          Due {formatDate(invoice.due_date)}
-                        </span>
-                      </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{invoice.invoice_number}</p>
+                      <p className="text-sm text-gray-500">{invoice.customer_name}</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  <div className="text-right">
+                    <p className="font-semibold text-gray-900 tabular-nums">
+                      {formatCurrency(invoice.total_amount)}
+                    </p>
+                    <div className="flex items-center justify-end gap-2 mt-1">
+                      {getStatusBadge(invoice.status)}
+                      <span className="text-xs text-gray-500">Due {formatDate(invoice.due_date)}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </SectionCard>
 
-        {/* Recent Payments */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg font-semibold">Recent Payments</CardTitle>
-            <Button variant="ghost" size="sm">
-              View All <PiArrowRightBold className="h-4 w-4 ml-1" />
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {recentPayments.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No recent payments</p>
-            ) : (
-              <div className="space-y-4">
-                {recentPayments.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                        <PiCheckCircleBold className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {payment.customer_name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {payment.invoice_number} • {payment.method}
-                        </p>
-                      </div>
+        <SectionCard
+          title="Recent Payments"
+          action={
+            <Link href="/admin/payments/transactions">
+              <Button variant="ghost" size="sm">
+                View All <PiArrowRightBold className="h-4 w-4 ml-1" />
+              </Button>
+            </Link>
+          }
+        >
+          {recentPayments.length === 0 ? (
+            <EmptyState
+              icon={<PiCheckCircleBold />}
+              title="No recent payments"
+              description="Successful payments will show up here."
+            />
+          ) : (
+            <div className="space-y-3">
+              {recentPayments.map((payment) => (
+                <div
+                  key={payment.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-green-600">
-                        +{formatCurrency(payment.amount)}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatDate(payment.paid_at)}
+                    <div>
+                      <p className="font-medium text-gray-900">{payment.customer_name}</p>
+                      <p className="text-sm text-gray-500">
+                        {payment.invoice_number} · {payment.method}
                       </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  <div className="text-right">
+                    <p className="font-semibold text-green-600 tabular-nums">
+                      +{formatCurrency(payment.amount)}
+                    </p>
+                    <p className="text-xs text-gray-500">{formatDate(payment.paid_at)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </SectionCard>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Link href="/admin/billing/invoices">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
-                <PiFileTextBold className="h-6 w-6 text-circleTel-orange" />
-                <span>Manage Invoices</span>
-              </Button>
-            </Link>
-            <Link href="/admin/billing/customers">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
-                <PiUsersBold className="h-6 w-6 text-blue-500" />
-                <span>Customer Billing</span>
-              </Button>
-            </Link>
-            <Link href="/admin/billing/payment-methods">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
-                <PiCreditCardBold className="h-6 w-6 text-green-500" />
-                <span>Payment Methods</span>
-              </Button>
-            </Link>
-            <Link href="/admin/billing/cron-logs">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
-                <PiClockBold className="h-6 w-6 text-purple-500" />
-                <span>Cron Logs</span>
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+      <SectionCard title="Quick Actions">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Link href="/admin/billing/invoices">
+            <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
+              <PiFileTextBold className="h-6 w-6 text-circleTel-orange" />
+              <span>Manage Invoices</span>
+            </Button>
+          </Link>
+          <Link href="/admin/billing/customers">
+            <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
+              <PiUsersBold className="h-6 w-6 text-blue-500" />
+              <span>Customer Billing</span>
+            </Button>
+          </Link>
+          <Link href="/admin/billing/payment-methods">
+            <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
+              <PiCreditCardBold className="h-6 w-6 text-green-500" />
+              <span>Payment Methods</span>
+            </Button>
+          </Link>
+          <Link href="/admin/billing/cron-logs">
+            <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
+              <PiClockBold className="h-6 w-6 text-purple-500" />
+              <span>Cron Logs</span>
+            </Button>
+          </Link>
+        </div>
+      </SectionCard>
+    </AdminPage>
   );
 }

@@ -22,12 +22,12 @@ import { expireStaleTunnels } from '@/lib/ruijie';
  */
 export const ruijieTunnelCleanupFunction = inngest.createFunction(
   {
+
     id: 'ruijie-tunnel-cleanup',
     name: 'Ruijie Tunnel Cleanup',
     retries: 2,
-  },
-  { cron: '0 * * * *' },
-  async ({ step }) => {
+  triggers: { cron: '0 * * * *' },
+}, async ({ step }) => {
     const expiredCount = await step.run('expire-stale-tunnels', async () => {
       const count = await expireStaleTunnels();
       if (count > 0) {
