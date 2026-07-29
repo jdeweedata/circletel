@@ -3,7 +3,6 @@ import { PiListBold, PiMagnifyingGlass } from 'react-icons/pi';
 
 import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { Logo } from '@/components/navigation/Logo';
 import { DesktopNavigationMenu } from '@/components/navigation/NavigationMenu';
 import { MobileMenu } from '@/components/navigation/MobileMenu';
@@ -12,7 +11,29 @@ import { SearchModal, useSearchShortcut } from '@/components/navigation/SearchMo
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const COMPACT_NAV_SCROLL_OFFSET = 96;
+// Compact mode engages at 96px but only releases near the very top. The compact
+// header is ~56px shorter, and browser scroll anchoring shifts scrollY by that
+// delta when the header resizes — a single threshold bounces scrollY back and
+// forth across itself, looping the layout (header visibly vibrates at rest).
+const COMPACT_NAV_SCROLL_ENTER = 96;
+const COMPACT_NAV_SCROLL_EXIT = 24;
+// Desktop nav + both CTA buttons only fit comfortably from lg (1024px) up;
+// below that the row overflows and menu items slide under the logo.
+const COMPACT_NAV_BREAKPOINT = 1024;
+
+function useIsCompactNav() {
+  const [isCompactNav, setIsCompactNav] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${COMPACT_NAV_BREAKPOINT - 1}px)`);
+    const onChange = () => setIsCompactNav(window.innerWidth < COMPACT_NAV_BREAKPOINT);
+    mql.addEventListener('change', onChange);
+    setIsCompactNav(window.innerWidth < COMPACT_NAV_BREAKPOINT);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+
+  return !!isCompactNav;
+}
 
 export function getNavbarPresentation(hasScrolled: boolean, isMenuOpen: boolean) {
   const isCompact = hasScrolled && !isMenuOpen;
@@ -37,8 +58,8 @@ export function getNavbarPresentation(hasScrolled: boolean, isMenuOpen: boolean)
     ),
     logoClassName: isCompact ? 'max-h-14 transition-all duration-300 ease-out' : '',
     desktopActionsClassName: cn(
-      'hidden transition-all duration-300 ease-out md:flex md:items-center',
-      isCompact ? 'md:gap-1' : 'md:gap-2'
+      'hidden transition-all duration-300 ease-out lg:flex lg:items-center',
+      isCompact ? 'lg:gap-1' : 'lg:gap-2'
     ),
   };
 }
@@ -47,14 +68,17 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
-  const isMobile = useIsMobile();
+  const isCompactNav = useIsCompactNav();
 
   const openSearch = useCallback(() => setIsSearchOpen(true), []);
   useSearchShortcut(openSearch);
 
   useEffect(() => {
     const updateScrolledState = () => {
-      setHasScrolled(window.scrollY > COMPACT_NAV_SCROLL_OFFSET);
+      const scrollY = window.scrollY;
+      setHasScrolled((wasCompact) =>
+        wasCompact ? scrollY > COMPACT_NAV_SCROLL_EXIT : scrollY > COMPACT_NAV_SCROLL_ENTER
+      );
     };
 
     updateScrolledState();
@@ -106,7 +130,7 @@ export function Navbar() {
             </div>
 
             {/* Mobile Actions */}
-            {isMobile && (
+            {isCompactNav && (
               <div className="flex items-center gap-1">
                 {/* Mobile Search Button */}
                 <button
@@ -131,7 +155,7 @@ export function Navbar() {
           </div>
 
           {/* Mobile Navigation */}
-          {isMobile && (
+          {isCompactNav && (
             <MobileMenu
               isMenuOpen={isMenuOpen}
               setIsMenuOpen={setIsMenuOpen}

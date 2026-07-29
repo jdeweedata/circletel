@@ -1,7 +1,6 @@
-import { PiEnvelopeBold, PiFacebookLogoBold, PiLinkedinLogoBold, PiMapPinBold, PiXBold } from 'react-icons/pi';
+import { PiEnvelopeBold, PiFacebookLogoBold, PiLinkedinLogoBold, PiMapPinBold, PiWhatsappLogoBold, PiXLogoBold } from 'react-icons/pi';
 import React from 'react';
 import Link from 'next/link';
-import { FaWhatsapp } from 'react-icons/fa';
 import { Logo } from '@/components/navigation/Logo';
 import { CONTACT, getWhatsAppLink, formatAddressFooter } from '@/lib/constants/contact';
 
@@ -18,7 +17,7 @@ export const Footer = () => {
               rel="noopener noreferrer"
               className="flex items-center hover:text-white transition-colors"
             >
-              <FaWhatsapp size={18} className="mr-2 text-[#25D366]" />
+              <PiWhatsappLogoBold size={18} className="mr-2 text-[#25D366]" />
               <span className="text-circleTel-lightNeutral">{CONTACT.WHATSAPP_NUMBER}</span>
             </a>
             <div className="flex items-center">
@@ -41,14 +40,14 @@ export const Footer = () => {
               Making IT simple and affordable for businesses of all sizes. We provide expert IT services with a recipe for success.
             </p>
             <div className="mt-4 flex space-x-2">
-              <a href="https://www.facebook.com/circletelsa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
+              <a href="https://www.facebook.com/circletelsa" target="_blank" rel="noopener noreferrer" aria-label="CircleTel on Facebook" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
                 <PiFacebookLogoBold size={18} />
               </a>
-              <a href="https://www.linkedin.com/company/circle-tel-sa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
+              <a href="https://www.linkedin.com/company/circle-tel-sa" target="_blank" rel="noopener noreferrer" aria-label="CircleTel on LinkedIn" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
                 <PiLinkedinLogoBold size={18} />
               </a>
-              <a href="https://x.com/CircleTel" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
-                <PiXBold size={18} />
+              <a href="https://x.com/CircleTel" target="_blank" rel="noopener noreferrer" aria-label="CircleTel on X" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
+                <PiXLogoBold size={18} />
               </a>
             </div>
           </div>
