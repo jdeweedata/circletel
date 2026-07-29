@@ -459,7 +459,7 @@ export default function ProductDetailPage() {
                 </div>
 
                 {/* Detailed Cost Breakdown from metadata */}
-                {product.metadata?.cost_breakdown && (
+                {!!product.metadata?.cost_breakdown && (
                   <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
                     <p className="text-sm font-medium text-gray-900 mb-3">Cost Breakdown (Monthly)</p>
                     <div className="space-y-2 text-sm">
@@ -482,10 +482,10 @@ export default function ProductDetailPage() {
                         </span>
                       </div>
                     )}
-                    {product.metadata?.margin_percent && (
+                    {!!product.metadata?.margin_percent && (
                       <div className="mt-1 flex justify-between text-sm">
                         <span className="text-gray-600">Documented Margin</span>
-                        <span className="font-mono text-green-700">{product.metadata.margin_percent}%</span>
+                        <span className="font-mono text-green-700">{String(product.metadata.margin_percent)}%</span>
                       </div>
                     )}
                   </div>
@@ -495,8 +495,8 @@ export default function ProductDetailPage() {
                 {product.metadata?.margin_type === 'commission_only' && (
                   <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
                     <p className="text-sm font-medium text-amber-900 mb-1">Commission-Only Product</p>
-                    <p className="text-xs text-amber-700">{product.metadata?.cost_note}</p>
-                    {product.metadata?.estimated_commission_monthly && (
+                    <p className="text-xs text-amber-700">{String(product.metadata?.cost_note ?? '')}</p>
+                    {!!product.metadata?.estimated_commission_monthly && (
                       <p className="text-sm font-medium text-amber-900 mt-2">
                         Est. commission: {formatPrice(product.metadata.estimated_commission_monthly as number)}/mo
                       </p>
