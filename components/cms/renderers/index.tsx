@@ -140,7 +140,7 @@ function TextRenderer({ content, settings }: { content: TextContent; settings?: 
       )}
     >
       <div
-        className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-circleTel-orange"
+        className="typeset typeset-docs max-w-none"
         dangerouslySetInnerHTML={{ __html: content.html }}
       />
     </div>
