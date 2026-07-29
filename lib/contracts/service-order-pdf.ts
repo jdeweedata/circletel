@@ -163,6 +163,10 @@ export interface ServiceOrderInput {
   clinicProvince: string;
   clinicEmail: string;
   clinicPhone?: string;
+  /**
+   * Unjani MSA monthly fee **excluding VAT** (R450). Field name matches
+   * historical API; VAT is added on top for the incl-VAT display line.
+   */
   monthlyFeeExclVat: number;
   vatPercentage: number; // Usually 15
   billingDay: '1' | '15' | '20' | '25';
@@ -216,9 +220,11 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  // Calculate pricing
-  const vatAmount = input.monthlyFeeExclVat * (input.vatPercentage / 100);
-  const monthlyFeeInclVat = input.monthlyFeeExclVat + vatAmount;
+  // Unjani MSA: monthlyFeeExclVat is ex-VAT (R450); add VAT for collectible total.
+  const monthlyFeeNet = Math.round(input.monthlyFeeExclVat * 100) / 100;
+  const vatAmount =
+    Math.round(monthlyFeeNet * (input.vatPercentage / 100) * 100) / 100;
+  const monthlyFeeInclVat = Math.round((monthlyFeeNet + vatAmount) * 100) / 100;
 
   // Service Order number: SO-<account_number>
   const soNumber = `SO-${input.accountNumber}`;
@@ -322,7 +328,7 @@ export function generateServiceOrderPdf(input: ServiceOrderInput): jsPDF {
   doc.text('Monthly Fee (Excl. VAT):', leftCol + 5, serviceY);
   doc.setTextColor(...COLORS.darkText);
   doc.setFont('helvetica', 'bold');
-  doc.text(formatCurrency(input.monthlyFeeExclVat), leftCol + colWidth - 5, serviceY, { align: 'right' });
+  doc.text(formatCurrency(monthlyFeeNet), leftCol + colWidth - 5, serviceY, { align: 'right' });
 
   serviceY += 6;
   doc.setFont('helvetica', 'normal');

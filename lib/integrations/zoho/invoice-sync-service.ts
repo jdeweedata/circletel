@@ -16,6 +16,7 @@ import { ZohoBillingClient } from './billing-client';
 import { syncCustomerToZohoBilling } from './customer-sync-service';
 import { logZohoSync } from './billing-sync-logger';
 import { zohoLogger } from '@/lib/logging';
+import { buildZohoTaxInclusiveInvoicePayload } from '@/lib/billing/invoice-vat-contract';
 
 export interface InvoiceSyncResult {
   success: boolean;
@@ -104,25 +105,17 @@ export async function syncInvoiceToZohoBilling(
       customer_id: invoice.customer.zoho_billing_customer_id
     });
 
-    // Map line items from JSONB to ZOHO format
-    const lineItems = Array.isArray(invoice.line_items)
-      ? invoice.line_items.map((item: any) => ({
-          item_id: item.item_id || undefined,
-          name: item.name || item.description || 'Service',
-          description: item.description || undefined,
-          rate: parseFloat(item.price || item.rate || 0),
-          quantity: parseInt(item.quantity || 1),
-          // ZOHO calculates amount automatically: rate * quantity
-        }))
-      : [
-          // Fallback if no line items: create single line from total
-          {
-            name: getInvoiceDescription(invoice.invoice_type),
-            description: invoice.notes || undefined,
-            rate: parseFloat(invoice.total_amount || 0),
-            quantity: 1,
-          }
-        ];
+    // VAT-inclusive rates so Zoho Billing does not inflate collectible totals
+    const money = buildZohoTaxInclusiveInvoicePayload(
+      {
+        subtotal: invoice.subtotal,
+        tax_amount: invoice.tax_amount,
+        total_amount: invoice.total_amount,
+        line_items: invoice.line_items,
+        notes: invoice.notes,
+      },
+      getInvoiceDescription(invoice.invoice_type)
+    );
 
     // Build ZOHO Billing invoice payload
     const zohoPayload = {
@@ -133,8 +126,9 @@ export async function syncInvoiceToZohoBilling(
       payment_terms: invoice.payment_terms || 30, // Default 30 days
       payment_terms_label: invoice.payment_terms_label || 'Net 30',
 
-      // Line items
-      line_items: lineItems,
+      is_inclusive_tax: money.is_inclusive_tax,
+      // Line items (Billing client remaps to invoice_items)
+      line_items: money.line_items,
 
       // Notes and reference
       notes: invoice.notes || undefined,
