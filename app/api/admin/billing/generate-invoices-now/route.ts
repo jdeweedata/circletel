@@ -33,10 +33,14 @@ export async function POST(request: NextRequest) {
     const customerId =
       typeof body.customer_id === 'string' ? body.customer_id : undefined;
 
-    // service_ids from the old API are not supported — use customer_id + sole generator
+    // service_ids not supported on sole MonthlyInvoiceGenerator path — refuse rather than widen scope
     if (body.service_ids && Array.isArray(body.service_ids) && body.service_ids.length > 0) {
-      apiLogger.warn(
-        'generate-invoices-now: service_ids ignored; use customer_id or omit for all due today'
+      return NextResponse.json(
+        {
+          error:
+            'service_ids is not supported; pass customer_id for a single customer, or omit for all services due today',
+        },
+        { status: 400 }
       );
     }
 
@@ -48,8 +52,9 @@ export async function POST(request: NextRequest) {
       },
       {
         source: 'admin',
-        user_id: authResult.adminUser?.id,
-        user_email: authResult.adminUser?.email || undefined,
+        user_id: authResult.adminUser.id,
+        user_email: authResult.adminUser.email || undefined,
+        user_role: authResult.adminUser.role,
       }
     );
 

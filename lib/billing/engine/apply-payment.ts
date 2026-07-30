@@ -94,14 +94,16 @@ export async function applyPayment(
   if (paymentReference) patch.payment_reference = paymentReference;
   if (paymentMethod) patch.payment_method = paymentMethod;
 
-  const { error: updateError } = await supabase
+  // status last so it cannot be overridden; select to detect 0-row races
+  const { data: updated, error: updateError } = await supabase
     .from('customer_invoices')
     .update({
-      status: to,
       ...patch,
+      status: to,
     })
     .eq('id', invoiceId)
-    .eq('status', from);
+    .eq('status', from)
+    .select('id');
 
   if (updateError) {
     billingLogger.error('billingEngine.applyPayment failed', {
@@ -110,6 +112,18 @@ export async function applyPayment(
       source: audit.source,
     });
     throw new Error(`Failed to apply payment: ${updateError.message}`);
+  }
+
+  if (!updated || updated.length === 0) {
+    billingLogger.error('billingEngine.applyPayment concurrent conflict', {
+      invoiceId,
+      from,
+      to,
+      source: audit.source,
+    });
+    throw new Error(
+      `Concurrent status change detected for invoice ${invoiceId} (expected status '${from}')`
+    );
   }
 
   billingLogger.info('billingEngine.applyPayment', {

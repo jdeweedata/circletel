@@ -10,10 +10,18 @@ describe('invoice state machine', () => {
     expect(() => assertTransition('draft', 'sent')).not.toThrow();
   });
 
-  it('allows sent → paid | partial | overdue | cancelled | voided', () => {
-    for (const to of ['paid', 'partial', 'overdue', 'cancelled', 'voided'] as InvoiceDbStatus[]) {
+  it('allows sent → paid | partial | overdue | cancelled', () => {
+    for (const to of ['paid', 'partial', 'overdue', 'cancelled'] as InvoiceDbStatus[]) {
       expect(canTransition('sent', to)).toBe(true);
     }
+  });
+
+  it('rejects sent/paid → voided (use credit notes for issued invoices)', () => {
+    expect(canTransition('sent', 'voided')).toBe(false);
+    expect(canTransition('partial', 'voided')).toBe(false);
+    expect(canTransition('overdue', 'voided')).toBe(false);
+    expect(canTransition('paid', 'voided')).toBe(false);
+    expect(canTransition('draft', 'voided')).toBe(true);
   });
 
   it('rejects paid → sent (re-open)', () => {

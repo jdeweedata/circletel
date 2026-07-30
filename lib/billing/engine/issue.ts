@@ -12,6 +12,7 @@ function toAudit(audit?: EngineAuditContext): AuditContext | undefined {
   return {
     user_id: audit.user_id,
     user_email: audit.user_email,
+    user_role: audit.user_role,
     reason: audit.reason,
   };
 }

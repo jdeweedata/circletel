@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
         source: 'admin',
         user_id: authResult.user.id,
         user_email: authResult.user.email || undefined,
+        user_role: authResult.adminUser.role,
         reason,
       }
     )) as { id: string; credit_note_number?: string; total_amount?: number };

@@ -23,6 +23,8 @@ export type InvoiceType =
 export interface EngineAuditContext {
   user_id?: string;
   user_email?: string;
+  /** Admin role for invoice_audit_log.performed_by_role */
+  user_role?: string;
   source: 'cron' | 'admin' | 'webhook' | 'system' | 'simulation';
   reason?: string;
 }

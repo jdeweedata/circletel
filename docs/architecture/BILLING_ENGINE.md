@@ -29,6 +29,8 @@ DB constraint `valid_invoice_status`:
 
 Pure rules: `assertTransition` / `canTransition` in `state-machine.ts`.
 
+**Void policy:** only `draft → voided`. Issued invoices use **credit notes** (same as `CompliantBillingService.voidInvoice`).
+
 ## Public API
 
 ```typescript

@@ -7,13 +7,19 @@ import type { InvoiceDbStatus } from './types';
 
 export type { InvoiceDbStatus };
 
-/** from → allowed to[] */
+/**
+ * from → allowed to[]
+ *
+ * Void is draft-only (matches CompliantBillingService.voidInvoice).
+ * Issued / partial / overdue / paid → credit notes, not void.
+ * Paid has no outbound transitions (refunds via credit_notes).
+ */
 export const TRANSITION_TABLE: Record<InvoiceDbStatus, readonly InvoiceDbStatus[]> = {
   draft: ['sent', 'cancelled', 'voided'],
-  sent: ['paid', 'partial', 'overdue', 'cancelled', 'voided'],
-  partial: ['paid', 'partial', 'overdue', 'cancelled', 'voided'],
-  overdue: ['paid', 'partial', 'overdue', 'cancelled', 'voided'],
-  paid: ['voided'], // refunds/credits via credit_notes, not re-open
+  sent: ['paid', 'partial', 'overdue', 'cancelled'],
+  partial: ['paid', 'partial', 'overdue', 'cancelled'],
+  overdue: ['paid', 'partial', 'overdue', 'cancelled'],
+  paid: [],
   cancelled: [],
   voided: [],
 } as const;

@@ -18,6 +18,7 @@ function toAudit(audit?: EngineAuditContext): AuditContext | undefined {
   return {
     user_id: audit.user_id,
     user_email: audit.user_email,
+    user_role: audit.user_role,
     reason: audit.reason,
   };
 }
@@ -37,7 +38,35 @@ export async function generateRecurring(
     '@/lib/billing/monthly-invoice-generator'
   );
   const generator = new MonthlyInvoiceGenerator();
-  return generator.generateMonthlyInvoices(options);
+  const result = await generator.generateMonthlyInvoices(options);
+
+  // Restore BillingService behaviour: debit customer_billing.account_balance
+  // for each successfully generated invoice (skip dry-run).
+  if (!result.dryRun) {
+    const { BillingService } = await import('@/lib/billing/billing-service');
+    for (const r of result.results) {
+      if (!r.success || r.skipped || !r.customerId || !r.amount || !r.invoiceNumber) {
+        continue;
+      }
+      try {
+        await BillingService.updateAccountBalance(
+          r.customerId,
+          r.amount,
+          `Invoice ${r.invoiceNumber} generated`
+        );
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        billingLogger.error('billingEngine.generateRecurring balance update failed', {
+          customerId: r.customerId,
+          invoiceNumber: r.invoiceNumber,
+          error: message,
+        });
+        // Do not fail the whole run — invoice already exists; balance can be repaired
+      }
+    }
+  }
+
+  return result;
 }
 
 export async function generateInvoice(

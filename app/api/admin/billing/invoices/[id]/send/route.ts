@@ -28,6 +28,7 @@ export async function POST(
       source: 'admin',
       user_id: authResult.adminUser.id,
       user_email: authResult.adminUser.email || undefined,
+      user_role: authResult.adminUser.role,
     })) as { invoice_number?: string; pdf_url?: string };
 
     // Log admin action
