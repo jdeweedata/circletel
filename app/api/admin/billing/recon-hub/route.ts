@@ -155,19 +155,31 @@ function mapPaynowUnmatched(
   }));
 }
 
+/** Sources that count as NetCash / PayNow for daily cash match (not EFT/cashbook). */
+const NETCASH_QUEUE_SOURCES = [
+  'netcash_paynow',
+  'netcash',
+  'paynow',
+  'netcash_debit',
+] as const;
+
 /**
  * Pending reconciliation_queue rows are the durable store for PayNow cash
  * that never linked to a CT invoice (paynow recon upserts here).
+ * Restricted to NetCash sources and optional window bounds.
  */
 async function loadPendingQueueUnmatched(
-  supabase: Awaited<ReturnType<typeof createClient>>
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  windowFrom: string,
+  windowTo: string
 ): Promise<PaynowUnmatchedLike[]> {
   const { data, error } = await supabase
     .from('reconciliation_queue')
     .select(
-      'id, amount, source_date, source_reference, payer_reference, created_at'
+      'id, amount, source_date, source_reference, payer_reference, created_at, source'
     )
     .eq('status', 'pending')
+    .in('source', [...NETCASH_QUEUE_SOURCES])
     .order('source_date', { ascending: false })
     .limit(200);
 
@@ -178,18 +190,24 @@ async function loadPendingQueueUnmatched(
     return [];
   }
 
-  return (data ?? []).map((row) => ({
-    id: row.id as string,
-    amount: Number(row.amount ?? 0),
-    date:
-      (row.source_date as string) ||
-      (row.created_at as string) ||
-      new Date().toISOString(),
-    netcashRef:
-      (row.source_reference as string | null) ??
-      (row.payer_reference as string | null) ??
-      null,
-  }));
+  return (data ?? [])
+    .map((row) => ({
+      id: row.id as string,
+      amount: Number(row.amount ?? 0),
+      date:
+        (row.source_date as string) ||
+        (row.created_at as string) ||
+        new Date().toISOString(),
+      netcashRef:
+        (row.source_reference as string | null) ??
+        (row.payer_reference as string | null) ??
+        null,
+    }))
+    .filter((row) => {
+      // source_date may be date-only (YYYY-MM-DD) — compare as ISO prefix
+      const d = row.date.length === 10 ? `${row.date}T00:00:00.000Z` : row.date;
+      return inWindow(d, windowFrom, windowTo);
+    });
 }
 
 export async function GET(request: NextRequest) {
@@ -214,6 +232,7 @@ export async function GET(request: NextRequest) {
       queueUnmatched,
       sentInvoicesResult,
       overdueInvoicesResult,
+      partialInvoicesResult,
       paidInvoicesResult,
       activeServicesResult,
       failedPaymentsResult,
@@ -234,7 +253,7 @@ export async function GET(request: NextRequest) {
         .limit(PAYMENT_FETCH_LIMIT),
 
       loadPaynowRecon(supabase),
-      loadPendingQueueUnmatched(supabase),
+      loadPendingQueueUnmatched(supabase, windowFrom, windowTo),
 
       supabase
         .from('customer_invoices')
@@ -245,6 +264,11 @@ export async function GET(request: NextRequest) {
         .from('customer_invoices')
         .select('id, invoice_number, amount_due, status, invoice_date, due_date')
         .eq('status', 'overdue'),
+
+      supabase
+        .from('customer_invoices')
+        .select('id, invoice_number, amount_due, status, invoice_date, due_date')
+        .eq('status', 'partial'),
 
       supabase
         .from('customer_invoices')
@@ -351,17 +375,21 @@ export async function GET(request: NextRequest) {
       return p.zoho_sync_status === 'pending' || p.zoho_sync_status === 'failed';
     }).length;
 
-    // Prefer last-run unmatched details; fall back to pending queue
+    // Prefer last-run unmatched details (window-filtered); fall back to pending NetCash queue
     const fromLastRun = mapPaynowUnmatched(
       paynowRecon.unmatchedDetails,
       paynowRecon.lastRunAt ?? windowFrom
-    );
+    ).filter((row) => {
+      const d = row.date.length === 10 ? `${row.date}T00:00:00.000Z` : row.date;
+      return inWindow(d, windowFrom, windowTo);
+    });
     const paynowUnmatched: PaynowUnmatchedLike[] =
       fromLastRun.length > 0 ? fromLastRun : queueUnmatched;
 
     const openArRows: OpenArLike[] = [
       ...(sentInvoicesResult.data ?? []),
       ...(overdueInvoicesResult.data ?? []),
+      ...(partialInvoicesResult.data ?? []),
     ].map((inv) => ({
       id: inv.id as string,
       invoice_number: (inv.invoice_number as string | null) ?? null,
