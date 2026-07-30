@@ -41,6 +41,16 @@ describe('nextStatusAfterPayment', () => {
     ).toThrow(/voided/i);
   });
 
+  it('rejects non-finite amountPaidAfter', () => {
+    expect(() =>
+      nextStatusAfterPayment({
+        current: 'sent',
+        totalAmount: 100,
+        amountPaidAfter: Number.NaN,
+      })
+    ).toThrow(/finite/);
+  });
+
   it('rejects partial payment on draft', () => {
     expect(() =>
       nextStatusAfterPayment({
