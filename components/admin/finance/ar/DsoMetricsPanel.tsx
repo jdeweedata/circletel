@@ -1,78 +1,66 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency, TrendIcon, type ARAnalyticsData } from './shared';
+import { MetricCard } from '@/components/backend';
+import { TrendIcon, formatCurrency, type ARAnalyticsData } from './shared';
 
 export function DsoMetricsPanel({ data }: { data: ARAnalyticsData }) {
+  const gap = data.dso.dso_current - data.dso.best_possible_dso;
+
+  const performance = [
+    { label: 'Notifications sent', value: `${data.collection.total_notifications_sent}` },
+    { label: 'Amount collected', value: formatCurrency(data.collection.total_amount_collected) },
+    { label: 'Avg days to payment', value: data.collection.avg_days_to_payment.toFixed(1) },
+    { label: 'Response rate', value: `${data.collection.response_rate.toFixed(1)}%` },
+  ];
+
   return (
-    <>
+    <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Current DSO</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold">{data.dso.dso_current.toFixed(1)}</div>
-            <p className="text-muted-foreground">days</p>
-            <div className="mt-4 flex items-center gap-2">
-              <TrendIcon trend={data.dso.dso_trend} />
-              <span className="text-sm capitalize">{data.dso.dso_trend}</span>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Current DSO"
+          value={data.dso.dso_current.toFixed(1)}
+          subtitle="days"
+        >
+          <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
+            <TrendIcon trend={data.dso.dso_trend} />
+            <span className="capitalize">{data.dso.dso_trend}</span>
+          </span>
+        </MetricCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Best Possible DSO</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-green-600">{data.dso.best_possible_dso.toFixed(1)}</div>
-            <p className="text-muted-foreground">days</p>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Gap: {(data.dso.dso_current - data.dso.best_possible_dso).toFixed(1)} days
-            </p>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Best Possible DSO"
+          value={data.dso.best_possible_dso.toFixed(1)}
+          subtitle="days"
+          delta={`Gap: ${gap.toFixed(1)} days`}
+          deltaPositive={gap <= 0}
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Collection Effectiveness</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-blue-600">{data.dso.collection_effectiveness_index.toFixed(1)}%</div>
-            <p className="text-muted-foreground">CEI</p>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Target: 80%+
-            </p>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Collection Effectiveness"
+          value={`${data.dso.collection_effectiveness_index.toFixed(1)}%`}
+          subtitle="CEI"
+          delta="Target: 80%+"
+          deltaPositive={data.dso.collection_effectiveness_index >= 80}
+        />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Collection Performance</CardTitle>
+      <Card className="rounded-xl border-slate-200/80 shadow-sm bg-white">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold text-slate-900">
+            Collection Performance
+          </CardTitle>
+          <p className="text-xs text-slate-500">Notification volume and payment response</p>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold">{data.collection.total_notifications_sent}</div>
-              <p className="text-sm text-muted-foreground">Notifications Sent</p>
+        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {performance.map(({ label, value }) => (
+            <div key={label} className="rounded-xl border border-slate-100 bg-slate-50/50 p-3">
+              <p className="text-xs text-slate-500">{label}</p>
+              <p className="text-xl font-semibold tabular-nums text-slate-900 mt-1">{value}</p>
             </div>
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold">{formatCurrency(data.collection.total_amount_collected)}</div>
-              <p className="text-sm text-muted-foreground">Amount Collected</p>
-            </div>
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold">{data.collection.avg_days_to_payment.toFixed(1)}</div>
-              <p className="text-sm text-muted-foreground">Avg Days to Payment</p>
-            </div>
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold">{data.collection.response_rate.toFixed(1)}%</div>
-              <p className="text-sm text-muted-foreground">Response Rate</p>
-            </div>
-          </div>
+          ))}
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
