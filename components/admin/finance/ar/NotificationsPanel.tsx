@@ -1,163 +1,198 @@
 'use client';
 
+import { Cell, Pie, PieChart } from 'recharts';
 import { PiCalendarBold, PiChatBold, PiCheckCircleBold, PiEnvelopeBold, PiPulseBold, PiXCircleBold } from 'react-icons/pi';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
 import { StatusBadge, type StatusVariant } from '@/components/backend';
 import { CHANNEL_COLORS, formatCurrency, type ARAnalyticsData } from './shared';
 
+const chartConfig = {
+  value: { label: 'Sent' },
+  SMS: { label: 'SMS', color: CHANNEL_COLORS.sms },
+  Email: { label: 'Email', color: CHANNEL_COLORS.email },
+} satisfies ChartConfig;
+
+const NOTIF_STATUS_VARIANT: Record<string, StatusVariant> = {
+  sent: 'success',
+  delivered: 'success',
+  failed: 'error',
+  bounced: 'error',
+  opened: 'info',
+  clicked: 'info',
+};
+
+function notifStatusBadge(status: string) {
+  const label =
+    status === 'sent' || status === 'delivered'
+      ? 'Delivered'
+      : status.charAt(0).toUpperCase() + status.slice(1);
+  return <StatusBadge status={label} variant={NOTIF_STATUS_VARIANT[status] ?? 'neutral'} />;
+}
+
 export function NotificationsPanel({ data }: { data: ARAnalyticsData }) {
-  const notificationPieData = [
+  const channelData = [
     { name: 'SMS', value: data.notifications.total_sms, fill: CHANNEL_COLORS.sms },
     { name: 'Email', value: data.notifications.total_email, fill: CHANNEL_COLORS.email },
   ];
 
-  const NOTIF_STATUS_VARIANT: Record<string, StatusVariant> = {
-    sent: 'success',
-    delivered: 'success',
-    failed: 'error',
-    bounced: 'error',
-    opened: 'info',
-    clicked: 'info',
-  };
-
-  const getStatusBadge = (status: string) => {
-    const label =
-      status === 'sent' || status === 'delivered'
-        ? 'Delivered'
-        : status.charAt(0).toUpperCase() + status.slice(1);
-    return <StatusBadge status={label} variant={NOTIF_STATUS_VARIANT[status] ?? 'neutral'} />;
-  };
+  const deliveryTiles = [
+    {
+      label: 'Delivered',
+      value: `${data.notifications.total_delivered}`,
+      icon: <PiCheckCircleBold className="h-5 w-5 text-emerald-600" aria-hidden="true" />,
+    },
+    {
+      label: 'Failed',
+      value: `${data.notifications.total_failed}`,
+      icon: <PiXCircleBold className="h-5 w-5 text-red-600" aria-hidden="true" />,
+    },
+    {
+      label: 'Delivery rate',
+      value: `${data.notifications.delivery_rate.toFixed(1)}%`,
+      icon: <PiPulseBold className="h-5 w-5 text-blue-600" aria-hidden="true" />,
+    },
+    {
+      label: 'Avg days overdue',
+      value: data.ar_aging.avg_days_overdue.toFixed(0),
+      icon: <PiCalendarBold className="h-5 w-5 text-amber-600" aria-hidden="true" />,
+    },
+  ];
 
   return (
-    <>
+    <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Notification Breakdown */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Notification Channels</CardTitle>
+        <Card className="rounded-xl border-slate-200/80 shadow-sm bg-white">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-slate-900">
+              Notification Channels
+            </CardTitle>
+            <p className="text-xs text-slate-500">Share of sends by channel</p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
+            <ChartContainer config={chartConfig} className="aspect-auto h-[200px] w-full">
               <PieChart>
-                <Pie
-                  data={notificationPieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}`}
-                >
-                  {notificationPieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                <Pie data={channelData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={80} strokeWidth={2}>
+                  {channelData.map((entry) => (
+                    <Cell key={entry.name} fill={entry.fill} />
                   ))}
                 </Pie>
-                <Tooltip />
               </PieChart>
-            </ResponsiveContainer>
-            <div className="flex justify-center gap-4 mt-4">
-              <div className="flex items-center gap-2">
-                <PiChatBold className="h-4 w-4 text-blue-500" />
-                <span className="text-sm">SMS: {data.notifications.total_sms}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <PiEnvelopeBold className="h-4 w-4 text-purple-500" />
-                <span className="text-sm">Email: {data.notifications.total_email}</span>
-              </div>
+            </ChartContainer>
+            <div className="mt-3 flex justify-center gap-4 text-sm">
+              <span className="inline-flex items-center gap-2 text-slate-600">
+                <PiChatBold className="h-4 w-4" style={{ color: CHANNEL_COLORS.sms }} aria-hidden="true" />
+                SMS: <span className="tabular-nums font-medium text-slate-900">{data.notifications.total_sms}</span>
+              </span>
+              <span className="inline-flex items-center gap-2 text-slate-600">
+                <PiEnvelopeBold className="h-4 w-4" style={{ color: CHANNEL_COLORS.email }} aria-hidden="true" />
+                Email: <span className="tabular-nums font-medium text-slate-900">{data.notifications.total_email}</span>
+              </span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Delivery Stats */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Delivery Statistics</CardTitle>
+        <Card className="lg:col-span-2 rounded-xl border-slate-200/80 shadow-sm bg-white">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-slate-900">
+              Delivery Statistics
+            </CardTitle>
+            <p className="text-xs text-slate-500">Outcome of sends in the selected window</p>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                <PiCheckCircleBold className="h-6 w-6 mx-auto text-green-500 mb-2" />
-                <div className="text-xl font-bold">{data.notifications.total_delivered}</div>
-                <p className="text-sm text-muted-foreground">Delivered</p>
+          <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {deliveryTiles.map(({ label, value, icon }) => (
+              <div key={label} className="rounded-xl border border-slate-100 bg-slate-50/50 p-3">
+                {icon}
+                <p className="text-xs text-slate-500 mt-2">{label}</p>
+                <p className="text-xl font-semibold tabular-nums text-slate-900 mt-0.5">{value}</p>
               </div>
-              <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
-                <PiXCircleBold className="h-6 w-6 mx-auto text-red-500 mb-2" />
-                <div className="text-xl font-bold">{data.notifications.total_failed}</div>
-                <p className="text-sm text-muted-foreground">Failed</p>
-              </div>
-              <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                <PiPulseBold className="h-6 w-6 mx-auto text-blue-500 mb-2" />
-                <div className="text-xl font-bold">{data.notifications.delivery_rate.toFixed(1)}%</div>
-                <p className="text-sm text-muted-foreground">Delivery Rate</p>
-              </div>
-              <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-                <PiCalendarBold className="h-6 w-6 mx-auto text-purple-500 mb-2" />
-                <div className="text-xl font-bold">{data.ar_aging.avg_days_overdue.toFixed(0)}</div>
-                <p className="text-sm text-muted-foreground">Avg Days Overdue</p>
-              </div>
-            </div>
+            ))}
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Notifications Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Notifications</CardTitle>
-          <CardDescription>Last 20 notifications sent</CardDescription>
+      <Card className="rounded-xl border-slate-200/80 shadow-sm bg-white">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div>
+            <CardTitle className="text-base font-semibold text-slate-900">
+              Recent Notifications
+            </CardTitle>
+            <p className="text-xs text-slate-500">Last 20 notifications sent</p>
+          </div>
+          <span className="text-xs font-medium text-slate-500">
+            {data.recent_notifications.length} shown
+          </span>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Invoice</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Recipient</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Days Overdue</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Sent</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.recent_notifications.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                    No notifications sent yet
-                  </TableCell>
-                </TableRow>
-              ) : (
-                data.recent_notifications.map((notif) => (
-                  <TableRow key={notif.id}>
-                    <TableCell className="font-medium">{notif.invoice_number}</TableCell>
-                    <TableCell>
-                      {notif.notification_type === 'sms' ? (
-                        <Badge variant="outline" className="gap-1">
-                          <PiChatBold className="h-3 w-3" /> SMS
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="gap-1">
-                          <PiEnvelopeBold className="h-3 w-3" /> Email
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="max-w-[150px] truncate">{notif.recipient}</TableCell>
-                    <TableCell>{formatCurrency(notif.amount_due)}</TableCell>
-                    <TableCell>{notif.days_overdue} days</TableCell>
-                    <TableCell>{getStatusBadge(notif.status)}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(notif.created_at).toLocaleString('en-ZA')}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          {data.recent_notifications.length === 0 ? (
+            <div className="flex items-center justify-center rounded-xl border border-dashed border-slate-200 py-10 text-sm text-slate-400">
+              No notifications sent yet
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-xl border border-slate-200/80">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    {['Invoice', 'Type', 'Recipient', 'Amount', 'Days overdue', 'Status', 'Sent'].map((h, i) => (
+                      <th
+                        key={h}
+                        className={`px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-500 ${
+                          i === 3 || i === 4 ? 'text-right' : 'text-left'
+                        }`}
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {data.recent_notifications.map((notif) => (
+                    <tr key={notif.id} className="transition-colors hover:bg-slate-50">
+                      <td className="whitespace-nowrap px-3 py-2.5 font-medium text-slate-900">
+                        {notif.invoice_number}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2.5">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium text-slate-600">
+                          {notif.notification_type === 'sms' ? (
+                            <>
+                              <PiChatBold className="h-3 w-3" style={{ color: CHANNEL_COLORS.sms }} aria-hidden="true" />
+                              SMS
+                            </>
+                          ) : (
+                            <>
+                              <PiEnvelopeBold className="h-3 w-3" style={{ color: CHANNEL_COLORS.email }} aria-hidden="true" />
+                              Email
+                            </>
+                          )}
+                        </span>
+                      </td>
+                      <td className="max-w-[180px] truncate px-3 py-2.5 text-slate-700">
+                        {notif.recipient}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2.5 text-right font-semibold tabular-nums text-slate-900">
+                        {formatCurrency(notif.amount_due)}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums text-slate-600">
+                        {notif.days_overdue}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2.5">{notifStatusBadge(notif.status)}</td>
+                      <td className="whitespace-nowrap px-3 py-2.5 text-xs text-slate-500">
+                        {new Date(notif.created_at).toLocaleString('en-ZA')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
