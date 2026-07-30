@@ -64,6 +64,7 @@ export const ADMIN_WORKSPACE_ROUTES: ReadonlyArray<{
   // sales (coverage/checker must beat platform's /admin/coverage — longest-first handles it)
   { prefix: '/admin/coverage/checker', workspace: 'sales', module: 'coverage' },
   { prefix: '/admin/sales-engine', workspace: 'sales', module: 'sales' },
+  { prefix: '/admin/leads', workspace: 'sales', module: 'sales' },
   { prefix: '/admin/sales/feasibility', workspace: 'sales', module: 'coverage' },
   { prefix: '/admin/competitor-analysis', workspace: 'sales', module: 'sales' },
   { prefix: '/admin/products', workspace: 'sales', module: 'offers' },

@@ -110,6 +110,14 @@ const getPageInfo = (pathname: string): { title: string; description: string } =
     return { title: 'CMS Management', description: 'Manage website content' };
   }
 
+  // Leads follow-up queue
+  if (pathname.startsWith('/admin/leads')) {
+    if (pathname !== '/admin/leads' && pathname !== '/admin/leads/') {
+      return { title: 'Lead detail', description: 'Follow-up notes, owner, and first-response SLA' };
+    }
+    return { title: 'Leads', description: 'Coverage lead follow-up queue' };
+  }
+
   // Coverage
   if (pathname.startsWith('/admin/coverage')) {
     if (pathname.includes('/analytics')) {

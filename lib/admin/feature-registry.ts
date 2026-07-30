@@ -222,6 +222,12 @@ export const featureSections: NavSection[] = [
         ],
       },
       {
+        name: 'Leads',
+        href: '/admin/leads',
+        icon: PiUserPlusBold,
+        description: 'Coverage lead follow-up queue with first-response SLA',
+      },
+      {
         name: 'B2B Feasibility',
         href: '/admin/sales/feasibility',
         icon: PiLightningBold,
@@ -507,6 +513,7 @@ export const ITEM_WORKSPACE: Record<string, WorkspaceId> = {
   Quotes: 'sales',
   Suppliers: 'sales',
   'Sales Engine': 'sales',
+  Leads: 'sales',
   'B2B Feasibility': 'sales',
   'Coverage Checker': 'sales',
   'CPQ Builder': 'sales',
@@ -546,6 +553,7 @@ export const ITEM_MODULE: Record<string, ModuleId> = {
   Suppliers: 'offers',
   'CPQ Builder': 'offers',
   'Sales Engine': 'sales',
+  Leads: 'sales',
   Partners: 'sales',
   'Competitor Analysis': 'sales',
   Marketing: 'sales',
