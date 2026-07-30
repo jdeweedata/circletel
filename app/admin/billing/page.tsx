@@ -172,15 +172,6 @@ export default function BillingDashboard() {
         </div>
       </div>
 
-      {error && data && (
-        <div
-          role="alert"
-          className="rounded-xl border border-red-200/80 bg-red-50/80 shadow-sm px-4 py-3 text-sm text-red-800"
-        >
-          {error}
-        </div>
-      )}
-
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
           Supabase recon hub
@@ -193,6 +184,15 @@ export default function BillingDashboard() {
           </span>
         ) : null}
       </div>
+
+      {error && data && (
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200/80 bg-red-50/80 shadow-sm px-4 py-3 text-sm text-red-800"
+        >
+          {error}
+        </div>
+      )}
 
       {summary && (
         <>
