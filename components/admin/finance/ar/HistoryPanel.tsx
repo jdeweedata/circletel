@@ -107,7 +107,7 @@ export function HistoryPanel({ data }: { data: ARAnalyticsData }) {
               <Area
                 yAxisId="left"
                 dataKey="total_outstanding"
-                type="natural"
+                type="monotone"
                 fill="url(#fillOutstanding)"
                 stroke="var(--color-total_outstanding)"
                 strokeWidth={1.5}
@@ -115,7 +115,7 @@ export function HistoryPanel({ data }: { data: ARAnalyticsData }) {
               <Line
                 yAxisId="right"
                 dataKey="dso_current"
-                type="natural"
+                type="monotone"
                 stroke="var(--color-dso_current)"
                 strokeWidth={2}
                 dot={false}
@@ -171,7 +171,7 @@ export function HistoryPanel({ data }: { data: ARAnalyticsData }) {
               <Line
                 yAxisId="right"
                 dataKey="payments_received_amount"
-                type="natural"
+                type="monotone"
                 stroke="var(--color-payments_received_amount)"
                 strokeWidth={2}
                 dot={false}
