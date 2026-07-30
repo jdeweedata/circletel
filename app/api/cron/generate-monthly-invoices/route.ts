@@ -1,21 +1,19 @@
 /**
- * Monthly Invoice Generation Cron
+ * Sole recurring invoice generation cron (Phase 1b).
  *
- * Runs on 1st of month at 06:00 SAST (04:00 UTC)
- * Generates invoices for all active services, syncs to ZOHO, sends Pay Now notifications
+ * Schedule: daily 04:00 UTC so every billing_day is covered (was 1st-only;
+ * legacy daily + 25th BillingService crons disabled).
  *
  * Test modes:
  * - POST { "dryRun": true } - Preview what would be billed
  * - POST { "customerId": "xxx" } - Bill single customer
  * - POST { "billingDay": 15 } - Override billing day
  *
- * Vercel Cron: 0 4 1 * * (04:00 UTC on 1st = 06:00 SAST)
- *
  * @module app/api/cron/generate-monthly-invoices
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { MonthlyInvoiceGenerator } from '@/lib/billing/monthly-invoice-generator';
+import { billingEngine } from '@/lib/billing/engine';
 import { cronLogger } from '@/lib/logging';
 
 // Vercel cron configuration
@@ -70,15 +68,17 @@ export async function POST(request: NextRequest) {
       skipPayNow,
     });
 
-    // Run invoice generation
-    const generator = new MonthlyInvoiceGenerator();
-    const result = await generator.generateMonthlyInvoices({
-      dryRun,
-      billingDay,
-      customerId,
-      skipZohoSync,
-      skipPayNow,
-    });
+    // Sole generate authority — engine → MonthlyInvoiceGenerator
+    const result = await billingEngine.generateRecurring(
+      {
+        dryRun,
+        billingDay,
+        customerId,
+        skipZohoSync,
+        skipPayNow,
+      },
+      { source: 'cron' }
+    );
 
     const duration = Date.now() - startTime;
 

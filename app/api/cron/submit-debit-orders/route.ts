@@ -23,6 +23,7 @@ import {
   partitionByLimits,
   DebitOrderItem
 } from '@/lib/payments/netcash-debit-batch-service';
+import { billingEngine } from '@/lib/billing/engine';
 import { PayNowBillingService } from '@/lib/billing/paynow-billing-service';
 import { sendBatchAuthorisationAlert } from '@/lib/billing/debit-batch-alert';
 import { cronLogger } from '@/lib/logging';
@@ -427,7 +428,12 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   // ============================================================================
 
   const batchName = `CircleTel-${dateStr}-${Date.now()}`;
-  const batchResult = await netcashDebitBatchService.submitBatch(itemsToSubmit, batchName);
+  // Collection via billing engine → netcash_debit CollectionRail
+  const batchResult = await billingEngine.submitDebitCollection(
+    itemsToSubmit,
+    { source: 'cron' },
+    batchName
+  );
 
   if (!batchResult.success) {
     result.errors.push(...batchResult.errors);
@@ -435,10 +441,10 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     return result;
   }
 
-  result.batchId = batchResult.fileToken;
-  result.submitted = batchResult.itemsSubmitted;
+  result.batchId = batchResult.fileToken || batchResult.batchId;
+  result.submitted = batchResult.itemsSubmitted ?? itemsToSubmit.length;
 
-  cronLogger.info(`Batch submitted successfully: ${batchResult.fileToken}`);
+  cronLogger.info(`Batch submitted successfully: ${result.batchId}`);
 
   // ============================================================================
   // 5. Verify batch via load report
@@ -494,8 +500,8 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     await sendBatchAuthorisationAlert({
       batchType: 'bank_debit_order',
       batchName,
-      fileToken: batchResult.fileToken,
-      itemCount: batchResult.itemsSubmitted,
+      fileToken: batchResult.fileToken || result.batchId || '',
+      itemCount: batchResult.itemsSubmitted ?? itemsToSubmit.length,
       totalAmount: itemsToSubmit.reduce((sum, item) => sum + item.amount, 0),
       actionDate: itemsToSubmit[0].actionDate.toISOString().split('T')[0],
       loadReportStatus,

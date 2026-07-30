@@ -22,6 +22,7 @@ import {
   netcashCCDebitBatchService,
   CreditCardDebitItem,
 } from '@/lib/payments/netcash-cc-debit-batch-service';
+import { billingEngine } from '@/lib/billing/engine';
 import { sendBatchAuthorisationAlert } from '@/lib/billing/debit-batch-alert';
 import { cronLogger } from '@/lib/logging';
 
@@ -258,20 +259,25 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
   // ============================================================================
 
   const batchName = `CircleTel-CC-${dateStr}-${Date.now()}`;
-  const batchResult = await netcashCCDebitBatchService.submitBatch(eligibleItems, batchName);
+  // Collection via billing engine → netcash_cc_debit CollectionRail
+  const batchResult = await billingEngine.submitCCDebitCollection(
+    eligibleItems,
+    { source: 'cron' },
+    batchName
+  );
 
   if (!batchResult.success) {
     result.errors.push(...batchResult.errors);
-    result.warnings.push(...batchResult.warnings);
+    if (batchResult.warnings?.length) result.warnings.push(...batchResult.warnings);
     await logExecution(supabase, result, 'failed');
     return result;
   }
 
-  result.batchId = batchResult.batchId;
-  result.submitted = batchResult.itemsSubmitted;
-  result.warnings.push(...batchResult.warnings);
+  result.batchId = batchResult.batchId || batchResult.fileToken;
+  result.submitted = batchResult.itemsSubmitted ?? eligibleItems.length;
+  if (batchResult.warnings?.length) result.warnings.push(...batchResult.warnings);
 
-  cronLogger.info(`[CC Debit Cron] Batch submitted: ${batchResult.batchId}`);
+  cronLogger.info(`[CC Debit Cron] Batch submitted: ${result.batchId}`);
 
   // ============================================================================
   // 6. Authorise the batch
@@ -279,8 +285,8 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
 
   let authFailureReason: string | undefined;
 
-  if (batchResult.batchId) {
-    const authResult = await netcashCCDebitBatchService.authoriseBatch(batchResult.batchId);
+  if (result.batchId) {
+    const authResult = await netcashCCDebitBatchService.authoriseBatch(result.batchId);
 
     if (!authResult.success) {
       authFailureReason = `Auto-authorisation failed: ${authResult.error}`;
@@ -297,8 +303,8 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
     const alertResult = await sendBatchAuthorisationAlert({
       batchType: 'credit_card',
       batchName,
-      fileToken: batchResult.batchId,
-      itemCount: batchResult.itemsSubmitted,
+      fileToken: result.batchId || '',
+      itemCount: batchResult.itemsSubmitted ?? eligibleItems.length,
       totalAmount: eligibleItems.reduce((sum, item) => sum + item.amount, 0),
       actionDate: eligibleItems[0].actionDate.toISOString().split('T')[0],
       reason: authFailureReason,

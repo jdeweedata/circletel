@@ -32,8 +32,9 @@ const VENDOR_KEY = '24ade73c-98cf-47b3-99be-cc7b867b3080';
 //   DAILY_LIMIT — max batch total per action date
 //   WARN_RATIO  — warn once a batch crosses this fraction of the daily cap
 // ============================================================================
-const LINE_LIMIT_RANDS = Number(process.env.NETCASH_LINE_LIMIT_RANDS) || 1500;
-const DAILY_LIMIT_RANDS = Number(process.env.NETCASH_DAILY_LIMIT_RANDS) || 20000;
+/** Exported for CollectionRail adapters — do not re-hardcode elsewhere. */
+export const LINE_LIMIT_RANDS = Number(process.env.NETCASH_LINE_LIMIT_RANDS) || 1500;
+export const DAILY_LIMIT_RANDS = Number(process.env.NETCASH_DAILY_LIMIT_RANDS) || 20000;
 const DAILY_WARN_RATIO = Number(process.env.NETCASH_DAILY_WARN_RATIO) || 0.8;
 
 // ============================================================================

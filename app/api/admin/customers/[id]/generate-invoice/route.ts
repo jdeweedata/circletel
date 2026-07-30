@@ -1,10 +1,10 @@
 /**
  * Generate invoice for a customer's service
- * Uses the MonthlyInvoiceGenerator with single customer mode
+ * Sole path: billingEngine.generateRecurring (single customer mode)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { MonthlyInvoiceGenerator } from '@/lib/billing/monthly-invoice-generator';
+import { billingEngine } from '@/lib/billing/engine';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 export async function POST(
@@ -19,13 +19,18 @@ export async function POST(
     const body = await request.json().catch(() => ({}));
     const { serviceId, dryRun = false } = body;
 
-    const generator = new MonthlyInvoiceGenerator();
-
-    const result = await generator.generateMonthlyInvoices({
+    const result = await billingEngine.generateForCustomer(
       customerId,
-      dryRun,
-      billingDay: new Date().getDate(), // Use current day to bypass billing_day filter
-    });
+      {
+        dryRun,
+        billingDay: new Date().getDate(), // Use current day to bypass billing_day filter
+      },
+      {
+        source: 'admin',
+        user_id: authResult.adminUser?.id,
+        user_email: authResult.adminUser?.email || undefined,
+      }
+    );
 
     if (!result.results || result.results.length === 0) {
       return NextResponse.json({
