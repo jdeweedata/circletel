@@ -1,85 +1,132 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
 import { buildAgingBuckets, formatCurrency, type ARAnalyticsData } from './shared';
 
+const chartConfig = {
+  amount: { label: 'Outstanding' },
+} satisfies ChartConfig;
+
 export function ArAgingPanel({ data }: { data: ARAnalyticsData }) {
-  const agingChartData = buildAgingBuckets(data.ar_aging);
+  const buckets = buildAgingBuckets(data.ar_aging);
+  const total = data.ar_aging.total_outstanding_amount;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {/* Aging Bar Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>AR Aging Breakdown</CardTitle>
-          <CardDescription>Outstanding amounts by aging bucket</CardDescription>
+      <Card className="rounded-xl border-slate-200/80 shadow-sm bg-white">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold text-slate-900">
+            AR Aging Breakdown
+          </CardTitle>
+          <p className="text-xs text-slate-500">Outstanding amounts by aging bucket</p>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={agingChartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis tickFormatter={(v) => `R${(v / 1000).toFixed(0)}k`} />
-              <Tooltip
-                formatter={(value: number) => [formatCurrency(value), 'Amount']}
+          <ChartContainer config={chartConfig} className="aspect-auto h-[300px] w-full">
+            <BarChart accessibilityLayer data={buckets} margin={{ left: 8, right: 8, top: 8, bottom: 0 }}>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" />
+              <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                width={56}
+                tickFormatter={(v) => `R${(Number(v) / 1000).toFixed(0)}k`}
               />
-              <Bar dataKey="amount" radius={[4, 4, 0, 0]}>
-                {agingChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    indicator="dot"
+                    formatter={(value) => (
+                      <div className="flex w-full items-center justify-between gap-4">
+                        <span className="text-muted-foreground">Outstanding</span>
+                        <span className="font-mono font-medium tabular-nums text-foreground">
+                          {formatCurrency(Number(value))}
+                        </span>
+                      </div>
+                    )}
+                  />
+                }
+              />
+              <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
+                {buckets.map((bucket) => (
+                  <Cell key={bucket.name} fill={bucket.fill} />
                 ))}
               </Bar>
             </BarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </CardContent>
       </Card>
 
-      {/* Aging Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Aging Summary</CardTitle>
-          <CardDescription>Invoice counts and amounts by bucket</CardDescription>
+      <Card className="rounded-xl border-slate-200/80 shadow-sm bg-white">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold text-slate-900">Aging Summary</CardTitle>
+          <p className="text-xs text-slate-500">Invoice counts and amounts by bucket</p>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Bucket</TableHead>
-                <TableHead className="text-right">Invoices</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="text-right">%</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {agingChartData.map((bucket) => (
-                <TableRow key={bucket.name}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: bucket.fill }}
-                      />
-                      {bucket.name}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">{bucket.count}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(bucket.amount)}</TableCell>
-                  <TableCell className="text-right">
-                    {data.ar_aging.total_outstanding_amount > 0
-                      ? ((bucket.amount / data.ar_aging.total_outstanding_amount) * 100).toFixed(1)
-                      : 0}%
-                  </TableCell>
-                </TableRow>
-              ))}
-              <TableRow className="font-bold">
-                <TableCell>Total</TableCell>
-                <TableCell className="text-right">{data.ar_aging.total_outstanding_invoices}</TableCell>
-                <TableCell className="text-right">{formatCurrency(data.ar_aging.total_outstanding_amount)}</TableCell>
-                <TableCell className="text-right">100%</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+          <div className="overflow-x-auto rounded-xl border border-slate-200/80">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Bucket
+                  </th>
+                  <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Invoices
+                  </th>
+                  <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Amount
+                  </th>
+                  <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    %
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {buckets.map((bucket) => (
+                  <tr key={bucket.name} className="transition-colors hover:bg-slate-50">
+                    <td className="whitespace-nowrap px-3 py-2.5">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: bucket.fill }}
+                        />
+                        <span className="text-slate-700">{bucket.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 text-right tabular-nums text-slate-700">
+                      {bucket.count}
+                    </td>
+                    <td className="px-3 py-2.5 text-right font-semibold tabular-nums text-slate-900">
+                      {formatCurrency(bucket.amount)}
+                    </td>
+                    <td className="px-3 py-2.5 text-right tabular-nums text-slate-600">
+                      {total > 0 ? ((bucket.amount / total) * 100).toFixed(1) : '0.0'}%
+                    </td>
+                  </tr>
+                ))}
+                <tr className="border-t border-slate-200 bg-slate-50/60">
+                  <td className="px-3 py-2.5 font-semibold text-slate-900">Total</td>
+                  <td className="px-3 py-2.5 text-right font-semibold tabular-nums text-slate-900">
+                    {data.ar_aging.total_outstanding_invoices}
+                  </td>
+                  <td className="px-3 py-2.5 text-right font-semibold tabular-nums text-slate-900">
+                    {formatCurrency(total)}
+                  </td>
+                  <td className="px-3 py-2.5 text-right font-semibold tabular-nums text-slate-900">
+                    100%
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
     </div>
