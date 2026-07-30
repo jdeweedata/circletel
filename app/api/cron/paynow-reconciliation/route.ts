@@ -17,10 +17,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { netcashStatementService } from '@/lib/payments/netcash-statement-service';
 import { matchInvoiceByReference } from '@/lib/billing/invoice-matcher';
+import { billingEngine } from '@/lib/billing/engine';
 import { syncPaymentToZohoBilling } from '@/lib/integrations/zoho/payment-sync-service';
 import { cronLogger } from '@/lib/logging';
 import { inngest } from '@/lib/inngest';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const processLogId = uuidv4();
+    const processLogId = randomUUID();
 
     await inngest.send({
       name: 'paynow/reconciliation.requested',
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .json()
       .catch(() => ({})) as { date?: string; dryRun?: boolean };
 
-    const processLogId = uuidv4();
+    const processLogId = randomUUID();
 
     await inngest.send({
       name: 'paynow/reconciliation.requested',
@@ -326,21 +327,23 @@ export async function runPayNowReconciliation(
         continue;
       }
 
-      // ── 3d. Update invoice status to paid ─────────────────────────────────
-      const { error: invoiceError } = await supabase
-        .from('customer_invoices')
-        .update({
-          status: 'paid',
-          amount_paid: tx.amount,
-          paid_at: now,
-          payment_method: 'paynow',
-          payment_reference: reference,
-          updated_at: now,
-        })
-        .eq('id', invoice.id);
-
-      if (invoiceError) {
-        const msg = `Failed to update invoice ${invoice.invoice_number}: ${invoiceError.message}`;
+      // ── 3d. Update invoice via billing engine (applyPayment) ───────────────
+      try {
+        await billingEngine.applyPayment(
+          {
+            invoiceId: invoice.id,
+            amount: Number(tx.amount),
+            amountIsAbsolute: true,
+            paymentReference: reference,
+            paymentMethod: 'paynow',
+            paidAt: now,
+          },
+          { source: 'cron' }
+        );
+      } catch (applyErr) {
+        const msg = `Failed to update invoice ${invoice.invoice_number}: ${
+          applyErr instanceof Error ? applyErr.message : String(applyErr)
+        }`;
         cronLogger.error('[PayNowRecon] ' + msg);
         result.errors.push(msg);
         continue;

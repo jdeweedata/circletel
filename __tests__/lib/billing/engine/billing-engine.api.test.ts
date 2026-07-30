@@ -10,13 +10,9 @@ describe('billingEngine public API', () => {
     expect(typeof billingEngine.applyPayment).toBe('function');
     expect(typeof billingEngine.recordCollectionFailure).toBe('function');
     expect(typeof billingEngine.submitDebitCollection).toBe('function');
+    expect(typeof billingEngine.submitCCDebitCollection).toBe('function');
+    expect(typeof billingEngine.sendPayLink).toBe('function');
     expect(typeof billingEngine.createCreditNote).toBe('function');
     expect(typeof billingEngine.transitionStatus).toBe('function');
-  });
-
-  it('collection stubs still throw until Phase 1c', async () => {
-    await expect(billingEngine.submitDebitCollection({})).rejects.toThrow(/Task 5/);
-    await expect(billingEngine.applyPayment({})).rejects.toThrow(/Task 6/);
-    await expect(billingEngine.recordCollectionFailure({})).rejects.toThrow(/Task 6/);
   });
 });

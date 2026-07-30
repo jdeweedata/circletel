@@ -44,9 +44,11 @@ import { billingEngine, assertTransition } from '@/lib/billing/engine';
 | `issueInvoice` | draft → sent (+ side effects) | **1b live** |
 | `voidInvoice` | Void draft | **1b live** |
 | `createCreditNote` | Credit notes | **1b live** |
-| `submitDebitCollection` | CollectionRail debit | 1c (stub) |
-| `applyPayment` | Webhook/recon ledger apply | 1c (stub) |
-| `recordCollectionFailure` | Failure + alternate rail | 1c (stub) |
+| `submitDebitCollection` | CollectionRail `netcash_debit` | **1c live** |
+| `submitCCDebitCollection` | CollectionRail `netcash_cc_debit` | **1c live** |
+| `sendPayLink` | CollectionRail `netcash_paynow` | **1c live** |
+| `applyPayment` | Inbound ledger (not a rail) | **1c live** (paynow-recon uses it) |
+| `recordCollectionFailure` | FailedDebitHandler | **1c live** |
 
 **Cutover (locked):** delegate-first — call existing services; sole generate path.
 

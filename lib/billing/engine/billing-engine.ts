@@ -1,6 +1,6 @@
 /**
  * Billing engine public façade.
- * Phase 1b: generate / issue / credit wired (delegate-first).
+ * Phase 1c: collection rails + applyPayment wired (delegate-first).
  */
 
 import { createClient } from '@/lib/supabase/server';
@@ -12,6 +12,9 @@ import type {
   CreateCreditNoteParams,
   GenerateInvoiceParams,
 } from '@/lib/billing/compliant-billing-service';
+import type { DebitOrderItem } from '@/lib/payments/netcash-debit-batch-service';
+import type { CreditCardDebitItem } from '@/lib/payments/netcash-cc-debit-batch-service';
+import type { DebitFailureDetails } from '@/lib/billing/failed-debit-handler';
 import type { InvoiceDbStatus } from './state-machine';
 import type { EngineAuditContext } from './types';
 import { updateInvoiceStatus } from './writer';
@@ -21,6 +24,16 @@ import {
 } from './generate';
 import { issueInvoice as doIssueInvoice, voidInvoice as doVoidInvoice } from './issue';
 import { createCreditNote as doCreateCreditNote } from './credit';
+import {
+  recordCollectionFailure as doRecordCollectionFailure,
+  sendPayLink as doSendPayLink,
+  submitCCDebitCollection as doSubmitCCDebitCollection,
+  submitDebitCollection as doSubmitDebitCollection,
+} from './collect';
+import {
+  applyPayment as doApplyPayment,
+  type ApplyPaymentParams,
+} from './apply-payment';
 
 export const billingEngine = {
   async transitionStatus(
@@ -52,7 +65,6 @@ export const billingEngine = {
     return doGenerateRecurring(options, audit);
   },
 
-  /** Convenience: bill one customer via sole generate path */
   async generateForCustomer(
     customerId: string,
     options: Omit<MonthlyBillingOptions, 'customerId'> = {},
@@ -91,25 +103,40 @@ export const billingEngine = {
   },
 
   async submitDebitCollection(
-    _params: unknown,
-    _audit?: EngineAuditContext
-  ): Promise<unknown> {
-    throw new Error('billingEngine.submitDebitCollection not implemented — Task 5');
+    items: DebitOrderItem[],
+    audit: EngineAuditContext = { source: 'cron' },
+    batchName?: string
+  ) {
+    return doSubmitDebitCollection(items, audit, batchName);
+  },
+
+  async submitCCDebitCollection(
+    items: CreditCardDebitItem[],
+    audit: EngineAuditContext = { source: 'cron' },
+    batchName?: string
+  ) {
+    return doSubmitCCDebitCollection(items, audit, batchName);
+  },
+
+  async sendPayLink(
+    invoiceId: string,
+    options: Record<string, unknown> = {},
+    audit: EngineAuditContext = { source: 'system' }
+  ) {
+    return doSendPayLink(invoiceId, options, audit);
   },
 
   async applyPayment(
-    _params: unknown,
-    _audit?: EngineAuditContext
-  ): Promise<unknown> {
-    throw new Error('billingEngine.applyPayment not implemented — Task 6');
+    params: ApplyPaymentParams,
+    audit: EngineAuditContext = { source: 'webhook' }
+  ) {
+    return doApplyPayment(params, audit);
   },
 
   async recordCollectionFailure(
-    _params: unknown,
-    _audit?: EngineAuditContext
-  ): Promise<unknown> {
-    throw new Error(
-      'billingEngine.recordCollectionFailure not implemented — Task 6'
-    );
+    details: DebitFailureDetails,
+    audit: EngineAuditContext = { source: 'webhook' }
+  ) {
+    return doRecordCollectionFailure(details, audit);
   },
 };
