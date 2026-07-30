@@ -7,8 +7,9 @@ import {
   PiLinkBold,
   PiWarningBold,
 } from 'react-icons/pi';
-import { SectionCard, StatusBadge } from '@/components/admin/shared';
-import type { StatusVariant } from '@/components/admin/shared';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatusBadge } from '@/components/backend';
+import type { StatusVariant } from '@/components/backend';
 import { filterExceptions } from '@/lib/billing/recon-hub/build-exceptions';
 import type {
   ExceptionFilter,
@@ -104,15 +105,18 @@ export function ExceptionTable({ exceptions }: ExceptionTableProps) {
   }, [exceptions]);
 
   return (
-    <SectionCard
-      title="Exceptions"
-      action={
-        <span className="text-xs font-medium text-slate-500">
-          {rows.length} shown
-        </span>
-      }
-    >
-      <div className="space-y-4">
+    <Card className="border border-slate-200/80 shadow-sm rounded-xl bg-white">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div>
+          <CardTitle className="text-base font-semibold text-slate-900">Exceptions</CardTitle>
+          <p className="text-xs text-slate-500">
+            Unmatched cash, Zoho sync lag, and open AR needing action
+          </p>
+        </div>
+        <span className="text-xs font-medium text-slate-500">{rows.length} shown</span>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
         <div
           className="flex flex-wrap gap-2"
           role="tablist"
@@ -150,12 +154,12 @@ export function ExceptionTable({ exceptions }: ExceptionTableProps) {
         </div>
 
         {rows.length === 0 ? (
-          <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+          <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-6 text-sm text-slate-500">
             <PiWarningBold className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
             No exceptions for this filter.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-slate-200">
+          <div className="overflow-x-auto rounded-xl border border-slate-200/80">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50">
@@ -280,7 +284,8 @@ export function ExceptionTable({ exceptions }: ExceptionTableProps) {
             </table>
           </div>
         )}
-      </div>
-    </SectionCard>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
