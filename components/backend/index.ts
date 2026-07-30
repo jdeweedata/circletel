@@ -5,6 +5,8 @@
  */
 export { StatCard } from './StatCard';
 export type { StatCardProps } from './StatCard';
+export { MetricCard } from './MetricCard';
+export type { MetricCardProps } from './MetricCard';
 export { StatusBadge, getStatusVariant } from './StatusBadge';
 export type { StatusVariant } from './StatusBadge';
 export { PageHeader } from './PageHeader';
