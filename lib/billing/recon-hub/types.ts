@@ -77,3 +77,35 @@ export interface ReconWindowBounds {
   from: string;
   to: string;
 }
+
+/** Summary KPI block for GET /api/admin/billing/recon-hub */
+export interface ReconHubSummary {
+  window: ReconWindow;
+  windowFrom: string;
+  windowTo: string;
+  unmatchedNetcashToCt: number;
+  netcashCompletedInWindow: number;
+  netcashMatchedInWindow: number;
+  zohoPaymentLagCount: number;
+  dayDone: boolean;
+  paynowRecon: {
+    lastRunAt: string | null;
+    status: 'success' | 'partial' | 'failed' | null;
+    durationMs: number;
+    unmatchedFromLastRun: number;
+  };
+  zohoBooks: {
+    healthStatus: 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
+    failedEntityCount: number;
+  };
+  secondary: {
+    openAr: number;
+    collectedLast30Days: number;
+    activeServices: number;
+  };
+}
+
+export interface ReconHubResponse {
+  summary: ReconHubSummary;
+  exceptions: ReconExceptionRow[];
+}
