@@ -217,7 +217,7 @@ async function runEscalation(): Promise<NextResponse> {
     );
   }
 
-  const leads = (rows || []) as LeadRow[];
+  const leads = (rows || []) as unknown as LeadRow[];
   const candidates = leads.filter((lead) => shouldEscalate(lead.metadata, now));
 
   if (candidates.length === 0) {
