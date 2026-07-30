@@ -20,6 +20,14 @@ const SALES_TEAM_PHONE = process.env.SALES_TEAM_PHONE || '+27824873900';
 const SLACK_WEBHOOK_URL = process.env.SLACK_SALES_WEBHOOK_URL;
 const ENABLE_SALES_ALERTS = process.env.ENABLE_SALES_ALERTS !== 'false'; // Enabled by default
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
+const APP_BASE =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  'https://www.circletel.co.za';
+
+function adminLeadUrl(leadId: string): string {
+  return `${APP_BASE.replace(/\/$/, '')}/admin/leads/${leadId}`;
+}
 
 export interface CoverageLeadData {
   id: string;
@@ -119,7 +127,7 @@ export async function sendCoverageLeadAlert(
       result.errors?.push(`Zoho CRM sync failed: ${zohoResult.error}`);
     }
 
-    // Step 2: PiPaperPlaneRightBold Email Alert to Sales Team
+    // Step 2: Email Alert to Sales Team
     try {
       const emailResult = await EmailNotificationService.send({
         to: SALES_TEAM_EMAIL,
@@ -127,6 +135,7 @@ export async function sendCoverageLeadAlert(
         template: 'sales_coverage_lead_alert',
         data: {
           lead_id: leadData.id,
+          admin_lead_url: adminLeadUrl(leadData.id),
           customer_type: getCustomerTypeLabel(leadData.customer_type),
           customer_name: `${leadData.first_name} ${leadData.last_name}`,
           company_name: leadData.company_name,
@@ -187,7 +196,7 @@ export async function sendCoverageLeadAlert(
       }
     }
 
-    // Step 4: PiPaperPlaneRightBold Slack Notification (if configured)
+    // Step 4: Slack Notification (if configured)
     if (SLACK_WEBHOOK_URL) {
       try {
         await sendSlackNotification({
@@ -203,6 +212,7 @@ export async function sendCoverageLeadAlert(
           zohoLeadUrl: result.zohoLeadId
             ? `https://crm.zoho.com/crm/org123/tab/Leads/${result.zohoLeadId}`
             : undefined,
+          adminLeadUrl: adminLeadUrl(leadData.id),
         });
         result.slackSent = true;
       } catch (error) {
@@ -416,11 +426,13 @@ async function sendSlackNotification(data: {
   budgetRange?: string;
   coverageAvailable?: boolean;
   zohoLeadUrl?: string;
+  adminLeadUrl?: string;
 }): Promise<void> {
   if (!SLACK_WEBHOOK_URL) return;
 
   const coverageEmoji = data.coverageAvailable ? '✅' : '❌';
   const typeEmoji = data.customerType === 'enterprise' ? '🏢' : data.customerType === 'smme' ? '🏪' : '👤';
+  const leadAdminUrl = data.adminLeadUrl || adminLeadUrl(data.leadId);
 
   const slackPayload = {
     text: `${typeEmoji} New Lead: ${data.customerName}`,
@@ -498,7 +510,7 @@ async function sendSlackNotification(data: {
               text: 'View Lead Details',
               emoji: true,
             },
-            url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/leads/${data.leadId}`,
+            url: leadAdminUrl,
           },
         ],
       },

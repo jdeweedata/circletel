@@ -15,6 +15,7 @@ import type {
   WhatsAppMessageResponse,
   WhatsAppErrorResponse,
   SendTemplateRequest,
+  SendTextRequest,
   TemplateParameter,
   CircleTelTemplate,
   InvoicePaymentParams,
@@ -164,6 +165,87 @@ export class WhatsAppService {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to send WhatsApp message',
+      };
+    }
+  }
+
+  /**
+   * Send a free-form text message (requires open 24h customer service window).
+   * Use after inbound messages / flow completions — not for cold outreach.
+   */
+  async sendText(
+    to: string,
+    body: string,
+    options: { previewUrl?: boolean } = {}
+  ): Promise<WhatsAppSendResult> {
+    const config = this.getConfig();
+
+    if (!config.phoneNumberId || !config.accessToken) {
+      return {
+        success: false,
+        error: 'WhatsApp API not configured',
+      };
+    }
+
+    const text = body.trim();
+    if (!text) {
+      return { success: false, error: 'Message body is empty' };
+    }
+
+    const formattedPhone = this.formatPhoneNumber(to);
+    console.log(`[WhatsApp] Sending text message to ${formattedPhone}`);
+
+    const payload: SendTextRequest = {
+      messaging_product: 'whatsapp',
+      to: formattedPhone,
+      type: 'text',
+      text: {
+        body: text,
+        preview_url: options.previewUrl ?? false,
+      },
+    };
+
+    try {
+      const response = await fetch(
+        `${config.baseUrl}/${config.phoneNumberId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${config.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = (await response.json()) as
+        | WhatsAppMessageResponse
+        | WhatsAppErrorResponse;
+
+      if (!response.ok || 'error' in data) {
+        const errorData = data as WhatsAppErrorResponse;
+        console.error('[WhatsApp] Text API error:', errorData);
+        return {
+          success: false,
+          error: errorData.error?.message || `HTTP ${response.status}`,
+          errorCode: errorData.error?.code,
+        };
+      }
+
+      const successData = data as WhatsAppMessageResponse;
+      const messageId = successData.messages?.[0]?.id;
+      const waId = successData.contacts?.[0]?.wa_id;
+
+      console.log(`[WhatsApp] Text message sent: ${messageId}`);
+      return { success: true, messageId, waId };
+    } catch (error) {
+      console.error('[WhatsApp] Text send error:', error);
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to send WhatsApp text message',
       };
     }
   }

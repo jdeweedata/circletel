@@ -2,7 +2,8 @@
  * WhatsApp Flow completion handler (nfm_reply → coverage_leads).
  *
  * Deterministic CRM write — no LLM in the control plane.
- * Sales alert / confirmation are optional injectables (wired in Task A4).
+ * Sales alert / confirmation via optional `onLeadCreated` (default: webhook wires
+ * `onF1LeadCreated` from f1-lead-notifications).
  */
 
 import { computeFirstResponseDueAt } from '@/lib/leads/first-response-sla';
@@ -53,7 +54,7 @@ export interface LeadCreatedHookContext {
 
 export interface FlowResponseHandlerDeps {
   supabase: FlowSessionSupabase;
-  /** Optional — Task A4 wires confirmation + sales alert here */
+  /** Optional — confirmation + sales alert (webhook uses onF1LeadCreated) */
   onLeadCreated?: (ctx: LeadCreatedHookContext) => Promise<void>;
   /** Injectable clock for SLA / tests */
   now?: () => Date;

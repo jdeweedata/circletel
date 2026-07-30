@@ -68,7 +68,14 @@ export {
   type FlowCompletionResult,
   type FlowResponseHandlerDeps,
   type FlowCompletionReason,
+  type LeadCreatedHookContext,
 } from './flows/flow-response-handler';
+
+export {
+  notifyF1LeadCreated,
+  onF1LeadCreated,
+  type F1LeadNotificationResult,
+} from './flows/f1-lead-notifications';
 
 export type {
   F1LeadQualificationResponse,

@@ -15,6 +15,7 @@ import {
   whatsAppService,
   handleFlowCompletion,
 } from '@/lib/integrations/whatsapp';
+import { onF1LeadCreated } from '@/lib/integrations/whatsapp/flows/f1-lead-notifications';
 import type {
   WebhookPayload,
   WebhookStatusUpdate,
@@ -152,7 +153,10 @@ async function processInboundMessages(messages: WebhookMessage[]): Promise<void>
         }
       );
 
-      const result = await handleFlowCompletion(message, { supabase });
+      const result = await handleFlowCompletion(message, {
+        supabase,
+        onLeadCreated: onF1LeadCreated,
+      });
       console.log('[WhatsApp Webhook] Flow completion handled', {
         messageId: message.id,
         from: message.from,
