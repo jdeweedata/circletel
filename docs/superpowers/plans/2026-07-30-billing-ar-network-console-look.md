@@ -117,7 +117,17 @@ Then browse `http://localhost:3000/admin/...`. Without the env var you get redir
 | `components/admin/finance/ar/NotificationsPanel.tsx` | CREATE. Channel donut, delivery stats, recent notifications table. |
 | `components/admin/finance/ar/HistoryPanel.tsx` | CREATE. AR/DSO trend + notifications/collections charts. |
 
-**Total: 16 files.** The spec estimated 15; `shared.tsx` is the addition — the four panels need the formatters and the `ARAnalyticsData` type that currently live inside `page.tsx`, and duplicating them across four files would violate DRY.
+**Total: 17 files changed** — 16 under `app/`/`components/` plus `docs/design/BACKEND_UI_KIT.md`.
+
+Count reconciliation against the spec's estimate of 15:
+
+| | Files |
+|---|---|
+| Spec estimate | 15 |
+| `+ components/admin/finance/ar/shared.tsx` | 16 |
+| `+ components/admin/finance/ar/index.ts` | 17 |
+
+Both additions are new files inside the already-approved `components/admin/finance/ar/` directory. `shared.tsx` holds the `ARAnalyticsData` type, the aging/channel colour constants, and the formatters that currently live inside `page.tsx` — all four panels need them, and duplicating them four times would violate DRY. `index.ts` is the barrel, matching the `performance/index.ts` convention.
 
 ---
 
@@ -1114,7 +1124,7 @@ export {
 export type { ARAnalyticsData, AgingBucket } from './shared';
 ```
 
-This makes 17 files total, not 16 — the barrel matches the convention of `components/admin/network/performance/index.ts` and keeps `page.tsx`'s import to one line.
+The barrel matches the convention of `components/admin/network/performance/index.ts` and keeps `page.tsx`'s import to one line. It is the 17th changed file — see the count reconciliation under File Structure.
 
 - [ ] **Step 4: Rewrite `page.tsx` to fetch + header + tabs wiring only**
 
@@ -2268,7 +2278,7 @@ git diff --stat origin/main...HEAD
 git diff --name-only origin/main...HEAD | grep -E "^(app|components|lib)/" | sort
 ```
 
-Expected exactly these 17 paths, and nothing else — in particular **no `app/admin/network/*` and no `lib/*`**:
+Expected exactly these 16 code paths, and nothing else — in particular **no `app/admin/network/*` and no `lib/*`**. (`docs/design/BACKEND_UI_KIT.md` is the 17th changed file but is filtered out by the `grep`.)
 
 ```
 app/admin/billing/page.tsx
@@ -2423,7 +2433,7 @@ EOF
 
 **Deviations from the spec, and why**
 
-1. **File count 15 → 17.** `shared.tsx` (types, colours, formatters needed by all four panels — duplicating across four files would violate DRY) and `index.ts` (barrel, matching the `performance/index.ts` convention). Both are new files in the already-approved `components/admin/finance/ar/` directory.
+1. **File count 15 → 17** (16 code + 1 doc). Additions: `shared.tsx` (types, colours, formatters needed by all four panels — duplicating across four files would violate DRY) and `index.ts` (barrel, matching the `performance/index.ts` convention). Both are new files in the already-approved `components/admin/finance/ar/` directory. Reconciliation table under File Structure.
 2. **Success criterion 3 verification method strengthened.** The spec called for screenshot-diffing the three network pages. Task 1 instead proves the `MetricCard` render body is byte-identical via `diff`, which is deterministic and cheaper; the visual check in Task 13 Step 6 is retained as confirmation. Screenshot diffing would also have needed image tooling the repo does not have.
 3. **No component tests, and none written.** The spec assumed nothing here, but the plan states it explicitly: there is no working component-test infrastructure and a restyle adds no logic, so tests would be fake (Rule 11) and would need 4 new dev deps (Rule 12).
 4. **`ComposedChart` in Task 12.** The current code nests `<Line>` inside `<AreaChart>`/`<BarChart>`; Recharts needs `ComposedChart` for mixed marks. This is a correctness fix inside a file already being rewritten, not scope creep — and without it the restyled history charts would silently drop a series.
