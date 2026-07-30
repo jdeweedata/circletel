@@ -22,7 +22,7 @@ export function DayDoneBanner({
     return (
       <div
         role="status"
-        className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3"
+        className="flex items-start gap-3 rounded-xl border border-green-200/80 bg-green-50/80 shadow-sm px-4 py-3"
       >
         <PiCheckCircleBold
           className="mt-0.5 h-5 w-5 shrink-0 text-green-600"
@@ -48,7 +48,7 @@ export function DayDoneBanner({
   return (
     <div
       role="alert"
-      className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3"
+      className="flex items-start gap-3 rounded-xl border border-red-200/80 bg-red-50/80 shadow-sm px-4 py-3"
     >
       <PiWarningCircleBold
         className="mt-0.5 h-5 w-5 shrink-0 text-red-600"

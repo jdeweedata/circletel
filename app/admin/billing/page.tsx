@@ -4,10 +4,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   PiArrowsClockwiseBold,
+  PiClockBold,
   PiFileTextBold,
   PiPlayBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -17,7 +19,6 @@ import {
 } from '@/components/ui/select';
 import {
   AdminPage,
-  PageHeader,
   LoadingState,
   ErrorState,
 } from '@/components/backend';
@@ -128,58 +129,66 @@ export default function BillingDashboard() {
 
   return (
     <AdminPage>
-      <PageHeader
-        title="Billing"
-        subtitle="Daily cash match — NetCash completed payments to CircleTel invoices"
-        actions={
-          <>
-            <Select
-              value={window}
-              onValueChange={(value) => setWindow(value as ReconWindow)}
-            >
-              <SelectTrigger className="w-[160px]" aria-label="Recon window">
-                <SelectValue placeholder="Window" />
-              </SelectTrigger>
-              <SelectContent>
-                {WINDOW_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              onClick={fetchHub}
-              disabled={loading || triggerLoading}
-            >
-              <PiArrowsClockwiseBold
-                className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`}
-              />
-              Refresh
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleTriggerPayNow}
-              disabled={triggerLoading || loading}
-            >
-              <PiPlayBold className="h-4 w-4 mr-2" />
-              {triggerLoading ? 'Triggering…' : 'Trigger PayNow recon'}
-            </Button>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <p className="text-xs text-slate-400 mb-1">Finance / Billing / Cash Match</p>
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Billing</h1>
+          <p className="text-slate-500 mt-1 text-sm">
+            Daily cash match — NetCash completed payments to CircleTel invoices
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={window} onValueChange={(value) => setWindow(value as ReconWindow)}>
+            <SelectTrigger className="w-[160px] rounded-lg border-slate-200" aria-label="Recon window">
+              <SelectValue placeholder="Window" />
+            </SelectTrigger>
+            <SelectContent>
+              {WINDOW_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" onClick={fetchHub} disabled={loading || triggerLoading}>
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleTriggerPayNow}
+            disabled={triggerLoading || loading}
+          >
+            <PiPlayBold className="w-4 h-4 mr-2" />
+            {triggerLoading ? 'Triggering…' : 'Trigger PayNow recon'}
+          </Button>
+          <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange-dark" asChild>
             <Link href="/admin/billing/invoices">
-              <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
-                <PiFileTextBold className="h-4 w-4 mr-2" />
-                View All Invoices
-              </Button>
+              <PiFileTextBold className="w-4 h-4 mr-2" />
+              View All Invoices
             </Link>
-          </>
-        }
-      />
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
+          Supabase recon hub
+        </Badge>
+        <span className="text-xs text-slate-400">Window · {windowLabel(window)}</span>
+        {summary ? (
+          <span className="text-xs text-slate-500">
+            {summary.netcashCompletedInWindow} NetCash completed ·{' '}
+            {summary.netcashMatchedInWindow} matched
+          </span>
+        ) : null}
+      </div>
 
       {error && data && (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          className="rounded-xl border border-red-200/80 bg-red-50/80 shadow-sm px-4 py-3 text-sm text-red-800"
         >
           {error}
         </div>
@@ -212,6 +221,13 @@ export default function BillingDashboard() {
       <ExceptionTable exceptions={data?.exceptions ?? []} />
 
       <DeepLinks />
+
+      <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-slate-500">
+        <span className="inline-flex items-center gap-2">
+          <PiClockBold className="w-4 h-4" aria-hidden="true" />
+          {loading ? 'Refreshing…' : `Recon window · ${windowLabel(window)}`}
+        </span>
+      </div>
     </AdminPage>
   );
 }

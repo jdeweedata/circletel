@@ -3,7 +3,7 @@
 Shared component primitives for the **admin** (`/admin/*`) and **consumer** (`/dashboard/*`) dashboards. One kit, one look — so both surfaces feel like the same product.
 
 - **Home:** `components/backend/` — import from `@/components/backend`.
-- **Reference look:** the consumer billing dashboard (`app/dashboard/billing/page.tsx`) and the migrated admin billing hub (`app/admin/billing/*`). — functional minimalism: white surfaces, soft gray borders, restrained orange accent, generous spacing, `tabular-nums` numbers.
+- **Reference look:** the network console (`app/admin/network/analytics`, `app/admin/network/devices`) — functional minimalism on `slate`: white surfaces, `border-slate-200/80`, `rounded-xl`, `shadow-sm`, breadcrumb eyebrow above the H1, outline `size="sm"` action rows, source/freshness meta strips, `tabular-nums` numbers, restrained orange accent.
 - **Tokens:** reuse `tailwind.config.ts` (`circleTel.*`), `app/globals.css`, `DESIGN.md`, `lib/design-system.ts`. Do not invent new tokens.
 
 ## Principles
@@ -20,7 +20,8 @@ Shared component primitives for the **admin** (`/admin/*`) and **consumer** (`/d
 | `AdminPage` | Page body shell (`space-y-6`). No extra padding/min-h-screen — AdminLayout already shells. |
 | `PageHeader` | List/index page title + subtitle + actions. (Detail pages → `DetailPageHeader`.) |
 | `DetailPageHeader` | Detail title + optional breadcrumbs/status. Type scale matches `PageHeader`. |
-| `StatCard` | Metric cards. Replaces inline stat `<div>`s, admin `StatCard`, and `ModernStatCard`. |
+| `MetricCard` | **Preferred** metric card — network console look. Label above, big `font-semibold` value, optional `children` (icon or inline chart) below. |
+| `StatCard` | Legacy metric card (gray, three layout variants). Retained for unmigrated pages — prefer `MetricCard` for new work. |
 | `StatusBadge` + `getStatusVariant` | Every status pill. Map raw DB strings with `getStatusVariant()`. |
 | `SectionCard` | Card with a header for grouped content. |
 | `InfoRow` | Key/value rows in detail panels. |
@@ -69,6 +70,14 @@ import { PiFileTextBold } from 'react-icons/pi';
 5. Loading/empty/error blocks → `LoadingState` / `EmptyState` / `ErrorState`.
 6. Tabs → `ConsoleTabsList` / `ConsoleTabsContent` (where tabs exist).
 7. `npm run type-check:memory`; visual-diff against the billing hub / consumer billing reference.
+
+## Colour that carries meaning
+
+Status colour comes only from `StatusBadge`/`getStatusVariant`. Beyond that, some
+surfaces use colour as *data* — AR aging buckets (green→dark-red by age), notification
+channels (SMS blue / Email purple), cash-match day-done state (green/red), and exception
+severity (red/amber). Preserve those hues when restyling; do not flatten them into the
+chart palette. Consistency of *chrome* (grid, axes, tooltips, card shells), not of hue.
 
 ## Back-compat
 
