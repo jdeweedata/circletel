@@ -11,3 +11,5 @@ export {
 } from './state-machine';
 export type { InvoiceDbStatus } from './state-machine';
 export type { EngineAuditContext, InvoiceType } from './types';
+// Re-export option types for cron/admin callers
+export type { MonthlyBillingOptions, MonthlyBillingResult } from '@/lib/billing/monthly-invoice-generator';

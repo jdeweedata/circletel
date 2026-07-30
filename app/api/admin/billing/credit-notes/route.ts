@@ -6,7 +6,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { CompliantBillingService, CreditNoteReason } from '@/lib/billing/compliant-billing-service';
+import type { CreditNoteReason } from '@/lib/billing/compliant-billing-service';
+import { billingEngine } from '@/lib/billing/engine';
 import { apiLogger } from '@/lib/logging';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
@@ -47,23 +48,22 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Create credit note
-    const creditNote = await CompliantBillingService.createCreditNote(
+    const creditNote = (await billingEngine.createCreditNote(
       {
         original_invoice_id,
         line_items,
         reason,
         reason_category,
         notes,
-        auto_apply
+        auto_apply,
       },
       {
+        source: 'admin',
         user_id: authResult.user.id,
         user_email: authResult.user.email || undefined,
-        user_role: authResult.adminUser.role,
-        reason
+        reason,
       }
-    );
+    )) as { id: string; credit_note_number?: string; total_amount?: number };
 
     // Log admin action
     await supabase
@@ -89,9 +89,11 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: unknown) {
-    apiLogger.error('Create credit note failed:', error);
+    const message =
+      error instanceof Error ? error.message : 'Failed to create credit note';
+    apiLogger.error('Create credit note failed', { error: message });
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to create credit note' },
+      { success: false, error: message },
       { status: 500 }
     );
   }
@@ -147,9 +149,11 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: unknown) {
-    apiLogger.error('List credit notes failed:', error);
+    const message =
+      error instanceof Error ? error.message : 'Failed to list credit notes';
+    apiLogger.error('List credit notes failed', { error: message });
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to list credit notes' },
+      { success: false, error: message },
       { status: 500 }
     );
   }

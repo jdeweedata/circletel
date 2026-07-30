@@ -38,15 +38,27 @@ import { billingEngine, assertTransition } from '@/lib/billing/engine';
 | Method | Role | Phase |
 |--------|------|-------|
 | `transitionStatus` | Load status → assert → update via writer | **1a live** |
-| `generateRecurring` | Monthly recurring generate | 1b (stub) |
-| `generateInvoice` | Ad-hoc generate | 1b (stub) |
-| `issueInvoice` | draft → sent (+ side effects) | 1b (stub) |
-| `createCreditNote` | Credit notes | 1b (stub) |
+| `generateRecurring` | Monthly recurring generate | **1b live** (→ MonthlyInvoiceGenerator) |
+| `generateForCustomer` | Single-customer generate | **1b live** |
+| `generateInvoice` | Ad-hoc generate | **1b live** (→ CompliantBillingService) |
+| `issueInvoice` | draft → sent (+ side effects) | **1b live** |
+| `voidInvoice` | Void draft | **1b live** |
+| `createCreditNote` | Credit notes | **1b live** |
 | `submitDebitCollection` | CollectionRail debit | 1c (stub) |
 | `applyPayment` | Webhook/recon ledger apply | 1c (stub) |
 | `recordCollectionFailure` | Failure + alternate rail | 1c (stub) |
 
-**Cutover (locked):** delegate-first — stubs will call existing services before internalizing writes.
+**Cutover (locked):** delegate-first — call existing services; sole generate path.
+
+## Sole generate cron (1b)
+
+| Path | Status |
+|------|--------|
+| `POST /api/cron/generate-monthly-invoices` | **Active** — daily `0 4 * * *` UTC; calls `billingEngine.generateRecurring` |
+| `/api/cron/generate-invoices` | **Disabled** (410) — removed from vercel.json |
+| `/api/cron/generate-invoices-25th` | **Disabled** (410) — removed from vercel.json |
+
+After deploy, regenerate host crontab: `ops/scheduler/generate-crontab.sh | crontab -`
 
 ## Writer boundary
 

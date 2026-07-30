@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { CompliantBillingService } from '@/lib/billing/compliant-billing-service';
+import { billingEngine } from '@/lib/billing/engine';
 import { apiLogger } from '@/lib/logging';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
@@ -32,12 +32,11 @@ export async function POST(
 
     const supabase = await createClient();
 
-    // Void invoice
-    const result = await CompliantBillingService.voidInvoice(invoiceId, reason, {
+    const result = await billingEngine.voidInvoice(invoiceId, reason, {
+      source: 'admin',
       user_id: authResult.adminUser.id,
       user_email: authResult.adminUser.email || undefined,
-      user_role: authResult.adminUser.role,
-      reason
+      reason,
     });
 
     // Log admin action
@@ -54,13 +53,14 @@ export async function POST(
     return NextResponse.json({
       success: true,
       message: 'Invoice voided successfully',
-      ...result
+      result,
     });
 
   } catch (error: unknown) {
-    apiLogger.error('Void invoice failed:', error);
+    const message = error instanceof Error ? error.message : 'Failed to void invoice';
+    apiLogger.error('Void invoice failed', { error: message });
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to void invoice' },
+      { success: false, error: message },
       { status: 500 }
     );
   }

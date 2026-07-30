@@ -1,6 +1,6 @@
 /**
- * Billing engine public façade (Phase 1a skeleton).
- * Delegate-first implementations land in Tasks 3–6; stubs throw until then.
+ * Billing engine public façade.
+ * Phase 1b: generate / issue / credit wired (delegate-first).
  */
 
 import { createClient } from '@/lib/supabase/server';
@@ -8,9 +8,19 @@ import type {
   MonthlyBillingOptions,
   MonthlyBillingResult,
 } from '@/lib/billing/monthly-invoice-generator';
+import type {
+  CreateCreditNoteParams,
+  GenerateInvoiceParams,
+} from '@/lib/billing/compliant-billing-service';
 import type { InvoiceDbStatus } from './state-machine';
 import type { EngineAuditContext } from './types';
 import { updateInvoiceStatus } from './writer';
+import {
+  generateInvoice as doGenerateInvoice,
+  generateRecurring as doGenerateRecurring,
+} from './generate';
+import { issueInvoice as doIssueInvoice, voidInvoice as doVoidInvoice } from './issue';
+import { createCreditNote as doCreateCreditNote } from './credit';
 
 export const billingEngine = {
   async transitionStatus(
@@ -36,30 +46,48 @@ export const billingEngine = {
   },
 
   async generateRecurring(
-    _options: MonthlyBillingOptions = {}
+    options: MonthlyBillingOptions = {},
+    audit?: EngineAuditContext
   ): Promise<MonthlyBillingResult> {
-    throw new Error('billingEngine.generateRecurring not implemented — Task 3');
+    return doGenerateRecurring(options, audit);
+  },
+
+  /** Convenience: bill one customer via sole generate path */
+  async generateForCustomer(
+    customerId: string,
+    options: Omit<MonthlyBillingOptions, 'customerId'> = {},
+    audit?: EngineAuditContext
+  ): Promise<MonthlyBillingResult> {
+    return doGenerateRecurring({ ...options, customerId }, audit);
   },
 
   async generateInvoice(
-    _params: unknown,
-    _audit?: EngineAuditContext
+    params: GenerateInvoiceParams,
+    audit?: EngineAuditContext
   ): Promise<unknown> {
-    throw new Error('billingEngine.generateInvoice not implemented — Task 3');
+    return doGenerateInvoice(params, audit);
   },
 
   async issueInvoice(
-    _invoiceId: string,
-    _audit?: EngineAuditContext
+    invoiceId: string,
+    audit: EngineAuditContext = { source: 'admin' }
   ): Promise<unknown> {
-    throw new Error('billingEngine.issueInvoice not implemented — Task 4');
+    return doIssueInvoice(invoiceId, audit);
+  },
+
+  async voidInvoice(
+    invoiceId: string,
+    reason: string,
+    audit: EngineAuditContext = { source: 'admin' }
+  ): Promise<unknown> {
+    return doVoidInvoice(invoiceId, reason, audit);
   },
 
   async createCreditNote(
-    _params: unknown,
-    _audit?: EngineAuditContext
+    params: CreateCreditNoteParams,
+    audit: EngineAuditContext = { source: 'admin' }
   ): Promise<unknown> {
-    throw new Error('billingEngine.createCreditNote not implemented — Task 4');
+    return doCreateCreditNote(params, audit);
   },
 
   async submitDebitCollection(

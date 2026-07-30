@@ -152,10 +152,6 @@
   },
   "crons": [
     {
-      "path": "/api/cron/generate-invoices",
-      "schedule": "0 0 * * *"
-    },
-    {
       "path": "/api/cron/supplier-sync",
       "schedule": "0 0 * * *"
     },
@@ -225,11 +221,7 @@
     },
     {
       "path": "/api/cron/generate-monthly-invoices",
-      "schedule": "0 4 1 * *"
-    },
-    {
-      "path": "/api/cron/generate-invoices-25th",
-      "schedule": "0 4 25 * *"
+      "schedule": "0 4 * * *"
     },
     {
       "path": "/api/cron/paynow-reconciliation",

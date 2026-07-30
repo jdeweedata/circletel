@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { CompliantBillingService } from '@/lib/billing/compliant-billing-service';
+import { billingEngine } from '@/lib/billing/engine';
 import { apiLogger } from '@/lib/logging';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
@@ -23,12 +23,12 @@ export async function POST(
 
     const supabase = await createClient();
 
-    // Send invoice
-    const result = await CompliantBillingService.sendInvoice(invoiceId, {
+    // Send invoice via billing engine (delegate → CompliantBillingService)
+    const result = (await billingEngine.issueInvoice(invoiceId, {
+      source: 'admin',
       user_id: authResult.adminUser.id,
       user_email: authResult.adminUser.email || undefined,
-      user_role: authResult.adminUser.role
-    });
+    })) as { invoice_number?: string; pdf_url?: string };
 
     // Log admin action
     await supabase
@@ -51,9 +51,10 @@ export async function POST(
     });
 
   } catch (error: unknown) {
-    apiLogger.error('Send invoice failed:', error);
+    const message = error instanceof Error ? error.message : 'Failed to send invoice';
+    apiLogger.error('Send invoice failed', { error: message });
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to send invoice' },
+      { success: false, error: message },
       { status: 500 }
     );
   }
