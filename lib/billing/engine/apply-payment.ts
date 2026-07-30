@@ -30,6 +30,10 @@ export function nextStatusAfterPayment(params: {
     throw new Error(`Cannot apply payment to invoice in status: ${current}`);
   }
 
+  if (!Number.isFinite(amountPaidAfter)) {
+    throw new Error('amountPaidAfter must be a finite number');
+  }
+
   if (amountPaidAfter <= 0) {
     return current === 'draft' ? 'draft' : current;
   }
@@ -59,6 +63,10 @@ export async function applyPayment(
     paidAt,
   } = params;
 
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error('Payment amount must be a finite number greater than 0');
+  }
+
   const supabase = await createClient();
   const { data: invoice, error } = await supabase
     .from('customer_invoices')
@@ -74,6 +82,10 @@ export async function applyPayment(
   const prevPaid = Number(invoice.amount_paid) || 0;
   const totalAmount = Number(invoice.total_amount) || 0;
   const amountPaidAfter = amountIsAbsolute ? amount : prevPaid + amount;
+
+  if (!Number.isFinite(amountPaidAfter) || amountPaidAfter < 0) {
+    throw new Error('Computed amount_paid must be a non-negative finite number');
+  }
 
   const to = nextStatusAfterPayment({
     current: from,
