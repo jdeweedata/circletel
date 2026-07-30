@@ -68,6 +68,41 @@ After deploy, regenerate host crontab: `ops/scheduler/generate-crontab.sh | cron
 - **Phase 1 DoD:** façade + CI allowlist ratchet; allowlist shrinks over PRs; zero-exception not required at close (wayfinder ticket 08).
 - **Ledger tables:** `customer_invoices`, related `payment_transactions`, `credit_notes`.
 
+### Allowlist
+
+CI job `billing-writer-ratchet` runs `scripts/check-billing-writers.sh` against `.billing-writer-allowlist`.
+
+| Rule | Detail |
+|------|--------|
+| Detects | `.from('customer_invoices')` followed within 25 lines by `.insert` / `.update` / `.upsert` |
+| Scopes | `app/`, `lib/`, `scripts/`, `supabase/`, `components/` (excludes `__tests__`) |
+| Pass | Every detected writer path is on the allowlist (exact path or `dir/` prefix) |
+| Fail | New unallowlisted writer → add path only with PR rationale; prefer routing through `billingEngine` |
+| Direction | Allowlist **must only shrink** as paths migrate onto the engine |
+
+Engine prefix always allowed: `lib/billing/engine/`.
+
+```bash
+bash scripts/check-billing-writers.sh
+```
+
+### Call graph (Phase 1c/1d)
+
+```
+Cron / admin / webhook
+        │
+        ▼
+ billingEngine (façade)
+   ├── generateRecurring → MonthlyInvoiceGenerator
+   ├── generateInvoice / issue / void / credit → CompliantBillingService
+   ├── submitDebitCollection / sendPayLink → CollectionRail adapters
+   ├── applyPayment → state machine + writer (ledger)
+   └── recordCollectionFailure → FailedDebitHandler
+
+Writer ratchet ──► blocks new .from('customer_invoices').update|insert|upsert
+                   outside .billing-writer-allowlist
+```
+
 ## CollectionRail (Phase 1c)
 
 Behind the rail: `netcash_debit`, `netcash_paynow`, `netcash_cc_debit`.  
@@ -77,8 +112,19 @@ Behind the rail: `netcash_debit`, `netcash_paynow`, `netcash_cc_debit`.
 
 After 1b+: crons and admin generate/send call `billingEngine` only. Sole generate implementation is `MonthlyInvoiceGenerator` via `generateRecurring`; legacy `generate-invoices` / `generate-invoices-25th` (`BillingService`) are disabled (schedule must still cover all `billing_day`s).
 
+## Simulation harness (Phase 1d)
+
+Pure-domain month-cycle (no Supabase): `lib/billing/engine/simulation/`.
+
+Replays: mid-month pro-rata → full recurring → full pay → partial → collection failure (+ pay-link mock) → credit note. Asserts AR identity and legal transitions via `assertTransition` / `nextStatusAfterPayment`.
+
+```bash
+npx jest __tests__/lib/billing/engine/simulation/
+```
+
 ## Testing
 
 ```bash
-npx jest __tests__/lib/billing/engine/
+npx jest __tests__/lib/billing/engine/ __tests__/lib/billing/rails/
+bash scripts/check-billing-writers.sh
 ```

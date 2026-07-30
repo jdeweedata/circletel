@@ -159,6 +159,14 @@ jobs:
       - name: Check brand-literal count vs baseline
         run: bash scripts/check-brand-literals.sh
 
+  billing-writer-ratchet:
+    name: Billing ledger writer allowlist (Phase 1)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check customer_invoices writers vs allowlist
+        run: bash scripts/check-billing-writers.sh
+
   type-error-ratchet:
     name: Type-error ratchet
     runs-on: ubuntu-latest
