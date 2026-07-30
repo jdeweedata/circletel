@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { PiArrowsClockwiseBold, PiClockBold, PiCurrencyDollarBold, PiPulseBold, PiTargetBold } from 'react-icons/pi';
-import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,6 +9,7 @@ import {
   AdminPage,
   LoadingState,
   ErrorState,
+  MetricCard,
   Tabs,
   ConsoleTabsList,
   ConsoleTabsContent,
@@ -124,79 +124,41 @@ export default function ARAnalyticsPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Outstanding */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <PiCurrencyDollarBold className="h-4 w-4" />
-              Total Outstanding
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {formatCurrency(data.ar_aging.total_outstanding_amount)}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {data.ar_aging.total_outstanding_invoices} invoices
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard
+          title="Total Outstanding"
+          value={formatCurrency(data.ar_aging.total_outstanding_amount)}
+          subtitle={`${data.ar_aging.total_outstanding_invoices} invoices`}
+        >
+          <PiCurrencyDollarBold className="w-5 h-5 text-amber-600" aria-hidden="true" />
+        </MetricCard>
 
-        {/* DSO */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <PiClockBold className="h-4 w-4" />
-              Days Sales Outstanding
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">{data.dso.dso_current.toFixed(1)}</span>
-              <TrendIcon trend={data.dso.dso_trend} />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              30-day avg: {data.dso.dso_30_day_avg.toFixed(1)} days
-            </p>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Days Sales Outstanding"
+          value={data.dso.dso_current.toFixed(1)}
+          subtitle={`30-day avg: ${data.dso.dso_30_day_avg.toFixed(1)} days`}
+        >
+          <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
+            <TrendIcon trend={data.dso.dso_trend} />
+            <span className="capitalize">{data.dso.dso_trend}</span>
+          </span>
+        </MetricCard>
 
-        {/* Collection Rate */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <PiTargetBold className="h-4 w-4" />
-              Collection Rate
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {data.collection.collection_rate.toFixed(1)}%
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {formatCurrency(data.collection.total_amount_collected)} collected
-            </p>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Collection Rate"
+          value={`${data.collection.collection_rate.toFixed(1)}%`}
+          subtitle={`${formatCurrency(data.collection.total_amount_collected)} collected`}
+        >
+          <PiTargetBold className="w-5 h-5 text-emerald-600" aria-hidden="true" />
+        </MetricCard>
 
-        {/* Notifications Sent */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <PiPulseBold className="h-4 w-4" />
-              Notifications Sent
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {data.notifications.total_sms + data.notifications.total_email}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {data.notifications.delivery_rate.toFixed(1)}% delivery rate
-            </p>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Notifications Sent"
+          value={`${data.notifications.total_sms + data.notifications.total_email}`}
+          subtitle={`${data.notifications.delivery_rate.toFixed(1)}% delivery rate`}
+        >
+          <PiPulseBold className="w-5 h-5 text-blue-600" aria-hidden="true" />
+        </MetricCard>
       </div>
 
       <Tabs defaultValue="aging" className="space-y-4">
