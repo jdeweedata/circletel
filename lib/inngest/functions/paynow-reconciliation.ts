@@ -486,7 +486,12 @@ export const paynowReconciliationFunction = inngest.createFunction(
             dry_run: dryRun,
             ...processingResult,
             duration_ms: duration,
-            unmatchedDetails: processingResult.unmatched_details ?? processingResult.unmatchedDetails ?? [],
+            // unmatchedDetails may be present at runtime on processingResult extras
+            unmatchedDetails:
+              (processingResult as { unmatched_details?: unknown; unmatchedDetails?: unknown })
+                .unmatched_details ??
+              (processingResult as { unmatchedDetails?: unknown }).unmatchedDetails ??
+              [],
           },
         })
         .eq('id', processLogId);
