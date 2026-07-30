@@ -3,12 +3,13 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { PiWifiHighBold } from 'react-icons/pi';
+import { PiWifiHighBold, PiUserPlusBold, PiBuildingsBold, PiUserCircleBold } from 'react-icons/pi';
 import { DeviceActionsMenu } from './DeviceActionsMenu';
 
-interface RuijieDevice {
+export interface RuijieListDevice {
   sn: string;
   device_name: string;
   model: string | null;
@@ -21,11 +22,18 @@ interface RuijieDevice {
   config_status: string | null;
   synced_at: string;
   mock_data: boolean;
+  customer_name?: string | null;
+  customer_order_id?: string | null;
+  corporate_site_id?: string | null;
 }
 
 function formatPct(value: number | null | undefined): string {
   if (value == null || Number.isNaN(value)) return '—';
   return `${Math.round(value)}%`;
+}
+
+function isDeviceUnlinked(device: RuijieListDevice): boolean {
+  return !device.customer_order_id && !device.corporate_site_id;
 }
 
 function statusBadge(status: string): { label: string; className: string } {
@@ -48,9 +56,10 @@ function statusBadge(status: string): { label: string; className: string } {
 }
 
 interface DeviceTableProps {
-  devices: RuijieDevice[];
+  devices: RuijieListDevice[];
   tunnelLimitReached: boolean;
-  onReboot: (device: RuijieDevice) => void;
+  onReboot: (device: RuijieListDevice) => void;
+  onLinkCustomer?: (device: RuijieListDevice) => void;
   formatRelativeTime: (date: string) => string;
 }
 
@@ -58,6 +67,7 @@ export function DeviceTable({
   devices,
   tunnelLimitReached,
   onReboot,
+  onLinkCustomer,
   formatRelativeTime,
 }: DeviceTableProps) {
   const router = useRouter();
@@ -69,7 +79,7 @@ export function DeviceTable({
           Devices Monitoring
         </CardTitle>
         <p className="text-xs text-slate-500">
-          Ruijie Wi-Fi fleet from Supabase cache · CPU / memory from live sync
+          Ruijie Wi-Fi fleet from Supabase cache · Link unlinked SNs to customer / site
         </p>
       </CardHeader>
       <CardContent className="p-0">
@@ -79,6 +89,7 @@ export function DeviceTable({
               <tr className="border-y border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
                 <th className="px-4 py-3 font-medium">Device</th>
                 <th className="px-4 py-3 font-medium hidden md:table-cell">Model</th>
+                <th className="px-4 py-3 font-medium">Customer</th>
                 <th className="px-4 py-3 font-medium hidden lg:table-cell">Group</th>
                 <th className="px-4 py-3 font-medium hidden lg:table-cell">IP</th>
                 <th className="px-4 py-3 font-medium text-center">CPU</th>
@@ -92,7 +103,7 @@ export function DeviceTable({
             <tbody>
               {devices.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-slate-400">
+                  <td colSpan={11} className="px-4 py-10 text-center text-slate-400">
                     No devices found
                   </td>
                 </tr>
@@ -100,6 +111,7 @@ export function DeviceTable({
                 devices.map((device) => {
                   const isOnline = device.status === 'online';
                   const status = statusBadge(device.status);
+                  const unlinked = isDeviceUnlinked(device);
 
                   return (
                     <tr
@@ -122,7 +134,7 @@ export function DeviceTable({
                               isOnline ? 'text-blue-500' : 'text-slate-400'
                             )}
                           />
-                          <span className="truncate max-w-[180px]">{device.device_name}</span>
+                          <span className="truncate max-w-[160px]">{device.device_name}</span>
                           {device.mock_data && (
                             <Badge
                               variant="outline"
@@ -132,9 +144,46 @@ export function DeviceTable({
                             </Badge>
                           )}
                         </Link>
+                        <p className="text-[11px] font-mono text-slate-400 mt-0.5 ml-6">
+                          {device.sn}
+                        </p>
                       </td>
                       <td className="px-4 py-3 text-slate-600 hidden md:table-cell">
                         {device.model || '—'}
+                      </td>
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                        {unlinked ? (
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant="outline"
+                              className="bg-amber-50 text-amber-800 border-amber-200 font-medium"
+                            >
+                              Unlinked
+                            </Badge>
+                            {onLinkCustomer && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                onClick={() => onLinkCustomer(device)}
+                              >
+                                <PiUserPlusBold className="w-3.5 h-3.5 mr-1" />
+                                Link
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {device.corporate_site_id ? (
+                              <PiBuildingsBold className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                            ) : (
+                              <PiUserCircleBold className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />
+                            )}
+                            <span className="truncate max-w-[140px] text-slate-700">
+                              {device.customer_name || 'Linked'}
+                            </span>
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-slate-600 hidden lg:table-cell">
                         {device.group_name || '—'}
@@ -167,7 +216,11 @@ export function DeviceTable({
                           deviceName={device.device_name}
                           isOnline={isOnline}
                           tunnelLimitReached={tunnelLimitReached}
+                          isUnlinked={unlinked}
                           onReboot={() => onReboot(device)}
+                          onLinkCustomer={
+                            onLinkCustomer ? () => onLinkCustomer(device) : undefined
+                          }
                         />
                       </td>
                     </tr>

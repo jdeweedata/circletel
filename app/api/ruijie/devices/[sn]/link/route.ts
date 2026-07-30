@@ -1,7 +1,34 @@
 /**
- * Link/Unlink Device to Customer
- * POST /api/ruijie/devices/[sn]/link - Link device to customer
- * DELETE /api/ruijie/devices/[sn]/link - Unlink device
+ * Link / unlink a Ruijie device (`ruijie_device_cache`) to a customer.
+ *
+ * ## POST `/api/ruijie/devices/[sn]/link`
+ * Auth: admin session (cookie) + active `admin_users` row.
+ *
+ * Request body:
+ * | Field               | Type                    | Required when        |
+ * |---------------------|-------------------------|----------------------|
+ * | `type`              | `"consumer"\|"corporate"` | always             |
+ * | `customer_order_id` | UUID                    | `type === "consumer"`  |
+ * | `corporate_site_id` | UUID                    | `type === "corporate"` |
+ *
+ * Effects on `ruijie_device_cache` (by `sn`):
+ * - Sets one of `customer_order_id` / `corporate_site_id` (clears the other)
+ * - Denormalizes `customer_name`, `customer_email`, `customer_phone` from
+ *   `consumer_orders` or `corporate_sites`
+ *
+ * Success (200):
+ * ```json
+ * { "success": true, "customer_name": "...", "customer_email": "...", "customer_phone": "..." }
+ * ```
+ *
+ * Errors: 400 validation, 401/403 auth, 404 device or order/site missing, 500 update failure.
+ *
+ * ## DELETE `/api/ruijie/devices/[sn]/link`
+ * Clears `customer_order_id`, `corporate_site_id`, and denormalized customer fields.
+ * Success (200): `{ "success": true }`
+ *
+ * Ops UI: `/admin/network/devices` (list + filter Unlinked) and device detail
+ * Customer Assignment panel. Customer picker uses `GET /api/admin/search/customers?q=`.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
