@@ -144,7 +144,10 @@ const getPageInfo = (pathname: string): { title: string; description: string } =
     if (pathname.includes('/transactions')) {
       return { title: 'Transactions', description: 'View payment transactions' };
     }
-    return { title: 'Billing & Revenue', description: 'Manage billing and revenue operations' };
+    return {
+      title: 'Billing',
+      description: 'Daily cash match · NetCash → invoices → Zoho',
+    };
   }
 
   // Admin section

@@ -106,7 +106,7 @@ export const paynowReconciliationFunction = inngest.createFunction(
           .from('cron_execution_log')
           .update({
             status: 'running',
-            started_at: new Date().toISOString(),
+            execution_start: new Date().toISOString(),
           })
           .eq('id', eventData.process_log_id);
 
@@ -129,8 +129,10 @@ export const paynowReconciliationFunction = inngest.createFunction(
         .insert({
           job_name: 'paynow-reconciliation',
           status: 'running',
-          started_at: new Date().toISOString(),
-          result: {
+          execution_start: new Date().toISOString(),
+          trigger_source: triggeredBy === 'manual' ? 'manual' : 'cron',
+          triggered_by: adminUserId || null,
+          execution_details: {
             triggered_by: triggeredBy,
             triggered_by_user_id: adminUserId || null,
             reconciliation_date: dateStr,
@@ -185,16 +187,18 @@ export const paynowReconciliationFunction = inngest.createFunction(
 
       await step.run('finalize-log-no-statement', async () => {
         const supabase = await createClient();
+        const durationMsNoStmt = Date.now() - startTime;
         await supabase
           .from('cron_execution_log')
           .update({
             status: 'completed_with_errors',
-            completed_at: new Date().toISOString(),
-            result: {
+            execution_end: new Date().toISOString(),
+            duration_seconds: Math.round(durationMsNoStmt / 1000),
+            execution_details: {
               reconciliation_date: dateStr,
               statement_fetched: false,
               errors: [errorMsg],
-              duration_ms: Date.now() - startTime,
+              duration_ms: durationMsNoStmt,
             },
           })
           .eq('id', processLogId);
@@ -472,13 +476,22 @@ export const paynowReconciliationFunction = inngest.createFunction(
         .from('cron_execution_log')
         .update({
           status: finalStatus,
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          duration_seconds: Math.round(duration / 1000),
+          records_processed: processingResult.total_transactions ?? null,
+          records_failed: processingResult.unmatched ?? null,
+          execution_details: {
             reconciliation_date: dateStr,
             statement_fetched: true,
             dry_run: dryRun,
             ...processingResult,
             duration_ms: duration,
+            // unmatchedDetails may be present at runtime on processingResult extras
+            unmatchedDetails:
+              (processingResult as { unmatched_details?: unknown; unmatchedDetails?: unknown })
+                .unmatched_details ??
+              (processingResult as { unmatchedDetails?: unknown }).unmatchedDetails ??
+              [],
           },
         })
         .eq('id', processLogId);
@@ -593,8 +606,9 @@ export const paynowReconciliationFailedFunction = inngest.createFunction(
         .from('cron_execution_log')
         .update({
           status: 'failed',
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          error_message: typeof error === 'string' ? error : String(error),
+          execution_details: {
             error,
             failed_attempt: attempt,
           },
