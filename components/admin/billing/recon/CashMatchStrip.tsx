@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   PiCheckCircleBold,
   PiClockBold,
@@ -5,7 +6,7 @@ import {
   PiWarningBold,
   PiXCircleBold,
 } from 'react-icons/pi';
-import { StatCard } from '@/components/admin/shared';
+import { MetricCard } from '@/components/backend';
 import type { ReconHubSummary } from '@/lib/billing/recon-hub/types';
 
 export interface CashMatchStripProps {
@@ -52,91 +53,74 @@ export function CashMatchStrip({
 
   const paynowIcon =
     paynowStatus === 'success' ? (
-      <PiCheckCircleBold className="h-5 w-5" />
+      <PiCheckCircleBold className="w-5 h-5" aria-hidden="true" />
     ) : paynowStatus === 'failed' ? (
-      <PiXCircleBold className="h-5 w-5" />
+      <PiXCircleBold className="w-5 h-5" aria-hidden="true" />
     ) : (
-      <PiClockBold className="h-5 w-5" />
+      <PiClockBold className="w-5 h-5" aria-hidden="true" />
     );
 
+  const paynowIconColor =
+    paynowStatus === 'success'
+      ? 'text-green-600'
+      : paynowStatus === 'failed'
+        ? 'text-red-600'
+        : paynowStatus === 'partial'
+          ? 'text-amber-600'
+          : 'text-slate-400';
+
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      <StatCard
-        label="Unmatched NetCash→CT"
-        value={unmatchedNetcashToCt}
-        icon={
-          unmatchedClear ? (
-            <PiCheckCircleBold className="h-5 w-5" />
-          ) : (
-            <PiWarningBold className="h-5 w-5" />
-          )
-        }
-        iconBgColor={unmatchedClear ? 'bg-green-100' : 'bg-red-100'}
-        iconColor={unmatchedClear ? 'text-green-700' : 'text-red-700'}
-        subtitle={
-          unmatchedClear
-            ? 'Day-done clear'
-            : 'Needs invoice match'
-        }
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <MetricCard
+        title="Unmatched NetCash→CT"
+        value={`${unmatchedNetcashToCt}`}
+        subtitle={unmatchedClear ? 'Day-done clear' : 'Needs invoice match'}
         className={
           unmatchedClear
-            ? 'border-green-200 bg-green-50/40'
-            : 'border-red-200 bg-red-50/40'
+            ? 'border-green-200/80 bg-green-50/40'
+            : 'border-red-200/80 bg-red-50/40'
         }
-      />
+      >
+        {unmatchedClear ? (
+          <PiCheckCircleBold className="w-5 h-5 text-green-600" aria-hidden="true" />
+        ) : (
+          <PiWarningBold className="w-5 h-5 text-red-600" aria-hidden="true" />
+        )}
+      </MetricCard>
 
-      <StatCard
-        label="NetCash completed"
-        value={netcashCompletedInWindow}
-        icon={<PiCurrencyCircleDollarBold className="h-5 w-5" />}
-        iconBgColor="bg-slate-100"
-        iconColor="text-slate-700"
+      <MetricCard
+        title="NetCash completed"
+        value={`${netcashCompletedInWindow}`}
         subtitle={`${netcashMatchedInWindow} matched in window`}
-      />
+      >
+        <PiCurrencyCircleDollarBold className="w-5 h-5 text-slate-500" aria-hidden="true" />
+      </MetricCard>
 
-      <StatCard
-        label="Zoho payment sync lag"
-        value={zohoPaymentLagCount}
-        icon={<PiWarningBold className="h-5 w-5" />}
-        iconBgColor={
-          zohoPaymentLagCount > 0 ? 'bg-amber-100' : 'bg-slate-100'
-        }
-        iconColor={
-          zohoPaymentLagCount > 0 ? 'text-amber-700' : 'text-slate-600'
-        }
-        subtitle="Pending or failed sync"
-        href="/admin/integrations/zoho-books"
-        className={
-          zohoPaymentLagCount > 0
-            ? 'border-amber-200 bg-amber-50/40'
-            : undefined
-        }
-      />
+      <Link href="/admin/integrations/zoho-books" className="block">
+        <MetricCard
+          title="Zoho payment sync lag"
+          value={`${zohoPaymentLagCount}`}
+          subtitle="Pending or failed sync"
+          className={
+            zohoPaymentLagCount > 0
+              ? 'border-amber-200/80 bg-amber-50/40 transition-shadow hover:shadow-md'
+              : 'transition-shadow hover:shadow-md'
+          }
+        >
+          <PiWarningBold
+            className={`w-5 h-5 ${zohoPaymentLagCount > 0 ? 'text-amber-600' : 'text-slate-400'}`}
+            aria-hidden="true"
+          />
+        </MetricCard>
+      </Link>
 
-      <StatCard
-        label="PayNow recon last run"
+      <MetricCard
+        title="PayNow recon last run"
         value={paynowLabel}
-        icon={paynowIcon}
-        iconBgColor={
-          paynowStatus === 'success'
-            ? 'bg-green-100'
-            : paynowStatus === 'failed'
-              ? 'bg-red-100'
-              : paynowStatus === 'partial'
-                ? 'bg-amber-100'
-                : 'bg-slate-100'
-        }
-        iconColor={
-          paynowStatus === 'success'
-            ? 'text-green-700'
-            : paynowStatus === 'failed'
-              ? 'text-red-700'
-              : paynowStatus === 'partial'
-                ? 'text-amber-700'
-                : 'text-slate-600'
-        }
         subtitle={formatLastRunAt(paynowRecon.lastRunAt)}
-      />
+      >
+        <span className={paynowIconColor}>{paynowIcon}</span>
+      </MetricCard>
     </div>
   );
 }
