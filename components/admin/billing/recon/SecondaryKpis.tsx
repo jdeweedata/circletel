@@ -51,20 +51,18 @@ export function SecondaryKpis({
   ] as const;
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       {items.map(({ label, value, icon: Icon }) => (
         <div
           key={label}
-          className="flex items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3"
+          className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-3"
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white text-slate-500 shadow-sm ring-1 ring-slate-200">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 shadow-sm ring-1 ring-slate-200">
             <Icon className="h-4 w-4" aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
-              {label}
-            </p>
-            <p className="truncate text-base font-semibold tabular-nums text-slate-800">
+            <p className="text-xs font-medium text-slate-500">{label}</p>
+            <p className="truncate text-xl font-semibold tabular-nums text-slate-900 mt-0.5">
               {value}
             </p>
           </div>

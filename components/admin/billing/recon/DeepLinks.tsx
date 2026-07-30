@@ -39,12 +39,12 @@ const LINKS = [
  */
 export function DeepLinks() {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {LINKS.map(({ href, title, description, icon: Icon }) => (
         <Link
           key={href}
           href={href}
-          className="group flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-circleTel-orange/40 hover:bg-orange-50/40"
+          className="group flex items-start gap-3 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-colors hover:border-circleTel-orange/40 hover:bg-orange-50/40"
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-circleTel-orange/10 text-circleTel-orange">
             <Icon className="h-5 w-5" aria-hidden="true" />
