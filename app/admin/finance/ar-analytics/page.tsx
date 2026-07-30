@@ -3,10 +3,17 @@
 import { useEffect, useState } from 'react';
 import { PiArrowsClockwiseBold, PiClockBold, PiCurrencyDollarBold, PiPulseBold, PiTargetBold } from 'react-icons/pi';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AdminPage, PageHeader, LoadingState, ErrorState } from '@/components/backend';
+import {
+  AdminPage,
+  LoadingState,
+  ErrorState,
+  Tabs,
+  ConsoleTabsList,
+  ConsoleTabsContent,
+} from '@/components/backend';
 import {
   ArAgingPanel,
   DsoMetricsPanel,
@@ -76,28 +83,45 @@ export default function ARAnalyticsPage() {
 
   return (
     <AdminPage>
-      <PageHeader
-        title="AR Analytics & Collections"
-        subtitle="Accounts Receivable, DSO tracking, and notification effectiveness"
-        actions={
-          <div className="flex items-center gap-2">
-            <Select value={period} onValueChange={setPeriod}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7">7 Days</SelectItem>
-                <SelectItem value="30">30 Days</SelectItem>
-                <SelectItem value="60">60 Days</SelectItem>
-                <SelectItem value="90">90 Days</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="icon" onClick={handleRefresh} disabled={refreshing}>
-              <PiArrowsClockwiseBold className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            </Button>
-          </div>
-        }
-      />
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <p className="text-xs text-slate-400 mb-1">Finance / Receivables / AR Analytics</p>
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
+            AR Analytics &amp; Collections
+          </h1>
+          <p className="text-slate-500 mt-1 text-sm">
+            Accounts Receivable, DSO tracking, and notification effectiveness
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-[140px] rounded-lg border-slate-200" aria-label="Reporting period">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Last 7 days</SelectItem>
+              <SelectItem value="30">Last 30 days</SelectItem>
+              <SelectItem value="60">Last 60 days</SelectItem>
+              <SelectItem value="90">Last 90 days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
+          Supabase AR snapshot
+        </Badge>
+        <span className="text-xs text-slate-400">Last {period} days</span>
+        <span className="text-xs text-slate-500">
+          {data.ar_aging.total_outstanding_invoices} open invoices ·{' '}
+          {formatCurrency(data.ar_aging.total_outstanding_amount)} outstanding
+        </span>
+      </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -175,28 +199,35 @@ export default function ARAnalyticsPage() {
         </Card>
       </div>
 
-      {/* Tabs */}
       <Tabs defaultValue="aging" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="aging">AR Aging</TabsTrigger>
-          <TabsTrigger value="dso">DSO &amp; Metrics</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="aging" className="space-y-4">
+        <ConsoleTabsList
+          items={[
+            { value: 'aging', label: 'AR Aging' },
+            { value: 'dso', label: 'DSO & Metrics' },
+            { value: 'notifications', label: 'Notifications' },
+            { value: 'history', label: 'History' },
+          ]}
+        />
+        <ConsoleTabsContent value="aging">
           <ArAgingPanel data={data} />
-        </TabsContent>
-        <TabsContent value="dso" className="space-y-4">
+        </ConsoleTabsContent>
+        <ConsoleTabsContent value="dso">
           <DsoMetricsPanel data={data} />
-        </TabsContent>
-        <TabsContent value="notifications" className="space-y-4">
+        </ConsoleTabsContent>
+        <ConsoleTabsContent value="notifications">
           <NotificationsPanel data={data} />
-        </TabsContent>
-        <TabsContent value="history" className="space-y-4">
+        </ConsoleTabsContent>
+        <ConsoleTabsContent value="history">
           <HistoryPanel data={data} />
-        </TabsContent>
+        </ConsoleTabsContent>
       </Tabs>
+
+      <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-slate-500">
+        <span className="inline-flex items-center gap-2">
+          <PiClockBold className="w-4 h-4" aria-hidden="true" />
+          {refreshing ? 'Refreshing…' : `AR snapshot · last ${period} days`}
+        </span>
+      </div>
     </AdminPage>
   );
 }
