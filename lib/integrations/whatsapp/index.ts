@@ -53,11 +53,15 @@ export type {
 // WhatsApp Flows (F1 Lead Qualification)
 export {
   sendFlow,
+  sendFlowTemplate,
   buildFlowMessagePayload,
   formatWhatsAppPhone,
   F1_FLOW_NAME,
   F1_DEFAULT_SCREEN,
+  F1_COLD_TEMPLATE_NAME,
+  F1_COLD_TEMPLATE_LANGUAGE,
   type SendFlowParams,
+  type SendFlowTemplateParams,
   type SendFlowResult,
 } from './flows/flow-sender';
 

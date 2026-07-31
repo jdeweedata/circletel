@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
-import { sendFlow } from '@/lib/integrations/whatsapp';
+import { sendFlow, sendFlowTemplate } from '@/lib/integrations/whatsapp';
 import { apiLogger } from '@/lib/logging';
 
 const VALID_ENTRY_SOURCES = [
@@ -33,11 +33,17 @@ export async function POST(request: NextRequest) {
       entry_source = 'admin',
       source_campaign,
       draft = false,
+      use_template = false,
+      customer_name,
     } = body as {
       phone?: string;
       entry_source?: string;
       source_campaign?: string;
       draft?: boolean;
+      /** Cold send via MARKETING template (required outside 24h window). */
+      use_template?: boolean;
+      /** Body {{1}} for cold template */
+      customer_name?: string;
     };
 
     if (!phone || typeof phone !== 'string' || !phone.trim()) {
@@ -64,15 +70,23 @@ export async function POST(request: NextRequest) {
       entrySource: entry_source,
       sourceCampaign: source_campaign ?? null,
       draft: Boolean(draft),
+      useTemplate: Boolean(use_template),
       adminId: authResult.adminUser.id,
     });
 
-    const result = await sendFlow({
-      to: phone.trim(),
-      entrySource: entry_source,
-      sourceCampaign: source_campaign ?? null,
-      draft: Boolean(draft),
-    });
+    const result = use_template
+      ? await sendFlowTemplate({
+          to: phone.trim(),
+          customerName: customer_name,
+          entrySource: entry_source,
+          sourceCampaign: source_campaign ?? null,
+        })
+      : await sendFlow({
+          to: phone.trim(),
+          entrySource: entry_source,
+          sourceCampaign: source_campaign ?? null,
+          draft: Boolean(draft),
+        });
 
     if (result.success) {
       apiLogger.info('[Admin Flow Send] Sent successfully', {

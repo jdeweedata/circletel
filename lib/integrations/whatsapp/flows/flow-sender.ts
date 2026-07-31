@@ -29,6 +29,13 @@ export const F1_FLOW_NAME = 'lead_qualification';
 /** Default first screen id — must match Flow Builder screen name. */
 export const F1_DEFAULT_SCREEN = 'CONTACT';
 
+/**
+ * Cold-send MARKETING template (FLOW button).
+ * Meta template id 2086190671980465 — use only when status is APPROVED.
+ */
+export const F1_COLD_TEMPLATE_NAME = 'circletel_lead_qualification';
+export const F1_COLD_TEMPLATE_LANGUAGE = 'en_ZA';
+
 const GRAPH_BASE = 'https://graph.facebook.com/v21.0';
 
 // =============================================================================
@@ -324,6 +331,191 @@ export async function sendFlow(params: SendFlowParams): Promise<SendFlowResult> 
       success: false,
       error:
         error instanceof Error ? error.message : 'Failed to send flow message',
+      flowToken,
+      sessionId: session.id,
+    };
+  }
+}
+
+// =============================================================================
+// COLD SEND (template + FLOW button) — outside 24h window
+// =============================================================================
+
+export interface SendFlowTemplateParams {
+  to: string;
+  /** Greeting name for body {{1}} */
+  customerName?: string;
+  entrySource: string;
+  sourceCampaign?: string | null;
+  flowId?: string;
+  flowName?: string;
+  supabase?: FlowSessionSupabase;
+}
+
+/**
+ * Send the approved cold F1 template with a FLOW button.
+ * Creates `whatsapp_flow_sessions` first so nfm_reply can correlate via flow_token.
+ *
+ * Requires Meta template `circletel_lead_qualification` status APPROVED.
+ */
+export async function sendFlowTemplate(
+  params: SendFlowTemplateParams
+): Promise<SendFlowResult> {
+  const phoneNumberId = getPhoneNumberId();
+  const accessToken = getAccessToken();
+
+  if (!phoneNumberId || !accessToken) {
+    return { success: false, error: 'WhatsApp API not configured' };
+  }
+
+  const flowId =
+    params.flowId || process.env.WHATSAPP_FLOW_LEAD_QUALIFICATION_ID || '';
+  if (!flowId) {
+    return {
+      success: false,
+      error: 'WHATSAPP_FLOW_LEAD_QUALIFICATION_ID not configured',
+    };
+  }
+
+  const formattedPhone = formatWhatsAppPhone(params.to);
+  if (!formattedPhone || formattedPhone.length < 10) {
+    return { success: false, error: 'Invalid phone number' };
+  }
+
+  const flowToken = randomUUID();
+  const flowName = params.flowName ?? F1_FLOW_NAME;
+  const displayName = (params.customerName || 'there').trim() || 'there';
+
+  let supabase: FlowSessionSupabase;
+  try {
+    supabase = params.supabase ?? createServiceRoleClient();
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Supabase not configured',
+    };
+  }
+
+  const { data: session, error: sessionError } = await createFlowSession(
+    supabase,
+    {
+      flow_token: flowToken,
+      flow_id: flowId,
+      flow_name: flowName,
+      phone: formattedPhone,
+      entry_source: params.entrySource,
+      source_campaign: params.sourceCampaign ?? null,
+      status: 'sent',
+    }
+  );
+
+  if (sessionError || !session) {
+    console.error('[FlowSender] Failed to create session (template)', sessionError);
+    return {
+      success: false,
+      error: sessionError?.message ?? 'Failed to create flow session',
+      flowToken,
+    };
+  }
+
+  const payload = {
+    messaging_product: 'whatsapp',
+    recipient_type: 'individual',
+    to: formattedPhone,
+    type: 'template',
+    template: {
+      name: F1_COLD_TEMPLATE_NAME,
+      language: { code: F1_COLD_TEMPLATE_LANGUAGE },
+      components: [
+        {
+          type: 'body',
+          parameters: [{ type: 'text', text: displayName }],
+        },
+        {
+          type: 'button',
+          sub_type: 'flow',
+          index: '0',
+          parameters: [
+            {
+              type: 'action',
+              action: {
+                flow_token: flowToken,
+                flow_action_data: {},
+              },
+            },
+          ],
+        },
+      ],
+    },
+  };
+
+  console.log('[FlowSender] Sending cold flow template', {
+    to: formattedPhone,
+    template: F1_COLD_TEMPLATE_NAME,
+    flowToken,
+    sessionId: session.id,
+  });
+
+  try {
+    const response = await fetch(
+      `${GRAPH_BASE}/${phoneNumberId}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = (await response.json()) as
+      | WhatsAppMessageResponse
+      | WhatsAppErrorResponse;
+
+    if (!response.ok || 'error' in data) {
+      const errorData = data as WhatsAppErrorResponse;
+      console.error('[FlowSender] Template Cloud API error', errorData);
+      return {
+        success: false,
+        error: errorData.error?.message || `HTTP ${response.status}`,
+        errorCode: errorData.error?.code,
+        flowToken,
+        sessionId: session.id,
+      };
+    }
+
+    const successData = data as WhatsAppMessageResponse;
+    const messageId = successData.messages?.[0]?.id;
+    const waId = successData.contacts?.[0]?.wa_id;
+
+    if (messageId) {
+      try {
+        await supabase
+          .from('whatsapp_flow_sessions')
+          .update({
+            whatsapp_message_id: messageId,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('flow_token', flowToken);
+      } catch (updateErr) {
+        console.warn('[FlowSender] Failed to store whatsapp_message_id', updateErr);
+      }
+    }
+
+    return {
+      success: true,
+      messageId,
+      waId,
+      flowToken,
+      sessionId: session.id,
+    };
+  } catch (error) {
+    console.error('[FlowSender] Template send error', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'Failed to send flow template',
       flowToken,
       sessionId: session.id,
     };
