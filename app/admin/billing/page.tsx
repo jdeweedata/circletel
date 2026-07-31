@@ -1,114 +1,94 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
 import {
   PiArrowsClockwiseBold,
-  PiClockBold,
-  PiFileTextBold,
-  PiPlayBold,
+  PiDownloadSimpleBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   AdminPage,
   LoadingState,
   ErrorState,
 } from '@/components/backend';
 import {
-  CashMatchStrip,
-  DayDoneBanner,
-  DeepLinks,
-  ExceptionTable,
-  SecondaryKpis,
-} from '@/components/admin/billing/recon';
+  AgingBucketsChart,
+  HealthStatCards,
+  MrrCollectionsChart,
+  OverdueInvoiceRegister,
+  SuspensionWatchlist,
+  csvCell,
+  downloadCsv,
+  formatRand,
+} from '@/components/admin/billing/health';
+import { AGING_BUCKET_LABELS } from '@/lib/billing/health/aging';
 import type {
-  ReconHubResponse,
-  ReconWindow,
-} from '@/lib/billing/recon-hub/types';
+  AgingBucketKey,
+  BillingHealthResponse,
+} from '@/lib/billing/health/types';
 
-const WINDOW_OPTIONS: Array<{ value: ReconWindow; label: string }> = [
-  { value: 'today', label: 'Today' },
-  { value: 'yesterday', label: 'Yesterday' },
-  { value: '48h', label: 'Last 48 hours' },
-];
+function exportArAgingCsv(data: BillingHealthResponse) {
+  const lines: Array<string | number>[] = [
+    ['AR Aging Summary'],
+    ['Bucket', 'Amount'],
+    ...(Object.keys(AGING_BUCKET_LABELS) as AgingBucketKey[]).map((key) => [
+      AGING_BUCKET_LABELS[key],
+      csvCell(formatRand(data.aging[key])),
+    ]),
+    ['Total unpaid', csvCell(formatRand(data.pastDue.totalAmount))],
+    [''],
+    ['Overdue Invoice Register'],
+    ['Invoice #', 'Customer', 'Package', 'Due date', 'Days overdue', 'Aging', 'Amount due'],
+    ...data.overdueInvoices.map((row) => [
+      csvCell(row.invoiceNumber),
+      csvCell(row.customerName),
+      csvCell(row.packageName ?? ''),
+      csvCell(row.dueDate),
+      row.daysOverdue,
+      AGING_BUCKET_LABELS[row.agingBucket],
+      csvCell(formatRand(row.amountDue)),
+    ]),
+  ];
 
-function windowLabel(window: ReconWindow): string {
-  return WINDOW_OPTIONS.find((o) => o.value === window)?.label ?? window;
+  downloadCsv(`ar-aging-${data.generatedAt.slice(0, 10)}.csv`, lines);
 }
 
 export default function BillingDashboard() {
-  const [window, setWindow] = useState<ReconWindow>('yesterday');
-  const [data, setData] = useState<ReconHubResponse | null>(null);
+  const [data, setData] = useState<BillingHealthResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [triggerLoading, setTriggerLoading] = useState(false);
 
-  const fetchHub = useCallback(async () => {
+  const fetchHealth = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(
-        `/api/admin/billing/recon-hub?window=${encodeURIComponent(window)}`
-      );
+      const res = await fetch('/api/admin/billing/health');
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(
-          (body as { error?: string }).error || 'Failed to load recon hub'
+          (body as { error?: string }).error || 'Failed to load billing health'
         );
       }
 
-      const body = (await res.json()) as ReconHubResponse;
-      setData(body);
+      setData((await res.json()) as BillingHealthResponse);
     } catch (err) {
-      console.error('Error fetching recon hub:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load recon hub');
+      console.error('Error fetching billing health:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load billing health');
       setData(null);
     } finally {
       setLoading(false);
     }
-  }, [window]);
+  }, []);
 
   useEffect(() => {
-    fetchHub();
-  }, [fetchHub]);
-
-  const handleTriggerPayNow = async () => {
-    setTriggerLoading(true);
-    try {
-      const res = await fetch('/api/admin/billing/reconciliation/trigger', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'paynow' }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(
-          (body as { error?: string }).error || 'Failed to trigger PayNow recon'
-        );
-      }
-      await fetchHub();
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to trigger PayNow recon'
-      );
-    } finally {
-      setTriggerLoading(false);
-    }
-  };
+    fetchHealth();
+  }, [fetchHealth]);
 
   if (loading && !data) {
     return (
       <AdminPage>
-        <LoadingState message="Loading cash-match recon hub..." />
+        <LoadingState message="Loading billing health..." />
       </AdminPage>
     );
   }
@@ -117,117 +97,94 @@ export default function BillingDashboard() {
     return (
       <AdminPage>
         <ErrorState
-          title="Unable to load recon hub"
+          title="Unable to load billing health"
           message={error}
-          onRetry={fetchHub}
+          onRetry={fetchHealth}
         />
       </AdminPage>
     );
   }
 
-  const summary = data?.summary;
-
   return (
     <AdminPage>
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-xs text-slate-400 mb-1">Finance / Billing / Cash Match</p>
-          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Billing</h1>
-          <p className="text-slate-500 mt-1 text-sm">
-            Daily cash match — NetCash completed payments to CircleTel invoices
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+            Billing Health
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Receivables, collections, and suspension queue
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Select value={window} onValueChange={(value) => setWindow(value as ReconWindow)}>
-            <SelectTrigger className="w-[160px] rounded-lg border-slate-200" aria-label="Recon window">
-              <SelectValue placeholder="Window" />
-            </SelectTrigger>
-            <SelectContent>
-              {WINDOW_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="sm" onClick={fetchHub} disabled={loading || triggerLoading}>
-            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-xs text-slate-400">Auto-updated daily 08:00 SAST</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={fetchHealth}
+            disabled={loading}
+            aria-label="Refresh billing health"
+          >
+            <PiArrowsClockwiseBold className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
           <Button
-            variant="outline"
             size="sm"
-            onClick={handleTriggerPayNow}
-            disabled={triggerLoading || loading}
+            className="bg-slate-900 text-white hover:bg-slate-800"
+            onClick={() => data && exportArAgingCsv(data)}
+            disabled={!data}
           >
-            <PiPlayBold className="w-4 h-4 mr-2" />
-            {triggerLoading ? 'Triggering…' : 'Trigger PayNow recon'}
-          </Button>
-          <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange-dark" asChild>
-            <Link href="/admin/billing/invoices">
-              <PiFileTextBold className="w-4 h-4 mr-2" />
-              View All Invoices
-            </Link>
+            <PiDownloadSimpleBold className="mr-2 h-4 w-4" />
+            Export AR aging
           </Button>
         </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
-          Supabase recon hub
-        </Badge>
-        <span className="text-xs text-slate-400">Window · {windowLabel(window)}</span>
-        {summary ? (
-          <span className="text-xs text-slate-500">
-            {summary.netcashCompletedInWindow} NetCash completed ·{' '}
-            {summary.netcashMatchedInWindow} matched
-          </span>
-        ) : null}
       </div>
 
       {error && data && (
         <div
           role="alert"
-          className="rounded-xl border border-red-200/80 bg-red-50/80 shadow-sm px-4 py-3 text-sm text-red-800"
+          className="rounded-xl border border-red-200/80 bg-red-50/80 px-4 py-3 text-sm text-red-800 shadow-sm"
         >
           {error}
         </div>
       )}
 
-      {summary && (
+      {data && (
         <>
-          <DayDoneBanner
-            dayDone={summary.dayDone}
-            unmatchedCount={summary.unmatchedNetcashToCt}
-            windowLabel={windowLabel(window)}
+          <HealthStatCards
+            data={{
+              mrr: data.mrr,
+              pastDue: data.pastDue,
+              suspension: data.suspension,
+              unpaid: data.unpaid,
+            }}
           />
 
-          <CashMatchStrip
-            unmatchedNetcashToCt={summary.unmatchedNetcashToCt}
-            netcashCompletedInWindow={summary.netcashCompletedInWindow}
-            netcashMatchedInWindow={summary.netcashMatchedInWindow}
-            zohoPaymentLagCount={summary.zohoPaymentLagCount}
-            paynowRecon={summary.paynowRecon}
-          />
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <div className="min-w-0">
+              <MrrCollectionsChart data={data.trend} />
+            </div>
+            <div className="min-w-0">
+              <AgingBucketsChart aging={data.aging} />
+            </div>
+          </div>
 
-          <SecondaryKpis
-            openAr={summary.secondary.openAr}
-            collectedLast30Days={summary.secondary.collectedLast30Days}
-            activeServices={summary.secondary.activeServices}
-          />
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <div className="min-w-0">
+              <SuspensionWatchlist
+                entries={data.watchlist}
+                policyDays={data.suspension.policyDays}
+                onSuspended={fetchHealth}
+              />
+            </div>
+            <div className="min-w-0">
+              <OverdueInvoiceRegister
+                rows={data.overdueInvoices}
+                totalOverdue={data.unpaid.overdue}
+              />
+            </div>
+          </div>
         </>
       )}
-
-      <ExceptionTable exceptions={data?.exceptions ?? []} />
-
-      <DeepLinks />
-
-      <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-slate-500">
-        <span className="inline-flex items-center gap-2">
-          <PiClockBold className="w-4 h-4" aria-hidden="true" />
-          {loading ? 'Refreshing…' : `Recon window · ${windowLabel(window)}`}
-        </span>
-      </div>
     </AdminPage>
   );
 }
