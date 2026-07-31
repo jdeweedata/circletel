@@ -49,3 +49,45 @@ export type {
   WhatsAppConsent,
   RATE_LIMIT_TIERS,
 } from './types';
+
+// WhatsApp Flows (F1 Lead Qualification)
+export {
+  sendFlow,
+  buildFlowMessagePayload,
+  formatWhatsAppPhone,
+  F1_FLOW_NAME,
+  F1_DEFAULT_SCREEN,
+  type SendFlowParams,
+  type SendFlowResult,
+} from './flows/flow-sender';
+
+export {
+  handleFlowCompletion,
+  parseNfmReplyResponseJson,
+  buildCoverageLeadInsert,
+  type FlowCompletionResult,
+  type FlowResponseHandlerDeps,
+  type FlowCompletionReason,
+  type LeadCreatedHookContext,
+} from './flows/flow-response-handler';
+
+export {
+  notifyF1LeadCreated,
+  onF1LeadCreated,
+  type F1LeadNotificationResult,
+} from './flows/f1-lead-notifications';
+
+export type {
+  F1LeadQualificationResponse,
+  WhatsAppFlowSession,
+  NfmReplyWebhookMessage,
+  FlowSessionStatus,
+  FlowEntrySource,
+} from './flows/types';
+
+export {
+  isF1LeadQualificationResponse,
+  isNfmReplyWebhookMessage,
+  normalizeCustomerType,
+  parsePopiaOptIn,
+} from './flows/types';

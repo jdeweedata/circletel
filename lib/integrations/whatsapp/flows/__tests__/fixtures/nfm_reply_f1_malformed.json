@@ -1,0 +1,14 @@
+{
+  "from": "27821234567",
+  "id": "wamid.HBgNMjc4MjEyMzQ1NjcVAgASGBQzQUFBQUFBQUFBQUFBQUFBQUE=",
+  "timestamp": "1753900800",
+  "type": "interactive",
+  "interactive": {
+    "type": "nfm_reply",
+    "nfm_reply": {
+      "name": "flow",
+      "body": "Sent",
+      "response_json": "{not-valid-json"
+    }
+  }
+}

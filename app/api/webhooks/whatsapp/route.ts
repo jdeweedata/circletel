@@ -4,16 +4,22 @@
  * Handles incoming webhooks from Meta Cloud API:
  * - Webhook verification (GET)
  * - Message status updates (POST)
+ * - Flow completions (interactive nfm_reply)
  *
  * @see https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { whatsAppService } from '@/lib/integrations/whatsapp';
+import {
+  whatsAppService,
+  handleFlowCompletion,
+} from '@/lib/integrations/whatsapp';
+import { onF1LeadCreated } from '@/lib/integrations/whatsapp/flows/f1-lead-notifications';
 import type {
   WebhookPayload,
   WebhookStatusUpdate,
+  WebhookMessage,
 } from '@/lib/integrations/whatsapp/types';
 
 // =============================================================================
@@ -83,21 +89,89 @@ export async function POST(request: NextRequest) {
           await processStatusUpdates(value.statuses);
         }
 
-        // Process incoming messages (optional - for future use)
+        // Process incoming messages (flow completions + log others)
         if (value.messages && value.messages.length > 0) {
-          // Could be used for customer replies
-          console.log('[WhatsApp Webhook] Received messages:', value.messages.length);
+          await processInboundMessages(value.messages);
         }
       }
     }
 
+    // Always 200 — Meta retries non-2xx and can amplify poison payloads
     return NextResponse.json({ received: true });
   } catch (error) {
+    // Still 200 so Meta does not retry endlessly; log for ops
     console.error('[WhatsApp Webhook] Error processing webhook:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ received: true });
+  }
+}
+
+// =============================================================================
+// INBOUND MESSAGES (incl. Flow nfm_reply)
+// =============================================================================
+
+/**
+ * Detect Meta Flow completion: interactive.type === 'nfm_reply'.
+ * WebhookMessage.interactive is typed for button/list only — check raw shape.
+ */
+function isNfmReplyMessage(message: WebhookMessage): boolean {
+  if (message.type !== 'interactive') return false;
+  const interactive = message.interactive as
+    | { type?: string; nfm_reply?: { response_json?: string } }
+    | undefined;
+  return (
+    interactive?.type === 'nfm_reply' &&
+    typeof interactive.nfm_reply?.response_json === 'string'
+  );
+}
+
+/**
+ * Route inbound messages: nfm_reply → flow completion handler; others log only.
+ * Never throws — failures are logged so the webhook can still return 200.
+ */
+async function processInboundMessages(messages: WebhookMessage[]): Promise<void> {
+  console.log('[WhatsApp Webhook] Received messages:', messages.length);
+
+  for (const message of messages) {
+    if (!isNfmReplyMessage(message)) {
+      console.log('[WhatsApp Webhook] Inbound non-flow message', {
+        type: message.type,
+        from: message.from,
+        id: message.id,
+      });
+      continue;
+    }
+
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+          },
+        }
+      );
+
+      const result = await handleFlowCompletion(message, {
+        supabase,
+        onLeadCreated: onF1LeadCreated,
+      });
+      console.log('[WhatsApp Webhook] Flow completion handled', {
+        messageId: message.id,
+        from: message.from,
+        success: result.success,
+        reason: result.reason,
+        coverageLeadId: result.coverageLeadId,
+        sessionId: result.sessionId,
+      });
+    } catch (error) {
+      console.error('[WhatsApp Webhook] Flow completion handler failed', {
+        messageId: message.id,
+        from: message.from,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
 }
 

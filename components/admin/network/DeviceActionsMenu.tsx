@@ -7,6 +7,7 @@ import {
   PiEyeBold,
   PiLinkBold,
   PiPowerBold,
+  PiUserPlusBold,
 } from 'react-icons/pi';
 import {
   DropdownMenu,
@@ -23,7 +24,10 @@ interface DeviceActionsMenuProps {
   deviceName: string;
   isOnline: boolean;
   tunnelLimitReached: boolean;
+  /** When true, show Link Customer action */
+  isUnlinked?: boolean;
   onReboot: () => void;
+  onLinkCustomer?: () => void;
 }
 
 export function DeviceActionsMenu({
@@ -31,7 +35,9 @@ export function DeviceActionsMenu({
   deviceName,
   isOnline,
   tunnelLimitReached,
+  isUnlinked = false,
   onReboot,
+  onLinkCustomer,
 }: DeviceActionsMenuProps) {
   const router = useRouter();
 
@@ -61,6 +67,12 @@ export function DeviceActionsMenu({
           <PiEyeBold className="mr-2 h-4 w-4" />
           View Details
         </DropdownMenuItem>
+        {isUnlinked && onLinkCustomer && (
+          <DropdownMenuItem onClick={onLinkCustomer}>
+            <PiUserPlusBold className="mr-2 h-4 w-4" />
+            Link Customer
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           onClick={handleLaunchEweb}
           disabled={tunnelLimitReached}

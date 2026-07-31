@@ -1,5 +1,20 @@
 'use client';
 
+/**
+ * Network Devices list — Ruijie fleet ops.
+ *
+ * Customer link path (Task C3):
+ * - Filter Customer link → Unlinked only
+ * - Per-row Link opens LinkCustomerDialog → POST /api/ruijie/devices/[sn]/link
+ * - Detail page also has Customer Assignment panel
+ *
+ * Link body: { type: "consumer"|"corporate", customer_order_id? | corporate_site_id? }
+ * Search: GET /api/admin/search/customers?q=
+ * Verify: ruijie_device_cache.customer_order_id or corporate_site_id set after link.
+ *
+ * Ops: do not mass-link with invented IDs — search real orders/sites from the picker.
+ */
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -20,6 +35,8 @@ import {
   DeviceFilters,
   DeviceTable,
   DeviceCard,
+  LinkCustomerDialog,
+  type RuijieListDevice,
 } from '@/components/admin/network';
 import {
   MetricCard,
@@ -31,33 +48,12 @@ import { computeNetworkInventory } from '@/lib/network/performance-aggregates';
 import {
   AdminPage,
   PageHeader,
-  StatCard,
-  SectionCard,
-  StatusBadge,
   LoadingState,
-  EmptyState,
-  ErrorState,
-  type StatusVariant,
 } from '@/components/backend';
 
 
-interface RuijieDevice {
-  sn: string;
-  device_name: string;
-  model: string | null;
-  group_name: string | null;
-  management_ip: string | null;
-  online_clients: number;
-  cpu_usage?: number | null;
-  memory_usage?: number | null;
-  status: string;
-  config_status: string | null;
-  synced_at: string;
-  mock_data: boolean;
-}
-
 interface DevicesResponse {
-  devices: RuijieDevice[];
+  devices: RuijieListDevice[];
   total: number;
   lastSynced: string | null;
   filters: {
@@ -93,9 +89,11 @@ export default function RuijieDevicesPage() {
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
   const [groupFilter, setGroupFilter] = useState(searchParams.get('group') || '');
   const [modelFilter, setModelFilter] = useState(searchParams.get('model') || '');
+  const [linkedFilter, setLinkedFilter] = useState(searchParams.get('linked') || '');
 
-  const [rebootDevice, setRebootDevice] = useState<RuijieDevice | null>(null);
+  const [rebootDevice, setRebootDevice] = useState<RuijieListDevice | null>(null);
   const [rebooting, setRebooting] = useState(false);
+  const [linkDevice, setLinkDevice] = useState<RuijieListDevice | null>(null);
 
   const [tunnelCount] = useState(0);
   const TUNNEL_LIMIT = 10;
@@ -109,6 +107,7 @@ export default function RuijieDevicesPage() {
         if (statusFilter) params.set('status', statusFilter);
         if (groupFilter) params.set('group', groupFilter);
         if (modelFilter) params.set('model', modelFilter);
+        if (linkedFilter) params.set('linked', linkedFilter);
 
         const response = await fetch(`/api/ruijie/devices?${params.toString()}`, {
           credentials: 'include',
@@ -126,7 +125,7 @@ export default function RuijieDevicesPage() {
         setRefreshing(false);
       }
     },
-    [search, statusFilter, groupFilter, modelFilter]
+    [search, statusFilter, groupFilter, modelFilter, linkedFilter]
   );
 
   useEffect(() => {
@@ -141,10 +140,11 @@ export default function RuijieDevicesPage() {
     if (statusFilter) params.set('status', statusFilter);
     if (groupFilter) params.set('group', groupFilter);
     if (modelFilter) params.set('model', modelFilter);
+    if (linkedFilter) params.set('linked', linkedFilter);
 
     const newUrl = params.toString() ? `?${params.toString()}` : '/admin/network/devices';
     router.replace(newUrl, { scroll: false });
-  }, [search, statusFilter, groupFilter, modelFilter, router]);
+  }, [search, statusFilter, groupFilter, modelFilter, linkedFilter, router]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -190,6 +190,9 @@ export default function RuijieDevicesPage() {
       'CPU %',
       'Mem %',
       'Clients',
+      'Customer',
+      'Customer Order ID',
+      'Corporate Site ID',
       'Last Synced',
     ];
     const rows = data.devices.map((d) => [
@@ -203,6 +206,9 @@ export default function RuijieDevicesPage() {
       d.cpu_usage == null ? '' : String(Math.round(d.cpu_usage)),
       d.memory_usage == null ? '' : String(Math.round(d.memory_usage)),
       d.online_clients.toString(),
+      d.customer_name || '',
+      d.customer_order_id || '',
+      d.corporate_site_id || '',
       d.synced_at,
     ]);
 
@@ -252,6 +258,9 @@ export default function RuijieDevicesPage() {
   const devices = data?.devices || [];
   const onlineCount = devices.filter((d) => d.status === 'online').length;
   const offlineCount = devices.filter((d) => d.status === 'offline').length;
+  const unlinkedCount = devices.filter(
+    (d) => !d.customer_order_id && !d.corporate_site_id
+  ).length;
   const totalClients = devices.reduce((sum, d) => sum + (d.online_clients || 0), 0);
   const withCpu = devices.filter((d) => d.cpu_usage != null).length;
   const isMockData = devices.length > 0 && devices.every((d) => d.mock_data);
@@ -266,6 +275,18 @@ export default function RuijieDevicesPage() {
           <PageHeader title="Network Devices" subtitle="Manage CPE and network devices" />
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant={linkedFilter === 'unlinked' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() =>
+              setLinkedFilter((prev) => (prev === 'unlinked' ? '' : 'unlinked'))
+            }
+          >
+            Unlinked
+            {linkedFilter !== 'linked' && devices.length > 0
+              ? ` (${unlinkedCount})`
+              : ''}
+          </Button>
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/network/health">System Health</Link>
           </Button>
@@ -334,10 +355,14 @@ export default function RuijieDevicesPage() {
           deltaPositive={offlineCount === 0}
         />
         <MetricCard
-          title="Telemetry Coverage"
-          value={`${withCpu}`}
-          subtitle="Devices with live CPU/mem"
-          delta={`${totalClients} clients online`}
+          title="Unlinked devices"
+          value={`${unlinkedCount}`}
+          subtitle={
+            linkedFilter === 'unlinked'
+              ? 'Filter: unlinked only'
+              : 'No customer / site assignment'
+          }
+          delta={`${withCpu} with CPU · ${totalClients} clients`}
         />
       </div>
 
@@ -350,6 +375,8 @@ export default function RuijieDevicesPage() {
         onGroupChange={setGroupFilter}
         modelFilter={modelFilter}
         onModelChange={setModelFilter}
+        linkedFilter={linkedFilter}
+        onLinkedChange={setLinkedFilter}
         groups={data?.filters.groups || []}
         models={data?.filters.models || []}
         onExport={handleExportCSV}
@@ -360,6 +387,7 @@ export default function RuijieDevicesPage() {
           devices={devices}
           tunnelLimitReached={tunnelCount >= TUNNEL_LIMIT}
           onReboot={setRebootDevice}
+          onLinkCustomer={setLinkDevice}
           formatRelativeTime={formatRelativeTime}
         />
       </div>
@@ -370,6 +398,7 @@ export default function RuijieDevicesPage() {
             device={device}
             tunnelLimitReached={tunnelCount >= TUNNEL_LIMIT}
             onReboot={setRebootDevice}
+            onLinkCustomer={setLinkDevice}
             formatRelativeTime={formatRelativeTime}
           />
         ))}
@@ -385,6 +414,7 @@ export default function RuijieDevicesPage() {
       <div className="flex items-center justify-between text-xs text-slate-500">
         <span>
           Showing {devices.length} of {data?.total || 0} devices
+          {linkedFilter ? ` · customer filter: ${linkedFilter}` : ''}
         </span>
         <span>
           Active tunnels: {tunnelCount}/{TUNNEL_LIMIT}
@@ -412,6 +442,19 @@ export default function RuijieDevicesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <LinkCustomerDialog
+        open={!!linkDevice}
+        onOpenChange={(open) => {
+          if (!open) setLinkDevice(null);
+        }}
+        sn={linkDevice?.sn || ''}
+        deviceName={linkDevice?.device_name}
+        onLinked={() => {
+          setLinkDevice(null);
+          fetchDevices(true);
+        }}
+      />
     </AdminPage>
   );
 }

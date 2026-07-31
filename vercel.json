@@ -238,6 +238,10 @@
     {
       "path": "/api/cron/tarana-metrics",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/lead-followup-sla",
+      "schedule": "*/30 * * * *"
     }
   ]
 }
