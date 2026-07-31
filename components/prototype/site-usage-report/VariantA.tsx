@@ -27,7 +27,7 @@ export function VariantA() {
               Prototype — not production
             </p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight">{d.title}</h1>
-            <p className="mt-1 text-sm text-[#6B7280]">Generated {d.generatedAt}</p>
+            <p className="mt-1 text-sm text-[#6B7280]">Generated {d.generatedAtLabel}</p>
           </div>
         </div>
       </div>
@@ -41,10 +41,15 @@ export function VariantA() {
           </p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6B7280]">Period</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6B7280]">
+            Report period
+          </p>
           <p className="mt-1 text-lg font-semibold">{d.periodLabel}</p>
           <p className="text-[#6B7280]">
-            {d.periodStart} → {d.periodEnd} ({d.timezone})
+            {d.periodRangeLabel} · {d.timezoneShort}
+          </p>
+          <p className="text-xs text-[#9CA3AF]">
+            {d.periodType} · {d.timezone}
           </p>
         </div>
       </div>
@@ -79,7 +84,9 @@ export function VariantA() {
             />
           ))}
         </div>
-        <p className="mt-1 text-[10px] text-[#9CA3AF]">Daily download (GB) — placeholder series</p>
+        <p className="mt-1 text-[10px] text-[#9CA3AF]">
+          Daily download (GB) — placeholder series · {d.periodRangeLabel}
+        </p>
       </div>
 
       <div className="mx-10 rounded border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-xs">
@@ -90,44 +97,72 @@ export function VariantA() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 px-10 py-5">
-        <section className="rounded border border-dashed border-[#D1D5DB] p-4">
-          <h3 className="text-sm font-semibold">Staff Wi-Fi</h3>
-          <p className="mt-2 text-sm font-medium text-[#B45309]">{d.staffWifi.statusLabel}</p>
-          <p className="mt-1 text-xs text-[#6B7280]">SSID: {d.staffWifi.ssids.join(', ')}</p>
-          <ul className="mt-3 list-disc space-y-1 pl-4 text-[11px] text-[#6B7280]">
+      <div className="space-y-4 px-10 py-5">
+        <h2 className="text-sm font-semibold">
+          Unjani Wi-Fi breakdown{' '}
+          <span className="font-normal text-[#6B7280]">(separate sources — do not sum)</span>
+        </h2>
+
+        <section className="rounded border-2 border-[#F5831F] bg-amber-50 p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="text-sm font-semibold text-amber-800">
+              Staff Wi-Fi — not displaying (critical gap)
+            </h3>
+            <p className="text-xs text-amber-700">SSID: {d.staffWifi.ssids.join(', ')}</p>
+          </div>
+          <p className="mt-2 text-sm font-medium text-amber-900">{d.staffWifi.whyCritical}</p>
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-amber-800">
+            Why this section is empty
+          </p>
+          <ol className="mt-1 list-decimal space-y-1 pl-4 text-[11px] text-amber-950/80">
+            {d.staffWifi.whyMissing.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-amber-800">
+            Unlock checklist
+          </p>
+          <ul className="mt-1 list-disc space-y-1 pl-4 text-[11px] text-amber-950/80">
             {d.staffWifi.unlockChecklist.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
-          <p className="mt-3 text-[10px] text-[#9CA3AF]">
-            Source: CircleTel radio (SSID period bytes) — not available for this period.
-          </p>
         </section>
 
         <section className="rounded border border-[#E5E7EB] p-4">
-          <h3 className="text-sm font-semibold">Patient Free Wi-Fi</h3>
-          <dl className="mt-3 space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-[#6B7280]">Unique users</dt>
-              <dd className="font-semibold">{d.patientWifi.uniqueUsers.toLocaleString('en-ZA')}</dd>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="text-sm font-semibold">Patient Free Wi-Fi</h3>
+            <p className="text-xs text-[#6B7280]">{d.patientWifi.source}</p>
+          </div>
+          <dl className="mt-3 grid grid-cols-3 gap-3 text-sm">
+            <div>
+              <dt className="text-[10px] uppercase tracking-wider text-[#6B7280]">Unique users</dt>
+              <dd className="mt-1 font-semibold">
+                {d.patientWifi.uniqueUsers.toLocaleString('en-ZA')}
+              </dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-[#6B7280]">Login sessions</dt>
-              <dd className="font-semibold">{d.patientWifi.loginSessions.toLocaleString('en-ZA')}</dd>
+            <div>
+              <dt className="text-[10px] uppercase tracking-wider text-[#6B7280]">Login sessions</dt>
+              <dd className="mt-1 font-semibold">
+                {d.patientWifi.loginSessions.toLocaleString('en-ZA')}
+              </dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-[#6B7280]">Download</dt>
-              <dd className="font-semibold">{fmtGb(d.patientWifi.downloadGb)}</dd>
+            <div>
+              <dt className="text-[10px] uppercase tracking-wider text-[#6B7280]">Download</dt>
+              <dd className="mt-1 font-semibold">{fmtGb(d.patientWifi.downloadGb)}</dd>
             </div>
           </dl>
           <p className="mt-3 text-[10px] leading-relaxed text-[#9CA3AF]">{d.patientWifi.footnote}</p>
+          <p className="mt-2 text-[11px] font-medium text-amber-800">
+            Patient figures alone cannot explain Staff load — Staff instrumentation above is
+            required to compare the two.
+          </p>
         </section>
       </div>
 
       <footer className="mt-auto border-t border-[#E5E7EB] px-10 py-4 text-[10px] text-[#9CA3AF]">
-        CircleTel · Admin Site Network Usage Report · {d.siteCode} · Do not sum Patient + Staff + BNG
-        layers · Page 1 of 1
+        CircleTel · {d.siteCode} · Generated {d.generatedAtLabel} · Do not sum Patient + Staff + BNG
+        · Page 1 of 1
       </footer>
     </article>
   );

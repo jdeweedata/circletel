@@ -33,7 +33,8 @@ export function VariantB() {
         </div>
         <div className="text-right text-sm text-gray-300">
           <p className="text-base font-semibold text-white">{d.periodLabel}</p>
-          <p>Generated {d.generatedAt}</p>
+          <p className="text-xs text-gray-400">{d.periodRangeLabel} · {d.timezoneShort}</p>
+          <p>Generated {d.generatedAtLabel}</p>
           <p className="text-[10px] text-[#F5831F]">PROTOTYPE — not production</p>
         </div>
       </header>
@@ -85,9 +86,12 @@ export function VariantB() {
       <section className="grid grid-cols-[1fr_1.2fr] gap-3 px-10 pb-8">
         <div className="rounded-xl border border-dashed border-amber-500/40 bg-amber-500/10 p-4">
           <p className="text-[10px] uppercase tracking-wider text-amber-400">Staff Wi-Fi</p>
-          <p className="mt-2 text-lg font-semibold text-amber-200">{d.staffWifi.statusLabel}</p>
-          <p className="mt-2 text-xs text-amber-100/70">
-            Period GB by SSID unlocks later — not invented from device totals.
+          <p className="mt-2 text-lg font-semibold text-amber-200">
+            Staff Wi-Fi — not displaying (critical gap)
+          </p>
+          <p className="mt-2 text-xs text-amber-100/80">{d.staffWifi.whyCritical}</p>
+          <p className="mt-2 text-[11px] text-amber-100/60">
+            Device Traffic is aggregate only; live Kbps ≠ period GB. Need STA SSID byte rollups.
           </p>
         </div>
         <div className="rounded-xl bg-[#1F2937] p-4">

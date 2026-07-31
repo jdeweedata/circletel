@@ -29,9 +29,9 @@ export function VariantC() {
           {d.siteName}
         </h1>
         <p className="mt-2 text-sm text-stone-300">
-          Site Network Usage Report · {d.periodLabel} · {d.timezone}
+          Site Network Usage Report · {d.periodLabel} · {d.periodRangeLabel} · {d.timezoneShort}
         </p>
-        <p className="mt-1 text-xs text-stone-500">Generated {d.generatedAt}</p>
+        <p className="mt-1 text-xs text-stone-500">Generated {d.generatedAtLabel}</p>
       </div>
 
       <section className="border-b border-stone-200 px-10 py-6">
@@ -71,13 +71,23 @@ export function VariantC() {
 
       <section className="px-10 py-6">
         <h2 className="font-serif text-xl">2. Staff Wi-Fi</h2>
-        <div className="mt-3 border-l-4 border-[#F5831F] bg-white px-5 py-4">
-          <p className="text-base font-semibold">{d.staffWifi.statusLabel}</p>
-          <p className="mt-2 text-sm text-stone-600">
-            Target SSID: <span className="font-medium">{d.staffWifi.ssids[0]}</span>. Live client
-            rates on the AP are not period usage.
+        <div className="mt-3 border-l-4 border-[#F5831F] bg-amber-50 px-5 py-4">
+          <p className="text-base font-semibold text-amber-900">
+            Staff Wi-Fi — not displaying (critical gap)
           </p>
-          <ol className="mt-3 list-decimal space-y-1 pl-5 text-xs text-stone-500">
+          <p className="mt-2 text-sm text-amber-950/90">{d.staffWifi.whyCritical}</p>
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-amber-800">
+            Why empty
+          </p>
+          <ol className="mt-1 list-decimal space-y-1 pl-5 text-xs text-stone-600">
+            {d.staffWifi.whyMissing.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-amber-800">
+            Unlock
+          </p>
+          <ol className="mt-1 list-decimal space-y-1 pl-5 text-xs text-stone-500">
             {d.staffWifi.unlockChecklist.map((item) => (
               <li key={item}>{item}</li>
             ))}

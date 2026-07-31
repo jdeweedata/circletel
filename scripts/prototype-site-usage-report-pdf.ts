@@ -15,6 +15,8 @@ const ORANGE = '#F5831F';
 const DARK = '#1F2937';
 const GRAY = '#6B7280';
 const LIGHT = '#E5E7EB';
+const AMBER = '#B45309';
+const AMBER_BG = [255, 251, 235] as const; // #FFFBEB
 
 const OUT = path.join(
   process.cwd(),
@@ -39,7 +41,7 @@ function main() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(GRAY);
-  doc.text('Generated 2026-07-31T15:28:00+02:00', pageW - 14, y + 14, { align: 'right' });
+  doc.text('Generated 31 July 2026, 15:28 SAST', pageW - 14, y + 14, { align: 'right' });
   doc.setFontSize(8);
   doc.setTextColor(ORANGE);
   doc.text('PROTOTYPE — sample layout (Variant A)', pageW - 14, y + 19, { align: 'right' });
@@ -49,25 +51,35 @@ function main() {
   doc.setLineWidth(0.8);
   doc.line(14, y, pageW - 14, y);
 
+  // Site + period block — stacked labels, human dates (no ISO strings)
   y = 48;
-  doc.setTextColor(DARK);
+  doc.setFontSize(8);
+  doc.setTextColor(GRAY);
+  doc.setFont('helvetica', 'normal');
+  doc.text('SITE', 14, y);
+  doc.text('REPORT PERIOD', pageW - 14, y, { align: 'right' });
+
+  y += 5;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
+  doc.setTextColor(DARK);
   doc.text('Unjani Clinic — Alexandra', 14, y);
+  doc.text('June 2026', pageW - 14, y, { align: 'right' });
+
+  y += 5;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(GRAY);
-  doc.text('CT-UNJ-002 · Unjani Clinics NPC', 14, y + 5);
-  doc.setTextColor(DARK);
-  doc.setFont('helvetica', 'bold');
-  doc.text('June 2026 (calendar month)', pageW - 14, y, { align: 'right' });
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(GRAY);
-  doc.text('2026-06-01 → 2026-06-30 (Africa/Johannesburg)', pageW - 14, y + 5, {
+  doc.text('CT-UNJ-002 · Unjani Clinics NPC', 14, y);
+  doc.text('1 – 30 June 2026 · SAST', pageW - 14, y, { align: 'right' });
+
+  y += 4.5;
+  doc.setFontSize(8);
+  doc.text('Last complete calendar month · Africa/Johannesburg', pageW - 14, y, {
     align: 'right',
   });
 
-  y = 62;
+  y = 68;
   const kpis = [
     ['Downloaded', '142.6 GB'],
     ['Uploaded', '18.4 GB'],
@@ -79,20 +91,20 @@ function main() {
     const x = 14 + i * colW;
     doc.setFontSize(8);
     doc.setTextColor(GRAY);
+    doc.setFont('helvetica', 'normal');
     doc.text(label.toUpperCase(), x, y);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(DARK);
     doc.text(value, x, y + 6);
-    doc.setFont('helvetica', 'normal');
   });
 
-  y = 78;
+  y = 84;
   doc.setDrawColor(LIGHT);
   doc.setLineWidth(0.3);
   doc.line(14, y, pageW - 14, y);
 
-  y = 86;
+  y = 90;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(DARK);
@@ -102,16 +114,19 @@ function main() {
   doc.setTextColor(GRAY);
   doc.text('Primary: Interstellio BNG (PPPoE)', pageW - 14, y, { align: 'right' });
   y += 5;
-  doc.text('Site-level BNG aggregate for the period. Not SSID-split.', 14, y);
+  doc.text(
+    'Site-level BNG aggregate for the period. Not SSID-split — Free + Staff + other traffic mixed.',
+    14,
+    y
+  );
 
-  // Simple bar chart placeholder
-  y += 8;
+  y += 7;
   const days = [
     3.2, 4.1, 5.8, 4.4, 6.2, 2.1, 1.8, 5.5, 6.0, 5.1, 4.8, 5.9, 2.0, 1.5, 6.4, 7.1, 5.3, 4.9,
     5.6, 2.2, 1.9, 6.8, 7.4, 5.0, 4.7, 5.2, 2.3, 1.6, 6.1, 5.8,
   ];
   const max = Math.max(...days);
-  const chartH = 28;
+  const chartH = 22;
   const chartW = pageW - 28;
   const barW = chartW / days.length;
   doc.setFillColor(249, 250, 251);
@@ -123,77 +138,115 @@ function main() {
     doc.setFillColor(245, 131, 31);
     doc.rect(14 + i * barW + 0.3, y + chartH - h - 1, barW - 0.6, h, 'F');
   });
-  y += chartH + 4;
+  y += chartH + 3.5;
   doc.setFontSize(7);
   doc.setTextColor('#9CA3AF');
-  doc.text('Daily download (GB) — placeholder series', 14, y);
+  doc.text('Daily download (GB) — placeholder series · 1–30 June 2026', 14, y);
 
-  y += 8;
+  y += 6;
   doc.setFillColor(249, 250, 251);
-  doc.rect(14, y, pageW - 28, 12, 'F');
+  doc.rect(14, y, pageW - 28, 10, 'F');
   doc.setFontSize(8);
   doc.setTextColor(DARK);
   doc.setFont('helvetica', 'bold');
-  doc.text('Device identity', 16, y + 4.5);
+  doc.text('Device identity', 16, y + 4);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(GRAY);
-  doc.text('UNJANIALEX2 · RAP2200(F) · SN G1U52HL00261B · Group Unjani · Online', 16, y + 9);
+  doc.text('UNJANIALEX2 · RAP2200(F) · SN G1U52HL00261B · Group Unjani · Online', 16, y + 8);
 
-  y += 20;
-  const boxW = (pageW - 28 - 4) / 2;
-  // Staff
-  doc.setDrawColor('#D1D5DB');
-  doc.setLineDashPattern([1.5, 1.5], 0);
-  doc.rect(14, y, boxW, 52, 'S');
-  doc.setLineDashPattern([], 0);
+  // —— Unjani dual-source: Staff (critical gap) then Patient ——
+  y += 16;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(DARK);
+  doc.text('Unjani Wi-Fi breakdown (separate sources — do not sum)', 14, y);
+
+  // Staff full-width investigation panel
+  y += 5;
+  const staffH = 58;
+  doc.setFillColor(...AMBER_BG);
+  doc.rect(14, y, pageW - 28, staffH, 'F');
+  doc.setDrawColor(ORANGE);
+  doc.setLineWidth(0.6);
+  doc.rect(14, y, pageW - 28, staffH, 'S');
+
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.setTextColor(DARK);
-  doc.text('Staff Wi-Fi', 18, y + 6);
+  doc.setTextColor(AMBER);
+  doc.text('Staff Wi-Fi — NOT DISPLAYING (critical gap)', 18, y + 6);
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor('#B45309');
-  doc.text('Not available — instrumentation pending', 18, y + 13, { maxWidth: boxW - 8 });
-  doc.setTextColor(GRAY);
   doc.setFontSize(8);
-  doc.text('SSID: Unjani Clinic Staff', 18, y + 22);
-  doc.text('Unlock: link APs · STA SSID byte rollups · allow-list SSIDs', 18, y + 28, {
-    maxWidth: boxW - 8,
-  });
-  doc.setFontSize(7);
-  doc.setTextColor('#9CA3AF');
-  doc.text('Source: CircleTel radio — not available for this period.', 18, y + 42, {
-    maxWidth: boxW - 8,
-  });
+  doc.setTextColor(DARK);
+  doc.text('SSID: Unjani Clinic Staff · Source: CircleTel radio (SSID period bytes)', 18, y + 11);
 
-  // Patient
-  const px = 14 + boxW + 4;
-  doc.setDrawColor(LIGHT);
-  doc.rect(px, y, boxW, 52, 'S');
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(DARK);
-  doc.text('Patient Free Wi-Fi', px + 4, y + 6);
+  doc.setFontSize(8);
+  doc.text('Why this section is empty:', 18, y + 17);
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(DARK);
-  doc.text('Unique users: 1,842', px + 4, y + 14);
-  doc.text('Login sessions: 6,210', px + 4, y + 20);
-  doc.text('Download: 96.3 GB', px + 4, y + 26);
-  doc.setFontSize(7);
-  doc.setTextColor('#9CA3AF');
+  const whyLines = [
+    '1. We do not yet store period GB broken down by Wi-Fi SSID (only site/device aggregates).',
+    '2. Device Traffic (flow/show/hour) is total AP usage — Free + Staff mixed; no SSID dimension.',
+    '3. Clients-tab RATES are live Kbps, not June totals — they must not be used as period usage.',
+    '4. Need scheduled STA session-byte rollups by SSID (allow-list Staff + Free WiFi) to unlock.',
+  ];
+  let ly = y + 22;
+  whyLines.forEach((line) => {
+    doc.text(line, 18, ly, { maxWidth: pageW - 36 });
+    ly += 4.2;
+  });
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(AMBER);
   doc.text(
-    'Source: TDX/ThinkWiFi (manual export) · June 2026 · aggregate/anonymised · may be revised by TDX · do not sum with Staff or BNG totals.',
-    px + 4,
-    y + 34,
-    { maxWidth: boxW - 8 }
+    'Why investigate: Staff period usage is the critical CircleTel metric to view alongside Patient Free Wi-Fi (TDX).',
+    18,
+    y + staffH - 5,
+    { maxWidth: pageW - 36 }
   );
 
-  y = 280;
+  // Patient box
+  y += staffH + 5;
+  const patientH = 36;
+  doc.setDrawColor(LIGHT);
+  doc.setLineWidth(0.4);
+  doc.rect(14, y, pageW - 28, patientH, 'S');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(DARK);
+  doc.text('Patient Free Wi-Fi', 18, y + 6);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(GRAY);
+  doc.text('Source: TDX/ThinkWiFi (manual Looker export)', pageW - 18, y + 6, { align: 'right' });
+
+  doc.setFontSize(9);
+  doc.setTextColor(DARK);
+  doc.text('Unique users: 1,842', 18, y + 14);
+  doc.text('Login sessions: 6,210', 70, y + 14);
+  doc.text('Download: 96.3 GB', 130, y + 14);
+
   doc.setFontSize(7);
   doc.setTextColor('#9CA3AF');
   doc.text(
-    'CircleTel · Admin Site Network Usage Report · CT-UNJ-002 · Do not sum Patient + Staff + BNG · Page 1 of 1',
+    'Source: TDX/ThinkWiFi (manual export) · 1–30 June 2026 · aggregate/anonymised · may be revised by TDX · do not sum with Staff or BNG totals.',
+    18,
+    y + 22,
+    { maxWidth: pageW - 36 }
+  );
+  doc.setTextColor(AMBER);
+  doc.setFont('helvetica', 'bold');
+  doc.text(
+    'Note: Patient figures alone cannot explain Staff load — Staff section above must be instrumented to compare.',
+    18,
+    y + 30,
+    { maxWidth: pageW - 36 }
+  );
+
+  y = 285;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor('#9CA3AF');
+  doc.text(
+    'CircleTel · CT-UNJ-002 · Generated 31 July 2026, 15:28 SAST · Do not sum Patient + Staff + BNG · Page 1 of 1',
     pageW / 2,
     y,
     { align: 'center' }
