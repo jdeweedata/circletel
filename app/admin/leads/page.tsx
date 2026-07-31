@@ -37,6 +37,7 @@ import {
 } from '@/components/backend';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { getLeadSlaBadge } from '@/lib/leads/sla-badge';
+import { SendF1Dialog } from '@/components/admin/leads/SendF1Dialog';
 
 interface AssignedAdmin {
   id: string;
@@ -198,13 +199,16 @@ export default function AdminLeadsQueuePage() {
         title="Leads"
         subtitle="Coverage lead follow-up queue — first-response SLA (not Zoho Desk support)"
         actions={
-          <Button onClick={fetchLeads} disabled={loading} variant="outline" size="sm">
-            <PiArrowsClockwiseBold
-              className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`}
-              aria-hidden="true"
-            />
-            Refresh
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <SendF1Dialog onSent={fetchLeads} />
+            <Button onClick={fetchLeads} disabled={loading} variant="outline" size="sm">
+              <PiArrowsClockwiseBold
+                className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`}
+                aria-hidden="true"
+              />
+              Refresh
+            </Button>
+          </div>
         }
       />
 

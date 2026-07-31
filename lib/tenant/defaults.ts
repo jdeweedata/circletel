@@ -21,9 +21,9 @@ export const CIRCLETEL_DEFAULTS: TenantConfig = {
     },
   },
   contacts: {
-    WHATSAPP_NUMBER: '082 487 3900',
-    WHATSAPP_LINK: 'https://wa.me/27824873900',
-    WHATSAPP_INTERNATIONAL: '+27 82 487 3900',
+    WHATSAPP_NUMBER: '084 773 9467',
+    WHATSAPP_LINK: 'https://wa.me/27847739467',
+    WHATSAPP_INTERNATIONAL: '+27 84 773 9467',
     PHONE_SALES_OUTBOUND: '010 880 3663',
     EMAIL_PRIMARY: 'contactus@circletel.co.za',
     EMAIL_SUPPORT: 'contactus@circletel.co.za',

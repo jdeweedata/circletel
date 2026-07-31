@@ -77,6 +77,23 @@ export function formatCompanyFooterLine(): string {
 }
 
 /**
+ * Public F1 lead form entry (cold template send).
+ * Use for QR codes and CTAs that should open the structured WhatsApp Flow path.
+ *
+ * @example /get-started?src=qr&campaign=event-flyer
+ */
+export function getWhatsAppF1StartPath(options?: {
+  src?: 'website' | 'qr' | 'manual' | 'ctwa_ad';
+  campaign?: string;
+}): string {
+  const params = new URLSearchParams();
+  if (options?.src) params.set('src', options.src);
+  if (options?.campaign) params.set('campaign', options.campaign);
+  const q = params.toString();
+  return q ? `/get-started?${q}` : '/get-started';
+}
+
+/**
  * Get WhatsApp link with pre-filled message
  */
 export function getWhatsAppLink(message?: string): string {
