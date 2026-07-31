@@ -21,37 +21,61 @@
 
 ## 1. Build DRAFT flow in Meta Flow Builder
 
-1. Meta Business Suite → WhatsApp Manager → **Flows** → Create flow.
-2. Name: `lead_qualification` (or similar; code stores `flow_name` as `lead_qualification` by default in sender).
-3. **First screen name must be `CONTACT`** (matches `F1_DEFAULT_SCREEN` in `flow-sender.ts`). If you use a different first screen, update code before send.
-4. Four screens (product contract):
-   - **CONTACT** — name, customer type, email, phone, company
-   - **ADDRESS** — address, suburb, city, province
-   - **INTEREST** — service_interest, speed, budget_range
-   - **PREF** — contact_preference, best_contact_time, popia_optin
+### Live DRAFT (created 2026-07-31 via Flows API)
+
+| Field | Value |
+|-------|--------|
+| **Flow ID** | `2044303956204342` |
+| **Name** | `lead_qualification` |
+| **Status** | `DRAFT` |
+| **JSON version** | `6.0` |
+| **Category** | `LEAD_GENERATION` |
+| **Validation** | empty (no errors) |
+| **Source JSON** | `docs/integrations/whatsapp/flows/f1_lead_qualification.flow.json` |
+| **Local env** | `WHATSAPP_FLOW_LEAD_QUALIFICATION_ID=2044303956204342` (`.env.local`) |
+
+**Screens:** `CONTACT` → `ADDRESS` → `INTEREST` → `PREF` (terminal). First screen matches `F1_DEFAULT_SCREEN` in `flow-sender.ts`.
+
+**Re-upload / edit (keep DRAFT):**
+
+```bash
+set -a && source .env.local && set +a
+FLOW_JSON=$(python3 -c 'import json; print(json.dumps(json.load(open("docs/integrations/whatsapp/flows/f1_lead_qualification.flow.json"))))')
+curl -sS -X POST "https://graph.facebook.com/v21.0/2044303956204342" \
+  -H "Authorization: Bearer ${WHATSAPP_ACCESS_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d "{\"flow_json\": $(python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))' <<<"$FLOW_JSON")}"
+```
+
+Or recreate from WABA if deleted:
+
+```bash
+# POST /{WABA-ID}/flows with name, categories, flow_json, publish:false
+# See scripts note / source JSON above
+```
+
+**Coolify/production:** set the same flow ID env after deploy; draft sends require `"draft": true` until published.
 
 ### Field names (must match TypeScript exactly)
 
 | Flow field name | Required | Notes |
 |-----------------|----------|--------|
-| `first_name` | yes | |
-| `last_name` | yes | |
-| `customer_type` | yes | Prefer values `consumer` / `business` (`business` → DB `smme`) |
-| `email` | no | |
+| `first_name` | yes | CONTACT |
+| `last_name` | yes | CONTACT |
+| `customer_type` | yes | `consumer` / `business` (`business` → DB `smme`) |
+| `email` | no | CONTACT |
 | `phone` | no | Webhook sender used if empty |
-| `company_name` | no | Show if business |
-| `address` | yes | |
-| `suburb` | yes | |
-| `city` | yes | |
-| `province` | no | |
-| `service_interest` | yes | Maps to `requested_service_type` |
-| `speed` | no | |
-| `budget_range` | no | |
-| `contact_preference` | yes | |
-| `best_contact_time` | no | |
-| `popia_optin` | yes | Must be `true` boolean; false → no lead |
-
-Save **flow ID** from Meta (numeric string).
+| `company_name` | no | CONTACT optional |
+| `address` | yes | ADDRESS |
+| `suburb` | yes | ADDRESS |
+| `city` | yes | ADDRESS |
+| `province` | no | SA provinces dropdown |
+| `service_interest` | yes | INTEREST → `requested_service_type` |
+| `speed` | no | INTEREST |
+| `budget_range` | no | INTEREST |
+| `contact_preference` | yes | PREF |
+| `best_contact_time` | no | PREF |
+| `popia_optin` | yes | OptIn; must be true to create lead |
 
 ---
 
