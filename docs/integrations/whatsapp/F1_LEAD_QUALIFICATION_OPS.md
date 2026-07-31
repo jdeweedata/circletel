@@ -159,3 +159,16 @@ ops/scheduler/check-drift.sh
 ## Out of scope here
 
 F2/F3, full in-chat order, Desk bridge on 084, Inventory/FSM.
+
+## Staging E2E (2026-07-31)
+
+| Step | Result |
+|------|--------|
+| Env `WHATSAPP_FLOW_LEAD_QUALIFICATION_ID` | Set on `/home/circletel/.env.staging` → container |
+| Draft send fix | `mode` must be under `parameters`, not `flow_action_payload` (commit `1fa99b1f`) |
+| `POST /api/admin/whatsapp/flows/send` draft | **200** — wamid delivered to `27737288016` |
+| Session | `whatsapp_flow_sessions` status `sent` → after nfm_reply `completed` |
+| Lead | `coverage_leads` `lead_source=whatsapp_flow`, SLA `first_response_due_at` set |
+
+**Phone completion:** Meta app webhooks still point at **production**. Completing the Flow on-device will hit prod until webhook/code is live there. Staging full path verified with a synthetic `nfm_reply` POST to staging webhook using the real `flow_token`.
+
