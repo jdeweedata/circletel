@@ -27,7 +27,7 @@
 |-------|--------|
 | **Flow ID** | `2044303956204342` |
 | **Name** | `lead_qualification` |
-| **Status** | `DRAFT` |
+| **Status** | `PUBLISHED` (2026-07-31 via `POST /{flow-id}/publish`) |
 | **JSON version** | `6.0` |
 | **Category** | `LEAD_GENERATION` |
 | **Validation** | empty (no errors) |
@@ -171,4 +171,11 @@ F2/F3, full in-chat order, Desk bridge on 084, Inventory/FSM.
 | Lead | `coverage_leads` `lead_source=whatsapp_flow`, SLA `first_response_due_at` set |
 
 **Phone completion:** Meta app webhooks still point at **production**. Completing the Flow on-device will hit prod until webhook/code is live there. Staging full path verified with a synthetic `nfm_reply` POST to staging webhook using the real `flow_token`.
+
+## Published (2026-07-31)
+
+- Flow ID `2044303956204342` status **PUBLISHED**
+- Meta health: `can_send_message: AVAILABLE`
+- Production sends: omit `draft: true` (or set `draft: false`)
+- Cold outbound outside 24h window still needs an approved **Flow button template** (error 131047 otherwise)
 
