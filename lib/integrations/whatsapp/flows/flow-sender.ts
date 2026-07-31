@@ -55,8 +55,8 @@ export interface SendFlowParams {
   headerText?: string;
   footerText?: string;
   /**
-   * When true, includes `mode: "draft"` in flow_action_payload
-   * (required to send unpublished draft flows to test numbers).
+   * When true, sets `parameters.mode = "draft"` (sibling of flow_action_payload).
+   * Required to send unpublished DRAFT flows to test numbers.
    */
   draft?: boolean;
   /** Injectable Supabase (tests); defaults to service-role client */
@@ -123,11 +123,21 @@ export function buildFlowMessagePayload(params: {
   footerText?: string;
   draft?: boolean;
 }): Record<string, unknown> {
-  const flowActionPayload: Record<string, unknown> = {
-    screen: params.screen,
+  // Meta: `mode` is a sibling of flow_action_payload under parameters
+  // (interactive.action.parameters.mode), NOT inside flow_action_payload.
+  // Wrong nesting returns error_code 100: Unexpected key "mode" on flow_action_payload.
+  const parameters: Record<string, unknown> = {
+    flow_message_version: '3',
+    flow_token: params.flowToken,
+    flow_id: params.flowId,
+    flow_cta: params.flowCta,
+    flow_action: 'navigate',
+    flow_action_payload: {
+      screen: params.screen,
+    },
   };
   if (params.draft) {
-    flowActionPayload.mode = 'draft';
+    parameters.mode = 'draft';
   }
 
   const interactive: Record<string, unknown> = {
@@ -135,14 +145,7 @@ export function buildFlowMessagePayload(params: {
     body: { text: params.bodyText },
     action: {
       name: 'flow',
-      parameters: {
-        flow_message_version: '3',
-        flow_token: params.flowToken,
-        flow_id: params.flowId,
-        flow_cta: params.flowCta,
-        flow_action: 'navigate',
-        flow_action_payload: flowActionPayload,
-      },
+      parameters,
     },
   };
 
