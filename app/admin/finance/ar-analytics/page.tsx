@@ -9,18 +9,16 @@ import {
   AdminPage,
   LoadingState,
   ErrorState,
-  MetricCard,
   Tabs,
   ConsoleTabsList,
   ConsoleTabsContent,
 } from '@/components/backend';
+import { HealthCard, formatRand } from '@/components/admin/billing/health';
 import {
   ArAgingPanel,
   DsoMetricsPanel,
   HistoryPanel,
   NotificationsPanel,
-  TrendIcon,
-  formatCurrency,
   type ARAnalyticsData,
 } from '@/components/admin/finance/ar';
 
@@ -119,46 +117,54 @@ export default function ARAnalyticsPage() {
         <span className="text-xs text-slate-400">Last {period} days</span>
         <span className="text-xs text-slate-500">
           {data.ar_aging.total_outstanding_invoices} open invoices ·{' '}
-          {formatCurrency(data.ar_aging.total_outstanding_amount)} outstanding
+          {formatRand(data.ar_aging.total_outstanding_amount)} outstanding
         </span>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          title="Total Outstanding"
-          value={formatCurrency(data.ar_aging.total_outstanding_amount)}
-          subtitle={`${data.ar_aging.total_outstanding_invoices} invoices`}
-        >
-          <PiCurrencyDollarBold className="w-5 h-5 text-amber-600" aria-hidden="true" />
-        </MetricCard>
-
-        <MetricCard
-          title="Days Sales Outstanding"
+        <HealthCard
+          label="Total Outstanding"
+          value={formatRand(data.ar_aging.total_outstanding_amount)}
+          primaryLine={`${data.ar_aging.total_outstanding_invoices} open invoices`}
+          primaryClassName="text-orange-500"
+          secondaryLine="Accounts receivable balance"
+          icon={<PiCurrencyDollarBold className="h-5 w-5" />}
+          iconClassName="bg-orange-50 text-orange-500"
+        />
+        <HealthCard
+          label="Days Sales Outstanding"
           value={data.dso.dso_current.toFixed(1)}
-          subtitle={`30-day avg: ${data.dso.dso_30_day_avg.toFixed(1)} days`}
-        >
-          <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
-            <TrendIcon trend={data.dso.dso_trend} />
-            <span className="capitalize">{data.dso.dso_trend}</span>
-          </span>
-        </MetricCard>
-
-        <MetricCard
-          title="Collection Rate"
+          primaryLine={data.dso.dso_trend.charAt(0).toUpperCase() + data.dso.dso_trend.slice(1)}
+          primaryClassName={
+            data.dso.dso_trend === 'improving'
+              ? 'text-teal-600'
+              : data.dso.dso_trend === 'worsening'
+                ? 'text-red-600'
+                : undefined
+          }
+          secondaryLine={`30-day avg: ${data.dso.dso_30_day_avg.toFixed(1)} days`}
+          icon={<PiClockBold className="h-5 w-5" />}
+          iconClassName="bg-slate-100 text-slate-600"
+        />
+        <HealthCard
+          label="Collection Rate"
           value={`${data.collection.collection_rate.toFixed(1)}%`}
-          subtitle={`${formatCurrency(data.collection.total_amount_collected)} collected`}
-        >
-          <PiTargetBold className="w-5 h-5 text-emerald-600" aria-hidden="true" />
-        </MetricCard>
-
-        <MetricCard
-          title="Notifications Sent"
+          primaryLine={`${formatRand(data.collection.total_amount_collected)} collected`}
+          primaryClassName="text-teal-600"
+          secondaryLine={`Last ${period} days`}
+          icon={<PiTargetBold className="h-5 w-5" />}
+          iconClassName="bg-teal-50 text-teal-600"
+        />
+        <HealthCard
+          label="Notifications Sent"
           value={`${data.notifications.total_sms + data.notifications.total_email}`}
-          subtitle={`${data.notifications.delivery_rate.toFixed(1)}% delivery rate`}
-        >
-          <PiPulseBold className="w-5 h-5 text-blue-600" aria-hidden="true" />
-        </MetricCard>
+          primaryLine={`${data.notifications.delivery_rate.toFixed(1)}% delivery rate`}
+          primaryClassName="text-blue-600"
+          secondaryLine="SMS & email reminders"
+          icon={<PiPulseBold className="h-5 w-5" />}
+          iconClassName="bg-blue-50 text-blue-600"
+        />
       </div>
 
       <Tabs defaultValue="aging" className="space-y-4">

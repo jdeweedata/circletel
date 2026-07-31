@@ -22,9 +22,8 @@ export interface OutstandingInvoice {
   days_overdue: number;
   status: 'unpaid' | 'partial' | 'overdue';
   invoice_type: string;
-  payment_method: string | null;
+  payment_collection_method: string | null;
   has_active_mandate: boolean;
-  order_number: string | null;
   created_at: string;
 }
 
@@ -67,7 +66,7 @@ export async function GET(request: NextRequest) {
         due_date,
         status,
         invoice_type,
-        payment_method,
+        payment_collection_method,
         created_at,
         service_id,
         customers!inner (
@@ -81,9 +80,6 @@ export async function GET(request: NextRequest) {
             mandate_status,
             is_active
           )
-        ),
-        consumer_orders (
-          order_number
         )
       `)
       .in('status', status === 'all' ? ['unpaid', 'partial', 'overdue'] : [status || 'unpaid', 'partial', 'overdue']);
@@ -136,9 +132,8 @@ export async function GET(request: NextRequest) {
         days_overdue: daysOverdue,
         status: daysOverdue > 0 && invoice.status === 'unpaid' ? 'overdue' : invoice.status,
         invoice_type: invoice.invoice_type,
-        payment_method: invoice.payment_method,
+        payment_collection_method: invoice.payment_collection_method,
         has_active_mandate: hasActiveMandate,
-        order_number: invoice.consumer_orders?.[0]?.order_number || null,
         created_at: invoice.created_at,
       };
     });

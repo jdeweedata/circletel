@@ -154,7 +154,7 @@ const getPageInfo = (pathname: string): { title: string; description: string } =
     }
     return {
       title: 'Billing',
-      description: 'Daily cash match · NetCash → invoices → Zoho',
+      description: 'Receivables, collections, and suspension queue',
     };
   }
 
