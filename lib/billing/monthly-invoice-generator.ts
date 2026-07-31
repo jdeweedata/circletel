@@ -505,6 +505,7 @@ export class MonthlyInvoiceGenerator {
           const paynowResult = await processPayNowForInvoice(invoice.id, {
             sendEmail: true,
             sendSms: true,
+            sendWhatsApp: true,
             smsTemplate: 'paymentDue',
           });
           paynowSent = paynowResult.success;
