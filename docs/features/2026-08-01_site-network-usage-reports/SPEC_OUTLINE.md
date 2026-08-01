@@ -56,8 +56,10 @@ One **primary** byte series per report. Never sum Ruijie + Interstellio.
 | Period | Primary |
 |--------|---------|
 | Weekly + custom ≤7 days | **Ruijie** hourly rollups when site→device→`group_id` linked and window covered; else **Interstellio** if mapped |
-| Monthly / 60-day / custom >7 days | **Interstellio only** (daily, ≤90d). Ruijie must not be sole source |
+| Monthly / 60-day / custom >7 days | **Interstellio** when mapped (BNG). If **no Interstellio** (MTN breakout / TDX-locked MikroTik / unmapped): **Ruijie** for hours that exist, with AP/group + ~14d retention footnote (month may be partial) |
 | Neither / incomplete | Site **not available** → ZIP skip slip |
+
+Never invent Interstellio for MTN/TDX sites.
 
 **Labelling**
 

@@ -43,14 +43,18 @@ export function selectCorePrimarySource(input: {
   ruijieCoversWindow: boolean;
   interstellioMapped: boolean;
 }): CoreTrafficSource {
+  const ruijieOk = input.ruijieLinked && input.ruijieCoversWindow;
+
   if (input.isShortPeriod) {
-    if (input.ruijieLinked && input.ruijieCoversWindow) {
-      return 'ruijie_hourly';
-    }
+    if (ruijieOk) return 'ruijie_hourly';
     return input.interstellioMapped ? 'interstellio_daily' : 'unavailable';
   }
 
-  return input.interstellioMapped ? 'interstellio_daily' : 'unavailable';
+  // Long periods: prefer Interstellio (BNG accounting). MTN / TDX sites with no
+  // Interstellio fall back to Ruijie AP/group rollups for hours that exist.
+  if (input.interstellioMapped) return 'interstellio_daily';
+  if (ruijieOk) return 'ruijie_hourly';
+  return 'unavailable';
 }
 
 export function shouldAttachSecondaryInterstellio(input: {
@@ -257,17 +261,34 @@ export async function loadInterstellioDailyEntries(
   });
 }
 
+function ruijieCoreNote(
+  period: ReportPeriod,
+  dailyDownloadBytes: number[]
+): string {
+  const daysWithSamples = dailyDownloadBytes.filter((bytes) => bytes > 0).length;
+  const partial =
+    !period.isShortPeriod && daysWithSamples < period.inclusiveDayCount
+      ? ` Coverage is partial (${daysWithSamples} of ${period.inclusiveDayCount} days have samples; Ruijie retention is typically ~14 days).`
+      : '';
+  return (
+    'AP / Wi-Fi group hourly rollups only — not BNG or MTN subscriber accounting. ' +
+    'Totals include available hours only; missing hours may undercount.' +
+    partial
+  );
+}
+
 export async function assembleCoreTraffic(
   supabase: SupabaseClient,
   siteId: string,
   period: ReportPeriod
 ): Promise<SiteUsageReportModel['core']> {
-  const [subscriberId, ruijie] = await Promise.all([
-    loadInterstellioSubscriberId(supabase, siteId),
-    period.isShortPeriod
-      ? loadRuijieHourlyRows(supabase, siteId, period.startUtc, period.endUtc)
-      : Promise.resolve<RuijieHourlyLoad>({ groupId: null, rows: [] }),
-  ]);
+  const subscriberId = await loadInterstellioSubscriberId(supabase, siteId);
+  // Load Ruijie for short periods always; for long periods only when Interstellio
+  // is absent (MTN / TDX / unmapped BNG) so we can fall back.
+  const needsRuijie = period.isShortPeriod || subscriberId === null;
+  const ruijie = needsRuijie
+    ? await loadRuijieHourlyRows(supabase, siteId, period.startUtc, period.endUtc)
+    : ({ groupId: null, rows: [] } satisfies RuijieHourlyLoad);
 
   const source = selectCorePrimarySource({
     isShortPeriod: period.isShortPeriod,
@@ -330,8 +351,7 @@ export async function assembleCoreTraffic(
     source,
     sourceLabel: CORE_SOURCE_LABEL[source],
     ...primary,
-    note:
-      'Totals include available hourly Ruijie rollups only; missing hours may undercount usage.',
+    note: ruijieCoreNote(period, primary.dailyDownloadBytes),
     ...(secondary
       ? {
           secondaryInterstellio: {

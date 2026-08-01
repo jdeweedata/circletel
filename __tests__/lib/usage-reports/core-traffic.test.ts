@@ -40,7 +40,7 @@ describe('selectCorePrimarySource', () => {
     ).toBe('interstellio_daily');
   });
 
-  it('uses Interstellio only for a long period', () => {
+  it('uses Interstellio for a long period when mapped', () => {
     expect(
       selectCorePrimarySource({
         isShortPeriod: false,
@@ -51,12 +51,23 @@ describe('selectCorePrimarySource', () => {
     ).toBe('interstellio_daily');
   });
 
-  it('returns unavailable when no permitted source exists', () => {
+  it('falls back to Ruijie for a long period when Interstellio is absent (MTN/TDX)', () => {
     expect(
       selectCorePrimarySource({
         isShortPeriod: false,
         ruijieLinked: true,
         ruijieCoversWindow: true,
+        interstellioMapped: false,
+      })
+    ).toBe('ruijie_hourly');
+  });
+
+  it('returns unavailable when long period has neither Interstellio nor Ruijie samples', () => {
+    expect(
+      selectCorePrimarySource({
+        isShortPeriod: false,
+        ruijieLinked: true,
+        ruijieCoversWindow: false,
         interstellioMapped: false,
       })
     ).toBe('unavailable');
