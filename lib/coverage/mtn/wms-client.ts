@@ -13,6 +13,30 @@ import { mtnCoverageCache } from './cache';
 import { getMockCoverageData } from './test-data';
 import { mtnResponseValidator } from './validation';
 import { mtnCoverageMonitor } from './monitoring';
+import {
+  recordProviderCall,
+  normalizeOperation,
+  PROVIDER_ERROR_CODES,
+} from '@/lib/integrations/provider-call-recorder';
+
+/**
+ * Describe a WMS request for the `operation` field.
+ *
+ * Reads only REQUEST and LAYERS from the query string — both are non-sensitive
+ * (a WMS operation name and a layer name). BBOX, which carries the customer's
+ * coordinate, is never read or recorded.
+ */
+function describeWmsRequest(url: string): string | null {
+  try {
+    const params = new URL(url).searchParams;
+    const request = params.get('REQUEST') ?? params.get('request');
+    const layers = params.get('QUERY_LAYERS') ?? params.get('LAYERS') ?? params.get('layers');
+    if (!request) return null;
+    return layers ? `${request}:${layers}` : request;
+  } catch {
+    return null;
+  }
+}
 
 export class MTNWMSClient {
   private businessBaseUrl = 'https://mtnsi.mtn.co.za/coverage/dev/v3';
@@ -380,9 +404,45 @@ export class MTNWMSClient {
   }
 
   /**
-   * Make HTTP request with timeout and rate limiting
+   * Make HTTP request, recording call-grain telemetry.
+   *
+   * Every MTN WMS fetch flows through here, which is why this is the single
+   * instrumentation point for the `mtn-coverage` integration.
+   *
+   * The URL is never recorded — it carries a BBOX around the customer's
+   * coordinate. `normalizeOperation` keeps only method, host and path; the WMS
+   * REQUEST type and layer name are appended as a non-sensitive discriminator so
+   * the dashboard can say *which layer* is slow.
    */
-  private async makeRequest(url: string): Promise<any> {
+  private async makeRequest(url: string, province?: string | null): Promise<any> {
+    const startedAt = Date.now();
+    let success = false;
+    let errorCode: string | null = null;
+
+    try {
+      const result = await this.makeRequestRaw(url);
+      success = true;
+      return result;
+    } catch (error) {
+      errorCode = error instanceof MTNError ? error.code : PROVIDER_ERROR_CODES.TRANSPORT_ERROR;
+      throw error;
+    } finally {
+      void recordProviderCall({
+        integrationSlug: 'mtn-coverage',
+        operation: normalizeOperation('GET', url, describeWmsRequest(url)),
+        province: province ?? null,
+        durationMs: Date.now() - startedAt,
+        success,
+        errorCode,
+        cacheHit: false,
+      });
+    }
+  }
+
+  /**
+   * Perform the HTTP request with timeout and rate limiting.
+   */
+  private async makeRequestRaw(url: string): Promise<any> {
     // Enforce rate limiting
     await this.enforceRateLimit();
 
