@@ -6,7 +6,7 @@ import {
   type AssembleSiteUsageReportInput,
 } from './assemble-report';
 import { reportModelToCsv } from './csv';
-import type { TdxPatientRow } from './patient-wifi';
+import { patientRowForSite, type TdxPatientRow } from './patient-wifi';
 import {
   generateSiteUsageReportPdf,
   generateSkipSlipPdf,
@@ -62,16 +62,6 @@ function safeFilenamePart(value: string): string {
 
 function periodFilenamePart(period: ReportPeriod): string {
   return `${period.startIso.slice(0, 10)}_to_${period.endIso.slice(0, 10)}`;
-}
-
-function patientRowForSite(
-  rows: TdxPatientRow[],
-  accountNumber: string
-): TdxPatientRow | null {
-  const normalizedAccount = accountNumber.trim().toLowerCase();
-  return (
-    rows.find((row) => row.siteCode.trim().toLowerCase() === normalizedAccount) ?? null
-  );
 }
 
 function skipReason(reason: AssembleSkipReason): string {

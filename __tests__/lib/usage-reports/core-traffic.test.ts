@@ -142,6 +142,7 @@ describe('aggregateRuijieHourly', () => {
       avgDownKbps: 6_000,
       peakBucketBytes: 1_000_000_000,
       dailyDownloadBytes: [1_000_000_000, 500_000_000],
+      dailyCovered: [true, true],
     });
   });
 
@@ -162,6 +163,47 @@ describe('aggregateRuijieHourly', () => {
 
     expect(result.downloadBytes).toBe(25);
     expect(result.dailyDownloadBytes).toEqual([0, 0, 25]);
+    // Days 1-2 read zero because nothing was sampled, not because traffic was
+    // zero — callers must be able to tell those apart (#689).
+    expect(result.dailyCovered).toEqual([false, false, true]);
+  });
+
+  it('counts a zero-byte sample as covered — a quiet day is not a gap', () => {
+    const result = aggregateRuijieHourly(
+      [
+        {
+          captured_at: '2026-07-02T08:00:00+02:00',
+          total_rx_bytes: 0,
+          total_tx_bytes: 0,
+          avg_rx_bps: 0,
+          peak_rx_bps: 0,
+        },
+      ],
+      3,
+      new Date('2026-07-01T00:00:00+02:00')
+    );
+
+    expect(result.dailyDownloadBytes[1]).toBe(0);
+    expect(result.dailyCovered).toEqual([false, true, false]);
+  });
+
+  it('returns a coverage entry for every day in the window', () => {
+    const result = aggregateRuijieHourly(
+      [
+        {
+          captured_at: '2026-07-01T08:00:00+02:00',
+          total_rx_bytes: 5,
+          total_tx_bytes: 1,
+          avg_rx_bps: 10,
+          peak_rx_bps: 20,
+        },
+      ],
+      31,
+      new Date('2026-07-01T00:00:00+02:00')
+    );
+
+    expect(result.dailyCovered).toHaveLength(31);
+    expect(result.dailyCovered.filter(Boolean)).toHaveLength(1);
   });
 
   it('returns null rate and peak metrics for no rows', () => {
@@ -173,6 +215,7 @@ describe('aggregateRuijieHourly', () => {
       avgDownKbps: null,
       peakBucketBytes: null,
       dailyDownloadBytes: [0],
+      dailyCovered: [false],
     });
   });
 });
@@ -206,6 +249,7 @@ describe('aggregateInterstellioDaily', () => {
       avgDownKbps: 600,
       peakBucketBytes: 2_048_000,
       dailyDownloadBytes: [0, 2_048_000, 1_024_000],
+      dailyCovered: [false, true, true],
     });
   });
 });

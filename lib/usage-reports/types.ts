@@ -19,6 +19,23 @@ export interface ReportPeriod {
   isShortPeriod: boolean;
 }
 
+/**
+ * Why no core traffic source was permitted. Every flag is already computed by
+ * `assembleCoreTraffic` while choosing a source — surfaced so the UI can name
+ * each applicable cause instead of one generic message (#689).
+ *
+ * More than one cause can be true at once (no AP linked AND no subscriber
+ * mapping); consumers should list every false flag, not just the first.
+ */
+export interface CoreUnavailableDiagnosis {
+  /** `corporate_sites.interstellio_subscriber_id` is set. */
+  interstellioMapped: boolean;
+  /** Site resolves to a Ruijie device with a `group_id` in the cache. */
+  ruijieLinked: boolean;
+  /** That group has at least one rollup row inside the report window. */
+  ruijieCoversWindow: boolean;
+}
+
 export type StaffWifiState =
   | { kind: 'available'; totalBytes: number; rxBytes: number; txBytes: number }
   | { kind: 'no_samples' }
@@ -51,7 +68,16 @@ export interface SiteUsageReportModel {
     avgDownKbps: number | null;
     peakBucketBytes: number | null;
     dailyDownloadBytes: number[]; // length = inclusiveDayCount
+    /**
+     * Whether each day carried at least one sample — same length and order as
+     * `dailyDownloadBytes`. A day can be covered and read 0 bytes (a quiet day);
+     * an uncovered day has no data at all and must never be drawn as a zero
+     * (#689). Ruijie retention (~14 days) makes this routine on long periods.
+     */
+    dailyCovered: boolean[];
     note: string;
+    /** Present only when `source === 'unavailable'`. */
+    unavailable?: CoreUnavailableDiagnosis;
     secondaryInterstellio?: {
       downloadBytes: number;
       uploadBytes: number;

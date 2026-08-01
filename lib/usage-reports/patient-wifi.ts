@@ -7,6 +7,36 @@ export interface TdxPatientRow {
   downloadGb: number;
 }
 
+/**
+ * Match an uploaded TDX row to a site by account number. Shared so preview and
+ * download resolve the same row — a preview that matched differently would show
+ * figures the downloaded PDF does not contain.
+ */
+export function patientRowForSite(
+  rows: TdxPatientRow[],
+  accountNumber: string
+): TdxPatientRow | null {
+  const normalizedAccount = accountNumber.trim().toLowerCase();
+  return (
+    rows.find((row) => row.siteCode.trim().toLowerCase() === normalizedAccount) ??
+    null
+  );
+}
+
+/** Runtime guard for rows arriving over the wire from the admin UI. */
+export function isTdxPatientRow(value: unknown): value is TdxPatientRow {
+  if (!value || typeof value !== 'object') return false;
+  const row = value as Record<string, unknown>;
+  const nonNegativeNumber = (input: unknown) =>
+    typeof input === 'number' && Number.isFinite(input) && input >= 0;
+  return (
+    typeof row.siteCode === 'string' &&
+    nonNegativeNumber(row.uniqueUsers) &&
+    nonNegativeNumber(row.loginSessions) &&
+    nonNegativeNumber(row.downloadGb)
+  );
+}
+
 const SITE_CODE_HEADERS = ['site code', 'account_number', 'account number'];
 const UNIQUE_USERS_HEADERS = ['unique users', 'users'];
 const SESSIONS_HEADERS = ['sessions', 'login sessions'];
