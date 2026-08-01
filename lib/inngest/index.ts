@@ -160,6 +160,10 @@ export {
   recomputeOfferPricing,
 } from './functions/recompute-offer-pricing';
 
+export {
+  siteUsageReportPurgeFunction,
+} from './functions/site-usage-report-purge';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -313,6 +317,10 @@ import {
   recomputeOfferPricing,
 } from './functions/recompute-offer-pricing';
 
+import {
+  siteUsageReportPurgeFunction,
+} from './functions/site-usage-report-purge';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -406,6 +414,8 @@ export const functions = [
   clinicMandatePollFunction,
   // Offer pricing recomputation
   recomputeOfferPricing,
+  // Expired site usage report artifact purge (daily at 03:15 UTC)
+  siteUsageReportPurgeFunction,
 ];
 
 export { ruijieSyncCompleted, ruijieSyncSessions } from './events/ruijie';
