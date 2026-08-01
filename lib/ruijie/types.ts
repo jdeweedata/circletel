@@ -179,3 +179,34 @@ export interface RuijieTrafficRollupRow {
   raw_summary: Record<string, unknown> | null;
   created_at: string;
 }
+
+/** Hourly STA session-byte deltas per AP + allow-listed SSID (Usage Reports Staff GB). */
+export interface RuijieSsidTrafficRollupRow {
+  id: string;
+  device_sn: string;
+  ssid: string;
+  hour_bucket: string;
+  hours_window: number;
+  corporate_site_id: string | null;
+  rx_bytes: number;
+  tx_bytes: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Last-seen STA counters for positive-delta sampling between 5-min polls. */
+export interface RuijieSsidStaSampleStateRow {
+  device_sn: string;
+  mac: string;
+  ssid: string;
+  last_wifi_up: number;
+  last_wifi_down: number;
+  sampled_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Go-live allow-list (#676): Staff only. Free radio deferred. */
+export const RUIJIE_SSID_ROLLUP_ALLOWLIST = ['Unjani Clinic Staff'] as const;
+export type RuijieSsidRollupAllowlistedSsid =
+  (typeof RUIJIE_SSID_ROLLUP_ALLOWLIST)[number];
