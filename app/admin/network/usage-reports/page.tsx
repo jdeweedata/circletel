@@ -4,6 +4,8 @@ import { UsageReportBuilder } from '@/components/admin/network/usage-reports/Usa
 // PROTOTYPE (#688) — throwaway; lives only on prototype/usage-reports-dashboard.
 import { PrototypeShell } from '@/components/admin/network/usage-reports/prototype/PrototypeShell';
 import type { ProtoVariantKey } from '@/components/admin/network/usage-reports/prototype/PrototypeSwitcher';
+import { ChartPrototypeShell } from '@/components/admin/network/usage-reports/prototype/ChartPrototypeShell';
+import type { ChartVariantKey } from '@/components/admin/network/usage-reports/prototype/ChartVariants';
 
 interface UsageReportsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -19,6 +21,12 @@ export default async function UsageReportsPage({
   const params = await searchParams;
   const initialSiteId = firstParam(params.siteId);
   const initialUnjaniOnly = firstParam(params.unjani) === '1';
+
+  // PROTOTYPE (#692) — ?chart=A|B|C renders the throwaway chart variants.
+  const chart = firstParam(params.chart)?.toUpperCase();
+  if (chart === 'A' || chart === 'B' || chart === 'C') {
+    return <ChartPrototypeShell variant={chart as ChartVariantKey} />;
+  }
 
   // PROTOTYPE (#688) — ?variant=A|B|C renders the throwaway dashboard variants.
   const variant = firstParam(params.variant)?.toUpperCase();

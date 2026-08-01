@@ -15,23 +15,28 @@ export const PROTO_VARIANTS = [
 export type ProtoVariantKey = (typeof PROTO_VARIANTS)[number]['key'];
 
 interface PrototypeSwitcherProps {
-  current: ProtoVariantKey;
+  current: string;
+  /** Defaults to the page-composition variants (#688). */
+  variants?: ReadonlyArray<{ key: string; name: string }>;
+  /** Search param the switcher writes. */
+  param?: string;
 }
 
-export function PrototypeSwitcher({ current }: PrototypeSwitcherProps) {
+export function PrototypeSwitcher({
+  current,
+  variants = PROTO_VARIANTS,
+  param = 'variant',
+}: PrototypeSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
 
   const cycle = useCallback(
     (step: number) => {
-      const index = PROTO_VARIANTS.findIndex((variant) => variant.key === current);
-      const next =
-        PROTO_VARIANTS[
-          (index + step + PROTO_VARIANTS.length) % PROTO_VARIANTS.length
-        ];
-      router.replace(`${pathname}?variant=${next.key}`);
+      const index = variants.findIndex((variant) => variant.key === current);
+      const next = variants[(index + step + variants.length) % variants.length];
+      router.replace(`${pathname}?${param}=${next.key}`);
     },
-    [current, pathname, router]
+    [current, param, pathname, router, variants]
   );
 
   useEffect(() => {
@@ -48,7 +53,7 @@ export function PrototypeSwitcher({ current }: PrototypeSwitcherProps) {
 
   if (process.env.NODE_ENV === 'production') return null;
 
-  const active = PROTO_VARIANTS.find((variant) => variant.key === current);
+  const active = variants.find((variant) => variant.key === current);
 
   return (
     <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
