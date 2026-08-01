@@ -154,58 +154,48 @@ function main() {
   doc.setTextColor(GRAY);
   doc.text('UNJANIALEX2 · RAP2200(F) · SN G1U52HL00261B · Group Unjani · Online', 16, y + 8);
 
-  // —— Unjani dual-source: Staff (critical gap) then Patient ——
+  // —— Unjani dual-source: Staff (filled) then Patient ——
   y += 16;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(DARK);
   doc.text('Unjani Wi-Fi breakdown (separate sources — do not sum)', 14, y);
 
-  // Staff full-width investigation panel
   y += 5;
-  const staffH = 58;
-  doc.setFillColor(...AMBER_BG);
-  doc.rect(14, y, pageW - 28, staffH, 'F');
-  doc.setDrawColor(ORANGE);
-  doc.setLineWidth(0.6);
+  const staffH = 32;
+  doc.setDrawColor(LIGHT);
+  doc.setLineWidth(0.4);
   doc.rect(14, y, pageW - 28, staffH, 'S');
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.setTextColor(AMBER);
-  doc.text('Staff Wi-Fi — NOT DISPLAYING (critical gap)', 18, y + 6);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
   doc.setTextColor(DARK);
-  doc.text('SSID: Unjani Clinic Staff · Source: CircleTel radio (SSID period bytes)', 18, y + 11);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.text('Why this section is empty:', 18, y + 17);
+  doc.text('Staff Wi-Fi', 18, y + 6);
   doc.setFont('helvetica', 'normal');
-  const whyLines = [
-    '1. We do not yet store period GB broken down by Wi-Fi SSID (only site/device aggregates).',
-    '2. Device Traffic (flow/show/hour) is total AP usage — Free + Staff mixed; no SSID dimension.',
-    '3. Clients-tab RATES are live Kbps, not June totals — they must not be used as period usage.',
-    '4. Need scheduled STA session-byte rollups by SSID (allow-list Staff + Free WiFi) to unlock.',
-  ];
-  let ly = y + 22;
-  whyLines.forEach((line) => {
-    doc.text(line, 18, ly, { maxWidth: pageW - 36 });
-    ly += 4.2;
+  doc.setFontSize(8);
+  doc.setTextColor(GRAY);
+  doc.text('CircleTel STA session-byte rollups · Unjani Clinic Staff', pageW - 18, y + 6, {
+    align: 'right',
   });
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(AMBER);
+
+  doc.setFontSize(9);
+  doc.setTextColor(DARK);
+  doc.text('Total: 12.4 GB', 18, y + 14);
+  doc.text('Download: 11.1 GB', 70, y + 14);
+  doc.text('Upload: 1.3 GB', 130, y + 14);
+
+  doc.setFontSize(7);
+  doc.setTextColor('#9CA3AF');
   doc.text(
-    'Why investigate: Staff period usage is the critical CircleTel metric to view alongside Patient Free Wi-Fi (TDX).',
+    'Source: CircleTel STA session-byte rollups · sampled telemetry (not accounting-grade) · forward-only from go-live · may undercount · do not sum with Patient or BNG.',
     18,
-    y + staffH - 5,
+    y + 22,
     { maxWidth: pageW - 36 }
   );
 
   // Patient box
   y += staffH + 5;
-  const patientH = 36;
+  const patientH = 30;
   doc.setDrawColor(LIGHT);
   doc.setLineWidth(0.4);
   doc.rect(14, y, pageW - 28, patientH, 'S');
@@ -230,14 +220,6 @@ function main() {
     'Source: TDX/ThinkWiFi (manual export) · 1–30 June 2026 · aggregate/anonymised · may be revised by TDX · do not sum with Staff or BNG totals.',
     18,
     y + 22,
-    { maxWidth: pageW - 36 }
-  );
-  doc.setTextColor(AMBER);
-  doc.setFont('helvetica', 'bold');
-  doc.text(
-    'Note: Patient figures alone cannot explain Staff load — Staff section above must be instrumented to compare.',
-    18,
-    y + 30,
     { maxWidth: pageW - 36 }
   );
 
