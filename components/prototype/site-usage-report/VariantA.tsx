@@ -9,8 +9,18 @@ function fmtGb(n: number) {
   return `${n.toLocaleString('en-ZA', { maximumFractionDigits: 1 })} GB`;
 }
 
+function dayOfMonth(index: number): number {
+  return index + 1;
+}
+
+/** Week number within the period (1-based), Mon-start buckets of 7 days. */
+function weekOfPeriod(index: number): number {
+  return Math.floor(index / 7) + 1;
+}
+
 export function VariantA() {
   const maxDay = Math.max(...d.dailyDownloadGb);
+  const dayCount = d.dailyDownloadGb.length;
   return (
     <article className="mx-auto w-[210mm] min-h-[297mm] bg-white text-[#1F2937] shadow-xl print:shadow-none">
       <div className="border-b-[3px] border-[#F5831F] px-10 pb-5 pt-8">
@@ -74,18 +84,55 @@ export function VariantA() {
           <p className="text-xs text-[#6B7280]">Primary: {d.primarySource}</p>
         </div>
         <p className="mb-3 text-xs text-[#6B7280]">{d.coreTraffic.note}</p>
-        <div className="flex h-24 items-end gap-[2px] rounded border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-2">
-          {d.dailyDownloadGb.map((v, i) => (
-            <div
-              key={i}
-              className="flex-1 rounded-t bg-[#F5831F]/60"
-              style={{ height: `${Math.max(8, (v / maxDay) * 100)}%` }}
-              title={`Day ${i + 1}: ${v} GB`}
-            />
-          ))}
+        <div className="rounded border border-[#E5E7EB] bg-[#F9FAFB] px-2 pb-2 pt-3">
+          <div className="flex h-24 items-end gap-[2px]">
+            {d.dailyDownloadGb.map((v, i) => (
+              <div
+                key={i}
+                className="flex-1 rounded-t bg-[#F5831F]/60"
+                style={{ height: `${Math.max(8, (v / maxDay) * 100)}%` }}
+                title={`${dayOfMonth(i)} Jun: ${v} GB`}
+              />
+            ))}
+          </div>
+          {/* Day-of-month ticks (every day; emphasise week starts) */}
+          <div className="mt-1 flex gap-[2px] border-t border-[#E5E7EB] pt-1">
+            {d.dailyDownloadGb.map((_, i) => {
+              const day = dayOfMonth(i);
+              const weekStart = i % 7 === 0;
+              return (
+                <div
+                  key={i}
+                  className={`flex-1 text-center font-mono leading-none ${
+                    weekStart
+                      ? 'text-[8px] font-semibold text-[#374151]'
+                      : 'text-[7px] text-[#9CA3AF]'
+                  }`}
+                >
+                  {day}
+                </div>
+              );
+            })}
+          </div>
+          {/* Week bands */}
+          <div className="mt-1 flex gap-[2px]">
+            {Array.from({ length: Math.ceil(dayCount / 7) }, (_, w) => {
+              const start = w * 7;
+              const span = Math.min(7, dayCount - start);
+              return (
+                <div
+                  key={w}
+                  className="text-center text-[8px] font-medium uppercase tracking-wide text-[#6B7280]"
+                  style={{ flex: span }}
+                >
+                  Week {weekOfPeriod(start)}
+                </div>
+              );
+            })}
+          </div>
         </div>
         <p className="mt-1 text-[10px] text-[#9CA3AF]">
-          Daily download (GB) — placeholder series · {d.periodRangeLabel}
+          Daily download (GB) · day of month + week · {d.periodRangeLabel}
         </p>
       </div>
 
