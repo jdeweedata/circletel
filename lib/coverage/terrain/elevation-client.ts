@@ -10,6 +10,11 @@
 
 import { createClient } from '@/lib/supabase/server';
 import type { Coordinate, ElevationPoint, ElevationProfile } from './types';
+import {
+  recordProviderCall,
+  normalizeOperation,
+  PROVIDER_ERROR_CODES,
+} from '@/lib/integrations/provider-call-recorder';
 
 const OPEN_ELEVATION_URL = 'https://api.open-elevation.com/api/v1/lookup';
 const OPEN_METEO_ELEVATION_URL = 'https://api.open-meteo.com/v1/elevation';
@@ -157,18 +162,60 @@ export async function getElevationProfile(
  * Fetch elevations from Open-Elevation API, falling back to Open-Meteo.
  */
 async function fetchElevationsFromApi(coordinates: Coordinate[]): Promise<ElevationPoint[]> {
+  // TELEMETRY — documented OPERATION-GRAIN exception to the call-grain rule.
+  //
+  // Recording each upstream attempt separately would log a primary failure plus a
+  // fallback success as two rows — a 50% success rate, i.e. `down` under the health
+  // thresholds — for a request that was served perfectly. So this records ONE row
+  // per elevation request; the operation string says which upstream served it, so
+  // "open-elevation is failing constantly" stays observable without registering as
+  // an outage.
+  //
+  // Note both upstreams carry coordinates: Open-Meteo in the URL query string,
+  // Open-Elevation in the POST body. normalizeOperation discards the query string
+  // structurally, and the body is never passed.
+  const startedAt = Date.now();
+
   // Try Open-Elevation first
   try {
-    return await fetchFromOpenElevation(coordinates);
+    const result = await fetchFromOpenElevation(coordinates);
+    void recordProviderCall({
+      integrationSlug: 'terrain-elevation',
+      operation: normalizeOperation('POST', OPEN_ELEVATION_URL, 'lookup'),
+      durationMs: Date.now() - startedAt,
+      success: true,
+      cacheHit: false,
+    });
+    return result;
   } catch (err) {
     console.warn('[ElevationClient] Open-Elevation failed, trying Open-Meteo:', err instanceof Error ? err.message : String(err));
   }
 
-  // Fallback to Open-Meteo
+  // Fallback to Open-Meteo. A request served here is still a SUCCESS — health asks
+  // "can we get elevation at all", not "did the primary answer".
   try {
-    return await fetchFromOpenMeteo(coordinates);
+    const result = await fetchFromOpenMeteo(coordinates);
+    void recordProviderCall({
+      integrationSlug: 'terrain-elevation',
+      operation: normalizeOperation('GET', OPEN_METEO_ELEVATION_URL, 'fallback'),
+      durationMs: Date.now() - startedAt,
+      success: true,
+      cacheHit: false,
+    });
+    return result;
   } catch (err) {
     console.error('[ElevationClient] Both elevation APIs failed:', err instanceof Error ? err.message : String(err));
+    // Both upstreams exhausted. Until now this degraded SILENTLY: callers received
+    // elevation_m: 0 for real coordinates — fabricated data — with only a
+    // console.error. Recording it makes the failure visible for the first time.
+    void recordProviderCall({
+      integrationSlug: 'terrain-elevation',
+      operation: normalizeOperation('POST', OPEN_ELEVATION_URL, 'exhausted'),
+      durationMs: Date.now() - startedAt,
+      success: false,
+      errorCode: PROVIDER_ERROR_CODES.PROVIDER_ERROR,
+      cacheHit: false,
+    });
     // Return zero elevation as last resort — prediction will be degraded but won't crash
     return coordinates.map(c => ({ ...c, elevation_m: 0 }));
   }

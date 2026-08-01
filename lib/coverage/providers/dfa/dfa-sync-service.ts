@@ -14,6 +14,11 @@
 import axios from 'axios';
 import { createClient } from '@/lib/supabase/server';
 import {
+  recordProviderCall,
+  normalizeOperation,
+  PROVIDER_ERROR_CODES,
+} from '@/lib/integrations/provider-call-recorder';
+import {
   DFAConnectedBuilding,
   DFANearNetBuilding,
   ArcGISQueryResponse,
@@ -30,6 +35,54 @@ const DFA_API_BASE =
 const PAGE_SIZE = 2000;
 const MAX_RETRIES = 3;
 const TIMEOUT_MS = 30000;
+
+/**
+ * Single chokepoint for ArcGIS requests in the sync service, recording provider
+ * telemetry once rather than at each call site.
+ *
+ * Module-level rather than inline because both call sites sit inside retry loops
+ * that already declare their own `success` variable. Each retry attempt records
+ * its own row — correct at call-grain, and it makes retry pressure visible.
+ *
+ * This runs inside an Inngest job with no request context, which is why
+ * recordProviderCall uses a plain supabase-js client rather than the SSR helper.
+ *
+ * ArcGIS returns HTTP 200 with an `{"error": …}` body on failure, so status code
+ * alone is not a health signal.
+ */
+async function dfaRequest<T>(
+  path: string,
+  config: { params?: unknown; timeout?: number },
+  operation: string
+) {
+  const url = `${DFA_API_BASE}${path}`;
+  const startedAt = Date.now();
+  let ok = false;
+  let errorCode: string | null = null;
+
+  try {
+    const response = await axios.get<T>(url, { timeout: TIMEOUT_MS, ...config });
+    const hasErrorEnvelope = Boolean((response.data as { error?: unknown })?.error);
+    ok = response.status === 200 && !hasErrorEnvelope;
+    if (!ok) errorCode = PROVIDER_ERROR_CODES.PROVIDER_ERROR;
+    return response;
+  } catch (error) {
+    errorCode =
+      axios.isAxiosError(error) && error.code === 'ECONNABORTED'
+        ? PROVIDER_ERROR_CODES.TIMEOUT
+        : PROVIDER_ERROR_CODES.TRANSPORT_ERROR;
+    throw error;
+  } finally {
+    void recordProviderCall({
+      integrationSlug: 'dfa',
+      operation: normalizeOperation('GET', url, operation),
+      durationMs: Date.now() - startedAt,
+      success: ok,
+      errorCode,
+      cacheHit: false,
+    });
+  }
+}
 
 // =============================================================================
 // TYPES
@@ -95,12 +148,9 @@ export class DFASyncService {
 
       while (!success && retries < MAX_RETRIES) {
         try {
-          const response = await axios.get<
+          const response = await dfaRequest<
             ArcGISQueryResponse<DFAConnectedBuilding>
-          >(`${DFA_API_BASE}/2/query`, {
-            params,
-            timeout: TIMEOUT_MS,
-          });
+          >('/2/query', { params }, 'sync:connected');
 
           if (response.data.features) {
             const buildings = response.data.features.map((f) => {
@@ -189,12 +239,9 @@ export class DFASyncService {
 
       while (!success && retries < MAX_RETRIES) {
         try {
-          const response = await axios.get<
+          const response = await dfaRequest<
             ArcGISQueryResponse<DFANearNetBuilding>
-          >(`${DFA_API_BASE}/1/query`, {
-            params,
-            timeout: TIMEOUT_MS,
-          });
+          >('/1/query', { params }, 'sync:near-net');
 
           if (response.data.features) {
             const buildings = response.data.features.map((f) => {
