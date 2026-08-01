@@ -1,6 +1,6 @@
 # Site Network Usage Reports — Product / Design Spec Outline
 
-**Status:** Spec locked · Implementation plan ready
+**Status:** Implementing
 **Implementation plan:** [`docs/superpowers/plans/2026-08-01-site-network-usage-reports.md`](../../superpowers/plans/2026-08-01-site-network-usage-reports.md)  
 **Date:** 2026-08-01  
 **Wayfinder:** [#661](https://github.com/jdeweedata/circletel/issues/661) · Assemble task [#683](https://github.com/jdeweedata/circletel/issues/683)  
