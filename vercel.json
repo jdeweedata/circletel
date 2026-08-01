@@ -49,6 +49,10 @@
       "maxDuration": 60,
       "memory": 512
     },
+    "app/api/cron/provider-metrics-rollup/route.ts": {
+      "maxDuration": 120,
+      "memory": 512
+    },
     "app/api/cron/cleanup-webhook-logs/route.ts": {
       "maxDuration": 60,
       "memory": 512
@@ -170,6 +174,10 @@
     {
       "path": "/api/cron/integrations-health-check",
       "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/provider-metrics-rollup",
+      "schedule": "5 * * * *"
     },
     {
       "path": "/api/cron/cleanup-webhook-logs",
