@@ -1,6 +1,7 @@
 # Site Network Usage Reports — Product / Design Spec Outline
 
-**Status:** Ready for implementation plan (map destination met)  
+**Status:** Spec locked · Implementation plan ready
+**Implementation plan:** [`docs/superpowers/plans/2026-08-01-site-network-usage-reports.md`](../../superpowers/plans/2026-08-01-site-network-usage-reports.md)  
 **Date:** 2026-08-01  
 **Wayfinder:** [#661](https://github.com/jdeweedata/circletel/issues/661) · Assemble task [#683](https://github.com/jdeweedata/circletel/issues/683)  
 **Audience:** Engineer writing the implementation plan / MVP build (separate from this map)
