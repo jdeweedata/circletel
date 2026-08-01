@@ -1,5 +1,8 @@
 # Netcash Staging Test Results
 
+> **URL canon (2026-08-01):** Pay Now **Notify** = `/api/payments/netcash/webhook` (invoice settlement). **Accept / Decline / Redirect** = `/api/payments/netcash/redirect`. Singular `/api/payment/netcash/webhook` is legacy consumer-order only — see `NETCASH_URLS_QUICK_REFERENCE.md`.
+
+
 **Date:** 2025-10-22
 **Environment:** Staging (https://circletel-staging.vercel.app)
 **Netcash Account:** Circle Tel SA - Test account (52340889417)
@@ -27,7 +30,7 @@ All critical tests **PASSED**. The staging environment is ready for Netcash inte
 
 **Test URL:**
 ```
-https://circletel-staging.vercel.app/api/payment/netcash/webhook
+https://circletel-staging.vercel.app/api/payments/netcash/webhook
 ```
 
 **Result:**
@@ -125,9 +128,9 @@ NEXT_PUBLIC_APP_URL=https://circletel-staging.vercel.app
 
 | Type | URL |
 |------|-----|
-| Accept URL | `https://circletel-staging.vercel.app/api/payment/netcash/webhook` |
-| Decline URL | `https://circletel-staging.vercel.app/api/payment/netcash/webhook` |
-| Notify URL | `https://circletel-staging.vercel.app/api/payment/netcash/webhook` |
+| Accept URL | `https://circletel-staging.vercel.app/api/payments/netcash/redirect` |
+| Decline URL | `https://circletel-staging.vercel.app/api/payments/netcash/redirect` |
+| Notify URL | `https://circletel-staging.vercel.app/api/payments/netcash/webhook` |
 
 **Settings:**
 - ☑️ Service key active: Yes
@@ -283,7 +286,7 @@ handleContinue() {
   - Get production Merchant Key and Service Key from portal
 - [ ] Update Netcash production account webhook URLs
   - Account: Circle Tel SA (52552945156)
-  - URL: `https://circletel.co.za/api/payment/netcash/webhook`
+  - URL: `https://www.circletel.co.za/api/payments/netcash/webhook`
 - [ ] Run production smoke test (small real transaction)
 - [ ] Monitor webhooks for 24 hours
 

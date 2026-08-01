@@ -1,5 +1,8 @@
 # Netcash Webhook Integration Setup Guide
 
+> **URL canon (2026-08-01):** Pay Now **Notify** = `/api/payments/netcash/webhook` (invoice settlement). **Accept / Decline / Redirect** = `/api/payments/netcash/redirect`. Singular `/api/payment/netcash/webhook` is legacy consumer-order only — see `NETCASH_URLS_QUICK_REFERENCE.md`.
+
+
 **Task 3.3: Netcash Webhook Integration**
 
 Complete guide for setting up and managing Netcash payment webhooks in CircleTel.
@@ -38,7 +41,7 @@ The Netcash webhook integration provides:
 | Database Schema | `supabase/migrations/20251022000005_*.sql` | Tables: `payment_configuration`, `payment_webhooks`, `payment_webhook_audit` |
 | Webhook Validator | `lib/payment/netcash-webhook-validator.ts` | Signature verification, IP whitelisting, payload validation |
 | Webhook Processor | `lib/payment/netcash-webhook-processor.ts` | Business logic for payment success, failure, refunds, chargebacks |
-| Webhook Endpoint | `app/api/payment/netcash/webhook/route.ts` | API route handling incoming webhooks |
+| Webhook Endpoint | `app/api/payments/netcash/webhook/route.ts` (invoice Notify); `app/api/payment/netcash/webhook/route.ts` (legacy orders) | API route handling incoming webhooks |
 | Admin Settings UI | `app/admin/payments/settings/page.tsx` | Configure test/production credentials |
 | Monitoring Dashboard | `app/admin/payments/webhooks/page.tsx` | View webhook statistics and history |
 
@@ -49,7 +52,7 @@ The Netcash webhook integration provides:
 ### Webhook Processing Flow
 
 ```
-Netcash → POST /api/payment/netcash/webhook
+Netcash → POST /api/payments/netcash/webhook
   │
   ├─[1]─> Rate Limiting Check (100 req/min per IP)
   │
@@ -224,8 +227,8 @@ Expected result:
 ### Step 3: Configure Webhook URL
 
 1. **Add Webhook URL:**
-   - Test: `https://your-test-domain.vercel.app/api/payment/netcash/webhook`
-   - Production: `https://circletel.co.za/api/payment/netcash/webhook`
+   - Test: `https://your-test-domain.vercel.app/api/payments/netcash/webhook`
+   - Production: `https://www.circletel.co.za/api/payments/netcash/webhook`
 
 2. **Add Webhook Secret:**
    - Paste the webhook secret generated in admin UI
@@ -253,7 +256,7 @@ Expected result:
 #### Test 1: Successful Payment Webhook
 
 ```bash
-curl -X POST https://your-domain.com/api/payment/netcash/webhook \
+curl -X POST https://your-domain.com/api/payments/netcash/webhook \
   -H "Content-Type: application/json" \
   -H "X-Netcash-Signature: YOUR_HMAC_SIGNATURE" \
   -d '{
@@ -280,7 +283,7 @@ curl -X POST https://your-domain.com/api/payment/netcash/webhook \
 #### Test 2: Health Check
 
 ```bash
-curl https://your-domain.com/api/payment/netcash/webhook
+curl https://your-domain.com/api/payments/netcash/webhook
 
 # Expected Response:
 {
@@ -404,7 +407,7 @@ ORDER BY pwa.created_at DESC;
 1. Check webhook URL in Netcash dashboard
 2. Verify webhook endpoint is accessible:
    ```bash
-   curl https://your-domain.com/api/payment/netcash/webhook
+   curl https://your-domain.com/api/payments/netcash/webhook
    # Should return: {"status": "healthy", ...}
    ```
 3. Check deployment logs for errors

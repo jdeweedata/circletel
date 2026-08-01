@@ -1,5 +1,8 @@
 # Complete Order Flow Analysis
 
+> **URL canon (2026-08-01):** Pay Now **Notify** = `/api/payments/netcash/webhook` (invoice settlement). **Accept / Decline / Redirect** = `/api/payments/netcash/redirect`. Singular `/api/payment/netcash/webhook` is legacy consumer-order only — see `NETCASH_URLS_QUICK_REFERENCE.md`.
+
+
 **Date:** 2025-10-22
 **Purpose:** Document the correct order flow for Netcash payment integration testing
 
@@ -207,8 +210,9 @@ handleContinue() {
 // Netcash Payment Page (external)
 4. User enters card details
 5. Netcash processes payment
-6. Netcash sends webhook to:
+6. Netcash sends webhook to (consumer-order path):
    POST https://circletel-staging.vercel.app/api/payment/netcash/webhook
+   (Invoice billing Notify uses `/api/payments/netcash/webhook` — plural.)
 
 // Webhook Processing
 7. Verify HMAC signature
@@ -273,7 +277,7 @@ handleContinue() {
 ---
 
 ### 2. **Payment API Endpoint**
-**File:** `app/api/payment/netcash/webhook/route.ts`
+**File:** `app/api/payments/netcash/webhook/route.ts` (invoice Notify); `app/api/payment/netcash/webhook/route.ts` (legacy orders)
 
 **Request Format:**
 ```json
@@ -371,7 +375,7 @@ pending → processing → paid → active → cancelled
    → Submit payment
 
 10. Payment processes
-    Netcash sends webhook to:
+    Netcash sends webhook to (consumer-order path):
     POST https://circletel-staging.vercel.app/api/payment/netcash/webhook
 
 11. Verify webhook received:
@@ -464,7 +468,7 @@ localStorage.getItem('order-state')
 - [ ] Verify "Continue" navigates to `/order/account`
 - [ ] Verify OrderContext stores selected package
 - [ ] Verify payment page exists at `/order/payment`
-- [ ] Verify webhook endpoint at `/api/payment/netcash/webhook`
+- [ ] Verify order webhook at `/api/payment/netcash/webhook` (invoice Notify is `/api/payments/netcash/webhook`)
 
 ### During Testing:
 - [ ] Complete full order flow (steps 1-7 above)

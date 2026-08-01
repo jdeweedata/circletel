@@ -1,5 +1,8 @@
 # Netcash Webhook Configuration Guide
 
+> **URL canon (2026-08-01):** Pay Now **Notify** = `/api/payments/netcash/webhook` (invoice settlement). **Accept / Decline / Redirect** = `/api/payments/netcash/redirect`. Singular `/api/payment/netcash/webhook` is legacy consumer-order only — see `NETCASH_URLS_QUICK_REFERENCE.md`.
+
+
 **Date:** 2025-10-22
 **Status:** Production Ready
 **Integration:** CircleTel Payment Gateway
@@ -73,7 +76,7 @@ The **Phase 1B implementation** includes a **direct webhook integration** that c
 
 ```
 Netcash → CircleTel Next.js App (Direct)
-         /api/payment/netcash/webhook
+         /api/payments/netcash/webhook
 ```
 
 **CircleTel Direct Webhook Features:**
@@ -89,7 +92,7 @@ Netcash → CircleTel Next.js App (Direct)
 - ✅ Webhook retry mechanism
 
 **Implementation Files:**
-- `app/api/payment/netcash/webhook/route.ts` (542 lines)
+- `app/api/payments/netcash/webhook/route.ts` (invoice Notify); `app/api/payment/netcash/webhook/route.ts` (legacy orders) (542 lines)
 - `lib/payment/netcash-webhook-validator.ts` (280 lines)
 - `lib/payment/netcash-webhook-processor.ts` (420 lines)
 - `app/admin/payments/webhooks/page.tsx` (350 lines)
@@ -126,9 +129,9 @@ Netcash → CircleTel Next.js App (Direct)
 1. **Test Direct Integration:**
    ```bash
    # Update Netcash test account (52340)
-   Accept URL: https://circletel-nextjs-dev.vercel.app/api/payment/netcash/webhook
-   Decline URL: https://circletel-nextjs-dev.vercel.app/api/payment/netcash/webhook
-   Notify URL: https://circletel-nextjs-dev.vercel.app/api/payment/netcash/webhook
+   Accept URL: https://circletel-nextjs-dev.vercel.app/api/payments/netcash/redirect
+   Decline URL: https://circletel-nextjs-dev.vercel.app/api/payments/netcash/redirect
+   Notify URL: https://circletel-nextjs-dev.vercel.app/api/payments/netcash/webhook
    ```
 
 2. **Configure Environment Variables:**
@@ -152,9 +155,9 @@ Netcash → CircleTel Next.js App (Direct)
 5. **Update Production:**
    ```bash
    # Update Netcash production account (52552945156)
-   Accept URL: https://circletel.co.za/api/payment/netcash/webhook
-   Decline URL: https://circletel.co.za/api/payment/netcash/webhook
-   Notify URL: https://circletel.co.za/api/payment/netcash/webhook
+   Accept URL: https://www.circletel.co.za/api/payments/netcash/redirect
+   Decline URL: https://www.circletel.co.za/api/payments/netcash/redirect
+   Notify URL: https://www.circletel.co.za/api/payments/netcash/webhook
    ```
 
 ---
@@ -245,7 +248,7 @@ PAYLOAD='{"Reference":"CT-TEST-123","TransactionID":"TXN-TEST","Status":"Approve
 SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "test_webhook_secret_12345" | awk '{print $2}')
 
 # Send webhook
-curl -X POST https://localhost:3005/api/payment/netcash/webhook \
+curl -X POST https://localhost:3005/api/payments/netcash/webhook \
   -H "Content-Type: application/json" \
   -H "X-Netcash-Signature: $SIGNATURE" \
   -H "X-Forwarded-For: 196.33.252.1" \
@@ -287,7 +290,7 @@ npx playwright test -g "WH3: Should process payment success webhook"
 
 ### Health Check Endpoint
 
-**URL:** `GET /api/payment/netcash/webhook`
+**URL:** `GET /api/payments/netcash/webhook`
 
 **Response (Healthy):**
 ```json
@@ -400,7 +403,7 @@ npx playwright test -g "WH3: Should process payment success webhook"
 ## References
 
 - **Netcash API Documentation:** https://netcash.co.za/developers
-- **CircleTel Webhook Implementation:** `app/api/payment/netcash/webhook/route.ts`
+- **CircleTel Webhook Implementation:** `app/api/payments/netcash/webhook/route.ts` (invoice Notify); `app/api/payment/netcash/webhook/route.ts` (legacy orders)
 - **Test Results:** `docs/testing/PAYMENT_TEST_RESULTS.md`
 - **Phase 1B Summary:** `docs/features/customer-journey/PHASE_1B_COMPLETION_SUMMARY.md`
 

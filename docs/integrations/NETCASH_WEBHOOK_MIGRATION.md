@@ -1,5 +1,8 @@
 # Netcash Webhook Migration to CircleTel Direct Integration
 
+> **URL canon (2026-08-01):** Pay Now **Notify** = `/api/payments/netcash/webhook` (invoice settlement). **Accept / Decline / Redirect** = `/api/payments/netcash/redirect`. Singular `/api/payment/netcash/webhook` is legacy consumer-order only — see `NETCASH_URLS_QUICK_REFERENCE.md`.
+
+
 **Date:** 2025-10-22
 **Migration Type:** AgilityGIS Gateway → CircleTel Direct
 **Status:** Ready for Production
@@ -27,16 +30,16 @@ Notify URL: https://integration-staging.agilitygis.com/api/paymentgateway/webhoo
 
 #### For Vercel Staging Environment:
 ```
-Accept URL: https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook
-Decline URL: https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook
-Notify URL: https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook
+Accept URL: https://circletel-nextjs-staging.vercel.app/api/payments/netcash/redirect
+Decline URL: https://circletel-nextjs-staging.vercel.app/api/payments/netcash/redirect
+Notify URL: https://circletel-nextjs-staging.vercel.app/api/payments/netcash/webhook
 ```
 
 #### For Local Development:
 ```
-Accept URL: https://your-ngrok-url.ngrok.io/api/payment/netcash/webhook
-Decline URL: https://your-ngrok-url.ngrok.io/api/payment/netcash/webhook
-Notify URL: https://your-ngrok-url.ngrok.io/api/payment/netcash/webhook
+Accept URL: https://your-ngrok-url.ngrok.io/api/payments/netcash/redirect
+Decline URL: https://your-ngrok-url.ngrok.io/api/payments/netcash/redirect
+Notify URL: https://your-ngrok-url.ngrok.io/api/payments/netcash/webhook
 ```
 
 **Note:** All three URLs point to the same endpoint. The CircleTel webhook handler processes all payment statuses (approved, declined, cancelled) through a single unified endpoint.
@@ -54,16 +57,16 @@ Notify URL: https://integration.agilitygis.com/api/paymentgateway/webhook/netcas
 
 **New (CircleTel Direct Integration):**
 ```
-Accept URL: https://circletel.co.za/api/payment/netcash/webhook
-Decline URL: https://circletel.co.za/api/payment/netcash/webhook
-Notify URL: https://circletel.co.za/api/payment/netcash/webhook
+Accept URL: https://www.circletel.co.za/api/payments/netcash/redirect
+Decline URL: https://www.circletel.co.za/api/payments/netcash/redirect
+Notify URL: https://www.circletel.co.za/api/payments/netcash/webhook
 ```
 
 **Alternative (Vercel Production):**
 ```
-Accept URL: https://circletel-nextjs.vercel.app/api/payment/netcash/webhook
-Decline URL: https://circletel-nextjs.vercel.app/api/payment/netcash/webhook
-Notify URL: https://circletel-nextjs.vercel.app/api/payment/netcash/webhook
+Accept URL: https://circletel-nextjs.vercel.app/api/payments/netcash/redirect
+Decline URL: https://circletel-nextjs.vercel.app/api/payments/netcash/redirect
+Notify URL: https://circletel-nextjs.vercel.app/api/payments/netcash/webhook
 ```
 
 ---
@@ -117,9 +120,9 @@ openssl rand -base64 32
 
 3. **Update URLs:**
    - **Pre-defined URL group:** None
-   - **Accept URL:** `https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook`
-   - **Decline URL:** `https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook`
-   - **Notify URL:** `https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook`
+   - **Accept URL:** `https://circletel-nextjs-staging.vercel.app/api/payments/netcash/redirect`
+   - **Decline URL:** `https://circletel-nextjs-staging.vercel.app/api/payments/netcash/redirect`
+   - **Notify URL:** `https://circletel-nextjs-staging.vercel.app/api/payments/netcash/webhook`
    - **Re-direct URL:** (leave empty)
    - **Notify my customers:** ☐ (unchecked)
 
@@ -170,9 +173,9 @@ curl -X POST https://circletel-nextjs-staging.vercel.app/api/orders/create \
 
 3. **Update URLs:**
    - **Pre-defined URL group:** None
-   - **Accept URL:** `https://circletel.co.za/api/payment/netcash/webhook`
-   - **Decline URL:** `https://circletel.co.za/api/payment/netcash/webhook`
-   - **Notify URL:** `https://circletel.co.za/api/payment/netcash/webhook`
+   - **Accept URL:** `https://www.circletel.co.za/api/payments/netcash/redirect`
+   - **Decline URL:** `https://www.circletel.co.za/api/payments/netcash/redirect`
+   - **Notify URL:** `https://www.circletel.co.za/api/payments/netcash/webhook`
    - **Re-direct URL:** (leave empty)
    - **Notify my customers:** ☐ (unchecked)
 
@@ -222,9 +225,9 @@ curl -X POST https://circletel-nextjs-staging.vercel.app/api/orders/create \
    ```
 
 4. **Update Netcash test account:**
-   - Accept URL: `https://abc123.ngrok.io/api/payment/netcash/webhook`
-   - Decline URL: `https://abc123.ngrok.io/api/payment/netcash/webhook`
-   - Notify URL: `https://abc123.ngrok.io/api/payment/netcash/webhook`
+   - Accept URL: `https://abc123.ngrok.io/api/payments/netcash/redirect`
+   - Decline URL: `https://abc123.ngrok.io/api/payments/netcash/redirect`
+   - Notify URL: `https://abc123.ngrok.io/api/payments/netcash/webhook`
 
 5. **Monitor webhooks:**
    - ngrok dashboard: http://localhost:4040
@@ -278,7 +281,7 @@ Notify URL: https://integration.agilitygis.com/api/paymentgateway/webhook/netcas
 
 2. **Vercel Function Logs:**
    - URL: https://vercel.com/your-team/circletel-nextjs/logs
-   - Filter by function: `api/payment/netcash/webhook`
+   - Filter by function: `api/payments/netcash/webhook` (invoice Notify); also `api/payment/netcash/webhook` (legacy orders)
    - Look for 5xx errors
 
 3. **Sentry Error Tracking:**
@@ -302,7 +305,7 @@ Notify URL: https://integration.agilitygis.com/api/paymentgateway/webhook/netcas
 **Check Vercel Deployment:**
 ```bash
 # Verify function is deployed
-curl https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook
+curl https://circletel-nextjs-staging.vercel.app/api/payments/netcash/webhook
 
 # Expected response:
 {"status":"unhealthy","error":"No active payment configuration found"}
@@ -406,7 +409,7 @@ Migration is successful when:
 ## References
 
 - **Webhook Configuration Doc:** `docs/integrations/NETCASH_WEBHOOK_CONFIGURATION.md`
-- **Implementation:** `app/api/payment/netcash/webhook/route.ts`
+- **Implementation:** `app/api/payments/netcash/webhook/route.ts` (invoice Notify); `app/api/payment/netcash/webhook/route.ts` (legacy orders)
 - **Test Results:** `docs/testing/PAYMENT_TEST_RESULTS.md`
 - **Phase 1B Summary:** `docs/features/customer-journey/PHASE_1B_COMPLETION_SUMMARY.md`
 
