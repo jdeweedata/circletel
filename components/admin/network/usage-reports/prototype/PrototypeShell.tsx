@@ -7,11 +7,17 @@ import { VariantA } from './VariantA';
 import { VariantB } from './VariantB';
 import { VariantC } from './VariantC';
 
-export function PrototypeShell({ variant }: { variant: ProtoVariantKey }) {
+export function PrototypeShell({
+  variant,
+  focus,
+}: {
+  variant: ProtoVariantKey;
+  focus?: string;
+}) {
   return (
     <>
       {variant === 'A' && <VariantA />}
-      {variant === 'B' && <VariantB />}
+      {variant === 'B' && <VariantB initialFocus={focus} />}
       {variant === 'C' && <VariantC />}
       <PrototypeSwitcher current={variant} />
     </>

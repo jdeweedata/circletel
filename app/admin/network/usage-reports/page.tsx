@@ -31,7 +31,12 @@ export default async function UsageReportsPage({
   // PROTOTYPE (#688) — ?variant=A|B|C renders the throwaway dashboard variants.
   const variant = firstParam(params.variant)?.toUpperCase();
   if (variant === 'A' || variant === 'B' || variant === 'C') {
-    return <PrototypeShell variant={variant as ProtoVariantKey} />;
+    return (
+      <PrototypeShell
+        variant={variant as ProtoVariantKey}
+        focus={firstParam(params.focus)}
+      />
+    );
   }
 
   return (
