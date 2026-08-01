@@ -35,6 +35,11 @@
  */
 
 import { Coordinates, ServiceType, CoverageCheckResult } from '../types';
+import {
+  recordProviderCall,
+  normalizeOperation,
+  PROVIDER_ERROR_CODES,
+} from '@/lib/integrations/provider-call-recorder';
 
 export interface WMSGetFeatureInfoRequest {
   coordinates: Coordinates;
@@ -256,6 +261,12 @@ export class MTNWMSRealtimeClient {
     coordinates: Coordinates,
     wmsLayer: string
   ): Promise<WMSGetFeatureInfoResponse | null> {
+    // Telemetry — see lib/integrations/provider-call-recorder.ts. The URL is
+    // never recorded: its bbox is derived from the customer's coordinate.
+    const startedAt = Date.now();
+    let success = false;
+    let errorCode: string | null = null;
+
     try {
       const bbox = this.calculateBBox(coordinates, this.DEFAULT_ZOOM);
       const pixelCoords = this.latLngToPixel(coordinates, bbox);
@@ -292,15 +303,33 @@ export class MTNWMSRealtimeClient {
 
       if (!response.ok) {
         console.error(`WMS query failed: ${response.status} ${response.statusText}`);
+        errorCode =
+          response.status === 404 ? 'LAYER_NOT_AVAILABLE'
+          : response.status === 429 ? PROVIDER_ERROR_CODES.RATE_LIMITED
+          : response.status >= 500 ? 'SERVICE_UNAVAILABLE'
+          : 'WMS_REQUEST_FAILED';
         return null;
       }
 
       const data = await response.json();
+      // A 200 with an empty feature list is a SUCCESS — no coverage there is a
+      // valid answer, not a provider failure.
+      success = true;
       return data as WMSGetFeatureInfoResponse;
 
     } catch (error) {
       console.error(`Error querying WMS layer ${wmsLayer}:`, error);
+      errorCode = PROVIDER_ERROR_CODES.TRANSPORT_ERROR;
       return null;
+    } finally {
+      void recordProviderCall({
+        integrationSlug: 'mtn-coverage',
+        operation: normalizeOperation('GET', this.BASE_URL, `GetFeatureInfo:${wmsLayer}`),
+        durationMs: Date.now() - startedAt,
+        success,
+        errorCode,
+        cacheHit: false,
+      });
     }
   }
 
