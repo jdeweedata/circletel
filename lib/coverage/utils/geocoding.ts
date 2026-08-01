@@ -8,6 +8,11 @@
  */
 
 import { Coordinates } from '../types';
+import {
+  recordProviderCall,
+  normalizeOperation,
+  PROVIDER_ERROR_CODES,
+} from '@/lib/integrations/provider-call-recorder';
 
 /**
  * Geocode result with address details
@@ -86,6 +91,13 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult> {
   url.searchParams.set('components', 'country:ZA'); // Restrict to South Africa
   url.searchParams.set('key', apiKey);
 
+  // Telemetry — see lib/integrations/provider-call-recorder.ts. normalizeOperation
+  // keeps only method/host/path: this URL's query string carries BOTH the
+  // customer's address and the Google API key, so it must never be recorded.
+  const startedAt = Date.now();
+  let success = false;
+  let errorCode: string | null = null;
+
   try {
     const response = await fetch(url.toString(), {
       headers: {
@@ -128,6 +140,8 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult> {
     // Extract address components
     const addressComponents = extractAddressComponents(result.address_components);
 
+    success = true;
+
     return {
       coordinates: {
         lat: location.lat,
@@ -139,15 +153,32 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult> {
     };
   } catch (error) {
     if (error instanceof GeocodingError) {
+      // ZERO_RESULTS is a completed call that found no match — a valid answer,
+      // not a provider fault. Everything else is a real failure.
+      if (error.code === 'NO_RESULTS') {
+        success = true;
+      } else {
+        errorCode = error.code;
+      }
       throw error;
     }
 
+    errorCode = PROVIDER_ERROR_CODES.TRANSPORT_ERROR;
     throw new GeocodingError(
       'Network error during geocoding',
       'NETWORK_ERROR',
       address,
       { originalError: error instanceof Error ? error.message : 'Unknown error' }
     );
+  } finally {
+    void recordProviderCall({
+      integrationSlug: 'google-maps',
+      operation: normalizeOperation('GET', url.toString(), 'geocode'),
+      durationMs: Date.now() - startedAt,
+      success,
+      errorCode,
+      cacheHit: false,
+    });
   }
 }
 
