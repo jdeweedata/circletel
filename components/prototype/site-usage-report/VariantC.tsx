@@ -40,8 +40,8 @@ export function VariantC() {
         </p>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-stone-600">
           CircleTel core connectivity, Staff Wi-Fi, and Patient Free Wi-Fi are separate sources.
-          Numbers must not be added together. Patient figures come from a TDX export when available;
-          Staff period GB stays unavailable until SSID session-byte instrumentation ships.
+          Numbers must not be added together. Patient figures come from a TDX export; Staff period GB
+          from CircleTel STA SSID rollups.
         </p>
       </section>
 
@@ -70,29 +70,25 @@ export function VariantC() {
       </section>
 
       <section className="px-10 py-6">
-        <h2 className="font-serif text-xl">2. Staff Wi-Fi</h2>
-        <div className="mt-3 border-l-4 border-[#F5831F] bg-amber-50 px-5 py-4">
-          <p className="text-base font-semibold text-amber-900">
-            Staff Wi-Fi — not displaying (critical gap)
-          </p>
-          <p className="mt-2 text-sm text-amber-950/90">{d.staffWifi.whyCritical}</p>
-          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-amber-800">
-            Why empty
-          </p>
-          <ol className="mt-1 list-decimal space-y-1 pl-5 text-xs text-stone-600">
-            {d.staffWifi.whyMissing.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ol>
-          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-amber-800">
-            Unlock
-          </p>
-          <ol className="mt-1 list-decimal space-y-1 pl-5 text-xs text-stone-500">
-            {d.staffWifi.unlockChecklist.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ol>
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 className="font-serif text-xl">2. Staff Wi-Fi</h2>
+          <span className="text-xs text-stone-500">{d.staffWifi.source}</span>
         </div>
+        <div className="mt-4 grid grid-cols-3 gap-6 border-y border-stone-200 py-5">
+          <div>
+            <p className="font-serif text-4xl">{fmtGb(d.staffWifi.totalGb)}</p>
+            <p className="mt-1 text-xs uppercase tracking-wider text-stone-500">Total</p>
+          </div>
+          <div>
+            <p className="font-serif text-4xl">{fmtGb(d.staffWifi.downloadGb)}</p>
+            <p className="mt-1 text-xs uppercase tracking-wider text-stone-500">Download</p>
+          </div>
+          <div>
+            <p className="font-serif text-4xl">{fmtGb(d.staffWifi.uploadGb)}</p>
+            <p className="mt-1 text-xs uppercase tracking-wider text-stone-500">Upload</p>
+          </div>
+        </div>
+        <p className="mt-3 text-[11px] leading-relaxed text-stone-500">{d.staffWifi.footnote}</p>
       </section>
 
       <section className="px-10 py-6">

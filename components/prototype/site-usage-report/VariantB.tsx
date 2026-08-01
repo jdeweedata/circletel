@@ -84,15 +84,13 @@ export function VariantB() {
       </section>
 
       <section className="grid grid-cols-[1fr_1.2fr] gap-3 px-10 pb-8">
-        <div className="rounded-xl border border-dashed border-amber-500/40 bg-amber-500/10 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-amber-400">Staff Wi-Fi</p>
-          <p className="mt-2 text-lg font-semibold text-amber-200">
-            Staff Wi-Fi — not displaying (critical gap)
+        <div className="rounded-xl border border-white/10 bg-[#1F2937] p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[#F5831F]">Staff Wi-Fi</p>
+          <p className="mt-2 text-3xl font-semibold text-white">{fmtGb(d.staffWifi.totalGb)}</p>
+          <p className="mt-1 text-xs text-gray-400">
+            ↓ {fmtGb(d.staffWifi.downloadGb)} · ↑ {fmtGb(d.staffWifi.uploadGb)}
           </p>
-          <p className="mt-2 text-xs text-amber-100/80">{d.staffWifi.whyCritical}</p>
-          <p className="mt-2 text-[11px] text-amber-100/60">
-            Device Traffic is aggregate only; live Kbps ≠ period GB. Need STA SSID byte rollups.
-          </p>
+          <p className="mt-3 text-[10px] leading-relaxed text-gray-500">{d.staffWifi.footnote}</p>
         </div>
         <div className="rounded-xl bg-[#1F2937] p-4">
           <p className="text-[10px] uppercase tracking-wider text-[#F5831F]">Patient Free Wi-Fi</p>

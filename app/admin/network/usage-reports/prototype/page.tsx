@@ -33,7 +33,7 @@ function PrototypeBody() {
         </h1>
         <p className="mt-1 text-sm text-stone-600">
           Flip variants with the bar below (or ← →). Sample data: Unjani Alexandra · June 2026
-          monthly · Interstellio primary · Patient CSV filled · Staff N/A.
+          monthly · Interstellio primary · Patient CSV filled · Staff rollups filled.
         </p>
       </div>
 

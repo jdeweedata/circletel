@@ -43,22 +43,16 @@ export const MOCK_SITE_USAGE_REPORT = {
     5.6, 2.2, 1.9, 6.8, 7.4, 5.0, 4.7, 5.2, 2.3, 1.6, 6.1, 5.8,
   ],
   staffWifi: {
-    available: false,
-    statusLabel: 'Not available — critical gap',
+    /** Preview assumes instrumentation live (#672 / #682) — not the old critical-gap panel. */
+    available: true,
     ssids: ['Unjani Clinic Staff'],
-    whyMissing: [
-      'CircleTel does not yet store period download/upload bytes broken down by Wi-Fi SSID.',
-      'The device Traffic graph (e.g. G1U52HL00261B) is aggregate only — Free + Staff + other traffic mixed.',
-      'Clients-tab RATES are live Kbps snapshots, not June GB totals — they cannot fill this section.',
-      'Until STA session-byte rollups by SSID are persisted, Staff usage cannot be shown next to Patient Free Wi-Fi.',
-    ],
-    whyCritical:
-      'Staff Wi-Fi period usage is the critical CircleTel-attributable clinic metric to view alongside Patient Free Wi-Fi (TDX). Without it, ops cannot compare staff vs patient load or investigate which SSID drives site traffic.',
-    unlockChecklist: [
-      'Link AP serials to corporate_sites (site ↔ device)',
-      'Schedule/persist STA session-byte rollups by SSID',
-      'Allow-list SSIDs: Unjani Clinic Staff and Unjani Clinic Free WiFi',
-    ],
+    source: 'CircleTel STA session-byte rollups (SSID)',
+    /** SUM(rx+tx) for period — mock monthly Staff volume */
+    totalGb: 12.4,
+    downloadGb: 11.1,
+    uploadGb: 1.3,
+    footnote:
+      'Source: CircleTel STA session-byte rollups · SSID Unjani Clinic Staff · sampled telemetry (not accounting-grade) · forward-only from sampler go-live · may undercount short sessions / gaps · do not sum with Patient or BNG totals.',
   },
   patientWifi: {
     available: true,

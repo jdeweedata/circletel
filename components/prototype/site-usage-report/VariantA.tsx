@@ -150,30 +150,28 @@ export function VariantA() {
           <span className="font-normal text-[#6B7280]">(separate sources — do not sum)</span>
         </h2>
 
-        <section className="rounded border-2 border-[#F5831F] bg-amber-50 p-4">
+        <section className="rounded border border-[#E5E7EB] p-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="text-sm font-semibold text-amber-800">
-              Staff Wi-Fi — not displaying (critical gap)
-            </h3>
-            <p className="text-xs text-amber-700">SSID: {d.staffWifi.ssids.join(', ')}</p>
+            <h3 className="text-sm font-semibold">Staff Wi-Fi</h3>
+            <p className="text-xs text-[#6B7280]">
+              {d.staffWifi.source} · {d.staffWifi.ssids.join(', ')}
+            </p>
           </div>
-          <p className="mt-2 text-sm font-medium text-amber-900">{d.staffWifi.whyCritical}</p>
-          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-amber-800">
-            Why this section is empty
-          </p>
-          <ol className="mt-1 list-decimal space-y-1 pl-4 text-[11px] text-amber-950/80">
-            {d.staffWifi.whyMissing.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ol>
-          <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-amber-800">
-            Unlock checklist
-          </p>
-          <ul className="mt-1 list-disc space-y-1 pl-4 text-[11px] text-amber-950/80">
-            {d.staffWifi.unlockChecklist.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <dl className="mt-3 grid grid-cols-3 gap-3 text-sm">
+            <div>
+              <dt className="text-[10px] uppercase tracking-wider text-[#6B7280]">Total</dt>
+              <dd className="mt-1 text-lg font-semibold">{fmtGb(d.staffWifi.totalGb)}</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase tracking-wider text-[#6B7280]">Download</dt>
+              <dd className="mt-1 font-semibold">{fmtGb(d.staffWifi.downloadGb)}</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase tracking-wider text-[#6B7280]">Upload</dt>
+              <dd className="mt-1 font-semibold">{fmtGb(d.staffWifi.uploadGb)}</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-[10px] leading-relaxed text-[#9CA3AF]">{d.staffWifi.footnote}</p>
         </section>
 
         <section className="rounded border border-[#E5E7EB] p-4">
@@ -200,9 +198,8 @@ export function VariantA() {
             </div>
           </dl>
           <p className="mt-3 text-[10px] leading-relaxed text-[#9CA3AF]">{d.patientWifi.footnote}</p>
-          <p className="mt-2 text-[11px] font-medium text-amber-800">
-            Patient figures alone cannot explain Staff load — Staff instrumentation above is
-            required to compare the two.
+          <p className="mt-2 text-[11px] text-[#6B7280]">
+            Separate source from Staff — do not sum Patient + Staff + BNG.
           </p>
         </section>
       </div>
