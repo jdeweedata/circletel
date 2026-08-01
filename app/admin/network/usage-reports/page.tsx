@@ -1,6 +1,9 @@
 import { PiFileTextBold } from 'react-icons/pi';
 
 import { UsageReportBuilder } from '@/components/admin/network/usage-reports/UsageReportBuilder';
+// PROTOTYPE (#688) — throwaway; lives only on prototype/usage-reports-dashboard.
+import { PrototypeShell } from '@/components/admin/network/usage-reports/prototype/PrototypeShell';
+import type { ProtoVariantKey } from '@/components/admin/network/usage-reports/prototype/PrototypeSwitcher';
 
 interface UsageReportsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -16,6 +19,12 @@ export default async function UsageReportsPage({
   const params = await searchParams;
   const initialSiteId = firstParam(params.siteId);
   const initialUnjaniOnly = firstParam(params.unjani) === '1';
+
+  // PROTOTYPE (#688) — ?variant=A|B|C renders the throwaway dashboard variants.
+  const variant = firstParam(params.variant)?.toUpperCase();
+  if (variant === 'A' || variant === 'B' || variant === 'C') {
+    return <PrototypeShell variant={variant as ProtoVariantKey} />;
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
