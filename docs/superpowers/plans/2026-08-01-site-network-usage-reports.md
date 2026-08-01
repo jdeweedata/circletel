@@ -6,7 +6,7 @@
 
 **Architecture:** Pure domain assemblers under `lib/usage-reports/` build a typed `SiteUsageReportModel` from Supabase (Ruijie rollups, SSID Staff rollups, corporate sites) + Interstellio usage + optional TDX CSV. A jsPDF Layout A renderer turns the model into bytes. Admin APIs orchestrate sync downloads and an Inngest job for bulk ZIP; audit rows + Supabase Storage hold artifacts for 14 days.
 
-**Tech Stack:** Next.js 15 App Router, TypeScript, Supabase (service role in API/Inngest), jsPDF, Inngest, `authenticateAdmin`, Interstellio client (`getSubscriberUsage`), date-fns-tz / Temporal-style SAST math via `Africa/Johannesburg`.
+**Tech Stack:** Next.js 15 App Router, TypeScript, Supabase (service role in API/Inngest), jsPDF, Inngest, `authenticateAdmin`, Interstellio client (`getSubscriberUsage`), `date-fns` + `lib/dates` (`SAST_TIMEZONE = Africa/Johannesburg`), `jszip` (already in package.json).
 
 **Spec:** `docs/features/2026-08-01_site-network-usage-reports/SPEC_OUTLINE.md`  
 **Visual ref (do not merge prototype route as-is):** branch `prototype/site-usage-report-pdf` → Variant A
@@ -193,70 +193,26 @@ export type AssembleSkipReason =
 
 ```typescript
 // lib/usage-reports/periods.ts
-import { DateTime } from 'luxon';
+// Implement with date-fns + lib/dates (SAST_TIMEZONE). Do not add luxon.
+// Sketch — flesh out using startOfDay/endOfDay helpers in SAST (UTC+2 fixed):
+import { SAST_TIMEZONE } from '@/lib/dates';
 import type { ReportPeriod, ReportPeriodPreset } from './types';
-
-const TZ = 'Africa/Johannesburg';
 
 export function resolveReportPeriod(
   preset: ReportPeriodPreset,
   now: Date = new Date(),
   custom?: { startDate: string; endDate: string }
 ): ReportPeriod {
-  const zonedNow = DateTime.fromJSDate(now, { zone: TZ });
-
-  let start: DateTime;
-  let end: DateTime;
-  let label: string;
-
-  if (preset === 'weekly') {
-    // Last complete Mon–Sun: if today is Wed, week ended last Sunday
-    const thisMonday = zonedNow.startOf('week'); // luxon: Monday when locale weekStartsOn Monday — set explicitly
-    // Luxon default week starts Monday in ISO
-    end = thisMonday.minus({ days: 1 }).endOf('day');
-    start = end.minus({ days: 6 }).startOf('day');
-    label = 'Weekly';
-  } else if (preset === 'monthly') {
-    const lastMonth = zonedNow.minus({ months: 1 });
-    start = lastMonth.startOf('month');
-    end = lastMonth.endOf('month');
-    label = 'Monthly';
-  } else if (preset === 'sixty_day') {
-    end = zonedNow.minus({ days: 1 }).endOf('day');
-    start = end.minus({ days: 59 }).startOf('day');
-    label = '60-day';
-  } else {
-    if (!custom?.startDate || !custom?.endDate) {
-      throw new Error('custom period requires startDate and endDate (YYYY-MM-DD)');
-    }
-    start = DateTime.fromISO(custom.startDate, { zone: TZ }).startOf('day');
-    end = DateTime.fromISO(custom.endDate, { zone: TZ }).endOf('day');
-    if (!start.isValid || !end.isValid || end < start) {
-      throw new Error('invalid custom date range');
-    }
-    const days = Math.floor(end.diff(start, 'days').days) + 1;
-    if (days > 90) throw new Error('custom period max 90 days');
-    label = 'Custom';
-  }
-
-  const inclusiveDayCount = Math.floor(end.diff(start, 'days').days) + 1;
-
-  return {
-    preset,
-    timezone: TZ,
-    startIso: start.toISO()!,
-    endIso: end.toISO()!,
-    startUtc: start.toUTC().toJSDate(),
-    endUtc: end.toUTC().toJSDate(),
-    label,
-    rangeLabel: `${start.toFormat('d LLL yyyy')} – ${end.toFormat('d LLL yyyy')}`,
-    inclusiveDayCount,
-    isShortPeriod: inclusiveDayCount <= 7,
-  };
+  // weekly: last complete Mon–Sun
+  // monthly: previous calendar month
+  // sixty_day: 60 inclusive days ending yesterday
+  // custom: inclusive YYYY-MM-DD range, max 90 days
+  // Return offset-aware startIso/endIso (+02:00), startUtc/endUtc, inclusiveDayCount, isShortPeriod
+  throw new Error('implement with date-fns + lib/dates');
 }
 ```
 
-Confirm `luxon` is already a dependency (`npm ls luxon`). If missing, use the project’s existing date helper — search `Africa/Johannesburg` in `lib/` and match that pattern instead of adding luxon.
+Do **not** add luxon. Implement with `date-fns` and `lib/dates` (`SAST_TIMEZONE`). SAST is fixed UTC+2 (no DST) — prefer explicit offset math already used in `lib/dates/index.ts`.
 
 - [ ] **Step 4: Run tests — expect PASS**
 
@@ -900,7 +856,7 @@ Logic:
 7. Insert audit job row `status=succeeded`, upload artifact, `expires_at=+14d`  
 8. Optional: also return `Content-Disposition` filename `CircleTel_Usage_<site>_<period>.pdf`
 
-Use `jszip` if already in package.json; else `archiver` / Node zlib manual — check `npm ls jszip`.
+Use `jszip` (already in package.json `^3.10.1`).
 
 - [ ] **Step 4: Async job API + Inngest**
 
@@ -1068,6 +1024,6 @@ git commit -m "docs(usage-reports): link implementation plan from spec outline"
 - Types (`SiteUsageReportModel`, `StaffWifiState`, `CoreTrafficSource`) are defined in Task 1 and reused later — keep names stable.  
 - Core unavailable ⇒ skip slip, never fake zero core KPIs.  
 - Staff independent of core gate; Patient never from Free radio.  
-- Confirm luxon vs existing TZ helper before Task 1 implementation.  
+- Task 1 must use `lib/dates` + `date-fns` (no luxon).  
 - Confirm `corporate_sites` FK column names against `site-service.ts` in Task 2.  
-- Confirm `jszip` availability in Task 8.
+- Task 8 uses existing `jszip`.
