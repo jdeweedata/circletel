@@ -48,7 +48,7 @@ export async function fetchInclusionSiteRows(
   if (corporateAccountId) q = q.eq('corporate_id', corporateAccountId);
   const { data, error } = await q;
   if (error) throw error;
-  return ((data ?? []) as RawInclusionSiteRow[]).map((row) => ({
+  return ((data ?? []) as unknown as RawInclusionSiteRow[]).map((row) => ({
     id: row.id,
     name: row.site_name,
     account_number: row.account_number ?? '',
