@@ -87,6 +87,10 @@ export {
 } from './functions/ruijie-traffic-rollup';
 
 export {
+  ruijieSsidStaSamplerFunction,
+} from './functions/ruijie-ssid-sta-sampler';
+
+export {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -236,6 +240,10 @@ import {
 } from './functions/ruijie-traffic-rollup';
 
 import {
+  ruijieSsidStaSamplerFunction,
+} from './functions/ruijie-ssid-sta-sampler';
+
+import {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -354,6 +362,8 @@ export const functions = [
   ruijieHealthMonitorFunction,
   // Ruijie traffic rollups for System Health / Analytics
   ruijieTrafficRollupFunction,
+  // Ruijie STA → SSID hour rollups (Usage Reports Staff GB)
+  ruijieSsidStaSamplerFunction,
   // MikroTik router sync
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
