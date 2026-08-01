@@ -807,6 +807,19 @@ export type OfferPricingRecomputeCompletedEvent = {
   };
 };
 
+export type UsageReportZipRequestedEvent = {
+  name: 'usage-reports/zip.requested';
+  data: {
+    jobId: string;
+    patientRows?: Array<{
+      siteCode: string;
+      uniqueUsers: number;
+      loginSessions: number;
+      downloadGb: number;
+    }>;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -888,4 +901,6 @@ export type InngestEvents = {
   // Offer pricing events
   'offer/pricing.recompute.requested': OfferPricingRecomputeRequestedEvent;
   'offer/pricing.recompute.completed': OfferPricingRecomputeCompletedEvent;
+  // Site usage report events
+  'usage-reports/zip.requested': UsageReportZipRequestedEvent;
 };
