@@ -46,6 +46,7 @@ Keep Inngest functions as event-triggered step functions. Remove their cron sche
 | `0 21 * * *` | 23:00 | `ar-snapshot` | Finance | Accounts receivable snapshot |
 | `0 0,6,12,18 * * *` | 4x/day | `diagnostics-health-check` | Ops | System health |
 | `0 2,6,10,14,18,22 * * *` | 6x/day | `payment-sync-monitor` | Billing | Monitor payment sync |
+| `20 */4 * * *` | 6x/day | `ruijie-sync-health` | Ops | Alert before Ruijie flow data becomes unrecoverable (~3d source retention) |
 | `0 */4 * * *` | 6x/day | `payment-sync-retry` | Billing | Retry failed syncs |
 | `*/15 * * * *` | every 15m | `zoho-books-retry` | Integration | Retry failed Zoho syncs |
 | `*/30 * * * *` | every 30m | `integrations-health-check` | Ops | Integration health |
