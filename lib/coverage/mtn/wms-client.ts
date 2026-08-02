@@ -12,7 +12,6 @@ import { Coordinates, ServiceType, SignalStrength } from '../types';
 import { mtnCoverageCache } from './cache';
 import { getMockCoverageData } from './test-data';
 import { mtnResponseValidator } from './validation';
-import { mtnCoverageMonitor } from './monitoring';
 import {
   recordProviderCall,
   normalizeOperation,
@@ -82,18 +81,9 @@ export class MTNWMSClient {
         const business = cached.filter(r => r.layer && this.isBusinessLayer(r.layer));
         const consumer = cached.filter(r => r.layer && this.isConsumerLayer(r.layer));
 
-        // Record cache hit metric
-        mtnCoverageMonitor.recordRequest({
-          coordinates,
-          layers: cached.map(r => r.layer).filter(Boolean),
-          duration: Date.now() - startTime,
-          success: true,
-          cacheHit: true,
-          source: 'both',
-          validationErrors: 0,
-          validationWarnings: 0
-        });
-
+        // No telemetry here: a cache hit means no provider call was made, and
+        // provider_api_calls records calls. Counting cache hits would inflate the
+        // success rate with non-calls and mask real upstream failures.
         return { business, consumer };
       }
 
@@ -142,26 +132,10 @@ export class MTNWMSClient {
         errorMessage = error instanceof Error ? error.message : 'Unknown error';
       }
       throw error;
-    } finally {
-      // Record metrics for monitoring
-      const allLayers = [
-        ...this.getLayersToQuery(MTN_CONFIGS.business, serviceTypes),
-        ...this.getLayersToQuery(MTN_CONFIGS.consumer, serviceTypes)
-      ];
-
-      mtnCoverageMonitor.recordRequest({
-        coordinates,
-        layers: allLayers,
-        duration: Date.now() - startTime,
-        success,
-        errorCode: errorCode as any,
-        errorMessage,
-        cacheHit,
-        source: 'both',
-        validationErrors: 0,
-        validationWarnings: 0
-      });
     }
+    // Telemetry is recorded per HTTP call in makeRequest() rather than once per
+    // checkCoverage(). The old monitor recorded CHECK-grain — one record covering
+    // 6+ layer fetches — which cannot answer "which layer is slow".
   }
 
   /**
