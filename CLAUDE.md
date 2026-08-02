@@ -198,6 +198,7 @@ All detailed patterns are in `.claude/rules/`:
 | `invoice-pdf-patterns.md` | VAT calc (excl-VAT multiply), fetch/blob download, print:hidden, jsPDF patterns |
 | `pre-push-hook.md` | Shared `.githooks/pre-push` — build-config + scoped type-check, escape hatches |
 | `icon-system.md` | Phosphor UI icons, Iconify brand logos, local hosting, licensing, and accessibility |
+| `admin-page-verification.md` | Seeing an admin page with real data — the API-bypass trap, login harness, mobile sidebar |
 
 ---
 
