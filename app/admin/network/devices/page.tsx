@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Network Devices list — Ruijie fleet ops.
+ * Network Devices list — Ruijie fleet ops + Omada gateways/switches.
  *
  * Customer link path (Task C3):
  * - Filter Customer link → Unlinked only
@@ -18,10 +18,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { PiArrowsClockwiseBold, PiWarningBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiWarningBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,10 +44,14 @@ import {
   DeviceTable,
   DeviceCard,
   LinkCustomerDialog,
+  DeviceFleetStatCards,
+  DeviceStatusBadge,
+  classifyRuijieStatus,
+  classifyOmadaStatus,
   type RuijieListDevice,
+  type DeviceFleetStats,
 } from '@/components/admin/network';
 import {
-  MetricCard,
   NetworkOverviewTiles,
   type NetworkInventory,
 } from '@/components/admin/network/performance';
@@ -115,6 +118,7 @@ export default function RuijieDevicesPage() {
   const [omadaDevices, setOmadaDevices] = useState<NetworkDevice[]>([]);
   const [omadaError, setOmadaError] = useState<string | null>(null);
   const [omadaLoading, setOmadaLoading] = useState(true);
+  const [showAlert, setShowAlert] = useState(true);
 
   const [tunnelCount] = useState(0);
   const TUNNEL_LIMIT = 10;
@@ -293,6 +297,33 @@ export default function RuijieDevicesPage() {
     };
   }, [data?.devices, omadaDevices]);
 
+  const fleetStats: DeviceFleetStats = useMemo(() => {
+    const ruijie = data?.devices || [];
+    let online = 0;
+    let warning = 0;
+    let offline = 0;
+
+    for (const d of ruijie) {
+      const s = classifyRuijieStatus(d);
+      if (s === 'online') online += 1;
+      else if (s === 'warning') warning += 1;
+      else offline += 1;
+    }
+    for (const d of omadaDevices) {
+      const s = classifyOmadaStatus(d.status);
+      if (s === 'online') online += 1;
+      else if (s === 'warning') warning += 1;
+      else offline += 1;
+    }
+
+    return {
+      total: ruijie.length + omadaDevices.length,
+      online,
+      warning,
+      offline,
+    };
+  }, [data?.devices, omadaDevices]);
+
   if (loading) {
     return (
       <AdminPage>
@@ -303,8 +334,8 @@ export default function RuijieDevicesPage() {
 
   if (error && !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <PiWarningCircleBold className="w-12 h-12 text-red-500" />
+      <div className="flex min-h-[400px] flex-col items-center justify-center gap-4">
+        <PiWarningCircleBold className="h-12 w-12 text-red-500" />
         <p className="text-slate-600">{error}</p>
         <Button onClick={() => fetchDevices()}>Retry</Button>
       </div>
@@ -312,22 +343,22 @@ export default function RuijieDevicesPage() {
   }
 
   const devices = data?.devices || [];
-  const onlineCount = devices.filter((d) => d.status === 'online').length;
-  const offlineCount = devices.filter((d) => d.status === 'offline').length;
   const unlinkedCount = devices.filter(
     (d) => !d.customer_order_id && !d.corporate_site_id
   ).length;
-  const totalClients = devices.reduce((sum, d) => sum + (d.online_clients || 0), 0);
-  const withCpu = devices.filter((d) => d.cpu_usage != null).length;
   const isMockData = devices.length > 0 && devices.every((d) => d.mock_data);
-  const onlinePercent =
-    devices.length > 0 ? Math.round((onlineCount / devices.length) * 100) : 0;
+  const omadaOnline = omadaDevices.filter(
+    (d) => classifyOmadaStatus(d.status) === 'online'
+  ).length;
+  const omadaWarning = omadaDevices.filter(
+    (d) => classifyOmadaStatus(d.status) === 'warning'
+  ).length;
 
   return (
     <AdminPage>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <p className="text-xs text-slate-400 mb-1">Activity / Infrastructure / Devices</p>
+          <p className="mb-1 text-xs text-slate-400">Activity / Infrastructure / Devices</p>
           <PageHeader title="Network Devices" subtitle="Manage CPE and network devices" />
         </div>
         <div className="flex items-center gap-2">
@@ -356,7 +387,7 @@ export default function RuijieDevicesPage() {
             disabled={refreshing}
           >
             <PiArrowsClockwiseBold
-              className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`}
+              className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`}
             />
             Refresh
           </Button>
@@ -364,154 +395,160 @@ export default function RuijieDevicesPage() {
       </div>
 
       {isMockData && (
-        <Card className="border border-purple-200/80 bg-purple-50/80 shadow-sm rounded-xl">
-          <CardContent className="py-3">
-            <div className="flex items-center gap-2 text-purple-800 text-sm">
-              <span className="w-2 h-2 rounded-full bg-purple-500" />
-              <span className="font-medium">
-                Displaying mock data — Connect Ruijie API for live data
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex items-center gap-3 rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm text-purple-700">
+          <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
+          <span className="flex-1 font-medium">
+            Displaying mock data — Connect Ruijie API for live data
+          </span>
+        </div>
       )}
 
       {isStale && (
-        <Card className="border border-amber-200/80 bg-amber-50/80 shadow-sm rounded-xl">
-          <CardContent className="py-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <PiWarningBold className="w-5 h-5 text-amber-600" />
-                <span className="text-amber-800 text-sm font-medium">
-                  Device data may be outdated — last synced{' '}
-                  {formatRelativeTime(data?.lastSynced || '')}
-                </span>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefresh}
-                disabled={refreshing}
-                className="border-amber-300 text-amber-800 hover:bg-amber-100"
-              >
-                Refresh Now
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className="flex items-center gap-2">
+            <PiWarningBold className="h-5 w-5 text-amber-600" />
+            <span className="font-medium">
+              Device data may be outdated — last synced{' '}
+              {formatRelativeTime(data?.lastSynced || '')}
+            </span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="border-amber-300 text-amber-800 hover:bg-amber-100"
+          >
+            Refresh Now
+          </Button>
+        </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px_280px] gap-4">
-        <NetworkOverviewTiles inventory={inventory} />
-        <MetricCard
-          title="Online Devices"
-          value={`${onlineCount}`}
-          subtitle={`${onlinePercent}% of visible fleet`}
-          delta={`${offlineCount} offline`}
-          deltaPositive={offlineCount === 0}
-        />
-        <MetricCard
-          title="Unlinked devices"
-          value={`${unlinkedCount}`}
-          subtitle={
-            linkedFilter === 'unlinked'
-              ? 'Filter: unlinked only'
-              : 'No customer / site assignment'
-          }
-          delta={`${withCpu} with CPU · ${totalClients} clients`}
-        />
-      </div>
+      {showAlert && !isStale && !isMockData && (
+        <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+          <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-400" />
+          <span className="flex-1">
+            No critical alerts for this collection
+            {data?.lastSynced
+              ? ` — last updated ${formatRelativeTime(data.lastSynced)}`
+              : ''}
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowAlert(false)}
+            className="text-xs font-medium text-blue-500 transition-colors hover:text-blue-700"
+            aria-label="Dismiss alert"
+          >
+            <PiXBold className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
-      <Card className="border border-teal-200/80 bg-teal-50/30 shadow-sm rounded-xl">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle className="text-base">Omada gateways & switches</CardTitle>
-              <CardDescription>
-                TP-Link Omada CPE for Delphius Midrand and New ExGen Rivonia ·{' '}
-                {omadaLoading
-                  ? 'Loading…'
-                  : `${omadaDevices.filter((d) => d.device_type === 'omada_gateway').length} gateways · ${omadaDevices.filter((d) => d.device_type === 'omada_switch').length} switches`}
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fetchOmadaDevices()}
-                disabled={omadaLoading}
-              >
-                <PiArrowsClockwiseBold
-                  className={`w-4 h-4 mr-2 ${omadaLoading ? 'animate-spin' : ''}`}
-                />
-                Reload Omada
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/admin/network/hardware?source=omada">View in Hardware</Link>
-              </Button>
-            </div>
+      {/* Keep Omada-style Network Overview sprites */}
+      <NetworkOverviewTiles inventory={inventory} />
+
+      <DeviceFleetStatCards stats={fleetStats} />
+
+      {/* Device Gateways & Outlines — Omada CPE */}
+      <Card className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+        <CardHeader className="flex flex-col gap-3 border-b border-gray-50 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle className="text-sm font-semibold text-gray-900">
+              Device Gateways & Outlines
+            </CardTitle>
+            <CardDescription className="mt-0.5 text-xs text-gray-400">
+              {omadaLoading
+                ? 'Loading Omada CPE…'
+                : `${omadaDevices.length} gateways/switches · ${omadaOnline} online · ${omadaWarning} warning`}
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchOmadaDevices()}
+              disabled={omadaLoading}
+            >
+              <PiArrowsClockwiseBold
+                className={`mr-2 h-4 w-4 ${omadaLoading ? 'animate-spin' : ''}`}
+              />
+              Reload Devices
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/network/hardware?source=omada">Show in Inventory</Link>
+            </Button>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="p-0">
           {omadaError ? (
-            <p className="text-sm text-red-600 py-4">{omadaError}</p>
+            <p className="px-5 py-4 text-sm text-red-600">{omadaError}</p>
           ) : omadaLoading && omadaDevices.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">Loading Omada devices…</p>
+            <p className="px-5 py-4 text-sm text-muted-foreground">Loading Omada devices…</p>
           ) : omadaDevices.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">
+            <p className="px-5 py-4 text-sm text-muted-foreground">
               No Omada gateways or switches found in inventory.
             </p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border bg-white">
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Device</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Site</TableHead>
-                    <TableHead>Model</TableHead>
-                    <TableHead>Serial</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>PPPoE</TableHead>
+                  <TableRow className="border-0 bg-gray-50/60 hover:bg-gray-50/60">
+                    <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                      Device
+                    </TableHead>
+                    <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                      Type
+                    </TableHead>
+                    <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                      Unit
+                    </TableHead>
+                    <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                      Domain
+                    </TableHead>
+                    <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                      Server
+                    </TableHead>
+                    <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                      Status
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {omadaDevices.map((device) => (
-                    <TableRow key={device.id}>
-                      <TableCell className="font-medium">{device.device_name}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-normal">
+                  {omadaDevices.map((device) => {
+                    const fleetStatus = classifyOmadaStatus(device.status);
+                    const serverParts = [
+                      device.site_name,
+                      device.pppoe_username || device.ip_address,
+                    ].filter(Boolean);
+                    return (
+                      <TableRow
+                        key={device.id}
+                        className="border-t border-gray-50 transition-colors hover:bg-blue-50/40"
+                      >
+                        <TableCell className="px-5 font-mono text-xs font-medium text-gray-800">
+                          {device.device_name}
+                          <p className="mt-0.5 font-mono text-[11px] font-normal text-gray-400">
+                            {device.serial_number}
+                          </p>
+                        </TableCell>
+                        <TableCell className="px-5 text-xs text-gray-600">
                           {DEVICE_TYPE_LABELS[device.device_type] || device.device_type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {device.customer_name || '—'}
-                      </TableCell>
-                      <TableCell>{device.site_name || '—'}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {device.model || '—'}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {device.serial_number}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={
-                            device.status === 'active' || device.status === 'deployed'
-                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                              : 'border-slate-200 bg-slate-50 text-slate-600'
-                          }
-                        >
-                          {device.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {device.pppoe_username || '—'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                        <TableCell className="px-5 text-xs text-gray-500">
+                          {device.model || '—'}
+                        </TableCell>
+                        <TableCell className="px-5 font-mono text-xs text-gray-500">
+                          {device.customer_name || '—'}
+                        </TableCell>
+                        <TableCell className="px-5 font-mono text-xs text-gray-500">
+                          {serverParts.length > 0 ? serverParts.join(' / ') : '—'}
+                        </TableCell>
+                        <TableCell className="px-5">
+                          <DeviceStatusBadge status={fleetStatus} />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
@@ -544,7 +581,7 @@ export default function RuijieDevicesPage() {
           formatRelativeTime={formatRelativeTime}
         />
       </div>
-      <div className="md:hidden space-y-3">
+      <div className="space-y-3 md:hidden">
         {devices.map((device) => (
           <DeviceCard
             key={device.sn}
@@ -556,7 +593,7 @@ export default function RuijieDevicesPage() {
           />
         ))}
         {devices.length === 0 && (
-          <Card className="border border-slate-200/80 shadow-sm rounded-xl">
+          <Card className="rounded-xl border border-slate-200/80 shadow-sm">
             <CardContent className="py-8 text-center text-slate-400">
               No devices found
             </CardContent>
@@ -566,8 +603,9 @@ export default function RuijieDevicesPage() {
 
       <div className="flex items-center justify-between text-xs text-slate-500">
         <span>
-          Showing {devices.length} of {data?.total || 0} devices
+          Showing {devices.length} of {data?.total || 0} Ruijie devices
           {linkedFilter ? ` · customer filter: ${linkedFilter}` : ''}
+          {omadaDevices.length > 0 ? ` · ${omadaDevices.length} Omada CPE` : ''}
         </span>
         <span>
           Active tunnels: {tunnelCount}/{TUNNEL_LIMIT}
