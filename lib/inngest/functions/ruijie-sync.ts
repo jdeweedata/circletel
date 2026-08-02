@@ -136,9 +136,19 @@ export const ruijieSyncFunction = inngest.createFunction(
       return result;
     });
 
-    // Step 5b: Remove cache rows outside the active window
+    // Step 5b: Remove cache rows outside the active window.
+    // A zero-device fetch means the API call failed (auth, outage), not that
+    // the fleet vanished — pruning against an empty keep-set would wipe the
+    // whole cache (happened 2026-08-02: token expired server-side, 22 devices deleted).
+    const fetchedCount = (activeDevices as unknown as RuijieDevice[]).length;
     const pruneResult = await step.run('prune-inactive-devices', async () => {
       const keepSns = (enrichedDevices as unknown as RuijieDevice[]).map((d) => d.sn);
+      if (keepSns.length === 0) {
+        console.error(
+          '[RuijieSync] Fetched 0 devices — skipping prune to protect existing cache'
+        );
+        return { deleted: 0, deletedSns: [] };
+      }
       const result = await pruneDevicesNotInSet(keepSns);
       if (result.deleted > 0) {
         console.log(
@@ -151,10 +161,18 @@ export const ruijieSyncFunction = inngest.createFunction(
     // Step 6: Update sync log
     const duration = Date.now() - startTime;
     await step.run('update-sync-log', async () => {
+      const errors =
+        fetchedCount === 0
+          ? [
+              ...syncResult.errors,
+              'Fetched 0 devices from Ruijie API — likely auth failure or outage; cache preserved',
+            ]
+          : syncResult.errors;
       await logSyncRun(
         {
           ...syncResult,
-          devicesFetched: (activeDevices as unknown as RuijieDevice[]).length,
+          errors,
+          devicesFetched: fetchedCount,
           durationMs: duration,
         },
         triggeredBy,
