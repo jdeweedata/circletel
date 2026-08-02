@@ -7,13 +7,20 @@ import {
 } from '@/lib/usage-reports/core-traffic';
 
 describe('selectCorePrimarySource', () => {
-  it('prefers covered Ruijie data for a short period', () => {
+  // A Ruijie series is only usable as a site's core traffic when it is
+  // per-device. `ruijie_traffic_rollups` is keyed by group today, so a shared
+  // group figure must never stand in for one site (#698 / #701).
+  const perDevice = { ruijiePerDeviceSeries: true };
+  const groupOnly = { ruijiePerDeviceSeries: false };
+
+  it('prefers covered per-device Ruijie data for a short period', () => {
     expect(
       selectCorePrimarySource({
         isShortPeriod: true,
         ruijieLinked: true,
         ruijieCoversWindow: true,
         interstellioMapped: true,
+        ...perDevice,
       })
     ).toBe('ruijie_hourly');
   });
@@ -25,6 +32,7 @@ describe('selectCorePrimarySource', () => {
         ruijieLinked: true,
         ruijieCoversWindow: false,
         interstellioMapped: true,
+        ...perDevice,
       })
     ).toBe('interstellio_daily');
   });
@@ -36,6 +44,7 @@ describe('selectCorePrimarySource', () => {
         ruijieLinked: false,
         ruijieCoversWindow: true,
         interstellioMapped: true,
+        ...perDevice,
       })
     ).toBe('interstellio_daily');
   });
@@ -47,30 +56,62 @@ describe('selectCorePrimarySource', () => {
         ruijieLinked: true,
         ruijieCoversWindow: true,
         interstellioMapped: true,
+        ...perDevice,
       })
     ).toBe('interstellio_daily');
   });
 
-  it('falls back to Ruijie for a long period when Interstellio is absent (MTN/TDX)', () => {
+  it('falls back to per-device Ruijie for a long period when Interstellio is absent', () => {
     expect(
       selectCorePrimarySource({
         isShortPeriod: false,
         ruijieLinked: true,
         ruijieCoversWindow: true,
         interstellioMapped: false,
+        ...perDevice,
       })
     ).toBe('ruijie_hourly');
   });
 
-  it('returns unavailable when long period has neither Interstellio nor Ruijie samples', () => {
+  it('returns unavailable when a long period has neither Interstellio nor Ruijie samples', () => {
     expect(
       selectCorePrimarySource({
         isShortPeriod: false,
         ruijieLinked: true,
         ruijieCoversWindow: false,
         interstellioMapped: false,
+        ...perDevice,
       })
     ).toBe('unavailable');
+  });
+
+  it.each([true, false])(
+    'refuses a group-only Ruijie series as site traffic (short=%s)',
+    (isShortPeriod) => {
+      // Linked and covered, but the series belongs to a shared group — this is
+      // the live state today, and it must not be presented as one site's usage.
+      expect(
+        selectCorePrimarySource({
+          isShortPeriod,
+          ruijieLinked: true,
+          ruijieCoversWindow: true,
+          interstellioMapped: false,
+          ...groupOnly,
+        })
+      ).toBe('unavailable');
+    }
+  );
+
+  it('still uses Interstellio when the Ruijie series is group-only', () => {
+    expect(
+      selectCorePrimarySource({
+        isShortPeriod: true,
+        ruijieLinked: true,
+        ruijieCoversWindow: true,
+        interstellioMapped: true,
+        ...groupOnly,
+      })
+    ).toBe('interstellio_daily');
   });
 });
 
