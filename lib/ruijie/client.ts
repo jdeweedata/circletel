@@ -7,7 +7,7 @@
  * IMPORTANT: Ruijie API uses access_token as query param, NOT Bearer header
  */
 
-import { getAccessToken } from './auth';
+import { getAccessToken, clearRuijieAuth } from './auth';
 import { getMockDevices, getMockDevice, createMockTunnel } from './mock';
 import { RuijieDevice, RuijieTunnel } from './types';
 import {
@@ -67,13 +67,21 @@ function mergeAbortSignals(signals: AbortSignal[]): AbortSignal | undefined {
 // =============================================================================
 
 /**
+ * Ruijie reports an expired server-side session as HTTP 200 with code 3
+ * ("Login timeout"). The token can die well before our 30-day cache expiry,
+ * so this must trigger a re-auth, not be treated as a valid response.
+ */
+const RUIJIE_CODE_LOGIN_TIMEOUT = 3;
+
+/**
  * Make authenticated API request to Ruijie Cloud
  * Note: Ruijie uses access_token as query param, not Authorization header
  */
 async function ruijieFetch<T>(
   endpoint: string,
   options: RequestInit = {},
-  baseUrl: string = RUIJIE_BASE_URL
+  baseUrl: string = RUIJIE_BASE_URL,
+  isAuthRetry = false
 ): Promise<T> {
   const token = await getAccessToken();
 
@@ -101,7 +109,19 @@ async function ruijieFetch<T>(
     throw new Error(`Ruijie API error: ${response.status} - ${error}`);
   }
 
-  return response.json();
+  const data = (await response.json()) as T;
+
+  const code = (data as { code?: number }).code;
+  if (code === RUIJIE_CODE_LOGIN_TIMEOUT) {
+    if (isAuthRetry) {
+      throw new Error('Ruijie API error: Login timeout persisted after re-authentication');
+    }
+    console.warn('[Ruijie] Access token expired server-side, re-authenticating...');
+    clearRuijieAuth();
+    return ruijieFetch<T>(endpoint, options, baseUrl, true);
+  }
+
+  return data;
 }
 
 /** Authenticated fetch against the logbiz agent (CPU/mem, STA, flow). */
