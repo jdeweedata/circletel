@@ -25,8 +25,16 @@ import {
   type RuijieSyncHealthResult,
 } from '@/lib/network/ruijie-sync-health';
 
+/**
+ * The fallback must be a mailbox that actually exists. `dev@circletel.co.za` —
+ * the default copied from payment-sync-monitor — HARD BOUNCES (verified via the
+ * Resend API 2026-08-02), so every alert relying on it is delivered nowhere.
+ * An alert with a bouncing recipient is worse than no alert: it reports success.
+ */
 const ALERT_EMAIL =
-  process.env.NETWORK_ALERT_EMAIL || process.env.ALERT_EMAIL_TO || 'dev@circletel.co.za';
+  process.env.NETWORK_ALERT_EMAIL ||
+  process.env.ALERT_EMAIL_TO ||
+  'jeffrey.de.wee@circletel.co.za';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const ALERT_FROM = 'CircleTel Alerts <alerts@notify.circletel.co.za>';
 
