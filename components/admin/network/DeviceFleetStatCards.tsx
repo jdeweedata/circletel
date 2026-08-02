@@ -30,7 +30,7 @@ export function DeviceFleetStatCards({ stats }: { stats: DeviceFleetStats }) {
     stats.total > 0 ? Math.round((stats.online / stats.total) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid min-w-0 grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       <StatCard label="Total Devices" value={stats.total} sub="Across all segments" />
       <StatCard
         label="Online"

@@ -160,8 +160,8 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Main content - Full width on mobile, adjusted for sidebar on desktop */}
-      <div className="flex-1 flex flex-col min-h-screen w-full lg:ml-0">
+      {/* Main content - min-w-0 so wide tables scroll inside pages, not the viewport */}
+      <div className="flex min-h-screen w-full min-w-0 flex-1 flex-col lg:ml-0">
         <AdminHeader
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
           user={user}
@@ -169,8 +169,8 @@ export default function AdminLayout({
           sidebarOpen={sidebarOpen}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full">
-          <div className="max-w-full mx-auto">
+        <main className="w-full min-w-0 flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto w-full min-w-0 max-w-full">
             {children}
           </div>
         </main>

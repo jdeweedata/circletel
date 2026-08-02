@@ -76,9 +76,9 @@ export function DeviceTable({
   }, [devices, statusChip]);
 
   return (
-    <Card className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+    <Card className="min-w-0 max-w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
       <CardHeader className="flex flex-col gap-3 border-b border-gray-50 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="min-w-0">
           <CardTitle className="text-sm font-semibold text-gray-900">
             Device Monitoring
           </CardTitle>
@@ -86,7 +86,7 @@ export function DeviceTable({
             {filtered.length} of {devices.length} devices · Ruijie Wi-Fi fleet
           </p>
         </div>
-        <div className="flex items-center gap-1 rounded-lg border border-gray-100 bg-gray-50 p-0.5">
+        <div className="flex flex-wrap items-center gap-1 rounded-lg border border-gray-100 bg-gray-50 p-0.5">
           {(['all', 'online', 'warning', 'offline'] as const).map((s) => (
             <button
               key={s}
@@ -104,20 +104,20 @@ export function DeviceTable({
           ))}
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+      <CardContent className="min-w-0 p-0">
+        <div className="w-full min-w-0 overflow-x-auto">
+          <table className="w-full min-w-[920px] text-sm">
             <thead>
               <tr className="bg-gray-50/60 text-left text-xs font-medium uppercase tracking-wider text-gray-400">
                 <th className="px-4 py-2.5">Device</th>
                 <th className="hidden px-4 py-2.5 md:table-cell">Model</th>
                 <th className="px-4 py-2.5">Customer</th>
-                <th className="hidden px-4 py-2.5 lg:table-cell">Group</th>
-                <th className="hidden px-4 py-2.5 lg:table-cell">IP</th>
-                <th className="px-4 py-2.5 text-center">CPU</th>
-                <th className="px-4 py-2.5 text-center">Mem</th>
+                <th className="hidden px-4 py-2.5 xl:table-cell">Group</th>
+                <th className="hidden px-4 py-2.5 xl:table-cell">IP</th>
+                <th className="hidden px-4 py-2.5 md:table-cell text-center">CPU</th>
+                <th className="hidden px-4 py-2.5 lg:table-cell text-center">Mem</th>
                 <th className="px-4 py-2.5 text-center">Clients</th>
-                <th className="hidden px-4 py-2.5 sm:table-cell">Health</th>
+                <th className="hidden px-4 py-2.5 lg:table-cell">Health</th>
                 <th className="px-4 py-2.5">Status</th>
                 <th className="hidden px-4 py-2.5 sm:table-cell">Synced</th>
                 <th className="w-12 px-4 py-2.5" />
@@ -211,24 +211,24 @@ export function DeviceTable({
                           </div>
                         )}
                       </td>
-                      <td className="hidden px-4 py-2.5 text-xs text-slate-600 lg:table-cell">
+                      <td className="hidden px-4 py-2.5 text-xs text-slate-600 xl:table-cell">
                         {device.group_name || '—'}
                       </td>
-                      <td className="hidden px-4 py-2.5 lg:table-cell">
+                      <td className="hidden px-4 py-2.5 xl:table-cell">
                         <code className="font-mono text-xs text-slate-500">
                           {device.management_ip || '—'}
                         </code>
                       </td>
-                      <td className="px-4 py-2.5 text-center tabular-nums text-slate-700">
+                      <td className="hidden px-4 py-2.5 text-center tabular-nums text-slate-700 md:table-cell">
                         {formatPct(device.cpu_usage)}
                       </td>
-                      <td className="px-4 py-2.5 text-center tabular-nums text-slate-700">
+                      <td className="hidden px-4 py-2.5 text-center tabular-nums text-slate-700 lg:table-cell">
                         {formatPct(device.memory_usage)}
                       </td>
                       <td className="px-4 py-2.5 text-center font-medium tabular-nums text-slate-900">
                         {device.online_clients}
                       </td>
-                      <td className="hidden px-4 py-2.5 sm:table-cell">
+                      <td className="hidden px-4 py-2.5 lg:table-cell">
                         <DeviceHealthBar value={health} />
                       </td>
                       <td className="px-4 py-2.5">

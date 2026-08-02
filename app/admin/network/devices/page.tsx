@@ -355,13 +355,13 @@ export default function RuijieDevicesPage() {
   ).length;
 
   return (
-    <AdminPage>
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div>
+    <AdminPage className="min-w-0 max-w-full">
+      <div className="flex min-w-0 flex-col justify-between gap-3 sm:flex-row sm:items-start">
+        <div className="min-w-0">
           <p className="mb-1 text-xs text-slate-400">Activity / Infrastructure / Devices</p>
           <PageHeader title="Network Devices" subtitle="Manage CPE and network devices" />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-shrink-0 flex-wrap items-center gap-2">
           <Button
             variant={linkedFilter === 'unlinked' ? 'default' : 'outline'}
             size="sm"
@@ -404,9 +404,9 @@ export default function RuijieDevicesPage() {
       )}
 
       {isStale && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <div className="flex items-center gap-2">
-            <PiWarningBold className="h-5 w-5 text-amber-600" />
+        <div className="flex flex-col gap-3 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-2 sm:items-center">
+            <PiWarningBold className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
             <span className="font-medium">
               Device data may be outdated — last synced{' '}
               {formatRelativeTime(data?.lastSynced || '')}
@@ -417,7 +417,7 @@ export default function RuijieDevicesPage() {
             size="sm"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="border-amber-300 text-amber-800 hover:bg-amber-100"
+            className="flex-shrink-0 border-amber-300 text-amber-800 hover:bg-amber-100"
           >
             Refresh Now
           </Button>
@@ -450,9 +450,9 @@ export default function RuijieDevicesPage() {
       <DeviceFleetStatCards stats={fleetStats} />
 
       {/* Device Gateways & Outlines — Omada CPE */}
-      <Card className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+      <Card className="min-w-0 max-w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
         <CardHeader className="flex flex-col gap-3 border-b border-gray-50 pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+          <div className="min-w-0">
             <CardTitle className="text-sm font-semibold text-gray-900">
               Device Gateways & Outlines
             </CardTitle>
@@ -462,7 +462,7 @@ export default function RuijieDevicesPage() {
                 : `${omadaDevices.length} gateways/switches · ${omadaOnline} online · ${omadaWarning} warning`}
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -479,7 +479,7 @@ export default function RuijieDevicesPage() {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="min-w-0 p-0">
           {omadaError ? (
             <p className="px-5 py-4 text-sm text-red-600">{omadaError}</p>
           ) : omadaLoading && omadaDevices.length === 0 ? (
@@ -489,23 +489,23 @@ export default function RuijieDevicesPage() {
               No Omada gateways or switches found in inventory.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
+            <div className="w-full min-w-0 overflow-x-auto">
+              <Table className="min-w-[720px]">
                 <TableHeader>
                   <TableRow className="border-0 bg-gray-50/60 hover:bg-gray-50/60">
                     <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
                       Device
                     </TableHead>
-                    <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                    <TableHead className="hidden px-5 text-xs font-medium uppercase tracking-wider text-gray-400 sm:table-cell">
                       Type
                     </TableHead>
-                    <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                    <TableHead className="hidden px-5 text-xs font-medium uppercase tracking-wider text-gray-400 md:table-cell">
                       Unit
                     </TableHead>
                     <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
                       Domain
                     </TableHead>
-                    <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                    <TableHead className="hidden px-5 text-xs font-medium uppercase tracking-wider text-gray-400 lg:table-cell">
                       Server
                     </TableHead>
                     <TableHead className="px-5 text-xs font-medium uppercase tracking-wider text-gray-400">
@@ -525,23 +525,30 @@ export default function RuijieDevicesPage() {
                         key={device.id}
                         className="border-t border-gray-50 transition-colors hover:bg-blue-50/40"
                       >
-                        <TableCell className="px-5 font-mono text-xs font-medium text-gray-800">
-                          {device.device_name}
-                          <p className="mt-0.5 font-mono text-[11px] font-normal text-gray-400">
+                        <TableCell className="max-w-[160px] px-5 font-mono text-xs font-medium text-gray-800">
+                          <span className="block truncate">{device.device_name}</span>
+                          <p className="mt-0.5 truncate font-mono text-[11px] font-normal text-gray-400">
                             {device.serial_number}
                           </p>
                         </TableCell>
-                        <TableCell className="px-5 text-xs text-gray-600">
+                        <TableCell className="hidden px-5 text-xs text-gray-600 sm:table-cell">
                           {DEVICE_TYPE_LABELS[device.device_type] || device.device_type}
                         </TableCell>
-                        <TableCell className="px-5 text-xs text-gray-500">
+                        <TableCell className="hidden px-5 text-xs text-gray-500 md:table-cell">
                           {device.model || '—'}
                         </TableCell>
-                        <TableCell className="px-5 font-mono text-xs text-gray-500">
-                          {device.customer_name || '—'}
+                        <TableCell className="max-w-[180px] px-5 font-mono text-xs text-gray-500">
+                          <span className="block truncate" title={device.customer_name || undefined}>
+                            {device.customer_name || '—'}
+                          </span>
                         </TableCell>
-                        <TableCell className="px-5 font-mono text-xs text-gray-500">
-                          {serverParts.length > 0 ? serverParts.join(' / ') : '—'}
+                        <TableCell className="hidden max-w-[220px] px-5 font-mono text-xs text-gray-500 lg:table-cell">
+                          <span
+                            className="block truncate"
+                            title={serverParts.length > 0 ? serverParts.join(' / ') : undefined}
+                          >
+                            {serverParts.length > 0 ? serverParts.join(' / ') : '—'}
+                          </span>
                         </TableCell>
                         <TableCell className="px-5">
                           <DeviceStatusBadge status={fleetStatus} />
@@ -601,13 +608,13 @@ export default function RuijieDevicesPage() {
         )}
       </div>
 
-      <div className="flex items-center justify-between text-xs text-slate-500">
-        <span>
+      <div className="flex min-w-0 flex-col gap-1 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <span className="min-w-0 break-words">
           Showing {devices.length} of {data?.total || 0} Ruijie devices
           {linkedFilter ? ` · customer filter: ${linkedFilter}` : ''}
           {omadaDevices.length > 0 ? ` · ${omadaDevices.length} Omada CPE` : ''}
         </span>
-        <span>
+        <span className="flex-shrink-0">
           Active tunnels: {tunnelCount}/{TUNNEL_LIMIT}
         </span>
       </div>

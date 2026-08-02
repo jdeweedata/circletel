@@ -47,14 +47,14 @@ export function NetworkOverviewTiles({ inventory, className }: NetworkOverviewTi
   };
 
   return (
-    <Card className={cn('border border-slate-200/80 shadow-sm rounded-xl bg-white', className)}>
+    <Card className={cn('min-w-0 max-w-full border border-slate-200/80 shadow-sm rounded-xl bg-white', className)}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-medium text-slate-800">Network Overview</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap justify-between gap-2">
+      <CardContent className="min-w-0">
+        <div className="flex min-w-0 flex-wrap justify-between gap-2">
           {tiles.map((tile) => (
-            <div key={tile.key} className="flex-1 min-w-[72px] text-center px-1 py-1">
+            <div key={tile.key} className="min-w-[64px] flex-1 px-1 py-1 text-center sm:min-w-[72px]">
               <div className="mx-auto mb-2 grid place-items-center h-10">
                 <NetworkOverviewIcon name={tile.key} size={tile.key === 'client' ? 36 : 32} title={tile.label} />
               </div>
