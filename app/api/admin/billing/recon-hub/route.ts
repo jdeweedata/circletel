@@ -1,10 +1,11 @@
 /**
  * GET /api/admin/billing/recon-hub
  *
- * Daily cash-match hub for admin billing.
- * Day-done = zero unmatched NetCash → CircleTel invoice (red exceptions).
+ * Three-way cash-match hub: CircleTel invoices ↔ Zoho Books ↔ Netcash.
+ * Day-done = zero unmatched NetCash→CT AND zero CT-paid/Books-open in window.
  *
  * Query: ?window=today|yesterday|48h (default: yesterday)
+ *        &includeBank=1 to run queue-only bank match (default on)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,6 +17,12 @@ import {
   buildExceptionRows,
   countUnmatchedCash,
 } from '@/lib/billing/recon-hub/build-exceptions';
+import {
+  buildThreeWayInvoiceRows,
+  countCtPaidBooksOpen,
+} from '@/lib/billing/recon-hub/build-three-way';
+import { runThreeWayBankMatch } from '@/lib/billing/recon-hub/run-bank-match';
+import { getZohoBooksClient } from '@/lib/integrations/zoho/books-api-client';
 import type {
   OpenArLike,
   PaymentLike,
@@ -23,14 +30,16 @@ import type {
   ReconHubResponse,
   ReconHubSummary,
   ReconWindow,
+  ThreeWayInvoiceLike,
 } from '@/lib/billing/recon-hub/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const VALID_WINDOWS = new Set<ReconWindow>(['today', 'yesterday', '48h']);
-const EXCEPTION_CAP = 100;
+const EXCEPTION_CAP = 150;
 const PAYMENT_FETCH_LIMIT = 1000;
+const BOOKS_STATUS_CAP = 40;
 
 type PaynowReconStatus = ReconHubSummary['paynowRecon']['status'];
 
@@ -66,21 +75,13 @@ function inWindow(iso: string | null | undefined, from: string, to: string): boo
 function mapPaynowRunStatus(dbStatus: string | null | undefined): PaynowReconStatus {
   if (!dbStatus) return null;
   if (dbStatus === 'completed' || dbStatus === 'success') return 'success';
-  if (
-    dbStatus === 'completed_with_errors' ||
-    dbStatus === 'partial'
-  ) {
+  if (dbStatus === 'completed_with_errors' || dbStatus === 'partial') {
     return 'partial';
   }
   if (dbStatus === 'running') return null;
   return 'failed';
 }
 
-/**
- * Load latest paynow-reconciliation cron row.
- * Live schema uses execution_start / execution_details / duration_seconds
- * (not started_at / result used by some older writers).
- */
 async function loadPaynowRecon(
   supabase: Awaited<ReturnType<typeof createClient>>
 ): Promise<PaynowReconLoad> {
@@ -103,7 +104,6 @@ async function loadPaynowRecon(
     .maybeSingle();
 
   if (error) {
-    // PGRST116 = no rows; other errors log and return empty
     if (error.code !== 'PGRST116') {
       apiLogger.warn('[recon-hub] paynow recon log query failed', {
         error: error.message,
@@ -112,9 +112,7 @@ async function loadPaynowRecon(
     return empty;
   }
 
-  if (!latestRun) {
-    return empty;
-  }
+  if (!latestRun) return empty;
 
   const details =
     (latestRun.execution_details as Record<string, unknown> | null) ?? {};
@@ -122,10 +120,7 @@ async function loadPaynowRecon(
     details.unmatched_details ??
     []) as PaynowUnmatchedDetail[];
   const unmatchedCount = Number(
-    details.unmatched ??
-      unmatchedDetails.length ??
-      latestRun.records_failed ??
-      0
+    details.unmatched ?? unmatchedDetails.length ?? latestRun.records_failed ?? 0
   );
   const durationFromDetails = Number(details.duration_ms ?? 0);
   const durationMs =
@@ -155,19 +150,15 @@ function mapPaynowUnmatched(
   }));
 }
 
-/** Sources that count as NetCash / PayNow for daily cash match (not EFT/cashbook). */
+/** Include all NetCash + statement sources writers actually use. */
 const NETCASH_QUEUE_SOURCES = [
   'netcash_paynow',
   'netcash',
   'paynow',
   'netcash_debit',
+  'netcash_statement',
 ] as const;
 
-/**
- * Pending reconciliation_queue rows are the durable store for PayNow cash
- * that never linked to a CT invoice (paynow recon upserts here).
- * Restricted to NetCash sources and optional window bounds.
- */
 async function loadPendingQueueUnmatched(
   supabase: Awaited<ReturnType<typeof createClient>>,
   windowFrom: string,
@@ -204,10 +195,40 @@ async function loadPendingQueueUnmatched(
         null,
     }))
     .filter((row) => {
-      // source_date may be date-only (YYYY-MM-DD) — compare as ISO prefix
       const d = row.date.length === 10 ? `${row.date}T00:00:00.000Z` : row.date;
       return inWindow(d, windowFrom, windowTo);
     });
+}
+
+async function enrichBooksStatus(
+  linkedIds: string[]
+): Promise<Map<string, { status: string; total: number; balance: number }>> {
+  const map = new Map<string, { status: string; total: number; balance: number }>();
+  if (linkedIds.length === 0) return map;
+
+  try {
+    const client = getZohoBooksClient();
+    const slice = linkedIds.slice(0, BOOKS_STATUS_CAP);
+    await Promise.all(
+      slice.map(async (id) => {
+        try {
+          const inv = await client.getInvoice(id);
+          map.set(id, {
+            status: inv.status,
+            total: Number(inv.total ?? 0),
+            balance: Number(inv.balance ?? 0),
+          });
+        } catch {
+          // leave uncached
+        }
+      })
+    );
+  } catch (error) {
+    apiLogger.warn('[recon-hub] Books status enrichment skipped', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+  return map;
 }
 
 export async function GET(request: NextRequest) {
@@ -217,6 +238,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const window = parseWindowParam(searchParams.get('window'));
+    const includeBank = searchParams.get('includeBank') !== '0';
     const now = new Date();
     const bounds = resolveReconWindow(window, now);
     const { from: windowFrom, to: windowTo } = bounds;
@@ -230,19 +252,17 @@ export async function GET(request: NextRequest) {
       paymentsResult,
       paynowRecon,
       queueUnmatched,
-      sentInvoicesResult,
-      overdueInvoicesResult,
-      partialInvoicesResult,
+      windowInvoicesResult,
+      openArResult,
       paidInvoicesResult,
       activeServicesResult,
       failedPaymentsResult,
       failedInvoicesResult,
     ] = await Promise.all([
-      // NetCash completed payments — filter window in JS (completed_at preferred)
       supabase
         .from('payment_transactions')
         .select(
-          'id, status, amount, reference, provider_reference, completed_at, updated_at, invoice_id, customer_invoice_id, zoho_sync_status'
+          'id, status, amount, reference, provider_reference, completed_at, updated_at, invoice_id, customer_invoice_id, zoho_sync_status, zoho_books_payment_id'
         )
         .eq('provider', 'netcash')
         .eq('status', 'completed')
@@ -257,18 +277,21 @@ export async function GET(request: NextRequest) {
 
       supabase
         .from('customer_invoices')
-        .select('id, invoice_number, amount_due, status, invoice_date, due_date')
-        .eq('status', 'sent'),
+        .select(
+          `id, invoice_number, status, invoice_date, due_date, total_amount, amount_due, amount_paid,
+           zoho_books_invoice_id, zoho_sync_status, paynow_transaction_ref, customer_id,
+           customer:customers(account_number)`
+        )
+        .or(
+          `invoice_date.gte.${windowFrom.slice(0, 10)},paid_at.gte.${windowFrom},updated_at.gte.${windowFrom}`
+        )
+        .order('invoice_date', { ascending: false })
+        .limit(300),
 
       supabase
         .from('customer_invoices')
         .select('id, invoice_number, amount_due, status, invoice_date, due_date')
-        .eq('status', 'overdue'),
-
-      supabase
-        .from('customer_invoices')
-        .select('id, invoice_number, amount_due, status, invoice_date, due_date')
-        .eq('status', 'partial'),
+        .in('status', ['sent', 'overdue', 'partial']),
 
       supabase
         .from('customer_invoices')
@@ -299,11 +322,11 @@ export async function GET(request: NextRequest) {
     }
 
     const rawPayments = (paymentsResult.data ?? []).filter((p) => {
-      const ts = (p.completed_at as string | null) ?? (p.updated_at as string | null);
+      const ts =
+        (p.completed_at as string | null) ?? (p.updated_at as string | null);
       return inWindow(ts, windowFrom, windowTo);
     });
 
-    // Join customer_invoices for number/status
     const invoiceIds = Array.from(
       new Set(
         rawPayments
@@ -367,15 +390,14 @@ export async function GET(request: NextRequest) {
     });
 
     const netcashCompletedInWindow = payments.length;
-    const netcashMatchedInWindow = payments.filter(
-      (p) => Boolean(p.customer_invoice_id)
+    const netcashMatchedInWindow = payments.filter((p) =>
+      Boolean(p.customer_invoice_id)
     ).length;
     const zohoPaymentLagCount = payments.filter((p) => {
       if (!p.customer_invoice_id) return false;
       return p.zoho_sync_status === 'pending' || p.zoho_sync_status === 'failed';
     }).length;
 
-    // Prefer last-run unmatched details (window-filtered); fall back to pending NetCash queue
     const fromLastRun = mapPaynowUnmatched(
       paynowRecon.unmatchedDetails,
       paynowRecon.lastRunAt ?? windowFrom
@@ -386,11 +408,7 @@ export async function GET(request: NextRequest) {
     const paynowUnmatched: PaynowUnmatchedLike[] =
       fromLastRun.length > 0 ? fromLastRun : queueUnmatched;
 
-    const openArRows: OpenArLike[] = [
-      ...(sentInvoicesResult.data ?? []),
-      ...(overdueInvoicesResult.data ?? []),
-      ...(partialInvoicesResult.data ?? []),
-    ].map((inv) => ({
+    const openArRows: OpenArLike[] = (openArResult.data ?? []).map((inv) => ({
       id: inv.id as string,
       invoice_number: (inv.invoice_number as string | null) ?? null,
       amount: Number(inv.amount_due ?? 0),
@@ -407,6 +425,160 @@ export async function GET(request: NextRequest) {
       0
     );
 
+    // Active service names by customer
+    const customerIds = Array.from(
+      new Set(
+        (windowInvoicesResult.data ?? [])
+          .map((i) => i.customer_id as string)
+          .filter(Boolean)
+      )
+    );
+    const serviceByCustomer = new Map<
+      string,
+      { name: string; monthly: number }
+    >();
+    if (customerIds.length > 0) {
+      const { data: services } = await supabase
+        .from('customer_services')
+        .select('customer_id, package_name, monthly_price, status, active')
+        .in('customer_id', customerIds)
+        .or('active.eq.true,status.eq.active');
+      for (const s of services ?? []) {
+        const cid = s.customer_id as string;
+        if (!serviceByCustomer.has(cid)) {
+          serviceByCustomer.set(cid, {
+            name: (s.package_name as string) || 'Service',
+            monthly: Number(s.monthly_price ?? 0),
+          });
+        }
+      }
+    }
+
+    // Payments linked to window invoices
+    const windowInvoiceIds = (windowInvoicesResult.data ?? []).map(
+      (i) => i.id as string
+    );
+    const paymentByInvoice = new Map<
+      string,
+      { ref: string | null; matched: boolean; zoho: string | null }
+    >();
+    if (windowInvoiceIds.length > 0) {
+      const idChunk = windowInvoiceIds.slice(0, 100);
+      const [{ data: byCustomerInv }, { data: byInvoiceId }] = await Promise.all([
+        supabase
+          .from('payment_transactions')
+          .select(
+            'customer_invoice_id, invoice_id, reference, provider_reference, status, zoho_sync_status'
+          )
+          .eq('status', 'completed')
+          .in('customer_invoice_id', idChunk)
+          .limit(500),
+        supabase
+          .from('payment_transactions')
+          .select(
+            'customer_invoice_id, invoice_id, reference, provider_reference, status, zoho_sync_status'
+          )
+          .eq('status', 'completed')
+          .in('invoice_id', idChunk)
+          .limit(500),
+      ]);
+      for (const p of [...(byCustomerInv ?? []), ...(byInvoiceId ?? [])]) {
+        const id =
+          (p.customer_invoice_id as string | null) ||
+          (p.invoice_id as string | null);
+        if (!id) continue;
+        paymentByInvoice.set(id, {
+          ref:
+            (p.reference as string | null) ||
+            (p.provider_reference as string | null),
+          matched: true,
+          zoho: (p.zoho_sync_status as string | null) ?? null,
+        });
+      }
+    }
+
+    const booksIds = (windowInvoicesResult.data ?? [])
+      .map((i) => i.zoho_books_invoice_id as string | null)
+      .filter((id): id is string => Boolean(id));
+    const booksMap = await enrichBooksStatus(booksIds);
+
+    const threeWayInput: ThreeWayInvoiceLike[] = (windowInvoicesResult.data ?? [])
+      .filter((inv) => {
+        const d = (inv.invoice_date as string | null) || '';
+        const dateIso = d.length === 10 ? `${d}T00:00:00.000Z` : d;
+        // Include if invoice_date in window OR status paid with any activity
+        return (
+          inWindow(dateIso, windowFrom, windowTo) ||
+          ['paid', 'voided', 'partial', 'sent'].includes(
+            String(inv.status || '').toLowerCase()
+          )
+        );
+      })
+      .map((inv) => {
+        const cid = inv.customer_id as string;
+        const svc = serviceByCustomer.get(cid);
+        const pay = paymentByInvoice.get(inv.id as string);
+        const booksId = inv.zoho_books_invoice_id as string | null;
+        const books = booksId ? booksMap.get(booksId) : undefined;
+        const customer = inv.customer as
+          | { account_number?: string | null }
+          | { account_number?: string | null }[]
+          | null;
+        const accountNumber = Array.isArray(customer)
+          ? customer[0]?.account_number
+          : customer?.account_number;
+
+        return {
+          id: inv.id as string,
+          invoice_number: (inv.invoice_number as string | null) ?? null,
+          status: (inv.status as string) || 'unknown',
+          invoice_date: (inv.invoice_date as string | null) ?? null,
+          due_date: (inv.due_date as string | null) ?? null,
+          total_amount: Number(inv.total_amount ?? 0),
+          amount_due: Number(inv.amount_due ?? 0),
+          amount_paid: Number(inv.amount_paid ?? 0),
+          zoho_books_invoice_id: booksId,
+          zoho_sync_status: (inv.zoho_sync_status as string | null) ?? null,
+          paynow_transaction_ref:
+            (inv.paynow_transaction_ref as string | null) ?? null,
+          customer_id: cid,
+          account_number: accountNumber ?? null,
+          service_name: svc?.name ?? null,
+          monthly_price: svc?.monthly ?? null,
+          books_status: books?.status ?? null,
+          books_total: books?.total ?? null,
+          books_balance: books?.balance ?? null,
+          netcash_matched: Boolean(pay?.matched),
+          netcash_ref: pay?.ref ?? null,
+          payment_zoho_sync_status: pay?.zoho ?? null,
+        };
+      });
+
+    const threeWayInvoices = buildThreeWayInvoiceRows(threeWayInput);
+    const ctPaidBooksOpenCount = countCtPaidBooksOpen(threeWayInvoices);
+
+    let bankExceptions: ReconHubResponse['exceptions'] = [];
+    let bankMatch: ReconHubSummary['bankMatch'] = {
+      netcashOnlyCount: 0,
+      booksOnlyCount: 0,
+      driftCount: 0,
+    };
+    if (includeBank) {
+      try {
+        const bank = await runThreeWayBankMatch(windowFrom, windowTo, 'queue_only');
+        bankExceptions = bank.exceptions;
+        bankMatch = {
+          netcashOnlyCount: bank.summary.netcashOnlyCount,
+          booksOnlyCount: bank.summary.booksOnlyCount,
+          driftCount: bank.summary.driftCount,
+        };
+      } catch (error) {
+        apiLogger.warn('[recon-hub] bank match skipped', {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
     const failedEntityCount =
       (failedPaymentsResult.count ?? 0) + (failedInvoicesResult.count ?? 0);
     let zohoHealth: ReconHubSummary['zohoBooks']['healthStatus'] = 'unknown';
@@ -418,12 +590,28 @@ export async function GET(request: NextRequest) {
       payments,
       paynowUnmatched,
       openArInvoices: openArRows,
+      threeWayRows: threeWayInvoices,
+      bankMismatchRows: bankExceptions,
     });
 
     exceptionRows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     const exceptions = exceptionRows.slice(0, EXCEPTION_CAP);
 
-    const unmatchedNetcashToCt = countUnmatchedCash(exceptionRows);
+    // Day-done (final): unmatched Netcash→CT clear, CT paid mirrored in Books,
+    // and no Netcash bank lines left without a Books match in the window.
+    const unmatchedNetcashToCt = countUnmatchedCash(
+      exceptionRows.filter(
+        (r) =>
+          r.reasonCode === 'no_ct_invoice' ||
+          r.reasonCode === 'paynow_unmatched'
+      )
+    );
+    const bankBlockers =
+      (bankMatch?.netcashOnlyCount ?? 0) + (bankMatch?.driftCount ?? 0);
+    const dayDone =
+      unmatchedNetcashToCt === 0 &&
+      ctPaidBooksOpenCount === 0 &&
+      bankBlockers === 0;
 
     const summary: ReconHubSummary = {
       window,
@@ -433,7 +621,8 @@ export async function GET(request: NextRequest) {
       netcashCompletedInWindow,
       netcashMatchedInWindow,
       zohoPaymentLagCount,
-      dayDone: unmatchedNetcashToCt === 0,
+      ctPaidBooksOpenCount,
+      dayDone,
       paynowRecon: {
         lastRunAt: paynowRecon.lastRunAt,
         status: paynowRecon.status,
@@ -444,6 +633,7 @@ export async function GET(request: NextRequest) {
         healthStatus: zohoHealth,
         failedEntityCount,
       },
+      bankMatch,
       secondary: {
         openAr,
         collectedLast30Days,
@@ -451,7 +641,7 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    const body: ReconHubResponse = { summary, exceptions };
+    const body: ReconHubResponse = { summary, exceptions, threeWayInvoices };
     return NextResponse.json(body);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

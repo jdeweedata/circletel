@@ -23,7 +23,10 @@ export interface ExceptionTableProps {
 
 const FILTER_CHIPS: Array<{ id: ExceptionFilter; label: string }> = [
   { id: 'unmatched_cash', label: 'Unmatched cash' },
+  { id: 'ct_paid_books_open', label: 'CT paid / Books open' },
   { id: 'zoho_lag', label: 'Zoho lag' },
+  { id: 'amount_mismatch', label: 'Amount mismatch' },
+  { id: 'bank_mismatch', label: 'Bank mismatch' },
   { id: 'open_ar', label: 'Open AR' },
   { id: 'all', label: 'All' },
 ];
@@ -96,12 +99,14 @@ export function ExceptionTable({ exceptions }: ExceptionTableProps) {
   );
 
   const chipCounts = useMemo(() => {
-    return {
-      unmatched_cash: filterExceptions(exceptions, 'unmatched_cash').length,
-      zoho_lag: filterExceptions(exceptions, 'zoho_lag').length,
-      open_ar: filterExceptions(exceptions, 'open_ar').length,
-      all: exceptions.length,
-    } satisfies Record<ExceptionFilter, number>;
+    const counts = {} as Record<ExceptionFilter, number>;
+    for (const chip of FILTER_CHIPS) {
+      counts[chip.id] =
+        chip.id === 'all'
+          ? exceptions.length
+          : filterExceptions(exceptions, chip.id).length;
+    }
+    return counts;
   }, [exceptions]);
 
   return (

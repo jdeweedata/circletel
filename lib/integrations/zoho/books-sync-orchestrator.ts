@@ -320,7 +320,8 @@ export class ZohoBooksSyncOrchestrator {
     const stats = { processed: 0, succeeded: 0, failed: 0 };
 
     // Find invoices needing sync - ALL TYPES (no type filter!)
-    // This is the key change from Zoho Billing sync
+    // Include failed (e.g. previously blocked recurring via Billing path) so
+    // Books remains the canonical mirror for every CT invoice type.
     const { data: invoices, error } = await supabase
       .from('customer_invoices')
       .select(`
@@ -328,7 +329,10 @@ export class ZohoBooksSyncOrchestrator {
         customer:customers(id, email, zoho_books_contact_id)
       `)
       .is('zoho_books_invoice_id', null)
-      .or('zoho_sync_status.eq.pending,zoho_sync_status.is.null')
+      .or(
+        'zoho_sync_status.eq.pending,zoho_sync_status.is.null,zoho_sync_status.eq.failed'
+      )
+      .not('status', 'in', '(voided,cancelled)')
       .limit(options.maxInvoices || 40);
 
     if (error || !invoices) {
@@ -386,17 +390,12 @@ export class ZohoBooksSyncOrchestrator {
           .update({ zoho_sync_status: 'syncing' })
           .eq('id', invoice.id);
 
-        // VAT: mirror Supabase headers. Line rates are VAT-inclusive so Books
-        // does not add another 15% on consumer/Unjani/B2B collectible totals.
+        // VAT: fail closed — never write 1.15× mismatches into Books.
         const headerCheck = assertInvoiceVatHeaders(invoice);
         if (!headerCheck.ok) {
-          zohoLogger.warn('[BooksOrchestrator] Invoice VAT headers inconsistent; syncing with best effort', {
-            invoice_id: invoice.id,
-            error: headerCheck.error,
-            subtotal: invoice.subtotal,
-            tax_amount: invoice.tax_amount,
-            total_amount: invoice.total_amount,
-          });
+          throw new Error(
+            `VAT amount guard failed before Books create: ${headerCheck.error}`
+          );
         }
 
         const money = buildZohoTaxInclusiveInvoicePayload(
@@ -428,6 +427,26 @@ export class ZohoBooksSyncOrchestrator {
 
         // Create invoice in Zoho Books
         const zohoInvoice = await this.client.createInvoice(invoicePayload);
+
+        const ctTotal = Math.round(Number(invoice.total_amount || 0) * 100) / 100;
+        const booksTotal = Math.round(Number(zohoInvoice.total || 0) * 100) / 100;
+        if (Math.abs(booksTotal - ctTotal) > 0.05) {
+          try {
+            await this.client.voidInvoice(zohoInvoice.invoice_id);
+          } catch (voidErr) {
+            zohoLogger.error(
+              '[BooksOrchestrator] Failed to void mismatched Books invoice',
+              {
+                books_invoice_id: zohoInvoice.invoice_id,
+                error:
+                  voidErr instanceof Error ? voidErr.message : String(voidErr),
+              }
+            );
+          }
+          throw new Error(
+            `VAT amount guard: Books total ${booksTotal} !== CT total_amount ${ctTotal}`
+          );
+        }
 
         // Mark as sent (so it shows as outstanding)
         try {
@@ -544,7 +563,8 @@ export class ZohoBooksSyncOrchestrator {
     const supabase = await createClient();
     const stats = { processed: 0, succeeded: 0, failed: 0 };
 
-    // Find completed payments needing sync
+    // Find completed payments needing sync (include failed for payment catch-up
+    // when CT is paid but Books payment was never recorded).
     const { data: payments, error } = await supabase
       .from('payment_transactions')
       .select(`
@@ -554,7 +574,9 @@ export class ZohoBooksSyncOrchestrator {
       `)
       .eq('status', 'completed')
       .is('zoho_books_payment_id', null)
-      .or('zoho_sync_status.eq.pending,zoho_sync_status.is.null')
+      .or(
+        'zoho_sync_status.eq.pending,zoho_sync_status.is.null,zoho_sync_status.eq.failed'
+      )
       .limit(options.maxPayments || 20);
 
     if (error || !payments) {

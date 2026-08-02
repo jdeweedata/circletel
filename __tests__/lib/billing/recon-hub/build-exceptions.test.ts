@@ -202,6 +202,44 @@ describe('filterExceptions', () => {
   it('returns all rows for all filter', () => {
     expect(filterExceptions(rows, 'all')).toHaveLength(3);
   });
+
+  it('filters bank_mismatch and amount_mismatch reason codes', () => {
+    const withBank = [
+      ...rows,
+      {
+        id: 'bank-1',
+        kind: 'bank_match' as const,
+        date: '2026-08-01',
+        netcashRef: 'NC',
+        amount: 100,
+        invoiceId: null,
+        invoiceNumber: null,
+        invoiceStatus: null,
+        zohoStatus: 'n/a' as const,
+        reasonCode: 'bank_netcash_no_books' as const,
+        reasonLabel: 'Netcash settled — no Zoho bank/payment match',
+        severity: 'red' as const,
+        href: '/admin/finance/reconciliation',
+      },
+      {
+        id: 'amt-1',
+        kind: 'three_way' as const,
+        date: '2026-08-01',
+        netcashRef: null,
+        amount: 100,
+        invoiceId: 'inv-x',
+        invoiceNumber: 'CT-X',
+        invoiceStatus: 'sent',
+        zohoStatus: 'synced' as const,
+        reasonCode: 'amount_mismatch' as const,
+        reasonLabel: 'CT vs Books amount mismatch',
+        severity: 'amber' as const,
+        href: '/admin/billing/invoices/inv-x',
+      },
+    ];
+    expect(filterExceptions(withBank, 'bank_mismatch')).toHaveLength(1);
+    expect(filterExceptions(withBank, 'amount_mismatch')).toHaveLength(1);
+  });
 });
 
 describe('countUnmatchedCash', () => {

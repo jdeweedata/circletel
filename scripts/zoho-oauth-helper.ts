@@ -30,11 +30,14 @@ const ZOHO_ACCOUNTS_URL: Record<string, string> = {
 };
 
 // Required scopes for CircleTel
+// Note: ZohoBooks is also covered by dedicated ZOHO_BOOKS_* Self Client credentials.
+// Include it here so a regenerated main refresh token can call Books if needed.
 const SCOPES = [
   'ZohoCRM.modules.ALL',
   'ZohoCRM.settings.ALL',
   'ZohoCRM.users.READ',
   'ZohoSubscriptions.fullaccess.all',
+  'ZohoBooks.fullaccess.all',
   'ZohoSign.documents.ALL',
   'ZohoSign.templates.ALL',
 ].join(',');

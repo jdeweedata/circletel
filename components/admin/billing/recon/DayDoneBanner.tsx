@@ -7,16 +7,22 @@ export interface DayDoneBannerProps {
   dayDone: boolean;
   unmatchedCount: number;
   windowLabel: string;
+  unmatchedNetcashToCt?: number;
+  ctPaidBooksOpenCount?: number;
+  bankNetcashOnlyCount?: number;
 }
 
 /**
- * Day-done status banner for the cash-match recon hub.
- * Red when unmatched NetCash→CT payments remain; green when clear.
+ * Day-done status banner for the three-way recon hub.
+ * Green when cash + Books payment mirror are clear for the window.
  */
 export function DayDoneBanner({
   dayDone,
   unmatchedCount,
   windowLabel,
+  unmatchedNetcashToCt,
+  ctPaidBooksOpenCount,
+  bankNetcashOnlyCount,
 }: DayDoneBannerProps) {
   if (dayDone) {
     return (
@@ -30,7 +36,8 @@ export function DayDoneBanner({
         />
         <div className="min-w-0">
           <p className="text-sm font-semibold text-green-800">
-            Cash matched: all NetCash completed payments have CT invoices.
+            Day done: Netcash→CT matched and CT paid invoices are mirrored in
+            Books for this window.
           </p>
           <p className="mt-0.5 text-xs text-green-700">
             Window: {windowLabel}
@@ -40,10 +47,35 @@ export function DayDoneBanner({
     );
   }
 
+  const parts: string[] = [];
+  if (typeof unmatchedNetcashToCt === 'number' && unmatchedNetcashToCt > 0) {
+    parts.push(
+      unmatchedNetcashToCt === 1
+        ? '1 unmatched Netcash→CT payment'
+        : `${unmatchedNetcashToCt} unmatched Netcash→CT payments`
+    );
+  }
+  if (typeof ctPaidBooksOpenCount === 'number' && ctPaidBooksOpenCount > 0) {
+    parts.push(
+      ctPaidBooksOpenCount === 1
+        ? '1 CT paid / Books open invoice'
+        : `${ctPaidBooksOpenCount} CT paid / Books open invoices`
+    );
+  }
+  if (typeof bankNetcashOnlyCount === 'number' && bankNetcashOnlyCount > 0) {
+    parts.push(
+      bankNetcashOnlyCount === 1
+        ? '1 Netcash bank line without Books match'
+        : `${bankNetcashOnlyCount} Netcash bank lines without Books match`
+    );
+  }
+
   const countLabel =
-    unmatchedCount === 1
-      ? '1 unmatched NetCash payment needs a CT invoice'
-      : `${unmatchedCount} unmatched NetCash payments need a CT invoice`;
+    parts.length > 0
+      ? parts.join(' · ')
+      : unmatchedCount === 1
+        ? '1 recon exception blocks day-done'
+        : `${unmatchedCount} recon exceptions block day-done`;
 
   return (
     <div

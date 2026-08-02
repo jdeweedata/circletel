@@ -448,6 +448,34 @@ export class CompliantBillingService {
       throw new Error(`Failed to void invoice: ${updateError.message}`);
     }
 
+    // Mirror void to Zoho Books when linked (accounting mirror; CT remains SoR)
+    if (invoice.zoho_books_invoice_id) {
+      try {
+        const { getZohoBooksClient } = await import(
+          '@/lib/integrations/zoho/books-api-client'
+        );
+        await getZohoBooksClient().voidInvoice(invoice.zoho_books_invoice_id);
+        await supabase
+          .from('customer_invoices')
+          .update({
+            zoho_sync_status: 'synced',
+            zoho_last_synced_at: nowISO(),
+            zoho_last_sync_error: null,
+          })
+          .eq('id', invoiceId);
+      } catch (booksError) {
+        const message =
+          booksError instanceof Error ? booksError.message : String(booksError);
+        await supabase
+          .from('customer_invoices')
+          .update({
+            zoho_sync_status: 'failed',
+            zoho_last_sync_error: `Books void failed: ${message}`,
+          })
+          .eq('id', invoiceId);
+      }
+    }
+
     // Log audit
     await this.logAudit(invoiceId, 'voided', { ...audit, reason });
 

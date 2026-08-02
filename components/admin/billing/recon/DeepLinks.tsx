@@ -32,6 +32,12 @@ const LINKS = [
     description: 'Open AR and invoice detail pages',
     icon: PiFileTextBold,
   },
+  {
+    href: '/admin/billing',
+    title: 'AR health',
+    description: 'Aging buckets and overdue register',
+    icon: PiFileTextBold,
+  },
 ] as const;
 
 /**
@@ -39,7 +45,7 @@ const LINKS = [
  */
 export function DeepLinks() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
       {LINKS.map(({ href, title, description, icon: Icon }) => (
         <Link
           key={href}

@@ -7,6 +7,7 @@ import type {
   ReconExceptionRow,
   ZohoStatus,
 } from './types';
+import { threeWayToExceptionHints } from './build-three-way';
 
 const INVOICE_HREF_PREFIX = '/admin/billing/invoices/';
 const UNMATCHED_HREF = '/admin/finance/reconciliation';
@@ -17,6 +18,12 @@ const REASON_LABELS: Record<ReconExceptionRow['reasonCode'], string> = {
   zoho_payment_pending: 'Zoho payment sync pending',
   zoho_payment_failed: 'Zoho payment sync failed',
   open_ar: 'Open accounts receivable',
+  ct_paid_books_open: 'CT paid — Books still open / unlinked',
+  amount_mismatch: 'CT vs Books amount mismatch',
+  books_unlinked: 'Issued CT invoice not mirrored to Books',
+  bank_netcash_no_books: 'Netcash settled — no Zoho bank/payment match',
+  bank_books_no_netcash: 'Zoho bank deposit — no Netcash line',
+  bank_amount_drift: 'Netcash ↔ Books bank amount/date drift',
 };
 
 function normalizeZohoStatus(raw: string | null | undefined): ZohoStatus {
@@ -119,11 +126,11 @@ function rowFromOpenAr(inv: OpenArLike): ReconExceptionRow {
 }
 
 /**
- * Classify payments, unmatched PayNow cash, and open AR into exception rows.
+ * Classify payments, unmatched PayNow cash, open AR, three-way flags, and bank mismatches.
  *
- * Red  = unmatched cash (day-done blocker)
- * Amber = Zoho lag on linked payments (secondary)
- * Neutral = open AR (optional queue)
+ * Red  = unmatched cash (day-done blocker) + hard bank gaps
+ * Amber = Zoho lag / CT paid Books open / amount mismatch / unlinked issued
+ * Neutral = open AR
  */
 export function buildExceptionRows(input: BuildExceptionRowsInput): ReconExceptionRow[] {
   const rows: ReconExceptionRow[] = [];
@@ -152,6 +159,36 @@ export function buildExceptionRows(input: BuildExceptionRowsInput): ReconExcepti
     rows.push(rowFromOpenAr(inv));
   }
 
+  if (input.threeWayRows?.length) {
+    for (const hint of threeWayToExceptionHints(input.threeWayRows)) {
+      rows.push({
+        id: hint.id,
+        kind: 'three_way',
+        date: hint.date,
+        netcashRef: null,
+        amount: hint.amount,
+        invoiceId: hint.invoiceId,
+        invoiceNumber: hint.invoiceNumber,
+        invoiceStatus: hint.invoiceStatus,
+        zohoStatus: hint.zohoStatus,
+        reasonCode: hint.reasonCode,
+        reasonLabel: REASON_LABELS[hint.reasonCode],
+        severity: hint.severity,
+        href: hint.href,
+        booksInvoiceId: hint.booksInvoiceId,
+        booksStatus: hint.booksStatus,
+        booksBalance: hint.booksBalance,
+        netcashState: hint.netcashState,
+        serviceName: hint.serviceName,
+        accountNumber: hint.accountNumber,
+      });
+    }
+  }
+
+  if (input.bankMismatchRows?.length) {
+    rows.push(...input.bankMismatchRows);
+  }
+
   return rows;
 }
 
@@ -166,11 +203,49 @@ export function filterExceptions(
 ): ReconExceptionRow[] {
   switch (filter) {
     case 'unmatched_cash':
-      return rows.filter((r) => r.severity === 'red');
+    case 'netcash_unmatched':
+      return rows.filter(
+        (r) =>
+          r.severity === 'red' ||
+          r.reasonCode === 'no_ct_invoice' ||
+          r.reasonCode === 'paynow_unmatched'
+      );
     case 'zoho_lag':
-      return rows.filter((r) => r.severity === 'amber');
+      return rows.filter(
+        (r) =>
+          r.severity === 'amber' ||
+          r.reasonCode === 'zoho_payment_pending' ||
+          r.reasonCode === 'zoho_payment_failed' ||
+          r.reasonCode === 'ct_paid_books_open' ||
+          r.reasonCode === 'books_unlinked'
+      );
     case 'open_ar':
       return rows.filter((r) => r.reasonCode === 'open_ar');
+    case 'issued':
+      return rows.filter((r) =>
+        ['sent', 'overdue', 'partial', 'open'].includes(
+          (r.invoiceStatus || '').toLowerCase()
+        )
+      );
+    case 'paid':
+      return rows.filter((r) => (r.invoiceStatus || '').toLowerCase() === 'paid');
+    case 'voided':
+      return rows.filter((r) =>
+        ['voided', 'cancelled', 'void'].includes(
+          (r.invoiceStatus || '').toLowerCase()
+        )
+      );
+    case 'ct_paid_books_open':
+      return rows.filter((r) => r.reasonCode === 'ct_paid_books_open');
+    case 'amount_mismatch':
+      return rows.filter((r) => r.reasonCode === 'amount_mismatch');
+    case 'bank_mismatch':
+      return rows.filter(
+        (r) =>
+          r.reasonCode === 'bank_netcash_no_books' ||
+          r.reasonCode === 'bank_books_no_netcash' ||
+          r.reasonCode === 'bank_amount_drift'
+      );
     case 'all':
     default:
       return rows;

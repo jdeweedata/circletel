@@ -368,6 +368,7 @@ export const featureSections: NavSection[] = [
         icon: PiCreditCardBold,
         children: [
           { name: 'Dashboard', href: '/admin/billing', icon: PiSquaresFourBold },
+          { name: 'Three-way recon', href: '/admin/billing/recon', icon: PiArrowsClockwiseBold },
           { name: 'Customers', href: '/admin/billing/customers', icon: PiUserCheckBold },
           { name: 'Invoices', href: '/admin/billing/invoices', icon: PiReceiptBold },
           { name: 'Outstanding', href: '/admin/finance/outstanding', icon: PiWarningCircleBold },

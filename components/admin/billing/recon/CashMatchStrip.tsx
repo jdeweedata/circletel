@@ -14,6 +14,7 @@ export interface CashMatchStripProps {
   netcashCompletedInWindow: number;
   netcashMatchedInWindow: number;
   zohoPaymentLagCount: number;
+  ctPaidBooksOpenCount?: number;
   paynowRecon: ReconHubSummary['paynowRecon'];
 }
 
@@ -43,9 +44,11 @@ export function CashMatchStrip({
   netcashCompletedInWindow,
   netcashMatchedInWindow,
   zohoPaymentLagCount,
+  ctPaidBooksOpenCount = 0,
   paynowRecon,
 }: CashMatchStripProps) {
   const unmatchedClear = unmatchedNetcashToCt === 0;
+  const booksOpenClear = ctPaidBooksOpenCount === 0;
   const paynowStatus = paynowRecon.status;
   const paynowLabel = paynowStatus
     ? PAYNOW_STATUS_LABEL[paynowStatus]
@@ -70,7 +73,7 @@ export function CashMatchStrip({
           : 'text-slate-400';
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
       <MetricCard
         title="Unmatched NetCash→CT"
         value={`${unmatchedNetcashToCt}`}
@@ -95,6 +98,24 @@ export function CashMatchStrip({
       >
         <PiCurrencyCircleDollarBold className="w-5 h-5 text-slate-500" aria-hidden="true" />
       </MetricCard>
+
+      <Link href="/admin/integrations/zoho-books" className="block">
+        <MetricCard
+          title="CT paid / Books open"
+          value={`${ctPaidBooksOpenCount}`}
+          subtitle={booksOpenClear ? 'Mirror aligned' : 'Payment push needed'}
+          className={
+            booksOpenClear
+              ? 'transition-shadow hover:shadow-md'
+              : 'border-amber-200/80 bg-amber-50/40 transition-shadow hover:shadow-md'
+          }
+        >
+          <PiWarningBold
+            className={`w-5 h-5 ${booksOpenClear ? 'text-slate-400' : 'text-amber-600'}`}
+            aria-hidden="true"
+          />
+        </MetricCard>
+      </Link>
 
       <Link href="/admin/integrations/zoho-books" className="block">
         <MetricCard

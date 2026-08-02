@@ -11,3 +11,6 @@ export { SecondaryKpis } from './SecondaryKpis';
 export type { SecondaryKpisProps } from './SecondaryKpis';
 
 export { DeepLinks } from './DeepLinks';
+
+export { ThreeWayInvoiceTable } from './ThreeWayInvoiceTable';
+export type { ThreeWayInvoiceTableProps } from './ThreeWayInvoiceTable';

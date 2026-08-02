@@ -137,6 +137,10 @@
       "maxDuration": 300,
       "memory": 512
     },
+    "app/api/cron/three-way-bank-match/route.ts": {
+      "maxDuration": 600,
+      "memory": 1024
+    },
     "app/api/partners/feasibility/create/route.ts": {
       "maxDuration": 30,
       "memory": 512
@@ -242,6 +246,10 @@
     {
       "path": "/api/cron/zoho-books-retry",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/three-way-bank-match",
+      "schedule": "0 7 * * *"
     },
     {
       "path": "/api/cron/tarana-metrics",

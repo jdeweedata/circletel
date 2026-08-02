@@ -16,6 +16,10 @@ import { createClient } from '@/lib/supabase/server';
 import { getZohoBooksClient } from '@/lib/integrations/zoho/books-api-client';
 import { sendZohoBooksAlert } from '@/lib/integrations/zoho/books-alerting-service';
 import { logZohoSync } from '@/lib/integrations/zoho/billing-sync-logger';
+import {
+  assertInvoiceVatHeaders,
+  buildZohoTaxInclusiveInvoicePayload,
+} from '@/lib/billing/invoice-vat-contract';
 import { cronLogger } from '@/lib/logging';
 
 export const maxDuration = 300; // 5 minutes
@@ -210,6 +214,8 @@ export async function GET(request: NextRequest) {
     // =========================================================================
     // Process Invoice Retries
     // =========================================================================
+    // Include failed invoices with null next_retry_at (e.g. Billing path
+    // previously marked recurring as failed without scheduling a Books retry).
     const { data: invoicesToRetry } = await supabase
       .from('customer_invoices')
       .select(`
@@ -217,8 +223,10 @@ export async function GET(request: NextRequest) {
         customer:customers(id, email, zoho_books_contact_id)
       `)
       .eq('zoho_sync_status', 'failed')
+      .is('zoho_books_invoice_id', null)
       .lt('zoho_books_retry_count', 5)
-      .lte('zoho_books_next_retry_at', now)
+      .or(`zoho_books_next_retry_at.is.null,zoho_books_next_retry_at.lte.${now}`)
+      .not('status', 'in', '(voided,cancelled)')
       .limit(Math.ceil(maxRetries / 3));
 
     cronLogger.info(`[ZohoBooks Retry] Found ${invoicesToRetry?.length || 0} invoices to retry`);
@@ -240,30 +248,49 @@ export async function GET(request: NextRequest) {
           throw new Error('Customer not synced to Zoho Books');
         }
 
-        // Build invoice payload
-        const lineItems = Array.isArray(invoice.line_items)
-          ? invoice.line_items.map((item: any) => ({
-              name: item.name || item.description || 'Service',
-              rate: parseFloat(item.price || item.rate || 0),
-              quantity: parseInt(item.quantity || 1),
-            }))
-          : [
-              {
-                name: 'Service Charge',
-                rate: parseFloat(invoice.total_amount || 0),
-                quantity: 1,
-              },
-            ];
+        const headerCheck = assertInvoiceVatHeaders(invoice);
+        if (!headerCheck.ok) {
+          throw new Error(
+            `VAT amount guard failed before Books create: ${headerCheck.error}`
+          );
+        }
+
+        const money = buildZohoTaxInclusiveInvoicePayload(
+          {
+            subtotal: invoice.subtotal,
+            tax_amount: invoice.tax_amount,
+            total_amount: invoice.total_amount,
+            line_items: invoice.line_items,
+            notes: invoice.notes,
+          },
+          'Service Charge'
+        );
 
         const invoicePayload = {
           customer_id: invoice.customer.zoho_books_contact_id,
           invoice_number: invoice.invoice_number || undefined,
           date: invoice.invoice_date || new Date().toISOString().split('T')[0],
           due_date: invoice.due_date || undefined,
-          line_items: lineItems,
+          is_inclusive_tax: money.is_inclusive_tax,
+          line_items: money.line_items,
         };
 
         const zohoInvoice = await client.createInvoice(invoicePayload);
+
+        const ctTotal =
+          Math.round(Number(invoice.total_amount || 0) * 100) / 100;
+        const booksTotal =
+          Math.round(Number(zohoInvoice.total || 0) * 100) / 100;
+        if (Math.abs(booksTotal - ctTotal) > 0.05) {
+          try {
+            await client.voidInvoice(zohoInvoice.invoice_id);
+          } catch {
+            // best-effort cleanup
+          }
+          throw new Error(
+            `VAT amount guard: Books total ${booksTotal} !== CT total_amount ${ctTotal}`
+          );
+        }
 
         // Mark as sent
         try {
@@ -577,8 +604,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: unknown) {
     const duration = Date.now() - startTime;
+    const message = error instanceof Error ? error.message : String(error);
 
-    cronLogger.error('[ZohoBooks Retry] Fatal error', { error: error.message });
+    cronLogger.error('[ZohoBooks Retry] Fatal error', { error: message });
 
     // Log fatal error
     try {
@@ -587,7 +615,7 @@ export async function GET(request: NextRequest) {
         job_name: 'zoho-books-retry',
         status: 'failed',
         execution_time_ms: duration,
-        error_message: error.message,
+        error_message: message,
       });
     } catch {
       // Ignore logging error
@@ -597,7 +625,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: 'Internal server error',
-        details: error.message,
+        details: message,
         timestamp: new Date().toISOString(),
         duration_ms: duration,
       },
