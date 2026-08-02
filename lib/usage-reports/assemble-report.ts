@@ -11,6 +11,7 @@ import { resolvePatientWifi, type TdxPatientRow } from './patient-wifi';
 import { loadStaffHourRows, resolveStaffWifi, siteHasLinkedAp } from './staff-wifi';
 import type {
   AssembleSkipReason,
+  CoreUnavailableDiagnosis,
   ReportPeriod,
   SiteUsageReportModel,
   StaffWifiState,
@@ -26,6 +27,11 @@ export type AssembleResult =
       reason: AssembleSkipReason;
       siteId: string;
       siteLabel: string;
+      /**
+       * Present only for `core_unavailable` — which of the source links are
+       * missing, so the caller can name each cause and its unlock step (#689).
+       */
+      diagnosis?: CoreUnavailableDiagnosis;
     };
 
 export interface AssembleReportDeps {
@@ -142,6 +148,7 @@ export async function assembleSiteUsageReport({
       reason: 'core_unavailable',
       siteId,
       siteLabel: site.name,
+      diagnosis: core.unavailable,
     };
   }
 

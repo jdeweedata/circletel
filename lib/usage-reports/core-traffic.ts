@@ -24,6 +24,8 @@ export interface CoreTrafficAggregate {
   avgDownKbps: number | null;
   peakBucketBytes: number | null;
   dailyDownloadBytes: number[];
+  /** Per-day sample presence — see `SiteUsageReportModel['core'].dailyCovered`. */
+  dailyCovered: boolean[];
 }
 
 export interface RuijieHourlyLoad {
@@ -83,13 +85,19 @@ function sastDayKey(value: Date | string): string | null {
 function buildSastDayIndex(
   dayCount: number,
   start: Date
-): { dailyDownloadBytes: number[]; indexByDay: Map<string, number> } {
+): {
+  dailyDownloadBytes: number[];
+  dailyCovered: boolean[];
+  indexByDay: Map<string, number>;
+} {
   const startKey = sastDayKey(start);
   const normalizedDayCount = Math.max(0, Math.trunc(dayCount));
   const dailyDownloadBytes = Array.from({ length: normalizedDayCount }, () => 0);
+  // Starts all-false: a day is covered only once a sample lands on it.
+  const dailyCovered = Array.from({ length: normalizedDayCount }, () => false);
   const indexByDay = new Map<string, number>();
 
-  if (!startKey) return { dailyDownloadBytes, indexByDay };
+  if (!startKey) return { dailyDownloadBytes, dailyCovered, indexByDay };
 
   const startDayUtc = new Date(`${startKey}T00:00:00.000Z`);
   for (let index = 0; index < normalizedDayCount; index += 1) {
@@ -99,7 +107,7 @@ function buildSastDayIndex(
     indexByDay.set(key, index);
   }
 
-  return { dailyDownloadBytes, indexByDay };
+  return { dailyDownloadBytes, dailyCovered, indexByDay };
 }
 
 export function aggregateRuijieHourly(
@@ -107,7 +115,10 @@ export function aggregateRuijieHourly(
   dayCount: number,
   start: Date
 ): CoreTrafficAggregate {
-  const { dailyDownloadBytes, indexByDay } = buildSastDayIndex(dayCount, start);
+  const { dailyDownloadBytes, dailyCovered, indexByDay } = buildSastDayIndex(
+    dayCount,
+    start
+  );
   let downloadBytes = 0;
   let uploadBytes = 0;
   let averageBpsTotal = 0;
@@ -127,7 +138,12 @@ export function aggregateRuijieHourly(
     }
 
     const index = indexByDay.get(sastDayKey(row.captured_at) ?? '');
-    if (index !== undefined) dailyDownloadBytes[index] += rowDownloadBytes;
+    if (index !== undefined) {
+      dailyDownloadBytes[index] += rowDownloadBytes;
+      // A row is a sample even when it reports 0 bytes — that is a quiet hour,
+      // not a missing one.
+      dailyCovered[index] = true;
+    }
   }
 
   return {
@@ -139,6 +155,7 @@ export function aggregateRuijieHourly(
         : null,
     peakBucketBytes,
     dailyDownloadBytes,
+    dailyCovered,
   };
 }
 
@@ -147,7 +164,10 @@ export function aggregateInterstellioDaily(
   dayCount: number,
   start: Date
 ): CoreTrafficAggregate {
-  const { dailyDownloadBytes, indexByDay } = buildSastDayIndex(dayCount, start);
+  const { dailyDownloadBytes, dailyCovered, indexByDay } = buildSastDayIndex(
+    dayCount,
+    start
+  );
   let downloadBytes = 0;
   let uploadBytes = 0;
   let averageKbpsTotal = 0;
@@ -176,6 +196,8 @@ export function aggregateInterstellioDaily(
 
   for (const [index, bytes] of downloadBytesByDay) {
     dailyDownloadBytes[index] = bytes;
+    // Presence of an entry is the coverage signal, whatever it reports.
+    dailyCovered[index] = true;
   }
 
   return {
@@ -190,6 +212,7 @@ export function aggregateInterstellioDaily(
           ? 0
           : null,
     dailyDownloadBytes,
+    dailyCovered,
   };
 }
 
@@ -290,11 +313,15 @@ export async function assembleCoreTraffic(
     ? await loadRuijieHourlyRows(supabase, siteId, period.startUtc, period.endUtc)
     : ({ groupId: null, rows: [] } satisfies RuijieHourlyLoad);
 
-  const source = selectCorePrimarySource({
-    isShortPeriod: period.isShortPeriod,
+  const diagnosis = {
+    interstellioMapped: subscriberId !== null,
     ruijieLinked: ruijie.groupId !== null,
     ruijieCoversWindow: ruijie.rows.length > 0,
-    interstellioMapped: subscriberId !== null,
+  };
+
+  const source = selectCorePrimarySource({
+    isShortPeriod: period.isShortPeriod,
+    ...diagnosis,
   });
 
   if (source === 'unavailable') {
@@ -309,7 +336,10 @@ export async function assembleCoreTraffic(
         { length: period.inclusiveDayCount },
         () => 0
       ),
+      dailyCovered: Array.from({ length: period.inclusiveDayCount }, () => false),
       note: 'No permitted core traffic source is available for this period.',
+      // Kept rather than discarded so callers can name each applicable cause.
+      unavailable: diagnosis,
     };
   }
 
