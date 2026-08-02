@@ -274,12 +274,13 @@ export async function loadRuijieHourlyRows(
   const groupId = cachedDevice?.group_id as string | null | undefined;
   if (!groupId) return { groupId: null, rows: [], perDeviceSeries: false };
 
+  // Scoped to THIS site's device. Rows are per-device since #702; anything
+  // older is a group blob under the legacy sentinel and must not be used as
+  // site traffic, so it is excluded rather than silently mixed in.
   const { data: rows, error: rollupError } = await supabase
     .from('ruijie_traffic_rollups')
-    .select(
-      'captured_at,total_rx_bytes,total_tx_bytes,avg_rx_bps,peak_rx_bps'
-    )
-    .eq('group_id', groupId)
+    .select('captured_at,total_rx_bytes,total_tx_bytes,avg_rx_bps,peak_rx_bps')
+    .eq('device_sn', serial)
     .eq('hours_window', 1)
     .gte('captured_at', startUtc.toISOString())
     .lte('captured_at', endUtc.toISOString())
@@ -289,8 +290,8 @@ export async function loadRuijieHourlyRows(
   return {
     groupId,
     rows: (rows ?? []) as RuijieHourlyRow[],
-    // Group-keyed table: no per-site series exists yet (#702).
-    perDeviceSeries: false,
+    // Queried by device_sn, so this series belongs to this site alone.
+    perDeviceSeries: true,
   };
 }
 

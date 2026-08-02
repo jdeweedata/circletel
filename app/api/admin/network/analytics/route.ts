@@ -159,6 +159,9 @@ export async function GET(request: NextRequest) {
         'group_id, group_name, total_rx_bytes, total_tx_bytes, captured_at, hours_window, avg_rx_bps, avg_tx_bps, peak_rx_bps, peak_tx_bps, raw_summary'
       )
       .eq('hours_window', HOURLY_ROLLUP_WINDOW)
+      // Legacy group blobs would double-count against per-device rows for the
+      // 14-day retention overlap (#702).
+      .neq('device_sn', '__legacy_group__')
       .gte('captured_at', since)
       .order('captured_at', { ascending: true });
 
