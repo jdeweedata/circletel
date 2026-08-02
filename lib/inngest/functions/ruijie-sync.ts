@@ -7,7 +7,9 @@
  * - Dual triggers: scheduled cron and manual event
  * - Progress tracking via ruijie_sync_logs table
  *
- * Schedule: Every 30 minutes (reduced from 5min to stay within Inngest free tier)
+ * Schedule: VPS vendor-cache crontab every 30 minutes
+ *   (ops/scheduler/run-vendor-cache.sh ruijie → emits ruijie/sync.completed).
+ * Inngest cron removed to avoid dual-fire; keep event trigger for manual runs.
  */
 
 import { inngest } from '../client';
@@ -50,9 +52,7 @@ export const ruijieSyncFunction = inngest.createFunction(
       },
     ],
   triggers: [
-    // Cron trigger: every 30 minutes (reduced to stay within Inngest free tier)
-    { cron: '*/30 * * * *' },
-    // Event trigger: manual requests
+    // Event-only: VPS vendor-cache owns the schedule (avoid dual-fire with Inngest Cloud cron)
     { event: 'ruijie/sync.requested' },
   ],
 }, async ({ event, step }) => {

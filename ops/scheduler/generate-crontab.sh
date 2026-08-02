@@ -19,3 +19,17 @@ echo "# curl: --connect-timeout 15 --max-time 360 (prevent multi-hour hung clien
 # (incident 2026-07-31: zoho-sync hung ~23min). Slightly above vercel maxDuration 300s
 # for generate-monthly-invoices. --connect-timeout fails fast on DNS/TCP hang.
 jq -r '.crons[] | "\(.schedule) . /root/.cron-env && curl -sf --connect-timeout 15 --max-time 360 -H \"Authorization: Bearer $CRON_SECRET\" \"$APP_URL\(.path)\" >> /var/log/circletel-cron.log 2>&1"' vercel.json
+
+# ---------------------------------------------------------------------------
+# Vendor SQLite staging → Supabase (host-local; not via APP_URL)
+# SQLite must live on the VPS filesystem — do not curl production for these.
+# Logs: /var/log/circletel-vendor-cache.log
+# ---------------------------------------------------------------------------
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+RUN="$ROOT/ops/scheduler/run-vendor-cache.sh"
+LOG="/var/log/circletel-vendor-cache.log"
+
+echo "# Vendor SQLite staging (host-local tsx — see docs/architecture/CRON_SCHEDULE.md)"
+echo "*/30 * * * * $RUN ruijie >> $LOG 2>&1"
+echo "0 22 * * * $RUN tarana >> $LOG 2>&1"
+echo "0 * * * * $RUN interstellio >> $LOG 2>&1"

@@ -8,7 +8,9 @@
  * - Progress tracking via tarana_sync_logs table
  * - Cancellation support
  *
- * Schedule: Daily at midnight SAST (22:00 UTC)
+ * Schedule: VPS vendor-cache crontab daily at 22:00 UTC (midnight SAST)
+ *   (ops/scheduler/run-vendor-cache.sh tarana).
+ * Inngest cron removed to avoid dual-fire; keep event trigger for manual runs.
  */
 
 import { inngest } from '../client';
@@ -39,9 +41,7 @@ export const taranaSyncFunction = inngest.createFunction(
       },
     ],
   triggers: [
-    // Cron trigger: midnight SAST = 22:00 UTC
-    { cron: '0 22 * * *' },
-    // Event trigger: manual requests
+    // Event-only: VPS vendor-cache owns the schedule (avoid dual-fire with Inngest Cloud cron)
     { event: 'tarana/sync.requested' },
   ],
 }, async ({ event, step }) => {
