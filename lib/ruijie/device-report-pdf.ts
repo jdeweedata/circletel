@@ -80,6 +80,16 @@ function formatUptime(seconds: number | null | undefined): string {
   return `${mins}m`;
 }
 
+/** Truncate with an ellipsis so a value never escapes its grid cell (e.g. long firmware strings). */
+function fitText(doc: jsPDF, value: string, maxWidth: number): string {
+  if (doc.getTextWidth(value) <= maxWidth) return value;
+  let text = value;
+  while (text.length > 1 && doc.getTextWidth(`${text}…`) > maxWidth) {
+    text = text.slice(0, -1);
+  }
+  return `${text}…`;
+}
+
 function formatSastTime(timestampMs: number, hours: number): string {
   return new Intl.DateTimeFormat('en-ZA', {
     timeZone: 'Africa/Johannesburg',
@@ -191,7 +201,7 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     doc.text(label, x, y);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(COLORS.dark);
-    doc.text(value, x + 32, y);
+    doc.text(fitText(doc, value, colWidth - 36), x + 32, y);
   });
 
   // Traffic KPI strip
@@ -218,13 +228,14 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     doc.text(value, x, kpiY + 13);
   });
 
-  // Traffic chart — download orange, upload navy stacked on top
+  // Traffic chart — download orange, upload navy stacked on top, with a byte-scaled Y axis
   const chartBoxY = kpiY + 22;
-  const chartHeight = 28;
+  const chartBoxHeight = 52;
+  const chartHeight = 32;
   const bars = resampleForChart(traffic?.dataPoints ?? []);
   doc.setFillColor(COLORS.panel);
   doc.setDrawColor(COLORS.border);
-  doc.roundedRect(margin, chartBoxY, contentWidth, 44, 1.5, 1.5, 'FD');
+  doc.roundedRect(margin, chartBoxY, contentWidth, chartBoxHeight, 1.5, 1.5, 'FD');
   if (bars.length === 0) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
@@ -232,29 +243,52 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     doc.text(
       model.unavailable.traffic ?? 'No traffic samples in this window',
       pageWidth / 2,
-      chartBoxY + 23,
+      chartBoxY + chartBoxHeight / 2 + 1,
       { align: 'center' }
     );
   } else {
-    const chartX = margin + 4;
-    const chartY = chartBoxY + 5;
-    const chartWidth = contentWidth - 8;
+    // Left gutter carries the Y-axis byte labels.
+    const chartX = margin + 18;
+    const chartY = chartBoxY + 6;
+    const chartWidth = contentWidth - 24;
     const maxValue = Math.max(1, ...bars.map((bar) => bar.rxBytes + bar.txBytes));
+
+    // Horizontal gridlines at 0 / ¼ / ½ / ¾ / max; labels on 0, ½ and max.
+    for (let i = 0; i <= 4; i++) {
+      const fraction = i / 4;
+      const y = chartY + chartHeight * (1 - fraction);
+      doc.setDrawColor(i === 0 ? COLORS.muted : COLORS.border);
+      doc.setLineWidth(i === 0 ? 0.3 : 0.15);
+      doc.line(chartX, y, chartX + chartWidth, y);
+      if (i % 2 === 0) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(5);
+        doc.setTextColor(COLORS.gray);
+        doc.text(formatBytes(maxValue * fraction), chartX - 1.5, y + 1, { align: 'right' });
+      }
+    }
+    doc.setLineWidth(0.2);
+
     const barWidth = chartWidth / bars.length;
     const barGap = bars.length > 40 ? 0.3 : 0.6;
+    const scale = chartHeight / maxValue;
     bars.forEach((bar, index) => {
+      if (bar.rxBytes + bar.txBytes === 0) return; // an idle bucket draws nothing
       const x = chartX + index * barWidth + barGap / 2;
       const width = Math.max(0.3, barWidth - barGap);
-      const rxHeight = (bar.rxBytes / maxValue) * chartHeight;
-      const txHeight = (bar.txBytes / maxValue) * chartHeight;
-      const total = Math.max(0.5, rxHeight + txHeight);
-      doc.setFillColor(COLORS.orange);
-      doc.rect(x, chartY + chartHeight - rxHeight, width, rxHeight, 'F');
-      doc.setFillColor(COLORS.navy);
-      doc.rect(x, chartY + chartHeight - total, width, txHeight, 'F');
+      // Any non-zero segment gets a visible mark even when it rounds to sub-pixel height.
+      const rxDraw = bar.rxBytes > 0 ? Math.max(bar.rxBytes * scale, 0.4) : 0;
+      const txDraw = bar.txBytes > 0 ? Math.max(bar.txBytes * scale, 0.4) : 0;
+      if (rxDraw > 0) {
+        doc.setFillColor(COLORS.orange);
+        doc.rect(x, chartY + chartHeight - rxDraw, width, rxDraw, 'F');
+      }
+      if (txDraw > 0) {
+        doc.setFillColor(COLORS.navy);
+        doc.rect(x, chartY + chartHeight - rxDraw - txDraw, width, txDraw, 'F');
+      }
     });
-    doc.setDrawColor(COLORS.border);
-    doc.line(chartX, chartY + chartHeight, chartX + chartWidth, chartY + chartHeight);
+
     // Five evenly spaced time labels
     doc.setFont('courier', 'normal');
     doc.setFontSize(5.5);
@@ -266,14 +300,25 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
         align: 'center',
       });
     }
+
+    // Legend with colour swatches + bucket-span note
+    const legendY = chartY + chartHeight + 7;
+    const bucketMinutes = Math.round((model.hours * 60) / bars.length);
+    doc.setFillColor(COLORS.orange);
+    doc.rect(chartX, legendY - 1.8, 2.4, 2.4, 'F');
+    doc.setFillColor(COLORS.navy);
+    doc.rect(chartX + 16, legendY - 1.8, 2.4, 2.4, 'F');
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(5.5);
     doc.setTextColor(COLORS.gray);
-    doc.text('Download (orange) + Upload (navy), stacked', chartX, chartY + chartHeight + 8);
+    doc.text('Download', chartX + 3.6, legendY);
+    doc.text('Upload (stacked)', chartX + 19.6, legendY);
+    // Note: stay within WinAnsi — glyphs like "≈" render as garbage in jsPDF's built-in fonts.
+    doc.text(`Each bar ~${bucketMinutes} min`, chartX + chartWidth, legendY, { align: 'right' });
   }
 
   // Connected clients table
-  const clientsStartY = chartBoxY + 52;
+  const clientsStartY = chartBoxY + chartBoxHeight + 8;
   sectionTitle(doc, `Connected clients (${model.clients.length})`, margin, clientsStartY);
   if (model.clients.length === 0) {
     doc.setFont('helvetica', 'normal');
