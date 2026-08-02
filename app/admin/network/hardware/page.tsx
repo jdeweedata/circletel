@@ -2,21 +2,45 @@
 
 /**
  * Hardware → Location → Active Customer inventory
- * Hardware-first rows from v_hardware_installations (Ruijie / Interstellio / Tarana RN).
+ * shadcn/ui composition: Card, Chart, Tabs, ToggleGroup, Table, DropdownMenu
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { Label, Pie, PieChart, Cell } from 'recharts';
 import {
   PiArrowsClockwiseBold,
+  PiDotsThreeBold,
   PiHardDrivesBold,
   PiLinkBold,
   PiLinkBreakBold,
   PiMagnifyingGlassBold,
+  PiMapPinBold,
+  PiWifiHighBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Select,
   SelectContent,
@@ -33,11 +57,22 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   AdminPage,
   PageHeader,
-  LoadingState,
   ErrorState,
-  StatCard,
+  EmptyState,
 } from '@/components/backend';
 
 type HardwareSource = 'ruijie' | 'interstellio' | 'tarana';
@@ -80,18 +115,31 @@ const SOURCE_LABEL: Record<HardwareSource, string> = {
   tarana: 'Tarana RN',
 };
 
-function statusBadgeClass(status: string | null): string {
+const sourceChartConfig = {
+  ruijie: { label: 'Ruijie', color: 'hsl(24 95% 53%)' },
+  interstellio: { label: 'Interstellio', color: 'hsl(217 91% 60%)' },
+  tarana: { label: 'Tarana RN', color: 'hsl(142 71% 45%)' },
+} satisfies ChartConfig;
+
+const linkChartConfig = {
+  linked: { label: 'Linked', color: 'hsl(142 71% 45%)' },
+  unlinked: { label: 'Unlinked', color: 'hsl(215 16% 70%)' },
+} satisfies ChartConfig;
+
+function isOnlineStatus(status: string | null): boolean {
   const s = (status || '').toLowerCase();
-  if (['online', 'enabled', 'active'].includes(s)) {
-    return 'bg-green-50 text-green-700 border-green-200';
-  }
-  if (['offline', 'disabled', 'down'].includes(s)) {
-    return 'bg-red-50 text-red-700 border-red-200';
-  }
-  if (['unknown', 'pending'].includes(s)) {
-    return 'bg-gray-50 text-gray-600 border-gray-200';
-  }
-  return 'bg-slate-50 text-slate-700 border-slate-200';
+  return ['online', 'enabled', 'active'].includes(s);
+}
+
+function isOfflineStatus(status: string | null): boolean {
+  const s = (status || '').toLowerCase();
+  return ['offline', 'disabled', 'down'].includes(s);
+}
+
+function statusBadgeClass(status: string | null): string {
+  if (isOnlineStatus(status)) return 'bg-green-50 text-green-700 border-green-200';
+  if (isOfflineStatus(status)) return 'bg-red-50 text-red-700 border-red-200';
+  return 'bg-muted text-muted-foreground border-border';
 }
 
 function detailHref(row: HardwareRow): string | null {
@@ -102,6 +150,26 @@ function detailHref(row: HardwareRow): string | null {
     return `/admin/customers/${row.customer_id}`;
   }
   return null;
+}
+
+function HardwarePageSkeleton() {
+  return (
+    <AdminPage>
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 rounded-xl" />
+          ))}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-64 rounded-xl" />
+          <Skeleton className="h-64 rounded-xl" />
+        </div>
+        <Skeleton className="h-96 rounded-xl" />
+      </div>
+    </AdminPage>
+  );
 }
 
 export default function HardwareInstallationsPage() {
@@ -152,12 +220,59 @@ export default function HardwareInstallationsPage() {
     fetchData();
   }, [fetchData]);
 
+  const rows = data?.rows || [];
+  const totals = data?.totals;
+
+  const onlineCount = useMemo(
+    () => rows.filter((r) => isOnlineStatus(r.hardware_status)).length,
+    [rows]
+  );
+  const offlineCount = useMemo(
+    () => rows.filter((r) => isOfflineStatus(r.hardware_status)).length,
+    [rows]
+  );
+  const unknownCount = useMemo(
+    () => rows.length - onlineCount - offlineCount,
+    [rows.length, onlineCount, offlineCount]
+  );
+
+  const sourcePieData = useMemo(
+    () =>
+      (
+        [
+          { key: 'ruijie', value: totals?.by_source.ruijie ?? 0 },
+          { key: 'interstellio', value: totals?.by_source.interstellio ?? 0 },
+          { key: 'tarana', value: totals?.by_source.tarana ?? 0 },
+        ] as const
+      )
+        .filter((d) => d.value > 0)
+        .map((d) => ({
+          name: d.key,
+          value: d.value,
+          fill: `var(--color-${d.key})`,
+        })),
+    [totals]
+  );
+
+  const linkPieData = useMemo(
+    () =>
+      [
+        {
+          name: 'linked',
+          value: totals?.linked ?? 0,
+          fill: 'var(--color-linked)',
+        },
+        {
+          name: 'unlinked',
+          value: totals?.unlinked ?? 0,
+          fill: 'var(--color-unlinked)',
+        },
+      ].filter((d) => d.value > 0),
+    [totals]
+  );
+
   if (loading && !data) {
-    return (
-      <AdminPage>
-        <LoadingState message="Loading hardware inventory…" />
-      </AdminPage>
-    );
+    return <HardwarePageSkeleton />;
   }
 
   if (error && !data) {
@@ -172,252 +287,571 @@ export default function HardwareInstallationsPage() {
     );
   }
 
-  const totals = data?.totals;
-  const rows = data?.rows || [];
+  const total = totals?.total ?? 0;
+  const linkedPct =
+    total > 0 ? Math.round(((totals?.linked ?? 0) / total) * 100) : 0;
 
   return (
-    <AdminPage>
-      <PageHeader
-        title="Hardware Installations"
-        subtitle="Network hardware linked to locations and active customer services"
-        actions={
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fetchData(true)}
-            disabled={refreshing}
-          >
-            <PiArrowsClockwiseBold
-              className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`}
-            />
-            Refresh
-          </Button>
-        }
-      />
+    <TooltipProvider>
+      <AdminPage>
+        <div className="flex flex-col gap-6">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/admin/network">Network</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Hardware Installations</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard
-          label="Total hardware"
-          value={totals?.total ?? 0}
-          icon={<PiHardDrivesBold className="w-5 h-5" />}
-        />
-        <StatCard
-          label="Linked to service"
-          value={totals?.linked ?? 0}
-          icon={<PiLinkBold className="w-5 h-5" />}
-        />
-        <StatCard
-          label="Unlinked"
-          value={totals?.unlinked ?? 0}
-          icon={<PiLinkBreakBold className="w-5 h-5" />}
-        />
-        <StatCard
-          label="By source"
-          value={`${totals?.by_source.ruijie ?? 0} / ${totals?.by_source.interstellio ?? 0} / ${totals?.by_source.tarana ?? 0}`}
-          subtitle="Ruijie / Interstellio / Tarana"
-        />
-      </div>
+          <PageHeader
+            title="Hardware Installations"
+            subtitle="Hardware-first inventory with location and active customer service links"
+            actions={
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchData(true)}
+                disabled={refreshing}
+              >
+                <PiArrowsClockwiseBold
+                  className={`mr-2 size-4 ${refreshing ? 'animate-spin' : ''}`}
+                />
+                Refresh
+              </Button>
+            }
+          />
 
-      <div className="flex flex-col md:flex-row gap-3 mb-4">
-        <form
-          className="flex gap-2 flex-1"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setQ(searchInput.trim());
-          }}
-        >
-          <div className="relative flex-1">
-            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              className="pl-9"
-              placeholder="Search serial, customer, location…"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
+          {/* KPI cards */}
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardDescription>Total hardware</CardDescription>
+                <PiHardDrivesBold className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold tracking-tight">{total}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Across Ruijie, Interstellio & Tarana
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardDescription>Linked to service</CardDescription>
+                <PiLinkBold className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold tracking-tight text-green-700">
+                  {totals?.linked ?? 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {linkedPct}% of inventory mapped
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardDescription>Unlinked</CardDescription>
+                <PiLinkBreakBold className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold tracking-tight">
+                  {totals?.unlinked ?? 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Needs install-register mapping
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardDescription>Online signal</CardDescription>
+                <PiWifiHighBold className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold tracking-tight text-green-700">
+                  {onlineCount}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {offlineCount} offline · {unknownCount} unknown
+                </p>
+              </CardContent>
+            </Card>
           </div>
-          <Button type="submit" variant="secondary" size="sm">
-            Search
-          </Button>
-        </form>
 
-        <Select value={source} onValueChange={setSource}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Source" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All sources</SelectItem>
-            <SelectItem value="ruijie">Ruijie</SelectItem>
-            <SelectItem value="interstellio">Interstellio</SelectItem>
-            <SelectItem value="tarana">Tarana RN</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={linked} onValueChange={setLinked}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Link" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All links</SelectItem>
-            <SelectItem value="linked">Linked</SelectItem>
-            <SelectItem value="unlinked">Unlinked</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={serviceStatus} onValueChange={setServiceStatus}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Service status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Any service</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="suspended">Suspended</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="rounded-lg border bg-white overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Source</TableHead>
-              <TableHead>Hardware</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Service</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Link</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center text-gray-500 py-10">
-                  No hardware rows match these filters.
-                </TableCell>
-              </TableRow>
-            ) : (
-              rows.map((row) => {
-                const href = detailHref(row);
-                return (
-                  <TableRow key={`${row.hardware_source}:${row.hardware_id}`}>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {SOURCE_LABEL[row.hardware_source]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium text-gray-900">
-                        {row.hardware_label || row.hardware_id}
-                      </div>
-                      <div className="text-xs text-gray-500 font-mono">
-                        {row.hardware_id}
-                      </div>
-                      {row.hardware_model && (
-                        <div className="text-xs text-gray-400">{row.hardware_model}</div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={statusBadgeClass(row.hardware_status)}
+          {/* Charts */}
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">By source</CardTitle>
+                <CardDescription>
+                  Hardware rows in the current filter set
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {sourcePieData.length === 0 ? (
+                  <EmptyState
+                    icon={<PiHardDrivesBold />}
+                    title="No hardware"
+                    description="Adjust filters to see source mix."
+                  />
+                ) : (
+                  <ChartContainer
+                    config={sourceChartConfig}
+                    className="mx-auto aspect-square max-h-[260px]"
+                  >
+                    <PieChart>
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent hideLabel />}
+                      />
+                      <Pie
+                        data={sourcePieData}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={58}
+                        outerRadius={90}
+                        strokeWidth={2}
                       >
-                        {row.hardware_status || '—'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {row.customer_name || row.customer_id ? (
-                        <div>
-                          {row.customer_id ? (
-                            <Link
-                              href={`/admin/customers/${row.customer_id}`}
-                              className="text-circleTel-orange hover:underline font-medium"
-                            >
-                              {row.customer_name || 'Customer'}
-                            </Link>
-                          ) : (
-                            <span className="font-medium">{row.customer_name}</span>
-                          )}
-                          {row.customer_email && (
-                            <div className="text-xs text-gray-500">{row.customer_email}</div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-sm">Unlinked</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {row.service_id ? (
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant="outline"
-                              className={statusBadgeClass(row.service_status)}
-                            >
-                              {row.service_status || '—'}
-                            </Badge>
-                            {row.service_active === false && (
-                              <span className="text-xs text-amber-600">inactive flag</span>
-                            )}
-                          </div>
-                          {row.package_name && (
-                            <div className="text-xs text-gray-500 mt-1">{row.package_name}</div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-sm">No service</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {row.location_name || row.location_address ? (
-                        <div>
-                          <div className="font-medium text-sm">
-                            {row.location_name || 'Location'}
-                          </div>
-                          {row.location_address && (
-                            <div className="text-xs text-gray-500 line-clamp-2">
-                              {row.location_address}
-                            </div>
-                          )}
-                          {row.province && (
-                            <div className="text-xs text-gray-400">{row.province}</div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-sm">No location</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {row.link_method ? (
-                        <span className="text-xs font-mono text-gray-600">
-                          {row.link_method}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-400">
-                          Unlinked — map via install register
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {href ? (
-                        <Link href={href}>
-                          <Button variant="ghost" size="sm">
-                            Open
-                          </Button>
-                        </Link>
-                      ) : (
-                        <span className="text-xs text-gray-400">—</span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </AdminPage>
+                        {sourcePieData.map((entry) => (
+                          <Cell key={entry.name} fill={entry.fill} />
+                        ))}
+                        <Label
+                          content={({ viewBox }) => {
+                            if (!viewBox || !('cx' in viewBox)) return null;
+                            return (
+                              <text
+                                x={viewBox.cx}
+                                y={viewBox.cy}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                              >
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={(viewBox.cy || 0) - 6}
+                                  className="fill-foreground text-2xl font-bold"
+                                >
+                                  {total}
+                                </tspan>
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={(viewBox.cy || 0) + 16}
+                                  className="fill-muted-foreground text-xs"
+                                >
+                                  devices
+                                </tspan>
+                              </text>
+                            );
+                          }}
+                        />
+                      </Pie>
+                    </PieChart>
+                  </ChartContainer>
+                )}
+                <div className="mt-2 flex flex-wrap justify-center gap-3 text-xs text-muted-foreground">
+                  {(
+                    Object.keys(sourceChartConfig) as Array<
+                      keyof typeof sourceChartConfig
+                    >
+                  ).map((key) => (
+                    <span key={key} className="inline-flex items-center gap-1.5">
+                      <span
+                        className="size-2 rounded-full"
+                        style={{ background: sourceChartConfig[key].color }}
+                      />
+                      {sourceChartConfig[key].label}:{' '}
+                      {totals?.by_source[key as HardwareSource] ?? 0}
+                    </span>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Customer link coverage</CardTitle>
+                <CardDescription>
+                  Mapped to an active customer service vs still unlinked
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {linkPieData.length === 0 ? (
+                  <EmptyState
+                    icon={<PiLinkBold />}
+                    title="No rows"
+                    description="Link coverage appears when inventory loads."
+                  />
+                ) : (
+                  <ChartContainer
+                    config={linkChartConfig}
+                    className="mx-auto aspect-square max-h-[260px]"
+                  >
+                    <PieChart>
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent hideLabel />}
+                      />
+                      <Pie
+                        data={linkPieData}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={58}
+                        outerRadius={90}
+                        strokeWidth={2}
+                      >
+                        {linkPieData.map((entry) => (
+                          <Cell key={entry.name} fill={entry.fill} />
+                        ))}
+                        <Label
+                          content={({ viewBox }) => {
+                            if (!viewBox || !('cx' in viewBox)) return null;
+                            return (
+                              <text
+                                x={viewBox.cx}
+                                y={viewBox.cy}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                              >
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={(viewBox.cy || 0) - 6}
+                                  className="fill-foreground text-2xl font-bold"
+                                >
+                                  {linkedPct}%
+                                </tspan>
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={(viewBox.cy || 0) + 16}
+                                  className="fill-muted-foreground text-xs"
+                                >
+                                  linked
+                                </tspan>
+                              </text>
+                            );
+                          }}
+                        />
+                      </Pie>
+                    </PieChart>
+                  </ChartContainer>
+                )}
+                <div className="mt-2 flex flex-wrap justify-center gap-3 text-xs text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span
+                      className="size-2 rounded-full"
+                      style={{ background: linkChartConfig.linked.color }}
+                    />
+                    Linked: {totals?.linked ?? 0}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span
+                      className="size-2 rounded-full"
+                      style={{ background: linkChartConfig.unlinked.color }}
+                    />
+                    Unlinked: {totals?.unlinked ?? 0}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Filters + table */}
+          <Card>
+            <CardHeader className="gap-4">
+              <div className="flex flex-col gap-1">
+                <CardTitle className="text-base">Inventory</CardTitle>
+                <CardDescription>
+                  One row per device — customer and location when mapped
+                </CardDescription>
+              </div>
+
+              <Tabs
+                value={source}
+                onValueChange={setSource}
+                className="w-full"
+              >
+                <TabsList className="flex h-auto flex-wrap justify-start">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="ruijie">Ruijie</TabsTrigger>
+                  <TabsTrigger value="interstellio">Interstellio</TabsTrigger>
+                  <TabsTrigger value="tarana">Tarana RN</TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                <form
+                  className="flex flex-1 gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setQ(searchInput.trim());
+                  }}
+                >
+                  <div className="relative flex-1">
+                    <PiMagnifyingGlassBold className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      className="pl-9"
+                      placeholder="Search serial, customer, location…"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                  </div>
+                  <Button type="submit" variant="secondary" size="sm">
+                    Search
+                  </Button>
+                </form>
+
+                <ToggleGroup
+                  type="single"
+                  value={linked}
+                  onValueChange={(v) => v && setLinked(v)}
+                  variant="outline"
+                  size="sm"
+                >
+                  <ToggleGroupItem value="all" aria-label="All links">
+                    All
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="linked" aria-label="Linked only">
+                    Linked
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="unlinked" aria-label="Unlinked only">
+                    Unlinked
+                  </ToggleGroupItem>
+                </ToggleGroup>
+
+                <Select value={serviceStatus} onValueChange={setServiceStatus}>
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue placeholder="Service status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Any service</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+
+            <Separator />
+
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[110px]">Source</TableHead>
+                      <TableHead>Hardware</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Link</TableHead>
+                      <TableHead className="w-[56px]" />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rows.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="h-40">
+                          <EmptyState
+                            icon={<PiMapPinBold />}
+                            title="No matching hardware"
+                            description="Try clearing filters or widening the search."
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      rows.map((row) => {
+                        const href = detailHref(row);
+                        return (
+                          <TableRow
+                            key={`${row.hardware_source}:${row.hardware_id}`}
+                          >
+                            <TableCell>
+                              <Badge variant="outline">
+                                {SOURCE_LABEL[row.hardware_source]}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">
+                                {row.hardware_label || row.hardware_id}
+                              </div>
+                              <div className="font-mono text-xs text-muted-foreground">
+                                {row.hardware_id}
+                              </div>
+                              {row.hardware_model && (
+                                <div className="text-xs text-muted-foreground">
+                                  {row.hardware_model}
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`size-2 shrink-0 rounded-full ${
+                                    isOnlineStatus(row.hardware_status)
+                                      ? 'bg-green-500'
+                                      : isOfflineStatus(row.hardware_status)
+                                        ? 'bg-red-500'
+                                        : 'bg-muted-foreground/40'
+                                  }`}
+                                />
+                                <Badge
+                                  variant="outline"
+                                  className={statusBadgeClass(row.hardware_status)}
+                                >
+                                  {row.hardware_status || '—'}
+                                </Badge>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {row.customer_name || row.customer_id ? (
+                                <div>
+                                  {row.customer_id ? (
+                                    <Link
+                                      href={`/admin/customers/${row.customer_id}`}
+                                      className="font-medium text-circleTel-orange hover:underline"
+                                    >
+                                      {row.customer_name || 'Customer'}
+                                    </Link>
+                                  ) : (
+                                    <span className="font-medium">
+                                      {row.customer_name}
+                                    </span>
+                                  )}
+                                  {row.customer_email && (
+                                    <div className="text-xs text-muted-foreground">
+                                      {row.customer_email}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">
+                                  Unlinked
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {row.service_id ? (
+                                <div className="flex flex-col gap-1">
+                                  <Badge
+                                    variant="outline"
+                                    className={statusBadgeClass(row.service_status)}
+                                  >
+                                    {row.service_status || '—'}
+                                  </Badge>
+                                  {row.package_name && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {row.package_name}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">
+                                  No service
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {row.location_name || row.location_address ? (
+                                <div>
+                                  <div className="text-sm font-medium">
+                                    {row.location_name || 'Location'}
+                                  </div>
+                                  {row.location_address && (
+                                    <div className="line-clamp-2 text-xs text-muted-foreground">
+                                      {row.location_address}
+                                    </div>
+                                  )}
+                                  {row.province && (
+                                    <div className="text-xs text-muted-foreground">
+                                      {row.province}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">
+                                  No location
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {row.link_method ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="secondary" className="font-mono text-[10px]">
+                                      {row.link_method}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    How this row was joined to a customer service
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">
+                                  Map via install register
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-8"
+                                    aria-label="Row actions"
+                                  >
+                                    <PiDotsThreeBold className="size-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  {href ? (
+                                    <DropdownMenuItem asChild>
+                                      <Link href={href}>Open details</Link>
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem disabled>
+                                      No detail page
+                                    </DropdownMenuItem>
+                                  )}
+                                  {row.customer_id && (
+                                    <DropdownMenuItem asChild>
+                                      <Link href={`/admin/customers/${row.customer_id}`}>
+                                        View customer
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  )}
+                                  {row.hardware_source === 'ruijie' && (
+                                    <>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem asChild>
+                                        <Link
+                                          href={`/admin/network/devices/${encodeURIComponent(row.hardware_id)}`}
+                                        >
+                                          Ruijie device
+                                        </Link>
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </AdminPage>
+    </TooltipProvider>
   );
 }
