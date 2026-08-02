@@ -161,6 +161,12 @@ export default function NetworkDashboardPage() {
             <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
+          <Link href="/admin/network/hardware">
+            <Button variant="outline" size="sm">
+              <PiDesktopTowerBold className="w-4 h-4 mr-2" />
+              Hardware
+            </Button>
+          </Link>
           <Link href="/admin/network/outages/new">
             <Button size="sm" className="bg-circleTel-orange hover:bg-orange-600">
               <PiPlusBold className="w-4 h-4 mr-2" />
