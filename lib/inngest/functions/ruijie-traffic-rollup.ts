@@ -25,7 +25,20 @@ import { getNetworkTraffic } from '@/lib/ruijie/client';
 import { buildHourlyRollupUpserts } from '@/lib/network/analytics-aggregates';
 
 const HOURS_WINDOW = 24;
-const RETENTION_DAYS = 14;
+/**
+ * 90 days, matching the longest report period the spec allows (custom ranges are
+ * capped at 90 inclusive days).
+ *
+ * This table is the system of record, not a cache. Ruijie Cloud itself only
+ * serves ~3 days of per-device flow — measured 2026-08-02: four APs all cut off
+ * at the same instant, and a 90-day request returns a full 12,960-point grid
+ * that is 88% zero-padded rather than truncated. So anything pruned here is
+ * gone for good; there is nothing upstream to re-fetch it from.
+ *
+ * Cost is negligible: ~22 devices x 24 hourly rows = ~530 rows/day, so 90 days
+ * is roughly 48k rows.
+ */
+const RETENTION_DAYS = 90;
 /** Pace between per-device flow calls — the fleet is ~25 devices per sync. */
 const DEVICE_DELAY_MS = 600;
 /** Let Ruijie cool down after device metric enrichment on the same event. */
