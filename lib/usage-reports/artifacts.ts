@@ -6,6 +6,7 @@ import {
   type AssembleSiteUsageReportInput,
 } from './assemble-report';
 import { reportModelToCsv } from './csv';
+import { generateSiteUsageReportExcel } from './excel';
 import { patientRowForSite, type TdxPatientRow } from './patient-wifi';
 import {
   generateSiteUsageReportPdf,
@@ -23,23 +24,31 @@ export interface UsageReportArtifactSite {
   accountNumber: string;
 }
 
+export type UsageReportFormat = 'pdf' | 'excel';
+
+export const EXCEL_CONTENT_TYPE =
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
 export interface UsageReportArtifactInput {
   sites: UsageReportArtifactSite[];
   period: ReportPeriod;
   patientRows: TdxPatientRow[];
   includeCsv: boolean;
+  /** Report file format — skip slips stay PDF in either case. Default 'pdf'. */
+  format?: UsageReportFormat;
 }
 
 export interface UsageReportArtifactDeps {
   assemble(input: AssembleSiteUsageReportInput): Promise<AssembleResult>;
   reportPdf(model: SiteUsageReportModel): ArrayBuffer;
+  reportExcel(model: SiteUsageReportModel): Promise<Buffer>;
   skipPdf(input: SkipSlipInput): ArrayBuffer;
   csv(model: SiteUsageReportModel): string;
 }
 
 export interface UsageReportArtifact {
   bytes: Buffer;
-  contentType: 'application/pdf' | 'application/zip';
+  contentType: 'application/pdf' | 'application/zip' | typeof EXCEL_CONTENT_TYPE;
   filename: string;
   primarySources: Record<string, string>;
   outcome: {
@@ -51,6 +60,7 @@ export interface UsageReportArtifact {
 const defaultDeps: UsageReportArtifactDeps = {
   assemble: assembleSiteUsageReport,
   reportPdf: generateSiteUsageReportPdf,
+  reportExcel: generateSiteUsageReportExcel,
   skipPdf: generateSkipSlipPdf,
   csv: reportModelToCsv,
 };
@@ -112,8 +122,19 @@ export async function buildUsageReportArtifact(
     generated.map(({ siteId, model }) => [siteId, model.core.source])
   );
 
+  const format: UsageReportFormat = input.format ?? 'pdf';
+
   if (generated.length === 1 && skipped.length === 0 && !input.includeCsv) {
     const report = generated[0];
+    if (format === 'excel') {
+      return {
+        bytes: await deps.reportExcel(report.model),
+        contentType: EXCEL_CONTENT_TYPE,
+        filename: `CircleTel_Usage_${report.filenameBase}_${periodPart}.xlsx`,
+        primarySources,
+        outcome,
+      };
+    }
     return {
       bytes: Buffer.from(deps.reportPdf(report.model)),
       contentType: 'application/pdf',
@@ -126,7 +147,11 @@ export async function buildUsageReportArtifact(
   const zip = new JSZip();
   for (const report of generated) {
     const base = `CircleTel_Usage_${report.filenameBase}_${periodPart}`;
-    zip.file(`${base}.pdf`, Buffer.from(deps.reportPdf(report.model)));
+    if (format === 'excel') {
+      zip.file(`${base}.xlsx`, await deps.reportExcel(report.model));
+    } else {
+      zip.file(`${base}.pdf`, Buffer.from(deps.reportPdf(report.model)));
+    }
     if (input.includeCsv) {
       zip.file(`${base}.csv`, deps.csv(report.model));
     }

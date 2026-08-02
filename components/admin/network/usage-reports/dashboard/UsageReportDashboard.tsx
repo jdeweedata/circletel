@@ -8,8 +8,9 @@
  * printed report. Preview is a pure read — the endpoint writes nothing — so
  * looking costs no audit row and no stored artifact (#690).
  *
- * Download still uses the shipped generate/jobs routes; the split control, CSV
- * retirement and Patient CSV rebind are #694.
+ * Download uses the shipped generate/jobs routes; the button is a PDF/Excel
+ * format dropdown (Excel is sync-path only — up to 5 sites). CSV retirement
+ * and the Patient CSV rebind remain #694.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -18,6 +19,8 @@ import {
   PiCaretDownBold,
   PiClockBold,
   PiDownloadSimpleBold,
+  PiFilePdfBold,
+  PiFileXlsBold,
   PiSpinnerGapBold,
 } from 'react-icons/pi';
 
@@ -27,6 +30,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -200,13 +204,19 @@ export function UsageReportDashboard({
     if (ids.length === 0) setFocusedId(null);
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (format: 'pdf' | 'excel') => {
     if (selectedIds.length === 0) return;
     setSubmitting(true);
     setJobId(null);
     setError(null);
 
-    const payload = { siteIds: selectedIds, period, includeCsv: false, patientRows: [] };
+    const payload = {
+      siteIds: selectedIds,
+      period,
+      includeCsv: false,
+      patientRows: [],
+      format,
+    };
     try {
       if (selectedIds.length <= 5) {
         const response = await fetch('/api/admin/network/usage-reports/generate', {
@@ -226,7 +236,8 @@ export function UsageReportDashboard({
         anchor.download =
           response.headers
             .get('content-disposition')
-            ?.match(/filename="([^"]+)"/i)?.[1] ?? 'CircleTel_Usage_Report.pdf';
+            ?.match(/filename="([^"]+)"/i)?.[1] ??
+          `CircleTel_Usage_Report.${format === 'excel' ? 'xlsx' : 'pdf'}`;
         document.body.appendChild(anchor);
         anchor.click();
         anchor.remove();
@@ -321,21 +332,44 @@ export function UsageReportDashboard({
               Refresh
             </Button>
 
-            <Button
-              onClick={() => void handleDownload()}
-              disabled={submitting || selectedIds.length === 0}
-            >
-              {submitting ? (
-                <PiSpinnerGapBold className="mr-2 h-4 w-4 animate-spin" />
-              ) : selectedIds.length > 5 ? (
-                <PiClockBold className="mr-2 h-4 w-4" />
-              ) : (
-                <PiDownloadSimpleBold className="mr-2 h-4 w-4" />
-              )}
-              {selectedIds.length > 5
-                ? `Queue ${selectedIds.length} (ZIP)`
-                : 'Download'}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button disabled={submitting || selectedIds.length === 0}>
+                  {submitting ? (
+                    <PiSpinnerGapBold className="mr-2 h-4 w-4 animate-spin" />
+                  ) : selectedIds.length > 5 ? (
+                    <PiClockBold className="mr-2 h-4 w-4" />
+                  ) : (
+                    <PiDownloadSimpleBold className="mr-2 h-4 w-4" />
+                  )}
+                  {selectedIds.length > 5
+                    ? `Queue ${selectedIds.length} (ZIP)`
+                    : 'Download'}
+                  <PiCaretDownBold className="ml-2 h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => void handleDownload('pdf')}
+                  disabled={submitting}
+                >
+                  <PiFilePdfBold className="mr-2 h-4 w-4" aria-hidden="true" />
+                  PDF report
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => void handleDownload('excel')}
+                  disabled={submitting || selectedIds.length > 5}
+                >
+                  <PiFileXlsBold className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Excel workbook
+                </DropdownMenuItem>
+                {selectedIds.length > 5 && (
+                  <DropdownMenuLabel className="font-normal text-xs text-slate-400">
+                    Excel is available for up to 5 sites
+                  </DropdownMenuLabel>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 

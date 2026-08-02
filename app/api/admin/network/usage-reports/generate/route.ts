@@ -15,6 +15,7 @@ interface GenerateRequest {
   custom?: { startDate?: unknown; endDate?: unknown };
   includeCsv?: unknown;
   patientRows?: unknown;
+  format?: unknown;
 }
 
 const PERIOD_PRESETS = new Set<ReportPeriodPreset>([
@@ -64,6 +65,10 @@ export async function POST(request: NextRequest) {
     if (typeof body.period !== 'string' || !PERIOD_PRESETS.has(body.period as ReportPeriodPreset)) {
       return NextResponse.json({ error: 'Invalid report period preset' }, { status: 400 });
     }
+    const format = body.format ?? 'pdf';
+    if (format !== 'pdf' && format !== 'excel') {
+      return NextResponse.json({ error: "format must be 'pdf' or 'excel'" }, { status: 400 });
+    }
     const patientRows = Array.isArray(body.patientRows)
       ? body.patientRows.filter(isPatientRow)
       : [];
@@ -94,6 +99,7 @@ export async function POST(request: NextRequest) {
       period,
       patientRows,
       includeCsv: body.includeCsv === true,
+      format,
     });
 
     const createdAt = new Date();
