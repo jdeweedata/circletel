@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Label, Pie, PieChart, Cell } from 'recharts';
 import {
   PiArrowsClockwiseBold,
@@ -78,7 +79,7 @@ import {
   EmptyState,
 } from '@/components/backend';
 
-type HardwareSource = 'ruijie' | 'interstellio' | 'tarana';
+type HardwareSource = 'ruijie' | 'interstellio' | 'tarana' | 'omada';
 
 interface HardwareRow {
   hardware_source: HardwareSource;
@@ -116,6 +117,7 @@ const SOURCE_LABEL: Record<HardwareSource, string> = {
   ruijie: 'Ruijie',
   interstellio: 'Interstellio',
   tarana: 'Tarana RN',
+  omada: 'Omada',
 };
 
 const PAGE_SIZE = 25;
@@ -126,6 +128,7 @@ const sourceChartConfig = {
   ruijie: { label: 'Ruijie', color: 'hsl(24 95% 53%)' },
   interstellio: { label: 'Interstellio', color: 'hsl(217 91% 60%)' },
   tarana: { label: 'Tarana RN', color: 'hsl(142 71% 45%)' },
+  omada: { label: 'Omada', color: 'hsl(173 80% 40%)' },
 } satisfies ChartConfig;
 
 const linkChartConfig = {
@@ -180,6 +183,9 @@ function HardwarePageSkeleton() {
 }
 
 export default function HardwareInstallationsPage() {
+  const searchParams = useSearchParams();
+  const sourceParam = searchParams.get('source');
+
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -192,6 +198,15 @@ export default function HardwareInstallationsPage() {
   const [q, setQ] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (
+      sourceParam &&
+      ['ruijie', 'interstellio', 'tarana', 'omada'].includes(sourceParam)
+    ) {
+      setSource(sourceParam);
+    }
+  }, [sourceParam]);
 
   const fetchData = useCallback(
     async (isRefresh = false) => {
@@ -300,6 +315,7 @@ export default function HardwareInstallationsPage() {
           { key: 'ruijie', value: totals?.by_source.ruijie ?? 0 },
           { key: 'interstellio', value: totals?.by_source.interstellio ?? 0 },
           { key: 'tarana', value: totals?.by_source.tarana ?? 0 },
+          { key: 'omada', value: totals?.by_source.omada ?? 0 },
         ] as const
       )
         .filter((d) => d.value > 0)
@@ -673,6 +689,7 @@ export default function HardwareInstallationsPage() {
                       { value: 'ruijie', label: 'Ruijie' },
                       { value: 'interstellio', label: 'Interstellio' },
                       { value: 'tarana', label: 'Tarana RN' },
+                      { value: 'omada', label: 'Omada' },
                     ] as const
                   ).map((tab) => (
                     <TabsTrigger

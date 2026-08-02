@@ -2,10 +2,10 @@
  * GET /api/admin/network/hardware-installations
  *
  * Hardware-first inventory from v_hardware_installations
- * (Ruijie + Interstellio + Tarana RN) with optional customer/location links.
+ * (Ruijie + Interstellio + Tarana RN + Omada CPE) with optional customer/location links.
  *
  * Query params:
- * - source: ruijie|interstellio|tarana (optional)
+ * - source: ruijie|interstellio|tarana|omada (optional)
  * - linked: all|linked|unlinked (default all)
  * - q: search hardware id/label, customer, location
  * - service_status: filter by customer_services.status
@@ -18,7 +18,7 @@ import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 export const dynamic = 'force-dynamic';
 
 export type HardwareInstallationRow = {
-  hardware_source: 'ruijie' | 'interstellio' | 'tarana';
+  hardware_source: 'ruijie' | 'interstellio' | 'tarana' | 'omada';
   hardware_id: string;
   hardware_label: string | null;
   hardware_model: string | null;
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase.from('v_hardware_installations').select('*');
 
-    if (source && ['ruijie', 'interstellio', 'tarana'].includes(source)) {
+    if (source && ['ruijie', 'interstellio', 'tarana', 'omada'].includes(source)) {
       query = query.eq('hardware_source', source);
     }
 
@@ -106,6 +106,7 @@ export async function GET(request: NextRequest) {
       ruijie: 0,
       interstellio: 0,
       tarana: 0,
+      omada: 0,
     };
     let linkedCount = 0;
     for (const row of rows) {

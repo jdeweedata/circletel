@@ -41,7 +41,13 @@ export async function GET(request: NextRequest) {
       .order('site_name', { ascending: true, nullsFirst: false })
       .order('device_type', { ascending: true });
 
-    if (type) query = query.eq('device_type', type);
+    if (type === 'omada') {
+      query = query.in('device_type', ['omada_gateway', 'omada_switch']);
+    } else if (type?.includes(',')) {
+      query = query.in('device_type', type.split(',').map((t) => t.trim()).filter(Boolean));
+    } else if (type) {
+      query = query.eq('device_type', type);
+    }
     if (channel) query = query.eq('channel', channel);
     if (status) query = query.eq('status', status);
     if (site) query = query.ilike('site_name', `%${site}%`);
@@ -102,13 +108,48 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Enrich Omada/Tarana CPE linked via Interstellio connection_id
+    const connectionIds = allDevices
+      .filter((d) => d.interstellio_subscriber_id)
+      .map((d) => d.interstellio_subscriber_id!);
+
+    let serviceCustomerMap: Record<string, string> = {};
+
+    if (connectionIds.length > 0) {
+      const { data: services } = await supabase
+        .from('customer_services')
+        .select('connection_id, customers(business_name, first_name, last_name)')
+        .in('connection_id', connectionIds);
+
+      if (services) {
+        for (const row of services as Array<{
+          connection_id: string | null;
+          customers:
+            | { business_name: string | null; first_name: string | null; last_name: string | null }
+            | { business_name: string | null; first_name: string | null; last_name: string | null }[]
+            | null;
+        }>) {
+          if (!row.connection_id) continue;
+          const cust = Array.isArray(row.customers) ? row.customers[0] : row.customers;
+          if (!cust) continue;
+          const business = (cust.business_name || '').trim();
+          const person = [cust.first_name, cust.last_name].filter(Boolean).join(' ').trim();
+          serviceCustomerMap[row.connection_id] = business || person || '';
+        }
+      }
+    }
+
     // Merge enrichments
     const enrichedDevices: NetworkDevice[] = allDevices.map(d => ({
       ...d,
       ruijie_status: d.ruijie_device_sn ? ruijieMap[d.ruijie_device_sn]?.status : undefined,
       ruijie_online_clients: d.ruijie_device_sn ? ruijieMap[d.ruijie_device_sn]?.online_clients : undefined,
       order_number: d.consumer_order_id ? orderMap[d.consumer_order_id]?.order_number : undefined,
-      customer_name: d.consumer_order_id ? orderMap[d.consumer_order_id]?.customer_name : undefined,
+      customer_name:
+        (d.consumer_order_id ? orderMap[d.consumer_order_id]?.customer_name : undefined) ||
+        (d.interstellio_subscriber_id
+          ? serviceCustomerMap[d.interstellio_subscriber_id] || undefined
+          : undefined),
     }));
 
     // Compute stats (unfiltered for dashboard)
