@@ -40,6 +40,7 @@ import {
   normalizeOperation,
   PROVIDER_ERROR_CODES,
 } from '@/lib/integrations/provider-call-recorder';
+import { provinceNameForCoordinates } from './geo-validation';
 
 export interface WMSGetFeatureInfoRequest {
   coordinates: Coordinates;
@@ -325,6 +326,7 @@ export class MTNWMSRealtimeClient {
       void recordProviderCall({
         integrationSlug: 'mtn-coverage',
         operation: normalizeOperation('GET', this.BASE_URL, `GetFeatureInfo:${wmsLayer}`),
+        province: provinceNameForCoordinates(coordinates),
         durationMs: Date.now() - startedAt,
         success,
         errorCode,

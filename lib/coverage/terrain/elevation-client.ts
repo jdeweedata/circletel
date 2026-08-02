@@ -15,6 +15,7 @@ import {
   normalizeOperation,
   PROVIDER_ERROR_CODES,
 } from '@/lib/integrations/provider-call-recorder';
+import { provinceNameForCoordinates } from '../mtn/geo-validation';
 
 const OPEN_ELEVATION_URL = 'https://api.open-elevation.com/api/v1/lookup';
 const OPEN_METEO_ELEVATION_URL = 'https://api.open-meteo.com/v1/elevation';
@@ -175,6 +176,9 @@ async function fetchElevationsFromApi(coordinates: Coordinate[]): Promise<Elevat
   // Open-Elevation in the POST body. normalizeOperation discards the query string
   // structurally, and the body is never passed.
   const startedAt = Date.now();
+  // Batch requests span coordinates; the first is representative for coarse
+  // geography, and a profile's points are all within a few km.
+  const province = coordinates[0] ? provinceNameForCoordinates(coordinates[0]) : null;
 
   // Try Open-Elevation first
   try {
@@ -182,6 +186,7 @@ async function fetchElevationsFromApi(coordinates: Coordinate[]): Promise<Elevat
     void recordProviderCall({
       integrationSlug: 'terrain-elevation',
       operation: normalizeOperation('POST', OPEN_ELEVATION_URL, 'lookup'),
+      province,
       durationMs: Date.now() - startedAt,
       success: true,
       cacheHit: false,
@@ -198,6 +203,7 @@ async function fetchElevationsFromApi(coordinates: Coordinate[]): Promise<Elevat
     void recordProviderCall({
       integrationSlug: 'terrain-elevation',
       operation: normalizeOperation('GET', OPEN_METEO_ELEVATION_URL, 'fallback'),
+      province,
       durationMs: Date.now() - startedAt,
       success: true,
       cacheHit: false,
@@ -211,6 +217,7 @@ async function fetchElevationsFromApi(coordinates: Coordinate[]): Promise<Elevat
     void recordProviderCall({
       integrationSlug: 'terrain-elevation',
       operation: normalizeOperation('POST', OPEN_ELEVATION_URL, 'exhausted'),
+      province,
       durationMs: Date.now() - startedAt,
       success: false,
       errorCode: PROVIDER_ERROR_CODES.PROVIDER_ERROR,

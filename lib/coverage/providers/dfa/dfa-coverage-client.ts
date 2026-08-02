@@ -11,6 +11,7 @@ import {
   normalizeOperation,
   PROVIDER_ERROR_CODES,
 } from '@/lib/integrations/provider-call-recorder';
+import { provinceNameForCoordinates } from '@/lib/coverage/mtn/geo-validation';
 import {
   DFACoverageRequest,
   DFACoverageResponse,
@@ -51,7 +52,8 @@ export class DFACoverageClient {
   private async request<T>(
     path: string,
     config: { params?: unknown; timeout?: number },
-    operation: string
+    operation: string,
+    province: string | null = null
   ) {
     const url = `${this.baseUrl}${path}`;
     const startedAt = Date.now();
@@ -74,6 +76,7 @@ export class DFACoverageClient {
       void recordProviderCall({
         integrationSlug: 'dfa',
         operation: normalizeOperation('GET', url, operation),
+        province,
         durationMs: Date.now() - startedAt,
         success,
         errorCode,
@@ -221,7 +224,7 @@ export class DFACoverageClient {
 
     const response = await this.request<
       ArcGISQueryResponse<DFAConnectedBuilding>
-    >('/2/query', { params }, 'query:connected');
+    >('/2/query', { params }, 'query:connected', provinceNameForCoordinates({ lat: latitude, lng: longitude }));
 
     if (response.data.features && response.data.features.length > 0) {
       const feature = response.data.features[0];
@@ -254,7 +257,7 @@ export class DFACoverageClient {
 
     const response2 = await this.request<
       ArcGISQueryResponse<DFAConnectedBuilding>
-    >('/2/query', { params: params2 }, 'query:connected-bbox');
+    >('/2/query', { params: params2 }, 'query:connected-bbox', provinceNameForCoordinates({ lat: latitude, lng: longitude }));
 
     if (response2.data.features && response2.data.features.length > 0) {
       const feature = response2.data.features[0];
@@ -304,7 +307,8 @@ export class DFACoverageClient {
     const response = await this.request<ArcGISQueryResponse<DFANearNetBuilding>>(
       '/1/query',
       { params },
-      'query:near-net'
+      'query:near-net',
+      provinceNameForCoordinates({ lat: latitude, lng: longitude })
     );
 
     if (response.data.features && response.data.features.length > 0) {
@@ -384,7 +388,7 @@ export class DFACoverageClient {
           geometry?: { paths?: number[][][] };
           attributes: { ea1?: string };
         }>;
-      }>('/5/query', { params }, 'query:fiber-route');
+      }>('/5/query', { params }, 'query:fiber-route', provinceNameForCoordinates({ lat: latitude, lng: longitude }));
 
       if (response.data.features && response.data.features.length > 0) {
         let nearestDistance = maxDistance;
@@ -431,15 +435,22 @@ export class DFACoverageClient {
     const startTime = Date.now();
 
     try {
-      const response = await axios.get(
+      const response = await axios.get<{ error?: unknown; id?: unknown; name?: unknown }>(
         `${this.baseUrl}/2?f=json`,
         { timeout: this.timeout }
       );
 
       const responseTime = Date.now() - startTime;
 
+      // ArcGIS returns HTTP 200 with an {"error": {...}} body on failure, so a
+      // status check alone reports healthy while the service returns nothing.
+      // A valid layer-metadata response carries an id/name; require that too.
+      const hasErrorEnvelope = Boolean(response.data?.error);
+      const looksLikeLayerMetadata =
+        response.data?.id !== undefined || response.data?.name !== undefined;
+
       return {
-        healthy: response.status === 200,
+        healthy: response.status === 200 && !hasErrorEnvelope && looksLikeLayerMetadata,
         responseTime
       };
     } catch (error) {

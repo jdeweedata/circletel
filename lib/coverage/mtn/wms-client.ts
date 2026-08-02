@@ -18,6 +18,7 @@ import {
   normalizeOperation,
   PROVIDER_ERROR_CODES,
 } from '@/lib/integrations/provider-call-recorder';
+import { provinceNameForCoordinates } from './geo-validation';
 
 /**
  * Describe a WMS request for the `operation` field.
@@ -307,7 +308,9 @@ export class MTNWMSClient {
       };
 
       const url = this.buildWMSUrl(wmsRequest, config);
-      const response = await this.makeRequest(url);
+      // Province is derived from the coordinate here and recorded instead of it —
+      // coarse geography without holding a location.
+      const response = await this.makeRequest(url, provinceNameForCoordinates(coordinates));
       const parseResult = this.parseWMSResponse(response, layer, coordinates);
 
       return {

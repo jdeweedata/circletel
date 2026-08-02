@@ -50,6 +50,7 @@ import {
   normalizeOperation,
   PROVIDER_ERROR_CODES,
 } from '@/lib/integrations/provider-call-recorder';
+import { provinceNameForCoordinates } from './geo-validation';
 
 export interface NADCorrectionRequest {
   lat: number;
@@ -231,6 +232,7 @@ export class MTNNADClient {
       void recordProviderCall({
         integrationSlug: 'mtn-geocode',
         operation: normalizeOperation('POST', this.BASE_URL, 'nad-correct'),
+        province: provinceNameForCoordinates(coordinates),
         durationMs: Date.now() - startedAt,
         success,
         errorCode,
