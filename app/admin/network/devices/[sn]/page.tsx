@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { UnderlineTabs, TabPanel, SectionCard } from '@/components/admin/shared';
-import { DeviceHeader, DeviceStatCards, DeviceSupportNotes, DeviceCustomerLink, DeviceClientList, DeviceActivityLog, DeviceSystemHealth, DeviceTrafficPanel, formatUptime } from '@/components/admin/network/detail';
+import { DeviceHeader, DeviceStatCards, DeviceSupportNotes, DeviceCustomerLink, DeviceClientList, DeviceActivityLog, DeviceSystemHealth, DeviceTrafficPanel, DeviceExportMenu, formatUptime } from '@/components/admin/network/detail';
 import type { DeviceSystemHealthData } from '@/components/admin/network/detail/DeviceSystemHealth';
 import { formatLatency, scoreTone } from '@/components/admin/network/detail/telemetry-format';
 import type { StaDeviceExperience } from '@/lib/ruijie/performance-metrics';
@@ -210,6 +210,8 @@ export default function RuijieDeviceDetailPage({
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('overview');
+  // Mirrors DeviceTrafficPanel's window selection so exports cover the same period.
+  const [trafficHours, setTrafficHours] = useState(24);
 
   // Tunnel state
   const [tunnelLoading, setTunnelLoading] = useState(false);
@@ -438,6 +440,7 @@ export default function RuijieDeviceDetailPage({
         onLaunchTunnel={handleLaunchTunnel}
         onRefresh={handleRefresh}
         refreshing={refreshing}
+        actions={<DeviceExportMenu sn={sn} hours={trafficHours} />}
       />
 
       {/* Main Content */}
@@ -612,7 +615,7 @@ export default function RuijieDeviceDetailPage({
 
         {/* TRAFFIC TAB */}
         <TabPanel id="traffic" activeTab={activeTab} className="mt-6">
-          <DeviceTrafficPanel sn={sn} />
+          <DeviceTrafficPanel sn={sn} onHoursChange={setTrafficHours} />
         </TabPanel>
 
         {/* TUNNEL TAB */}

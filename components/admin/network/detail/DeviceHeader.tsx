@@ -29,6 +29,8 @@ interface DeviceHeaderProps {
   onLaunchTunnel: () => void;
   onRefresh: () => void;
   refreshing?: boolean;
+  /** Extra header actions (e.g. the report download menu), rendered before the icon buttons. */
+  actions?: React.ReactNode;
 }
 
 export function DeviceHeader({
@@ -40,6 +42,7 @@ export function DeviceHeader({
   onLaunchTunnel,
   onRefresh,
   refreshing,
+  actions,
 }: DeviceHeaderProps) {
   const statusConfig = isOnline
     ? { className: 'bg-emerald-50 text-emerald-700', label: 'Online', icon: PiWifiHighBold }
@@ -75,6 +78,7 @@ export function DeviceHeader({
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-2">
+            {actions}
             {/* Grouped icon buttons */}
             <div className="flex border border-slate-200 rounded-lg overflow-hidden bg-white">
               <button
