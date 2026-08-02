@@ -1,4 +1,9 @@
 import { Coordinates } from '../types';
+import {
+  recordProviderCall,
+  normalizeOperation,
+  PROVIDER_ERROR_CODES,
+} from '@/lib/integrations/provider-call-recorder';
 
 const GEOCODE_URL = 'https://mtnsi.mtn.co.za/utils/geocode/gc';
 const GEOCODE_TIMEOUT_MS = 3000;
@@ -32,6 +37,12 @@ export async function mtnGeocode(address: string): Promise<GeocoderResult | null
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), GEOCODE_TIMEOUT_MS);
 
+  // Telemetry — see lib/integrations/provider-call-recorder.ts. The searched
+  // address travels in the POST body and is never recorded.
+  const startedAt = Date.now();
+  let success = false;
+  let errorCode: string | null = null;
+
   try {
     const body = new URLSearchParams({
       pSearch: address,
@@ -51,9 +62,18 @@ export async function mtnGeocode(address: string): Promise<GeocoderResult | null
       signal: controller.signal
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      errorCode =
+        response.status === 429 ? PROVIDER_ERROR_CODES.RATE_LIMITED
+        : response.status >= 500 ? 'SERVICE_UNAVAILABLE'
+        : PROVIDER_ERROR_CODES.PROVIDER_ERROR;
+      return null;
+    }
 
     const data = await response.json();
+    // The call worked. No match for an address is a valid answer, not a failure.
+    success = true;
+
     const results: MTNGeocodeResponse[] = Array.isArray(data) ? data : data?.results ?? [];
 
     if (results.length === 0) return null;
@@ -61,7 +81,12 @@ export async function mtnGeocode(address: string): Promise<GeocoderResult | null
     const best = results[0];
     const lat = parseFloat(best.Y);
     const lng = parseFloat(best.X);
-    if (isNaN(lat) || isNaN(lng)) return null;
+    if (isNaN(lat) || isNaN(lng)) {
+      // Provider returned a result we cannot parse — that is a provider fault.
+      success = false;
+      errorCode = PROVIDER_ERROR_CODES.PROVIDER_ERROR;
+      return null;
+    }
 
     return {
       lat,
@@ -73,9 +98,18 @@ export async function mtnGeocode(address: string): Promise<GeocoderResult | null
       confidence: best.STR_NUM_MATCH === '1' ? 'high' : 'low'
     };
   } catch {
+    errorCode = PROVIDER_ERROR_CODES.TRANSPORT_ERROR;
     return null;
   } finally {
     clearTimeout(timeout);
+    void recordProviderCall({
+      integrationSlug: 'mtn-geocode',
+      operation: normalizeOperation('POST', GEOCODE_URL, 'geocode'),
+      durationMs: Date.now() - startedAt,
+      success,
+      errorCode,
+      cacheHit: false,
+    });
   }
 }
 

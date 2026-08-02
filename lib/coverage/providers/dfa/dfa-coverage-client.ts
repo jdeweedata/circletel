@@ -7,6 +7,12 @@
 
 import axios, { AxiosError } from 'axios';
 import {
+  recordProviderCall,
+  normalizeOperation,
+  PROVIDER_ERROR_CODES,
+} from '@/lib/integrations/provider-call-recorder';
+import { provinceNameForCoordinates } from '@/lib/coverage/mtn/geo-validation';
+import {
   DFACoverageRequest,
   DFACoverageResponse,
   DFACoverageType,
@@ -27,6 +33,57 @@ export class DFACoverageClient {
     'https://utility.arcgis.com/usrsvcs/servers/044304ebfe2140b18e6e50d1af16e9e0/rest/services/Hosted/PublicCoverage/FeatureServer';
   private readonly timeout = 5000;
   private readonly maxNearNetDistance = 200;
+
+  /**
+   * Single chokepoint for every ArcGIS request, so provider telemetry is recorded
+   * once rather than at each call site.
+   *
+   * This client uses **axios**, unlike every other coverage client — which is
+   * exactly why the recorder is a plain transport-agnostic function rather than a
+   * fetch wrapper. A fetch wrapper would have silently missed DFA entirely.
+   *
+   * ArcGIS returns **HTTP 200 with an `{"error": …}` body** on failure, so status
+   * code alone is not a health signal. The existing checkHealth() below has that
+   * bug; this helper does not.
+   *
+   * `params` (which carry the queried geometry) are passed to axios but never to
+   * normalizeOperation, which keeps only method/host/path.
+   */
+  private async request<T>(
+    path: string,
+    config: { params?: unknown; timeout?: number },
+    operation: string,
+    province: string | null = null
+  ) {
+    const url = `${this.baseUrl}${path}`;
+    const startedAt = Date.now();
+    let success = false;
+    let errorCode: string | null = null;
+
+    try {
+      const response = await axios.get<T>(url, { timeout: this.timeout, ...config });
+      const hasErrorEnvelope = Boolean((response.data as { error?: unknown })?.error);
+      success = response.status === 200 && !hasErrorEnvelope;
+      if (!success) errorCode = PROVIDER_ERROR_CODES.PROVIDER_ERROR;
+      return response;
+    } catch (error) {
+      errorCode =
+        axios.isAxiosError(error) && error.code === 'ECONNABORTED'
+          ? PROVIDER_ERROR_CODES.TIMEOUT
+          : PROVIDER_ERROR_CODES.TRANSPORT_ERROR;
+      throw error;
+    } finally {
+      void recordProviderCall({
+        integrationSlug: 'dfa',
+        operation: normalizeOperation('GET', url, operation),
+        province,
+        durationMs: Date.now() - startedAt,
+        success,
+        errorCode,
+        cacheHit: false,
+      });
+    }
+  }
 
   /**
    * Check DFA fiber coverage at a specific address/location
@@ -165,12 +222,9 @@ export class DFACoverageClient {
       outSR: '4326',
     });
 
-    const response = await axios.get<
+    const response = await this.request<
       ArcGISQueryResponse<DFAConnectedBuilding>
-    >(`${this.baseUrl}/2/query`, {
-      params,
-      timeout: this.timeout,
-    });
+    >('/2/query', { params }, 'query:connected', provinceNameForCoordinates({ lat: latitude, lng: longitude }));
 
     if (response.data.features && response.data.features.length > 0) {
       const feature = response.data.features[0];
@@ -201,12 +255,9 @@ export class DFACoverageClient {
       outSR: '4326',
     });
 
-    const response2 = await axios.get<
+    const response2 = await this.request<
       ArcGISQueryResponse<DFAConnectedBuilding>
-    >(`${this.baseUrl}/2/query`, {
-      params: params2,
-      timeout: this.timeout,
-    });
+    >('/2/query', { params: params2 }, 'query:connected-bbox', provinceNameForCoordinates({ lat: latitude, lng: longitude }));
 
     if (response2.data.features && response2.data.features.length > 0) {
       const feature = response2.data.features[0];
@@ -253,12 +304,11 @@ export class DFACoverageClient {
       outSR: '4326',
     });
 
-    const response = await axios.get<ArcGISQueryResponse<DFANearNetBuilding>>(
-      `${this.baseUrl}/1/query`,
-      {
-        params,
-        timeout: this.timeout,
-      }
+    const response = await this.request<ArcGISQueryResponse<DFANearNetBuilding>>(
+      '/1/query',
+      { params },
+      'query:near-net',
+      provinceNameForCoordinates({ lat: latitude, lng: longitude })
     );
 
     if (response.data.features && response.data.features.length > 0) {
@@ -330,13 +380,15 @@ export class DFACoverageClient {
     });
 
     try {
-      const response = await axios.get(
-        `${this.baseUrl}/5/query`,
-        {
-          params,
-          timeout: this.timeout,
-        }
-      );
+      // Fiber-route features are polylines: geometry.paths is an array of paths,
+      // each an array of [lng, lat] pairs. The original call site was untyped
+      // (implicit any); this is the minimum shape the loop below actually reads.
+      const response = await this.request<{
+        features?: Array<{
+          geometry?: { paths?: number[][][] };
+          attributes: { ea1?: string };
+        }>;
+      }>('/5/query', { params }, 'query:fiber-route', provinceNameForCoordinates({ lat: latitude, lng: longitude }));
 
       if (response.data.features && response.data.features.length > 0) {
         let nearestDistance = maxDistance;
@@ -383,15 +435,22 @@ export class DFACoverageClient {
     const startTime = Date.now();
 
     try {
-      const response = await axios.get(
+      const response = await axios.get<{ error?: unknown; id?: unknown; name?: unknown }>(
         `${this.baseUrl}/2?f=json`,
         { timeout: this.timeout }
       );
 
       const responseTime = Date.now() - startTime;
 
+      // ArcGIS returns HTTP 200 with an {"error": {...}} body on failure, so a
+      // status check alone reports healthy while the service returns nothing.
+      // A valid layer-metadata response carries an id/name; require that too.
+      const hasErrorEnvelope = Boolean(response.data?.error);
+      const looksLikeLayerMetadata =
+        response.data?.id !== undefined || response.data?.name !== undefined;
+
       return {
-        healthy: response.status === 200,
+        healthy: response.status === 200 && !hasErrorEnvelope && looksLikeLayerMetadata,
         responseTime
       };
     } catch (error) {
