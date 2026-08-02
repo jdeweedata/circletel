@@ -18,6 +18,10 @@ cd "$ROOT"
 
 # Load env: production secrets often live in .env / .env.production.local
 # (Interstellio). Later files do not override already-set vars from earlier ones.
+#
+# Temporarily disable nounset: .env may contain self-references like
+# DATABASE_URL=$DATABASE_URL which abort under `set -u` when unset.
+set +u
 set -a
 for envfile in .env .env.production.local .env.local; do
   if [[ -f "$envfile" ]]; then
@@ -26,6 +30,7 @@ for envfile in .env .env.production.local .env.local; do
   fi
 done
 set +a
+set -u
 
 export VENDOR_CACHE_DB_PATH="${VENDOR_CACHE_DB_PATH:-$ROOT/data/vendor-cache/vendor-cache.db}"
 mkdir -p "$(dirname "$VENDOR_CACHE_DB_PATH")"
