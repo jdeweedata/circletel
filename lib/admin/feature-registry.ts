@@ -23,6 +23,7 @@ import {
   PiGearBold,
   PiGlobeBold,
   PiGraphBold,
+  PiHardDrivesBold,
   PiHandshakeBold,
   PiImageBold,
   PiLightningBold,
@@ -336,9 +337,13 @@ export const featureSections: NavSection[] = [
         icon: PiWifiHighBold,
         children: [
           { name: 'Devices', href: '/admin/network/devices', icon: PiWifiHighBold },
+          {
+            name: 'Hardware Installations',
+            href: '/admin/network/hardware',
+            icon: PiHardDrivesBold,
+          },
           { name: 'System Health', href: '/admin/network/health', icon: PiPulseBold },
           { name: 'Analytics', href: '/admin/network/analytics', icon: PiChartBarBold },
-          { name: 'Usage Reports', href: '/admin/network/usage-reports', icon: PiFileTextBold },
           { name: 'Network Map', href: '/admin/network/map', icon: PiMapTrifoldBold },
         ],
       },
