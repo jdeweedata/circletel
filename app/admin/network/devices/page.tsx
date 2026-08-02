@@ -19,8 +19,9 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PiArrowsClockwiseBold, PiWarningBold, PiWarningCircleBold } from 'react-icons/pi';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +32,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   DeviceFilters,
   DeviceTable,
@@ -44,6 +53,10 @@ import {
   type NetworkInventory,
 } from '@/components/admin/network/performance';
 import { computeNetworkInventory } from '@/lib/network/performance-aggregates';
+import {
+  DEVICE_TYPE_LABELS,
+  type NetworkDevice,
+} from '@/lib/network/types';
 
 import {
   AdminPage,
@@ -60,6 +73,11 @@ interface DevicesResponse {
     groups: string[];
     models: string[];
   };
+}
+
+interface OmadaDevicesResponse {
+  success?: boolean;
+  devices: NetworkDevice[];
 }
 
 function formatRelativeTime(dateString: string): string {
@@ -94,9 +112,35 @@ export default function RuijieDevicesPage() {
   const [rebootDevice, setRebootDevice] = useState<RuijieListDevice | null>(null);
   const [rebooting, setRebooting] = useState(false);
   const [linkDevice, setLinkDevice] = useState<RuijieListDevice | null>(null);
+  const [omadaDevices, setOmadaDevices] = useState<NetworkDevice[]>([]);
+  const [omadaError, setOmadaError] = useState<string | null>(null);
+  const [omadaLoading, setOmadaLoading] = useState(true);
 
   const [tunnelCount] = useState(0);
   const TUNNEL_LIMIT = 10;
+
+  const fetchOmadaDevices = useCallback(async () => {
+    setOmadaLoading(true);
+    try {
+      const response = await fetch('/api/admin/network/devices?type=omada', {
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        setOmadaError(`Omada devices unavailable (${response.status})`);
+        setOmadaDevices([]);
+        return;
+      }
+      const result = (await response.json()) as OmadaDevicesResponse;
+      setOmadaDevices(result.devices || []);
+      setOmadaError(null);
+    } catch (err) {
+      console.error('Failed to load Omada devices:', err);
+      setOmadaError('Failed to load Omada devices');
+      setOmadaDevices([]);
+    } finally {
+      setOmadaLoading(false);
+    }
+  }, []);
 
   const fetchDevices = useCallback(
     async (isRefresh = false) => {
@@ -130,9 +174,13 @@ export default function RuijieDevicesPage() {
 
   useEffect(() => {
     fetchDevices();
-    const interval = setInterval(() => fetchDevices(), 30000);
+    fetchOmadaDevices();
+    const interval = setInterval(() => {
+      fetchDevices();
+      fetchOmadaDevices();
+    }, 30000);
     return () => clearInterval(interval);
-  }, [fetchDevices]);
+  }, [fetchDevices, fetchOmadaDevices]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -151,7 +199,7 @@ export default function RuijieDevicesPage() {
     try {
       await fetch('/api/ruijie/sync', { method: 'POST', credentials: 'include' });
       await new Promise((r) => setTimeout(r, 2000));
-      await fetchDevices(true);
+      await Promise.all([fetchDevices(true), fetchOmadaDevices()]);
     } catch (err) {
       console.error('Failed to trigger sync:', err);
     } finally {
@@ -228,14 +276,22 @@ export default function RuijieDevicesPage() {
   const inventory: NetworkInventory = useMemo(() => {
     const devices = data?.devices || [];
     const computed = computeNetworkInventory(devices);
+    const omadaGateways = omadaDevices.filter((d) => d.device_type === 'omada_gateway').length;
+    const omadaSwitches = omadaDevices.filter((d) => d.device_type === 'omada_switch');
+    const omadaSwitchOnline = omadaSwitches.filter(
+      (d) => d.status === 'active' || d.status === 'deployed'
+    ).length;
     return {
-      gateway: computed.gateway,
+      gateway: computed.gateway + omadaGateways,
       ap: computed.ap,
-      switch: { online: computed.switchOnline, total: computed.switchTotal },
+      switch: {
+        online: computed.switchOnline + omadaSwitchOnline,
+        total: computed.switchTotal + omadaSwitches.length,
+      },
       client: computed.client,
       guest: computed.guest,
     };
-  }, [data?.devices]);
+  }, [data?.devices, omadaDevices]);
 
   if (loading) {
     return (
@@ -365,6 +421,103 @@ export default function RuijieDevicesPage() {
           delta={`${withCpu} with CPU · ${totalClients} clients`}
         />
       </div>
+
+      <Card className="border border-teal-200/80 bg-teal-50/30 shadow-sm rounded-xl">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle className="text-base">Omada gateways & switches</CardTitle>
+              <CardDescription>
+                TP-Link Omada CPE for Delphius Midrand and New ExGen Rivonia ·{' '}
+                {omadaLoading
+                  ? 'Loading…'
+                  : `${omadaDevices.filter((d) => d.device_type === 'omada_gateway').length} gateways · ${omadaDevices.filter((d) => d.device_type === 'omada_switch').length} switches`}
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchOmadaDevices()}
+                disabled={omadaLoading}
+              >
+                <PiArrowsClockwiseBold
+                  className={`w-4 h-4 mr-2 ${omadaLoading ? 'animate-spin' : ''}`}
+                />
+                Reload Omada
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/admin/network/hardware?source=omada">View in Hardware</Link>
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {omadaError ? (
+            <p className="text-sm text-red-600 py-4">{omadaError}</p>
+          ) : omadaLoading && omadaDevices.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">Loading Omada devices…</p>
+          ) : omadaDevices.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">
+              No Omada gateways or switches found in inventory.
+            </p>
+          ) : (
+            <div className="overflow-x-auto rounded-lg border bg-white">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Device</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Site</TableHead>
+                    <TableHead>Model</TableHead>
+                    <TableHead>Serial</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>PPPoE</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {omadaDevices.map((device) => (
+                    <TableRow key={device.id}>
+                      <TableCell className="font-medium">{device.device_name}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="font-normal">
+                          {DEVICE_TYPE_LABELS[device.device_type] || device.device_type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {device.customer_name || '—'}
+                      </TableCell>
+                      <TableCell>{device.site_name || '—'}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {device.model || '—'}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {device.serial_number}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={
+                            device.status === 'active' || device.status === 'deployed'
+                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                              : 'border-slate-200 bg-slate-50 text-slate-600'
+                          }
+                        >
+                          {device.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {device.pppoe_username || '—'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <DeviceFilters
         search={search}
