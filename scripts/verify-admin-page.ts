@@ -19,6 +19,9 @@
  *   --base=http://localhost:3002   dev server origin (default)
  *   --out=<dir>                    screenshot directory (default .claude/scratch/verify)
  *   --widths=1440,375              viewport widths to capture (default)
+ *   --settle=8000                  extra ms to wait after networkidle, for pages
+ *                                  whose data lands after the network goes quiet
+ *                                  (skeletons otherwise screenshot as "done")
  */
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -30,6 +33,7 @@ interface Options {
   base: string;
   out: string;
   widths: number[];
+  settleMs: number;
 }
 
 function parseArgs(argv: string[]): Options {
@@ -50,6 +54,7 @@ function parseArgs(argv: string[]): Options {
       .split(',')
       .map((value) => Number(value.trim()))
       .filter((value) => Number.isFinite(value) && value > 0),
+    settleMs: Number(flag('settle') ?? 0) || 0,
   };
 }
 
@@ -163,6 +168,10 @@ async function main(): Promise<void> {
           );
         }
       }
+
+      // networkidle can resolve while a page is still showing skeletons, so an
+      // unpopulated capture passes silently. Give slow dashboards time to land.
+      if (options.settleMs > 0) await page.waitForTimeout(options.settleMs);
 
       const file = resolve(outDir, `${slug}-${width}.png`);
       await page.screenshot({ path: file, fullPage: width >= 768 });
