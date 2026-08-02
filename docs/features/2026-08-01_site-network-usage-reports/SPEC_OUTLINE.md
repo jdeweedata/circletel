@@ -56,7 +56,7 @@ One **primary** byte series per report. Never sum Ruijie + Interstellio.
 | Period | Primary |
 |--------|---------|
 | Weekly + custom ≤7 days | **Ruijie** hourly rollups when site→device→`group_id` linked and window covered; else **Interstellio** if mapped |
-| Monthly / 60-day / custom >7 days | **Interstellio** when mapped (BNG). If **no Interstellio** (MTN breakout / TDX-locked MikroTik / unmapped): **Ruijie** for hours that exist, with AP/group + ~14d retention footnote (month may be partial) |
+| Monthly / 60-day / custom >7 days | **Interstellio** when mapped (BNG). If **no Interstellio** (MTN breakout / TDX-locked MikroTik / unmapped): **Ruijie per-device** for hours that exist, labelled partial (month will usually be mostly gap — see retention below) |
 | Neither / incomplete | Site **not available** → ZIP skip slip |
 
 Never invent Interstellio for MTN/TDX sites.
@@ -67,6 +67,38 @@ Never invent Interstellio for MTN/TDX sites.
 - Footer: generated-at (SAST), period bounds, “Figures are from the labelled source only; do not combine with other network layers.”
 - Short periods with both links: optional secondary panel “BNG / Interstellio (same period)” — not summed into primary.
 - Longer periods: Interstellio panel only.
+
+**Ruijie retention — measured 2026-08-02, not assumed**
+
+An earlier draft of this section cited "~14d retention". That is wrong. Probed live against four
+Unjani APs:
+
+| Data type | Endpoint | History available |
+|-----------|----------|-------------------|
+| Hourly flow (bytes) | `/flow/show/hour` | **~3–4 days** |
+| Device logs (reboot / on-offline) | `devicemgtlogs` | 10 most recent events (count-capped, not time-capped) |
+| Performance (CPU, memory, flash) | `current_performance` | **None — live snapshot** |
+| Clients / STA (RSSI, rates, band) | `/sta/sta_users` | **None — live associations** |
+
+Three consequences the report design depends on:
+
+1. **Only flow has history at all.** Anything performance- or client-related must be sampled into
+   CircleTel tables or it is lost. There is nothing to backfill from, ever.
+2. **The window is date-bucketed, not rolling.** All four APs cut off at the identical instant
+   (`2026-07-29T22:00:00Z` = midnight SAST), and the boundary did not move across a 3.5-hour
+   re-probe. So you hold ~4 days just before local midnight and ~3 just after — design for the
+   worst case.
+3. **The API zero-pads instead of truncating.** A 90-day request returns a complete 12,960-point
+   grid that is ~88% zeros, indistinguishable from genuinely idle buckets. Never treat a long-window
+   Ruijie response as covered data; use the per-day coverage flags (`core.dailyCovered`).
+
+This makes `ruijie_traffic_rollups` the **system of record**, not a cache — hence 90-day retention
+there (#706) and the sync health alert (#707). A collection outage longer than ~3 days is permanent
+data loss.
+
+**Per-device, not per-group** (#698 / #701 / #702): rollups are keyed by `device_sn`. A shared
+group series must never be presented as one site's traffic — 20 Unjani sites resolve to 2 groups,
+so a group figure is roughly ten clinics combined, sourced from one arbitrary AP.
 
 Research: `docs/analysis/2026-07-31-site-usage-report-circletel-telemetry.md`
 
