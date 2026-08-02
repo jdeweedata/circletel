@@ -25,6 +25,8 @@ export type HourlyTrafficPoint = {
 export type HourlyRollupUpsert = {
   group_id: string;
   group_name: string | null;
+  /** Serial of the device this hour's flow came from — part of the unique key. */
+  device_sn: string;
   captured_at: string;
   hours_window: number;
   total_rx_bytes: number;
@@ -77,6 +79,9 @@ export function buildHourlyRollupUpserts(params: {
       return {
         group_id: params.groupId,
         group_name: params.groupName,
+        // The device this flow belongs to. Group totals are the SUM across
+        // device_sn — one AP's series is never the group's, nor a site's (#702).
+        device_sn: params.flowSn,
         captured_at,
         hours_window: HOURLY_ROLLUP_WINDOW,
         total_rx_bytes: Math.round(rx),

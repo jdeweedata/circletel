@@ -1,9 +1,13 @@
 /**
  * Ruijie Traffic Rollup
  *
- * After each device sync, fetch hourly flow per group (via a representative
- * device SN — API V2.0.3 §2.6.2) and persist one hours_window=1 row per hour
- * so Analytics charts have a usable series (not a single 24h window blob).
+ * After each device sync, fetch hourly flow for EVERY device (API V2.0.3 §2.6.2
+ * is per-SN) and persist one hours_window=1 row per device per hour, so a site
+ * can be attributed its own AP and a group total is a real sum.
+ *
+ * Until #702 this polled one representative device per group and stored its
+ * flow as the group's — which meant ~10 Unjani clinics shared one arbitrary
+ * clinic's traffic. See supabase/migrations/20260802090000_*.
  *
  * Trigger: ruijie/sync.completed
  *
@@ -17,12 +21,13 @@
 import { inngest } from '../client';
 import { ruijieSyncCompleted } from '../events/ruijie';
 import { createClient } from '@/lib/supabase/server';
-import { getNetworkTraffic, pickFlowDeviceSn } from '@/lib/ruijie/client';
+import { getNetworkTraffic } from '@/lib/ruijie/client';
 import { buildHourlyRollupUpserts } from '@/lib/network/analytics-aggregates';
 
 const HOURS_WINDOW = 24;
 const RETENTION_DAYS = 14;
-const GROUP_DELAY_MS = 600;
+/** Pace between per-device flow calls — the fleet is ~25 devices per sync. */
+const DEVICE_DELAY_MS = 600;
 /** Let Ruijie cool down after device metric enrichment on the same event. */
 const POST_SYNC_COOLDOWN_MS = 12_000;
 const EMPTY_RETRY_DELAY_MS = 5_000;
@@ -84,60 +89,68 @@ export const ruijieTrafficRollupFunction = inngest.createFunction(
       let inserted = 0;
 
       for (const group of groups) {
-        try {
-          const { data: devices } = await supabase
-            .from('ruijie_device_cache')
-            .select('sn, status, model')
-            .eq('group_id', group.group_id);
+        const { data: devices } = await supabase
+          .from('ruijie_device_cache')
+          .select('sn, status, model')
+          .eq('group_id', group.group_id);
 
-          const flowSn = pickFlowDeviceSn(devices || []);
-          if (!flowSn) {
-            console.warn(`[TrafficRollup] No device SN for group ${group.group_id}`);
-            continue;
-          }
+        const serials = (devices || [])
+          .map((device) => device.sn as string | null)
+          .filter((sn): sn is string => Boolean(sn));
 
-          let traffic = await getNetworkTraffic({ sn: flowSn, hours: HOURS_WINDOW });
-
-          // Ruijie flow can return empty under load right after sync — one retry.
-          if (!traffic.dataPoints.length) {
-            console.warn(
-              `[TrafficRollup] Empty flow for group ${group.group_id} sn=${flowSn}; retrying once`
-            );
-            await new Promise((r) => setTimeout(r, EMPTY_RETRY_DELAY_MS));
-            traffic = await getNetworkTraffic({ sn: flowSn, hours: HOURS_WINDOW });
-          }
-
-          const upserts = buildHourlyRollupUpserts({
-            groupId: group.group_id,
-            groupName: group.group_name,
-            flowSn,
-            dataPoints: traffic.dataPoints,
-          });
-
-          if (upserts.length === 0) {
-            console.warn(
-              `[TrafficRollup] No hourly points for group ${group.group_id} (sn=${flowSn}, totalBytes=${traffic.totalBytes}, rawPoints=${traffic.dataPoints.length})`
-            );
-            continue;
-          }
-
-          const { error } = await supabase.from('ruijie_traffic_rollups').upsert(upserts, {
-            onConflict: 'group_id,captured_at,hours_window',
-          });
-
-          if (error) {
-            console.error(`[TrafficRollup] Upsert failed for ${group.group_id}:`, error);
-          } else {
-            inserted += upserts.length;
-            console.log(
-              `[TrafficRollup] group=${group.group_id} name=${group.group_name} sn=${flowSn} upserts=${upserts.length} bytes=${traffic.totalBytes}`
-            );
-          }
-        } catch (err) {
-          console.error(`[TrafficRollup] Group ${group.group_id} failed:`, err);
+        if (serials.length === 0) {
+          console.warn(`[TrafficRollup] No device SNs for group ${group.group_id}`);
+          continue;
         }
 
-        await new Promise((r) => setTimeout(r, GROUP_DELAY_MS));
+        // Every device, not a representative — the whole point of #702.
+        for (const sn of serials) {
+          try {
+            let traffic = await getNetworkTraffic({ sn, hours: HOURS_WINDOW });
+
+            // Ruijie flow can return empty under load right after sync — one retry.
+            if (!traffic.dataPoints.length) {
+              console.warn(
+                `[TrafficRollup] Empty flow for sn=${sn} (group ${group.group_id}); retrying once`
+              );
+              await new Promise((r) => setTimeout(r, EMPTY_RETRY_DELAY_MS));
+              traffic = await getNetworkTraffic({ sn, hours: HOURS_WINDOW });
+            }
+
+            const upserts = buildHourlyRollupUpserts({
+              groupId: group.group_id,
+              groupName: group.group_name,
+              flowSn: sn,
+              dataPoints: traffic.dataPoints,
+            });
+
+            if (upserts.length === 0) {
+              console.warn(
+                `[TrafficRollup] No hourly points for sn=${sn} (group=${group.group_id}, totalBytes=${traffic.totalBytes}, rawPoints=${traffic.dataPoints.length})`
+              );
+              continue;
+            }
+
+            const { error } = await supabase
+              .from('ruijie_traffic_rollups')
+              .upsert(upserts, {
+                onConflict: 'group_id,device_sn,captured_at,hours_window',
+              });
+
+            if (error) {
+              console.error(`[TrafficRollup] Upsert failed for sn=${sn}:`, error);
+            } else {
+              inserted += upserts.length;
+              console.log(
+                `[TrafficRollup] group=${group.group_id} sn=${sn} upserts=${upserts.length} bytes=${traffic.totalBytes}`
+              );
+            }
+          } catch (err) {
+            console.error(`[TrafficRollup] Device ${sn} failed:`, err);
+          }
+
+          await new Promise((r) => setTimeout(r, DEVICE_DELAY_MS));
+        }
       }
 
       return inserted;
