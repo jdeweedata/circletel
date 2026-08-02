@@ -565,13 +565,11 @@ export class ZohoBooksSyncOrchestrator {
 
     // Find completed payments needing sync (include failed for payment catch-up
     // when CT is paid but Books payment was never recorded).
+    // NOTE: no nested customers join — payment_transactions has no FK to customers
+    // in PostgREST schema cache; resolve customer/invoice manually below.
     const { data: payments, error } = await supabase
       .from('payment_transactions')
-      .select(`
-        *,
-        customer:customers(id, email, zoho_books_contact_id),
-        invoice:customer_invoices(id, invoice_number, zoho_books_invoice_id)
-      `)
+      .select('*')
       .eq('status', 'completed')
       .is('zoho_books_payment_id', null)
       .or(
@@ -601,11 +599,40 @@ export class ZohoBooksSyncOrchestrator {
       try {
         stats.processed++;
 
+        // Resolve invoice via customer_invoice_id or legacy invoice_id
+        const invoiceId =
+          payment.customer_invoice_id || payment.invoice_id || null;
+        let invoice: {
+          id: string;
+          invoice_number: string | null;
+          zoho_books_invoice_id: string | null;
+          customer_id: string | null;
+        } | null = null;
+        if (invoiceId) {
+          const { data: inv } = await supabase
+            .from('customer_invoices')
+            .select('id, invoice_number, zoho_books_invoice_id, customer_id')
+            .eq('id', invoiceId)
+            .maybeSingle();
+          invoice = inv;
+        }
+
+        const customerId = payment.customer_id || invoice?.customer_id || null;
+        let booksContactId: string | null = null;
+        if (customerId) {
+          const { data: cust } = await supabase
+            .from('customers')
+            .select('id, email, zoho_books_contact_id')
+            .eq('id', customerId)
+            .maybeSingle();
+          booksContactId = cust?.zoho_books_contact_id ?? null;
+        }
+
         // Check if customer has Zoho Books contact ID
-        if (!payment.customer?.zoho_books_contact_id) {
+        if (!booksContactId) {
           zohoLogger.warn('[BooksOrchestrator] Payment customer not synced', {
             payment_id: payment.id,
-            customer_id: payment.customer_id,
+            customer_id: customerId,
           });
 
           await supabase
@@ -634,19 +661,22 @@ export class ZohoBooksSyncOrchestrator {
 
         // Build payment payload
         const paymentPayload = {
-          customer_id: payment.customer.zoho_books_contact_id,
+          customer_id: booksContactId,
           payment_mode: this.mapPaymentMethod(payment.payment_method || 'other'),
           amount: parseFloat(payment.amount || 0),
           date: payment.completed_at
             ? new Date(payment.completed_at).toISOString().split('T')[0]
             : new Date().toISOString().split('T')[0],
-          reference_number: payment.transaction_reference || payment.id.substring(0, 8),
+          reference_number:
+            payment.reference ||
+            payment.transaction_reference ||
+            payment.id.substring(0, 8),
           description: payment.description || `Payment via ${payment.payment_method}`,
           // Link to invoice if synced
-          invoices: payment.invoice?.zoho_books_invoice_id
+          invoices: invoice?.zoho_books_invoice_id
             ? [
                 {
-                  invoice_id: payment.invoice.zoho_books_invoice_id,
+                  invoice_id: invoice.zoho_books_invoice_id,
                   amount_applied: parseFloat(payment.amount || 0),
                 },
               ]

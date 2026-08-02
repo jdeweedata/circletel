@@ -83,11 +83,20 @@ export async function runThreeWayBankMatch(
         );
         if (!statement.success) continue;
         for (const [idx, t] of statement.transactions.entries()) {
-          if (!(t.effect === '+' || t.amount > 0)) continue;
+          const amount = Math.abs(Number(t.amount) || 0);
+          const desc = String(t.description || '').toLowerCase();
+          const code = String((t as { type?: string }).type || '').toUpperCase();
+          // Skip statement chrome and zero-value authorisations
+          if (amount <= 0) continue;
+          if (code === 'OBL' || code === 'CBL') continue;
+          if (desc.includes('opening balance') || desc.includes('closing balance')) {
+            continue;
+          }
+          if (!(t.effect === '+' || Number(t.amount) > 0)) continue;
           netcashLines.push({
-            id: `nc-${day}-${t.reference || idx}-${t.amount}`,
+            id: `nc-${day}-${t.reference || idx}-${amount}`,
             date: (t.date || day).slice(0, 10),
-            amount: Math.abs(Number(t.amount) || 0),
+            amount,
             reference: t.reference || t.accountReference || null,
             description: t.description || null,
           });
