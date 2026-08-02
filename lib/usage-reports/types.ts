@@ -34,6 +34,14 @@ export interface CoreUnavailableDiagnosis {
   ruijieLinked: boolean;
   /** That group has at least one rollup row inside the report window. */
   ruijieCoversWindow: boolean;
+  /**
+   * Whether the Ruijie series is this site's alone. False while
+   * `ruijie_traffic_rollups` is keyed by `group_id` — roughly ten clinics share
+   * one representative AP's flow, so it cannot stand in for a single site
+   * (#698). Distinct from `ruijieLinked`: the device IS linked, the data just
+   * is not per-site. Flips true when per-device collection lands (#702).
+   */
+  ruijiePerDeviceSeries: boolean;
 }
 
 export type StaffWifiState =

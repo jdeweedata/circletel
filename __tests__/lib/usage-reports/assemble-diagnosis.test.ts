@@ -65,6 +65,7 @@ describe('assembleSiteUsageReport — unavailability diagnosis', () => {
       interstellioMapped: false,
       ruijieLinked: false,
       ruijieCoversWindow: false,
+      ruijiePerDeviceSeries: false,
     };
 
     const result = await assembleSiteUsageReport({
@@ -87,6 +88,7 @@ describe('assembleSiteUsageReport — unavailability diagnosis', () => {
       interstellioMapped: false,
       ruijieLinked: true,
       ruijieCoversWindow: false,
+      ruijiePerDeviceSeries: false,
     };
 
     const result = await assembleSiteUsageReport({
@@ -112,6 +114,7 @@ describe('assembleSiteUsageReport — unavailability diagnosis', () => {
         interstellioMapped: false,
         ruijieLinked: false,
         ruijieCoversWindow: false,
+        ruijiePerDeviceSeries: false,
       })), loadSite: async () => null },
     });
 

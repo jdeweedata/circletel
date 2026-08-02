@@ -31,6 +31,12 @@ export interface CoreTrafficAggregate {
 export interface RuijieHourlyLoad {
   groupId: string | null;
   rows: RuijieHourlyRow[];
+  /**
+   * False while rollups are group-keyed — see `selectCorePrimarySource`. Kept as
+   * a property of the load rather than a constant so #702 can flip it per row
+   * source without touching the selection rule.
+   */
+  perDeviceSeries: boolean;
 }
 
 export const CORE_SOURCE_LABEL: Record<CoreTrafficSource, string> = {
@@ -44,16 +50,25 @@ export function selectCorePrimarySource(input: {
   ruijieLinked: boolean;
   ruijieCoversWindow: boolean;
   interstellioMapped: boolean;
+  /**
+   * Whether the Ruijie series belongs to this site alone. `ruijie_traffic_rollups`
+   * is keyed by `group_id` and holds one representative AP's flow, so ~10 clinics
+   * share a figure — it must never be presented as one site's traffic (#698).
+   * Flips true once per-device collection lands (#702).
+   */
+  ruijiePerDeviceSeries: boolean;
 }): CoreTrafficSource {
-  const ruijieOk = input.ruijieLinked && input.ruijieCoversWindow;
+  const ruijieOk =
+    input.ruijieLinked && input.ruijieCoversWindow && input.ruijiePerDeviceSeries;
 
   if (input.isShortPeriod) {
     if (ruijieOk) return 'ruijie_hourly';
     return input.interstellioMapped ? 'interstellio_daily' : 'unavailable';
   }
 
-  // Long periods: prefer Interstellio (BNG accounting). MTN / TDX sites with no
-  // Interstellio fall back to Ruijie AP/group rollups for hours that exist.
+  // Long periods: prefer Interstellio (BNG accounting). Sites with no
+  // Interstellio fall back to Ruijie for the hours that exist — but only once
+  // that series is per-device; a shared group figure is never site traffic.
   if (input.interstellioMapped) return 'interstellio_daily';
   if (ruijieOk) return 'ruijie_hourly';
   return 'unavailable';
@@ -246,7 +261,7 @@ export async function loadRuijieHourlyRows(
 
   if (deviceError) throw deviceError;
   const serial = device?.ruijie_device_sn as string | null | undefined;
-  if (!serial) return { groupId: null, rows: [] };
+  if (!serial) return { groupId: null, rows: [], perDeviceSeries: false };
 
   const { data: cachedDevice, error: cacheError } = await supabase
     .from('ruijie_device_cache')
@@ -257,7 +272,7 @@ export async function loadRuijieHourlyRows(
 
   if (cacheError) throw cacheError;
   const groupId = cachedDevice?.group_id as string | null | undefined;
-  if (!groupId) return { groupId: null, rows: [] };
+  if (!groupId) return { groupId: null, rows: [], perDeviceSeries: false };
 
   const { data: rows, error: rollupError } = await supabase
     .from('ruijie_traffic_rollups')
@@ -271,7 +286,12 @@ export async function loadRuijieHourlyRows(
     .order('captured_at', { ascending: true });
 
   if (rollupError) throw rollupError;
-  return { groupId, rows: (rows ?? []) as RuijieHourlyRow[] };
+  return {
+    groupId,
+    rows: (rows ?? []) as RuijieHourlyRow[],
+    // Group-keyed table: no per-site series exists yet (#702).
+    perDeviceSeries: false,
+  };
 }
 
 export async function loadInterstellioDailyEntries(
@@ -311,12 +331,17 @@ export async function assembleCoreTraffic(
   const needsRuijie = period.isShortPeriod || subscriberId === null;
   const ruijie = needsRuijie
     ? await loadRuijieHourlyRows(supabase, siteId, period.startUtc, period.endUtc)
-    : ({ groupId: null, rows: [] } satisfies RuijieHourlyLoad);
+    : ({
+        groupId: null,
+        rows: [],
+        perDeviceSeries: false,
+      } satisfies RuijieHourlyLoad);
 
   const diagnosis = {
     interstellioMapped: subscriberId !== null,
     ruijieLinked: ruijie.groupId !== null,
     ruijieCoversWindow: ruijie.rows.length > 0,
+    ruijiePerDeviceSeries: ruijie.perDeviceSeries,
   };
 
   const source = selectCorePrimarySource({
