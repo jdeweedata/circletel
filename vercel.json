@@ -73,6 +73,10 @@
       "maxDuration": 120,
       "memory": 512
     },
+    "app/api/cron/ruijie-sync-health/route.ts": {
+      "maxDuration": 60,
+      "memory": 512
+    },
     "app/api/cron/payment-sync-monitor/route.ts": {
       "maxDuration": 60,
       "memory": 512
@@ -186,6 +190,10 @@
     {
       "path": "/api/cron/payment-sync-retry",
       "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/ruijie-sync-health",
+      "schedule": "20 */4 * * *"
     },
     {
       "path": "/api/cron/payment-sync-monitor",
