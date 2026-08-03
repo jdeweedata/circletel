@@ -81,6 +81,15 @@ export {
   type F1LeadNotificationResult,
 } from './flows/f1-lead-notifications';
 
+// WhatsApp ↔ Zoho Desk support bridge
+export {
+  handleInboundWhatsAppToDesk,
+  syncDeskCommentsToWhatsApp,
+  mintDeskAccessToken,
+  WA_IN_PREFIX,
+  WA_OUT_MARKER,
+} from './desk-bridge';
+
 export type {
   F1LeadQualificationResponse,
   WhatsAppFlowSession,
