@@ -1,7 +1,8 @@
 /**
- * Unit tests for WhatsApp Desk bridge comment filtering rules.
- * Pure logic mirrored from desk-bridge (keep in sync with WA_IN_PREFIX / WA_OUT_MARKER).
+ * Unit tests for WhatsApp Desk bridge comment filtering / reply extraction.
  */
+
+import { extractAgentReplyBody } from '../desk-bridge';
 
 const WA_IN_PREFIX = '[WA-IN]';
 const WA_OUT_MARKER = '[WA-OUT-SYNCED]';
@@ -59,5 +60,25 @@ describe('WhatsApp Desk bridge comment sync filter', () => {
     expect(shouldSyncCommentToWhatsApp({ isPublic: true, content: '   ' })).toBe(
       false
     );
+  });
+});
+
+describe('extractAgentReplyBody', () => {
+  it('keeps the agent reply and strips Desk quoted history', () => {
+    const raw = [
+      'Hi Jeffrey, we can help with your line.',
+      '',
+      '--- on Tue, 04 Aug 2026 Jeffrey NewGen wrote ---',
+      '[WA-IN] From: Jeffrey NewGen I need help',
+    ].join('\n');
+    expect(extractAgentReplyBody(raw)).toBe(
+      'Hi Jeffrey, we can help with your line.'
+    );
+  });
+
+  it('strips CSAT chrome', () => {
+    const raw =
+      'Thanks for contacting us.\n\nHow would you rate our customer service?\nGood\nBad';
+    expect(extractAgentReplyBody(raw)).toBe('Thanks for contacting us.');
   });
 });

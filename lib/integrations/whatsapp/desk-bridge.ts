@@ -309,9 +309,15 @@ export async function handleInboundWhatsAppToDesk(
     const firstName =
       nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : undefined;
 
+    const agentInstructions =
+      'AGENT REPLY (WhatsApp bridge)\n' +
+      '1. Best: add a Public Comment with reply text only (no quotes) — synced to WhatsApp ~1 min.\n' +
+      '2. Or click Send — the reply is synced the same way. Email To wa-*@whatsapp.circletel.local is NOT a real inbox.\n' +
+      '3. Do not include CSAT / quoted history in the reply body if you can avoid it.';
+
     const ticketPayload: Record<string, unknown> = {
       subject: `${SUBJECT_PREFIX} ${displayPhone}`,
-      description: `${inboundComment}\n\n---\nChannel: WhatsApp Cloud API bridge\nWA ID: ${waFrom}`,
+      description: `${inboundComment}\n\n---\n${agentInstructions}\n---\nChannel: WhatsApp Cloud API bridge\nWA ID: ${waFrom}`,
       departmentId,
       priority: 'Medium',
       status: 'Open',
@@ -408,8 +414,136 @@ function shouldSyncCommentToWhatsApp(comment: DeskComment): boolean {
   return true;
 }
 
+type OutboundCandidate = {
+  id: string;
+  text: string;
+  timestamp: number;
+  source: 'comment' | 'conversation';
+};
+
+/** Strip Desk email quoted history / CSAT chrome so only the agent reply goes to WhatsApp. */
+export function extractAgentReplyBody(raw: string): string {
+  let text = stripHtml(raw || '');
+  // Cut quoted history common in Desk email Send
+  text = text.split(/\n---\s*on\s+/i)[0];
+  text = text.split(/\nOn .+ wrote:/i)[0];
+  text = text.split(/\n\[WA-IN\]/)[0];
+  text = text.split(/\nChannel:\s*WhatsApp Cloud API bridge/i)[0];
+  // Drop CSAT prompt blocks agents often leave in
+  text = text.replace(/How would you rate our customer service\?[\s\S]*$/i, '');
+  text = text.replace(/\bGood\b\s*\bBad\b[\s\S]*$/i, '');
+  return text.trim();
+}
+
+type DeskConversationThread = {
+  id: string;
+  direction?: string;
+  channel?: string;
+  content?: string;
+  summary?: string;
+  createdTime?: string;
+  author?: { name?: string; type?: string } | null;
+  channelRelatedInfo?: { messages?: string } | null;
+};
+
+async function fetchOutboundConversationCandidates(
+  accessToken: string,
+  ticketId: string
+): Promise<OutboundCandidate[]> {
+  const list = await deskRequest<{ data: DeskConversationThread[] }>(
+    accessToken,
+    `/tickets/${ticketId}/conversations?limit=50`
+  );
+  if (!list.success || !list.data?.data?.length) return [];
+
+  const out: OutboundCandidate[] = [];
+
+  for (const item of list.data.data) {
+    const direction = (item.direction || '').toUpperCase();
+    if (direction && direction !== 'OUT') continue;
+
+    // Prefer nested messages when Desk only returns a thread shell
+    let bodies: Array<{ id: string; text: string; ts: string }> = [];
+    const messagesUrl = item.channelRelatedInfo?.messages;
+    if (messagesUrl) {
+      const path = messagesUrl.replace(/^https?:\/\/[^/]+\/api\/v1/, '');
+      const msgs = await deskRequest<{
+        data: Array<{
+          id: string;
+          direction?: string;
+          summary?: string | null;
+          content?: string | null;
+          createdTime?: string;
+        }>;
+      }>(accessToken, path.startsWith('/') ? path : `/${path}`);
+      if (msgs.success && msgs.data?.data) {
+        for (const m of msgs.data.data) {
+          if ((m.direction || '').toUpperCase() === 'IN') continue;
+          const raw = m.summary || m.content || '';
+          if (!raw) continue;
+          bodies.push({
+            id: m.id,
+            text: extractAgentReplyBody(raw),
+            ts: m.createdTime || item.createdTime || '',
+          });
+        }
+      }
+    }
+
+    if (!bodies.length) {
+      const raw = item.content || item.summary || '';
+      if (raw && (!direction || direction === 'OUT')) {
+        bodies.push({
+          id: item.id,
+          text: extractAgentReplyBody(raw),
+          ts: item.createdTime || '',
+        });
+      }
+    }
+
+    for (const b of bodies) {
+      if (!b.text) continue;
+      if (b.text.startsWith(WA_IN_PREFIX) || b.text.includes(WA_OUT_MARKER)) continue;
+      // Skip pure inbound description echoes
+      if (b.text.includes('WhatsApp Cloud API bridge') && b.text.includes('[WA-IN]')) {
+        continue;
+      }
+      out.push({
+        id: `conv:${b.id}`,
+        text: b.text,
+        timestamp: Date.parse(b.ts) || 0,
+        source: 'conversation',
+      });
+    }
+  }
+
+  return out;
+}
+
+async function fetchOutboundCommentCandidates(
+  accessToken: string,
+  ticketId: string
+): Promise<OutboundCandidate[]> {
+  const commentsResult = await deskRequest<{ data: DeskComment[] }>(
+    accessToken,
+    `/tickets/${ticketId}/comments?limit=50`
+  );
+  if (!commentsResult.success || !commentsResult.data?.data) return [];
+
+  return commentsResult.data.data
+    .filter((c) => shouldSyncCommentToWhatsApp(c))
+    .map((c) => ({
+      id: `comment:${c.id}`,
+      text: extractAgentReplyBody(commentPlainText(c)),
+      timestamp: Date.parse(c.commentedTime || c.createdTime || '') || 0,
+      source: 'comment' as const,
+    }))
+    .filter((c) => !!c.text);
+}
+
 /**
- * Sync new public Desk comments on open WA threads out to WhatsApp.
+ * Sync agent replies on open WA threads out to WhatsApp.
+ * Sources: public Desk comments AND email/conversation Send replies.
  */
 export async function syncDeskCommentsToWhatsApp(): Promise<{
   threadsChecked: number;
@@ -455,63 +589,49 @@ export async function syncDeskCommentsToWhatsApp(): Promise<{
   }
 
   for (const thread of threads as DeskThreadRow[]) {
-    const commentsResult = await deskRequest<{ data: DeskComment[] }>(
-      accessToken,
-      `/tickets/${thread.desk_ticket_id}/comments?limit=50`
+    const [fromComments, fromConversations] = await Promise.all([
+      fetchOutboundCommentCandidates(accessToken, thread.desk_ticket_id),
+      fetchOutboundConversationCandidates(accessToken, thread.desk_ticket_id),
+    ]);
+
+    const candidates = [...fromComments, ...fromConversations].sort(
+      (a, b) => a.timestamp - b.timestamp
     );
-
-    if (!commentsResult.success) {
-      errors.push(
-        `ticket ${thread.desk_ticket_id}: ${commentsResult.error || 'comments_failed'}`
-      );
-      continue;
-    }
-
-    const comments = commentsResult.data?.data || [];
-    // Oldest first so replies send in agent order
-    const chronological = [...comments].sort((a, b) => {
-      const at = Date.parse(a.commentedTime || a.createdTime || '') || 0;
-      const bt = Date.parse(b.commentedTime || b.createdTime || '') || 0;
-      return at - bt;
-    });
 
     let cursor = thread.last_synced_comment_id;
     let sawCursor = cursor == null;
     let threadFailed = false;
 
-    for (const comment of chronological) {
+    for (const candidate of candidates) {
       if (!sawCursor) {
-        if (comment.id === cursor) {
+        if (candidate.id === cursor) {
           sawCursor = true;
         }
         continue;
       }
 
-      if (!shouldSyncCommentToWhatsApp(comment)) {
-        cursor = comment.id;
-        continue;
-      }
-
-      const text = commentPlainText(comment);
-      const sendResult = await whatsAppService.sendText(thread.wa_from, text);
+      const sendResult = await whatsAppService.sendText(
+        thread.wa_from,
+        candidate.text
+      );
 
       if (!sendResult.success) {
         errors.push(
-          `ticket ${thread.desk_ticket_id} comment ${comment.id}: ${sendResult.error}`
+          `ticket ${thread.desk_ticket_id} ${candidate.id}: ${sendResult.error}`
         );
         threadFailed = true;
         break;
       }
 
       messagesSent += 1;
-      cursor = comment.id;
+      cursor = candidate.id;
 
       await deskRequest(
         accessToken,
         `/tickets/${thread.desk_ticket_id}/comments`,
         'POST',
         {
-          content: `${WA_OUT_MARKER} Sent to WhatsApp (${sendResult.messageId || 'ok'})`,
+          content: `${WA_OUT_MARKER} Sent to WhatsApp via ${candidate.source} (${sendResult.messageId || 'ok'})`,
           contentType: 'plainText',
           isPublic: false,
         }
