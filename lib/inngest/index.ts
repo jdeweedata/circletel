@@ -145,6 +145,10 @@ export {
 } from './functions/zoho-desk-token-refresh';
 
 export {
+  whatsappDeskBridgeSyncFunction,
+} from './functions/whatsapp-desk-bridge-sync';
+
+export {
   b2bSiteActivationInvoice,
 } from './functions/b2b-site-activation-invoice';
 
@@ -306,6 +310,10 @@ import {
 } from './functions/zoho-desk-token-refresh';
 
 import {
+  whatsappDeskBridgeSyncFunction,
+} from './functions/whatsapp-desk-bridge-sync';
+
+import {
   b2bSiteActivationInvoice,
 } from './functions/b2b-site-activation-invoice';
 
@@ -412,6 +420,8 @@ export const functions = [
   // Zoho Desk token refresh (every 45 min, before 1-hour expiry)
   zohoDeskTokenRefreshFunction,
   zohoDeskTokenRefreshFailedFunction,
+  // WhatsApp ↔ Desk support bridge outbound sync (every minute)
+  whatsappDeskBridgeSyncFunction,
   // B2B site activation pro-rata invoice
   b2bSiteActivationInvoice,
   // Clinic vetting SLA reminder (daily at 09:00 SAST)

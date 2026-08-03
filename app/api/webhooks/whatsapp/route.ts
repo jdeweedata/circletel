@@ -15,6 +15,7 @@ import {
   whatsAppService,
   handleFlowCompletion,
 } from '@/lib/integrations/whatsapp';
+import { handleInboundWhatsAppToDesk } from '@/lib/integrations/whatsapp/desk-bridge';
 import { onF1LeadCreated } from '@/lib/integrations/whatsapp/flows/f1-lead-notifications';
 import type {
   WebhookPayload,
@@ -89,9 +90,15 @@ export async function POST(request: NextRequest) {
           await processStatusUpdates(value.statuses);
         }
 
-        // Process incoming messages (flow completions + log others)
+        // Process incoming messages (flow completions + Desk support bridge)
         if (value.messages && value.messages.length > 0) {
-          await processInboundMessages(value.messages);
+          const contactNameByWaId = new Map<string, string>();
+          for (const contact of value.contacts || []) {
+            if (contact.wa_id && contact.profile?.name) {
+              contactNameByWaId.set(contact.wa_id, contact.profile.name);
+            }
+          }
+          await processInboundMessages(value.messages, contactNameByWaId);
         }
       }
     }
@@ -125,19 +132,45 @@ function isNfmReplyMessage(message: WebhookMessage): boolean {
 }
 
 /**
- * Route inbound messages: nfm_reply → flow completion handler; others log only.
+ * Route inbound messages:
+ * - nfm_reply → F1 flow completion handler
+ * - other messages → Zoho Desk support bridge (ticket create / comment)
  * Never throws — failures are logged so the webhook can still return 200.
  */
-async function processInboundMessages(messages: WebhookMessage[]): Promise<void> {
+async function processInboundMessages(
+  messages: WebhookMessage[],
+  contactNameByWaId: Map<string, string> = new Map()
+): Promise<void> {
   console.log('[WhatsApp Webhook] Received messages:', messages.length);
 
   for (const message of messages) {
     if (!isNfmReplyMessage(message)) {
-      console.log('[WhatsApp Webhook] Inbound non-flow message', {
+      console.log('[WhatsApp Webhook] Inbound non-flow message → Desk bridge', {
         type: message.type,
         from: message.from,
         id: message.id,
       });
+      try {
+        const contactName =
+          contactNameByWaId.get(message.from) ||
+          contactNameByWaId.get(message.from.replace(/\D/g, ''));
+        const bridgeResult = await handleInboundWhatsAppToDesk(message, {
+          contactName,
+        });
+        console.log('[WhatsApp Webhook] Desk bridge result', {
+          messageId: message.id,
+          from: message.from,
+          success: bridgeResult.success,
+          ticketId: bridgeResult.ticketId,
+          reason: bridgeResult.reason,
+        });
+      } catch (error) {
+        console.error('[WhatsApp Webhook] Desk bridge failed', {
+          messageId: message.id,
+          from: message.from,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
       continue;
     }
 
