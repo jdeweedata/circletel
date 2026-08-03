@@ -160,8 +160,13 @@ function normalizeWaFrom(from: string): string {
   return from.replace(/\D/g, '');
 }
 
+/**
+ * Desk requires a contact email. Use a real domain (+tag) so Send does not
+ * NXDOMAIN-bounce. Delivery to WhatsApp still goes through the Cloud API bridge
+ * (comments / conversation sync) — not SMTP to this address.
+ */
 function placeholderEmail(waFrom: string): string {
-  return `wa-${normalizeWaFrom(waFrom)}@whatsapp.circletel.local`;
+  return `contactus+wa${normalizeWaFrom(waFrom)}@circletel.co.za`;
 }
 
 function extractInboundBody(
@@ -312,8 +317,9 @@ export async function handleInboundWhatsAppToDesk(
     const agentInstructions =
       'AGENT REPLY (WhatsApp bridge)\n' +
       '1. Best: add a Public Comment with reply text only (no quotes) — synced to WhatsApp ~1 min.\n' +
-      '2. Or click Send — the reply is synced the same way. Email To wa-*@whatsapp.circletel.local is NOT a real inbox.\n' +
-      '3. Do not include CSAT / quoted history in the reply body if you can avoid it.';
+      '2. Or click Send — reply text is synced to WhatsApp via Cloud API (~1 min). The contact email is only a Desk placeholder.\n' +
+      '3. Prefer a short reply without CSAT / quoted history.\n' +
+      '4. Ignore mailer-daemon bounces if any — WhatsApp delivery is via the bridge, not email.';
 
     const ticketPayload: Record<string, unknown> = {
       subject: `${SUBJECT_PREFIX} ${displayPhone}`,
