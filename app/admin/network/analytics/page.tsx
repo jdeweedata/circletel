@@ -35,6 +35,7 @@ import {
   ThroughputAreaChart,
 } from '@/components/admin/network/performance';
 import type { GroupTrafficCard, RadioUtilSummary, SsidActivityCard } from '@/lib/network/analytics-aggregates';
+import { AnalyticsExportMenu } from '@/components/admin/network/AnalyticsExportMenu';
 import { formatRelative } from '@/lib/dates';
 
 interface TrafficDataPoint {
@@ -426,6 +427,14 @@ export default function NetworkAnalyticsPage() {
               />
             </>
           ) : null}
+          <AnalyticsExportMenu
+            groupId={selectedGroupId}
+            deviceSn={selectedDeviceSn === ALL_DEVICES ? null : selectedDeviceSn}
+            periodMode={preferLive && periodMode === 'custom' ? '24' : periodMode}
+            customStart={customStart}
+            customEnd={customEnd}
+            disabled={loading || refreshing}
+          />
           <Button
             variant={preferLive ? 'default' : 'outline'}
             size="sm"

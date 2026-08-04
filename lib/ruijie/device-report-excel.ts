@@ -152,6 +152,27 @@ export async function generateDeviceReportExcel(model: DeviceExportModel): Promi
     });
   }
 
+  if (model.interstellio) {
+    const interSheet = workbook.addWorksheet('Interstellio');
+    interSheet.columns = [
+      { header: 'Day index', key: 'day', width: 12 },
+      { header: 'Download bytes', key: 'rx', width: 18 },
+      { header: 'Upload bytes', key: 'tx', width: 18 },
+    ];
+    styleHeaderRow(interSheet.getRow(1));
+    interSheet.insertRow(1, ['Linked', model.interstellio.linked ? 'Yes' : 'No']);
+    interSheet.insertRow(2, ['Site', model.interstellio.siteName ?? '—']);
+    interSheet.insertRow(3, ['Note', model.interstellio.note ?? '']);
+    interSheet.insertRow(4, []);
+    model.interstellio.dailyDownloadBytes.forEach((rx, index) => {
+      interSheet.addRow({
+        day: index + 1,
+        rx,
+        tx: model.interstellio?.dailyUploadBytes[index] ?? 0,
+      });
+    });
+  }
+
   // --- Logs ---
   const logsSheet = workbook.addWorksheet('Logs');
   logsSheet.columns = [
