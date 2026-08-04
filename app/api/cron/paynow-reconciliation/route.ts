@@ -21,13 +21,52 @@ import { billingEngine } from '@/lib/billing/engine';
 import { syncPaymentToZohoBilling } from '@/lib/integrations/zoho/payment-sync-service';
 import { cronLogger } from '@/lib/logging';
 import { inngest } from '@/lib/inngest';
-import { randomUUID } from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
 // Vercel cron configuration
 export const runtime = 'nodejs';
 export const maxDuration = 60;
+
+/**
+ * Insert a real cron_execution_log row before handing off to Inngest.
+ * The previous bridge sent a randomUUID that was never inserted, so Inngest
+ * updates were no-ops and runs were invisible in cron_execution_log.
+ */
+async function createProcessLog(params: {
+  triggeredBy: 'cron' | 'manual';
+  reconciliationDate?: string;
+  dryRun?: boolean;
+}): Promise<string> {
+  const supabase = await createClient();
+  const dateStr =
+    params.reconciliationDate ??
+    new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+  const { data: newLog, error } = await supabase
+    .from('cron_execution_log')
+    .insert({
+      job_name: 'paynow-reconciliation',
+      status: 'running',
+      execution_start: new Date().toISOString(),
+      trigger_source: params.triggeredBy === 'manual' ? 'manual' : 'vercel_cron',
+      execution_details: {
+        triggered_by: params.triggeredBy,
+        reconciliation_date: dateStr,
+        dry_run: params.dryRun ?? false,
+      },
+    })
+    .select('id')
+    .single();
+
+  if (error || !newLog) {
+    throw new Error(
+      `Failed to create process log: ${error?.message || 'Unknown error'}`
+    );
+  }
+
+  return newLog.id as string;
+}
 
 // PayNow-relevant transaction codes from the NetCash statement
 // These are credit entries representing PayNow gateway collections
@@ -37,6 +76,8 @@ const PAYNOW_TRANSACTION_CODES = new Set([
   'OZW',  // Ozow instant EFT
   'INS',  // Instant payment
   'PNW',  // Pay Now generic
+  'PNA',  // Pay Now authorisation / initiate
+  'PNC',  // Pay Now completed collection
   'WEB',  // Web payment
   'ONL',  // Online payment
 ]);
@@ -73,7 +114,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const processLogId = randomUUID();
+    const processLogId = await createProcessLog({ triggeredBy: 'cron' });
 
     await inngest.send({
       name: 'paynow/reconciliation.requested',
@@ -122,7 +163,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .json()
       .catch(() => ({})) as { date?: string; dryRun?: boolean };
 
-    const processLogId = randomUUID();
+    const processLogId = await createProcessLog({
+      triggeredBy: 'manual',
+      reconciliationDate: body.date,
+      dryRun: body.dryRun,
+    });
 
     await inngest.send({
       name: 'paynow/reconciliation.requested',
@@ -258,7 +303,7 @@ export async function runPayNowReconciliation(
   // ── 3. Process each PayNow transaction ─────────────────────────────────────
 
   for (const tx of payNowTransactions) {
-    const reference = tx.accountReference ?? tx.reference ?? tx.description;
+    const reference = tx.accountReference || tx.reference || tx.description;
     if (!reference) {
       result.errors.push(`Transaction with no reference skipped: ${JSON.stringify(tx)}`);
       continue;
