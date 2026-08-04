@@ -1,32 +1,35 @@
 /**
- * Device dossier PDF.
+ * Customer-facing Wi-Fi usage PDF for one access point.
  *
- * Renders a DeviceExportModel with jsPDF: identity summary, traffic window
- * (KPIs + stacked bar chart drawn with rect()), connected clients and recent
- * management logs as autoTable tables. Layout and palette mirror
- * lib/usage-reports/pdf-generator.ts; its helpers are module-private there,
- * so the small ones are replicated here.
+ * Layout mirrors the admin device Traffic tab (emerald download + blue upload
+ * area chart). Copy stays plain-language; technical fields (MAC, management
+ * IP, firmware strings, Interstellio linkage notes) are omitted from the PDF.
+ * Excel remains the analyst-oriented export.
  */
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { circleTelLogoBase64 } from '@/lib/quotes/circletel-logo-base64';
 import { windowLabel, type DeviceExportModel } from './device-export';
-import type { TrafficDataPoint } from './client';
+import type { RuijieClient, TrafficDataPoint } from './client';
 
 const COLORS = {
   orange: '#F5831F',
-  navy: '#1B2A4A',
   dark: '#1F2937',
   gray: '#6B7280',
   muted: '#9CA3AF',
   border: '#E5E7EB',
   panel: '#F9FAFB',
   white: '#FFFFFF',
+  /** Match components/admin/network/TrafficChart.tsx */
+  download: '#10B981',
+  downloadFill: '#A7F3D0',
+  upload: '#3B82F6',
+  uploadFill: '#BFDBFE',
 };
 
-const MAX_CHART_BARS = 84;
-const MAX_LOG_ROWS = 30;
+const MAX_CHART_POINTS = 84;
+const MAX_EVENT_ROWS = 8;
 
 function addLogo(doc: jsPDF, x: number, y: number, size: number): void {
   try {
@@ -80,7 +83,6 @@ function formatUptime(seconds: number | null | undefined): string {
   return `${mins}m`;
 }
 
-/** Truncate with an ellipsis so a value never escapes its grid cell (e.g. long firmware strings). */
 function fitText(doc: jsPDF, value: string, maxWidth: number): string {
   if (doc.getTextWidth(value) <= maxWidth) return value;
   let text = value;
@@ -99,14 +101,56 @@ function formatSastTime(timestampMs: number, hours: number): string {
   }).format(new Date(timestampMs));
 }
 
+function friendlyStatus(status: string): string {
+  return status.toLowerCase() === 'online' ? 'Working normally' : 'Offline';
+}
+
+function friendlyConfig(status: string | null): string {
+  if (!status) return '—';
+  const upper = status.toUpperCase().replace(/\s+/g, '_');
+  if (upper.includes('UP_TO_DATE') || upper.includes('SYNCED')) return 'Up to date';
+  if (upper.includes('PENDING') || upper.includes('SYNCING')) return 'Updating';
+  return status;
+}
+
+function titleCaseQuality(quality: RuijieClient['signalQuality']): string {
+  return quality.charAt(0).toUpperCase() + quality.slice(1);
+}
+
+function clientDisplayName(client: RuijieClient): string {
+  if (client.hostname?.trim()) return client.hostname.trim();
+  if (client.vendor?.trim()) return `${client.vendor.trim()} device`;
+  return 'Unknown device';
+}
+
+function friendlyBand(band: string): string {
+  const b = band.trim().toUpperCase();
+  if (b.includes('5')) return '5 GHz';
+  if (b.includes('2.4') || b.includes('2G')) return '2.4 GHz';
+  if (b.includes('6')) return '6 GHz';
+  return band || '—';
+}
+
+/** Soften raw Ruijie log types into short customer-readable events. */
+function friendlyLogDetail(logType: string, logSubType: string | null, detail: string): string | null {
+  const type = `${logType}/${logSubType ?? ''}`.toLowerCase();
+  if (type.includes('reboot') || detail.toLowerCase().includes('restart')) {
+    return 'Access point restarted';
+  }
+  if (type.includes('onoffline/on') || type.endsWith('/on')) return 'Access point came online';
+  if (type.includes('onoffline/off') || type.endsWith('/off')) return 'Access point went offline';
+  // Skip opaque management chatter on the customer PDF.
+  return null;
+}
+
 /** Merge consecutive 10-minute buckets so a 7-day window stays readable at A4 width. */
 function resampleForChart(
   points: TrafficDataPoint[]
 ): Array<{ timestamp: number; rxBytes: number; txBytes: number }> {
-  if (points.length <= MAX_CHART_BARS) {
+  if (points.length <= MAX_CHART_POINTS) {
     return points.map((p) => ({ timestamp: p.timestamp, rxBytes: p.rxBytes, txBytes: p.txBytes }));
   }
-  const groupSize = Math.ceil(points.length / MAX_CHART_BARS);
+  const groupSize = Math.ceil(points.length / MAX_CHART_POINTS);
   const bars: Array<{ timestamp: number; rxBytes: number; txBytes: number }> = [];
   for (let start = 0; start < points.length; start += groupSize) {
     const group = points.slice(start, start + groupSize);
@@ -117,6 +161,151 @@ function resampleForChart(
     });
   }
   return bars;
+}
+
+type ChartPoint = { timestamp: number; rxBytes: number; txBytes: number };
+
+/**
+ * Draw an overlaid area series (fill under the curve + stroke), matching the
+ * admin TrafficChart look. Y scale is independent per series peak — not stacked.
+ * Uses jsPDF `lines()` trapezoids between consecutive samples.
+ */
+function drawAreaSeries(
+  doc: jsPDF,
+  points: ChartPoint[],
+  getValue: (p: ChartPoint) => number,
+  chartX: number,
+  chartY: number,
+  chartWidth: number,
+  chartHeight: number,
+  maxValue: number,
+  fillColor: string,
+  strokeColor: string
+): void {
+  if (points.length === 0 || maxValue <= 0) return;
+
+  const xAt = (index: number) =>
+    chartX + (points.length === 1 ? chartWidth / 2 : (index / (points.length - 1)) * chartWidth);
+  const yAt = (value: number) => chartY + chartHeight * (1 - value / maxValue);
+  const base = chartY + chartHeight;
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const x0 = xAt(i);
+    const x1 = xAt(i + 1);
+    const y0 = yAt(getValue(points[i]));
+    const y1 = yAt(getValue(points[i + 1]));
+    // Closed trapezoid relative to (x0, base): up to y0, across to y1, down to base
+    doc.setFillColor(fillColor);
+    doc.lines(
+      [
+        [0, y0 - base],
+        [x1 - x0, y1 - y0],
+        [0, base - y1],
+        [x0 - x1, 0],
+      ],
+      x0,
+      base,
+      [1, 1],
+      'F'
+    );
+  }
+
+  doc.setDrawColor(strokeColor);
+  doc.setLineWidth(0.55);
+  for (let i = 0; i < points.length - 1; i++) {
+    doc.line(xAt(i), yAt(getValue(points[i])), xAt(i + 1), yAt(getValue(points[i + 1])));
+  }
+}
+
+function drawTrafficAreaChart(
+  doc: jsPDF,
+  points: ChartPoint[],
+  chartX: number,
+  chartY: number,
+  chartWidth: number,
+  chartHeight: number,
+  hours: number
+): void {
+  const maxValue = Math.max(1, ...points.map((p) => Math.max(p.rxBytes, p.txBytes)));
+
+  // Gridlines at 0 / ¼ / ½ / ¾ / max
+  for (let i = 0; i <= 4; i++) {
+    const fraction = i / 4;
+    const y = chartY + chartHeight * (1 - fraction);
+    doc.setDrawColor(i === 0 ? COLORS.muted : COLORS.border);
+    doc.setLineWidth(i === 0 ? 0.3 : 0.15);
+    doc.line(chartX, y, chartX + chartWidth, y);
+    if (i % 2 === 0) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(5);
+      doc.setTextColor(COLORS.gray);
+      doc.text(formatBytes(maxValue * fraction), chartX - 1.5, y + 1, { align: 'right' });
+    }
+  }
+
+  // Upload under, download on top (download dominates visually like the admin UI)
+  drawAreaSeries(
+    doc,
+    points,
+    (p) => p.txBytes,
+    chartX,
+    chartY,
+    chartWidth,
+    chartHeight,
+    maxValue,
+    COLORS.uploadFill,
+    COLORS.upload
+  );
+  drawAreaSeries(
+    doc,
+    points,
+    (p) => p.rxBytes,
+    chartX,
+    chartY,
+    chartWidth,
+    chartHeight,
+    maxValue,
+    COLORS.downloadFill,
+    COLORS.download
+  );
+
+  // Time labels
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(5.5);
+  doc.setTextColor(COLORS.gray);
+  for (let i = 0; i < 5; i++) {
+    const index = Math.min(points.length - 1, Math.round((i / 4) * (points.length - 1)));
+    const x =
+      chartX +
+      (points.length === 1 ? chartWidth / 2 : (index / (points.length - 1)) * chartWidth);
+    doc.text(formatSastTime(points[index].timestamp, hours), x, chartY + chartHeight + 4, {
+      align: 'center',
+    });
+  }
+}
+
+function drawSignalQualityLegend(doc: jsPDF, x: number, y: number, maxWidth: number): number {
+  sectionTitle(doc, 'How to read signal quality', x, y);
+  const lines = [
+    'Quality is based on how strong the Wi-Fi signal is at that device (RSSI):',
+    '  Excellent  stronger than -50 dBm   Good  -50 to -60 dBm',
+    '  Fair  -60 to -70 dBm   Poor  weaker than -70 dBm',
+    'A "Poor" or "Fair" rating does not always mean the clinic Wi-Fi is broken.',
+    'Older phones, budget tablets, and devices stuck on 2.4 GHz often show weaker',
+    'quality even when the access point is healthy. Distance, walls, and where the',
+    'person is standing also change the reading. Use Quality together with the',
+    'device name and Wi-Fi band when reviewing connected devices.',
+  ];
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.setTextColor(COLORS.gray);
+  let cursor = y + 5;
+  for (const line of lines) {
+    const wrapped = doc.splitTextToSize(line, maxWidth);
+    doc.text(wrapped, x, cursor);
+    cursor += wrapped.length * 3.2;
+  }
+  return cursor;
 }
 
 export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
@@ -130,24 +319,24 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
   // Header
   addLogo(doc, margin, 14, 24);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
+  doc.setFontSize(18);
   doc.setTextColor(COLORS.dark);
-  doc.text('DEVICE REPORT', pageWidth - margin, 23, { align: 'right' });
+  doc.text('Wi-Fi usage report', pageWidth - margin, 23, { align: 'right' });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(COLORS.gray);
-  doc.text(`Generated ${formatGeneratedAt(model.generatedAtIso)} SAST`, pageWidth - margin, 30, {
+  doc.text(`Prepared ${formatGeneratedAt(model.generatedAtIso)} SAST`, pageWidth - margin, 30, {
     align: 'right',
   });
   doc.setDrawColor(COLORS.orange);
   doc.setLineWidth(0.8);
   doc.line(margin, 43, pageWidth - margin, 43);
 
-  // Device identity row
+  // Site / period identity
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(COLORS.gray);
-  doc.text('DEVICE', margin, 51);
+  doc.text('SITE ACCESS POINT', margin, 51);
   doc.text('REPORT PERIOD', pageWidth - margin, 51, { align: 'right' });
   doc.setFontSize(12);
   doc.setTextColor(COLORS.dark);
@@ -157,30 +346,25 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
   doc.setFontSize(8);
   doc.setTextColor(COLORS.gray);
   doc.text(
-    [device.model, `SN ${device.sn}`, device.group_name].filter(Boolean).join(' · '),
+    [device.model, device.group_name ? `${device.group_name} network` : null]
+      .filter(Boolean)
+      .join(' · '),
     margin,
     63
   );
-  doc.text('Times in SAST', pageWidth - margin, 63, { align: 'right' });
+  doc.text('Times in South Africa (SAST)', pageWidth - margin, 63, { align: 'right' });
 
-  // Device summary grid
+  // Customer-friendly summary (no MAC / management IP / firmware)
   const summaryY = 70;
   const summaryRows: Array<[string, string]> = [
-    ['Status', device.status === 'online' ? 'Online' : 'Offline'],
-    ['Config', device.config_status ?? '—'],
-    ['Management IP', device.management_ip ?? '—'],
-    ['WAN IP', device.wan_ip ?? '—'],
-    ['MAC address', device.mac_address ?? '—'],
-    ['Firmware', device.firmware_version ?? '—'],
-    ['Uptime', formatUptime(model.metrics?.uptime_seconds ?? device.uptime_seconds)],
+    ['Status', friendlyStatus(device.status)],
+    ['Settings', friendlyConfig(device.config_status)],
+    ['Network group', device.group_name ?? '—'],
+    ['Access point', device.model ?? '—'],
+    ['Time online', formatUptime(model.metrics?.uptime_seconds ?? device.uptime_seconds)],
     [
-      'CPU / Memory',
-      `${model.metrics?.cpu_usage ?? device.cpu_usage ?? '—'}% / ${model.metrics?.memory_usage ?? device.memory_usage ?? '—'}%`,
-    ],
-    ['Connected clients', String(model.metrics?.online_clients ?? device.online_clients ?? 0)],
-    [
-      'Last synced',
-      device.synced_at ? `${formatGeneratedAt(device.synced_at)} SAST` : '—',
+      'Devices connected',
+      String(model.metrics?.online_clients ?? device.online_clients ?? 0),
     ],
   ];
   const summaryRowHeight = 6;
@@ -188,7 +372,7 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
   doc.setFillColor(COLORS.panel);
   doc.setDrawColor(COLORS.border);
   doc.roundedRect(margin, summaryY, contentWidth, summaryHeight, 1.5, 1.5, 'FD');
-  sectionTitle(doc, 'Device summary', margin + 4, summaryY + 6);
+  sectionTitle(doc, 'At a glance', margin + 4, summaryY + 6);
   const colWidth = contentWidth / 2;
   summaryRows.forEach(([label, value], index) => {
     const col = index % 2;
@@ -201,17 +385,17 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     doc.text(label, x, y);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(COLORS.dark);
-    doc.text(fitText(doc, value, colWidth - 36), x + 32, y);
+    doc.text(fitText(doc, value, colWidth - 40), x + 36, y);
   });
 
   // Traffic KPI strip
   const kpiY = summaryY + summaryHeight + 8;
-  sectionTitle(doc, `Traffic — ${windowLabel(model.hours).toLowerCase()}`, margin, kpiY - 2);
+  sectionTitle(doc, `Usage — ${windowLabel(model.hours).toLowerCase()}`, margin, kpiY - 2);
   const kpis: Array<[string, string]> = [
     ['DOWNLOADED', formatBytes(traffic?.totalRxBytes)],
     ['UPLOADED', formatBytes(traffic?.totalTxBytes)],
-    ['AVG RATE', formatBps(traffic?.avgRxRate)],
-    ['BUSIEST BUCKET', formatBytes(traffic?.peakRxBytes)],
+    ['AVG DOWNLOAD', formatBps(traffic?.avgRxRate)],
+    ['BUSIEST PERIOD', formatBytes(traffic?.peakRxBytes)],
   ];
   const kpiWidth = contentWidth / 4;
   doc.setFillColor(COLORS.panel);
@@ -228,100 +412,70 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     doc.text(value, x, kpiY + 13);
   });
 
-  // Traffic chart — download orange, upload navy stacked on top, with a byte-scaled Y axis
+  // Traffic area chart (admin Traffic tab style)
   const chartBoxY = kpiY + 22;
-  const chartBoxHeight = 52;
-  const chartHeight = 32;
-  const bars = resampleForChart(traffic?.dataPoints ?? []);
+  const chartBoxHeight = 58;
+  const chartHeight = 34;
+  const points = resampleForChart(traffic?.dataPoints ?? []);
   doc.setFillColor(COLORS.panel);
   doc.setDrawColor(COLORS.border);
   doc.roundedRect(margin, chartBoxY, contentWidth, chartBoxHeight, 1.5, 1.5, 'FD');
-  if (bars.length === 0) {
+
+  // Chart header totals (like TrafficChart)
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(COLORS.dark);
+  doc.text(`Device traffic — ${windowLabel(model.hours).toLowerCase()}`, margin + 4, chartBoxY + 5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6);
+  doc.setTextColor(COLORS.download);
+  doc.text(
+    `Download ${formatBytes(traffic?.totalRxBytes)}  |  Avg ${formatBps(traffic?.avgRxRate)}`,
+    pageWidth - margin - 4,
+    chartBoxY + 5,
+    { align: 'right' }
+  );
+
+  if (points.length === 0) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(COLORS.gray);
     doc.text(
-      model.unavailable.traffic ?? 'No traffic samples in this window',
+      model.unavailable.traffic ?? 'No usage data in this period',
       pageWidth / 2,
-      chartBoxY + chartBoxHeight / 2 + 1,
+      chartBoxY + chartBoxHeight / 2 + 2,
       { align: 'center' }
     );
   } else {
-    // Left gutter carries the Y-axis byte labels.
     const chartX = margin + 18;
-    const chartY = chartBoxY + 6;
+    const chartY = chartBoxY + 10;
     const chartWidth = contentWidth - 24;
-    const maxValue = Math.max(1, ...bars.map((bar) => bar.rxBytes + bar.txBytes));
+    drawTrafficAreaChart(doc, points, chartX, chartY, chartWidth, chartHeight, model.hours);
 
-    // Horizontal gridlines at 0 / ¼ / ½ / ¾ / max; labels on 0, ½ and max.
-    for (let i = 0; i <= 4; i++) {
-      const fraction = i / 4;
-      const y = chartY + chartHeight * (1 - fraction);
-      doc.setDrawColor(i === 0 ? COLORS.muted : COLORS.border);
-      doc.setLineWidth(i === 0 ? 0.3 : 0.15);
-      doc.line(chartX, y, chartX + chartWidth, y);
-      if (i % 2 === 0) {
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(5);
-        doc.setTextColor(COLORS.gray);
-        doc.text(formatBytes(maxValue * fraction), chartX - 1.5, y + 1, { align: 'right' });
-      }
-    }
-    doc.setLineWidth(0.2);
-
-    const barWidth = chartWidth / bars.length;
-    const barGap = bars.length > 40 ? 0.3 : 0.6;
-    const scale = chartHeight / maxValue;
-    bars.forEach((bar, index) => {
-      if (bar.rxBytes + bar.txBytes === 0) return; // an idle bucket draws nothing
-      const x = chartX + index * barWidth + barGap / 2;
-      const width = Math.max(0.3, barWidth - barGap);
-      // Any non-zero segment gets a visible mark even when it rounds to sub-pixel height.
-      const rxDraw = bar.rxBytes > 0 ? Math.max(bar.rxBytes * scale, 0.4) : 0;
-      const txDraw = bar.txBytes > 0 ? Math.max(bar.txBytes * scale, 0.4) : 0;
-      if (rxDraw > 0) {
-        doc.setFillColor(COLORS.orange);
-        doc.rect(x, chartY + chartHeight - rxDraw, width, rxDraw, 'F');
-      }
-      if (txDraw > 0) {
-        doc.setFillColor(COLORS.navy);
-        doc.rect(x, chartY + chartHeight - rxDraw - txDraw, width, txDraw, 'F');
-      }
-    });
-
-    // Five evenly spaced time labels
-    doc.setFont('courier', 'normal');
-    doc.setFontSize(5.5);
-    doc.setTextColor(COLORS.gray);
-    for (let i = 0; i < 5; i++) {
-      const barIndex = Math.min(bars.length - 1, Math.round((i / 4) * (bars.length - 1)));
-      const x = chartX + (barIndex + 0.5) * barWidth;
-      doc.text(formatSastTime(bars[barIndex].timestamp, model.hours), x, chartY + chartHeight + 4, {
-        align: 'center',
-      });
-    }
-
-    // Legend with colour swatches + bucket-span note
     const legendY = chartY + chartHeight + 7;
-    const bucketMinutes = Math.round((model.hours * 60) / bars.length);
-    doc.setFillColor(COLORS.orange);
+    doc.setFillColor(COLORS.download);
     doc.rect(chartX, legendY - 1.8, 2.4, 2.4, 'F');
-    doc.setFillColor(COLORS.navy);
-    doc.rect(chartX + 16, legendY - 1.8, 2.4, 2.4, 'F');
+    doc.setFillColor(COLORS.upload);
+    doc.rect(chartX + 22, legendY - 1.8, 2.4, 2.4, 'F');
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(5.5);
     doc.setTextColor(COLORS.gray);
     doc.text('Download', chartX + 3.6, legendY);
-    doc.text('Upload (stacked)', chartX + 19.6, legendY);
-    // Note: stay within WinAnsi — glyphs like "≈" render as garbage in jsPDF's built-in fonts.
-    doc.text(`Each bar ~${bucketMinutes} min`, chartX + chartWidth, legendY, { align: 'right' });
+    doc.text('Upload', chartX + 25.6, legendY);
+    doc.setTextColor(COLORS.upload);
+    doc.text(
+      `Upload ${formatBytes(traffic?.totalTxBytes)}  |  Avg ${formatBps(traffic?.avgTxRate)}`,
+      chartX + chartWidth,
+      legendY,
+      { align: 'right' }
+    );
   }
 
-  // Connected clients table
+  // Connected devices
   const clientsStartY = chartBoxY + chartBoxHeight + 8;
   sectionTitle(
     doc,
-    `Connected clients at generation time (${model.clients.length})`,
+    `Connected devices when this report was prepared (${model.clients.length})`,
     margin,
     clientsStartY
   );
@@ -331,7 +485,9 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     doc.setTextColor(COLORS.gray);
     doc.text(
       model.unavailable.clients ??
-        (device.status === 'online' ? 'No clients connected right now' : 'Not available — device offline'),
+        (device.status === 'online'
+          ? 'No devices were connected at this moment'
+          : 'Device list not available — access point offline'),
       margin,
       clientsStartY + 6
     );
@@ -339,20 +495,30 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     autoTable(doc, {
       startY: clientsStartY + 3,
       margin: { left: margin, right: margin },
-      head: [['Hostname', 'IP', 'SSID', 'Band', 'RSSI', 'Quality', 'Down', 'Up']],
+      head: [['Device', 'Wi-Fi network', 'Band', 'Signal quality', 'Download', 'Upload']],
       body: model.clients.map((client) => [
-        client.hostname ?? client.mac,
-        client.userIp,
-        client.ssid,
-        client.band,
-        `${client.rssi} dBm`,
-        client.signalQuality,
+        clientDisplayName(client),
+        client.ssid || '—',
+        friendlyBand(client.band),
+        titleCaseQuality(client.signalQuality),
         formatBps(client.downlinkRate),
         formatBps(client.uplinkRate),
       ]),
       theme: 'plain',
-      styles: { fontSize: 7, cellPadding: 1.8, textColor: COLORS.dark, lineColor: COLORS.border, lineWidth: 0.2 },
+      styles: {
+        fontSize: 7,
+        cellPadding: 1.8,
+        textColor: COLORS.dark,
+        lineColor: COLORS.border,
+        lineWidth: 0.2,
+      },
       headStyles: { fillColor: COLORS.panel, textColor: COLORS.gray, fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 42 },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 18 },
+        3: { cellWidth: 26 },
+      },
     });
   }
 
@@ -360,79 +526,88 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ??
     clientsStartY + 10;
 
-  if (model.interstellio) {
+  // Signal quality legend (always show when we have clients, or always for education)
+  const legendStartY =
+    afterClientsY + 10 > pageHeight - 45 ? (doc.addPage(), 20) : afterClientsY + 10;
+  afterClientsY = drawSignalQualityLegend(doc, margin, legendStartY, contentWidth);
+
+  // Linked Interstellio only when there is real data (skip "not linked" tech notes)
+  if (model.interstellio?.linked) {
     const interY =
       afterClientsY + 10 > pageHeight - 40 ? (doc.addPage(), 20) : afterClientsY + 10;
-    sectionTitle(doc, 'Interstellio BNG (secondary)', margin, interY);
+    sectionTitle(doc, 'Site broadband usage (secondary source)', margin, interY);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
-    if (!model.interstellio.linked) {
-      doc.setTextColor(COLORS.gray);
-      doc.text(model.interstellio.note ?? 'Interstellio not linked', margin, interY + 6);
-      afterClientsY = interY + 12;
-    } else {
-      doc.setTextColor(COLORS.dark);
-      doc.text(
-        [
-          model.interstellio.siteName ?? 'Linked site',
-          `Download ${formatBytes(model.interstellio.totalDownloadBytes)}`,
-          `Upload ${formatBytes(model.interstellio.totalUploadBytes)}`,
-        ].join(' · '),
-        margin,
-        interY + 6
-      );
-      autoTable(doc, {
-        startY: interY + 10,
-        margin: { left: margin, right: margin },
-        head: [['Day', 'Download', 'Upload']],
-        body: model.interstellio.dailyDownloadBytes.map((rx, index) => [
-          `Day ${index + 1}`,
-          formatBytes(rx),
-          formatBytes(model.interstellio?.dailyUploadBytes[index] ?? 0),
-        ]),
-        theme: 'plain',
-        styles: {
-          fontSize: 7,
-          cellPadding: 1.6,
-          textColor: COLORS.dark,
-          lineColor: COLORS.border,
-          lineWidth: 0.2,
-        },
-        headStyles: { fillColor: COLORS.panel, textColor: COLORS.gray, fontStyle: 'bold' },
-      });
-      afterClientsY =
-        (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ??
-        interY + 20;
-    }
-  }
-
-  // Recent logs table
-  const logs = model.logs.slice(0, MAX_LOG_ROWS);
-  const logsTitleY = afterClientsY + 10 > pageHeight - 30 ? (doc.addPage(), 20) : afterClientsY + 10;
-  sectionTitle(doc, `Recent device logs${model.logs.length > MAX_LOG_ROWS ? ` (latest ${MAX_LOG_ROWS} of ${model.logs.length})` : ` (${model.logs.length})`}`, margin, logsTitleY);
-  if (logs.length === 0) {
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7.5);
-    doc.setTextColor(COLORS.gray);
-    doc.text(model.unavailable.logs ?? 'No log entries returned', margin, logsTitleY + 6);
-  } else {
+    doc.setTextColor(COLORS.dark);
+    doc.text(
+      [
+        model.interstellio.siteName ?? 'Linked site',
+        `Downloaded ${formatBytes(model.interstellio.totalDownloadBytes)}`,
+        `Uploaded ${formatBytes(model.interstellio.totalUploadBytes)}`,
+      ].join(' · '),
+      margin,
+      interY + 6
+    );
     autoTable(doc, {
-      startY: logsTitleY + 3,
+      startY: interY + 10,
       margin: { left: margin, right: margin },
-      head: [['Time (SAST)', 'Type', 'Detail']],
-      body: logs.map((log) => [
-        formatGeneratedAt(new Date(log.operateTime).toISOString()),
-        log.logSubType ? `${log.logType}/${log.logSubType}` : log.logType,
-        log.logDetail,
+      head: [['Day', 'Downloaded', 'Uploaded']],
+      body: model.interstellio.dailyDownloadBytes.map((rx, index) => [
+        `Day ${index + 1}`,
+        formatBytes(rx),
+        formatBytes(model.interstellio?.dailyUploadBytes[index] ?? 0),
       ]),
       theme: 'plain',
-      styles: { fontSize: 7, cellPadding: 1.8, textColor: COLORS.dark, lineColor: COLORS.border, lineWidth: 0.2 },
+      styles: {
+        fontSize: 7,
+        cellPadding: 1.6,
+        textColor: COLORS.dark,
+        lineColor: COLORS.border,
+        lineWidth: 0.2,
+      },
       headStyles: { fillColor: COLORS.panel, textColor: COLORS.gray, fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 38 }, 1: { cellWidth: 28 } },
+    });
+    afterClientsY =
+      (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ??
+      interY + 20;
+  }
+
+  // Recent events — customer-friendly subset only
+  const friendlyEvents = model.logs
+    .map((log) => {
+      const detail = friendlyLogDetail(log.logType, log.logSubType, log.logDetail);
+      if (!detail) return null;
+      return {
+        time: formatGeneratedAt(new Date(log.operateTime).toISOString()),
+        detail,
+      };
+    })
+    .filter((row): row is { time: string; detail: string } => row != null)
+    .slice(0, MAX_EVENT_ROWS);
+
+  if (friendlyEvents.length > 0) {
+    const eventsTitleY =
+      afterClientsY + 10 > pageHeight - 30 ? (doc.addPage(), 20) : afterClientsY + 10;
+    sectionTitle(doc, `Recent access-point events (${friendlyEvents.length})`, margin, eventsTitleY);
+    autoTable(doc, {
+      startY: eventsTitleY + 3,
+      margin: { left: margin, right: margin },
+      head: [['When (SAST)', 'What happened']],
+      body: friendlyEvents.map((row) => [row.time, row.detail]),
+      theme: 'plain',
+      styles: {
+        fontSize: 7,
+        cellPadding: 1.8,
+        textColor: COLORS.dark,
+        lineColor: COLORS.border,
+        lineWidth: 0.2,
+      },
+      headStyles: { fillColor: COLORS.panel, textColor: COLORS.gray, fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 42 } },
     });
   }
 
-  // Footer on every page
+  // Footer
   const pageCount = doc.getNumberOfPages();
   for (let page = 1; page <= pageCount; page++) {
     doc.setPage(page);
@@ -442,7 +617,7 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     doc.setFontSize(6.5);
     doc.setTextColor(COLORS.muted);
     doc.text(
-      `CircleTel · ${device.sn} · ${windowLabel(model.hours)} · Page ${page} of ${pageCount}`,
+      `CircleTel · ${device.device_name} · ${windowLabel(model.hours)} · Page ${page} of ${pageCount}`,
       pageWidth / 2,
       pageHeight - 9,
       { align: 'center' }
