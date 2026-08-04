@@ -132,7 +132,11 @@ function friendlyBand(band: string): string {
 }
 
 /** Soften raw Ruijie log types into short customer-readable events. */
-function friendlyLogDetail(logType: string, logSubType: string | null, detail: string): string | null {
+function friendlyLogDetail(
+  logType: string,
+  logSubType: string | null | undefined,
+  detail: string
+): string | null {
   const type = `${logType}/${logSubType ?? ''}`.toLowerCase();
   if (type.includes('reboot') || detail.toLowerCase().includes('restart')) {
     return 'Access point restarted';
