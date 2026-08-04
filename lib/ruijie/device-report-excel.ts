@@ -48,12 +48,12 @@ export async function generateDeviceReportExcel(model: DeviceExportModel): Promi
     { key: 'value', width: 42 },
   ];
   const overviewRows: Array<[string, string | number]> = [
-    ['Device name', device.device_name],
+    ['Site / device name', device.device_name],
     ['Serial number', device.sn],
-    ['Model', device.model ?? '—'],
-    ['Group', device.group_name ?? '—'],
-    ['Status', device.status],
-    ['Config status', device.config_status ?? '—'],
+    ['Access point model', device.model ?? '—'],
+    ['Network group', device.group_name ?? '—'],
+    ['Status', device.status === 'online' ? 'Working normally (online)' : device.status],
+    ['Settings', device.config_status ?? '—'],
     ['Management IP', device.management_ip ?? '—'],
     ['WAN IP', device.wan_ip ?? '—'],
     ['Egress IP', device.egress_ip ?? '—'],
@@ -62,7 +62,7 @@ export async function generateDeviceReportExcel(model: DeviceExportModel): Promi
     ['CPU usage (%)', model.metrics?.cpu_usage ?? device.cpu_usage ?? '—'],
     ['Memory usage (%)', model.metrics?.memory_usage ?? device.memory_usage ?? '—'],
     ['Uptime (seconds)', model.metrics?.uptime_seconds ?? device.uptime_seconds ?? '—'],
-    ['Connected clients', model.metrics?.online_clients ?? device.online_clients ?? 0],
+    ['Connected devices', model.metrics?.online_clients ?? device.online_clients ?? 0],
     ['Last synced (SAST)', device.synced_at ? sastTimestamp(device.synced_at) : '—'],
     ['Report period', windowLabel(model.hours)],
     ['Generated (SAST)', sastTimestamp(model.generatedAtIso)],
@@ -151,6 +151,28 @@ export async function generateDeviceReportExcel(model: DeviceExportModel): Promi
         (device.status === 'online' ? 'No clients connected' : 'Not available — device offline'),
     });
   }
+
+  // Signal quality legend (same bands as lib/ruijie/client getSignalQuality)
+  clientsSheet.addRow({});
+  const legendTitle = clientsSheet.addRow({
+    hostname: 'Signal quality legend',
+  });
+  legendTitle.getCell(1).font = { bold: true };
+  const legendRows: Array<[string, string]> = [
+    ['Excellent', 'RSSI stronger than -50 dBm — very close / clear path to the AP'],
+    ['Good', 'RSSI -50 to -60 dBm — solid day-to-day connection'],
+    ['Fair', 'RSSI -60 to -70 dBm — usable but may feel slower or drop briefly'],
+    ['Poor', 'RSSI weaker than -70 dBm — far away, walls, or a weak client radio'],
+    [
+      'Note',
+      'Quality is signal strength only. Older phones, budget tablets, and 2.4 GHz-only devices often read Fair/Poor even when the access point is healthy. Device type, Wi-Fi band, distance, and walls all influence the rating.',
+    ],
+  ];
+  legendRows.forEach(([label, value]) => {
+    const row = clientsSheet.addRow({ hostname: label, mac: value });
+    row.getCell(1).font = { bold: true, color: { argb: 'FF6B7280' } };
+    row.getCell(2).font = { color: { argb: 'FF6B7280' } };
+  });
 
   if (model.interstellio) {
     const interSheet = workbook.addWorksheet('Interstellio');

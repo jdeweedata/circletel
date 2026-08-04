@@ -265,6 +265,12 @@ describe('generateDeviceReportPdf', () => {
     const magic = Buffer.from(output.slice(0, 4)).toString('ascii');
     expect(magic).toBe('%PDF');
     expect(output.byteLength).toBeGreaterThan(5_000);
+    // Customer-facing copy + signal legend (binary PDF still embeds ASCII strings)
+    const asText = Buffer.from(output).toString('latin1');
+    expect(asText).toContain('Wi-Fi usage report');
+    expect(asText).toContain('How to read signal quality');
+    expect(asText).toContain('Download');
+    expect(asText).not.toContain('Upload (stacked)');
   });
 
   it('still renders when traffic, clients and logs are all unavailable', () => {
