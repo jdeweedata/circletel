@@ -319,7 +319,12 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
 
   // Connected clients table
   const clientsStartY = chartBoxY + chartBoxHeight + 8;
-  sectionTitle(doc, `Connected clients (${model.clients.length})`, margin, clientsStartY);
+  sectionTitle(
+    doc,
+    `Connected clients at generation time (${model.clients.length})`,
+    margin,
+    clientsStartY
+  );
   if (model.clients.length === 0) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
@@ -351,10 +356,57 @@ export function generateDeviceReportPdf(model: DeviceExportModel): ArrayBuffer {
     });
   }
 
-  // Recent logs table
-  const afterClientsY =
+  let afterClientsY =
     (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ??
     clientsStartY + 10;
+
+  if (model.interstellio) {
+    const interY =
+      afterClientsY + 10 > pageHeight - 40 ? (doc.addPage(), 20) : afterClientsY + 10;
+    sectionTitle(doc, 'Interstellio BNG (secondary)', margin, interY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    if (!model.interstellio.linked) {
+      doc.setTextColor(COLORS.gray);
+      doc.text(model.interstellio.note ?? 'Interstellio not linked', margin, interY + 6);
+      afterClientsY = interY + 12;
+    } else {
+      doc.setTextColor(COLORS.dark);
+      doc.text(
+        [
+          model.interstellio.siteName ?? 'Linked site',
+          `Download ${formatBytes(model.interstellio.totalDownloadBytes)}`,
+          `Upload ${formatBytes(model.interstellio.totalUploadBytes)}`,
+        ].join(' · '),
+        margin,
+        interY + 6
+      );
+      autoTable(doc, {
+        startY: interY + 10,
+        margin: { left: margin, right: margin },
+        head: [['Day', 'Download', 'Upload']],
+        body: model.interstellio.dailyDownloadBytes.map((rx, index) => [
+          `Day ${index + 1}`,
+          formatBytes(rx),
+          formatBytes(model.interstellio?.dailyUploadBytes[index] ?? 0),
+        ]),
+        theme: 'plain',
+        styles: {
+          fontSize: 7,
+          cellPadding: 1.6,
+          textColor: COLORS.dark,
+          lineColor: COLORS.border,
+          lineWidth: 0.2,
+        },
+        headStyles: { fillColor: COLORS.panel, textColor: COLORS.gray, fontStyle: 'bold' },
+      });
+      afterClientsY =
+        (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ??
+        interY + 20;
+    }
+  }
+
+  // Recent logs table
   const logs = model.logs.slice(0, MAX_LOG_ROWS);
   const logsTitleY = afterClientsY + 10 > pageHeight - 30 ? (doc.addPage(), 20) : afterClientsY + 10;
   sectionTitle(doc, `Recent device logs${model.logs.length > MAX_LOG_ROWS ? ` (latest ${MAX_LOG_ROWS} of ${model.logs.length})` : ` (${model.logs.length})`}`, margin, logsTitleY);

@@ -19,6 +19,11 @@ import {
   type RuijieLogEntry,
   type TrafficSummary,
 } from './client';
+import {
+  loadInterstellioForDeviceSn,
+  resolveAnalyticsExportPeriod,
+  type AnalyticsExportInterstellio,
+} from '@/lib/network/analytics-export';
 
 export const EXPORT_WINDOW_HOURS = [6, 24, 72, 168] as const;
 
@@ -61,6 +66,8 @@ export interface DeviceExportModel {
   traffic: TrafficSummary | null;
   clients: RuijieClient[];
   logs: RuijieLogEntry[];
+  /** Secondary BNG usage when the AP is linked to a corporate site. */
+  interstellio: AnalyticsExportInterstellio | null;
   hours: number;
   generatedAtIso: string;
   unavailable: {
@@ -68,6 +75,7 @@ export interface DeviceExportModel {
     traffic?: string;
     clients?: string;
     logs?: string;
+    interstellio?: string;
   };
 }
 
@@ -143,12 +151,26 @@ export async function buildDeviceExportModel(
     unavailable.logs = reasonFrom(logsResult);
   }
 
+  let interstellio: AnalyticsExportInterstellio | null = null;
+  try {
+    const period = resolveAnalyticsExportPeriod({
+      hoursRaw: String(window),
+      startDate: null,
+      endDate: null,
+    });
+    interstellio = await loadInterstellioForDeviceSn(sn, period);
+  } catch (err) {
+    unavailable.interstellio =
+      err instanceof Error ? err.message : 'Interstellio lookup failed';
+  }
+
   return {
     device: device as DeviceExportDevice,
     metrics,
     traffic,
     clients,
     logs,
+    interstellio,
     hours: window,
     generatedAtIso: new Date().toISOString(),
     unavailable,

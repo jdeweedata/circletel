@@ -17,6 +17,24 @@ jest.mock('../client', () => ({
   getNetworkTraffic: jest.fn(),
 }));
 
+jest.mock('@/lib/network/analytics-export', () => ({
+  resolveAnalyticsExportPeriod: jest.fn(() => ({
+    mode: 'hours',
+    hours: 24,
+    label: 'Last 24 hours',
+    startUtc: new Date('2026-08-01T00:00:00Z'),
+    endUtc: new Date('2026-08-02T00:00:00Z'),
+  })),
+  loadInterstellioForDeviceSn: jest.fn(async () => ({
+    linked: false,
+    dailyDownloadBytes: [0],
+    dailyUploadBytes: [0],
+    totalDownloadBytes: 0,
+    totalUploadBytes: 0,
+    note: 'Interstellio not linked for this AP — set corporate_sites.interstellio_subscriber_id on the linked site.',
+  })),
+}));
+
 import { createClient } from '@/lib/supabase/server';
 import {
   getDeviceMetrics,
@@ -24,6 +42,7 @@ import {
   getDeviceLogs,
   getNetworkTraffic,
 } from '../client';
+import { loadInterstellioForDeviceSn } from '@/lib/network/analytics-export';
 import {
   buildDeviceExportModel,
   clampHours,
@@ -140,6 +159,14 @@ function fullFixtureModel(): DeviceExportModel {
     traffic: TRAFFIC,
     clients: CLIENTS,
     logs: LOGS,
+    interstellio: {
+      linked: false,
+      dailyDownloadBytes: [0],
+      dailyUploadBytes: [0],
+      totalDownloadBytes: 0,
+      totalUploadBytes: 0,
+      note: 'Interstellio not linked',
+    },
     hours: 168,
     generatedAtIso: '2026-08-02T15:00:00.000Z',
     unavailable: {},
@@ -148,6 +175,14 @@ function fullFixtureModel(): DeviceExportModel {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  (loadInterstellioForDeviceSn as jest.Mock).mockResolvedValue({
+    linked: false,
+    dailyDownloadBytes: [0],
+    dailyUploadBytes: [0],
+    totalDownloadBytes: 0,
+    totalUploadBytes: 0,
+    note: 'Interstellio not linked for this AP — set corporate_sites.interstellio_subscriber_id on the linked site.',
+  });
 });
 
 describe('clampHours', () => {
@@ -183,7 +218,9 @@ describe('buildDeviceExportModel', () => {
     expect(model!.clients).toHaveLength(1);
     expect(model!.logs).toHaveLength(1);
     expect(model!.unavailable).toEqual({});
+    expect(model!.interstellio?.linked).toBe(false);
     expect(getDeviceClients).toHaveBeenCalledWith('G1U52HL044467', '9058218');
+    expect(loadInterstellioForDeviceSn).toHaveBeenCalled();
   });
 
   it('degrades failed sections to unavailable notes instead of throwing', async () => {
@@ -248,7 +285,7 @@ describe('generateDeviceReportPdf', () => {
 });
 
 describe('generateDeviceReportExcel', () => {
-  it('produces a 4-sheet workbook with raw traffic buckets', async () => {
+  it('produces a workbook with traffic buckets and Interstellio sheet', async () => {
     const buffer = await generateDeviceReportExcel(fullFixtureModel());
 
     const workbook = new ExcelJS.Workbook();
@@ -258,6 +295,7 @@ describe('generateDeviceReportExcel', () => {
       'Overview',
       'Traffic',
       'Clients',
+      'Interstellio',
       'Logs',
     ]);
 
