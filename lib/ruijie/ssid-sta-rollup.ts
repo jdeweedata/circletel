@@ -2,7 +2,8 @@
  * Ruijie STA session-byte → hourly SSID rollup helpers.
  *
  * Wayfinder #672 / #673 / #675 / #679: sample STA wifiUp/wifiDown, credit
- * positive deltas into UTC hour buckets for allow-listed SSIDs only.
+ * positive deltas into UTC hour buckets for allow-listed SSIDs only
+ * (Staff + Free Clinic WiFi).
  */
 
 import { hourBucketIso } from '@/lib/network/analytics-aggregates';

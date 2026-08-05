@@ -206,7 +206,14 @@ export interface RuijieSsidStaSampleStateRow {
   updated_at: string;
 }
 
-/** Go-live allow-list (#676): Staff only. Free radio deferred. */
-export const RUIJIE_SSID_ROLLUP_ALLOWLIST = ['Unjani Clinic Staff'] as const;
+/**
+ * SSIDs credited by the 5-min STA sampler into `ruijie_ssid_traffic_rollups`.
+ * Exact broadcast names as returned by Ruijie `/sta/sta_users`.
+ * (#676 Staff; Free Clinic enabled 2026-08-05 — same delta sampling path.)
+ */
+export const RUIJIE_SSID_ROLLUP_ALLOWLIST = [
+  'Unjani Clinic Staff',
+  'Unjani Clinic Free WiFi',
+] as const;
 export type RuijieSsidRollupAllowlistedSsid =
   (typeof RUIJIE_SSID_ROLLUP_ALLOWLIST)[number];

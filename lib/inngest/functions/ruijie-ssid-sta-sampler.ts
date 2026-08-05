@@ -1,9 +1,10 @@
 /**
  * Ruijie SSID STA Sampler
  *
- * Every 5 minutes: pull `/sta/sta_users` per group, credit allow-listed SSID
- * (`Unjani Clinic Staff`) session-byte deltas into UTC hour buckets on
- * `ruijie_ssid_traffic_rollups`, maintain `ruijie_ssid_sta_sample_state`.
+ * Every 5 minutes: pull `/sta/sta_users` per group, credit allow-listed SSIDs
+ * (`Unjani Clinic Staff`, `Unjani Clinic Free WiFi`) session-byte deltas into
+ * UTC hour buckets on `ruijie_ssid_traffic_rollups`, maintain
+ * `ruijie_ssid_sta_sample_state`.
  *
  * Wayfinder #679 / #672. Retention: 90d rollups, ~36h sample-state.
  *

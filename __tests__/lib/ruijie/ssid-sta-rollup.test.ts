@@ -27,7 +27,7 @@ describe('computeSsidHourDeltas', () => {
   const sampledAtMs = Date.parse('2026-08-01T14:37:00.000Z');
   const hour = '2026-08-01T14:00:00.000Z';
 
-  it('ignores Free SSID and incomplete rows; baselines Staff with no credit', () => {
+  it('baselines Staff and Free WiFi with no credit; skips incomplete and unknown SSIDs', () => {
     const result = computeSsidHourDeltas({
       samples: [
         {
@@ -44,6 +44,13 @@ describe('computeSsidHourDeltas', () => {
           wifiUp: 1000,
           wifiDown: 2000,
         },
+        {
+          sn: 'AP1',
+          mac: 'AA:BB:CC:DD:EE:04',
+          ssid: 'Guest-Unknown',
+          wifiUp: 50,
+          wifiDown: 50,
+        },
         { sn: '', mac: 'aa', ssid: 'Unjani Clinic Staff', wifiUp: 1, wifiDown: 1 },
       ],
       previous: new Map(),
@@ -56,10 +63,61 @@ describe('computeSsidHourDeltas', () => {
     expect(result.nextState).toEqual([
       {
         device_sn: 'AP1',
+        mac: 'aa:bb:cc:dd:ee:01',
+        ssid: 'Unjani Clinic Free WiFi',
+        last_wifi_up: 999,
+        last_wifi_down: 999,
+      },
+      {
+        device_sn: 'AP1',
         mac: 'aa:bb:cc:dd:ee:02',
         ssid: 'Unjani Clinic Staff',
         last_wifi_up: 1000,
         last_wifi_down: 2000,
+      },
+    ]);
+  });
+
+  it('sums Free WiFi deltas into the UTC hour bucket', () => {
+    const prevKey = sampleStateKey(
+      'AP1',
+      'aa:bb:cc:dd:ee:01',
+      'Unjani Clinic Free WiFi'
+    );
+    const previous = new Map([
+      [
+        prevKey,
+        {
+          device_sn: 'AP1',
+          mac: 'aa:bb:cc:dd:ee:01',
+          ssid: 'Unjani Clinic Free WiFi',
+          last_wifi_up: 500,
+          last_wifi_down: 800,
+        },
+      ],
+    ]);
+
+    const result = computeSsidHourDeltas({
+      samples: [
+        {
+          sn: 'AP1',
+          mac: 'AA:BB:CC:DD:EE:01',
+          ssid: 'Unjani Clinic Free WiFi',
+          wifiUp: 700,
+          wifiDown: 1100,
+        },
+      ],
+      previous,
+      sampledAtMs,
+    });
+
+    expect(result.hourDeltas).toEqual([
+      {
+        device_sn: 'AP1',
+        ssid: 'Unjani Clinic Free WiFi',
+        hour_bucket: hour,
+        rx_bytes: 300,
+        tx_bytes: 200,
       },
     ]);
   });
