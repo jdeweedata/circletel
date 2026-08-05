@@ -17,7 +17,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 # Load env: production secrets often live in .env / .env.production.local
-# (Interstellio). Later files do not override already-set vars from earlier ones.
+# (Interstellio). Later sourced files override earlier ones (bash `source`).
 #
 # Temporarily disable nounset: .env may contain self-references like
 # DATABASE_URL=$DATABASE_URL which abort under `set -u` when unset.
@@ -31,6 +31,13 @@ for envfile in .env .env.production.local .env.local; do
 done
 set +a
 set -u
+
+# Host cron must talk to Inngest Cloud, not the local dev server. A stray
+# NODE_ENV=development (e.g. in .env.production.local) makes the SDK set
+# isDev=true and inngest.send() fails with "fetch failed" — which silently
+# skips ruijie-traffic-rollup and burns the ~72h Ruijie retention window.
+export NODE_ENV=production
+unset INNGEST_DEV || true
 
 export VENDOR_CACHE_DB_PATH="${VENDOR_CACHE_DB_PATH:-$ROOT/data/vendor-cache/vendor-cache.db}"
 mkdir -p "$(dirname "$VENDOR_CACHE_DB_PATH")"
