@@ -98,9 +98,21 @@ export default function LoginPage() {
 
       if (account === 'business') {
         const ok = await assertPortalAccess(session.user.id);
-        if (ok) {
-          router.replace(businessRedirect);
-          return;
+        if (ok && session.access_token && session.refresh_token) {
+          // Mirror localStorage session into cookies before entering /portal
+          const sync = await fetch('/api/portal/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+            }),
+          });
+          if (sync.ok) {
+            window.location.assign(businessRedirect);
+            return;
+          }
         }
         await supabase.auth.signOut();
         setFormError(
@@ -152,28 +164,51 @@ export default function LoginPage() {
     setFormError(null);
 
     try {
-      const result = await signIn(data.email, data.password);
-      if (result.error) {
-        setFormError(result.error);
-        toast.error(result.error);
-        return;
-      }
-
+      // Business portal: middleware only sees cookie sessions (not localStorage).
+      // Use the portal login API so SSR auth cookies are set before /portal.
       if (account === 'business') {
-        const userId = result.user?.id;
-        if (!userId || !(await assertPortalAccess(userId))) {
-          const supabase = createClient();
-          await supabase.auth.signOut();
+        const res = await fetch('/api/portal/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+          }),
+        });
+        const payload = (await res.json()) as {
+          success?: boolean;
+          error?: string;
+          session?: { access_token: string; refresh_token: string };
+        };
+
+        if (!res.ok || !payload.success) {
           const msg =
+            payload.error ||
             'No business portal access for this account. Ask your Super User to invite you.';
           setFormError(msg);
           toast.error(msg);
           return;
         }
+
+        // Keep browser client in sync for any client-side portal UI
+        if (payload.session?.access_token && payload.session?.refresh_token) {
+          const supabase = createClient();
+          await supabase.auth.setSession({
+            access_token: payload.session.access_token,
+            refresh_token: payload.session.refresh_token,
+          });
+        }
+
         toast.success('Welcome back');
-        await new Promise((r) => setTimeout(r, 300));
-        router.push(businessRedirect);
-        router.refresh();
+        window.location.assign(businessRedirect);
+        return;
+      }
+
+      const result = await signIn(data.email, data.password);
+      if (result.error) {
+        setFormError(result.error);
+        toast.error(result.error);
         return;
       }
 

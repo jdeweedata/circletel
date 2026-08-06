@@ -43,7 +43,8 @@ const SIDE_COPY: Record<
 };
 
 /**
- * Mockup 1a shell: 1180px card, navy brand rail + 520px form column.
+ * Full-viewport login shell (mockup 1a copy/structure).
+ * Desktop: edge-to-edge navy brand rail + form column (no outer gutters).
  * Loads Archivo so global Manrope/Inter heading rules cannot leak in.
  */
 export function ModernistLoginShell({
@@ -57,10 +58,10 @@ export function ModernistLoginShell({
 
   return (
     <div
-      className={`${archivo.variable} min-h-dvh w-full flex items-center justify-center px-3 py-4 sm:px-5 sm:py-6 lg:px-6 lg:py-8`}
+      className={`${archivo.variable} min-h-dvh w-full`}
       style={
         {
-          background: 'color-mix(in srgb, #13274A 7%, #FFFFFF)',
+          background: '#FFFFFF',
           '--font-heading':
             'var(--font-login-modernist), ui-sans-serif, system-ui, sans-serif',
           '--font-body':
@@ -76,30 +77,25 @@ export function ModernistLoginShell({
         } as CSSProperties
       }
     >
-      <div
-        className="w-full max-w-[1180px] grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,520px)] bg-white overflow-hidden lg:min-h-[800px]"
-        style={{
-          border: '2px solid color-mix(in srgb, #13274A 28%, transparent)',
-        }}
-      >
-        {/* Brand panel — compact on mobile, full rail on lg */}
+      <div className="grid min-h-dvh w-full grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,520px)] xl:grid-cols-[minmax(0,1fr)_560px]">
+        {/* Brand panel — full height rail on desktop */}
         <aside
-          className="flex flex-col text-white"
+          className="flex flex-col text-white min-h-0 lg:min-h-dvh"
           style={{ background: '#13274A', color: '#FFFFFF' }}
         >
-          <div className="px-6 py-7 sm:px-10 sm:py-9 lg:px-11 lg:pt-11 lg:pb-8 flex flex-col flex-1">
+          <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12 xl:px-16 xl:py-14 flex flex-col flex-1 max-w-[640px]">
             <Link
               href="/"
-              className="inline-flex items-center mb-6 lg:mb-14 w-fit"
+              className="inline-flex items-center mb-8 lg:mb-16 w-fit"
               aria-label="CircleTel home"
             >
               <Image
                 src="/images/circletel-logo-white.png"
                 alt="CircleTel"
-                width={180}
-                height={48}
+                width={320}
+                height={96}
                 priority
-                className="h-8 sm:h-9 w-auto"
+                className="h-14 w-auto sm:h-16 lg:h-20 xl:h-24"
               />
             </Link>
 
@@ -115,7 +111,7 @@ export function ModernistLoginShell({
 
             {/* Explicit white — globals.css h1 sets navy Manrope */}
             <h1
-              className="m-0 mb-3 lg:mb-4 font-extrabold tracking-[-0.025em] text-[32px] leading-[1.05] sm:text-[42px] lg:text-[54px] lg:leading-[0.98]"
+              className="m-0 mb-3 lg:mb-4 font-extrabold tracking-[-0.025em] text-[32px] leading-[1.05] sm:text-[42px] lg:text-[48px] xl:text-[54px] xl:leading-[0.98]"
               style={{
                 color: '#FFFFFF',
                 fontFamily: 'var(--font-heading)',
@@ -136,13 +132,13 @@ export function ModernistLoginShell({
             </p>
 
             <div
-              className="mt-6 lg:mt-8 hidden sm:block"
+              className="mt-6 lg:mt-10 hidden sm:block"
               style={{ borderTop: '2px solid rgba(255,255,255,0.3)' }}
             >
               {side.points.map((point) => (
                 <div
                   key={point}
-                  className="flex gap-3.5 py-3"
+                  className="flex gap-3.5 py-3.5"
                   style={{
                     borderBottom: '1px solid rgba(255,255,255,0.18)',
                   }}
@@ -167,10 +163,10 @@ export function ModernistLoginShell({
           </div>
         </aside>
 
-        {/* Form panel — natural height; footer pins only within the 800px rail */}
-        <div className="flex flex-col min-w-0 min-h-0 px-5 py-7 sm:px-10 sm:py-9 lg:px-11 lg:pt-11 lg:pb-8">
+        {/* Form panel — fills remaining column edge-to-edge */}
+        <div className="flex flex-col min-w-0 min-h-0 lg:min-h-dvh px-5 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12 xl:px-14">
           <div
-            className="flex flex-col flex-1 min-h-0"
+            className="flex flex-col flex-1 min-h-0 w-full max-w-md lg:max-w-none mx-auto lg:mx-0"
             style={{ fontFamily: 'var(--font-body)' }}
           >
             {children}
