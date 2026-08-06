@@ -7,11 +7,16 @@ import {
   filterEligibleSites,
   type InclusionSiteRow,
 } from './inclusion';
-import { resolvePatientWifi, type TdxPatientRow } from './patient-wifi';
+import {
+  loadFreeHourRows,
+  resolvePatientWifi,
+  type TdxPatientRow,
+} from './patient-wifi';
 import { loadStaffHourRows, resolveStaffWifi, siteHasLinkedAp } from './staff-wifi';
 import type {
   AssembleSkipReason,
   CoreUnavailableDiagnosis,
+  PatientWifiState,
   ReportPeriod,
   SiteUsageReportModel,
   StaffWifiState,
@@ -38,6 +43,11 @@ export interface AssembleReportDeps {
   loadSite(siteId: string): Promise<InclusionSiteRow | null>;
   loadCore(siteId: string, period: ReportPeriod): Promise<ReportCore>;
   loadStaff(siteId: string, period: ReportPeriod): Promise<StaffWifiState>;
+  loadPatient(
+    siteId: string,
+    period: ReportPeriod,
+    tdxRow: TdxPatientRow | null
+  ): Promise<PatientWifiState>;
   loadDevice(siteId: string): Promise<ReportDevice | null>;
   generatedAtIso?(): string;
 }
@@ -116,6 +126,14 @@ export function createDefaultAssembleReportDeps(): AssembleReportDeps {
       ]);
       return resolveStaffWifi({ apLinkedToSite, hourRows });
     },
+    async loadPatient(siteId, period, tdxRow) {
+      const supabase = await getClient();
+      const [apLinkedToSite, hourRows] = await Promise.all([
+        siteHasLinkedAp(supabase, siteId),
+        loadFreeHourRows(supabase, siteId, period.startUtc, period.endUtc),
+      ]);
+      return resolvePatientWifi({ apLinkedToSite, hourRows, tdxRow });
+    },
     async loadDevice(siteId) {
       return loadReportDevice(await getClient(), siteId);
     },
@@ -153,10 +171,13 @@ export async function assembleSiteUsageReport({
   }
 
   const unjani = site.corporate_code === 'UNJ';
-  const [staff, device] = await Promise.all([
+  const [staff, patient, device] = await Promise.all([
     unjani
       ? deps.loadStaff(siteId, period)
       : Promise.resolve<StaffWifiState>({ kind: 'no_samples' }),
+    unjani
+      ? deps.loadPatient(siteId, period, patientRow)
+      : Promise.resolve<PatientWifiState>({ kind: 'no_samples' }),
     deps.loadDevice(siteId),
   ]);
 
@@ -176,7 +197,7 @@ export async function assembleSiteUsageReport({
       device,
       unjani,
       staff,
-      patient: resolvePatientWifi(unjani ? patientRow : null),
+      patient,
     },
   };
 }

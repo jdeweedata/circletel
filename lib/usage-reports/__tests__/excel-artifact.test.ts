@@ -60,7 +60,16 @@ function fixtureModel(overrides?: Partial<SiteUsageReportModel['core']>): SiteUs
     },
     unjani: true,
     staff: { kind: 'available', totalBytes: 5e9, rxBytes: 4e9, txBytes: 1e9 },
-    patient: { kind: 'available', uniqueUsers: 120, loginSessions: 340, downloadGb: 88.4 },
+    patient: {
+      kind: 'available',
+      source: 'combined',
+      uniqueUsers: 120,
+      loginSessions: 340,
+      downloadGb: 88.4,
+      rxBytes: 88.4e9,
+      txBytes: 0,
+      totalBytes: 88.4e9,
+    },
   };
 }
 

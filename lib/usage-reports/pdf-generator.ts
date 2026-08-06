@@ -251,15 +251,41 @@ export function generateSiteUsageReportPdf(model: SiteUsageReportModel): ArrayBu
     doc.setFontSize(7);
     if (model.patient.kind === 'available') {
       doc.setTextColor(COLORS.dark);
-      doc.text(`Unique users ${model.patient.uniqueUsers.toLocaleString('en-ZA')}`, margin + 4, patientY + 13);
-      doc.text(`Login sessions ${model.patient.loginSessions.toLocaleString('en-ZA')}`, margin + 62, patientY + 13);
-      doc.text(`Download ${model.patient.downloadGb.toFixed(2)} GB`, margin + 124, patientY + 13);
+      const p = model.patient;
+      if (p.totalBytes != null) {
+        doc.text(`Total ${(p.totalBytes / 1e9).toFixed(2)} GB`, margin + 4, patientY + 13);
+        doc.text(`Down ${((p.rxBytes ?? 0) / 1e9).toFixed(2)} GB`, margin + 52, patientY + 13);
+        doc.text(`Up ${((p.txBytes ?? 0) / 1e9).toFixed(2)} GB`, margin + 100, patientY + 13);
+      } else {
+        doc.text(`Download ${p.downloadGb.toFixed(2)} GB`, margin + 4, patientY + 13);
+      }
+      if (p.uniqueUsers != null) {
+        doc.text(
+          `Users ${p.uniqueUsers.toLocaleString('en-ZA')}`,
+          margin + 140,
+          patientY + 13
+        );
+      }
       doc.setFontSize(6.2);
       doc.setTextColor(COLORS.muted);
-      doc.text('TDX anonymised analytics; numbers may be revised by TDX.', margin + 4, patientY + 21);
+      doc.text(
+        p.source === 'tdx_csv'
+          ? 'TDX anonymised analytics; numbers may be revised by TDX.'
+          : 'CircleTel Free Clinic SSID STA samples — do not sum with Staff/BNG/TDX.',
+        margin + 4,
+        patientY + 21
+      );
     } else {
       doc.setTextColor(COLORS.gray);
-      doc.text('Awaiting TDX export', margin + 4, patientY + 14);
+      doc.text(
+        model.patient.kind === 'ap_unlinked'
+          ? 'Not available — AP not linked to site'
+          : model.patient.kind === 'no_samples'
+            ? 'Not available — no Free Clinic Wi-Fi samples in this period'
+            : 'Awaiting TDX export',
+        margin + 4,
+        patientY + 14
+      );
     }
   }
 

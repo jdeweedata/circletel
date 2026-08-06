@@ -1,4 +1,9 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { RUIJIE_SSID_ROLLUP_ALLOWLIST } from '@/lib/ruijie/types';
 import type { PatientWifiState } from './types';
+
+/** Exact Ruijie broadcast name — must stay in RUIJIE_SSID_ROLLUP_ALLOWLIST. */
+export const FREE_SSID = 'Unjani Clinic Free WiFi';
 
 export interface TdxPatientRow {
   siteCode: string;
@@ -90,12 +95,68 @@ export function parseTdxPatientCsv(csv: string): TdxPatientRow[] {
   return rows;
 }
 
-export function resolvePatientWifi(row: TdxPatientRow | null): PatientWifiState {
-  if (!row) return { kind: 'awaiting_export' };
-  return {
-    kind: 'available',
-    uniqueUsers: row.uniqueUsers,
-    loginSessions: row.loginSessions,
-    downloadGb: row.downloadGb,
-  };
+export async function loadFreeHourRows(
+  supabase: SupabaseClient,
+  siteId: string,
+  startUtc: Date,
+  endUtc: Date
+) {
+  if (!(RUIJIE_SSID_ROLLUP_ALLOWLIST as readonly string[]).includes(FREE_SSID)) {
+    throw new Error('Free Clinic SSID not allow-listed');
+  }
+  const { data, error } = await supabase
+    .from('ruijie_ssid_traffic_rollups')
+    .select('rx_bytes, tx_bytes, hour_bucket')
+    .eq('corporate_site_id', siteId)
+    .eq('ssid', FREE_SSID)
+    .gte('hour_bucket', startUtc.toISOString())
+    .lte('hour_bucket', endUtc.toISOString());
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Prefer CircleTel Free Clinic SSID STA rollups for period GB; optionally merge
+ * TDX unique users / sessions when a Looker CSV row is present. Do not sum
+ * TDX download GB with Ruijie STA bytes — Ruijie wins for download when both.
+ */
+export function resolvePatientWifi(input: {
+  apLinkedToSite: boolean;
+  hourRows: Array<{ rx_bytes: number; tx_bytes: number }>;
+  tdxRow: TdxPatientRow | null;
+}): PatientWifiState {
+  const hasRollups = input.hourRows.length > 0;
+  const tdx = input.tdxRow;
+
+  if (hasRollups) {
+    const rxBytes = input.hourRows.reduce((a, r) => a + Number(r.rx_bytes || 0), 0);
+    const txBytes = input.hourRows.reduce((a, r) => a + Number(r.tx_bytes || 0), 0);
+    const totalBytes = rxBytes + txBytes;
+    return {
+      kind: 'available',
+      source: tdx ? 'combined' : 'ruijie_ssid',
+      uniqueUsers: tdx ? tdx.uniqueUsers : null,
+      loginSessions: tdx ? tdx.loginSessions : null,
+      downloadGb: totalBytes / 1e9,
+      rxBytes,
+      txBytes,
+      totalBytes,
+    };
+  }
+
+  if (tdx) {
+    return {
+      kind: 'available',
+      source: 'tdx_csv',
+      uniqueUsers: tdx.uniqueUsers,
+      loginSessions: tdx.loginSessions,
+      downloadGb: tdx.downloadGb,
+      rxBytes: null,
+      txBytes: null,
+      totalBytes: null,
+    };
+  }
+
+  if (!input.apLinkedToSite) return { kind: 'ap_unlinked' };
+  return { kind: 'no_samples' };
 }

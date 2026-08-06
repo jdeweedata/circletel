@@ -215,24 +215,60 @@ export function ReportDocument({ model }: { model: SiteUsageReportModel }) {
 
             <Panel
               title="Patient Free Wi-Fi"
-              source="Source: TDX/ThinkWiFi (manual Looker export)"
+              source={
+                patient.kind === 'available'
+                  ? patient.source === 'tdx_csv'
+                    ? 'Source: TDX/ThinkWiFi (manual Looker export)'
+                    : patient.source === 'combined'
+                      ? 'Source: CircleTel Free Clinic SSID + optional TDX users/sessions'
+                      : 'Source: CircleTel radio (Free Clinic SSID period bytes)'
+                  : 'Source: CircleTel Free Clinic SSID (or optional TDX export)'
+              }
             >
               {patient.kind === 'available' ? (
                 <>
                   <div className="flex flex-wrap gap-x-8 gap-y-1 text-sm text-slate-900">
-                    <span>Unique users: {patient.uniqueUsers.toLocaleString()}</span>
-                    <span>
-                      Login sessions: {patient.loginSessions.toLocaleString()}
-                    </span>
-                    <span>Download: {patient.downloadGb} GB</span>
+                    {patient.totalBytes != null ? (
+                      <>
+                        <span>Total: {formatBytesAsGb(patient.totalBytes)}</span>
+                        <span>
+                          Download: {formatBytesAsGb(patient.rxBytes ?? 0)}
+                        </span>
+                        <span>
+                          Upload: {formatBytesAsGb(patient.txBytes ?? 0)}
+                        </span>
+                      </>
+                    ) : (
+                      <span>
+                        Download: {patient.downloadGb.toFixed(2)} GB
+                      </span>
+                    )}
+                    {patient.uniqueUsers != null && (
+                      <span>
+                        Unique users: {patient.uniqueUsers.toLocaleString()}
+                      </span>
+                    )}
+                    {patient.loginSessions != null && (
+                      <span>
+                        Login sessions:{' '}
+                        {patient.loginSessions.toLocaleString()}
+                      </span>
+                    )}
                   </div>
                   <p className="mt-2 text-[11px] text-slate-400">
-                    Aggregate / anonymised · may be revised by TDX · do not sum with
-                    Staff or BNG totals.
+                    {patient.source === 'tdx_csv'
+                      ? 'Aggregate / anonymised · may be revised by TDX · do not sum with Staff or BNG totals.'
+                      : 'Sampled STA session telemetry on Unjani Clinic Free WiFi — not accounting-grade; do not sum with Staff, BNG, or TDX Download GB.'}
                   </p>
                 </>
               ) : (
-                <p className="text-sm text-slate-500">Awaiting TDX export.</p>
+                <p className="text-sm text-slate-500">
+                  {patient.kind === 'ap_unlinked'
+                    ? 'Not available — this site has no access point linked to it.'
+                    : patient.kind === 'no_samples'
+                      ? 'Not available — no Free Clinic Wi-Fi samples in this period (optional TDX CSV also not supplied).'
+                      : 'Awaiting TDX export.'}
+                </p>
               )}
             </Panel>
           </div>

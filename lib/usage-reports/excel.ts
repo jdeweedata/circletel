@@ -42,7 +42,25 @@ function staffLabel(staff: SiteUsageReportModel['staff']): string {
 
 function patientLabel(patient: SiteUsageReportModel['patient']): string {
   if (patient.kind === 'available') {
-    return `${patient.uniqueUsers} unique users, ${patient.loginSessions} sessions, ${patient.downloadGb.toFixed(2)} GB down`;
+    const parts: string[] = [];
+    if (patient.totalBytes != null) {
+      parts.push(`${(patient.totalBytes / 1e9).toFixed(2)} GB total (Free Clinic SSID)`);
+    } else {
+      parts.push(`${patient.downloadGb.toFixed(2)} GB down (TDX)`);
+    }
+    if (patient.uniqueUsers != null) {
+      parts.push(`${patient.uniqueUsers} unique users`);
+    }
+    if (patient.loginSessions != null) {
+      parts.push(`${patient.loginSessions} sessions`);
+    }
+    return parts.join(', ');
+  }
+  if (patient.kind === 'ap_unlinked') {
+    return 'Not available — AP not linked to site';
+  }
+  if (patient.kind === 'no_samples') {
+    return 'Not available — no Free Clinic Wi-Fi samples in this period';
   }
   return 'Awaiting TDX export';
 }

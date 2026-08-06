@@ -38,14 +38,24 @@ export function reportModelToCsv(model: SiteUsageReportModel): string {
           : 'Not available — AP not linked to site',
       ];
 
-  const patient = model.patient.kind === 'available'
-    ? [
-        model.patient.uniqueUsers,
-        model.patient.loginSessions,
-        model.patient.downloadGb.toFixed(2),
-        '',
-      ]
-    : ['', '', '', 'Awaiting TDX export'];
+  const patient =
+    model.patient.kind === 'available'
+      ? [
+          model.patient.uniqueUsers ?? '',
+          model.patient.loginSessions ?? '',
+          model.patient.downloadGb.toFixed(2),
+          model.patient.source,
+        ]
+      : [
+          '',
+          '',
+          '',
+          model.patient.kind === 'ap_unlinked'
+            ? 'Not available — AP not linked to site'
+            : model.patient.kind === 'no_samples'
+              ? 'Not available — no Free Clinic Wi-Fi samples in this period'
+              : 'Awaiting TDX export',
+        ];
 
   const row = [
     model.site.name,

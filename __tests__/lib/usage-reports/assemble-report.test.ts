@@ -49,6 +49,7 @@ function buildDeps(
     loadSite: async () => site,
     loadCore: async () => availableCore,
     loadStaff: async () => ({ kind: 'no_samples' }),
+    loadPatient: async () => ({ kind: 'no_samples' }),
     loadDevice: async () => null,
     generatedAtIso: () => '2026-08-01T17:40:00.000+02:00',
     ...overrides,
@@ -78,7 +79,7 @@ describe('assembleSiteUsageReport', () => {
     });
   });
 
-  it('builds an Unjani model and leaves absent patient data awaiting export', async () => {
+  it('builds an Unjani model and surfaces no_samples when patient has no Free SSID data', async () => {
     const device = {
       name: 'Clinic AP',
       model: 'RG-EG105G',
@@ -117,11 +118,11 @@ describe('assembleSiteUsageReport', () => {
       device,
       unjani: true,
       staff: { kind: 'available' },
-      patient: { kind: 'awaiting_export' },
+      patient: { kind: 'no_samples' },
     });
   });
 
-  it('maps an Unjani patient export row into available patient usage', async () => {
+  it('maps Free Clinic / TDX patient data via loadPatient', async () => {
     const result = await assembleSiteUsageReport({
       siteId: site.id,
       period,
@@ -131,21 +132,37 @@ describe('assembleSiteUsageReport', () => {
         loginSessions: 20,
         downloadGb: 2.5,
       },
-      deps: buildDeps(),
+      deps: buildDeps({
+        loadPatient: async (_siteId, _period, tdxRow) => ({
+          kind: 'available',
+          source: 'combined',
+          uniqueUsers: tdxRow?.uniqueUsers ?? null,
+          loginSessions: tdxRow?.loginSessions ?? null,
+          downloadGb: 1.1,
+          rxBytes: 1_100_000_000,
+          txBytes: 0,
+          totalBytes: 1_100_000_000,
+        }),
+      }),
     });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.model.patient).toEqual({
       kind: 'available',
+      source: 'combined',
       uniqueUsers: 12,
       loginSessions: 20,
-      downloadGb: 2.5,
+      downloadGb: 1.1,
+      rxBytes: 1_100_000_000,
+      txBytes: 0,
+      totalBytes: 1_100_000_000,
     });
   });
 
-  it('does not load Unjani-only staff data for another corporate account', async () => {
+  it('does not load Unjani-only staff/patient data for another corporate account', async () => {
     let staffLoads = 0;
+    let patientLoads = 0;
     const result = await assembleSiteUsageReport({
       siteId: 'other-1',
       period,
@@ -166,15 +183,20 @@ describe('assembleSiteUsageReport', () => {
           staffLoads += 1;
           return { kind: 'no_samples' };
         },
+        loadPatient: async () => {
+          patientLoads += 1;
+          return { kind: 'no_samples' };
+        },
       }),
     });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(staffLoads).toBe(0);
+    expect(patientLoads).toBe(0);
     expect(result.model.unjani).toBe(false);
     expect(result.model.staff).toEqual({ kind: 'no_samples' });
-    expect(result.model.patient).toEqual({ kind: 'awaiting_export' });
+    expect(result.model.patient).toEqual({ kind: 'no_samples' });
   });
 
   it('returns site_not_eligible when the site loader has no match', async () => {

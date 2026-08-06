@@ -49,13 +49,25 @@ export type StaffWifiState =
   | { kind: 'no_samples' }
   | { kind: 'ap_unlinked' };
 
+export type PatientWifiSource = 'ruijie_ssid' | 'tdx_csv' | 'combined';
+
 export type PatientWifiState =
   | {
       kind: 'available';
-      uniqueUsers: number;
-      loginSessions: number;
+      /** Ruijie Free Clinic SSID rollups, TDX CSV, or both (GB from Ruijie when combined). */
+      source: PatientWifiSource;
+      /** Present when a TDX/Looker row was supplied; null for Ruijie-only. */
+      uniqueUsers: number | null;
+      loginSessions: number | null;
       downloadGb: number;
+      /** STA byte totals when source is ruijie_ssid or combined; null for tdx_csv. */
+      rxBytes: number | null;
+      txBytes: number | null;
+      totalBytes: number | null;
     }
+  | { kind: 'no_samples' }
+  | { kind: 'ap_unlinked' }
+  /** @deprecated Prefer no_samples / ap_unlinked — kept for transitional call sites. */
   | { kind: 'awaiting_export' };
 
 export interface SiteUsageReportModel {

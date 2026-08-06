@@ -53,9 +53,13 @@ const minimalModel: SiteUsageReportModel = {
   },
   patient: {
     kind: 'available',
-    uniqueUsers: 250,
-    loginSessions: 410,
+    source: 'ruijie_ssid',
+    uniqueUsers: null,
+    loginSessions: null,
     downloadGb: 18.5,
+    rxBytes: 18_500_000_000,
+    txBytes: 0,
+    totalBytes: 18_500_000_000,
   },
 };
 
@@ -82,7 +86,7 @@ describe('site usage report exports', () => {
 
     expect(csv).toContain('site,period,core source,download GB,upload GB');
     expect(csv).toContain('Alexandra,Monthly · Jul 2026,Interstellio daily');
-    expect(csv).toContain('250,410,18.50');
+    expect(csv).toContain(',,18.50,ruijie_ssid');
   });
 
   it('uses Monday-aligned week bands', () => {
@@ -102,10 +106,12 @@ describe('site usage report exports', () => {
     const csv = reportModelToCsv({
       ...minimalModel,
       staff: { kind },
-      patient: { kind: 'awaiting_export' },
+      patient: { kind: 'no_samples' },
     });
 
     expect(csv).toContain(reason);
-    expect(csv).toContain('Awaiting TDX export');
+    expect(csv).toContain(
+      'Not available — no Free Clinic Wi-Fi samples in this period'
+    );
   });
 });

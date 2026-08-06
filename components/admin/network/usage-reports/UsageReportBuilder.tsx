@@ -266,7 +266,7 @@ export function UsageReportBuilder({
                   Unjani sites only
                 </span>
                 <span className="block text-xs text-slate-500">
-                  Enables Staff and optional Patient Wi-Fi sections.
+                  Enables Staff + Free Clinic SSID sections (optional TDX CSV for users/sessions).
                 </span>
               </Label>
             </div>
