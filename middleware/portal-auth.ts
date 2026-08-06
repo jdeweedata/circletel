@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 
 const PUBLIC_PORTAL_ROUTES = [
-  '/portal/login',
+  '/portal/login', // redirects to /auth/login?account=business
 ] as const;
 
 export function isPublicPortalRoute(pathname: string): boolean {
@@ -46,7 +46,8 @@ export async function handlePortalAuth(
 
   if (!user) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/portal/login';
+    redirectUrl.pathname = '/auth/login';
+    redirectUrl.searchParams.set('account', 'business');
     redirectUrl.searchParams.set('redirect', pathname);
 
     return {
@@ -69,7 +70,8 @@ export async function handlePortalAuth(
 
   if (!portalUser) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/portal/login';
+    redirectUrl.pathname = '/auth/login';
+    redirectUrl.searchParams.set('account', 'business');
     redirectUrl.searchParams.set('error', 'no_portal_access');
 
     // Sign-out is client-side; redirect away from protected pages

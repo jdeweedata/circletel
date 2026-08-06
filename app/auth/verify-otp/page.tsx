@@ -13,7 +13,10 @@ export default function VerifyOTPLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') || '';
-  const redirectPath = searchParams.get('redirect') || '/dashboard';
+  const account = searchParams.get('account') === 'business' ? 'business' : 'personal';
+  const redirectPath =
+    searchParams.get('redirect') ||
+    (account === 'business' ? '/portal' : '/dashboard');
 
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -35,9 +38,13 @@ export default function VerifyOTPLoginPage() {
   useEffect(() => {
     if (!phone) {
       toast.error('Phone number is required');
-      router.push('/auth/login');
+      router.push(
+        account === 'business'
+          ? '/auth/login?account=business'
+          : '/auth/login'
+      );
     }
-  }, [phone, router]);
+  }, [phone, router, account]);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,9 +87,36 @@ export default function VerifyOTPLoginPage() {
         return;
       }
 
+      if (account === 'business') {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const { data: portalUser } = user
+          ? await supabase
+              .from('b2b_portal_users')
+              .select('id')
+              .eq('auth_user_id', user.id)
+              .maybeSingle()
+          : { data: null };
+
+        if (!portalUser) {
+          await supabase.auth.signOut();
+          toast.error(
+            'No business portal access for this account. Ask your Super User to invite you.'
+          );
+          router.push('/auth/login?account=business&error=no_portal_access');
+          return;
+        }
+      }
+
       toast.success('Successfully signed in!');
-      // Redirect to intended page or dashboard
-      router.push(redirectPath);
+      router.push(
+        account === 'business'
+          ? redirectPath.startsWith('/portal')
+            ? redirectPath
+            : '/portal'
+          : redirectPath
+      );
     } catch (error) {
       console.error('Error verifying OTP:', error);
       toast.error('Failed to verify code. Please try again.');

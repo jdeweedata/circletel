@@ -1,124 +1,185 @@
 'use client';
-import { PiArrowLeftBold, PiEyeBold, PiEyeSlashBold, PiInfoBold, PiPhoneBold } from 'react-icons/pi';
 
+import { PiEyeBold, PiEyeSlashBold } from 'react-icons/pi';
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { clearSupabaseSession, createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import SplitAuthLayout from '@/components/auth/SplitAuthLayout';
+import {
+  ModernistLoginShell,
+  type AccountLane,
+} from '@/components/auth/ModernistLoginShell';
 
-// Login form validation schema - supports both email and OTP login
 const emailLoginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 const otpLoginSchema = z.object({
-  phone: z.string().min(10, 'Please enter a valid phone number').regex(/^[0-9+\s()-]+$/, 'Please enter a valid phone number'),
+  phone: z
+    .string()
+    .min(10, 'Please enter a valid phone number')
+    .regex(/^[0-9+\s()-]+$/, 'Please enter a valid phone number'),
 });
 
 type EmailLoginFormValues = z.infer<typeof emailLoginSchema>;
 type OtpLoginFormValues = z.infer<typeof otpLoginSchema>;
+type LoginMethod = 'password' | 'otp';
+
+const PERSONAL_REDIRECTS = [
+  '/dashboard',
+  '/order/checkout',
+  '/packages',
+  '/partners',
+];
+
+function parseAccount(raw: string | null): AccountLane {
+  return raw === 'business' ? 'business' : 'personal';
+}
+
+function safePersonalRedirect(raw: string | null): string {
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/dashboard';
+  if (PERSONAL_REDIRECTS.some((p) => raw.startsWith(p))) return raw;
+  return '/dashboard';
+}
+
+function safeBusinessRedirect(raw: string | null): string {
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/portal';
+  if (raw.startsWith('/portal')) return raw;
+  return '/portal';
+}
+
+async function assertPortalAccess(userId: string): Promise<boolean> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('b2b_portal_users')
+    .select('id')
+    .eq('auth_user_id', userId)
+    .maybeSingle();
+  return Boolean(data);
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn, signInWithGoogle } = useCustomerAuth();
+
+  const [account, setAccount] = React.useState<AccountLane>(() =>
+    parseAccount(searchParams.get('account'))
+  );
+  const [method, setMethod] = React.useState<LoginMethod>('password');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
-  const [loginMethod, setLoginMethod] = React.useState<'email' | 'otp'>('email');
+  const [keepSignedIn, setKeepSignedIn] = React.useState(true);
+  const [formError, setFormError] = React.useState<string | null>(null);
 
-  const ALLOWED_REDIRECT_PATHS = [
-    '/dashboard',
-    '/order/checkout',
-    '/packages',
-    '/partners',
-  ];
+  const redirectParam = searchParams.get('redirect');
+  const personalRedirect = safePersonalRedirect(redirectParam);
+  const businessRedirect = safeBusinessRedirect(redirectParam);
 
-  function safeRedirectPath(raw: string | null): string {
-    if (!raw) return '/dashboard';
-    if (!raw.startsWith('/')) return '/dashboard';
-    if (raw.startsWith('//')) return '/dashboard';
-    const isAllowed = ALLOWED_REDIRECT_PATHS.some((allowed) => raw.startsWith(allowed));
-    return isAllowed ? raw : '/dashboard';
-  }
+  React.useEffect(() => {
+    const next = parseAccount(searchParams.get('account'));
+    setAccount(next);
+  }, [searchParams]);
 
-  // Get redirect path from query params — validated against allowlist to prevent open redirect
-  const redirectPath = safeRedirectPath(searchParams.get('redirect'));
-
-  // Redirect already-authenticated users away from the login page.
-  // CustomerAuthProvider skips initialization on /auth/* routes, so we check
-  // the Supabase session directly here.
   React.useEffect(() => {
     const checkExistingSession = async () => {
       const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        router.replace(redirectPath);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      if (account === 'business') {
+        const ok = await assertPortalAccess(session.user.id);
+        if (ok) {
+          router.replace(businessRedirect);
+          return;
+        }
+        await supabase.auth.signOut();
+        setFormError(
+          'No business portal access for this account. Ask your Super User to invite you, or request business access.'
+        );
+        return;
       }
+
+      router.replace(personalRedirect);
     };
     checkExistingSession();
-  }, [router, redirectPath]);
+  }, [router, account, personalRedirect, businessRedirect]);
 
-  // Only clear session if there's an explicit auth error indicator
-  // Don't clear just because there's a redirect param - that's too aggressive
-  // and can cause login loops when the session is still valid
   React.useEffect(() => {
-    const authError = searchParams.get('error') || searchParams.get('auth_error');
+    const authError =
+      searchParams.get('error') || searchParams.get('auth_error');
     if (authError) {
-      // Only clear session for actual auth errors, not just redirects
-      console.log('[Login] Clearing session due to auth error:', authError);
       clearSupabaseSession();
+      if (authError === 'no_portal_access') {
+        setFormError(
+          'No portal access found for this account. Please contact your administrator.'
+        );
+      }
     }
   }, [searchParams]);
 
-  // Email login form
   const emailForm = useForm<EmailLoginFormValues>({
     resolver: zodResolver(emailLoginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   });
 
-  // OTP login form
   const otpForm = useForm<OtpLoginFormValues>({
     resolver: zodResolver(otpLoginSchema),
-    defaultValues: {
-      phone: '',
-    },
+    defaultValues: { phone: '' },
   });
+
+  function switchAccount(next: AccountLane) {
+    setAccount(next);
+    setFormError(null);
+    setMethod('password');
+    const url = new URL(window.location.href);
+    if (next === 'business') url.searchParams.set('account', 'business');
+    else url.searchParams.delete('account');
+    window.history.replaceState({}, '', url.toString());
+  }
 
   const onEmailSubmit = async (data: EmailLoginFormValues) => {
     setIsSubmitting(true);
+    setFormError(null);
 
     try {
       const result = await signIn(data.email, data.password);
-
       if (result.error) {
+        setFormError(result.error);
         toast.error(result.error);
         return;
       }
 
-      // Show success message
+      if (account === 'business') {
+        const userId = result.user?.id;
+        if (!userId || !(await assertPortalAccess(userId))) {
+          const supabase = createClient();
+          await supabase.auth.signOut();
+          const msg =
+            'No business portal access for this account. Ask your Super User to invite you.';
+          setFormError(msg);
+          toast.error(msg);
+          return;
+        }
+        toast.success('Welcome back');
+        await new Promise((r) => setTimeout(r, 300));
+        router.push(businessRedirect);
+        router.refresh();
+        return;
+      }
+
       toast.success('Welcome back!');
-
-      // Small delay to ensure cookies are set before navigation
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Redirect to intended page or dashboard
-      router.push(redirectPath);
-      
-      // Force a refresh to ensure session is picked up
+      await new Promise((r) => setTimeout(r, 300));
+      router.push(personalRedirect);
       router.refresh();
     } catch (error) {
       console.error('Error signing in:', error);
@@ -130,15 +191,14 @@ export default function LoginPage() {
 
   const onOtpSubmit = async (data: OtpLoginFormValues) => {
     setIsSubmitting(true);
+    setFormError(null);
 
     try {
-      // Send OTP to phone number
       const otpResponse = await fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: data.phone }),
       });
-
       const otpResult = await otpResponse.json();
 
       if (!otpResult.success) {
@@ -147,9 +207,14 @@ export default function LoginPage() {
       }
 
       toast.success('Verification code sent to your phone!');
-
-      // Navigate to OTP verification page
-      router.push(`/auth/verify-otp?phone=${encodeURIComponent(data.phone)}&redirect=${encodeURIComponent(redirectPath)}`);
+      const dest =
+        account === 'business' ? businessRedirect : personalRedirect;
+      const params = new URLSearchParams({
+        phone: data.phone,
+        redirect: dest,
+        account,
+      });
+      router.push(`/auth/verify-otp?${params.toString()}`);
     } catch (error) {
       console.error('Error sending OTP:', error);
       toast.error('Failed to send verification code. Please try again.');
@@ -159,14 +224,14 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (account === 'business') return;
     setIsGoogleLoading(true);
     try {
-      const result = await signInWithGoogle({ redirectTo: redirectPath });
+      const result = await signInWithGoogle({ redirectTo: personalRedirect });
       if (result.error) {
         toast.error(result.error);
         setIsGoogleLoading(false);
       }
-      // If successful, user will be redirected to Google OAuth
     } catch (error) {
       console.error('Google sign-in error:', error);
       toast.error('Failed to sign in with Google');
@@ -174,237 +239,369 @@ export default function LoginPage() {
     }
   };
 
+  const emailLabel = account === 'business' ? 'Work email' : 'Email';
+  const emailPlaceholder =
+    account === 'business' ? 'you@company.co.za' : 'you@example.co.za';
+  const passwordHint =
+    account === 'business'
+      ? 'Use the address your account admin invited.'
+      : '';
+  const cta =
+    account === 'business' ? 'Sign in to business portal' : 'Sign in';
+  const methodPasswordLabel =
+    account === 'business' ? 'Work email & password' : 'Email & password';
+
   return (
-    <SplitAuthLayout
-      heading="Customer Portal"
-      subtitle="Manage your account, view invoices, track your connection and get support — all in one place."
-    >
-      <div className="space-y-4">
-        {/* Heading */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Sign in</h1>
-          <p className="mt-1 text-sm text-gray-500">Welcome back — please sign in to continue</p>
-        </div>
+    <ModernistLoginShell account={account}>
+      <h2
+        className="text-[32px] font-extrabold m-0 mb-1.5 tracking-tight"
+        style={{ color: '#13274A' }}
+      >
+        Sign in
+      </h2>
+      <p
+        className="text-[13.5px] leading-relaxed mb-6"
+        style={{ color: 'color-mix(in srgb, #1F2937 62%, transparent)' }}
+      >
+        Use the account type your service is billed under.
+      </p>
 
-        {/* Login Method Toggle */}
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setLoginMethod('email')}
-            className={`flex-1 py-2 px-3 rounded-md text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
-              loginMethod === 'email'
-                ? 'bg-[#F5831F] text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Email & Password
-          </button>
-          <button
-            type="button"
-            onClick={() => setLoginMethod('otp')}
-            className={`flex-1 py-2 px-3 rounded-md text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
-              loginMethod === 'otp'
-                ? 'bg-[#F5831F] text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Mobile OTP
-          </button>
-        </div>
-
-        {/* Email Login Form */}
-        {loginMethod === 'email' && (
-          <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
-            {/* Email Field */}
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
-                Email
-              </Label>
-              <Controller
-                name="email"
-                control={emailForm.control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    className="rounded-none border-0 border-b border-gray-300 bg-transparent px-0 shadow-none focus-visible:border-[#F5831F] focus-visible:ring-0"
-                    required
-                  />
-                )}
-              />
-              {emailForm.formState.errors.email && (
-                <p className="text-xs text-red-600">{emailForm.formState.errors.email.message}</p>
-              )}
-            </div>
-
-            {/* Password Field */}
-            <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
-                Password
-              </Label>
-              <Controller
-                name="password"
-                control={emailForm.control}
-                render={({ field }) => (
-                  <div className="relative">
-                    <Input
-                      {...field}
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      className="rounded-none border-0 border-b border-gray-300 bg-transparent px-0 pr-10 shadow-none focus-visible:border-[#F5831F] focus-visible:ring-0"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? (
-                        <PiEyeSlashBold className="w-4 h-4" />
-                      ) : (
-                        <PiEyeBold className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                )}
-              />
-              {emailForm.formState.errors.password && (
-                <p className="text-xs text-red-600">{emailForm.formState.errors.password.message}</p>
-              )}
-            </div>
-
-            {/* Forgot Password Link */}
-            <div>
-              <Link
-                href="/auth/forgot-password"
-                className="text-sm font-semibold text-gray-700 hover:text-[#F5831F]"
-              >
-                Forgot password
-              </Link>
-            </div>
-
-            {/* Submit Button */}
+      {/* Account type tabs */}
+      <div
+        className="grid grid-cols-2 mb-6"
+        style={{ border: '2px solid #13274A' }}
+      >
+        {(
+          [
+            {
+              key: 'personal' as const,
+              title: 'Personal',
+              sub: 'Home fibre, LTE and mobile',
+            },
+            {
+              key: 'business' as const,
+              title: 'Business',
+              sub: 'Companies, NPOs and multi-site',
+            },
+          ] as const
+        ).map((tab, i) => {
+          const on = account === tab.key;
+          return (
             <button
-              type="submit"
-              disabled={isSubmitting || isGoogleLoading}
-              className="w-full bg-[#F5831F] hover:bg-[#E67510] text-white font-bold text-base py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              key={tab.key}
+              type="button"
+              onClick={() => switchAccount(tab.key)}
+              className="text-left px-3.5 py-3"
+              style={{
+                background: on ? '#13274A' : '#FFFFFF',
+                color: on ? '#FFFFFF' : '#1F2937',
+                borderLeft: i === 0 ? 'none' : '1px solid #13274A',
+              }}
             >
-              {isSubmitting ? 'Signing in...' : 'Sign in'}
+              <span className="block font-extrabold text-sm">{tab.title}</span>
+              <span className="block text-[11px] opacity-75 mt-0.5">
+                {tab.sub}
+              </span>
             </button>
-          </form>
-        )}
+          );
+        })}
+      </div>
 
-        {/* OTP Login Form */}
-        {loginMethod === 'otp' && (
-          <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-4">
-            {/* Phone Field */}
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="phone" className="text-sm font-semibold text-gray-700">
-                  Mobile Number
-                </Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <PiInfoBold className="w-4 h-4 text-gray-400 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-xs">We'll send a verification code to this number</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Controller
-                name="phone"
-                control={otpForm.control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="phone"
-                    type="tel"
-                    placeholder="0821234567"
-                    className="rounded-none border-0 border-b border-gray-300 bg-transparent px-0 shadow-none focus-visible:border-[#F5831F] focus-visible:ring-0"
-                    required
-                  />
-                )}
-              />
-              {otpForm.formState.errors.phone && (
-                <p className="text-xs text-red-600">{otpForm.formState.errors.phone.message}</p>
-              )}
-            </div>
-
-            {/* Submit Button */}
+      {/* Method toggle */}
+      <div className="flex mb-5">
+        {(
+          [
+            { key: 'password' as const, label: methodPasswordLabel },
+            { key: 'otp' as const, label: 'Mobile OTP' },
+          ] as const
+        ).map((m, i) => {
+          const on = method === m.key;
+          return (
             <button
-              type="submit"
-              disabled={isSubmitting || isGoogleLoading}
-              className="w-full bg-[#F5831F] hover:bg-[#E67510] text-white font-bold text-base py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              key={m.key}
+              type="button"
+              onClick={() => setMethod(m.key)}
+              className="px-3.5 py-2 text-[12.5px] whitespace-nowrap"
+              style={{
+                background: on ? '#13274A' : 'transparent',
+                color: on ? '#FFFFFF' : '#1F2937',
+                border: '1px solid color-mix(in srgb, #13274A 28%, transparent)',
+                borderLeftWidth: i === 0 ? 1 : 0,
+              }}
             >
-              <PiPhoneBold className="w-4 h-4" />
-              {isSubmitting ? 'Sending code...' : 'Send verification code'}
+              {m.label}
             </button>
-          </form>
-        )}
+          );
+        })}
+      </div>
 
-        {/* Divider */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200"></div>
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-white px-2 text-gray-400">or</span>
-          </div>
-        </div>
-
-        {/* Google Sign In Button */}
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={isGoogleLoading || isSubmitting}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      {formError && (
+        <div
+          className="mb-5 px-4 py-3 text-sm"
+          style={{
+            borderLeft: '4px solid #DC2626',
+            background: 'color-mix(in srgb, #DC2626 8%, #FFFFFF)',
+            color: '#991B1B',
+          }}
         >
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
-            <path
-              fill="#4285F4"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-            />
-          </svg>
-          <span className="text-sm font-semibold text-gray-700">
-            {isGoogleLoading ? 'Connecting...' : 'Continue with Google'}
-          </span>
-        </button>
+          {formError}
+        </div>
+      )}
 
-        {/* Sign Up + Back links on one row */}
-        <div className="flex items-center justify-between gap-3 text-sm text-gray-600">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            <PiArrowLeftBold className="w-4 h-4" />
-            Home
-          </Link>
-          <span>
-            New customer?{' '}
-            <Link href="/auth/register" className="text-[#F5831F] hover:underline font-bold">
-              Create account
+      {method === 'password' && (
+        <form
+          onSubmit={emailForm.handleSubmit(onEmailSubmit)}
+          className="flex flex-col gap-4"
+        >
+          <div>
+            <label
+              className="block text-[11px] font-semibold tracking-wide uppercase mb-1.5"
+              style={{ color: 'color-mix(in srgb, #1F2937 65%, transparent)' }}
+            >
+              {emailLabel}
+            </label>
+            <Controller
+              name="email"
+              control={emailForm.control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="email"
+                  placeholder={emailPlaceholder}
+                  required
+                  className="w-full px-3 min-h-[44px] text-sm bg-white"
+                  style={{
+                    border: '1px solid color-mix(in srgb, #13274A 28%, transparent)',
+                    color: '#1F2937',
+                  }}
+                />
+              )}
+            />
+            {passwordHint && (
+              <p
+                className="text-[11.5px] mt-1"
+                style={{
+                  color: 'color-mix(in srgb, #1F2937 52%, transparent)',
+                }}
+              >
+                {passwordHint}
+              </p>
+            )}
+            {emailForm.formState.errors.email && (
+              <p className="text-xs text-red-600 mt-1">
+                {emailForm.formState.errors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label
+              className="block text-[11px] font-semibold tracking-wide uppercase mb-1.5"
+              style={{ color: 'color-mix(in srgb, #1F2937 65%, transparent)' }}
+            >
+              Password
+            </label>
+            <Controller
+              name="password"
+              control={emailForm.control}
+              render={({ field }) => (
+                <div className="relative">
+                  <input
+                    {...field}
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Your password"
+                    required
+                    className="w-full px-3 pr-10 min-h-[44px] text-sm bg-white"
+                    style={{
+                      border:
+                        '1px solid color-mix(in srgb, #13274A 28%, transparent)',
+                      color: '#1F2937',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  >
+                    {showPassword ? (
+                      <PiEyeSlashBold className="w-4 h-4" />
+                    ) : (
+                      <PiEyeBold className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              )}
+            />
+            {emailForm.formState.errors.password && (
+              <p className="text-xs text-red-600 mt-1">
+                {emailForm.formState.errors.password.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between gap-3 my-1">
+            <label className="flex items-center gap-2 text-[12.5px] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={keepSignedIn}
+                onChange={(e) => setKeepSignedIn(e.target.checked)}
+                className="rounded-none"
+              />
+              Keep me signed in
+            </label>
+            <Link
+              href="/auth/forgot-password"
+              className="font-extrabold text-[12.5px] no-underline whitespace-nowrap"
+              style={{ color: '#D76026' }}
+            >
+              Forgot password
             </Link>
-          </span>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting || isGoogleLoading}
+            className="w-full min-h-[46px] text-[15px] font-extrabold disabled:opacity-50"
+            style={{ background: '#F5841E', color: '#13274A', border: 0 }}
+          >
+            {isSubmitting ? 'Signing in…' : cta}
+          </button>
+        </form>
+      )}
+
+      {method === 'otp' && (
+        <form
+          onSubmit={otpForm.handleSubmit(onOtpSubmit)}
+          className="flex flex-col gap-4"
+        >
+          <div>
+            <label
+              className="block text-[11px] font-semibold tracking-wide uppercase mb-1.5"
+              style={{ color: 'color-mix(in srgb, #1F2937 65%, transparent)' }}
+            >
+              Mobile number
+            </label>
+            <Controller
+              name="phone"
+              control={otpForm.control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="tel"
+                  placeholder="082 000 0000"
+                  required
+                  className="w-full px-3 min-h-[44px] text-sm bg-white"
+                  style={{
+                    border:
+                      '1px solid color-mix(in srgb, #13274A 28%, transparent)',
+                    color: '#1F2937',
+                  }}
+                />
+              )}
+            />
+            <p
+              className="text-[11.5px] mt-1"
+              style={{
+                color: 'color-mix(in srgb, #1F2937 52%, transparent)',
+              }}
+            >
+              {account === 'business'
+                ? 'The number registered against your user on the account.'
+                : 'We send a six-digit code, valid for five minutes.'}
+            </p>
+            {otpForm.formState.errors.phone && (
+              <p className="text-xs text-red-600 mt-1">
+                {otpForm.formState.errors.phone.message}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting || isGoogleLoading}
+            className="w-full min-h-[46px] text-[15px] font-extrabold disabled:opacity-50"
+            style={{ background: '#F5841E', color: '#13274A', border: 0 }}
+          >
+            {isSubmitting ? 'Sending…' : 'Send me a code'}
+          </button>
+        </form>
+      )}
+
+      {account === 'personal' && method === 'password' && (
+        <>
+          <div className="flex items-center gap-3 my-5">
+            <span
+              className="flex-1 h-px"
+              style={{
+                background: 'color-mix(in srgb, #13274A 28%, transparent)',
+              }}
+            />
+            <span
+              className="text-[10px] font-semibold tracking-[0.14em] uppercase"
+              style={{
+                color: 'color-mix(in srgb, #1F2937 50%, transparent)',
+              }}
+            >
+              or
+            </span>
+            <span
+              className="flex-1 h-px"
+              style={{
+                background: 'color-mix(in srgb, #13274A 28%, transparent)',
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isGoogleLoading || isSubmitting}
+            className="w-full min-h-[44px] font-extrabold text-sm disabled:opacity-50 bg-white"
+            style={{
+              border: '2px solid color-mix(in srgb, #13274A 28%, transparent)',
+              color: '#13274A',
+            }}
+          >
+            {isGoogleLoading ? 'Connecting…' : 'Continue with Google'}
+          </button>
+        </>
+      )}
+
+      <div
+        className="mt-auto pt-6 flex items-center justify-between gap-3 text-[12.5px]"
+        style={{
+          borderTop: '2px solid color-mix(in srgb, #13274A 28%, transparent)',
+          color: 'color-mix(in srgb, #1F2937 62%, transparent)',
+        }}
+      >
+        <Link href="/" className="no-underline whitespace-nowrap" style={{ color: 'inherit' }}>
+          ← circletel.co.za
+        </Link>
+        <div className="text-right">
+          {account === 'business' ? (
+            <>
+              No login yet?{' '}
+              <Link
+                href="/contact"
+                className="font-extrabold no-underline whitespace-nowrap"
+                style={{ color: '#D76026' }}
+              >
+                Request business access
+              </Link>
+            </>
+          ) : (
+            <>
+              New customer?{' '}
+              <Link
+                href="/auth/register"
+                className="font-extrabold no-underline whitespace-nowrap"
+                style={{ color: '#D76026' }}
+              >
+                Create an account
+              </Link>
+            </>
+          )}
         </div>
       </div>
-    </SplitAuthLayout>
+    </ModernistLoginShell>
   );
 }
