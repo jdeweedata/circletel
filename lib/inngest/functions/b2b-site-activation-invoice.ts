@@ -115,7 +115,11 @@ export const b2bSiteActivationInvoice = inngest.createFunction(
 
         const lineItems = [
           {
-            description: `Pro-rata: ${siteName} — ${remainingDays}/${daysInMonth} days (${periodStart} to ${periodEnd})`,
+            description: `Unjani Connect — ${siteName} (pro-rata ${remainingDays}/${daysInMonth} days, ${periodStart} to ${periodEnd})`,
+            site_name: siteName,
+            site_id: site_id,
+            service: 'Unjani Connect',
+            sku: 'UNJ-MC-001',
             quantity: 1,
             unit_price: proRataAmount,
             amount: proRataAmount,

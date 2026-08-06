@@ -1,15 +1,13 @@
 import { NextResponse } from 'next/server';
-import { createClientWithSession } from '@/lib/supabase/server';
+import { requirePortalUser } from '@/lib/portal/require-portal-user';
 
 export async function GET() {
-  const supabase = await createClientWithSession();
+  const auth = await requirePortalUser();
+  if (!auth.ok) return auth.response;
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const { portalUser, adminDb } = auth;
 
-  const { data: invoices, error } = await supabase
+  const { data: invoices, error } = await adminDb
     .from('customer_invoices')
     .select(`
       id,
@@ -21,6 +19,7 @@ export async function GET() {
       subtotal,
       vat_rate,
       vat_amount,
+      tax_amount,
       total_amount,
       amount_paid,
       amount_due,
@@ -32,6 +31,7 @@ export async function GET() {
       pdf_url,
       pdf_generated_at
     `)
+    .eq('corporate_account_id', portalUser.organisation_id)
     .order('invoice_date', { ascending: false });
 
   if (error) {
@@ -39,5 +39,10 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to load invoices' }, { status: 500 });
   }
 
-  return NextResponse.json({ invoices: invoices ?? [] });
+  const normalised = (invoices ?? []).map((inv) => ({
+    ...inv,
+    vat_amount: inv.vat_amount ?? inv.tax_amount ?? 0,
+  }));
+
+  return NextResponse.json({ invoices: normalised });
 }

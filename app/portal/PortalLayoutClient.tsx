@@ -13,14 +13,18 @@ import {
   PiListBold,
   PiXBold,
   PiCaretDownBold,
+  PiUsersThreeBold,
+  PiMapPinAreaBold,
 } from 'react-icons/pi';
 import { useState } from 'react';
 
 const adminNavItems = [
   { href: '/portal', label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
   { href: '/portal/sites', label: 'Sites', icon: PiBuildings },
+  { href: '/portal/coverage', label: 'Coverage', icon: PiMapPinAreaBold },
   { href: '/portal/billing', label: 'Billing', icon: PiCurrencyDollarBold },
   { href: '/portal/support', label: 'Support', icon: PiLifebuoyBold },
+  { href: '/portal/team', label: 'Team', icon: PiUsersThreeBold },
 ];
 
 const siteUserNavItems = [
@@ -40,12 +44,19 @@ function PortalNav() {
   if (!user) return null;
 
   return (
-    <header className="bg-white border-b sticky top-0 z-50">
+    <header
+      className="sticky top-0 z-50 bg-white"
+      style={{ borderBottom: '2px solid color-mix(in srgb, #13274A 28%, transparent)' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/portal" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-circleTel-orange">CircleTel</span>
-            <span className="text-sm text-gray-500">Portal</span>
+            <span className="text-xl font-extrabold" style={{ color: '#F5841E' }}>
+              CircleTel
+            </span>
+            <span className="text-sm font-medium" style={{ color: '#13274A' }}>
+              Portal
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
@@ -58,11 +69,14 @@ function PortalNav() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2',
-                    isActive
-                      ? 'bg-circleTel-orange/10 text-circleTel-orange'
-                      : 'text-gray-600 hover:bg-gray-100'
+                    'px-3 py-2 text-sm font-extrabold transition-colors flex items-center gap-2',
+                    isActive ? 'text-white' : 'hover:opacity-80'
                   )}
+                  style={
+                    isActive
+                      ? { background: '#13274A', color: '#FFFFFF' }
+                      : { color: '#13274A' }
+                  }
                 >
                   <item.icon className="w-4 h-4" />
                   {item.label}
@@ -75,39 +89,57 @@ function PortalNav() {
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100"
+                className="flex items-center gap-2 px-3 py-2"
+                style={{ border: '1px solid color-mix(in srgb, #13274A 28%, transparent)' }}
               >
-                <div className="w-8 h-8 bg-circleTel-orange/10 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-circleTel-orange">
+                <div
+                  className="w-8 h-8 flex items-center justify-center"
+                  style={{ background: 'color-mix(in srgb, #F5841E 18%, #FFFFFF)' }}
+                >
+                  <span className="text-sm font-extrabold" style={{ color: '#13274A' }}>
                     {user.display_name.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-sm font-medium text-gray-900 truncate max-w-[140px]">
+                  <p className="text-sm font-extrabold truncate max-w-[140px]" style={{ color: '#13274A' }}>
                     {user.display_name}
                   </p>
-                  <p className="text-xs text-gray-500 truncate max-w-[140px]">
+                  <p className="text-xs truncate max-w-[140px]" style={{ color: '#1F2937' }}>
                     {user.organisation_name}
                   </p>
                 </div>
-                <PiCaretDownBold className="w-4 h-4 text-gray-400" />
+                <PiCaretDownBold className="w-4 h-4" style={{ color: '#13274A' }} />
               </button>
 
               {userMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border z-50">
-                    <div className="p-3 border-b">
-                      <p className="text-sm font-medium text-gray-900">{user.display_name}</p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
-                      <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-circleTel-orange/10 text-circleTel-orange capitalize">
-                        {user.role === 'admin' ? 'Head Office' : 'Site User'}
+                  <div
+                    className="absolute right-0 mt-2 w-56 bg-white z-50"
+                    style={{ border: '2px solid color-mix(in srgb, #13274A 28%, transparent)' }}
+                  >
+                    <div
+                      className="p-3"
+                      style={{ borderBottom: '1px solid color-mix(in srgb, #13274A 28%, transparent)' }}
+                    >
+                      <p className="text-sm font-extrabold" style={{ color: '#13274A' }}>
+                        {user.display_name}
+                      </p>
+                      <p className="text-xs" style={{ color: '#1F2937' }}>
+                        {user.email}
+                      </p>
+                      <span
+                        className="inline-block mt-1 text-xs px-2 py-0.5 font-extrabold"
+                        style={{ background: '#13274A', color: '#FFFFFF' }}
+                      >
+                        {user.role === 'admin' ? 'Super User' : 'Site User'}
                       </span>
                     </div>
                     <div className="p-2">
                       <button
                         onClick={signOut}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium"
+                        style={{ color: '#DC2626' }}
                       >
                         <PiSignOutBold className="w-4 h-4" />
                         Sign Out
@@ -120,7 +152,8 @@ function PortalNav() {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="md:hidden p-2"
+              style={{ border: '1px solid color-mix(in srgb, #13274A 28%, transparent)' }}
             >
               {mobileMenuOpen ? <PiXBold className="w-6 h-6" /> : <PiListBold className="w-6 h-6" />}
             </button>
@@ -129,7 +162,10 @@ function PortalNav() {
       </div>
 
       {mobileMenuOpen && (
-        <nav className="md:hidden border-t bg-white p-4">
+        <nav
+          className="md:hidden bg-white p-4"
+          style={{ borderTop: '1px solid color-mix(in srgb, #13274A 28%, transparent)' }}
+        >
           <div className="space-y-1">
             {navItems.map((item) => {
               const isActive = item.exact
@@ -140,12 +176,12 @@ function PortalNav() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium',
+                  className="flex items-center gap-3 px-4 py-3 text-sm font-extrabold"
+                  style={
                     isActive
-                      ? 'bg-circleTel-orange/10 text-circleTel-orange'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  )}
+                      ? { background: '#13274A', color: '#FFFFFF' }
+                      : { color: '#13274A' }
+                  }
                 >
                   <item.icon className="w-5 h-5" />
                   {item.label}
@@ -170,10 +206,16 @@ function PortalContent({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: 'color-mix(in srgb, #13274A 7%, #FFFFFF)' }}
+      >
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-circleTel-orange border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading portal...</p>
+          <div
+            className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4"
+            style={{ borderColor: '#F5841E', borderTopColor: 'transparent' }}
+          />
+          <p style={{ color: '#13274A' }}>Loading portal...</p>
         </div>
       </div>
     );
@@ -184,19 +226,34 @@ function PortalContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ background: 'color-mix(in srgb, #13274A 7%, #FFFFFF)' }}
+    >
       <PortalNav />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
         {children}
       </main>
-      <footer className="border-t bg-white mt-auto">
+      <footer
+        className="mt-auto bg-white"
+        style={{ borderTop: '2px solid color-mix(in srgb, #13274A 28%, transparent)' }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+          <div
+            className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm"
+            style={{ color: '#1F2937' }}
+          >
             <p>&copy; 2026 CircleTel. All rights reserved.</p>
             <div className="flex gap-6">
-              <Link href="/privacy-policy" className="hover:text-circleTel-orange">Privacy Policy</Link>
-              <Link href="/terms-of-service" className="hover:text-circleTel-orange">Terms of Service</Link>
-              <Link href="/contact" className="hover:text-circleTel-orange">Support</Link>
+              <Link href="/privacy-policy" className="hover:opacity-70">
+                Privacy Policy
+              </Link>
+              <Link href="/terms-of-service" className="hover:opacity-70">
+                Terms of Service
+              </Link>
+              <Link href="/contact" className="hover:opacity-70">
+                Support
+              </Link>
             </div>
           </div>
         </div>
