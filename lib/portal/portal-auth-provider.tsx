@@ -22,6 +22,8 @@ interface PortalAuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  /** Alias: Super User = DB role admin (max one per org) */
+  isSuperUser: boolean;
   isSiteUser: boolean;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -87,6 +89,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     loading,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
+    isSuperUser: user?.role === 'admin',
     isSiteUser: user?.role === 'site_user',
     signOut,
     refresh: fetchPortalUser,

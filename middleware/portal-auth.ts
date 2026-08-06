@@ -56,5 +56,29 @@ export async function handlePortalAuth(
     };
   }
 
+  // Require a b2b_portal_users mapping (RLS: own row)
+  const { data: portalUser, error: portalError } = await supabase
+    .from('b2b_portal_users')
+    .select('id')
+    .eq('auth_user_id', user.id)
+    .maybeSingle();
+
+  if (portalError) {
+    console.warn('Portal user lookup error', { error: portalError.message });
+  }
+
+  if (!portalUser) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/portal/login';
+    redirectUrl.searchParams.set('error', 'no_portal_access');
+
+    // Sign-out is client-side; redirect away from protected pages
+    return {
+      shouldRedirect: true,
+      redirectResponse: NextResponse.redirect(redirectUrl),
+      user: null,
+    };
+  }
+
   return { shouldRedirect: false, user };
 }

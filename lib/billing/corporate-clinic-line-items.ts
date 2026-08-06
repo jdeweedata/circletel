@@ -1,0 +1,117 @@
+/**
+ * Builds itemised invoice line items for B2B corporate accounts:
+ * one Unjani Connect (or package) line per active clinic/site.
+ */
+
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+export interface CorporateClinicLineItem {
+  description: string;
+  site_name: string;
+  site_id: string;
+  service: string;
+  sku: string | null;
+  quantity: number;
+  unit_price: number;
+  amount: number;
+  type: 'recurring' | 'pro_rata';
+}
+
+export interface ActiveCorporateSite {
+  id: string;
+  site_name: string;
+  monthly_fee: number | null;
+  package_id: string | null;
+  service_packages?: {
+    name: string | null;
+    sku: string | null;
+    price: number | null;
+  } | null;
+}
+
+const DEFAULT_PRODUCT_NAME = 'Unjani Connect';
+const DEFAULT_SKU = 'UNJ-MC-001';
+const DEFAULT_FEE = 450;
+
+export function formatClinicLineDescription(
+  siteName: string,
+  productName: string = DEFAULT_PRODUCT_NAME,
+  suffix?: string
+): string {
+  const base = `${productName} — ${siteName}`;
+  return suffix ? `${base} (${suffix})` : base;
+}
+
+export function buildClinicLineItem(
+  site: ActiveCorporateSite,
+  options: {
+    type?: 'recurring' | 'pro_rata';
+    amountOverride?: number;
+    suffix?: string;
+  } = {}
+): CorporateClinicLineItem {
+  const pkg = site.service_packages;
+  const productName =
+    pkg?.sku === DEFAULT_SKU || !pkg?.name
+      ? DEFAULT_PRODUCT_NAME
+      : pkg.name;
+  const sku = pkg?.sku ?? DEFAULT_SKU;
+  const unitPrice =
+    options.amountOverride ??
+    Number(site.monthly_fee ?? pkg?.price ?? DEFAULT_FEE);
+  const amount = Math.round(unitPrice * 100) / 100;
+
+  return {
+    description: formatClinicLineDescription(
+      site.site_name,
+      productName,
+      options.suffix
+    ),
+    site_name: site.site_name,
+    site_id: site.id,
+    service: productName,
+    sku,
+    quantity: 1,
+    unit_price: amount,
+    amount,
+    type: options.type ?? 'recurring',
+  };
+}
+
+export async function fetchActiveCorporateSites(
+  supabase: SupabaseClient,
+  organisationId: string
+): Promise<ActiveCorporateSite[]> {
+  const { data, error } = await supabase
+    .from('corporate_sites')
+    .select(
+      `
+      id,
+      site_name,
+      monthly_fee,
+      package_id,
+      service_packages (
+        name,
+        sku,
+        price
+      )
+    `
+    )
+    .eq('corporate_id', organisationId)
+    .eq('status', 'active')
+    .order('site_name', { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to load active sites: ${error.message}`);
+  }
+
+  return (data ?? []) as unknown as ActiveCorporateSite[];
+}
+
+export async function buildActiveClinicLineItems(
+  supabase: SupabaseClient,
+  organisationId: string
+): Promise<CorporateClinicLineItem[]> {
+  const sites = await fetchActiveCorporateSites(supabase, organisationId);
+  return sites.map((site) => buildClinicLineItem(site));
+}

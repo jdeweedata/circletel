@@ -61,6 +61,23 @@ export async function POST(
       return NextResponse.json({ error: 'site_id is required for site_user role' }, { status: 400 });
     }
 
+    // Max one Super User (admin) per organisation
+    if (role === 'admin') {
+      const { data: existingAdmin } = await supabase
+        .from('b2b_portal_users')
+        .select('id')
+        .eq('organisation_id', accountId)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (existingAdmin) {
+        return NextResponse.json(
+          { error: 'This organisation already has a Super User. Only one Super User is allowed.' },
+          { status: 409 }
+        );
+      }
+    }
+
     const { data: { user: invitedUser }, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
       data: { portal_role: role, organisation_id: accountId },
     });

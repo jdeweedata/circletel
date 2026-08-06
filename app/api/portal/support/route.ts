@@ -119,11 +119,14 @@ export async function POST(request: NextRequest) {
   if (process.env.RESEND_API_KEY) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
+      const isActivation = resolvedTicketType === 'activation_request';
       await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'noreply@notifications.circletelsa.co.za',
-        to: 'contactus@circletel.co.za',
+        to: isActivation
+          ? ['onboarding@circletel.co.za', 'contactus@circletel.co.za']
+          : 'contactus@circletel.co.za',
         replyTo: portalUser.email,
-        subject: resolvedTicketType === 'activation_request'
+        subject: isActivation
           ? `[Portal Activation] ${subject} — ${orgName}`
           : `[Portal Support] ${subject} — ${orgName}`,
         text: [
@@ -132,7 +135,7 @@ export async function POST(request: NextRequest) {
           `Organisation: ${orgName}`,
           `Site: ${siteName}`,
           `Submitted by: ${portalUser.display_name} (${portalUser.email})`,
-          `Role: ${portalUser.role}`,
+          `Role: ${portalUser.role === 'admin' ? 'Super User' : portalUser.role}`,
           `Priority: ${ticketPriority}`,
           ``,
           `Subject: ${subject}`,

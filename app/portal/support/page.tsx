@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import {
-  PiLifebuoyBold,
   PiPaperPlaneTiltBold,
   PiCheckCircleBold,
   PiClockBold,
 } from 'react-icons/pi';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import {
+  PortalModernistShell,
+  PageHeader,
+} from '@/components/portal/modernist/PortalModernistShell';
 
 type TicketType = 'support' | 'fault_report' | 'activation_request' | 'change_request';
 
@@ -178,14 +181,14 @@ export default function PortalSupportPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <PiLifebuoyBold className="w-7 h-7 text-gray-400" />
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Support</h1>
-          <p className="text-gray-500 mt-0.5">Submit a support request or view ticket history</p>
-        </div>
-      </div>
+    <PortalModernistShell>
+      <PageHeader
+        eyebrow="Support · Helpdesk"
+        title="Support"
+        subtitle="Log queries and tickets — or use Coverage to nominate a new clinic"
+      />
+
+      <div className="space-y-6 mt-6">
 
       {success && (
         <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
@@ -426,6 +429,7 @@ export default function PortalSupportPage() {
         )}
       </div>
     </div>
+    </PortalModernistShell>
   );
 }
 
