@@ -382,6 +382,7 @@ export const featureSections: NavSection[] = [
           { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: PiPulseBold },
           { name: 'Transactions', href: '/admin/payments/transactions', icon: PiReceiptBold },
           { name: 'Reconciliation', href: '/admin/finance/reconciliation', icon: PiArrowsClockwiseBold },
+          { name: 'Statement audit', href: '/admin/finance/statement-audit', icon: PiClipboardTextBold },
           { name: 'Webhooks', href: '/admin/payments/webhooks', icon: PiLightningBold },
           { name: 'Settings', href: '/admin/payments/settings', icon: PiGearBold },
         ],

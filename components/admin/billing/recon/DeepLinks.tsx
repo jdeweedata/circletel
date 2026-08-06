@@ -3,6 +3,7 @@ import {
   PiArrowRightBold,
   PiArrowsLeftRightBold,
   PiBooksBold,
+  PiClipboardTextBold,
   PiCreditCardBold,
   PiFileTextBold,
 } from 'react-icons/pi';
@@ -13,6 +14,12 @@ const LINKS = [
     title: 'Finance reconciliation',
     description: 'Match NetCash cash to CircleTel invoices',
     icon: PiArrowsLeftRightBold,
+  },
+  {
+    href: '/admin/finance/statement-audit',
+    title: 'Statement audit',
+    description: 'Sweep NetCash TDD / PayNow lines vs invoices',
+    icon: PiClipboardTextBold,
   },
   {
     href: '/admin/integrations/zoho-books',
@@ -45,7 +52,7 @@ const LINKS = [
  */
 export function DeepLinks() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {LINKS.map(({ href, title, description, icon: Icon }) => (
         <Link
           key={href}

@@ -284,7 +284,7 @@ function debitPaidAt(transactionDate: string | undefined): string {
 
 async function updateInvoiceAsPaid(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  mapped: { id: string; reference: string; customerId: string | null },
+  mapped: { id: string; reference: string; customerId: string | null; amount: number },
   debitResult: { amount: number; transactionDate: string; accountReference: string; transactionCode: string }
 ) {
   const now = new Date().toISOString();
@@ -331,11 +331,19 @@ async function updateInvoiceAsPaid(
     throw new Error(`payment_transactions insert failed: ${txError.message}`);
   }
 
+  // amount_due is a plain column in prod (not always GENERATED) — must set
+  // it explicitly or dashboards keep showing the pre-payment balance.
+  const amountDue = Math.max(
+    0,
+    Math.round((Number(mapped.amount) - Number(debitResult.amount)) * 100) / 100
+  );
+
   const { error: invError } = await supabase
     .from('customer_invoices')
     .update({
-      status: 'paid',
+      status: amountDue <= 0.001 ? 'paid' : 'partial',
       amount_paid: debitResult.amount,
+      amount_due: amountDue,
       paid_at: paidAt,
       payment_collection_method: 'debit_order',
       updated_at: now,
