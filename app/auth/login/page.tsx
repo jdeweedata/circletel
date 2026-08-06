@@ -254,21 +254,28 @@ export default function LoginPage() {
   return (
     <ModernistLoginShell account={account}>
       <h2
-        className="text-[32px] font-extrabold m-0 mb-1.5 tracking-tight"
-        style={{ color: '#13274A' }}
+        className="text-[28px] sm:text-[32px] font-extrabold m-0 mb-1.5 tracking-tight leading-tight"
+        style={{
+          color: '#13274A',
+          fontFamily: 'var(--font-heading)',
+          fontWeight: 800,
+        }}
       >
         Sign in
       </h2>
       <p
-        className="text-[13.5px] leading-relaxed mb-6"
-        style={{ color: 'color-mix(in srgb, #1F2937 62%, transparent)' }}
+        className="text-[13.5px] leading-[1.5] mb-6 sm:mb-[26px]"
+        style={{
+          color: 'color-mix(in srgb, #1F2937 62%, transparent)',
+          fontFamily: 'var(--font-body)',
+        }}
       >
         Use the account type your service is billed under.
       </p>
 
       {/* Account type tabs */}
       <div
-        className="grid grid-cols-2 mb-6"
+        className="grid grid-cols-1 min-[420px]:grid-cols-2 mb-6 sm:mb-[26px]"
         style={{ border: '2px solid #13274A' }}
       >
         {(
@@ -291,15 +298,24 @@ export default function LoginPage() {
               key={tab.key}
               type="button"
               onClick={() => switchAccount(tab.key)}
-              className="text-left px-3.5 py-3"
+              className={
+                i === 0
+                  ? 'text-left px-[15px] py-[13px]'
+                  : 'text-left px-[15px] py-[13px] border-t min-[420px]:border-t-0 min-[420px]:border-l border-[#13274A]'
+              }
               style={{
                 background: on ? '#13274A' : '#FFFFFF',
                 color: on ? '#FFFFFF' : '#1F2937',
-                borderLeft: i === 0 ? 'none' : '1px solid #13274A',
+                fontFamily: 'var(--font-body)',
               }}
             >
-              <span className="block font-extrabold text-sm">{tab.title}</span>
-              <span className="block text-[11px] opacity-75 mt-0.5">
+              <span
+                className="block font-extrabold text-sm leading-tight whitespace-nowrap"
+                style={{ fontFamily: 'var(--font-heading)', fontWeight: 800 }}
+              >
+                {tab.title}
+              </span>
+              <span className="block text-[11px] leading-snug opacity-75 mt-[3px]">
                 {tab.sub}
               </span>
             </button>
@@ -308,7 +324,7 @@ export default function LoginPage() {
       </div>
 
       {/* Method toggle */}
-      <div className="flex mb-5">
+      <div className="flex flex-wrap mb-5 sm:mb-[22px]">
         {(
           [
             { key: 'password' as const, label: methodPasswordLabel },
@@ -321,12 +337,13 @@ export default function LoginPage() {
               key={m.key}
               type="button"
               onClick={() => setMethod(m.key)}
-              className="px-3.5 py-2 text-[12.5px] whitespace-nowrap"
+              className="px-[15px] py-2 text-[12.5px] leading-tight whitespace-nowrap"
               style={{
                 background: on ? '#13274A' : 'transparent',
                 color: on ? '#FFFFFF' : '#1F2937',
                 border: '1px solid color-mix(in srgb, #13274A 28%, transparent)',
                 borderLeftWidth: i === 0 ? 1 : 0,
+                fontFamily: 'var(--font-body)',
               }}
             >
               {m.label}
@@ -439,20 +456,27 @@ export default function LoginPage() {
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-3 my-1">
-            <label className="flex items-center gap-2 text-[12.5px] cursor-pointer">
+          <div className="flex flex-wrap items-center justify-between gap-3 my-1 sm:my-0 sm:mb-[6px] sm:mt-1">
+            <label
+              className="flex items-center gap-2 text-[12.5px] cursor-pointer"
+              style={{ fontFamily: 'var(--font-body)' }}
+            >
               <input
                 type="checkbox"
                 checked={keepSignedIn}
                 onChange={(e) => setKeepSignedIn(e.target.checked)}
-                className="rounded-none"
+                className="rounded-none accent-[#13274A]"
               />
               Keep me signed in
             </label>
             <Link
               href="/auth/forgot-password"
               className="font-extrabold text-[12.5px] no-underline whitespace-nowrap"
-              style={{ color: '#D76026' }}
+              style={{
+                color: '#D76026',
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 800,
+              }}
             >
               Forgot password
             </Link>
@@ -462,7 +486,13 @@ export default function LoginPage() {
             type="submit"
             disabled={isSubmitting || isGoogleLoading}
             className="w-full min-h-[46px] text-[15px] font-extrabold disabled:opacity-50"
-            style={{ background: '#F5841E', color: '#13274A', border: 0 }}
+            style={{
+              background: '#F5841E',
+              color: '#13274A',
+              border: 0,
+              fontFamily: 'var(--font-heading)',
+              fontWeight: 800,
+            }}
           >
             {isSubmitting ? 'Signing in…' : cta}
           </button>
@@ -520,7 +550,13 @@ export default function LoginPage() {
             type="submit"
             disabled={isSubmitting || isGoogleLoading}
             className="w-full min-h-[46px] text-[15px] font-extrabold disabled:opacity-50"
-            style={{ background: '#F5841E', color: '#13274A', border: 0 }}
+            style={{
+              background: '#F5841E',
+              color: '#13274A',
+              border: 0,
+              fontFamily: 'var(--font-heading)',
+              fontWeight: 800,
+            }}
           >
             {isSubmitting ? 'Sending…' : 'Send me a code'}
           </button>
@@ -559,6 +595,8 @@ export default function LoginPage() {
             style={{
               border: '2px solid color-mix(in srgb, #13274A 28%, transparent)',
               color: '#13274A',
+              fontFamily: 'var(--font-heading)',
+              fontWeight: 800,
             }}
           >
             {isGoogleLoading ? 'Connecting…' : 'Continue with Google'}
@@ -567,23 +605,32 @@ export default function LoginPage() {
       )}
 
       <div
-        className="mt-auto pt-6 flex items-center justify-between gap-3 text-[12.5px]"
+        className="mt-auto pt-6 sm:pt-[26px] flex flex-col gap-2 min-[480px]:flex-row min-[480px]:items-center min-[480px]:justify-between min-[480px]:gap-3.5 text-[12.5px] leading-snug"
         style={{
           borderTop: '2px solid color-mix(in srgb, #13274A 28%, transparent)',
           color: 'color-mix(in srgb, #1F2937 62%, transparent)',
+          fontFamily: 'var(--font-body)',
         }}
       >
-        <Link href="/" className="no-underline whitespace-nowrap" style={{ color: 'inherit' }}>
+        <Link
+          href="/"
+          className="no-underline whitespace-nowrap"
+          style={{ color: 'inherit' }}
+        >
           ← circletel.co.za
         </Link>
-        <div className="text-right">
+        <div className="min-[480px]:text-right">
           {account === 'business' ? (
             <>
               No login yet?{' '}
               <Link
                 href="/contact"
                 className="font-extrabold no-underline whitespace-nowrap"
-                style={{ color: '#D76026' }}
+                style={{
+                  color: '#D76026',
+                  fontFamily: 'var(--font-heading)',
+                  fontWeight: 800,
+                }}
               >
                 Request business access
               </Link>
@@ -594,7 +641,11 @@ export default function LoginPage() {
               <Link
                 href="/auth/register"
                 className="font-extrabold no-underline whitespace-nowrap"
-                style={{ color: '#D76026' }}
+                style={{
+                  color: '#D76026',
+                  fontFamily: 'var(--font-heading)',
+                  fontWeight: 800,
+                }}
               >
                 Create an account
               </Link>
