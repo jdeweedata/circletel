@@ -1,0 +1,603 @@
+[
+  {
+    "slug": "async-runner",
+    "purpose": "Tells Claude to push dev servers, builds, tests and exploration agents into the background instead of blocking the main conversation.",
+    "does": [
+      "Prescribes which CircleTel npm commands must always be backgrounded (`npm run dev:memory &`, `npm run build:memory &`, log tails)",
+      "Gives phrasing patterns for spawning parallel Explore agents / parallel test suites",
+      "Lists approximate memory cost per process type (dev ~500MB, build ~2GB, type-check ~1GB) and caps concurrency at 2-3 heavy tasks",
+      "Documents `/tasks` for listing and killing background work"
+    ],
+    "output_type": "behavioral guidance / command recipes (no artifact produced)",
+    "trigger_summary": "\"Use when running dev servers, parallel tests, long builds, or multi-agent research tasks without blocking the main workflow.\" Keyword-driven: background, parallel, async, spawn, concurrent, dev server, watch, monitor.",
+    "provenance_signals": "Hand-written in-house. No author field, no URL. Footer: \"**Version**: 1.0.0 / **Last Updated**: 2025-12-10 / **For**: Claude Code v2.0.64+\". Body is CircleTel-specific (`npm run dev:memory`). Same footer template as screenshot-analyzer and rules-organizer — a family of skills written by the same person on the same day.",
+    "knowledge_type": "mixed — ~35% durable_external_knowledge (the CircleTel `:memory` script names, per-process RAM figures, `/tasks` command), ~65% generic_reasoning (\"always background dev servers\", \"parallel for independent tasks, sequential for dependencies\" is advice a strong model already applies)",
+    "external_deps": [
+      "npm scripts `dev:memory`, `build:memory`, `type-check:memory` — ALL EXIST in package.json",
+      "`npm run test` and `npm run test:e2e` — referenced in examples; `test:e2e` NOT verified present (only `test:mobile*` variants confirmed)",
+      "`/tasks` slash command — NOT present in .claude/commands/; relies on a built-in harness command",
+      "`npx supabase functions serve` — supabase CLI not verified on this box"
+    ],
+    "overlap_with": [
+      "mobile-testing — both tell you to fan out Playwright suites; async-runner is the generic 'run it in background' wrapper",
+      "context-manager — both claim to save context budget by keeping verbose output out of the window",
+      "stats-tracker — async-runner defers to it for usage accounting"
+    ],
+    "risk_notes": "`/tasks` is asserted as a slash command but no such command file exists in the repo. Version pins to \"Claude Code v2.0.64+\" (Dec 2025) — stale versus the current harness, which exposes Monitor/TaskStop rather than the described flow. `Ctrl+B` background shortcut is IDE-specific and untestable from an agent. Low harm, low unique value."
+  },
+  {
+    "slug": "caveman",
+    "purpose": "A persistent terse-output persona that strips articles, filler and pleasantries to cut token spend while keeping technical content exact.",
+    "does": [
+      "Defines the drop-list: articles, filler adverbs, pleasantries, hedging; allows fragments and abbreviations (DB/auth/config/fn)",
+      "Pins a sentence template: `[thing] [action] [reason]. [next step].`",
+      "Declares persistence — stays on every response until the user says \"stop caveman\" / \"normal mode\"",
+      "Carves out an auto-clarity exception for security warnings, destructive-action confirmations and multi-step sequences"
+    ],
+    "output_type": "response-style modifier (persona)",
+    "trigger_summary": "Explicit user phrasing only: \"caveman mode\", \"talk like caveman\", \"use caveman\", \"less tokens\", \"be brief\", or `/caveman`.",
+    "provenance_signals": "No author, no URL, no version footer. Prose voice differs sharply from the CircleTel skill family (no tables of npm commands, no version block) — reads as a standalone community/personal skill pasted in. Zero CircleTel content anywhere in it.",
+    "knowledge_type": "generic_reasoning ~95% / workflow_procedure ~5%. It is entirely style instruction; the model already knows how to be terse. The only non-obvious content is the persistence rule and the safety carve-out.",
+    "external_deps": [
+      "None. No CLI, no key, no path. `/caveman` resolves via the skill name itself — no command file needed."
+    ],
+    "overlap_with": [
+      "context-manager — both sell themselves on token reduction, from opposite ends (output style vs input loading)"
+    ],
+    "risk_notes": "Directly contradicts CLAUDE.md's mandate for complete, production-ready explanations and the Superpowers announce-your-skill ritual. Compressing output while a rules file demands 'explain before implementing' is a live conflict. Otherwise harmless and self-limiting."
+  },
+  {
+    "slug": "claude-md-guardian",
+    "purpose": "Two-pass audit that checks whether recent commits violated the project's CLAUDE.md rules, then whether those rules have drifted out of date.",
+    "does": [
+      "Pass 1 runs eight compliance checks (C1-C8) as literal `git diff HEAD~5 | grep` commands — hardcoded contacts, TODOs, unawaited `context.params`, root-level file creation, StatusBadge/StatCard prop misuse",
+      "Pass 2 runs six currency checks (U1-U6) for stale Vercel references, uncovered `lib/` directories, CLAUDE.md rule-table drift",
+      "Skips any check ID listed in `accepted-debt.md`, and appends declined fixes back to it",
+      "Walks the user through a y/n/skip fix loop in severity order and commits each accepted fix"
+    ],
+    "output_type": "structured audit report (fixed template) + interactive fix/commit loop",
+    "trigger_summary": "Slash command only: \"Run /claude-md-guardian to check for rule violations in recent commits and detect stale/missing rules.\"",
+    "provenance_signals": "Bespoke to this repo — no external author. Frontmatter carries `claude_md_version: \"8.1\"` pinning it to a specific CLAUDE.md revision. Checks name this repo's own rule files (`admin-shared-components.md`, `contact-details.md`) and this repo's components (StatusBadge, StatCard).",
+    "knowledge_type": "durable_external_knowledge ~70% (which rule files exist, that CircleTel uses `customer_invoices`-style conventions, that StatCard takes a JSX element not a component ref, that Coolify replaced Vercel) / workflow_procedure ~30% (the six-step audit-then-fix loop). Almost no generic reasoning — this is a repo-specific linter written in prose.",
+    "external_deps": [
+      "`git` with at least 5 commits of history",
+      "Reads `.claude/skills/claude-md-guardian/checks/compliance.md`, `checks/currency.md`, `accepted-debt.md` — ALL EXIST at the installed path",
+      "BROKEN: every command in `checks/currency.md` is hardcoded to `/home/circletel/...` (rules dir, lib/, CLAUDE.md, skills dir). `/home/circletel` DOES NOT EXIST — the repo is `/home/user/circletel`. U1-U6 will all silently return empty or error.",
+      "BROKEN: U5 targets `/home/circletel/.claude/skills/compound-learnings/corrections/` — that directory does not exist under either root.",
+      "No `/claude-md-guardian` file in `.claude/commands/` (invocation depends on skill-name slash resolution)"
+    ],
+    "overlap_with": [
+      "rules-organizer — guardian audits `.claude/rules/`, rules-organizer authors it; same surface, opposite direction",
+      "quality-gates — both are rubric-driven scoring passes over produced output",
+      "compound-learnings — both close a loop by writing findings back into repo rules"
+    ],
+    "risk_notes": "The currency half is effectively dead on this checkout because of the `/home/circletel` path assumption — and it fails quietly (grep on a missing dir returns nonzero with no stdout, which this skill's own contract reads as 'no violation'). So it will report 🟢 all clear while checking nothing. `claude_md_version: 8.1` is also stale: the live CLAUDE.md is **Version 10.1**. Compliance checks C1-C7 use relative paths and do still work."
+  },
+  {
+    "slug": "cross-model-review",
+    "purpose": "A four-step ritual for having a second LLM (Codex or Gemini) review a plan before implementation and the diff after it.",
+    "does": [
+      "Prescribes plan → external QA → implement → external verify, with Claude in terminal 1 and Codex/Gemini in terminal 2",
+      "Supplies two copy-paste prompts: a plan-review prompt and an implementation-verification prompt",
+      "Constrains the reviewer to additive edits — insert 'Phase 2.5', add 'Codex Finding:' headings, never rewrite original phases",
+      "Scopes usage to multi-phase features, auth/payments/migrations, and 10+ file PRs"
+    ],
+    "output_type": "annotated plan markdown at `.claude/plans/{feature-name}.md`",
+    "trigger_summary": "\"When starting multi-phase feature work or before merging significant PRs\" — an explicit `trigger:` frontmatter field rather than the usual description-based routing.",
+    "provenance_signals": "Vendored pattern, attributed. Explicit Source section: \"Pattern extracted from [shanraisshan/claude-code-best-practice](https://github.com/shanraisshan/claude-code-best-practice)\". No CircleTel content — the codebase is never named. Uses a non-standard `trigger:` frontmatter key that Claude Code does not read.",
+    "knowledge_type": "workflow_procedure ~60% / generic_reasoning ~40%. Zero repo-specific knowledge. The 'get a second opinion' insight is real but not something a model lacks; the value is the additive-edit constraint on the reviewer.",
+    "external_deps": [
+      "BROKEN: `codex` CLI — NOT INSTALLED (`which codex` → missing)",
+      "BROKEN: `gemini` CLI — NOT INSTALLED (`which gemini` → missing)",
+      "`.claude/plans/` directory — not verified to exist",
+      "Assumes a human operating two side-by-side terminals — not executable by an agent at all"
+    ],
+    "overlap_with": [
+      "using-superpowers — both point at an external review/plan discipline; using-superpowers' references/codex-tools.md covers the same Codex platform",
+      "refactor — both produce a findings document over existing code",
+      "security-review — both are 'second pass over the diff' reviews",
+      "quality-gates — same generate → evaluate → refine shape, different evaluator"
+    ],
+    "risk_notes": "Both named CLIs are absent from this machine, so the skill cannot be executed as written; it degrades to advice. The `trigger:` frontmatter key is not a recognized field — the routing it thinks it has does not exist. Also assumes a human-in-two-terminals workflow, which makes it unusable in an autonomous run."
+  },
+  {
+    "slug": "error-registry",
+    "purpose": "A checked-in database of ten recurring CircleTel errors with signatures, root causes and fixes, consulted as 'Phase 0' before any debugging investigation.",
+    "does": [
+      "Indexes errors in `registry.json` with matchable signature regexes (e.g. `new row violates row-level security policy|403 Forbidden`) and occurrence counts",
+      "Ships eleven markdown error files across six categories (api, typescript, supabase, auth, frontend, build)",
+      "Defines a Phase-0 gate: match signature → apply known fix → increment occurrence; no match → normal investigation → add new entry",
+      "Documents six headline fixes: infinite loading needs `finally`, RLS 403 needs a service_role policy, Next.js 15 needs `await context.params`, payment amounts convert to cents, heap overflow needs `build:memory`, 401 needs header AND cookie checks"
+    ],
+    "output_type": "lookup/answer + append-only markdown+JSON registry entries",
+    "trigger_summary": "\"Use when debugging bugs, encountering errors, or adding new error patterns.\" Keywords: error, bug, registry, recurring, known issue, previous fix, ERR-.",
+    "provenance_signals": "In-house, explicitly branded. Frontmatter `author: CircleTel Engineering`; footer \"**Maintained By**: CircleTel Development Team, **Errors Documented**: 10 (seeded from existing documentation)\". Data is genuinely CircleTel (NetCash amount format, MTN anti-bot headers, Supabase RLS).",
+    "knowledge_type": "durable_external_knowledge ~75% (the error corpus itself — real signatures, real file paths, real fixes a model could not guess) / workflow_procedure ~25% (the Phase-0 lookup loop and the add-new-entry template). One of the highest genuine-information-density skills in this set.",
+    "external_deps": [
+      "`registry.json`, `errors/**/*.md`, `analytics/occurrences.json` — ALL EXIST at `.claude/skills/error-registry/`",
+      "MISSING: slash commands `/errors`, `/errors top`, `/errors add`, `/error ERR-001`, `/errors search <term>` — none exist in `.claude/commands/` and there is no script backing them; they are aspirational UI"
+    ],
+    "overlap_with": [
+      "compound-learnings — both are RSI capture loops writing lessons back to disk; error-registry is the bug-shaped subset",
+      "learnings-memory (user tier) — same 'remember the fix' job, different store, so the same lesson can land in two places",
+      "bug-fixing — error-registry explicitly inserts itself as Phase 0 of that skill",
+      "quality-gates — cross-references error-registry when a quality issue recurs"
+    ],
+    "risk_notes": "The six documented commands do not exist, so 'run /errors top' will fail; lookups have to be done by reading registry.json directly. Content overlaps heavily with `.claude/rules/` (coding-standards.md carries the same Next.js-15 async-params and infinite-loading fixes) and with `memory-os/long-term/mistakes.md` — three stores for one class of fact, with no sync rule. Counts/`lastSeen` frozen at 2026-02-12, ~6 months stale."
+  },
+  {
+    "slug": "git-guardrails-claude-code",
+    "purpose": "Installs a PreToolUse Bash hook that hard-blocks destructive git commands before Claude can run them.",
+    "does": [
+      "Ships `scripts/block-dangerous-git.sh`, which reads the tool_input JSON on stdin, greps the command against nine patterns, and exits 2 with a BLOCKED message",
+      "Blocks `git push` (all forms), `reset --hard`, `clean -f/-fd`, `branch -D`, `checkout .`, `restore .`",
+      "Walks through scope choice (project `.claude/settings.json` vs global `~/.claude/settings.json`), copy, chmod +x, and JSON merge into `hooks.PreToolUse`",
+      "Gives a one-line verification: echo a fake tool_input into the script and confirm exit code 2"
+    ],
+    "output_type": "installed hook script + edited settings.json",
+    "trigger_summary": "\"Use when user wants to prevent destructive git operations, add git safety hooks, or block git push/reset in Claude Code.\"",
+    "provenance_signals": "Generic Claude Code community skill — the slug itself carries the platform name (`-claude-code`), a tell for a skill packaged for redistribution rather than written in place. No author, no CircleTel reference, no version footer. Bundles its own script, which is the redistributable pattern.",
+    "knowledge_type": "durable_external_knowledge ~55% (the PreToolUse hook contract: stdin JSON shape `.tool_input.command`, exit code 2 as the block signal, `$CLAUDE_PROJECT_DIR`, settings.json hook schema — harness API facts) / workflow_procedure ~45% (the five install steps). Almost no generic reasoning.",
+    "external_deps": [
+      "`jq` — REQUIRED by the script; INSTALLED at /usr/bin/jq ✓",
+      "`bash`, `chmod`",
+      "Writes to `.claude/settings.json` or `~/.claude/settings.json`",
+      "Target `.claude/hooks/block-dangerous-git.sh` — ALREADY PRESENT and executable in this repo, so the install has evidently been run"
+    ],
+    "overlap_with": [
+      "session-start-hook (user tier) — the other hook-authoring skill; same settings.json editing surface, different event",
+      "git-tree-hygiene rule + `.githooks/pre-push` — the repo already has a pre-push hook policy; a blanket `git push` block contradicts it",
+      "security-review — both are guardrails, one preventive one detective"
+    ],
+    "risk_notes": "Blunt regex matching: the pattern `git push` also blocks `git push --dry-run`, and `git checkout \\.` will match inside longer paths. Blocking ALL `git push` directly contradicts CLAUDE.md's documented deploy path (`git push origin feature/xyz:staging`) and `.claude/rules/pre-push-hook.md` — if installed globally this repo's shipping workflow stops working. Modifying settings.json also collides with the instruction that agents must not change permission configuration."
+  },
+  {
+    "slug": "inngest-function-template",
+    "purpose": "A six-step code template for adding a production-shaped Inngest background job to CircleTel, from event types through to UI polling.",
+    "does": [
+      "Step 1-2: declare `requested`/`completed`/`failed` event triples in `lib/inngest/client.ts`, then create the function with dual triggers (cron `0 22 * * *` = midnight SAST, plus manual event) and `cancelOn`",
+      "Enforces the critical pattern: every catch block must `step.run('send-failure-event')` before re-throwing so Inngest retries correctly",
+      "Step 4-5: manual trigger API route with 409 conflict detection against a `_logs` table, plus a status route for polling",
+      "Step 6 + checklist: 2s client polling loop and a nine-item completion checklist; adds the Promise.allSettled index-order warning for parallel provider checks"
+    ],
+    "output_type": "generated TypeScript source files (function, two API routes, client registration)",
+    "trigger_summary": "\"Create reliable Inngest functions with dual triggers, step checkpoints, and failure handling\" — fires on \"Create an Inngest function for X\", \"Add background job\", \"Migrate cron to Inngest\", \"Add scheduled sync\".",
+    "provenance_signals": "In-house, no attribution. Declares `allowed-tools: Read, Write, Edit, Glob, Grep` — notably NO Bash, an unusually careful scoping choice. Every path is CircleTel-real. Content mirrors `.claude/rules/coding-standards.md` almost verbatim in places (kebab-case step ids, the failure-event rule, the Promise.allSettled ordering note).",
+    "knowledge_type": "durable_external_knowledge ~70% (exact file paths that exist, the CircleTel event-naming triple, the `_logs` table convention, cron in UTC for SAST, the registry in `lib/inngest/index.ts`) / generic_reasoning ~30% (retry/idempotency advice a strong model already has)",
+    "external_deps": [
+      "`lib/inngest/client.ts` — EXISTS ✓",
+      "`lib/inngest/index.ts` — EXISTS ✓",
+      "`lib/inngest/functions/` — EXISTS ✓ (populated with real functions)",
+      "`@/lib/supabase/server` createClient — exists per CLAUDE.md",
+      "Assumes a `[feature]_logs` table per feature — schema must be created per use (migration not included)"
+    ],
+    "overlap_with": [
+      "refactor — CircleTel-patterns section repeats the same load-bearing-file catalogue",
+      "error-registry / coding-standards rule — the same failure-event and type-guard patterns are documented in at least three places",
+      "database-migration — the `_logs` table this template requires is that skill's job"
+    ],
+    "risk_notes": "Duplicates `.claude/rules/coding-standards.md` content with no cross-reference, so the two can drift. `cron: '0 22 * * *'` is commented \"Midnight SAST\" — correct only if Inngest interprets it as UTC (SAST = UTC+2); the assumption is unstated and would silently be wrong if the cron TZ is configured. Otherwise the most directly usable skill in this cluster."
+  },
+  {
+    "slug": "mobile-testing",
+    "purpose": "Points Claude at the repo's Playwright mobile-device suite and the npm scripts that run it.",
+    "does": [
+      "Lists the run commands: `npm run test:mobile`, `:iphone`, `:android`, `:tablet`, `:ui`, `:report`",
+      "Names the key files — `playwright.mobile.config.ts`, `tests/e2e/mobile/`, `tests/utils/mobile-helpers.ts`",
+      "Tabulates nine emulated devices with viewport sizes (iPhone SE 375x667 through iPad Pro 834x1194)",
+      "Gives a `MobileTestHelper` usage example (`tapElement`, `swipeUp`, `assertMobileViewport`) and scopes coverage to CircleTel's coverage-check → package → order → payment → dashboard flows"
+    ],
+    "output_type": "test-run invocation + generated Playwright spec code",
+    "trigger_summary": "Keyword list only — \"mobile test\", \"test mobile\", \"mobile UI/UX\", \"responsive test\", \"touch test\", \"device emulation\", \"phone/tablet testing\". NOTE: this skill has NO YAML frontmatter at all.",
+    "provenance_signals": "In-house, thin. No frontmatter, no author, no version — the only skill in the set missing a frontmatter block entirely (its registry description reads literally \"Mobile Testing Skill\", the H1). Content is a README restatement of files that already exist in the repo.",
+    "knowledge_type": "durable_external_knowledge ~60% (the exact npm script names, helper class API, and which CircleTel flows are covered — all verifiable and real) / generic_reasoning ~40% (Playwright device-emulation usage is standard published API knowledge)",
+    "external_deps": [
+      "`playwright.mobile.config.ts` — EXISTS ✓",
+      "`tests/utils/mobile-helpers.ts` — EXISTS ✓",
+      "npm scripts test:mobile{,:iphone,:android,:tablet,:ui,:report} — ALL EXIST in package.json ✓",
+      "`playwright` binary — INSTALLED ✓",
+      "PARTIAL: `tests/e2e/mobile/` contains only mobile-navigation, mobile-order-flow, mobile-responsive. README claims five files — `mobile-forms.spec.ts` and `mobile-gestures.spec.ts` DO NOT EXIST.",
+      "A running dev server on the configured baseURL (not documented here)"
+    ],
+    "overlap_with": [
+      "screenshot-analyzer — its whole Playwright-test-generation half duplicates this skill's job",
+      "ui-ux-audit / admin-page-verification rule — overlapping 'look at the rendered page on mobile' territory; the rule's sidebar-at-375px gotcha is missing here",
+      "async-runner — cites mobile suites as its canonical parallel workload"
+    ],
+    "risk_notes": "No frontmatter means the skill has no real description for routing — it surfaces in the registry as the bare string \"Mobile Testing Skill\", which is close to untriggerable. Two of the five advertised spec files do not exist. `npm run test:mobile:tablet` exists but no tablet-specific spec does. Device table lists 9 devices; unverified against the config."
+  },
+  {
+    "slug": "openspec-apply-change",
+    "purpose": "Drives implementation of an OpenSpec change by reading the CLI's apply instructions and working the task list to completion.",
+    "does": [
+      "Selects the change (argument → conversation inference → `openspec list --json` + AskUserQuestion) and announces which one it is using",
+      "Runs `openspec status --change <n> --json` and `openspec instructions apply --change <n> --json` to get schema, contextFiles and progress",
+      "Reads every file under `contextFiles`, then loops tasks: implement → flip `- [ ]` to `- [x]` → next",
+      "Defines pause conditions (ambiguous task, design issue surfaced, error) and fixed output blocks for in-progress / complete / paused states"
+    ],
+    "output_type": "code changes + updated tasks.md checkboxes + status report",
+    "trigger_summary": "\"Use when the user wants to start implementing, continue implementation, or work through tasks.\"",
+    "provenance_signals": "Vendored third-party, fully labelled. Frontmatter: `license: MIT`, `compatibility: Requires openspec CLI.`, `metadata: {author: openspec, version: \"1.0\", generatedBy: \"1.3.1\"}` — machine-generated by the OpenSpec toolchain v1.3.1. Zero CircleTel content.",
+    "knowledge_type": "mixed — ~50% durable_external_knowledge (the openspec CLI surface: exact subcommands, `--json` response keys `applyRequires`/`contextFiles`/`schemaName`/`state`, artifact directory layout) / ~50% workflow_procedure (the select→read→loop→report state machine). No generic reasoning to speak of.",
+    "external_deps": [
+      "BROKEN: `openspec` CLI — NOT INSTALLED. `which openspec` returns nothing, no `node_modules/.bin/openspec`, no `@openspec` package, and `npx openspec --version` fails with \"could not determine executable to run\". Every command in this skill fails at step 1.",
+      "`openspec/changes/` — EXISTS ✓ with four active changes (customer-dashboard-redesign, didit-consumer-kyc, fix-netcash-notify-url, unjani-activation-flow) plus archive/",
+      "`openspec/specs/` — EXISTS ✓ with eight capability specs",
+      "AskUserQuestion and TodoWrite tools"
+    ],
+    "overlap_with": [
+      "openspec-propose / -explore / -archive-change — the four are one workflow split into four skills",
+      "using-superpowers — mandates a parallel, incompatible plan-then-execute pipeline (`writing-plans`/`executing-plans`) over the same work",
+      "cross-model-review — competing plan→implement→verify ritual"
+    ],
+    "risk_notes": "Unrunnable as written: the CLI is absent while the artifact tree it manages is present and non-empty, so the repo has orphaned OpenSpec state that only manual file reading can service. The skill's own `compatibility` field admits the dependency but nothing checks it, so a run burns several failed bash calls before the model notices. There is also a `/opsx:apply` command file (`.claude/commands/opsx/apply.md`) — a second entry point to the same broken chain."
+  },
+  {
+    "slug": "openspec-archive-change",
+    "purpose": "Finalises a completed OpenSpec change: verifies artifacts and tasks are done, optionally syncs delta specs, and moves the change directory into a dated archive.",
+    "does": [
+      "Checks artifact completion via `openspec status --change <n> --json` and warns (does not block) on anything not `done`",
+      "Counts `- [ ]` vs `- [x]` in tasks.md and confirms before archiving with work outstanding",
+      "Diffs `openspec/changes/<n>/specs/` against `openspec/specs/<capability>/spec.md`, offers a sync, and dispatches a subagent to run `openspec-sync-specs` if accepted",
+      "Runs `mkdir -p openspec/changes/archive` and `mv openspec/changes/<n> openspec/changes/archive/YYYY-MM-DD-<n>`, failing if the target exists"
+    ],
+    "output_type": "filesystem move + archive summary block",
+    "trigger_summary": "\"Use when the user wants to finalize and archive a change after implementation is complete.\"",
+    "provenance_signals": "Same vendored OpenSpec package: `license: MIT`, `author: openspec`, `generatedBy: \"1.3.1\"`. Description references \"the experimental workflow\", a phrase from OpenSpec's own docs, not CircleTel's.",
+    "knowledge_type": "workflow_procedure ~55% / durable_external_knowledge ~45% (the archive naming convention, `.openspec.yaml` travelling with the directory, delta-spec vs main-spec layout). No generic reasoning.",
+    "external_deps": [
+      "BROKEN: `openspec` CLI — NOT INSTALLED (steps 1-2 both call it)",
+      "BROKEN: skill `openspec-sync-specs` — REFERENCED in step 4 for the delta-spec sync but NOT INSTALLED (only four openspec-* skills exist: propose, explore, apply-change, archive-change)",
+      "`openspec/changes/archive/` — EXISTS ✓",
+      "Task tool with subagent_type 'general-purpose'"
+    ],
+    "overlap_with": [
+      "openspec-apply-change — hands off directly to this one",
+      "finishing-a-development-branch (superpowers, NOT INSTALLED) — the pipeline CLAUDE.md mandates for the same 'work is done, close it out' moment",
+      "project-sync — another 'reconcile state after work lands' skill"
+    ],
+    "risk_notes": "Two independent hard breaks: the CLI is missing AND the `openspec-sync-specs` skill it delegates to does not exist, so choosing 'Sync now (recommended)' dispatches a subagent to invoke a nonexistent skill. The `mv` in step 5 is the one part that still works — meaning the only executable path is the destructive one, with all its verification gates disabled. That is the sharp edge here: archive-without-checking is reachable, check-then-archive is not."
+  },
+  {
+    "slug": "openspec-explore",
+    "purpose": "A read-only thinking-partner stance for exploring a problem before any change is proposed, with heavy use of ASCII diagrams.",
+    "does": [
+      "Establishes a hard no-implementation guardrail — may read, search and create OpenSpec artifacts, but never writes application code",
+      "Runs `openspec list --json` up front to detect active changes, then reads proposal.md / design.md / tasks.md for context",
+      "Maps insight types to capture destinations (new requirement → specs/, design decision → design.md, scope change → proposal.md, new work → tasks.md) and offers, never auto-saves",
+      "Carries four worked entry-point examples (vague idea, specific problem, stuck mid-implementation, comparing options) with large ASCII diagrams"
+    ],
+    "output_type": "conversation + optional ASCII diagrams + optional edits to OpenSpec artifacts",
+    "trigger_summary": "\"Use when the user wants to think through something before or during a change\" — explore mode as a thinking partner for ideas, investigation and requirement clarification.",
+    "provenance_signals": "Vendored OpenSpec, same block: `license: MIT`, `author: openspec`, `generatedBy: \"1.3.1\"`. At 10.7KB it is the largest of the four, and the bulk is illustrative dialogue (a Postgres-vs-SQLite comparison, a generic OAuth diagram) with no connection to this codebase.",
+    "knowledge_type": "generic_reasoning ~70% (the stance — be curious, question assumptions, don't rush, visualize — plus example dialogues that teach nothing repo-specific) / workflow_procedure ~20% / durable_external_knowledge ~10% (the openspec artifact paths and the insight→destination table). The weakest knowledge density of the four openspec skills.",
+    "external_deps": [
+      "BROKEN: `openspec` CLI for `openspec list --json` — NOT INSTALLED",
+      "`openspec/changes/<name>/{proposal,design,tasks}.md` — the directories EXIST ✓, so artifact reading still works without the CLI"
+    ],
+    "overlap_with": [
+      "brainstorming (superpowers, NOT INSTALLED) — CLAUDE.md's Stage-1 gate is exactly this job; explore is the surviving implementation of a mandate whose named skill is missing",
+      "solution-design / idea-validator / consulting-toolkit — all 'think before building' framings",
+      "zoom-out — same step-back-and-reframe move"
+    ],
+    "risk_notes": "Degrades gracefully — only the one `openspec list --json` call breaks, and the artifact directories are readable directly, so most of the skill still functions. Its real problem is redundancy: it occupies the same slot as the mandated-but-absent `superpowers:brainstorming` and three other ideation skills, with no rule saying which wins."
+  },
+  {
+    "slug": "openspec-propose",
+    "purpose": "Creates a new OpenSpec change and generates every artifact needed to start implementing it in a single pass.",
+    "does": [
+      "Elicits the change via AskUserQuestion if not supplied, derives a kebab-case name, then runs `openspec new change \"<name>\"`",
+      "Reads `openspec status --change <n> --json` for `applyRequires` and dependency order, tracking progress with TodoWrite",
+      "For each ready artifact, calls `openspec instructions <artifact-id> --change <n> --json` and writes the file from the returned `template`",
+      "Enforces the key discipline: `context` and `rules` from the CLI are constraints for the model and must never be copied into the output file"
+    ],
+    "output_type": "generated artifact files under `openspec/changes/<name>/` (proposal.md, design.md, tasks.md)",
+    "trigger_summary": "\"Use when the user wants to quickly describe what they want to build and get a complete proposal with design, specs, and tasks ready for implementation.\"",
+    "provenance_signals": "Vendored OpenSpec: `license: MIT`, `author: openspec`, `generatedBy: \"1.3.1\"`. Self-references `/opsx:apply` as the next step — the opsx command namespace, which does exist here as `.claude/commands/opsx/`.",
+    "knowledge_type": "durable_external_knowledge ~55% (the CLI contract: `openspec new change`, `openspec instructions <artifact-id>`, the JSON keys context/rules/template/instruction/outputPath/dependencies, and the non-obvious 'don't leak context/rules into output' rule) / workflow_procedure ~45%",
+    "external_deps": [
+      "BROKEN: `openspec` CLI — NOT INSTALLED. Steps 2, 3, 4a and 5 are all CLI calls; step 2 (`openspec new change`) fails immediately, so nothing downstream can run.",
+      "`openspec/changes/` — EXISTS ✓",
+      "AskUserQuestion, TodoWrite tools"
+    ],
+    "overlap_with": [
+      "openspec-explore/-apply-change/-archive-change — one workflow in four pieces",
+      "writing-plans (superpowers, NOT INSTALLED) — CLAUDE.md's Stage-2 gate for the identical job",
+      "generate-spec command, solution-design, new-product, circletel-product-development — four more spec-document generators, all with different templates"
+    ],
+    "risk_notes": "Hardest-broken of the four: unlike explore (which can fall back to reading files), propose cannot scaffold anything without `openspec new change`. There is no fallback path and no preflight check. Compounding it, the repo already carries four half-finished changes in `openspec/changes/`, which suggests the CLI was available at some point and is now gone — stale tooling state, not a never-used skill."
+  },
+  {
+    "slug": "pencil-dev-workflow",
+    "purpose": "A seven-phase recipe for wiring the Pencil.dev design tool to Claude Code and building an animated multi-page Next.js site from `.pen` files.",
+    "does": [
+      "Phase 1-2: install the Pencil desktop app, let it auto-configure MCP, verify tools appear, then test a manual design→code sync",
+      "Phase 3: automate the sync with a `chokidar` watcher (`watch-pencil.js`) that spawns `claude \"Sync the updated Pencil design...\"` on `.pen` change, with a 1500-2000ms debounce",
+      "Phase 4-6: dispatch one agent per page in parallel, then add GSAP ScrollTrigger and Lenis smooth-scroll using XML-structured prompts",
+      "Phase 7 + troubleshooting table: run a UX audit to grade B or above; fix jitter via `ScrollTrigger.scrollerProxy()`"
+    ],
+    "output_type": "workflow guide producing a watcher script, Next.js pages, animation code",
+    "trigger_summary": "\"Use when building websites with Pencil.dev and Claude Code, setting up design-to-code sync, automating file watching for .pen files, running parallel agents for multi-page design, or adding GSAP/Lenis animations.\"",
+    "provenance_signals": "Transcribed from an external tutorial, not written from this repo. Tells: \"**Estimated Time**: 4–8 hours for a full 5-page site\", \"> **Key Discovery**: Sync is **not automatic**\", and a closing \"## Open Questions\" section asking whether bidirectional sync exists — an author's unresolved notes, left in. Names \"**Opus 4.6**\" as the model to select. No CircleTel content despite CLAUDE.md documenting its own Pencil CLI usage.",
+    "knowledge_type": "mixed — ~45% durable_external_knowledge (Pencil.dev MCP behaviour, `.pen` being Git-trackable JSON, the GSAP/Lenis scrollerProxy integration point, the permission-preconfiguration requirement) / ~35% workflow_procedure / ~20% generic_reasoning",
+    "external_deps": [
+      "Pencil.dev desktop app + its MCP server — NOT verifiable here; no pencil MCP in .mcp.json checked",
+      "BROKEN: `pencil` CLI — NOT INSTALLED (`which pencil` → missing), though CLAUDE.md documents `pencil --out designs/... --prompt` as a project command",
+      "BROKEN: `PENCIL_CLI_KEY` in `.env.local` per CLAUDE.md — `.env.local` DOES NOT EXIST on this checkout (only `.env.example`)",
+      "BROKEN: `designs/` directory required by CLAUDE.md's Pencil section — DOES NOT EXIST",
+      "`chokidar`, `gsap`, `@gsap/react`, `lenis` npm packages — not verified installed",
+      "Instructs editing `~/.claude/settings.json` to pre-grant read/write/MCP permissions"
+    ],
+    "overlap_with": [
+      "async-runner — Phase 4's parallel-agent-per-page is the same dispatch pattern",
+      "ui-ux-audit / design-guide — Phase 7 tells you to build a UX audit skill that already exists twice over",
+      "product-page-builder, design-prototyper — competing design→page pipelines"
+    ],
+    "risk_notes": "Every Pencil-side dependency is absent on this machine (CLI, key, designs/ dir), so the skill is aspirational here. Phase 3.1's instruction to pre-grant blanket read/write/MCP permissions in `~/.claude/settings.json` is a security-relevant config change that conflicts with the standing rule against agents modifying permission settings — and the skill's own security note (limit writes to the project dir) is advisory only. Phase 7 tells the model to *build* a skill that already exists. The unresolved 'Open Questions' section means the workflow was never fully validated."
+  },
+  {
+    "slug": "quality-gates",
+    "purpose": "A generate → evaluate → refine loop that scores customer-facing outputs against per-type rubrics until they clear a numeric threshold.",
+    "does": [
+      "Applies one of four rubrics — billing email, customer notification, contract, technical docs — with per-type minimum scores (8/10, 8/10, 9/10, 8/10) and max passes (3/3/3/2)",
+      "Defines three convergence stops: score ≥ threshold, max passes reached, or improvement < 0.5 between passes",
+      "Walks a worked billing-email example scoring Clarity/Accuracy/Tone/Action/Compliance from 5.6 → 9.0",
+      "Feeds recurring quality failures back into error-registry and rubric updates as an RSI loop"
+    ],
+    "output_type": "refined text output + a scored evaluation breakdown",
+    "trigger_summary": "\"Multi-pass quality system for critical outputs... billing emails, contracts, customer notifications, and technical documentation.\" Keywords: quality, review, evaluate, refine, billing email, rubric.",
+    "provenance_signals": "In-house. Frontmatter `author: CircleTel Engineering`, footer \"**For**: CircleTel critical outputs, **RSI Integration**: error-registry, compound-learnings\", \"**Last Updated**: 2026-02-12\" — same authoring batch as error-registry (identical date, identical RSI framing, identical footer shape).",
+    "knowledge_type": "mixed — ~55% generic_reasoning (self-critique-and-revise against a rubric is a technique the model already has; the numeric thresholds are arbitrary rather than derived) / ~30% workflow_procedure (the convergence rules and pass accounting) / ~15% durable_external_knowledge (the rubric files themselves, the R799.00 / NetCash / 082 487 3900 house style in the example)",
+    "external_deps": [
+      "`rubrics/billing-email.md`, `customer-notification.md`, `contract.md`, `technical-docs.md` — ALL EXIST ✓",
+      "MISSING: `evaluators/default-evaluator.md` — the documented directory structure claims it; the directory does not exist",
+      "MISSING: `history/` directory — documented as optional, not present",
+      "MISSING: `/quality-check` slash command — no such file in `.claude/commands/`",
+      "`lib/billing/paynow-billing-service.ts` — EXISTS ✓ (the integration example is real)"
+    ],
+    "overlap_with": [
+      "cross-model-review — same evaluate-before-shipping goal, external reviewer instead of self-scoring",
+      "claude-md-guardian — both are scored-rubric audit passes with a fix loop",
+      "circletel-launch-collateral — owns the confidentiality firewall for customer-facing copy, which this skill's rubrics do not mention",
+      "error-registry / compound-learnings — shares the RSI feedback plumbing"
+    ],
+    "risk_notes": "Self-scoring is the weak link — a model grading its own draft against its own rubric reliably converges above threshold on pass 2, which the worked example (5.6 → 9.0 in one step) illustrates rather than validates. `/quality-check` does not exist. Two of the four documented subdirectories are absent. Crucially, the rubrics do not encode the confidentiality firewall (no cost/margin/supplier in customer-facing output) that `circletel-launch-collateral` enforces — so a contract scoring 9/10 here could still leak margin."
+  },
+  {
+    "slug": "refactor",
+    "purpose": "A structured technical-debt analyzer that produces a prioritized, effort-and-risk-estimated refactoring report for a codebase or module.",
+    "does": [
+      "Runs five analysis passes: structural scan → pattern recognition → impact assessment (blast radius × touch frequency × fix effort) → dependency analysis → future-proofing",
+      "Grades across ten categories (duplication, complexity, coupling, naming, error handling, performance, security, dead code, outdated patterns, testing gaps)",
+      "Emits a fixed report shape: Executive Summary / Critical / High-Value / Debt Backlog table / Architecture Observations / **Not Recommended**",
+      "Names CircleTel's load-bearing files (`lib/supabase/server.ts`, `components/providers/CustomerAuthProvider.tsx`, `lib/coverage/aggregation-service.ts`, `app/api/webhooks/`) and supplies four prompt templates (full scan, pre-feature, module deep-dive, PR smell check)"
+    ],
+    "output_type": "markdown analysis report with effort + risk per recommendation",
+    "trigger_summary": "\"Use when reviewing code quality, planning tech debt sprints, or preparing for major feature work.\" Keywords: refactor, technical debt, code smell, coupling, dead code, duplication.",
+    "provenance_signals": "Adapted generic content with a CircleTel graft. Frontmatter `name: Refactor Agent` — a display name, not the slug, so it mismatches the directory. Footer: \"**Based On**: Principal engineer code quality review methodology\", \"**Maintained By**: CircleTel Development Team\", \"**Last Updated**: 2025-12-15\". The first ~80% is domain-neutral; two CircleTel sections are bolted on near the end.",
+    "knowledge_type": "mixed — ~70% generic_reasoning (the ten categories, SOLID/code-smell taxonomy, 'leave working code alone', risk-level definitions — textbook material a strong model already applies) / ~20% durable_external_knowledge (the load-bearing file list, the known-debt areas: B2B KYC 64% complete, dashboard tables unimplemented, ZOHO Supabase-first sync) / ~10% workflow_procedure. Highest generic ratio in the cluster.",
+    "external_deps": [
+      "None hard. All named CircleTel files are plausible repo paths; `lib/supabase/server.ts` is confirmed by CLAUDE.md.",
+      "Recommends `code-review-graph get_blast_radius` indirectly via CLAUDE.md — that MCP is configured in `.mcp.json`",
+      "References sibling skills bug-fixing, database-migration, context-manager — all EXIST ✓"
+    ],
+    "overlap_with": [
+      "security-review — the Security category here is a shallow copy of that skill's entire job",
+      "cross-model-review — both produce findings over existing code before merge",
+      "code-review (built-in) — the harness already ships a diff reviewer covering the same 'reuse/simplification/efficiency' ground",
+      "claude-md-guardian — overlapping 'audit the codebase against standards' framing"
+    ],
+    "risk_notes": "`name: Refactor Agent` does not match the directory slug `refactor`, which can break slash invocation and registry lookup. \"Known Technical Debt Areas\" is dated Dec 2025 and asserts specific completion percentages (B2B KYC 64%) that are almost certainly stale eight months on — a model quoting them would mislead. Substantially duplicated by the built-in `/code-review` and `/simplify` skills, which do the same job with actual diff access."
+  },
+  {
+    "slug": "rules-organizer",
+    "purpose": "Guidance for splitting a large CLAUDE.md into modular `.claude/rules/` files, including a proposed CircleTel folder taxonomy.",
+    "does": [
+      "Explains the three-tier precedence: `~/.claude/rules/` (lowest) → `.claude/rules/` → `.claude/CLAUDE.md` (highest)",
+      "Proposes a nested taxonomy — general/, frontend/, backend/, domain/, testing/ — with per-file suggestions",
+      "Embeds three full example rule files (api-routes.md, payments.md, react-patterns.md) with Next.js-15 async params, NetCash HMAC verification, and the try/catch/finally loading pattern",
+      "Covers symlinking shared/company rules across projects and a three-step migration from a bloated CLAUDE.md"
+    ],
+    "output_type": "created/edited markdown rule files under `.claude/rules/`",
+    "trigger_summary": "\"Use when setting up project standards, adding team conventions, creating domain-specific rules, or managing shared coding guidelines.\" Keywords: rules, standards, conventions, organize instructions, team rules.",
+    "provenance_signals": "In-house, same batch as async-runner and screenshot-analyzer — identical footer \"**Version**: 1.0.0 / **Last Updated**: 2025-12-10 / **For**: Claude Code v2.0.64+\". Generic skeleton with CircleTel examples pasted into the middle.",
+    "knowledge_type": "mixed — ~40% durable_external_knowledge (the rule-precedence model, `.claude/rules/` discovery behaviour, and the embedded CircleTel patterns which are real and correct) / ~35% generic_reasoning (one topic per file, show good and bad examples, keep it focused) / ~25% workflow_procedure. Note the embedded examples are verbatim duplicates of content already live in `.claude/rules/coding-standards.md`.",
+    "external_deps": [
+      "`.claude/rules/` — EXISTS ✓ with 27 rule files already in place",
+      "Symlink section assumes `git@github.com:company/claude-rules.git` — a placeholder repo that does not exist",
+      "No CLI or key requirements"
+    ],
+    "overlap_with": [
+      "claude-md-guardian — audits the same `.claude/rules/` tree this skill writes; guardian's U3 check enforces the CLAUDE.md rule table this skill would restructure",
+      "skill-creator (user tier) — adjacent 'author the instructions that steer Claude' job",
+      "compound-learnings — its extracted-rules output lands in the same directory"
+    ],
+    "risk_notes": "Its central recommendation — a nested `general/ frontend/ backend/ domain/ testing/` taxonomy — CONTRADICTS the repo's actual, established layout: 27 flat files in `.claude/rules/` with a matching flat table in CLAUDE.md. Following this skill would restructure the rules directory and immediately break claude-md-guardian's U3 diff check and CLAUDE.md's rule table. \"Restart Claude Code after adding rules\" is stale guidance. The embedded examples duplicate coding-standards.md, so the two can drift."
+  },
+  {
+    "slug": "screenshot-analyzer",
+    "purpose": "Reads UI screenshots to produce pixel coordinates for elements, then uses them to diagnose layout bugs or scaffold Playwright tests.",
+    "does": [
+      "Establishes the coordinate convention (origin top-left, x from left, y from top) and a table of nine standard device/desktop resolutions",
+      "Four diagnostic patterns: UI bug debugging, Playwright test creation, responsive analysis, element-overlap detection",
+      "Generates Playwright specs from screenshots, explicitly preferring `data-testid` selectors with coordinates only as fallback",
+      "Applies the 44x44px minimum touch-target rule and gives CircleTel examples (dashboard billing card clipped, admin export button off-viewport at x=1400 on a 1366px screen)"
+    ],
+    "output_type": "coordinate analysis + generated Playwright TypeScript",
+    "trigger_summary": "\"Use when debugging UI issues from screenshots, creating precise click targets, or implementing visual test automation.\" Keywords: screenshot, coordinates, click, pixel, UI debug, element location, Playwright.",
+    "provenance_signals": "In-house, same December batch — footer \"**Version**: 1.0.0 / **Last Updated**: 2025-12-10 / **For**: Claude Code v2.0.64+\". Its core premise is a harness claim: \"Claude Code v2.0.64 preserves original image dimensions when resizing screenshots\". All example outputs are invented dialogue, not captured transcripts.",
+    "knowledge_type": "mixed — ~55% generic_reasoning (coordinate systems, prefer-selectors-over-coordinates, 44px touch targets — all standard) / ~30% workflow_procedure (the four analysis patterns) / ~15% durable_external_knowledge (the v2.0.64 dimension-preservation claim and the CircleTel component paths). Note the CircleTel 'examples' are illustrative fiction — files like `components/admin/orders/OrdersTable.tsx:45` are cited with line numbers that were never verified.",
+    "external_deps": [
+      "A screenshot supplied by the user or captured by Playwright/chrome-devtools",
+      "`playwright` — INSTALLED ✓",
+      "Referenced component paths (`components/checkout/CardFields.tsx:78`, `components/admin/orders/OrdersTable.tsx:45`, `components/layout/Header.tsx`) are EXAMPLE fabrications, not verified targets — do not treat as real",
+      "Depends on an unverified harness behaviour (v2.0.64 image-dimension preservation)"
+    ],
+    "overlap_with": [
+      "mobile-testing — both generate Playwright specs and both carry a device-viewport table; direct duplication",
+      "ui-ux-audit — both critique a rendered interface from an image",
+      "admin-page-verification rule — the repo's own, more rigorous screenshot protocol (which warns that a rendered admin page proves nothing if its API calls 401'd) — a caveat this skill entirely lacks",
+      "chrome-devtools / stitch-loop — competing visual-inspection paths"
+    ],
+    "risk_notes": "Its foundational claim about v2.0.64 preserving original dimensions is unverified and version-pinned to Dec 2025; if false, every coordinate it emits is wrong by a scale factor. The CircleTel examples read as real findings but are fabricated, with fabricated line numbers — a model citing them would be hallucinating with apparent authority. Most damaging omission: `.claude/rules/admin-page-verification.md` explicitly warns that screenshots of admin pages hide 401'd data fetches; this skill teaches the opposite habit."
+  },
+  {
+    "slug": "security-review",
+    "purpose": "A fifteen-phase Chief-Security-Officer audit of the CircleTel stack, from secrets archaeology and supply chain through OWASP Top 10, STRIDE and POPIA impact, ending in a saved JSON report.",
+    "does": [
+      "Phases 0-2: build an architecture mental model and trust-boundary map, census the attack surface, then scan git history for CircleTel-specific secret patterns (`NETCASH_SERVICE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`/`eyJ`, `re_`, `ZOHO_*_REFRESH_TOKEN`, `AIza`, `DIDIT_`)",
+      "Phases 3-7: dependency audit with postinstall-script detection, CI/CD pipeline review, infra shadow surface, webhook HMAC verification, LLM/prompt-injection surface",
+      "Phases 9-11: OWASP Top 10 assessment, STRIDE threat model, data classification with explicit POPIA / PCI DSS / RICA regulatory framing",
+      "Phases 12-14: false-positive filtering with a confidence gate (8/10 daily, 2/10 comprehensive), findings report with remediation options, and a fingerprinted JSON report with trend comparison against the prior run"
+    ],
+    "output_type": "findings report + `docs/security-reports/{YYYY-MM-DD}-security-audit.json`",
+    "trigger_summary": "Explicit `triggers:` list — security audit, security review, check for vulnerabilities, owasp review, threat model, pentest review; plus `/security-review` with eight scope flags (--comprehensive, --infra, --code, --diff, --owasp, --payments, --scope auth).",
+    "provenance_signals": "Adapted from an external framework, clearly stated: \"Adapted from gstack/cso for CircleTel's stack\", and Phase 8 is left in as a stub — \"### Phase 8: (Skip — gstack-specific) — Skill supply chain scanning from gstack is not applicable.\" That vestigial hole is the strongest vendoring tell in the whole set. The CircleTel adaptation is deep and real (project ref `agyjovdugmtopasyvlng`, VPS `94.72.104.81`, `billing@notify.circletel.co.za`).",
+    "knowledge_type": "mixed — ~45% durable_external_knowledge (the CircleTel secret prefixes, trust boundaries, the specific integrations to check, SA regulatory mapping POPIA/PCI/RICA, the report JSON schema with fingerprinting) / ~35% generic_reasoning (OWASP Top 10 and STRIDE are canonical published frameworks) / ~20% workflow_procedure (mode resolution, phase gating, confidence filtering). At 23.5KB it is by far the largest skill here and the most substantive.",
+    "external_deps": [
+      "`git` with full history (Phase 2 runs `git log -p --all -S/-G`)",
+      "`npm audit` — available",
+      "WebSearch — declared in allowed-tools; the skill correctly degrades with \"WebSearch unavailable — local-only analysis\" if absent",
+      "Grep/Glob/Read/Write/Bash/Agent tools",
+      "MISSING (created on demand): `docs/security-reports/` does not exist — Phase 14 `mkdir -p` handles it, so not a break",
+      "No `/security-review` command file; relies on skill-name slash resolution",
+      "Trend comparison expects a prior report; first run has none (handled: `prior_report: null`)"
+    ],
+    "overlap_with": [
+      "refactor — its Security analysis category is a thin subset of this",
+      "cross-model-review — both are pre-merge review passes over a diff",
+      "git-guardrails-claude-code — preventive counterpart to this detective control",
+      "claude-md-guardian — both scan recent commits against a rule set and emit a scored report"
+    ],
+    "risk_notes": "Phase 8 is a dead numbered section left over from the gstack original — cosmetic, but it signals the adaptation was partial and other gstack assumptions may survive unexamined. `git log -p --all -G \"password|secret|token|api_key\"` on a repo this size is expensive and may effectively hang; no timeout or scope guard is given. The skill instructs \"Do NOT use `| head` to truncate results\", which combined with full-history scanning risks flooding the context window. Stack facts (Coolify VPS IP, Supabase project ref) are hardcoded and will silently rot if infra moves. Substantively the strongest skill in this cluster."
+  },
+  {
+    "slug": "using-superpowers",
+    "purpose": "A meta-skill that instructs Claude to check for and invoke applicable skills before producing any response, including clarifying questions.",
+    "does": [
+      "Asserts a near-absolute rule in `<EXTREMELY-IMPORTANT>` tags: \"If you think there is even a 1% chance a skill might apply... you ABSOLUTELY MUST invoke the skill\"",
+      "Sets a three-level instruction priority — user instructions (CLAUDE.md/AGENTS.md) > superpowers skills > default system prompt",
+      "Provides a graphviz decision flow (check skills → announce \"Using [skill] to [purpose]\" → convert any checklist into TodoWrite todos → follow exactly) and a twelve-row Red Flags table of rationalizations",
+      "Maps skill access across platforms and ships tool-name translation tables for Codex, Copilot CLI and Gemini CLI"
+    ],
+    "output_type": "behavioral policy (no artifact)",
+    "trigger_summary": "\"Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions.\" Effectively always-on, with a `<SUBAGENT-STOP>` opt-out for dispatched subagents.",
+    "provenance_signals": "Vendored from obra/superpowers. No author field, but the repo contains `/home/user/circletel/products/captive ad portal/what about [https___github.com_obra_superpowers](h.md` — a saved note naming github.com/obra/superpowers. Three platform reference files (codex-tools.md 100 lines, copilot-tools.md 52, gemini-tools.md 33) are pure upstream portability shims with zero CircleTel relevance. The `<EXTREMELY-IMPORTANT>` / `<SUBAGENT-STOP>` XML idiom is that project's house style.",
+    "knowledge_type": "generic_reasoning ~65% (the anti-rationalization table is prompt-engineering pressure, not knowledge) / workflow_procedure ~25% / durable_external_knowledge ~10% (the cross-platform tool mappings in references/, which are genuinely non-inferable). Note the actual durable content — the tool tables — is in the reference files, not the skill body.",
+    "external_deps": [
+      "The `Skill` tool (present)",
+      "`references/codex-tools.md`, `copilot-tools.md`, `gemini-tools.md` — ALL EXIST ✓, but describe Codex/Copilot/Gemini CLIs that are NOT installed on this machine",
+      "CRITICAL: the `superpowers` plugin itself — SEE risk_notes"
+    ],
+    "overlap_with": [
+      "session-start-hook / session-checker / session-manager — competing 'what happens at conversation start' skills",
+      "openspec-explore — stands in for the missing `superpowers:brainstorming` gate",
+      "cross-model-review — its Codex/Gemini terminal workflow duplicates the platform-adaptation premise here"
+    ],
+    "risk_notes": "**THE SUPERPOWERS PLUGIN IS NOT INSTALLED.** `/root/.claude/plugins/installed_plugins.json` is literally `{\"version\": 2, \"plugins\": {}}` — zero plugins. The only marketplace present is `claude-plugins-official`, whose plugin list contains no superpowers entry. A filesystem-wide search for `*superpower*` returns only: this skill directory, its gauntlet copy, `/home/user/circletel/.superpowers/` (stale brainstorm session scratch dirs — `.server.pid`, `waiting.html` — artifacts of past runs, not a skill source), `docs/superpowers/{plans,specs}`, and one saved markdown note about the GitHub repo. **Not one `superpowers:*` skill exists.** Yet CLAUDE.md and `.claude/rules/workflow.md` mandate a 6-stage pipeline of thirteen of them (brainstorming, systematic-debugging, writing-plans, executing-plans, test-driven-development, dispatching-parallel-agents, subagent-driven-development, verification-before-completion, requesting-code-review, finishing-a-development-branch, receiving-code-review, using-git-worktrees, writing-skills), and `.claude/rules/anti-patterns.md` classes skipping any gate as a rule violation equal to writing placeholder code. Every task in this repo therefore starts in a state the rules define as non-compliant and cannot exit. This skill is the surviving fragment of an uninstalled plugin, and it actively amplifies the problem by demanding the model invoke skills it cannot find. Highest-priority finding in the audit."
+  },
+  {
+    "slug": "mcp-builder",
+    "purpose": "Anthropic's official four-phase guide to designing, implementing, reviewing and evaluating a high-quality MCP server in TypeScript or Python.",
+    "does": [
+      "Phase 1: research MCP design tradeoffs (API coverage vs workflow tools, tool naming prefixes, context management, actionable errors) and pull the spec from `modelcontextprotocol.io/sitemap.xml` with `.md` suffixes",
+      "Phase 2: implement with Zod/Pydantic input schemas, `outputSchema` + `structuredContent`, pagination, and annotations (`readOnlyHint` etc.)",
+      "Phase 3-4: review and test, then build evaluations — ships `scripts/evaluation.py`, `scripts/connections.py`, `example_evaluation.xml` and `requirements.txt`",
+      "Recommends a default stack: TypeScript SDK, streamable HTTP with stateless JSON for remote, stdio for local"
+    ],
+    "output_type": "a working MCP server project + an evaluation harness",
+    "trigger_summary": "\"Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK).\"",
+    "provenance_signals": "Anthropic first-party, unambiguous. Frontmatter `license: Complete terms in LICENSE.txt`; bundled `LICENSE.txt` is the Apache License 2.0. Four reference docs (`mcp_best_practices.md`, `node_mcp_server.md`, `python_mcp_server.md`, `evaluation.md`) plus working Python scripts — the packaging signature of a distributed Anthropic skill, not a hand-written one.",
+    "knowledge_type": "durable_external_knowledge ~70% (MCP protocol specifics, SDK API surface, `structuredContent`, annotation hints, transport tradeoffs, the eval XML format — all versioned external facts) / ~30% workflow_procedure. Essentially no generic reasoning; this is a reference manual.",
+    "external_deps": [
+      "Network: WebFetch to `modelcontextprotocol.io` and `raw.githubusercontent.com` for SDK READMEs — outbound HTTPS goes through the agent proxy here, so reachable but not guaranteed",
+      "Python 3 + `scripts/requirements.txt` for the evaluation harness",
+      "Node/TypeScript toolchain for the recommended path",
+      "All four `reference/*.md` and all four `scripts/*` files — EXIST ✓",
+      "No CircleTel paths at all — fully portable"
+    ],
+    "overlap_with": [
+      "skill-creator — the sibling Anthropic authoring skill; same research→draft→eval→iterate loop applied to skills instead of servers",
+      "session-start-hook — the other 'configure Claude Code plumbing' skill"
+    ],
+    "risk_notes": "No broken paths — the cleanest skill in the set. Only real caveat is currency: it depends on live MCP spec and SDK READMEs fetched at runtime, so its own prose can lag the fetched docs. Also entirely unused by this repo's actual work (CircleTel consumes MCP servers via `.mcp.json`, it does not author them), so it is dead weight in the active skill budget."
+  },
+  {
+    "slug": "skill-creator",
+    "purpose": "Anthropic's skill for authoring, evaluating and optimizing Claude skills — including a quantitative eval loop with baseline comparison and description-trigger tuning.",
+    "does": [
+      "Captures intent (what should it do, when should it trigger, output format, do we need test cases), interviews for edge cases, then drafts SKILL.md",
+      "Teaches skill anatomy and progressive disclosure — metadata (~100 words) → body (<500 lines) → bundled scripts/references/assets loaded on demand",
+      "Runs with-skill AND baseline prompts in the same turn, drafts assertions while they execute, grades and aggregates, then launches an HTML eval viewer (`eval-viewer/generate_review.py`)",
+      "Runs a separate description-optimization loop (`scripts/improve_description.py`) against generated trigger-eval queries, and explicitly advises making descriptions \"a little bit pushy\" because Claude tends to under-trigger skills"
+    ],
+    "output_type": "a new/edited skill directory + benchmark report + HTML eval review",
+    "trigger_summary": "\"Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.\"",
+    "provenance_signals": "Anthropic first-party. Apache 2.0 `LICENSE.txt` bundled. Contains internal tells: an example description about \"internal Anthropic data\", and dedicated \"## Claude.ai-specific instructions\" and \"## Cowork-Specific Instructions\" sections referencing Anthropic surfaces. Ships eight Python scripts, three agent definitions (grader, analyzer, comparator) and an HTML viewer — heavyweight official packaging.",
+    "knowledge_type": "mixed — ~50% durable_external_knowledge (the frontmatter schema, the three-level progressive-disclosure loading model, how skill triggering actually works, the bundled scripts' interfaces) / ~35% workflow_procedure (the create→eval→iterate→optimize loop) / ~15% generic_reasoning (interview technique, audience-appropriate phrasing)",
+    "external_deps": [
+      "Python 3 for `scripts/run_loop.py`, `run_eval.py`, `improve_description.py`, `aggregate_benchmark.py`, `generate_report.py`, `quick_validate.py`, `package_skill.py`, `eval-viewer/generate_review.py` — ALL PRESENT ✓ (dependencies of those scripts not verified)",
+      "`references/schemas.md`, `agents/{grader,analyzer,comparator}.md`, `assets/eval_review.html` — ALL EXIST ✓",
+      "Ability to spawn many parallel subagent runs (the eval loop is agent-heavy and token-expensive)",
+      "A file-delivery tool for the optional 'Package and Present' step — not available in this CLI context"
+    ],
+    "overlap_with": [
+      "rules-organizer — adjacent 'author the instructions that steer Claude' surface",
+      "mcp-builder — sibling Anthropic skill, same research→build→eval→iterate structure",
+      "claude-md-guardian — both maintain the instruction layer, one by authoring and one by auditing"
+    ],
+    "risk_notes": "Two copies of skill-creator are installed — one at the project tier (`.claude/skills/skill-creator/`, SKILL.md only) and this fuller user-tier copy with all scripts. The project-tier stub will shadow or compete with the complete one depending on resolution order, and only the user-tier copy can actually run evals. Its advice to write \"pushy\" descriptions is a direct contributor to the over-triggering problem visible across this 74-skill install. The eval loop's cost (parallel with-skill + baseline runs per iteration) is not flagged anywhere in the skill."
+  },
+  {
+    "slug": "session-start-hook",
+    "purpose": "Creates and validates a SessionStart hook so a repo can install its dependencies and run tests/linters inside Claude Code on the web.",
+    "does": [
+      "Documents the hook contract: stdin JSON (`session_id`, `source`, `transcript_path`, `hook_event_name`, `cwd`), async mode via `echo '{\"async\": true, \"asyncTimeout\": 300000}'`, and the env vars `$CLAUDE_PROJECT_DIR`, `$CLAUDE_ENV_FILE`, `$CLAUDE_CODE_REMOTE`",
+      "Eight-step workflow: analyze dependency manifests → design → write `.claude/hooks/session-start.sh` + chmod → register in `.claude/settings.json` → validate hook, one lint, one test → commit and push",
+      "Gives design principles: sync first (async only on request), web-only unless asked, idempotent, non-interactive, prefer `npm install` over `npm ci` to exploit container caching",
+      "Prescribes an exact wrap-up summary with ✅/‼️ per validation and a sync-vs-async tradeoff explanation"
+    ],
+    "output_type": "an executable hook script + settings.json registration + a commit",
+    "trigger_summary": "\"Use when the user wants to set up a repository for Claude Code on the web, create a SessionStart hook to ensure their project can run tests and linters during web sessions.\"",
+    "provenance_signals": "Anthropic/Claude-Code first-party, targeting Claude Code on the web specifically. No license file. **Frontmatter `name: startup-hook-skill` does not match its directory `session-start-hook`** — a packaging slip that suggests it was renamed on install.",
+    "knowledge_type": "durable_external_knowledge ~65% (the SessionStart hook JSON contract, the three env vars, the async-mode envelope and its race-condition caveat, container-state caching behaviour — none of this is inferable) / ~35% workflow_procedure. Minimal generic reasoning.",
+    "external_deps": [
+      "Writes `.claude/hooks/session-start.sh` — NOTE: `.claude/hooks/` EXISTS and already contains `session-start.ps1` (PowerShell), `session-end-check.ps1`, `backup-before-edit.ps1`, `log-bash-commands.ps1`, `block-dangerous-git.sh`, `test-runner-hook.js`, `type-check-hook.js`. There is NO `session-start.sh`.",
+      "Edits `.claude/settings.json`",
+      "`git` with push access — step 8 commits AND pushes to the remote branch",
+      "A working lint and test command (this repo: `npm run type-check:memory`, `npm run test:mobile`)"
+    ],
+    "overlap_with": [
+      "git-guardrails-claude-code — the other hook-installer; both merge into `hooks` in the same settings.json and can clobber each other",
+      "session-checker / session-manager / filesystem-context — all claim the session-start moment",
+      "using-superpowers — also declares what must happen before anything else in a session"
+    ],
+    "risk_notes": "Name/directory mismatch (`startup-hook-skill` vs `session-start-hook`) will confuse slash invocation. It collides with an existing PowerShell hook regime — this repo's CLAUDE.md drives session start through `session-start.ps1` and a PowerShell context analyzer, while this skill writes bash; installing it creates two competing SessionStart hooks. Step 8 commits and pushes unprompted, which violates the standing rule to commit or push only when asked — and would be blocked outright if git-guardrails is installed, since that hook blocks all `git push`. It also edits settings.json, colliding with the rule against agents changing configuration."
+  },
+  {
+    "slug": "disk-cleanup-wizard",
+    "purpose": "A privacy-first conversational wizard that analyzes pasted disk-usage reports and produces risk-ranked cleanup plans with exact commands, primarily for Windows.",
+    "does": [
+      "Six-step workflow: gather context (OS, drive, free space, goal) → recommend WinDirStat/WizTree (`winget install WinDirStat.WinDirStat`) → hand over `scripts/disk_analyzer.py` → parse the pasted report → generate tailored PowerShell → close the loop with Storage Sense habits",
+      "Ranks every suggestion by (reclaimable GB × safety), leading with Recycle Bin, temp, old Downloads and Windows Update cache; flags AppData/Program Files/hibernation with alternatives",
+      "Buckets findings into Quick Wins / Review & Decide / Investigate Further, always offering 'move to Archive' before permanent delete and `-WhatIf` before execution",
+      "Handles special cases: describing a treemap visually, duplicates, macOS (DaisyDisk/GrandPerspective) and Linux (`ncdu`/`baobab`), dev machines (node_modules, target/, .cache, Docker/WSL volumes)"
+    ],
+    "output_type": "prioritized cleanup plan + generated PowerShell scripts",
+    "trigger_summary": "\"Triggers on low disk space, cleaning drive, finding large files or folders, WinDirStat, C drive full, storage management, or freeing up space.\"",
+    "provenance_signals": "**Ported from Grok, and the port is incomplete.** `scripts/disk_analyzer.py` docstring: \"Then copy the entire Markdown output and paste it back to **Grok** (disk-cleanup-wizard skill will activate automatically...)\" — the original host is named in shipped code. Also third-person persona framing (\"You are a careful, expert storage management assistant\"), a style marker of ported system prompts. No author, no license, no version.",
+    "knowledge_type": "mixed — ~55% durable_external_knowledge (Windows space-hog taxonomy in `references/windows-space-hogs-and-safe-cleanup.md`, the exact winget package id, Storage Sense, hiberfil/pagefile semantics, per-OS tool names) / ~30% workflow_procedure (the six-step loop and three-bucket output) / ~15% generic_reasoning (safety framing)",
+    "external_deps": [
+      "`scripts/disk_analyzer.py` — EXISTS ✓, stdlib-only Python 3.6+, runs on the USER'S machine not here",
+      "`references/windows-space-hogs-and-safe-cleanup.md` — EXISTS ✓",
+      "WinDirStat / WizTree via winget, choco or scoop — user-side, Windows-only",
+      "PowerShell on the user's machine",
+      "By design requires NO access to this filesystem — the whole skill runs on pasted text"
+    ],
+    "overlap_with": [
+      "vps-devops rule — that rule owns disk pressure on VPS 94.72.104.81 (df -h thresholds, the ordered `docker image prune` / `journalctl --vacuum-size` cleanup sequence). This skill would give generic Windows advice for a problem the repo has a precise Linux runbook for.",
+      "async-runner — adjacent 'watch machine resources' framing"
+    ],
+    "risk_notes": "Wrong platform for this environment: CircleTel's real disk problem is a Linux VPS running Coolify, and `.claude/rules/vps-devops.md` already prescribes a safe-cleanup order that explicitly forbids dropping Coolify app/db/redis containers. This skill knows none of that and its Linux branch is a one-line `ncdu`/`baobab` aside. If it triggers on \"disk full\" during VPS work it will actively displace the correct runbook. The Grok reference left in shipped code is a provenance leak that would confuse a user who runs the script and reads its instructions. Safety design itself is sound — no direct file access, `-WhatIf` first, archive-before-delete."
+  }
+]

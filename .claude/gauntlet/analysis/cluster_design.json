@@ -1,0 +1,418 @@
+[
+  {
+    "slug": "anti-ai-slop-design",
+    "purpose": "Stops generated UI/visual work from looking generic and template-y by forcing every visual decision to be justified by a product reason.",
+    "does": [
+      "Runs a 5-step replacement framework per offending pattern: name the default pattern, diagnose why it is generic, ask the human design questions, replace style with purpose, rewrite the prompt/spec",
+      "Rewrites vague design prompts ('modern AI SaaS landing page') into a filled-in brief template with audience, task, emotional territory, evidence type, required states, and an explicit 'Avoid:' exclusion list",
+      "Audits an existing design against a condensed red-flag table (logo-swappable design, interchangeable hero copy, unlabeled dashboard widgets, missing empty/loading/error states, glow that kills contrast) and returns severity-rated findings",
+      "Explicitly defers usability/JTBD/WCAG conformance to a dedicated audit skill and yields to invoked brand systems"
+    ],
+    "output_type": "critique report + rewritten design brief/prompt (text); no rendered artifact",
+    "trigger_summary": "Generating or refining any visual interface (landing pages, dashboards, components, decks, brand systems, mockups); rewriting a vague design prompt into a specific brief; or being asked whether a design looks AI-generated, generic, templated, or 'same-y'.",
+    "provenance_signals": "manifest.json marks it `\"source\": \"custom\"` (skill_01VehZGact1q4tJty1T4pG7i, updated 2026-07-11). Frontmatter `license: MIT`, `metadata.version: 1.0.0`, `category: design`, and `source: \"The Anti-AI-Slop Design Field Guide\"` — a self-attributed guide, not a company. Prose voice is essayistic and confident ('AI-slop happens when style arrives before purpose', 'The fix is not less beauty — it is beauty accountable to product truth'). Cross-references sibling skills by exact slug (`umami-design-system`, `emil-design-eng`), which means it was hand-authored/edited inside THIS user's skill set, not vendored. Batch-updated at 15:37 on 2026-07-11 alongside design-guide, emil-design-eng, umami-design-system, shadcn, shadcn-typeset — suggesting one authoring/tuning session across the whole design cluster.",
+    "knowledge_type": "mixed — ~55% generic_reasoning (a strong model already knows gradients/glassmorphism/sparkle icons read as AI-generated, and 'tie style to purpose' is standard design advice), ~30% workflow_procedure (the 5-step framework, the prompt template, the load-references-progressively routine), ~15% durable_external_knowledge (the specific severity-rated slop catalog and the precedence carve-outs for named sibling skills)",
+    "external_deps": "None (no CLI, API keys, or network). BUT declares four bundled reference files it does not have: references/prompt-rewrites.md, references/pattern-catalog.md, references/channel-playbooks.md, references/detection-checklist.md",
+    "overlap_with": [
+      "uxui-system-architect — its entire §3 'ANTI-UX-SLOP RULES' (flow/UI/backend/accessibility slop) is the same detection catalog applied to written specs",
+      "imagegen-frontend-web — its §8 'ANTI-AI-SLOP RULES' (layout/visual/typography/content/density slop) is a near-duplicate catalog aimed at generated images",
+      "design-guide — both flag gradients, low contrast, and cluttered layouts; design-guide does it as a hard rule list, this does it as a diagnostic lens",
+      "ui-ux-audit — both produce severity-rated findings on an existing interface; this judges distinctiveness, that judges usability, but the reports look alike",
+      "web-artifacts-builder — its one design paragraph ('avoid excessive centered layouts, purple gradients, uniform rounded corners, and Inter font') is a three-line version of this skill",
+      "design-prototyper — its 'Generation constraints' (one primary action, real content not lorem, cover empty/loading/error) restate this skill's evidence-and-states discipline",
+      "ai-era-design-process — both address 'how do we keep AI-accelerated design good', from opposite ends (process vs. artifact)"
+    ],
+    "risk_notes": "BROKEN: the directory contains only SKILL.md. All four `references/*.md` files it instructs the model to 'load first' / 'load when diagnosing' / 'load when auditing' are absent, and the SKILL.md deliberately keeps the catalogs condensed on the assumption they exist ('Full severity-rated checklists per channel are in references/detection-checklist.md'). Every worked example ends by pointing at a missing file. The skill still functions on the 5-step framework alone (it says so), but roughly half its promised value is unreachable. Second issue: the brand-system carve-out hardcodes `umami-design-system` by name, so the exception silently fails for any other brand system. Third: it and design-guide take opposite stances on the same evidence — design-guide bans gradients outright, this skill bans *unjustified* gradients; a model holding both will over-flag."
+  },
+  {
+    "slug": "design-guide",
+    "purpose": "Applies a fixed set of modern-UI house rules (8px grid, one accent color, 16px minimum body text, border-or-shadow) to anything visual the model builds or reviews.",
+    "does": [
+      "Enforces a concrete rule set: 8px spacing increments, neutral background + exactly one accent color, no gradients, 16px minimum body text, max two font families, 48px touch targets",
+      "Runs a 13-item validation checklist before finalizing any design and flags 'Critical Issues' with recommended fixes",
+      "Supplies copy-pasteable Tailwind/CSS values and a reference React component showing the button hover/active/disabled pattern with scale(0.97) press feedback",
+      "Explicitly hands off motion/animation/interaction-feel decisions to emil-design-eng and yields aesthetic rules to an invoked brand system"
+    ],
+    "output_type": "code (Tailwind/CSS/React snippets) + a pass/fail checklist critique",
+    "trigger_summary": "Creating, reviewing, or refining any UI component — React components, HTML/CSS, artifacts, forms, buttons, cards, layouts, or any visual interface. Says it 'applies to ALL UI work - no exceptions'.",
+    "provenance_signals": "manifest: `\"source\": \"custom\"` (skill_01SyYSvfefBitdH5BU4kszo7, 2026-07-11T15:38). No license or metadata block — thinner frontmatter than the MIT-licensed siblings, suggesting an earlier or more casually authored artifact. Name-drops aspirational exemplars rather than a source: 'matching top applications like AirBnB and Stripe'. The precedence note at line 10 references `emil-design-eng` and `umami-design-system` by exact slug — hand-edited into this user's set. Flat, imperative, checklist-heavy voice ('This skill applies to ALL UI work - no exceptions') reads as a personally-written house style doc rather than a vendored package.",
+    "knowledge_type": "generic_reasoning — ~80% (8px grids, one accent color, WCAG AA, 48px touch targets, hover/active/disabled states are all things a strong model already produces by default), ~15% workflow_procedure (the validation checklist and the flag-then-recommend-fix routine), ~5% durable_external_knowledge (the specific hex values and the precedence carve-outs)",
+    "external_deps": "None",
+    "overlap_with": [
+      "anti-ai-slop-design — both police gradients, contrast, and clutter on the same artifacts; one as absolute rules, one as diagnostics",
+      "emil-design-eng — the two split static vs. motion by an explicit treaty, but design-guide still specifies :active scale(0.97), hover gating, and transition properties, i.e. motion",
+      "umami-design-system — direct contradiction by design: Umami's gradients, shadow-glow, border+shadow cards, and 14px text all violate design-guide, resolved only by a hardcoded carve-out",
+      "shadcn-typeset — direct conflict on body text size; typeset's 15px docs preset overrides design-guide's 16px floor inside .typeset containers",
+      "shadcn — both dictate how to style components in React/Tailwind; shadcn says use semantic tokens and never override component colors, design-guide hands you raw hex values",
+      "ui-ux-audit — both review an existing UI and emit violations; design-guide checks aesthetics, ui-ux-audit checks usability",
+      "uxui-system-architect — its §5 'DESIGN SYSTEM DEEP SPECIFICATION' (tokens for color, type, spacing, elevation, radius) covers the same ground in spec form",
+      "web-artifacts-builder — that skill builds React/Tailwind artifacts and carries its own mini design guidance",
+      "design-prototyper — its high-fidelity generation constraints (hierarchy, contrast, 44px tap targets, labelled controls) overlap this checklist"
+    ],
+    "risk_notes": "Self-defeating breadth: 'This skill applies to ALL UI work - no exceptions' means it fires on essentially every task in the cluster, then immediately needs three written carve-outs (emil-design-eng for motion, umami-design-system for brand, shadcn-typeset for prose) to avoid producing wrong flags. Those carve-outs name specific slugs, so a fourth brand system or prose system is not covered. Internal contradiction: the precedence note delegates ALL motion to emil-design-eng, yet the checklist mandates `scale(0.97)` press feedback and hover-media-query gating — motion rules — and the sample component ships a `transition-[...] duration-150`. Also mildly stale/arbitrary: 'Never use gradients, especially purple or blue gradients' is stated as an absolute, which conflicts with anti-ai-slop-design's more defensible position that gradients are fine when authored. The 'AirBnB and Stripe' framing is marketing, not a spec — neither app follows all these rules."
+  },
+  {
+    "slug": "design-prototyper",
+    "purpose": "Turns a vague request or a screenshot into a shared design brief, then renders it as low-fidelity wireframes/flows or a high-fidelity clickable mockup.",
+    "does": [
+      "Reads back a screenshot or rough prompt in design vocabulary, then produces a structured brief (purpose, primary user, primary task, platform, fidelity, key screens, flow, content, required states, constraints, tone) marking every inferred field",
+      "Asks at most three tappable, option-based guided questions with defaults via ask_user_input_v0, branching phrasing for creative vs non-creative users",
+      "Picks fidelity using explicit decision rules, then generates via a tooling map: inline widget/SVG for lo-fi, diagram module for flows, React file artifact for stateful hi-fi",
+      "Applies generation constraints (one primary action per screen, real-enough content, empty/loading/error/success states, mobile-first, labelled controls) and offers two specific next iterations"
+    ],
+    "output_type": "rendered artifact — lo-fi wireframes, flow diagrams, or interactive HTML/React mockup — plus a written design brief",
+    "trigger_summary": "'mock this up', 'turn this into screens', 'design a flow for', 'wireframe this', 'make an interactive prototype', 'I have a screenshot, build/redesign from it', 'help me describe the screen I want'. Explicitly NOT for auditing (ui-ux-audit) or text-only specs (uxui-system-architect).",
+    "provenance_signals": "manifest: `\"source\": \"custom\"` (skill_01H6qTKSvfsVvjYRCif6c9pV, 2026-06-18T18:45 — created within two minutes of uxui-system-architect at 18:44, i.e. the two were authored as a deliberate pair). Frontmatter `license: MIT`, `metadata.version 1.0.0`, `category: design`. Ships a README.md with an 'Install' section reading 'Download the ZIP. Claude.ai → Settings → Capabilities → upload the skill' — packaged for distribution, so authored-then-published rather than vendored from a company. The 'Positioning (read first to avoid overlap)' section names five sibling slugs (`ui-ux-audit`, `uxui-system-architect`, `frontend-design`, `web-artifacts-builder`, `imagegen-frontend-web`), which is boundary-drawing work only the owner of the whole set would do.",
+    "knowledge_type": "workflow_procedure — ~60% (the 6-step intake → translate → elicit → confirm fidelity → generate → iterate sequence, plus the tooling map), ~30% generic_reasoning (the generation constraints — one primary action, cover empty states, mobile-first, Jakob's/Hick's Law — are standard practice), ~10% durable_external_knowledge (which specific tool/module to call for each fidelity)",
+    "external_deps": "Environment tooling it names but cannot install: `ask_user_input_v0` (or an elicitation form), `visualize:show_widget` with `mockup`/`interactive`/`diagram` modules. Delegates hi-fi construction to the `frontend-design` and `web-artifacts-builder` skills. Bundled references/ (design-brief.md, guided-questions.md, fidelity-guide.md) are all present.",
+    "overlap_with": [
+      "uxui-system-architect — the declared pair: same design-definition job, split only by output format (rendered artifact vs written spec)",
+      "ui-ux-audit — ui-ux-audit's Phase 7 builds a self-contained HTML redesign mockup, which is exactly this skill's hi-fi output",
+      "web-artifacts-builder — this skill explicitly hands off multi-screen stateful hi-fi to it; both end in a React/HTML artifact",
+      "imagegen-frontend-web — same 'show me what the screen should look like' job, resolved as rendered/structural vs generated image",
+      "design-guide — supplies the static styling rules this skill's hi-fi output needs but deliberately does not restate",
+      "anti-ai-slop-design — its brief-rewriting step and this skill's translate-to-brief step are the same move on the same vague prompt",
+      "shadcn — the natural component vocabulary for the React hi-fi path",
+      "canvas-design — both convert a loose prompt into a rendered visual, though canvas targets art rather than screens"
+    ],
+    "risk_notes": "Cleanest boundary discipline in the cluster, but the boundaries are unenforceable: nothing routes a 'mock this up' request away from ui-ux-audit Phase 7 or imagegen-frontend-web, so which skill wins is down to trigger-phrase luck. Hard dependency on `ask_user_input_v0` and `visualize:show_widget` module names that may not exist in a given harness — step 3 and step 5 both degrade silently if they are absent, and the SKILL.md gives no fallback. It also delegates hi-fi build rules to a `frontend-design` skill that is NOT in the 74-skill active list (it exists only as a symlink under the project dir), so the handoff target is partly phantom. Content-wise this is thin: ~81 lines of SKILL.md that mostly points elsewhere."
+  },
+  {
+    "slug": "emil-design-eng",
+    "purpose": "Encodes Emil Kowalski's design-engineering philosophy so the model makes correct animation, easing, timing, and micro-interaction decisions in UI code.",
+    "does": [
+      "Runs a 4-question animation decision framework before writing any animation: should this animate at all (by usage frequency), what is the purpose, what easing, how fast — with concrete tables (100+/day = never animate; UI animations under 300ms)",
+      "Supplies specific, hard-to-guess values: custom cubic-bezier curves, spring configs, scale(0.97) on :active, never animate from scale(0), origin-aware popovers via --radix-popover-content-transform-origin, blur-to-mask-crossfade, @starting-style, clip-path patterns",
+      "Gives performance rules a model would get wrong: only animate transform/opacity, CSS variables trigger child recalc, Framer Motion's x/y shorthands are NOT hardware-accelerated (use the full transform string), CSS animations beat JS under main-thread load",
+      "Reviews UI code and MUST output findings as a markdown | Before | After | Why | table, with an explicit 'wrong format (never do this)' counter-example"
+    ],
+    "output_type": "code (CSS/JSX animation snippets) + a Before/After/Why critique table",
+    "trigger_summary": "Weakest description in the cluster — just 'This skill encodes Emil Kowalski's philosophy on UI polish, component design, animation decisions, and the invisible details that make software feel great.' No trigger phrases, no 'use when', so triggering is left entirely to topic inference.",
+    "provenance_signals": "manifest: `\"source\": \"custom\"` (skill_01XmgVCTxmZQs85c4FgWW7pM, 2026-07-11T15:36 — first in the 15:36–15:38 batch). Explicitly third-party-derived: names a real person as the source ('Emil Kowalski's design engineering philosophy') and hard-codes a promo instruction — 'If you want to dive even deeper, check out Emil's course: [animations.dev](https://animations.dev/)'. Cites his real libraries by name and metric ('building Sonner (13M+ weekly npm downloads)'), plus Vaul, Raycast, Radix, Base UI, and a first-person-adjacent anecdote ('At Vercel, the dashboard tab animation used Shared Layout Animations and dropped frames'). Quotes Paul Graham. External resources: easing.dev, easings.co. This reads as a careful distillation of Kowalski's public writing/course by a third party — vendored knowledge, hand-packaged.",
+    "knowledge_type": "durable_external_knowledge — ~65% (the specific bezier values, the Framer Motion hardware-acceleration caveat, the Radix/Base UI transform-origin CSS variables, the Sonner velocity threshold of 0.11, @starting-style, clip-path techniques — these are named-source facts a model would otherwise guess at), ~25% generic_reasoning (taste, 'beauty is leverage', good defaults matter), ~10% workflow_procedure (the 4-question framework and the mandated review table format)",
+    "external_deps": "None required at runtime. References external URLs for further reading (animations.dev, easing.dev, easings.co) and assumes Framer Motion / Motion, Radix UI or Base UI in the project when those snippets apply.",
+    "overlap_with": [
+      "design-guide — formal treaty splits static (design-guide) from motion (this), but design-guide still mandates scale(0.97), hover gating, and transition properties",
+      "umami-design-system — Umami defers to this skill by name for transition properties, hover gating, and prefers-reduced-motion, but then ships a 0.6s fadeUp and a mousemove 3D tilt that need an explicit exemption clause",
+      "shadcn-typeset — borrows this skill's | Before | After | Why | review table format outright and points motion questions here",
+      "ui-ux-audit — both critique an interface and both note that static inputs cannot reveal animation; this is the motion-specific reviewer",
+      "anti-ai-slop-design — overlapping concern that 'polish' must be intentional; this one is the mechanical how, that one is the why",
+      "design-prototyper — hi-fi interactive mockups need exactly these interaction rules",
+      "shadcn — component-level polish and the same Radix/Base UI primitives",
+      "web-artifacts-builder — React artifacts are where these animation rules land"
+    ],
+    "risk_notes": "The 'Initial Response' instruction is the most self-defeating thing in the cluster: when invoked without a specific question the model MUST reply only with a canned line advertising a paid third-party course ('check out Emil's course: animations.dev') and 'do not provide any other information until the user asks a question' — a hard stop that wastes a turn and injects an ad into the user's session. The description field carries no 'use when' or trigger phrases, so a skill with genuinely high-value non-obvious content will under-trigger relative to design-guide's 'applies to ALL UI work'. Mild staleness risk: `import { useSpring } from 'framer-motion'` alongside prose calling it 'Motion (formerly Framer Motion)' — the package rename is acknowledged in text but not in the code sample. At 679 lines it is by far the largest SKILL.md here with no progressive-disclosure references/ split, so it loads whole."
+  },
+  {
+    "slug": "ui-ux-audit",
+    "purpose": "Produces an evidence-based, severity-rated UI/UX audit of an existing interface where every finding cites a violated principle and every fix names its expected impact on the user's job.",
+    "does": [
+      "Runs a 7-phase workflow: scope the user and JTBD → map screens to job steps → heuristic evaluation (Nielsen's 10, Hick's/Fitts's/Miller's/Jakob's/Peak-End/Tesler's, visual principles) → flow & friction analysis → accessibility pass → severity-rate and prioritize → write the report",
+      "Emits every finding in a mandatory 5-part format: job step blocked, finding, principle violated, recommendation, why this works, expected impact, effort",
+      "Rates on a 4-level severity scale and sorts into fix-now / plan-next / quick-wins / reconsider-defer, including explicitly recommending AGAINST low-impact high-effort work",
+      "Optionally (Phase 7, gated on explicit request only) builds one self-contained HTML redesign mockup with a visible Change Map tracing every change to a numbered finding, and a separate 'designer's discretion' list"
+    ],
+    "output_type": "critique report (markdown file or chat) + optional self-contained HTML redesign artifact",
+    "trigger_summary": "'audit this UI', 'UX review', 'review my design/app/website', 'why is my conversion/activation low', 'is this interface good', or sharing an interface asking for feedback; Phase 7 fires only on 'mock it up', 'show me the redesign', 'build the fixed version'.",
+    "provenance_signals": "manifest: `\"source\": \"custom\"` (skill_01Gi4G87tS8hvs8T5KscWTGx, 2026-06-16 — the OLDEST of the hand-written design skills, and at v1.1.0 the only one that has been revised). Frontmatter `license: MIT`, `metadata.version: \"1.1.0\"`, `category: design`. Body is thoughtful original prose with self-aware guardrails you don't get in vendored packs ('Producing it unasked would let a single visual solution masquerade as the deliverable', 'The mockup never invents findings'). Cites only public canon (Nielsen, JTBD, UX laws) — no company or product attribution. A duplicate copy exists at `originals/project/ui-ux-audit.skill` (15031 bytes), i.e. the same skill is installed at BOTH user and project scope. Rule 8 and Phase 7 reference `frontend-design` by slug.",
+    "knowledge_type": "mixed — ~45% workflow_procedure (the 7 phases, the mandatory finding format, the severity/prioritization matrix, the Phase 7 gating and Change Map protocol), ~45% generic_reasoning (Nielsen's heuristics, UX laws, JTBD, and 'don't recommend without rationale' are all well within a strong model's existing knowledge), ~10% durable_external_knowledge (essentially none beyond the canonical frameworks it names)",
+    "external_deps": "web_fetch for the live-URL input path. Declares five bundled files: references/heuristics.md, references/jtbd-framework.md, references/audit-checklists.md, templates/audit-report-template.md, templates/redesign-mockup-template.html. Phase 7 tells the model to consult the environment's `frontend-design` skill.",
+    "overlap_with": [
+      "anti-ai-slop-design — both audit a finished design and emit severity-rated findings; the split is 'usable?' vs 'distinctive?', which users will not distinguish when they say 'review my design'",
+      "design-prototyper — Phase 7's HTML redesign mockup is design-prototyper's core deliverable, and design-prototyper's README claims auditing belongs here; the boundary is declared from both sides but crossed by Phase 7",
+      "design-guide — its 'Automatic Issue Detection' section is an aesthetic mini-audit of the same artifact",
+      "emil-design-eng — its Review Checklist is a motion-specific audit with its own mandated table format, competing with this skill's finding format",
+      "uxui-system-architect — its §10 CLARITY CHECK is the same evaluation criteria applied pre-emptively to a spec instead of retroactively to a build",
+      "shadcn-typeset — declares a 'Review Contract' emitting violations for prose containers",
+      "screenshot-analyzer — screenshots are this skill's primary listed input",
+      "mobile-testing — overlapping surface for mobile/responsive findings"
+    ],
+    "risk_notes": "BROKEN: directory contains only SKILL.md. All five declared bundled resources are missing — including `references/heuristics.md` (which Phase 2 says to read before evaluating), `references/jtbd-framework.md` (Phase 1), `references/audit-checklists.md` (Phases 3–4), and `templates/redesign-mockup-template.html`, which Phase 7 requires and whose Change Map slot and 'illustrative, not a spec' banner are called hard requirements ('a mockup that breaks any of these is not shippable'). So Phase 7 cannot be executed as specified. Second issue: DUPLICATE INSTALL — the same skill exists at `originals/project/ui-ux-audit.skill` as well as user scope, risking double-loading or version drift. Third: Phase 7 depends on a `frontend-design` skill that is not in the 74-skill active list. The workflow itself is sound and the guardrails are the best-reasoned in the cluster; the packaging is what failed."
+  },
+  {
+    "slug": "uxui-system-architect",
+    "purpose": "Writes a long, opinionated, implementation-ready UX/UI specification document covering journeys, IA, screen-by-screen wireframe descriptions, design tokens, and admin/backend patterns.",
+    "does": [
+      "Sets eight numeric baseline dials (UX_VARIANCE 7, ACCESSIBILITY_PRIORITY 8, BACKEND_CLARITY 9, EMOTIONAL_PACING 7…) and adapts them from the prompt domain (healthcare → accessibility 10)",
+      "Runs a combinatorial variation engine: pick exactly one navigation model, one hierarchy logic, one interaction paradigm, one frontend style, one backend style, exactly 3 frontend + 3 backend signature components, one narrative spine, one 'second-read moment'",
+      "Applies a 4-category anti-slop ban list (flow slop, UI slop, backend slop, accessibility slop) and demands each flow answer trigger / emotional entry state / core job / tension / relief / exit state",
+      "Emits a fixed 7-part deliverable (A user model & journey map → G implementation notes) including a fully tokenised design system, then self-runs a 10-question clarity check"
+    ],
+    "output_type": "written spec (long-form design specification document); explicitly NOT a rendered or clickable artifact",
+    "trigger_summary": "'design the UX', 'UI spec', 'design system', 'document the user flow', 'component library', 'information architecture', 'interaction design spec' — defining a UX system or producing any UX/UI specification document.",
+    "provenance_signals": "manifest: `\"source\": \"custom\"` (skill_017G7K4VZtnkqmxVdPZNLQtn, 2026-06-18T18:44 — created ~90 seconds before design-prototyper, confirming the pair was authored in one sitting). No license/metadata frontmatter. Structurally a near-clone of `imagegen-frontend-web`: same '# CORE DIRECTIVE' all-caps opener, same '## 1. ACTIVE BASELINE CONFIGURATION' numeric dials with `(1 = … , 10 = …)` gloss, same '## 2. THE COMBINATORIAL VARIATION ENGINE', same 'ANTI-…-SLOP RULES', same 'CLARITY CHECK', same 'RESPONSE BEHAVIOR' numbered pipeline, same 'EXAMPLE INTERPRETATIONS', same 'FINAL GOAL'. One is a fork of the other by the same hand. British/en-GB spelling throughout ('colour', 'behavioural', 'tokenised', 'centred', 'optimised') matches this user's en-ZA house style. Self-flattering framing ('You are an elite UX/UI architect') is prompt-engineering voice, not vendor documentation.",
+    "knowledge_type": "generic_reasoning — ~65% (personas, IA, WCAG, responsive breakpoints, token categories, frontend-vs-backend priorities are all standard and already known), ~30% workflow_procedure (the dials, the forced combinatorial picks, the fixed §9 output structure, the §10 clarity check), ~5% durable_external_knowledge (essentially none — no APIs, no library specifics, no versioned facts)",
+    "external_deps": "None",
+    "overlap_with": [
+      "imagegen-frontend-web — structural twin; same dials/combinator/anti-slop/clarity-check skeleton, differing only in whether the output is a spec or an image",
+      "design-prototyper — declared complement (spec vs rendered), but both answer 'design this product's UX' and both start by inferring product type and user",
+      "design-guide — §5's token spec (colour, typography, spacing, elevation, radius, motion) is the same territory design-guide fixes with concrete values",
+      "anti-ai-slop-design — §3's anti-slop ban list duplicates that skill's whole purpose",
+      "ui-ux-audit — §10's clarity check applies the same evaluative criteria, just pre-emptively",
+      "emil-design-eng — §5's motion tokens (duration, easing for entrance/exit/attention) are that skill's exclusive domain",
+      "shadcn — §5's component specs (states, variants, ARIA, responsive rules) describe what shadcn already ships as code",
+      "theme-factory — both produce colour+font systems for an artifact",
+      "solution-design / ict-solution-design — same 'produce a long structured spec document' shape in a different domain"
+    ],
+    "risk_notes": "Highest-volume, lowest-density skill in the cluster: 372 lines that almost entirely restate design knowledge a strong model already has, wrapped in numeric dials (UX_VARIANCE: 7) that have no defined mechanism — nothing tells the model what a 7 versus an 8 actually changes in the output, so they read as vibes-as-config. 'Do not ask to edit this file' plus 'Do not ask unnecessary questions if a strong interpretation is possible' removes the user from the loop on assumptions the skill admits it is inventing. Section 4 and 8's fixed 'second-read moment' requirement — 'a search bar that whispers a supportive haiku when empty' — is prescribed whimsy that will land badly in enterprise or healthcare contexts the skill itself claims to serve. The §9 output structure is so large (7 sections, each multi-part) that a single invocation produces an unreviewably long document. Overlaps design-prototyper on trigger surface despite both carrying disclaimers."
+  },
+  {
+    "slug": "imagegen-frontend-web",
+    "purpose": "Directs image generation to produce premium, art-directed website design comps that a developer or coding model can actually build from.",
+    "does": [
+      "Sets six numeric dials (DESIGN_VARIANCE 8, IMPLEMENTATION_CLARITY 9, IMAGE_USAGE_PRIORITY 9, SPACING_GENEROSITY 8) and adapts them from prompt adjectives ('clean' → lower density, 'editorial' → more asymmetry)",
+      "Forces combinatorial picks: one theme paradigm, one background character, one typography character, one hero architecture, one section system, exactly 4 signature components, exactly 2 motion-implied cues",
+      "Computes image count from section count (1–2 sections → 1 image; 5–8 → 2 tall verticals; 13–16 → 4) and enforces a multi-image continuity rule so slices read as one site",
+      "Bans an explicit slop list across layout, visual, typography, content ('unleash', 'elevate', 'seamless'), fake brand names ('Acme', 'NovaCore'), density, marquee, and fake-KPI categories, then runs a 14-point clarity check"
+    ],
+    "output_type": "image prompts / generated design comp images (website reference imagery)",
+    "trigger_summary": "Generating premium website design reference images — hero sections, landing pages, multi-section site comps intended for developers or coding models to recreate.",
+    "provenance_signals": "manifest: `\"source\": \"custom\"` (skill_016j3SZU7NBUAv87H8bRvmV1, 2026-05-03 — the earliest of this user's hand-written design skills, predating uxui-system-architect by six weeks; it is almost certainly the TEMPLATE the others were forked from). No license/metadata frontmatter. Curly quotes in the description ('concept spine', 'second-read') indicate the description was drafted in a word processor or chat UI and pasted in. Aspirational framing 'AWWWARDS-LEVEL IMAGE ART DIRECTION' and font name-drops used as vibe references rather than real specs ('Satoshi-like', 'Neue-Montreal-like', 'Cabinet / Clash-like', 'Monument-like'). No company, no author, no URLs — entirely hand-written prompt engineering.",
+    "knowledge_type": "mixed — ~50% workflow_procedure (dials, combinator, the section-count→image-count table, the §19 14-step response pipeline, the clarity check), ~40% generic_reasoning (hero minimalism, whitespace, hierarchy, palette discipline, and the AI-tells list are broadly known), ~10% durable_external_knowledge (the specific font-character taxonomy and named signature-component vocabulary)",
+    "external_deps": "An image generation capability — never named. The skill assumes something can 'generate the design image(s)' (§19 step 14) but specifies no provider, tool, model, or API.",
+    "overlap_with": [
+      "uxui-system-architect — structural twin (same dials/combinator/anti-slop/clarity-check skeleton); this one renders images, that one writes specs",
+      "anti-ai-slop-design — §8's five-category slop ban list is a parallel implementation of that entire skill",
+      "design-prototyper — declared boundary (images vs structural wireframes/HTML), but both answer 'show me what this page should look like'",
+      "canvas-design — both generate a static visual artifact from a loose prompt via an art-direction philosophy layer",
+      "openai-imagegen / openrouter-imagegen — these provide the actual generation backends this skill is silent about",
+      "nb-product-hero / nb-campaign-visual / nb-social-ad / nb-package-bento — the CircleTel Nano Banana skills do exactly this job for specific asset types, with a named provider",
+      "brand-design — CircleTel's brand rules for AI image generation, which this skill knows nothing about",
+      "product-page-builder — same target artifact (a product/landing page) from the build side"
+    ],
+    "risk_notes": "Names no image generation provider anywhere in 721 lines — §19 ends with 'generate the design image(s)' as if the capability is ambient. In this environment there are four skills that actually own that capability (openai-imagegen, openrouter-imagegen, and the nb-* Nano Banana family, plus brand-design for CircleTel brand rules), and none of them are referenced; conversely this skill's brand-agnostic 'avoid fake brand slop' rules will fight brand-design's mandated CircleTel logo/colour usage if both load. The dials have no defined mechanism (same flaw as uxui-system-architect). Also internally redundant: §8 density slop, §12 DENSITY & SPACING DISCIPLINE, and §10 SECTION RHYTHM RULE restate spacing guidance three times across ~120 lines, and §17's clarity check re-asks about section spacing in four of its fourteen questions. Being the oldest file (May 2026) it also has not received the sibling-slug precedence notes the 2026-07-11 batch got, so it does not know about anti-ai-slop-design at all."
+  },
+  {
+    "slug": "umami-design-system",
+    "purpose": "Applies the Umami analytics product's specific visual identity — indigo brand ramp, Inter, glassmorphic navbar, glow shadows, 3D tilt hero — to web interfaces and React/Tailwind code.",
+    "does": [
+      "Supplies concrete brand tokens: brand-50/100/500/600/900 hex values (#6366f1 primary), Inter weights 300–800, tracking-tight headings, a named type scale, and custom shadow-glow / shadow-card values",
+      "Ships copy-pasteable component markup for primary/secondary buttons, announcement pills with pulsing indicator, feature cards, a glassmorphic navbar, logo showcase, hero section, and feature grid",
+      "Provides the exact tailwind.config.js extend block, Google Fonts Inter link, Font Awesome 6.4.2 CDN link, a mousemove 3D perspective-tilt script, fadeUp keyframes, and stagger delays",
+      "Declares precedence: its brand motifs override design-guide and anti-ai-slop-design, while emil-design-eng's performance and accessibility rules still bind, and supplies the required prefers-reduced-motion and hover-gating blocks"
+    ],
+    "output_type": "palette/tokens + code (Tailwind config, HTML/JSX component markup, CSS keyframes, JS interaction)",
+    "trigger_summary": "Building dashboards, SaaS landing pages, analytics UIs, or any interface needing Umami's aesthetic; mentions of Umami, privacy-focused design, analytics dashboards, or SaaS interfaces.",
+    "provenance_signals": "manifest: `\"source\": \"custom\"` (skill_01EUJuLPF5wBbCwcVqkugjfp, 2026-07-11T15:37 — in the same batch as design-guide/emil-design-eng/anti-ai-slop-design). Frontmatter `license: MIT`, `metadata.author: \"Custom Design System\"` (a placeholder author string, not a person or company), `framework: tailwind-css`. The H1 is honest about what it is: '# Umami Clone Design System' — a third-party reverse-engineering of umami.is's public site, not an official Umami brand kit. The precedence note names three sibling slugs (`design-guide`, `anti-ai-slop-design`, `emil-design-eng`), so it was hand-integrated into this user's set. Duplicate '## 5.' section numbering (Motion Accessibility and Tailwind Configuration are both 5) shows it was edited by insertion without renumbering.",
+    "knowledge_type": "durable_external_knowledge — ~60% (the exact hex ramp, shadow values, tailwind config block, Font Awesome version, and component markup are specifics a model cannot reliably recall for a given product), ~25% generic_reasoning (the general Tailwind/SaaS patterns), ~15% workflow_procedure (the design checklist and precedence resolution)",
+    "external_deps": "Runtime CDNs baked into the markup: Font Awesome 6.4.2 via cdnjs.cloudflare.com, Google Fonts (Inter) via fonts.googleapis.com/fonts.gstatic.com. Requires Tailwind CSS with a custom config. No API keys.",
+    "overlap_with": [
+      "design-guide — direct, acknowledged conflict: gradients, shadow-glow, border+shadow cards, and 14px text are design-guide violations, resolved by a hardcoded carve-out in both files",
+      "anti-ai-slop-design — its blur-[80px] ambient blobs, glassmorphic navbar, and glow are literally three of anti-ai-slop's named slop motifs; the exemption exists only because this skill is named in that skill's text",
+      "emil-design-eng — this skill imports its rules by reference (explicit transition properties, hover gating, prefers-reduced-motion) and then claims an exemption for its 0.6s entrance",
+      "theme-factory — same job (apply a named colour+font theme to an artifact), different catalogue",
+      "brand-guidelines — same job for Anthropic's identity instead of Umami's",
+      "brand-design — same job for CircleTel's identity",
+      "shadcn — competing styling authority for React components; shadcn forbids raw colour values, this skill supplies them",
+      "shadcn-typeset — declared to feed typeset via theme variables rather than override it",
+      "web-artifacts-builder — its anti-slop line bans purple gradients and Inter font, both of which this system mandates"
+    ],
+    "risk_notes": "Legally and practically the shakiest skill here: it reproduces a real commercial product's visual identity (colours, type, component styling) under an 'MIT' frontmatter with author 'Custom Design System', and the H1 calls it a 'Clone'. Using it to build a customer-facing site invites trade-dress confusion — nothing in the file warns about that. Technically it is the epicentre of the cluster's contradiction web: it needs written exemptions from design-guide, anti-ai-slop-design, AND emil-design-eng to be usable at all, and web-artifacts-builder's design line (no purple gradients, no Inter) contradicts it with no carve-out at all. Duplicate '## 5.' headings. External CDN dependency on a pinned Font Awesome 6.4.2 will drift. The 3D-tilt script attaches a mousemove listener with no cleanup and sets transition only on mouseleave, so the tilt itself is unthrottled per-frame style writes."
+  },
+  {
+    "slug": "theme-factory",
+    "purpose": "Offers a picker of 10 pre-built colour+font themes (or generates a custom one) to style a slide deck, doc, report, or HTML page consistently.",
+    "does": [
+      "Displays theme-showcase.pdf so the user can visually compare all 10 themes, then asks which to apply and waits for explicit confirmation",
+      "Reads the chosen theme file from themes/ and applies its hex palette and font pairing consistently across the artifact",
+      "Generates a new named theme on the fly, in the same format, when none of the 10 fit — showing it for review before applying"
+    ],
+    "output_type": "palette/tokens applied to an existing artifact (slides, docs, reports, HTML)",
+    "trigger_summary": "Styling any artifact with a theme — slides, docs, reports, HTML landing pages — when the user wants consistent professional colours/fonts applied.",
+    "provenance_signals": "manifest: `\"source\": \"anthropic-example\"`, skillId literally `theme-factory` (not a skill_01… hash), updatedAt 2026-08-07T20:29:13Z — bulk-installed today with the other four anthropic-example skills. Ships an Apache License 2.0 LICENSE.txt and frontmatter `license: Complete terms in LICENSE.txt`. Impersonal spec-sheet voice with no first person and no product opinions. Clearly vendored, unmodified — it carries none of this user's cross-skill precedence notes, en-GB spellings, or slug references.",
+    "knowledge_type": "durable_external_knowledge — ~55% (the ten specific curated palettes with hex codes and their intended use contexts are lookup data), ~40% workflow_procedure (show showcase → ask → confirm → apply, and the custom-theme generation path), ~5% generic_reasoning",
+    "external_deps": "Bundled assets only: theme-showcase.pdf (must be displayable to the user) and themes/*.md. Font rendering assumes DejaVu / FreeSans / FreeSerif are installed — these are Linux-default families, so it implicitly assumes a Linux sandbox.",
+    "overlap_with": [
+      "brand-guidelines — same mechanism (apply a named palette + font pairing to an artifact); brand-guidelines is just the Anthropic-branded instance of this",
+      "umami-design-system — same job with one product-specific theme instead of ten generic ones",
+      "brand-design — CircleTel's palette/typography for generated assets",
+      "canvas-design — both drive the visual language of a rendered static output; canvas invents a philosophy, this picks from a catalogue",
+      "design-guide — competing colour authority: design-guide mandates neutral background + exactly one accent, several themes here are multi-accent and dark",
+      "uxui-system-architect — its token spec section covers colour and type systems in far more depth",
+      "pptx / docx / pdf — the artifact types this styles",
+      "financial-applications — explicitly builds decks and reports that would want theming"
+    ],
+    "risk_notes": "The core claim is oversold: the description promises 'carefully selected color palettes and font pairings', but across all 10 themes the fonts are only DejaVu Sans, DejaVu Serif, FreeSans, and FreeSerif — Linux fallback families, not designed pairings. Seven of the ten resolve to a single family for both headers and body, so 'complementary font pairings for headers and body text' is false for most of the catalogue. The themes are therefore ~90% colour, and any environment without those Linux fonts silently substitutes. The workflow also hard-requires displaying theme-showcase.pdf and waiting for explicit selection, which blocks non-interactive/automated use with no stated fallback ordering. Content is thin — 59-line SKILL.md plus ten 19-line theme files."
+  },
+  {
+    "slug": "canvas-design",
+    "purpose": "Creates original poster/art-quality static visuals by first writing an invented design-philosophy manifesto and then expressing it as a single-page PNG or PDF.",
+    "does": [
+      "Step 1: invents and names an aesthetic movement (1–2 words) and writes a 4–6 paragraph manifesto covering space/form, colour/material, scale/rhythm, composition, hierarchy — output as a .md file",
+      "Identifies a 'subtle reference' — the requested topic embedded as quiet conceptual DNA rather than literal depiction, so insiders feel it and others see a masterful abstract",
+      "Step 2: renders the philosophy to a single-page PNG/PDF using repeating patterns, systematic reference markers, sparse clinical typography, and fonts from the bundled ./canvas-fonts directory (~30 OFL families)",
+      "Forces a mandatory refinement pass that forbids adding new graphics — only tightening what exists — and offers a multi-page coffee-table-book extension"
+    ],
+    "output_type": "image/document artifact (.png or .pdf) plus a .md design philosophy",
+    "trigger_summary": "User asks to create a poster, piece of art, design, or other static visual piece. Instructed to create original designs and never copy existing artists' work.",
+    "provenance_signals": "manifest: `\"source\": \"anthropic-example\"`, skillId literally `canvas-design`, updatedAt 2026-08-07T20:29:12Z — bulk-installed today. Apache 2.0 LICENSE.txt, frontmatter `license: Complete terms in LICENSE.txt`. Ships ~30 bundled OFL-licensed font families with their licence files (IBM Plex, JetBrains Mono, Instrument Serif, Bricolage Grotesque, Young Serif, Silkscreen…) — a curated asset pack only a publisher would assemble. Distinctive careful phrasing that avoids second person and avoids naming the model ('the next Claude', 'the same version receives the philosophy'), plus the explicit copyright guardrail in the description, both read as vendor-authored. Unmodified by this user.",
+    "knowledge_type": "mixed — ~50% workflow_procedure (the strict two-step philosophy-then-canvas sequence, the deduce-the-reference step, the mandatory second refinement pass, output-format rules), ~35% generic_reasoning (design-philosophy vocabulary and craft exhortations), ~15% durable_external_knowledge (the bundled font inventory and the specific worked philosophy examples)",
+    "external_deps": "Bundled ./canvas-fonts directory (~30 TTF families + OFL licence files) that the model must search; a code-execution/rendering path capable of writing PNG/PDF ('go back to the code and refine'). No API keys or network.",
+    "overlap_with": [
+      "imagegen-frontend-web — both wrap generation in an art-direction philosophy layer to escape default AI aesthetics; that one targets web comps, this targets art objects",
+      "svg-icon-designer — both produce original static vector/visual assets as downloadable design files",
+      "design-guide — both govern typography and composition, with opposite defaults (design-guide: 16px minimum, two fonts max; canvas: thin fonts, expressive scale, many families)",
+      "anti-ai-slop-design — same underlying goal of escaping the default high-probability aesthetic, via manifesto instead of diagnostic catalog",
+      "theme-factory — competing source of colour/font direction for a rendered artifact",
+      "brand-guidelines — would fight this skill's 'ultimate design freedom' if an artifact needs to stay on-brand",
+      "pptx / pdf — the document formats it emits into",
+      "nb-campaign-visual — same 'make a striking standalone visual' job for CircleTel campaigns"
+    ],
+    "risk_notes": "The 'FINAL STEP' section fabricates user speech: 'The user ALREADY said \"It isn't perfect enough. It must be pristine, a masterpiece if craftsmanship…\"' — the user did not say that, and it contains a typo ('masterpiece if craftsmanship'). Putting words in the user's mouth to force a second pass is a manipulation pattern that also guarantees an extra render cycle on every invocation regardless of whether the first output was good. The skill is heavy on craftsmanship incantation ('repeat phrases like meticulously crafted', 'countless hours', 'top of their field') which is prompt-superstition rather than actionable direction — it tells the model to *say* it is expert rather than what to do differently. It also both demands 'minimal text as visual accent' and simultaneously instructs use of varied fonts and typographic gestures, and the instruction to 'Download and use whatever fonts are needed' contradicts the bundled-fonts-only setup (and would need network access). By far the largest install (~36k lines of font assets) for a 129-line skill."
+  },
+  {
+    "slug": "shadcn",
+    "purpose": "Drives correct use of the shadcn/ui CLI and component library — adding, searching, updating, composing, and debugging components in a real project.",
+    "does": [
+      "Injects live project context by executing `npx shadcn@latest info --json` in the SKILL.md, then reads aliases, isRSC, tailwindVersion, base (radix vs base), iconLibrary, framework, packageManager, and preset from it",
+      "Enforces named critical rules with linked Incorrect/Correct files: gap-* not space-y-*, size-* not w-/h-, semantic tokens not raw colours, FieldGroup+Field for forms, data-invalid+aria-invalid validation, items inside their Group, data-icon for button icons, MessageScroller/Message/Bubble for chat",
+      "Specifies exact CLI workflows for preset decode/apply/resolve, --dry-run/--diff smart merges when updating components, and forbids fetching raw files from GitHub manually",
+      "Requires reading back and verifying every file a registry adds, rewriting third-party import aliases and swapping icon libraries to match the project"
+    ],
+    "output_type": "code (React/TSX components) + CLI command execution",
+    "trigger_summary": "Working with shadcn/ui, component registries, presets, --preset codes, or any project containing a components.json file; also 'shadcn init', 'create an app with --preset', 'switch to --preset'. Marked `user-invocable: false` — it fires from context, not by name.",
+    "provenance_signals": "manifest says `\"source\": \"custom\"` (skill_01SvrdeBz2qMPmM7T87PZNmR, 2026-07-11T15:38) but the CONTENT is unmistakably first-party shadcn vendor documentation: it documents unreleased-to-training CLI surface (`preset decode/url/open/resolve`, `apply <code> --only theme,font`, base62 preset codes, named presets nova/vega/maia/lyra/mira/luma), the radix-vs-base primitive split, and the newer Field/InputGroup/Empty/Spinner/MessageScroller component families. `allowed-tools` is scoped to exactly three package runners. Points at ui.shadcn.com as canonical. Nine bundled reference files (cli.md, registry.md, customization.md, rules/*.md) all present. Also installed a SECOND time as a project-scope symlink → ../../.agents/skills/shadcn. Almost certainly vendored from the shadcn repo and re-uploaded, hence the 'custom' label.",
+    "knowledge_type": "durable_external_knowledge — ~80% (CLI flags, preset codes, component APIs, the data-icon convention, base-vs-radix differences, registry authoring — none of this is inferable and much of it postdates typical training), ~15% workflow_procedure (the 9-step workflow, the --dry-run/--diff merge protocol, preset-switching options), ~5% generic_reasoning",
+    "external_deps": "Node package runner (npx / pnpm dlx / bunx) with network access to the shadcn registry; a project containing components.json; network fetch of ui.shadcn.com doc URLs; optionally community registries (@magicui, @tailark, @bundui, owner/repo). Executes a shell command inline in SKILL.md.",
+    "overlap_with": [
+      "shadcn-typeset — same vendor and install path (`npx shadcn@latest add typeset`); typeset is arguably a subsection of this skill's registry surface",
+      "design-guide — competing styling authority: shadcn forbids raw colour values and className styling overrides, design-guide supplies raw hex and utility classes",
+      "web-artifacts-builder — ships 40+ shadcn/ui components pre-installed in its scaffold, bypassing this skill's CLI-first workflow",
+      "umami-design-system — supplies raw Tailwind colour utilities and hand-written markup where this skill mandates components and semantic tokens",
+      "design-prototyper — the natural component vocabulary for its React hi-fi path",
+      "emil-design-eng — both work on Radix/Base UI primitives; that one owns their motion, this owns their composition",
+      "uxui-system-architect — its written component-library spec describes what shadcn already ships as code",
+      "product-page-builder — building real pages in this codebase would use these components"
+    ],
+    "risk_notes": "DUPLICATE INSTALL: present at user scope AND as a project-scope symlink (`originals/project/shadcn → ../../.agents/skills/shadcn`), so two versions can drift or both load. The SKILL.md executes `npx shadcn@latest info --json` inline at load time — that is a network + package-download side effect on every invocation, and in a project without components.json (or offline) the injected 'Current Project Context' block is an error string the rest of the file then reasons from. `user-invocable: false` plus a components.json-based trigger means it will NOT fire for greenfield 'build me a UI' requests where it would be most useful, while design-guide (which claims ALL UI work) will. Highest genuine knowledge density in the cluster — this is the one skill here whose removal would cost real capability."
+  },
+  {
+    "slug": "shadcn-typeset",
+    "purpose": "Styles rendered markdown / LLM chat output / CMS prose using shadcn's typeset system — one CSS file with three rhythm variables and per-context presets.",
+    "does": [
+      "Runs a 4-question decision framework (did this come from a renderer? is it flowing reading content? does it stream? is legacy `prose` present?) to decide whether typeset applies at all",
+      "Teaches the three-control rhythm model (--typeset-size, --typeset-leading, --typeset-flow) and insists all other values derive from them — tune the preset, never restyle individual elements first",
+      "Supplies install commands, the derived type scale (h1 1.75em, h2 1.25em with flow×1.4 above, code 0.875em), ready presets for chat/docs/article, the container-relative 1.125× mobile bump, theme-token integration, and the .not-typeset escape hatch",
+      "Gives streaming-specific rules (margin-block-start only, never :last-child spacing) and emits reviews as a Before|After|Why table"
+    ],
+    "output_type": "code (CSS presets + JSX container classes) + review table; ships the full typeset.css",
+    "trigger_summary": "Styling rendered markdown, MDX, CMS/rich-text output, or LLM chat messages; mentions of 'typeset', 'prose styling', 'markdown looks unstyled', 'typography for chat/docs/blog'. Explicitly NOT for app UI chrome.",
+    "provenance_signals": "manifest: `\"source\": \"custom\"` (skill_01SXDGQWCJ7ktWnhpU9aCUG4, 2026-07-11T15:38 — last in the batch). Frontmatter `license: MIT`, `metadata.source: \"https://ui.shadcn.com/docs/typeset (shipped July 2026)\"` — an explicit upstream URL and ship date. Bundled typeset.css carries the vendor header comment `/* shadcn/typeset — https://ui.shadcn.com/docs/typeset. */`, so the CSS is genuinely upstream while the SKILL.md prose is this user's hand-written wrapper. That wrapper is what carries the precedence notes naming `design-guide`, `emil-design-eng`, and `umami-design-system` by slug, and it borrows emil-design-eng's mandated table format outright ('matching emil-design-eng's format'). Self-aware recency note: 'Released July 2026 — this postdates most model training data, so follow this skill rather than memory.'",
+    "knowledge_type": "durable_external_knowledge — ~70% (a July-2026 system with specific variable names, derived scale values, the built-in sub-48rem 1.125× bump, and streaming margin semantics — genuinely unknowable from training), ~20% workflow_procedure (the decision framework and review contract), ~10% generic_reasoning",
+    "external_deps": "`npx shadcn@latest add typeset` (network + registry) or manual copy of the bundled typeset.css; Tailwind v4 (`@import \"tailwindcss\"`); app theme tokens (--color-foreground, --color-muted, --font-heading, --radius). Bundled typeset.css is present (490 lines).",
+    "overlap_with": [
+      "shadcn — same vendor, same CLI, same registry; typeset is one registry item that this skill splits out into its own skill",
+      "design-guide — declared conflict, resolved by carve-out: typeset's 15px docs body overrides design-guide's 16px floor inside .typeset only",
+      "emil-design-eng — borrows its Before|After|Why review format and routes all motion questions to it",
+      "umami-design-system — declared to feed typeset via --color-*/--font-* theme variables rather than override it",
+      "uxui-system-architect — its typography token spec covers overlapping ground for prose scale",
+      "web-artifacts-builder — artifacts rendering markdown or chat output would need this",
+      "theme-factory — both set type and colour, at different layers",
+      "docx / pdf — other prose-rendering surfaces, though typeset is web-only"
+    ],
+    "risk_notes": "Narrowest scope and cleanest boundaries in the cluster, and the least likely to fire wrongly — but it is arguably a subsection of `shadcn` promoted to a top-level skill, which fragments the same vendor's surface across two skills whose precedence relative to each other is never stated. Its own value is time-boxed: it exists because typeset postdates training data, so it decays as models catch up. It creates the cluster's third design-guide carve-out (after umami and emil), each hardcoded by slug — a pattern that does not scale and that already produces a self-referential rule in its own review table ('design-guide flagging 15px docs body text inside .typeset | Not a violation'). Minor: the SKILL.md quotes a derived scale 'from the source, v1.0' that would need re-verification against the bundled CSS on any upstream bump."
+  },
+  {
+    "slug": "svg-icon-designer",
+    "purpose": "Produces SVG icon files in one fixed house style — an organic blob background with white iconography layered on top.",
+    "does": [
+      "Builds every icon to the same template: a 128×125 viewBox, an asymmetric cubic-Bézier blob filling 85–95% of it as the first path, then 3–8 white paths of icon artwork occupying 50–70% of the frame",
+      "Picks a fill colour from four canned palettes keyed to sector (Technology/Business green, Finance navy, Health red, Creative amber)",
+      "Runs a 5-step process (understand concept → design blob → design artwork → assemble → output) with DO/DON'T lists, layering-for-depth and negative-space techniques, and a troubleshooting table",
+      "Writes the finished .svg to /mnt/user-data/outputs/ and returns a computer:// download link"
+    ],
+    "output_type": "SVG asset file (downloadable)",
+    "trigger_summary": "'Create an SVG icon for…', 'design an icon with a blob background', 'make me an SVG logo', 'generate an icon for [concept]', or any request for icon design in SVG format.",
+    "provenance_signals": "manifest: `\"source\": \"custom\"` (skill_01XRHZ2u5V7A7zmm6oDkSjA4, updatedAt 2025-11-04) — by nine months the OLDEST skill in this cluster and the only 2025 artifact. No license or metadata frontmatter at all. Contains a verbatim real blob path ('M119.125 83.1619C106.623 113.941…') and a matching hex (#3B914D) as 'Example Blob Path Pattern', i.e. it was reverse-engineered from one specific existing icon the author had on hand — the SKILL.md even says 'Use reference: Look at the provided examples for structural patterns' though no example files are bundled. Heavy ✓/✗ and emoji-adjacent formatting, generic 'This skill enables Claude to…' opener — the house style of early auto-generated skill scaffolds rather than the considered prose of this user's 2026 design skills. A 'Skill Integration' section name-drops Design Guide, Launch Planner, Canvas Design informally (prose names, not slugs), unlike the precise slug references in the 2026 batch.",
+    "knowledge_type": "mixed — ~45% durable_external_knowledge (the fixed 128×125 viewBox convention, the concrete blob path, the four palettes, the output-path/computer:// link protocol), ~35% workflow_procedure (the 5 steps, assembly order, troubleshooting), ~20% generic_reasoning (SVG path basics, contrast, visual balance)",
+    "external_deps": "Writable /mnt/user-data/outputs/ and a `computer://` link scheme — both are claude.ai-sandbox-specific paths that do not exist in Claude Code or most other harnesses.",
+    "overlap_with": [
+      "canvas-design — both generate original static visual assets as downloadable design files; canvas does posters/art, this does icons",
+      "design-guide — both govern visual style of interface elements, with unreconciled palettes (design-guide: ONE accent, neutral ground; this: four sector palettes, saturated blob grounds)",
+      "anti-ai-slop-design — an always-the-same organic blob with white glyph is exactly the kind of template-by-default pattern that skill exists to flag",
+      "brand-design / brand-guidelines / umami-design-system — all three would dictate icon colour, which this skill hardcodes from its own palettes",
+      "imagegen-frontend-web — competing source of visual assets for a web page",
+      "theme-factory — competing palette authority",
+      "web-artifacts-builder — artifacts needing iconography (though shadcn's icons.md rules would apply there instead)"
+    ],
+    "risk_notes": "Most stale and least defensible skill in the cluster. (1) Hardcoded environment: writes to `/mnt/user-data/outputs/` and returns `computer://` links — both non-existent outside the claude.ai sandbox, so in Claude Code the final delivery step simply fails. (2) It produces exactly ONE aesthetic — every icon it will ever make is a blob with a white glyph, in one of four palettes — yet triggers on the broad 'make me an SVG logo' / 'generate an icon for [concept]'. That is a house style masquerading as a capability, and it directly contradicts the CircleTel project's own icon policy (CLAUDE.md / .claude/rules/icon-system.md mandate Phosphor via react-icons/pi for interface icons and Iconify only for approved brand logos — a bespoke blob SVG violates both). (3) 'Use reference: Look at the provided examples' but no example files are bundled. (4) Says 'never copying existing artists' work' in spirit while the sole worked blob path is lifted verbatim from an unattributed source icon. (5) Untouched since Nov 2025 — no license, no precedence notes, no awareness of the 2026 design cluster it now sits inside."
+  },
+  {
+    "slug": "brand-guidelines",
+    "purpose": "Applies Anthropic's official brand colours and typography to an artifact so it carries the company's look and feel.",
+    "does": [
+      "Supplies Anthropic's palette as hex: Dark #141413, Light #faf9f5, Mid Gray #b0aea5, Light Gray #e8e6dc, plus Orange #d97757 / Blue #6a9bcc / Green #788c5d accents",
+      "Sets typography — Poppins for headings (24pt+), Lora for body — with automatic Arial/Georgia fallback when the fonts are not installed",
+      "Cycles the three accent colours across non-text shapes and selects text colour based on background, applied via python-pptx's RGBColor"
+    ],
+    "output_type": "palette/tokens applied to an artifact (primarily PowerPoint via python-pptx)",
+    "trigger_summary": "Any artifact that would benefit from Anthropic's look-and-feel; when brand colours, style guidelines, visual formatting, or company design standards apply.",
+    "provenance_signals": "The most unambiguous provenance in the set: manifest `\"source\": \"anthropic-example\"`, skillId literally `brand-guidelines`, updatedAt 2026-08-07T20:29:12Z (bulk-installed today with canvas-design, theme-factory, web-artifacts-builder, morning). Apache 2.0 LICENSE.txt; frontmatter `license: Complete terms in LICENSE.txt`. Body states its subject outright — '# Anthropic Brand Styling', 'Anthropic's official brand identity'. Impersonal feature-sheet register ('## Features', '## Technical Details') with no opinions and no cross-skill awareness. Vendored, unmodified.",
+    "knowledge_type": "durable_external_knowledge — ~85% (the exact Anthropic hex values and the Poppins/Lora pairing are pure lookup facts a model must not guess), ~10% workflow_procedure (font fallback and accent-cycling behaviour), ~5% generic_reasoning",
+    "external_deps": "Poppins and Lora fonts installed in the environment (degrades to Arial/Georgia); python-pptx for the described RGBColor application path.",
+    "overlap_with": [
+      "theme-factory — identical mechanism (named palette + font pairing applied to an artifact); this is effectively an 11th, Anthropic-specific theme",
+      "umami-design-system — same job for Umami's identity instead of Anthropic's",
+      "brand-design — same job for CircleTel's identity; these two will conflict outright on any CircleTel deliverable",
+      "design-guide — competing colour authority (its neutral+one-accent rule vs. this three-accent cycle)",
+      "canvas-design — its 'ultimate design freedom' directly opposes brand conformance",
+      "pptx — the primary artifact type, and the library this skill's implementation assumes",
+      "docx / financial-applications / internal-comms — other deliverables that would want branding"
+    ],
+    "risk_notes": "Wrong-brand hazard is the main one: this is Anthropic's identity installed in a CircleTel workspace that has its own `brand-design` skill and a CLAUDE.md brand/icon policy. The description ('any sort of artifact that may benefit from having Anthropic's look-and-feel') is broad enough to fire on generic requests like 'make this look professional', which would silently put Anthropic orange and Poppins/Lora on a CircleTel customer deliverable — and there is no precedence note anywhere resolving it against brand-design. Also scope-mismatched to its own text: it describes itself generically ('any sort of artifact') but every implementation detail is PowerPoint-specific ('Applied via python-pptx's RGBColor class', '24pt and larger'), with no CSS/HTML/web guidance at all. Ships no script despite describing runtime behaviours ('Smart Font Application', 'Smart color selection based on background') as though something executes them."
+  },
+  {
+    "slug": "web-artifacts-builder",
+    "purpose": "Scaffolds, develops, and bundles a full React+Tailwind+shadcn project down to one self-contained HTML file for use as a claude.ai artifact.",
+    "does": [
+      "Runs scripts/init-artifact.sh <name> to scaffold React 18 + TypeScript + Vite with Tailwind 3.4.1, shadcn theming, @/ path aliases, 40+ pre-installed shadcn components, Radix deps, and .parcelrc — detecting Node version and pinning Vite 5.4.11 on Node 18",
+      "Has the model develop the artifact by editing the generated project files",
+      "Runs scripts/bundle-artifact.sh to build with Parcel and inline all JS/CSS/assets via html-inline into a single shareable bundle.html",
+      "Carries a one-paragraph design rule: avoid excessive centered layouts, purple gradients, uniform rounded corners, and Inter font"
+    ],
+    "output_type": "HTML artifact (single self-contained bundle.html) built from a React/TS codebase",
+    "trigger_summary": "Complex claude.ai artifacts requiring state management, routing, or shadcn/ui components — explicitly not for simple single-file HTML/JSX artifacts.",
+    "provenance_signals": "manifest: `\"source\": \"anthropic-example\"`, skillId literally `web-artifacts-builder`, updatedAt 2026-08-07T20:29:12Z — bulk-installed today. Apache 2.0 LICENSE.txt; frontmatter `license: Complete terms in LICENSE.txt`. Purpose-built for claude.ai's artifact runtime ('share the bundled HTML file in conversation with the user so they can view it as an artifact'), which only the platform vendor would ship. Bash scripts use vendor-style emoji logging ('🔍 Detected Node.js version', '❌ Error: Node.js 18 or higher is required') and handle macOS-vs-Linux sed. Ships a shadcn-components.tar.gz payload. Vendored, unmodified.",
+    "knowledge_type": "workflow_procedure — ~60% (the 5-step init → develop → bundle → display → test sequence and the script contracts), ~35% durable_external_knowledge (the pinned toolchain — Tailwind 3.4.1, Vite 5.4.11 for Node 18, Parcel + parcel-resolver-tspaths + html-inline, the .parcelrc alias setup), ~5% generic_reasoning (the anti-slop paragraph)",
+    "external_deps": "Node 18+, npm and pnpm (auto-installs pnpm globally if absent), network access for package installs, bash; bundled scripts/init-artifact.sh, scripts/bundle-artifact.sh, scripts/shadcn-components.tar.gz. Optionally Playwright/Puppeteer for the testing step.",
+    "overlap_with": [
+      "shadcn — pre-installs 40+ shadcn components into the scaffold, bypassing the shadcn skill's mandated CLI-first add/verify workflow",
+      "design-prototyper — explicitly delegated to for multi-screen stateful hi-fi mockups; both terminate in a React artifact",
+      "ui-ux-audit — its Phase 7 self-contained HTML redesign mockup is the same deliverable, built without this toolchain",
+      "design-guide — the styling authority for what goes inside these artifacts",
+      "anti-ai-slop-design — this skill's single design paragraph is a compressed restatement of that whole skill",
+      "umami-design-system — direct contradiction: this bans purple gradients and Inter font, Umami mandates both",
+      "emil-design-eng — motion rules for the interactive artifact",
+      "shadcn-typeset — needed if the artifact renders markdown or chat output",
+      "morning — another skill whose deliverable is a styled HTML artifact"
+    ],
+    "risk_notes": "Environment mismatch: built for the claude.ai artifact runtime ('share the bundled HTML file in conversation… so they can view it as an artifact'), whereas this workspace publishes through the Artifact tool, which requires a SINGLE self-contained file with NO external hosts and no <html>/<head>/<body> wrapper — a Parcel `bundle.html` will carry a full document skeleton and needs rework before it can be published. Its init script will `npm install -g pnpm` without asking, a global system mutation. Pinned versions are already drifting (Tailwind 3.4.1 while shadcn/typeset in the same set assumes Tailwind v4 with `@import \"tailwindcss\"`, and shadcn's own skill reads a `tailwindVersion` field expecting v4 support) — the two shadcn-adjacent skills and this scaffold are on different Tailwind majors. Its anti-slop paragraph ('avoid… Inter font') flatly contradicts umami-design-system with no carve-out on either side. Thinnest guidance-to-tooling ratio here: 73 lines of SKILL.md that mostly narrate two bash scripts, with a 'Common Development Tasks' section referenced but not present."
+  },
+  {
+    "slug": "ai-era-design-process",
+    "purpose": "Advises on how design work itself should be organised now that engineers ship with AI tools — what to prototype in code vs mock in image gen, how designers spend their time, and who to hire.",
+    "does": [
+      "Splits design work into two types (Execution Support, Direction Setting) and gives a graphviz decision tree routing a task to Gemini/wireframes vs a Claude Code prototype vs last-mile polish in the codebase",
+      "States a handoff rule — Gemini owns work until direction is chosen and layout agreed; Claude Code takes over to build, prototype AI behaviour, or polish live implementation",
+      "Gives seven principles (stop gatekeeping shipping, explain why not what, prototype AI features in code because non-deterministic behaviour can't be mocked, do last-mile polish yourself, point engineers at the design system, build trust through speed, shorten vision cycles to 3–6 month prototypes)",
+      "Supplies a time-allocation shift table (mocking 60–70% → 30–40%), three designer archetypes for hiring, two feature maturity tiers, and a common-mistakes table"
+    ],
+    "output_type": "written advice / decision framework (no artifact produced)",
+    "trigger_summary": "Making design decisions, choosing between Claude Code and image generation tools like Gemini, advising on design team workflows, evaluating designers, or navigating AI-accelerated product development.",
+    "provenance_signals": "The only project-scope skill in this analysis (`originals/project/ai-era-design-process/`), so it is not in the user manifest. Explicitly attributed to a named external source: 'Based on frameworks from Jenny Wen (Head of Design at Anthropic/Claude)' — a real person and role, so this is a distillation of her public talk/writing, not the user's own thinking. Names commercial tools directly (Claude Code, Gemini). Uses a `dot`/graphviz code fence for the decision tree, an unusual choice that suggests transcription from a diagram. Terse table-heavy format with a '## Tone' section at the end ('Direct, experienced, practical… Acknowledge the process is still evolving — this might look different in 3 months') is the signature of a talk-summary-turned-skill.",
+    "knowledge_type": "mixed — ~55% durable_external_knowledge (Jenny Wen's specific framings: the two-types split, the 3–6 month prototyped vision replacing 2–5 year decks, the archetype taxonomy, the Research Preview tier, the time-allocation numbers — these are one named practitioner's positions, not consensus), ~35% generic_reasoning (explain why not what, ship early and iterate, don't gatekeep), ~10% workflow_procedure (the decision tree and handoff rule)",
+    "external_deps": "None to run. Presumes access to Claude Code and Gemini/image-gen as the two tools in its framework.",
+    "overlap_with": [
+      "design-prototyper — this skill's decision tree decides WHETHER to prototype and in what medium; design-prototyper executes it, but neither references the other",
+      "imagegen-frontend-web — the concrete 'Gemini/Image Gen for exploration' branch of this skill's tree, again with no cross-reference",
+      "anti-ai-slop-design — both address keeping quality high under AI acceleration, at process vs artifact level",
+      "ui-ux-audit — its 'steer quality and direction, don't approve before shipping' principle competes with a gating audit workflow",
+      "roadmap-advisor — overlapping 'shorten vision cycles, run quarterly direction sessions' planning advice",
+      "launch-planner — same ship-fast-and-validate philosophy, with Research Preview tiering",
+      "idea-validator — adjacent 'should we build this and how rough can it be' judgement",
+      "consulting-toolkit — both give structured frameworks for organisational decisions",
+      "product-management — team process and role/hiring guidance"
+    ],
+    "risk_notes": "The only skill in the cluster about process rather than artifacts, and it is stranded: its Tool Decision Framework routes work to 'Gemini/Image Gen' and 'Claude Code' generically while this environment has ~10 skills that actually do those jobs (imagegen-frontend-web, openai-imagegen, openrouter-imagegen, the four nb-* skills, design-prototyper, web-artifacts-builder) — none referenced, so its advice cannot connect to execution. The graphviz `dot` block is decorative: it will not render in a terminal and its edge labels are ambiguous (multiple diamond nodes chain on 'no' with no terminal for the final false branch — a user answering 'no' to 'Stakeholder alignment needed?' falls off the tree with no recommendation). Content is time-boxed and self-aware about it ('this might look different in 3 months') while carrying no date, and 'Traditional design process… is largely dead' is a strong single-practitioner claim presented as settled. Low risk of harm, low chance of firing — the description has no trigger phrases a user would naturally type."
+  }
+]

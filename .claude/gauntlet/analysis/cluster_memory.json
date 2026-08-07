@@ -1,0 +1,470 @@
+[
+  {
+    "slug": "compound-learnings",
+    "purpose": "Capture reusable lessons, patterns and user corrections into dated markdown files so future sessions do not re-solve the same problem.",
+    "does": [
+      "Defines /compound and /correction commands plus four capture templates (friction, pattern, discovery, shortcut) and a correction template.",
+      "Detects user-correction phrases (\"no, actually\", \"that's wrong\", \"instead\") and routes them to corrections/ then synthesizes a rule into extracted-rules/.",
+      "Stores dated learnings in learnings/YYYY-MM-DD_topic.md and reusable patterns in learnings/patterns/.",
+      "Ends by shelling out to a PowerShell session-end signal check and telling the user to run /claude-md-guardian."
+    ],
+    "output_type": "markdown files written into the skill's own directory (learnings/, corrections/, extracted-rules/) + a chat summary",
+    "trigger_summary": "After a significant task/feature, after debugging something tricky, when a reusable pattern is found, at end of a productive session, or when the user corrects Claude. Keywords: compound, learnings, capture pattern, retrospective, correction, mistake, wrong, actually, instead.",
+    "provenance_signals": "Author declared as 'CircleTel Engineering', version 2.0.0, dependencies: error-registry. Hand-authored in-house: ASCII box-diagrams, CircleTel-specific example table (admin_notes, await context.params, service_role policy), references to CircleTel commands (npm run type-check:memory). Not derived from any Anthropic-shipped skill. Its philosophy line mirrors the 'compound engineering' meme popularized in 2025 blog posts, but the text is original.",
+    "knowledge_type": "mixed — ~55% workflow_procedure (the capture loop, when to write, templates), ~30% generic_reasoning (what makes a good learning, DO/DON'T lists any model would produce), ~15% durable_external_knowledge (the concrete on-disk layout of learnings/, corrections/, extracted-rules/ and the accumulated 49 learning files a model cannot know). The durable slice lives in the DATA files, not in SKILL.md.",
+    "external_deps": [
+      "pwsh / PowerShell — NOT INSTALLED on this Linux host (`which pwsh powershell` returns nothing). The final-step command is unrunnable.",
+      "BROKEN PATH: /home/circletel/.claude/hooks/session-end-check.ps1 — /home/circletel does not exist; repo is /home/user/circletel. The script itself DOES exist at /home/user/circletel/.claude/hooks/session-end-check.ps1, so it is purely a wrong-prefix bug.",
+      "BROKEN PATH: /home/circletel referenced as -ProjectPath in the same command.",
+      "MISSING DIR: corrections/ does not exist in the skill dir despite being documented as the RSI output store.",
+      "MEMORY.md at repo root — MISSING (skill's 'Integration with MEMORY.md' section points at a file that does not exist).",
+      "Sibling skill error-registry (declared dependency) — EXISTS at .claude/skills/error-registry/ with real data.",
+      "Also references sibling skill 'tech-debt-analyzer' which does not exist in the 74-skill roster."
+    ],
+    "overlap_with": [
+      "memory-os — near-total duplicate: both persist patterns/mistakes/corrections to markdown, but memory-os writes to memory-os/long-term/*.md while compound-learnings writes to .claude/skills/compound-learnings/learnings/. Two stores, same content type.",
+      "learnings-memory — same job (persistent lessons + distilled rules), different storage tier (~/.claude/memories and repo .claude/memories). Third parallel store.",
+      "filesystem-context — its Pattern 4 (memory persistence: patterns.md, gotchas.md, preferences.md under .claude/memory/) is a fourth parallel store of the same knowledge.",
+      "error-registry — overlaps on 'debugged tricky issue': error-registry stores the bug+fix, compound-learnings stores the same bug+fix as a 'learning'.",
+      "stats-tracker — consumes compound-learnings correction counts for its RSI dashboard; the two are mutually dependent and describe the same loop.",
+      "using-superpowers / claude-md-guardian — both also claim the 'extract a rule from a correction, write it to .claude/rules/' step."
+    ],
+    "risk_notes": [
+      "Hardcoded /home/circletel prefix in the mandatory final step — silently fails on this machine (path does not exist AND pwsh is absent).",
+      "Documented corrections/ directory was never created, so the advertised RSI loop has no store; extracted-rules/ holds exactly 1 file (nextjs15-async-params.md) after 6 months.",
+      "The 'Example Extracted Rules' table cites applications counts (3, 5, 4) that are invented — no telemetry backs them.",
+      "MEMORY.md integration section is dead — the file does not exist.",
+      "Learning corpus is stale-ending: 19 files in 2026-02, 25 in 2026-03, only 5 in 2026-04, nothing after 2026-04-28 (today is 2026-08-07) — ~3 months of decay.",
+      "Four competing memory stores mean a captured learning is findable in only one of them; recall is a coin flip."
+    ]
+  },
+  {
+    "slug": "context-manager",
+    "purpose": "Advice and a python script for keeping Claude Code's context window under budget when working in a large codebase.",
+    "does": [
+      "Ships scripts/analyze_tokens.py which estimates token counts per file/dir against a configurable budget (default 190k) with --json and --exclude flags.",
+      "Prescribes progressive file loading (structure → module → file → line range → edit) and green/yellow/red budget zones.",
+      "Provides a .claudeignore template in assets/ and file-size tiers for when to use line ranges vs full reads.",
+      "Carries three reference docs (optimization_strategies, claude_code_specifics, quick_reference) plus README/INDEX/QUICK_START/PRACTICAL_EXAMPLES/CREATION_SUMMARY."
+    ],
+    "output_type": "console token report (text or JSON) + prose guidance; no files written except an optional copied .claudeignore",
+    "trigger_summary": "Working with large codebases, managing context window budget, optimizing file loading strategies, or when responses indicate context limitations; also >50-file projects and near-limit warnings.",
+    "provenance_signals": "Generic third-party/community skill, lightly rebranded. Zero CircleTel specifics in SKILL.md — examples use auth.py, config.py, models/user.py, api.py (Python, not this Next.js/TypeScript repo). Contains a `context-manager.skill` bundle file and a CREATION_SUMMARY.md, both hallmarks of skill-creator scaffolding. Cites a 190,000-token budget, which is a 2024/early-2025 figure and is now stale. No author field.",
+    "knowledge_type": "mixed — ~60% generic_reasoning (load only what you need, ask targeted questions, split large files: any competent model produces this unprompted), ~25% workflow_procedure (the 5-step progressive loading ritual, budget zones), ~15% durable_external_knowledge (the analyze_tokens.py script and its CLI flags). The prose is the weakest part; the script is the only real asset.",
+    "external_deps": [
+      "python3 — PRESENT (/usr/local/bin/python3).",
+      "scripts/analyze_tokens.py — EXISTS in the skill dir.",
+      "assets/claudeignore-template.txt — EXISTS.",
+      "BROKEN PATH (project-wide): CLAUDE.md and session-manager both mandate `.claude/skills/context-manager/run-context-analyzer.ps1`. A repo-wide `find` for run-context-analyzer* returns NOTHING. The mandatory session-start command in CLAUDE.md is a phantom.",
+      "The SKILL.md itself never mentions run-context-analyzer.ps1 — it documents `python scripts/analyze_tokens.py`, contradicting CLAUDE.md.",
+      "PowerShell absent on this host anyway."
+    ],
+    "overlap_with": [
+      "filesystem-context — both exist to fight context exhaustion; context-manager measures it, filesystem-context offloads it to disk. Documented as integrating, but the boundary is blurry and both tell you to write large outputs to scratch.",
+      "stats-tracker — duplicates /context and budget-monitoring advice verbatim in its 'Integration with Context Manager' section.",
+      "session-manager — repeats the same 'check context budget after resuming' instruction.",
+      "using-superpowers / zoom-out — general 'manage the session' guidance overlaps."
+    ],
+    "risk_notes": [
+      "CLAUDE.md's #1 mandatory startup command points at run-context-analyzer.ps1, which does not exist — every session nominally starts with a broken command.",
+      "190,000-token budget is stale for current models; the token-distribution table (40K system prompts, 30K history) is a fabricated illustration.",
+      "Skill dir is bloated with 6 redundant meta-docs (README, INDEX, QUICK_START, PRACTICAL_EXAMPLES, CREATION_SUMMARY, VISUAL_SUMMARY.txt) — a skill about saving context that is itself context-expensive.",
+      "All examples are Python; the repo is TypeScript/Next.js — the advice reads as unadapted boilerplate."
+    ]
+  },
+  {
+    "slug": "filesystem-context",
+    "purpose": "Persist session state, plans, decisions and learnings to markdown files under .claude/ so work survives across Claude Code sessions.",
+    "does": [
+      "Defines a six-pattern scheme: scratch pad for large outputs, plan persistence, session context, memory persistence, sub-agent handoff files, self-updating memory.",
+      "Specifies a directory hierarchy (.claude/context/, .claude/memory/, .claude/scratch/, .claude/plans/, .claude/agents/) with a template for each file.",
+      "Gives shell one-liners for resuming (cat current-task.md, ls plans/*.md) and for appending learnings via echo >>.",
+      "Ships install-global.ps1 to copy itself to ~/.claude/skills/ and create the directory tree."
+    ],
+    "output_type": "markdown state files under .claude/ (context/, memory/, plans/, scratch/, agents/)",
+    "trigger_summary": "Resuming previous work, multi-conversation tasks, preserving decisions/learnings, complex multi-step implementations. Keywords: save context, resume work, continue session, persist context, remember this, don't forget, pick up where we left off.",
+    "provenance_signals": "Explicitly attributed at the bottom: 'Based On: https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering'. Version 1.0.0, dated 2025-01-08, 'Maintained By: CircleTel Development Team'. So: a third-party community skill vendored and lightly CircleTel-flavoured (the patterns.md example does contain real CircleTel facts — createClient from @/lib/supabase/server, commit ac642e8, npm run type-check:memory).",
+    "knowledge_type": "mixed — ~65% workflow_procedure (six named patterns, file templates, resume ritual), ~25% generic_reasoning (be specific, date entries, clean up scratch — obvious advice), ~10% durable_external_knowledge (the specific .claude/ directory contract other skills depend on, and the embedded CircleTel auth/params facts in the example patterns.md).",
+    "external_deps": [
+      ".claude/context/ — EXISTS (contains decisions.md, .gitignore). current-task.md and blockers.md documented but MISSING.",
+      ".claude/memory/ — EXISTS with all three documented files (patterns.md, gotchas.md, preferences.md).",
+      ".claude/scratch/ — EXISTS.",
+      ".claude/plans/ — MISSING. The 'Resume Previous Work' quick-start (`cat .claude/plans/[plan-name].md`) cannot work.",
+      ".claude/agents/ (research/, implementation/, review/) — MISSING; Pattern 5 sub-agent handoff has no store.",
+      "install-global.ps1 uses $env:USERPROFILE and backslash paths — Windows-only, and pwsh is not installed on this Linux host. Unrunnable.",
+      "Names sibling skill 'bug-fixing' (exists) and 'tech-debt-analyzer' style integrations."
+    ],
+    "overlap_with": [
+      "memory-os — direct collision: filesystem-context/.claude/memory/{patterns,gotchas,preferences}.md vs memory-os/long-term/{patterns,mistakes,client-context}.md. Same three concepts, two directories, no cross-reference.",
+      "compound-learnings — Pattern 6 'self-updating memory' is exactly the /compound capture loop with a different destination file.",
+      "learnings-memory — third implementation of persist-a-lesson-to-markdown, this time under .claude/memories/ (note the plural 's' — a *different* directory from this skill's .claude/memory/). Trap for the unwary.",
+      "session-manager — both claim 'resume where you left off'; session-manager uses Claude Code's native named sessions, filesystem-context uses files. Contradictory approaches to the same goal.",
+      "context-manager — shares the scratch-pad-for-large-output pattern.",
+      "project-sync — its 'start of session status check' overlaps filesystem-context's 'Start New Session' commands."
+    ],
+    "risk_notes": [
+      "Two of the five documented directories (.claude/plans/, .claude/agents/) were never created — the plan-persistence and sub-agent-handoff patterns are aspirational.",
+      "Windows-only installer on a Linux VPS; pwsh absent.",
+      ".claude/memory/ vs .claude/memories/ (learnings-memory) vs memory-os/long-term/ — three near-identically-named stores invite writing to the wrong one.",
+      "Last updated 2025-01-08; predates the memory-os system in CLAUDE.md which supersedes much of it, but neither file acknowledges the other."
+    ]
+  },
+  {
+    "slug": "project-sync",
+    "purpose": "Report whether the local git checkout is aligned with its remote — uncommitted, staged, ahead, behind, diverged — and prescribe the fix.",
+    "does": [
+      "Defines six sync states and seven status tags ([SYNCED], [AHEAD], [BEHIND], [DIVERGED], [DIRTY], [UNTRACKED], [CONFLICT]) plus a report template.",
+      "Lists the raw git commands for each check (git rev-list --left-right --count, git log @{u}..HEAD, git branch -vv, git for-each-ref upstream).",
+      "Walks four scenarios: session start, pre-PR, resolving divergence, multi-developer conflicts — with the exact remediation commands.",
+      "Ships check-sync.ps1 with -Branch / -FetchRemote / -Quick flags as the 'recommended' path."
+    ],
+    "output_type": "console sync-status report (markdown template) + recommended git commands",
+    "trigger_summary": "Checking local vs remote alignment, verifying project state before starting work, debugging sync issues, understanding branch divergence, checking what needs push/pull, session start, wanting a full project status overview.",
+    "provenance_signals": "Version 1.0.0, 2025-01-08, 'Maintained By: CircleTel Development Team', 'Reference: https://git-scm.com/docs'. Same authoring batch and footer format as filesystem-context (identical date and footer block) — clearly generated together. Mostly restates git documentation; the CircleTel layer is thin (a staging-branch push pattern and a pre-deploy check).",
+    "knowledge_type": "mixed — ~70% generic_reasoning (standard git knowledge any model has memorized: git status, rebase vs merge, --force-with-lease, stash; the 'Danger Zone' card is git 101), ~20% workflow_procedure (the report template and session-start ritual), ~10% durable_external_knowledge (the CircleTel feature→staging→main push pattern `git push origin feature/x:staging`, and check-sync.ps1's flags). This is the lowest-value skill in the cluster: almost all of it is model-resident knowledge.",
+    "external_deps": [
+      "git — PRESENT.",
+      "check-sync.ps1 — file EXISTS in the skill dir, but pwsh/powershell is NOT INSTALLED on this Linux host, so the 'Method 1 (Recommended)' path is dead. Every invocation example in the skill uses `powershell -File ...`.",
+      "install-global.ps1 — also Windows/PowerShell-only.",
+      "Referenced paths .git/config, .git/refs/remotes/origin/, .gitignore — all resolve normally.",
+      "No env vars required (correctly stated)."
+    ],
+    "overlap_with": [
+      "git-guardrails-claude-code — both govern git safety; project-sync tells you to run `git reset --hard` and `git clean -fd` in its Danger Zone, which git-guardrails exists to BLOCK. Direct contradiction.",
+      "The .claude/rules/git-tree-hygiene.md rule — covers the same start-of-work fetch/status/worktree ritual with a stricter and more current policy (worktrees, primary-checkout-is-sacred). project-sync predates it and does not mention worktrees at all.",
+      "quality-gates — pre-deploy/pre-PR checking overlaps.",
+      "session-checker — confusingly similar name, completely different domain (customer PPPoE sessions, not git).",
+      "filesystem-context / session-manager — all three claim the 'start of session' orientation step."
+    ],
+    "risk_notes": [
+      "Recommended entry point is a PowerShell script on a host with no PowerShell.",
+      "Danger Zone advocates `git reset --hard origin/main` and `git clean -fd` — directly contradicts git-guardrails-claude-code (which blocks these) and .claude/rules/git-tree-hygiene.md (which warns untracked migrations/docs are destroyed by hard reset).",
+      "Advises `git push --force-with-lease origin main` — the rules file explicitly says never force-push main or staging.",
+      "Zero mention of the worktree workflow that git-tree-hygiene.md now mandates; following this skill produces exactly the dirty-primary-checkout the rule was written to prevent.",
+      "~90% of content is generic git the model already knows — near-pure context tax."
+    ]
+  },
+  {
+    "slug": "session-checker",
+    "purpose": "Determine whether a CircleTel customer's PPPoE/RADIUS internet session is currently live by querying Interstellio/NebularStack CDR records.",
+    "does": [
+      "Documents the CDR schema and the terminate_cause enum (null=active, Lost-Carrier, User-Request, Idle-Timeout, Session-Timeout, Admin-Reset, Port-Error, NAS-Error) and what each means for support triage.",
+      "Gives the exact telemetry endpoint, five required headers, request body shape and the 32-day max query window.",
+      "Provides three access paths: the typed client (isSessionActive / analyzeSessionStatus / getCDRRecords), a PowerShell script, and raw Invoke-RestMethod.",
+      "Includes the SQL to resolve a customer email or account number to interstellio_subscriber_id via customer_services JOIN customers."
+    ],
+    "output_type": "console session-status verdict (active/disconnected + terminate cause, duration, history counts)",
+    "trigger_summary": "Checking whether a customer's internet session is active, viewing session history, debugging 'not connected' complaints, analyzing session patterns and terminate causes, checking PPPoE status. Keywords: session active, connection status, PPPoE session, CDR records, subscriber online, terminate cause.",
+    "provenance_signals": "Wholly in-house CircleTel/Interstellio knowledge. Version 1.0.0, last updated 2025-12-20, 'API Source: https://docs.interstellio.io/'. Declares `dependencies: lib/interstellio/client.ts`. Contains a real-looking subscriber UUID and real BRAS/NAS IPs in the sample response. Nothing here is derivable from public training data — this is the highest-signal skill in the set.",
+    "knowledge_type": "durable_external_knowledge ~80% / workflow_procedure ~15% / generic_reasoning ~5%. The terminate_cause semantics, header names (X-Auth-Token / X-Tenant-ID / X-Domain / X-Timezone), the 32-day window, the +02:00 timezone requirement, the 12-month token validity, and the customer_services.interstellio_subscriber_id column are all things a model cannot know or guess. This is what a skill should look like.",
+    "external_deps": [
+      "lib/interstellio/client.ts — EXISTS (verified).",
+      "lib/interstellio/types.ts — EXISTS (verified).",
+      "docs/api/INTERSTELLIO_API.md — EXISTS (verified).",
+      "check-session.ts — EXISTS in skill dir; runs via `npx tsx`. node is PRESENT (/opt/node22/bin/node).",
+      "check-session.ps1 — EXISTS but pwsh is NOT INSTALLED; 'Method 2 (Quick CLI Check)' and 'Method 3' (Invoke-RestMethod) are both dead on this host. Only the TypeScript path works.",
+      "ENV: INTERSTELLIO_API_TOKEN, INTERSTELLIO_TENANT_ID, INTERSTELLIO_DOMAIN — required; not verified present in .env.local by this read-only pass.",
+      "Supabase tables customer_services, customers with column interstellio_subscriber_id — not schema-verified in this pass; flagged for a verify-schema-first check.",
+      "External network: https://telemetry-za.nebularstack.com (outbound goes via the agent proxy)."
+    ],
+    "overlap_with": [
+      "None in the memory cluster. Name-collides with session-manager and session-checker-vs-project-sync only lexically — 'session' here means a customer network session, not a Claude Code session.",
+      "mobile-testing / quality-gates — tangential (both touch verification of live systems), no real overlap.",
+      "Nearest real neighbour is the .claude/rules/undocumented-api-debugging.md rule (browser-first API inspection), which covers the same 'how do I figure out an undocumented ISP API' territory."
+    ],
+    "risk_notes": [
+      "Two of three documented access methods are PowerShell-based and unrunnable on this Linux host; the skill presents PowerShell as a first-class path.",
+      "Last updated 2025-12-20 — over 7 months stale; API contract may have drifted (the skill's own sample data is dated 2025-12).",
+      "Names an env var trio that .env.example should carry; unverified.",
+      "Claims 'tokens are valid for 12 months' — a token issued at authoring time would expire around 2026-12, so this is still plausible but worth re-checking.",
+      "Advises `disconnectAllSessions` in a provisioning scenario — a destructive customer-facing action documented without a confirmation gate."
+    ]
+  },
+  {
+    "slug": "session-manager",
+    "purpose": "Naming and resuming Claude Code sessions with CircleTel-flavoured naming conventions so multi-day work is easy to pick back up.",
+    "does": [
+      "Documents the native commands /rename, /resume, claude --resume <name>, claude --continue and the session-picker keys (P preview, R rename, j/k, Enter, Esc).",
+      "Prescribes naming conventions by feature area (dashboard-*, admin-*, payment-*, b2b-kyc-*, coverage-*, partner-*), by ticket (BUG-/FEAT-/HOTFIX-) and by sprint.",
+      "Walks four workflow patterns: feature-branch, context switching, multi-day implementation, parallel terminals.",
+      "Tells you to match session name to git branch name, and to run the context analyzer after resuming."
+    ],
+    "output_type": "no artifact — pure prose guidance on CLI commands and naming",
+    "trigger_summary": "Starting feature work, resuming previous sessions, organizing multi-day tasks, or switching between work contexts like admin, dashboard, or payment features. Keywords: session, resume, rename, continue, context, switch task, pick up, where I left off.",
+    "provenance_signals": "Version 1.0.0, 2025-12-10, 'For: Claude Code v2.0.64+'. In-house CircleTel authoring (the naming-pattern table is genuinely CircleTel domain: b2b-kyc-didit-integration, payment-netcash-emandate, coverage-mtn-wms). But the substance — what /rename and /resume do — is Claude Code product documentation restated, which the harness already surfaces.",
+    "knowledge_type": "mixed — ~50% workflow_procedure (naming conventions, the four patterns), ~35% generic_reasoning (use descriptive names, clean up old sessions, be specific — filler), ~15% durable_external_knowledge (the CircleTel project-area→prefix mapping, and the session-picker keybindings which are product trivia). Very low density; the only non-obvious content is a six-row naming table.",
+    "external_deps": [
+      "Claude Code CLI itself (/rename, /resume, --continue) — harness-provided.",
+      "BROKEN PATH: `powershell -File .claude/skills/context-manager/run-context-analyzer.ps1` in the 'Integration with Context Manager' section. That script does not exist anywhere in the repo (repo-wide find returns nothing) AND pwsh is not installed. Double failure.",
+      "git — present, used only illustratively.",
+      "No env vars, no API keys."
+    ],
+    "overlap_with": [
+      "filesystem-context — competing answer to 'resume where you left off': session-manager says use native named sessions, filesystem-context says write .claude/context/current-task.md. Neither defers to the other.",
+      "context-manager — session-manager's integration section just re-invokes it (with a broken path).",
+      "stats-tracker — its 'Integration with Session Manager' section duplicates the /rename-then-/stats ritual verbatim; the two skills quote each other in a loop.",
+      "project-sync — both claim the start-of-session orientation step, with different checklists.",
+      "compound-learnings — lists session-manager under 'Related Skills' as the session-naming half of its own workflow.",
+      "using-superpowers — the pipeline framing subsumes 'organize multi-step work'."
+    ],
+    "risk_notes": [
+      "Contains a broken mandatory-looking command pointing at the phantom run-context-analyzer.ps1.",
+      "Pinned to 'Claude Code v2.0.64+' (dated 2025-12-10) — session-picker keybindings and flags may have changed; the keybindings-help skill is now the authority on shortcuts.",
+      "Almost entirely restates harness behaviour the model is already told about, so it burns context to teach nothing new.",
+      "Advises 'Terminal 1 / Terminal 2' parallel sessions on the same checkout — contradicts .claude/rules/git-tree-hygiene.md ('two agents on the same tree causes conflict soup')."
+    ]
+  },
+  {
+    "slug": "stats-tracker",
+    "purpose": "Report Claude Code usage statistics and, in v2, a self-scored dashboard of how effective each skill has been (RSI metrics + pass@k verification rates).",
+    "does": [
+      "Documents /stats, /usage, /context, /cost and adds invented sub-commands /stats skills, /stats skills [name], /stats verification, /stats verification log.",
+      "Renders ASCII dashboards for skill effectiveness (activations, success rate, corrections, patterns created) and pass@1/@3/@5 verification rates with per-grader targets.",
+      "Gives a model-selection cost table (Haiku $ / Sonnet $$ / Opus $$$) and usage-optimization tactics.",
+      "Stores metrics in metrics.json and verification-metrics.json and prescribes a Monday weekly effectiveness report."
+    ],
+    "output_type": "ASCII dashboards printed to chat, backed by metrics.json / verification-metrics.json in the skill dir",
+    "trigger_summary": "Wanting to see usage statistics, tracking productivity over time, analyzing model usage patterns, monitoring streaks, planning against usage limits, reviewing skill effectiveness, generating weekly effectiveness reports. Keywords: stats, usage, analytics, productivity, streak, tokens, cost, skill effectiveness, skill metrics.",
+    "provenance_signals": "Version 2.0.0, last updated 2026-02-12, dependencies: error-registry + compound-learnings. In-house CircleTel authoring in the same RSI family as compound-learnings and error-registry (identical ASCII-box house style, identical 'NEW in v2.0' markers). Recommends the third-party `ccusage` npm CLI. Model names referenced (Sonnet 4, Opus, Haiku) are ~18 months stale relative to today.",
+    "knowledge_type": "mixed — ~45% generic_reasoning (use the cheap model for cheap tasks, be specific to save tokens, gamification/streak ideas — pure filler), ~40% workflow_procedure (the daily/weekly review rituals, the logging command format), ~15% durable_external_knowledge (the metrics.json schema, the ccusage CLI, the pass@k grader targets). The 'durable' slice is undermined because the data it describes is fabricated. Effectively the lowest true-knowledge density of the seven project skills.",
+    "external_deps": [
+      "/stats, /usage, /context, /cost — harness commands. NOTE: /stats skills, /stats skills [name], /stats verification and /stats verification log are NOT real harness commands; the skill invents a CLI surface that nothing implements.",
+      "metrics.json — EXISTS but is hand-written fiction (see risks).",
+      "verification-metrics.json — EXISTS and is an ALL-ZERO scaffold (every total_sessions: 0, every pass_at_1: 0). Never used.",
+      "reports/weekly-YYYY-WW.md — directory MISSING; no weekly report was ever generated.",
+      "ccusage npm package — optional, not installed.",
+      "Declared dependencies error-registry and compound-learnings both exist as sibling skills.",
+      "References skills 'bug-fixing', 'database-migration' (exist), 'coverage-check', 'deployment-check', 'mobile-testing' — coverage-check and deployment-check are NOT in the 74-skill roster."
+    ],
+    "overlap_with": [
+      "compound-learnings — declared dependency; stats-tracker's correction/pattern counters are just a tally of compound-learnings output. Circular: each cites the other as its feedback loop.",
+      "error-registry — declared dependency; the 'registry hits 40%' insight is error-registry's own analytics/occurrences.json restated.",
+      "context-manager — duplicates the /context budget-monitoring guidance.",
+      "session-manager — duplicates the /rename-then-track ritual; both skills quote each other's integration section.",
+      "quality-gates — pass@k verification tracking overlaps quality-gates' verification remit.",
+      "async-runner — the 'background tasks don't inflate usage' claim is async-runner's territory (and is dubious)."
+    ],
+    "risk_notes": [
+      "metrics.json is FABRICATED DATA presented as measurement: 47 bug-fixing activations, 89% success rate, 23-minute average resolution, per-phase skip rates. Nothing in the harness emits these numbers — there is no instrumentation. Any decision made from this dashboard is made from fiction.",
+      "The dashboards in SKILL.md hardcode the same fake figures as illustrative output, so the model will happily reproduce them as if current.",
+      "verification-metrics.json is an all-zero scaffold — the pass@k feature has never recorded a single session despite being documented across ~120 lines.",
+      "Invented slash commands (/stats skills, /stats verification log) will silently do nothing; the model may claim to have logged something it did not.",
+      "Model names/costs (Sonnet 4, 'Favorite Model: Sonnet 4 (78%)') are stale by roughly 18 months.",
+      "period is pinned to '2026-02' / '2026-03'; today is 2026-08-07 — 5 months stale.",
+      "reports/ directory referenced but absent, so the weekly-report workflow has never run."
+    ]
+  },
+  {
+    "slug": "learnings-memory",
+    "purpose": "A disciplined two-tier lessons-and-rules memory: one-lesson-per-file notes with an INDEX, distilled into a small always-loaded RULES.md, at global (~/.claude/memories) and repo (.claude/memories) tiers.",
+    "does": [
+      "Defines the storage contract: pipe-delimited INDEX.md lines, a lesson template requiring a 'why it mattered', and RULES.md entries with stable non-reusable IDs (R1, R2…) that must cite source lessons.",
+      "Runs five workflows — Recall (rules always, lessons on demand via INDEX), Capture (dedupe-first, tier routing, never store secrets), Reflect (fan out subagents over ~/.claude/projects/*.jsonl transcripts, merge in main agent), Distill (3+ lessons before a rule), Maintain (delete wrong lessons and re-examine every rule citing them).",
+      "Enforces hard caps: ≤15 rules per tier, ≤3 lines each, ≤30 lines per lesson, one tier per entry, repo overrides global.",
+      "Installs itself via scripts/setup.sh, which appends a CLAUDE.md pointer so RULES.md applies even when the skill is not loaded."
+    ],
+    "output_type": "markdown lesson files + INDEX.md + RULES.md across two tiers, plus a CLAUDE.md pointer",
+    "trigger_summary": "User says 'remember this', 'lesson learned', 'save this for next time', 'what did we learn', 'reflect on past sessions', 'distill rules'; whenever the user corrects or confirms an approach that will recur; at the start of non-trivial tasks to recall stored lessons; and for maintenance (dedupe, retier, delete).",
+    "provenance_signals": "User-tier skill, metadata version 1.2.0, category 'productivity'. No CircleTel content at all — generic, portable, and noticeably better-engineered than the project-tier memory skills (explicit precedence rules, distillation thresholds, orphaned-rule deletion, an anti-bloat cap, and an explicit 'never store what the docs already record' criterion). Reads as a carefully iterated personal/third-party skill, not scaffolded output. Cites the real Claude Code transcript location ~/.claude/projects/<slug>/*.jsonl, which is accurate product knowledge.",
+    "knowledge_type": "mixed — ~70% workflow_procedure (the five workflows and their preconditions are the whole product), ~15% durable_external_knowledge (the transcript path ~/.claude/projects/<project-slug>/*.jsonl, the CLAUDE.md-pointer install mechanism, the file/index/rules contract), ~15% generic_reasoning (dedupe, don't store secrets). Unusually high procedure quality: the 3-lesson distillation threshold and the orphaned-rule rule are genuinely non-obvious governance a model would not invent.",
+    "external_deps": [
+      "MISSING SCRIPT: `bash scripts/setup.sh` (and its --repo variants) is the documented Setup step, but the skill directory contains ONLY SKILL.md — there is no scripts/ dir. Setup cannot be run as written; the CLAUDE.md pointer that makes RULES.md apply every session was therefore never installed.",
+      "MISSING DIR: ~/.claude/memories/ does NOT exist (verified). Global tier has no RULES.md and no INDEX.md.",
+      "MISSING DIR: <repo-root>/.claude/memories/ does NOT exist in /home/user/circletel (verified). Repo tier is likewise empty.",
+      "~/.claude/projects/<slug>/*.jsonl — EXISTS on this host (the scratchpad path confirms /root/.claude/projects/-home-user-circletel/). Workflow 3 has real input available.",
+      "Task tool for subagent fan-out — available.",
+      "bash — present."
+    ],
+    "overlap_with": [
+      "memory-os — same job (persistent cross-session memory with a mandated session-start read), different storage (memory-os/long-term/*.md vs .claude/memories/). memory-os additionally carries business context; learnings-memory has the better governance model.",
+      "compound-learnings — same job again (lessons + extracted rules from corrections), different store. compound-learnings has the DATA (49 files); learnings-memory has the DISCIPLINE (thresholds, caps, deletion) but ZERO data.",
+      "filesystem-context — Pattern 4 writes .claude/memory/{patterns,gotchas}.md; learnings-memory writes .claude/memories/*.md. One-character directory difference, no cross-reference. Actively dangerous.",
+      "error-registry — a specialized single-domain version of the same lesson store (errors only).",
+      "claude-md-guardian / rules-organizer — both also own 'distill a rule and put it in the right rules file'; learnings-memory puts rules in RULES.md, the project convention puts them in .claude/rules/*.md. Two rule homes.",
+      "session-start-hook — overlaps the 'make it apply every session' install mechanism."
+    ],
+    "risk_notes": [
+      "The Setup script it depends on does not ship — so neither tier was ever created and no CLAUDE.md pointer exists. This is a fully specified, fully unused system: 0 lessons, 0 rules, in both tiers.",
+      "Its recall workflow instructs reading two RULES.md files at every session start; both are absent, so every non-trivial task begins with two failed reads.",
+      "Directory-name collision with filesystem-context (.claude/memory vs .claude/memories) and conceptual collision with memory-os — a 'remember this' request has four plausible destinations and no arbiter.",
+      "Its correct governance (3-lesson threshold, ≤15 rules) directly contradicts compound-learnings, which writes a rule from a SINGLE correction. Following both is impossible.",
+      "Workflow 3 mines raw session transcripts — a data-sensitivity surface worth noting, though the skill does forbid storing secrets."
+    ]
+  },
+  {
+    "slug": "morning",
+    "purpose": "Render a single hand-drawn-feeling HTML page summarising the shape of the user's day — calendar terrain, what needs them, what's already resolved — or schedule it as a recurring weekday task.",
+    "does": [
+      "Gathers from connected tools by role (calendar, email, chat, other), classifies the day HEAVY/NORMAL/OPEN, and sorts every candidate into exactly two lists: Needs attention and Resolved.",
+      "Draws an ~840×170 SVG terrain with elevation = meeting load, meeting dots sized by weight, hollow intersecting circles for genuine overlaps, and a rationed single clay accent.",
+      "Specifies a complete design system: two full-bleed bands (#F9F9F7 / #FCFCFB), a five-token ink palette, Fraunces serif for the headline only, RTL mirroring, and a 640px stacking breakpoint.",
+      "Builds the font as a base64 woff2 data URI from the skill's own assets and screenshots the result with a pinned Playwright executablePath before delivering."
+    ],
+    "output_type": "a single self-contained HTML file (styled artifact), verified via a Playwright screenshot",
+    "trigger_summary": "Only when the user explicitly asks to run, see, or set up their morning brief, or invokes /morning by name. Explicitly NOT triggered by a general question about their day, schedule, or calendar — those are answered directly.",
+    "provenance_signals": "Anthropic-house authored, near-certainly an official example skill: it references its own sandbox location as /mnt/skills/examples/morning/assets/fonts/, names the preinstalled browser at /opt/pw-browsers/chromium, and documents Anthropic-specific egress-proxy behaviour (fonts.googleapis.com reachable, fonts.gstatic.com blocked → urllib 'Tunnel connection failed: 403', curl exit 56). It also carries a full prompt-injection ground-rules block. Not a fork of anything in /mnt/skills/public/ (morning is not shipped there). Ships a real OFL-licensed Fraunces woff2.",
+    "knowledge_type": "mixed — ~45% durable_external_knowledge (the egress-proxy font failure mode and its exact error strings, the /opt/pw-browsers/chromium executablePath trap, the npm-pack @fontsource fallback, connector-catalog search names — none of this is inferable), ~40% workflow_procedure (gather→sort→write→build→verify with a checklist), ~15% generic_reasoning (voice rules). The environment gotchas alone justify the skill: each one is a failure the model would otherwise discover by breaking.",
+    "external_deps": [
+      "assets/fonts/fraunces-latin-600-normal.woff2 — EXISTS (18KB) alongside Fraunces-OFL.txt. Verified.",
+      "Playwright + chromium at /opt/pw-browsers/chromium — NOT verifiable in this repo context; path is sandbox-specific and will not exist on the CircleTel VPS. Flagged.",
+      "node — PRESENT (/opt/node22/bin/node).",
+      "npm registry access for `npm pack @fontsource/fraunces` fallback — behind the agent proxy.",
+      "Connected MCP connectors for calendar / email / chat (Google Calendar, Gmail, Slack, Microsoft 365). This environment has Google Drive, GitHub, Firecrawl, Composio, Vercel, HuggingFace — NO calendar, NO email, NO chat connector. All three core roles are unavailable, so the skill would render its 'nothing at all connected' two-sentence fallback.",
+      "The self-referential path /mnt/skills/examples/morning/ — does NOT exist here (only /mnt/skills/public/ exists). The skill lives at .claude/gauntlet/originals/user/morning/, so the 'next to this SKILL.md' relative instruction still resolves; the absolute example is wrong."
+    ],
+    "overlap_with": [
+      "None in the memory cluster — it is the only skill here that produces a user-facing artifact rather than managing agent state.",
+      "web-artifacts-builder / canvas-design / theme-factory — all produce styled HTML; morning is a fully art-directed single-purpose instance, so overlap is stylistic only.",
+      "internal-comms — adjacent (summarising work context into a readable brief) but different medium and audience.",
+      "loop / update-config — the 'set up as a recurring weekday task' half overlaps scheduled-task configuration.",
+      "artifact-design — morning bypasses it by carrying its own complete design spec."
+    ],
+    "risk_notes": [
+      "Zero of its three core data sources (calendar, email, chat) are connected in this environment — the skill can only render its empty-state fallback here.",
+      "Hardcodes a sandbox-only Chromium path (/opt/pw-browsers/chromium) and a sandbox-only skill path (/mnt/skills/examples/morning/); neither exists on the CircleTel VPS, so the mandatory render-check step fails outside Anthropic's sandbox.",
+      "Its egress-proxy font guidance is written for Anthropic's proxy; this host uses a different agent proxy (/root/.ccr/ca-bundle.crt) with different failure modes.",
+      "Contains a dated example ('Monday · July 13 2026') that could leak into output if templated rather than computed.",
+      "Otherwise the highest-quality skill in this set: tight trigger boundary, explicit anti-injection ground rules, verified assets, and a real verification step."
+    ]
+  },
+  {
+    "slug": "docx",
+    "purpose": "Create, read, edit and manipulate Word .docx/.dotx files — including tracked changes, comments, find-and-replace and image insertion.",
+    "does": [
+      "Routes by task: create → docx-js (npm) script; edit existing → unzip, edit word/document.xml, rezip (docx-js cannot open existing files); read → pandoc -t markdown.",
+      "Ships accept_changes.py, merge_runs.py and comment.py plus the OOXML comment-part templates (comments.xml, commentsExtended.xml, commentsExtensible.xml, commentsIds.xml, people.xml) needed to add real Word comments.",
+      "Bundles the full ECMA/ISO-IEC 29500-4 and Microsoft XSD schema set with a validator (office/validate.py, validators/docx.py, validators/redlining.py) so output is checked against the spec.",
+      "Provides soffice.py for LibreOffice-backed conversion."
+    ],
+    "output_type": ".docx / .dotx files, validated against OOXML schemas",
+    "trigger_summary": "Any mention of Word doc, word document, .docx, .dotx; producing reports/memos/letters/templates as Word files; extracting or reorganizing .docx content; inserting/replacing images; find-and-replace; tracked changes or comments. Explicitly NOT for PDFs, spreadsheets, or Google Docs.",
+    "provenance_signals": "VERDICT: BYTE-IDENTICAL TO THE ANTHROPIC BUILTIN. Verified against /mnt/skills/public/docx/ — `diff -rq` reports no differences across the whole tree; 61 files on both sides; aggregate per-file MD5 tree hash matches exactly (2af2c073ba8ff21ec00e8a04a79fb0ae). SKILL.md is 91 lines on both sides with a zero-line diff. Frontmatter carries `license: Proprietary. LICENSE.txt has complete terms`. This is NOT a fork, NOT modified, NOT an older or newer version — it is a verbatim copy of the shipped skill placed in the user tier. Magnitude of divergence: ZERO bytes.",
+    "knowledge_type": "durable_external_knowledge ~85% / workflow_procedure ~15%. OOXML part structure, the docx-js cannot-open-existing-files constraint, the five comment XML parts, and the bundled XSDs are all things no model can reconstruct from reasoning. Legitimately high-value — the problem is purely that it is duplicated.",
+    "external_deps": [
+      "npm `docx` package (docx-js) — for creation.",
+      "pandoc — for reading.",
+      "python3 (PRESENT) for scripts/accept_changes.py, merge_runs.py, comment.py.",
+      "LibreOffice (soffice) — for scripts/office/soffice.py conversion path.",
+      "unzip/zip — for the edit path.",
+      "All internal script paths are RELATIVE to the skill directory and resolve correctly in both copies. No broken paths, no /home/circletel references, no memory-os dependency."
+    ],
+    "overlap_with": [
+      "docx (Anthropic builtin at /mnt/skills/public/docx) — 100% duplicate. Both are registered, so the same skill appears twice in the roster and the model must arbitrarily pick one.",
+      "pptx, xlsx — share the identical vendored scripts/office/ tree (helpers, schemas, validators, soffice.py). ~50 files are byte-duplicated across all three doc skills.",
+      "pdf — adjacent document-production domain; the two explicitly disclaim each other.",
+      "financial-applications — composes docx/xlsx/pdf; depends on them rather than overlapping.",
+      "internal-comms / circletel-launch-collateral — produce document CONTENT that would be rendered through docx."
+    ],
+    "risk_notes": [
+      "Pure duplication of a builtin: consumes a user-tier skill slot and description-matching budget for zero added capability, and creates ambiguity when both copies are listed.",
+      "Will drift: the builtin gets updated by Anthropic, this frozen copy will not. Today divergence is zero; in three months the user copy is silently the older version with no signal.",
+      "Marked `license: Proprietary` — copying it into a repo-adjacent user directory (and potentially committing it) is a licensing question worth raising.",
+      "The vendored scripts/office/ tree is triplicated across docx/pptx/xlsx (~150 duplicate files total across the three), inflating the skills footprint."
+    ]
+  },
+  {
+    "slug": "pdf",
+    "purpose": "Read, extract, create, merge, split, rotate, watermark, encrypt, form-fill and OCR PDF files.",
+    "does": [
+      "Leads with pypdf (PdfReader/PdfWriter) for structural operations and defers advanced/JS approaches to REFERENCE.md.",
+      "Carries a dedicated FORMS.md path with eight scripts: check_fillable_fields, fill_fillable_fields, extract_form_structure, extract_form_field_info, fill_pdf_form_with_annotations, check_bounding_boxes, create_validation_image, convert_pdf_to_images.",
+      "Supports the non-fillable-form case by computing bounding boxes and overlaying annotations, then rendering a validation image to visually confirm placement.",
+      "Covers OCR to make scanned PDFs searchable."
+    ],
+    "output_type": ".pdf files, extracted text/tables, and validation PNGs",
+    "trigger_summary": "Anything involving PDF files — reading/extracting text or tables, merging, splitting, rotating, watermarking, creating, form filling, encrypt/decrypt, image extraction, OCR. If the user mentions a .pdf or asks to produce one.",
+    "provenance_signals": "VERDICT: BYTE-IDENTICAL TO THE ANTHROPIC BUILTIN. Verified against /mnt/skills/public/pdf/ — `diff -rq` clean across the tree; 12 files on both sides; tree hash matches exactly (e83d07f904823ba0b1068aad72c177a5). SKILL.md 314 lines on both sides, zero-line diff. Frontmatter `license: Proprietary. LICENSE.txt has complete terms`, and LICENSE.txt ships alongside. Not a fork, not modified, not an older or newer revision — verbatim copy. Magnitude of divergence: ZERO bytes.",
+    "knowledge_type": "durable_external_knowledge ~80% / workflow_procedure ~20%. pypdf API surface, the fillable-vs-annotation branch, and the bounding-box→validation-image technique are concrete library and technique knowledge, not reasoning. The form-filling validation loop in particular is hard-won procedure.",
+    "external_deps": [
+      "python3 — PRESENT.",
+      "pypdf — required.",
+      "pdfplumber / pdf2image / Pillow (implied by convert_pdf_to_images.py and create_validation_image.py).",
+      "An OCR engine (tesseract or equivalent) for the OCR path.",
+      "All script references are relative to the skill directory and resolve. REFERENCE.md, FORMS.md and LICENSE.txt all present. No broken paths."
+    ],
+    "overlap_with": [
+      "pdf (Anthropic builtin at /mnt/skills/public/pdf) — 100% duplicate; double registration.",
+      "docx, pptx, xlsx — sibling document-format skills; mutually exclusive by explicit disclaimer, no functional overlap.",
+      "financial-applications — explicitly composes pdf alongside xlsx/pptx.",
+      "canvas-design — also emits .pdf, but as visual art rather than document manipulation; a real trigger ambiguity for 'make me a PDF poster'.",
+      "circletel-launch-collateral / invoice-pdf-patterns rule — CircleTel's own invoice PDF work uses jsPDF in-app rather than this skill; the rule and the skill describe different pipelines for the same output type."
+    ],
+    "risk_notes": [
+      "Pure duplication of a builtin — no added value, and both copies appear in the roster.",
+      "Frozen copy will silently fall behind Anthropic's updates with no version signal (both currently identical).",
+      "Marked Proprietary; LICENSE.txt is bundled, so redistribution terms travel with it — worth confirming before this directory is committed.",
+      "Trigger overlap with canvas-design for 'create a PDF' requests is unresolved by either description."
+    ]
+  },
+  {
+    "slug": "pptx",
+    "purpose": "Create, read, edit and analyse PowerPoint .pptx/.potx files including layouts, templates, speaker notes and comments.",
+    "does": [
+      "Routes by task: create → pptxgenjs script; edit or build-from-template → unzip, edit ppt/slides/slideN.xml, rezip; read → markitdown (one block per slide under `<!-- Slide number: N -->` markers).",
+      "Ships thumbnail.py to render a visual grid of the deck for inspection, add_slide.py, and clean.py.",
+      "Provides pptx-specific helpers (pptx_slide.py, pptx_theme.py, pptx_chart.py) for slide, theme and chart manipulation.",
+      "Validates output against the bundled ECMA/ISO OOXML schemas via office/validate.py and validators/pptx.py."
+    ],
+    "output_type": ".pptx / .potx files plus thumbnail grids for visual verification",
+    "trigger_summary": "Any time a .pptx or .potx file is involved as input or output — creating decks/pitch decks/presentations, reading or extracting text (even for use elsewhere), editing, combining/splitting, templates, layouts, speaker notes, comments. Triggers on the words deck, slides, presentation.",
+    "provenance_signals": "VERDICT: BYTE-IDENTICAL TO THE ANTHROPIC BUILTIN. Verified against /mnt/skills/public/pptx/ — `diff -rq` clean; 56 files on both sides; tree hash matches exactly (9781b981069c750a80fc9a066923d48d). SKILL.md 238 lines both sides, zero-line diff. `license: Proprietary` + bundled LICENSE.txt. Not a fork, not modified, no version skew — verbatim copy. Magnitude of divergence: ZERO bytes.",
+    "knowledge_type": "durable_external_knowledge ~85% / workflow_procedure ~15%. The pptxgenjs-vs-raw-XML decision, the markitdown slide-marker output format, the thumbnail-grid verification technique and the bundled schemas are all external facts. The render-and-inspect verification step is genuinely valuable procedure.",
+    "external_deps": [
+      "npm `pptxgenjs` — for creation.",
+      "markitdown CLI — for reading.",
+      "python3 (PRESENT) for thumbnail.py, add_slide.py, clean.py and the office/ helpers.",
+      "LibreOffice (soffice) — used by thumbnail rendering / conversion.",
+      "unzip/zip for the edit path.",
+      "All paths relative to the skill dir and resolving. No broken references."
+    ],
+    "overlap_with": [
+      "pptx (Anthropic builtin at /mnt/skills/public/pptx) — 100% duplicate; double registration.",
+      "docx, xlsx — share the byte-identical scripts/office/ subtree (helpers/, schemas/, validators/, soffice.py, validate.py). Note pptx's helpers are also vendored INTO docx and xlsx even though those skills do not make decks.",
+      "canvas-design / theme-factory / brand-guidelines — all shape presentation visuals; theme-factory explicitly claims slides as a target, colliding with pptx on 'style this deck'.",
+      "financial-applications — composes pptx for investment presentations.",
+      "circletel-launch-collateral — produces deck-shaped content that would be rendered through pptx."
+    ],
+    "risk_notes": [
+      "Pure duplication of a builtin.",
+      "Frozen copy will drift behind Anthropic updates with no signal.",
+      "Proprietary license bundled — same commit/redistribution question as docx and pdf.",
+      "theme-factory also claims 'slides' as a styling target with no stated precedence against pptx.",
+      "The scripts/office/helpers/pptx_*.py files are duplicated into docx and xlsx where they are dead weight."
+    ]
+  },
+  {
+    "slug": "xlsx",
+    "purpose": "Create, read, edit and repair spreadsheets (.xlsx/.xlsm/.xltx/.csv/.tsv) with correct formulas, formatting and charts.",
+    "does": [
+      "Routes by task: formulas/formatting → openpyxl; bulk data → pandas read_excel/to_excel; quick look → markitdown; reading a model's formulas AND values → two load_workbook passes.",
+      "Ships recalc.py and mandates never shipping a workbook while it reports errors_found — with a proof procedure (load the original with data_only=True) to distinguish inherited from introduced errors.",
+      "Enforces output requirements: professional fonts, zero formula errors, real formulas instead of hardcoded Python-computed results, and literal adherence to the user's tab/column/formula spec.",
+      "Bundles the OOXML schema set and validators for spec-conformant output."
+    ],
+    "output_type": ".xlsx / .xlsm / .csv spreadsheet files, recalc-verified",
+    "trigger_summary": "Any task where a spreadsheet is the primary input or output — opening/reading/editing/fixing .xlsx/.xlsm/.xltx/.csv/.tsv, creating from scratch or other sources, converting tabular formats, or cleaning messy tabular data. Explicitly NOT when the deliverable is a Word doc, HTML report, standalone script, DB pipeline, or Sheets API integration.",
+    "provenance_signals": "VERDICT: BYTE-IDENTICAL TO THE ANTHROPIC BUILTIN. Verified against /mnt/skills/public/xlsx/ — `diff -rq` clean; 53 files on both sides; tree hash matches exactly (95335ce73e183f65bbd9454c0d40a005). SKILL.md 99 lines both sides, zero-line diff. `license: Proprietary` + bundled LICENSE.txt. Not a fork, not modified, no version skew — verbatim copy. Magnitude of divergence: ZERO bytes.",
+    "knowledge_type": "durable_external_knowledge ~80% / workflow_procedure ~20%. The two-pass load_workbook trick, the data_only=True provenance proof, recalc.py, and the preinstalled-packages note ('do not run pip install first') are all concrete environment and library facts. The 'use formulas, never hardcoded results' rule is a hard-won correction, not generic advice.",
+    "external_deps": [
+      "openpyxl, pandas, markitdown — the skill states all three are PREINSTALLED and instructs not to pip install first.",
+      "python3 — PRESENT.",
+      "scripts/recalc.py — EXISTS; LibreOffice-backed recalculation implies soffice availability.",
+      "LibreOffice (soffice) via scripts/office/soffice.py.",
+      "All paths relative to the skill dir and resolving. No broken references, no CircleTel path assumptions."
+    ],
+    "overlap_with": [
+      "xlsx (Anthropic builtin at /mnt/skills/public/xlsx) — 100% duplicate; double registration.",
+      "docx, pptx — share the byte-identical scripts/office/ subtree including the pptx_* helpers, which are irrelevant to spreadsheets.",
+      "financial-applications — explicitly composes xlsx for models, budgets, P&Ls; the two will co-trigger on almost every financial request with no stated precedence.",
+      "strategic-insights — consumes financial data but produces analysis, not spreadsheets; boundary is clear.",
+      "dataviz — charts inside spreadsheets vs charts as visualizations; a 'chart this data' request could route to either."
+    ],
+    "risk_notes": [
+      "Pure duplication of a builtin.",
+      "Frozen copy will drift behind Anthropic updates with no version signal.",
+      "Proprietary license bundled — same question as the other three.",
+      "financial-applications and xlsx will both fire on budget/model requests with no arbitration rule between them.",
+      "Carries ~50 vendored files (schemas + pptx helpers) that are triplicated across docx/pptx/xlsx."
+    ]
+  }
+]

@@ -1,0 +1,623 @@
+[
+  {
+    "slug": "circletel-launch-collateral",
+    "purpose": "Turns an already-approved CircleTel product spec into customer-facing launch materials without leaking any cost or margin data.",
+    "does": [
+      "Maps each collateral asset to the specific customer-safe CPS/BRD sections it may draw from (one-pager <- CPS §1/§2/§12/§13.2, pricing sheet <- CPS §3 only)",
+      "Fills a four-asset template: sales one-pager, internal battlecard with objection handling, retail pricing sheet, website/product-page copy",
+      "Runs a mandatory 6-row 'Confidentiality Check' that blocks publication if wholesale cost, margin, markup %, supplier rate or commission appears",
+      "Applies en-ZA house style: R1 234,56 currency, excl-VAT prices, exact product names, Poppins/Montserrat, Primary Orange #F5841E"
+    ],
+    "output_type": "Markdown collateral documents (one-pager, battlecard, pricing sheet, web copy); .html/.docx on request",
+    "trigger_summary": "Fires when an approved CircleTel product needs go-to-market material: 'create a one-pager for [product]', 'make a battlecard', 'customer pricing sheet', 'product page copy', 'launch collateral', 'sales enablement for [product]'.",
+    "provenance_signals": "Hand-written CircleTel-internal skill. Frontmatter: `author: \"CircleTel Product Strategy\"`, `locale: \"en-ZA\"`, `license: MIT`, version 1.0.0. user/manifest.json records `source: custom`, updated 2026-07-14 (same day as its sibling circletel-product-development — authored as a pair). References CircleTel Project Instruction 6 and the CT-FWK-PRODDEV-2026-001 framework. Anthropic-style `allowed-tools: view/create_file/bash_tool` naming suggests it was authored for claude.ai Capabilities upload, not Claude Code.",
+    "knowledge_type": "mixed — ~55% durable_external_knowledge (the confidentiality firewall policy, CPS section->asset mapping, brand hex/fonts, contact constants WhatsApp 082 487 3900 / contactus@circletel.co.za, the worked Business Complete example with real R1 798/R2 547/R3 822 retail prices), ~30% workflow_procedure (locate spec -> fill -> run check -> classify internal vs external), ~15% generic_reasoning (benefit-not-spec copywriting, non-disparaging competitive framing)",
+    "external_deps": "None hard. Assumes access to CircleTel 'project knowledge' containing the approved CPS/BRD (an artefact of the claude.ai Projects environment, not present in this repo). Optional .docx output implies the docx skill.",
+    "overlap_with": [
+      "new-product — also emits a sales One-Pager from product data, with its own template and gold-standard file",
+      "promotional-campaigns — also produces sales enablement, talking points and objection handling",
+      "product-page-builder — also writes product-page/website copy and CTA structure",
+      "circletel-product-development — explicit companion; shares the identical confidentiality-firewall text"
+    ],
+    "risk_notes": [
+      "Confidentiality firewall reference duplicates §7 of circletel-product-development/references/house_standards.md almost verbatim — two copies to keep in sync",
+      "Brand values contradict the project-side skills: #F5841E + Poppins/Montserrat here vs #F5831F + Arial in project/brand-design",
+      "Currency format R1 234,56 (space/comma) contradicts every project-side skill, which uses R1,299 (comma thousands)",
+      "Depends on documents ('the approved CPS') that live in claude.ai project knowledge, not in this repo — cannot be resolved from the filesystem",
+      "Overlaps new-product's One-Pager with a different template and different gold standard, so two runs produce divergent one-pagers for the same product"
+    ]
+  },
+  {
+    "slug": "circletel-product-development",
+    "purpose": "Authors CircleTel's house product documentation chain (CPS -> BRD -> FSD, or SDD for bespoke deals, plus Change Requests) to a fixed stage-gate standard.",
+    "does": [
+      "Triages a request into PRODUCT (repeatable -> full CPS+BRD+FSD chain) or SOLUTION (bespoke -> lighter SDD that references existing FSDs)",
+      "Supplies five fillable templates totalling ~1,085 lines (CPS 290, FSD 283, BRD 239, SDD 174, CHG 99)",
+      "Enforces a six-gate process (Concept -> Design -> Approval -> Build -> Launch -> Post-Launch) with G1 exit criteria: >=25% gross margin, LTV:CAC >= 3:1, complete BRD decision tree, FSD validation register",
+      "Applies house standards: en-ZA spelling, R1 234,56, dd/mm/yyyy, CT-[TYPE]-[PRODUCT]-[YEAR]-[SEQ] refs, DRAFT-until-G2 status, confidentiality firewall"
+    ],
+    "output_type": "Markdown specification documents (CPS/BRD/FSD/SDD/CHG); .docx on request",
+    "trigger_summary": "Fires on 'design a new product', 'create a CPS/BRD/FSD', 'new solution for [customer]', 'make a change to [product]', 'raise a change request', or any request to scope/spec a product, tier, bundle or module.",
+    "provenance_signals": "Hand-written CircleTel-internal. `author: \"CircleTel Product Strategy\"`, `category: product-management`, `locale: en-ZA`; manifest `source: custom`, updated 2026-07-14. framework.md carries a real document header: `Document Reference: CT-FWK-PRODDEV-2026-001`, `Effective Date 14 July 2026`, `Prepared By Product Strategy`. Distinctive house convention documented explicitly — 'BRD in CircleTel house style is a Business Rules Document, not Business Requirements'.",
+    "knowledge_type": "mixed — ~60% durable_external_knowledge (the five document templates, the reference/naming conventions, the exact product-name list SkyFibre/BizFibreConnect/WorkConnect/CloudWiFi/ClinicConnect/ParkConnect/AirLink/UmojaLink/CircleConnect, brand palette, margin/LTV:CAC gates, Business Complete worked example), ~30% workflow_procedure (triage rule, gate sequence, cross-referencing, version/status control), ~10% generic_reasoning (productise-after-3-sales heuristic, ask-scoping-questions-first)",
+    "external_deps": "None hard. Expects CircleTel project knowledge for real wholesale costs and competitor pricing; optional .docx export via `CircleTel_Document_Template_v1_0.docx` (not present in this repo).",
+    "overlap_with": [
+      "new-product — the same CPS/BRD/FSD chain, but Q&A-driven and writing into products/ with a different template set",
+      "product-management (generate-docs child) — a third CPS/BRD/FSD generator with a third template set",
+      "solution-design — overlapping unit-economics/PMF gating and the same >=25% margin rule",
+      "ict-solution-design — same bespoke-solution design job, different (non-CircleTel) framing"
+    ],
+    "risk_notes": [
+      "Three-way template duplication: user/circletel-product-development/templates/, .claude/templates/products/ (used by new-product), and project/product-management/templates/ all define CPS/BRD/FSD independently — no cross-reference, guaranteed drift",
+      "Currency/brand standards contradict the project-side skills (R1 234,56 vs R1,299; #F5841E vs #F5831F; Poppins/Montserrat vs Arial)",
+      "Entity naming conflicts with solution-design: 'CircleTel (Pty) Ltd - a member of the New Generation Group' here vs 'CircleTel SA (Pty) Ltd (Reg: 2008/026404/07)' there",
+      "framework.md is itself marked 'DRAFT - Internal / Approved By: Pending' — a governance document that has never been approved is being used to gate approvals",
+      "Product-name list omits products that solution-design lists as ACTIVE/SUNSET (e.g. HomeFibreConnect appears in house_standards but the SKILL.md summary list drops it)"
+    ]
+  },
+  {
+    "slug": "ict-solution-design",
+    "purpose": "Designs ICT/AV/networking/CCTV/VoIP solutions by starting from the customer's job-to-be-done and ending at a priced, supportable, repeatable offer.",
+    "does": [
+      "Runs a 7-phase workflow: discovery -> demand/packaging classification (bespoke / semi-standard / productized) -> outcome definition -> architecture -> product selection -> commercial design -> validation",
+      "Produces a fixed 10-section output (customer job, context, problem, outcome, concept, bundle, architecture, commercial package, risks, next step)",
+      "Maps component categories to distributor ecosystems — Rectron (endpoints/compute/displays), MiRO (wireless/WISP/surveillance), Scoop (switching/cabling/VoIP)",
+      "Ships a standalone 'reuse-prompt.md' block for pasting the behaviour into another assistant or Cursor rule"
+    ],
+    "output_type": "Markdown solution design document with BOM, architecture summary and good/better/best commercial tiers",
+    "trigger_summary": "Fires on 'design a solution for', 'what should I quote', 'build a bundle', 'boardroom AV', 'office Wi-Fi', 'estate CCTV', 'SME connectivity' — i.e. turning a customer request or RFQ into a proposal or a productized bundle.",
+    "provenance_signals": "Hand-written, manifest `source: custom`, updated 2026-06-17 (a month before the circletel-* pair). Notably CircleTel-agnostic: never names CircleTel, uses US spelling ('productize', 'Favor', 'Standardize') against the en-ZA house rule, and the README's install instruction is claude.ai-flavoured — 'Upload the packaged ZIP via Settings > Capabilities in Claude.ai'. Reads as a generalised repackaging of the CircleTel solution-design thinking for reuse/sale outside the company.",
+    "knowledge_type": "mixed — ~65% generic_reasoning (JTBD framing, need-vs-requested-product, over-engineering warnings, good/better/best tiering, PMF scoring — all standard solution-selling material a strong model already knows), ~20% durable_external_knowledge (the SA distributor category map for Rectron/MiRO/Scoop and the per-component selection/record checklist), ~15% workflow_procedure (the 7 phases and 10-section output order)",
+    "external_deps": "None. No scripts, no API keys, no MCP. Distributor catalogues are described in prose only — no live lookup.",
+    "overlap_with": [
+      "solution-design — same job (design and price a CircleTel solution) with real portfolio/cost data instead of generic phases",
+      "product-management/browse-suppliers + search-suppliers — the supplier-sourcing half, but with live Firecrawl/DB lookups and a 4th distributor (Nology)",
+      "circletel-product-development — the SDD bespoke track covers the same bespoke-solution deliverable",
+      "consulting-toolkit — shares the structure-then-recommend spine"
+    ],
+    "risk_notes": [
+      "Distributor list disagrees with the project skills: Rectron/MiRO/Scoop here vs Scoop/MiRO/Nology/Rectron in product-management — Nology is simply absent",
+      "No pricing, stock or margin data at all — 'verify current stock and pricing before committing' with no mechanism to do so, while search-suppliers already has one",
+      "US spelling throughout violates the en-ZA house standard the other CircleTel skills enforce",
+      "references/reuse-prompt.md duplicates the whole SKILL.md behaviour as a prose prompt — a second copy that will drift",
+      "Highest generic-content ratio of the CircleTel-adjacent skills; little here a capable model would not produce unprompted"
+    ]
+  },
+  {
+    "slug": "consulting-toolkit",
+    "purpose": "Applies management-consulting method — MECE issue trees, hypothesis-driven analysis, framework selection, Pyramid Principle communication — to any ambiguous business problem.",
+    "does": [
+      "Runs a 5-step spine: quantified problem statement -> MECE issue tree -> falsifiable hypotheses with a named 'killer analysis' -> framework application -> answer-first synthesis",
+      "Switches between consultant mode (do the analysis) and coach mode (Socratic, one question at a time, never answer first)",
+      "Supplies a framework selection table (profitability tree, Porter's, 7S, unit economics, AARRR, Ansoff, BCG, market sizing) and a mental-model library (inversion, second-order, base rates, incentives, survivorship bias)",
+      "Enforces a 7-point quality bar and an explicit anti-pattern refusal list (framework shopping, MECE theatre, buried lead, false precision)"
+    ],
+    "output_type": "Structured in-chat analysis (text issue trees, tables); memos/decks on request via the docx/pptx skills",
+    "trigger_summary": "Fires on 'structure this problem', 'build an issue tree', 'pick a framework', analysis of strategy/pricing/growth/profitability/market-entry questions, 'pressure-test this plan', or 'write an executive summary'.",
+    "provenance_signals": "Hand-written, manifest `source: custom`, updated 2026-06-12 — the same day as strategic-insights and learnings-memory, suggesting one authoring session. No company, author or URL in frontmatter; `license: MIT`, `category: business-analysis`. Content is textbook MBB material (Minto, Munger, Porter) with no proprietary data of any kind.",
+    "knowledge_type": "generic_reasoning — ~90% (every framework, mental model and communication rule is standard, widely-published consulting knowledge a strong model reproduces on request), ~10% workflow_procedure (the mode-detection rule and the 5-step ordering, which do add real behavioural constraint). Zero durable_external_knowledge — no CircleTel facts, no proprietary data, no numbers.",
+    "external_deps": "None. Optionally hands off to the docx/pptx skills for deliverables.",
+    "overlap_with": [
+      "strategic-insights — same diagnose-then-recommend job; unit-economics and profitability-tree content is near-duplicated",
+      "idea-validator — both render a go/no-go verdict on a business proposition",
+      "roadmap-advisor — shares impact/effort prioritisation scoring",
+      "product-management/market-fit — reuses the same unit-economics and competitor-comparison logic on a product"
+    ],
+    "risk_notes": [
+      "Highest generic-content ratio in the whole cluster — its instructional value is behavioural (forcing MECE, answer-first, inversion), not informational",
+      "Unit-economics benchmarks (LTV/CAC > 3, CAC payback < 12-18mo) are restated in strategic-insights, solution-design and market-fit with slightly different thresholds",
+      "No SA/ZAR context: examples are $-denominated SaaS, which clashes with the rest of the business cluster",
+      "Coach mode and consultant mode are triggered by phrasing alone; nothing prevents both from being loaded alongside strategic-insights and answering twice"
+    ]
+  },
+  {
+    "slug": "strategic-insights",
+    "purpose": "Converts financial and operational numbers into a short, opinionated, quantified list of what to fix next.",
+    "does": [
+      "Establishes the binding constraint (cash, margin, growth, capacity) before recommending anything",
+      "Runs a subset of six diagnostics: unit economics, margin bridge, profit levers (price > mix > direct cost > overhead), cash conversion cycle, concentration/fragility, growth-quality screen",
+      "Prioritises by Impact x Confidence / Effort and caps the output at five recommendations",
+      "Forces a fixed 5-part output including a mandatory 'What I'd stop doing' section and 'what would change my view'"
+    ],
+    "output_type": "In-chat structured strategic review (position, findings, ranked recommendations, stop-list, assumptions)",
+    "trigger_summary": "Fires on 'what should we improve', 'what do these numbers tell us', 'how do we increase margin', 'where are we losing money', 'is this business model working', or a request for strategic feedback after a review or forecast.",
+    "provenance_signals": "Hand-written, single 78-line SKILL.md with no reference files. Manifest `source: custom`, updated 2026-06-12 (same batch as consulting-toolkit). `category: finance`, `license: MIT`. Describes itself as sitting downstream of 'monthly-accounts-review, variance-analysis, or forecasting-models' — skills that do not exist in this installation, implying it was lifted from a larger finance skill suite.",
+    "knowledge_type": "generic_reasoning — ~90% (margin bridge, price-lever breakeven-churn formula, CCC = DSO+DIO-DPO, concentration risk, LTV:CAC thresholds are all standard finance), ~10% workflow_procedure (binding-constraint-first ordering, the mandatory stop-list, the fixed output skeleton). No CircleTel-specific data despite CircleTel's real numbers being available in memory-os/long-term/client-context.md.",
+    "external_deps": "None. Suggests web search for current benchmarks.",
+    "overlap_with": [
+      "consulting-toolkit — profitability tree / unit economics / pressure-testing are the same content in longer form",
+      "financial-applications — both own 'financial analysis', split as analysis-narrative vs spreadsheet-artefact",
+      "solution-design — duplicates unit economics, LTV:CAC and margin discipline for products",
+      "roadmap-advisor — competing 'what should we do next' prioritiser, one financial and one codebase-driven"
+    ],
+    "risk_notes": [
+      "Names three upstream skills (monthly-accounts-review, variance-analysis, forecasting-models) that are not installed — dangling references",
+      "Currency-agnostic but its one worked figure uses 'R—', implying ZAR without ever stating the locale rule the CircleTel skills enforce",
+      "Does not read memory-os/long-term/client-context.md, where CircleTel's actual cash (R86K), burn (R198K/mo) and runway live — so it will ask for data the repo already holds",
+      "Substantially subsumed by consulting-toolkit; keeping both risks two different prioritised lists for one question"
+    ]
+  },
+  {
+    "slug": "idea-validator",
+    "purpose": "Gives fast, deliberately blunt build/maybe/skip feedback on an app or product idea before any time is invested.",
+    "does": [
+      "Scores an idea on five axes: market saturation, demand (stated vs revealed), feasibility for a solo builder in 2-4 weeks, monetisation, and interest/hook",
+      "Web-searches for 3-5 comparable products and reports their traction, pricing and positioning",
+      "Emits a fixed format: Quick Verdict / Why / Similar Existing Products / What Would Make This Stronger",
+      "Calls out named red flags ('vitamin not painkiller', 'feature not a product', 'needs a network effect', 'market leader is free')"
+    ],
+    "output_type": "Short in-chat verdict block with a competitor list and improvement suggestions",
+    "trigger_summary": "Fires on 'what do you think of this idea', 'should I build', 'validate this concept', or any request to evaluate a product/app idea.",
+    "provenance_signals": "Vendored/community-style skill: bare frontmatter (name + description only — no license, no metadata block, unlike every other custom skill here). Manifest `source: custom` but updated 2025-11-01, the oldest date in the user set alongside launch-planner — the two share a solo-builder, ship-in-2-4-weeks, indie-hacker voice and were almost certainly installed together from the same external pack.",
+    "knowledge_type": "generic_reasoning — ~95%. The five criteria, the red-flag list and the verdict format are standard indie-founder validation advice; ~5% workflow_procedure (the mandated output skeleton and the search-first process). No proprietary content whatsoever, and nothing about ISPs, B2B telecoms or the SA market.",
+    "external_deps": "web_search (named explicitly as `web_search`, which is not the tool name in this harness).",
+    "overlap_with": [
+      "launch-planner — same solo-builder pack; validator judges the idea, planner scopes it, and both give feature-cut advice",
+      "product-management/market-fit — the CircleTel-native go/no-go with real margins and competitor benchmarks",
+      "consulting-toolkit — market-entry / ability-to-win structuring in a rigorous form",
+      "solution-design — PMF stage-gates for real CircleTel products"
+    ],
+    "risk_notes": [
+      "Frame is wrong for this business: 'solo builder, 2-4 weeks, ship an app' does not describe an ISP with wholesale contracts and 24-month MSC commitments",
+      "Hardcodes `web_search` as the tool name; the available tool here is WebSearch — the instruction will not resolve literally",
+      "Directly conflicts with market-fit, which returns go/no-go from actual supplier cost and competitor price data; idea-validator returns a verdict from web search alone",
+      "No margin, COS or >=25% gate — a 'Build it' from this skill can contradict CircleTel's own pricing guardrails"
+    ]
+  },
+  {
+    "slug": "launch-planner",
+    "purpose": "Turns an app idea into a one-week-per-feature MVP scope, a PRD, and Claude Code starter prompts, with anti-scope-creep discipline throughout the build.",
+    "does": [
+      "Forces three questions up front (who is it for / the ONE problem / how will you know it works) and refuses to proceed while any is unclear",
+      "Extracts the core user loop, applies a one-week-per-feature rule, and triages every feature into MUST HAVE / NICE TO HAVE / CUT IT",
+      "Generates a PRD in a fixed skeleton including an explicit 'What We're NOT Building (Yet)' section and a launch checklist",
+      "Supplies reference packs: example PRDs (152 lines), Claude Code starter prompts (217 lines), and mid-build decision trees (241 lines)"
+    ],
+    "output_type": "Markdown PRD plus copy-paste Claude Code starter prompts and in-chat scoping decisions",
+    "trigger_summary": "Fires when the user wants to turn an idea into a product, scope an MVP, generate a PRD, get Claude Code starter prompts, or needs mid-build product decisions and momentum coaching.",
+    "provenance_signals": "Vendored/community pack — bare frontmatter (name + description only, no license/metadata), manifest `source: custom` updated 2025-11-01, same day as idea-validator and same indie voice. Hardcodes an opinionated stack it never justifies: 'Frontend: Next.js (App Router) / Backend: Supabase / Deployment: Vercel' — which happens to match CircleTel's stack except that CircleTel deploys on Coolify, not Vercel.",
+    "knowledge_type": "generic_reasoning — ~80% (MVP scoping, core-loop extraction, feature triage, ship-then-iterate advice is standard product-management content), ~20% workflow_procedure (the three-questions gate, one-week rule, PRD skeleton and launch checklist, which are enforceable constraints). No durable_external_knowledge — the only concrete facts are a generic tech stack.",
+    "external_deps": "None required; assumes Claude Code exists downstream to receive the generated prompts, and the PRD template presumes Next.js + Supabase + Vercel.",
+    "overlap_with": [
+      "idea-validator — companion from the same pack; validator judges, planner scopes",
+      "new-product — the CircleTel-native 'spec a product through Q&A' skill, but for telecom products not apps",
+      "circletel-product-development — CPS/BRD/FSD is the house equivalent of a PRD",
+      "roadmap-advisor — both prioritise what to build next, one for a new MVP and one for the existing platform"
+    ],
+    "risk_notes": [
+      "Prescribes Vercel deployment, which contradicts CLAUDE.md and .claude/rules/vps-devops.md ('Never move production builds back to Vercel as the default') — a launch checklist item that is wrong for this repo",
+      "Its PRD format has no relationship to the CPS/BRD/FSD chain the company actually uses, so its output cannot enter the product catalogue",
+      "No margin, unit-economics or compliance gate — 'ship in a week' collides with the >=25% margin and RICA/POPIA constraints the CircleTel skills enforce",
+      "references/claude-code-prompts.md (217 lines) is a static prompt library likely to age against current Claude Code conventions"
+    ]
+  },
+  {
+    "slug": "financial-applications",
+    "purpose": "Builds financial artefacts — budgets, forecasts, variance reports, dashboards, portfolio analyses and investor decks — via the xlsx/pptx/pdf skills.",
+    "does": [
+      "Specifies multi-sheet budget workbook structures (operating, capital, cash) down to column layouts and Excel formulas",
+      "Covers department roll-ups, allocation methods, trend- and driver-based forecasting, price/volume/mix variance, flex budgets, and three-scenario + probability-weighted + sensitivity models",
+      "Ships a full standard chart of accounts (lines 874-1006) plus budget version-control, change-tracking and approval-workflow structures",
+      "Defines an automated pipeline pattern: Excel analysis -> PowerPoint summary -> PDF documentation, and includes financial_calculations.py for growth/margin/portfolio metrics"
+    ],
+    "output_type": ".xlsx workbooks, .pptx decks and .pdf reports (produced through the xlsx/pptx/pdf skills)",
+    "trigger_summary": "Fires on requests for financial dashboards, budget templates or budget building, forecasting, variance analysis, scenario planning, chart of accounts, P&L/balance-sheet summaries, executive summaries, investor updates, quarterly metrics, portfolio reviews or automated reporting pipelines.",
+    "provenance_signals": "Vendored from Anthropic's cookbooks and then extended. Frontmatter states it outright: `author: \"Based on Anthropic Claude Cookbooks\"`, `source: \"https://github.com/anthropics/claude-cookbooks/blob/main/skills/notebooks/02_skills_financial_applications.ipynb\"`, `version: 2.0.0`. Manifest says `source: custom`, updated 2026-01-14 — i.e. the cookbook original was locally expanded (PART 1 budgeting, ~1,030 lines, is almost certainly the local addition; PART 2 matches the cookbook). Cites `/mnt/skills/public/{xlsx,pptx,pdf}/SKILL.md` — container paths from the claude.ai environment, not this machine.",
+    "knowledge_type": "generic_reasoning — ~75% (standard management-accounting content: budget structures, variance formulas, CoA, scenario modelling — all textbook and reproducible by a strong model), ~20% workflow_procedure (the Excel->PPT->PDF pipeline, version-control and approval-tracking conventions, token-optimisation rules), ~5% durable_external_knowledge (only in the sense that a fixed CoA numbering scheme is a convention worth pinning). Nothing CircleTel-specific: all examples are USD, US-GAAP-flavoured.",
+    "external_deps": "The xlsx, pptx and pdf skills; python3 for scripts/financial_calculations.py (stdlib only). References /mnt/skills/public/* paths that do not exist outside the claude.ai container.",
+    "overlap_with": [
+      "strategic-insights — the analytical 'so what' layer over the same financial data",
+      "consulting-toolkit — profitability trees and unit economics restated",
+      "xlsx / pptx / pdf — this skill is largely a prompt-shaped wrapper over those three",
+      "solution-design — margin and COS modelling for CircleTel products"
+    ],
+    "risk_notes": [
+      "By far the largest SKILL.md in the cluster (1,333 lines) and always loaded whole — a heavy context cost for what is mostly reference material that should be split into references/",
+      "Entirely USD/US-GAAP; no ZAR, no 15% VAT, no en-ZA formatting — directly contrary to the CircleTel house standard",
+      "Resource links point at /mnt/skills/public/... container paths that will not resolve in Claude Code",
+      "The chart of accounts (130+ lines) is generic boilerplate that does not match CircleTel's actual ledger or the customer_invoices schema",
+      "Overlaps strategic-insights on 'financial analysis' with no routing rule between them"
+    ]
+  },
+  {
+    "slug": "internal-comms",
+    "purpose": "Writes internal company communications (3P updates, newsletters, FAQs, status/leadership/project updates, incident reports) in a set of pre-agreed house formats.",
+    "does": [
+      "Classifies the request into a comms type and loads exactly one guideline file from examples/",
+      "Applies per-format rules — e.g. 3P = Progress/Plans/Problems, 30-60 second read, granularity scaled to team size, team name required before writing",
+      "Instructs gathering source material from Slack (high-reaction posts), Google Drive (high-view docs), Email (high-response threads) and Calendar (non-recurring meetings) for the relevant time window",
+      "Falls back to examples/general-comms.md for anything unmatched, and asks for clarification rather than inventing a format"
+    ],
+    "output_type": "Markdown/plain-text internal communications drafts",
+    "trigger_summary": "Fires whenever asked to write internal communications — status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates.",
+    "provenance_signals": "Vendored Anthropic sample, unmodified. Manifest: `source: anthropic-example`, updated 2026-08-07 (bulk-refreshed with the other anthropic-example skills the same day). Ships a 201-line Apache 2.0 LICENSE.txt and `license: Complete terms in LICENSE.txt`. The description is written in Anthropic's first-person sample voice — 'the formats that my company likes to use' — and the 'my company' in question is Anthropic, not CircleTel.",
+    "knowledge_type": "mixed — ~50% generic_reasoning (be succinct, know your audience, write for people with partial context), ~40% durable_external_knowledge but for the WRONG organisation (the 3P/newsletter/FAQ house formats encoded are Anthropic's conventions, not CircleTel's), ~10% workflow_procedure (classify -> load one example file -> gather from named sources). Net value to this user is low unless the formats are deliberately adopted.",
+    "external_deps": "Assumes connected Slack, Google Drive, Email and Calendar tools to gather source material. In this installation Google Drive MCP is present; Slack, Email and Calendar are not — so the primary content-gathering step cannot execute as written.",
+    "overlap_with": [
+      "circletel-launch-collateral — the other 'write a document to a house format' skill, external-facing rather than internal",
+      "consulting-toolkit — executive-summary and SCQA guidance for leadership updates",
+      "roadmap-advisor — its executive-summary output is effectively a leadership update",
+      "morning — also assembles a status digest from calendar/mail sources"
+    ],
+    "risk_notes": [
+      "House formats belong to Anthropic, not CircleTel — using it as-is imports another company's comms conventions",
+      "Content-gathering instructions name Slack/Email/Calendar integrations that are not connected here; only Google Drive exists",
+      "No CircleTel context at all (no contact constants, no en-ZA locale, no incident-report link to error-registry) despite incident reports being in scope",
+      "Thinnest SKILL.md in the cluster (32 lines) — nearly all behaviour lives in four small example files"
+    ]
+  },
+  {
+    "slug": "new-product",
+    "purpose": "Generates a complete four-document CircleTel product pack (CPS, BRD, FSD, One-Pager) through a scripted five-phase interview and writes it into products/.",
+    "does": [
+      "Asks 5 batched question phases — identity, architecture/technology, pricing & economics, SLA & operations, positioning & sales — refusing to advance until each batch is answered",
+      "Validates margins before generating (warns below 25%) and checks VAT-inclusive prices equal retail x 1.15",
+      "Writes four files to a category/subcategory path under products/, creating sales-collateral/ as needed, then updates products/README.md and its Last Updated stamp",
+      "Reads named gold-standard documents (BusinessComplete CPS, SkyFibre SMB BRD/FSD, BusinessComplete OnePager) before generating each type, and runs a 9-item completion checklist"
+    ],
+    "output_type": "Four Markdown files committed into products/ plus a README.md index update",
+    "trigger_summary": "Fires on 'new product docs', 'product documentation', 'generate product spec', 'create product spec', adding a product to the catalogue, or the /new-product command.",
+    "provenance_signals": "Hand-written CircleTel/Claude Code native. Frontmatter `dependencies: solution-design, brand-design`, version 1.0.0. Deeply repo-aware: exact template paths (.claude/templates/products/*, all four verified present), exact gold-standard paths (all four verified present), the CT-CPS-FLEETCONN-2026-001 reference convention, and cross-skill routing ('run /product-search {device type}' when CPE is unknown). No external author or URL — written in-house for this repo.",
+    "knowledge_type": "mixed — ~55% workflow_procedure (the phase gating, margin pre-check, file placement map, README update steps, validation checklist), ~40% durable_external_knowledge (CircleTel category taxonomy, products/ directory layout, gold-standard file paths, CT-[TYPE] reference format, contact constants WhatsApp 082 487 3900 / sales@circletel.co.za, 25% margin gate, VAT 15%), ~5% generic_reasoning. Genuinely proprietary — none of this is inferable.",
+    "external_deps": "Filesystem only: .claude/templates/products/{CPS,BRD,FSD,ONE_PAGER}_TEMPLATE.md and the products/ tree (all verified present). Optionally calls /product-search (which needs Firecrawl MCP).",
+    "overlap_with": [
+      "circletel-product-development — the same CPS/BRD/FSD chain from a different template set and a different house standard",
+      "product-management/generate-docs — a third CPS/BRD/FSD generator with a third template set",
+      "circletel-launch-collateral — also produces the sales one-pager, from a different template",
+      "solution-design — declared dependency; supplies the wholesale costs and portfolio data the pricing phase needs"
+    ],
+    "risk_notes": [
+      "Central duplication point of the cluster: three CPS/BRD/FSD generators (this, circletel-product-development, product-management/generate-docs) with three separate template sets and no precedence rule",
+      "Uses R1,499-style comma-thousands currency, contradicting the R1 234,56 house standard in circletel-product-development",
+      "Declares `dependencies: solution-design, brand-design` but never loads solution-design's wholesale-costs.md, so Phase 3 wholesale costs are collected by asking the user for data the repo already stores",
+      "Permits `<!-- TODO: Engineering review required -->` markers in the FSD, which conflicts with the repo-wide anti-slop rule 'NEVER write placeholder code, stub functions, or TODO items'",
+      "Duplicates the One-Pager deliverable with circletel-launch-collateral under a different confidentiality regime (that skill enforces a firewall check; this one does not)"
+    ]
+  },
+  {
+    "slug": "product-management",
+    "purpose": "Router skill for CircleTel product management that dispatches to supplier search/browse, market-fit analysis, doc generation and lifecycle tracking, and holds the wholesale-provider and competitor reference data.",
+    "does": [
+      "Presents a /product menu and routes to five sub-skills: /product-search (live Firecrawl), /product-browse (Supabase DB), /product-analyze (market fit), /product-docs (CPS/BRD/FSD), /product-lifecycle (IDEA->DRAFT->ACTIVE->INACTIVE->ARCHIVED)",
+      "Draws the discover -> analyse -> document -> track workflow and names the DB tables (supplier_products, product_enrichment) and services (lib/suppliers/) behind it",
+      "Carries seven reference files of real supplier and market data: MTN wholesale, Echo SP, DFA, Arlan, wholesale overview, SA ISP competitor benchmarks, doc-template patterns",
+      "Carries four document templates (commercial-spec 345, functional-spec 511, business-rules 388, pricing-matrix 142 lines)"
+    ],
+    "output_type": "Routing/menu output; sub-skills produce comparison tables, go/no-go analyses, spec documents and lifecycle dashboards",
+    "trigger_summary": "Fires on product-management workflow questions, browsing supplier catalogues (Scoop/MiRO/Nology/Rectron), wholesale providers (MTN/Echo SP/DFA/Arlan), market-fit analysis, product doc generation, lifecycle tracking, or the /product command.",
+    "provenance_signals": "Hand-written CircleTel/Claude Code native, maintained over time: footer `Version: 1.1.0 | Last Updated: 2026-04-03 | Maintained By: CircleTel Product Strategy`. References real internal source documents (`products/wholesale/mtn/MTN_Wholesale_Direct_Services_Spec_v1_0.md`, `Arlan_Commission_Analysis_v1.0.md`) and a real contract date ('Agreement Date 29 September 2025', 'Commission Share 30% of MTN commissions') — data that cannot be inferred. Sub-skills: browse-suppliers, search-suppliers, generate-docs, market-fit, product-lifecycle (all present); search-suppliers is the newest and is the only one with a proper trigger-rich description.",
+    "knowledge_type": "mixed — ~55% durable_external_knowledge (MTN Tarana MRC schedules and Teraco NNI interconnect detail, Echo SP BNG tiering R25.40/R22.80/R20.20 and IP transit R7/Mbps, DFA and Arlan commission economics, SA ISP competitor price tables for Telkom/Vox/Rain/Afrihost/Webafrica/Cool Ideas, supplier registry and extraction schemas), ~40% workflow_procedure (routing menu, sub-skill command surface, Firecrawl tool-cost selection ladder, filter syntax, lifecycle transitions), ~5% generic_reasoning (markup and price-positioning logic in market-fit). The reference layer is the most valuable proprietary asset in the entire cluster.",
+    "external_deps": "Firecrawl MCP (search-suppliers: firecrawl_search / scrape / extract / map / interact, with per-call credit costs); Supabase (supplier_products, product_enrichment tables) via /api/admin/suppliers/products/; lib/suppliers/* sync services (present); Google Gemini for AI enrichment (lib/suppliers/ai-enrichment.ts).",
+    "overlap_with": [
+      "new-product — generate-docs and new-product both produce CPS/BRD/FSD from different templates",
+      "solution-design — wholesale-costs.md duplicates the MTN/Echo SP/DFA cost data held in these references",
+      "ict-solution-design — same distributor-sourcing job without live lookup, and missing Nology",
+      "promotional-campaigns — competitor-benchmarks.md and competitor-playbook.md cover the same competitors with different numbers",
+      "idea-validator / consulting-toolkit — market-fit repeats generic go/no-go and unit-economics reasoning"
+    ],
+    "risk_notes": [
+      "DUPLICATE: originals/project-plugin/ is a partial copy of this skill. All 9 shared files are byte-identical (SKILL.md md5 610cacedb69dd269d5cf2142a8a6a145 matches), but the plugin copy is MISSING references/ (7 files) and templates/ (4 files) entirely — so its generate-docs (which loads templates/commercial-spec.md) and market-fit (which loads references/competitor-benchmarks.md) point at files that do not exist in that copy. Loading the plugin variant silently degrades both sub-skills",
+      "Parent SKILL.md advertises a `/product-wholesale` sub-skill in two tables, but no wholesale sub-skill directory exists — only references/wholesale-providers.md. Broken menu entry",
+      "Version conflict inside one file: frontmatter `version: 1.0.0` vs footer `Version: 1.1.0`",
+      "Stale data: competitor-benchmarks.md 'Last updated: 2026-03-08' and MTN profiles 'effective 1 July 2025' against today 2026-08-07 — SA ISP pricing moves quarterly",
+      "Echo SP tiering conflicts with promotional-campaigns/references/pricing-guardrails.md, which cites a 'Tier 4 volume rate (>1k users)' at R20.20 while this reference stops at Tier 3 (751-1,000) for the same R20.20",
+      "SkyFibre pricing conflicts with solution-design: R1,299/R1,499/R1,899 here vs 'R1,899-4,899/pm' there",
+      "Sub-skill descriptions (browse-suppliers, market-fit, generate-docs, product-lifecycle) are one-liners without trigger phrases, so they rely entirely on the parent router firing first"
+    ]
+  },
+  {
+    "slug": "product-page-builder",
+    "purpose": "Builds a live CircleTel product page end to end — content gathering, hero image generation, CMS seeding and verification.",
+    "does": [
+      "Collects a fixed product-info set (name, slug, category, tagline, target customer, starting price, tiers, features, specs) before starting",
+      "Defines the pricing-tier object shape used by the page (name, speed, price, originalPrice, badge, featured, features[], ctaLabel, ctaUrl) and the allowed react-icons/pi feature icons",
+      "Generates a hero image via Gemini using a template script, then seeds the CMS document with a generated seed-[product].ts script",
+      "Specifies the 9-section page anatomy (hero, pricing bar, features, how-it-works, specs, tiers, why-CircleTel, CTA, related) and exact CTA button classNames including #F5831F"
+    ],
+    "output_type": "A live product page: CMS document + hero image asset + seed script (templates provided as .ts.template and .py.template)",
+    "trigger_summary": "Fires on /product-page, creating a new product page, adding pricing tiers to an existing page, generating hero images for products, or troubleshooting product-page display issues.",
+    "provenance_signals": "Hand-written CircleTel/Claude Code native, version 1.0.0, `dependencies: gemini-imagegen, brand-design`. Strongly repo-anchored — names app/products/[slug]/page.tsx, components/products/ProductHowItWorks.tsx and WhyCircleTel.tsx (all real, per CLAUDE.md), and links its own provenance: '.claude/skills/compound-learnings/learnings/2026-03-12_skyfibre-smb-product-page.md' — i.e. it was distilled from a real March 2026 build session.",
+    "knowledge_type": "mixed — ~55% workflow_procedure (gather -> generate -> seed -> verify, seed-script scaffolding, verification steps), ~35% durable_external_knowledge (page section anatomy, tier object schema, icon allow-list, CTA class recipes, brand hex, file map), ~10% generic_reasoning (conversion-optimised layout advice). Proprietary to this codebase — but a large part of it describes a stack that no longer exists.",
+    "external_deps": "GEMINI_API_KEY from .env.local; Sanity CMS (@sanity client, GROQ queries); npx tsx for the seed script; templates/seed-product.ts.template and generate-hero-image.py.template (both present).",
+    "overlap_with": [
+      "nb-product-hero — the hero-image half, in far more depth and with 8 prompt templates",
+      "brand-design — declared dependency; duplicates the brand-context injection block",
+      "circletel-launch-collateral — Asset 4 of that skill is website/product-page copy for the same page",
+      "new-product — both are 'launch a product' entry points, one producing docs and one producing the page"
+    ],
+    "risk_notes": [
+      "BROKEN: the entire Sanity CMS path is dead. `lib/sanity/` and `components/sanity/` do not exist, package.json has zero sanity references, and CLAUDE.md records 'Sanity was fully removed'. Every file in the Files Reference table below app/products/[slug]/page.tsx is a dangling path, and the seed-script step cannot run",
+      "BROKEN DEPENDENCY: `gemini-imagegen` is declared in frontmatter and linked at '.claude/skills/gemini-imagegen/' but that skill does not exist and is absent from the 74-skill active list",
+      "Brand hex written as #F5831F here and in brand-design, but #F5841E in the circletel-* user skills — the CTA classNames bake in the project-side value",
+      "Also references '.claude/skills/brand-design/SKILL.md' by path rather than invoking the skill, so it will drift if brand-design moves",
+      "Highest-priority rewrite candidate in the cluster: the workflow shape is sound but the target CMS is gone"
+    ]
+  },
+  {
+    "slug": "promotional-campaigns",
+    "purpose": "Designs margin-safe CircleTel promotions and counter-campaigns against named South African competitors.",
+    "does": [
+      "Runs a five-step campaign build: objective -> target segment -> offer design (ranked value-add > extended trial > speed boost > bundle > price cut) -> margin validation -> asset generation",
+      "Enforces a hard >=25% gross-margin rule with a stated formula and an approval ladder (<25% reject, 25-30% MD approval, >30% proceed)",
+      "Holds a COS reference table (Echo SP BNG R20.20, IP transit R28.00, DFA backhaul R86.27/user, support R30, AgilityGIS R10.96 = R175.43 floor) and per-product COS/min-price rows",
+      "Supplies a 445-line competitor playbook (WiruLink, Rain, Afrihost, MTN/Vodacom/Telkom, Vox/Cool Ideas/RSAWEB) with SA market context and per-competitor response strategies, plus a 602-line campaign template library"
+    ],
+    "output_type": "Campaign brief with concept, offer, validated margin maths, landing-page brief and sales talking points",
+    "trigger_summary": "Fires on 'promo', 'promotional campaign', 'competitor offer', 'react to [X]', 'counter campaign', 'special offer', 'seasonal promotion', 'Black Friday', 'back to school', 'price match', or named competitors (WiruLink, Rain, Afrihost, MTN, Vodacom).",
+    "provenance_signals": "Hand-written CircleTel native, version 1.0.0, `dependencies: [brand-design, copywriting, competitor-alternatives]`. Contains genuinely non-inferable market intelligence: 'SA FTTH/FTTB subscribers 2.47 million', 'Vodacom-Maziv Deal: Approved August 2025, effective December 2025', FNO homes-passed and connectivity rates per operator, WiruLink 'Est. 2010 ... 12 million people, 4 million homes' — sourced from real competitive research, not model knowledge.",
+    "knowledge_type": "mixed — ~60% durable_external_knowledge (COS component costs by vendor, per-product COS floors and margin bands, FNO/competitor pricing and coverage data, the Vodacom-Maziv regulatory event, segment->product->messaging map), ~25% generic_reasoning (discount-ladder logic, counter-positioning theory, campaign objective taxonomy), ~15% workflow_procedure (the five steps, margin gate, approval ladder, asset checklist). One of the two most data-dense skills in the cluster.",
+    "external_deps": "None executable. Declares three skills as dependencies — brand-design (exists), copywriting (MISSING), competitor-alternatives (MISSING).",
+    "overlap_with": [
+      "product-management — competitor-benchmarks.md covers the same competitors and prices with different figures",
+      "solution-design — the same >=25% margin rule, COS model and product/price table, restated",
+      "circletel-launch-collateral — both generate sales enablement, talking points and objection handling",
+      "nb-social-ad / nb-campaign-visual — produce the visual assets this skill's Step 5 calls for",
+      "brand-design — declared dependency for image prompts"
+    ],
+    "risk_notes": [
+      "BROKEN DEPENDENCIES: `copywriting` and `competitor-alternatives` are declared in frontmatter and referenced in Step 5, but neither skill exists (verified absent from .claude/skills/ and from the 74-skill active list)",
+      "MISLEADING MATHS: the worked example computes 88.9% gross margin for SkyFibre SMB using the R175.43 COS floor, but the same reference file annotates that floor '**Excludes tower/access costs**'. The access MRC (the largest cost) is silently omitted, so the example's margin is far too high and could green-light an offer that actually breaches the 25% rule",
+      "Echo SP tier conflict: cites 'R20.20 Tier 4 volume rate (>1k users)' while product-management/references/echo-sp.md tops out at Tier 3 (751-1,000) for R20.20 — one of the two is stale",
+      "SkyFibre price conflict: uses R1,899/mo for SkyFibre SMB 50/25 while product-management competitor-benchmarks lists SkyFibre Business 50 at R1,299",
+      "Market data is dated 2025 with a 2026-era regulatory note; no refresh mechanism or 'verify before use' instruction on the competitor tables"
+    ]
+  },
+  {
+    "slug": "roadmap-advisor",
+    "purpose": "Audits the CircleTel codebase against an ISP capability benchmark and returns a prioritised, effort-estimated feature roadmap.",
+    "does": [
+      "Runs a 7-phase analysis: codebase inventory (migrations, API routes, services, components, integrations) -> schema analysis -> benchmark comparison -> gap prioritisation -> effort estimation -> dependency mapping -> roadmap generation",
+      "Scores gaps with a weighted formula (Business 40% + Customer 30% + Enablement 20% - Complexity 10%) and sizes them XS-XL with a 1.2x CircleTel calibration factor",
+      "Compares against benchmarks/isp-industry-standard.md — 82 capabilities across billing, customer, network, operations, analytics, partner and integration, each pre-annotated with CircleTel's current status",
+      "Offers four modes (/roadmap full, quick, [domain], compare [competitor], status) with matching output templates and a mandatory quick-wins + not-recommended section"
+    ],
+    "output_type": "Markdown roadmap report: maturity scorecard, priority tiers, quick wins, dependency map, not-recommended list",
+    "trigger_summary": "Fires on 'roadmap', 'what should we build next', gap/capability assessment, sprint or quarterly planning, domain deep-dives (billing/customer/network/operations/analytics/partner/integration), and build-vs-buy questions.",
+    "provenance_signals": "Hand-written in-house: `author: CircleTel Engineering`, `dependencies: compound-learnings, stats-tracker, error-registry`, footer 'Version 1.0.0 | Last Updated: 2026-02-12 | Based On: ISP Industry Best Practices + CircleTel Operational Knowledge'. Largest reference structure in the project set (17 files across heuristics/, rubrics/, templates/, benchmarks/, corrections/, extracted-rules/) and wired into the repo's RSI loop.",
+    "knowledge_type": "mixed — ~45% generic_reasoning (weighted prioritisation, t-shirt sizing, dependency DAG validation, quick-wins framing — standard product/engineering planning), ~30% durable_external_knowledge (the 82-capability ISP benchmark with CircleTel's per-capability status, the 1.2x effort calibration from historical data, the domain-detection and load-bearing-code heuristics, SA regulatory constraints RICA/POPIA), ~25% workflow_procedure (the 7 phases, mode commands, output templates, verify-before-recommending rule)",
+    "external_deps": "Filesystem read of supabase/migrations/, app/api/, lib/, components/; docs/architecture/SYSTEM_OVERVIEW.md; agent-os/specs/ for status mode. Declares compound-learnings, stats-tracker and error-registry skills (all three exist).",
+    "overlap_with": [
+      "strategic-insights — the other 'what should we do next' prioritiser, financial rather than codebase-driven",
+      "consulting-toolkit — same impact/effort structuring and executive-summary discipline",
+      "solution-design — product-side roadmap and PMF gating for the same company",
+      "refactor / quality-gates / security-review — its own 'Related Skills' list flags the code-quality boundary"
+    ],
+    "risk_notes": [
+      "The RSI loop is empty: corrections/ and extracted-rules/ contain only README.md stubs, yet the quality checklist requires 'RSI corrections applied (if any exist in extracted-rules/)' — the mechanism has never fired",
+      "benchmarks/isp-industry-standard.md hardcodes CircleTel's per-capability status (Complete/Basic/Missing) as static data last touched 2026-02-12 — six months stale against today, so the gap analysis starts from potentially wrong baselines",
+      "Mitigated but not solved: 'Verify Before Recommending' tells the model to re-check the codebase, which partly contradicts the value of the pre-annotated benchmark table",
+      "The 1.2x calibration factor is asserted 'based on historical CircleTel data' with no source or sample",
+      "'/roadmap compare [competitor]' overlaps promotional-campaigns' competitor playbook and product-management's benchmarks without referencing either"
+    ]
+  },
+  {
+    "slug": "solution-design",
+    "purpose": "The CircleTel product-strategy knowledge base — portfolio, technologies, wholesale costs and unit economics — used to design and price solutions.",
+    "does": [
+      "Holds the full product portfolio with technology, status, price range and target margin (SkyFibre SMB 41-52%, BizFibreConnect 31-41%, ParkConnect DUNE 54-75%, AirLink 58-81%, HomeFibreConnect SUNSET 4-26%, etc.)",
+      "Provides a technology selection matrix mapping customer scenarios to access technology and product line with rationale",
+      "Documents wholesale partner economics: Echo SP BNG tiering R25.40/R22.80/R20.20, IP transit R7/Mbps, CGNAT NRC R2,000 + MRC R1,250, DFA/MTN/Interstellio/AgilityGIS/United Wireless/Peraso roles",
+      "Runs a 10-point solution-design checklist and a 4-stage PMF framework with target signals (churn <2%, NPS >40/50/60, activation <24h LTE / <3d FWA / <5d fibre)"
+    ],
+    "output_type": "In-chat product/solution analysis: technology recommendation, margin model, PMF verdict, POV score",
+    "trigger_summary": "Fires on 'solution design', 'product design', 'new product', 'unit economics', 'margin analysis', 'technology selection', 'product-market fit', 'PMF', 'which technology', 'pricing model', 'contribution margin', 'LTV', 'CAC', 'wholesale costs', or technology names (Tarana, DFA, DUNE, FWA, fibre).",
+    "provenance_signals": "Hand-written CircleTel native, distilled from a master document — footer 'Version 1.0.0 | Last Updated: 2026-03-01 | Source: products/solution-design.md'. Carries corporate facts no model could produce: 'CircleTel SA (Pty) Ltd (Reg: 2008/026404/07)', brand stylisation 'circleTEL', strategic pillars 'v4.0', and hard-won operating lessons in the tail ('296-day DSO paralysed execution', '42% gross margin proves pricing works'). `dependencies: [promotional-campaigns, pricing-strategy]`.",
+    "knowledge_type": "durable_external_knowledge — ~75% (portfolio table, per-product margins and price bands, wholesale partner roles and exact rates, technology specs, corporate identity/vision/pillars, PMF target signals calibrated to this business, the DSO/working-capital lessons), ~15% generic_reasoning (PMF stage-gate theory, TAM/SAM/SOM, LTV:CAC), ~10% workflow_procedure (the 10-point checklist and POV scoring). The single densest proprietary-knowledge file in the cluster (1,694 lines across SKILL.md + 3 references).",
+    "external_deps": "None executable. Names products/solution-design.md as its source document and declares a `pricing-strategy` skill dependency.",
+    "overlap_with": [
+      "product-management — references/wholesale-costs.md here and references/{mtn,echo-sp,dfa,arlan}.md there describe the same wholesale relationships",
+      "promotional-campaigns — declared dependency; both restate the COS model and the >=25% margin rule",
+      "circletel-product-development — same gating economics inside a formal document chain",
+      "ict-solution-design — the same design job with generic phases instead of real portfolio data",
+      "new-product — declares this skill as a dependency for pricing inputs"
+    ],
+    "risk_notes": [
+      "BROKEN DEPENDENCY: `pricing-strategy` and `competitor-alternatives` are named in frontmatter/Related Skills but neither skill exists",
+      "Legal entity contradicts circletel-product-development: 'CircleTel SA (Pty) Ltd (Reg: 2008/026404/07)' vs 'CircleTel (Pty) Ltd - a member of the New Generation Group'",
+      "SkyFibre SMB price band 'R1,899-4,899/pm' contradicts product-management's SkyFibre Business tiers at R1,299/R1,499/R1,899",
+      "Wholesale cost data is duplicated wholesale into product-management's four provider references — two independently maintained copies of the same contract rates",
+      "Last updated 2026-03-01; product statuses ('ParkConnect DUNE Q2 2026', 'WorkConnect Development') are five months stale and Q2 2026 has passed",
+      "Currency uses comma thousands (R1,899) against the R1 234,56 house standard"
+    ]
+  },
+  {
+    "slug": "brand-design",
+    "purpose": "The CircleTel brand specification for generated assets — logo variants, colour palette, typography and a mandatory brand-context block for image prompts.",
+    "does": [
+      "Documents 8 logo variants in .design/logos/ with a decision rule per context (dark bg -> LOGO-05, social avatar -> LOGO-06, print -> LOGO-08, email -> LOGO-07)",
+      "Defines the palette (Orange #F5831F, Dark Neutral #1F2937, Light Neutral #E6E9EF, plus extended states) with Tailwind token names, and type scale/weights",
+      "Mandates a copy-paste brand_context YAML block on every CircleTel image generation, plus per-asset aspect ratios and output paths",
+      "Points at .design/scripts/add-logo.py for compositing a logo onto a generated image with position/size flags"
+    ],
+    "output_type": "Brand constraints injected into image prompts; logo/colour/typography guidance and a quick-reference card",
+    "trigger_summary": "Fires when generating any CircleTel image (social, product, marketing, mockups), asking about brand colours/fonts/style, needing logo placement guidance, or using an image-generation skill in this project.",
+    "provenance_signals": "Hand-written CircleTel native, version 1.0.0, `dependencies: gemini-imagegen`. Grounded in real repo assets — .design/logos/ and .design/scripts/add-logo.py both verified present. Describes the actual mark ('dual swirl circles', 'WiFi signal icon integrated with the letter c', 'circle in lowercase orange, TEL in uppercase bold gray'), which is first-hand brand knowledge.",
+    "knowledge_type": "durable_external_knowledge — ~85% (logo variant inventory and selection rules, exact hex values and Tailwind tokens, clear-space and minimum-size rules, type scale, aspect-ratio and output-path conventions — none of it inferable), ~15% workflow_procedure (the mandatory context-injection step and the add-logo.py compositing flow). The purest reference skill in the cluster.",
+    "external_deps": ".design/logos/*.png (present), .design/scripts/add-logo.py (present, needs python3 + PIL), and the missing gemini-imagegen skill it declares as a dependency.",
+    "overlap_with": [
+      "nb-product-hero / nb-social-ad / nb-package-bento / nb-campaign-visual — each restates a Brand Context table instead of loading this skill",
+      "openai-imagegen / openrouter-imagegen — each restates the same brand table again",
+      "product-page-builder — declares this as a dependency but hardcodes #F5831F in CTA classNames anyway",
+      "circletel-launch-collateral — the competing brand spec (#F5841E, Poppins/Montserrat)"
+    ],
+    "risk_notes": [
+      "BROKEN DEPENDENCY: `gemini-imagegen` declared in frontmatter and referenced in three places ('Integration with gemini-imagegen'), but that skill does not exist and is not in the active 74",
+      "COLOUR CONFLICT (unresolved across the cluster): secondary/dark is #1F2937 here, but every nb-* and imagegen skill uses navy #1B2A4A, and circletel-product-development uses Deep Navy #13274A — three different secondaries",
+      "PRIMARY ORANGE CONFLICT: #F5831F here vs #F5841E in the two user-level circletel-* skills — one digit apart, so errors will pass visual inspection",
+      "TYPOGRAPHY CONFLICT: 'font-family: Arial, Helvetica, sans-serif' here vs 'Poppins Bold headlines, Montserrat body' in circletel-product-development/launch-collateral",
+      "Its brand-context block is duplicated verbatim into six sibling skills — a change here does not propagate"
+    ]
+  },
+  {
+    "slug": "nb-product-hero",
+    "purpose": "Produces Nano Banana Pro (Gemini) prompts for CircleTel product hero and section-background images, then generates them.",
+    "does": [
+      "Gathers product, hero message, scene mood, aspect ratio and model tier (3 Pro for finals, 3.1 Flash for iteration) before writing a prompt",
+      "Offers 8 templates (A-H) — lifestyle hero, clean studio/tech abstract, through to a JSON-structured luxury product shot and a technical annotation infographic",
+      "Applies named prompt techniques (role opener, BRAND INPUTS block, negative constraints, composition percentages, explicit layering order, adaptive logic)",
+      "Emits a python google-genai snippet that reads GEMINI_API_KEY and saves to scripts/generate-hero-image.py, plus a fault->fix iteration table"
+    ],
+    "output_type": "A ready-to-send image prompt plus a generated image file (via a python Gemini script)",
+    "trigger_summary": "Fires when building or refreshing a product page that needs a hero or section background image — landing page heroes, product feature shots, service visualisations.",
+    "provenance_signals": "Hand-written, cites an external prompt-craft source in-file: 'MeiGen.ai Prompt Techniques' as a named technique table reused across all four nb-* skills. Uses claude.ai-style `{argument name=\"...\" default=\"...\"}` templating (a slash-command/prompt-template syntax, not Claude Code skill syntax). Designated by openai-imagegen and openrouter-imagegen as the canonical, provider-agnostic prompt library — 'reuse the prompt templates in .claude/skills/nb-product-hero/SKILL.md (Templates A-H)'.",
+    "knowledge_type": "mixed — ~60% generic_reasoning (photographic direction, lens/aperture/lighting language, negative constraints, composition advice — standard image-prompt craft), ~25% durable_external_knowledge (CircleTel brand hex/tone, the product list Residential Fibre / Office-in-a-Box / WorkConnect+Mobile / Fleet Connect, SA-specific scene anchors), ~15% workflow_procedure (ask -> select template -> generate -> iterate, model-tier selection). The 8 templates are its real asset but they are prompt boilerplate, not proprietary fact.",
+    "external_deps": "GEMINI_API_KEY in .env.local; python google-genai client; writes to scripts/generate-hero-image.py (which does not currently exist — the skill creates it).",
+    "overlap_with": [
+      "nb-social-ad / nb-package-bento / nb-campaign-visual — three siblings with the same structure, same technique table and overlapping templates",
+      "openai-imagegen / openrouter-imagegen — same job on different providers, and both explicitly borrow these templates",
+      "brand-design — restates the brand context this skill duplicates",
+      "product-page-builder — its Step 2 (hero image) is this skill's whole job",
+      "imagegen-frontend-web — the user-level web-design image-direction skill covering hero/landing comps"
+    ],
+    "risk_notes": [
+      "Brand values diverge from brand-design: navy #1B2A4A here vs Dark Neutral #1F2937 there — the nb-* family has silently forked the palette",
+      "The MeiGen.ai technique table is copied into all four nb-* skills verbatim — four copies to maintain",
+      "Product list (Residential Fibre, Office-in-a-Box, WorkConnect+Mobile, Fleet Connect) does not match the canonical portfolio in solution-design (SkyFibre, BizFibreConnect, AirLink, ParkConnect, ClinicConnect...) — two different product vocabularies",
+      "`{argument name=... default=...}` templating is slash-command syntax; inside a skill body it is inert text the model must interpret, not substitute",
+      "Instructs writing a generator script into scripts/ on every run rather than shipping one, unlike the openai/openrouter skills which have committed helpers"
+    ]
+  },
+  {
+    "slug": "nb-social-ad",
+    "purpose": "Produces Nano Banana Pro (Gemini) prompts for CircleTel paid and organic social creative across Facebook, Instagram, LinkedIn and WhatsApp.",
+    "does": [
+      "Maps platform to aspect ratio, resolution and model (FB/IG feed 1:1 or 4:5 @2K Pro; IG Story 9:16; LinkedIn 1.91:1 via 16:9; WhatsApp 1:1 @1K Flash)",
+      "Asks for campaign goal, offer/hook, platform, subject and whether text overlay is needed (steering to the Pro model when in-image text matters)",
+      "Supplies lifestyle-promo and collage/PHASE-structured templates with explicit layering order and composition percentages",
+      "Emits a python google-genai generation snippet (twice, for different template families) and platform-specific iteration guidance"
+    ],
+    "output_type": "Platform-sized social ad image prompt plus the generated image file",
+    "trigger_summary": "Fires when creating paid social creative, organic post visuals, or WhatsApp campaign assets for CircleTel.",
+    "provenance_signals": "Hand-written, same authoring batch as the other three nb-* skills — identical section skeleton, the same 'MeiGen.ai Prompt Techniques' table, the same `{argument ...}` templating and the same Brand Intelligence adaptive-rule idiom ('If TrUSC campaign -> community warmth; if B2B -> professional authority'). No license or metadata block on any nb-* skill.",
+    "knowledge_type": "mixed — ~60% generic_reasoning (social creative direction, platform aspect-ratio conventions, candid-vs-stock photography advice), ~25% durable_external_knowledge (CircleTel palette and tone, SA demographic/scene direction, the TrUSC campaign reference, WhatsApp as a first-class channel — which is genuinely CircleTel-specific), ~15% workflow_procedure (gather -> platform map -> template -> generate)",
+    "external_deps": "GEMINI_API_KEY in .env.local; python google-genai; writes scripts/generate-social-ad.py.",
+    "overlap_with": [
+      "nb-campaign-visual — campaign social graphics are in both skills' scope with no routing rule",
+      "nb-product-hero — shared technique table, shared brand block, overlapping lifestyle templates",
+      "promotional-campaigns — Step 5 of that skill calls for exactly these assets",
+      "openai-imagegen / openrouter-imagegen — same asset, other providers",
+      "brand-design — the source of truth this skill re-states"
+    ],
+    "risk_notes": [
+      "Scope boundary with nb-campaign-visual is undefined — 'social graphic' appears as an asset type in both",
+      "Duplicates the MeiGen.ai table and the CircleTel brand block, and embeds the python generation snippet twice within its own file",
+      "Uses navy #1B2A4A, diverging from brand-design's #1F2937",
+      "Contains no reference to CircleTel's actual paid-social history (the March 2026 Facebook campaign learnings recorded in memory-os/long-term/mistakes.md: R1,045 spent, 30 leads, 0 conversions) — creative guidance that ignores the one real dataset available",
+      "Offer examples ('from R399/mo') do not correspond to any product price in solution-design or the competitor benchmarks"
+    ]
+  },
+  {
+    "slug": "nb-package-bento",
+    "purpose": "Produces Nano Banana Pro prompts for CircleTel package-comparison infographics and Bento-grid pricing visuals.",
+    "does": [
+      "Takes package names, speeds and prices plus feature highlights and a layout preference (3-column, 2x3 Bento, or single-package spotlight)",
+      "Generates a premium frosted-glass Bento prompt with per-tile content rules, card anatomy (speed ring, name, orange price numeral, ticked features) and a highlighted 'most popular' middle card",
+      "Adds realism guards — 'only include hardware that CircleTel actually ships - don't invent devices' — and legibility rules (flat colour under text, no tiny unreadable text)",
+      "Emits a python google-genai snippet writing scripts/generate-package-infographic.py"
+    ],
+    "output_type": "Infographic/pricing-grid image prompt plus the generated image",
+    "trigger_summary": "Fires when building pricing sections, product comparison pages, package feature cards, service tier comparisons, or a promotional 'what you get' visual.",
+    "provenance_signals": "Hand-written, same nb-* batch. Credits its external source explicitly: 'Adapted from the \"Premium liquid glass Bento grid\" pattern (No. 2 in the Awesome NB Pro Prompts repo)' — a public prompt-collection repo, so the core template is vendored community material with CircleTel colours substituted. Shortest of the four nb-* skills (287 lines).",
+    "knowledge_type": "mixed — ~65% generic_reasoning (bento-grid layout craft, glassmorphism direction, text-legibility rules in generated images — public prompt-pattern material by its own admission), ~20% durable_external_knowledge (brand palette, the don't-invent-hardware rule, residential-vs-B2B content adaptation), ~15% workflow_procedure (gather -> layout choice -> template -> generate)",
+    "external_deps": "GEMINI_API_KEY in .env.local; python google-genai; writes scripts/generate-package-infographic.py.",
+    "overlap_with": [
+      "nb-product-hero — shared technique table, brand block and generation snippet",
+      "product-page-builder — the pricing-tier section of a product page is this visual's destination",
+      "circletel-launch-collateral — Asset 3 (customer pricing sheet) is the document form of the same content",
+      "openai-imagegen / openrouter-imagegen — alternate providers for the same asset",
+      "nb-package-bento's default packages overlap product-management's pricing tables"
+    ],
+    "risk_notes": [
+      "Default example packages (Starter 25Mbps R399, Pro 50Mbps R599, Business 100Mbps R999) do not match any real CircleTel tier in solution-design or competitor-benchmarks — a defaults trap that can ship invented prices into a pricing graphic",
+      "Generating pricing as a raster image bypasses the confidentiality and price-accuracy checks that circletel-launch-collateral enforces on the equivalent document",
+      "Same #1B2A4A navy divergence from brand-design",
+      "Vendored from a public prompt repo, so the visual style is not distinctive to CircleTel and may collide with the anti-ai-slop-design skill's guidance against glassmorphism defaults",
+      "Third copy of the MeiGen.ai technique table"
+    ]
+  },
+  {
+    "slug": "nb-campaign-visual",
+    "purpose": "Produces Nano Banana Pro prompts for CircleTel campaign-level visuals — launch banners, campaign heroes, event graphics and B2B outreach assets.",
+    "does": [
+      "Keys off a named active campaign (TrUSC, Coverage Push, Office-in-a-Box Launch, WorkConnect+Mobile) with its brief and key visual theme",
+      "Asks for asset type (hero banner / email header / print flyer / event backdrop / social graphic), message, audience and tone",
+      "Supplies campaign-specific templates — e.g. a TrUSC township golden-hour aerial with an organic orange mesh-network overlay, and a coverage-map hero for /check-coverage",
+      "Applies adaptive brand logic ('If TrUSC -> community warmth; If B2B -> authority') and negative constraints ('NOT Western stock photo / NOT cold corporate')"
+    ],
+    "output_type": "Campaign image prompt plus the generated image (via scripts/generate-campaign-visual.py)",
+    "trigger_summary": "Fires for any named CircleTel campaign needing visuals — launch banners, campaign hero images, event graphics, B2B outreach assets, seasonal promos.",
+    "provenance_signals": "Hand-written, same nb-* batch (largest at 492 lines). Its 'Current Active Campaigns' table is real internal marketing state — TrUSC, Coverage Push, Office-in-a-Box Launch, WorkConnect+Mobile — not model-inferable. Points at a batch pattern in the (missing) gemini-imagegen skill: 'Use Batch API pattern from gemini-imagegen skill for 5+ assets simultaneously'.",
+    "knowledge_type": "mixed — ~50% generic_reasoning (campaign art direction, documentary-meets-dataviz styling, negative constraints), ~35% durable_external_knowledge (the named live campaigns and their themes, SA township/geography scene direction, the /check-coverage page as a destination, brand palette and tone), ~15% workflow_procedure (campaign -> asset type -> template -> generate -> batch)",
+    "external_deps": "GEMINI_API_KEY in .env.local; python google-genai; scripts/generate-campaign-visual.py; references the MISSING gemini-imagegen skill for its batch pattern.",
+    "overlap_with": [
+      "nb-social-ad — 'social graphic' is an asset type in both, with no boundary rule",
+      "nb-product-hero — banner/hero imagery overlaps directly",
+      "promotional-campaigns — that skill defines the campaigns; this one illustrates them, but the two campaign lists differ",
+      "brand-design — duplicated brand context",
+      "openai-imagegen / openrouter-imagegen — alternate providers"
+    ],
+    "risk_notes": [
+      "BROKEN REFERENCE: 'Use Batch API pattern from gemini-imagegen skill' — that skill does not exist",
+      "CAMPAIGN LIST CONFLICT: the four campaigns here (TrUSC, Coverage Push, Office-in-a-Box, WorkConnect+Mobile) do not appear in promotional-campaigns, whose campaign frame is seasonal/competitor-response; neither skill references the other's list, and 'Current Active Campaigns' has no date stamp",
+      "Fourth verbatim copy of the MeiGen.ai technique table; fourth copy of the brand block with the #1B2A4A navy",
+      "Depicting real South African township communities in generated imagery carries representation risk with no guidance on review or consent",
+      "No overlap rule against nb-social-ad, so campaign social assets can be produced by either skill with different templates"
+    ]
+  },
+  {
+    "slug": "openai-imagegen",
+    "purpose": "Generates and edits images through OpenAI's gpt-image models as the non-Gemini path for CircleTel visual assets.",
+    "does": [
+      "Documents the model ladder (gpt-image-1 default, -1-mini for drafts, -1.5, -2 for premium finals) and the parameter surface (size, quality, n, background, output_format)",
+      "Gives a provider-choice rule: Gemini for photoreal scenes and reliable in-image text; gpt-image for instruction-following, transparent-background assets and clean edits",
+      "Provides runnable commands for generate, transparent logo/sticker, and single- or multi-image edit via scripts/generate-image-openai.ts with the .env.local sourcing pattern",
+      "Enforces output conventions (designs/ only, timestamped default filenames, -1/-2 suffixes for n>1) and a fault->fix iteration table"
+    ],
+    "output_type": "Image files written to designs/ (png/jpeg/webp)",
+    "trigger_summary": "Fires when the user asks for OpenAI image generation specifically, or wants to compare providers for a hero/product/social asset.",
+    "provenance_signals": "Hand-written CircleTel/Claude Code native and evidently empirically verified — 'Verified working: gpt-image-1, gpt-image-1-mini, gpt-image-1.5, gpt-image-2' and 'no extra npm deps - uses global fetch'. Committed helper scripts/generate-image-openai.ts exists in the repo (verified). Follows the repo's own conventions by citing .claude/rules/file-organization.md and the `set -a && source .env.local` pattern from .claude/rules/coding-standards.md.",
+    "knowledge_type": "mixed — ~45% durable_external_knowledge (OpenAI model IDs and their trade-offs, the exact parameter/value matrix, the transparent-background format constraint, CircleTel brand hexes), ~45% workflow_procedure (the env-sourcing invocation, output-path conventions, edit flow, provider-choice rule), ~10% generic_reasoning (prompt iteration advice). Mostly a thin, accurate CLI wrapper doc — its value is currency, not depth.",
+    "external_deps": "OPENAI_API_KEY in .env.local (stated as already configured); scripts/generate-image-openai.ts (present); npx tsx; network access to the OpenAI API.",
+    "overlap_with": [
+      "openrouter-imagegen — near-sibling; both wrap an image API with a CircleTel brand block and a cheat-sheet, and each defers to the other",
+      "nb-product-hero — explicitly borrows its Templates A-H rather than defining prompts",
+      "brand-design — a third restatement of the brand context",
+      "nb-social-ad / nb-package-bento / nb-campaign-visual — the same assets on the Gemini path"
+    ],
+    "risk_notes": [
+      "Model IDs (gpt-image-1.5, gpt-image-2) and their relative quality claims will age quickly; nothing instructs re-verification, unlike openrouter-imagegen which does",
+      "Uses navy #1B2A4A, propagating the nb-* palette fork away from brand-design's #1F2937",
+      "Depends on nb-product-hero for prompt templates, so the four-way brand duplication persists even here",
+      "Six skills now carry a CircleTel brand block; none loads brand-design, which is the nominal source of truth",
+      "Three parallel image providers (Gemini nb-*, OpenAI, OpenRouter) with only a prose cheat-sheet as a routing rule"
+    ]
+  },
+  {
+    "slug": "openrouter-imagegen",
+    "purpose": "Generates images cheaply through OpenRouter's model gateway (Seedream, FLUX, Recraft) as the low-cost alternative to gpt-image.",
+    "does": [
+      "Ranks models by cost-per-image with use cases — seedream-4.5 ~$0.03 default, recraft-v4 ~$0.04 for vector/logo, flux.2-pro ~$0.05 top quality — against gpt-image-2 at ~$0.17-0.19",
+      "Explains the non-obvious API shape: OpenRouter serves images through /chat/completions with a `modalities` param and returns base64 data URLs in choices[0].message.images[].image_url.url",
+      "Provides generate and image-to-image edit commands via scripts/generate-image-openrouter.ts, plus supported aspect ratios",
+      "Publishes a provider cheat-sheet routing cheapest / best-instruction-following / photoreal-with-text / vector to the right of the three image skills"
+    ],
+    "output_type": "Image files written to designs/",
+    "trigger_summary": "Fires when the user wants low-cost image generation, a specific OpenRouter model, or gpt-image-2-class quality at a fraction of the price.",
+    "provenance_signals": "Hand-written and empirically researched — includes two negative findings that only come from live testing: 'No Qwen image model on OpenRouter (checked live) ... Don't promise it here' and 'Gemini image models are cheaper called DIRECTLY via GEMINI_API_KEY (no OpenRouter markup)'. Includes a self-refresh instruction: 'Pricing changes - verify live: curl \"https://openrouter.ai/api/v1/models?output_modalities=image\"'. Helper scripts/generate-image-openrouter.ts verified present.",
+    "knowledge_type": "mixed — ~50% durable_external_knowledge (the chat-completions-with-modalities API shape, model IDs, comparative pricing, the two negative findings, aspect-ratio support matrix), ~40% workflow_procedure (invocation pattern, edit flow, output conventions, provider routing), ~10% generic_reasoning. Genuinely useful because the OpenRouter image path is poorly documented and counter-intuitive.",
+    "external_deps": "OPENROUTER_API_KEY in .env.local — explicitly noted as a PLACEHOLDER not yet set ('paste your key from https://openrouter.ai/keys. Until set, the helper exits with a clear message'); scripts/generate-image-openrouter.ts (present); npx tsx; network access to openrouter.ai.",
+    "overlap_with": [
+      "openai-imagegen — sibling wrapper; the two cross-reference each other and each carries a provider cheat-sheet",
+      "nb-product-hero — borrows its Templates A-H as the prompt source",
+      "brand-design — a further restatement of the brand context",
+      "nb-* family — the Gemini path this skill explicitly tells you to prefer for Gemini models"
+    ],
+    "risk_notes": [
+      "NOT USABLE AS SHIPPED: OPENROUTER_API_KEY is a placeholder — the skill will trigger and then fail at the first generate call",
+      "Pricing figures ($0.03-$0.19) are inherently perishable; the skill does include a live-verify curl, which is the right mitigation but is advisory only",
+      "Same #1B2A4A navy divergence from brand-design",
+      "Three image-generation skills plus four nb-* prompt skills now share one job with only prose routing between them — the highest skill-count-per-job ratio in the cluster",
+      "Its own guidance undercuts part of its scope ('Gemini models are cheaper called DIRECTLY'), so the effective use case narrows to Seedream/FLUX/Recraft only"
+    ]
+  }
+]

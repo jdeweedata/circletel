@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "run_id": "gauntlet-2026-08-07",
+  "phase": "inventory-complete \u2014 awaiting skill selection",
+  "phase_history": [
+    {
+      "phase": "discovery",
+      "status": "complete",
+      "note": "155 SKILL.md found across 7 scopes"
+    },
+    {
+      "phase": "preservation",
+      "status": "complete",
+      "note": "1519 files, 39MB, read-only, sha256 manifest"
+    },
+    {
+      "phase": "inventory",
+      "status": "in_progress",
+      "note": "74 unique active skills resolved; cluster analysis running"
+    },
+    {
+      "phase": "inventory",
+      "status": "complete",
+      "note": "74 unique active skills characterized by 4 independent agents; 15 cross-cutting findings recorded"
+    }
+  ],
+  "models_verified": {
+    "verified_at": "2026-08-07",
+    "method": "fresh subagent self-report per model alias",
+    "available": {
+      "opus": "claude-opus-5",
+      "sonnet": "claude-sonnet-5",
+      "fable": "claude-fable-5",
+      "haiku": "claude-haiku-4-5-20251001"
+    },
+    "unavailable": {
+      "claude-opus-4-8": "NOT AVAILABLE - no model alias resolves to it; no ANTHROPIC_API_KEY present for direct model selection; ANTHROPIC_BASE_URL requires x-api-key we do not hold. Must not be claimed as tested."
+    }
+  },
+  "selected_skills": [],
+  "skills": {},
+  "blockers": [
+    {
+      "id": "BLK-001",
+      "severity": "must-resolve-with-user",
+      "title": "Opus 4.8 condition cannot be run",
+      "detail": "The Gauntlet spec requires condition 'Opus 4.8 + original skill'. Only claude-opus-5, claude-sonnet-5, claude-fable-5, claude-haiku-4-5 are reachable. Substitution requires explicit user approval; silent substitution is forbidden by the spec.",
+      "status": "open"
+    }
+  ]
+}

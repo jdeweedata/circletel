@@ -1,0 +1,3963 @@
+[
+ {
+  "slug": "ai-era-design-process",
+  "scope": "project",
+  "dir": "project/ai-era-design-process",
+  "name": "ai-era-design-process",
+  "description": "Use when making design decisions, choosing between Claude Code and image generation tools like Gemini, advising on design team workflows, evaluating designers, or navigating AI-accelerated product development",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 125,
+  "skill_md_bytes": 5913,
+  "n_files": 1,
+  "total_bytes": 5913,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 5913
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "node"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "async-runner",
+  "scope": "project",
+  "dir": "project/async-runner",
+  "name": "async-runner",
+  "description": "Run background agents and bash commands asynchronously for CircleTel development. Use when running dev servers, parallel tests, long builds, or multi-agent research tasks without blocking the main workflow.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 304,
+  "skill_md_bytes": 6541,
+  "n_files": 1,
+  "total_bytes": 6541,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 6541
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "npm",
+    "npx"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "tasks"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "brand-design",
+  "scope": "project",
+  "dir": "project/brand-design",
+  "name": "brand-design",
+  "description": "CircleTel brand guidelines for AI image generation. Ensures logo usage, colors, and typography are consistent across all generated assets.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "gemini-imagegen"
+  },
+  "skill_md_lines": 404,
+  "skill_md_bytes": 12125,
+  "n_files": 2,
+  "total_bytes": 13718,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 12125
+   },
+   {
+    "p": "references/quick-reference.md",
+    "b": 1593
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "python"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "caveman",
+  "scope": "project",
+  "dir": "project/caveman",
+  "name": "caveman",
+  "description": "> Ultra-compressed communication mode. Cuts token usage ~75% by dropping filler, articles, and pleasantries while keeping full technical accuracy. Use when user says \"caveman mode\", \"talk like caveman\", \"use caveman\", \"less tokens\", \"be brief\", or invokes /caveman.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 50,
+  "skill_md_bytes": 1916,
+  "n_files": 1,
+  "total_bytes": 1916,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 1916
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "claude-md-guardian",
+  "scope": "project",
+  "dir": "project/claude-md-guardian",
+  "name": "claude-md-guardian",
+  "description": "Audit CLAUDE.md compliance and currency. Run /claude-md-guardian to check for rule violations in recent commits and detect stale/missing rules. Reports findings and fixes with user permission.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "claude_md_version": "\"8.1\""
+  },
+  "skill_md_lines": 97,
+  "skill_md_bytes": 2826,
+  "n_files": 5,
+  "total_bytes": 10480,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "checks/compliance.md",
+    "b": 3438
+   },
+   {
+    "p": "checks/currency.md",
+    "b": 3175
+   },
+   {
+    "p": "SKILL.md",
+    "b": 2826
+   },
+   {
+    "p": "templates/report.md",
+    "b": 900
+   },
+   {
+    "p": "accepted-debt.md",
+    "b": 141
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "git"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "claude-md-guardian",
+    "compound-learnings"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/rules/",
+    ".claude/rules/vercel-deployment.md",
+    ".claude/skills/claude-md-guardian/accepted-debt.md",
+    ".claude/skills/claude-md-guardian/checks/compliance.md",
+    ".claude/skills/claude-md-guardian/checks/currency.md",
+    ".claude/skills/compound-learnings/corrections/"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "compound-learnings",
+  "scope": "project",
+  "dir": "project/compound-learnings",
+  "name": "Compound Learnings",
+  "description": "Capture insights and corrections to make future work easier. Implements RSI (Recursive Self-Improvement) through automated correction detection and pattern extraction.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "2.0.0",
+   "author": "CircleTel Engineering",
+   "dependencies": "error-registry"
+  },
+  "skill_md_lines": 329,
+  "skill_md_bytes": 11021,
+  "n_files": 58,
+  "total_bytes": 254150,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 11021
+   },
+   {
+    "p": "learnings/2026-03-08_admin-detail-page-design-system.md",
+    "b": 9669
+   },
+   {
+    "p": "learnings/2026-02-11_admin-design-system.md",
+    "b": 8592
+   },
+   {
+    "p": "learnings/2026-02-10_billing-automation.md",
+    "b": 7606
+   },
+   {
+    "p": "learnings/2026-04-15_zoho-desk-campaign-pipeline.md",
+    "b": 7582
+   },
+   {
+    "p": "learnings/2026-04-03_order-flow-auth-oauth-fixes.md",
+    "b": 7080
+   },
+   {
+    "p": "learnings/2026-02-19_inngest-tarana-sync.md",
+    "b": 6840
+   },
+   {
+    "p": "learnings/2026-03-31_tarana-tcs-api-correction.md",
+    "b": 6779
+   },
+   {
+    "p": "learnings/2026-02-11_corporate-client-system.md",
+    "b": 6397
+   },
+   {
+    "p": "learnings/2026-04-08_invoice-pdf-redesign.md",
+    "b": 6267
+   },
+   {
+    "p": "learnings/2026-04-05_vercel-to-coolify-migration.md",
+    "b": 5953
+   },
+   {
+    "p": "learnings/2026-02-27_cpq-schema-patterns.md",
+    "b": 5750
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "CLICKATELL_API",
+    "GEMINI_API",
+    "GEMINI_API_KEY",
+    "GOOGLE_APPLICATION_CREDENTIALS",
+    "INNGEST_EVENT",
+    "INNGEST_SIGNING",
+    "MTN_OPERATOR",
+    "NETCASH_MERCHANT",
+    "NETCASH_MERCHANT_ID",
+    "NETCASH_SERVICE",
+    "NETCASH_SERVICE_KEY",
+    "NEXT_PUBLIC_NETCASH_PCI_VAULT",
+    "NEXT_PUBLIC_SANITY_PROJECT",
+    "RESEND_API",
+    "RESEND_API_KEY",
+    "SANITY_API",
+    "SUPABASE_ACCESS",
+    "SUPABASE_ACCESS_TOKEN",
+    "SUPABASE_SERVICE_ROLE",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "VERCEL",
+    "VERCEL_TOKEN",
+    "ZOHO",
+    "ZOHO_DESK_CLIENT",
+    "ZOHO_DESK_CLIENT_ID"
+   ],
+   "cli_tools": [
+    "curl",
+    "git",
+    "npm",
+    "npx",
+    "pwsh"
+   ],
+   "mcp_refs": [
+    "plugin_supabase_supabase",
+    "supabase"
+   ],
+   "skill_refs": [
+    "admin",
+    "claude-md-guardian",
+    "compound",
+    "compound-learnings",
+    "correction",
+    "enterprise",
+    "home",
+    "order",
+    "pattern",
+    "product",
+    "product-analyze",
+    "product-browse",
+    "product-docs",
+    "product-lifecycle",
+    "product-management",
+    "products",
+    "root",
+    "skill-name",
+    "soho",
+    "status",
+    "tickets"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/docs/",
+    ".claude/hooks/session-end-check.ps1",
+    ".claude/product-marketing-context.md",
+    ".claude/projects/-home-circletel/.../tool-results/mcp-",
+    ".claude/projects/-home-circletel/memory/MEMORY.md",
+    ".claude/rules/admin-shared-components.md",
+    ".claude/rules/auth-patterns.md",
+    ".claude/rules/contact-details.md",
+    ".claude/rules/vercel-deployment.md",
+    ".claude/skills/compound-learnings/",
+    ".claude/skills/compound-learnings/learnings/2026-02-16_tech-debt-and-security-audit.md",
+    ".claude/skills/product-management/"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "context-manager",
+  "scope": "project",
+  "dir": "project/context-manager",
+  "name": "context-manager",
+  "description": "Comprehensive context and token usage management for Claude Code. Use this skill when working with large codebases, managing context window budget, optimizing file loading strategies, or when responses indicate context limitations. Helps with token analysis, file organization, query optimization, and context-efficient development workflows.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 409,
+  "skill_md_bytes": 10245,
+  "n_files": 13,
+  "total_bytes": 120766,
+  "scripts": [
+   "scripts/analyze_tokens.py"
+  ],
+  "n_scripts": 1,
+  "top_files": [
+   {
+    "p": "VISUAL_SUMMARY.txt",
+    "b": 23420
+   },
+   {
+    "p": "context-manager.skill",
+    "b": 17155
+   },
+   {
+    "p": "PRACTICAL_EXAMPLES.md",
+    "b": 11473
+   },
+   {
+    "p": "SKILL.md",
+    "b": 10245
+   },
+   {
+    "p": "references/claude_code_specifics.md",
+    "b": 8967
+   },
+   {
+    "p": "CREATION_SUMMARY.md",
+    "b": 8625
+   },
+   {
+    "p": "INDEX.md",
+    "b": 8423
+   },
+   {
+    "p": "QUICK_START.md",
+    "b": 6909
+   },
+   {
+    "p": "references/optimization_strategies.md",
+    "b": 6320
+   },
+   {
+    "p": "scripts/analyze_tokens.py",
+    "b": 6078
+   },
+   {
+    "p": "README.md",
+    "b": 5909
+   },
+   {
+    "p": "references/quick_reference.md",
+    "b": 5640
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "git",
+    "npm",
+    "pip",
+    "python"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "context-manager"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    "~/.claude/skills/context-manager/assets/claudeignore-template.txt",
+    "~/.claude/skills/context-manager/scripts/analyze_tokens.py"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "cross-model-review",
+  "scope": "project",
+  "dir": "project/cross-model-review",
+  "name": "cross-model-review",
+  "description": "Use another LLM (Codex, Gemini) to QA plans and implementations before committing",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "trigger": "When starting multi-phase feature work or before merging significant PRs"
+  },
+  "skill_md_lines": 98,
+  "skill_md_bytes": 4585,
+  "n_files": 1,
+  "total_bytes": 4585,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 4585
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/plans/"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "error-registry",
+  "scope": "project",
+  "dir": "project/error-registry",
+  "name": "error-registry",
+  "description": "Searchable database of recurring errors with linked solutions. Use when debugging bugs, encountering errors, or adding new error patterns. Enables faster resolution by checking known fixes before investigation.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "author": "CircleTel Engineering"
+  },
+  "skill_md_lines": 231,
+  "skill_md_bytes": 8300,
+  "n_files": 14,
+  "total_bytes": 34808,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 8300
+   },
+   {
+    "p": "registry.json",
+    "b": 4376
+   },
+   {
+    "p": "errors/auth/dashboard-401.md",
+    "b": 3369
+   },
+   {
+    "p": "errors/api/rls-policy-403.md",
+    "b": 2739
+   },
+   {
+    "p": "errors/typescript/nextjs15-async-params.md",
+    "b": 2434
+   },
+   {
+    "p": "errors/build/heap-overflow.md",
+    "b": 2416
+   },
+   {
+    "p": "errors/auth/infinite-loading.md",
+    "b": 1970
+   },
+   {
+    "p": "errors/supabase/join-array-handling.md",
+    "b": 1825
+   },
+   {
+    "p": "errors/api/payment-amount-format.md",
+    "b": 1788
+   },
+   {
+    "p": "errors/build/vercel-timeout.md",
+    "b": 1547
+   },
+   {
+    "p": "errors/frontend/broken-links.md",
+    "b": 1272
+   },
+   {
+    "p": "errors/api/mtn-api-antibot.md",
+    "b": 1110
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "npm"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "error",
+    "errors"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "filesystem-context",
+  "scope": "project",
+  "dir": "project/filesystem-context",
+  "name": "Filesystem Context Manager",
+  "description": "Maintain context across Claude Code sessions using filesystem persistence. Prevents context loss, enables plan continuity, and supports multi-session workflows.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "none"
+  },
+  "skill_md_lines": 388,
+  "skill_md_bytes": 9743,
+  "n_files": 2,
+  "total_bytes": 12707,
+  "scripts": [
+   "install-global.ps1"
+  ],
+  "n_scripts": 1,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 9743
+   },
+   {
+    "p": "install-global.ps1",
+    "b": 2964
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "npm"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "filesystem-context"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/context/current-task.md",
+    ".claude/context/decisions.md",
+    ".claude/memory/gotchas.md",
+    ".claude/memory/patterns.md",
+    ".claude/plans/",
+    ".claude/plans/archive/",
+    ".claude/plans/completed-",
+    ".claude/plans/feature-x.md",
+    ".claude/scratch",
+    ".claude/scratch/build-output.txt",
+    "~/.claude/context/",
+    "~/.claude/memory/",
+    "~/.claude/memory/gotchas.md",
+    "~/.claude/memory/patterns.md",
+    "~/.claude/scratch/",
+    "~/.claude/skills/",
+    "~/.claude/skills/filesystem-context/SKILL.md"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "git-guardrails-claude-code",
+  "scope": "project",
+  "dir": "project/git-guardrails-claude-code",
+  "name": "git-guardrails-claude-code",
+  "description": "Set up Claude Code hooks to block dangerous git commands (push, reset --hard, clean, branch -D, etc.) before they execute. Use when user wants to prevent destructive git operations, add git safety hooks, or block git push/reset in Claude Code.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 96,
+  "skill_md_bytes": 2312,
+  "n_files": 2,
+  "total_bytes": 2819,
+  "scripts": [
+   "scripts/block-dangerous-git.sh"
+  ],
+  "n_scripts": 1,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 2312
+   },
+   {
+    "p": "scripts/block-dangerous-git.sh",
+    "b": 507
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/hooks/block-dangerous-git.sh",
+    ".claude/settings.json",
+    "~/.claude/hooks/block-dangerous-git.sh",
+    "~/.claude/settings.json"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "inngest-function-template",
+  "scope": "project",
+  "dir": "project/inngest-function-template",
+  "name": "inngest-function-template",
+  "description": "Create reliable Inngest functions with dual triggers, step checkpoints, and failure handling",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "- Read - Write - Edit - Glob - Grep",
+  "fm_extra": {},
+  "skill_md_lines": 255,
+  "skill_md_bytes": 6552,
+  "n_files": 1,
+  "total_bytes": 6552,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 6552
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "mobile-testing",
+  "scope": "project",
+  "dir": "project/mobile-testing",
+  "name": "mobile-testing",
+  "description": "",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 85,
+  "skill_md_bytes": 2076,
+  "n_files": 2,
+  "total_bytes": 4595,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "README.md",
+    "b": 2519
+   },
+   {
+    "p": "SKILL.md",
+    "b": 2076
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "npm"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "nb-campaign-visual",
+  "scope": "project",
+  "dir": "project/nb-campaign-visual",
+  "name": "nb-campaign-visual",
+  "description": "Generate Nano Banana Pro (Gemini image gen) prompts for CircleTel campaign-specific visuals \u2014 launch banners, campaign hero images, event graphics, and B2B outreach assets. Use for any named campaign (TrUSC, coverage push, product launch, seasonal promo).",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 493,
+  "skill_md_bytes": 21452,
+  "n_files": 1,
+  "total_bytes": 21452,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 21452
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "GEMINI_API",
+    "GEMINI_API_KEY"
+   ],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "nb-package-bento",
+  "scope": "project",
+  "dir": "project/nb-package-bento",
+  "name": "nb-package-bento",
+  "description": "Generate Nano Banana Pro (Gemini image gen) prompts for CircleTel package comparison infographics and Bento grid visuals \u2014 pricing pages, package feature cards, service tier comparisons. Use when building pricing sections, product comparison pages, or any structured feature-list visual.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 288,
+  "skill_md_bytes": 13458,
+  "n_files": 1,
+  "total_bytes": 13458,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 13458
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "GEMINI_API",
+    "GEMINI_API_KEY"
+   ],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "nb-product-hero",
+  "scope": "project",
+  "dir": "project/nb-product-hero",
+  "name": "nb-product-hero",
+  "description": "Generate Nano Banana Pro (Gemini image gen) prompts for CircleTel product hero images \u2014 landing page heroes, product feature shots, and service visualisations. Use when building or refreshing any product page that needs a hero or section background image.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 467,
+  "skill_md_bytes": 20116,
+  "n_files": 1,
+  "total_bytes": 20116,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 20116
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "GEMINI_API",
+    "GEMINI_API_KEY"
+   ],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "nb-social-ad",
+  "scope": "project",
+  "dir": "project/nb-social-ad",
+  "name": "nb-social-ad",
+  "description": "Generate Nano Banana Pro (Gemini image gen) prompts for CircleTel social media ad images \u2014 Facebook, Instagram, LinkedIn. Use when creating paid social creative, organic post visuals, or WhatsApp campaign assets.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 412,
+  "skill_md_bytes": 17355,
+  "n_files": 1,
+  "total_bytes": 17355,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 17355
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "GEMINI_API",
+    "GEMINI_API_KEY"
+   ],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "new-product",
+  "scope": "project",
+  "dir": "project/new-product",
+  "name": "new-product",
+  "description": "Generate complete CircleTel product documentation (CPS, BRD, FSD, One-Pager) through interactive Q&A. Triggers when creating a new product, adding to the product catalogue, generating product specs, or running /new-product.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "solution-design, brand-design"
+  },
+  "skill_md_lines": 327,
+  "skill_md_bytes": 14085,
+  "n_files": 1,
+  "total_bytes": 14085,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 14085
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "new-product",
+    "product-search"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/rules/margin-guardrails.md",
+    ".claude/templates/products/",
+    ".claude/templates/products/BRD_TEMPLATE.md",
+    ".claude/templates/products/CPS_TEMPLATE.md",
+    ".claude/templates/products/FSD_TEMPLATE.md",
+    ".claude/templates/products/ONE_PAGER_TEMPLATE.md"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "openai-imagegen",
+  "scope": "project",
+  "dir": "project/openai-imagegen",
+  "name": "openai-imagegen",
+  "description": "Generate and edit images using OpenAI's gpt-image models (gpt-image-1 / gpt-image-2). Use as an alternative to the Gemini (Nano Banana) image path when the user asks for OpenAI image generation, or when comparing providers for a hero/product/social asset. Covers text-to-image, image editing, transparent backgrounds, and CircleTel brand context.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 107,
+  "skill_md_bytes": 4308,
+  "n_files": 1,
+  "total_bytes": 4308,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 4308
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "OPENAI_API",
+    "OPENAI_API_KEY"
+   ],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "nb-product-hero"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/rules/file-organization.md",
+    ".claude/skills/nb-product-hero/SKILL.md"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "openrouter-imagegen",
+  "scope": "project",
+  "dir": "project/openrouter-imagegen",
+  "name": "openrouter-imagegen",
+  "description": "Generate images cost-effectively via OpenRouter (Seedream 4.5, FLUX.2, Recraft V4, etc.) as a cheaper alternative to OpenAI gpt-image. Use when the user wants low-cost image generation, a specific OpenRouter image model, or quality comparable to gpt-image-2 at a fraction of the price. Requires OPENROUTER_API_KEY in .env.local.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 94,
+  "skill_md_bytes": 3993,
+  "n_files": 1,
+  "total_bytes": 3993,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 3993
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "GEMINI_API",
+    "GEMINI_API_KEY",
+    "OPENROUTER_API",
+    "OPENROUTER_API_KEY"
+   ],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "images",
+    "nb-product-hero"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/skills/nb-product-hero/SKILL.md"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "openspec-apply-change",
+  "scope": "project",
+  "dir": "project/openspec-apply-change",
+  "name": "openspec-apply-change",
+  "description": "Implement tasks from an OpenSpec change. Use when the user wants to start implementing, continue implementation, or work through tasks.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "compatibility": "Requires openspec CLI.",
+   "metadata": "author: openspec version: \"1.0\" generatedBy: \"1.3.1\""
+  },
+  "skill_md_lines": 157,
+  "skill_md_bytes": 4774,
+  "n_files": 1,
+  "total_bytes": 4774,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 4774
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "opsx"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "openspec-archive-change",
+  "scope": "project",
+  "dir": "project/openspec-archive-change",
+  "name": "openspec-archive-change",
+  "description": "Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "compatibility": "Requires openspec CLI.",
+   "metadata": "author: openspec version: \"1.0\" generatedBy: \"1.3.1\""
+  },
+  "skill_md_lines": 115,
+  "skill_md_bytes": 4157,
+  "n_files": 1,
+  "total_bytes": 4157,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 4157
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "openspec-explore",
+  "scope": "project",
+  "dir": "project/openspec-explore",
+  "name": "openspec-explore",
+  "description": "Enter explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements. Use when the user wants to think through something before or during a change.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "compatibility": "Requires openspec CLI.",
+   "metadata": "author: openspec version: \"1.0\" generatedBy: \"1.3.1\""
+  },
+  "skill_md_lines": 289,
+  "skill_md_bytes": 10738,
+  "n_files": 1,
+  "total_bytes": 10738,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 10738
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "openspec-propose",
+  "scope": "project",
+  "dir": "project/openspec-propose",
+  "name": "openspec-propose",
+  "description": "Propose a new change with all artifacts generated in one step. Use when the user wants to quickly describe what they want to build and get a complete proposal with design, specs, and tasks ready for implementation.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "compatibility": "Requires openspec CLI.",
+   "metadata": "author: openspec version: \"1.0\" generatedBy: \"1.3.1\""
+  },
+  "skill_md_lines": 111,
+  "skill_md_bytes": 4646,
+  "n_files": 1,
+  "total_bytes": 4646,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 4646
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "opsx"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "pencil-dev-workflow",
+  "scope": "project",
+  "dir": "project/pencil-dev-workflow",
+  "name": "pencil-dev-workflow",
+  "description": "Use when building websites with Pencil.dev and Claude Code, setting up design-to-code sync, automating file watching for .pen files, running parallel agents for multi-page design, or adding GSAP/Lenis animations",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 134,
+  "skill_md_bytes": 5617,
+  "n_files": 1,
+  "total_bytes": 5617,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 5617
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": [
+    "~/.claude/settings.json"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "product-management",
+  "scope": "project",
+  "dir": "project/product-management",
+  "name": "Product Management",
+  "description": "Agentic product management system for CircleTel - browse suppliers, analyze market fit, generate documentation, and track lifecycle",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "none"
+  },
+  "skill_md_lines": 204,
+  "skill_md_bytes": 9287,
+  "n_files": 20,
+  "total_bytes": 144203,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "templates/functional-spec.md",
+    "b": 15649
+   },
+   {
+    "p": "search-suppliers/SKILL.md",
+    "b": 13295
+   },
+   {
+    "p": "search-suppliers/extraction-schemas.md",
+    "b": 11546
+   },
+   {
+    "p": "templates/business-rules.md",
+    "b": 10911
+   },
+   {
+    "p": "SKILL.md",
+    "b": 9287
+   },
+   {
+    "p": "templates/commercial-spec.md",
+    "b": 9144
+   },
+   {
+    "p": "references/doc-templates.md",
+    "b": 8511
+   },
+   {
+    "p": "product-lifecycle/SKILL.md",
+    "b": 7584
+   },
+   {
+    "p": "browse-suppliers/SKILL.md",
+    "b": 7356
+   },
+   {
+    "p": "generate-docs/SKILL.md",
+    "b": 6799
+   },
+   {
+    "p": "search-suppliers/supplier-registry.md",
+    "b": 6611
+   },
+   {
+    "p": "market-fit/SKILL.md",
+    "b": 6502
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "product",
+    "product-analyze",
+    "product-browse",
+    "product-docs",
+    "product-lifecycle",
+    "product-management",
+    "product-search",
+    "product-wholesale"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/skills/product-management/templates/business-rules.md",
+    ".claude/skills/product-management/templates/commercial-spec.md",
+    ".claude/skills/product-management/templates/functional-spec.md",
+    ".claude/skills/product-management/templates/pricing-matrix.md"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "product-page-builder",
+  "scope": "project",
+  "dir": "project/product-page-builder",
+  "name": "product-page-builder",
+  "description": "Build CircleTel product pages with Sanity CMS, Gemini hero images, and conversion-optimized layouts. Streamlined workflow from concept to live page.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "gemini-imagegen, brand-design"
+  },
+  "skill_md_lines": 366,
+  "skill_md_bytes": 10113,
+  "n_files": 3,
+  "total_bytes": 17974,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 10113
+   },
+   {
+    "p": "templates/seed-product.ts.template",
+    "b": 5811
+   },
+   {
+    "p": "templates/generate-hero-image.py.template",
+    "b": 2050
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "GEMINI_API",
+    "GEMINI_API_KEY",
+    "SANITY_API"
+   ],
+   "cli_tools": [
+    "npx"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "brand-design",
+    "compound-learnings",
+    "gemini-imagegen",
+    "product-page",
+    "products"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/skills/brand-design/SKILL.md",
+    ".claude/skills/compound-learnings/learnings/2026-03-12_skyfibre-smb-product-page.md",
+    ".claude/skills/gemini-imagegen/"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "project-sync",
+  "scope": "project",
+  "dir": "project/project-sync",
+  "name": "Project Sync Checker",
+  "description": "Check alignment between local project and git remote. Analyzes uncommitted changes, unpushed commits, unpulled updates, branch status, and divergence to ensure local and remote are synchronized.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "git"
+  },
+  "skill_md_lines": 489,
+  "skill_md_bytes": 12121,
+  "n_files": 3,
+  "total_bytes": 28529,
+  "scripts": [
+   "check-sync.ps1",
+   "install-global.ps1"
+  ],
+  "n_scripts": 2,
+  "top_files": [
+   {
+    "p": "check-sync.ps1",
+    "b": 15101
+   },
+   {
+    "p": "SKILL.md",
+    "b": 12121
+   },
+   {
+    "p": "install-global.ps1",
+    "b": 1307
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "git",
+    "powershell"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "project-sync"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/skills/project-sync/check-sync.ps1",
+    "~/.claude/skills/",
+    "~/.claude/skills/project-sync/check-sync.ps1"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "promotional-campaigns",
+  "scope": "project",
+  "dir": "project/promotional-campaigns",
+  "name": "promotional-campaigns",
+  "description": "\"Create promotional campaigns and respond to competitor offers for CircleTel. Triggers: 'promo', 'promotional campaign', 'competitor offer', 'react to [X]', 'counter campaign', 'special offer', 'seasonal promotion', 'Black Friday', 'back to school', 'price match'.\"",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "[brand-design, copywriting, competitor-alternatives]"
+  },
+  "skill_md_lines": 350,
+  "skill_md_bytes": 12101,
+  "n_files": 4,
+  "total_bytes": 53201,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "references/competitor-playbook.md",
+    "b": 17674
+   },
+   {
+    "p": "references/campaign-templates.md",
+    "b": 13441
+   },
+   {
+    "p": "SKILL.md",
+    "b": 12101
+   },
+   {
+    "p": "references/pricing-guardrails.md",
+    "b": 9985
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "quality-gates",
+  "scope": "project",
+  "dir": "project/quality-gates",
+  "name": "quality-gates",
+  "description": "Multi-pass quality system for critical outputs. Implements RSI through generate-evaluate-refine loops for billing emails, contracts, customer notifications, and technical documentation.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "author": "CircleTel Engineering"
+  },
+  "skill_md_lines": 219,
+  "skill_md_bytes": 7988,
+  "n_files": 5,
+  "total_bytes": 20919,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 7988
+   },
+   {
+    "p": "rubrics/technical-docs.md",
+    "b": 3889
+   },
+   {
+    "p": "rubrics/contract.md",
+    "b": 3220
+   },
+   {
+    "p": "rubrics/customer-notification.md",
+    "b": 3032
+   },
+   {
+    "p": "rubrics/billing-email.md",
+    "b": 2790
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "NETCASH",
+    "ZOHO"
+   ],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "quality-check"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "refactor",
+  "scope": "project",
+  "dir": "project/refactor",
+  "name": "Refactor Agent",
+  "description": "Analyzes codebases to identify technical debt, performance bottlenecks, and architectural improvements with prioritized, actionable recommendations. Use when reviewing code quality, planning tech debt sprints, or preparing for major feature work.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "none"
+  },
+  "skill_md_lines": 312,
+  "skill_md_bytes": 11695,
+  "n_files": 1,
+  "total_bytes": 11695,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 11695
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "ZOHO"
+   ],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "roadmap-advisor",
+  "scope": "project",
+  "dir": "project/roadmap-advisor",
+  "name": "roadmap-advisor",
+  "description": "Analyzes codebase and generates prioritized feature recommendations based on ISP industry best practices. Supports full audit, quick scan, and domain-specific analysis modes.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "author": "CircleTel Engineering",
+   "dependencies": "compound-learnings, stats-tracker, error-registry"
+  },
+  "skill_md_lines": 376,
+  "skill_md_bytes": 16570,
+  "n_files": 17,
+  "total_bytes": 89089,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 16570
+   },
+   {
+    "p": "benchmarks/isp-industry-standard.md",
+    "b": 11463
+   },
+   {
+    "p": "heuristics/load-bearing-code.md",
+    "b": 7899
+   },
+   {
+    "p": "templates/full-audit-output.md",
+    "b": 6786
+   },
+   {
+    "p": "rubrics/customer-experience.md",
+    "b": 6252
+   },
+   {
+    "p": "heuristics/domain-detection.md",
+    "b": 5288
+   },
+   {
+    "p": "rubrics/integrations.md",
+    "b": 5139
+   },
+   {
+    "p": "heuristics/effort-calibration.md",
+    "b": 5017
+   },
+   {
+    "p": "heuristics/maturity-assessment.md",
+    "b": 4870
+   },
+   {
+    "p": "rubrics/billing-system.md",
+    "b": 4183
+   },
+   {
+    "p": "rubrics/frontend-components.md",
+    "b": 3202
+   },
+   {
+    "p": "templates/domain-analysis-output.md",
+    "b": 2857
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "admin",
+    "checkout",
+    "dashboard",
+    "packages",
+    "partners",
+    "roadmap"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "rules-organizer",
+  "scope": "project",
+  "dir": "project/rules-organizer",
+  "name": "rules-organizer",
+  "description": "Organize Claude Code instructions into modular rule files in .claude/rules/. Use when setting up project standards, adding team conventions, creating domain-specific rules, or managing shared coding guidelines.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 462,
+  "skill_md_bytes": 11318,
+  "n_files": 1,
+  "total_bytes": 11318,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 11318
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "NETCASH_SERVICE",
+    "NETCASH_SERVICE_KEY",
+    "NETCASH_WEBHOOK",
+    "NETCASH_WEBHOOK_SECRET"
+   ],
+   "cli_tools": [
+    "git"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/CLAUDE.md",
+    ".claude/rules/",
+    ".claude/rules/.",
+    ".claude/rules/backend",
+    ".claude/rules/backend/api-routes.md",
+    ".claude/rules/backend/api.md",
+    ".claude/rules/company",
+    ".claude/rules/domain/payments.md",
+    ".claude/rules/frontend/react-patterns.md",
+    ".claude/rules/frontend/react.md",
+    ".claude/rules/general/code-style.md",
+    ".claude/rules/security.md",
+    "~/.claude/rules/",
+    "~/.claude/rules/preferences.md"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "screenshot-analyzer",
+  "scope": "project",
+  "dir": "project/screenshot-analyzer",
+  "name": "screenshot-analyzer",
+  "description": "Analyze screenshots with accurate coordinate mapping for UI debugging and Playwright testing. Use when debugging UI issues from screenshots, creating precise click targets, or implementing visual test automation.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 402,
+  "skill_md_bytes": 10628,
+  "n_files": 1,
+  "total_bytes": 10628,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 10628
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "security-review",
+  "scope": "project",
+  "dir": "project/security-review",
+  "name": "security-review",
+  "description": "| Chief Security Officer mode for CircleTel. Runs a full security audit: secrets archaeology, dependency supply chain, CI/CD pipeline, OWASP Top 10, STRIDE threat modeling, webhook signature verification, and active verification. Adapted from gstack/cso for CircleTel's stack: Next.js 15, Supabase, NetCash Pay Now, Inngest, Coolify/VPS deployment, and SA regulatory context (POPIA, PCI DSS, RICA). Two modes: daily (8/10 confidence gate, zero noise) and comprehensive (2/10 bar).",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "- Bash - Read - Grep - Glob - Write - Agent - WebSearch",
+  "fm_extra": {
+   "triggers": "- security audit - security review - check for vulnerabilities - owasp review - threat model - pentest review"
+  },
+  "skill_md_lines": 582,
+  "skill_md_bytes": 23557,
+  "n_files": 1,
+  "total_bytes": 23557,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 23557
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "GOOGLE_MAPS_API",
+    "GOOGLE_MAPS_API_KEY",
+    "NETCASH",
+    "NETCASH_SERVICE",
+    "NETCASH_SERVICE_KEY",
+    "NEXT_PUBLIC_GOOGLE_MAPS_API",
+    "NEXT_PUBLIC_SUPABASE",
+    "NEXT_PUBLIC_SUPABASE_ANON",
+    "RESEND_API",
+    "RESEND_API_KEY",
+    "SUPABASE_SERVICE_ROLE",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "ZOHO_DESK_REFRESH",
+    "ZOHO_DESK_REFRESH_TOKEN",
+    "ZOHO_REFRESH",
+    "ZOHO_REFRESH_TOKEN"
+   ],
+   "cli_tools": [
+    "git",
+    "npm"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "admin",
+    "partners",
+    "security-review"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "session-checker",
+  "scope": "project",
+  "dir": "project/session-checker",
+  "name": "Session Checker",
+  "description": "Check if Interstellio/NebularStack client sessions are active. Analyzes CDR records to determine connection status, session history, and terminate causes.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "lib/interstellio/client.ts"
+  },
+  "skill_md_lines": 285,
+  "skill_md_bytes": 8900,
+  "n_files": 3,
+  "total_bytes": 23204,
+  "scripts": [
+   "check-session.ts",
+   "check-session.ps1"
+  ],
+  "n_scripts": 2,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 8900
+   },
+   {
+    "p": "check-session.ps1",
+    "b": 8580
+   },
+   {
+    "p": "check-session.ts",
+    "b": 5724
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "INTERSTELLIO_API",
+    "INTERSTELLIO_TENANT",
+    "TELEMETRY"
+   ],
+   "cli_tools": [
+    "powershell"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "session-checker"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/skills/session-checker/check-session.ps1",
+    ".claude/skills/session-checker/check-session.ts"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "session-manager",
+  "scope": "project",
+  "dir": "project/session-manager",
+  "name": "session-manager",
+  "description": "Manage named Claude Code sessions for CircleTel workflows. Use when starting feature work, resuming previous sessions, organizing multi-day tasks, or switching between different work contexts like admin, dashboard, or payment features.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 205,
+  "skill_md_bytes": 4891,
+  "n_files": 1,
+  "total_bytes": 4891,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 4891
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "git",
+    "powershell"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "context-manager",
+    "rename",
+    "resume"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/skills/context-manager/run-context-analyzer.ps1"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "solution-design",
+  "scope": "project",
+  "dir": "project/solution-design",
+  "name": "solution-design",
+  "description": "\"CircleTel product management and solution design. Triggers: 'solution design', 'product design', 'new product', 'unit economics', 'margin analysis', 'technology selection', 'product-market fit', 'PMF', 'which technology', 'pricing model', 'contribution margin', 'LTV', 'CAC', 'wholesale costs'.\"",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "1.0.0",
+   "dependencies": "[promotional-campaigns, pricing-strategy]"
+  },
+  "skill_md_lines": 447,
+  "skill_md_bytes": 15156,
+  "n_files": 4,
+  "total_bytes": 52489,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 15156
+   },
+   {
+    "p": "references/product-portfolio.md",
+    "b": 15090
+   },
+   {
+    "p": "references/technology-specs.md",
+    "b": 11296
+   },
+   {
+    "p": "references/wholesale-costs.md",
+    "b": 10947
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "stats-tracker",
+  "scope": "project",
+  "dir": "project/stats-tracker",
+  "name": "stats-tracker",
+  "description": "Track Claude Code usage statistics and skill effectiveness for CircleTel. Monitor productivity, model usage, streaks, and skill performance metrics.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "version": "2.0.0",
+   "dependencies": "error-registry, compound-learnings"
+  },
+  "skill_md_lines": 581,
+  "skill_md_bytes": 19010,
+  "n_files": 3,
+  "total_bytes": 23973,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 19010
+   },
+   {
+    "p": "metrics.json",
+    "b": 2863
+   },
+   {
+    "p": "verification-metrics.json",
+    "b": 2100
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "npm"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "context",
+    "cost",
+    "stats",
+    "stats-tracker",
+    "usage"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/rules/",
+    ".claude/skills/stats-tracker/"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "using-superpowers",
+  "scope": "project",
+  "dir": "project/using-superpowers",
+  "name": "using-superpowers",
+  "description": "Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 118,
+  "skill_md_bytes": 5421,
+  "n_files": 4,
+  "total_bytes": 13178,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 5421
+   },
+   {
+    "p": "references/codex-tools.md",
+    "b": 4070
+   },
+   {
+    "p": "references/copilot-tools.md",
+    "b": 2193
+   },
+   {
+    "p": "references/gemini-tools.md",
+    "b": 1494
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "GEMINI"
+   ],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [
+    "code-reviewer"
+   ],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "anti-ai-slop-design",
+  "scope": "user",
+  "dir": "user/anti-ai-slop-design",
+  "name": "anti-ai-slop-design",
+  "description": "Steers design and UI generation away from generic \"AI slop\" \u2014 the polished-but-interchangeable look of default gradients, glassmorphism, fake dashboards, vague hero copy, sparkle/AI icons, and template section ordering. Use when generating or refining any visual interface (landing pages, dashboards, components, decks, brand systems, mockups), when rewriting a vague design prompt into a specific brief, or when asked whether a design looks AI-generated, generic, templated, or \"same-y\" and how to make it distinctive. Applies a 5-step replacement framework (name the default pattern, diagnose why it is generic, ask the human design questions, replace style with purpose, rewrite the prompt) plus a severity-rated detection catalog. Focuses on distinctiveness and authored intent; complements rather than replaces usability and accessibility audits.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.0.0\" category: \"design\" source: \"The Anti-AI-Slop Design Field Guide\""
+  },
+  "skill_md_lines": 94,
+  "skill_md_bytes": 9752,
+  "n_files": 1,
+  "total_bytes": 9752,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 9752
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "brand-guidelines",
+  "scope": "user",
+  "dir": "user/brand-guidelines",
+  "name": "brand-guidelines",
+  "description": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Complete terms in LICENSE.txt"
+  },
+  "skill_md_lines": 74,
+  "skill_md_bytes": 2235,
+  "n_files": 2,
+  "total_bytes": 13592,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "LICENSE.txt",
+    "b": 11357
+   },
+   {
+    "p": "SKILL.md",
+    "b": 2235
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-examples",
+    "dir": "builtin-examples/brand-guidelines",
+    "lines": 74
+   }
+  ]
+ },
+ {
+  "slug": "canvas-design",
+  "scope": "user",
+  "dir": "user/canvas-design",
+  "name": "canvas-design",
+  "description": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Complete terms in LICENSE.txt"
+  },
+  "skill_md_lines": 130,
+  "skill_md_bytes": 11939,
+  "n_files": 83,
+  "total_bytes": 5556656,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "canvas-fonts/WorkSans-Bold.ttf",
+    "b": 191304
+   },
+   {
+    "p": "canvas-fonts/WorkSans-Regular.ttf",
+    "b": 188916
+   },
+   {
+    "p": "canvas-fonts/WorkSans-BoldItalic.ttf",
+    "b": 175772
+   },
+   {
+    "p": "canvas-fonts/WorkSans-Italic.ttf",
+    "b": 174280
+   },
+   {
+    "p": "canvas-fonts/IBMPlexSerif-Italic.ttf",
+    "b": 170004
+   },
+   {
+    "p": "canvas-fonts/IBMPlexSerif-BoldItalic.ttf",
+    "b": 169840
+   },
+   {
+    "p": "canvas-fonts/ArsenalSC-Regular.ttf",
+    "b": 165848
+   },
+   {
+    "p": "canvas-fonts/IBMPlexSerif-Bold.ttf",
+    "b": 161000
+   },
+   {
+    "p": "canvas-fonts/IBMPlexSerif-Regular.ttf",
+    "b": 160380
+   },
+   {
+    "p": "canvas-fonts/Jura-Medium.ttf",
+    "b": 154488
+   },
+   {
+    "p": "canvas-fonts/Jura-Light.ttf",
+    "b": 154308
+   },
+   {
+    "p": "canvas-fonts/LibreBaskerville-Regular.ttf",
+    "b": 147584
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-examples",
+    "dir": "builtin-examples/canvas-design",
+    "lines": 130
+   }
+  ]
+ },
+ {
+  "slug": "circletel-launch-collateral",
+  "scope": "user",
+  "dir": "user/circletel-launch-collateral",
+  "name": "circletel-launch-collateral",
+  "description": "Derive CircleTel sales and marketing collateral from an approved product or solution specification \u2014 a sales one-pager, a sales battlecard with objection handling, a customer pricing sheet, and website/product-page copy. Use when a CircleTel product has been designed and approved and the user wants launch or go-to-market materials, sales enablement, a product one-pager, a battlecard, a customer-facing price list, or website/landing-page copy for a product. Enforces the CircleTel confidentiality firewall so no cost, margin, markup, wholesale rate, supplier name or commission ever appears in customer-facing output. Triggers include \"create a one-pager for [product]\", \"make a battlecard\", \"customer pricing sheet\", \"product page copy\", \"launch collateral\", \"sales enablement for [product]\".",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "- view - create_file - bash_tool",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.0.0\" author: \"CircleTel Product Strategy\" category: \"marketing-sales\" locale: \"en-ZA\""
+  },
+  "skill_md_lines": 70,
+  "skill_md_bytes": 5056,
+  "n_files": 5,
+  "total_bytes": 18729,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "templates/launch_collateral_template.md",
+    "b": 5774
+   },
+   {
+    "p": "SKILL.md",
+    "b": 5056
+   },
+   {
+    "p": "examples/worked_example_collateral_business_complete.md",
+    "b": 4947
+   },
+   {
+    "p": "references/confidentiality_firewall.md",
+    "b": 2228
+   },
+   {
+    "p": "README.md",
+    "b": 724
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "circletel-product-development",
+  "scope": "user",
+  "dir": "user/circletel-product-development",
+  "name": "circletel-product-development",
+  "description": "Design new CircleTel products or customer solutions, or change existing ones, using CircleTel's house documentation chain \u2014 Commercial Product Specification (CPS), Business Rules Document (BRD), Functional Specification Document (FSD), Solution Design Document (SDD) and Change Request (CHG). Use when the user asks to design/scope/spec a new product, tier, bundle or module; build a bespoke customer solution or proposal; write or update a CPS, BRD, FSD, SDD or Change Request; run the product stage-gate process; or apply CircleTel product-development house standards (en-ZA, R1 234,56 currency, confidentiality firewall, CT-[TYPE]-[PRODUCT]-[YEAR]-[SEQ] references). Triggers include \"design a new product\", \"create a CPS/BRD/FSD\", \"new solution for [customer]\", \"make a change to [product]\", \"raise a change request\".",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "- view - create_file - bash_tool - str_replace",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.0.0\" author: \"CircleTel Product Strategy\" category: \"product-management\" locale: \"en-ZA\""
+  },
+  "skill_md_lines": 89,
+  "skill_md_bytes": 6766,
+  "n_files": 10,
+  "total_bytes": 59592,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "references/framework.md",
+    "b": 15348
+   },
+   {
+    "p": "templates/FSD_template.md",
+    "b": 8281
+   },
+   {
+    "p": "templates/CPS_template.md",
+    "b": 7690
+   },
+   {
+    "p": "SKILL.md",
+    "b": 6766
+   },
+   {
+    "p": "templates/BRD_template.md",
+    "b": 6628
+   },
+   {
+    "p": "templates/Solution_Design_template.md",
+    "b": 4539
+   },
+   {
+    "p": "examples/worked_example_business_complete.md",
+    "b": 3658
+   },
+   {
+    "p": "templates/Change_Request_template.md",
+    "b": 3143
+   },
+   {
+    "p": "references/house_standards.md",
+    "b": 2890
+   },
+   {
+    "p": "README.md",
+    "b": 649
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "rest"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "consulting-toolkit",
+  "scope": "user",
+  "dir": "user/consulting-toolkit",
+  "name": "consulting-toolkit",
+  "description": "Develop mental models and consultant-grade frameworks for business problems. Structures ambiguous problems into MECE issue trees, runs hypothesis-driven analysis, selects and applies frameworks (Porter's Five Forces, 7S, unit economics, profitability trees), pressure-tests thinking with mental models (inversion, second-order effects, base rates), and communicates answers using the Pyramid Principle and SCQA. Works in two modes - consultant (apply frameworks directly) or coach (guide the user to structure the problem themselves). Use when the user asks to structure a problem, build an issue tree, pick a framework, analyze a strategy, pricing, growth, profitability, or market-entry question, pressure-test a plan or decision, or write an executive summary.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.0.0\" category: \"business-analysis\""
+  },
+  "skill_md_lines": 109,
+  "skill_md_bytes": 9123,
+  "n_files": 4,
+  "total_bytes": 28493,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 9123
+   },
+   {
+    "p": "references/frameworks.md",
+    "b": 8512
+   },
+   {
+    "p": "references/mental-models.md",
+    "b": 6281
+   },
+   {
+    "p": "references/communication.md",
+    "b": 4577
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [
+    "style"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "design-guide",
+  "scope": "user",
+  "dir": "user/design-guide",
+  "name": "design-guide",
+  "description": "Ensures every UI component follows modern design standards matching top applications like AirBnB and Stripe. Use when creating, reviewing, or refining any UI component including React components, HTML/CSS, artifacts, forms, buttons, cards, layouts, or any visual interface. Automatically validates designs against professional standards for spacing, typography, color, shadows, and interactivity. Triggers include requests to build, design, review, or improve any user interface element.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 230,
+  "skill_md_bytes": 7983,
+  "n_files": 1,
+  "total_bytes": 7983,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 7983
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "design-prototyper",
+  "scope": "user",
+  "dir": "user/design-prototyper",
+  "name": "design-prototyper",
+  "description": "Turns vague prompts or screenshots into a design-ready brief, then generates low-fidelity screens and flows or high-fidelity interactive mockups. Translates non-designer language into clear design vocabulary and asks a few high-leverage guided questions (works for creative and non-creative users) before generating. Use to mock up a screen or app, design a flow, wireframe an idea, build a clickable prototype, or turn a screenshot or rough description into a buildable design. Triggers include \"mock this up\", \"turn this into screens\", \"design a flow for\", \"wireframe this\", \"make an interactive prototype\", \"I have a screenshot, build/redesign from it\", \"help me describe the screen I want\". NOT for auditing or critiquing an existing UI (use ui-ux-audit), and NOT for writing text-only UX specs or design systems (use uxui-system-architect).",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.0.0\" category: \"design\""
+  },
+  "skill_md_lines": 82,
+  "skill_md_bytes": 7395,
+  "n_files": 5,
+  "total_bytes": 20924,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 7395
+   },
+   {
+    "p": "references/design-brief.md",
+    "b": 4752
+   },
+   {
+    "p": "references/fidelity-guide.md",
+    "b": 3582
+   },
+   {
+    "p": "references/guided-questions.md",
+    "b": 3223
+   },
+   {
+    "p": "README.md",
+    "b": 1972
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "disk-cleanup-wizard",
+  "scope": "user",
+  "dir": "user/disk-cleanup-wizard",
+  "name": "disk-cleanup-wizard",
+  "description": "Interactive wizard for disk usage analysis and safe local storage cleanup on Windows inspired by WinDirStat. Triggers on low disk space, cleaning drive, finding large files or folders, WinDirStat, C drive full, storage management, or freeing up space. Uses local-run scan scripts plus pasted report analysis to deliver prioritized risk-aware cleanup plans, exact commands, and custom PowerShell scripts. Privacy-first approach \u2014 never directly accesses or modifies user files. Also covers macOS/Linux alternatives when needed.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 69,
+  "skill_md_bytes": 6499,
+  "n_files": 3,
+  "total_bytes": 26081,
+  "scripts": [
+   "scripts/disk_analyzer.py"
+  ],
+  "n_scripts": 1,
+  "top_files": [
+   {
+    "p": "scripts/disk_analyzer.py",
+    "b": 14162
+   },
+   {
+    "p": "SKILL.md",
+    "b": 6499
+   },
+   {
+    "p": "references/windows-space-hogs-and-safe-cleanup.md",
+    "b": 5420
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "python"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "docx",
+  "scope": "user",
+  "dir": "user/docx",
+  "name": "docx",
+  "description": "\"Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files) or Word templates (.dotx files). Triggers include: any mention of 'Word doc', 'word document', '.docx', '.dotx', or requests to produce professional documents with formatting like tables of contents, headings, page numbers, or letterheads. Also use when extracting or reorganizing content from .docx or .dotx files, inserting or replacing images in documents, performing find-and-replace in Word files, working with tracked changes or comments, or converting content into a polished Word document. If the user asks for a 'report', 'memo', 'letter', 'template', or similar deliverable as a Word or .docx file, use this skill. Do NOT use for PDFs, spreadsheets, Google Docs, or general coding tasks unrelated to document generation.\"",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Proprietary. LICENSE.txt has complete terms"
+  },
+  "skill_md_lines": 92,
+  "skill_md_bytes": 6911,
+  "n_files": 61,
+  "total_bytes": 1130388,
+  "scripts": [
+   "scripts/accept_changes.py",
+   "scripts/__init__.py",
+   "scripts/merge_runs.py",
+   "scripts/comment.py",
+   "scripts/office/soffice.py",
+   "scripts/office/validate.py",
+   "scripts/office/helpers/pptx_slide.py",
+   "scripts/office/helpers/pptx_theme.py",
+   "scripts/office/helpers/__init__.py",
+   "scripts/office/helpers/pptx_chart.py",
+   "scripts/office/validators/pptx.py",
+   "scripts/office/validators/docx.py",
+   "scripts/office/validators/redlining.py",
+   "scripts/office/validators/base.py",
+   "scripts/office/validators/__init__.py"
+  ],
+  "n_scripts": 15,
+  "top_files": [
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/sml.xsd",
+    "b": 242277
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/wml.xsd",
+    "b": 171367
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/dml-main.xsd",
+    "b": 152039
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/pml.xsd",
+    "b": 83612
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/dml-chart.xsd",
+    "b": 74984
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/dml-diagram.xsd",
+    "b": 51302
+   },
+   {
+    "p": "scripts/office/validators/base.py",
+    "b": 33756
+   },
+   {
+    "p": "scripts/office/schemas/microsoft/wml-2010.xsd",
+    "b": 26549
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/vml-main.xsd",
+    "b": 26148
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/vml-officeDrawing.xsd",
+    "b": 25279
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/shared-math.xsd",
+    "b": 23313
+   },
+   {
+    "p": "scripts/office/validators/docx.py",
+    "b": 17482
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "node",
+    "python"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-public",
+    "dir": "builtin-public/docx",
+    "lines": 92
+   }
+  ]
+ },
+ {
+  "slug": "emil-design-eng",
+  "scope": "user",
+  "dir": "user/emil-design-eng",
+  "name": "emil-design-eng",
+  "description": "This skill encodes Emil Kowalski's philosophy on UI polish, component design, animation decisions, and the invisible details that make software feel great.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 680,
+  "skill_md_bytes": 27335,
+  "n_files": 1,
+  "total_bytes": 27335,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 27335
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "financial-applications",
+  "scope": "user",
+  "dir": "user/financial-applications",
+  "name": "financial-applications",
+  "description": "Build professional financial dashboards, portfolio analytics, company budgets, and automated reporting workflows using Claude's Excel, PowerPoint, and PDF skills. Use when creating financial models, P&L summaries, balance sheets, portfolio analysis, investment presentations, quarterly reports, operating budgets, capital budgets, cash budgets, department budgets, forecasts, variance analysis, scenario planning, product line schedules, or any business financial documentation. Triggers include requests for financial dashboards, budget templates, budget building, forecasting, variance analysis, scenario planning, chart of accounts, executive summaries, investor updates, quarterly metrics, portfolio reviews, or automated reporting pipelines.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"2.0.0\" author: \"Based on Anthropic Claude Cookbooks\" category: \"finance\" source: \"https://github.com/anthropics/claude-cookbooks/blob/main/skills/notebooks/02_skills_financial_applications.ipynb\""
+  },
+  "skill_md_lines": 1334,
+  "skill_md_bytes": 34686,
+  "n_files": 2,
+  "total_bytes": 44175,
+  "scripts": [
+   "scripts/financial_calculations.py"
+  ],
+  "n_scripts": 1,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 34686
+   },
+   {
+    "p": "scripts/financial_calculations.py",
+    "b": 9489
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "python"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "best-practices",
+    "notebooks",
+    "overview",
+    "public"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "ict-solution-design",
+  "scope": "user",
+  "dir": "user/ict-solution-design",
+  "name": "ict-solution-design",
+  "description": "Designs customer-centric ICT, AV, networking, surveillance, and connectivity solutions by translating real customer jobs and pain points into productized offers, service bundles, bills of materials, solution architectures, and commercial packages. Sources components from distributor ecosystems (Rectron, MiRO, Scoop). Use when designing or quoting a network/Wi-Fi/AV/CCTV/VoIP/connectivity solution, turning a customer request or RFQ into a proposal, building a repeatable ICT product bundle, scoping a site, or evaluating whether an opportunity is bespoke vs productizable. Triggers include \"design a solution for\", \"what should I quote\", \"build a bundle\", \"boardroom AV\", \"office Wi-Fi\", \"estate CCTV\", \"SME connectivity\".",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.0.0\" category: \"ict-solutions\" domain: \"telecom, networking, AV, surveillance, managed services\""
+  },
+  "skill_md_lines": 98,
+  "skill_md_bytes": 8326,
+  "n_files": 7,
+  "total_bytes": 19448,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 8326
+   },
+   {
+    "p": "references/distributor-ecosystems.md",
+    "b": 2763
+   },
+   {
+    "p": "references/productization-frameworks.md",
+    "b": 2094
+   },
+   {
+    "p": "references/worked-examples.md",
+    "b": 1909
+   },
+   {
+    "p": "templates/solution-design-template.md",
+    "b": 1790
+   },
+   {
+    "p": "references/reuse-prompt.md",
+    "b": 1456
+   },
+   {
+    "p": "README.md",
+    "b": 1110
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "idea-validator",
+  "scope": "user",
+  "dir": "user/idea-validator",
+  "name": "idea-validator",
+  "description": "Provides brutally honest, quick feedback on app/product ideas before investing time building. Use when users present new app concepts, startup ideas, or product proposals and need validation on market viability, demand, feasibility, monetization, and interest factor. Triggers include phrases like \"what do you think of this idea\", \"should I build\", \"validate this concept\", or any request to evaluate a product/app idea.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 102,
+  "skill_md_bytes": 4389,
+  "n_files": 1,
+  "total_bytes": 4389,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 4389
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "imagegen-frontend-web",
+  "scope": "user",
+  "dir": "user/imagegen-frontend-web",
+  "name": "imagegen-frontend-web",
+  "description": "Elite frontend image-direction skill for generating premium, artistic, implementation-friendly website design references. Uses combinatorial variation plus a narrative \u201cconcept spine\u201d and second-read visual moments so outputs stay memorable\u2014not template swaps. Enforces cinematic hero minimalism, strong hierarchy, generous spacing, image-led composition, and anti-slop visual discipline. Optimized for hero sections, landing pages, and multi-section site comps that developers or coding models can accurately recreate.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 722,
+  "skill_md_bytes": 20810,
+  "n_files": 1,
+  "total_bytes": 20810,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 20810
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "internal-comms",
+  "scope": "user",
+  "dir": "user/internal-comms",
+  "name": "internal-comms",
+  "description": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Complete terms in LICENSE.txt"
+  },
+  "skill_md_lines": 33,
+  "skill_md_bytes": 1511,
+  "n_files": 6,
+  "total_bytes": 22405,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "LICENSE.txt",
+    "b": 11357
+   },
+   {
+    "p": "examples/company-newsletter.md",
+    "b": 3295
+   },
+   {
+    "p": "examples/3p-updates.md",
+    "b": 3274
+   },
+   {
+    "p": "examples/faq-answers.md",
+    "b": 2366
+   },
+   {
+    "p": "SKILL.md",
+    "b": 1511
+   },
+   {
+    "p": "examples/general-comms.md",
+    "b": 602
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-examples",
+    "dir": "builtin-examples/internal-comms",
+    "lines": 33
+   }
+  ]
+ },
+ {
+  "slug": "launch-planner",
+  "scope": "user",
+  "dir": "user/launch-planner",
+  "name": "launch-planner",
+  "description": "Transform app ideas into shippable MVPs using a ship-fast, validate-early philosophy. Use when the user wants to turn an idea into a product, needs help scoping an MVP, wants to generate a PRD, needs starter prompts for Claude Code, requires product decision advice during development, or needs to stay focused on shipping. Ideal for product planning, feature scoping, MVP definition, and maintaining momentum throughout the build process.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 260,
+  "skill_md_bytes": 8796,
+  "n_files": 4,
+  "total_bytes": 28947,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 8796
+   },
+   {
+    "p": "references/claude-code-prompts.md",
+    "b": 7916
+   },
+   {
+    "p": "references/decision-framework.md",
+    "b": 6906
+   },
+   {
+    "p": "references/prd-examples.md",
+    "b": 5329
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "learnings-memory",
+  "scope": "user",
+  "dir": "user/learnings-memory",
+  "name": "learnings-memory",
+  "description": "Persistent memory system for lessons learned across Claude Code sessions, with two tiers \u2014 global (~/.claude/memories) for cross-project lessons and repo-level (.claude/memories in the repo root) for project-specific ones. One lesson per file plus an INDEX.md per tier, and a RULES.md per tier holding general rules distilled from recurring lessons. Use when the user says \"remember this\", \"lesson learned\", \"save this for next time\", \"what did we learn\", \"reflect on past sessions\", or \"distill rules\"; whenever the user corrects an approach or confirms one works and the lesson will recur; at the start of non-trivial tasks, to recall relevant stored lessons; and for maintenance (updating, deduplicating, moving between tiers, or deleting notes and rules). Includes a subagent-based reflection workflow for mining past session transcripts.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "metadata": "version: \"1.2.0\" category: \"productivity\""
+  },
+  "skill_md_lines": 150,
+  "skill_md_bytes": 10559,
+  "n_files": 1,
+  "total_bytes": 10559,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 10559
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "bash"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/memories",
+    ".claude/memories/",
+    ".claude/memories/RULES.md",
+    "~/.claude/CLAUDE.md",
+    "~/.claude/memories",
+    "~/.claude/memories/",
+    "~/.claude/memories/RULES.md",
+    "~/.claude/projects/"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "mcp-builder",
+  "scope": "user",
+  "dir": "user/mcp-builder",
+  "name": "mcp-builder",
+  "description": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK).",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Complete terms in LICENSE.txt"
+  },
+  "skill_md_lines": 237,
+  "skill_md_bytes": 9092,
+  "n_files": 10,
+  "total_bytes": 121768,
+  "scripts": [
+   "scripts/evaluation.py",
+   "scripts/connections.py"
+  ],
+  "n_scripts": 2,
+  "top_files": [
+   {
+    "p": "reference/node_mcp_server.md",
+    "b": 28550
+   },
+   {
+    "p": "reference/python_mcp_server.md",
+    "b": 25099
+   },
+   {
+    "p": "reference/evaluation.md",
+    "b": 21663
+   },
+   {
+    "p": "scripts/evaluation.py",
+    "b": 12579
+   },
+   {
+    "p": "LICENSE.txt",
+    "b": 11357
+   },
+   {
+    "p": "SKILL.md",
+    "b": 9092
+   },
+   {
+    "p": "reference/mcp_best_practices.md",
+    "b": 7330
+   },
+   {
+    "p": "scripts/connections.py",
+    "b": 4875
+   },
+   {
+    "p": "scripts/example_evaluation.xml",
+    "b": 1194
+   },
+   {
+    "p": "scripts/requirements.txt",
+    "b": 29
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "ANTHROPIC_API",
+    "ANTHROPIC_API_KEY",
+    "API_BASE",
+    "EXAMPLE_API",
+    "GITHUB"
+   ],
+   "cli_tools": [
+    "npm",
+    "pip",
+    "python"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "users"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-examples",
+    "dir": "builtin-examples/mcp-builder",
+    "lines": 237
+   }
+  ]
+ },
+ {
+  "slug": "morning",
+  "scope": "user",
+  "dir": "user/morning",
+  "name": "morning",
+  "description": "\"Render the user's morning brief as a styled HTML artifact, or set it up as a recurring weekday task. Use only when the user explicitly asks to run, see, or set up their morning brief, or if they invoke /morning by name. A question about their day, schedule, or calendar is not by itself a request for the brief; answer it directly instead.\"",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 137,
+  "skill_md_bytes": 14524,
+  "n_files": 3,
+  "total_bytes": 37103,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "assets/fonts/fraunces-latin-600-normal.woff2",
+    "b": 18096
+   },
+   {
+    "p": "SKILL.md",
+    "b": 14524
+   },
+   {
+    "p": "assets/fonts/Fraunces-OFL.txt",
+    "b": 4483
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "node",
+    "npm"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "examples"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-examples",
+    "dir": "builtin-examples/morning",
+    "lines": 137
+   }
+  ]
+ },
+ {
+  "slug": "pdf",
+  "scope": "user",
+  "dir": "user/pdf",
+  "name": "pdf",
+  "description": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Proprietary. LICENSE.txt has complete terms"
+  },
+  "skill_md_lines": 315,
+  "skill_md_bytes": 8072,
+  "n_files": 12,
+  "total_bytes": 58692,
+  "scripts": [
+   "scripts/check_fillable_fields.py",
+   "scripts/fill_fillable_fields.py",
+   "scripts/create_validation_image.py",
+   "scripts/fill_pdf_form_with_annotations.py",
+   "scripts/check_bounding_boxes.py",
+   "scripts/convert_pdf_to_images.py",
+   "scripts/extract_form_structure.py",
+   "scripts/extract_form_field_info.py"
+  ],
+  "n_scripts": 8,
+  "top_files": [
+   {
+    "p": "REFERENCE.md",
+    "b": 16692
+   },
+   {
+    "p": "FORMS.md",
+    "b": 11854
+   },
+   {
+    "p": "SKILL.md",
+    "b": 8072
+   },
+   {
+    "p": "scripts/extract_form_field_info.py",
+    "b": 4300
+   },
+   {
+    "p": "scripts/extract_form_structure.py",
+    "b": 3945
+   },
+   {
+    "p": "scripts/fill_fillable_fields.py",
+    "b": 3819
+   },
+   {
+    "p": "scripts/fill_pdf_form_with_annotations.py",
+    "b": 3235
+   },
+   {
+    "p": "scripts/check_bounding_boxes.py",
+    "b": 2774
+   },
+   {
+    "p": "LICENSE.txt",
+    "b": 1467
+   },
+   {
+    "p": "scripts/create_validation_image.py",
+    "b": 1258
+   },
+   {
+    "p": "scripts/convert_pdf_to_images.py",
+    "b": 1008
+   },
+   {
+    "p": "scripts/check_fillable_fields.py",
+    "b": 268
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-public",
+    "dir": "builtin-public/pdf",
+    "lines": 315
+   }
+  ]
+ },
+ {
+  "slug": "pptx",
+  "scope": "user",
+  "dir": "user/pptx",
+  "name": "pptx",
+  "description": "\"Use this skill any time a .pptx or .potx file is involved in any way \u2014 as input, output, or both. This includes: creating slide decks, pitch decks, or presentations; reading, parsing, or extracting text from any .pptx or .potx file (even if the extracted content will be used elsewhere, like in an email or summary); editing, modifying, or updating existing presentations; combining or splitting slide files; working with templates (.potx), layouts, speaker notes, or comments. Trigger whenever the user mentions \\\"deck,\\\" \\\"slides,\\\" \\\"presentation,\\\" or references a .pptx or .potx filename, regardless of what they plan to do with the content afterward. If a .pptx or .potx file needs to be opened, created, or touched, use this skill.\"",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Proprietary. LICENSE.txt has complete terms"
+  },
+  "skill_md_lines": 239,
+  "skill_md_bytes": 20796,
+  "n_files": 56,
+  "total_bytes": 1140868,
+  "scripts": [
+   "scripts/__init__.py",
+   "scripts/clean.py",
+   "scripts/thumbnail.py",
+   "scripts/add_slide.py",
+   "scripts/office/soffice.py",
+   "scripts/office/validate.py",
+   "scripts/office/helpers/pptx_slide.py",
+   "scripts/office/helpers/pptx_theme.py",
+   "scripts/office/helpers/__init__.py",
+   "scripts/office/helpers/pptx_chart.py",
+   "scripts/office/validators/pptx.py",
+   "scripts/office/validators/docx.py",
+   "scripts/office/validators/redlining.py",
+   "scripts/office/validators/base.py",
+   "scripts/office/validators/__init__.py"
+  ],
+  "n_scripts": 15,
+  "top_files": [
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/sml.xsd",
+    "b": 242277
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/wml.xsd",
+    "b": 171367
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/dml-main.xsd",
+    "b": 152039
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/pml.xsd",
+    "b": 83612
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/dml-chart.xsd",
+    "b": 74984
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/dml-diagram.xsd",
+    "b": 51302
+   },
+   {
+    "p": "scripts/office/validators/base.py",
+    "b": 33756
+   },
+   {
+    "p": "scripts/office/schemas/microsoft/wml-2010.xsd",
+    "b": 26549
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/vml-main.xsd",
+    "b": 26148
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/vml-officeDrawing.xsd",
+    "b": 25279
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/shared-math.xsd",
+    "b": 23313
+   },
+   {
+    "p": "SKILL.md",
+    "b": 20796
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "node",
+    "python",
+    "python3"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "options"
+   ],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-public",
+    "dir": "builtin-public/pptx",
+    "lines": 239
+   }
+  ]
+ },
+ {
+  "slug": "session-start-hook",
+  "scope": "user",
+  "dir": "user/session-start-hook",
+  "name": "startup-hook-skill",
+  "description": "Creating and developing startup hooks for Claude Code on the web. Use when the user wants to set up a repository for Claude Code on the web, create a SessionStart hook to ensure their project can run tests and linters during web sessions.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 154,
+  "skill_md_bytes": 4931,
+  "n_files": 1,
+  "total_bytes": 4931,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 4931
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "npm"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/hooks",
+    ".claude/hooks/session-start.sh",
+    ".claude/settings.json"
+   ]
+  },
+  "shadows": []
+ },
+ {
+  "slug": "shadcn",
+  "scope": "user",
+  "dir": "user/shadcn",
+  "name": "shadcn",
+  "description": "Manages shadcn components and projects \u2014 adding, searching, fixing, debugging, styling, and composing UI, including chat interfaces. Provides project context, component docs, and usage examples. Applies when working with shadcn/ui, component registries, presets, --preset codes, or any project with a components.json file. Also triggers for \"shadcn init\", \"create an app with --preset\", or \"switch to --preset\".",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *)",
+  "fm_extra": {
+   "user-invocable": "false"
+  },
+  "skill_md_lines": 276,
+  "skill_md_bytes": 19415,
+  "n_files": 11,
+  "total_bytes": 85188,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 19415
+   },
+   {
+    "p": "cli.md",
+    "b": 17304
+   },
+   {
+    "p": "registry.md",
+    "b": 8817
+   },
+   {
+    "p": "rules/base-vs-radix.md",
+    "b": 6954
+   },
+   {
+    "p": "rules/chat.md",
+    "b": 6948
+   },
+   {
+    "p": "customization.md",
+    "b": 6074
+   },
+   {
+    "p": "rules/forms.md",
+    "b": 4857
+   },
+   {
+    "p": "rules/styling.md",
+    "b": 4684
+   },
+   {
+    "p": "rules/composition.md",
+    "b": 4667
+   },
+   {
+    "p": "mcp.md",
+    "b": 3510
+   },
+   {
+    "p": "rules/icons.md",
+    "b": 1958
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "npx"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "shadcn-typeset",
+  "scope": "user",
+  "dir": "user/shadcn-typeset",
+  "name": "shadcn-typeset",
+  "description": "Apply shadcn/typeset \u2014 the styling system for HTML and rendered markdown (released July 2026) \u2014 to prose containers in blogs, docs, chat interfaces, and streaming AI output. Use whenever styling rendered markdown, MDX, CMS/rich-text output, or LLM chat messages; whenever the user mentions \"typeset\", \"prose styling\", \"markdown looks unstyled\", \"typography for chat/docs/blog\", or asks how to style headings/paragraphs/lists/tables/code coming from a renderer. Owns typography INSIDE .typeset containers. Do NOT use for app UI chrome (buttons, forms, cards, navigation) \u2014 that is design-guide territory.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.0.0\" category: \"design\" source: \"https://ui.shadcn.com/docs/typeset (shipped July 2026)\""
+  },
+  "skill_md_lines": 153,
+  "skill_md_bytes": 8375,
+  "n_files": 2,
+  "total_bytes": 20533,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "typeset.css",
+    "b": 12158
+   },
+   {
+    "p": "SKILL.md",
+    "b": 8375
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "npx"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "skill-creator",
+  "scope": "user",
+  "dir": "user/skill-creator",
+  "name": "skill-creator",
+  "description": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 486,
+  "skill_md_bytes": 33351,
+  "n_files": 18,
+  "total_bytes": 227236,
+  "scripts": [
+   "scripts/run_loop.py",
+   "scripts/improve_description.py",
+   "scripts/__init__.py",
+   "scripts/package_skill.py",
+   "scripts/aggregate_benchmark.py",
+   "scripts/run_eval.py",
+   "scripts/generate_report.py",
+   "scripts/quick_validate.py",
+   "scripts/utils.py",
+   "eval-viewer/generate_review.py"
+  ],
+  "n_scripts": 10,
+  "top_files": [
+   {
+    "p": "eval-viewer/viewer.html",
+    "b": 44998
+   },
+   {
+    "p": "SKILL.md",
+    "b": 33351
+   },
+   {
+    "p": "eval-viewer/generate_review.py",
+    "b": 16365
+   },
+   {
+    "p": "scripts/aggregate_benchmark.py",
+    "b": 14386
+   },
+   {
+    "p": "scripts/run_loop.py",
+    "b": 13605
+   },
+   {
+    "p": "scripts/generate_report.py",
+    "b": 12847
+   },
+   {
+    "p": "references/schemas.md",
+    "b": 12061
+   },
+   {
+    "p": "scripts/run_eval.py",
+    "b": 11464
+   },
+   {
+    "p": "LICENSE.txt",
+    "b": 11357
+   },
+   {
+    "p": "scripts/improve_description.py",
+    "b": 11116
+   },
+   {
+    "p": "agents/analyzer.md",
+    "b": 10376
+   },
+   {
+    "p": "agents/grader.md",
+    "b": 9049
+   }
+  ],
+  "deps": {
+   "env_vars": [
+    "ANTHROPIC_API",
+    "ANTHROPIC_API_KEY"
+   ],
+   "cli_tools": [
+    "python"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [
+    "outputs",
+    "public",
+    "skill-test",
+    "transcripts"
+   ],
+   "superpowers_refs": [],
+   "path_refs": [
+    ".claude/.",
+    ".claude/commands/"
+   ]
+  },
+  "shadows": [
+   {
+    "scope": "project",
+    "dir": "project/skill-creator",
+    "lines": 564
+   },
+   {
+    "scope": "plugin-marketplace",
+    "dir": "plugin-marketplace/plugins/skill-creator/skills/skill-creator",
+    "lines": 486
+   },
+   {
+    "scope": "builtin-examples",
+    "dir": "builtin-examples/skill-creator",
+    "lines": 486
+   }
+  ]
+ },
+ {
+  "slug": "strategic-insights",
+  "scope": "user",
+  "dir": "user/strategic-insights",
+  "name": "strategic-insights",
+  "description": "Turn financial and operational data into strategic insight and prioritised improvement recommendations \u2014 unit economics, margin and pricing levers, cost structure review, cash conversion, and where to focus next. Use when the user asks \"what should we improve\", \"what do these numbers tell us\", \"how do we increase margin/profitability\", \"where are we losing money\", \"is this business model working\", or wants strategic feedback after a review or forecast.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.0.0\" category: \"finance\""
+  },
+  "skill_md_lines": 79,
+  "skill_md_bytes": 4959,
+  "n_files": 1,
+  "total_bytes": 4959,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 4959
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "svg-icon-designer",
+  "scope": "user",
+  "dir": "user/svg-icon-designer",
+  "name": "svg-icon-designer",
+  "description": "Create professional SVG icons with organic blob backgrounds and detailed iconography perfect for apps, websites, and branding projects.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 304,
+  "skill_md_bytes": 10145,
+  "n_files": 1,
+  "total_bytes": 10145,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 10145
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "theme-factory",
+  "scope": "user",
+  "dir": "user/theme-factory",
+  "name": "theme-factory",
+  "description": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a new theme on-the-fly.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Complete terms in LICENSE.txt"
+  },
+  "skill_md_lines": 60,
+  "skill_md_bytes": 3124,
+  "n_files": 13,
+  "total_bytes": 144106,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "theme-showcase.pdf",
+    "b": 124310
+   },
+   {
+    "p": "LICENSE.txt",
+    "b": 11357
+   },
+   {
+    "p": "SKILL.md",
+    "b": 3124
+   },
+   {
+    "p": "themes/sunset-boulevard.md",
+    "b": 558
+   },
+   {
+    "p": "themes/ocean-depths.md",
+    "b": 555
+   },
+   {
+    "p": "themes/modern-minimalist.md",
+    "b": 549
+   },
+   {
+    "p": "themes/tech-innovation.md",
+    "b": 547
+   },
+   {
+    "p": "themes/arctic-frost.md",
+    "b": 544
+   },
+   {
+    "p": "themes/golden-hour.md",
+    "b": 528
+   },
+   {
+    "p": "themes/botanical-garden.md",
+    "b": 519
+   },
+   {
+    "p": "themes/midnight-galaxy.md",
+    "b": 513
+   },
+   {
+    "p": "themes/forest-canopy.md",
+    "b": 506
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-examples",
+    "dir": "builtin-examples/theme-factory",
+    "lines": 60
+   }
+  ]
+ },
+ {
+  "slug": "ui-ux-audit",
+  "scope": "user",
+  "dir": "user/ui-ux-audit",
+  "name": "ui-ux-audit",
+  "description": "Conduct a structured UI/UX audit of any user interface \u2014 screenshots, live URLs, Figma exports, HTML/CSS/React code, or written flow descriptions. Evaluates the interface against the user's Job-to-be-Done, Nielsen's heuristics, UX laws, visual design principles, and WCAG accessibility. Produces a prioritized, severity-rated audit report where every recommendation is justified with the underlying principle and the expected impact on the user's job. On explicit request, can then produce a self-contained HTML redesign mockup that visualizes the recommendations, with every change traced back to a numbered finding. Use when the user says \"audit this UI\", \"UX review\", \"review my design/app/website\", \"why is my conversion/activation low\", \"is this interface good\", or shares an interface asking for feedback or improvement; and use the mockup step when they say \"mock it up\", \"show me the redesign\", \"build the fixed version\", or \"make a mockup of the fixes\".",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.1.0\" category: \"design\""
+  },
+  "skill_md_lines": 166,
+  "skill_md_bytes": 14917,
+  "n_files": 1,
+  "total_bytes": 14917,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 14917
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "umami-design-system",
+  "scope": "user",
+  "dir": "user/umami-design-system",
+  "name": "umami-design-system",
+  "description": "Apply Umami's clean, privacy-focused design system to web interfaces, React components, and HTML/CSS. Use when building dashboards, SaaS landing pages, analytics UIs, or any interface requiring Umami's aesthetic including brand indigo colors, Inter typography, glassmorphism effects, 3D perspective animations, and feature cards. Triggers include mentions of Umami, privacy-focused design, analytics dashboards, or SaaS interfaces.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "MIT",
+   "metadata": "version: \"1.0.0\" author: \"Custom Design System\" category: \"design\" framework: \"tailwind-css\""
+  },
+  "skill_md_lines": 529,
+  "skill_md_bytes": 16688,
+  "n_files": 1,
+  "total_bytes": 16688,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 16688
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "uxui-system-architect",
+  "scope": "user",
+  "dir": "user/uxui-system-architect",
+  "name": "uxui-system-architect",
+  "description": "Elite UX/UI system architect that produces premium, implementation-ready written design specifications (documents) for both frontend consumer experiences and backend/admin interfaces. Use when asked to define a UX system, design a UI architecture, create a design system, document user flows in writing, write annotated layout/wireframe specifications, define component libraries, plan information architecture, or produce any UX/UI specification document. Triggers include 'design the UX', 'UI spec', 'design system', 'document the user flow', 'component library', 'information architecture', or 'interaction design spec'. Output is a written, art-directed specification, not a rendered or clickable artifact. For generating rendered low-fidelity screens, flow diagrams, or high-fidelity interactive mockups, use design-prototyper instead. Enforces user-centred clarity, accessibility, anti-slop discipline, narrative interaction spine, and combinatorial variation so output is memorable and buildable, not generic.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {},
+  "skill_md_lines": 373,
+  "skill_md_bytes": 18504,
+  "n_files": 1,
+  "total_bytes": 18504,
+  "scripts": [],
+  "n_scripts": 0,
+  "top_files": [
+   {
+    "p": "SKILL.md",
+    "b": 18504
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": []
+ },
+ {
+  "slug": "web-artifacts-builder",
+  "scope": "user",
+  "dir": "user/web-artifacts-builder",
+  "name": "web-artifacts-builder",
+  "description": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts.",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Complete terms in LICENSE.txt"
+  },
+  "skill_md_lines": 74,
+  "skill_md_bytes": 3087,
+  "n_files": 5,
+  "total_bytes": 45852,
+  "scripts": [
+   "scripts/bundle-artifact.sh",
+   "scripts/init-artifact.sh"
+  ],
+  "n_scripts": 2,
+  "top_files": [
+   {
+    "p": "scripts/shadcn-components.tar.gz",
+    "b": 19967
+   },
+   {
+    "p": "LICENSE.txt",
+    "b": 11357
+   },
+   {
+    "p": "scripts/init-artifact.sh",
+    "b": 9924
+   },
+   {
+    "p": "SKILL.md",
+    "b": 3087
+   },
+   {
+    "p": "scripts/bundle-artifact.sh",
+    "b": 1517
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "bash",
+    "node",
+    "npm",
+    "pnpm"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-examples",
+    "dir": "builtin-examples/web-artifacts-builder",
+    "lines": 74
+   }
+  ]
+ },
+ {
+  "slug": "xlsx",
+  "scope": "user",
+  "dir": "user/xlsx",
+  "name": "xlsx",
+  "description": "\"Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .xltx, .csv, or .tsv file (e.g., adding columns, computing formulas, formatting, charting, cleaning messy data); create a new spreadsheet from scratch or from other data sources; or convert between tabular file formats. Trigger especially when the user references a spreadsheet file by name or path \u2014 even casually (like \\\"the xlsx in my downloads\\\") \u2014 and wants something done to it or produced from it. Also trigger for cleaning or restructuring messy tabular data files (malformed rows, misplaced headers, junk data) into proper spreadsheets. The deliverable must be a spreadsheet file. Do NOT trigger when the primary deliverable is a Word document, HTML report, standalone Python script, database pipeline, or Google Sheets API integration, even if tabular data is involved.\"",
+  "enabled": true,
+  "writable": true,
+  "allowed_tools": "",
+  "fm_extra": {
+   "license": "Proprietary. LICENSE.txt has complete terms"
+  },
+  "skill_md_lines": 100,
+  "skill_md_bytes": 8598,
+  "n_files": 53,
+  "total_bytes": 1105545,
+  "scripts": [
+   "scripts/recalc.py",
+   "scripts/office/soffice.py",
+   "scripts/office/validate.py",
+   "scripts/office/helpers/pptx_slide.py",
+   "scripts/office/helpers/pptx_theme.py",
+   "scripts/office/helpers/__init__.py",
+   "scripts/office/helpers/pptx_chart.py",
+   "scripts/office/validators/pptx.py",
+   "scripts/office/validators/docx.py",
+   "scripts/office/validators/redlining.py",
+   "scripts/office/validators/base.py",
+   "scripts/office/validators/__init__.py"
+  ],
+  "n_scripts": 12,
+  "top_files": [
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/sml.xsd",
+    "b": 242277
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/wml.xsd",
+    "b": 171367
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/dml-main.xsd",
+    "b": 152039
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/pml.xsd",
+    "b": 83612
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/dml-chart.xsd",
+    "b": 74984
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/dml-diagram.xsd",
+    "b": 51302
+   },
+   {
+    "p": "scripts/office/validators/base.py",
+    "b": 33756
+   },
+   {
+    "p": "scripts/office/schemas/microsoft/wml-2010.xsd",
+    "b": 26549
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/vml-main.xsd",
+    "b": 26148
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/vml-officeDrawing.xsd",
+    "b": 25279
+   },
+   {
+    "p": "scripts/office/schemas/ISO-IEC29500-4_2016/shared-math.xsd",
+    "b": 23313
+   },
+   {
+    "p": "scripts/office/validators/docx.py",
+    "b": 17482
+   }
+  ],
+  "deps": {
+   "env_vars": [],
+   "cli_tools": [
+    "node",
+    "python"
+   ],
+   "mcp_refs": [],
+   "skill_refs": [],
+   "superpowers_refs": [],
+   "path_refs": []
+  },
+  "shadows": [
+   {
+    "scope": "builtin-public",
+    "dir": "builtin-public/xlsx",
+    "lines": 100
+   }
+  ]
+ }
+]

@@ -1,0 +1,107 @@
+[
+ {
+  "id": "F-01",
+  "severity": "critical",
+  "title": "The mandated Superpowers pipeline does not exist",
+  "detail": "CLAUDE.md and .claude/rules/workflow.md mandate a 6-stage pipeline of 13 superpowers:* skill gates, and anti-patterns.md classes skipping a gate as a rule violation. Zero superpowers skills are installed: installed_plugins.json is empty, the only marketplace has no superpowers entry, and a filesystem-wide search finds only the using-superpowers skill itself plus stale scratch dirs. Every task in this repo therefore starts non-compliant and has no way to become compliant.",
+  "affects": ["using-superpowers", "quality-gates", "claude-md-guardian"]
+ },
+ {
+  "id": "F-02",
+  "severity": "critical",
+  "title": "Eight skills declare dependencies on skills that do not exist",
+  "detail": "gemini-imagegen (required by brand-design, product-page-builder; referenced by nb-campaign-visual), copywriting and competitor-alternatives (promotional-campaigns), pricing-strategy (solution-design), monthly-accounts-review / variance-analysis / forecasting-models (strategic-insights), openspec-sync-specs (openspec-archive-change). Each will trigger, then fail or silently skip a step.",
+  "affects": ["brand-design", "product-page-builder", "nb-campaign-visual", "promotional-campaigns", "solution-design", "strategic-insights", "openspec-archive-change"]
+ },
+ {
+  "id": "F-03",
+  "severity": "critical",
+  "title": "Wrong repo root hardcoded — checks fail silently as passes",
+  "detail": "The repo is /home/user/circletel but claude-md-guardian/checks/currency.md hardcodes /home/circletel in all 6 checks, so every check finds nothing and reports 'no violation'. The same bad prefix appears in product-page-builder and compound-learnings. Silent false-green is worse than an error.",
+  "affects": ["claude-md-guardian", "product-page-builder", "compound-learnings"]
+ },
+ {
+  "id": "F-04",
+  "severity": "high",
+  "title": "openspec CLI is uninstalled but four skills drive it",
+  "detail": "which openspec is empty, no @openspec package, npx cannot resolve it. Yet openspec/ holds 4 active changes and 8 specs — orphaned state. openspec-propose cannot scaffold at all; openspec-archive-change's only working step is a destructive mv with every verification gate disabled.",
+  "affects": ["openspec-propose", "openspec-apply-change", "openspec-archive-change", "openspec-explore"]
+ },
+ {
+  "id": "F-05",
+  "severity": "high",
+  "title": "Four rival memory stores, none aware of the others",
+  "detail": "compound-learnings (49 learnings, real, dead since 2026-04-28), memory-os (half-built: short-term/ tree entirely missing), filesystem-context (.claude/memory/, thin), learnings-memory (.claude/memories/, empty — its setup.sh was never shipped). Path trap: .claude/memory vs .claude/memories. Direct contradiction: learnings-memory needs 3+ lessons before writing a rule; compound-learnings writes one from a single correction.",
+  "affects": ["compound-learnings", "memory-os", "filesystem-context", "learnings-memory"]
+ },
+ {
+  "id": "F-06",
+  "severity": "high",
+  "title": "CircleTel brand data has forked three ways",
+  "detail": "Primary orange #F5831F (project) vs #F5841E (user skills). Secondary #1F2937 vs #1B2A4A (all nb-*) vs #13274A. Fonts Arial vs Poppins/Montserrat. Currency R1 234,56 (house standard) vs R1,299 (project skills). Legal entity 'CircleTel (Pty) Ltd, member of New Generation Group' vs 'CircleTel SA (Pty) Ltd (Reg 2008/026404/07)'. Six skills restate the brand block; none loads brand-design, the nominal source of truth.",
+  "affects": ["brand-design", "nb-product-hero", "nb-social-ad", "nb-campaign-visual", "nb-package-bento", "circletel-product-development", "circletel-launch-collateral", "openai-imagegen"]
+ },
+ {
+  "id": "F-07",
+  "severity": "high",
+  "title": "Margin maths in promotional-campaigns can green-light a non-compliant offer",
+  "detail": "The worked example computes an 88.9% margin from the R175.43 COS floor that its own table annotates as 'excludes tower/access costs'. Applied as written it can approve a promotion that breaches the 25% minimum-margin rule.",
+  "affects": ["promotional-campaigns"]
+ },
+ {
+  "id": "F-08",
+  "severity": "high",
+  "title": "Three unsynced generators produce the same CPS/BRD/FSD documents",
+  "detail": "circletel-product-development, new-product, and product-management/generate-docs each build the same three documents from three separate template sets with no precedence rule. circletel-products-plugin/ is a further partial copy of product-management: 9 files byte-identical, but references/ (7 files) and templates/ (4 files) are missing, so its generate-docs loads files that are not there.",
+  "affects": ["circletel-product-development", "new-product", "product-management"]
+ },
+ {
+  "id": "F-09",
+  "severity": "medium",
+  "title": "Skills contradict each other with no precedence rule",
+  "detail": "web-artifacts-builder bans purple gradients and Inter; umami-design-system mandates both. design-guide claims 'ALL UI work, no exceptions' then hardcodes three slug exemptions. git-guardrails blocks git push while session-start-hook pushes unprompted and CLAUDE.md's deploy path requires it. project-sync recommends git reset --hard, git clean -fd and force-push on main, against both git-guardrails and git-tree-hygiene.md. launch-planner prescribes Vercel, which vps-devops.md forbids.",
+  "affects": ["web-artifacts-builder", "umami-design-system", "design-guide", "git-guardrails-claude-code", "project-sync", "launch-planner"]
+ },
+ {
+  "id": "F-10",
+  "severity": "medium",
+  "title": "Declared reference files were never shipped",
+  "detail": "anti-ai-slop-design declares 4 references/*.md — none exist. ui-ux-audit declares 5 files including templates/redesign-mockup-template.html, which its own Phase 7 calls a hard requirement ('not shippable' without it). Roughly half of each skill's promised value is unreachable.",
+  "affects": ["anti-ai-slop-design", "ui-ux-audit"]
+ },
+ {
+  "id": "F-11",
+  "severity": "medium",
+  "title": "Two skills burn a turn or force rework by design",
+  "detail": "emil-design-eng's 'Initial Response' forces a canned reply advertising a paid third-party course and forbids all other output until the user asks again. canvas-design fabricates user speech (\"The user ALREADY said 'It isn't perfect enough...'\", typo included) to force a mandatory second render pass on every invocation.",
+  "affects": ["emil-design-eng", "canvas-design"]
+ },
+ {
+  "id": "F-12",
+  "severity": "medium",
+  "title": "Fourteen skills are verbatim copies of built-ins or near-twins of each other",
+  "detail": "docx, pdf, pptx and xlsx at user scope are byte-identical to the Anthropic built-ins (verified by diff -rq plus per-file MD5 across 182 files) — zero divergence, so each registers twice for no gain. uxui-system-architect is a structural fork of imagegen-frontend-web sharing its directive, dials, combinatorial engine and anti-slop sections. The anti-slop catalog exists three and a half times over. skill-creator is installed twice.",
+  "affects": ["docx", "pdf", "pptx", "xlsx", "uxui-system-architect", "imagegen-frontend-web", "anti-ai-slop-design", "skill-creator"]
+ },
+ {
+  "id": "F-13",
+  "severity": "medium",
+  "title": "stats-tracker reports fabricated telemetry",
+  "detail": "metrics.json claims 47 activations and 89% success rates with no instrumentation behind them; verification-metrics.json is all zeros; reports/ was never created; the /stats skills and /stats verification commands do not exist.",
+  "affects": ["stats-tracker"]
+ },
+ {
+  "id": "F-14",
+  "severity": "medium",
+  "title": "Dead platform dependencies",
+  "detail": "product-page-builder's entire Sanity CMS path is dead (no lib/sanity, no components/sanity, zero package.json refs; CLAUDE.md records Sanity was fully removed). openrouter-imagegen ships a placeholder API key so it triggers then fails. disk-cleanup-wizard is Windows-only on a Linux host. svg-icon-designer writes to /mnt/user-data/outputs/ and returns computer:// links that do not exist in Claude Code. No PowerShell on this host, yet run-context-analyzer.ps1 (mandated by CLAUDE.md) exists nowhere at all.",
+  "affects": ["product-page-builder", "openrouter-imagegen", "disk-cleanup-wizard", "svg-icon-designer", "session-manager", "project-sync", "session-checker"]
+ },
+ {
+  "id": "F-15",
+  "severity": "low",
+  "title": "Anthropic-branded skills sit in a client workspace",
+  "detail": "brand-guidelines installs Anthropic's palette with a trigger as broad as 'any artifact that may benefit', in a workspace that has its own brand-design. internal-comms imports Anthropic's house comms formats as though they were CircleTel's. No precedence note exists in either direction.",
+  "affects": ["brand-guidelines", "internal-comms"]
+ }
+]

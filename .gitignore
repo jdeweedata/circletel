@@ -245,3 +245,6 @@ app/prototype/
 .design/ctel CI/
 .design/image copy 2.png
 .playwright-mcp/test-fish-eagle/
+
+# Skill Upgrade Gauntlet — large run artifacts (originals snapshot is 39MB)
+.claude/gauntlet/originals/
