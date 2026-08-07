@@ -1,0 +1,126 @@
+{
+ "skill": "idea-validator",
+ "frozen": true,
+ "version": 1,
+ "capability_summary": "Given a proposed product, app, or business idea, produce a fast, honest viability assessment that names who the idea is for, who or what already serves that need and on what terms, what would have to be true for the idea to work, and a clear verdict with the strongest reason it might fail.",
+ "user_goal": "Find out quickly and without flattery whether this idea is worth building, what the real obstacle is, and what would change the answer — before spending time or money.",
+ "success_looks_like": [
+  "The specific user and the specific problem are named, not a broad demographic or a category.",
+  "At least one named existing alternative is identified with what it costs or how it is priced, or an explicit statement that no such grounding could be obtained.",
+  "The single most likely reason the idea fails is stated plainly and early.",
+  "A clear verdict is given (for example: pursue, reshape, or drop) rather than a balanced list that avoids deciding.",
+  "The assessment states what would have to be true for the idea to work, in terms the reader could go test.",
+  "Assumptions the reader supplied are separated from claims the assessment is asserting.",
+  "Uncertainty is attached to the specific claim it applies to, not applied as a general disclaimer.",
+  "Where money comes from, who pays, and roughly how much is addressed concretely.",
+  "The hardest part to build or operate is named, distinct from the parts that are routine.",
+  "The reader could act on it in a single sitting without asking a follow-up to understand the verdict."
+ ],
+ "priority_qualities": [
+  {
+   "rank": 1,
+   "quality": "Honest verdict",
+   "why_it_matters": "The entire value of the assessment is that it will say no; hedging makes it worthless."
+  },
+  {
+   "rank": 2,
+   "quality": "Grounded in named alternatives",
+   "why_it_matters": "Most ideas fail because something already serves the need adequately, which cannot be seen without naming it."
+  },
+  {
+   "rank": 3,
+   "quality": "Specificity of user and problem",
+   "why_it_matters": "A vague target makes every downstream judgement about demand and pricing unfalsifiable."
+  },
+  {
+   "rank": 4,
+   "quality": "Calibration",
+   "why_it_matters": "Confidence must track evidence, so the reader knows which parts to trust and which to verify."
+  },
+  {
+   "rank": 5,
+   "quality": "Names the strongest failure mode",
+   "why_it_matters": "One decisive obstacle is more useful than a survey of minor risks."
+  },
+  {
+   "rank": 6,
+   "quality": "Actionable next test",
+   "why_it_matters": "A verdict the reader can cheaply check converts opinion into progress."
+  },
+  {
+   "rank": 7,
+   "quality": "Economic realism",
+   "why_it_matters": "Ideas that cannot pay for themselves fail regardless of demand or feasibility."
+  },
+  {
+   "rank": 8,
+   "quality": "Speed of reading",
+   "why_it_matters": "The assessment is meant to be consumed before commitment, so density beats completeness."
+  }
+ ],
+ "constraints": [
+  "Include at least one specific, attributable claim about who or what already serves this need and on what terms (price, model, or offering), or state explicitly that such grounding could not be obtained.",
+  "When grounding cannot be obtained, treat that absence as a finding that affects the verdict and say how it affects it.",
+  "Distinguish verified claims from inference, and mark the inferences.",
+  "Reach a single explicit verdict; do not end on a list of considerations.",
+  "Address demand, existing alternatives, feasibility, and how the idea makes money.",
+  "Name what would have to be true for the idea to work and how the reader could test it.",
+  "Ask clarifying questions only when the idea is too underspecified to assess at all; otherwise state the interpretation used and proceed.",
+  "Keep the assessment short enough to read in one sitting.",
+  "Adapt the depth of each area to the idea; skip areas that genuinely do not apply and say why."
+ ],
+ "never_do": [
+  "Never assert a specific competitor, price, funding event, or market figure without attribution.",
+  "Never soften or reverse a negative verdict to be encouraging.",
+  "Never substitute a general disclaimer about uncertainty for a real assessment of the specific claims.",
+  "Never treat 'no direct competitor found' as evidence of opportunity.",
+  "Never present speculation about market size or growth as established fact.",
+  "Never end without a verdict.",
+  "Never pad with generic startup advice unrelated to this idea.",
+  "Never dismiss an idea without naming the specific obstacle that defeats it.",
+  "Never restate the idea back at length in place of evaluating it."
+ ],
+ "objective_invariants": [
+  "A named existing alternative with its terms appears, or an explicit statement that grounding could not be obtained appears.",
+  "If grounding could not be obtained, the text says how that gap affects the verdict.",
+  "Every specific competitor, price, or market figure is attributed to a source or labelled as unverified inference.",
+  "A single explicit verdict appears.",
+  "At least one named obstacle is identified as the most likely cause of failure.",
+  "At least one concrete, checkable next test is stated.",
+  "The intended user is described specifically enough to be located in the real world.",
+  "How the idea earns money, and from whom, is addressed.",
+  "Uncertainty markers are attached to particular claims rather than stated only as a blanket caveat."
+ ],
+ "scope_in": [
+  "New product, app, service, or business concepts at any stage of definition.",
+  "Assessment of demand, existing alternatives, feasibility, monetisation, and differentiation.",
+  "Naming the assumptions the idea depends on and how to test them cheaply.",
+  "Reshaping the idea into a narrower or more defensible version when the original fails."
+ ],
+ "scope_out": [
+  "Building, designing, or specifying the product itself.",
+  "Full market research reports, financial models, or business plans.",
+  "Fundraising materials, pitch decks, or investor documents.",
+  "Legal, regulatory, or tax advice.",
+  "Ongoing execution planning after a decision to proceed."
+ ],
+ "activation_expectations": [
+  "Applies when someone presents an idea and asks whether it is worth building or wants it evaluated.",
+  "Applies when someone asks for honest or critical feedback on a concept before committing effort.",
+  "Applies when someone asks whether a market or demand exists for something they intend to make.",
+  "Does not apply once the decision to build is settled and the request is about how to build it.",
+  "Does not apply to evaluating an already-operating business's performance."
+ ],
+ "non_qualities": [
+  "Length or word count — a short assessment is not worse than a long one.",
+  "Confident or harsh tone — bluntness is not the goal, accuracy is.",
+  "Number of sections or areas covered.",
+  "Use of headings, or any particular document structure.",
+  "Consistent ordering or a fixed template across assessments.",
+  "Presence of scores, ratings, or numeric grades.",
+  "Balance for its own sake — an assessment need not list positives to be fair.",
+  "Formatting choices such as tables, bullets, or prose."
+ ],
+ "hash": "579c23278a803ca4",
+ "judge_safe_verified": true
+}

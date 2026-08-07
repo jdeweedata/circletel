@@ -1,0 +1,160 @@
+{
+ "skill": "promotional-campaigns",
+ "frozen": true,
+ "version": 1,
+ "capability_summary": "Designs a promotional offer or campaign for a telecoms/connectivity provider and verifies it against the provider's own commercial rules — margin floors, discount-approval thresholds, contract and regulatory constraints — before it is cleared for market.",
+ "user_goal": "Get a promotional offer that is attractive enough to sell but provably compliant with the business's margin floor and commercial rules, with the arithmetic shown so a reviewer can confirm the verdict rather than trust it.",
+ "success_looks_like": [
+  "Every promotional price is traced to an explicit cost basis and an explicit margin calculation a reviewer can re-add by hand.",
+  "The pass/fail margin verdict is computed on the highest-cost defensible reading of the offer, not a favourable one.",
+  "Any lower-cost reading appears only as clearly labelled sensitivity analysis that cannot be mistaken for the verdict.",
+  "Assumptions about subscriber volume tier, speed-tier pairing, tax basis and which per-service charges apply are stated before the figures that depend on them.",
+  "Arithmetic is internally consistent with every stated assumption, with no figure carried over from a different assumption set.",
+  "Offers that breach the margin floor are reported as failing with the shortfall quantified, not silently repriced or reframed.",
+  "Rules that cannot be satisfied simultaneously are surfaced as a conflict requiring a business decision, not resolved by quietly dropping one.",
+  "Discounts above the approval threshold are flagged with the approving authority named, not applied unilaterally.",
+  "Promotional duration, eligibility, contract term and reversion price are specified so the offer can be operationalised without further guessing.",
+  "A reviewer can locate, in one pass, the cost line, the price line, the margin line and the floor being tested."
+ ],
+ "priority_qualities": [
+  {
+   "rank": 1,
+   "quality": "Verdict computed on the highest-cost defensible basis",
+   "why_it_matters": "A pass obtained by choosing the cheapest reading is the single failure mode that puts loss-making offers into market."
+  },
+  {
+   "rank": 2,
+   "quality": "Arithmetic that reconciles line by line",
+   "why_it_matters": "An unverifiable margin number is indistinguishable from a wrong one and cannot clear a commercial gate."
+  },
+  {
+   "rank": 3,
+   "quality": "Assumptions stated before, and consistent with, the figures they drive",
+   "why_it_matters": "Disclosure is only a guard if the numbers actually follow the assumption declared."
+  },
+  {
+   "rank": 4,
+   "quality": "Complete inclusion of every mandatory cost component",
+   "why_it_matters": "Omitting a recurring per-service or per-subscriber charge inflates margin and is the most common silent error."
+  },
+  {
+   "rank": 5,
+   "quality": "Explicit handling of rule conflicts and threshold breaches",
+   "why_it_matters": "A conflict resolved silently transfers a commercial decision from the business to the tool."
+  },
+  {
+   "rank": 6,
+   "quality": "Operational specificity of offer mechanics",
+   "why_it_matters": "Duration, eligibility and reversion terms determine whether the modelled margin survives contact with billing."
+  },
+  {
+   "rank": 7,
+   "quality": "Commercial attractiveness of the offer",
+   "why_it_matters": "A compliant offer nobody buys wastes the promotional window."
+  },
+  {
+   "rank": 8,
+   "quality": "Reviewer-navigable presentation",
+   "why_it_matters": "Verification speed determines whether the check actually happens before launch."
+  }
+ ],
+ "constraints": [
+  "State the cost basis and every included component before quoting any margin figure.",
+  "Compute the margin verdict on the highest-cost defensible reading available from the inputs and rules.",
+  "Label any lower-cost reading explicitly as sensitivity analysis and keep it visually and structurally separate from the verdict.",
+  "Name each assumption (volume tier, speed-tier pairing, tax basis, applicable per-service charges) at the point it first affects a number.",
+  "Reject any assumption that contradicts the governing commercial rules rather than disclosing it and proceeding.",
+  "Show the subtraction or division that produces each margin percentage or amount.",
+  "Test the resulting margin against the stated floor and report pass or fail in words, not by implication.",
+  "Quantify the shortfall in currency and percentage points whenever the floor is missed.",
+  "Identify the approving authority whenever a discount exceeds the delegated threshold.",
+  "Report mutually unsatisfiable rules as an unresolved conflict with the specific rules named.",
+  "Express monetary figures in the provider's currency and stated tax basis consistently throughout.",
+  "State promotional duration, eligible base, contract term and post-promotion reversion price for every offer."
+ ],
+ "never_do": [
+  "Never publish a margin verdict derived from a lower-cost reading when a higher-cost defensible reading exists.",
+  "Never treat declaring an assumption as licence for arithmetic that is wrong under that assumption.",
+  "Never adopt an assumption that conflicts with the governing commercial rules.",
+  "Never omit a mandatory cost component from the verdict basis, including recurring per-service and per-subscriber charges.",
+  "Never mix figures computed under different assumption sets within one calculation.",
+  "Never present sensitivity analysis in a position or format where it could be read as the verdict.",
+  "Never reframe a floor breach as acceptable without naming it as a breach first.",
+  "Never apply a discount above the approval threshold without flagging the required approval.",
+  "Never silently drop one of two conflicting rules to manufacture a satisfiable offer.",
+  "Never switch tax basis mid-calculation or leave the basis unstated.",
+  "Never assert a figure as verified without showing the operation that produces it.",
+  "Never present an untested or unverifiable offer as cleared for market."
+ ],
+ "objective_invariants": [
+  "A named cost basis with an itemised component list appears before the first margin figure.",
+  "Every mandatory cost component listed in the cost-basis formula is present in the verdict calculation or explicitly justified as inapplicable.",
+  "The verdict calculation uses the highest-cost reading; each alternative reading is labelled as sensitivity analysis.",
+  "Each stated assumption is followed by figures that arithmetically follow from it.",
+  "Each margin figure is accompanied by the arithmetic that produces it, reproducible by hand.",
+  "A pass/fail statement against the margin floor appears in words for every offer.",
+  "Any floor breach is accompanied by a shortfall quantified in both currency and percentage points.",
+  "Any discount above the approval threshold is accompanied by the named approving authority.",
+  "Any pair of rules that cannot both be satisfied is named as a conflict, with both rules identified.",
+  "Currency and tax basis are stated once and used identically in every subsequent figure.",
+  "Promotional duration, eligibility, contract term and reversion price are each stated for every offer.",
+  "No figure appears without either a source input, a stated assumption, or a shown derivation."
+ ],
+ "cost_basis_formula": {
+  "formula": "Total promotional cost = wholesale/access cost for the paired speed tier at the applicable subscriber-volume tier + all recurring per-service charges that apply to that service + all per-subscriber charges over the promotional term, expressed on a single consistent tax basis; promotional margin = (promotional revenue over the term - total promotional cost over the term) / promotional revenue over the term.",
+  "mandatory_components": [
+   "Wholesale or network access cost for the specific speed tier being promoted",
+   "Subscriber-volume tier applied to that access cost, with the tier stated",
+   "Every recurring per-service charge applicable to the service being promoted",
+   "Every per-subscriber charge applicable over the promotional term",
+   "Any one-off acquisition, installation or hardware cost amortised across the stated term",
+   "The promotional term length used to annualise or total both cost and revenue",
+   "A single declared tax basis applied identically to cost and revenue",
+   "Post-promotion reversion price where it affects the term being evaluated"
+  ],
+  "verdict_basis_rule": "The pass/fail verdict against the margin floor must be computed on the highest-cost defensible reading permitted by the inputs and the governing commercial rules - the least favourable applicable volume tier, the least favourable defensible speed-tier pairing, and the inclusion of every per-service and per-subscriber charge whose applicability is not positively excluded; lower-cost readings may be shown only as separately labelled sensitivity analysis and may never determine the verdict.",
+  "assumption_disclosure_rule": "An assumption must be stated at the point it first affects a figure, must not contradict the governing commercial rules, and must be followed by arithmetic that is internally consistent with it; disclosure never excuses a calculation that is wrong under the assumption disclosed, never substitutes for choosing the highest-cost defensible basis for the verdict, and an assumption that conflicts with a governing rule must be rejected rather than declared."
+ },
+ "scope_in": [
+  "Designing promotional offers, bundles, discounts and campaign mechanics for connectivity and telecoms services",
+  "Deriving the cost basis for a promoted service from wholesale, per-service and per-subscriber inputs",
+  "Testing a proposed promotional price against the margin floor and reporting the verdict",
+  "Identifying discount-approval thresholds and the authority required to clear them",
+  "Surfacing conflicts between commercial, contractual and regulatory rules that constrain an offer",
+  "Specifying promotional duration, eligibility, contract term and reversion mechanics",
+  "Producing sensitivity analysis across volume tiers, speed-tier pairings and tax bases",
+  "Recommending offer adjustments that bring a failing offer above the floor"
+ ],
+ "scope_out": [
+  "Executing, scheduling or publishing the campaign to any channel",
+  "Producing final customer-facing creative, artwork or ad copy as the primary deliverable",
+  "Approving a discount that exceeds the delegated threshold",
+  "Negotiating or amending wholesale supplier rates",
+  "Legal or regulatory sign-off on promotional terms",
+  "Billing-system configuration or provisioning changes",
+  "Forecasting demand uplift or campaign response rates as authoritative figures",
+  "Setting or revising the margin floor itself"
+ ],
+ "activation_expectations": [
+  "Triggers on requests to design, price, discount or evaluate a promotional offer or campaign for connectivity services.",
+  "Triggers when asked whether a proposed promotional price clears the margin floor.",
+  "Triggers on requests to check an existing offer against commercial rules before launch.",
+  "Triggers when a bundle, free-months, waived-installation or reduced-rate mechanic is proposed.",
+  "Requests the margin floor, wholesale inputs and applicable charges when they are not supplied rather than inventing them.",
+  "States explicitly when an input is missing and what the verdict depends on.",
+  "Does not trigger for pure creative or copywriting requests with no pricing component.",
+  "Does not trigger for post-launch campaign performance reporting."
+ ],
+ "non_qualities": [
+  "Length or verbosity - a short verified offer beats a long one.",
+  "Confident tone - assertion is not verification and does not raise a figure's credibility.",
+  "Number of sections or headings produced.",
+  "Completeness of a document template, where filled sections carry no verified arithmetic.",
+  "Volume of offer variants generated.",
+  "Sophistication of marketing language or campaign naming.",
+  "Breadth of unrequested strategic commentary.",
+  "Visual formatting, tables or styling beyond what aids reviewer verification."
+ ],
+ "hash": "a464fd5f6ea576cd",
+ "judge_safe_verified": true
+}

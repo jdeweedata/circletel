@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "run_id": "gauntlet-2026-08-07",
-  "phase": "contract-freeze (finalisers running)",
+  "phase": "benchmark-design",
   "phase_history": [
     {
       "phase": "discovery",
@@ -27,6 +27,11 @@
       "phase": "contract-extraction",
       "status": "complete",
       "note": "3 independent extractors x 4 skills = 12 contracts; 4 mergers; 4 independent audits (7 blocking issues found: 3 arithmetic in promotional-campaigns, 2 fact/scope in brand-design, 1 each in idea-validator and claude-md-guardian)"
+    },
+    {
+      "phase": "contract-freeze",
+      "status": "complete",
+      "note": "4 contracts frozen and leak-checked. Finaliser subagents hung twice on file writes; recovered by having them return JSON as reply text. brand-design contract required lead correction: the finaliser hallucinated placeholder hex values when cut off from source data; replaced with values verified directly from tailwind.config.ts, app/layout.tsx and pixel-sampling of the logo artwork (#F6841F confirmed over 614k pixels)."
     }
   ],
   "models_verified": {
@@ -50,20 +55,24 @@
   ],
   "skills": {
     "idea-validator": {
-      "status": "contract-freeze",
-      "iteration": 0
+      "status": "benchmark-design",
+      "iteration": 0,
+      "contract_frozen": true
     },
     "claude-md-guardian": {
-      "status": "contract-freeze",
-      "iteration": 0
+      "status": "benchmark-design",
+      "iteration": 0,
+      "contract_frozen": true
     },
     "promotional-campaigns": {
-      "status": "contract-freeze",
-      "iteration": 0
+      "status": "benchmark-design",
+      "iteration": 0,
+      "contract_frozen": true
     },
     "brand-design": {
-      "status": "contract-freeze",
-      "iteration": 0
+      "status": "benchmark-design",
+      "iteration": 0,
+      "contract_frozen": true
     }
   },
   "blockers": [
@@ -98,5 +107,19 @@
       "model": "claude-opus-5",
       "skill": "candidate"
     }
-  }
+  },
+  "incidents": [
+    {
+      "id": "INC-001",
+      "what": "Subagent file-write path hung repeatedly (8 agents, ~50min lost)",
+      "mitigation": "Agents now return artifacts as reply text; lead writes the files.",
+      "status": "mitigated"
+    },
+    {
+      "id": "INC-002",
+      "what": "A finaliser invented brand hex values when denied source access",
+      "mitigation": "Lead replaced with values verified from production config and artwork pixel sampling; independently re-verified.",
+      "status": "resolved"
+    }
+  ]
 }

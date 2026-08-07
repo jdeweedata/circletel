@@ -1,0 +1,204 @@
+{
+ "skill": "brand-design",
+ "frozen": true,
+ "version": 1,
+ "capability_summary": "Supplies the company's authoritative brand definition - colour values and their roles, typography, logo variants and usage rules, and tone - to any downstream producer of an asset: generated imagery, UI code, print, or social. Emits a usable brand specification with each value attributed to its source, and surfaces contested values rather than resolving them silently.",
+ "user_goal": "Produce or check an asset that is unmistakably on-brand, with brand values that are traceable to a stated source and safe to hand to a designer, developer, print vendor, or image generator.",
+ "success_looks_like": [
+  "The asset or spec states exact hex values, typefaces and weights, not adjectives like 'warm orange' or 'modern sans'.",
+  "Every stated colour carries its source: a named design token, the logo artwork, an official theme declaration, or a documented print/social value.",
+  "Logo usage is specified concretely: which variant, clearspace, minimum size, and permitted backgrounds.",
+  "For image generation, the logo and wordmark are composited afterwards from an approved file, never described for the model to draw.",
+  "Where the brand's primary value is genuinely contested, the competing values are shown with their sources and the choice is escalated, not quietly made.",
+  "One asset uses one consistent value per brand role throughout.",
+  "Semantic roles the producer will need - accessible text variant, tint, shade, info, success, error - are supplied rather than left to invention.",
+  "A developer, printer or image model can act on the output without further interpretation."
+ ],
+ "priority_qualities": [
+  {
+   "rank": 1,
+   "quality": "Source-traceable colour",
+   "why_it_matters": "A hex with no stated origin cannot be checked, and wrong brand colour is the most visible failure mode."
+  },
+  {
+   "rank": 2,
+   "quality": "Contested values surfaced, not resolved",
+   "why_it_matters": "Silently picking a side manufactures false authority and propagates an unverified value into print and artwork."
+  },
+  {
+   "rank": 3,
+   "quality": "Internal consistency within one asset",
+   "why_it_matters": "Two different primaries in one deliverable is immediately visible and unambiguously wrong regardless of which value is correct."
+  },
+  {
+   "rank": 4,
+   "quality": "Logo integrity",
+   "why_it_matters": "Redrawn, distorted, or crowded marks are the fastest way an asset reads as counterfeit."
+  },
+  {
+   "rank": 5,
+   "quality": "Medium-appropriate application",
+   "why_it_matters": "Web tokens, print, and generative imagery have different constraints; applying one blindly to another produces unusable output."
+  },
+  {
+   "rank": 6,
+   "quality": "Complete role coverage",
+   "why_it_matters": "Missing semantic roles force the producer to invent off-brand values."
+  },
+  {
+   "rank": 7,
+   "quality": "Actionable specificity",
+   "why_it_matters": "The output must be directly usable without the reader resolving ambiguity themselves."
+  }
+ ],
+ "constraints": [
+  "Attribute every colour value to a source type: design token, logo artwork, official theme declaration, or documented print/social value.",
+  "Design tokens are authoritative for web UI. They are not automatically authoritative for the logo mark itself, nor for print, merchandise, or generated imagery that never consumed those tokens.",
+  "When a value is contested, present the competing values with their sources and let the requester decide; do not average, blend, or invent an intermediate.",
+  "Supply the full orange family - base, accessible-on-light text variant, tint and shade - not the base alone.",
+  "Supply the semantic roles including info blue alongside success and error.",
+  "Enumerate the logo variant set when logo usage is specified, and name which variant applies to the background in question.",
+  "State the clearspace rule and both minimum sizes (screen and print) whenever logo placement is specified.",
+  "Composite, don't generate: logos and wordmarks are overlaid from an approved asset file after image generation; the generator is instructed to reserve clear space for them.",
+  "State typefaces with their roles, weights and fallback stack.",
+  "When a brand decision falls outside the definition, derive it from the nearest documented rule and label the derivation as such rather than presenting it as established."
+ ],
+ "never_do": [
+  "Never instruct an image generator to draw, render, or spell the logo, wordmark, or company name.",
+  "Never state a hex for the logo mark that differs from the artwork's actual colour.",
+  "Never attribute a value to a named design token unless that token resolves to it.",
+  "Never present a contested primary as settled fact.",
+  "Never use two different values for the same brand role within a single asset.",
+  "Never recolour, stretch, rotate, add effects to, or place the logo on a background that fails contrast.",
+  "Never substitute a near-miss colour or an unlisted typeface because an exact value was unavailable.",
+  "Never specify the base primary orange as the colour of small text on a light background."
+ ],
+ "objective_invariants": [
+  "Every hex value in the output is accompanied by a stated source type.",
+  "Any value attributed to a named design token equals the value that token resolves to.",
+  "Any value stated as the logo mark's colour equals the artwork's colour.",
+  "No single asset or spec contains two different hex values assigned to the same brand role.",
+  "A contested brand value appears labelled as contested, with at least two competing values and their sources.",
+  "The orange family appears with base, accessible text variant, tint and shade values, not base alone.",
+  "The info blue appears as a named semantic role with a hex value.",
+  "The logo variant set is enumerated when logo usage is specified, and the applicable variant is named.",
+  "The clearspace rule and both minimum sizes appear whenever logo placement is specified.",
+  "Any image-generation prompt contains no instruction to render the logo, wordmark, or company name, and reserves space for post-generation compositing.",
+  "Typography is stated as role plus family plus weights plus fallback stack.",
+  "Divergence from a design-token value is permitted only for the logo mark, print, or non-token media, and only when the alternative source is named.",
+  "Any value not present in the brand definition is labelled as a derivation with the rule it was derived from."
+ ],
+ "contested_facts": [
+  {
+   "fact": "The brand's primary orange hex",
+   "competing_values": [
+    {
+     "value": "#E87A1E",
+     "source": "Production design token circleTel-orange in the web build configuration; several thousand usages across the shipped user interface"
+    },
+    {
+     "value": "#F5841E",
+     "source": "Explicitly labelled official theme colour declared in the application root layout; ships in production"
+    },
+    {
+     "value": "#F5831F",
+     "source": "The brand documentation's own stated primary value"
+    },
+    {
+     "value": "#F6841F",
+     "source": "Pixel sampling of the approved logo artwork files"
+    }
+   ],
+   "note": "The final three cluster within one unit per channel of each other; the design-token value sits materially further away. This may indicate a deliberate marketing-versus-interface split, or unintended drift. It is not resolved here."
+  },
+  {
+   "fact": "The brand's secondary/dark colour",
+   "competing_values": [
+    {
+     "value": "#1B2A4A",
+     "source": "Production design token circleTel-navy; several hundred usages in the shipped interface"
+    },
+    {
+     "value": "#1F2937",
+     "source": "The brand documentation's stated secondary; the corresponding token has no usages and is marked legacy in the build configuration"
+    },
+    {
+     "value": "#13274A",
+     "source": "A company house-standards document"
+    }
+   ]
+  },
+  {
+   "fact": "The brand typeface set",
+   "competing_values": [
+    {
+     "value": "Manrope for display, Inter for body and interface, JetBrains Mono for code",
+     "source": "Fonts actually loaded by the application root layout"
+    },
+    {
+     "value": "Arial, Helvetica, sans-serif",
+     "source": "The brand documentation's stated typography; not loaded anywhere in production"
+    }
+   ]
+  },
+  {
+   "fact": "The brand grey",
+   "competing_values": [
+    {
+     "value": "#747474",
+     "source": "Production design token, and the grey sampled from the logo artwork"
+    },
+    {
+     "value": "#6B7280",
+     "source": "The brand documentation's stated grey; corresponds to an interface muted-text colour rather than the mark"
+    }
+   ]
+  }
+ ],
+ "uncontested_facts": [
+  "Accessible orange for text on light backgrounds: #AE5B16 (approximately 4.9:1 on white). Both candidate base oranges fail WCAG AA as text on white.",
+  "Orange tint: #FDF2E9. Orange shade: #C45A30.",
+  "Page background neutral: #F9FAFB. Surface: #FFFFFF.",
+  "Info blue semantic role: #3B82F6.",
+  "Eight approved logo variant files exist, covering full colour on light, full colour on dark, reversed, monochrome, and icon-only uses.",
+  "Clearspace: minimum clear space on all sides equal to the height of the 'TEL' element of the wordmark; no other element, text, or edge may enter it.",
+  "Minimum sizes: 32px on screen, 10mm in print.",
+  "The logo is composited from an approved file; it is never generated, redrawn, or spelled by a model."
+ ],
+ "scope_in": [
+  "Colour palette with roles, hex values and source attribution",
+  "Typography families, roles, weights and fallback stacks",
+  "Logo variants, clearspace, minimum sizes and background rules",
+  "Composite-don't-generate guidance for generated imagery",
+  "Brand tone and voice descriptors for copy within assets",
+  "Checking a produced asset against the brand definition",
+  "Supplying brand values to non-image consumers such as interface code, print and social"
+ ],
+ "scope_out": [
+  "Choosing or ratifying which contested value becomes canonical",
+  "Editing design token source files or logo artwork",
+  "Layout, grid, spacing, elevation and component design, which belong to the interface design system",
+  "Marketing strategy, campaign concepting and copywriting itself",
+  "General accessibility auditing beyond brand colour and logo-background contrast"
+ ],
+ "scope_verdict": "This is the authoritative brand definition; generated imagery is one consumer among several, alongside interface code, print and social. In scope when an asset in any medium needs authoritative brand values or a brand check. Out of scope when the request is to settle a contested value - that is escalated to the brand owner with the competing values and their sources presented.",
+ "activation_expectations": [
+  "Activates when generating imagery, interface code, print or social assets that must carry the brand.",
+  "Activates when asked for brand colours, fonts, logo rules or tone.",
+  "Activates when reviewing an asset for brand correctness.",
+  "Activates when another producer is about to state a brand value, so the value can be sourced rather than recalled.",
+  "Does not activate for general design or layout work with no brand-value dependency.",
+  "Does not activate for interface system concerns such as spacing scales or component anatomy."
+ ],
+ "non_qualities": [
+  "Length or verbosity of the output",
+  "Confident or authoritative tone",
+  "Number of brand facts recited",
+  "Volume of rationale or justification prose",
+  "Naming internal file locations or implementation details",
+  "Producing an answer quickly at the cost of stating sources",
+  "Use of headings, tables or any particular document structure"
+ ],
+ "hash": "363598ffad013913",
+ "judge_safe_verified": true
+}

@@ -1,0 +1,147 @@
+{
+ "skill": "claude-md-guardian",
+ "frozen": true,
+ "version": 1,
+ "capability_summary": "Given a codebase whose governing instruction documents state rules for how work in that codebase must be done, determine which of those rules the code, configuration, and supporting rule files still obey, which they contradict, and which describe things that no longer exist, then propose specific corrections to either the documents or the code.",
+ "user_goal": "Know which parts of the written guidance can still be trusted, exactly where guidance and reality have diverged, and what to change to close each gap.",
+ "success_looks_like": [
+  "Every rule extracted from the governing documents is carried through to a stated verdict, with none silently dropped.",
+  "Each verdict names the file, and where applicable the line, symbol, or setting, that a reader can open to confirm it.",
+  "Rules that the codebase contradicts are identified with both the rule's claim and the observed reality quoted or described.",
+  "Rules describing files, commands, tables, or settings that no longer exist are separated from rules that are merely disobeyed.",
+  "Rules the codebase genuinely obeys are reported as obeyed rather than hedged into uncertainty.",
+  "Each divergence carries a concrete proposed correction that names the document or code location to change and the replacement.",
+  "Corrections state which side is wrong: the document is stale, or the code is out of compliance.",
+  "Uncertainty is expressed once, plainly, at the point of the finding, without inflating the finding count.",
+  "The output is short enough to read end to end and contains no filler restating the documents back.",
+  "A reader who spot-checks any three claims finds all three accurate."
+ ],
+ "priority_qualities": [
+  {
+   "rank": 1,
+   "quality": "Verifiable grounding",
+   "why_it_matters": "A claim a reader cannot confirm from the cited location is indistinguishable from a guess and poisons the whole report."
+  },
+  {
+   "rank": 2,
+   "quality": "Trustworthy negatives",
+   "why_it_matters": "If \"obeyed\" and \"unverifiable\" are used loosely, a clean verdict carries no information."
+  },
+  {
+   "rank": 3,
+   "quality": "Real detection",
+   "why_it_matters": "The output only has value if it surfaces divergences a maintainer had not already noticed."
+  },
+  {
+   "rank": 4,
+   "quality": "Coverage of the stated rules",
+   "why_it_matters": "Partial audits leave the reader unsure whether an unmentioned rule was checked and passed or never examined."
+  },
+  {
+   "rank": 5,
+   "quality": "Correct diagnosis of which side is wrong",
+   "why_it_matters": "Fixing the code when the document is obsolete, or the reverse, makes the divergence worse."
+  },
+  {
+   "rank": 6,
+   "quality": "Actionable corrections",
+   "why_it_matters": "A gap without a specific replacement leaves the reader to redo the investigation."
+  },
+  {
+   "rank": 7,
+   "quality": "Calibrated confidence",
+   "why_it_matters": "Certainty must track the strength of the evidence actually gathered, not the desire to sound decisive."
+  },
+  {
+   "rank": 8,
+   "quality": "Economy",
+   "why_it_matters": "A maintainer reads a short accurate report and ignores a long one."
+  }
+ ],
+ "constraints": [
+  "Read the governing documents and the referenced code before judging any rule.",
+  "Confirm a cited path, symbol, or setting exists before asserting anything about it.",
+  "Quote or closely paraphrase the rule text being judged so the reader need not hunt for it.",
+  "Judge a rule against the codebase as it currently stands, not against a remembered or assumed earlier state.",
+  "Base each verdict on evidence gathered during this audit, not on general expectations about how such codebases are usually written.",
+  "Distinguish a rule that is violated from a rule that has become inapplicable because its subject was removed.",
+  "Where a rule's referenced target is missing, say what was searched to establish absence.",
+  "Keep each finding to the rule, the evidence, the verdict, and the proposed correction.",
+  "Propose corrections that a maintainer can apply without further investigation.",
+  "State how much of the codebase was examined so the reader can gauge how far the coverage claim extends.",
+  "Report obeyed rules briefly rather than omitting them, so coverage is visible.",
+  "Prefer fewer well-evidenced findings over many speculative ones."
+ ],
+ "never_do": [
+  "Never cite a file, line, symbol, command, table, or setting without having confirmed it exists.",
+  "Never report a rule as obeyed based on the absence of a search rather than the result of one.",
+  "Never use \"could not verify\" as a default posture for rules that were reachable.",
+  "Never invent rules that the governing documents do not state.",
+  "Never state a verdict for a rule whose referenced code was never opened.",
+  "Never present a stylistic preference or personal disagreement as a divergence.",
+  "Never expand a single divergence into several findings to appear more thorough.",
+  "Never soften a confirmed violation into a suggestion, or harden a suspicion into a confirmed violation.",
+  "Never modify the codebase or the governing documents while auditing; propose changes only.",
+  "Never let recency of a file substitute for evidence that a rule is followed."
+ ],
+ "objective_invariants": [
+  "Every rule listed as extracted from the governing documents appears exactly once in the verdicts, with no rule listed without a verdict.",
+  "Every verdict of violated or stale cites at least one concrete location — path plus line, symbol, setting, or command — and describes the observed content at that location.",
+  "Every verdict of obeyed names the specific location or search that established compliance.",
+  "Every item marked unverifiable names the specific blocking condition — the file is absent, access was denied, the rule depends on runtime or human behaviour, or the rule states no checkable condition — and unverifiable is used only where such a condition holds.",
+  "At least one rule per governing document examined is resolved to obeyed, violated, or stale; an output in which every rule is unverifiable is not a valid result.",
+  "The output states the number of rules examined and the number resolved to obeyed, violated, or stale, and those resolved rules are a majority of those examined unless the blocking conditions named account for the remainder.",
+  "Every violated or stale rule is paired with a proposed correction naming the document or code location to change and the specific replacement text or change.",
+  "Every proposed correction states whether the document or the code is the side that must change.",
+  "No cited path, symbol, command, table, or setting in the output is absent from the codebase.",
+  "A rule whose enforcement depends on a process, a human step, or a runtime action is labelled as such and is not reported as obeyed on the strength of the document merely describing it.",
+  "Confidence wording on each finding matches the evidence given: direct quotation of contradicting content reads as confirmed; inference from surrounding code reads as probable.",
+  "The report states the boundary of what was examined, so a reader can tell which parts of the codebase the coverage claim does not cover."
+ ],
+ "scope_in": [
+  "Rules stated in the codebase's governing instruction documents and any rule files those documents incorporate.",
+  "Checking cited paths, commands, symbols, configuration keys, and data-store names for existence and current form.",
+  "Detecting contradictions between two documents that both claim authority over the same subject.",
+  "Detecting rules whose subject was renamed, moved, or removed.",
+  "Detecting code that plainly violates a stated rule.",
+  "Detecting behaviour or configuration the codebase relies on that no document covers.",
+  "Proposing edits to bring documents back in line with the code.",
+  "Proposing edits to bring code back in line with the documents.",
+  "Reporting which rules were confirmed still accurate.",
+  "Stating the extent and limits of the examination performed."
+ ],
+ "scope_out": [
+  "Rewriting or reorganising the governing documents into a preferred structure.",
+  "Applying any change to files as part of the audit.",
+  "General code quality, performance, architecture, or security review unconnected to a stated rule.",
+  "Judging whether a rule is a good rule rather than whether it is still true.",
+  "Auditing external services, third-party dependencies, or infrastructure the documents do not govern.",
+  "Verifying claims that can only be settled by running the system or observing a person.",
+  "Producing metrics, scores, or grades in place of specific findings.",
+  "Enforcing rules on generated, vendored, or dependency-managed files the documents exclude."
+ ],
+ "activation_expectations": [
+  "Applies when asked whether a codebase's stated rules still match the code.",
+  "Applies when asked to check governing documentation for staleness, drift, or contradiction.",
+  "Applies when asked which written rules the codebase is currently violating.",
+  "Applies before a governing document is trusted as the basis for a substantial change.",
+  "Applies after a refactor, rename, or migration that may have invalidated documented paths or commands.",
+  "Applies when two instruction sources appear to conflict and one must be identified as authoritative.",
+  "Does not apply to a request for a general code review with no reference to stated rules.",
+  "Does not apply to a request to author new rules rather than check existing ones.",
+  "Does not apply when asked to directly edit the documents rather than assess them."
+ ],
+ "non_qualities": [
+  "Length or word count — a short report that resolves the rules beats a long one.",
+  "Number of findings reported — neither many nor few findings is itself evidence of quality.",
+  "Confident tone — assurance that outruns the evidence is a defect.",
+  "Severity vocabulary, ratings, scores, or presentation polish — none substitutes for a cited location.",
+  "Volume of quoted document or code text.",
+  "Breadth of files touched, as distinct from rules actually resolved.",
+  "Suggestions for improving the rules themselves.",
+  "Speculation about why a divergence occurred or who caused it.",
+  "Coverage of subjects no stated rule addresses."
+ ],
+ "hash": "58eb258cf80bb1cc",
+ "judge_safe_verified": true
+}
