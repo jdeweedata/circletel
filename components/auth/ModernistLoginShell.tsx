@@ -77,13 +77,14 @@ export function ModernistLoginShell({
         } as CSSProperties
       }
     >
-      <div className="grid min-h-dvh w-full grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,520px)] xl:grid-cols-[minmax(0,1fr)_560px]">
+      {/* Brand ~40% / Sign-in ~60% so the form claims the mid-screen gap */}
+      <div className="grid min-h-dvh w-full grid-cols-1 lg:grid-cols-[minmax(280px,40%)_minmax(0,1fr)]">
         {/* Brand panel — full height rail on desktop */}
         <aside
           className="flex flex-col text-white min-h-0 lg:min-h-dvh"
           style={{ background: '#13274A', color: '#FFFFFF' }}
         >
-          <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12 xl:px-16 xl:py-14 flex flex-col flex-1 max-w-[640px]">
+          <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-10 lg:py-12 xl:px-14 xl:py-14 flex flex-col flex-1 w-full">
             <Link
               href="/"
               className="inline-flex items-center mb-8 lg:mb-16 w-fit"
@@ -163,10 +164,10 @@ export function ModernistLoginShell({
           </div>
         </aside>
 
-        {/* Form panel — fills remaining column edge-to-edge */}
-        <div className="flex flex-col min-w-0 min-h-0 lg:min-h-dvh px-5 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12 xl:px-14">
+        {/* Form panel — grows to fill remaining viewport width */}
+        <div className="flex flex-col min-w-0 min-h-0 lg:min-h-dvh px-5 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12 xl:px-16 xl:py-14">
           <div
-            className="flex flex-col flex-1 min-h-0 w-full max-w-md lg:max-w-none mx-auto lg:mx-0"
+            className="flex flex-col flex-1 min-h-0 w-full max-w-md mx-auto lg:max-w-xl xl:max-w-2xl lg:mx-0"
             style={{ fontFamily: 'var(--font-body)' }}
           >
             {children}
