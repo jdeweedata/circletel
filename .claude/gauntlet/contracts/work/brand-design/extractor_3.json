@@ -1,0 +1,161 @@
+{
+  "capability_summary": "A point-of-use brand authority for CircleTel (a South African B2B/B2C ISP) that makes every generated or designed visual asset unmistakably CircleTel. It supplies the exact, non-negotiable brand facts (logo variant inventory and selection rules, hex palette, typography scale, clear space, minimum sizes, aspect ratios per asset type) and enforces the one hard production rule that separates a usable asset from a discardable one: the logo is never drawn by a generative model, it is always composited from the authoritative logo files after the artwork is generated. It converts a loose request ('make a social post for the 5G launch') into a concrete, on-brand, correctly-sized, correctly-logoed, correctly-filed asset.",
+
+  "user_goal": "Produce marketing, product, web and social imagery that a customer or colleague would immediately recognise as CircleTel — correct orange, correct logo lockup, correct professional tone, correct dimensions for where it will be used — without the user having to remember or re-explain the brand every single time, and without ever shipping a hallucinated or distorted logo.",
+
+  "success_looks_like": [
+    "Any brand-relevant request (image, mockup, social post, hero, banner, icon, deck, UI) results in brand facts being applied WITHOUT the user having to ask for them — the guidance is injected, not merely available for lookup.",
+    "The exact hex #F5831F appears in the instruction to the generator, never the word 'orange' alone; likewise #1F2937 and #E6E9EF rather than 'dark grey' / 'light grey'.",
+    "No generated asset contains an AI-invented, misspelled, warped or approximated CircleTel logo. Artwork is generated logo-free with space reserved, then the real PNG is composited on top.",
+    "The chosen logo variant is correct for the background it sits on — white knockout on dark, orange-square lockup on busy/dark or as an avatar, full orange+grey on light — so the mark is legible at a glance and never disappears or vibrates against its ground.",
+    "The asset comes out at the right aspect ratio and resolution for its destination (1:1 social, 9:16 story, 21:9 hero/banner, 3:1 email header, 4:3 feature, 512px icon) so it is not cropped, letterboxed or upscaled later.",
+    "The visual register is 'modern, professional, trustworthy, innovative, approachable, South African' — not neon, not busy, not clip-art, not generic Western stock.",
+    "People, places and props read as South African when the image depicts people or lifestyle context.",
+    "Output lands in the agreed asset folder structure with a predictable name, so it can be found and reused rather than regenerated.",
+    "A finished asset passes a final self-check (right orange, no off-brand colours, right logo variant, clean, SA-appropriate, right ratio, right folder) before it is handed over.",
+    "The user can hand the result straight to a customer, a paid ad, or a website without a designer having to fix it."
+  ],
+
+  "priority_qualities": [
+    {"quality": "Logo integrity — the mark is always the real asset file, never generated or redrawn", "why_it_matters": "A hallucinated logo is the single most damaging failure: it is instantly visible, it looks amateurish or fraudulent, and it can invalidate trademark distinctiveness. Every other brand error is a matter of degree; this one makes the asset unusable.", "rank": 1},
+    {"quality": "Colour exactness — literal hex values, never colour names", "why_it_matters": "Generators drift wildly on the word 'orange'. A near-miss orange next to the real logo on the same page reads as a print error and quietly destroys the sense that the company is competent.", "rank": 2},
+    {"quality": "Automatic application at the point of use, without being asked", "why_it_matters": "Documented brand rules that must be consciously recalled are brand rules that get skipped on the 'quick one'. The value is that the guidance fires on every relevant request, including small and urgent ones.", "rank": 3},
+    {"quality": "Legibility and contrast of mark and text against their actual background", "why_it_matters": "A technically on-brand asset where the logo or headline is unreadable is a failed asset. The variant/background pairing is the practical difference between a mark that reads and one that vanishes.", "rank": 4},
+    {"quality": "Fit-for-destination sizing and format", "why_it_matters": "Wrong ratio means the logo or price callout gets cropped by the platform. The asset is then either re-shot or shipped broken.", "rank": 5},
+    {"quality": "Restraint and professionalism over decoration", "why_it_matters": "The brand's promise is trustworthiness in a market where ISPs are widely distrusted. Busy, neon or clip-art visuals actively undercut the commercial message.", "rank": 6},
+    {"quality": "South African market authenticity", "why_it_matters": "Generic global stock imagery signals 'not for you' to the actual customer base and reads as an imported brand rather than a local operator.", "rank": 7},
+    {"quality": "Reproducibility and filing discipline", "why_it_matters": "Assets that cannot be found get regenerated with drift; a stable folder and naming scheme is what keeps a set of assets looking like a set.", "rank": 8}
+  ],
+
+  "constraints": [
+    "Logo variants are a fixed set of eight authoritative files, each with a defined role: (1) orange+grey on white/transparent — primary, website, documents, formal; (2) orange only — single-colour printing, embroidery; (3) grey only — neutral contexts, black-and-white documents; (4) black only — high contrast, legal documents, stamps; (5) white only on transparent — dark backgrounds, knocked out; (6) white on orange background — social avatars, app icons, favicons; (7) orange+grey on white, small-optimised — email signatures, small placements; (8) orange+grey on white, large/high-res — print, banners, billboards.",
+    "Logo selection rules: dark/black background → white knockout variant (05); social avatar or app icon → white-on-orange square (06); print or large format → high-res variant (08); email or small placement → small-optimised variant (07); single-colour requirement → orange-only (02) or grey-only (03); formal/primary/default → orange+grey (01).",
+    "Logo selection when compositing onto generated artwork: dark or gradient background → white-on-orange square (06) for high visibility; light or white background → orange+grey (01); over orange areas → white-only (05); print/large → (08); small/email → (07).",
+    "The logo is composed of: dual swirl circles (outer orange, inner grey) representing connectivity and dynamic service; a WiFi signal icon integrated with the letter 'c' signalling wireless/internet focus; and the wordmark 'circle' in lowercase orange plus 'TEL' in uppercase bold grey.",
+    "Clear space: maintain padding equal to the height of the 'TEL' characters on all sides of the logo.",
+    "Minimum size: 32px height for digital, 10mm for print.",
+    "Primary palette: CircleTel Orange #F5831F / rgb(245,131,31) — primary brand, CTAs, highlights; Dark Neutral #1F2937 / rgb(31,41,55) — text, headings, dark UI; Light Neutral #E6E9EF / rgb(230,233,239) — backgrounds, cards.",
+    "Extended palette: Orange Light #FEF3E8 (hover states, light backgrounds); Orange Dark #D96F1A (pressed states, shadows); Gray #6B7280 (secondary text, borders); Success Green #10B981 (success states, confirmations); Error Red #EF4444 (errors, warnings); Info Blue #3B82F6 (information, links).",
+    "Selected-state colour for package/selection cards: Dark Blue #1E4B85.",
+    "Colour usage rules: primary actions → orange #F5831F; body text → dark neutral #1F2937; backgrounds → light neutral #E6E9EF or white; accents → orange gradient or solid; selected states → #1E4B85; shadows → colour-matched to the element (e.g. an orange shadow under an orange element).",
+    "Typography stack: Arial, Helvetica, sans-serif.",
+    "Font weights in use: 600 semibold for subheadings and labels; 700 bold for headings and CTAs; 800 extrabold for hero text and major headlines.",
+    "Text scale: hero headline 48–64px / weight 800 / dark neutral; section heading 32–40px / 700 / dark neutral; subheading 20–24px / 600 / dark neutral; body 16px / 400 / dark neutral; caption 14px / 400 / grey; price 24–32px / 700 / orange.",
+    "Brand context to accompany any generation request: primary colour vibrant orange #F5831F; secondary dark charcoal #1F2937; background clean white or light grey #E6E9EF; style modern, professional, South African market; mood trustworthy, innovative, approachable; typography clean sans-serif (Arial style); avoid overly busy designs, neon colours, clip-art style.",
+    "Aspect ratio and resolution by asset type: product 1:1 at 2K (2048×2048); social post 1:1 at 1K (1024×1024); social story 9:16 at 2K (1152×2048); hero 21:9 at 2K–4K (2048×878); feature 4:3 (2048×1536); icon 1:1 at 512px; banner 21:9 at 2K; email header 3:1 (1800×600).",
+    "Logo presence by asset type: product — usually none (clean product shot); social post — orange-square variant in a corner, or primary variant; social story — orange-square variant, top or bottom; hero — usually none, the logo is overlaid in code; feature — none; icon — none; banner — primary or white-knockout variant; email header — primary or small-optimised variant.",
+    "Standard composition intents by type: product — clean white/light-grey studio background, soft diffused lighting with subtle shadows, 3/4 or hero angle, e-commerce ready, subtle orange accent lighting or props, uncluttered; social — bold prominent headline, orange gradient or accent, white text on dark areas, clear price/offer callout, logo bottom-right, space reserved for text overlay, square; hero — wide cinematic 21:9 or 16:9, dark gradient on one side for text overlay, subtle tech/connectivity elements, orange accent lighting, high-contrast dramatic lighting, premium and aspirational, space left for headline and CTA; feature icon — simple line art, orange accent, white or transparent ground, flat design, single instantly-recognisable concept, consistent with siblings; illustration — flat design or subtle gradients, orange accent with dark-charcoal outlines/text, professional but approachable, South African representation when people are shown.",
+    "Generated artwork is produced deliberately WITHOUT the logo, with space reserved for it; the real logo file is then composited in as a separate step and the branded result saved.",
+    "Logo compositing defaults: scale the mark to roughly 20% of the image width (adjustable, e.g. 25%), pad it from the edge by about 3% of image width, place it bottom-right by default with other corner/centre positions available, preserve alpha when pasting, and preserve aspect ratio using high-quality resampling.",
+    "Assets are filed into a stable category tree (products, website sections such as hero and features, marketing/social, icons, mockups) under a single design asset root, with logos and prompt definitions in their own sibling directories.",
+    "A final validation pass is run before an asset is considered finished: correct primary orange used, no off-brand colours, logo variant appropriate for its background, clean professional aesthetic, South African market appropriate, correct aspect ratio, saved to the correct location.",
+    "Text-heavy compositions warrant the higher-capability generation model; iteration and non-text work can use the faster, cheaper model."
+  ],
+
+  "never_do": [
+    "Never ask a generative model to draw, render, recreate or 'include' the CircleTel logo — it will hallucinate the swirl geometry and the wordmark.",
+    "Never describe a brand colour by name ('orange', 'blue and orange') where a hex value can be given.",
+    "Never skip brand context because the request is small, quick, throwaway or exploratory.",
+    "Never use a logo variant that does not suit the background — e.g. the light/primary lockup on a dark or busy ground, or the dark/grey lockup over orange.",
+    "Never introduce colours outside the defined palette as brand colours.",
+    "Never produce clip-art, neon, or visually busy compositions.",
+    "Never distort, recolour, rotate, add effects to, crop into, or re-typeset the logo.",
+    "Never violate the clear-space rule or place the logo below the minimum legible size.",
+    "Never place the logo directly onto detail-heavy or tonally similar imagery without ensuring it still reads.",
+    "Never let generated imagery imply a partnership, endorsement, coverage claim, product capability, price or performance figure that is not true.",
+    "Never depict a third party's trademark, product or network branding inside CircleTel artwork without an authorised reason to do so.",
+    "Never let a generated image contain synthesised text that will be read as a factual commercial claim without a human confirming the wording is accurate and current.",
+    "Never save assets outside the agreed folder structure or overwrite the authoritative logo files."
+  ],
+
+  "objective_invariants": [
+    "Primary brand orange is exactly #F5831F, rgb(245, 131, 31).",
+    "Dark Neutral is exactly #1F2937, rgb(31, 41, 55).",
+    "Light Neutral is exactly #E6E9EF, rgb(230, 233, 239).",
+    "Orange Light is #FEF3E8; Orange Dark is #D96F1A; Gray is #6B7280.",
+    "Success Green is #10B981; Error Red is #EF4444; Info Blue is #3B82F6.",
+    "Selected-state Dark Blue is #1E4B85.",
+    "Typeface is Arial, with Helvetica and generic sans-serif as fallbacks.",
+    "Weights used are 600, 700 and 800; body and caption run at 400.",
+    "Exactly eight logo variants exist, numbered 01–08, each with the fixed role listed in constraints; file naming follows a single consistent pattern per variant number.",
+    "The wordmark is 'circle' lowercase in orange followed by 'TEL' uppercase bold in grey — this casing is part of the mark and must never be normalised to 'Circletel', 'CircleTEL' or 'CIRCLETEL' in the mark itself; the company name in running prose is written 'CircleTel'.",
+    "Logo clear space equals the cap height of 'TEL'.",
+    "Logo minimum size is 32px digital, 10mm print.",
+    "The market context is South Africa.",
+    "Aspect ratios are fixed per asset type as listed in constraints.",
+    "Answered by the original: destructive/error colour (#EF4444), success colour (#10B981), informational colour (#3B82F6), minimum legible logo size (32px / 10mm), logo clear space (height of 'TEL'), logo treatment on dark backgrounds (white knockout variant 05), logo treatment as an avatar (variant 06), single-colour reproduction (variants 02/03), high-contrast/legal reproduction (variant 04)."
+  ],
+
+  "scope_in": [
+    "Generating brand-correct imagery: product shots, lifestyle photography, hero and section backgrounds, banners, email headers, social posts and stories, feature icons, marketing illustrations, UI mockups.",
+    "Selecting the correct logo variant for a given background, size and medium.",
+    "Compositing the authoritative logo onto finished artwork at a correct size, position and padding.",
+    "Answering direct questions about brand colours, hex values, typography, weights, logo rules, clear space and minimum sizes.",
+    "Choosing correct dimensions and aspect ratios for a stated destination.",
+    "Filing and naming produced assets consistently.",
+    "Validating a finished asset against the brand before release."
+  ],
+
+  "scope_out": [
+    "Redesigning the brand, proposing new logo lockups, or inventing new brand colours.",
+    "Editing or re-exporting the authoritative logo source files.",
+    "Copywriting, offer construction, pricing decisions or claim substantiation (the brand layer supplies look and feel, not commercial truth).",
+    "Front-end implementation of the design system in application code (the palette here is the brand source, not a component library).",
+    "Media buying, channel strategy, campaign planning.",
+    "Legal clearance of trademarks, model releases or third-party imagery rights — these must be escalated, not assumed."
+  ],
+
+  "ends_vs_means_notes": [
+    {"in_original": "Hex values #F5831F, #1F2937, #E6E9EF, #FEF3E8, #D96F1A, #6B7280, #10B981, #EF4444, #3B82F6, #1E4B85", "classified_as": "end", "reasoning": "These are the brand's factual substance. Any rebuild that changes a digit produces a different brand.", "kept": true},
+    {"in_original": "Arial / Helvetica / sans-serif stack, weights 600/700/800, and the size-per-element scale", "classified_as": "end", "reasoning": "Typeface and hierarchy are brand facts, not procedure.", "kept": true},
+    {"in_original": "Eight numbered logo variants with their specific colour/background/use-case roles", "classified_as": "end", "reasoning": "The inventory and the mapping from context to variant is the brand rule itself.", "kept": true},
+    {"in_original": "Clear space = height of 'TEL'; minimum 32px digital / 10mm print", "classified_as": "end", "reasoning": "Hard reproduction rules with objective thresholds.", "kept": true},
+    {"in_original": "Logo composition description (dual swirl, WiFi-integrated 'c', lowercase orange 'circle' + uppercase grey 'TEL') and its meaning (connectivity, dynamic service, wireless focus)", "classified_as": "end", "reasoning": "Defines what the mark IS and why, which is what prevents wrong reproduction and wrong casing.", "kept": true},
+    {"in_original": "Aspect ratio and pixel dimensions per asset type", "classified_as": "end", "reasoning": "Destination-driven, objectively checkable, and wrong values cause real cropping failures.", "kept": true},
+    {"in_original": "Brand mood/style words: modern, professional, trustworthy, innovative, approachable, South African; avoid busy/neon/clip-art", "classified_as": "end", "reasoning": "This is the brand's expressive positioning, not a procedure.", "kept": true},
+    {"in_original": "Rule: never generate the logo with AI; generate artwork logo-free then composite the real file", "classified_as": "end", "reasoning": "Stated as a mechanism, but it is really an outcome guarantee — 'the mark on any asset is always the authentic mark'. The guarantee must survive; the specific tool used to composite need not.", "kept": true},
+    {"in_original": "Logo scale ~20% of image width, ~3% edge padding, bottom-right default", "classified_as": "end", "reasoning": "Borderline, but these are the operative placement defaults that make the mark read consistently across a set; treated as brand-facing defaults rather than tooling.", "kept": true},
+    {"in_original": "The specific helper script, its CLI flags, and the PIL/paste code sample", "classified_as": "means", "reasoning": "Pure implementation. Any compositor preserving alpha, aspect ratio and quality satisfies the same end.", "kept": false},
+    {"in_original": "Named generation models and the 'flash for iteration, pro for text' split, and JPEG output convention", "classified_as": "means", "reasoning": "Vendor- and model-specific tooling that will churn. The underlying end is: pick a generator that renders in-image text reliably when the design carries text.", "kept": false},
+    {"in_original": "The YAML prompt templates for product/social/hero/icon/illustration", "classified_as": "means", "reasoning": "A prompt-authoring convenience. The design intents inside them (studio lighting, dark gradient for overlay text, single-concept icons) are ends and have been extracted into constraints; the YAML wrapper is not.", "kept": false},
+    {"in_original": "Specific directory names and the prompts/ tree", "classified_as": "means", "reasoning": "Organisational convention; the end is 'assets are filed predictably by category and are findable'.", "kept": false},
+    {"in_original": "The 'When This Skill Activates' keyword list", "classified_as": "means", "reasoning": "A triggering mechanism for one particular runtime. The end is that brand guidance applies automatically to any brand-relevant visual request.", "kept": false},
+    {"in_original": "The stated Tailwind token names (circleTel-orange, circleTel-darkNeutral, circleTel-lightNeutral)", "classified_as": "means", "reasoning": "A code-integration mapping — and one that is demonstrably stale (see tensions). The hex values are the ends; the token names are an implementation binding a rebuild should not treat as authoritative.", "kept": false},
+    {"in_original": "The validation checklist as a literal checkbox list", "classified_as": "means", "reasoning": "The presentation is a means; the requirement that a finished asset is verified against the brand before release is an end.", "kept": true}
+  ],
+
+  "implicit_requirements": [
+    "GAP — Accessible text contrast on the primary orange is never addressed, and the maths is unfavourable: #F5831F against white is roughly 2.6:1 and white text on #F5831F is the same ~2.6:1, both failing WCAG AA for normal text (4.5:1) and even the 3:1 large-text bar. Dark Neutral #1F2937 on #F5831F is about 5.7:1 and passes. Anyone following the stated rules literally ('primary actions → orange', 'white text on dark areas') will ship illegible orange CTAs with white labels. A rebuild must supply a darkened accessible orange for text-on-light use (the production codebase already carries one at #AE5B16, ~4.9:1 on white) and must state that on an orange fill, the label is dark neutral, not white — or the fill must be the darker orange.",
+    "GAP — The stated Error Red #EF4444 is only ~3.8:1 on white and Success Green #10B981 only ~2.5:1 on white; both fail AA as text colours. Usable as fills/icons with a dark label, not as body text. The original gives no such qualification.",
+    "GAP — No dark-mode treatment. 'Dark Neutral for text, light neutral for backgrounds' inverts badly: no dark-surface tokens, no dark-mode variant of the orange (saturated orange on near-black vibrates and needs desaturating or lightening), no dark-mode equivalents for the light-neutral card colour, and no rule for which logo variant applies in a dark UI theme versus a dark photograph.",
+    "GAP — No rule for placing the logo on a busy or high-detail photograph. The variant table handles 'dark' and 'light' grounds but not 'visually noisy'. Production needs an explicit fallback: place the mark in a quiet region, or give it a solid/semi-opaque plate or scrim, or use the white-on-orange square lockup which carries its own background — plus a minimum contrast expectation between the mark and the pixels beneath it.",
+    "GAP — No co-branding or partner-lockup rules. CircleTel sells wholesale and partner-sourced services, so joint assets are inevitable. Missing: relative sizing of the two marks, separator/divider treatment, order (host brand first), required clear space between them, whether the orange-square lockup may be used in a lockup at all, and a prohibition on implying partnership without a signed agreement.",
+    "GAP — No guidance on generated in-image text. Generators misspell, and the templates explicitly ask for headlines, prices ('From R599/mo') and offer callouts baked into pixels. A rebuild must require that any price, speed, coverage or contractual claim rendered into an image is verified against the current live offer, is legible at thumbnail size, and carries whatever qualifier the offer needs — or is overlaid as real text rather than generated.",
+    "GAP — No South African commercial/legal guardrails despite the market being named. Missing: currency must be Rands formatted per local convention, prices should state VAT treatment, promotional claims and 'unlimited'/'up to' speed claims are regulated by SA consumer protection and telecoms rules, and marketing imagery implying coverage in an area must match actual coverage.",
+    "GAP — No rule against depicting real people, real premises, competitor branding, or recognisable third-party devices in generated imagery, and no instruction to disclose AI-generated imagery where a platform or regulation requires it.",
+    "GAP — 'South African context' is asserted but never operationalised. Without specifics a generator produces either generic Western stock or a stereotype. A rebuild needs concrete direction — realistic demographic mix reflecting the actual customer base, plausible local settings (suburban homes, township small business, medical practice, office park), local vehicles/signage/plug types — plus an explicit ban on poverty-porn or 'exotic Africa' framing for what is a professional connectivity brand.",
+    "GAP — No guidance on the logo's minimum size relative to the canvas, only absolute minimums. A 20%-of-width composite on a 21:9 4K banner and on a 512px icon behave completely differently; a rule tying composited logo height to both the absolute 32px floor and a canvas-relative range is needed.",
+    "GAP — No gradient specification. 'Orange gradient background' appears in multiple templates with no defined stops, direction or second colour, so every asset invents its own — the fastest route to a set of assets that don't look like a set.",
+    "GAP — No rule for the orange-on-orange collision: the templates call for orange gradient backgrounds and the default logo variants are orange-bearing. Only one line ('over orange areas → white-only 05') addresses this and it is easy to miss when the background is a gradient that is orange in only part of the frame.",
+    "GAP — No versioning or freshness contract. Nothing says what to do when the brand facts here disagree with the application's own design tokens, and they currently do (see tensions). A rebuild must state which surface is authoritative for which use, and must fail loudly rather than silently pick one.",
+    "GAP — No spacing, corner-radius, elevation/shadow or grid system, despite 'shadows → colour-matched' implying one exists. Anything building UI mockups will invent these and they will not match the product.",
+    "GAP — No favicon/app-icon safe-area or platform-shape guidance (circular crops on some platforms will clip a square lockup), despite variant 06 being designated for favicons and app icons.",
+    "GAP — No guidance for print-specific reproduction: no CMYK or Pantone equivalents for the orange, no minimum print resolution, no rule for the mark on uncoated stock or on garments — yet variants 02 and 08 exist explicitly for embroidery and billboards.",
+    "GAP — No accessibility guidance beyond colour: no alt-text expectation for generated marketing imagery, no rule against conveying status by colour alone, no minimum on-image text size relative to canvas.",
+    "GAP — No stated behaviour when a request is on-brand but commercially unwise. The capability should decline or escalate rather than comply when asked to render an unverified price or speed claim, to imply a partner relationship or endorsement, to place the logo on content that could embarrass the brand, to composite a competitor's mark, to produce an asset that misrepresents coverage, or to alter the logo 'just this once'. The correct behaviour is to produce the on-brand asset minus the problematic element and flag exactly what was withheld and why — not to silently comply and not to refuse the whole task.",
+    "GAP — No expectation that the user is told which brand decisions were made on their behalf. A user handed a finished image cannot see that variant 06 was chosen over 01, or that the ratio was set to 1:1; a short statement of the applied brand decisions is what makes the output auditable and correctable."
+  ],
+
+  "evidence_of_real_use": "This is a live, exercised capability, not a paper standard. The eight authoritative logo PNGs exist on disk under a shared design root with a single consistent filename pattern, alongside a working logo compositor script whose CLI flags (variant number, position, relative size) match the documented defaults exactly. The image output tree contains real campaign work — a 5G launch social set and a 'skyfibre-home' campaign — and the filenames encode the exact workflow the guidance mandates: '-bg' (artwork generated without a logo), '-composite' (logo pasted on), '-final'/'-branded' (delivered asset). That three-stage naming across two independent campaigns is direct evidence the never-generate-the-logo rule is genuinely followed in practice and is the load-bearing part of the capability. A prompts directory holds reusable YAML definitions plus a brand-context file, a prompt guide and a workflow doc, indicating repeated rather than one-off use. The parent design README explicitly instructs loading the brand guidance before generating anything and lists the auto-activation keywords — i.e. the team's stated failure mode is 'someone generated an image without the brand loaded'. Separately, the application's own Tailwind configuration carries a full CircleTel colour block including an explicitly named accessible orange variant, showing that contrast on orange is a problem the organisation has already hit in code even though the brand guidance never mentions it.",
+
+  "tensions": [
+    "Authority conflict, unresolved and material: the guidance states the primary orange is #F5831F and maps it to a Tailwind token, but the live application config defines that same token as #E87A1E, marks #1F2937 and #E6E9EF as 'legacy aliases', and adds tokens the guidance never mentions (accessible orange #AE5B16, navy #1B2A4A, charcoal #2D3436, grey #747474, and a family of secondary oranges #D76026/#E97B26/#F4742B). Two different oranges are therefore in production simultaneously. A rebuild must decide and state whether the brand doc or the code is authoritative for imagery versus UI, rather than inheriting the ambiguity.",
+    "Similarly, the 'selected state' Dark Blue #1E4B85 is presented as a brand colour but exists in the codebase under a non-CircleTel namespace — its brand status is genuinely unclear.",
+    "'Always specify exact hex' versus generative reality: image models do not honour hex codes reliably. Stating the hex materially improves the odds but does not guarantee the pixel value. The honest end is 'the generated orange must be visually indistinguishable from #F5831F alongside the real logo', which implies a check on the output, not just an instruction to the input.",
+    "'Primary actions → orange' versus accessibility: the palette's headline rule and WCAG contrast cannot both be satisfied with white text on #F5831F. Something must give, and the guidance never acknowledges the conflict.",
+    "Automatic activation versus scope: aggressive keyword triggering on 'design', 'colors', 'image' will fire on requests that have nothing to do with CircleTel-branded output (a chart, a third-party mockup, a diagram). Over-application is a real failure mode — the brand should apply to CircleTel-facing artefacts, not to every visual thing the user touches.",
+    "Detailed prescriptive templates versus distinctiveness: 'clean white studio background, soft diffused lighting, orange accent' is exactly the composition a generator produces by default. Following the templates literally yields safe, correct, forgettable assets — technically compliant output the user would still complain about. Brand compliance and visual distinctiveness are separate requirements and the original only encodes the first.",
+    "Consistency versus campaign expression: nothing distinguishes the immutable core (mark, hexes, typeface) from the layer where a campaign is allowed to have its own personality, so every campaign either drifts or looks identical to the last one.",
+    "Speed versus verification: the 'never skip brand context even for quick images' rule and the multi-step generate-then-composite-then-validate workflow are in direct tension with the urgency of a 'quick social post'. If the compliant path is slower than the non-compliant one, the non-compliant one wins — which means the guidance must make the correct path the path of least effort, not merely the documented one."
+  ]
+}

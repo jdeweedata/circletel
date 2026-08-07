@@ -1,0 +1,192 @@
+{
+  "capability_summary": "A fast pre-commitment screen for a proposed product, service, offer or feature. Someone describes an idea in rough terms and gets back a candid, decision-grade judgement on whether it is worth spending scarce time and money on, grounded in who already serves that need, whether money actually changes hands for it, whether the proposer can realistically deliver and sell it with the resources they have, and how it would earn. The point is to kill or reshape weak ideas cheaply, and to give strong ones an honest green light.",
+
+  "user_goal": "Before committing effort or cash to an idea, get a quick, unflattering, evidence-anchored answer to 'is this worth doing, given what I actually have to work with, and if not, what would have to change?' — fast enough that asking is always cheaper than finding out by building.",
+
+  "success_looks_like": [
+    "The reader finishes with an unambiguous decision they can act on immediately — proceed, proceed only if certain conditions hold, or drop it — not a balanced survey of considerations.",
+    "The reasoning behind the decision is stated plainly and could be argued with, because it rests on named specifics (who else does this, at what price, to whom) rather than adjectives like 'crowded' or 'promising'.",
+    "Weak ideas get killed early: the reader is spared weeks of build or spend on something that was already served, unfundable, or unsellable with their resources.",
+    "Feasibility is judged against the proposer's real constraints — actual team capacity, cash position, existing supplier and channel relationships, marketing budget, sales capability — not an idealised well-resourced team.",
+    "The money question is answered concretely: who pays, roughly how much, against what cost base, and how long before cash actually arrives.",
+    "Even a negative verdict leaves the reader with somewhere to go — a narrower segment, a different wedge, an adjacent version that clears the bar, or the specific evidence that would flip the answer.",
+    "Nothing in the assessment is invented; where evidence is thin, that thinness is stated rather than papered over with confident-sounding detail.",
+    "It can be read and acted on in a couple of minutes."
+  ],
+
+  "priority_qualities": [
+    {
+      "quality": "Decisiveness",
+      "why_it_matters": "The entire value is saving the proposer from committing to something. An assessment that lists pros and cons without landing on a call returns the decision unmade and has cost time for nothing.",
+      "rank": 1
+    },
+    {
+      "quality": "Candour under social pressure",
+      "why_it_matters": "The person asking is usually attached to the idea and often the one who would build it. Agreeableness here is expensive: a softened verdict converts directly into wasted weeks and cash the proposer may not have.",
+      "rank": 2
+    },
+    {
+      "quality": "Specificity over abstraction",
+      "why_it_matters": "Generic strategic language is unfalsifiable and therefore unusable. Named alternatives, real prices, real numbers let the reader check the reasoning and disagree where it is wrong.",
+      "rank": 3
+    },
+    {
+      "quality": "Fit to the proposer's actual resources and constraints",
+      "why_it_matters": "The same idea is a good bet for one operator and impossible for another. A verdict that ignores the proposer's real cash runway, headcount, sales capability, existing distribution and supplier relationships is a verdict about someone else's business.",
+      "rank": 4
+    },
+    {
+      "quality": "Factual integrity",
+      "why_it_matters": "Fabricated competitors, invented funding figures or made-up cost assumptions produce confident wrong decisions — worse than no assessment, because they are trusted.",
+      "rank": 5
+    },
+    {
+      "quality": "Speed and brevity",
+      "why_it_matters": "This is a filter that sits in front of real work. If screening an idea becomes a project in itself, it stops being used and ideas get built unscreened.",
+      "rank": 6
+    },
+    {
+      "quality": "Constructiveness",
+      "why_it_matters": "Most raw ideas are neither dead nor ready. Naming the modification, narrower segment, or missing proof that would change the answer converts a rejection into a next move rather than a dead end.",
+      "rank": 7
+    }
+  ],
+
+  "constraints": [
+    "Works from a rough, informal description — it must not demand a business plan, financial model, or research pack as a precondition for giving a view.",
+    "Must reach a usable provisional judgement even when evidence is incomplete, while marking clearly which parts are inference and which are established.",
+    "Effort spent screening must stay far below the effort of building; depth is traded for turnaround by design.",
+    "Where the proposer's real operating context is available (cash position, burn, team, channels, existing cost and margin structures, target market), the assessment must use it rather than generic assumptions.",
+    "Market and competitor framing must reflect the geography and customer segment the proposer actually operates in, including local currency and local incumbents, not a default global consumer-software frame.",
+    "Any cost, margin or pricing figure used must come from real data available in the proposer's context, not from plausible-sounding estimation presented as fact.",
+    "For a proposer under cash pressure, time-to-revenue and cash-out-before-cash-in matter at least as much as time-to-build, and the assessment must reflect that.",
+    "Confidential internal economics (supplier terms, cost bases, margins, commissions) may inform the judgement but must never be embedded in anything shaped for external circulation."
+  ],
+
+  "never_do": [
+    "Never invent competitors, user counts, funding amounts, pricing, market sizes, or traction figures; unverified items must be labelled as unverified.",
+    "Never soften a negative conclusion into ambiguity in order to be encouraging or agreeable.",
+    "Never withhold a call on the grounds that more information is needed, when a provisional call plus the missing evidence would be more useful.",
+    "Never evaluate feasibility against a generic or idealised organisation when the proposer's actual capacity, cash and channels are knowable.",
+    "Never treat 'no competitors found' as automatically favourable — absence of anyone serving the need is more often a signal about the need than about the opportunity.",
+    "Never slide into building the thing: no specifications, architectures, implementation plans or launch collateral as part of the screen.",
+    "Never endorse a commitment that exceeds the proposer's known cash or capacity without explicitly flagging the exposure.",
+    "Never pad with generic strategic commentary that would apply equally to any idea.",
+    "Never let an idea pass on enthusiasm or novelty alone when nobody demonstrably pays for the outcome it produces."
+  ],
+
+  "objective_invariants": [
+    "The output contains exactly one explicit overall decision, drawn from a small closed set of decision states, and it is easy to locate.",
+    "The decision is accompanied by its core reasoning; a verdict never appears unexplained.",
+    "Existing alternatives are addressed by name where any exist — including workarounds and incumbent tools, not only direct products — or their apparent absence is stated and interpreted.",
+    "Any claim that a space is crowded, saturated, or dominated is supported by specific named referents rather than adjectives alone.",
+    "The assessment covers, in some form: existing supply, evidence of real willingness to pay, deliverability with the proposer's actual resources, and the revenue mechanism.",
+    "At least one concrete way forward is given regardless of verdict — a change, a narrower target, a cheaper test, or the specific evidence that would reverse the call.",
+    "Every quantitative figure is either traceable to the proposer's own data/context or explicitly marked as an estimate or unverified.",
+    "The output is short enough to be read in roughly two minutes.",
+    "No implementation artefacts (specs, code, build plans, marketing copy) are produced.",
+    "Confidential cost, margin, supplier or commission detail does not appear in any portion framed for external audiences."
+  ],
+
+  "scope_in": [
+    "Screening proposed products, services, bundles, offers, market segments, channels, and internal tooling or platform features before commitment.",
+    "Identifying who already meets the need and how the proposal differs in a way a buyer would care about.",
+    "Separating expressed interest from demonstrated willingness to pay.",
+    "Judging deliverability against the proposer's real people, cash, suppliers, contractual commitments and sales capability.",
+    "Assessing the revenue mechanism, price realism, cost floor, and how quickly cash would actually arrive.",
+    "Naming structural obstacles that commonly sink an idea regardless of execution — dependence on both sides of a marketplace arriving at once, reliance on customers changing established behaviour, a free and entrenched incumbent, a capability that belongs inside a product someone already owns, a sales motion the proposer has no one to run.",
+    "Offering the modification, narrower wedge, or cheap test that would make a marginal idea viable.",
+    "Stating what would have to be true for the verdict to change."
+  ],
+
+  "scope_out": [
+    "Detailed product specification, requirements documentation, or solution design.",
+    "Implementation, build planning, estimation, or engineering work.",
+    "Sales, marketing or launch material production.",
+    "Full financial modelling, forecasting or business-plan authoring.",
+    "Ongoing portfolio management or lifecycle tracking of ideas already accepted.",
+    "Primary market research, customer interviews, or original data collection.",
+    "Investment-grade due diligence or anything presented as a substitute for it."
+  ],
+
+  "ends_vs_means_notes": [
+    {
+      "in_original": "Five named assessment criteria presented as fixed, separately headed analysis sections",
+      "classified_as": "means",
+      "reasoning": "The end is that the judgement actually accounts for existing supply, real willingness to pay, deliverability, earning mechanism, and whether anyone would switch. Whether these appear as five labelled sections, as woven prose, or in a different order is presentation. The coverage is required; the section scaffolding is not.",
+      "kept": false
+    },
+    {
+      "in_original": "A verbatim response template with fixed headings and a mandated number of bullet points under each",
+      "classified_as": "means",
+      "reasoning": "The end is a short, scannable output where the decision, the reasoning, the comparable alternatives and the way forward are all easy to find. A rebuilt capability could meet that with any layout. Fixing the exact headings and bullet counts also forces padding when there are only two real comparables and truncation when there are six.",
+      "kept": false
+    },
+    {
+      "in_original": "A blunt, no-sugar-coating persona with a list of banned encouraging phrases",
+      "classified_as": "end",
+      "reasoning": "Candour is genuinely part of the requirement, not a style choice — the value proposition collapses if the assessment flatters. Carried over as the substantive property (no softening, no hedging that hides the call), not as a persona or a banned-phrase list.",
+      "kept": true
+    },
+    {
+      "in_original": "Prescribed research sequence: search for three to five similar products, review their traction and pricing, search for evidence of the problem, judge timing",
+      "classified_as": "means",
+      "reasoning": "The end is that claims about the competitive landscape are grounded in reality rather than asserted. The specific tool, the count of products, and the order of searches are procedure. Sometimes the proposer's own context already contains the relevant competitor and cost knowledge and no external search is warranted.",
+      "kept": false
+    },
+    {
+      "in_original": "Feasibility measured against a solo builder shipping in two to four weeks",
+      "classified_as": "means",
+      "reasoning": "The end is that feasibility is judged against the proposer's real capacity rather than an idealised team — a genuinely important requirement. The particular yardstick, however, encodes an assumed persona that does not match this workspace's operator, whose limits are headcount, cash runway, supplier contracts and absence of a sales function, not a personal sprint window. Kept as 'assess against actual constraints'; the specific window is dropped and the mismatch is recorded as a tension.",
+      "kept": false
+    },
+    {
+      "in_original": "A catalogue of stock failure modes expressed as memorable catchphrases",
+      "classified_as": "means",
+      "reasoning": "The end is that structural obstacles which sink ideas independent of execution quality are actually surfaced, and the substance of each is preserved in scope_in. The catchphrase wording is a distinctive fingerprint and carries no additional meaning; it is restated in neutral terms.",
+      "kept": false
+    },
+    {
+      "in_original": "Fixed vocabulary for the three verdict labels",
+      "classified_as": "means",
+      "reasoning": "The end is a single unambiguous decision drawn from a small closed set so the reader is never left to interpret. The exact words are interchangeable, so the invariant specifies the property rather than the labels.",
+      "kept": false
+    },
+    {
+      "in_original": "Illustrative profiles of what a good idea and a bad idea look like",
+      "classified_as": "means",
+      "reasoning": "Internal calibration guidance for the evaluator, not a property of the delivered result. Nothing in the user's requirement depends on these examples existing.",
+      "kept": false
+    },
+    {
+      "in_original": "Even a rejection should include ways to pivot or strengthen the concept",
+      "classified_as": "end",
+      "reasoning": "This is a property of the result the user would still want if the capability were rebuilt from scratch: a rejection that closes off all paths wastes the thinking already invested and discourages bringing the next idea forward.",
+      "kept": true
+    },
+    {
+      "in_original": "Speed — feedback quick enough to precede any building",
+      "classified_as": "end",
+      "reasoning": "Timeliness is constitutive of the value, not an efficiency preference. A thorough assessment that arrives after the work has started, or that costs as much as a prototype, does not serve the purpose at all.",
+      "kept": true
+    },
+    {
+      "in_original": "Insistence on concrete numbers instead of vague market characterisations",
+      "classified_as": "end",
+      "reasoning": "Specificity is what makes the verdict checkable and therefore trustworthy. Kept as a required property, with the accompanying integrity guard that specificity must never be manufactured to satisfy the requirement.",
+      "kept": true
+    }
+  ],
+
+  "evidence_of_real_use": "The capability is installed in the workspace of an operator running a small South African connectivity and managed-IT business under acute financial pressure: roughly R35K monthly external revenue against R198K monthly burn, R86K cash on hand, a matter of days of runway, 4.5 full-time-equivalent staff with no dedicated sales function, and a R10K monthly marketing budget. The surrounding workspace is dense with decision infrastructure — recorded strategic decisions, unit-economics and margin-floor rules by supply channel, escalating minimum-spend contractual commitments, execution targets, and a logged campaign that produced thirty leads and zero conversions — all of which indicates someone who repeatedly weighs where to point very limited resources and has been burned by acting without a screen. The capability itself is a generic, stock-shaped one that has not been adapted to that context, so it reads as an intent to have a fast pre-commitment filter rather than as a record of tailored use. What the real user needs from it is a hard, quick gate in front of any new product, offer, segment or platform feature, calibrated to their actual cash, capacity and channels.",
+
+  "tensions": [
+    "Assumed-user mismatch: the original is written for an independent software builder shipping a consumer or SaaS app alone within a few weeks, while the real user is an operator of a connectivity, hardware-supply and managed-services business with staff, wholesale contracts, distributor relationships, minimum-spend obligations and a solvency problem. Deliverability, monetisation and go-to-market lenses must all be re-pointed accordingly; the answer to 'can one person build this in a month' is largely irrelevant to whether this business should pursue it.",
+    "Wrong feasibility clock: for a proposer with days rather than months of runway, the binding question is how soon an idea converts to collected cash and how much must be spent before it does — not how quickly a first version can be built.",
+    "Speed versus evidentiary depth: the requirement for concrete, named, numeric specifics pulls toward research the brevity requirement cannot fund. Resolved by preferring an honest confidence marker over either fabricated specificity or an expensive investigation.",
+    "Candour versus usefulness when stakes are existential: for a business in cash distress, a harsh verdict on a plan they are counting on must still leave a navigable path, or the assessment stops being consulted precisely when it matters most.",
+    "Over-correction risk: a screen calibrated tightly to a severe cash constraint will reject every idea with a payback period longer than the runway, including the strategic bets the business needs. The constraint must shape the verdict without becoming an automatic veto.",
+    "Generic versus local market frame: a default global software-competitor frame would miss the incumbents that actually matter to this operator, and the differentiators that matter here are supply breadth, deployment speed and bundled service rather than product features.",
+    "Overlap with adjacent capabilities in the same workspace that also evaluate viability, margin and strategy; the boundary must hold at pre-commitment screening, with detailed specification and economics work left downstream, or this stops being fast."
+  ]
+}

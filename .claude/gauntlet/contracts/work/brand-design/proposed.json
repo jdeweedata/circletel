@@ -1,0 +1,499 @@
+{
+  "skill": "brand-design",
+
+  "capability_summary": "The single authoritative definition of CircleTel's visual identity — the logo system (eight named variants, anatomy, variant-selection rules, clearspace, minimum sizes, and the absolute prohibition on a generative model drawing the mark), the colour palette with exact hex values and their permitted and prohibited roles, the typography stack and scale, and the brand's tone and South African market context. It serves these facts on demand to every consumer that renders something CircleTel-branded: AI image generation, web and admin UI code, print and large-format, email, social avatars, sales collateral, decks and product documentation. It states values exactly rather than by name, resolves which logo variant is correct for a given background and medium, discloses rather than silently resolves conflicts between the repository's brand sources, and labels any derived answer as a derivation rather than an established rule.",
+
+  "user_goal": "Stop CircleTel work being off-brand or inconsistently branded. The user wants one place to ask 'what is CircleTel's orange / heading font / logo for a dark background / clearspace' and get an exact, correct, reusable answer — so that an image, a web page, a deck and a printed banner produced months apart by different agents and tools look like the same company. Secondarily and specifically: the user wants the brand rendered correctly by machines that cannot be trusted to draw it, which is why exact hex values are mandated over colour names and why the real logo files are composited in rather than imitated by a model.",
+
+  "success_looks_like": [
+    "Asked for a brand value, the capability returns an exact hex (and RGB where a print or non-CSS medium needs it) together with the source or token that value belongs to and where it may and may not be used — never the bare word 'orange'.",
+    "The values it states match the values the production design tokens actually define; a divergence between the guideline and the shipped product is a failure of this capability, not an acceptable variance.",
+    "Every hex it quotes alongside a design-token name resolves to that hex in tailwind.config.ts; a token/hex mismatch is a defect.",
+    "Asked which logo to use, it names one specific variant from the eight-file set and gives the reason (background luminance, medium, size), rather than handing back the whole table.",
+    "The CircleTel logo in any produced asset is the real logo artwork, pixel-identical to the file in .design/logos/ — never a generative model's redrawing of it. Artwork is generated logo-free with space reserved, then the real file is composited on.",
+    "Clearspace and minimum size are respected, so the mark is never crowded or reproduced below legibility.",
+    "Asset dimensions and aspect ratio match the destination on the first attempt, so nothing is cropped, letterboxed or upscaled later.",
+    "The same brand fact requested through different consumers — image prompt, React component, print spec, deck, product document — yields the same value, with no consumer-specific drift.",
+    "The visual register is consistently modern, clean, professional, trustworthy, innovative and approachable — no clip-art, no neon, no busy compositions, no off-brand colours.",
+    "People, settings and props read as authentically South African wherever an asset depicts human or lifestyle context.",
+    "When two repository sources disagree on a brand fact, the capability surfaces the conflict with both values and their provenance instead of quietly asserting one.",
+    "Asked for a brand decision the definition does not cover, it produces a derivation grounded in the stated palette roles and hierarchy, says plainly that it is a derivation rather than an established rule, and states what would make it official — it neither invents silently nor refuses.",
+    "The user is told which brand decisions were made on their behalf (which variant, which ratio, which orange), so the output is auditable and correctable.",
+    "A finished asset is verified against the brand before it is handed over, and lands in a predictable categorised location rather than scattered.",
+    "A second person picking up the same brand facts months later produces an asset that sits beside the earlier one without a visible mismatch."
+  ],
+
+  "priority_qualities": [
+    {
+      "rank": 1,
+      "quality": "Factual exactness of brand values, and their agreement with the production design tokens",
+      "why_it_matters": "This capability exists to be the source of truth. A wrong hex, a wrong typeface or a wrong token mapping propagates silently into shipped pages, printed banners and paid ad creative, and is expensive to unwind. It is also the capability's live failure mode: six of its core facts currently disagree with what production ships, and its Tailwind mapping is factually false against the config. Exactness beats completeness, coverage and prose quality; every other quality is downstream of the numbers being right."
+    },
+    {
+      "rank": 2,
+      "quality": "Logo integrity — the mark is always the real asset file, never generated, redrawn, distorted or approximated",
+      "why_it_matters": "The logo is a registered mark with legal and recognition value, and the one asset that must never be approximated. Generative models reliably mangle the swirl geometry and the wordmark. A plausible-looking generated imitation is a worse failure than a missing logo because it ships unnoticed, looks amateurish or fraudulent, and can erode trademark distinctiveness. Every other brand error is a matter of degree; this one makes the asset unusable."
+    },
+    {
+      "rank": 3,
+      "quality": "Single source of truth — the thing others reference, not another copy",
+      "why_it_matters": "Brand facts are currently restated independently in at least nine places (this skill, its quick-reference, DESIGN.md, tailwind.config.ts, app/globals.css and six sibling generation skills), and they have already drifted apart. Every extra copy is a future inconsistency. Correcting the values here without fixing the propagation model just makes them stale again in three months."
+    },
+    {
+      "rank": 4,
+      "quality": "Consumer-neutrality — answers for web UI, print, email, social, collateral and image generation alike",
+      "why_it_matters": "Framing the brand only in image-prompt terms forces every other consumer to write its own copy, which is exactly how the current drift happened. Three non-image skills already declare a dependency on this capability, so the demand is demonstrably broader than the framing it was given."
+    },
+    {
+      "rank": 5,
+      "quality": "Automatic application at the point of use, without having to be asked",
+      "why_it_matters": "Documented brand rules that must be consciously recalled are the rules that get skipped on the 'quick one'. The value is that guidance fires on every brand-relevant request, including small, internal, draft and urgent ones. If it only applies when explicitly invoked, drift resumes immediately."
+    },
+    {
+      "rank": 6,
+      "quality": "Correct variant and contrast selection for the actual background",
+      "why_it_matters": "A dark mark on a dark field, or an orange mark over an orange gradient, is invisible; a technically on-brand asset whose logo cannot be read is a failed asset. The reason eight variants exist is so the right one is chosen automatically rather than debated each time."
+    },
+    {
+      "rank": 7,
+      "quality": "Decisiveness with honestly disclosed uncertainty",
+      "why_it_matters": "A brand guide that returns a table and no answer forces the caller to guess, reintroducing the inconsistency it exists to prevent. It must pick — and be explicit about whether the pick is an established rule, a derivation, or a contested value with a pending human decision."
+    },
+    {
+      "rank": 8,
+      "quality": "Fit-for-destination output — aspect ratio, resolution, format and file placement",
+      "why_it_matters": "Wrong ratio means the platform crops the logo or the price callout; wrong resolution fails in print. Cheap to get right up front, expensive to fix once the asset is live or printed."
+    },
+    {
+      "rank": 9,
+      "quality": "Consistent aesthetic register and restraint over decoration",
+      "why_it_matters": "Matching hex codes do not by themselves make a coherent brand; a set of images varying wildly in style still reads as inconsistent. The brand's promise is trustworthiness in a market where ISPs are widely distrusted, and busy, neon or clip-art visuals actively undercut the commercial message."
+    },
+    {
+      "rank": 10,
+      "quality": "South African market authenticity",
+      "why_it_matters": "Generic imported stock imagery signals 'not for you' to the actual customer base and reads as a foreign brand rather than a local operator, undermining the local-and-trustworthy positioning the brand is built on."
+    },
+    {
+      "rank": 11,
+      "quality": "Verifiability of the finished artefact before release",
+      "why_it_matters": "The user wants errors caught in-house rather than by a customer seeing the wrong orange. This is weaker than it looks today: the check is made by eye, and generative models reliably drift orange toward yellow or gold, so a real measurement against the approved hex is the missing mechanism."
+    },
+    {
+      "rank": 12,
+      "quality": "Copy-paste readiness and filing discipline",
+      "why_it_matters": "Values are consumed by machines and by people mid-task; formats that paste straight into a prompt, a stylesheet or a print spec remove a whole class of transcription errors. Assets that cannot be found get regenerated with drift, so a stable categorised location is what keeps a set of assets looking like a set."
+    }
+  ],
+
+  "constraints": [
+    "Colours must be expressed as exact hex values, and as RGB where a print or non-CSS medium needs it — never as a colour name alone.",
+    "Every colour must carry its permitted role and its prohibited roles; a value without a usage rule invites misuse.",
+    "Where a design-token name is quoted alongside a hex, the token must actually resolve to that hex in tailwind.config.ts. The config is authoritative over any prose restatement of a token.",
+    "Where the repository's brand sources disagree on a fact, the disagreement must be reported with both values and their provenance, not silently resolved.",
+    "The logo is only ever supplied by referencing the real artwork in .design/logos/. The eight variants are a fixed, named set and any selection must resolve to exactly one of them.",
+    "Logo variant must be chosen by background luminance, medium and size using the documented selection rules — including a stated fallback for visually noisy backgrounds (quiet region, scrim/plate, or the self-backgrounded orange-square lockup).",
+    "Clearspace equal to the height of the 'TEL' wordmark element must be maintained on all sides.",
+    "The logo must never be reproduced below 32px height for digital or 10mm height for print.",
+    "Generated imagery must be produced deliberately without the logo, with space reserved for it, and the real logo composited afterwards.",
+    "Output aspect ratio and resolution must be selected to match the asset's destination before generating.",
+    "Aesthetic register is fixed: modern, clean, professional, uncluttered, trustworthy, innovative, approachable — not neon, not busy, not clip-art, not generic Western stock.",
+    "South African market context governs people, settings, props, language and cultural cues in any depictive asset, operationalised concretely (realistic demographic mix, plausible local settings, local vehicles/signage/plug types) rather than asserted as a slogan.",
+    "Accessibility is a brand constraint, not a separate concern: colour must never be the sole carrier of meaning, and orange used as text on light backgrounds must use the accessible variant rather than the primary.",
+    "Typography in generated imagery must be consistent with the brand's shipped typefaces rather than left as an unnamed 'clean sans-serif'.",
+    "Any price, speed, coverage or contractual claim rendered into an image must be verified against the current live offer, be legible at thumbnail size, and carry whatever qualifier the offer requires — or be overlaid as real text rather than generated.",
+    "Third-party and partner logos are outside the CircleTel brand definition and are governed by the icon and licensing rules (licence check, trademark check, local hosting for production-critical use, accessible naming).",
+    "Interface iconography is Phosphor-based and is not a free design choice within branded UI; brand-driven styling must not override that system.",
+    "Generated assets must be filed into the designated categorised output tree, not left loose or in the project root, and never overwrite the authoritative logo files.",
+    "A pre-release verification must be performed and its outcome stated before an asset is considered finished.",
+    "The brand decisions made on the user's behalf (variant chosen, ratio chosen, which orange lineage applied) must be stated back to the user."
+  ],
+
+  "never_do": [
+    "Never ask a generative model to draw, render, recreate, approximate or 'faithfully reproduce' the CircleTel logo, wordmark or swirl mark.",
+    "Never specify a brand colour by name only ('orange', 'navy', 'the brand blue') where a hex value exists.",
+    "Never quote a design-token name alongside a hex without having confirmed the token actually holds that hex.",
+    "Never present a contested brand value as settled, or silently pick one side of a documented conflict.",
+    "Never silently invent a brand rule to fill a gap and present it as established.",
+    "Never answer a brand question with only a table and no recommendation.",
+    "Never emit a colour outside the approved palette as a brand colour, and never introduce a new brand colour without flagging it as unofficial.",
+    "Never repurpose a reserved colour for an unrelated purpose — the semantic success/error/info colours, and the WhatsApp green which is exclusive to the WhatsApp CTA.",
+    "Never place a logo variant on a background it was not made for — a light-background lockup on dark, a dark or grey lockup over orange, or a coloured variant over a busy photograph without a plate.",
+    "Never distort, recolour, rotate, stretch, crop into, add effects to, or re-typeset the logo, and never normalise the wordmark casing.",
+    "Never violate clearspace or reproduce the logo below the stated minimum size.",
+    "Never skip brand context on the grounds that an image is quick, internal, exploratory or a draft.",
+    "Never produce clip-art, cartoonish, neon or visually busy compositions.",
+    "Never let one consumer — image generation — define the brand for all the others.",
+    "Never let generated imagery imply a partnership, endorsement, coverage claim, product capability, price or performance figure that is not true.",
+    "Never depict a third party's trademark, product or network branding inside CircleTel artwork without an authorised reason.",
+    "Never ship a third-party or provider logo without confirming its licence, attribution and trademark position.",
+    "Never save assets outside the agreed folder structure or overwrite the authoritative logo source files.",
+    "Never publish an asset without the pre-release brand verification having been run."
+  ],
+
+  "objective_invariants": [
+    "TOKEN AGREEMENT (the governing invariant) — every colour hex this capability states, together with the design-token name it attributes that hex to, must equal the value that token resolves to in /home/user/circletel/tailwind.config.ts. Mechanically checkable: parse the `circleTel` and `ui` colour scales from tailwind.config.ts and diff against every (token, hex) pair asserted by the capability. Zero mismatches required.",
+    "DESIGN.md AGREEMENT — every colour and typeface this capability states for the web/product surface must equal the corresponding key in the `colors` and `typography` front-matter of /home/user/circletel/DESIGN.md. Mechanically checkable by parsing that YAML front-matter and diffing.",
+    "TYPEFACE AGREEMENT — the typefaces this capability names must be the typefaces production actually loads. Mechanically checkable: the `next/font/google` imports in /home/user/circletel/app/layout.tsx and the `fontFamily` map in tailwind.config.ts must contain every typeface the capability names, and the capability must name no typeface absent from both.",
+    "LOGO ARTWORK AGREEMENT — any hex the capability states as the logo's own orange or grey must match the dominant opaque pixel values of the artwork in .design/logos/. Mechanically checkable by sampling the PNGs. VERIFIED at synthesis time: LOGO-01 dominant opaque colours are #F6841F (orange, 611,179 px) and #757474 (grey, 309,010 px); LOGO-06 is #F6841F on white.",
+    "LOGO SET — exactly eight variants exist, stored as `.design/logos/FLAT COLOUR - CIRCLE TEL LOGO-0X.png` for X = 1..8. VERIFIED: all eight files present.",
+    "LOGO-01 — Orange + Grey on white/transparent. PRIMARY variant: website, documents, formal use, light backgrounds.",
+    "LOGO-02 — Orange only on white/transparent. Single-colour printing, embroidery.",
+    "LOGO-03 — Grey only on white/transparent. Neutral contexts, black-and-white documents.",
+    "LOGO-04 — Black only on white/transparent. High contrast, legal documents, stamps.",
+    "LOGO-05 — White only on transparent. Dark backgrounds (knocked out); also used over orange areas.",
+    "LOGO-06 — White mark on an orange background block. Social avatars, app icons, favicons; preferred when compositing onto dark or gradient backgrounds for high visibility.",
+    "LOGO-07 — Orange + Grey on white, small-size optimised. Email signatures, small placements.",
+    "LOGO-08 — Orange + Grey on white, large/high-resolution. Print, banners, billboards.",
+    "LOGO SELECTION — dark or black background → LOGO-05; social avatar or app icon → LOGO-06; print or large format → LOGO-08; email or small placement → LOGO-07; single-colour requirement → LOGO-02 (orange) or LOGO-03 (grey); formal, primary or default → LOGO-01. When compositing onto generated artwork specifically: dark or gradient background → LOGO-06; light or white background → LOGO-01; over orange areas → LOGO-05; print or large → LOGO-08; small or email → LOGO-07.",
+    "LOGO ANATOMY — dual swirl circles (outer orange, inner grey) signifying connectivity and dynamic service; a WiFi signal icon integrated with the letter 'c' signifying wireless/internet focus; wordmark 'circle' in lowercase orange followed by 'TEL' in uppercase bold grey. The artwork files are authoritative over any prose description of the mark.",
+    "WORDMARK CASING — the mark reads 'circle' lowercase + 'TEL' uppercase; this casing is part of the mark and must never be normalised to 'Circletel', 'CircleTEL' or 'CIRCLETEL' within the mark. In running prose the company name is written 'CircleTel'.",
+    "LOGO CLEARSPACE — padding equal to the height of the 'TEL' wordmark element, maintained on all four sides.",
+    "LOGO MINIMUM SIZE — 32px height for digital; 10mm height for print.",
+    "LOGO PROHIBITION — the logo is never generated, drawn or reconstructed by an image model in any medium; it is only ever composited or placed from the stored artwork files.",
+    "PRODUCTION COLOUR TOKENS (VERIFIED against tailwind.config.ts at synthesis time) — circleTel.orange #E87A1E; circleTel.orange-accessible #AE5B16; circleTel.orange-dark #C45A30; circleTel.orange-light #FDF2E9; circleTel.gray #747474 ('Circle Tel Grey', rgb(116,116,116)); circleTel.navy #1B2A4A; circleTel.charcoal #2D3436; circleTel.grey600 #7F8C8D; circleTel.grey200 #F0F0F0; circleTel.black #000000; circleTel.white #FFFFFF. Secondary palette: burnt-orange #D76026, warm-orange #E97B26, bright-orange #F4742B, light-gray #8B8B8B, dark-gray #606261, midnight-navy #0F1427. Explicitly commented 'Legacy aliases (for backwards compatibility)': darkNeutral #1F2937, secondaryNeutral #4B5563, lightNeutral #E6E9EF. UI scale: ui.bg #F9FAFB, ui.card #FFFFFF, ui.text-primary #111827, ui.text-secondary #4B5563, ui.text-muted #6B7280, ui.text-dark #1F2937, ui.sidebar #1F2937, ui.border #E5E7EB.",
+    "PRODUCTION COLOUR ROLES (VERIFIED against DESIGN.md at synthesis time) — primary #E87A1E is the sole CTA driver and is never body text on white; primary-dark #C45A30 is hover/pressed on orange buttons and never standalone; primary-light #FDF2E9 is tab hover, badge fills and soft tints; primary-accessible #AE5B16 is the ONLY orange approved for text on white; secondary #1B2A4A (Deep Navy) is navigation, footers, hero and feature-card backgrounds — the authority colour; secondary-dark #0F1427 (Midnight Navy) is deep hero overlays and sidebars only; neutral #F9FAFB is the page background and pure white must never be used as a page background; surface #FFFFFF is cards, modals and inputs only; charcoal #2D3436 is footer alternative and admin sidebar; text-primary #111827; text-secondary #4B5563; text-muted #6B7280; border #E5E7EB; success #10B981; error #EF4444; whatsapp #25D366 exclusive to the WhatsApp CTA and never repurposed.",
+    "PRODUCTION TYPOGRAPHY (VERIFIED against app/layout.tsx, app/globals.css, tailwind.config.ts and DESIGN.md at synthesis time) — Manrope for display and headings (700 for headings, 600 for subheadings and card titles); Inter for body copy, labels, UI text and data tables; JetBrains Mono for code, plan SKUs, IP addresses and technical values only. app/layout.tsx imports exactly these three from next/font/google and exposes them as --font-inter, --font-manrope, --font-mono; app/globals.css sets body to Inter and all headings to Manrope; tailwind maps sans/body/data → Inter, heading/display → Manrope, mono → JetBrains Mono. Arial is loaded nowhere in production.",
+    "PRODUCTION TYPE SCALE (DESIGN.md) — h1 3.75rem/60px, 700, line-height 1.1, letter-spacing -0.02em (hero headlines only); h2 2.25rem/36px, 700, 1.2, -0.01em (section titles); h3 1.5rem/24px, 600, 1.3 (card titles, subsection headers); body-lg 1.125rem/18px, 400, 1.75; body-md 1rem/16px, 400, 1.625; body-sm 0.875rem/14px, 400, 1.5; label 0.875rem/14px, 600, 1.25; mono 0.875rem/14px, 400. Responsive h1 never below 1.875rem on mobile.",
+    "MEASURED CONTRAST (VERIFIED by computation at synthesis time, WCAG 2.x relative luminance) — #F5831F on white 2.58:1 (fails AA); #E87A1E on white 2.90:1 (fails AA); #AE5B16 on white 4.87:1 (passes AA normal text); white on #F5831F 2.58:1 (fails); #1F2937 on #F5831F 5.70:1 (passes); white on #1B2A4A 14.22:1 (passes AAA); #EF4444 on white 3.76:1 (fails AA as text); #10B981 on white 2.54:1 (fails AA as text). Consequence: no orange in the palette may carry white text as normal-size body text, semantic red and green are fills/icons with dark labels rather than text colours, and #AE5B16 is the only orange permitted as text on white.",
+    "ASSET GEOMETRY BY TYPE — Product 1:1 @ 2048x2048, normally no logo; Social Post 1:1 @ 1024x1024, LOGO-06 in a corner or LOGO-01; Social Story 9:16 @ 1152x2048, LOGO-06 top or bottom; Hero 21:9 @ 2048x878 (up to 4K), normally no logo (overlaid in code); Feature 4:3 @ 2048x1536, no logo; Icon 1:1 @ 512x512, no logo; Banner 21:9 @ 2048x878, LOGO-01 or LOGO-05; Email Header 3:1 @ 1800x600, LOGO-01 or LOGO-07.",
+    "COMPOSITING DEFAULTS — logo scaled to approximately 20% of the base image width (adjustable), padded approximately 3% of the base image width from the edge, positioned bottom-right by default with the other corners and top/bottom centre available, alpha preserved, aspect ratio preserved, high-quality resampling, default variant LOGO-01. Composited height must additionally respect the absolute 32px digital floor.",
+    "ASSET LOCATIONS — logos in .design/logos/; generated images under .design/images/ with categories products/ (incl. routers/), sections/ (hero/, features/), marketing/ (social/), icons/ (features/), mockups/; prompt definitions under .design/prompts/[category]/[name]; logo compositor at .design/scripts/add-logo.py.",
+    "BRAND POSITIONING (DESIGN.md) — 'B2B/B2C ISP platform for South Africa. One Provider. One Bill. Your Office Runs.' Trusted connectivity for South African SMEs. Identity built on authority and warmth: the deep navy of a reliable enterprise partner, activated by a bold South African orange signalling energy and action. Design philosophy: professional-but-approachable; information-dense but calm; the interface should feel like a reliable local partner — knowledgeable, clear, always available.",
+    "MOOD AND AVOID-LIST — Style: modern, professional, South African market. Mood: trustworthy, innovative, approachable. Avoid: overly busy designs, neon colours, clip-art style.",
+    "ACCESSIBILITY INVARIANTS — decorative icons carry aria-hidden=\"true\" with meaning conveyed by adjacent text; standalone meaningful icons and logos carry an accessible name; status is never communicated by colour alone; orange as text on white must be #AE5B16.",
+    "ICON SYSTEM — Phosphor via react-icons/pi for navigation, actions, status, controls and general interface symbols (prefer bold variants); Iconify via @iconify/react only for approved brand/provider/service/technology logos Phosphor lacks; neither library registered in globals.css. Production-critical icons hosted locally under components/icons/ (SVG-as-JSX) or public/icons/, preserving official geometry and colours, with the Iconify identifier, source URL, icon-set licence and attribution recorded in a source comment.",
+    "PRE-RELEASE VERIFICATION — before an asset is called done, confirm: the correct primary orange lineage was used for this destination; no off-brand colours are present; the logo variant suits its background; clearspace and minimum size are respected; the aesthetic is clean and professional; the depiction is South African market appropriate; the aspect ratio matches the destination; and the file is saved to the correct location. Where colour fidelity is load-bearing, this check must sample the rendered pixels against the approved hex rather than being made by eye."
+  ],
+
+  "contested_facts": [
+    {
+      "fact": "The primary CircleTel orange",
+      "values": [
+        {
+          "value": "#F5831F (rgb 245,131,31)",
+          "source": ".claude/skills/brand-design/SKILL.md lines 65, 83, 127, 154, 168, 194, 216, 235, 251, 300, 383; references/quick-reference.md line 8; propagated into all six sibling image-generation skills (nb-product-hero, nb-social-ad, nb-campaign-visual, nb-package-bento, openai-imagegen, openrouter-imagegen); app/globals.css line 26 as the typeset link colour",
+          "evidence": "232 literal occurrences of F5831F across app/, components/ and lib/. It is the value every image-generation path currently injects. Contrast on white 2.58:1."
+        },
+        {
+          "value": "#E87A1E",
+          "source": "tailwind.config.ts (circleTel.orange, commented 'Primary orange (updated from wireframe spec)'); DESIGN.md colors.primary and the Colors section, 'CircleTel Orange. The sole CTA driver'",
+          "evidence": "The Tailwind class circleTel-orange appears 2,743 times in app/ and components/ (plus 226 -dark, 61 -light, 48 -accessible), against 200 literal occurrences of E87A1E. This is what the overwhelming majority of the shipped UI renders through. Contrast on white 2.90:1."
+        },
+        {
+          "value": "#F6841F",
+          "source": "The logo artwork itself — dominant opaque pixel of .design/logos/FLAT COLOUR - CIRCLE TEL LOGO-01.png (611,179 px) and LOGO-06.png (3,866,803 px), sampled at synthesis time",
+          "evidence": "This is the orange physically present in the trademark files that get composited onto every branded asset. #F5831F is within one unit per channel of it; #E87A1E is visibly different (ΔR 14, ΔG 10, ΔB 1 from the artwork)."
+        },
+        {
+          "value": "oklch(0.7686 0.1647 70.0804) ≈ #F59E0B",
+          "source": "app/globals.css lines 79 and 136 — the shadcn --primary custom property, in both light and dark themes",
+          "evidence": "A third rendered orange, a generic amber, inside the same codebase. Governs every unstyled shadcn primitive. Almost certainly unintentional scaffolding rather than a brand decision."
+        },
+        {
+          "value": "#F5841E",
+          "source": ".claude/gauntlet/originals/user/circletel-product-development/references/house_standards.md line 45",
+          "evidence": "A one-digit variant matching neither of the main two. Appears in no production file. Assessed as a transcription error."
+        }
+      ],
+      "assessed_authoritative": "SPLIT AND UNRESOLVED BY EVIDENCE — this is a genuine two-lineage situation, not simple staleness, and it is escalated to the user. On the evidence: #E87A1E is authoritative for the web and product UI; the logo's own #F6841F (of which the skill's #F5831F is a faithful transcription) is authoritative for the mark itself and therefore constrains anything the mark sits on. #F59E0B and #F5841E are defects to be removed.",
+      "reasoning": "Extractors 1 and 2 concluded #E87A1E simply wins on usage count and on the config's 'updated from wireframe spec' migration comment. I verified those counts (2,743 token uses vs 200 literals) and they hold — but that analysis is incomplete, because none of the extractors sampled the artwork. The logo PNGs are painted #F6841F. That is decisive new evidence: the skill's #F5831F is not a stale guess, it is the trademark's own colour transcribed to within one unit per channel, and #E87A1E is a later, darker web-UI value that the mark itself never adopted. This produces a concrete, visible defect that neither lineage's advocates have addressed: composite the real LOGO-01 onto a background painted circleTel-orange and two perceptibly different oranges appear in the same frame. So neither 'the skill is stale, use #E87A1E everywhere' nor 'the skill is right, ignore the tokens' is safe. Whether the marketing and UI oranges are deliberately different is a business decision, not one I can settle from the repository — nothing in DESIGN.md, tailwind.config.ts or the skill states an intended split. Escalated.",
+      "verification_note": "Verified by me at synthesis time from /home/user/circletel/tailwind.config.ts, /home/user/circletel/DESIGN.md, /home/user/circletel/app/globals.css, and by Pillow pixel sampling of .design/logos/."
+    },
+    {
+      "fact": "The secondary brand colour",
+      "values": [
+        {
+          "value": "Dark Neutral / dark charcoal #1F2937",
+          "source": ".claude/skills/brand-design/SKILL.md lines 66, 84, 128, 236, 384; references/quick-reference.md",
+          "evidence": "The Tailwind token the skill attributes this to, circleTel-darkNeutral, has ZERO uses across app/, components/ and lib/ — verified. tailwind.config.ts lists it under a block explicitly commented 'Legacy aliases (for backwards compatibility)'. The hex survives in production only in different roles: ui.text-dark and ui.sidebar."
+        },
+        {
+          "value": "Deep Navy #1B2A4A",
+          "source": "tailwind.config.ts (circleTel.navy, commented 'Deep Navy (updated from wireframe spec)'); DESIGN.md colors.secondary, 'Deep Navy. Navigation, footers, hero backgrounds, feature card backgrounds. The authority color'; all six sibling image-generation skills",
+          "evidence": "circleTel-navy appears 884 times in app/ and components/; 148 literal occurrences of 1B2A4A. DESIGN.md's whole 'authority and warmth' philosophy is built on it. Contrast of white on navy is 14.22:1."
+        },
+        {
+          "value": "Deep Navy #13274A",
+          "source": "house_standards.md line 45 (originals/user/circletel-product-development/references/)",
+          "evidence": "Appears in no production file whatsoever. Assessed as a transcription error."
+        }
+      ],
+      "assessed_authoritative": "#1B2A4A (Deep Navy)",
+      "reasoning": "This one is not genuinely contested — it is settled, and the skill is the last holdout. 884 token uses versus zero; the config itself labels #1F2937 legacy; DESIGN.md names navy the authority colour and builds the stated design philosophy on it; and every one of the six sibling image skills already independently overrode the skill and adopted navy. Unlike the orange, there is no artwork evidence pulling the other way — the logo contains no navy and no #1F2937. #1F2937 remains a legitimate production value, but as a UI text/sidebar colour (ui.text-dark, ui.sidebar), not as the brand secondary. The skill conflates a dark UI grey with the brand's secondary identity colour. Decided, not escalated.",
+      "verification_note": "Verified by me: grep count circleTel-navy = 884, circleTel-darkNeutral = 0; tailwind.config.ts and DESIGN.md read directly."
+    },
+    {
+      "fact": "The typography stack",
+      "values": [
+        {
+          "value": "Arial, Helvetica, sans-serif — with weights 600/700/800",
+          "source": ".claude/skills/brand-design/SKILL.md line 96; injected brand context line 132 and quick-reference as 'Typography: Clean sans-serif (Arial style)'",
+          "evidence": "Arial is loaded nowhere in production — not in app/layout.tsx, not in tailwind.config.ts, not in app/globals.css. Verified absent."
+        },
+        {
+          "value": "Manrope (display/headings) + Inter (body/UI/data) + JetBrains Mono (code/technical)",
+          "source": "app/layout.tsx line 5 (next/font/google import of exactly these three); tailwind.config.ts fontFamily map; app/globals.css (body → --font-inter, all headings → --font-manrope); DESIGN.md typography front-matter and Typography section",
+          "evidence": "Four independent production sources agree exactly. globals.css carries an explicit note at line 13 that the stack is 'Inter body / Manrope headings / JetBrains mono, not Geist'. DESIGN.md adds the rule 'never Inter for display text'."
+        },
+        {
+          "value": "Unnamed 'clean geometric sans-serif' / 'bold modern sans-serif'",
+          "source": "All six sibling image-generation skills",
+          "evidence": "No typeface named anywhere in the image path, so generated assets carry no guarantee of sharing type with the website."
+        }
+      ],
+      "assessed_authoritative": "Manrope + Inter + JetBrains Mono",
+      "reasoning": "Not genuinely contested — the skill is simply wrong. Four production sources agree exactly and Arial is absent from all of them; 'Arial style' reads as placeholder text that was never updated. All three extractors reached this conclusion independently and my verification confirms it. The material consequence is that the sibling image skills name no typeface at all, so image assets and the website are not guaranteed to share type — fixing the Arial value must be accompanied by actually naming Manrope and Inter in the generation-facing brand block. Decided, not escalated.",
+      "verification_note": "Verified by me: app/layout.tsx line 5 and lines 84-101; tailwind.config.ts fontFamily; app/globals.css lines 13, 206-302."
+    },
+    {
+      "fact": "The background / neutral colour",
+      "values": [
+        {
+          "value": "Light Neutral #E6E9EF",
+          "source": ".claude/skills/brand-design/SKILL.md lines 67, 85, 129; quick-reference",
+          "evidence": "tailwind.config.ts lists lightNeutral #E6E9EF under 'Legacy aliases (for backwards compatibility)'. The class circleTel-lightNeutral does still appear 164 times in app/ and components/ — so unlike darkNeutral it is not dead, but it is not the page background."
+        },
+        {
+          "value": "#F9FAFB",
+          "source": "DESIGN.md colors.neutral, 'Page background. Never use pure white for page backgrounds'; tailwind.config.ts ui.bg '#F9FAFB' commented 'Page background'; app/layout.tsx line 149 body className bg-[#F9FAFB]",
+          "evidence": "Three production sources agree, including the literal class on the <body> element, which is as authoritative as a page background gets."
+        }
+      ],
+      "assessed_authoritative": "#F9FAFB for page backgrounds; #FFFFFF for elevated surfaces (cards, modals, inputs) only",
+      "reasoning": "The <body> element itself carries bg-[#F9FAFB], and DESIGN.md states the rule explicitly and forbids pure white as a page background. #E6E9EF is a legacy card/section tint that is still in real use (164 occurrences, so it should not simply be deleted) but has never been the page background. The skill's error is one of role, not existence. Note this also flags a defect in the skill's injected brand context, which tells every image generator 'Background: Clean white or light gray (#E6E9EF)' — both halves of which conflict with production. Decided, not escalated. Correcting extractor_1, which asserted lightNeutral was unused: it has 164 uses.",
+      "verification_note": "Verified by me: app/layout.tsx line 149; tailwind.config.ts ui.bg; DESIGN.md colors.neutral and the Don't list; grep count circleTel-lightNeutral = 164."
+    },
+    {
+      "fact": "The brand grey (specifically the grey inside the logo mark)",
+      "values": [
+        {
+          "value": "Gray #6B7280",
+          "source": ".claude/skills/brand-design/SKILL.md line 77; quick-reference line 18 — listed in the extended palette as 'secondary text, borders, captions'",
+          "evidence": "Real in production, but as a UI muted-text colour: tailwind ui.text-muted #6B7280 and DESIGN.md text-muted '#6B7280 — placeholders, timestamps, fine print'. Not a mark colour."
+        },
+        {
+          "value": "CircleTel Grey #747474",
+          "source": "tailwind.config.ts circleTel.gray, commented 'Circle Tel Grey - rgb(116, 116, 116)'; house_standards.md line 45",
+          "evidence": "7 literal occurrences of 747474 in source. Named as a CircleTel brand colour in the config, inside the circleTel scale rather than the ui scale."
+        },
+        {
+          "value": "#757474",
+          "source": "The logo artwork — second dominant opaque pixel of LOGO-01.png (309,010 px), sampled at synthesis time",
+          "evidence": "rgb(117,116,116), within one unit of #747474 on the red channel. This is the grey physically present in the mark's inner swirl and the 'TEL' wordmark."
+        }
+      ],
+      "assessed_authoritative": "#747474 (CircleTel Grey) is the brand grey and the logo's grey. #6B7280 is a UI muted-text grey and is not a brand identity colour.",
+      "reasoning": "Decided on direct artwork evidence. The skill conflates two distinct roles under one label, which matters specifically because the logo's inner swirl and 'TEL' wordmark are painted in the brand grey — I sampled them at #757474, effectively #747474. Anyone reproducing the mark or matching a single-colour treatment to the skill's #6B7280 would be using the wrong grey. Extractor_1 identified this conflation from the config comment alone; the pixel sample confirms it. Decided, not escalated.",
+      "verification_note": "Verified by me: tailwind.config.ts circleTel.gray; Pillow sampling of .design/logos/FLAT COLOUR - CIRCLE TEL LOGO-01.png."
+    },
+    {
+      "fact": "Existence of an accessible orange variant for text on light backgrounds",
+      "values": [
+        {
+          "value": "Absent — no accessible orange, and the stated rules actively produce failures",
+          "source": ".claude/skills/brand-design/SKILL.md — the palette carries no such variant; the usage rules say 'primary actions → orange' and the templates say 'white text on dark areas'",
+          "evidence": "Following the skill literally ships orange CTAs with white labels at 2.58:1, and orange 'price' text (the skill's own text scale specifies price in orange) on light grounds at 2.58:1. Both fail WCAG AA for normal text (4.5:1) and even the 3:1 large-text bar."
+        },
+        {
+          "value": "#AE5B16 — 'the only orange approved for text on white backgrounds'",
+          "source": "tailwind.config.ts circleTel['orange-accessible'] '#AE5B16' commented 'For text on light backgrounds'; DESIGN.md colors.primary-accessible and the Do list",
+          "evidence": "48 uses of the circleTel-orange-accessible class; 12 literal occurrences. Measured 4.87:1 on white — passes AA for normal text."
+        }
+      ],
+      "assessed_authoritative": "#AE5B16 exists, is production-approved, and must be carried by this capability. Its absence from the skill is a gap, not a disagreement.",
+      "reasoning": "Nothing contradicts #AE5B16 — the skill simply omits it, and the omission is load-bearing rather than cosmetic. I computed the contrast ratios directly: #F5831F on white 2.58:1, #E87A1E on white 2.90:1, #AE5B16 on white 4.87:1, white on #F5831F 2.58:1, #1F2937 on #F5831F 5.70:1. So both candidate primary oranges fail as text on white, white text fails on either orange fill, and a dark label on an orange fill passes. Production has already hit this problem and solved it in code; the brand guidance has not caught up. I also verified the same failure for the semantic colours the skill does carry: #EF4444 on white is 3.76:1 and #10B981 on white is 2.54:1, so both are fills-with-dark-labels, not text colours — a qualification the skill never states. Decided, not escalated. The one adjacent question that IS a business decision — whether marketing imagery is exempt from the WCAG floor that governs the web UI — is escalated separately.",
+      "verification_note": "Contrast ratios computed by me at synthesis time using the WCAG 2.x relative-luminance formula; token values read from tailwind.config.ts and DESIGN.md."
+    },
+    {
+      "fact": "The Tailwind token mapping stated by the skill",
+      "values": [
+        {
+          "value": "circleTel-orange = #F5831F; circleTel-darkNeutral = #1F2937; circleTel-lightNeutral = #E6E9EF",
+          "source": ".claude/skills/brand-design/SKILL.md lines 65-67 (the Token column of the colour table)",
+          "evidence": "The first mapping is false against the config; the second and third point at aliases the config marks legacy."
+        },
+        {
+          "value": "circleTel-orange = #E87A1E; darkNeutral and lightNeutral are legacy aliases",
+          "source": "tailwind.config.ts",
+          "evidence": "Directly read at synthesis time."
+        }
+      ],
+      "assessed_authoritative": "tailwind.config.ts. The skill's mapping is factually wrong and is the single most urgent correction.",
+      "reasoning": "Not a brand-values dispute at all — a straightforward factual error with an unusually nasty failure mode. An agent trusting the table writes class=\"bg-circleTel-orange\" believing it renders #F5831F, and it renders #E87A1E: exactly the silent colour drift the 'always use exact hex' rule exists to prevent, delivered by the document that states the rule. This holds regardless of how the primary-orange business question is settled — whichever orange wins, the token must resolve to what the doc says it does. Decided, not escalated.",
+      "verification_note": "Verified by me: tailwind.config.ts circleTel scale read directly; grep counts confirm which tokens are live."
+    },
+    {
+      "fact": "Whether shadows may be colour-matched to the element",
+      "values": [
+        {
+          "value": "Yes — 'shadows colour-matched to the element (orange shadow for orange elements)'",
+          "source": ".claude/skills/brand-design/SKILL.md colour usage rules",
+          "evidence": "Stated as a positive rule in the colour section."
+        },
+        {
+          "value": "No — 'Don't add colored box shadows — they conflict with the flat authority aesthetic'",
+          "source": "DESIGN.md Don't list; DESIGN.md elevation section defines three neutral levels only",
+          "evidence": "Explicit prohibition in the shipped design system."
+        }
+      ],
+      "assessed_authoritative": "DESIGN.md for anything rendered as UI (web, admin, mockups of the product). The image-generation lineage's coloured-glow convention is a lighting/rendering choice in photographic and illustrative work, not a UI shadow, and the two are not actually the same decision.",
+      "reasoning": "Extractor_2 flagged this as a direct contradiction and it reads that way, but the conflict is narrower than it looks once the medium is separated. 'Orange accent lighting' in a generated product shot is a lighting decision; 'coloured box shadow' on a React card is a UI elevation decision that DESIGN.md explicitly forbids. Resolving it as medium-scoped preserves both intents without either source having to be wrong. Decided. Flagged low-confidence: if the user intends one rule across all media, DESIGN.md governs.",
+      "verification_note": "Verified by me: DESIGN.md Don't list and elevation section read directly."
+    },
+    {
+      "fact": "Whether the selected-state Dark Blue #1E4B85 is a CircleTel brand colour",
+      "values": [
+        {
+          "value": "Yes — listed in the brand palette as 'selected states, package cards'",
+          "source": ".claude/skills/brand-design/SKILL.md line 87; quick-reference line 19",
+          "evidence": "Presented alongside the semantic palette as a brand value."
+        },
+        {
+          "value": "Real, but namespaced outside the brand",
+          "source": "tailwind.config.ts — defined as webafrica.blue under a group commented 'WebAfrica-inspired colors (adapted with CircleTel orange)', and used in gradient-card-selected",
+          "evidence": "The value exists and is used, but sits in a competitor-inspired namespace, not the circleTel scale."
+        }
+      ],
+      "assessed_authoritative": "The value is correct (#1E4B85 is genuinely used for selected package-card states) but its status is a UI state colour, not a brand identity colour. It should not be presented in the brand palette without that qualification.",
+      "reasoning": "Extractor_1 recorded this as agreeing with production and closed it; extractor_3 spotted that agreement on the hex conceals a disagreement about status. Extractor_3 is right. Living in a 'WebAfrica-inspired' namespace means it was borrowed for a UI pattern, not chosen as part of CircleTel's identity — and a brand guide that lists it beside the orange invites its use in, say, a social post, where it has no business. Decided as a scoping correction rather than a value change.",
+      "verification_note": "Verified by me: tailwind.config.ts webafrica scale read directly."
+    }
+  ],
+
+  "scope_in": [
+    "Answering any question about CircleTel's own colours, typography, logo, clearspace, minimum sizes, wordmark casing, tone, positioning and market context.",
+    "Being the referenced source for those facts across every consumer — image generation, web and admin UI code, print, email, social, collateral, decks and product documentation.",
+    "Selecting the correct logo variant for a given background, medium and size, and stating why.",
+    "Supplying brand values in the form each consumer needs: exact hex for prompts, token names for code, RGB and millimetre values for print.",
+    "Supplying the brand context block and colour discipline that generative image consumers must inject, including the anti-drift qualifier where a model is known to shift the hue.",
+    "The rule and the operative defaults for compositing the real logo onto generated imagery rather than generating it.",
+    "Setting aspect ratio and resolution expectations per destination.",
+    "Governing where brand assets and prompt definitions are stored so they remain findable and reusable.",
+    "Stating the brand's accessibility floor for colour and icon usage, including which orange may carry text.",
+    "Validating a finished asset or rendered interface against the brand definition before release, and stating which brand decisions were applied.",
+    "Deriving a defensible answer, clearly labelled as a derivation, for a brand decision the definition does not cover.",
+    "Reporting conflicts between the repository's brand sources when a requested fact is contested."
+  ],
+
+  "scope_out": [
+    "The mechanics of any specific image-generation provider — model names, API calls, pricing, CLI flags, retry behaviour. Those capabilities consume the brand; they are not it.",
+    "Creative direction, composition, lighting, camera specification, scene invention and prompt-engineering craft — these belong to the per-asset generation capabilities.",
+    "Web/UI SYSTEM facts that only screens use: grid, spacing rhythm, breakpoints, elevation levels, component anatomy, radii. DESIGN.md owns these. (They overlap with this capability only on colour and type — which is exactly where they currently disagree and must be reconciled rather than duplicated.)",
+    "Implementing components in React/Tailwind. The brand supplies the values, not the code.",
+    "Copywriting, messaging strategy, campaign concepting, offer construction, pricing decisions and claim substantiation.",
+    "Redesigning the brand — proposing new logo lockups, inventing new brand colours, or editing/re-exporting the authoritative logo source files. This capability reports and applies the brand; a change to a hex, typeface or logo is decided outside it and then recorded in it.",
+    "Third-party and partner brand identities beyond the rule that licence and trademark status must be checked before use.",
+    "Choosing or authoring interface icons beyond deferring to the established Phosphor/Iconify system.",
+    "General UI/UX quality, usability heuristics, conversion optimisation and layout critique beyond what the brand itself fixes.",
+    "Media buying, channel strategy, placement and platform publishing.",
+    "Legal clearance of trademarks, model releases and third-party imagery rights — escalated, not assumed.",
+    "Document and collateral templating and the confidentiality rules that govern them."
+  ],
+
+  "scope_verdict": "THE AUTHORITATIVE BRAND DEFINITION, of which image generation is one consumer — not 'brand rules for image generation'. Four pieces of evidence decide it. (1) The dependency graph already contradicts the narrow framing: three non-image skills declare `dependencies: brand-design` — product-page-builder (code/UI), promotional-campaigns (marketing), new-product (product documentation) — so the demand is demonstrably broader than the framing it was given. (2) The narrow framing has demonstrably failed at its own job: six sibling image-generation skills each restate the brand block inline and none of them loads this skill, and they have already diverged from it (they adopted DESIGN.md's navy while keeping the skill's orange — a hybrid no source authorises). Being 'the image-gen brand skill' did not make it the source image generation consults. (3) The same facts independently live in DESIGN.md, tailwind.config.ts and app/globals.css — consumers the narrow framing does not even acknowledge, and the ones that have drifted furthest from it. (4) The facts themselves are medium-independent: a hex, a typeface, the logo variant inventory, clearspace and minimum size govern a printed banner, an email signature and a React component exactly as much as a generated image. But the verdict carries a hard boundary in the opposite direction, because broadening invites absorbing all of DESIGN.md: this capability owns brand IDENTITY facts — colour, type, logo, tone, market — which every medium shares. DESIGN.md owns web/UI SYSTEM facts — grid, spacing, elevation, component anatomy, radii — which only screens use. They overlap on colour and type, which is precisely where they currently disagree; the fix is one reconciled definition that both reference, not a tenth copy.",
+
+  "activation_expectations": [
+    "Fires automatically on any request that will produce a CircleTel-branded visual artefact — image, mockup, social post, hero, banner, icon, deck, page, component — without the user having to ask for brand rules.",
+    "Fires on questions about CircleTel's colours, hex values, typography, logo, clearspace or minimum sizes, whatever the medium of the eventual answer.",
+    "Fires when a consumer needs a brand value in a specific form: hex for a prompt, token name for code, RGB or millimetres for print.",
+    "Fires when a logo must be placed and a variant must be chosen, or when an asset is being validated before release.",
+    "Fires even on small, internal, draft, exploratory or urgent requests — 'quick' is not an exemption.",
+    "Does NOT fire for visual work that is not CircleTel-branded: a generic chart, a third-party mockup, a diagram, a competitor screenshot. Over-application on keywords like 'design', 'colours' or 'image' is a real failure mode, not a safe default.",
+    "When it fires it must state the brand decisions it applied, so the user can see and correct them.",
+    "When a requested fact is contested it must say so and present the competing values with their sources, rather than answering as if settled."
+  ],
+
+  "non_qualities": [
+    "Exhaustiveness of the palette — a short list of correct, role-tagged values beats a long swatch catalogue.",
+    "Prose quality, document structure, section ordering and table formatting.",
+    "Prompt-template wording and YAML framing — the phrasing is a convenience, the brand facts inside it are the substance.",
+    "Which image-generation model, provider or CLI is used, and its flags, pricing and output format.",
+    "The specific compositing implementation (library, script, code sample) — only the resulting placement, sizing, alpha preservation and quality matter.",
+    "Novelty or creative flair in the brand guidance itself; this capability is a reference, not a design exercise.",
+    "Speed of answering — a fast wrong hex is the failure this exists to prevent.",
+    "Backwards compatibility with the skill's own historical values where they contradict verified production tokens.",
+    "Visual distinctiveness of individual assets — real, but owned by the per-asset generation capabilities; brand compliance and distinctiveness are separate requirements.",
+    "Coverage of web layout, spacing, elevation and component anatomy — deliberately ceded to DESIGN.md."
+  ],
+
+  "unresolved_or_decided": [
+    {
+      "issue": "Scope: 'brand rules for image generation' versus 'the authoritative brand definition'",
+      "extractors_disagreed": "Extractor_1 and extractor_3 both framed the capability around image generation, treating web/UI implementation as explicitly out of scope. Extractor_2 argued the image-generation framing is itself a means, not an end, and that the capability is the brand definition with a generation-facing view.",
+      "decision": "Extractor_2's framing adopted, with a hard boundary at brand identity versus web/UI system facts. Recorded in full in scope_verdict.",
+      "reasoning": "Extractor_2's evidence is the only evidence anyone offered on the question, and I verified and extended it: three non-image skills declare a dependency on brand-design, six image skills restate the brand inline and load none of it, and the same facts live in DESIGN.md, tailwind.config.ts and globals.css. Extractors 1 and 3 inherited the framing from the skill's own title rather than testing it. The boundary matters as much as the verdict — without it the capability swallows DESIGN.md's grid, spacing and elevation specs, which is the opposite failure."
+    },
+    {
+      "issue": "Whether to hardcode a primary orange hex in objective_invariants",
+      "extractors_disagreed": "Extractor_3 asserted '#F5831F is exactly the primary orange' as a flat invariant. Extractor_1 recorded #F5831F as the invariant with a contested note attached. Extractor_2 declined to state a single value and recorded both lineages side by side.",
+      "decision": "No orange hex is asserted as an invariant. The invariant is the mechanically checkable relation — the values stated must equal the values the production design tokens define, and any hex attributed to the logo must match the artwork pixels. The competing values are recorded in contested_facts with their evidence, and the business question is escalated.",
+      "reasoning": "The brief is explicit on this and it is also correct: I cannot justify a hex I have not been authorised to choose. Extractor_3's flat assertion would bake a contested marketing value into a contract as fact. Extractor_1's asterisked invariant is self-undermining — an invariant with a 'this may be wrong' note attached is not an invariant. Extractor_2's abstention is closest to right but leaves nothing checkable. Framing it as an agreement relation gives a test that passes or fails today, survives whichever way the user settles the orange, and would have caught the drift years ago."
+    },
+    {
+      "issue": "Whether #E87A1E simply supersedes #F5831F",
+      "extractors_disagreed": "Extractors 1 and 2 both concluded production supports #E87A1E and that the skill's #F5831F is stale legacy — extractor_1 called it a failure of the capability, extractor_2 allowed it might be a deliberate marketing lineage but found nothing supporting that. Extractor_3 declined to rank them and said the ambiguity must not be inherited.",
+      "decision": "Rejected the 'simply stale' reading. Recorded as a genuine two-lineage split and escalated to the user, with the boundary question stated explicitly.",
+      "reasoning": "None of the three extractors sampled the logo artwork. I did: LOGO-01 and LOGO-06 are painted #F6841F, within one unit per channel of the skill's #F5831F and visibly distinct from #E87A1E. That reframes the whole conflict — #F5831F is not drift, it is the trademark's own colour transcribed, and #E87A1E is a later web-UI value the mark never adopted. It also surfaces a concrete defect nobody had identified: compositing the real logo onto a circleTel-orange background puts two different oranges in one frame. Deciding for #E87A1E on usage count alone, as the majority reading would have, would have silently sanctioned that."
+    },
+    {
+      "issue": "Ranking of factual exactness versus logo integrity",
+      "extractors_disagreed": "Extractors 1 and 2 ranked factual exactness first and logo integrity second and fourth respectively. Extractor_3 ranked logo integrity first, on the grounds that a hallucinated mark makes an asset unusable while a wrong hex is degradation.",
+      "decision": "Factual exactness ranked 1, logo integrity 2.",
+      "reasoning": "Extractor_3's argument about severity-per-instance is sound but addresses the wrong axis. Logo integrity is a single rule that is currently stated clearly and correctly and is demonstrably being followed — the '-bg' / '-composite' / '-final' filenames across two real campaigns prove it. Factual exactness is the axis on which the capability is failing right now, on six separate facts, silently, into shipped code. The contract should rank by where the risk actually is. Logo integrity stays at 2 because it is the one rule whose violation is unrecoverable, and because the six sibling image skills DO violate it."
+    },
+    {
+      "issue": "Status of the Tailwind token names",
+      "extractors_disagreed": "Extractor_3 classified the token names as means and dropped them as 'demonstrably stale'. Extractor_2 kept them as an end whose specific mapping needs correcting. Extractor_1 recorded the skill's token names inside the invariants without separating name from value.",
+      "decision": "Extractor_2's position. The obligation to give code consumers a token name is kept; the mapping is corrected against the config; and a standing invariant requires every quoted (token, hex) pair to resolve correctly.",
+      "reasoning": "Dropping the token column would remove the only mechanism by which a code consumer can be brand-correct without transcribing hexes, and transcription is exactly where drift enters. The token names are not stale — they are live and correct in the config; what is stale is the skill's claim about what they hold. Fixing the claim is the cheap correct move; deleting the column is throwing away the bridge because the sign on it was wrong."
+    },
+    {
+      "issue": "Whether circleTel-lightNeutral is dead",
+      "extractors_disagreed": "Extractor_1 asserted the skill's secondary token has zero usages and implied the legacy aliases generally are unused. Extractor_2 recorded them as legacy without counting.",
+      "decision": "Corrected on the evidence: circleTel-darkNeutral has 0 uses (extractor_1 correct), but circleTel-lightNeutral has 164 uses. #E6E9EF is a live card/section tint that is simply not the page background.",
+      "reasoning": "Verified by grep. The distinction matters for the remediation: darkNeutral can be retired outright, lightNeutral cannot be deleted without touching 164 call sites. A contract that lumped them together would license a breaking cleanup."
+    },
+    {
+      "issue": "The coloured-shadow contradiction",
+      "extractors_disagreed": "Extractor_1 carried the skill's 'shadows colour-matched to the element' as a constraint without noticing DESIGN.md forbids it. Extractor_2 flagged it as directly opposed guidance. Extractor_3 did not address it.",
+      "decision": "Resolved as medium-scoped: DESIGN.md governs UI elevation (no coloured box shadows); coloured accent lighting remains legitimate as a lighting choice in photographic and illustrative generated work. Flagged low-confidence.",
+      "reasoning": "Extractor_2 was right that the texts contradict, but they are not describing the same decision — a CSS box-shadow on a card and an orange rim-light in a rendered product shot are different things that the two documents happened to describe with the same word. Scoping by medium preserves both intents. If the user wants one rule everywhere, DESIGN.md wins."
+    },
+    {
+      "issue": "Whether the accessibility gap is a brand concern at all",
+      "extractors_disagreed": "Extractor_3 treated contrast as a first-class gap with computed ratios. Extractor_2 made accessibility a brand constraint. Extractor_1 listed accessibility contrast auditing as explicitly out of scope.",
+      "decision": "Accessibility of the brand's own colour choices is in scope. Auditing production interfaces for accessibility generally is out of scope.",
+      "reasoning": "Extractor_1's exclusion is too broad and would have discarded #AE5B16, a production-approved brand value. The line that holds: which orange may carry text is a brand palette decision the brand must own, because only the brand can supply the darker orange; whether a given page meets WCAG overall is an interface audit. I verified extractor_3's arithmetic independently — the ratios hold, and both candidate oranges fail as text on white."
+    },
+    {
+      "issue": "Status of #1E4B85 as a brand colour",
+      "extractors_disagreed": "Extractor_1 checked it against tailwind, found the hex matched, and recorded 'no conflict'. Extractor_3 noticed it lives under a non-CircleTel namespace and called its brand status genuinely unclear.",
+      "decision": "Extractor_3's reading. The hex is correct but the status is wrong: it is a UI state colour, not a brand identity colour, and must not be listed in the brand palette unqualified.",
+      "reasoning": "Extractor_1 verified the value and stopped. A hex matching is not the same as a colour belonging — this one sits in a 'WebAfrica-inspired' namespace, meaning it was borrowed for one UI pattern. Listing it beside the brand orange invites a designer to put it in a social post, where nothing sanctions it."
+    },
+    {
+      "issue": "Depth of gap analysis to carry forward",
+      "extractors_disagreed": "Extractor_3 enumerated eighteen gaps (dark mode, co-branding lockups, print CMYK/Pantone, gradient specification, favicon safe areas, SA legal guardrails, generated in-image claims, logo on noisy backgrounds, and more). Extractors 1 and 2 raised few or none of these.",
+      "decision": "Carried forward selectively as constraints where the gap creates a live risk with a knowable answer (noisy-background logo fallback, verified in-image commercial claims, operationalised South African depiction, canvas-relative logo sizing). The rest — dark mode, co-branding, print CMYK/Pantone, gradient stops, favicon safe areas — are escalated as open questions rather than invented.",
+      "reasoning": "Extractor_3's gap list is the most valuable single contribution across the three outputs and is largely correct. But a contract that invented answers for all eighteen would be doing exactly what the never_do list forbids: filling brand gaps with fabrication and presenting it as established. The split is by whether the answer is derivable from existing facts or requires a brand-owner decision."
+    }
+  ],
+
+  "open_questions_for_user": [
+    "PRIMARY ORANGE — is the split deliberate? The logo artwork is painted #F6841F (the skill's #F5831F is a faithful transcription of it), while the web UI token circleTel-orange is #E87A1E across 2,743 usages. Are these two intentionally different — a warmer marketing/imagery orange matching the mark, and a slightly deeper UI orange — or is one of them an accident that should be retired? If the split is deliberate, where exactly is the boundary: does an emailed PDF one-pager use the marketing orange or the UI orange? A slide deck? A product-page hero image that a React page renders beside a circleTel-orange button? Leaving this ambiguous is worse than either answer.",
+    "ORANGE COLLISION ON COMPOSITED ASSETS — when the real logo (#F6841F) is composited onto artwork painted in the UI orange (#E87A1E), two perceptibly different oranges appear in the same frame. Is that acceptable, or must generated backgrounds adopt the logo's orange whenever the mark will sit on them?",
+    "THE THIRD ORANGE — app/globals.css defines the shadcn --primary as oklch(0.7686 0.1647 70.0804), roughly #F59E0B, a generic amber, in both light and dark themes. Every unstyled shadcn primitive renders in it. Should this be corrected to whichever orange wins, or is it deliberately left as a neutral default?",
+    "ACCESSIBILITY FLOOR FOR MARKETING IMAGERY — the web UI is bound by WCAG AA and uses #AE5B16 for orange text on white. Neither candidate primary orange passes as text on white (2.58:1 and 2.90:1), and white text fails on either orange fill. Is marketing and social imagery held to the same floor, or is it explicitly exempt as non-interactive content? If exempt, does the exemption cover in-image pricing and offer text that customers must actually read?",
+    "AUTHORITY ORDER — when this capability, DESIGN.md and tailwind.config.ts disagree in future, which wins, and who is entitled to change a brand hex or typeface? Right now there is no stated precedence, which is how six facts drifted without anyone noticing.",
+    "PROPAGATION MODEL — six sibling image-generation skills each carry their own copy of the brand block and load none of this capability; three other skills declare a dependency on it. Should the copies be deleted and replaced with a reference, or is duplication accepted and periodically reconciled? Correcting the values here without settling this guarantees they are stale again within months.",
+    "LEGACY TOKEN RETIREMENT — circleTel-darkNeutral (#1F2937) has zero usages and can be retired outright. circleTel-lightNeutral (#E6E9EF) has 164 usages and cannot be removed without touching them. Should lightNeutral be migrated to an approved token, or kept as a sanctioned card/section tint?",
+    "SELECTED-STATE BLUE — #1E4B85 is used for selected package cards but is defined under a 'WebAfrica-inspired' namespace rather than the CircleTel palette. Is it a CircleTel brand colour, a tolerated UI state colour, or something to be replaced with navy?",
+    "TYPOGRAPHY IN GENERATED IMAGERY — production ships Manrope and Inter, but every image-generation path names no typeface at all, so generated assets carry no guarantee of matching the website. Should generated imagery specify Manrope and Inter by name, or is generic sans-serif acceptable in imagery on the grounds that models cannot honour a typeface reliably?",
+    "PRINT REPRODUCTION — logo variants exist explicitly for embroidery (02) and billboards (08), but no CMYK or Pantone equivalent for the orange is defined anywhere, nor a minimum print resolution or a rule for uncoated stock and garments. What are the approved print equivalents?",
+    "DARK MODE — the palette has no dark-surface tokens, no dark-mode orange treatment (saturated orange on near-black vibrates), and no rule for which logo variant applies in a dark UI theme as distinct from a dark photograph. Is dark mode in the brand's scope, and if so what are the values?",
+    "CO-BRANDING AND PARTNER LOCKUPS — CircleTel sells wholesale and partner-sourced services, so joint assets are inevitable, but there are no rules for relative mark sizing, separator treatment, order, clearspace between marks, or whether the orange-square lockup may appear in a lockup at all. What are the rules, and what agreement must exist before a partner mark appears alongside ours?",
+    "GRADIENT SPECIFICATION — 'orange gradient' appears throughout the guidance with no defined stops, direction or second colour, so every asset invents its own. What is the approved gradient?",
+    "TAGLINE AND LEGAL ENTITY — house_standards.md records the tagline 'Connecting Today, Creating Tomorrow' and the entity line 'CircleTel (Pty) Ltd — a member of the New Generation Group', applied verbatim across five product-document templates. Should these be part of the brand definition so imagery carrying a strapline has an authoritative source, and are they current?"
+  ]
+}

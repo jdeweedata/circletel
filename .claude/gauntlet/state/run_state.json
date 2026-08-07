@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "run_id": "gauntlet-2026-08-07",
-  "phase": "inventory-complete \u2014 awaiting skill selection",
+  "phase": "contract-freeze (finalisers running)",
   "phase_history": [
     {
       "phase": "discovery",
@@ -22,6 +22,11 @@
       "phase": "inventory",
       "status": "complete",
       "note": "74 unique active skills characterized by 4 independent agents; 15 cross-cutting findings recorded"
+    },
+    {
+      "phase": "contract-extraction",
+      "status": "complete",
+      "note": "3 independent extractors x 4 skills = 12 contracts; 4 mergers; 4 independent audits (7 blocking issues found: 3 arithmetic in promotional-campaigns, 2 fact/scope in brand-design, 1 each in idea-validator and claude-md-guardian)"
     }
   ],
   "models_verified": {
@@ -37,15 +42,61 @@
       "claude-opus-4-8": "NOT AVAILABLE - no model alias resolves to it; no ANTHROPIC_API_KEY present for direct model selection; ANTHROPIC_BASE_URL requires x-api-key we do not hold. Must not be claimed as tested."
     }
   },
-  "selected_skills": [],
-  "skills": {},
+  "selected_skills": [
+    "idea-validator",
+    "claude-md-guardian",
+    "promotional-campaigns",
+    "brand-design"
+  ],
+  "skills": {
+    "idea-validator": {
+      "status": "contract-freeze",
+      "iteration": 0
+    },
+    "claude-md-guardian": {
+      "status": "contract-freeze",
+      "iteration": 0
+    },
+    "promotional-campaigns": {
+      "status": "contract-freeze",
+      "iteration": 0
+    },
+    "brand-design": {
+      "status": "contract-freeze",
+      "iteration": 0
+    }
+  },
   "blockers": [
     {
       "id": "BLK-001",
       "severity": "must-resolve-with-user",
       "title": "Opus 4.8 condition cannot be run",
       "detail": "The Gauntlet spec requires condition 'Opus 4.8 + original skill'. Only claude-opus-5, claude-sonnet-5, claude-fable-5, claude-haiku-4-5 are reachable. Substitution requires explicit user approval; silent substitution is forbidden by the spec.",
-      "status": "open"
+      "status": "resolved",
+      "resolution": "User approved substituting claude-sonnet-5 for the unavailable Opus 4.8 in condition A, on condition it is labelled a declared substitute everywhere and never presented as Opus 4.8."
     }
-  ]
+  ],
+  "selection_note": "User replied 'no preference' to the slate question, delegating choice. Lead selected 4 spanning: retire-candidate (idea-validator), correctness-defect (claude-md-guardian), safety-critical business (promotional-campaigns), pure-durable-knowledge (brand-design).",
+  "conditions": {
+    "A": {
+      "label": "prior-gen baseline (DECLARED SUBSTITUTE for Opus 4.8 - not Opus 4.8)",
+      "model": "claude-sonnet-5",
+      "skill": "original"
+    },
+    "B": {
+      "label": "bare frontier",
+      "model": "claude-opus-5",
+      "skill": "none"
+    },
+    "C": {
+      "label": "current stack",
+      "model": "claude-opus-5",
+      "skill": "original"
+    },
+    "D": {
+      "label": "candidate",
+      "model": "claude-opus-5",
+      "skill": "candidate"
+    }
+  }
 }

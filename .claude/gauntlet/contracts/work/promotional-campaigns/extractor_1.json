@@ -1,0 +1,237 @@
+{
+  "capability_summary": "A commercial decision aid for a small, cash-constrained connectivity reseller that turns a promotional intent — a seasonal push, an acquisition or win-back drive, an upsell, or a reaction to a rival's pricing move — into a concrete, costed, launch-ready offer. Its distinguishing job is not writing marketing copy but arbitrating whether a proposed offer is affordable: it computes the offer's true delivered cost, tests the resulting gross margin against the firm's published pricing floors, routes the offer to the right approval authority, and either clears it, reshapes it into something that clears, or rejects it outright.",
+
+  "user_goal": "The user wants to run promotions that actually win business without unknowingly selling below the company's margin floor. They want an offer they can take to market tomorrow — audience, mechanic, price, duration, message, success measure — together with an honest, arithmetically correct verdict on what it costs the business and who has to sign it off. Above all they want the margin verdict to be TRUE, because at their cash position a promotion that looks profitable on paper but is not will do direct damage.",
+
+  "success_looks_like": [
+    "Every promotional price is accompanied by a margin computation whose cost input is the full delivered cost of the service, and that computation is arithmetically reproducible from stated inputs.",
+    "Offers that breach the margin floor are refused and replaced with a reshaped offer that clears it — the capability proposes an affordable alternative rather than just saying no.",
+    "The verdict names the correct approval authority for the specific margin band, discount size and offer duration, so nothing goes to market on assumed authority.",
+    "A recommendation is delivered that a marketing or sales person can execute without further analysis: who it targets, what they get, what it costs them, how long it runs, what to say, how success is measured.",
+    "Competitive situations produce a reasoned strategic choice — including a defensible decision to make no offer at all — rather than an automatic price response.",
+    "Cash and commitment consequences are surfaced, not just percentage margin: what the promotion costs in real money over its life, and what happens when it ends.",
+    "Where an input (a wholesale rate, a hardware cost, a subscriber count) is unknown or contested, this is stated as an assumption and its effect on the verdict is shown, rather than silently substituted with a convenient figure.",
+    "The user can tell, from the output alone, which offers are pre-cleared and which need escalation, without re-deriving the rules."
+  ],
+
+  "priority_qualities": [
+    {
+      "quality": "Arithmetic truthfulness of the margin verdict",
+      "why_it_matters": "This is the capability's whole reason to exist. A margin number computed on an understated cost base is worse than no number, because it manufactures false confidence and launders an unaffordable offer through a compliance-looking check. Getting this right is worth more than every other output combined.",
+      "rank": 1
+    },
+    {
+      "quality": "Correct and complete cost basis",
+      "why_it_matters": "Margin truthfulness is entirely determined by what goes into cost. Omitting the variable access/wholesale charge, or the amortised cost of anything being given away, silently inflates margin by tens of percentage points and makes the floor untestable.",
+      "rank": 2
+    },
+    {
+      "quality": "Refusal and reshaping under pressure",
+      "why_it_matters": "The capability's value is concentrated in the cases where it must say no. If it bends to make a requested offer pass, it becomes decorative. Equally, a bare refusal is not useful — the user needs the nearest affordable version of what they asked for.",
+      "rank": 3
+    },
+    {
+      "quality": "Correct approval routing",
+      "why_it_matters": "Different margin bands, discount sizes and durations require different signatories. Sending an offer out under the wrong authority is a governance failure even when the margin is fine, and naming an authority that does not exist erodes trust in the whole output.",
+      "rank": 4
+    },
+    {
+      "quality": "Executability of the recommendation",
+      "why_it_matters": "A compliant offer nobody can act on has no commercial effect. The user is resource-poor and needs the output to be the last step before execution, not the first step of another planning exercise.",
+      "rank": 5
+    },
+    {
+      "quality": "Strategic restraint in competitive situations",
+      "why_it_matters": "Reflexive price matching against better-capitalised rivals is the fastest route through the margin floor. The capability must be willing to recommend differentiation, a non-price response, or no response, and justify why.",
+      "rank": 6
+    },
+    {
+      "quality": "Transparency of assumptions and sensitivity",
+      "why_it_matters": "Cost inputs are uncertain and vary by product, speed tier and scale. Showing which assumptions drive the verdict lets a human overrule intelligently instead of trusting a black box.",
+      "rank": 7
+    },
+    {
+      "quality": "Cash-flow honesty over accounting margin",
+      "why_it_matters": "A firm with weeks of runway can be killed by an offer with excellent percentage margin but negative near-term cash, because supplier costs are still paid during give-away periods.",
+      "rank": 8
+    }
+  ],
+
+  "constraints": [
+    "Operates under a published, externally-owned set of pricing and margin rules; where the capability's own guidance conflicts with those governing rules, the governing rules win.",
+    "Cost inputs vary by supply channel (owned-subscription wholesale, reseller/commission, and fibre-access channels each have different cost and revenue structures) and must be selected to match the product actually being promoted.",
+    "Per-subscriber shared platform cost is scale-dependent; the tier used must match the business's actual current subscriber base, not an aspirational one.",
+    "The business is cash-constrained, so the time profile of a promotion's cost matters as much as its percentage margin.",
+    "Some products carry a minimum-spend commitment with a supplier; pricing decisions on those products interact with commitment coverage and must be assessed for that effect.",
+    "Non-price incentives are generally preferred to headline price cuts, but only because of their effect on recurring revenue and price expectations — each still has to be costed, never assumed free.",
+    "Customer-facing output must not disclose cost, margin, wholesale rate, supplier identity or commission; the margin analysis is internal-only.",
+    "Currency, market and regulatory context is a single national market with local currency conventions.",
+    "Recommendations must be reproducible: any stated margin must be recomputable by a third party from the inputs shown."
+  ],
+
+  "never_do": [
+    "Never present a margin figure without disclosing the cost figure and its components.",
+    "Never use a partial or shared-overhead-only cost figure as the total cost basis for a margin decision.",
+    "Never treat a give-away (installation, hardware, upgraded service tier, free periods) as costless because no cash price is charged for it.",
+    "Never approve, endorse or present as acceptable an offer whose correctly-computed margin is below the floor, regardless of strategic argument or competitive pressure.",
+    "Never invent, round up or borrow a cost input from an unrelated product to make an offer pass.",
+    "Never state an approval authority, threshold or band that does not match the governing rules.",
+    "Never recommend matching a rival's price purely because they moved, without a margin test on the matched price.",
+    "Never stack multiple concessions on one product without recomputing margin on the combined effect and flagging the stacking prohibition.",
+    "Never leak internal cost, margin or supplier information into customer-facing copy.",
+    "Never assert a promotion is 'healthy' or 'safe' on a comparative or qualitative basis; the verdict must be tied to a numeric threshold."
+  ],
+
+  "objective_invariants": [
+    "Gross Margin % = (Effective Revenue − Total Cost of Sale) / Effective Revenue × 100.",
+    "For a subscription product delivered over purchased access, Total Cost of Sale per subscriber per month = access wholesale MRC for the specific speed tier + per-subscriber platform costs + amortised one-time costs being subsidised. It is NEVER the platform costs alone.",
+    "Per-subscriber platform costs comprise, at minimum: session/BNG service, IP transit, backhaul share, support allocation, billing/BSS platform, plus any static IP or equivalent per-service charge where provisioned. At current scale this totals roughly R185/subscriber/month; the ~R175 figure is the volume rate reserved for 1,500+ subscribers and must not be used below that scale.",
+    "Access wholesale MRC is tier-dependent and materially larger than platform cost: illustratively R499 / R599 / R699 per month across ascending speed tiers on the wholesale-fixed-wireless channel, and R650–R1,200+ per month on the fibre-access channel. Any margin calculation that omits this component is invalid.",
+    "One-time costs that are waived, subsidised or given away — installation, customer premises equipment, hardware upgrades — must be amortised across the contract term and added to monthly Cost of Sale for the margin test. Illustratively an installation costing ~R2,550 over 12 months adds ~R213/month.",
+    "A free or discounted period does not reduce cost: the access wholesale and platform costs are still incurred during that period. Effective Revenue is the total contracted revenue divided by the full contract term; Cost of Sale is NOT similarly reduced.",
+    "A free or temporary speed upgrade increases Cost of Sale by the difference in access wholesale between tiers for the duration of the upgrade. It must not be treated as a low-cost or margin-neutral concession.",
+    "Minimum gross margin is 25% on all products; no exception without written approval from the managing director.",
+    "Margin bands and authority: ≥35% is healthy and standard-approved; 25–35% is marginal and requires sales-director approval; below 25% requires CFO approval and is rarely granted; below 20% is never permitted under any circumstance.",
+    "Discount authority by size: 0–5% sales representative; 5–10% sales director; 10–15% managing director and requires a volume commitment; 15–20% managing director plus CFO, strategic accounts only, maximum 6 months; above 20% is never permitted.",
+    "All promotional pricing requires managing-director pre-approval, regardless of margin outcome.",
+    "Maximum promotional period is 90 days. Any concession running longer than 90 days (including multi-month free-period or temporary-upgrade mechanics) is not a promotion under these rules and must be treated as a permanent price change requiring its own approval.",
+    "Promotions may not be stacked on the same product; volume, contract-term and promotional discounts may not be applied simultaneously.",
+    "Bundle offers must achieve a combined gross margin above 30% — a higher bar than the single-product 25% floor — with a maximum bundle discount of 15% off combined retail, applied only to the owned connectivity component and never to resold third-party components.",
+    "Resold/commission-channel products must retain at least the category markup floor; markup may not be discounted below that floor on the argument that commission compensates.",
+    "Products carrying a supplier minimum-spend commitment must never be priced or discounted below their wholesale cost, because doing so worsens commitment coverage. Coverage Ratio = (committed-product customers × per-customer wholesale) / minimum spend commitment; below 0.8x is critical, 0.8–1.0x is a warning, above 1.5x is safe.",
+    "Contract-term price adjustments are bounded: month-to-month carries a +15% premium, 12 months is the base, 24 months −5%, 36 months −8% maximum.",
+    "Installation revenue must be at least installation cost, OR — if installation is waived — the amortised installation cost must be carried in Cost of Sale and the post-waiver margin must still clear the 25% floor across the contract term.",
+    "Portfolio-level ceilings must not be breached: blended portfolio margin never below 30%, promotional customers no more than 20% of the base, promotional revenue no more than 15% of total recurring revenue.",
+    "Any margin percentage stated in an output must be recomputable from the revenue and cost figures shown in the same output; a stated margin that does not reconcile with its stated inputs is a failure."
+  ],
+
+  "scope_in": [
+    "Designing a promotional offer for a defined objective and audience segment.",
+    "Computing the true delivered cost of a proposed offer and testing the resulting gross margin against the floor.",
+    "Rejecting non-compliant offers and proposing the nearest compliant alternative.",
+    "Determining the approval authority required for a given offer's margin band, discount size and duration.",
+    "Deciding whether and how to respond to a competitor's pricing or product move, including recommending no response.",
+    "Sizing the promotion: duration, audience cap, total cost exposure, and expected commercial return.",
+    "Producing the message platform and objection handling needed for sales and marketing to execute.",
+    "Defining how the promotion's success and margin impact will be measured after launch.",
+    "Flagging cash-timing and post-promotion price-reversion consequences."
+  ],
+
+  "scope_out": [
+    "Authoritative maintenance of the product catalogue, price list or wholesale rate card — these are inputs owned elsewhere and must be sourced, not invented.",
+    "Granting the approvals it identifies; it routes, it does not authorise.",
+    "Final production of creative assets, imagery, page builds, email sends or ad buys.",
+    "Post-launch campaign operation, lead follow-up and conversion — a known historical failure point that sits outside this capability.",
+    "Billing-system or CRM configuration to implement a promotion.",
+    "Permanent repricing of the standard price list, product design or packaging changes.",
+    "Company-level financial planning, budgeting or forecasting beyond the promotion's own cost exposure.",
+    "Legal or regulatory review of promotional terms and conditions."
+  ],
+
+  "ends_vs_means_notes": [
+    {
+      "in_original": "A margin test must be passed before any promotional price is finalised, with an explicit numeric floor and a defined rejection outcome",
+      "classified_as": "end",
+      "reasoning": "The user would demand this of any rebuild. It is the substantive protection the capability exists to provide, and its absence would make every other output unsafe.",
+      "kept": true
+    },
+    {
+      "in_original": "The specific cost figure used as the margin denominator input (a single shared-overhead 'floor' figure of ~R175)",
+      "classified_as": "means",
+      "reasoning": "It is a means — and an incorrect one. The end is 'use the true delivered cost'. This particular figure is a partial cost that the governing economics document explicitly labels as excluding access charges. Carried over only as a corrected, itemised cost-composition rule.",
+      "kept": false
+    },
+    {
+      "in_original": "Preferring value-adds and non-price mechanics over headline price cuts",
+      "classified_as": "end",
+      "reasoning": "The underlying end — protect recurring revenue and avoid permanently resetting customer price expectations — survives any rebuild. Retained as a stated preference with the requirement that every mechanic is still costed.",
+      "kept": true
+    },
+    {
+      "in_original": "The ranked ladder of promotional mechanics ordered best-to-worst for margin, with temporary speed upgrades ranked most favourable",
+      "classified_as": "means",
+      "reasoning": "A procedural ordering, and demonstrably wrong on this cost structure: a free speed upgrade raises the tiered access wholesale charge directly and is one of the more expensive mechanics, not the cheapest. Dropped; replaced by the requirement to cost each mechanic individually.",
+      "kept": false
+    },
+    {
+      "in_original": "The obligation to identify who must approve a given offer before it goes to market",
+      "classified_as": "end",
+      "reasoning": "Governance is part of the result the user needs, not a procedure for producing it. An offer released under the wrong authority is a real failure regardless of its economics.",
+      "kept": true
+    },
+    {
+      "in_original": "The specific approval-matrix rows and thresholds stated inside the capability's own reference material",
+      "classified_as": "means",
+      "reasoning": "The thresholds themselves are ends (they are checkable governing rules), but the capability's local copy of them contradicts the authoritative rules in several places — wrong band boundary, wrong approver, missing hard prohibitions. Retained only in the corrected form taken from the governing documents.",
+      "kept": true
+    },
+    {
+      "in_original": "A fixed five-step campaign construction sequence (objective, then segment, then offer, then margin, then assets)",
+      "classified_as": "means",
+      "reasoning": "Pure process ordering. A rebuild could interleave or reorder these and produce an equally good result, provided all the substantive elements appear in the output.",
+      "kept": false
+    },
+    {
+      "in_original": "A closed taxonomy of campaign objectives and a closed taxonomy of competitive response postures",
+      "classified_as": "means",
+      "reasoning": "Useful scaffolding but not a requirement. The end is that the recommendation names a clear objective, a clear audience, and a justified competitive stance — including the option of no response. The specific labels are disposable.",
+      "kept": false
+    },
+    {
+      "in_original": "Markdown output templates for campaign briefs, competitor responses, launch, seasonal, upsell, win-back and referral campaigns",
+      "classified_as": "means",
+      "reasoning": "Formatting fingerprint. The end is that the output is complete and executable; the section headings and bracket-filling structure are one arbitrary way to achieve it.",
+      "kept": false
+    },
+    {
+      "in_original": "A month-by-month seasonal calendar mapping periods to products and stock offers",
+      "classified_as": "means",
+      "reasoning": "A prompt for idea generation, not a user requirement. The end is that a seasonally-triggered request produces a timely, relevant, margin-cleared offer.",
+      "kept": false
+    },
+    {
+      "in_original": "Named per-competitor dossiers with profiles, claims-and-rebuttals tables and pre-written counter-campaigns",
+      "classified_as": "means",
+      "reasoning": "Reference data with a short shelf life, plus procedural scripting. The end is that competitive responses are grounded in verified facts about the rival's actual offer and its limitations, from whatever current source is available.",
+      "kept": true
+    },
+    {
+      "in_original": "Instruction to hand off to named sibling capabilities for copy and visual assets",
+      "classified_as": "means",
+      "reasoning": "Tool-sequencing internal to one implementation. The end is that the campaign's messaging is usable; how asset production is delegated is irrelevant to the user.",
+      "kept": false
+    },
+    {
+      "in_original": "Per-campaign discount budget pools and portfolio-level exposure ceilings",
+      "classified_as": "end",
+      "reasoning": "These are commercial exposure limits, not procedure. A promotion can clear the per-deal margin floor and still be unaffordable in aggregate, which is exactly the risk a cash-constrained firm needs bounded.",
+      "kept": true
+    },
+    {
+      "in_original": "Requirement to surface escalation triggers (offer needs sub-floor margin, matching would cascade, budget exceeded, blended margin declining)",
+      "classified_as": "end",
+      "reasoning": "Knowing when to stop and escalate is part of the result. Preserved as a behaviour, without the original's specific enumerated list.",
+      "kept": true
+    },
+    {
+      "in_original": "The prohibition on subsidising installation, stated alongside a recommended full installation waiver",
+      "classified_as": "end",
+      "reasoning": "The underlying end — installation give-aways must not silently destroy margin — is real, but the original states it as a flat prohibition it then violates. Reconciled into a checkable rule: waivers are permitted only when the amortised cost is carried in the margin test and the result still clears the floor.",
+      "kept": true
+    }
+  ],
+
+  "evidence_of_real_use": "The material is versioned, dated and attributed to a named internal function, with one reference document already at a second major version — indicating iteration rather than a single authoring pass. It is anchored to a specific product catalogue with per-package price ladders, a specific supplier cost stack with named vendors and per-component monthly rates, and a competitor set described with dated market-share, satisfaction-score and tariff detail including a named regulatory approval and its effective date. It carries operational residue that only accumulates in use: per-campaign discount budget pools with distinct caps by campaign type, portfolio exposure ceilings tied to named reporting cadences, an escalation list, and a printable quick-reference card — all artefacts of someone repeatedly needing the same answers under time pressure. It sits inside a broader governance system that independently documents unit economics, margin guardrails, cash position and a prior campaign post-mortem, so promotional decisions here plainly have real financial consequences. The most telling evidence of genuine use is also its most serious defect: the margin arithmetic has been copied forward unchanged into multiple worked examples and into derived per-package maximum-discount tables, meaning a single early error has propagated through the whole artefact — a signature of reuse, not of a one-off draft.",
+
+  "tensions": [
+    "CORRECT COST BASIS (a): The governing commercial rules are unambiguous. The margin formula is (Revenue − Cost of Sale) / Revenue, and the pricing rules state that price may never fall below 'wholesale + COS floor'. The unit-economics document itemises a per-subscriber shared cost stack (session/BNG, IP transit, backhaul, support, billing) totalling roughly R175–R186 depending on subscriber scale, and then states explicitly: this figure EXCLUDES access costs, which must be added per product. Access wholesale is the dominant cost component — roughly R499/R599/R699 per month across ascending tiers on the wholesale-fixed-wireless channel, and R650–R1,200+ on the fibre-access channel. The correct cost basis for a margin decision is therefore: access wholesale MRC for the specific speed tier + the per-subscriber platform stack at the correct scale tier + amortised one-time costs being subsidised (installation, CPE). The unit-economics document confirms this by publishing all-in costs of R817/R917/R1,017 against retail prices of R1,299/R1,499/R1,899, yielding 37–46% margins.",
+    "ORIGINAL'S BASIS IS WRONG (b): The capability uses the shared-overhead figure alone (R175.43) as the ENTIRE cost basis, dropping the largest cost component. Its worked example — a R1,899/month product with two free months on a twelve-month contract — computes effective revenue of R1,582.50, subtracts R175.43, and reports 88.9% margin with a 'proceed' verdict. Recomputed on the correct basis (all-in cost R1,017, or R1,040.50 itemised including installation amortisation), the true margin is 35.7% — or 34.2% itemised. The error is 53–55 percentage points. Critically, the correct answer falls into the marginal band requiring sales-director sign-off (and, being promotional, managing-director pre-approval), not the auto-approve band the original claims. The same error runs through the second worked example (claimed 90.4%; true 44.2% before the free premium-hardware give-away is counted, and 32.8–37.4% once it is) and through the illustrative install-waiver calculation. The original compounds this by using the R175 rate, which the unit-economics document reserves for a 1,500+ subscriber base, at a business operating far below that scale.",
+    "COMMERCIAL CONSEQUENCE OF THE WRONG BASIS (c): With cost understated by ~85%, the margin gate can never fire. Every price above roughly R234 clears a 25% floor measured against R175, so the guardrail becomes decorative — it produces a reassuring tick beside offers it has not actually tested. This is worse than having no gate, because it manufactures documented false confidence. The concrete damage shows in the derived per-package maximum-discount tables, which were evidently set from the inflated margins: a 20% discount on the entry access tier yields a true margin of 21.4% — below the 25% floor and inside the band the governing rules describe as rarely granted; a 16% discount stacked with an installation waiver on the same tier yields 13.7% — below the 20% line the governing rules mark as never permitted. Because these tables are published as pre-cleared limits, a salesperson following them correctly would breach a non-negotiable rule while believing themselves compliant. For a business with weeks of cash runway, the failure mode is not an accounting embarrassment but real cash loss on every unit sold under the promotion.",
+    "MECHANIC RANKING INVERTED BY THE SAME ERROR: The capability ranks a temporary speed upgrade as the single best mechanic for margin, on the reasoning that it causes 'minimal COS increase'. That is only true if access cost is ignored. Access wholesale is tiered by speed, so a free upgrade from the entry tier to the top tier raises monthly cost by R200 while revenue is unchanged, driving margin from 37.1% to 21.7% — a floor breach. On this cost structure the supposedly cheapest mechanic is among the most expensive, and the ranked ladder should not be relied on.",
+    "FREE PERIODS ARE CASH-NEGATIVE, NOT MERELY MARGIN-DILUTIVE: The capability treats a free month purely as revenue dilution spread across the contract. In reality the access wholesale and platform costs are still paid during those months. Two free months on the top tier means roughly R1,656 of real cash out against zero revenue, recovered only over the remaining term. Given the firm's cash position, this timing effect can matter more than the percentage margin, and the capability does not surface it at all.",
+    "THRESHOLD AND AUTHORITY DRIFT: The capability states margin bands as 'reject below 25%, MD approval 25–30%, proceed above 30%'. The governing rules say ≥35% auto-approved, 25–35% sales-director approval, below 25% CFO approval and rarely granted, below 20% never permitted. The band boundary, the approver identity and the hard lower bound are all wrong. The capability likewise omits several binding rules entirely: the 90-day maximum promotional period, the requirement for managing-director pre-approval of ALL promotional pricing, the absolute prohibition on discounts above 20%, the no-stacking rule, the 30% combined-margin floor on bundles, and the entire minimum-spend-commitment consideration for committed-supplier products.",
+    "SELF-CONTRADICTIONS AND UNVERIFIABLE INPUTS: The capability states 'installation revenue must be at least installation cost — never subsidise installation' and then makes a full installation waiver its most-recommended offer. Its pre-approved discount limits also disagree with themselves between the summary and the detailed reference (bundle discount given as both 10% and 15% without approval). Several published cost figures — for the fixed-wireless-alternative, shared-infrastructure and hybrid product lines — appear nowhere in the governing economics documents and cannot be reconciled with any supplier rate; they should be treated as unverified. Separately, the same product family is assigned three mutually inconsistent price ladders across the capability's own files and the governing economics document, so even a correctly-executed margin test may be run against the wrong retail price.",
+    "COMPLIANCE VERSUS EFFECTIVENESS: A rebuilt capability that only enforces the floor would satisfy the arithmetic but not the user, who also needs the promotion to work. Conversely the original leans heavily toward premium positioning and non-price differentiation, which is defensible strategy but risks producing offers with no acquisition pull for a business that urgently needs customers. The contract should require both: an offer that clears the floor AND has a stated, plausible mechanism for driving the named objective.",
+    "REFERENCE DATA DECAY: Competitor tariffs, market statistics and supplier rates in this domain move continuously. A response built on a stale dossier can be confidently wrong about what a rival is actually offering. The requirement is that competitive claims be grounded in verified current facts and that staleness be flagged, not that any particular dossier be preserved."
+  ]
+}

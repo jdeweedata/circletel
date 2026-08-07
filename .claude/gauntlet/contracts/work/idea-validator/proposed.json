@@ -1,0 +1,238 @@
+{
+  "skill": "idea-validator",
+  "capability_summary": "A fast pre-commitment screen on a proposed product, app, service, offer, or feature. Someone describes a concept they have not yet built and gets back a candid, evidence-anchored judgement on whether it is worth spending scarce time and money on — weighing who already serves the need, whether money demonstrably changes hands for it, whether the proposer can realistically deliver and sell it with the resources they actually have, how it would earn, and whether anyone would switch to it. It lands on a clear recommendation rather than a balanced survey, and leaves a forward path whatever that recommendation is.",
+  "user_goal": "Avoid sinking weeks of effort or cash into an idea that was never going to work. The proposer wants the judgement a knowledgeable, disinterested peer would give — an early, honest, grounded read on viability calibrated to their real situation, plus a clear statement of what would have to change or be true for the answer to flip — delivered cheaply enough that asking is always cheaper than finding out by building.",
+  "success_looks_like": [
+    "The reader finishes with one unambiguous decision they can act on immediately — proceed, proceed only if stated conditions hold, or drop it — not a list of considerations they must still weigh themselves.",
+    "The reasoning is stated plainly and could be argued with, because it rests on named specifics (who else serves this, at what price, to whom, with what evidence of adoption) rather than adjectives like 'crowded' or 'promising'.",
+    "Real existing alternatives are identified — including substitutes, workarounds and incumbent tools, not only direct products — with what each does and where it leaves a gap.",
+    "Whether people demonstrably pay for this class of outcome is addressed, and kept distinct from whether people say they would like it.",
+    "Deliverability is judged against the proposer's actual capacity, cash, channels, suppliers and sales capability — not an idealised well-resourced team.",
+    "The money question is answered concretely: who pays, roughly how much, against what cost base, and how long before cash actually arrives.",
+    "Structural obstacles that sink this shape of idea regardless of execution are named plainly when present — dependence on reaching critical mass before it is useful, reliance on customers changing established behaviour, a free and entrenched incumbent, a capability that belongs inside a product someone already owns, a sales motion nobody is available to run.",
+    "The reader learns at least one thing about their idea's landscape they did not already know.",
+    "Even a negative verdict leaves somewhere to go — a narrower segment, a different wedge, an adjacent version, a cheaper test, or the specific evidence that would reverse the call.",
+    "Nothing is invented; where evidence is thin, the thinness is stated rather than papered over with confident-sounding detail.",
+    "It can be read and acted on in a couple of minutes, and is comprehensible to someone who has never seen an evaluation framework.",
+    "The idea is judged hard without the person feeling judged, so the assessment is absorbed rather than defended against."
+  ],
+  "priority_qualities": [
+    {
+      "rank": 1,
+      "quality": "Candour — the judgement reflects an honest reading of the idea's prospects, including when that reading is unwelcome",
+      "why_it_matters": "The whole point of asking before building is hearing bad news early. The default social response to a shared idea is supportive, and any softening that changes the proposer's decision is a failure of the core function — it converts directly into weeks and cash they may not have."
+    },
+    {
+      "rank": 2,
+      "quality": "Factual integrity — every claim about the world is real and locatable, and anything unverified is marked as such",
+      "why_it_matters": "The verdict rests almost entirely on assertions about who already exists, what they charge, and how entrenched they are. A fabricated or stale competitor set produces a confidently wrong recommendation the proposer cannot detect and will act on — worse than no assessment, because it is trusted."
+    },
+    {
+      "rank": 3,
+      "quality": "Decisiveness — one clear recommendation, easy to locate, from a small closed set",
+      "why_it_matters": "The proposer is at a decision point and came to offload a judgement call. An assessment that lists pros and cons without landing returns the decision unmade and has cost time for nothing. Being committed and occasionally wrong is more useful than being uncommitted and always defensible."
+    },
+    {
+      "rank": 4,
+      "quality": "Specificity — named alternatives, real prices, real numbers, this idea's particular weaknesses",
+      "why_it_matters": "Generic strategic language is unfalsifiable and therefore unusable; the proposer could have written it themselves. Only concrete particulars can be checked, disagreed with, and acted on."
+    },
+    {
+      "rank": 5,
+      "quality": "Calibration to the proposer's actual resources, constraints and advantages",
+      "why_it_matters": "Feasibility, monetisation and route to market are meaningless in the abstract. The same idea is a good bet for one operator and reckless for another. A verdict aimed at the wrong proposer profile is confidently irrelevant — and unstated advantages such as existing distribution, supplier breadth or domain access routinely flip the answer."
+    },
+    {
+      "rank": 6,
+      "quality": "Coverage of the dimensions that actually decide viability — existing supply, evidenced demand, deliverability, revenue mechanism, and reason to switch",
+      "why_it_matters": "An idea can pass on four dimensions and die on the fifth. A judgement that examined only one axis is not a judgement, and the omitted axis is usually the one that kills it."
+    },
+    {
+      "rank": 7,
+      "quality": "Constructiveness — a concrete forward path on every outcome, positive or negative",
+      "why_it_matters": "The proposer cares about finding something worth building, not about this specific idea surviving. A rejection that closes off all paths wastes the thinking already invested and makes them stop bringing ideas to the screen at all."
+    },
+    {
+      "rank": 8,
+      "quality": "Speed and brevity — the screen costs far less than the commitment it screens",
+      "why_it_matters": "This is a cheap gate placed in front of expensive work. If screening becomes a project in itself, its economics invert and it stops being used — or the proposer starts building while waiting."
+    },
+    {
+      "rank": 9,
+      "quality": "Criticism aimed at the idea and the market, not at the proposer's judgement or ambition",
+      "why_it_matters": "Criticism that reads as contempt makes the proposer defend the idea rather than update on it, defeating the purpose even when the analysis is correct. Hardness toward the idea and neutrality toward the person is what makes a harsh verdict land."
+    }
+  ],
+  "constraints": [
+    "Works from a rough, informal description; a business plan, financial model or research pack must not be a precondition for giving a view.",
+    "Assess the idea as actually described. If it is too vague to assess, name the specific ambiguity that changes the answer and give a conditional read on each branch rather than refusing or conducting a lengthy intake.",
+    "Reach a usable provisional judgement even when evidence is incomplete, while marking clearly which parts are established, which are inference, and which are unknown.",
+    "Where the proposer's real operating context is available — capacity, cash position, burn, channels, supplier relationships, existing cost and margin structures, target market — use it rather than generic assumptions. Where it is not available, state the assumption made so a wrong one can be corrected cheaply.",
+    "Frame the market and the competitive set in the geography, currency and customer segment the proposer actually operates in, not a default global consumer-software frame.",
+    "Any cost, margin or pricing figure must come from real data available in the proposer's context or be explicitly labelled an estimate; it must never be plausible-sounding estimation presented as fact.",
+    "Where the proposer is under cash pressure, weigh time-to-collected-cash and cash-out-before-cash-in at least as heavily as time-to-build.",
+    "Distinguish 'this idea is dead' from 'this framing is dead but the underlying insight is not' — a valid observation is frequently wrapped in a weak product concept.",
+    "Prioritise the reasons by weight. If one obstacle alone determines the verdict, say so rather than presenting several concerns as equals.",
+    "Where the call is genuinely close, say it is close rather than manufacturing confidence — but still state a lean and the fact that would settle it.",
+    "Keep improvement or pivot directions recognisably adjacent to the original idea rather than substituting a different business.",
+    "Remain useful when the concept is not software — a service, a physical product, a channel, a bundle, or an offering inside an existing business gets the same treatment, with deliverability framed appropriately for that type.",
+    "Confidential internal economics — supplier terms, cost bases, margins, commissions — may inform the judgement but must never appear in anything shaped for external circulation.",
+    "Treat the proposer's unshipped idea as confidential and unpublished.",
+    "Keep the response short enough to read in a couple of minutes; depth belongs in the reasoning, not the word count.",
+    "Do not require the reader to already share a particular vocabulary or evaluation framework."
+  ],
+  "never_do": [
+    "Never soften, hedge, or inflate a conclusion to be agreeable, and never open with validation of the idea or the person as social lubricant before the substance.",
+    "Never invent, approximate, or half-remember a competitor, price, funding amount, user count, market size, cost, or traction figure, or present an estimate as a researched fact.",
+    "Never return a non-answer — a balanced summary with no recommendation, or an 'it depends' with no lean when a lean is possible.",
+    "Never withhold a call on the grounds that more information is needed, when a provisional call plus the missing evidence would be more useful.",
+    "Never substitute performative harshness for analysis; mockery or dismissiveness that carries no information is as useless as flattery.",
+    "Never produce commentary so generic it would read identically for a different idea.",
+    "Never declare an idea viable without addressing how it earns, or unviable without saying what specifically kills it.",
+    "Never assess only whether it can be built while ignoring whether anyone wants it, or the reverse.",
+    "Never let an idea pass on enthusiasm, novelty, or the proposer's persistence alone when nobody demonstrably pays for the outcome it produces.",
+    "Never treat the existence of competitors as automatically disqualifying — competition is often evidence the demand is real; the question is whether there is room and a wedge.",
+    "Never treat 'no existing alternatives found' as automatically favourable — absence of anyone serving a need is more often a signal about the need.",
+    "Never dismiss an idea by category or reflex rather than on its specific merits, and never let the verdict drift negative by default.",
+    "Never soften the standard for a resubmitted or lightly revised idea; persistence is not evidence.",
+    "Never evaluate deliverability against an idealised organisation when the proposer's actual capacity, cash and channels are knowable.",
+    "Never endorse a commitment that exceeds the proposer's known cash or capacity without explicitly flagging the exposure.",
+    "Never end a negative assessment with no direction, next step, or adjacent option.",
+    "Never expand into building the thing — specifications, architectures, implementation plans, financial models, or launch collateral are not part of a screen.",
+    "Never turn the screen into a lengthy intake interview before saying anything useful."
+  ],
+  "objective_invariants": [
+    "The output contains exactly one overall recommendation, drawn from a small closed set of mutually exclusive positions, and it is locatable at a glance without reading the whole response.",
+    "The recommendation is accompanied by its core reasoning; a verdict never appears unexplained.",
+    "A conditional or middle-ground recommendation is always accompanied by the specific conditions or evidence that would resolve it either way, so it cannot function as a hedge.",
+    "The recommendation is consistent with the reasoning given alongside it.",
+    "Existing alternatives — including substitutes and incumbent workarounds — are named individually where any exist, each with what it does and how it relates to the proposal; or their apparent absence is stated explicitly and interpreted.",
+    "Any claim that a space is crowded, saturated, or dominated is supported by specific named referents rather than adjectives alone.",
+    "The assessment covers, in some form: existing supply, evidence of real willingness to pay, deliverability with the proposer's actual resources, the revenue mechanism, and any reason a buyer would switch.",
+    "Every quantitative or competitive claim is either specific and attributable, or explicitly marked as an estimate or unverified.",
+    "Assumptions about the proposer's resources, timeline, channels, or existing advantages are stated rather than silently applied.",
+    "At least one concrete way forward is present regardless of verdict — a change, a narrower target, a cheaper test, or the specific evidence that would reverse the call.",
+    "No sentence would remain equally true if the idea were replaced by an unrelated idea.",
+    "The output is short enough to be read in roughly two minutes.",
+    "No implementation artefacts are produced — no specifications, build plans, code, financial models, or marketing copy.",
+    "No confidential cost, margin, supplier or commission detail appears in any portion framed for an external audience."
+  ],
+  "scope_in": [
+    "Pre-commitment screening of a proposed product, app, service, bundle, offer, market segment, channel, or internal platform feature.",
+    "Identifying who already meets the need — direct competitors, substitutes, and incumbent workarounds — and how the proposal differs in a way a buyer would care about.",
+    "Separating expressed interest from demonstrated willingness to pay.",
+    "Judging deliverability against the proposer's real people, cash, suppliers, contractual commitments and sales capability, including the minimum viable boundary.",
+    "Assessing the revenue mechanism, price realism, cost floor, and how quickly cash would actually arrive.",
+    "Naming structural obstacles and adoption friction that sink ideas independent of execution quality.",
+    "Assessing differentiation, switching cost, and whether anyone would move from what they use now.",
+    "Offering the narrowing, sharpening, repositioning, or cheap test that would make a marginal idea viable.",
+    "Stating what would have to be true for the verdict to change.",
+    "Choosing between several competing concepts, or re-evaluating a revised concept after a material change to it or to the market."
+  ],
+  "scope_out": [
+    "Detailed product specification, requirements documentation, solution design, roadmap, or backlog.",
+    "Implementation, architecture, build planning, estimation, or engineering work.",
+    "Sales, marketing, launch, or fundraising material production.",
+    "Full financial modelling, market sizing, forecasting, or business-plan authoring.",
+    "Investment-grade due diligence, or anything presented as a substitute for it.",
+    "Legal, regulatory, tax, or compliance determinations.",
+    "Primary market research, customer interviews, or original data collection.",
+    "Diagnosing an already-launched offering's growth, pricing, or marketing performance.",
+    "Generating or expanding new ideas rather than judging one that already exists.",
+    "Ongoing portfolio management or lifecycle tracking of ideas already accepted.",
+    "Purely technical questions about how to build something whose viability is not in question.",
+    "Brand, naming, or visual design work."
+  ],
+  "activation_expectations": [
+    "Engage when someone describes a concept they have not yet committed to and asks whether it is worth pursuing, whether it already exists, or what is wrong with it.",
+    "Engage on pre-commitment sanity checks before writing code, signing a supplier, hiring, or spending money — and when choosing between competing concepts.",
+    "Engage when asked to be told honestly what is wrong with an idea, even if framed as a request for encouragement.",
+    "Stay out once the thing is built and live; a growth, pricing, or marketing diagnosis is a different job.",
+    "Stay out when the proposer wants scoping, specification, planning, or build sequencing — that work belongs downstream of a positive verdict, not inside the screen.",
+    "Stay out when the proposer is brainstorming or expanding options rather than judging a specific concept.",
+    "Defer to the organisation's own viability process when the decision turns on confidential internal cost, margin, or contractual data that an internal, data-backed process already owns; contribute an outside-in read at most, and do not override an internal call built on real numbers.",
+    "Defer when investment-grade diligence, formal market sizing, or legal, regulatory or compliance assessment is what is actually required.",
+    "Hand off rather than expand: once the verdict is positive and the proposer moves to designing or specifying the thing, the screen is finished."
+  ],
+  "non_qualities": [
+    "Length. A longer assessment is not a better one; padding to fill a shape is a defect, and depth belongs in the reasoning rather than the word count.",
+    "Number of sections, headings, or a recognisable recurring layout. Structure is presentation, not quality.",
+    "Confident tone. Assurance in the writing is not evidence; an appropriately hedged claim that is honestly labelled beats a confident one that is not.",
+    "Harshness, bluntness, or a severe register. The requirement is undistorted judgement; a calm, unflinching assessment satisfies it fully, and harshness performed as a style is itself a distortion.",
+    "Volume of named competitors, suggestions, or bullet points. Fixed counts force padding when there are two real comparables and truncation when there are six, and create pressure to fabricate.",
+    "Rate of negative verdicts. Reflexive scepticism is as uninformative as reflexive enthusiasm and is easier to hide behind; a screen incapable of clear approval makes its rejections meaningless.",
+    "Breadth of caveats and hedges. Covering every eventuality is not thoroughness; it is the non-answer the capability exists to prevent.",
+    "Use of strategy, startup, or framework vocabulary. Jargon is not rigour, and the assessment must be usable by someone who has never seen an evaluation framework.",
+    "Amount of research performed or number of sources consulted. What matters is that claims are grounded and honestly labelled, not how much effort is visibly spent.",
+    "Novelty or memorability of phrasing. Distinctive labels for common failure patterns add nothing over naming the obstacle plainly."
+  ],
+  "unresolved_or_decided": [
+    {
+      "issue": "Which quality ranks first — candour, decisiveness, or factual grounding",
+      "extractors_disagreed": "One ranked candour first with decisiveness second and grounding third; one ranked decisiveness first with candour second and factual integrity fifth; one ranked truthfulness first with factual grounding second and a committed recommendation fourth.",
+      "decision": "Candour first, factual integrity second, decisiveness third.",
+      "reasoning": "Candour is the reason the capability exists at all — the default response to a shared idea is supportive, and a flattered verdict fails the user's only real requirement. Factual integrity ranks immediately after because a candid verdict built on invented alternatives or prices is the one failure the proposer cannot detect and will act on; it is strictly worse than no assessment. Decisiveness ranks third rather than first because a decisive verdict that is either flattering or fabricated is actively harmful, whereas a candid, grounded assessment that lands slightly softly is still recoverable. Placing decisiveness first would also reward confident-sounding calls, which the non-qualities list explicitly guards against."
+    },
+    {
+      "issue": "Whether the proposer profile assumed by the original — one person shipping in a few weeks — should carry into the contract",
+      "extractors_disagreed": "One kept it as a calibration requirement without the specific numbers; one dropped it outright as an assumed persona mismatched to the real operator and recorded it as a tension; one classified the specific window as means but kept 'feasibility judged against real resources' as the end.",
+      "decision": "Drop the profile and the time window entirely. Keep only the requirement that deliverability be judged against the proposer's actual capacity, cash, channels, suppliers and sales capability, with the assumption stated when that context is unknown.",
+      "reasoning": "The real user runs a small connectivity and managed-services business with staff, wholesale contracts, minimum-spend commitments, no dedicated sales function, and acute cash pressure. Judging every idea against 'can one person build this in a month' would mark every service, infrastructure, or supply-side idea infeasible by construction rather than on its merits — and would ignore the constraint that actually binds, which is time-to-collected-cash. A stated, correctable assumption is cheaper and more accurate than any baked-in default."
+    },
+    {
+      "issue": "Whether a middle or conditional verdict is legitimate",
+      "extractors_disagreed": "One flagged the middle option as a refuge for exactly the uncertain cases the user needed a call on, quietly defeating decisiveness; the other two accepted a small closed set of decision states including a conditional one.",
+      "decision": "Allow a conditional verdict, but make it invariant that it names the specific conditions or evidence that resolve it either way.",
+      "reasoning": "Banning the middle position would manufacture false confidence on genuinely close calls, which the contract elsewhere forbids. The real defect the first extractor identified is the hedge, not the conditional — a conditional verdict that states what would settle it is a usable instruction, whereas an unqualified 'maybe' returns the decision unmade. Constraining the form removes the refuge without forcing false certainty."
+    },
+    {
+      "issue": "Whether the assessment must name a set number of competitors and improvement suggestions",
+      "extractors_disagreed": "One required at least a few named existing products and at least a few concrete suggestions; another argued explicitly that fixed counts force padding when there are two real comparables and truncation when there are six.",
+      "decision": "No counts. Require that existing alternatives be named individually where any exist, with what each does and how it relates, or that their absence be stated and interpreted; and that at least one concrete way forward be present regardless of verdict.",
+      "reasoning": "A minimum count is the single mechanism most likely to induce fabrication under the brevity requirement, and fabrication is the second-ranked quality's failure mode. 'One concrete way forward' is a genuine floor because a rejection with no direction burns the interaction; beyond that, more is not better."
+    },
+    {
+      "issue": "Whether a blunt, unsoftened register is part of the requirement or merely a tactic",
+      "extractors_disagreed": "One treated an assessment willing to be unwelcome as an end and carried it over; another kept candour as substance while dropping the persona; the third argued explicitly that bluntness is a tactic for defeating agreeableness and that a gentle but unflinching assessment fully satisfies the user.",
+      "decision": "Keep undistorted judgement as the top-ranked quality; treat harshness of register as a non-quality and forbid performative harshness outright.",
+      "reasoning": "The outcome the proposer buys is a verdict not bent by a desire to please. Severity of tone is a means to that, and a poor one — criticism read as contempt causes the proposer to defend the idea rather than update on it, which fails even when the analysis is right. Naming harshness as a non-quality also stops evaluators from rewarding tone in place of substance."
+    },
+    {
+      "issue": "Whether this capability has any record of real use, and whose situation the contract should serve",
+      "extractors_disagreed": "One found no produced outputs anywhere and concluded it was acquired as part of an external pack and never exercised here; another read the surrounding workspace as strong evidence of what the real operator needs from it; the third read the design as reflecting a solo software builder's own experience.",
+      "decision": "Accept that there is no record of exercised use, and still write the contract to the real operator's decision context rather than the original author's.",
+      "reasoning": "Absence of stored outputs is consistent with an unexercised installed capability, so the third extractor's read describes the original author, not this user. But a contract exists to specify what a rebuild must deliver here, and the surrounding environment is unambiguous about the decisions being made — resource allocation under severe cash constraint, in a specific market, with real supplier and channel structure. Serving the original author's context would produce a capability that is confidently irrelevant."
+    },
+    {
+      "issue": "How to resolve the speed-versus-evidence conflict the original creates by demanding named specifics under a brevity requirement",
+      "extractors_disagreed": "All three identified it; proposed resolutions ranged from proportional effort with honest labelling, to preferring a confidence marker over investigation, to leaving it as an unreconciled tension.",
+      "decision": "Resolve it in favour of honest labelling: a usable provisional judgement is required, every unverified claim must be marked, and neither fabricated specificity nor an expanded research exercise is acceptable.",
+      "reasoning": "The conflict is real and cannot be dissolved, only assigned a tiebreaker. Fabrication violates the second-ranked quality and is undetectable; expanding into research inverts the economics that make the screen worth using at all. Labelling costs almost nothing and preserves both. This also removes the incentive the original created to manufacture precise-sounding claims to satisfy a specificity requirement."
+    },
+    {
+      "issue": "Whether requiring the recommendation to appear before the reasoning is an outcome or a layout choice",
+      "extractors_disagreed": "One treated leading with the conclusion as load-bearing for the decision function; the other two treated any fixed ordering as presentational and kept only that the conclusion must not be buried.",
+      "decision": "Require that the recommendation be locatable at a glance without reading the whole response; do not mandate that it appear first.",
+      "reasoning": "The outcome is that the proposer can extract the decision in seconds and cannot mistake the reasoning for a negotiation. Any arrangement achieving that satisfies them. Mandating position would also make the contract a template, which is exactly what a rebuild must be free of."
+    },
+    {
+      "issue": "How to treat the absence of any existing competitors",
+      "extractors_disagreed": "One extractor added that an empty competitive field is more often a signal about the need than about the opportunity; another separately warned against treating the presence of competitors as disqualifying. Neither point appeared in all three.",
+      "decision": "Keep both as never-do items.",
+      "reasoning": "They are complementary, not contradictory, and each catches an opposite reflex that would produce a wrong verdict. Both are clearly correct and were surfaced by independent extraction doing exactly what it is for."
+    },
+    {
+      "issue": "Whether confidentiality belongs in an idea-screening contract at all",
+      "extractors_disagreed": "One added that confidential internal economics must not reach externally-framed output; a different one added that the proposer's unshipped idea must be treated as private. Neither was found by the others.",
+      "decision": "Keep both.",
+      "reasoning": "Each is single-sourced but clearly right and cheap to honour. The internal-economics rule matters because this environment routinely handles supplier costs and margins that must not leak into anything customer-facing; the unpublished-idea rule matters because a screen only gets used if bringing an idea to it is safe."
+    }
+  ],
+  "open_questions_for_user": [
+    "When an idea touches the organisation's own confidential unit economics — supplier costs, margin floors, contractual minimum spends — should this screen give an outside-in read and defer, or should it decline entirely and route the decision to the internal viability process?",
+    "Should a payback period longer than current cash runway be an automatic negative, or only a flagged exposure? Treating it as a veto would reject every strategic bet; treating it as a flag risks endorsing commitments the business cannot fund.",
+    "When the proposer's situation is not stated, what default should be assumed — the current business with its real staff, cash and channels, or a neutral profile? The verdict changes materially depending on which.",
+    "Should non-software concepts — a service line, a channel, a supplier arrangement, a physical product — be screened here on the same basis, or routed to a different evaluation path with its own economics?",
+    "How much of the proposer's real financial position should the assessment be allowed to reference back to them explicitly, versus using it silently to calibrate the verdict?"
+  ]
+}

@@ -1,0 +1,260 @@
+{
+  "skill": "claude-md-guardian",
+
+  "capability_summary": "An on-demand audit of the repository's governing agent-instruction document and the rule files it indexes. It answers two separate questions in one run: whether recent work actually obeyed the documented rules, and whether the documented rules are still true of the repository they describe. It reports evidence-backed findings ordered by consequence, states its own coverage and blind spots, and applies only the corrections the user individually approves — remembering the ones the user permanently declines. It holds itself to the same currency standard, since it is one more governance artefact that decays.",
+
+  "user_goal": "The user maintains a large, layered body of written standing instructions that govern how agents and humans work in this repository. It rots in two directions at once: work drifts away from the rules, and the rules drift away from the codebase. Both failures are invisible day-to-day and only surface as broken work. The user wants a cheap, repeatable way to surface both kinds of drift with enough specificity to act on immediately, to keep decision authority over what the rules say, and — above all — to be able to believe the verdict, so that a clean report means the checks genuinely ran and found nothing rather than that they failed silently.",
+
+  "success_looks_like": [
+    "Both directions of drift are examined in one run — work-versus-rules and rules-versus-reality — and the output keeps them distinct, because they route to different remedies.",
+    "Every finding names a concrete location, the evidence that triggered it, and the specific written rule at stake, so the user can confirm or dismiss it by opening one file.",
+    "A clean verdict is earned: it means every check ran against real, present inputs, not that some of them errored, mistargeted, or matched nothing because they were pointed at something that does not exist.",
+    "Checks that could not run are reported as such and are visible in the verdict, so partial coverage never reads as full compliance.",
+    "The run states its own scope — what range of change was examined, which rules were verified, which rules are not mechanically verifiable, and which were not covered at all.",
+    "Rules that have quietly become false — naming an API, path, table, provider, tool, or workflow that no longer exists or has been replaced — are reported as stale rather than enforced against reality.",
+    "Discrepancies between the top-level document and the detailed rule files it points to, and between its index of rules and the rule files actually on disk, are surfaced in both directions.",
+    "Established practice that has grown with no rule covering it is surfaced as a documentation gap worth closing.",
+    "Findings are ordered by real consequence, so a user who stops reading halfway has still seen the things that matter.",
+    "Nothing is changed without the user approving that specific change; a clean refusal is a first-class outcome, not a failure.",
+    "Permanently declining a finding silences it on later runs with the decision and its date preserved, while merely deferring it does not — the two are different outcomes with different persistence.",
+    "Each approved fix lands as a small, separable, self-describing change the user can review or revert on its own, with no unrelated work swept in.",
+    "The audit reports on its own decay — its embedded assumptions about paths, names, conventions and the state of the governed document — before it reports on anyone else's.",
+    "When the rule set grows, the audit's lack of coverage for the new material is surfaced rather than silently accumulating.",
+    "After a run the user knows what to do next without a follow-up question, and the report is self-contained enough to act on later or by someone else."
+  ],
+
+  "priority_qualities": [
+    {
+      "rank": 1,
+      "quality": "Trustworthy negatives — a check that could not run is never counted as a pass",
+      "why_it_matters": "This is the catastrophic failure mode of any self-audit: a green report produced by broken plumbing — a path that does not resolve, a missing directory, an empty change range, a command that errored. Silence is indistinguishable from compliance unless the capability separates them, and a false all-clear is worse than no audit because it manufactures confidence the user then acts on and stops looking. Every other quality is worth less if this one fails, because a report nobody can believe is not read at all."
+    },
+    {
+      "rank": 2,
+      "quality": "Near-zero false positives — precision is preferred over recall",
+      "why_it_matters": "An audit that cries wolf is skimmed within two runs and abandoned within three, which also poisons the suppression mechanism with junk entries that later hide real regressions. It is strictly better to miss a real violation than to assert a fake one. Ranked below trustworthy negatives because a false positive is visible and correctable by the user, whereas a false negative dressed as a pass is invisible by construction — when the two trade off, honesty about what was not verified wins over a cleaner-looking report."
+    },
+    {
+      "rank": 3,
+      "quality": "Honest, stated coverage",
+      "why_it_matters": "Much of what is governed is semantic or process-shaped and cannot be mechanically verified at all. The user must never be led to believe a rule was verified when only a crude proxy for it was checked, or that a clean report means full compliance when most rules were never examined. Declaring what was and was not looked at is what converts a partial audit into an honest one."
+    },
+    {
+      "rank": 4,
+      "quality": "Consent-gated authority over every write",
+      "why_it_matters": "The subjects of these fixes are the highest-leverage text in the repository — the very documents that constrain all future agent behaviour. Unprompted self-amendment of one's own governing rules is the single change class the user most needs to hold. Approval must be granular to the specific change, and read-only must be the default until it is given."
+    },
+    {
+      "rank": 5,
+      "quality": "Bidirectional audit — the rules are examined, not merely enforced",
+      "why_it_matters": "Half the value is refusing to enforce a rule that has gone stale. A compliance-only audit would demand conformance to fiction; a currency-only audit would let violations accumulate. When code and rule disagree, the capability cannot know which is wrong and must present the conflict rather than assuming the rule is authoritative."
+    },
+    {
+      "rank": 6,
+      "quality": "Actionable specificity of each finding",
+      "why_it_matters": "A finding that only names a category leaves the user doing the investigation the audit was supposed to do. Location, the evidence, the rule implicated, and what the fix would change turn a report into decisions the user can make in seconds. The value of the output is measured in decisions per line, not in lines."
+    },
+    {
+      "rank": 7,
+      "quality": "Self-audit — the capability applies its own standards to itself",
+      "why_it_matters": "It encodes a snapshot of the repository — paths, names, conventions, the state of the governed document — and that snapshot decays fastest of all. A stale checker's clean verdict is worthless, and its decay is invisible precisely because it manifests as silence. Because a self-check shares the same rotted assumptions, this must be anchored against the live repository rather than against its own beliefs."
+    },
+    {
+      "rank": 8,
+      "quality": "Durable, dated memory of accepted exceptions",
+      "why_it_matters": "Without persistence every run re-litigates settled decisions, the user learns to wave prompts through, and genuine new findings drown in familiar noise. Suppression is what makes the audit repeatable rather than a one-off — but each suppression is a permanent blind spot, so it must be dated and legible enough that accumulated blindness stays reviewable."
+    },
+    {
+      "rank": 9,
+      "quality": "Cheap and repeatable enough to be habitual",
+      "why_it_matters": "The value comes from frequency. Work bounded to a recent, stated window keeps the run something the user does routinely rather than once a quarter, accepting that older drift falls outside it — a trade only defensible if the audit is genuinely run often."
+    },
+    {
+      "rank": 10,
+      "quality": "Consequence-ordered, low-noise presentation",
+      "why_it_matters": "Attention runs out from the top down. What is read first must be what most needs doing, and a clean run must be terse — verbose per-check pass listings train the user to skim, which destroys the capability's ability to be noticed on the run where it actually finds something."
+    }
+  ],
+
+  "constraints": [
+    "Read-only until the user approves a specific change; the examination itself must not modify the repository, the rules, or version-control state.",
+    "Approval is sought for a specific, described change before it is made, and the user has three genuinely distinct responses available: apply it, permanently accept it as known debt, or defer it — with different persistence consequences for each.",
+    "Every check terminates in exactly one of four states — verified clean, finding raised, not applicable, or could-not-verify — with no fourth implicit state and no silent omission.",
+    "Before empty output is read as evidence of compliance, the check's preconditions must be confirmed: the target exists, the location resolves, and the examined range contains material to inspect.",
+    "All locations and targets resolve by discovery from the invocation context relative to the repository under audit, so results are identical in any clone, on any machine, under any checkout directory name.",
+    "The environment is allowed to differ from expectation — short or shallow history, missing directories, unavailable tooling, uncommitted or detached state — and each such condition is reported explicitly rather than absorbed.",
+    "The written instruction document and its rule files are the sole source of truth for what is enforced; nothing is enforced that is not written down there.",
+    "Where a rule cannot be mechanically verified, that is stated rather than substituting a weak proxy and reporting it as verified.",
+    "Findings derived from judgement or self-assessment are labelled as such and carry visibly lower asserted confidence than mechanically evidenced ones.",
+    "Work is bounded to a recent, deliberately chosen and disclosed window for compliance findings; currency and coverage findings are inherently repository-wide and may cost differently.",
+    "Each finding carries a stable identity so that a disposition recorded in one run reliably matches the same finding in the next, and the record written is in exactly the form later read.",
+    "The record of accepted exceptions is durable, dated, human-readable and human-editable.",
+    "Approved changes are surgical, scoped to the finding, and contained — no unrelated working-tree state is swept in, and no in-flight work is disturbed.",
+    "The output must be reviewable in a single pass, with stated counts that reconcile with the findings listed.",
+    "A report-only mode with no prompts and no writes must be possible, for use where interaction is unavailable.",
+    "Findings self-explain the rule being enforced, so the report is usable by someone who has never read the audit's internals.",
+    "Adding a rule to the governed corpus must not require re-architecting the audit; extending coverage is expected to be cheap.",
+    "The scope examined and the identity of the governed document audited against appear in the output of every run."
+  ],
+
+  "never_do": [
+    "Never report a check as passing, or emit an all-clear, when a check did not execute, errored, targeted something that does not resolve, or examined an empty range.",
+    "Never treat empty output from an unvalidated check as proof that a problem is absent.",
+    "Never silently drop or skip a check — an omitted or unrunnable check must appear in the report as inconclusive.",
+    "Never silently widen or narrow the examined scope without saying so.",
+    "Never raise a finding that cannot be independently confirmed by opening the cited location; no speculative or hedged matches presented as violations.",
+    "Never flag an occurrence of a pattern that appears in documentation, comments, tests, fixtures, examples, generated or vendored output, or in the rule file that defines the pattern itself.",
+    "Never fabricate a location, a line, a rule name, or a count, and never let summary totals disagree with the findings listed.",
+    "Never modify the instruction document, a rule file, source, or the audit's own definitions without explicit approval for that specific change.",
+    "Never apply changes under a blanket approval the user did not give, and never alter version-control state — staging, committing, amending, rewriting history, or publishing — beyond what was approved.",
+    "Never delete, restructure, condense, or wholesale-rewrite the governed documents as a remedy.",
+    "Never widen an approved fix into unrelated cleanup of the file it touches.",
+    "Never edit application source merely to make a check stop firing without stating plainly that this is what the change does.",
+    "Never re-raise a finding the user has permanently accepted, and never quietly discard that record.",
+    "Never persist a deferral as though it were a permanent acceptance.",
+    "Never enforce a rule that has been determined to be stale — report the rule instead of generating violations against reality.",
+    "Never claim a semantic or judgement-based rule was verified when only a textual approximation was checked, and never present a judgement call with the certainty of a mechanical fact.",
+    "Never present a passing report as evidence of full rule coverage when most rules are not machine-checkable.",
+    "Never depend on an absolute location, a specific machine, a specific checkout directory, or a specific user's environment.",
+    "Never exempt the audit's own assumptions and coverage from the currency standard it applies to everything else.",
+    "Never bury the highest-consequence item beneath routine passes or metadata trivia.",
+    "Never expand into general code review, bug hunting, security, performance, or lint findings untraceable to a written rule.",
+    "Never demand a separate decision for every trivial item when they can honestly be handled as a named group."
+  ],
+
+  "objective_invariants": [
+    "Every check in a run is assigned exactly one of {clean, finding, not-applicable, could-not-verify}; could-not-verify is never merged into clean.",
+    "If the number of could-not-verify checks is greater than zero, the run does not emit an unqualified all-clear — a result set containing any unrunnable or mistargeted check must not yield an all-clear verdict.",
+    "'Verified absent' and 'could not verify' are separately reportable states, distinguishable in both the per-check detail and the summary; a reader can tell for any given rule which of the two applies.",
+    "A summary stating zero findings is emitted only when the count of successfully executed, non-suppressed checks equals the total count of non-suppressed checks.",
+    "Every location, target, and reference the audit consults resolves inside the repository actually under audit; none refers to a location outside it or to a fixed absolute path from another machine or checkout.",
+    "A check whose target does not resolve is reported as could-not-verify, never as clean.",
+    "Every violation-severity finding cites a file that exists, a location within it, the literal evidence that triggered it, and the named rule it breaches — and the cited location contains the content the finding claims.",
+    "Summary counts equal the number of findings enumerated in the body, per category and severity band.",
+    "The output distinguishes findings about work-versus-rules from findings about rules-versus-reality.",
+    "The report states the scope examined and the identity of the governed document it audited against.",
+    "Every rule referenced by any check exists at the time of the run; a reference to a deleted or renamed rule is itself reported as a finding.",
+    "Every rule present in the governed corpus is either exercised by at least one check or explicitly enumerated as not covered.",
+    "The instruction document's index of rules and the rule files on disk are reconciled in both directions; entries listed but absent, and files present but unlisted, are both reported.",
+    "Claims in the top-level instruction document that contradict the detailed rule files — the same symbol, table, or path named two different ways — are reported as findings.",
+    "Any metadata the audit relies on about the governed document is read at run time rather than assumed, and a divergence between the audit's alignment and the document's live state is itself reportable.",
+    "For every write performed there exists a preceding explicit user approval naming that specific change; the number of writes never exceeds the number of approvals.",
+    "Every file modified during the run corresponds to a finding the user explicitly approved.",
+    "The working tree and version-control state are byte-identical before and after any run in which the user approves nothing.",
+    "Every permanently accepted finding is recorded durably with a date and a stable identifier before the run ends, and the form written is the form later read.",
+    "A finding matching a stored acceptance does not appear as an actionable item on any subsequent run, and the number suppressed is disclosed.",
+    "A deferred finding is not written to the acceptance record, and does reappear on a subsequent run under unchanged conditions.",
+    "Every interactive prompt offers a response that neither applies a change nor permanently records one.",
+    "Two consecutive runs over an unchanged repository with no dispositions recorded produce the same set of findings."
+  ],
+
+  "scope_in": [
+    "Checking whether recent work in the repository contravenes rules written down in the governing instruction document and its rule files.",
+    "Checking whether those written rules still match the codebase, tooling, infrastructure, providers, conventions, and directory structure they describe.",
+    "Reporting rules that have gone stale, contradict each other, or contradict the top-level instruction document.",
+    "Reconciling the instruction document's index of rules against the rule files actually present, in both directions.",
+    "Detecting established practice or areas of the repository that have grown with no rule covering them, where the absence is consequential.",
+    "Detecting drift in the governed documents' own freshness and version signals relative to the material they describe.",
+    "Auditing the capability's own embedded assumptions and its coverage of the current rule set, and surfacing that before findings about anything else.",
+    "Reporting on rules that can only be judged rather than mechanically verified, clearly marked as weaker evidence.",
+    "Presenting findings by consequence with locations, evidence and proposed remedies, and stating the scope and blind spots of the run.",
+    "Applying user-approved corrections to the instruction document, rule files, or source, as contained and separately reviewable changes.",
+    "Maintaining a durable, dated, human-readable record of deliberately accepted deviations.",
+    "Surfacing the coverage obligation created when the governed rule set grows."
+  ],
+
+  "scope_out": [
+    "General code review, bug hunting, correctness, performance, or security analysis unconnected to a written rule.",
+    "Type checking, linting, building, or running the test suite as the basis for findings.",
+    "Authoring governance from scratch or deciding policy on the user's behalf, absent a detected gap and the user's approval.",
+    "Enforcing conventions that are not written down in the governed documents.",
+    "Judging whether a rule is a good rule; only whether it is followed and whether it is still true.",
+    "Automatic or background enforcement, commit gates, and merge blocking — this is an invoked, advisory audit.",
+    "Publishing, pushing, opening reviews, or any action propagating changes beyond the local repository.",
+    "Restructuring, condensing, or reorganising the governed corpus for style or length.",
+    "Exhaustive audit of the repository's entire history, or of other repositories, branches, or environments.",
+    "Auditing repositories that have no such governing document."
+  ],
+
+  "activation_expectations": [
+    "Activates when the user explicitly invokes it to audit rule compliance or rule currency for this repository.",
+    "Activates on a request to check whether recent work followed the repository's written standing instructions.",
+    "Activates on a request to check whether those standing instructions are still accurate, or to reconcile the instruction document's index against the rule files on disk.",
+    "Runs on demand and interactively by default, and must not install itself as an automatic gate on commits, pushes, or merges.",
+    "Does not activate for general code review, debugging, testing, or quality work with no link to a written rule.",
+    "Does not activate for authoring or redesigning the rules themselves absent a detected gap."
+  ],
+
+  "non_qualities": [
+    "Length of the report — a terse clean run is better than a long one; verbosity is a defect, not evidence of thoroughness.",
+    "Number of findings raised — more findings is not better performance, and a run that raises nothing because nothing is wrong is a success.",
+    "Number of checks executed — a large catalogue of checks that cannot run is worse than a small set that can.",
+    "Confident tone — asserted certainty must track the evidence; hedging a judgement call is correct behaviour, not weakness.",
+    "Listing every passing check — per-check pass output trains the user to skim and is not a sign of rigour.",
+    "Breadth of speculative coverage — surfacing 'possible' issues to look comprehensive is worse than saying a rule was not verified.",
+    "Presentation vocabulary — specific severity labels, section layouts, or symbol sets carry no value of their own.",
+    "Volume of fixes applied — a run where the user declines everything is a fully successful run.",
+    "Speed at the cost of skipped verification — finishing fast by not confirming preconditions is a failure, not efficiency."
+  ],
+
+  "unresolved_or_decided": [
+    {
+      "issue": "Relative ranking of trustworthy negatives versus near-zero false positives.",
+      "extractors_disagreed": "Two extractors ranked honest reporting of unrunnable checks first with precision second; one inverted them, ranking precision first.",
+      "decision": "Trustworthy negatives rank 1, near-zero false positives rank 2. Both are named explicitly in the priority list with the trade-off stated.",
+      "reasoning": "Both are real and they genuinely trade off, so a judge needs the tie broken. A false positive is visible to the user, correctable on inspection, and self-limiting — it costs credibility loudly. A check that silently fails and is scored as a pass is invisible by construction and actively manufactures confidence the user acts on. All three extractors independently identified this silent-pass mechanism as the dominant failure mode and produced concrete evidence of it occurring, which settles the ordering: when in doubt, report inconclusive rather than clean, even though that makes the report look messier."
+    },
+    {
+      "issue": "Whether permanently declining and deferring a finding are the same disposition.",
+      "extractors_disagreed": "One extractor treated any declined finding as permanently suppressed; the other two insisted permanent acceptance and temporary deferral are distinct outcomes with different persistence.",
+      "decision": "Three distinct dispositions — apply, permanently accept, defer — with deferral explicitly not written to the durable record.",
+      "reasoning": "The two-state reading loses real information in both directions: collapsing them either buries a finding the user only meant to postpone, or fails to record accepted debt. The three-state reading is strictly more expressive, costs nothing, and two independent extractions arrived at it."
+    },
+    {
+      "issue": "Whether each approved fix must land as its own commit.",
+      "extractors_disagreed": "One extractor made per-fix commits a hard invariant including a no-amend, no-push rule; the other two classified committing as an implementation choice and kept only the underlying reviewability property.",
+      "decision": "Do not mandate committing. Require that each approved change is contained, separable, self-describing, individually reversible, and sweeps in no unrelated work; and never alter version-control state beyond what was approved.",
+      "reasoning": "Committing is one way to buy reviewability among several — a shown diff or a staged change buys the same outcome. Mandating the mechanism would be an implementation constraint, and whether to commit is a repository convention rather than a user requirement. The genuine outcome, plus the prohibition on unapproved version-control mutation, is preserved."
+    },
+    {
+      "issue": "Strict per-finding approval versus batching to survive volume.",
+      "extractors_disagreed": "Two extractors made per-item consent absolute; one argued that dozens of individual prompts guarantee fatigue and blanket approval, so grouping of trivia is required.",
+      "decision": "Per-item consent for anything consequential; grouping permitted only when the user explicitly approves a named group. Blanket or implicit approval is prohibited either way.",
+      "reasoning": "The objection is well-founded — an unusable consent flow gets defeated by the user rather than obeyed, which produces exactly the unreviewed edits the strict rule was meant to prevent. The invariant that matters is that no write occurs without an approval naming what it covers; a named group satisfies that while an implicit or blanket approval does not."
+    },
+    {
+      "issue": "Whether a report-only, non-interactive mode belongs in the contract.",
+      "extractors_disagreed": "Only one extractor raised it; the other two assumed an interactive run throughout.",
+      "decision": "Kept as a constraint — a mode that reports without prompting or writing must be possible.",
+      "reasoning": "This is a blind spot the other extractions missed rather than a disagreement. It follows directly from the read-only-by-default and consent-gated properties all three share: with no user present to approve, the correct behaviour is to report and write nothing. It costs nothing to state and prevents a rebuild from deadlocking or, worse, proceeding unapproved."
+    },
+    {
+      "issue": "How much emphasis to put on suppressing false positives from innocent contexts.",
+      "extractors_disagreed": "One extractor treated exclusion of comments, tests, fixtures, examples, generated and vendored output, and the rule files themselves as a first-class requirement; the others mentioned only the rule-file and documentation cases.",
+      "decision": "Kept in the fuller form, as a never-do and as a confirmation requirement that findings be verified against current file content rather than inferred from a change hunk.",
+      "reasoning": "The narrower readings are subsets of the broader one and nothing in them contradicts it. The additional cases named — reverted, reformatted, moved or already-fixed lines, and generated or vendored code — are exactly the ones that produce the bogus findings that destroy trust, and the requirement to confirm against current content is what mechanically prevents them."
+    },
+    {
+      "issue": "Whether a clean run should be terse or should enumerate what it checked.",
+      "extractors_disagreed": "One extractor required a short, low-noise clean result; two required the run to state its coverage, which reads as more output.",
+      "decision": "Both, reconciled: terse by default, but scope, inconclusive checks, and uncovered rules are always stated.",
+      "reasoning": "These are not actually in conflict. What must be suppressed is per-check pass listing, which carries no information and trains skimming. What must be stated is the negative space — what was not verified — which is precisely the information a reader needs to calibrate a clean verdict and is a small, bounded amount of text."
+    },
+    {
+      "issue": "Whether detecting rules recorded in learning or correction logs but never promoted into enforced rules is in scope.",
+      "extractors_disagreed": "Raised by one extractor only, framed around specific repository artefacts.",
+      "decision": "Generalised and kept as gap detection — established practice or consequential areas with no governing rule — without naming particular artefacts.",
+      "reasoning": "The underlying outcome is legitimate and two extractors already covered gap detection in a broader form. Naming the specific artefacts would bind the contract to one repository's current layout, which is exactly the coupling that made the original decay."
+    }
+  ],
+
+  "open_questions_for_user": [
+    "Should permanently accepted findings ever expire or be re-surfaced periodically? Durable suppression keeps runs readable but creates permanent blind spots, and an acceptance made for a reason that has since lapsed will hide a genuine problem forever.",
+    "When a rule and the code disagree, is there ever a default party at fault, or must every such conflict be adjudicated by the user? Always deferring pushes judgement back onto the user for exactly the items they hoped the audit would decide.",
+    "How far back should the compliance window reach, and should it be time-based, change-based, or since-last-run? Anything older than the window is never seen by any run.",
+    "On a first run against a long-neglected rule set, is a large backlog of findings acceptable, or should pre-existing debt be separated from new breakage and handled differently?",
+    "Should approved fixes be committed automatically, left as reviewable changes in the working tree, or should this be configurable?",
+    "Is there an expectation that repeated runs show trend — whether things are getting better or worse — or is each run judged only on its own findings?",
+    "How should a rule that is only partially verifiable be reported: as verified with a stated caveat, or as not verified at all?"
+  ]
+}

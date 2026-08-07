@@ -1,0 +1,238 @@
+{
+  "capability_summary": "A fast pre-build screening capability for product, app, or startup ideas. Someone with an idea they have not yet built describes it and receives a candid, evidence-grounded assessment of whether it is worth their time, covering who already serves this need, whether the demand is real or merely plausible, whether it is buildable at their scale, whether anyone would pay, and whether it is differentiated. The output ends in a committed recommendation plus concrete ways to improve the idea's odds.",
+
+  "user_goal": "Decide quickly and with minimal cost whether to invest weeks of building effort into this specific idea — and, if the idea is weak, learn precisely why and what adjacent version of it would be stronger. The user wants the disappointing answer early rather than the encouraging answer late.",
+
+  "success_looks_like": [
+    "The user can act immediately after reading: proceed, drop it, or change something specific. No further deliberation cycle is required to extract a decision.",
+    "The recommendation is stated plainly and is unmistakable — not buried in balanced considerations or hedged into uselessness.",
+    "The reasoning is specific enough that the user could argue with it. Named products, named segments, named obstacles — things that could be checked and found wrong.",
+    "The user learns at least one thing about their own idea's landscape they did not already know (an existing player, a structural obstacle, a demand signal or its absence).",
+    "A negative verdict still leaves the user with somewhere to go — a narrower segment, a different wedge, a reframing — rather than a dead end.",
+    "The whole thing is short enough to read in a couple of minutes; the screen costs far less than the build it is screening.",
+    "Weeks later, the user's experience confirms the assessment was directionally right, including the parts they did not want to hear.",
+    "The user does not feel personally judged, even when the idea is judged harshly."
+  ],
+
+  "priority_qualities": [
+    {
+      "quality": "Truthfulness over encouragement",
+      "why_it_matters": "The entire reason this capability exists is that the default social response to a shared idea is supportive, and supportive responses cost the user weeks of wasted work. Any softening that changes the user's decision is a failure of the core function.",
+      "rank": 1
+    },
+    {
+      "quality": "Claims about the world are real, current, and verifiable",
+      "why_it_matters": "The verdict rests almost entirely on assertions about who already exists, what they charge, and how entrenched they are. A fabricated or years-stale competitor set produces a confidently wrong recommendation — the single most damaging possible failure, because the user has no easy way to detect it and will act on it.",
+      "rank": 2
+    },
+    {
+      "quality": "Specificity over category-level generalities",
+      "why_it_matters": "Generic risk language ('crowded market', 'validate demand first', 'consider your differentiation') applies to every idea, so it carries zero decision information and the user could have written it themselves. Only concrete particulars change a decision.",
+      "rank": 3
+    },
+    {
+      "quality": "A committed recommendation, not an option menu",
+      "why_it_matters": "The user came to offload a judgement call. Returning a balanced list of considerations hands the work back and wastes the interaction. Being decisive and occasionally wrong is more useful than being uncommitted and always defensible.",
+      "rank": 4
+    },
+    {
+      "quality": "Calibrated to the asker's actual capacity and situation",
+      "why_it_matters": "Feasibility, monetization, and go-to-market viability are meaningless in the abstract. The same idea is sensible for someone with an existing audience in the space and reckless for someone starting cold. An assessment aimed at the wrong builder profile is confidently irrelevant.",
+      "rank": 5
+    },
+    {
+      "quality": "Forward path preserved on every outcome",
+      "why_it_matters": "A pure rejection burns the interaction and the user's motivation without generating value. The improvement or pivot direction is often worth more than the verdict itself, and is what makes the user willing to bring the next idea.",
+      "rank": 6
+    },
+    {
+      "quality": "Speed and brevity",
+      "why_it_matters": "This is a cheap gate placed in front of an expensive commitment. If the screen becomes a research project, its economics invert and the user stops using it — or worse, starts building while waiting.",
+      "rank": 7
+    },
+    {
+      "quality": "Respect for the person while being hard on the idea",
+      "why_it_matters": "The user is emotionally attached to something they thought of. Criticism that reads as contempt makes them defend the idea rather than update on it, which defeats the purpose even when the analysis is correct.",
+      "rank": 8
+    }
+  ],
+
+  "constraints": [
+    "Cover, at minimum: who else already serves this need; whether the underlying demand is evidenced or assumed; whether it can realistically be built at the user's scale; whether money is plausibly attached to it; and whether there is any reason a user would choose it over what exists.",
+    "Reach an overall recommendation drawn from a small, unambiguous set of outcomes rather than a numeric score or prose that requires interpretation.",
+    "Ground market claims in current, checkable reality. Where verification was not possible, say so rather than presenting recollection as fact.",
+    "Name real existing alternatives and, for each, say what it actually does and where it leaves a gap or fails to.",
+    "Distinguish what people say they want from what people demonstrably pay for, and weight the latter far more heavily.",
+    "Give improvement or pivot directions that stay recognisably adjacent to the user's original idea — not a substitute business.",
+    "Surface the specific structural obstacles that apply, if any, and name them plainly (chicken-and-egg dynamics, entrenched free incumbents, required behaviour change, buyer sophistication mismatch, scope that exceeds the builder, functionality that belongs inside an existing product).",
+    "State any assumption made about the user's resources, timeline, audience, or capabilities, so a wrong assumption can be corrected cheaply.",
+    "Keep the response compact — a short read, not a report."
+  ],
+
+  "never_do": [
+    "Never open with validation of the idea or the person as a social lubricant before the substance.",
+    "Never invent, approximate, or half-remember a competitor, funding figure, user count, price point, or market size. Absent verification, say the claim is unverified.",
+    "Never withhold or soften a negative conclusion because the user seems invested in the idea.",
+    "Never substitute performative harshness for analysis — insults, mockery, or dismissiveness that carries no information are as useless as flattery.",
+    "Never return a verdict that is effectively 'it depends' with no lean, when a lean is possible.",
+    "Never deliver only generic startup advice that would apply unchanged to any other idea.",
+    "Never end a negative assessment with no direction, next step, or adjacent option.",
+    "Never treat the existence of competitors as automatically disqualifying — competition can be evidence the demand is real; the question is whether there is room and a wedge.",
+    "Never turn the screen into a lengthy intake interview before saying anything useful.",
+    "Never soften the standard for a returning user simply because they have revised and resubmitted the idea; persistence is not evidence.",
+    "Never treat the user's unshipped idea as public information or reproduce it outside the interaction."
+  ],
+
+  "objective_invariants": [
+    "The response contains exactly one overall recommendation, identifiable at a glance, from a small closed set of outcomes.",
+    "The recommendation is accompanied by a short, direct justification that references the idea's own specifics rather than generic principles.",
+    "At least a few real, individually nameable existing products, services, or substitutes are listed, each with what it does and how it relates to the proposed idea — or an explicit statement that none were found, which is itself a finding.",
+    "At least a few concrete, idea-specific improvement or pivot suggestions are present regardless of whether the verdict is positive or negative.",
+    "Every quantitative or competitive claim is either specific and attributable, or explicitly marked as unverified.",
+    "Assumptions about the builder's resources, timeline, or existing advantages are stated rather than silently applied.",
+    "Total length is short enough to read in roughly two minutes.",
+    "No sentence in the output would remain equally true if the idea were replaced by an unrelated idea."
+  ],
+
+  "scope_in": [
+    "Pre-build evaluation of a product, app, service, or startup concept.",
+    "Competitive and substitute landscape for the proposed idea.",
+    "Assessment of whether the demand is evidenced or assumed.",
+    "Buildability at the asker's scale, including scope and minimum viable boundary.",
+    "Whether and how the idea could plausibly earn money, and whether comparable things are paid for.",
+    "Differentiation, switching cost, and whether anyone would move from what they use now.",
+    "Naming structural obstacles and adoption friction.",
+    "Concrete narrowing, sharpening, or repositioning of the idea.",
+    "Re-evaluating a revised version of a previously screened idea."
+  ],
+
+  "scope_out": [
+    "Detailed implementation, architecture, or technical design of the idea.",
+    "Writing the product specification, roadmap, or backlog.",
+    "Full market research reports, sizing models, or investor-grade analysis.",
+    "Fundraising materials, pitch decks, or investor positioning.",
+    "Brand, naming, and visual design work.",
+    "Legal, regulatory, or tax determinations.",
+    "Evaluating an already-launched product's performance (that is a different diagnosis).",
+    "Long structured discovery interviews before any assessment is given."
+  ],
+
+  "ends_vs_means_notes": [
+    {
+      "in_original": "Five named evaluation criteria organised as headed sections",
+      "classified_as": "means",
+      "reasoning": "The specific naming and sectioning is presentational. What the user needs is that all five dimensions of risk are actually considered and none silently skipped; the coverage is the end, the labelled taxonomy is the vehicle.",
+      "kept": false
+    },
+    {
+      "in_original": "Coverage of competition, demand evidence, buildability, revenue, and differentiation",
+      "classified_as": "end",
+      "reasoning": "These are the five independent ways a pre-build idea fails. Omitting any one produces an assessment that can be right on everything examined and still wrong overall.",
+      "kept": true
+    },
+    {
+      "in_original": "A fixed output template with mandated section headings in a mandated order",
+      "classified_as": "means",
+      "reasoning": "The rigid template is a device for guaranteeing the verdict, the evidence, and the forward path all appear and appear fast. Those three payloads are the requirement; the exact headings and ordering are interchangeable.",
+      "kept": false
+    },
+    {
+      "in_original": "Verdict stated up front before the reasoning",
+      "classified_as": "end",
+      "reasoning": "This is not merely formatting. Leading with the conclusion prevents the reasoning from being read as an argument the user can negotiate down, and it is what makes the output usable in seconds. It is load-bearing for the decision function.",
+      "kept": true
+    },
+    {
+      "in_original": "A specific tool is prescribed for looking up competitors",
+      "classified_as": "means",
+      "reasoning": "The tool is incidental. The end is that market claims reflect current external reality rather than model recall — any mechanism achieving that satisfies the user.",
+      "kept": false
+    },
+    {
+      "in_original": "Claims must be grounded in actual, current evidence rather than recollection",
+      "classified_as": "end",
+      "reasoning": "The verdict is only as good as the factual base under it. A hallucinated competitor set is the failure mode that most damages the user, and they would still demand grounding from any rebuild.",
+      "kept": true
+    },
+    {
+      "in_original": "Assess against a solo builder shipping in a two-to-four week window",
+      "classified_as": "means",
+      "reasoning": "A concrete proxy for a real requirement: feasibility judged against the asker's actual constrained capacity rather than an idealised funded team. The proxy is a default that should be stated and correctable, not a fixed law — the same idea deserves a different answer for a different builder.",
+      "kept": false
+    },
+    {
+      "in_original": "Feasibility judged against the asker's real resources and time",
+      "classified_as": "end",
+      "reasoning": "An assessment calibrated to the wrong builder profile is confidently irrelevant, and the user would notice immediately.",
+      "kept": true
+    },
+    {
+      "in_original": "A catalogue of memorable phrases for common failure patterns",
+      "classified_as": "means",
+      "reasoning": "The catchphrases are mnemonics. The end is that these recurring structural traps are actually detected and named plainly when present; the specific idiom is disposable and, repeated often, becomes a substitute for thinking.",
+      "kept": false
+    },
+    {
+      "in_original": "Naming structural obstacles explicitly when they apply",
+      "classified_as": "end",
+      "reasoning": "These traps are invisible to most first-time builders and are precisely the information the screen exists to deliver.",
+      "kept": true
+    },
+    {
+      "in_original": "Blunt, unsoftened tone with explicit bans on encouraging filler phrases",
+      "classified_as": "means",
+      "reasoning": "Bluntness is a tactic for defeating the model's default agreeableness. The end is that the assessment is undistorted — bluntness that becomes a performance is itself a distortion, and a gentle but unflinching assessment fully satisfies the user.",
+      "kept": false
+    },
+    {
+      "in_original": "Improvement suggestions are produced even when the verdict is negative",
+      "classified_as": "end",
+      "reasoning": "This is the subtlest correct thing in the original: it makes a rejection survivable and productive, and it is what keeps the user coming back rather than avoiding the screen. A rebuild that only strengthens ideas it approves of would be materially worse.",
+      "kept": true
+    },
+    {
+      "in_original": "Competitors are listed with a differentiating note each, rather than merely counted",
+      "classified_as": "end",
+      "reasoning": "Also quietly correct: it forces reasoning about why each incumbent exists and what it leaves uncovered, which is what reveals a wedge. A bare competitor count would push toward reflexive rejection of every idea in any populated market.",
+      "kept": true
+    },
+    {
+      "in_original": "Illustrative profiles of what strong and weak ideas look like",
+      "classified_as": "means",
+      "reasoning": "Calibration examples for the author, not a requirement on the output. A rebuild needs the underlying judgement standard, not these specimens.",
+      "kept": false
+    },
+    {
+      "in_original": "Preference for demonstrated paying behaviour over expressed interest",
+      "classified_as": "end",
+      "reasoning": "This is the substantive epistemic standard that separates a useful screen from an opinion, and it survives any reimplementation.",
+      "kept": true
+    }
+  ],
+
+  "implicit_requirements": [
+    "The user's unstated advantages are frequently decisive and must be asked about or explicitly assumed. Existing audience, domain access, distribution channel, or prior credibility in the space can flip a verdict entirely, yet an idea description almost never mentions them. An assessment that ignores distribution is evaluating a different question than the one that determines outcomes.",
+    "Distinguish clearly between 'this idea is dead' and 'this framing is dead but the underlying insight is not'. Users routinely have a valid observation wrapped in a bad product concept, and collapsing the two destroys real value.",
+    "Say which parts of the assessment were verified and which are inference. The user will act on this, and needs to know which claims to spot-check before committing weeks.",
+    "Handle underspecified ideas without stalling: if the concept is too vague to evaluate, name the specific ambiguity that changes the answer and give a conditional read on each branch rather than refusing or interrogating at length.",
+    "Do not let the recommendation drift toward negative by default. Reflexive scepticism is as useless as reflexive enthusiasm and is easier to hide behind; a screen that says no to everything conveys no information and will be discarded.",
+    "Apply a consistent standard across submissions. A user who resubmits a lightly-edited idea should get the same answer unless something material changed — softening under repetition destroys the tool's value.",
+    "Frame criticism as being about the idea and the market, not about the user's judgement or ambition, so it is absorbed rather than resisted.",
+    "Acknowledge and hold the asymmetry of errors honestly: wrongly encouraging costs the user weeks, wrongly discouraging costs them an opportunity they will never learn about. Where the call is genuinely close, say it is close rather than manufacturing false confidence.",
+    "Do not conflate 'someone already built this' with 'this cannot work'. Execution, segment, timing, and positioning routinely make a crowded space viable; the analysis must reach the room-and-wedge question, not stop at the existence question.",
+    "Prioritise the reasons by weight. If one obstacle alone determines the verdict, say so plainly rather than presenting five concerns as equals and leaving the user to guess which one to solve.",
+    "Treat the shared idea as confidential and unpublished; do not behave as though it is public knowledge.",
+    "Remain useful for non-software ideas, since users will bring service, content, and physical-product concepts to the same screen."
+  ],
+
+  "evidence_of_real_use": "The design reflects direct experience of the failure mode it prevents. The insistence on a decisive up-front verdict, the ban on specific encouraging phrases, and the explicit preference for hearing a rejection early all indicate an author who repeatedly received agreeable, non-committal feedback and lost real time to it. The catalogue of structural obstacles is not textbook material but a list of traps that recur specifically for individual builders — network effects, entrenched free incumbents, enterprise-only go-to-market, functionality that is really a feature of an existing product. The framing around a short shipping window and a single builder indicates a personal working context of rapid solo iteration where the cost being managed is weeks, not funding rounds. The requirement that improvement suggestions accompany even a rejection suggests the author expected to use this repeatedly on their own ideas and needed rejections to remain motivating rather than terminal.",
+
+  "tensions": [
+    "Speed versus verification. Grounding every claim in current external evidence takes time, but the screen's value depends on being far cheaper than building. The resolution is proportional effort with honest labelling of what went unchecked — not silently skipping verification, and not turning the screen into a research project.",
+    "Decisiveness versus calibration. A committed verdict is what makes the output useful, but genuine uncertainty exists and false confidence misleads. Committing to a lean while naming the one fact that would flip it satisfies both; hedging across the board satisfies neither.",
+    "Honesty versus keeping the user willing to return. Too gentle and the tool fails at its only job; too harsh and the user stops bringing ideas or starts defending them instead of updating. Hardness aimed at the idea and warmth aimed at the person resolves most of this.",
+    "Scepticism as accuracy versus scepticism as a defensive posture. Rejecting everything is unfalsifiable and feels rigorous while conveying nothing. The screen must be capable of clear approval or its negatives carry no signal.",
+    "Applying a general standard versus the user's particular situation. Generic criteria are fast but can be confidently wrong for a builder with an unusual advantage; asking about their situation costs the speed that makes the screen worthwhile. Stating assumptions explicitly, so the user corrects only what matters, is the cheapest resolution.",
+    "Structural consistency versus responsiveness. A predictable shape makes the output scannable and comparable across ideas, but a rigid template can force content that does not apply and pad the response with filler. The payloads must always be present; their arrangement should serve the specific idea."
+  ]
+}

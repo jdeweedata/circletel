@@ -1,0 +1,116 @@
+{
+  "issues": [
+    {
+      "id": "A1",
+      "type": "misclassified",
+      "severity": "blocking",
+      "contract_item": "priority_qualities rank 1 'Trustworthy negatives — a check that could not run is never counted as a pass' ... rank 5 'Bidirectional audit', rank 6 'Actionable specificity of each finding'. And non_qualities: 'Number of checks executed — a large catalogue of checks that cannot run is worse than a small set that can.'",
+      "evidence_from_original": "SKILL.md description: 'Audit CLAUDE.md compliance and currency. ... check for rule violations in recent commits and detect stale/missing rules.' compliance.md defines eight concrete detections (C1-C8) and currency.md six (U1-U6), every one of which exists to FIND something.",
+      "why_it_matters": "The user's primary end is detection of real drift; honesty about coverage is a guard on that end, not a substitute for it. As written, the contract's top three ranked qualities are all meta-properties about reporting honestly, and NOTHING in constraints, never_do, or objective_invariants forbids the degenerate strategy of marking every rule 'could-not-verify' and emitting an honest, terse, zero-false-positive, fully-consent-respecting report. Such a build would satisfy ranks 1, 2, 3, 4, 8, 9, 10 and every single objective invariant while delivering zero value. A judge scoring against this contract would have to pass it. The one nearby non_quality ('Speed at the cost of skipped verification') only bans skipping precondition confirmation, not skipping verification itself. The 'trustworthy negatives' property is genuinely grounded — the original's checks all treat empty stdout as a pass, and currency.md hardcodes /home/circletel/ paths that resolve nowhere in another clone, so silent no-op passes are a real defect — but it has been elevated in a way that inverts the capability's purpose.",
+      "recommended_fix": "Add to priority_qualities a quality ranked above or alongside rank 1: 'Real drift is actually found — the audit performs genuine verification wherever verification is possible.' AND add an objective invariant: 'Where a rule is mechanically verifiable against the repository at hand, it is actually verified; could-not-verify is reserved for conditions the run genuinely could not overcome (absent target, unavailable history, absent tooling) and each such report names the specific blocking condition.' AND add a never_do: 'Never report a rule as could-not-verify when the inputs to verify it are present; inconclusiveness is a last resort, not a safe default.'"
+    },
+    {
+      "id": "A2",
+      "type": "invented",
+      "severity": "important",
+      "contract_item": "constraints: 'A report-only mode with no prompts and no writes must be possible, for use where interaction is unavailable.'",
+      "evidence_from_original": "SKILL.md: 'Trigger: Invoked by slash command: /claude-md-guardian' and Step 5 'Fix Flow ... For each item, ask: Fix [X/N]: ...? (y/n/skip). Wait for the user's response.' There is no non-interactive path anywhere in the skill.",
+      "why_it_matters": "The contract's own unresolved_or_decided admits only one extractor raised this and the other two assumed interactivity throughout — i.e. it has no basis in the original and none was offered from the user's situation. The stated justification ('it follows directly from the read-only-by-default and consent-gated properties') is a non-sequitur: read-only-by-default implies that with no approval nothing is written, not that a distinct addressable mode must exist. Stated as a hard constraint it obliges a rebuild to design and expose a second operating mode the user never asked for, and a judge would penalise a faithful rebuild that lacks it.",
+      "recommended_fix": "Replace with the derivable property only: 'When no user is present to approve, the run reports its findings and writes nothing — an absent approver never results in an unapproved change or a stalled run.'"
+    },
+    {
+      "id": "A3",
+      "type": "distortion",
+      "severity": "important",
+      "contract_item": "never_do: 'Never flag an occurrence of a pattern that appears in documentation, comments, tests, fixtures, examples, generated or vendored output, or in the rule file that defines the pattern itself.'",
+      "evidence_from_original": "C1 excludes only the constants file: \"| grep -v 'contact\\.ts'\". U1 excludes only the defining rule file: \"| grep -v 'vercel-deployment.md'\". C2 enforces anti-patterns.md's 'NEVER write placeholder code, stub functions, or TODO items' against '*.tsx' '*.ts' with no test/comment exemption — and the rule it enforces states 'No TODO comments: Fix it now or don't commit it.'",
+      "why_it_matters": "The original excludes exactly two narrow, principled cases: the file that legitimately defines the value, and the rule file that quotes the pattern. The contract generalises this into a blanket suppression across comments, tests, fixtures and examples — categories the governing rules do NOT exempt. A committed 'TODO' inside a comment is precisely what anti-patterns.md forbids; the contract now forbids reporting it. This converts a false-positive guard into a mandate to suppress true positives, and it is stated as an absolute never_do, so a judge must mark a correct finding as a defect.",
+      "recommended_fix": "Replace with: 'Never flag an occurrence that the governing rule does not actually prohibit in that context — in particular a rule file or document quoting the pattern it defines, the canonical file a value is legitimately allowed to live in, and generated or vendored output. Where a rule is silent on context, do not invent an exemption; report the occurrence with its context stated.'"
+    },
+    {
+      "id": "A4",
+      "type": "distortion",
+      "severity": "important",
+      "contract_item": "never_do: 'Never raise a finding that cannot be independently confirmed by opening the cited location; no speculative or hedged matches presented as violations.'",
+      "evidence_from_original": "compliance.md C8 — 'Pipeline gates (session context check — no command) ... Method: Reflect on the current session. ... Severity: ⚠️'. templates/report.md — '⚠️ = warning (pipeline gate, no specific file location)'.",
+      "why_it_matters": "C8 is a first-class finding class in the original that by construction has no citable location, and the contract elsewhere preserves it ('Findings derived from judgement or self-assessment are labelled as such and carry visibly lower asserted confidence'). As literally written this never_do forbids it, contradicting the contract's own constraint and objective_invariant 132 (which correctly scopes the citation requirement to 'Every violation-severity finding'). A judge applying the never_do literally would penalise the very behaviour the constraints require.",
+      "recommended_fix": "Replace with: 'Never present a mechanically-derived violation that cannot be independently confirmed by opening the cited location, and never present a speculative or hedged match as a confirmed violation. Judgement-based observations may be raised only when labelled as judgement and carried at visibly lower confidence.'"
+    },
+    {
+      "id": "A5",
+      "type": "means_as_end",
+      "severity": "important",
+      "contract_item": "objective_invariants: 'Every check in a run is assigned exactly one of {clean, finding, not-applicable, could-not-verify}; could-not-verify is never merged into clean.' (and the 'check'-unit accounting in the following three invariants, and never_do 'Never silently drop or skip a check').",
+      "evidence_from_original": "compliance.md and currency.md are catalogues of discrete numbered checks (C1-C8, U1-U6), each with 'the exact bash command to run'. SKILL.md: 'Record results as: { id, status (✅/⚠️/❌), description, file, line }.' No 'not-applicable' state exists anywhere in the original — the only skip mechanism is accepted-debt suppression, which the contract already handles separately.",
+      "why_it_matters": "The genuine end is that the reader can tell, per governed rule, whether it was verified clean, found wanting, or not verified. The contract instead mandates the original's architecture — a fixed catalogue of enumerable 'checks' each carrying a state — as a hard invariant. A rebuild that audits holistically (reading the diff and the rule corpus and emitting findings plus an explicit coverage statement per rule) would serve the user identically or better but cannot satisfy an invariant phrased over 'checks'. This rigs the benchmark toward the original's implementation shape. The invented fourth state 'not-applicable' compounds it by requiring a taxonomy the user never expressed.",
+      "recommended_fix": "Rephrase over rules rather than checks: 'For every rule in the governed corpus, the run's output places it in exactly one of {verified clean, finding raised, not verified}; not-verified is never presented as, or aggregated into, verified clean.' Delete 'not-applicable' unless it is re-grounded, and rephrase the dependent invariants and the 'Never silently drop or skip a check' never_do in the same rule-centred vocabulary."
+    },
+    {
+      "id": "A6",
+      "type": "invented",
+      "severity": "important",
+      "contract_item": "objective_invariants: 'Claims in the top-level instruction document that contradict the detailed rule files — the same symbol, table, or path named two different ways — are reported as findings.'",
+      "evidence_from_original": "currency.md U1-U6 contain no cross-document contradiction check. U3 is the only CLAUDE.md-versus-rules check and it compares filename lists only: 'ls .claude/rules/*.md | xargs -I{} basename {} .md | sort > /tmp/actual-rules.txt ... diff'.",
+      "why_it_matters": "Detecting semantic contradiction between a 550-line instruction document and ~25 rule files is a substantially harder capability than anything the original attempts, and nothing in the original or in the user's stated need establishes it as a requirement. Promoting it from a plausible nice-to-have to a hard objective invariant means a faithful rebuild that reconciles the index (which the original does) but not the prose (which it does not) is scored as violating an invariant. Objective invariants should be the floor, not the ceiling.",
+      "recommended_fix": "Delete from objective_invariants. Retain the weaker, grounded form already present in success_looks_like ('Discrepancies between the top-level document and the detailed rule files it points to ... are surfaced') and keep only the index-reconciliation invariant, which is directly grounded in U3."
+    },
+    {
+      "id": "A7",
+      "type": "invented",
+      "severity": "important",
+      "contract_item": "success_looks_like: 'The audit reports on its own decay ... before it reports on anyone else's.' and scope_in: 'Auditing the capability's own embedded assumptions and its coverage of the current rule set, and surfacing that before findings about anything else.'",
+      "evidence_from_original": "currency.md U6 — 'Self-check: guardian assertions vs current rules' — is the LAST of six currency checks, reported after U1-U5 inside the currency section. SKILL.md Step 5 orders remediation by consequence: '1. ❌ violations first 2. 🔴 stale rules second 3. ⚠️ warnings third 4. 🟡 missing rules fourth 5. 🟢 minor items last.'",
+      "why_it_matters": "The DUTY to self-audit is genuinely grounded (U6 exists, and Step 6 reminds the user to extend compliance.md when a rule is added) — that part is a real requirement, not an invention. The ORDERING mandate is invented, and it directly contradicts the contract's own rank-6/rank-10 requirement that findings appear in consequence order and its never_do 'Never bury the highest-consequence item beneath routine passes or metadata trivia.' A stale self-assumption is frequently the least consequential item in a run; forcing it to the top is exactly the burying the contract prohibits. It also happens to be a placement the original cannot satisfy, so it advantages a rewrite for no user-facing reason.",
+      "recommended_fix": "In both places, strike 'before findings about anything else' / 'before it reports on anyone else's' and replace with 'and its self-findings are ranked by consequence alongside all others, never omitted.'"
+    },
+    {
+      "id": "A8",
+      "type": "uncheckable",
+      "severity": "important",
+      "contract_item": "objective_invariants: 'Any metadata the audit relies on about the governed document is read at run time rather than assumed, and a divergence between the audit's alignment and the document's live state is itself reportable.'",
+      "evidence_from_original": "SKILL.md frontmatter: 'claude_md_version: \"8.1\"'. CLAUDE.md footer: '**Version**: 10.1 | **Updated**: 2026-07-14'.",
+      "why_it_matters": "Two defects. (1) It is not verifiable from an output: 'read at run time rather than assumed' is a statement about internal execution, not about anything a judge can observe in a report. (2) It presupposes the audit HAS an 'alignment' with a document version — which is a fingerprint of the original's claude_md_version frontmatter. A rebuild that carries no version claim at all has nothing to diverge and trivially satisfies the invariant, while a rebuild that adopts a version field looks like the original. Objective invariants must be mechanically true/false against observable artefacts.",
+      "recommended_fix": "Replace with an observable form: 'If the audit asserts any version, date, or structural fact about the governed document, that assertion is reconciled against the document as it exists at run time, and a mismatch appears as a finding in the output. If it asserts none, the invariant is vacuous.' Keep the grounded U5-style outcome ('freshness and version signals of the governed documents are compared against the material they describe') in scope_in, where it already is."
+    },
+    {
+      "id": "A9",
+      "type": "uncheckable",
+      "severity": "minor",
+      "contract_item": "objective_invariants: 'Two consecutive runs over an unchanged repository with no dispositions recorded produce the same set of findings.'",
+      "evidence_from_original": "compliance.md C8: 'Reflect on the current session. Ask yourself: Did this session begin new feature/page/component work? ... Did this session encounter a bug or error?' — a finding class explicitly derived from mutable session context.",
+      "why_it_matters": "A judge assessing a single produced output cannot evaluate this; it requires controlling and re-running the environment. Worse, it is in tension with a capability the contract deliberately preserves: session-context self-assessment is non-deterministic across runs by construction, so a faithful rebuild could fail this invariant while behaving exactly as intended.",
+      "recommended_fix": "Move to success_looks_like and scope it: 'Mechanically-derived findings are reproducible: a second run over an unchanged repository with no dispositions recorded reproduces them. Judgement-based observations may legitimately differ and are labelled as such.'"
+    },
+    {
+      "id": "A10",
+      "type": "uncheckable",
+      "severity": "minor",
+      "contract_item": "constraints: 'Adding a rule to the governed corpus must not require re-architecting the audit; extending coverage is expected to be cheap.'",
+      "evidence_from_original": "SKILL.md Step 6: '⚡ New rule added — update claude-md-guardian/checks/compliance.md with an assertion for it.'",
+      "why_it_matters": "'Re-architecting' and 'cheap' are unmeasurable, and this is a statement about the implementation's internal extensibility rather than about any outcome the user receives. The real, grounded, checkable outcome — that a newly added rule's lack of coverage is surfaced rather than silently accumulating — is already stated twice (success_looks_like and scope_in) and as an invariant. This constraint adds only an unfalsifiable architectural preference.",
+      "recommended_fix": "delete"
+    },
+    {
+      "id": "A11",
+      "type": "omission",
+      "severity": "minor",
+      "contract_item": "constraints: 'The output must be reviewable in a single pass, with stated counts that reconcile with the findings listed.' (no per-run disposition accounting anywhere)",
+      "evidence_from_original": "SKILL.md Step 6: 'After all items processed, output: Guardian complete. [N] fixed | [N] skipped | [N] accepted as debt.'",
+      "why_it_matters": "This is an outcome, not a procedure: after an interactive session the user needs a closing account of what actually happened to their repository and their suppression record — how many changes landed, how many were deferred, how many became permanent blind spots. The contract requires findings counts and 'the number suppressed is disclosed' (prior acceptances), but never requires the run to report the dispositions it recorded during this run. Without it a user who approved fourteen prompts has no summary of what they consented to.",
+      "recommended_fix": "Add to constraints: 'A run that sought approvals closes by stating what was applied, what was deferred, and what was permanently accepted, so the user has a single account of what the run changed and what it silenced.'"
+    },
+    {
+      "id": "A12",
+      "type": "uncheckable",
+      "severity": "minor",
+      "contract_item": "objective_invariants: 'The working tree and version-control state are byte-identical before and after any run in which the user approves nothing.'",
+      "evidence_from_original": "SKILL.md Step 5: '**y** → Make the edit. ... **n** → Append to accepted-debt.md ... **skip** → Move to next item without recording.'",
+      "why_it_matters": "Correct in substance, but note that 'n' (permanent acceptance) is itself a write to accepted-debt.md that the original performs without a separate approval to write — so 'approves nothing' needs to mean 'records no disposition', not 'answers no prompt'. As phrased, a judge could read a debt-record append as a violation of the invariant. It is also verifiable only with repository access before and after, not from the output alone — acceptable, but the contract should say so.",
+      "recommended_fix": "Replace with: 'In a run where the user records no disposition — approving no change and permanently accepting no finding — the working tree and version-control state are byte-identical before and after. Verified by inspecting repository state around the run, not from the report.'"
+    }
+  ],
+
+  "faithfulness_verdict": "Qualified no — close, but not as-is. The contract is a strong, largely faithful abstraction: it correctly converts the original's procedures (HEAD~5, bash catalogues, the exact icon vocabulary, the fix/commit sequence, the report template) into outcomes, it correctly refuses to mandate committing, it correctly preserves the three-way disposition (apply / permanently accept / defer) that the original's y/n/skip encodes, and its central 'a check that cannot run is never a pass' claim is genuinely grounded rather than invented: every check in compliance.md and currency.md treats empty stdout as a pass, currency.md addresses /home/circletel/ absolute paths that resolve nowhere in another clone, and `git diff HEAD~5` yields empty output on shallow or short history — so the original demonstrably manufactures green verdicts from broken plumbing. That claim is also stated in a judge-applicable form (invariants 126-129 and 131 are decidable from the report text alone). The self-audit duty is likewise real, not invented: U6 exists and Step 6 obliges the user to extend coverage when the rule set grows; the contract correctly separates auditing the project's rules from auditing the audit's own assumptions. What blocks a 'yes' is A1: the contract ranks three meta-honesty qualities above detection and then leaves the degenerate strategy — mark every rule could-not-verify, report honestly, find nothing — fully compliant with every constraint, never_do and objective invariant. A capability built only from this contract could pass on paper while being useless, which is not what the user needs. Add a verification floor (A1), fix the two internally contradictory never_dos (A3, A4), demote the invented report-only mode and cross-document-contradiction invariant (A2, A6), and re-express the 'check'-unit invariants over rules (A5), and the answer becomes yes.",
+
+  "would_rig_benchmark": "Yes, mildly, in both directions. Toward the ORIGINAL: objective invariant 140 presupposes the audit holds 'alignment' metadata about the governed document, which is a fingerprint of the original's `claude_md_version: \"8.1\"` frontmatter (A8); and the invariants phrased over discrete enumerable 'checks' with a four-state taxonomy including the invented 'not-applicable' mandate the original's C1-C8/U1-U6 catalogue architecture, so a holistic rebuild fails invariants it has no user-facing reason to fail (A5). Toward a REWRITE: the requirement that self-audit findings be surfaced 'before findings about anything else' is a placement the original structurally cannot satisfy — U6 is the last of six currency checks — and it is invented, contradicting the contract's own consequence-ordering rule (A7); and invariant 139's cross-document contradiction detection asks for a capability the original never attempts (A6). Separately, the whole contract's rank-1 framing makes the run a near-referendum on one specific latent defect of the original (silent empty-output passes plus hardcoded absolute paths). That defect is real and worth weighting, but a judge will be able to identify the original from its output almost entirely on that one axis. Offsetting this, the contract does well on the most obvious rigging vector: non_qualities explicitly neutralises 'Presentation vocabulary — specific severity labels, section layouts, or symbol sets carry no value of their own', which prevents the ✅/⚠️/❌/🔴/🟡/🟢 scheme and the templates/report.md layout from acting as a signature. Fixing A5, A6, A7 and A8 removes the identifiable fingerprints in both directions."
+}

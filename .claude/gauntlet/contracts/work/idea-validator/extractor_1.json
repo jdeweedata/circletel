@@ -1,0 +1,180 @@
+{
+  "capability_summary": "Gives a fast, candid assessment of whether a proposed product, app, or business concept is worth building, before the requester commits real time or money to it. It weighs the concept against what already exists in the market, whether anyone demonstrably pays for this kind of thing, whether the requester can realistically build it, and whether it is meaningfully different. It ends with a clear recommendation rather than a balanced survey of considerations.",
+  "user_goal": "The user wants to avoid sinking weeks of effort into an idea that was never going to work. They are asking for the judgement a knowledgeable, disinterested peer would give — an early, honest read on viability, grounded in what actually exists, delivered fast enough to be worth asking for before starting.",
+  "success_looks_like": [
+    "The response opens with an unambiguous recommendation (proceed / proceed with changes / do not proceed) rather than a list of considerations the user must weigh themselves",
+    "The reasoning behind the recommendation is stated in a few sentences and is specific to this idea, not advice that would apply to any idea",
+    "Real, named, existing products or services that already address the same need are identified, with what each does and how it differs from the proposal",
+    "Claims about the market are concrete and checkable (how many comparable offerings, at what price, with what evidence of adoption) rather than vague characterisations like 'crowded' or 'promising'",
+    "Whether people demonstrably pay for this class of solution is addressed, and distinguished from whether people say they would like it",
+    "Whether the idea is buildable by the requester, with their apparent resources and time, is assessed explicitly",
+    "Structural obstacles that commonly kill this shape of idea are named plainly when present (for example: it depends on reaching critical mass before it is useful; it is a feature of an existing product rather than a product; the incumbent is free and entrenched; it requires users to change an established habit)",
+    "Even when the recommendation is negative, the user leaves with concrete options — a narrower segment, a different wedge, a changed business model — rather than only a rejection",
+    "The whole thing is short enough to read and act on in a couple of minutes",
+    "The assessment is comprehensible and useful to someone who has not read any evaluation framework"
+  ],
+  "priority_qualities": [
+    {
+      "quality": "Candour — the assessment reflects an honest reading of the idea's prospects, including when that reading is unflattering",
+      "why_it_matters": "The entire value of asking before building is hearing the bad news early. An agreeable or hedged answer is worse than no answer, because it costs the user weeks and gives false confidence.",
+      "rank": 1
+    },
+    {
+      "quality": "Decisiveness — one clear recommendation, stated up front",
+      "why_it_matters": "The user is at a decision point. A response that lists pros and cons and leaves the call to them has returned the problem unsolved.",
+      "rank": 2
+    },
+    {
+      "quality": "Groundedness — the judgement rests on things that actually exist and are verifiable, not on plausible-sounding reasoning",
+      "why_it_matters": "A confident verdict built on invented competitors or imagined market conditions is actively harmful; it is wrong in a way the user cannot detect.",
+      "rank": 3
+    },
+    {
+      "quality": "Specificity — named products, real prices, actual numbers, this idea's particular weaknesses",
+      "why_it_matters": "Generic verdicts ('the market is competitive') carry no information and cannot be argued with or acted on. Specific ones can be checked and used.",
+      "rank": 4
+    },
+    {
+      "quality": "Coverage of the dimensions that actually decide viability — real demand, existing alternatives, buildability, a way to get paid, a reason to choose this over the incumbent",
+      "why_it_matters": "An idea can pass on four dimensions and die on the fifth. A verdict that only examined one axis is not a verdict.",
+      "rank": 5
+    },
+    {
+      "quality": "Calibration to the requester's actual resources",
+      "why_it_matters": "Feasibility is not a property of the idea alone. Advice tuned for a funded team is useless to one person with evenings free, and vice versa.",
+      "rank": 6
+    },
+    {
+      "quality": "Constructiveness — a negative verdict still points somewhere",
+      "why_it_matters": "The user cares about finding something worth building, not about this specific idea. A rejection with no adjacent direction wastes the thinking already done.",
+      "rank": 7
+    },
+    {
+      "quality": "Brevity and speed — cheap enough to be worth asking before committing",
+      "why_it_matters": "If getting the assessment is itself a project, the user will skip it and build anyway, which defeats the purpose.",
+      "rank": 8
+    }
+  ],
+  "constraints": [
+    "Assess the idea as actually described; if it is too vague to assess, say what is missing rather than evaluating a more convenient version of it",
+    "Distinguish clearly between what was verified, what is inferred, and what is unknown",
+    "Judge feasibility against the resources the requester appears to have; ask or state the assumption if their situation is unclear, rather than silently assuming a default builder profile",
+    "Keep the response short enough to read in a couple of minutes; depth belongs in the reasoning, not the word count",
+    "Do not require the user to already share a particular vocabulary or evaluation framework",
+    "Remain useful when the concept is not a software app — a service, a physical product, or an offering inside an existing business gets the same honest treatment, with feasibility framed appropriately for that type",
+    "Where the requester's organisation has its own viability process backed by real internal cost and margin data, defer to it rather than overriding it with an outside-in read"
+  ],
+  "never_do": [
+    "Soften or inflate the assessment to be agreeable, or lead with praise that the analysis does not support",
+    "Invent competitors, prices, funding amounts, user counts, or traction figures, or present estimates as if they were researched facts",
+    "Return a non-answer — a balanced summary with no recommendation, or a 'depends' that avoids taking a position the evidence supports",
+    "Produce advice so generic it would read identically for a different idea",
+    "Bury the conclusion at the end after paragraphs of preamble",
+    "Declare an idea viable without addressing how it would make money, or unviable without saying what specifically kills it",
+    "Assess only whether it can be built while ignoring whether anyone wants it, or the reverse",
+    "Dismiss an idea by category or reflex rather than on its specific merits",
+    "Expand into a full plan, specification, or build guide when a verdict was asked for"
+  ],
+  "objective_invariants": [
+    "The response contains exactly one overall recommendation, drawn from a small, mutually exclusive set of positions",
+    "Every product, company, price, or metric cited is real and locatable; nothing is fabricated",
+    "If no comparable existing offerings could be found, the response says so explicitly rather than filling the gap",
+    "Any quantitative claim is either sourced or explicitly labelled as an estimate",
+    "The recommendation stated at the top is consistent with the reasoning given below it",
+    "When the verdict is negative, at least one concrete alternative direction is offered"
+  ],
+  "scope_in": [
+    "Someone describes a product, app, service, or business concept and asks whether it is worth pursuing",
+    "Pre-commitment sanity checks — before writing code, signing a supplier, or spending money",
+    "Asking whether something like this already exists, and whether the existing options are good enough",
+    "Choosing between several competing concepts",
+    "Re-evaluating a concept after a significant change to it, or after learning something new about the market",
+    "A request to be told honestly what is wrong with an idea"
+  ],
+  "scope_out": [
+    "The thing is already built and live; the question is growth, pricing, or marketing rather than whether to start",
+    "The user wants implementation planning, scoping, specification, or a build sequence — that is a separate job that follows a positive verdict",
+    "The user is generating or expanding ideas rather than judging one",
+    "A decision that turns on the organisation's own confidential cost, margin, or contractual data, where an internal viability process should own the call",
+    "Investment-grade diligence, formal market sizing, or legal, regulatory, or compliance assessment",
+    "Purely technical questions about how to build something whose viability is not in question"
+  ],
+  "ends_vs_means_notes": [
+    {
+      "in_original": "Instruction to be blunt to the point of harshness, with no sugar-coating and specific banned reassuring phrases",
+      "classified_as": "end",
+      "reasoning": "The underlying outcome — an assessment not distorted by a desire to please — is exactly what the user is buying, and they would still want it from a rebuilt capability. The stylistic prescription (a particular register, a banned-phrase list) is means and is dropped; harshness as a performance is not the goal, accuracy that is willing to be unwelcome is.",
+      "kept": true
+    },
+    {
+      "in_original": "A five-part evaluation framework with named criteria assessed in a fixed order",
+      "classified_as": "means",
+      "reasoning": "The user does not care that five headings were used or in what sequence. They care that the answer did not miss the dimension that kills the idea. The coverage requirement is carried into success criteria and priority qualities; the rubric itself is dropped.",
+      "kept": false
+    },
+    {
+      "in_original": "A mandated output template with fixed section headings in a fixed order",
+      "classified_as": "means",
+      "reasoning": "A recognisable template is a procedural fingerprint. The outcomes it was buying — verdict first, reasoning visible, real alternatives named, improvement paths given — are stated directly as required properties of the result instead.",
+      "kept": false
+    },
+    {
+      "in_original": "Search the web for three to five comparable products and review their traction, pricing, reviews, and positioning",
+      "classified_as": "means",
+      "reasoning": "The end is that the verdict is grounded in reality rather than plausible invention. The specific count and the specific research method are implementation choices; a rebuilt capability with a different information source would satisfy the user equally.",
+      "kept": false
+    },
+    {
+      "in_original": "A named list of memorable red-flag phrases to invoke when the corresponding pattern is present",
+      "classified_as": "means",
+      "reasoning": "Distinctive catchphrases are exactly the fingerprints to strip. The end — that recognised structural failure modes are surfaced explicitly rather than left for the user to notice — is retained, described in plain terms.",
+      "kept": true
+    },
+    {
+      "in_original": "Evaluate feasibility for one person building within a two-to-four-week window",
+      "classified_as": "means",
+      "reasoning": "The end is that feasibility is judged against the requester's real capacity rather than a hypothetical funded team. The particular builder profile and time window are a default assumption baked in by the original's audience, and would misjudge any capital-intensive, service, or infrastructure business. Kept as a calibration requirement, not as a fixed number.",
+      "kept": true
+    },
+    {
+      "in_original": "Contrast between what people say they want and what they demonstrably pay for",
+      "classified_as": "end",
+      "reasoning": "This is a substantive standard of evidence, not a procedure. A verdict that treats enthusiasm as proof of demand is wrong in a way the user would object to regardless of how the capability was built.",
+      "kept": true
+    },
+    {
+      "in_original": "Illustrative profiles of what a good idea and a bad idea look like",
+      "classified_as": "means",
+      "reasoning": "Calibration examples for the author's own benefit. They do not describe anything the user needs in the output, and the specific examples are identifying.",
+      "kept": false
+    },
+    {
+      "in_original": "Reference to a specific search tool by name",
+      "classified_as": "means",
+      "reasoning": "A tool binding, and one that does not match the tooling actually available here. The requirement is that the assessment be evidence-backed, by whatever means are available.",
+      "kept": false
+    },
+    {
+      "in_original": "Even a negative verdict must offer ways to pivot or strengthen the idea",
+      "classified_as": "end",
+      "reasoning": "This is a property of the delivered result, and it reflects what the user actually wants — to end up with something worth building, not merely to have this idea rejected.",
+      "kept": true
+    },
+    {
+      "in_original": "Speed — the whole point is quick feedback before investing time",
+      "classified_as": "end",
+      "reasoning": "Cost of obtaining the assessment determines whether it gets obtained at all. A rebuilt capability that took an hour to answer would not serve the user's purpose.",
+      "kept": true
+    }
+  ],
+  "evidence_of_real_use": "None found. Searches across the repository return only inventory, manifest, and evaluation-harness metadata that catalogue the capability; there are no produced outputs, no stored assessments, no benchmark cases, and no references in project documentation, plans, or persistent notes. Provenance metadata records it as installed alongside a companion build-planning capability in the same batch, with minimal frontmatter compared to the hand-authored capabilities in this environment — consistent with an externally sourced pack rather than something written for this context. The surrounding project is a connectivity provider whose commercial decisions involve wholesale supplier contracts, multi-year commitments, and margin floors, and which already has an internal, data-backed product viability process; the assumptions in this capability (one builder, a few weeks, ship an app) do not describe that business. Best read: acquired but never exercised here.",
+  "tensions": [
+    "Speed versus evidence: the capability promises quick feedback while also demanding named competitors, real pricing, adoption signals, and market-timing judgement. Under time pressure this creates direct incentive to fabricate the specifics it insists on.",
+    "Bluntness versus constructiveness: it requires an unsparing verdict and, simultaneously, that every rejection come with encouraging paths forward. Where these pull apart, nothing says which wins.",
+    "Analysis versus output: it specifies five dimensions of assessment but a report format with room for only one of them. Most of the analysis has nowhere to go, so the user sees a conclusion whose supporting reasoning is invisible and therefore unarguable.",
+    "Decisiveness versus the middle option: offering a non-committal position alongside proceed and stop provides a refuge for exactly the uncertain cases the user needed a call on, quietly defeating the purpose.",
+    "The embedded builder profile versus the range of ideas it will be handed: judging everything against 'one person, a few weeks' will mark any service, infrastructure, or capital-intensive business as infeasible by construction rather than on its merits.",
+    "Outside-in judgement versus internal data: a verdict formed from public search can contradict the same organisation's own assessment built on real supplier costs and margin requirements, with no rule about which takes precedence.",
+    "The demand for quantified specificity versus the absence of any standard for what counts as sufficient evidence — the capability requires precise-sounding claims without defining when it is entitled to make them."
+  ]
+}

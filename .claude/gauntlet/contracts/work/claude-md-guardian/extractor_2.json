@@ -1,0 +1,247 @@
+{
+  "capability_summary": "An on-demand auditor for a repository's canonical agent-instruction document and its satellite rule files. It runs in two complementary directions: whether recent work actually obeyed the documented rules, and whether the documented rules are still true of the codebase they describe. It then walks the operator through the findings one at a time, applying only the fixes the operator approves, and durably recording the ones they reject so the same argument is not re-run every session. It is also expected to audit itself, since it is one more governance artefact that can go stale.",
+
+  "user_goal": "Keep the written contract that governs AI-assisted work in this repository trustworthy — both obeyed and accurate — without the user having to personally re-read a 550-line document and 27 rule files, and without the auditor being able to quietly change things on its own or quietly declare victory when it did not actually look.",
+
+  "success_looks_like": [
+    "Running the audit costs the operator a couple of minutes and returns a short, ordered list of concrete findings rather than an essay.",
+    "Rules that were broken in recent work are surfaced with a specific location the operator can open, and a pointer to the rule that was broken.",
+    "Rules that have quietly become false — naming a function, path, provider, tool, or workflow that no longer exists or has been replaced — are surfaced as stale, not enforced.",
+    "Behaviour that has become established in the codebase but that no rule covers is surfaced as a gap worth documenting.",
+    "The index or table of contents inside the canonical document stays in sync with the rule files that actually exist on disk; additions and deletions both get caught.",
+    "Nothing is edited without the operator saying yes to that specific change first.",
+    "A rejected finding stays rejected: the next run does not raise it again, and the record of why shows the date and what was waived.",
+    "A finding the operator merely defers is raised again next time — deferral and rejection are different outcomes with different persistence.",
+    "Each approved fix lands as a small, separable, self-describing change the operator can review or revert independently of the others.",
+    "A check that could not actually execute is reported as inconclusive, never as a pass — and the run refuses to claim an all-clear while any check is inconclusive.",
+    "The auditor notices when its own detection logic has decayed — when it probes for a rule, path, symbol, or directory that no longer exists — and flags that as a finding about itself.",
+    "When new governance is added, the operator is reminded that detection coverage for it does not yet exist, so the auditor does not silently fall behind the document it polices.",
+    "Findings the auditor derived from mechanical evidence are distinguishable from ones it derived from self-assessment, so the operator knows which to trust more."
+  ],
+
+  "priority_qualities": [
+    {
+      "quality": "Honest reporting of what was and was not verified",
+      "why_it_matters": "The dominant failure mode is a false all-clear. If a probe cannot resolve its target it produces no findings, which is indistinguishable from finding nothing wrong. An auditor that reports 'clean' when it was blind is worse than no auditor, because it manufactures confidence the operator then acts on. Verified-absent and could-not-check must be separate outcomes end to end, including in the final summary.",
+      "rank": 1
+    },
+    {
+      "quality": "Consent-gated authority over every write",
+      "why_it_matters": "This capability edits the very document that constrains the agent, plus potentially the source it audits. Unprompted self-amendment of one's own governing rules is the single change class the user most needs to hold. Per-finding approval — not per-run, not per-category — keeps the operator's decision granular and reversible.",
+      "rank": 2
+    },
+    {
+      "quality": "Bidirectional accuracy — the document is audited, not just enforced",
+      "why_it_matters": "Half the value is refusing to enforce rules that have gone stale. This repository's canonical document already names a helper that does not exist under that name; a compliance-only auditor would have gone on demanding conformance to a fiction. Drift is a defect in the rule as often as in the code.",
+      "rank": 3
+    },
+    {
+      "quality": "Durable, dated memory of accepted exceptions",
+      "why_it_matters": "Without persistence, every run re-asks about known-and-accepted deviations, the operator learns to mash through the prompts, and real findings get waved past with the noise. Suppression is what keeps the signal-to-noise ratio survivable over many runs.",
+      "rank": 4
+    },
+    {
+      "quality": "Actionable specificity of findings",
+      "why_it_matters": "A finding the operator cannot immediately locate and judge is a to-do, not a result. Each finding needs the rule it implicates, where it occurs, and what the proposed remedy would change.",
+      "rank": 5
+    },
+    {
+      "quality": "Self-maintenance and portability",
+      "why_it_matters": "The auditor is itself a governance artefact subject to the exact decay it hunts. If its detection logic hardcodes environment-specific assumptions or references retired rules, it degrades into a machine that always says everything is fine. It must be able to run in any clone of the repository and must audit its own coverage.",
+      "rank": 6
+    },
+    {
+      "quality": "Low cost to run repeatedly",
+      "why_it_matters": "Value comes from frequency. A bounded recent-change window and cheap probes make it something the operator runs habitually rather than once a quarter.",
+      "rank": 7
+    }
+  ],
+
+  "constraints": [
+    "Operates on a bounded window of recent change rather than full repository history, so cost stays flat and the run stays repeatable.",
+    "All paths and targets must resolve relative to the repository root; the audit must produce identical results in any clone, on any machine, under any checkout directory name.",
+    "Every check must terminate in exactly one of three states: verified clean, finding raised, or could-not-verify. There is no fourth implicit state and no silent omission.",
+    "Before treating an empty probe result as evidence of compliance, the probe's preconditions must be confirmed — that the target exists, the path resolves, and the change window contains material to inspect.",
+    "Findings must be presented in order of consequence, worst first, so the operator's attention is spent where it matters and the run can be abandoned partway without losing the important items.",
+    "Approval is sought one finding at a time, with the proposed change described before it is made.",
+    "The operator must have three distinct responses available: approve, permanently waive, and defer — with different persistence consequences for each.",
+    "Approved changes are committed as small, individually labelled, separately revertible units; unrelated fixes are never bundled into one change.",
+    "Changes are staged and committed locally only. Publishing, pushing, or otherwise propagating them beyond the local repository is outside this capability's authority.",
+    "Waivers are recorded with a date and enough identity to match the same finding on a later run.",
+    "When it is about to touch product or application source rather than governance documents, it must say so explicitly, because those carry different risk.",
+    "Self-assessed findings — the ones derived from judgement about the session rather than from inspectable evidence — must be labelled as such and carry lower asserted confidence than mechanically derived ones.",
+    "The summary counts must be derivable from the listed findings; the headline must never disagree with the body.",
+    "Detection coverage is expected to grow with the governance it polices: adding a rule creates an obligation to add or at least flag the absence of detection for it."
+  ],
+
+  "never_do": [
+    "Never modify any file — canonical document, rule file, source, or its own configuration — without explicit approval for that specific change.",
+    "Never report an all-clear, or a per-check pass, when the check did not actually execute or its target could not be resolved.",
+    "Never treat empty output from an unvalidated probe as proof that a problem is absent.",
+    "Never silently drop a check; an omitted or unrunnable check must appear in the report as inconclusive.",
+    "Never re-raise a finding the operator has permanently waived, and never quietly discard the waiver record.",
+    "Never persist a deferral as if it were a waiver — deferring must not suppress the finding on future runs.",
+    "Never batch-apply fixes under a single blanket approval when the operator approved only one.",
+    "Never edit application or product source purely to make a check stop firing, without stating plainly that this is what the change does.",
+    "Never delete, wholesale-rewrite, restructure, or condense the canonical document or the rule corpus as a remedy; changes are surgical and scoped to the specific finding.",
+    "Never rewrite or amend existing history, and never publish or push changes.",
+    "Never expand into a general code-quality, lint, security, or refactoring review — findings must trace to a documented rule or to a demonstrated mismatch between document and reality.",
+    "Never enforce a rule it has determined is stale; flag the rule instead.",
+    "Never hardcode machine-, user-, or checkout-specific absolute locations into its detection logic.",
+    "Never let its own version, coverage, or assumptions drift out of alignment with the document it governs without flagging it.",
+    "Never present a judgement call with the same asserted certainty as a mechanically verified fact."
+  ],
+
+  "objective_invariants": [
+    "For every write the capability performs, there exists a preceding explicit operator approval naming that specific change.",
+    "The number of writes performed never exceeds the number of approvals granted.",
+    "Every check appearing in the run is assigned exactly one of {clean, finding, unverified}.",
+    "If the count of unverified checks is greater than zero, the run does not emit an unqualified all-clear.",
+    "Summary totals equal the count of findings enumerated in the body, per severity band.",
+    "Every finding names both the governing rule or document section it implicates and a concrete location or artefact.",
+    "Every permanently-waived finding is written to durable storage with a date and a stable identifier before the run ends.",
+    "A finding matching a stored waiver does not appear as an actionable item on any subsequent run.",
+    "A deferred finding is not written to durable waiver storage, and does appear on a subsequent run given unchanged conditions.",
+    "Every rule, path, symbol, or directory referenced by the capability's own detection logic either exists, or is reported as a self-finding.",
+    "No path used by the detection logic is absolute to a location outside the repository, other than genuinely machine-independent tooling.",
+    "Each approved fix produces its own commit; no commit contains fixes for two unrelated findings.",
+    "No commit produced by the run rewrites or amends a pre-existing commit, and no run pushes.",
+    "The run is idempotent on an unchanged repository: re-running without approving anything produces the same findings.",
+    "Running with zero approvals leaves the working tree byte-identical to how it started."
+  ],
+
+  "scope_in": [
+    "The canonical agent-instruction document at the repository root and the corpus of detailed rule files it indexes.",
+    "Detecting recent changes that contravene those documented rules.",
+    "Detecting rules that have become false — naming things that no longer exist, describing superseded infrastructure, tooling, providers, or workflows.",
+    "Detecting established practices or areas of the codebase with no governing rule, where the absence is consequential.",
+    "Reconciling the document's own index of rule files against the rule files present on disk, in both directions.",
+    "Checking the document's own staleness signals — version and freshness markers versus the recency of what it indexes.",
+    "Auditing the capability's own detection coverage and its alignment with the current document.",
+    "Self-assessment of process obligations that leave no inspectable artefact, clearly marked as lower-confidence.",
+    "Proposing remedies and applying the approved ones as small local commits.",
+    "Maintaining a durable, dated ledger of deliberately accepted deviations."
+  ],
+
+  "scope_out": [
+    "General code review, bug hunting, performance, or security analysis unconnected to a documented rule.",
+    "Type checking, linting, testing, or building the project.",
+    "Authoring new governance from scratch, or deciding policy on the operator's behalf.",
+    "Auditing history beyond the recent change window, or auditing other repositories.",
+    "Enforcement at commit or push time — this is an invoked, interactive audit, not a blocking gate.",
+    "Publishing, pushing, opening reviews, or any action that propagates changes beyond the local repository.",
+    "Restructuring, condensing, or reorganising the document corpus for style or length.",
+    "Judging whether a rule is a good rule; it judges only whether the rule is followed and whether it is still true."
+  ],
+
+  "ends_vs_means_notes": [
+    {
+      "in_original": "Two named passes — a compliance pass followed by a currency pass — each with its own numbered check inventory.",
+      "classified_as": "end",
+      "reasoning": "The pass names and numbering are means, but the bidirectionality is a genuine end. Auditing only conformance would enforce rules already proven false in this repository; auditing only accuracy would let violations accumulate. Both directions must be covered; how they are sequenced or labelled is free.",
+      "kept": true
+    },
+    {
+      "in_original": "Specific check identifiers and the exact shell pipelines behind each one (contact-string greps, placeholder-keyword greps, async-parameter patterns, root-file patterns, component-prop patterns).",
+      "classified_as": "means",
+      "reasoning": "These encode this month's rule set through one particular detection technique. A rebuild would derive its checks from whatever the document says at that time, using whatever detection method is available. The end they buy is: recent work is mechanically screened against the currently documented rules, with locatable results. Carrying the specific probes would freeze the auditor to a snapshot of the rules and reproduce the exact staleness it exists to prevent.",
+      "kept": false
+    },
+    {
+      "in_original": "A fixed five-commit lookback window.",
+      "classified_as": "means",
+      "reasoning": "The number is arbitrary tuning. The end is a bounded, recent, cheap-to-rescan window so the audit is habitually runnable.",
+      "kept": false
+    },
+    {
+      "in_original": "Per-finding approval prompt offering three responses, with the run pausing for each.",
+      "classified_as": "end",
+      "reasoning": "This defines the capability's authority boundary, which is the most load-bearing property here. Granularity — per finding, not per run — is substantive, and the three-way branch is substantive because approve/waive/defer have genuinely different consequences. Only the literal prompt wording is means.",
+      "kept": true
+    },
+    {
+      "in_original": "A dedicated ledger file to which declined findings are appended in a dated line format.",
+      "classified_as": "end",
+      "reasoning": "The filename and line format are means; durable, dated, machine-matchable suppression is an end. Without it the tool re-litigates settled decisions until the operator stops reading the prompts, at which point the audit is decorative.",
+      "kept": true
+    },
+    {
+      "in_original": "The distinction between declining a fix (recorded, suppressed forever) and skipping it (not recorded, raised again).",
+      "classified_as": "end",
+      "reasoning": "A real semantic requirement about persistence, not a UI affordance. Collapsing the two would either lose accepted-debt tracking or permanently bury findings the operator only meant to postpone.",
+      "kept": true
+    },
+    {
+      "in_original": "Emoji severity vocabulary and the exact report section layout with its placeholder structure.",
+      "classified_as": "means",
+      "reasoning": "Pure presentation. The ends underneath are: findings carry a severity, severity is comparable, the worst are addressed first, and the summary is consistent with the body.",
+      "kept": false
+    },
+    {
+      "in_original": "Ordering the fix queue by a five-tier severity ranking, worst first.",
+      "classified_as": "end",
+      "reasoning": "Attention ordering is an outcome property — it means an operator who abandons the run halfway has still handled the consequential items. The specific five tiers and their labels are means.",
+      "kept": true
+    },
+    {
+      "in_original": "Committing each accepted fix immediately with a conventional-commit prefix scoped to the document.",
+      "classified_as": "end",
+      "reasoning": "Kept as: each approved change lands as a small, separable, self-describing, individually revertible unit, committed locally and not published. That reviewability is a real requirement. The literal message prefix is means.",
+      "kept": true
+    },
+    {
+      "in_original": "One check performed by introspecting the current session rather than by running a command, because the obligations it covers leave no file trace.",
+      "classified_as": "end",
+      "reasoning": "The end is that the auditor acknowledges a class of findings it can only self-assess, still reports on it, and marks it as weaker evidence than a mechanical match. The specific process obligations enumerated are means tied to this repository's current workflow.",
+      "kept": true
+    },
+    {
+      "in_original": "A self-check verifying that every rule referenced by the auditor's own logic still exists on disk.",
+      "classified_as": "end",
+      "reasoning": "Self-audit is core, not incidental. This capability is itself a governance artefact that decays; without it, detection logic quietly points at retired rules and the tool converges on reporting perpetual health. The particular reference-existence probe is means.",
+      "kept": true
+    },
+    {
+      "in_original": "A closing reminder that newly added rules need matching detection added to the check inventory.",
+      "classified_as": "end",
+      "reasoning": "This is the anti-decay loop: coverage must grow with the governance it polices. The reminder text is means, the obligation is an end.",
+      "kept": true
+    },
+    {
+      "in_original": "Absolute filesystem paths baked into the detection commands, pointing at one particular checkout location.",
+      "classified_as": "means",
+      "reasoning": "Deliberately refused, and inverted into a constraint. In this very repository those paths do not resolve, so those checks would emit nothing and be scored as passing. This is the concrete mechanism of the false all-clear the contract most needs to prohibit, so the requirement becomes: repository-relative resolution, plus precondition validation before reading silence as success.",
+      "kept": false
+    },
+    {
+      "in_original": "A frontmatter field pinning the auditor to a specific version of the governed document.",
+      "classified_as": "means",
+      "reasoning": "The mechanism is means, but it is evidence for a kept end: the auditor must detect and surface when it has fallen out of alignment with the document it polices. In the original this pin sits several major versions behind the live document with nothing detecting that.",
+      "kept": false
+    },
+    {
+      "in_original": "Announcing the audit is starting, and loading its own definition files as an explicit first step.",
+      "classified_as": "means",
+      "reasoning": "Internal procedure and chatter with no bearing on the result a rebuild must produce.",
+      "kept": false
+    },
+    {
+      "in_original": "Invocation via one named slash command.",
+      "classified_as": "means",
+      "reasoning": "The binding name is arbitrary. The end is that this is operator-invoked and interactive — deliberately not an automatic gate, because it holds write authority over its own governing rules and must be supervised.",
+      "kept": true
+    }
+  ],
+
+  "evidence_of_real_use": "The repository supplies unusually direct evidence for both what this capability is for and how it fails. Live, unfixed drift of exactly the kind it hunts: the canonical document instructs agents to import a session-scoped database client under a name that does not exist — the actual export carries a different name, and the surrounding memory notes use the real one — so the document's most-copied code sample is wrong; and four rule files present on disk are absent from the document's own index table, with none listed-but-missing in the other direction. History shows why: the only commits touching the canonical document are feature commits that bolt on a rule file plus a single index line as a side effect of shipping something else. There is no maintenance cadence, so drift arrives by accretion during unrelated work and the index falls behind the corpus. Evidence of the auditor's own decay is equally concrete: its detection logic addresses an absolute checkout path that does not exist here, so every accuracy check would return empty and be scored as passing, producing a confident all-clear over a document known to be wrong; one probe targets a subdirectory that no longer exists in the skill it inspects; its recorded alignment with the governed document sits multiple major versions behind the live version marker; and its waiver ledger is empty, indicating the interactive decline path has not yet been exercised in anger. The corpus it polices is substantial and still growing — a 550-line canonical document plus 27 rule files, several themselves written as post-incident captures — which is precisely the scale at which manual re-reading stops happening and an audit becomes worth having.",
+
+  "tensions": [
+    "Thoroughness versus honesty about coverage: the more checks it runs, the more likely some cannot execute, and the pressure is to quietly drop those rather than dilute a clean report with inconclusives. The contract resolves this in favour of honesty — an inconclusive result must be louder than a pass, and must veto the all-clear.",
+    "Automation versus authority: the tedium it removes tempts toward blanket approval or silent auto-fixing, but it holds write access to the document that constrains the agent. Per-finding consent is deliberately more expensive than the alternative and must not be optimised away.",
+    "Suppression versus vigilance: durable waivers are necessary to keep the run readable, but every waiver is a permanently blind spot. Waivers must therefore be dated and legible so accumulated blindness stays visible and reviewable.",
+    "Enforcement versus accuracy: when a rule and the code disagree, the tool cannot know which is wrong. It must present both readings and let the operator adjudicate, rather than defaulting to 'the code is wrong' — this repository contains at least one case where the document is the wrong party.",
+    "Mechanical evidence versus self-assessment: obligations about process leave no artefact, so the only available evidence is the agent's own account of its behaviour, which is exactly the account least able to be independent. Such findings must be reported but explicitly discounted.",
+    "Cost versus coverage: a bounded recent window keeps the audit cheap enough to run often, but violations older than the window are never seen again by any run. Frequency is chosen over completeness, which only works if the audit is genuinely run often.",
+    "Specific checks versus durable checks: precise detection catches real problems today but ossifies against a snapshot of the rules, while general detection ages better and catches less. This is the tension that produced the current staleness, and it is why coverage maintenance and self-audit are contract-level requirements rather than nice-to-haves."
+  ]
+}

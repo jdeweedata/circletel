@@ -1,0 +1,114 @@
+{
+  "issues": [
+    {
+      "id": "A1",
+      "type": "distortion",
+      "severity": "blocking",
+      "contract_item": "\"Every quantitative or competitive claim is either specific and attributable, or explicitly marked as an estimate or unverified.\" combined with non_quality \"Amount of research performed or number of sources consulted. What matters is that claims are grounded and honestly labelled, not how much effort is visibly spent.\"",
+      "evidence_from_original": "\"Research the competitive landscape using web_search\"; \"**Search for competitors**: Use web_search to find 3-5 similar products/apps\"; \"**Analyze existing solutions**: Look at their traction, pricing, reviews, and positioning\"; \"**Validate demand signals**: Search for discussions, complaints, or evidence of the problem\"",
+      "why_it_matters": "The contract correctly strips the tool binding and the 3-5 count as means, but in doing so it removes any requirement that the assessment contain even one grounded external fact. As written, an output that names no real alternative, cites no price, and labels every statement 'unverified' satisfies invariants 5, 6, 8 and 10 in full, and the non-quality actively discourages a judge from rewarding grounding. The original's core value — the proposer discovers who already serves the need and at what price — becomes optional. This is the difference between a screen and an opinion, and it is exactly the outcome (not the procedure) the user is buying.",
+      "recommended_fix": "Add to objective_invariants: \"At least one substantive claim about the external landscape (a named existing alternative, a real price point, or a concrete adoption signal) is specific and attributable rather than hedged — or the response states plainly that grounding could not be obtained and treats that gap as a finding affecting the verdict.\" Reword the non-quality to: \"Visible effort — number of sources cited or research narrated. What matters is that the landscape claims are real and checkable, not how much work is displayed.\""
+    },
+    {
+      "id": "A2",
+      "type": "omission",
+      "severity": "important",
+      "contract_item": "\"The assessment covers, in some form: existing supply, evidence of real willingness to pay, deliverability with the proposer's actual resources, the revenue mechanism, and any reason a buyer would switch.\" (no timing dimension anywhere in the contract)",
+      "evidence_from_original": "\"4. **Assess market timing**: Consider if this is too early, too late, or well-timed\"",
+      "why_it_matters": "Timing is a substantive viability dimension, not a procedure: an idea can pass on supply, demand, deliverability, revenue and differentiation and still be dead because the window has closed or has not opened. All three extractors registered market-timing judgement (extractor_1 names it in its speed-versus-evidence tension) yet no contract item carries it. A rebuild working only from this contract would never raise it, and the user would notice a verdict that ignored why the moment is wrong.",
+      "recommended_fix": "Add to success_looks_like: \"Where the moment matters — the need is newly created, the window has already closed, or an enabling shift has not yet happened — that timing judgement is stated rather than left implicit.\" and extend the coverage invariant to \"...any reason a buyer would switch, and market timing where it bears on the call.\""
+    },
+    {
+      "id": "A3",
+      "type": "uncheckable",
+      "severity": "important",
+      "contract_item": "\"No sentence would remain equally true if the idea were replaced by an unrelated idea.\"",
+      "evidence_from_original": "\"**Be specific**: Don't say \\\"crowded market\\\" - say \\\"17 competitors with $10M+ funding doing exactly this\\\"\"",
+      "why_it_matters": "As an absolute per-sentence invariant this is not verifiable and not even satisfiable: the verdict label, connective sentences, statements of assumption, and 'here is what would change my mind' framing are all idea-neutral by necessity. A judge asked to verify it must run a counterfactual on every sentence and will either fail every output or apply it arbitrarily. The genuine end — no generic filler that could have been written without reading the idea — is already carried by never_do (\"Never produce commentary so generic it would read identically for a different idea\").",
+      "recommended_fix": "Replace with: \"The substantive claims and the reasoning are specific to this idea — an assessment of a different idea could not be produced by swapping a few nouns.\""
+    },
+    {
+      "id": "A4",
+      "type": "invented",
+      "severity": "important",
+      "contract_item": "\"No confidential cost, margin, supplier or commission detail appears in any portion framed for an external audience.\" (also constraint: \"Confidential internal economics — supplier terms, cost bases, margins, commissions — may inform the judgement but must never appear in anything shaped for external circulation.\")",
+      "evidence_from_original": "Nothing in the original addresses confidentiality, internal economics, suppliers, margins, or external audiences. The output is a private verdict to the proposer: \"**Quick Verdict: [Build it / Maybe / Skip it]**\".",
+      "why_it_matters": "Two defects at once. It is invented — it is imported from a neighbouring collateral/product skill's confidentiality firewall, not from this capability. And it is uncheckable in practice, because the contract's own scope_out forbids producing anything for external circulation (\"Sales, marketing, launch, or fundraising material production\"), so the invariant has no subject: it is vacuously true for every conforming output and can never discriminate. An invariant that no output can violate wastes a judging slot and creates a false impression of rigour.",
+      "recommended_fix": "Delete the invariant. Retain the substance as a single constraint only if the user confirms it: \"The screen is a private internal read; do not restate the proposer's confidential cost, margin or supplier terms back in a form intended to be forwarded.\""
+    },
+    {
+      "id": "A5",
+      "type": "invented",
+      "severity": "important",
+      "contract_item": "\"Defer to the organisation's own viability process when the decision turns on confidential internal cost, margin, or contractual data that an internal, data-backed process already owns; contribute an outside-in read at most, and do not override an internal call built on real numbers.\"",
+      "evidence_from_original": "No basis. The original's only deference is implicit in scope: \"Provide honest, no-BS feedback on app and product ideas... The goal is to save builders from wasting weeks on ideas that won't work.\"",
+      "why_it_matters": "This asks a builder who has never seen the original to route around an 'internal viability process' the contract never defines and that the capability cannot detect. It is unimplementable as an instruction and unjudgeable as an outcome. It is also self-undermining: open_questions_for_user #1 asks the user to decide precisely this question, so the contract simultaneously mandates a behaviour and admits it is undecided. Worse, it would license a rebuild to withhold a verdict on exactly the high-stakes ideas the screen exists for, in direct conflict with never_do (\"Never withhold a call on the grounds that more information is needed\").",
+      "recommended_fix": "Delete the activation expectation and leave the matter in open_questions_for_user #1. If something must remain, use: \"Where the call depends on internal cost or contract data the proposer holds, give the outside-in read and name the internal figure that would settle it, rather than declining.\""
+    },
+    {
+      "id": "A6",
+      "type": "rigging",
+      "severity": "important",
+      "contract_item": "non_qualities: \"Harshness, bluntness, or a severe register. The requirement is undistorted judgement; a calm, unflinching assessment satisfies it fully, and harshness performed as a style is itself a distortion.\"",
+      "evidence_from_original": "\"**Be brutally honest**\"; \"**No sugar-coating**: Avoid phrases like \\\"interesting idea\\\" or \\\"has potential\\\" unless genuinely true\"; description: \"Provides brutally honest, quick feedback\"",
+      "why_it_matters": "The reasoning behind demoting register is sound, but the wording lands on the wrong side of neutrality: it names bluntness itself — not only performed harshness — as a non-quality, and then says harshness 'is itself a distortion'. A judge reading this will deduct from a direct, unsoftened verdict, which is the original's defining register and the user's stated ask. The contract should make register weightless, not penalised. As phrased it tilts the comparison against the original implementation on a dimension the user explicitly asked for.",
+      "recommended_fix": "Replace with: \"Register. Severity of tone is neither a quality nor a defect — a blunt assessment and a calm one score identically. What is assessed is whether the judgement is undistorted; harshness substituted for analysis, and softening that changes the call, both fail for that reason.\""
+    },
+    {
+      "id": "A7",
+      "type": "invented",
+      "severity": "minor",
+      "contract_item": "\"Treat the proposer's unshipped idea as confidential and unpublished.\"",
+      "evidence_from_original": "No basis anywhere in the original.",
+      "why_it_matters": "Single-sourced, harmless in intent, but it is not an outcome property of the assessment and a judge cannot observe it from an output — the capability produces one response to one person, so there is no publication event to check. It adds an unverifiable item to the contract's surface.",
+      "recommended_fix": "Delete from constraints; if kept at all, move to a note rather than a binding constraint."
+    },
+    {
+      "id": "A8",
+      "type": "omission",
+      "severity": "minor",
+      "contract_item": "\"Structural obstacles that sink this shape of idea regardless of execution are named plainly when present — dependence on reaching critical mass..., reliance on customers changing established behaviour, a free and entrenched incumbent, a capability that belongs inside a product someone already owns, a sales motion nobody is available to run.\"",
+      "evidence_from_original": "\"- \\\"This is a vitamin, not a painkiller\\\" (nice-to-have vs. must-have)\"; and criterion 4: \"Identify if this is a \\\"nice to have\\\" vs. \\\"must have\\\" that commands budget\"",
+      "why_it_matters": "The contract's obstacle list otherwise mirrors the original's red flags one-for-one, but the nice-to-have/must-have test — the original's first-listed red flag and an explicit monetisation sub-criterion — is absent from the list and from the invariants. It is only partially implied by 'demonstrably pay'. Whether the outcome commands budget is a distinct judgement from whether the class of product has paying users, and dropping it loses a real discriminator.",
+      "recommended_fix": "Add to the same success_looks_like item: \"...a sales motion nobody is available to run, or an outcome that is welcome but commands no budget line.\""
+    },
+    {
+      "id": "A9",
+      "type": "omission",
+      "severity": "minor",
+      "contract_item": "\"Coverage of the dimensions that actually decide viability — existing supply, evidenced demand, deliverability, revenue mechanism, and reason to switch\"",
+      "evidence_from_original": "\"### 5. Interest Factor — Evaluate if the idea is genuinely compelling or derivative... Flag \\\"boring\\\" ideas that lack a hook or unique angle\"",
+      "why_it_matters": "The contract maps the original's fifth criterion onto switching cost and differentiation, which captures most of it, but drops the distinct judgement of whether the concept is derivative or has any angle at all. An idea can be switchable-to on paper and still be an obvious retread that nobody will care about; the original treated that as its own flag.",
+      "recommended_fix": "Extend the fifth dimension to \"...and reason to switch, including whether the concept has any distinguishing angle at all or is a straight retread.\""
+    },
+    {
+      "id": "A10",
+      "type": "means_as_end",
+      "severity": "minor",
+      "contract_item": "\"The output is short enough to be read in roughly two minutes.\" (objective_invariants)",
+      "evidence_from_original": "description: \"Provides brutally honest, quick feedback on app/product ideas before investing time building\"; \"The goal is to save builders from wasting weeks\"",
+      "why_it_matters": "The original's 'quick' is about the cost of obtaining the judgement relative to building — turnaround — not a cap on words. Converting it into a hard length invariant imports a limit the original never set, and it pulls directly against the specificity and coverage requirements (five dimensions, named alternatives with differentiators, structural obstacles, forward path). Ranked eighth as a quality but promoted to a hard invariant, it can be used to fail a thorough, well-grounded assessment.",
+      "recommended_fix": "Move to constraints/preferences as: \"The assessment stays proportionate to the decision — readable and actionable in a few minutes; length beyond what the reasoning needs is padding.\" Remove from objective_invariants, or make it checkable with an explicit ceiling the judge can count."
+    },
+    {
+      "id": "A11",
+      "type": "uncheckable",
+      "severity": "minor",
+      "contract_item": "\"The reader learns at least one thing about their idea's landscape they did not already know.\" and \"The idea is judged hard without the person feeling judged, so the assessment is absorbed rather than defended against.\"",
+      "evidence_from_original": "\"**Be constructive**: Even when saying \\\"Skip it\\\", offer ways to pivot or strengthen the concept\"",
+      "why_it_matters": "Both are genuine ends and correctly not placed in objective_invariants, but they are stated in terms of the reader's prior knowledge and emotional response, neither of which a judge can observe from the output. They will be graded as proxies for something else, unpredictably.",
+      "recommended_fix": "Restate observably: \"The assessment surfaces at least one concrete fact about the landscape — an existing player, a price point, an adoption signal or its absence — rather than only restating the idea back.\" and \"Criticism is directed at the idea and the market rather than at the proposer's judgement or ambition.\""
+    },
+    {
+      "id": "A12",
+      "type": "misclassified",
+      "severity": "minor",
+      "contract_item": "constraint \"Remain useful when the concept is not software — a service, a physical product, a channel, a bundle, or an offering inside an existing business gets the same treatment\" versus open_questions_for_user \"Should non-software concepts... be screened here on the same basis, or routed to a different evaluation path with its own economics?\" (same pattern for the proposer-profile default: constraint fixes it, open question #3 reopens it)",
+      "evidence_from_original": "description: \"Provides brutally honest, quick feedback on app/product ideas\"; \"**Be realistic**: Assess for a solo builder, not a VC-backed team\"",
+      "why_it_matters": "Two items are simultaneously binding and undecided. A builder cannot tell whether non-software screening is required or provisional, and a judge cannot tell whether to score it. The non-software expansion is also broader than the original (app/product), justified only by the user's context — defensible, but then it should be settled, not left in two places with opposite force.",
+      "recommended_fix": "Keep the constraint as binding and delete the corresponding open questions, or demote the constraint to a stated assumption pending the user's answer. Do not list the same decision as both."
+    }
+  ],
+  "faithfulness_verdict": "Qualified yes — but not until A1 is fixed. On calibration the contract is better than the original: it correctly strips the output template, the fixed verdict vocabulary, the five-heading rubric, the catchphrase list, the tool binding, and the solo-builder/2-4-week persona as means, and it keeps the load-bearing ends (one decision from a closed set, named alternatives with differentiators, stated-versus-revealed demand, structural obstacles, a forward path on every verdict, deliverability against real resources). Its resolutions in unresolved_or_decided are well argued, and re-anchoring feasibility on the proposer's actual capacity instead of an assumed solo app builder genuinely serves this user better. The failure is that it removes every requirement for the assessment to contain a real external fact: with research demoted to a non-quality and a blanket 'or marked unverified' escape on all claims, a conforming rebuild can be entirely ungrounded and still pass. That guts the discovery half of the value the user came for. Secondary drags: market timing is dropped outright, two invariants are unjudgeable (per-sentence idea-specificity, external-audience confidentiality), one activation rule instructs deference to an undefined internal process, and two decisions are stated as binding and simultaneously reopened as questions.",
+  "would_rig_benchmark": "Yes, mildly, in both directions — and it is fixable. Against the original: the non-quality naming 'harshness, bluntness, or a severe register' as a defect penalises the original's defining and explicitly requested register rather than making it weightless (A6); and several imported CircleTel-specific obligations with no basis in the original — confidentiality of internal margins in externally framed output, deference to an internal viability process, geography/currency framing, cash-runway weighting — would cost the original on items it never claimed to serve, some of which no output can be judged against anyway (A4, A5). Toward any implementation: the per-sentence counterfactual invariant (A3) is unsatisfiable, so it will be scored on impression, and the two-minute read cap (A10) is a soft limit promoted to a hard invariant that can be used to fail a thorough, well-grounded answer. Nothing in the contract fingerprints the original's output shape — the template, the three verdict labels, the fixed bullet counts and the catchphrases were all correctly abstracted away, so a judge could not identify the original from a conforming output. That part is clean."
+}

@@ -1,0 +1,279 @@
+{
+  "capability_summary": "Helps a small, cash-constrained connectivity and managed-services provider design promotional offers and decide how to respond to competitors' pricing moves. It turns a promotional intent (win new customers, upgrade existing ones, recover churned ones, blunt a rival's offer, exploit a buying season) into a decided, costed, staffed and measurable go-to-market action: what is being offered, to whom, at what real margin and real cash cost, who answers the responses it generates, how fast, and how it will be judged and stopped.",
+
+  "user_goal": "Run promotions that actually produce paying customers and net cash, without quietly destroying margin or spending money the business does not have. The user needs the capability to protect them from the two failures they have personally experienced: offers that look affordable only because the cost basis was understated, and campaigns that generate demand the business is not staffed to convert.",
+
+  "success_looks_like": [
+    "Every promotional price is defended by an arithmetic margin calculation from the full delivered cost of the service, and any offer that cannot clear the margin floor is rejected before it is written up rather than justified afterwards.",
+    "The cash cost of running the promotion (subsidised installs, hardware floats, media spend, credits) is stated as an amount and a date, is affordable from cash actually on hand, and pays back inside a horizon the business can survive.",
+    "The promotion cannot go live until the thing being promoted is confirmed available and deliverable to the specific segment and geography being targeted.",
+    "The plan names the individual who will respond to inbound interest, the maximum time they may take, where responses will land, and what happens when that person is unavailable — before any money is spent.",
+    "Response handling is measured as a first-class outcome, not just impressions and sign-ups: the plan can answer 'what fraction of people who raised their hand were contacted, and how fast'.",
+    "The plan carries explicit stop conditions — a spend ceiling, an end date, and a leading indicator that, if missed, triggers pausing rather than continuing to spend.",
+    "A competitor's move produces a deliberate, proportionate decision that includes 'do nothing' as a legitimate outcome, and defends position on capability, service or terms rather than reflexively matching price.",
+    "Claims made about a rival are checkable against their published or verified terms, so the sales conversation survives contact with an informed buyer.",
+    "The people who will have the conversations are equipped with the offer's terms, its limits and its answers to predictable objections before the first response arrives.",
+    "Approval requirements are correctly identified against the authoritative discount policy, so nothing is committed at a level the author is not entitled to commit."
+  ],
+
+  "priority_qualities": [
+    {
+      "quality": "Conversion-completeness — the plan covers the whole path from the prospect raising a hand to money being collected, not just the demand-generation half",
+      "why_it_matters": "The single documented campaign in this business's history produced healthy demand at reasonable cost and zero revenue, because most respondents were never contacted and two who explicitly asked to buy were never called back. Demand creation is the part that already works; the handover is where the money is lost. A plan that stops at 'assets produced' is complete-looking and useless.",
+      "rank": 1
+    },
+    {
+      "quality": "Honest cost basis — margin computed on the total cost of actually delivering the service, including the access/wholesale component",
+      "why_it_matters": "Margin figures built on a partial cost basis produce false confidence and floor prices that sit below what the service costs to supply. An offer approved on inflated headroom can be loss-making at volume, which this business cannot absorb.",
+      "rank": 2
+    },
+    {
+      "quality": "Cash-first realism — timing and size of cash out and cash back, not only percentage margin",
+      "why_it_matters": "With weeks of runway rather than quarters, a promotion that is margin-healthy but front-loads cost (waived installation, subsidised hardware, free early months) can be fatal even while every margin check passes. Payback period is the binding constraint, and gross margin percentage hides it entirely.",
+      "rank": 3
+    },
+    {
+      "quality": "Deliverability precondition — only promote what can actually be supplied where it is being advertised",
+      "why_it_matters": "A large share of the leads from the failed campaign were for addresses the advertised product could not serve. That spend was unrecoverable at the moment the ad was targeted, regardless of how well everything downstream was run.",
+      "rank": 4
+    },
+    {
+      "quality": "Proportionality and restraint in competitive response",
+      "why_it_matters": "A small provider that answers every rival move burns scarce cash and trains buyers to wait for discounts. Choosing not to respond, or responding with something other than price, is often the correct and cheapest answer.",
+      "rank": 5
+    },
+    {
+      "quality": "Decidability — outputs are commitments with owners, numbers and dates, not fill-in-the-blank frames",
+      "why_it_matters": "Placeholders and unassigned checklists let a campaign be declared ready while the parts that determine whether it works remain undecided. The plan must be executable by the named people without further design work.",
+      "rank": 6
+    },
+    {
+      "quality": "Verifiability of competitive and market claims",
+      "why_it_matters": "Positioning built on stale or unchecked assertions about a rival collapses in front of a prospect and damages credibility more than the offer gains.",
+      "rank": 7
+    },
+    {
+      "quality": "Correct escalation — knowing what may be committed unilaterally and what may not",
+      "why_it_matters": "Pricing authority is bounded. A campaign that quietly exceeds those bounds is not a campaign, it is an unapproved liability.",
+      "rank": 8
+    }
+  ],
+
+  "constraints": [
+    "Promotional pricing is bounded by the organisation's authoritative margin and discount policy; where the capability's own reference material disagrees with that policy, the policy governs.",
+    "Margin must be computed from the full cost of delivering the service to one customer for one month, including the per-line wholesale/access cost, network, platform, support and billing costs, and amortised equipment and installation cost wherever those are being given away.",
+    "Where a promotion waives a one-time cost, that cost must be amortised across the committed contract term and included in the cost basis for the margin test.",
+    "The promotion must fit inside the period's approved marketing and promotional budget, which is small in absolute terms relative to the scale of offer implied by generic campaign planning.",
+    "Paid promotional spend is directed at the business segments the organisation has decided to fund; other segments are served without paid media unless that decision is explicitly revisited.",
+    "Products supplied over wholesale access whose spend counts toward a minimum-spend commitment must not be discounted in ways that increase the shortfall against that commitment.",
+    "Promotional periods are time-boxed; open-ended offers are not permitted.",
+    "Response handling capacity is a hard input, not an assumption — planned volume must be within what the named responder can actually absorb within the response-time commitment.",
+    "Every promotion must be measurable from the day it starts; if the tracking for a claimed metric does not exist yet, either build it first or do not claim it.",
+    "Customer-facing promotional material must not disclose cost, margin, wholesale rates, supplier identities or commission.",
+    "Comparative claims about competitors must be traceable to their published or otherwise verified terms."
+  ],
+
+  "never_do": [
+    "Never declare a campaign ready when nobody is named as responsible for contacting the people it will generate, or when no maximum response time is set.",
+    "Never compute margin on a cost basis that excludes the access/wholesale component of delivering the service.",
+    "Never set a promotional price below the per-line wholesale cost of supplying the service.",
+    "Never present gross margin percentage as sufficient evidence that a promotion is affordable, without stating the cash outlay and when it is recovered.",
+    "Never advertise a product into a geography or segment where its availability has not been confirmed.",
+    "Never subsidise a one-time cost without carrying that cost into the margin calculation.",
+    "Never match a competitor's price reflexively, or in a way that breaches the margin floor or the discount authority limits.",
+    "Never commit a discount level or duration beyond the author's approval authority, or present an offer as approved when it is not.",
+    "Never stack multiple discount mechanisms (volume, term, promotional) on the same customer simultaneously.",
+    "Never plan a promotional spend or subsidy pool that exceeds the period's approved budget or a prudent share of cash on hand.",
+    "Never repeat competitor claims, market statistics or pricing as current without checking them.",
+    "Never emit a plan whose critical fields (owner, response time, budget, dates, target numbers, availability confirmation) are left as unfilled placeholders.",
+    "Never leave the promotion without a defined end date and a condition under which it is stopped early."
+  ],
+
+  "objective_invariants": [
+    "Gross Margin % = (Effective Monthly Revenue − Full Monthly Cost of Sale) ÷ Effective Monthly Revenue × 100. Both terms are per-customer, per-month.",
+    "Full Monthly Cost of Sale = per-line wholesale/access cost + network, transit and backhaul cost + platform, billing and support allocation + (subsidised equipment cost ÷ committed contract months) + (waived installation cost ÷ committed contract months). A cost basis that omits the wholesale/access component is invalid, and any margin derived from it must be rejected and recomputed.",
+    "For a product delivered over purchased wholesale access, Effective Monthly Revenue must be strictly greater than the per-line wholesale access cost. A 'minimum price' derived only from a partial cost basis is not a valid floor.",
+    "Effective Monthly Revenue with N free months on an M-month contract = Standard Price × (M − N) ÷ M.",
+    "Effective Monthly Revenue with a percentage discount D = Standard Price × (1 − D).",
+    "Minimum acceptable gross margin is 25%. Margin ≥35% is standard/auto-approved. Margin 25–35% requires Sales Director approval. Margin below 25% requires CFO approval. Margin below 20% is never permitted under any approval.",
+    "Discount authority by size: 0–5% sales representative (max 24 months); 5–10% Sales Director (max 24 months); 10–15% Managing Director and requires a volume commitment of 5 or more lines (max 12 months); 15–20% Managing Director and CFO jointly, strategic accounts only (max 6 months); above 20% is not permitted.",
+    "All promotional pricing requires Managing Director pre-approval, regardless of size.",
+    "Maximum promotional period is 90 days.",
+    "Promotional revenue must be tracked separately from standard revenue for margin analysis.",
+    "Promotions may not be stacked on the same product, and volume, contract-term and promotional discounts may not be combined on the same customer.",
+    "For bundles: combined bundle gross margin must exceed 30%; the maximum bundle discount is 15% off combined retail; the discount is applied only to the operator's own component, never to resold third-party components; resold components must retain at least their category markup floor.",
+    "Contract-term price adjustments: month-to-month +15%; 12 months = base; 24 months −5%; 36 months −8%.",
+    "Installation revenue must be greater than or equal to installation cost, unless the waived cost is amortised into the cost basis and the offer still clears the margin floor.",
+    "Where wholesale spend counts toward a minimum-spend commitment, a promotion must not reduce the coverage ratio of that commitment. Coverage Ratio = (Qualifying Subscribers × Per-Line Wholesale Rate) ÷ Minimum Spend Commitment; ratios below 1.0 mean a shortfall is being paid out of cash.",
+    "Total campaign cash outlay (media spend + per-customer subsidies × expected take-up + credits) must not exceed the period's approved promotional budget.",
+    "Cash payback period = Total campaign cash outlay ÷ (expected new monthly gross profit from the campaign). This must be stated, and must be shorter than the horizon the business can fund.",
+    "Every inbound response must have a named owner and a maximum first-response time of 2 hours during business hours.",
+    "The target for the proportion of inbound responses receiving a human first response is 100%; any plan whose expected volume exceeds the responder's capacity at that standard is over-scoped and must be resized.",
+    "Product availability in the targeted geography or segment must be confirmed before promotional spend begins; the check and its result are part of the plan.",
+    "Conversion tracking from first response through to paid customer must be operational on day one of the campaign.",
+    "The plan must state a spend ceiling, an end date, and at least one leading indicator with a threshold that triggers pausing the campaign."
+  ],
+
+  "scope_in": [
+    "Designing a promotional offer for acquisition, upselling existing customers, winning back churned customers, referral incentives, seasonal or event-driven pushes, and product or service launches.",
+    "Choosing the offer mechanism (added value, term-based incentive, waived one-time cost, temporary upgrade, bundled discount, price reduction) and justifying the choice against margin and cash impact.",
+    "Arithmetic validation of the promotional price against the full cost basis, the margin floor, the discount authority matrix and the cash budget.",
+    "Deciding whether and how to respond to a competitor's pricing or campaign move, including deciding not to respond.",
+    "Building the positioning and the evidence base for a competitive response, including answers to the objections the offer will predictably provoke.",
+    "Specifying the operational readiness of the campaign: who responds to inbound interest, within what time, through which channel, where records are captured, and what the escalation is.",
+    "Specifying the measurement: what will be counted, from what date, using which existing system, and what thresholds mean continue, change or stop.",
+    "Stating the assets the campaign needs and who produces them, with enough direction that the producers can work.",
+    "Sizing the campaign against real capacity — response handling, installation/fulfilment, support load — and reducing scope when capacity is the constraint."
+  ],
+
+  "scope_out": [
+    "Writing the final customer-facing copy, headlines and long-form marketing text.",
+    "Producing the visual creative, imagery or brand assets themselves.",
+    "Building landing pages, forms, tracking pixels or CRM automation.",
+    "Setting or changing the organisation's standing price list or margin policy — the capability applies those, it does not author them.",
+    "Granting the approvals it identifies as required.",
+    "Deep standalone competitive intelligence gathering or market research programmes.",
+    "Post-campaign financial reconciliation, invoicing and revenue recognition.",
+    "Contract drafting and the legal terms and conditions of the offer.",
+    "Ongoing account management or the sales conversations themselves."
+  ],
+
+  "ends_vs_means_notes": [
+    {
+      "in_original": "A minimum gross margin threshold that no promotion may breach, with escalating approval above and below it",
+      "classified_as": "end",
+      "reasoning": "This is the commercial rule the user is trying to enforce and it survives any rebuild. Note the original's own threshold table conflicts with the organisation's authoritative discount policy; the policy's numbers are the ones carried forward.",
+      "kept": true
+    },
+    {
+      "in_original": "A named formula for gross margin and worked examples applying it to specific packages",
+      "classified_as": "end",
+      "reasoning": "That margin must be computed arithmetically rather than asserted is an end. The specific worked examples and their product names are means and are dropped — and their cost basis is wrong, so carrying them would propagate the error.",
+      "kept": true
+    },
+    {
+      "in_original": "A table of per-product cost floors used as the denominator input, explicitly noted as excluding tower/access costs",
+      "classified_as": "means",
+      "reasoning": "These are data, not requirements, and independent checking shows the excluded access component is the largest single cost per line. Carrying the numbers forward would guarantee inflated margins. The requirement kept is that the cost basis be complete; the figures are discarded.",
+      "kept": false
+    },
+    {
+      "in_original": "A ranked hierarchy of six offer mechanisms ordered by margin impact, with a rule to work down the list",
+      "classified_as": "means",
+      "reasoning": "The procedure and its exact ordering are a method. The underlying end — prefer mechanisms that preserve recurring revenue over permanent price cuts, and justify the choice on margin and cash — is kept without the table.",
+      "kept": true
+    },
+    {
+      "in_original": "A five-step campaign creation sequence (objective, segment, offer, margin, assets)",
+      "classified_as": "means",
+      "reasoning": "Step ordering is a procedural fingerprint. What matters is that objective, audience, offer, economics and assets are all decided, not the order they are decided in. Notably the sequence ends at asset production, which is exactly where the real-world failure began.",
+      "kept": false
+    },
+    {
+      "in_original": "A markdown campaign brief output template with fixed section headings and bracketed placeholders",
+      "classified_as": "means",
+      "reasoning": "Presentation format is replaceable. The end is that the specified decisions are actually made and recorded with real values. The placeholder style is actively harmful here — it allows a brief to look finished while every load-bearing decision is unmade.",
+      "kept": false
+    },
+    {
+      "in_original": "A library of six fill-in campaign templates for launch, seasonal, competitive, upsell, win-back and referral campaigns",
+      "classified_as": "means",
+      "reasoning": "Template artefacts. The end retained is coverage of those promotion types as legitimate objectives, plus the useful substance embedded in them (risk mitigation, capacity pre-booking, targeting criteria, attribution rules), restated as requirements rather than forms.",
+      "kept": true
+    },
+    {
+      "in_original": "A twelve-month seasonal campaign calendar mapping periods to products and offer types",
+      "classified_as": "means",
+      "reasoning": "A fixed annual plan is a method, and it presumes a planning horizon this business does not have. The end kept is that calendar-driven buying moments are a legitimate campaign trigger, decided when they are close enough to fund.",
+      "kept": true
+    },
+    {
+      "in_original": "Detailed per-competitor profiles with pricing, subscriber counts, coverage figures and rated weaknesses",
+      "classified_as": "means",
+      "reasoning": "Point-in-time reference data that decays. The ends kept are: know the rival's actual terms before responding, base the response on a verified weakness rather than a slogan, and note where a rival is also a supplier so the attack surface is constrained.",
+      "kept": true
+    },
+    {
+      "in_original": "A five-way response taxonomy for competitor moves (differentiate, add value, ignore, match, flank) and a branching decision tree",
+      "classified_as": "means",
+      "reasoning": "The named taxonomy and tree are a framework. The end is that a competitive response is a deliberate proportionate decision in which doing nothing is a permitted and often correct outcome, and price-matching is bounded by margin and authority.",
+      "kept": true
+    },
+    {
+      "in_original": "Response timing guidelines tying competitor action types to reaction windows",
+      "classified_as": "means",
+      "reasoning": "Specific windows are arbitrary. The end retained is that a competitive response has a decision deadline so it is neither panicked nor indefinitely deferred.",
+      "kept": true
+    },
+    {
+      "in_original": "Sales enablement outputs: a short pitch, talking points, and an objection-handling table",
+      "classified_as": "end",
+      "reasoning": "This is one of the few parts of the original that touches the conversion half. Reframed as the end: the people who will speak to respondents are equipped with the offer's terms, limits and answers before spend starts. The table format is means.",
+      "kept": true
+    },
+    {
+      "in_original": "Asset checklists enumerating landing page, emails, social posts, one-pager and image prompts",
+      "classified_as": "means",
+      "reasoning": "A production list. The end kept is that the campaign specifies what must exist and who produces it. The checklist is also revealing as a definition of done — it contains no item covering who answers the phone.",
+      "kept": true
+    },
+    {
+      "in_original": "A table routing work to sibling capabilities for copy, visuals and competitive analysis",
+      "classified_as": "means",
+      "reasoning": "Tool-sequencing specific to one implementation. The end is that copy and creative production are out of scope and handed off.",
+      "kept": true
+    },
+    {
+      "in_original": "Success metrics defined as sign-ups, revenue generated, page conversion rate and acquisition cost",
+      "classified_as": "end",
+      "reasoning": "Measurement is genuinely required, but the original's metric set is incomplete for this business: it measures the funnel's top and bottom and omits the middle where the documented failure occurred. Kept and extended with response-handling metrics and stop conditions.",
+      "kept": true
+    },
+    {
+      "in_original": "Per-campaign and portfolio spend caps expressed as absolute discount pools and share-of-base limits",
+      "classified_as": "end",
+      "reasoning": "That promotional exposure is capped is a real end. The specific amounts are means and are out of scale with the actual budget and cash position, so the cap is restated as a relationship to the approved budget and available cash rather than fixed figures.",
+      "kept": true
+    },
+    {
+      "in_original": "A contract-term extension mechanism allowing longer commitments to fund larger promotions, with a lifetime-value comparison",
+      "classified_as": "end",
+      "reasoning": "Trading term length for promotional value is a real commercial lever with a checkable test. Kept as a principle; the specific term/offer pairings are means.",
+      "kept": true
+    },
+    {
+      "in_original": "Escalation triggers listing conditions that require executive review",
+      "classified_as": "end",
+      "reasoning": "Knowing when a decision exceeds the author's authority is an end that survives rebuild.",
+      "kept": true
+    },
+    {
+      "in_original": "A pre-launch validation checklist covering cost calculation, subsidy inclusion, term, margin, budget and approval",
+      "classified_as": "end",
+      "reasoning": "A gate before launch is genuinely required. Its content is extended: as written it validates only the economics, and would have passed the real campaign that failed. Operational readiness and availability checks are added to the gate.",
+      "kept": true
+    },
+    {
+      "in_original": "A printable summary card restating the margin rule and approval limits",
+      "classified_as": "means",
+      "reasoning": "Pure presentation artefact with no behavioural content beyond the rules already captured.",
+      "kept": false
+    }
+  ],
+
+  "evidence_of_real_use": "The material is clearly grounded in a specific operating business rather than being generic marketing advice: it names real product lines with real price points, real wholesale suppliers and cost components broken out to the cent, real competitors with their actual published entry prices and support arrangements, and a specific constraint that one major rival is simultaneously an upstream supplier and therefore cannot be attacked on technology. The discount approval matrix, escalation triggers and portfolio exposure limits read as decisions someone was actually held to. Against that, the surrounding business record shows the capability has not yet been shaped by the one real campaign this business ran: a small paid social campaign that produced demand at a reasonable cost per conversation and converted nobody, because most respondents were never contacted, two who explicitly asked to buy were never called back, a majority of the leads were for addresses the advertised product could not serve, and an intake form was silently rejecting valid contact numbers. The corrective rules written after that campaign — confirmed availability before advertising, a named person handling responses within a fixed window, conversion tracking from day one — do not appear anywhere in the capability. The financial record is equally concrete and equally absent from it: total monthly marketing budget is a small fraction of the promotional spend pools the capability authorises, and cash on hand covers less than a month of operating cost.",
+
+  "tensions": [
+    "The definition of 'finished' is the central gap. The capability treats a campaign as complete when the offer is designed, the margin arithmetic passes, the asset list is written and target numbers are named. Every one of those boxes would have been ticked by the real campaign that produced zero revenue. Nothing in the original specifies who receives inbound interest, how quickly they must respond, where the record of each respondent lives, what happens when the responder is unavailable, or how the proportion of respondents actually contacted is measured. For this business the ad is the reliable part and the handover is the failure point, so a plan that is silent on the handover is complete and useless at the same time. The contract therefore treats staffed, time-bound, owned and measured response handling as a first-class end and a launch gate, not an implementation detail.",
+    "The cost basis in the original is wrong in a way that matters. Its cost floor is explicitly described as excluding tower and access costs, yet the access component is the single largest recurring cost per line — several times larger than everything the floor does include. Margins are consequently reported at levels near ninety percent when the honest figure is roughly half that, and in at least one low-priced service line the true monthly cost exceeds the retail price, meaning a product presented as comfortably profitable is in fact loss-making per site. Worse, the 'minimum price at the margin floor' figures derived from the partial basis sit well below the per-line wholesale cost, so following the capability's own table would license selling below cost while also deepening an existing wholesale minimum-spend shortfall. The contract states the complete cost basis as an invariant and discards the original's figures.",
+    "Gross margin percentage is the wrong primary gate for a business with weeks of runway. The original's preferred mechanisms — waived installation, subsidised equipment, free early months — are chosen precisely because they protect the margin percentage, and they do so by converting a discount into an immediate cash outflow recovered over a year. That is the correct trade for a well-capitalised operator and close to the worst possible trade here. The contract adds cash outlay and payback period as co-equal gates.",
+    "The promotional spend limits are out of scale by roughly an order of magnitude. Single-campaign subsidy pools are authorised at multiples of the entire monthly marketing budget, and the largest exceeds half of all cash on hand. A plan can pass every stated budget control and still be unaffordable.",
+    "A fixed twelve-month seasonal calendar presumes an annual planning horizon the business does not have, and encourages committing to future promotions whose affordability cannot be assessed today.",
+    "There is no deliverability precondition. The capability lets a campaign be fully designed, margin-validated and approved for a product that cannot be supplied at the addresses being targeted — which is exactly what happened, and which invalidated the majority of the spend before any downstream process could help.",
+    "The segment list and seasonal plan point paid promotion at budget-conscious and consumer-adjacent audiences, while the business has explicitly decided to direct all paid spend at two specific business niches and serve consumer demand organically. Following the capability as written would spend the budget against a decision already taken.",
+    "The approval and discount thresholds in the original conflict with the organisation's authoritative pricing policy in several places — the maximum permissible discount, the approving authority at each band, the absolute floor below which nothing is permitted, the maximum promotional duration, whether promotional pricing needs pre-approval at all, and the bundle margin requirement. The original is also internally inconsistent, since its own per-product tables authorise discounts larger than its matrix permits without approval. The contract resolves all of these in favour of the standing policy.",
+    "The capability is entirely blind to the wholesale minimum-spend commitment the business is currently paying a shortfall against. Discounting or under-pricing the products that consume that commitment makes the shortfall worse, and no check in the original would catch it.",
+    "Competitive positioning rests on point-in-time claims about rivals' pricing, coverage, caps and satisfaction scores with no freshness requirement. These decay quickly and, when repeated to an informed buyer, cost more credibility than the offer gains.",
+    "Heavy reliance on bracketed fill-in templates lets a campaign be declared ready while the decisions that determine whether it works — owner, response time, budget, availability, stop condition — remain unmade placeholders."
+  ]
+}

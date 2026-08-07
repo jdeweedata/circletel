@@ -1,0 +1,228 @@
+{
+  "capability_summary": "An on-demand audit of the repository's governing agent-instruction document and the rule files it indexes. It answers two separate questions: whether recent work in the repository actually obeyed the documented rules, and whether the documented rules still describe how the project really works. It then walks the user through the findings and applies only the corrections the user individually approves.",
+
+  "user_goal": "The user maintains a large, layered set of written instructions that are supposed to govern how AI agents and humans work in this repository. Those instructions decay in two directions at once: work drifts away from the rules, and the rules drift away from the codebase. The user wants a repeatable way to detect both kinds of decay early, be told precisely where each problem is, and fix the ones worth fixing — so that the instruction document stays worth obeying instead of quietly becoming fiction that everyone routes around.",
+
+  "success_looks_like": [
+    "Both directions of drift are examined in one run: work-versus-rules, and rules-versus-reality. Neither is silently dropped.",
+    "Every finding names a concrete location — a file, and where meaningful a line or a specific claim in a rule document — so the user can independently confirm it without re-running the audit.",
+    "A clean result is believable: it means the checks genuinely ran and found nothing, not that they failed, mistargeted, or were quietly skipped.",
+    "The run states its own coverage — which changes were examined, which rules were checked, and which rules were not checked — so the user can calibrate how much the verdict is worth.",
+    "Findings are triaged by real consequence, so the user handles the things that break the codebase or mislead future agents before cosmetic bookkeeping.",
+    "Nothing is changed without the user's explicit, per-item consent; declining is a first-class outcome, not a failure.",
+    "A finding the user consciously declines stops being raised on later runs, with the decision and its date preserved, so repeat runs stay quiet and trustworthy rather than nagging.",
+    "Contradictions between the top-level instruction document and the detailed rule files it points to are surfaced, since agents reading either one will behave differently.",
+    "The audit's own coverage is kept honest as the rule set grows — checks pointing at rules that no longer exist, and rules that nothing checks, are themselves reported.",
+    "Applied fixes are shown to the user before or as they land, and are traceable afterwards."
+  ],
+
+  "priority_qualities": [
+    {
+      "quality": "Trustworthy negatives — a 'nothing found' verdict must be earned",
+      "why_it_matters": "This is the whole value of an auditor. A check that silently returns nothing because it pointed at a path that does not exist, scanned an empty range, or errored, is indistinguishable from a pass unless the tool distinguishes them. A false clean is worse than no audit, because the user stops looking. Every check must be able to report 'ran and found nothing' separately from 'could not run'.",
+      "rank": 1
+    },
+    {
+      "quality": "Precision of findings — low false-positive rate",
+      "why_it_matters": "An audit that cries wolf gets ignored or blanket-dismissed within two runs, which destroys the deferral mechanism too. Each claimed violation must correspond to something actually present in the cited file, not a pattern match on a comment, a test fixture, a string in documentation, or the rule file that defines the pattern.",
+      "rank": 2
+    },
+    {
+      "quality": "Honest, stated coverage",
+      "why_it_matters": "Many of these rules are semantic and cannot be mechanically verified at all. The user must never be led to believe a rule was verified when only a crude proxy for it was. Declaring what was and was not examined turns a partial audit into an honest one.",
+      "rank": 3
+    },
+    {
+      "quality": "User control over every mutation",
+      "why_it_matters": "The audit edits the very documents that govern all future agent behaviour, and it can commit. An unrequested edit here has outsized blast radius. Per-item consent keeps the user the decision-maker on what the project's rules say.",
+      "rank": 4
+    },
+    {
+      "quality": "Actionability — each finding carries enough to act on",
+      "why_it_matters": "A finding that only names a category leaves the user doing the investigation the audit was supposed to do. Location plus the specific rule at stake plus what the fix would be converts a report into work the user can approve in seconds.",
+      "rank": 5
+    },
+    {
+      "quality": "Durable memory of declined findings",
+      "why_it_matters": "Without it, run two repeats run one, the user learns to skim, and genuine new findings get lost in the familiar noise. Persistence is what makes the audit repeatable rather than a one-time exercise.",
+      "rank": 6
+    },
+    {
+      "quality": "Self-application — the auditor is governed by the document it audits",
+      "why_it_matters": "The tool must not exempt itself. If its own coverage has gone stale relative to the rule set, or it references rules that were deleted, it is reporting on a world that no longer exists while appearing authoritative.",
+      "rank": 7
+    }
+  ],
+
+  "constraints": [
+    "Read-only by default: the examination phase must not modify the repository, the rules, or git state.",
+    "All modifications require explicit per-item approval from the user before they are made.",
+    "Paths and ranges must resolve against the actual repository being audited, not an assumed or previously observed location.",
+    "The instruction document and its rule files are the source of truth for what is being enforced; the audit must not enforce preferences that are not written down there.",
+    "Where a rule cannot be mechanically verified, say so rather than substituting a weak proxy and reporting it as verified.",
+    "Deferral decisions must be recorded durably with enough context (what, when, why) that a later reader can re-open the decision.",
+    "The audit must remain useful when there are few or no recent changes to examine — it should say so rather than reporting a clean bill of health for the whole repository.",
+    "Output must be reviewable in a single pass by a human — findings summarised with counts that match the detail listed.",
+    "Must operate against the repository's own conventions for where rules, documentation, and source code live, rather than a fixed external layout."
+  ],
+
+  "never_do": [
+    "Never report a check as passing when it did not actually execute, errored, matched against a nonexistent path, or examined an empty set of changes.",
+    "Never present a summary of zero findings without having confirmed that every non-deferred check genuinely ran.",
+    "Never let a mistargeted directory, a wrong repository root, or an unavailable file degrade silently into a clean result — surface it as an inconclusive check.",
+    "Never edit the instruction document, any rule file, or any source file without the user approving that specific change.",
+    "Never commit, stage, push, or otherwise alter version-control state without explicit approval.",
+    "Never re-raise a finding the user has already consciously declined.",
+    "Never invent a violation location, a line number, or a rule name that is not present in the repository.",
+    "Never treat the presence of a pattern inside a rule file, a template, a fixture, or documentation as a violation of that same rule.",
+    "Never claim a semantic or judgement-based rule was verified when only a textual approximation was checked.",
+    "Never silently narrow the scope examined (fewer changes, fewer rules) without saying so in the output.",
+    "Never widen an approved fix into unrelated cleanup of the file it touches.",
+    "Never exempt the audit's own definitions and coverage from the currency checks it applies to everything else."
+  ],
+
+  "objective_invariants": [
+    "Every command, path, and directory the audit consults resolves inside the repository actually under audit; none refer to a hard-coded absolute location from another machine or checkout.",
+    "A check that cannot run (missing path, tool error, empty scan range) is reported with a distinct inconclusive status and is excluded from any 'all clear' claim.",
+    "A summary stating zero findings is emitted only when the count of successfully executed, non-deferred checks equals the total count of non-deferred checks.",
+    "Every reported violation cites a file that exists, and the cited location contains the content the finding claims it contains.",
+    "Every rule document referenced by any check exists in the rules directory at the time of the run; references to deleted rules are reported as findings.",
+    "Every rule document present in the rules directory is either exercised by at least one check or explicitly enumerated as not covered.",
+    "The index of rules inside the top-level instruction document matches the rule files on disk in both directions; entries listed but absent, and files present but unlisted, are both reported.",
+    "Claims made in the instruction document that contradict the detailed rule files (for example the same function or table referred to by two different names) are reported as findings.",
+    "Any previously recorded deferral is matched against the current run's findings and suppressed; the number suppressed is disclosed.",
+    "The scope examined — which set of changes, which rules, over what range — appears in the output of every run.",
+    "The counts in the summary equal the number of individual findings listed in the body.",
+    "The repository working tree and version-control state are byte-identical before and after a run in which the user approves no fixes.",
+    "Every file modified during the run corresponds to a finding the user explicitly approved.",
+    "Metadata the audit asserts about the instruction document (such as a version or last-updated marker it relies on) is read from the document at run time rather than assumed, and a mismatch between that metadata and the document's real state is itself reportable."
+  ],
+
+  "scope_in": [
+    "Checking whether recent changes in the repository violate rules that are written down in the governing instruction document and its rule files.",
+    "Checking whether the written rules still match the codebase, tooling, deployment setup, and directory structure they describe.",
+    "Detecting rules that have gone stale, contradict each other, or contradict the top-level instruction document.",
+    "Detecting parts of the codebase or workflow that have grown without any rule covering them.",
+    "Detecting bookkeeping drift between the instruction document's index of rules and the rule files that actually exist.",
+    "Assessing and reporting the audit's own coverage relative to the current rule set.",
+    "Presenting findings in consequence order with locations and proposed corrections.",
+    "Applying user-approved corrections to the instruction document, rule files, or code, and recording user-declined findings so they are not raised again."
+  ],
+
+  "scope_out": [
+    "General code review, correctness review, or bug hunting unrelated to a written rule.",
+    "Running the project's build, type checker, test suite, or linters as the basis for findings.",
+    "Authoring new rules or policy from scratch on the user's behalf without a detected gap and the user's approval.",
+    "Enforcing conventions that are not written down anywhere in the governed documents.",
+    "Judging whether a rule is a good idea; the audit checks whether it is followed and whether it is still true, not whether it is wise.",
+    "Continuous or automatic background enforcement — this is an explicitly invoked review, not a commit gate.",
+    "Refactoring, reorganising, or rewriting the instruction document wholesale.",
+    "Auditing repositories, branches, or environments other than the one it is invoked in."
+  ],
+
+  "ends_vs_means_notes": [
+    {
+      "in_original": "Two separate passes, one for whether rules were followed and one for whether rules are still accurate",
+      "classified_as": "end",
+      "reasoning": "The two questions are substantively different failure modes and the user needs both answered. A rebuild that only checked compliance would leave the rules rotting; one that only checked currency would leave violations unnoticed. The pass structure and ordering is presentation, but the coverage of both questions is a requirement.",
+      "kept": true
+    },
+    {
+      "in_original": "A fixed catalogue of numbered checks, each with an exact shell pipeline to run",
+      "classified_as": "means",
+      "reasoning": "The identifiers and the command text are one implementation of detection. What the user is buying is that specific classes of drift get caught reliably and without false positives. A rebuild could use parsing, static analysis, or model reasoning and satisfy the user equally or better. Carried over as the outcome — coverage of the rule set with stated gaps — not as the catalogue.",
+      "kept": false
+    },
+    {
+      "in_original": "Specific textual patterns targeting particular components, contact strings, framework idioms, and placeholder markers",
+      "classified_as": "means",
+      "reasoning": "These are proxies for the underlying rules and are tied to this codebase's current shape. They will change as the codebase changes. The end behind them is that a violation of a written rule in recent work gets found and located precisely.",
+      "kept": false
+    },
+    {
+      "in_original": "Scanning a fixed number of recent commits",
+      "classified_as": "means",
+      "reasoning": "The window size is arbitrary. The end is that the examined scope is appropriate to what has changed and, critically, that the scope is disclosed so the verdict can be calibrated. Kept as the disclosure requirement and as an invariant that an empty scan range must not read as clean.",
+      "kept": true
+    },
+    {
+      "in_original": "Absolute filesystem paths baked into the check commands",
+      "classified_as": "means",
+      "reasoning": "Not merely a means but an actively harmful one — those paths do not resolve in the repository as checked out here, so several checks would return nothing and be scored as passes. Refused, and inverted into an invariant that all paths must resolve inside the repository under audit and that non-resolving paths must be reported as inconclusive rather than clean.",
+      "kept": false
+    },
+    {
+      "in_original": "A prescribed report layout with a fixed emoji vocabulary for severity",
+      "classified_as": "means",
+      "reasoning": "Purely presentational and a strong stylistic fingerprint. The end is that findings are triaged by real consequence, scannable in one pass, and that stated counts match listed findings.",
+      "kept": true
+    },
+    {
+      "in_original": "Severity ordering when walking the user through fixes",
+      "classified_as": "end",
+      "reasoning": "Ordering by consequence is a genuine user requirement — attention is scarce and the highest-impact corrections must come first. The particular tiers and their labels are means; the principle is kept.",
+      "kept": true
+    },
+    {
+      "in_original": "Prompting the user item by item with a fixed accept/decline/defer prompt string",
+      "classified_as": "means",
+      "reasoning": "The exact wording and the three-way keyword vocabulary are means. But the underlying requirement — that no change lands without explicit consent for that specific change, and that declining is a supported, recorded outcome — is a genuine end and is retained as a constraint and an invariant.",
+      "kept": true
+    },
+    {
+      "in_original": "A dedicated file that accumulates declined findings with dates, consulted at the start of each run to skip them",
+      "classified_as": "end",
+      "reasoning": "The file name and line format are means, but durable suppression of consciously declined findings is what makes the audit repeatable rather than a one-shot. Without it every run reproduces the same noise and the user disengages. Kept as an outcome: declined findings persist, are suppressed, and the suppression count is disclosed.",
+      "kept": true
+    },
+    {
+      "in_original": "Committing each approved fix with a prescribed commit message convention",
+      "classified_as": "means",
+      "reasoning": "Auto-committing is one way to make changes traceable, and the message prefix is pure convention. The end retained is that the user sees what changed before or as it lands and that applied changes remain traceable and reversible. Whether that is a commit, a diff, or a staged change is left open.",
+      "kept": true
+    },
+    {
+      "in_original": "A self-check that every check still references a rule file that exists",
+      "classified_as": "end",
+      "reasoning": "This is the auditor refusing to exempt itself, which is exactly what separates a trustworthy audit from a decorative one — a check pointing at a deleted rule is dead weight that still reports a pass. Generalised into invariants covering both directions: no check references a missing rule, and no rule goes silently uncovered.",
+      "kept": true
+    },
+    {
+      "in_original": "A closing reminder that adding a new rule obliges extending the audit's own coverage",
+      "classified_as": "end",
+      "reasoning": "The literal reminder text is a means, but the property it protects — audit coverage grows with the rule set instead of decaying into a fixed subset — is a real user requirement, since the value of the audit degrades invisibly otherwise.",
+      "kept": true
+    },
+    {
+      "in_original": "One check performed by the agent reflecting on the current session rather than by running a command",
+      "classified_as": "means",
+      "reasoning": "Self-reflection is an unreliable detection method, and this particular check is scoped to process rules that cannot be mechanically verified. The end preserved is the honesty requirement: rules that cannot be mechanically verified must be declared as such rather than reported as verified by a weak proxy.",
+      "kept": true
+    },
+    {
+      "in_original": "A version marker on the audit pinning it to a specific revision of the instruction document",
+      "classified_as": "means",
+      "reasoning": "A static pin is a means, and in this instance a broken one — it names a revision several versions behind the document it governs, which is itself the exact drift the tool exists to catch. Converted into the invariant that any metadata the audit relies on is read at run time and a mismatch is reportable.",
+      "kept": true
+    },
+    {
+      "in_original": "An announcement to the user that the audit is starting",
+      "classified_as": "means",
+      "reasoning": "Cosmetic. Carries no outcome the user would ask for if the tool were rebuilt.",
+      "kept": false
+    }
+  ],
+
+  "evidence_of_real_use": "The capability is clearly aimed at a live, actively maintained instruction set rather than a hypothetical one. The rules directory holds roughly two dozen rule documents accumulated over time, and the checks target genuinely project-specific conventions — internal shared-component prop contracts, a payments integration, a migration from one hosting platform to another, framework-version idioms — the kind of detail that only comes from having been burned. The deferral ledger exists but is empty, indicating the mechanism was built in anticipation rather than after heavy use, so repeat-run behaviour is likely under-exercised. Several signals show the tool has itself drifted from the artefact it polices, which is strong evidence both that the problem is real and that the current implementation would under-report it: the audit is pinned to an instruction-document revision several versions behind the current one; its checks address only about a quarter of the rule documents that now exist; its file paths point at a checkout location that does not match where the repository actually sits, so a number of checks would produce no output and be scored as passes; and one currency check targets a directory that does not exist at all, which under the current logic reads as clean. Running the equivalent comparisons by hand surfaces real, currently-undetected drift: four rule documents exist on disk that the instruction document's index omits entirely, and the top-level document and a detailed rule file name the same session-aware database client differently, meaning an agent following one will write code the other's own check flags as a violation. That is precisely the class of problem the capability exists to find, and it is presently invisible to it.",
+
+  "tensions": [
+    "Sensitivity versus precision: broadening detection catches more real drift but generates false positives, and false positives are what cause users to blanket-dismiss an audit — which then poisons the deferral ledger with entries that hide real regressions.",
+    "Cheap textual detection versus semantic rules: a substantial share of the governed rules are about judgement and process and cannot be mechanically verified at all, so coverage is inherently uneven; the honest response (declare the gap) makes the audit look weaker than a dishonest one that reports everything green.",
+    "A narrow recent-changes window is fast and relevant but blind to drift that predates it; a full-repository scan is thorough but slow and floods the user with historical noise they have already implicitly accepted.",
+    "Durable suppression of declined findings keeps repeat runs quiet, but a deferral made for a reason that has since expired will permanently mask a genuine problem — suppression needs to be revisitable without becoming noise again.",
+    "Per-item consent respects the user's authority over the rules but does not scale; a first run against a long-neglected rule set could produce dozens of prompts, pushing the user toward blanket-approving without reading, which defeats the purpose of asking.",
+    "The audit both enforces the rules and is governed by them, so it must apply its own standards to itself without recursing endlessly or treating its own necessary scaffolding as a violation.",
+    "Fixing a currency finding means editing the rules themselves, which is the highest-consequence edit in the repository — the pressure to auto-fix bookkeeping drift conflicts directly with the requirement that the user own what the rules say.",
+    "Detecting that a rule is stale is far easier than knowing what it should say instead; the audit can reliably raise the question but should resist confidently answering it on the user's behalf."
+  ]
+}
