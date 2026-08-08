@@ -17,3 +17,9 @@ Resume contract. If the session dies, read these in order:
 - Builder agents never receive held-out task text, packets, or judge verdicts.
 - Judge agents never receive skill files, model identity, condition labels, or prior verdicts.
 - Every trial records the exact model id actually used.
+
+## Benchmark handling
+- `benchmarks/<skill>/suite.json`        full suite (lead only)
+- `benchmarks/<skill>/iteration.json`    tasks builders MAY see
+- `benchmarks/<skill>/heldout.sealed.json` chmod 400. NEVER include in a builder prompt.
+- `benchmarks/<skill>/coverage.json`     dashboard-safe summary; held-out titles withheld

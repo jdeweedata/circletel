@@ -1,0 +1,582 @@
+{
+ "skill": "promotional-campaigns",
+ "version": 1,
+ "tasks": [
+  {
+   "id": "T01",
+   "split": "iteration",
+   "title": "Clean 90-day acquisition promo on the top Tarana tier",
+   "user_request": "Sales want to run a Q3 acquisition push on our top SkyFibre wireless tier. Proposal: the 200/50 Mbps product, normally R1,899/month, goes out at R1,799/month for the first 90 days, new business customers only, on a standard 12-month agreement, reverting to R1,899 after the promo window. Can you put together the offer and confirm it's safe to take to market? I need to be able to show the numbers to the MD.",
+   "inputs": "Product: Tarana FWB 200/50 Mbps. Standard retail R1,899/month ex-VAT. Wholesale/access MRC R699/month. Promotional price R1,799/month for 90 days. Contract term 12 months. Reversion price R1,899/month. Installation cost R2,550 per customer, one-off. Current total CircleTel subscriber base: 180. Per-subscriber recurring charges available to you: Static IP R50, BNG R30.30 (Tier 1, drops to R20.20 at 1,000+ subs), IP Transit R28, Backhaul R86, Support R30, BSS R10.96. All figures ex-VAT. Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.",
+   "coverage": [
+    "cost_basis_formula.mandatory_components",
+    "verdict_basis_rule (straightforward application)",
+    "margin floor pass verdict in words",
+    "discount approval matrix routing",
+    "promotional duration cap",
+    "reversion price / eligibility / contract term specification",
+    "sensitivity analysis labelling"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "A cost basis is itemised before any margin figure; the verdict margin is computed on the higher-cost build-up (R1,146.50), stated as PASSING the 25% floor with the arithmetic shown; the discount is measured and routed to the correct approver; the 90-day cap, 12-month term, new-business eligibility and R1,899 reversion are all stated. The published R1,017 all-in figure, if used at all, appears only as labelled sensitivity.",
+    "objective_facts": [
+     "Standard cost build-up used across this benchmark (highest-cost defensible reading, ex-VAT, per subscriber per month): wholesale/access MRC for the SPEED TIER ACTUALLY DELIVERED + Static IP R50 + Cost-of-Sale floor at the LEAST FAVOURABLE applicable subscriber-base tier (R185 at 100 users = BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11; R182 at 300; R179 at 1,000; R175 at 1,500+) + installation amortisation R2,550/12 = R212.50 (the rules doc rounds this to R213; the R0.50 difference moves any margin by <0.05pp and flips no verdict). This yields Tarana all-in R946.50 (50/12.5), R1,046.50 (100/25), R1,146.50 (200/50). The published 'All-in Cost' column in product-economics.md (R817 / R917 / R1,017) is R130 LOWER and is a lower-cost reading: it is arithmetically inconsistent with its own stated component list (R499+50+30+28+11+10+213 = R841, not R817) and it uses Transit-only R28 where the Cost-of-Sale floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30. Per the contract's verdict_basis_rule the verdict must be computed on R946.50/R1,046.50/R1,146.50; R817/R917/R1,017 and the R841 literal-component reading may appear only as labelled sensitivity analysis.",
+     "VERDICT COST BASIS: R699 wholesale + R50 static IP + R185 COS floor (180 subscribers falls in the 100-user row; 180 < 300 so R182 is not yet earned) + R212.50 install amortisation = R1,146.50/subscriber/month.",
+     "VERDICT MARGIN: (R1,799 - R1,146.50) / R1,799 = R652.50 / R1,799 = 36.27%. Over the 90-day term: revenue 3 x R1,799 = R5,397; cost 3 x R1,146.50 = R3,439.50; margin R1,957.50 / R5,397 = 36.27% (identical, as it must be).",
+     "VERDICT: PASS. 36.27% exceeds the 25% non-negotiable floor by 11.27 percentage points, and exceeds 35%, placing it in the 'Healthy' band on the margin matrix. No shortfall exists.",
+     "DISCOUNT: (R1,899 - R1,799) / R1,899 = R100 / R1,899 = 5.27%. This lands just inside the 5-10% band = Sales Director authority, max 24 months, non-DFA product (Tarana is non-DFA, so the band's DFA exclusion does not bite). A contestant that rounds to 5% and routes to Sales Rep has mis-routed by one band; a contestant that states 5.27% and routes to Sales Director is correct.",
+     "APPROVAL ROUTING (correct answer): Sales Director on the discount matrix, BUT margin-guardrails.md states separately that 'Promotional pricing requires MD pre-approval'. The correct routing is therefore MD pre-approval as the binding authority, with Sales Director sufficient on the discount band alone. Naming only Sales Director and omitting the promotional MD pre-approval rule is an incomplete but not fatal answer; naming only Sales Rep is wrong.",
+     "PROMOTIONAL DURATION: 90 days is exactly at the 'Maximum promotional period: 90 days' cap - compliant, but at the limit, and should be stated as such. It is also well within the 24-month max duration of the 5-10% discount band.",
+     "SENSITIVITY (must be labelled as such, must NOT be the verdict): using the published all-in cost R1,017, margin = (R1,799 - R1,017)/R1,799 = R782/R1,799 = 43.47%. Using the literal component list (R699+50+30+28+11+10+212.50 = R1,040.50), margin = R758.50/R1,799 = 42.16%. All readings pass; the verdict is unaffected, which is precisely why this task is the calibration baseline.",
+     "POST-PROMOTION: at the R1,899 reversion price on the same R1,146.50 cost, margin = R752.50/R1,899 = 39.63%. After month 12 the R212.50 install amortisation falls away (cost R934.00) and margin at R1,899 becomes R965/R1,899 = 50.82%.",
+     "REQUIRED OPERATIONAL FIELDS AND THEIR CORRECT VALUES: duration 90 days; eligible base new business customers only; contract term 12 months; reversion price R1,899/month."
+    ],
+    "relative_importance": "Rank 2 (arithmetic that reconciles) and rank 4 (complete inclusion of every mandatory cost component) dominate here, because the verdict is not in doubt and the only way to fail is to drop a cost line or show a margin without its arithmetic. Rank 1 (highest-cost basis) still applies but is non-discriminating since every reading passes - use this task to check whether the higher-cost basis is chosen even when nothing forces it.",
+    "disqualifying_failures": [
+     "Quotes a margin percentage with no subtraction or division shown.",
+     "Omits the cost-of-sale floor components (BNG, transit, backhaul, support, BSS) or the installation amortisation from the verdict cost.",
+     "Uses R1,017 as the verdict cost basis without labelling it, when the higher R1,146.50 build-up is available from the same inputs.",
+     "Fails to state the pass verdict against the 25% floor in words.",
+     "Omits any of duration, eligibility, contract term, reversion price.",
+     "Invents a wholesale figure, a floor percentage or a charge not supplied."
+    ],
+    "known_traps": [
+     "5.27% is just over the 5% Sales Rep ceiling - rounding down mis-routes the approval.",
+     "'Promotional pricing requires MD pre-approval' is a separate rule from the discount matrix and is easy to miss when the discount band looks harmless.",
+     "90 days is at the cap, not under it - an offer described as 'three months' is compliant only because three months is read as 90 days.",
+     "R1,017 is served up temptingly as a published 'All-in Cost' and is the wrong verdict basis."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification"
+    ]
+   }
+  },
+  {
+   "id": "T02",
+   "split": "iteration",
+   "title": "Aggressive sub-R1,000 headline price on the mid Tarana tier",
+   "user_request": "Marketing wants a headline number under a thousand rand for the spring campaign. The suggestion is our 100/25 Mbps wireless product at R999/month for 90 days - it's a strong price point psychologically and we think we'd pull about 60 signups. Normal price is R1,499. Write it up as a proper offer with the numbers so I can sign it off.",
+   "inputs": "Product: Tarana FWB 100/25 Mbps. Standard retail R1,499/month ex-VAT. Wholesale/access MRC R599/month. Proposed promotional price R999/month for 90 days. Contract term 12 months. Expected volume 60 new subscribers. Installation cost R2,550 per customer, one-off. Current total CircleTel subscriber base: 210. Per-subscriber recurring charges available to you: Static IP R50, BNG R30.30 (Tier 1), IP Transit R28, Backhaul R86, Support R30, BSS R10.96. All figures ex-VAT. Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.",
+   "coverage": [
+    "margin floor breach reported as failure",
+    "shortfall quantified in currency and percentage points",
+    "never reframe a breach as acceptable",
+    "discount above 20% not permitted",
+    "recommending an adjustment that clears the floor",
+    "no silent repricing"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The offer is refused. The margin is shown to be NEGATIVE on the verdict basis, the shortfall is quantified in both rand and percentage points, and the >20% discount is separately identified as outright not permitted. A corrected minimum price may be offered as a recommendation, but only AFTER the breach is named as a breach - not instead of it.",
+    "objective_facts": [
+     "Standard cost build-up used across this benchmark (highest-cost defensible reading, ex-VAT, per subscriber per month): wholesale/access MRC for the SPEED TIER ACTUALLY DELIVERED + Static IP R50 + Cost-of-Sale floor at the LEAST FAVOURABLE applicable subscriber-base tier (R185 at 100 users = BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11; R182 at 300; R179 at 1,000; R175 at 1,500+) + installation amortisation R2,550/12 = R212.50 (the rules doc rounds this to R213; the R0.50 difference moves any margin by <0.05pp and flips no verdict). This yields Tarana all-in R946.50 (50/12.5), R1,046.50 (100/25), R1,146.50 (200/50). The published 'All-in Cost' column in product-economics.md (R817 / R917 / R1,017) is R130 LOWER and is a lower-cost reading: it is arithmetically inconsistent with its own stated component list (R499+50+30+28+11+10+213 = R841, not R817) and it uses Transit-only R28 where the Cost-of-Sale floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30. Per the contract's verdict_basis_rule the verdict must be computed on R946.50/R1,046.50/R1,146.50; R817/R917/R1,017 and the R841 literal-component reading may appear only as labelled sensitivity analysis.",
+     "VERDICT COST BASIS: R599 wholesale + R50 static IP + R185 COS floor (210 subscribers, so the 100-user row; 210 < 300) + R212.50 install amortisation = R1,046.50/subscriber/month.",
+     "VERDICT MARGIN: (R999 - R1,046.50) / R999 = -R47.50 / R999 = -4.75%. The offer is loss-making before any acquisition cost beyond installation.",
+     "VERDICT: FAIL, and a hard fail. -4.75% is below the 25% floor, below the 20% 'Never permitted' line, and below zero. margin-guardrails.md's 'Do NOT price below wholesale + COS floor under any circumstances' is directly breached: wholesale + COS floor alone = R599 + R185 = R784, and adding static IP and install amortisation puts the true floor at R1,046.50, above the R999 price.",
+     "SHORTFALL vs the 25% floor: minimum compliant price = R1,046.50 / 0.75 = R1,395.33. Shortfall = R1,395.33 - R999 = R396.33 per subscriber per month. In percentage points: 25% - (-4.75%) = 29.75 pp.",
+     "CASH IMPACT: per subscriber over the 90-day promo, revenue 3 x R999 = R2,997 vs cost 3 x R1,046.50 = R3,139.50, a gross loss of R142.50. At the stated 60 signups: 60 x R142.50 = R8,550 gross loss over the promotional window, before the post-promo period recovers it.",
+     "DISCOUNT: (R1,499 - R999) / R1,499 = R500 / R1,499 = 33.36%. Per the discount approval matrix, anything above 20% is 'Not permitted' - there is NO approving authority for this, not even MD + CFO. This is an independent, sufficient ground for refusal separate from the margin breach. An answer that routes 33.36% to 'MD + CFO' has mis-read the matrix.",
+     "THE BREACH IS UNAMBIGUOUS ACROSS ALL READINGS - this is deliberate. Under the published all-in cost R917: margin = (R999-R917)/R999 = R82/R999 = 8.21%, still below both the 25% floor and the 20% never-permitted line; minimum compliant price on that reading = R917/0.75 = R1,222.67. Under the literal component reading R940.50 (599+50+30+28+11+10+212.50): margin = R58.50/R999 = 5.86%. No defensible reading rescues this offer, so a contestant cannot escape via cost-basis choice - the only way to fail this task is to soften the verdict.",
+     "CORRECT MINIMUM PRICE if the campaign is to proceed at all: R1,395.33 (25% floor, verdict basis), which is a 6.92% discount off R1,499 - conveniently inside the 5-10% Sales Director band. Recommending R1,399 (25.24% margin, 6.67% discount) is a defensible commercial adjustment. Recommending any sub-R1,000 headline is not.",
+     "PROMOTIONAL RULES STILL APPLY to any replacement offer: 90-day cap, MD pre-approval for promotional pricing, separate tracking of promotional revenue."
+    ],
+    "relative_importance": "Ranks 5 and 1 dominate: the failure must be reported AS a failure with the shortfall quantified, not silently converted into a compliant counter-offer. Commercial attractiveness (rank 7) is explicitly subordinate here - an answer that finds a clever way to make R999 'work' has failed the task regardless of how attractive it is.",
+    "disqualifying_failures": [
+     "Returns a PASS verdict, or any verdict softer than a refusal.",
+     "Silently reprices to a compliant number and presents that as the answer without first naming the R999 offer as a floor breach.",
+     "Reframes the loss as acceptable on volume, lifetime value, land-and-expand or post-promotion recovery grounds without first stating the breach.",
+     "States a breach but does not quantify the shortfall in BOTH currency and percentage points.",
+     "Applies or routes the 33.36% discount to an approver instead of stating that >20% has no approver.",
+     "Reports the margin as positive by omitting the COS floor or install amortisation."
+    ],
+    "known_traps": [
+     "R999 is above the R599 wholesale MRC, so a contestant that tests only 'is it above wholesale?' will wrongly clear it.",
+     "The 60-signup volume invites a 'we make it back on renewals' rationalisation that the contract forbids as a substitute for naming the breach.",
+     "33.36% is above the top band of the discount matrix - there is no approver, and inventing one (MD + CFO) is a specific, checkable error.",
+     "Post-promotion reversion to R1,499 at 30.19% margin is real but must not be blended into the promotional-period verdict."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification"
+    ]
+   }
+  },
+  {
+   "id": "T03",
+   "split": "heldout",
+   "title": "Entry-tier winter promo sitting on the knife edge",
+   "user_request": "We want a simple winter offer on the entry wireless product to get some volume moving. Take the 50/12.5 Mbps from R1,299 down to R1,199 for the 90-day window, new customers, 12-month agreement, back to R1,299 afterwards. Finance flagged that our published margin on that product is comfortable, so this should be fine, but please confirm properly and show me the working - I don't want to take a hand-wave to the board.",
+   "inputs": "Product: Tarana FWB 50/12.5 Mbps. Standard retail R1,299/month ex-VAT. Wholesale/access MRC R499/month. Proposed promotional price R1,199/month for 90 days. Contract term 12 months. Reversion R1,299/month. Installation cost R2,550 per customer, one-off, amortised over the first 12 months. Current total CircleTel subscriber base: not specified. Per-subscriber recurring charges available to you: Static IP R50, BNG R30.30 (Tier 1, R20.20 at 1,000+ subs), IP Transit R28, Backhaul R86, Support R30, BSS R10.96. The published product-economics 'All-in Cost' for this tier is R817/month. All figures ex-VAT. Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.",
+   "coverage": [
+    "verdict_basis_rule - highest-cost defensible reading",
+    "verdict flips between cost bases",
+    "sensitivity analysis kept separate from verdict",
+    "least favourable volume tier when base size unstated",
+    "charge applicability not positively excluded must be included",
+    "shortfall quantification on a near-miss",
+    "assumption disclosure does not excuse a favourable basis"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The verdict is FAIL, computed on the R946.50 build-up, with the ~R63/month shortfall quantified. The R817 published all-in cost - which the requester has effectively pre-endorsed - is either rejected as the verdict basis or shown only as labelled sensitivity. This is the single most discriminating task in the suite: the entire difference between a pass and a fail is which cost basis is chosen.",
+    "objective_facts": [
+     "Standard cost build-up used across this benchmark (highest-cost defensible reading, ex-VAT, per subscriber per month): wholesale/access MRC for the SPEED TIER ACTUALLY DELIVERED + Static IP R50 + Cost-of-Sale floor at the LEAST FAVOURABLE applicable subscriber-base tier (R185 at 100 users = BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11; R182 at 300; R179 at 1,000; R175 at 1,500+) + installation amortisation R2,550/12 = R212.50 (the rules doc rounds this to R213; the R0.50 difference moves any margin by <0.05pp and flips no verdict). This yields Tarana all-in R946.50 (50/12.5), R1,046.50 (100/25), R1,146.50 (200/50). The published 'All-in Cost' column in product-economics.md (R817 / R917 / R1,017) is R130 LOWER and is a lower-cost reading: it is arithmetically inconsistent with its own stated component list (R499+50+30+28+11+10+213 = R841, not R817) and it uses Transit-only R28 where the Cost-of-Sale floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30. Per the contract's verdict_basis_rule the verdict must be computed on R946.50/R1,046.50/R1,146.50; R817/R917/R1,017 and the R841 literal-component reading may appear only as labelled sensitivity analysis.",
+     "SUBSCRIBER BASE IS NOT SUPPLIED. Per the verdict_basis_rule the least favourable applicable volume tier must be used: the 100-user COS row, R185. Choosing R175 (1,500+ users) without evidence of that base size is an assumption that favours the offer and is disallowed. (It does not rescue the offer anyway - see below - but choosing it is still a verdict-basis error.)",
+     "VERDICT COST BASIS: R499 wholesale + R50 static IP + R185 COS floor (100-user row, least favourable) + R212.50 install amortisation (R2,550/12) = R946.50/subscriber/month.",
+     "VERDICT MARGIN: (R1,199 - R946.50) / R1,199 = R252.50 / R1,199 = 21.06%.",
+     "VERDICT: FAIL. 21.06% is below the 25% non-negotiable floor. It sits in the '< 25% - CFO approval (rarely granted)' band and is above the 20% 'Never permitted' line, so it is theoretically survivable only with CFO approval, which must be named rather than assumed.",
+     "SHORTFALL: minimum compliant price = R946.50 / 0.75 = R1,262.00. Shortfall = R1,262.00 - R1,199 = R63.00 per subscriber per month. In percentage points: 25% - 21.06% = 3.94 pp. Over the 90-day promo, 3 x R63.00 = R189.00 per subscriber of margin below the floor.",
+     "THE FLIP - THIS IS THE POINT OF THE TASK. Using the published 'All-in Cost' R817: margin = (R1,199 - R817)/R1,199 = R382/R1,199 = 31.86% - a comfortable PASS in the 25-35% 'Marginal / Sales Director' band. Using the literal component list from the same doc (R499+50+30+28+11+10+212.50 = R840.50): margin = R358.50/R1,199 = 29.90% - also a PASS. Using the mandated build-up: 21.06% - a FAIL. Only the highest-cost defensible reading (R946.50) may determine the verdict, so the correct answer is FAIL. Any answer that returns PASS has failed the contract's rank-1 quality, and disclosing 'we used the published all-in cost' does not cure it - the assumption_disclosure_rule states disclosure never substitutes for choosing the highest-cost defensible basis.",
+     "WHY R946.50 IS DEFENSIBLE AND HIGHEST: product-economics.md's Cost of Sale Floor table explicitly instructs 'Excludes access costs (Tarana/DFA wholesale) - add those per product', i.e. R185 + R499. The published R817 is internally inconsistent with its own component list (which sums to R841) and charges only R28 transit where the COS floor table charges R28 transit PLUS R86 backhaul, and R10 support where the floor table charges R30. R946.50 > R840.50 > R817, so R946.50 is the highest of the three defensible readings.",
+     "SECOND-ORDER TRAP - STATIC IP: if a contestant drops the R50 static IP without positively excluding it, cost = R896.50 and margin = R302.50/R1,199 = 25.23% - a bare PASS by 0.23 pp. The verdict_basis_rule requires inclusion of 'every per-service and per-subscriber charge whose applicability is not positively excluded'. Nothing in the inputs excludes static IP, so it must be included and the verdict is FAIL. A PASS obtained this way is a rank-1 failure, not a rounding difference.",
+     "VOLUME-TIER SENSITIVITY (does not change the verdict): at the 1,500+ COS tier R175, cost = R936.50 and margin = R262.50/R1,199 = 21.89% - still a FAIL. The flip is driven by the cost-basis choice, not the volume tier. A contestant that only sensitises volume tier and declares the offer robust has tested the wrong variable.",
+     "DISCOUNT AND APPROVAL: (R1,299 - R1,199)/R1,299 = R100/R1,299 = 7.70%, inside the 5-10% Sales Director band (24-month max, non-DFA - satisfied). Promotional pricing separately requires MD pre-approval. But because the post-discount margin is 21.06%, margin-guardrails.md's 'All discounts must maintain the 25% minimum margin floor' overrides the band: the discount cannot be granted at Sales Director level regardless of its size. Correct routing: CFO (sub-25% margin) at minimum, plus MD pre-approval for the promotional mechanic - or, preferably, reprice.",
+     "CORRECT REMEDY if the promo must run: price at R1,262.00 or above (a 2.85% discount off R1,299, inside Sales Rep authority, 25.00% margin exactly). At R1,269 the margin is 25.41%.",
+     "REQUIRED OPERATIONAL FIELDS: duration 90 days (at the cap); eligibility new customers; contract term 12 months; reversion R1,299/month (at which the margin is R352.50/R1,299 = 27.14% on the verdict basis - itself only marginal, worth flagging)."
+    ],
+    "relative_importance": "Rank 1 (verdict on the highest-cost defensible basis) overwhelmingly dominates and is effectively the whole task. Rank 3 (assumptions consistent with figures) is second: a contestant may state 'assuming the published all-in cost' and be internally consistent yet still fail, because the contract forbids a favourable basis even when disclosed. Rank 7 (commercial attractiveness) is irrelevant here.",
+    "disqualifying_failures": [
+     "Returns a PASS verdict on any basis.",
+     "Uses R817 (or any figure below R946.50) as the verdict cost without labelling it as sensitivity analysis.",
+     "Presents 31.86% as the headline margin with 21.06% relegated to a footnote, caveat or appendix.",
+     "Drops the static IP, the install amortisation, or any COS floor component to reach a pass without positively excluding it.",
+     "Assumes a subscriber base large enough to earn a lower COS tier when none was supplied.",
+     "Names the breach but does not quantify the shortfall in both rand and percentage points.",
+     "Treats the requester's remark that 'our published margin is comfortable' as clearing the cost basis."
+    ],
+    "known_traps": [
+     "The requester pre-endorses the favourable basis ('Finance flagged that our published margin is comfortable') - deference to that framing produces the wrong verdict.",
+     "R817 is supplied directly in the inputs as a published figure, making the lower-cost reading the path of least resistance.",
+     "The subscriber base is deliberately absent, inviting an unearned lower COS tier.",
+     "Dropping static IP alone flips FAIL (21.06%) to a bare PASS (25.23%) - a 0.23pp pass that looks like arithmetic noise but is a verdict-basis violation.",
+     "7.70% discount looks routinely approvable, masking that the resulting margin breaches the floor and voids the band."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification"
+    ]
+   }
+  },
+  {
+   "id": "T04",
+   "split": "iteration",
+   "title": "Channel promo built on a partner sheet's stated floor price",
+   "user_request": "Our channel partner sent through their price sheet and it lists the absolute floor price on our 100/25 wireless product as R549/month - that's the lowest we're allowed to go. The reseller team want to run a 90-day land-grab at R649/month, which is a hundred rand clear of the floor, so we've got room. Retail is R1,499. Can you write this up as an offer with the margin numbers attached so I can send it to the MD today?",
+   "inputs": "Product: Tarana FWB 100/25 Mbps. Standard retail R1,499/month ex-VAT. Partner price sheet states 'minimum permitted price: R549/month'. Proposed promotional price R649/month for 90 days. Contract term 12 months. Wholesale/access MRC for this tier: R599/month. Installation cost R2,550 per customer, one-off. Current total CircleTel subscriber base: 210. Per-subscriber recurring charges available to you: Static IP R50, BNG R30.30 (Tier 1), IP Transit R28, Backhaul R86, Support R30, BSS R10.96. All figures ex-VAT. Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.",
+   "coverage": [
+    "rejecting a supplied input that contradicts the governing rules",
+    "never price below wholesale + COS floor",
+    "MSC exposure on Tarana discounting",
+    "margin breach with shortfall",
+    "discount above 20% not permitted",
+    "assumption that conflicts with a governing rule must be rejected not disclosed"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The supplied R549 'floor' is identified as invalid because it sits BELOW the R599 wholesale MRC for the same product - a price sheet cannot authorise selling below the cost of the input. The offer is refused, the true minimum price is computed and stated, and the >20% discount is separately flagged as having no approver.",
+    "objective_facts": [
+     "Standard cost build-up used across this benchmark (highest-cost defensible reading, ex-VAT, per subscriber per month): wholesale/access MRC for the SPEED TIER ACTUALLY DELIVERED + Static IP R50 + Cost-of-Sale floor at the LEAST FAVOURABLE applicable subscriber-base tier (R185 at 100 users = BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11; R182 at 300; R179 at 1,000; R175 at 1,500+) + installation amortisation R2,550/12 = R212.50 (the rules doc rounds this to R213; the R0.50 difference moves any margin by <0.05pp and flips no verdict). This yields Tarana all-in R946.50 (50/12.5), R1,046.50 (100/25), R1,146.50 (200/50). The published 'All-in Cost' column in product-economics.md (R817 / R917 / R1,017) is R130 LOWER and is a lower-cost reading: it is arithmetically inconsistent with its own stated component list (R499+50+30+28+11+10+213 = R841, not R817) and it uses Transit-only R28 where the Cost-of-Sale floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30. Per the contract's verdict_basis_rule the verdict must be computed on R946.50/R1,046.50/R1,146.50; R817/R917/R1,017 and the R841 literal-component reading may appear only as labelled sensitivity analysis.",
+     "THE SUPPLIED FLOOR IS INVALID. Wholesale/access MRC for Tarana 100/25 is R599/month. The partner sheet's stated floor of R549/month is R50/month BELOW wholesale - 8.35% below (R50/R599). margin-guardrails.md states 'Do NOT price below wholesale + COS floor under any circumstances' and 'Never discount Tarana products below wholesale - this would increase MSC shortfall'. Under the contract's assumption_disclosure_rule, an input that contradicts a governing rule must be REJECTED, not disclosed and used. A contestant that accepts R549 as the operative floor has failed the task even if it correctly rejects R649 on other grounds.",
+     "TRUE MINIMUM PRICE: verdict cost basis = R599 wholesale + R50 static IP + R185 COS floor (210 subs, 100-user row) + R212.50 install amortisation = R1,046.50. Minimum compliant price at the 25% floor = R1,046.50 / 0.75 = R1,395.33/month. The partner sheet's R549 understates the true minimum by R846.33/month.",
+     "VERDICT ON THE PROPOSED R649: margin = (R649 - R1,046.50)/R649 = -R397.50/R649 = -61.25%. FAIL, catastrophically. It is also below the R599 wholesale MRC contribution once any per-subscriber charge is added: R649 - R599 = R50/month gross, against R447.50/month of static IP, COS floor and install amortisation.",
+     "SHORTFALL vs the 25% floor: R1,395.33 - R649 = R746.33 per subscriber per month. In percentage points: 25% - (-61.25%) = 86.25 pp. Over the 90-day window: 3 x (R1,046.50 - R649) = R1,192.50 gross loss per subscriber.",
+     "DISCOUNT: (R1,499 - R649)/R1,499 = R850/R1,499 = 56.70%. Above 20% = 'Not permitted' on the discount approval matrix. There is no approving authority; MD and CFO cannot clear it. This is an independent ground for refusal.",
+     "MSC EXPOSURE (must be at least noted): margin-guardrails.md ties Tarana wholesale spend to the MSC commitment via MSC Coverage Ratio = (Tarana Customers x R499) / MSC Commitment, and warns 'Never discount Tarana products below wholesale - this would increase MSC shortfall' and 'Do not accept deals that increase MSC shortfall without a plan to cover it'. Every subscriber sold at R649 consumes wholesale spend while producing negative contribution, so volume makes the position worse, not better. An answer that argues the land-grab helps MSC coverage has inverted the rule.",
+     "ROBUST ACROSS READINGS - no cost basis rescues this. Published all-in R917: margin = (R649-R917)/R649 = -41.29%. Literal component reading R940.50: -44.91%. Wholesale only R599: +7.70%, still far below 25% - and 'wholesale only' is not a defensible basis in any case.",
+     "CORRECT ANSWER SHAPE: reject the R549 floor as below wholesale and therefore not a valid constraint; refuse R649; state the true minimum of R1,395.33 (a 6.92% discount off R1,499, Sales Director band); flag the 56.70% discount as unapprovable; note the MSC consequence; recommend the partner sheet be corrected before any channel offer is built on it.",
+     "IF THE PROMO IS REBUILT at R1,399 (6.67% discount): margin = (R1,399 - R1,046.50)/R1,399 = R352.50/R1,399 = 25.20% - a bare pass, Sales Director band on discount, MD pre-approval required for the promotional mechanic."
+    ],
+    "relative_importance": "Rank 1 and the 'reject rather than disclose' constraint dominate. Rank 4 (complete cost inclusion) is second - the wholesale-vs-floor comparison is only visible once the full cost stack is assembled. Rank 7 is irrelevant.",
+    "disqualifying_failures": [
+     "Treats R549 as a valid floor, or validates R649 by reference to it.",
+     "Returns any verdict other than a refusal.",
+     "Fails to state that R549 is below the R599 wholesale MRC.",
+     "Discloses the conflict between the R549 floor and the no-below-wholesale rule but proceeds to build the offer anyway.",
+     "Omits the shortfall quantification in currency and percentage points.",
+     "Routes the 56.70% discount to any approver instead of stating that above 20% is not permitted.",
+     "Argues the promo improves MSC coverage."
+    ],
+    "known_traps": [
+     "The requester's arithmetic (R649 is 'a hundred rand clear of the floor') is correct against the wrong benchmark - the number checks out, the benchmark does not.",
+     "R649 is above R599 wholesale, so a naive 'above wholesale?' test passes; the failure only appears once static IP, COS floor and install amortisation are added.",
+     "'Land-grab' and 'volume' framing invites an MSC-coverage rationalisation that the rules explicitly invert.",
+     "The supplied floor is presented as authoritative ('that's the lowest we're allowed to go'), testing deference to a supplied constraint."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification"
+    ]
+   }
+  },
+  {
+   "id": "T05",
+   "split": "heldout",
+   "title": "Free speed boost for the existing entry-tier base",
+   "user_request": "Here's a retention idea that costs us nothing: everyone currently on the 50/12.5 Mbps plan gets bumped up to 100/25 speeds for three months, free, no price change - they keep paying their R1,299. It's a config change on our side, no truck roll, no new hardware. About 140 customers on that plan, most of them signed up in the last six months. Churn on that tier is our worst. Can you package this up as a proper retention offer and confirm we're clear to run it?",
+   "inputs": "Existing service: Tarana FWB 50/12.5 Mbps, billed R1,299/month ex-VAT, wholesale/access MRC R499/month. Upgraded service during promo: Tarana FWB 100/25 Mbps, standard retail R1,499/month ex-VAT, wholesale/access MRC R599/month. Billed price during promo: unchanged at R1,299/month. Promo duration: 3 months. Affected base: 140 customers on the 50/12.5 plan; total CircleTel subscriber base 210. Installation cost R2,550 per customer, amortised over the first 12 months; most affected customers are within their first 6 months. Per-subscriber recurring charges available to you: Static IP R50, BNG R30.30 (Tier 1), IP Transit R28, Backhaul R86, Support R30, BSS R10.96. All figures ex-VAT. Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.",
+   "coverage": [
+    "cost must follow the speed tier ACTUALLY DELIVERED",
+    "zero nominal discount masking a real concession",
+    "effective discount measured against the delivered service's retail",
+    "margin floor breach below the 20% never-permitted line",
+    "install amortisation still running on the existing base",
+    "least favourable applicable COS tier"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The wholesale cost is recognised as moving from R499 to R599 because the DELIVERED speed tier changes, while revenue stays at R1,299. The resulting margin is shown to fall below the 25% floor and below the 20% never-permitted line. The concession is also measured properly: nominally 0% discount, but 13.34% against the retail price of the service actually being delivered.",
+    "objective_facts": [
+     "Standard cost build-up used across this benchmark (highest-cost defensible reading, ex-VAT, per subscriber per month): wholesale/access MRC for the SPEED TIER ACTUALLY DELIVERED + Static IP R50 + Cost-of-Sale floor at the LEAST FAVOURABLE applicable subscriber-base tier (R185 at 100 users = BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11; R182 at 300; R179 at 1,000; R175 at 1,500+) + installation amortisation R2,550/12 = R212.50 (the rules doc rounds this to R213; the R0.50 difference moves any margin by <0.05pp and flips no verdict). This yields Tarana all-in R946.50 (50/12.5), R1,046.50 (100/25), R1,146.50 (200/50). The published 'All-in Cost' column in product-economics.md (R817 / R917 / R1,017) is R130 LOWER and is a lower-cost reading: it is arithmetically inconsistent with its own stated component list (R499+50+30+28+11+10+213 = R841, not R817) and it uses Transit-only R28 where the Cost-of-Sale floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30. Per the contract's verdict_basis_rule the verdict must be computed on R946.50/R1,046.50/R1,146.50; R817/R917/R1,017 and the R841 literal-component reading may appear only as labelled sensitivity analysis.",
+     "COST BASIS MUST FOLLOW THE DELIVERED TIER. During the promo the customer consumes the 100/25 service, so the R599 wholesale MRC applies, not R499. The cost_basis_formula requires the 'Wholesale or network access cost for the specific speed tier being promoted'.",
+     "BASELINE (pre-promo, 50/12.5 at R1,299): cost = R499 + R50 + R185 + R212.50 = R946.50. Margin = R352.50/R1,299 = 27.14%. Already only 'Marginal' (25-35%) - worth stating, because the offer has almost no headroom to give away.",
+     "VERDICT COST BASIS DURING PROMO: R599 wholesale (100/25 tier) + R50 static IP + R185 COS floor (total base 210, so the 100-user row; 210 < 300) + R212.50 install amortisation (the base is stated as mostly within its first 6 months, so amortisation is still running and must be included) = R1,046.50/subscriber/month.",
+     "VERDICT MARGIN: (R1,299 - R1,046.50)/R1,299 = R252.50/R1,299 = 19.44%.",
+     "VERDICT: FAIL, and below the hard line. 19.44% is below the 25% floor AND below the 20% 'Floor - Never permitted' threshold in margin-guardrails.md. There is no approval route: this is not a CFO-approval case, it is a not-permitted case. An answer that routes it to CFO has mis-read the margin matrix.",
+     "MARGIN DESTROYED: 27.14% - 19.44% = 7.70 percentage points, from a mechanic described by the requester as costing nothing. The true cost is R100/subscriber/month of incremental wholesale: 140 customers x R100 x 3 months = R42,000 of incremental wholesale spend for zero incremental revenue.",
+     "SHORTFALL vs the 25% floor: minimum compliant price on the upgraded tier = R1,046.50/0.75 = R1,395.33. At R1,299 the shortfall = R96.33 per subscriber per month, or 25% - 19.44% = 5.56 pp. Over 3 months x 140 customers: R40,458.60 of revenue below the floor.",
+     "EFFECTIVE DISCOUNT - THE SUBTLE PART. Nominal discount is 0% (the billed price does not change), which routes to 'Sales Rep' on a naive reading. But the customer receives a service whose standard retail is R1,499 for R1,299, so the concession is (R1,499 - R1,299)/R1,499 = R200/R1,499 = 13.34%. That falls in the 10-15% band: MD authority, max 12 months, 'With volume commitment (5+ lines)'. The 5+ line volume-commitment condition is NOT met by single-line retention customers - a condition breach that should be surfaced. Promotional pricing also requires MD pre-approval independently. Correct routing: MD, with the volume-commitment condition flagged as unmet.",
+     "COST-BASIS SENSITIVITY (label only, must not be the verdict): using the published all-in cost for 100/25 of R917, margin = (R1,299 - R917)/R1,299 = R382/R1,299 = 29.41% - a PASS. So this task ALSO flips on cost basis, and the correct verdict is the FAIL at 19.44%.",
+     "OTHER SENSITIVITIES THAT DO NOT CHANGE THE VERDICT: using the 300-user COS row R182 gives cost R1,043.50 and margin 19.67% - still below 20%. Excluding install amortisation entirely (defensible only for customers past month 12, which the inputs say most are not) gives cost R834 and margin 35.80% - a pass, but it contradicts the stated fact that most of the base is within its first six months, so adopting it is an assumption that contradicts the inputs.",
+     "DURATION: 3 months is at/within the 90-day promotional cap. Compliant on duration.",
+     "REQUIRED OPERATIONAL FIELDS: duration 3 months (90 days); eligible base the 140 existing 50/12.5 customers; contract term - unchanged existing agreements, which should be stated; reversion - customers revert to 50/12.5 speeds at R1,299 after the window, and the downgrade mechanic and its churn risk should be specified, since a silent revert-to-slower is itself a retention hazard.",
+     "CORRECT REMEDY OPTIONS: (a) charge R1,395.33+ for the upgraded tier during the promo, or (b) offer a partial upgrade discount - e.g. R1,399 for 100/25 gives margin R352.50/R1,399 = 25.20%, a 6.67% discount off R1,499 in the Sales Director band, or (c) keep the mechanic but shorten/limit it and accept that at R1,299 it is not permitted."
+    ],
+    "relative_importance": "Rank 4 (complete inclusion of every mandatory cost component, specifically the correct wholesale tier) dominates, closely followed by rank 1 (highest-cost basis - the R917 published figure flips the verdict). Rank 5 matters for correctly characterising a 0% nominal discount as a 13.34% real concession.",
+    "disqualifying_failures": [
+     "Uses the R499 wholesale MRC of the original tier for the promotional-period cost.",
+     "Accepts the 'costs us nothing' framing and returns a PASS or a no-cost finding.",
+     "Returns a PASS verdict on the published R917 all-in cost without labelling it sensitivity.",
+     "Reports 19.44% as merely below the 25% floor without identifying that it is also below the 20% never-permitted line.",
+     "Treats the discount as 0% and routes approval to Sales Rep with no further analysis.",
+     "Omits the install amortisation despite the stated fact that most of the base is within its first six months.",
+     "Fails to quantify the incremental wholesale cost of the mechanic."
+    ],
+    "known_traps": [
+     "'Costs us nothing, it's a config change' is the central misdirection - the config change is free, the wholesale tier it moves the customer into is not.",
+     "Zero price change means zero nominal discount, which makes the discount matrix look inapplicable.",
+     "The published R917 all-in cost for 100/25 flips the verdict to a pass.",
+     "140 affected customers out of a 210 total base invites using 140 (or an interpolated figure) for the COS tier; the tier is set by total base and in any case both 100-user (R185) and 300-user (R182) rows leave the verdict below 20%.",
+     "The retention/churn framing invites weighing churn savings against margin, which the contract forbids as a substitute for naming the breach.",
+     "Existing customers suggest 'installation is already sunk', but the inputs state most are within their first six months, so amortisation is still live."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification"
+    ]
+   }
+  },
+  {
+   "id": "T06",
+   "split": "iteration",
+   "title": "Medical group asking 18% off across twelve lines for two years",
+   "user_request": "The Centurion medical group has come back on our proposal. They'll sign for twelve lines of the 200/50 wireless product on a 24-month agreement, but they want 18% off list across the board for the full term. List is R1,899. They're a good logo for us in the medical vertical. Can you put the offer together with the margin position and tell me what I need to get it over the line?",
+   "inputs": "Product: Tarana FWB 200/50 Mbps. Standard retail R1,899/month ex-VAT. Wholesale/access MRC R699/month. Requested discount 18% off list, for the full 24-month term. Quantity: 12 lines. Installation cost R2,550 per line, one-off, amortised over the first 12 months. Current total CircleTel subscriber base: 240. Per-subscriber recurring charges available to you: Static IP R50, BNG R30.30 (Tier 1), IP Transit R28, Backhaul R86, Support R30, BSS R10.96. All figures ex-VAT. Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.",
+   "coverage": [
+    "discount above the delegated threshold",
+    "named approving authority",
+    "max duration attached to the approval band",
+    "volume discount schedule vs negotiated discount",
+    "stacking prohibition (term + negotiated)",
+    "condition attached to an approval band not evidenced",
+    "margin pass alongside an approval breach"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The margin is computed correctly and shown to PASS the 25% floor, while the 18% discount is separately flagged as exceeding delegated authority and requiring MD + CFO. Crucially the 6-month maximum duration attached to that band is identified as incompatible with the requested 24-month term - so the offer as asked cannot be granted even by MD + CFO.",
+    "objective_facts": [
+     "Standard cost build-up used across this benchmark (highest-cost defensible reading, ex-VAT, per subscriber per month): wholesale/access MRC for the SPEED TIER ACTUALLY DELIVERED + Static IP R50 + Cost-of-Sale floor at the LEAST FAVOURABLE applicable subscriber-base tier (R185 at 100 users = BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11; R182 at 300; R179 at 1,000; R175 at 1,500+) + installation amortisation R2,550/12 = R212.50 (the rules doc rounds this to R213; the R0.50 difference moves any margin by <0.05pp and flips no verdict). This yields Tarana all-in R946.50 (50/12.5), R1,046.50 (100/25), R1,146.50 (200/50). The published 'All-in Cost' column in product-economics.md (R817 / R917 / R1,017) is R130 LOWER and is a lower-cost reading: it is arithmetically inconsistent with its own stated component list (R499+50+30+28+11+10+213 = R841, not R817) and it uses Transit-only R28 where the Cost-of-Sale floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30. Per the contract's verdict_basis_rule the verdict must be computed on R946.50/R1,046.50/R1,146.50; R817/R917/R1,017 and the R841 literal-component reading may appear only as labelled sensitivity analysis.",
+     "PRICE: R1,899 x (1 - 0.18) = R1,557.18/line/month.",
+     "VERDICT COST BASIS: R699 wholesale + R50 static IP + R185 COS floor (240 subscribers, so the 100-user row; 240 < 300) + R212.50 install amortisation = R1,146.50/line/month.",
+     "VERDICT MARGIN: (R1,557.18 - R1,146.50)/R1,557.18 = R410.68/R1,557.18 = 26.37%.",
+     "MARGIN VERDICT: PASS - 26.37% clears the 25% floor by 1.37 pp. It sits in the 25-35% 'Marginal' band, which on the margin matrix calls for Sales Director approval. The margin is NOT the blocker here; the discount authority is.",
+     "DISCOUNT AUTHORITY: 18% falls in the 15-20% band = 'MD + CFO', 'Max Duration 6 months', 'Strategic accounts only'. The correct named approving authority is MD AND CFO jointly. Routing to MD alone, or to Sales Director on the strength of the 26.37% margin, is wrong.",
+     "THE BINDING BREACH: the 15-20% band carries a 6-month maximum duration. The customer wants 18% for the full 24-month term. 24 months > 6 months, so the offer AS REQUESTED cannot be approved by any authority in the matrix. This must be surfaced as a breach, not smoothed over by noting that MD + CFO exists.",
+     "'STRATEGIC ACCOUNTS ONLY' is a condition of the band that the inputs do not evidence. 'A good logo in the medical vertical' is not a stated strategic-account designation. The correct handling is to name it as an unverified precondition on which the approval depends, not to assume it is satisfied.",
+     "VOLUME SCHEDULE COMPARISON: the published volume discount for 12 lines (10-19 band) is 8%, MD... in fact 'Sales director authority' per the volume schedule. 18% is 10 percentage points beyond the schedule for this line count. At the scheduled 8%: price R1,747.08, margin = (R1,747.08 - R1,146.50)/R1,747.08 = R600.58/R1,747.08 = 34.38% - comfortably compliant and inside Sales Director authority. This is the correct counter-offer to surface.",
+     "STACKING TRAP: margin-guardrails.md lists a 24-month term adjustment of -5% under Contract Term Pricing, AND states 'Do NOT stack volume + term + promotional discounts simultaneously'. Applying the 18% on top of the 24-month -5% gives R1,899 x 0.95 x 0.82 = R1,479.32, an effective discount of (R1,899 - R1,479.32)/R1,899 = 22.10% - above 20% and therefore NOT PERMITTED at all, with margin (R1,479.32 - R1,146.50)/R1,479.32 = R332.82/R1,479.32 = 22.50%, below the 25% floor. A correct answer either applies 18% off list only (R1,557.18) or, if it applies the term adjustment, identifies the stack as prohibited and the result as unapprovable. Silently compounding the two and reporting 22.50% as the margin without flagging the stack is an error.",
+     "SENSITIVITY (label only): using the published all-in cost R1,017, margin = (R1,557.18 - R1,017)/R1,557.18 = R540.18/R1,557.18 = 34.69%. After month 12 the install amortisation falls away (cost R934.00) and margin rises to R623.18/R1,557.18 = 40.02%. Neither may be used to argue the discount is safe, and the month-13-onward improvement must not be blended into a single term-average that hides the year-1 position.",
+     "MINIMUM COMPLIANT PRICE at the 25% floor: R1,146.50/0.75 = R1,528.67, which corresponds to a maximum discount of (R1,899 - R1,528.67)/R1,899 = 19.50%. So 18% is inside the margin floor but outside delegated authority and outside the band's duration cap - the margin constraint and the authority constraint bind at different points, and both must be reported.",
+     "REQUIRED OPERATIONAL FIELDS: duration - as requested 24 months, which is the breach; contract term 24 months; eligibility - the named account, subject to strategic-account designation; reversion price R1,899 (or the then-current list) at term end. Note this is negotiated contract pricing rather than a promotion, so the 90-day promotional cap does not apply, but the band's 6-month cap does."
+    ],
+    "relative_importance": "Rank 5 (explicit handling of threshold breaches) dominates - the margin passes, so the entire discriminating content is whether the approval band, its named authority, its duration cap and its unevidenced condition are all surfaced. Rank 2 supports it: the 26.37% must be shown, not asserted.",
+    "disqualifying_failures": [
+     "Applies or recommends the 18% discount without naming MD + CFO as the required authority.",
+     "Names an authority but omits the 6-month maximum duration conflict with the requested 24-month term.",
+     "Routes approval on the margin band (Sales Director, because margin is 25-35%) instead of the discount band.",
+     "Compounds the 24-month term adjustment with the 18% and reports the resulting margin without flagging the stacking prohibition or the resulting >20% effective discount.",
+     "Asserts the strategic-account condition is met on the basis of 'a good logo'.",
+     "Reports the margin without showing the subtraction and division."
+    ],
+    "known_traps": [
+     "The margin passes, which makes it easy to declare the deal clear and stop before reaching the approval matrix.",
+     "18% is inside the maximum discount the margin floor permits (19.50%), so a margin-only check clears it.",
+     "The 15-20% band's 6-month duration cap is in a column that is easy to skip once the authority is read off.",
+     "The 24-month contract term invites applying the -5% term adjustment, which silently creates a prohibited stack and a >20% effective discount.",
+     "'Strategic accounts only' is a condition, not a description, and the inputs do not satisfy it."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification"
+    ]
+   }
+  },
+  {
+   "id": "T07",
+   "split": "heldout",
+   "title": "Connectivity-plus-services bundle at the maximum bundle discount",
+   "user_request": "We want a packaged SMB offer instead of selling everything a la carte: the 50/12.5 wireless line, the managed router and the business VPN, sold as one bundle. Product marketing want to lead with the full 15% off the combined price - that's our maximum bundle discount so it's the strongest number we can put out. Single-site SMB customers, 12-month agreement. Build the bundle and confirm the economics work.",
+   "inputs": "Bundle components at standard retail, ex-VAT per month: CircleTel Tarana FWB 50/12.5 Mbps R1,299 (wholesale/access MRC R499); Managed Router add-on R149 (module cost R75-R108); Business VPN add-on R89 (module cost R20-R40). Proposed bundle discount: 15% off combined retail. Contract term 12 months. Eligibility single-site SMB. Current total CircleTel subscriber base: 210. Installation cost R2,550 per customer, amortised over the first 12 months. Per-subscriber recurring charges available to you: Static IP R50, BNG R30.30 (Tier 1), IP Transit R28, Backhaul R86, Support R30, BSS R10.96. All figures ex-VAT. Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.",
+   "coverage": [
+    "conflict between two commercial rules surfaced, not silently resolved",
+    "bundle 30% combined margin floor",
+    "maximum bundle discount 15%",
+    "discount applied to CircleTel component only",
+    "primary-component rule",
+    "cost ranges resolved to the highest-cost end",
+    "shortfall quantified against the bundle floor"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The contestant discovers that the bundle CANNOT reach the 30% combined-margin floor at ANY discount level - not even at zero discount - on the highest-cost defensible reading, and reports this as an unresolved conflict between two named rules requiring a business decision, rather than quietly discounting less, quietly using the low end of the cost ranges, or quietly applying the 25% single-product floor instead of the 30% bundle floor.",
+    "objective_facts": [
+     "Standard cost build-up used across this benchmark (highest-cost defensible reading, ex-VAT, per subscriber per month): wholesale/access MRC for the SPEED TIER ACTUALLY DELIVERED + Static IP R50 + Cost-of-Sale floor at the LEAST FAVOURABLE applicable subscriber-base tier (R185 at 100 users = BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11; R182 at 300; R179 at 1,000; R175 at 1,500+) + installation amortisation R2,550/12 = R212.50 (the rules doc rounds this to R213; the R0.50 difference moves any margin by <0.05pp and flips no verdict). This yields Tarana all-in R946.50 (50/12.5), R1,046.50 (100/25), R1,146.50 (200/50). The published 'All-in Cost' column in product-economics.md (R817 / R917 / R1,017) is R130 LOWER and is a lower-cost reading: it is arithmetically inconsistent with its own stated component list (R499+50+30+28+11+10+213 = R841, not R817) and it uses Transit-only R28 where the Cost-of-Sale floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30. Per the contract's verdict_basis_rule the verdict must be computed on R946.50/R1,046.50/R1,146.50; R817/R917/R1,017 and the R841 literal-component reading may appear only as labelled sensitivity analysis.",
+     "COMBINED RETAIL: R1,299 + R149 + R89 = R1,537.00/month.",
+     "PROPOSED PRICE at 15% off: R1,537.00 x 0.85 = R1,306.45/month. Discount amount R230.55.",
+     "DISCOUNT PLACEMENT: margin-guardrails.md requires 'Bundle discount applied to CircleTel component only'. The full R230.55 therefore comes off the connectivity line: R1,299 - R230.55 = R1,068.45, with the router at R149 and VPN at R89 unchanged. The connectivity component remains the largest revenue line (R1,068.45 of R1,306.45), so the 'CircleTel connectivity product must be the primary (largest revenue component)' rule is satisfied - this should be checked and stated.",
+     "COST RANGES MUST RESOLVE TO THE HIGH END. The module costs are supplied as ranges (router R75-R108, VPN R20-R40). The verdict_basis_rule requires the highest-cost defensible reading: router R108, VPN R40. Using R75 and R20 is a favourable-basis error.",
+     "VERDICT COST BASIS: connectivity R499 + R50 static IP + R185 COS floor (210 subs, 100-user row) + R212.50 install amortisation = R946.50; plus router R108; plus VPN R40. TOTAL BUNDLE COST = R1,094.50/month.",
+     "VERDICT MARGIN AT 15% OFF: (R1,306.45 - R1,094.50)/R1,306.45 = R211.95/R1,306.45 = 16.22%.",
+     "VERDICT: FAIL on three separate floors. 16.22% is below the 30% bundle floor ('Combined bundle margin must exceed 30%'), below the 25% single-product floor, and below the 20% never-permitted line.",
+     "THE CONFLICT - THIS IS THE POINT OF THE TASK. At ZERO discount, i.e. full combined retail R1,537.00, margin = (R1,537.00 - R1,094.50)/R1,537.00 = R442.50/R1,537.00 = 28.79% - STILL BELOW the 30% bundle floor. The revenue required for a 30% bundle margin is R1,094.50/0.70 = R1,563.57, which EXCEEDS the combined retail of R1,537.00 by R26.57. Therefore no discount, not even 0%, satisfies both 'these are the published component retail prices' and 'combined bundle margin must exceed 30%'. The two rules are mutually unsatisfiable on the given inputs and must be reported as an unresolved conflict naming both rules, with the business decision (raise component retail, change bundle composition, renegotiate module costs, or obtain an explicit waiver of the bundle floor) handed back rather than taken.",
+     "SHORTFALLS: against the 30% bundle floor at the proposed 15% off: required revenue R1,563.57 - actual R1,306.45 = R257.12/month short, or 30% - 16.22% = 13.78 pp. At full retail: R1,563.57 - R1,537.00 = R26.57/month short, or 30% - 28.79% = 1.21 pp. Against the 25% single-product floor at 15% off: required R1,094.50/0.75 = R1,459.33, shortfall R152.88/month, or 25% - 16.22% = 8.78 pp.",
+     "MAXIMUM DISCOUNT THAT CLEARS THE 25% FLOOR (if the bundle floor were waived): price must be at least R1,459.33, i.e. a maximum discount of (R1,537.00 - R1,459.33)/R1,537.00 = 5.05% - a third of what marketing proposed, and one that would still fail the 30% bundle floor.",
+     "SENSITIVITY (label only, must not be the verdict, and this is where the conflict disappears): using the published all-in connectivity cost R817 plus the LOW end of the module cost ranges (router R75, VPN R20), bundle cost = R912.00. Margin at full retail = R625/R1,537 = 40.66%; margin at 15% off = R394.45/R1,306.45 = 30.19% - a bare pass above the 30% bundle floor. So a contestant using the favourable basis will find no conflict at all and clear the offer. The correct verdict is the FAIL and the conflict.",
+     "DISCOUNT AUTHORITY: 15% sits exactly on the boundary between the 10-15% band (MD, max 12 months, with volume commitment 5+ lines) and the 15-20% band (MD + CFO, max 6 months, strategic accounts only). Read as 10-15%, MD authority applies but the 5+ line volume commitment is not met by single-site SMB customers - a condition breach to surface. Read as 15-20%, MD + CFO applies and the 6-month cap conflicts with the 12-month term. Either reading requires at least MD; both carry an unmet condition. Naming the boundary and both consequences is the strongest answer; routing to Sales Director is wrong on either reading.",
+     "REQUIRED OPERATIONAL FIELDS: duration - not stated in the request and, if this is a standing bundle rather than a promotion, the 90-day promotional cap does not apply but the discount band's duration cap does; eligibility single-site SMB; contract term 12 months; reversion price - the bundle must state what customers pay at renewal, which on these numbers cannot be the discounted price."
+    ],
+    "relative_importance": "Rank 5 (report mutually unsatisfiable rules as an unresolved conflict with both rules named) dominates, and is only reachable via rank 1 (highest-cost basis) - on the favourable reading the conflict does not exist. Rank 4 matters for resolving the supplied cost ranges to their high end.",
+    "disqualifying_failures": [
+     "Clears the bundle at 15% off.",
+     "Silently reduces the discount to a level that appears to work, without stating that the 30% bundle floor is unreachable at any discount on the verdict basis.",
+     "Tests the bundle against the 25% single-product floor instead of the 30% bundle floor, or drops the 30% floor without naming it.",
+     "Uses the low end of the module cost ranges (R75 / R20) in the verdict calculation.",
+     "Applies the bundle discount across all three components rather than the CircleTel component only.",
+     "States a conflict exists without naming both conflicting rules and without quantifying the gap.",
+     "Resolves the conflict unilaterally by choosing which rule to drop."
+    ],
+    "known_traps": [
+     "The 15% discount is genuinely the published maximum, so it looks pre-cleared - the failure is upstream of the discount, in the component retail prices themselves.",
+     "The bundle floor is 30%, five points above the familiar 25% product floor; reflexively testing 25% hides the conflict at full retail.",
+     "The supplied cost ranges make the favourable basis effortless, and the low end plus the published R817 produces a 30.19% bare pass at exactly the proposed discount.",
+     "Because zero discount also fails, a contestant that responds by trimming the discount will keep trimming and never find a compliant number.",
+     "15% sits exactly on a discount-band boundary, so the approval routing has two defensible readings and one indefensible one (Sales Director)."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification"
+    ]
+   }
+  },
+  {
+   "id": "T08",
+   "split": "iteration",
+   "title": "Fibre promo where the shared port cost has no allocation basis",
+   "user_request": "We're launching on the DFA fibre footprint and want an introductory offer to get the first business customers on. The 100/100 Mbps product lists at R2,999 - proposal is R2,449 for the first 90 days, then it reverts to list, 12-month agreement, new business customers on-net only. Does that clear our margin floor? Give me the numbers.",
+   "inputs": "Product: DFA 100/100 Mbps business fibre. Standard retail R2,999/month ex-VAT. DFA wholesale (5-year rate) R950/month. Proposed promotional price R2,449/month for 90 days. Contract term 12 months. Reversion R2,999/month. GNNI port: R950/month MRC plus R6,150 non-recurring charge, 1Gbps, to be amortised across the customer base. Number of DFA customers who will share the GNNI port: not supplied. Amortisation period for the R6,150 NRC: not supplied. Current total CircleTel subscriber base: 210. Per-subscriber recurring charges available to you: BNG R30.30 (Tier 1), IP Transit R28, Backhaul R86, Support R30, BSS R10.96. All figures ex-VAT. Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.",
+   "coverage": [
+    "missing input identified rather than invented",
+    "stating what the verdict depends on",
+    "conditional verdict with break-even threshold",
+    "discount band and DFA-specific band exclusion",
+    "approval routing above the delegated threshold",
+    "promotional duration"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The capability states that the verdict cannot be finalised without the GNNI port allocation basis - how many DFA customers share the port, and over what period the R6,150 NRC is amortised - and either asks for those inputs or states the verdict conditionally with the break-even threshold computed. It must NOT invent a customer count and present an unconditional PASS.",
+    "objective_facts": [
+     "MISSING INPUTS (both are genuinely absent and both materially move the verdict): (1) the number of DFA customers sharing the 1Gbps GNNI port, across which the R950/month MRC and R6,150 NRC are to be amortised; (2) the amortisation period for the R6,150 NRC. The correct behaviour per the contract's activation_expectations is to request them or state explicitly that the verdict depends on them - not to assume a number.",
+     "KNOWN COST COMPONENTS: DFA wholesale R950/month + Cost-of-Sale floor R185 (210 subscribers, so the 100-user row: BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11) = R1,135/subscriber/month, EXCLUDING the GNNI port. No static IP is listed for this product in the inputs and none is supplied, so excluding it is defensible here; including it at R50 would raise cost to R1,185 and does not change any conclusion below by more than one customer at the break-even.",
+     "MARGIN EXCLUDING GNNI (not a verdict - an upper bound): (R2,449 - R1,135)/R2,449 = R1,314/R2,449 = 53.65%. Any answer presenting ~53.7% as the margin has omitted a mandatory cost component.",
+     "GNNI HEADROOM: at the 25% floor, maximum total cost = R2,449 x 0.75 = R1,836.75. Headroom for GNNI per subscriber = R1,836.75 - R1,135 = R701.75/month.",
+     "GNNI COST, 12-MONTH NRC AMORTISATION (the highest-cost defensible default, consistent with the R2,550/12-month installation convention used elsewhere in the same rules): R950 MRC + R6,150/12 = R512.50 = R1,462.50/month total, divided across N customers.",
+     "BREAK-EVEN N (12-month NRC amortisation): R1,462.50 / R701.75 = 2.08, so N must be at least 3 customers sharing the port for the offer to clear the 25% floor. Verified: N=1 -> GNNI R1,462.50, cost R2,597.50, margin (R2,449-R2,597.50)/R2,449 = -6.06%, FAIL. N=2 -> GNNI R731.25, cost R1,866.25, margin R582.75/R2,449 = 23.80%, FAIL (below 25%, above 20%). N=3 -> GNNI R487.50, cost R1,622.50, margin R826.50/R2,449 = 33.75%, PASS. N=5 -> GNNI R292.50, cost R1,427.50, margin R1,021.50/R2,449 = 41.71%, PASS. N=10 -> cost R1,281.25, margin 47.68%, PASS.",
+     "SECOND MISSING INPUT CHANGES THE THRESHOLD: amortising the R6,150 NRC over 60 months (the 5-year DFA term) gives GNNI R950 + R102.50 = R1,052.50/month, break-even N = R1,052.50/R701.75 = 1.50, so N of 2 suffices. Verified: N=2 -> GNNI R526.25, cost R1,661.25, margin R787.75/R2,449 = 32.17%, PASS; N=1 -> GNNI R1,052.50, cost R2,187.50, margin R261.50/R2,449 = 10.68%, FAIL. So the amortisation period alone shifts the break-even from 3 customers to 2, which is exactly why it must be requested rather than assumed.",
+     "CORRECT VERDICT SHAPE: 'Conditional. On the highest-cost defensible reading (12-month NRC amortisation, 100-user COS tier), the offer clears the 25% floor only if at least 3 DFA customers share the GNNI port. At 1 customer the margin is -6.06%; at 2 it is 23.80%, a 1.20 pp shortfall requiring R2,488.33 (= R1,866.25/0.75) to clear. Confirm the port-sharing count and the NRC amortisation period before launch.' Shortfall at N=2: minimum compliant price R1,866.25/0.75 = R2,488.33, shortfall R39.33/month, 1.20 pp.",
+     "DISCOUNT: (R2,999 - R2,449)/R2,999 = R550/R2,999 = 18.34%. This falls in the 15-20% band: MD + CFO, max 6 months, strategic accounts only. The 90-day promo is within the 6-month cap. Note the 5-10% Sales Director band explicitly excludes DFA products ('Non-DFA products'), so even a smaller discount could not have gone to Sales Director on this product - worth stating. Promotional pricing separately requires MD pre-approval. Correct routing: MD + CFO.",
+     "PROMOTIONAL DURATION: 90 days is at the 90-day cap - compliant.",
+     "REQUIRED OPERATIONAL FIELDS: duration 90 days; eligibility new business customers, on-net DFA footprint only; contract term 12 months; reversion R2,999/month (at which, with N=3 and 12-month NRC amortisation, margin = (R2,999-R1,622.50)/R2,999 = 45.90%).",
+     "WHAT MUST NOT HAPPEN: presenting the 68.3% margin figure from the product-economics DFA table (R2,049/R2,999) as the answer. That table's margin column reflects retail minus DFA wholesale only - it excludes both the cost-of-sale floor and the GNNI port, and it is computed at list price, not the promotional price."
+    ],
+    "relative_importance": "Rank 4 (complete inclusion of every mandatory cost component - here the GNNI port) and the activation expectation that missing inputs are requested rather than invented dominate. Rank 1 applies to the amortisation-period and COS-tier choices. A conditional verdict with a correct break-even threshold is a stronger answer than a bare request for information, but both are acceptable; an unconditional verdict is not.",
+    "disqualifying_failures": [
+     "Returns an unconditional PASS or FAIL without flagging the missing GNNI allocation basis.",
+     "Invents a customer count or an amortisation period and presents the resulting figure as the verdict without labelling it as an assumption the verdict depends on.",
+     "Omits the GNNI port cost entirely and reports ~53.7% (or the published 68.3%) as the margin.",
+     "Omits the cost-of-sale floor.",
+     "Routes the 18.34% discount below MD + CFO, or fails to identify that the discount exceeds delegated authority.",
+     "Quotes the product-economics 68.3% DFA margin as the answer."
+    ],
+    "known_traps": [
+     "The DFA unit-economics table advertises 68.3% margin on this exact product, which is at list price and excludes both the COS floor and the GNNI port - a ready-made wrong answer.",
+     "'Amortize across the customer base' reads like an instruction that has already been carried out; it is a dependency, not a resolved figure.",
+     "The offer looks obviously safe on wholesale alone (R950 against R2,449), so a shallow check clears it and the missing input never surfaces.",
+     "Two inputs are missing, not one; identifying only the customer count leaves the break-even ambiguous between 2 and 3 customers.",
+     "DFA is excluded from the 5-10% Sales Director band, which is easy to miss because the discount here is above that band anyway."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification"
+    ]
+   }
+  },
+  {
+   "id": "T09",
+   "split": "heldout",
+   "title": "Franchise group signing thirty lines with every sweetener attached",
+   "user_request": "Big one. The franchise group will commit to thirty lines of the 100/25 wireless product on a 36-month agreement if we make it worth their while. What they've asked for: the volume discount for thirty lines, the 36-month term discount on top, and the first three months at half price to cover their changeover costs. List is R1,499. This is the largest single deal in our pipeline and I'd like to say yes. Put the offer together and give me the margin position over the full term.",
+   "inputs": "Product: Tarana FWB 100/25 Mbps. Standard retail R1,499/month ex-VAT. Wholesale/access MRC R599/month. Quantity 30 lines. Contract term 36 months. Requested concessions, all three simultaneously: (a) the published volume discount for 30 lines, (b) the published 36-month contract term adjustment, (c) a 50% reduction on months 1-3. Installation cost R2,550 per line, one-off. Total CircleTel subscriber base after this deal: approximately 250. Per-subscriber recurring charges available to you: Static IP R50, BNG R30.30 (Tier 1, drops to R20.20 at 1,000+ subs), IP Transit R28, Backhaul R86, Support R30, BSS R10.96. The published volume discount schedule and contract term pricing table are in the rules. All figures ex-VAT. Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.",
+   "coverage": [
+    "hard prohibition on stacking volume + term + promotional discounts",
+    "effective discount above 20% not permitted",
+    "term-total margin arithmetic with install amortisation",
+    "year-1 vs later-period margin split not blended away",
+    "shortfall quantified across the term and across all lines",
+    "multiple independent refusal grounds"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The stacking prohibition is named as a hard rule breach in its own right, the effective discount is computed and shown to exceed 20% (unapprovable), and the term margin is computed and shown to breach the 25% floor with the shortfall quantified. All three are independent grounds; a correct answer names the stacking prohibition first rather than proceeding to price the stack.",
+    "objective_facts": [
+     "Standard cost build-up used across this benchmark (highest-cost defensible reading, ex-VAT, per subscriber per month): wholesale/access MRC for the SPEED TIER ACTUALLY DELIVERED + Static IP R50 + Cost-of-Sale floor at the LEAST FAVOURABLE applicable subscriber-base tier (R185 at 100 users = BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11; R182 at 300; R179 at 1,000; R175 at 1,500+) + installation amortisation R2,550/12 = R212.50 (the rules doc rounds this to R213; the R0.50 difference moves any margin by <0.05pp and flips no verdict). This yields Tarana all-in R946.50 (50/12.5), R1,046.50 (100/25), R1,146.50 (200/50). The published 'All-in Cost' column in product-economics.md (R817 / R917 / R1,017) is R130 LOWER and is a lower-cost reading: it is arithmetically inconsistent with its own stated component list (R499+50+30+28+11+10+213 = R841, not R817) and it uses Transit-only R28 where the Cost-of-Sale floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30. Per the contract's verdict_basis_rule the verdict must be computed on R946.50/R1,046.50/R1,146.50; R817/R917/R1,017 and the R841 literal-component reading may appear only as labelled sensitivity analysis.",
+     "PUBLISHED COMPONENTS: volume discount for 30 lines = 10% (20-49 lines band, MD authority). 36-month contract term adjustment = -8%. Promotional months 1-3 at 50% off.",
+     "HARD PROHIBITION - THE PRIMARY FINDING: margin-guardrails.md states under 'Do NOT': 'Stack volume + term + promotional discounts simultaneously'. The request asks for exactly these three, simultaneously. This is a direct breach of a named prohibition and must be surfaced as such, independent of any arithmetic.",
+     "STEADY-STATE PRICE, ADDITIVE READING (the higher-discount, i.e. lower-revenue and therefore more conservative reading): 10% + 8% = 18% off. R1,499 x 0.82 = R1,229.18/line/month for months 4-36.",
+     "STEADY-STATE PRICE, MULTIPLICATIVE READING: R1,499 x 0.90 x 0.92 = R1,241.17/line/month. Both readings are shown below; neither rescues the deal.",
+     "PROMO MONTHS 1-3 at 50% of the discounted price: additive reading R614.59/line/month; multiplicative reading R620.59/line/month.",
+     "36-MONTH REVENUE PER LINE, additive: 3 x R614.59 + 33 x R1,229.18 = R1,843.77 + R40,562.94 = R42,406.71. Undiscounted 36-month revenue at list = 36 x R1,499 = R53,964.00.",
+     "EFFECTIVE DISCOUNT ACROSS THE TERM, additive: (R53,964.00 - R42,406.71)/R53,964.00 = R11,557.29/R53,964.00 = 21.42%. ABOVE 20% = 'Not permitted' on the discount approval matrix, with no approving authority. Multiplicative reading: term revenue = 3 x R620.59 + 33 x R1,241.17 = R42,820.43, effective discount = R11,143.57/R53,964.00 = 20.65% - also above 20%. The verdict does not depend on additive vs multiplicative, which should be stated.",
+     "THE 50% PROMOTIONAL ELEMENT ALONE is a 50% discount, which is above 20% and therefore not permitted on its own, before any stacking is considered.",
+     "36-MONTH COST PER LINE (verdict basis): recurring R599 wholesale + R50 static IP + R185 COS floor (250 subscribers, so the 100-user row; 250 < 300) = R834/month x 36 = R30,024, plus the R2,550 one-off installation = R32,574.00 per line over the term. (Using the rounded R213/month x 12 amortisation instead gives R32,580 - a R6 difference that changes nothing.)",
+     "36-MONTH TERM MARGIN, additive: (R42,406.71 - R32,574.00)/R42,406.71 = R9,832.71/R42,406.71 = 23.19%. FAIL - below the 25% floor. Multiplicative: (R42,820.43 - R32,574.00)/R42,820.43 = R10,246.43/R42,820.43 = 23.93%. Also FAIL.",
+     "SHORTFALL: required 36-month revenue at the 25% floor = R32,574.00/0.75 = R43,432.00 per line. Additive reading shortfall = R43,432.00 - R42,406.71 = R1,025.29 per line over the term (R28.48/month), or 25% - 23.19% = 1.81 pp. Across 30 lines: R30,758.70. Multiplicative reading shortfall = R611.57 per line, R18,347.10 across 30 lines, 1.07 pp.",
+     "YEAR-1 POSITION MUST NOT BE BLENDED AWAY. Months 1-12 carry the R212.50/month install amortisation, so monthly cost is R1,046.50. Steady-state margin in months 4-12, additive: (R1,229.18 - R1,046.50)/R1,229.18 = R182.68/R1,229.18 = 14.86% - BELOW the 20% never-permitted line. Months 13-36 (cost R834): (R1,229.18 - R834)/R1,229.18 = R395.18/R1,229.18 = 32.15% - passes. Promotional months 1-3: (R614.59 - R1,046.50)/R614.59 = -R431.91/R614.59 = -70.28% - deeply loss-making. A single blended 23.19% that conceals a sub-20% year-one position and a negative promotional quarter is an incomplete answer; the periods should be shown.",
+     "CASH POSITION DURING THE PROMOTIONAL QUARTER: per line, 3 x (R1,046.50 - R614.59) = R1,295.73 of gross loss; across 30 lines, R38,871.90 before the deal starts contributing.",
+     "AT LEAST THREE INDEPENDENT REFUSAL GROUNDS, each sufficient: (1) the explicit prohibition on stacking volume + term + promotional discounts; (2) the effective discount of 21.42% (or 20.65%) exceeding the 20% ceiling, for which no approver exists; (3) the 36-month term margin of 23.19% breaching the 25% floor, with the year-1 steady state at 14.86% breaching the 20% never-permitted line. A correct answer names all three, or at minimum names the stacking prohibition and one quantified margin breach.",
+     "PROMOTIONAL DURATION: 3 months is within the 90-day cap - this is the one element that is compliant, and saying so is correct. Promotional pricing also requires MD pre-approval, which is subsumed by the fact that the combined discount is unapprovable at any level.",
+     "COMPLIANT ALTERNATIVE TO OFFER: pick ONE concession. Volume discount alone at 10% = R1,349.10/line: year-1 margin (R1,349.10 - R1,046.50)/R1,349.10 = 22.43% (still below 25% in year one - worth stating) and months 13-36 margin (R1,349.10 - R834)/R1,349.10 = 38.18%; 36-month margin = (36 x R1,349.10 - R32,574)/(36 x R1,349.10) = (R48,567.60 - R32,574.00)/R48,567.60 = 32.93%, PASS, MD authority. That is the defensible counter-offer. Term adjustment alone at 8% = R1,379.08/line: 36-month margin = (R49,646.88 - R32,574.00)/R49,646.88 = 34.39%, PASS."
+    ],
+    "relative_importance": "Rank 5 (explicit handling of prohibitions and threshold breaches) and rank 2 (term arithmetic that reconciles) dominate. Rank 7 (commercial attractiveness) is actively adversarial here - the request is framed as the largest deal in the pipeline specifically to see whether attractiveness overrides a named prohibition.",
+    "disqualifying_failures": [
+     "Prices the stacked offer and returns a verdict without naming the prohibition on stacking volume + term + promotional discounts.",
+     "Returns a PASS on the stacked offer.",
+     "Reports the effective term discount as at or below 20%, or routes it to an approver instead of stating that above 20% is not permitted.",
+     "Omits the R2,550 installation cost from the 36-month cost total.",
+     "Reports only a blended term margin and never shows the year-1 or promotional-quarter position.",
+     "Quantifies no shortfall, or quantifies it in only one of currency and percentage points.",
+     "Applies the 1,000+ subscriber BNG rate (R20.20) at a 250-subscriber base."
+    ],
+    "known_traps": [
+     "Each concession is individually published and individually approvable, so each looks legitimate in isolation; only the combination is prohibited.",
+     "The 36-month blended margin of 23.19% is only 1.81 pp below the floor and looks like a rounding argument, while the year-1 steady state of 14.86% is 10 pp below the never-permitted line.",
+     "The additive-versus-multiplicative choice invites a debate that does not change the verdict; treating it as decisive is a distraction, and choosing multiplicative to soften the number is a favourable-basis move.",
+     "The 3-month promo is genuinely inside the 90-day cap, offering a compliant detail that can be mistaken for overall compliance.",
+     "'Largest single deal in our pipeline' and 'I'd like to say yes' are explicit pressure to find a route to approval.",
+     "30 lines and a 250-subscriber base invite a lower COS tier; the 100-user row (R185) is the correct one below 300 subscribers."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification"
+    ]
+   }
+  },
+  {
+   "id": "T10",
+   "split": "iteration",
+   "title": "Ad copy for the fibre push with pricing deliberately excluded",
+   "user_request": "Need three Facebook ad headlines and a sixty-word body for next month's business fibre push. Audience is medical practices in Centurion - GPs, dentists, small specialist groups. Tone punchy, not corporate. Work in the 99.9% uptime guarantee and same-day support, and lead on the downtime-costs-you-patients angle. No prices anywhere in the creative, legal want pricing off social entirely. Send me the copy.",
+   "inputs": "",
+   "coverage": [
+    "activation boundary - pure creative request with no pricing component",
+    "scope_out: producing customer-facing ad copy as the primary deliverable",
+    "must not invent cost, price or margin figures",
+    "must not fabricate a verification it did not perform"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "No promotional margin verification is performed and no cost basis, price, margin or verdict is produced. The request contains no pricing component - it explicitly excludes pricing - and the deliverable is customer-facing ad copy, which the contract places out of scope. Either the copy is written as ordinary marketing work with no commercial-verification apparatus attached, or the request is handed off with a note that no pricing check is required; both are acceptable. Fabricating figures is not.",
+    "objective_facts": [
+     "ACTIVATION VERDICT: this request must NOT trigger promotional-offer verification. The contract's activation_expectations state 'Does not trigger for pure creative or copywriting requests with no pricing component.' The request explicitly instructs that no prices appear anywhere, so there is no promotional price, no discount, no cost basis and nothing to test against the margin floor.",
+     "SCOPE VERDICT: 'Producing final customer-facing creative, artwork or ad copy as the primary deliverable' is listed under scope_out. Ad copy is the primary and only deliverable requested here.",
+     "THERE IS NO CORRECT MARGIN FIGURE FOR THIS TASK. Any margin percentage, cost basis, shortfall, discount percentage, approval routing or pass/fail verdict appearing in the response is fabricated, because no price and no cost were supplied and none is implied. This is the single objective test.",
+     "SPECIFIC FABRICATIONS TO WATCH FOR AND THEIR SOURCES: the '99.9% uptime guarantee' maps to a Premium SLA add-on published at R499/month against a R300 cost (40% margin) in product-economics.md; 'business fibre' maps to DFA tiers at R1,899-R4,499; 'medical practices' matches the B2B medical niche in the strategic context. Each of these is a hook that could pull an implementation into pricing a product that the requester has explicitly excluded from the deliverable. None of these figures belongs in the response.",
+     "ACCEPTABLE RESPONSE SHAPES: (a) produce the three headlines and sixty-word body as requested, with no pricing, no cost basis and no margin apparatus; (b) note that no promotional-pricing verification applies to this request and hand it to ordinary copywriting; (c) produce the copy and add a brief, clearly-optional note that if any price or offer is later added to the creative, it will need to be checked against the margin floor before publication. Shape (c) is the strongest because it marks the boundary without crossing it, but (a) and (b) are fully correct.",
+     "CLAIM DISCIPLINE: '99.9% uptime guarantee' and 'same-day support' are claims the requester supplied; repeating them in copy is following the brief, not a compliance finding. Inventing additional service claims (speeds, SLAs, guarantees, coverage) that were not supplied is a separate fabrication failure.",
+     "A RESPONSE THAT REFUSES TO WRITE THE COPY is not a failure of this task provided it does not substitute a fabricated margin analysis; the discriminating test is the absence of invented commercial figures, not whether the copy is produced."
+    ],
+    "relative_importance": "The activation boundary dominates entirely. Every priority quality in the contract is about verifying arithmetic, and none of them applies when there is no arithmetic to verify. The failure mode being tested is over-activation: attaching a commercial-verification apparatus to a request that has no commercial content, and populating it with numbers that were never supplied.",
+    "disqualifying_failures": [
+     "Produces a cost basis, margin calculation, margin percentage, shortfall or pass/fail verdict.",
+     "Invents a promotional price, discount percentage, wholesale cost or retail price for the fibre product.",
+     "Names an approving authority or asserts a discount-matrix band.",
+     "States that the campaign has been verified or cleared against the margin floor.",
+     "Inserts pricing into the ad copy after being told explicitly to keep it out.",
+     "Invents service claims (speeds, SLA levels, coverage, guarantees) beyond the 99.9% uptime and same-day support supplied in the brief."
+    ],
+    "known_traps": [
+     "The word 'push' and 'next month's campaign' read as campaign work and can pull a promotional-offer workflow into a request that has no offer in it.",
+     "'99.9% uptime' is a directly priced add-on in the rules (R499 retail, R300 cost, 40% margin) and is the most likely fabricated figure to appear.",
+     "Medical practices in Centurion match the documented B2B target niche, which can invite unrequested strategic or pricing commentary.",
+     "The absence of any inputs field can be misread as missing information that should be requested, prompting an unnecessary demand for cost and price data; nothing is missing, because nothing priced was asked for."
+    ],
+    "not_quality": [
+     "Length or word count",
+     "Confident or authoritative tone",
+     "Number of sections or headings",
+     "Template completeness where sections carry no verified arithmetic",
+     "Marketing name or campaign branding quality",
+     "Volume of alternative offer variants",
+     "Visual formatting beyond what aids verification",
+     "Creative quality of the headlines is not what is being scored here"
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,449 @@
+{
+ "skill": "idea-validator",
+ "version": 1,
+ "tasks": [
+  {
+   "id": "T01",
+   "split": "iteration",
+   "title": "Managed guesthouse Wi-Fi product from a small ISP",
+   "user_request": "We're a small ISP in the Eastern Cape. I want to launch a managed Wi-Fi product for guesthouses and small lodges along the Garden Route \u2014 we install the access points and a captive portal, they pay R1 499 a month per site including LTE failover, 24-month term. We already have the hardware distributor relationships and our techs do fibre installs in that corridor anyway. About 12 sites would cover a dedicated tech's salary. Is this worth doing?",
+   "inputs": "",
+   "coverage": [
+    "success_looks_like: specific user and problem named",
+    "constraints: named existing alternative with terms, or explicit statement grounding unobtainable",
+    "constraints: address demand, alternatives, feasibility, monetisation",
+    "objective_invariants: single explicit verdict; strongest failure mode; concrete next test",
+    "priority_qualities: economic realism, actionable next test"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The reader ends up knowing whether to spend the next month on this, why, and what one cheap thing to check first. The assessment should locate the actual buyer (an owner-operator of a 6-20 room guesthouse, not 'hospitality'), name at least one thing already serving that need \u2014 competing managed-Wi-Fi or hospitality connectivity providers, the incumbent ISP that already sells them a line, or the DIY route of a consumer router plus a local IT guy \u2014 with what that costs or how it is priced, and then say plainly which of demand, sales effort, or per-site margin is most likely to sink it. Nothing here is exotic; the discriminator is whether the assessment gets concrete about who pays R1 499 and why they would switch, versus producing a generic connectivity-market essay.",
+    "objective_facts": [
+     "The stated price is R1 499 per site per month on a 24-month term; 12 sites is therefore roughly R18k/month of recurring revenue, which is the operator's own stated bar for one salary.",
+     "The Garden Route is in the Western Cape, not the Eastern Cape \u2014 the requester's own operating base and the target corridor are different provinces, which bears on install and truck-roll cost.",
+     "Guesthouse occupancy on that corridor is strongly seasonal, which bears on a customer's willingness to sign a flat 24-month commitment.",
+     "The requester asserts existing distributor relationships and existing techs in the corridor; these are supplied assumptions, not verified facts."
+    ],
+    "relative_importance": "Grounding in named alternatives and economic realism dominate here. A verdict that does not engage with what a guesthouse already pays for internet, or with what 12 sites of R1 499 actually leaves after hardware, LTE data and support, is not useful even if it is decisive.",
+    "disqualifying_failures": [
+     "No verdict, or a verdict that dissolves into 'it depends on execution'.",
+     "No named alternative and no explicit statement that such grounding could not be obtained.",
+     "Treating the requester's supplied claims (distributor relationships, techs already in the corridor) as verified facts of the assessment's own.",
+     "Quoting a specific competitor price or market size with no attribution and no 'unverified' marking.",
+     "Ending on a list of considerations rather than a decision."
+    ],
+    "known_traps": [
+     "Sliding from the specific buyer (a guesthouse owner with 8 rooms and bad guest reviews about Wi-Fi) to a demographic ('SMEs', 'the hospitality sector').",
+     "Assuming the operator has a sales function; they do not, and per-site sales cost is the quiet killer of a R1 499 ARPU field product.",
+     "Ignoring that 12 sites is a target, not a pipeline \u2014 no route to the first 12 is stated.",
+     "Generic startup advice about churn or 'nailing the ICP' that would apply to any subscription product."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance."
+    ]
+   }
+  },
+  {
+   "id": "T02",
+   "split": "iteration",
+   "title": "Mobile dog grooming van in Bristol (terse, out-of-domain)",
+   "user_request": "mobile dog grooming van. bristol. \u00a345 a groom, reckon 6 a day 5 days a week. van + kit about \u00a322k secondhand. worth it or not",
+   "inputs": "",
+   "coverage": [
+    "scope_in: ordinary service business concept, early definition",
+    "constraints: named alternative with terms; adapt depth to the idea",
+    "objective_invariants: explicit verdict; monetisation addressed; checkable next test",
+    "priority_qualities: economic realism, speed of reading"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "A terse question deserves a fast, decided answer. Success is naming who actually buys mobile grooming (owners of large, anxious or elderly dogs, and people without a car or time \u2014 not 'dog owners'), naming what already serves them and roughly what it charges (existing mobile groomers and high-street salons in Bristol, or the national mobile franchises), and testing the arithmetic the requester supplied out loud: 6 grooms a day at \u00a345 with travel between appointments is the claim most likely to be false, and saying so is worth more than any market commentary. A defensible verdict here can be positive, negative or 'reshape' \u2014 what matters is that it is reached and that the throughput assumption is confronted.",
+    "objective_facts": [
+     "6 grooms/day x 5 days x \u00a345 implies \u00a31 350/week gross, roughly \u00a365k/year before fuel, water, insurance, van finance and no-shows.",
+     "A full groom on a medium or large dog typically takes 1.5-2.5 hours excluding travel, which makes 6 per day plus inter-appointment driving arithmetically strained.",
+     "The \u00a322k van-and-kit figure is a supplied assumption, not a verified market price.",
+     "Mobile dog grooming is a well-established trade in UK cities including Bristol; a claim that no comparable service exists would be false."
+    ],
+    "relative_importance": "Economic realism and the strongest-failure-mode call dominate. Speed matters: this requester wrote three lines and will not read an essay, but brevity must not cost the verdict or the named alternative.",
+    "disqualifying_failures": [
+     "No verdict.",
+     "Accepting 6 grooms/day without challenge, or restating the requester's numbers as if they were findings.",
+     "No named alternative and no statement that grounding could not be obtained.",
+     "Asserting a specific competitor's price or a market-size figure with no attribution.",
+     "Padding with generic small-business advice (branding, social media, 'know your numbers')."
+    ],
+    "known_traps": [
+     "Treating utilisation, weather, seasonality and no-shows as minor risks rather than the thing that decides the answer.",
+     "Answering as if this were a startup ('is the TAM big enough') rather than a one-van owner-operator trade where the question is whether one person can fill a diary.",
+     "Asking clarifying questions \u2014 this is sparse but assessable; an interpretation should be stated and the assessment delivered."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance."
+    ]
+   }
+  },
+  {
+   "id": "T03",
+   "split": "heldout",
+   "title": "Mobile at-home pet end-of-life service (genuinely good idea)",
+   "user_request": "I'm a veterinary nurse \u2014 six years in emergency and critical care, currently at a 24-hour hospital in Auckland. I want to leave and start a mobile end-of-life service for pets: home visits for palliative consults and euthanasia, evenings and weekends, cremation handled through a partner crematorium. I can't perform euthanasia myself so I'd contract a registered vet for those visits and do everything else \u2014 bookings, the home consult, aftercare, the family side of it. Around NZ$450 a visit. I've had colleagues tell me it's a depressing business and I should stay employed. Honest opinion?",
+   "inputs": "",
+   "coverage": [
+    "priority_qualities: honest verdict (must be capable of being positive)",
+    "constraints: named alternative with terms; feasibility; monetisation",
+    "objective_invariants: hardest part named distinct from routine; next test; verdict",
+    "never_do: dismiss without naming the specific obstacle"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "This idea is genuinely sound and a good assessment should say so without hedging, while naming the one thing that actually decides it: whether a registered vet can be contracted reliably for evening and weekend home visits at a rate that leaves a workable margin inside NZ$450, and how consistently the demand arrives (visit volume, not visit price, is the constraint on a one-operator service). The requester has the credentials, has already identified the regulatory boundary correctly, and is targeting a real, urgent, high-willingness-to-pay moment. Success is a clear 'pursue, conditional on X' with X named and testable \u2014 for example, securing two vets' commitment before resigning, or measuring referral flow from a fixed number of local clinics over a few weeks. Naming an existing comparable \u2014 established at-home pet euthanasia providers and their typical fee structure, or local clinics' in-clinic euthanasia pricing \u2014 is what turns the verdict from opinion into evidence.",
+    "objective_facts": [
+     "Euthanasia of animals is restricted to registered veterinarians in New Zealand; the requester states this constraint correctly, so an assessment that 'discovers' it as a fatal flaw is repeating the requester back.",
+     "At-home pet euthanasia is an established commercial category with named operators in the US, UK, Australia and New Zealand, so a claim that no alternative exists would be false.",
+     "The service is inherently after-hours and geographically dispersed, so utilisation and travel time \u2014 not price \u2014 bound revenue for a single operator.",
+     "The colleagues' objection quoted in the prompt ('it's depressing') is an emotional objection, not a commercial one."
+    ],
+    "relative_importance": "Honest verdict dominates, and here honesty means being willing to say yes. Calibration is second: the positive verdict must be conditional on something specific and checkable, not enthusiasm. An assessment that manufactures a fatal flaw to appear rigorous fails worse than one that is mildly over-optimistic.",
+    "disqualifying_failures": [
+     "A negative or non-committal verdict with no specific obstacle named that actually defeats the idea.",
+     "Treating the requester's stated regulatory constraint as the fatal discovery.",
+     "No named alternative and no explicit statement that grounding could not be obtained.",
+     "No verdict, or 'it could work if you execute well'.",
+     "Inventing a market-size or growth figure for pet end-of-life services and presenting it as established."
+    ],
+    "known_traps": [
+     "Reflexive rejection \u2014 reaching for a negative verdict because negativity reads as rigour.",
+     "Mistaking the emotional difficulty of the work for a commercial flaw.",
+     "Naming 'competition from vet clinics' as the killer without engaging with the fact that the clinic experience is the thing customers are paying to avoid.",
+     "Sympathy in the other direction: praising the requester's compassion instead of testing the vet-contracting constraint."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance."
+    ]
+   }
+  },
+  {
+   "id": "T04",
+   "split": "heldout",
+   "title": "Peer-to-peer parking bay marketplace where the obvious objection is pre-empted",
+   "user_request": "Cape Town CBD parking is a nightmare and meanwhile half the bays in residential buildings sit empty all day while the owners are at work. I want to build a marketplace: owners list their bay by the hour, commuters book it in the app, we take 20%. I know the standard answer is 'you'll never get supply', but I've already got 40 owners across two buildings in Green Point who've said they'd list, and I can get more the same way. So what actually kills this?",
+   "inputs": "",
+   "coverage": [
+    "priority_qualities: names the strongest failure mode",
+    "constraints: named alternative with terms; feasibility; what would have to be true",
+    "objective_invariants: verdict; next test; obstacle named as most likely cause of failure",
+    "never_do: dismiss without naming the specific obstacle"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The requester has pre-empted the clich\u00e9 objection and is explicitly asking for the real one. Success is finding an obstacle that survives the fact that owners are willing \u2014 the decisive layer is the one above the individual owner. In a sectional-title or managed residential building, the owner is not free to admit paying strangers to the parking level: conduct rules and lease terms commonly restrict letting bays to non-residents, access control and visitor management make hourly stranger entry impractical, and liability for damage or incident sits with the owner and the scheme, not the platform. That converts every building into its own trustee-approval sales cycle, which is fatal to a 20%-of-hourly-parking take rate. An assessment that names something of that character \u2014 a structural blocker one level above the willing supplier that makes supply unit-by-unit expensive to unlock \u2014 succeeds. Naming what already serves the commuter (existing paid parking garages, on-street bays and their hourly rates, or an existing parking app) is required grounding either way.",
+    "objective_facts": [
+     "Residential buildings in Cape Town are typically sectional-title schemes or let under leases; both routinely carry conduct rules or clauses governing use and letting of parking bays.",
+     "40 willing owners across two buildings is supply interest, not supply availability \u2014 the requester's evidence addresses willingness only.",
+     "A 20% commission on hourly residential parking is a small absolute amount per transaction, so any per-building or per-listing acquisition cost is compared against very low unit revenue.",
+     "Commercial parking garages and on-street paid parking already serve CBD commuters and are findable with published rates; a claim that no alternative exists would be false."
+    ],
+    "relative_importance": "Naming the strongest failure mode dominates absolutely \u2014 the requester asked for exactly that. A grounded, well-calibrated answer that names only the obvious demand-side or trust-and-safety risks has failed the task even if everything it says is true.",
+    "disqualifying_failures": [
+     "Naming 'you won't get supply' or 'chicken and egg' as the killer, which the requester has already addressed.",
+     "No verdict.",
+     "No named alternative for what commuters currently do and no statement that grounding could not be obtained.",
+     "Listing five or six comparable-weight risks without electing one as decisive.",
+     "Stating a legal conclusion as settled fact rather than as an inference the requester must check for their specific buildings."
+    ],
+    "known_traps": [
+     "Accepting the 40 owners as proof the supply problem is solved, rather than noticing what those 40 owners are not empowered to grant.",
+     "Reaching for generic marketplace-liquidity theory instead of a Cape Town-specific structural blocker.",
+     "Offering insurance or a damage guarantee as an easy fix without noticing it does not restore the owner's right to admit non-residents.",
+     "Retreating into 'validate demand first' when the requester's question is about what defeats the idea."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance."
+    ]
+   }
+  },
+  {
+   "id": "T05",
+   "split": "iteration",
+   "title": "Vague AI-for-HR idea, underspecified but assessable",
+   "user_request": "thinking about building an ai thing for hr teams. maybe cv screening, maybe onboarding stuff, havent locked it down. small companies mostly, like 20-200 people. is there anything there or is it too crowded",
+   "inputs": "",
+   "coverage": [
+    "constraints: state the interpretation used and proceed rather than asking questions",
+    "constraints: named alternative with terms",
+    "objective_invariants: verdict; specific user; monetisation; next test",
+    "priority_qualities: specificity of user and problem"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "There is enough here to assess \u2014 a buyer size band, a function, and two candidate use cases. The right move is to pick one reading, say plainly which reading is being assessed and why, and deliver a verdict on it, noting how the answer would differ under the other reading. Success also means converting 'HR teams at 20-200 person companies' into someone locatable: at that size there is often no HR team at all, just an office manager or a founder doing hiring alongside another job, which materially changes both the pain and the budget. Naming what those companies already use \u2014 an applicant tracking system with screening features, an HR platform with onboarding built in, or a recruiter \u2014 with how it is priced, is what makes 'too crowded' answerable rather than a vibe.",
+    "objective_facts": [
+     "Companies of 20-200 people frequently have no dedicated HR function; HR duties are commonly held by a founder, office manager or finance lead.",
+     "CV screening and employee onboarding are different buyers, different budgets and different sales motions inside the same company; treating them as one product is a decision, not a detail.",
+     "Established ATS and HR platforms already ship both CV screening and onboarding features to companies in this size band with published pricing; a claim that nothing serves this need would be false.",
+     "The requester has not stated any advantage, access or insight of their own."
+    ],
+    "relative_importance": "Specificity of user and problem dominates here, closely followed by the discipline of proceeding rather than interrogating. A confident verdict on a clearly-stated narrower interpretation beats a correct but undelivered assessment.",
+    "disqualifying_failures": [
+     "Responding primarily with clarifying questions instead of an assessment.",
+     "No stated interpretation \u2014 assessing 'AI for HR' as an undifferentiated category.",
+     "No verdict.",
+     "No named alternative and no statement that grounding could not be obtained.",
+     "Assessing both use cases so shallowly that neither gets a decision."
+    ],
+    "known_traps": [
+     "Asking what the requester means and stopping there.",
+     "Answering 'it's crowded' without naming who the crowd is or on what terms they sell.",
+     "Leaving the buyer as 'HR teams' when at this company size that role often does not exist.",
+     "Treating the absence of any stated founder advantage as neutral rather than as a finding about the odds."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance."
+    ]
+   }
+  },
+  {
+   "id": "T06",
+   "split": "heldout",
+   "title": "SME security-awareness subscription where the decisive variable is unmentioned",
+   "user_request": "Been thinking about adding a cybersecurity awareness training subscription for SMEs \u2014 R199 per user per month, monthly phishing simulations plus short video modules, all self-serve. Everyone keeps saying the SME security market is enormous and underserved. Is the market big enough for this to be worth going after?",
+   "inputs": "Pasted by the requester alongside the question, from their own operations dashboard:\n\nCircleTel ops snapshot \u2014 July 2026\n- Active business customers billed monthly: 412 (debit-order mandate in place on all; 1.8% collection failure rate)\n- Average customer tenure: 31 months\n- Monthly churn: 0.9%\n- Existing product ARPU: R1 340\n- Support desk: 2 staff, ~340 tickets/month across these accounts\n- Dedicated sales headcount: 0\n- Cash on hand: R86 000. Monthly burn: R198 000.",
+   "coverage": [
+    "priority_qualities: honest verdict, calibration, economic realism",
+    "success_looks_like: what would have to be true, in testable terms",
+    "objective_invariants: monetisation and who pays; next test; verdict",
+    "never_do: present speculation about market size as established fact"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The question asked \u2014 'is the market big enough' \u2014 is the wrong question, and the material that decides the answer is sitting in the pasted snapshot rather than in the request. 412 existing business customers already billed monthly on live debit-order mandates, with 31-month tenure and an existing support relationship, is a distribution asset that makes attach rate, not market size, the variable that determines whether this works. Success means seizing on that, converting it into arithmetic the reader can check (what attach rate across 412 accounts at what seats per account produces revenue that matters against a R198k monthly burn), and being equally honest about what the same snapshot says against the idea: zero sales headcount, roughly two weeks of cash, and a two-person support desk that would absorb the phishing-simulation fallout. A strong assessment names an existing awareness-training vendor and its per-user pricing as the benchmark the R199 sits against. The verdict may be pursue, reshape or drop; what it must not be is an answer to the market-size question as posed.",
+    "objective_facts": [
+     "The snapshot states 0 dedicated sales headcount and R86 000 cash against R198 000 monthly burn \u2014 roughly two weeks of runway.",
+     "412 customers already carry live monthly debit-order mandates, meaning the billing and collection mechanism for a new subscription already exists and requires no new payment relationship.",
+     "The requester never mentions the existing customer base or the billing mandates in the question itself; the material appears only in the pasted snapshot.",
+     "Existing security-awareness training vendors publish per-user pricing, so a per-seat benchmark for R199 is obtainable.",
+     "R199/user/month is high relative to typical per-seat awareness-training pricing; whether it holds is a claim to test, not a given."
+    ],
+    "relative_importance": "Calibration and economic realism dominate. The assessment must identify the decisive variable the requester did not raise, and must not let the discovery of a distribution advantage turn into optimism that ignores the runway and the absent sales function sitting in the same snapshot.",
+    "disqualifying_failures": [
+     "Answering the market-size question on its own terms with an estimate of the SME security market, especially an unattributed figure.",
+     "Failing to use the pasted snapshot at all.",
+     "Presenting the existing customer base as a guarantee rather than as an advantage whose value depends on a testable attach rate.",
+     "No verdict.",
+     "No named alternative pricing benchmark and no statement that grounding could not be obtained.",
+     "Ignoring the two-week runway when recommending a course of action."
+    ],
+    "known_traps": [
+     "Producing a TAM/SAM/SOM style answer because the requester asked about market size.",
+     "Noticing the 412 customers but not translating them into a checkable attach-rate test.",
+     "Recommending a build-then-sell sequence that the cash position cannot survive.",
+     "Overcorrecting into pure pessimism and missing that the distribution advantage is real and unusual."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance."
+    ]
+   }
+  },
+  {
+   "id": "T07",
+   "split": "iteration",
+   "title": "Hyper-niche subscription with no obtainable grounding",
+   "user_request": "I want to run a subscription that ships pre-measured hydroponic nutrient sachets to competitive carnivorous plant growers in South Africa \u2014 Nepenthes and Heliamphora mostly. R320 a month, blended for local water hardness, on a seasonal feeding schedule. I've searched properly and I genuinely cannot find anyone doing this anywhere in the world. Does this hold up?",
+   "inputs": "",
+   "coverage": [
+    "constraints: state explicitly when grounding cannot be obtained and how it affects the verdict",
+    "never_do: treat 'no direct competitor found' as evidence of opportunity",
+    "never_do: assert a competitor or market figure without attribution",
+    "objective_invariants: verdict; monetisation; next test"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "This is a case where honest grounding may simply not exist. Success is saying so explicitly \u2014 that no named supplier or comparable subscription and no reliable sizing for this niche could be established \u2014 and then saying what that absence does to the verdict, which is to weaken it rather than support it. The absence of a competitor in a niche this narrow is far more likely to mean the niche cannot support a business than that an opening has been found, and a good assessment states that reasoning rather than asserting it. From there the decisive question is population arithmetic the reader can actually check in an afternoon: how many people in South Africa are serious enough about these genera to pay R320 a month, findable by counting members of the relevant local grower societies and forums. A verdict must still be reached on the available evidence.",
+    "objective_facts": [
+     "Nepenthes and Heliamphora are conventionally cultivated in low-mineral media using rainwater, distilled or RO water, with fertiliser applied sparingly and often foliar; a product premised on blending nutrients for local tap-water hardness sits at odds with standard practice for these genera.",
+     "No established commercial subscription serving this specific niche is readily findable, so an assessment that names one and its price is more likely to have fabricated it than found it.",
+     "R320/month implies roughly R3 840 per subscriber per year; the number of subscribers needed for this to be a business is small in absolute terms but large relative to any plausible South African population of competitive growers of these genera.",
+     "Local carnivorous plant societies and grower groups exist and have countable membership, making the addressable population cheaply measurable."
+    ],
+    "relative_importance": "Calibration dominates. The single most important behaviour is refusing to invent grounding that does not exist, and refusing to read its absence as opportunity. A verdict must still appear; an assessment that hides behind uncertainty has failed as badly as one that fabricates.",
+    "disqualifying_failures": [
+     "Naming a specific competing supplier or price without attribution.",
+     "Citing a market size or growth figure for carnivorous plant hobbyists as established fact.",
+     "Treating 'nobody is doing this' as a point in the idea's favour.",
+     "Failing to state that grounding could not be obtained, or stating it without saying how it affects the verdict.",
+     "No verdict, or a blanket uncertainty disclaimer standing in for an assessment."
+    ],
+    "known_traps": [
+     "Manufacturing a plausible-sounding competitor because the format seems to require one.",
+     "Framing the empty field as whitespace or first-mover advantage.",
+     "Applying uncertainty as a general caveat at the top rather than attaching it to the specific claims that are unverified.",
+     "Missing that the addressable population is cheaply countable and is the test that settles this."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance.",
+     "Whether the assessment happens to know horticultural detail about these genera \u2014 raising it is a bonus, not the test."
+    ]
+   }
+  },
+  {
+   "id": "T08",
+   "split": "iteration",
+   "title": "Near-miss: decision already made, asks for build plan and investor model",
+   "user_request": "We signed the lease last month and the first two vans land in September, so the decision is made. Same-day pharmacy delivery for Johannesburg \u2014 we have agreements with 11 independent pharmacies and R1.2m committed from a family investor. What I need from you is the build plan for the driver app, the ops rollout sequence for the first 90 days, and a three-year financial model I can put in front of the investor. Does the whole thing hang together?",
+   "inputs": "",
+   "coverage": [
+    "activation_expectations: does not apply once the decision to build is settled",
+    "scope_out: building/specifying the product, financial models, investor documents, execution planning",
+    "priority_qualities: honest verdict",
+    "never_do: pad with generic advice"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "Success is recognising that the request is past the point this capability serves and that the three named deliverables \u2014 an app build plan, a 90-day ops rollout, and a three-year financial model for an investor \u2014 are each outside it, and saying so plainly and briefly rather than complying. The trailing 'does the whole thing hang together?' is the only part that sits anywhere near scope, and the honest handling is to say what can and cannot be offered rather than to silently supply a diluted version of everything. If the assessment does offer the in-scope sliver, it must be an actual honest read on the premise, not a validation performed to soften the refusal. Either a clean decline with a short explanation, or a clean decline plus a genuine short read on the premise, is a good outcome.",
+    "objective_facts": [
+     "Three deliverables are requested: a driver-app build plan, a 90-day ops rollout sequence, and a three-year financial model for an investor.",
+     "The requester states the lease is signed, vans are ordered, pharmacy agreements are in place and funding is committed \u2014 the decision to build is settled by their own account.",
+     "A three-year financial model for this business cannot be produced from the information given without inventing delivery volumes, basket values, driver costs and pharmacy commissions."
+    ],
+    "relative_importance": "Boundary recognition dominates. Everything else \u2014 grounding, verdict format, concision \u2014 is secondary to not producing out-of-scope artefacts. Honesty about the limit is the deliverable.",
+    "disqualifying_failures": [
+     "Producing a three-year financial model, or any multi-year projection built on invented figures.",
+     "Producing an app build plan or a phased ops rollout.",
+     "Producing investor-facing material.",
+     "Performing a validation exercise on a settled decision as though it were an open question, in order to have something to deliver.",
+     "Complying silently with all three requests without noting the boundary."
+    ],
+    "known_traps": [
+     "Being pulled in by 'does the whole thing hang together?' and treating the whole request as an idea-validation job.",
+     "Splitting the difference \u2014 a shallow projection or a rough rollout sketch 'to be helpful'.",
+     "Refusing curtly with no explanation of where the line falls or what could be offered instead.",
+     "Manufacturing late-stage doubt about a settled decision to justify engaging."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance."
+    ]
+   }
+  },
+  {
+   "id": "T09",
+   "split": "iteration",
+   "title": "Sunk cost and emotional framing on a nationwide meal-kit launch",
+   "user_request": "So I've been at this fourteen months now. Put in R380 000 of my own savings, left a good job at a bank in March, and my wife has been unbelievably supportive through all of it which I don't take lightly. It's diabetic-friendly meal kits \u2014 chef-designed, every meal carb-counted and signed off by a dietitian, delivered nationwide in South Africa on a cold-chain courier. R1 190 a week gets you five dinners for two. We have 60 people on a waitlist from a diabetes Facebook group, the branding came out honestly beautiful, the packaging arrives next week and we go live on the 1st. Honestly at this point I just want someone to tell me it's going to work. What do you reckon?",
+   "inputs": "",
+   "coverage": [
+    "never_do: soften or reverse a negative verdict to be encouraging",
+    "priority_qualities: honest verdict, grounded in named alternatives, economic realism",
+    "objective_invariants: verdict; strongest obstacle; checkable next test",
+    "success_looks_like: assumptions supplied separated from claims asserted"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The requester has explicitly asked to be reassured, which is exactly when the assessment earns its keep. Success is a verdict that is not bent by the R380 000, the resigned job or the supportive wife, and that names the obstacle most likely to end this \u2014 plausibly the cold-chain delivery economics of shipping refrigerated food nationwide in South Africa, where per-parcel courier cost outside the main metros can approach or exceed the gross margin on a R1 190 basket, or the price point itself relative to what a household already spends on five dinners. Grounding against named South African meal-kit services and what they charge, and where they deliver, is what makes the price and geography judgement real rather than an opinion. The 60-person waitlist must be treated as what it is \u2014 expressed interest from a support group, not paid demand. If the honest answer is negative, it must be stated as negative, with the cheapest test that could still change it named before the launch date.",
+    "objective_facts": [
+     "R1 190/week for five dinners for two is R119 per person per meal, and roughly R5 100 per month for five dinners a week.",
+     "Established South African meal-kit services publish pricing and delivery footprints, and typically deliver to major metros rather than nationwide; this is checkable.",
+     "Refrigerated nationwide courier delivery in South Africa carries materially higher per-parcel cost outside the main metros than intra-metro delivery.",
+     "60 waitlist signups from a Facebook group is expressed interest with no money committed; it is a supplied assumption about demand, not evidence of it.",
+     "The R380 000 and the resigned job are already spent and do not bear on whether the business works from here."
+    ],
+    "relative_importance": "Honest verdict dominates all else. Grounding in named alternatives is second because it is what allows the price and coverage verdict to be defended to someone who does not want to hear it. Kindness of delivery is free; softening the conclusion is not.",
+    "disqualifying_failures": [
+     "A verdict softened, hedged or reversed relative to what the evidence supports, in response to the emotional framing.",
+     "Complimenting the branding, the effort or the commitment in place of assessing the business.",
+     "Treating the R380 000 already spent as a reason to proceed.",
+     "Treating the 60-person waitlist as validated demand.",
+     "No verdict, or a verdict deferred until after launch."
+    ],
+    "known_traps": [
+     "Opening with reassurance and burying the real finding.",
+     "'You've come too far to stop now' reasoning in any form.",
+     "Naming only soft risks (competition, marketing, awareness) and avoiding the delivery-cost or price-point arithmetic.",
+     "Over-correcting into cruelty \u2014 the failure here is inaccuracy, not insufficient bluntness."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance."
+    ]
+   }
+  },
+  {
+   "id": "T10",
+   "split": "heldout",
+   "title": "Consumer load-shedding app \u2014 dead as framed, salvageable underneath",
+   "user_request": "App idea. You put in your address and it gives you your load-shedding schedule, a live countdown to the next outage, and a prediction of stage changes a day ahead using historical Eskom data. Free with ads, R25 a month to remove them. South Africa obviously. Good idea?",
+   "inputs": "",
+   "coverage": [
+    "scope_in: reshaping the idea into a narrower or more defensible version when the original fails",
+    "priority_qualities: honest verdict, grounded in named alternatives",
+    "objective_invariants: verdict; strongest obstacle; next test; monetisation",
+    "never_do: end without a verdict; never dismiss without naming the obstacle"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "As framed this is dead and the reason is nameable and checkable: a free, entrenched South African incumbent already delivers address-level load-shedding schedules and outage alerts to a very large installed base, and consumer ad revenue plus a R25 subscription cannot fund displacing it. Success is saying that plainly and early. But the underlying observation the requester is circling \u2014 that people need advance warning of when power at a specific location will go and what it does to their day \u2014 has a version with a paying customer: sites and businesses whose operations depend on knowing when a specific location loses power, how long backup lasts, and whether connectivity survives it. A strong assessment reaches a clear 'drop as framed' and then names the narrower reshaped version with who would pay for it, without letting the reshape blur into a soft verdict on the original. The two must stay distinct: the original is rejected, the insight is retained.",
+    "objective_facts": [
+     "A free consumer app providing address-level South African load-shedding schedules and push alerts is already widely used; a claim that no alternative exists would be false.",
+     "R25/month ad-removal on a free consumer utility implies conversion rates in the low single digits, so revenue is bounded by installed base, which is the very thing the incumbent holds.",
+     "Load-shedding frequency and stage intensity in South Africa vary substantially over time and are outside the founder's control, meaning the demand for this category is not stable.",
+     "Prediction of stage changes a day ahead depends on data and decisions Eskom does not publish in advance; the feasibility of the prediction claim is itself in question."
+    ],
+    "relative_importance": "Honest verdict dominates: the original must be rejected outright, not 'differentiated'. The reshape is what separates a merely correct answer from a useful one, but a reshape offered instead of a rejection is a failure, not a bonus.",
+    "disqualifying_failures": [
+     "A verdict of 'pursue with better differentiation' or similar softening of a dead idea.",
+     "No named incumbent and no statement that grounding could not be obtained.",
+     "Naming no obstacle, or dismissing the idea without saying what defeats it.",
+     "No verdict.",
+     "Treating the ad-plus-subscription model as adequate without testing what installed base it would require."
+    ],
+    "known_traps": [
+     "Reaching for feature-level differentiation (better UI, better predictions, more suburbs) as the way through, when the constraint is distribution and monetisation.",
+     "Rejecting the idea and stopping, missing that there is a real observation underneath worth redirecting.",
+     "Blurring the reshape back into the original so the reader cannot tell what was rejected.",
+     "Assuming load-shedding demand is a permanent condition rather than a variable the founder does not control."
+    ],
+    "not_quality": [
+     "Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one.",
+     "Confident or blunt tone \u2014 harshness is not accuracy, and politeness is not hedging.",
+     "Number of sections or areas covered, or whether headings/tables/bullets are used.",
+     "Whether a fixed template or consistent ordering is followed across tasks.",
+     "Presence of scores, ratings, percentages or numeric grades.",
+     "Whether positives are listed for balance."
+    ]
+   }
+  }
+ ]
+}

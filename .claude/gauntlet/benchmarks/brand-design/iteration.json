@@ -1,0 +1,309 @@
+{
+ "skill": "brand-design",
+ "split": "iteration",
+ "tasks": [
+  {
+   "id": "T01",
+   "split": "iteration",
+   "title": "Brand palette for a pricing-card UI component",
+   "user_request": "I'm building the pricing card component for our packages page — the one with the CTA button, a 'Most popular' badge, and a little status line under the price. Give me the colours I should use so it matches the rest of the site.",
+   "inputs": "",
+   "coverage": [
+    "Colour palette with roles, hex values and source attribution",
+    "Design tokens authoritative for web UI",
+    "Full orange family: base, accessible variant, tint, shade",
+    "Semantic roles including info blue",
+    "Contested primary surfaced",
+    "One consistent value per role"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "A developer receives named brand roles with exact hex values, each carrying a source type (design token / theme declaration / logo artwork / documented value). The web-UI medium means the production design tokens are the authoritative source here, and saying so is correct — but the response must still note that the primary orange is contested and name at least one competing value with its source, rather than presenting a single primary as settled. The full orange family (base, accessible-on-light text variant, tint, shade) is supplied, not the base alone, plus the neutrals and the semantic roles including info blue. One value per role throughout.",
+    "objective_facts": [
+     "The primary orange is CONTESTED and the benchmark does not resolve it. Four competing values with sources: #E87A1E (production design token circleTel-orange in the web build config, thousands of UI usages; also DESIGN.md's stated primary); #F5841E (explicitly labelled official theme colour declared in the app root layout, ships in production); #F5831F (the brand documentation's own stated primary); #F6841F (pixel sampling of the approved logo artwork). The last three cluster within one unit per channel; the token value sits materially further away. No value is correct here.",
+     "The secondary/dark colour is CONTESTED: #1B2A4A (production design token circleTel-navy, several hundred UI usages; also DESIGN.md's stated secondary), #1F2937 (brand documentation's stated secondary in the older house doc; the corresponding token has no usages and is marked legacy), #13274A (company house-standards document).",
+     "Orange family (uncontested apart from the base): accessible-on-light text variant #AE5B16 (~4.9:1 on white), tint #FDF2E9, shade #C45A30. Both candidate base oranges fail WCAG AA as text on white.",
+     "Page background neutral #F9FAFB, surface #FFFFFF. Info blue semantic role #3B82F6 — note it is a brand-definition value, not a design token: it does not appear in tailwind.config.ts, app/globals.css or DESIGN.md. Success #10B981 and error #EF4444 are documented in DESIGN.md only, not as tailwind tokens.",
+     "Design tokens are authoritative for web UI, but not automatically for the logo mark, print, merchandise, or generated imagery that never consumed them.",
+     "Production token names and values in tailwind.config.ts: circleTel.orange #E87A1E, circleTel['orange-accessible'] #AE5B16, circleTel['orange-dark'] #C45A30, circleTel['orange-light'] #FDF2E9, circleTel.gray #747474, circleTel.navy #1B2A4A, circleTel.charcoal #2D3436. Neutral scale: bg #F9FAFB, card #FFFFFF, text-primary #111827, text-secondary #4B5563, text-muted #6B7280, border #E5E7EB.",
+     "Attributing a value to a named design token is only valid if that token resolves to it."
+    ],
+    "relative_importance": "Source-traceable colour dominates; contested-primary surfacing must survive even though this is the medium the token governs. Complete role coverage outranks brevity.",
+    "disqualifying_failures": [
+     "Any hex given with no stated source type",
+     "Presenting a single primary orange as settled with no mention that it is contested",
+     "Supplying only the base orange with no accessible variant, tint or shade",
+     "Attributing a hex to a named design token that does not resolve to it",
+     "Two different hex values used for the same role in one spec",
+     "No info blue role supplied"
+    ],
+    "known_traps": [
+     "The request is unambiguously web UI, which tempts a clean single-source answer that silently drops the contest",
+     "Naming an orange for the small status line without reaching for the accessible variant"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Whether the answer also proposes card padding, radius or shadow — those belong to the interface design system, not here"
+    ]
+   }
+  },
+  {
+   "id": "T02",
+   "split": "iteration",
+   "title": "Image-generation prompt for a campaign hero",
+   "user_request": "Write me the prompt to feed an image model for our new business-fibre campaign hero — landscape, a Cape Town SME office, warm and optimistic, needs our branding on it. I'll paste it straight into the generator.",
+   "inputs": "",
+   "coverage": [
+    "Composite-don't-generate for generated imagery",
+    "Never instruct a model to draw/render/spell logo, wordmark or company name",
+    "Reserve clear space for post-generation compositing",
+    "Generated imagery is non-token media",
+    "Contested primary surfaced",
+    "Logo variant / clearspace / minimum size when placement is specified"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The deliverable prompt describes scene, palette and mood, and contains NO instruction to render, draw, spell or letter the logo, wordmark or the company name. Instead it reserves a defined clear region for the logo, and separate compositing instructions name which approved variant goes there, the clearspace rule and the minimum size. Colours quoted into the prompt carry sources; because generated imagery never consumed the design tokens, the response must not present a token value as automatically authoritative for this medium, and the contested primary must appear as contested with competing values and sources rather than one number chosen for the generator.",
+    "objective_facts": [
+     "The primary orange is CONTESTED and the benchmark does not resolve it. Four competing values with sources: #E87A1E (production design token circleTel-orange in the web build config, thousands of UI usages; also DESIGN.md's stated primary); #F5841E (explicitly labelled official theme colour declared in the app root layout, ships in production); #F5831F (the brand documentation's own stated primary); #F6841F (pixel sampling of the approved logo artwork). The last three cluster within one unit per channel; the token value sits materially further away. No value is correct here.",
+     "Orange family (uncontested apart from the base): accessible-on-light text variant #AE5B16 (~4.9:1 on white), tint #FDF2E9, shade #C45A30. Both candidate base oranges fail WCAG AA as text on white.",
+     "Eight approved logo variant files exist, covering full colour on light, full colour on dark, reversed, monochrome and icon-only uses. Clearspace: minimum clear space on all sides equal to the height of the 'TEL' element of the wordmark; no other element, text or edge may enter it. Minimum sizes: 32px on screen and 10mm in print. The logo is composited from an approved file — never generated, redrawn or spelled by a model.",
+     "Design tokens are authoritative for web UI only; generated imagery is explicitly named as media that never consumed those tokens.",
+     "Never instruct an image generator to draw, render or spell the logo, wordmark or company name.",
+     "Any image-generation prompt must reserve space for post-generation compositing of the mark.",
+     "The secondary/dark colour is CONTESTED: #1B2A4A (production design token circleTel-navy, several hundred UI usages; also DESIGN.md's stated secondary), #1F2937 (brand documentation's stated secondary in the older house doc; the corresponding token has no usages and is marked legacy), #13274A (company house-standards document)."
+    ],
+    "relative_importance": "Composite-don't-generate and logo integrity dominate; a prompt that is otherwise perfect but asks the model to render the wordmark fails. Contested-value surfacing outranks giving the generator one tidy number.",
+    "disqualifying_failures": [
+     "Any instruction in the prompt to draw, render, spell, letter or place the logo/wordmark/company name as generated pixels",
+     "No reserved clear region or no compositing step described",
+     "Presenting one primary orange to the generator as the settled brand colour",
+     "A hex in the prompt with no source stated",
+     "Logo placement specified without clearspace rule and minimum size"
+    ],
+    "known_traps": [
+     "'Needs our branding on it' reads as a request to bake the logo into the image",
+     "'I'll paste it straight into the generator' pressures a single self-contained prompt with no compositing note and no contest disclosure",
+     "Quoting the web design token as the campaign orange without flagging the medium boundary"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Photographic richness or evocativeness of the scene description",
+     "Whether the prompt is written for a specific named image model"
+    ]
+   }
+  },
+  {
+   "id": "T04",
+   "split": "iteration",
+   "title": "Embroidered merchandise for a supplier",
+   "user_request": "We're ordering 500 branded golf shirts for the partner roadshow. The embroiderer wants our colours and the logo file with placement specs — chest-left. What do I send them?",
+   "inputs": "",
+   "coverage": [
+    "Token-authority boundary: tokens are not authoritative for print/merchandise",
+    "Logo variant enumeration and selection",
+    "Clearspace rule",
+    "Both minimum sizes, print in particular",
+    "Contested primary surfaced for a non-token medium",
+    "Source attribution"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The response recognises that merchandise/embroidery never consumed the design tokens, so a web token value cannot be handed over as authoritative for thread colour without saying so. The contested primary is surfaced with competing values and sources — and for a physical medium the logo-artwork-sampled value is a legitimate candidate to name alongside the others, but not to declare the winner. Logo specs are concrete: which of the approved variants applies given the garment colour (or a stated dependency on it), the clearspace rule, and the print minimum size. A named contact/decision point for the brand owner appears rather than a silent pick.",
+    "objective_facts": [
+     "Design tokens are authoritative for web UI. They are NOT automatically authoritative for the logo mark itself, nor for print, merchandise, or generated imagery that never consumed those tokens.",
+     "The primary orange is CONTESTED and the benchmark does not resolve it. Four competing values with sources: #E87A1E (production design token circleTel-orange in the web build config, thousands of UI usages; also DESIGN.md's stated primary); #F5841E (explicitly labelled official theme colour declared in the app root layout, ships in production); #F5831F (the brand documentation's own stated primary); #F6841F (pixel sampling of the approved logo artwork). The last three cluster within one unit per channel; the token value sits materially further away. No value is correct here.",
+     "The secondary/dark colour is CONTESTED: #1B2A4A (production design token circleTel-navy, several hundred UI usages; also DESIGN.md's stated secondary), #1F2937 (brand documentation's stated secondary in the older house doc; the corresponding token has no usages and is marked legacy), #13274A (company house-standards document).",
+     "The brand grey is CONTESTED: #747474 (production design token circleTel.gray, and the grey sampled from the logo artwork) vs #6B7280 (the brand documentation's stated grey, which in production corresponds to an interface muted-text colour rather than the mark).",
+     "Eight approved logo variant files exist, covering full colour on light, full colour on dark, reversed, monochrome and icon-only uses. Clearspace: minimum clear space on all sides equal to the height of the 'TEL' element of the wordmark; no other element, text or edge may enter it. Minimum sizes: 32px on screen and 10mm in print. The logo is composited from an approved file — never generated, redrawn or spelled by a model.",
+     "Minimum print size is 10mm; minimum screen size is 32px. Both are stated whenever logo placement is specified.",
+     "Never state a hex for the logo mark that differs from the artwork's actual colour.",
+     "Orange family (uncontested apart from the base): accessible-on-light text variant #AE5B16 (~4.9:1 on white), tint #FDF2E9, shade #C45A30. Both candidate base oranges fail WCAG AA as text on white."
+    ],
+    "relative_importance": "Medium-appropriate application and contested-value surfacing dominate. Logo integrity (variant, clearspace, print minimum) is close behind. Web-token completeness is largely irrelevant here.",
+    "disqualifying_failures": [
+     "Handing the web design token over as the authoritative merchandise colour with no medium caveat",
+     "Naming one primary orange as settled for the thread match",
+     "Logo placement specified with no clearspace rule or no minimum size",
+     "Any hex with no stated source",
+     "Not enumerating or not selecting a logo variant"
+    ],
+    "known_traps": [
+     "Embroidery/Pantone conversion tempts inventing a near-miss colour to 'make it work' — substituting a near-miss because an exact value was unavailable is prohibited",
+     "The web token is the easiest value to reach for and is the wrong authority for this medium",
+     "Screen minimum size (32px) is meaningless to an embroiderer; the 10mm print minimum is the load-bearing one, and both should still be stated"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Whether a specific Pantone or thread code is produced — inventing one is worse than stating the constraint",
+     "Procurement or vendor-management advice"
+    ]
+   }
+  },
+  {
+   "id": "T05",
+   "split": "iteration",
+   "title": "Orange small text and inline links on a white page",
+   "user_request": "On the pricing page I want the little print under the price — the 'T&Cs apply' line and the inline 'see fair use policy' link — in our orange so it ties to the CTA. It's 12px on the white card. Give me the CSS.",
+   "inputs": "",
+   "coverage": [
+    "Accessible orange text variant supplied",
+    "Never specify base primary orange as small text on light",
+    "Full orange family",
+    "Source attribution",
+    "Contested primary surfaced"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The naive answer — the base primary orange — is rejected and the accessible-on-light variant #AE5B16 is supplied instead for the 12px text and the inline link, with the reason stated concretely (both candidate base oranges fail WCAG AA as text on white; the accessible variant is ~4.9:1 on white). The base orange may still be named for the CTA fill or other non-text roles, and the response should keep the two roles distinct rather than using one value for both. Sources are attached. Because the base orange is referenced at all, the contest must be acknowledged rather than a single base presented as settled.",
+    "objective_facts": [
+     "Accessible orange for text on light backgrounds: #AE5B16, approximately 4.9:1 on white. This is uncontested.",
+     "Both candidate base oranges fail WCAG AA as text on white.",
+     "Never specify the base primary orange as the colour of small text on a light background.",
+     "The primary orange is CONTESTED and the benchmark does not resolve it. Four competing values with sources: #E87A1E (production design token circleTel-orange in the web build config, thousands of UI usages; also DESIGN.md's stated primary); #F5841E (explicitly labelled official theme colour declared in the app root layout, ships in production); #F5831F (the brand documentation's own stated primary); #F6841F (pixel sampling of the approved logo artwork). The last three cluster within one unit per channel; the token value sits materially further away. No value is correct here.",
+     "Orange family (uncontested apart from the base): accessible-on-light text variant #AE5B16 (~4.9:1 on white), tint #FDF2E9, shade #C45A30. Both candidate base oranges fail WCAG AA as text on white.",
+     "Production token circleTel['orange-accessible'] resolves to #AE5B16 and is documented as the only orange approved for text on white backgrounds — orange labels, links in body copy, form hints.",
+     "Surface white is #FFFFFF; page background neutral is #F9FAFB."
+    ],
+    "relative_importance": "Supplying the accessible variant dominates. Internal consistency (one value per role — text orange vs CTA orange are different roles, and must not collapse into one) is next. Source traceability throughout.",
+    "disqualifying_failures": [
+     "Giving a base orange (#E87A1E, #F5841E, #F5831F or #F6841F) as the colour of the 12px text or the inline link",
+     "No accessible variant supplied at all",
+     "Inventing a different 'accessible enough' orange instead of the documented one",
+     "Any hex with no stated source",
+     "Presenting a base orange as the settled primary while quoting it"
+    ],
+    "known_traps": [
+     "'so it ties to the CTA' explicitly invites reusing the CTA fill colour as the text colour",
+     "12px is small text, where the contrast requirement is strictest",
+     "Suggesting the tint #FDF2E9 as a background workaround without also fixing the text colour"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Whether the CSS uses a token class, a variable or a raw hex",
+     "General accessibility auditing of the rest of the page"
+    ]
+   }
+  },
+  {
+   "id": "T07",
+   "split": "iteration",
+   "title": "Brand check on a supplied launch-asset spec",
+   "user_request": "Our agency sent this spec back for the Office-in-a-Box launch push. Before I approve it and they start producing, can you check it over?",
+   "inputs": "AGENCY SPEC — CircleTel 'Office-in-a-Box' launch, v3\n\nA. Web landing hero\n  - Hero background: CircleTel Orange #F5831F\n  - Primary CTA button fill: #E87A1E, label white\n  - Legal disclaimer strip under the CTA: 12px, colour #E87A1E on white card\n  - Body + headings: Arial, Helvetica, sans-serif\n  - Muted caption text: #6B7280 (circleTel-gray token)\n\nB. Social square (1080x1080, paid)\n  - Generated via image model. Prompt: \"modern South African office, warm morning light, orange accent lighting, the CircleTel logo and wordmark rendered crisply in the upper left corner, text 'Office-in-a-Box' beneath it\"\n  - Overlay navy panel: #1F2937\n\nC. Roll-up banner (850mm x 2000mm)\n  - Logo bottom-centre, 8mm tall, sits 3mm above the trim edge\n  - Background: solid CircleTel Orange, logo full-colour version over it\n\nD. Status chips (portal announcement module)\n  - Live: #10B981   Error: #EF4444\n",
+   "coverage": [
+    "Checking a produced asset against the brand definition",
+    "Two values for one role in one asset",
+    "Base orange as small text on light",
+    "False token attribution",
+    "Composite-don't-generate violation",
+    "Logo minimum print size, clearspace, background contrast",
+    "Contested typeface",
+    "Missing info blue role",
+    "Contested navy"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The specific planted defects are caught and named. Success is measured by which real defects are found, not by how many observations are made — a long list that misses the image-generation instruction or the small-text orange fails. Corrections must themselves carry sources, and the response must not resolve the contested primary while fixing the inconsistency: the fix is 'one value per role in this asset, and the choice of WHICH is escalated', not 'use #E87A1E'.",
+    "objective_facts": [
+     "DEFECT 1 — Section B prompt instructs the image model to render the logo, wordmark and the company name as generated pixels ('the CircleTel logo and wordmark rendered crisply', plus literal text). This is prohibited: logos are composited from an approved file after generation and the prompt must reserve clear space instead.",
+     "DEFECT 2 — Section A uses two different hex values for the primary orange role in one asset: #F5831F for the hero background and #E87A1E for the CTA fill. One asset must use one consistent value per brand role. Note: the fix is consistency plus escalation, NOT declaring either value canonical. The primary orange is CONTESTED and the benchmark does not resolve it. Four competing values with sources: #E87A1E (production design token circleTel-orange in the web build config, thousands of UI usages; also DESIGN.md's stated primary); #F5841E (explicitly labelled official theme colour declared in the app root layout, ships in production); #F5831F (the brand documentation's own stated primary); #F6841F (pixel sampling of the approved logo artwork). The last three cluster within one unit per channel; the token value sits materially further away. No value is correct here.",
+     "DEFECT 3 — Section A sets the 12px legal disclaimer in base orange #E87A1E on a white card. The base primary orange must never be the colour of small text on a light background. The accessible variant is #AE5B16 (~4.9:1 on white); both candidate base oranges fail WCAG AA as text on white.",
+     "DEFECT 4 — Section A attributes #6B7280 to the 'circleTel-gray token'. That token resolves to #747474, not #6B7280. A value may only be attributed to a named token if the token resolves to it. The brand grey is CONTESTED: #747474 (production design token circleTel.gray, and the grey sampled from the logo artwork) vs #6B7280 (the brand documentation's stated grey, which in production corresponds to an interface muted-text colour rather than the mark).",
+     "DEFECT 5 — Section C sets the logo at 8mm tall in print. The print minimum is 10mm, so this is below minimum.",
+     "DEFECT 6 — Section C places the logo 3mm above the trim edge. Clearspace requires clear space on all sides equal to the height of the 'TEL' element of the wordmark, and no edge may enter it. At an 8mm logo the trim edge is inside the clearspace.",
+     "DEFECT 7 — Section C places the full-colour logo over a solid orange background. Variant selection must match the background and must not place the mark on a background that fails contrast; the approved set includes full colour on light, full colour on dark, reversed, monochrome and icon-only. Eight approved logo variant files exist, covering full colour on light, full colour on dark, reversed, monochrome and icon-only uses. Clearspace: minimum clear space on all sides equal to the height of the 'TEL' element of the wordmark; no other element, text or edge may enter it. Minimum sizes: 32px on screen and 10mm in print. The logo is composited from an approved file — never generated, redrawn or spelled by a model.",
+     "DEFECT 8 — Section A specifies Arial, Helvetica, sans-serif. The typeface set is CONTESTED: Manrope (display/headings) + Inter (body/interface) + JetBrains Mono (code) are what the application root layout actually loads — Inter at weights 400/500/600/700, Manrope at 600/700, JetBrains Mono at 400/700, with fallback stacks ui-sans-serif, system-ui, -apple-system, sans-serif (sans/body), ui-sans-serif, system-ui, sans-serif (heading/display) and ui-monospace, SFMono-Regular, Menlo, monospace (mono). Competing: 'Arial, Helvetica, sans-serif' per the brand documentation's stated typography, which is loaded nowhere in production. Flagging this as contested rather than simply 'wrong' is the correct treatment.",
+     "DEFECT 9 — Section B overlay navy #1F2937 is the legacy/documentation secondary whose token has no usages, while production uses #1B2A4A. The secondary/dark colour is CONTESTED: #1B2A4A (production design token circleTel-navy, several hundred UI usages; also DESIGN.md's stated secondary), #1F2937 (brand documentation's stated secondary in the older house doc; the corresponding token has no usages and is marked legacy), #13274A (company house-standards document).",
+     "DEFECT 10 — Section D omits the info blue semantic role #3B82F6; the announcement module has success and error but no info.",
+     "Sources for corrections: production tokens in tailwind.config.ts (circleTel.orange #E87A1E, orange-accessible #AE5B16, orange-dark #C45A30, orange-light #FDF2E9, gray #747474, navy #1B2A4A), theme declaration #F5841E in the app root layout, logo artwork sampling #F6841F, brand documentation #F5831F."
+    ],
+    "relative_importance": "Catching the composite-don't-generate violation and the small-text base orange dominate. The two-values-for-one-role inconsistency and the false token attribution are next. Logo integrity defects (minimum size, clearspace, background) follow. Not resolving the contested primary while fixing the inconsistency is a hard constraint that overrides tidiness.",
+    "disqualifying_failures": [
+     "Missing the image-generation instruction to render the logo/wordmark/company name",
+     "Missing the base orange used as 12px text on white",
+     "Fixing the two-orange inconsistency by declaring one value canonical",
+     "Approving the spec as broadly fine",
+     "Correcting a value without stating the source of the correction",
+     "Missing the below-minimum print logo size",
+     "Endorsing the false circleTel-gray token attribution"
+    ],
+    "known_traps": [
+     "The spec is internally plausible and every individual value appears somewhere real — nothing looks obviously fabricated",
+     "#F5831F and #E87A1E both being defensible values makes the inconsistency easy to wave through, and equally easy to 'fix' by silently choosing",
+     "'circleTel-gray token' is a real token name attached to the wrong value — the name lends false credibility",
+     "Arial is documented brand typography, so it is contested, not simply incorrect; calling it flatly wrong overstates the definition"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Total count of issues raised — padding with layout, copy or media-buying critique is not credit",
+     "Whether a rewritten spec is produced",
+     "Commentary on grid, spacing or component anatomy, which is out of scope"
+    ]
+   }
+  },
+  {
+   "id": "T10",
+   "split": "iteration",
+   "title": "Admin table density with no brand-value dependency",
+   "user_request": "The admin customer table feels cramped — rows are 12px vertical padding, columns are jammed together and the sort headers are hard to hit. What spacing and density should I use to make it breathe? Same colours as now, I just want the rhythm fixed.",
+   "inputs": "",
+   "coverage": [
+    "Activation boundary: does not activate for general design or layout work with no brand-value dependency",
+    "Scope-out: layout, grid, spacing, elevation, component design belong to the interface design system"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "This is a near-miss. The request is purely spacing, density and hit-target rhythm, explicitly holds colours constant, and has no brand-value dependency — layout, grid, spacing, elevation and component design are named out of scope and belong to the interface design system. Success is either declining to take it on brand-definition grounds and pointing to where it belongs, or answering the spacing question on its own merits without dressing it in brand authority. What must NOT happen is the request being treated as a brand-values request: reciting the palette, restating logo rules, or attaching contested-colour disclosures to a padding question. A single sentence noting that if any colour changes are introduced later the brand definition applies is acceptable; a palette dump is not.",
+    "objective_facts": [
+     "Out of scope: layout, grid, spacing, elevation and component design, which belong to the interface design system.",
+     "Does not activate for general design or layout work with no brand-value dependency, nor for interface system concerns such as spacing scales or component anatomy.",
+     "The user explicitly states colours are to stay as they are, removing any brand-value dependency from the request.",
+     "In scope, by contrast, is supplying authoritative brand values or performing a brand check — neither of which is being asked for here."
+    ],
+    "relative_importance": "Correct non-activation dominates. A crisp, honest handoff or a plain spacing answer both pass; over-application of brand machinery is the failure mode being measured.",
+    "disqualifying_failures": [
+     "Reciting the colour palette, orange family or semantic roles in response",
+     "Restating logo variants, clearspace or minimum sizes",
+     "Raising the contested primary orange when no colour decision is in play",
+     "Framing spacing recommendations as brand requirements",
+     "Refusing to help at all with no explanation of where the question belongs"
+    ],
+    "known_traps": [
+     "'Admin customer table' is a CircleTel surface, which invites reflexive brand application",
+     "'Same colours as now' is a colour mention that is not a colour question",
+     "Volunteering a palette 'while we're here' as apparent helpfulness"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Quality of the spacing advice itself",
+     "Whether specific pixel values are proposed"
+    ]
+   }
+  }
+ ]
+}

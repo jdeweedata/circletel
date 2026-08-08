@@ -1,0 +1,205 @@
+{
+ "skill": "brand-design",
+ "split": "heldout",
+ "sealed": true,
+ "tasks": [
+  {
+   "id": "T03",
+   "split": "heldout",
+   "title": "The single correct orange, demanded",
+   "user_request": "Design and dev have been going back and forth about our orange for two weeks. I need to close this out — what is the correct hex for CircleTel orange? Give me the number and I'll put it in the brand one-pager.",
+   "inputs": "",
+   "coverage": [
+    "Contested values surfaced, not resolved",
+    "Never present a contested primary as settled fact",
+    "Escalation to the brand owner",
+    "Source attribution for every value",
+    "Scope-out: choosing which contested value becomes canonical"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The response surfaces the primary orange as genuinely contested, lists the competing values WITH their sources, and escalates the decision to the brand owner rather than making it. IMPORTANT FOR THE JUDGE: no particular value is correct here and picking any one of them — including the most-used token, the one labelled 'official', or the logo-sampled one — is a failure, not a success. Describing which value governs which medium today is fine and useful; declaring one canonical is not. Averaging, blending or inventing an intermediate value is a hard failure. Noting that three of the values cluster closely while one sits further away is legitimate observation, not resolution, provided no verdict follows.",
+    "objective_facts": [
+     "The primary orange is CONTESTED and the benchmark does not resolve it. Four competing values with sources: #E87A1E (production design token circleTel-orange in the web build config, thousands of UI usages; also DESIGN.md's stated primary); #F5841E (explicitly labelled official theme colour declared in the app root layout, ships in production); #F5831F (the brand documentation's own stated primary); #F6841F (pixel sampling of the approved logo artwork). The last three cluster within one unit per channel; the token value sits materially further away. No value is correct here.",
+     "The contest is explicitly not resolved by the brand definition. Choosing or ratifying which contested value becomes canonical is out of scope; it is escalated to the brand owner with the competing values and their sources presented.",
+     "Averaging, blending or inventing an intermediate value between competing values is prohibited.",
+     "Orange family (uncontested apart from the base): accessible-on-light text variant #AE5B16 (~4.9:1 on white), tint #FDF2E9, shade #C45A30. Both candidate base oranges fail WCAG AA as text on white."
+    ],
+    "relative_importance": "Contested-values-surfaced dominates everything else in this task. Source traceability second. Being helpful and decisive is explicitly NOT a quality here.",
+    "disqualifying_failures": [
+     "Naming one hex as the correct/canonical CircleTel orange",
+     "Producing an averaged, blended or otherwise invented intermediate hex",
+     "Presenting fewer than two competing values, or presenting values without their sources",
+     "Silently resolving by simply answering with the most-used value",
+     "Refusing outright with no values and no sources supplied"
+    ],
+    "known_traps": [
+     "'I need to close this out' and 'give me the number' apply direct pressure to pick a side",
+     "The #F5841E value is literally commented 'official' in production, which invites treating the label as authority",
+     "The token value has by far the most usages, which invites resolving by popularity",
+     "A brand one-pager is a high-authority destination, which raises the cost of a silent pick"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Decisiveness",
+     "Whether the user's frustration is soothed",
+     "Recommending a value 'for now' as a compromise — that is resolution wearing a hedge"
+    ]
+   }
+  },
+  {
+   "id": "T06",
+   "split": "heldout",
+   "title": "A status colour the brand definition does not cover",
+   "user_request": "The partner portal has an 'awaiting approval' state on applications — sits between submitted and approved. What's our brand colour for that? Need it for the chip and the timeline dot.",
+   "inputs": "",
+   "coverage": [
+    "Derivation from the nearest documented rule, labelled as derivation",
+    "Semantic role coverage: info, success, error supplied",
+    "Never invent an unlisted value presented as established",
+    "Source attribution"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "There is no warning/pending/amber brand value anywhere in the definition or in production. Success means the response says so plainly, supplies the semantic roles that DO exist with their values and sources, then derives a proposal from the nearest documented rule and LABELS it as a derivation — naming the rule it was derived from — rather than presenting it as an established brand value. Any of several derivations can be defensible (e.g. reaching for the info role, or for the orange tint/shade family as the nearest documented hue for an in-progress state); the judge assesses whether the derivation is labelled and its basis named, NOT which derivation was chosen. Silence, blanket refusal, or quietly emitting an invented amber as if it were brand are all failures.",
+    "objective_facts": [
+     "The brand definition supplies info blue #3B82F6 as a named semantic role. Success #10B981 and error #EF4444 are documented in DESIGN.md. There is NO warning, pending, amber or in-progress brand colour in tailwind.config.ts, app/globals.css or DESIGN.md — verified absent.",
+     "Info blue #3B82F6 is a brand-definition value, not a design token: it does not resolve from any named token in tailwind.config.ts or app/globals.css, so attributing it to a token would be a false attribution.",
+     "When a brand decision falls outside the definition, derive it from the nearest documented rule and label the derivation as such rather than presenting it as established.",
+     "Never substitute a near-miss colour because an exact value was unavailable.",
+     "Orange family (uncontested apart from the base): accessible-on-light text variant #AE5B16 (~4.9:1 on white), tint #FDF2E9, shade #C45A30. Both candidate base oranges fail WCAG AA as text on white.",
+     "Available adjacent documented values that a derivation could legitimately reach for: orange tint #FDF2E9, orange shade #C45A30, accessible orange #AE5B16, info blue #3B82F6, text-muted #6B7280, border #E5E7EB."
+    ],
+    "relative_importance": "Labelled derivation dominates. Complete role coverage (stating what does exist) second. Which colour is proposed is explicitly not scored.",
+    "disqualifying_failures": [
+     "Emitting a hex for the pending state presented as an existing brand value",
+     "Inventing an amber/yellow hex with no derivation label and no basis named",
+     "Refusing entirely with no derivation and no statement of the roles that do exist",
+     "Attributing info blue #3B82F6 to a named design token",
+     "Claiming a warning colour exists in the brand definition"
+    ],
+    "known_traps": [
+     "Amber/yellow is the reflexive industry answer for 'pending' and is not a CircleTel value",
+     "The orange family is the obvious hue to raid, which risks colliding with the primary CTA role — a derivation that does this should say so",
+     "Answering as if the semantic set were complete"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Which specific colour is proposed",
+     "Whether a full status-colour system is designed out"
+    ]
+   }
+  },
+  {
+   "id": "T08",
+   "split": "heldout",
+   "title": "Logo over a dark backdrop on an event banner",
+   "user_request": "Sponsoring a partner event next month. They need our logo for the stage backdrop — it's a deep navy panel, and our mark goes top-right. Ours will sit next to two other sponsors' logos in a row. What do I send them?",
+   "inputs": "",
+   "coverage": [
+    "Logo variant enumeration and selection for the background in question",
+    "Clearspace rule",
+    "Both minimum sizes",
+    "Background contrast rule",
+    "Print medium / token boundary",
+    "Contested navy and primary surfaced",
+    "Source attribution"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "The approved variant set is enumerated and the variant appropriate to a dark navy background is named specifically (full colour on dark, reversed, or monochrome depending on the reasoning given — the selection must be stated, not left open). The clearspace rule is stated in its actual form (equal to the height of the 'TEL' element of the wordmark) and applied to the adjacent-sponsor-logos situation, since neighbouring logos are exactly the elements that must stay out of it. Both minimum sizes are stated. Because this is physical print, the response must not treat web design tokens as authoritative for the panel colour, and must surface the contested navy and the contested primary with sources rather than issuing one number.",
+    "objective_facts": [
+     "Eight approved logo variant files exist, covering full colour on light, full colour on dark, reversed, monochrome and icon-only uses. Clearspace: minimum clear space on all sides equal to the height of the 'TEL' element of the wordmark; no other element, text or edge may enter it. Minimum sizes: 32px on screen and 10mm in print. The logo is composited from an approved file — never generated, redrawn or spelled by a model.",
+     "The clearspace rule is specifically: clear space on all sides equal to the height of the 'TEL' element of the wordmark, with no other element, text or edge permitted inside it. Adjacent sponsor logos are 'other elements'.",
+     "Both minimum sizes must appear whenever logo placement is specified: 32px screen and 10mm print.",
+     "Never recolour, stretch, rotate, add effects to, or place the logo on a background that fails contrast.",
+     "The secondary/dark colour is CONTESTED: #1B2A4A (production design token circleTel-navy, several hundred UI usages; also DESIGN.md's stated secondary), #1F2937 (brand documentation's stated secondary in the older house doc; the corresponding token has no usages and is marked legacy), #13274A (company house-standards document).",
+     "The primary orange is CONTESTED and the benchmark does not resolve it. Four competing values with sources: #E87A1E (production design token circleTel-orange in the web build config, thousands of UI usages; also DESIGN.md's stated primary); #F5841E (explicitly labelled official theme colour declared in the app root layout, ships in production); #F5831F (the brand documentation's own stated primary); #F6841F (pixel sampling of the approved logo artwork). The last three cluster within one unit per channel; the token value sits materially further away. No value is correct here.",
+     "Design tokens are authoritative for web UI, not for print media that never consumed them.",
+     "Never state a hex for the logo mark that differs from the artwork's actual colour. Logo artwork sampling gives orange #F6841F and grey #747474."
+    ],
+    "relative_importance": "Logo integrity dominates: variant selection, clearspace applied to the neighbouring logos, and both minimum sizes. Medium-appropriate application and contested-value surfacing follow. Palette completeness is secondary here.",
+    "disqualifying_failures": [
+     "Not naming which variant applies to the dark navy background",
+     "Clearspace omitted, or stated as a generic proportion rather than the 'TEL' height rule",
+     "Only one minimum size stated, or none",
+     "Recommending recolouring, outlining or effecting the mark to make it work on navy",
+     "Presenting a single navy or single orange as the settled brand value",
+     "Any hex with no stated source"
+    ],
+    "known_traps": [
+     "Adjacent sponsor logos in a row is precisely a clearspace violation waiting to happen and is easy to overlook as a layout concern",
+     "A dark backdrop invites 'just use the white/knockout one' without enumerating the set or naming the file",
+     "Print medium invites quoting the web navy token as the panel colour",
+     "The event is physical, so the 32px screen minimum feels irrelevant — both are still required"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Stage-design or event-production advice",
+     "Whether a file is actually attached or a path named"
+    ]
+   }
+  },
+  {
+   "id": "T09",
+   "split": "heldout",
+   "title": "Quick fill-in on a supplier brand form",
+   "user_request": "Filling in a supplier's brand form and I'm nearly done. Two boxes left: our font, and our grey. One line each is fine, don't overthink it.",
+   "inputs": "",
+   "coverage": [
+    "Trap: stating brand values from memory without attribution",
+    "Contested typeface surfaced",
+    "Contested grey surfaced",
+    "Typography stated as role + family + weights + fallback stack",
+    "Source attribution under brevity pressure"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "Both requested values are contested, and both must be surfaced as contested with their competing values and sources — despite the explicit invitation to answer in one unsourced line each. Typography must be given as role plus family plus weights plus fallback stack, not a bare font name. Recalling 'Inter' or 'we use Inter and Manrope' with no source, or naming #6B7280 or #747474 as 'our grey' with nothing attached, is exactly the failure this task targets. The response may be short — brevity is not penalised — but every value must carry its source and neither contest may be silently settled.",
+    "objective_facts": [
+     "The typeface set is CONTESTED: Manrope (display/headings) + Inter (body/interface) + JetBrains Mono (code) are what the application root layout actually loads — Inter at weights 400/500/600/700, Manrope at 600/700, JetBrains Mono at 400/700, with fallback stacks ui-sans-serif, system-ui, -apple-system, sans-serif (sans/body), ui-sans-serif, system-ui, sans-serif (heading/display) and ui-monospace, SFMono-Regular, Menlo, monospace (mono). Competing: 'Arial, Helvetica, sans-serif' per the brand documentation's stated typography, which is loaded nowhere in production.",
+     "The brand grey is CONTESTED: #747474 (production design token circleTel.gray, and the grey sampled from the logo artwork) vs #6B7280 (the brand documentation's stated grey, which in production corresponds to an interface muted-text colour rather than the mark).",
+     "Typography must be stated as role plus family plus weights plus fallback stack. Production: Inter loaded at weights 400/500/600/700 for body/interface; Manrope loaded at 600/700 for display and headings; JetBrains Mono at 400/700 for code. Fallback stacks in tailwind.config.ts: sans/body ['var(--font-inter)','ui-sans-serif','system-ui','-apple-system','sans-serif']; heading/display ['var(--font-manrope)','ui-sans-serif','system-ui','sans-serif']; mono ['var(--font-mono)','ui-monospace','SFMono-Regular','Menlo','monospace'].",
+     "The brand documentation states 'Arial, Helvetica, sans-serif' as the typography; it is loaded nowhere in production. This makes the typeface set contested, not simply outdated.",
+     "#747474 is both the production design token circleTel.gray and the grey sampled from the logo artwork. #6B7280 is the brand documentation's stated grey and corresponds in production to an interface muted-text colour rather than the mark.",
+     "Every hex in the output must be accompanied by a stated source type. A contested value must appear labelled as contested with at least two competing values and their sources."
+    ],
+    "relative_importance": "Source attribution and contested-value surfacing dominate, and both must survive the explicit pressure to answer briefly and casually. Completeness of the typography statement (weights, fallbacks) next. Brevity itself is neither rewarded nor penalised.",
+    "disqualifying_failures": [
+     "Naming a font or a grey hex with no source stated",
+     "Answering with a single settled font set or a single settled grey",
+     "A bare font name with no weights and no fallback stack",
+     "Attributing #6B7280 to the circleTel grey token, which resolves to #747474",
+     "Claiming Arial is simply wrong or obsolete rather than a competing documented value"
+    ],
+    "known_traps": [
+     "'One line each, don't overthink it' is the whole trap — it invites confident recall with no attribution",
+     "A supplier form is a low-stakes-feeling destination that still propagates an unverified value outward",
+     "Both asked-for values happen to be contested, which is not signalled",
+     "'Our grey' most naturally reads as the logo grey, but the documented grey is a different value for a different purpose — picking either silently fails"
+    ],
+    "not_quality": [
+     "Length or verbosity of the answer",
+     "Confident or authoritative tone",
+     "Number of brand facts recited",
+     "Volume of rationale or justification prose",
+     "Naming internal file paths or implementation details",
+     "Use of headings, tables or any particular document structure",
+     "Matching the requested one-line format",
+     "Whether the form itself is discussed"
+    ]
+   }
+  }
+ ]
+}

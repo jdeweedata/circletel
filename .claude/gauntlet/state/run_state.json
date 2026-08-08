@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "run_id": "gauntlet-2026-08-07",
-  "phase": "benchmark-design",
+  "phase": "benchmark-audit",
   "phase_history": [
     {
       "phase": "discovery",
@@ -32,6 +32,11 @@
       "phase": "contract-freeze",
       "status": "complete",
       "note": "4 contracts frozen and leak-checked. Finaliser subagents hung twice on file writes; recovered by having them return JSON as reply text. brand-design contract required lead correction: the finaliser hallucinated placeholder hex values when cut off from source data; replaced with values verified directly from tailwind.config.ts, app/layout.tsx and pixel-sampling of the logo artwork (#F6841F confirmed over 614k pixels)."
+    },
+    {
+      "phase": "benchmark-design",
+      "status": "complete",
+      "note": "4 suites x 10 tasks (6 iteration / 4 sealed held-out). Ground truth verified by each designer. Held-out sets chmod 400 and never rendered."
     }
   ],
   "models_verified": {
@@ -55,24 +60,28 @@
   ],
   "skills": {
     "idea-validator": {
-      "status": "benchmark-design",
+      "status": "benchmark-audit",
       "iteration": 0,
-      "contract_frozen": true
+      "contract_frozen": true,
+      "benchmark_built": true
     },
     "claude-md-guardian": {
-      "status": "benchmark-design",
+      "status": "benchmark-audit",
       "iteration": 0,
-      "contract_frozen": true
+      "contract_frozen": true,
+      "benchmark_built": true
     },
     "promotional-campaigns": {
-      "status": "benchmark-design",
+      "status": "benchmark-audit",
       "iteration": 0,
-      "contract_frozen": true
+      "contract_frozen": true,
+      "benchmark_built": true
     },
     "brand-design": {
-      "status": "benchmark-design",
+      "status": "benchmark-audit",
       "iteration": 0,
-      "contract_frozen": true
+      "contract_frozen": true,
+      "benchmark_built": true
     }
   },
   "blockers": [
@@ -120,6 +129,12 @@
       "what": "A finaliser invented brand hex values when denied source access",
       "mitigation": "Lead replaced with values verified from production config and artwork pixel sampling; independently re-verified.",
       "status": "resolved"
+    },
+    {
+      "id": "INC-003",
+      "what": "Subagent write-hang recurred on 2 of 4 benchmark designers and cost ~2h across retries",
+      "mitigation": "Established two reliable paths: write via Bash+python heredoc, or return JSON as reply text for the lead to write. Both now in use.",
+      "status": "mitigated"
     }
   ]
 }
