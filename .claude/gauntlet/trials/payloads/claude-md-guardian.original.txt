@@ -1,0 +1,335 @@
+===== FILE: SKILL.md =====
+---
+name: claude-md-guardian
+description: Audit CLAUDE.md compliance and currency. Run /claude-md-guardian to check for rule violations in recent commits and detect stale/missing rules. Reports findings and fixes with user permission.
+claude_md_version: "8.1"
+---
+
+# Claude.md Guardian
+
+Two-pass audit: compliance (did we follow the rules?) then currency (are the rules still accurate?).
+
+## Trigger
+Invoked by slash command: `/claude-md-guardian`
+
+## Instructions
+
+Follow these steps exactly in order. Do not skip steps.
+
+### Step 1: Load context
+
+Read these three files before doing anything else:
+- `.claude/skills/claude-md-guardian/checks/compliance.md`
+- `.claude/skills/claude-md-guardian/checks/currency.md`
+- `.claude/skills/claude-md-guardian/accepted-debt.md`
+
+Tell the user: "Running Claude.md Guardian audit..."
+
+### Step 2: Pass 1 — Compliance Audit
+
+Work through checks C1–C8 from `compliance.md`.
+
+For C1–C7: Run each bash command exactly as written. Capture any stdout as a violation.
+For C8: Reflect on the current session context and self-assess pipeline gate compliance.
+
+Skip any check whose ID (e.g. "C3") appears in `accepted-debt.md`.
+
+Record results as: `{ id, status (✅/⚠️/❌), description, file, line }`.
+
+### Step 3: Pass 2 — Currency Check
+
+Work through checks U1–U6 from `currency.md`.
+
+For each: Run the bash commands exactly as written. Capture any output that indicates a violation.
+
+Skip any check whose ID appears in `accepted-debt.md`.
+
+Record results as: `{ id, status (🔴/🟡/🟢), description }`.
+
+### Step 4: Generate Report
+
+Using the format in `templates/report.md`, output the full audit report to the user.
+
+Count totals for the summary line.
+
+### Step 5: Fix Flow
+
+If the summary shows 0 violations, 0 warnings, and 0 gaps: stop here. Report success.
+
+Otherwise, work through each non-✅ non-🟢 item in severity order:
+1. ❌ violations first
+2. 🔴 stale rules second
+3. ⚠️  warnings third
+4. 🟡 missing rules fourth
+5. 🟢 minor items last (offer to batch-fix all at once)
+
+For each item, ask:
+```
+Fix [X/N]: [one-sentence description of the fix]? (y/n/skip)
+```
+
+Wait for the user's response:
+
+**y** → Make the edit. Show the diff. Commit:
+```bash
+git add <changed files>
+git commit -m "fix(claude-md): <short description>"
+```
+
+**n** → Append to `.claude/skills/claude-md-guardian/accepted-debt.md`:
+```
+- [YYYY-MM-DD] [check-id]: [description]
+```
+Do NOT fix. Move to next item.
+
+**skip** → Move to next item without recording.
+
+### Step 6: Final summary
+
+After all items processed, output:
+```
+Guardian complete. [N] fixed | [N] skipped | [N] accepted as debt.
+```
+
+If new rules were added or CLAUDE.md was updated, remind the user:
+```
+⚡ New rule added — update claude-md-guardian/checks/compliance.md with an assertion for it.
+```
+
+
+===== FILE: accepted-debt.md =====
+# Accepted Debt
+
+Issues permanently skipped by the guardian. Format: `- [YYYY-MM-DD] [description]`
+
+<!-- Empty — no accepted debt yet -->
+
+
+===== FILE: checks/compliance.md =====
+# Compliance Check Definitions
+
+Each check has an ID, the rule it enforces, the exact bash command to run, and what counts as a violation.
+Run every command from the project root. Flag any stdout output as a violation.
+Skip any check whose ID appears in `accepted-debt.md`.
+
+---
+
+## C1 — Hardcoded contact strings
+**Rule:** `contact-details.md`
+**Command:**
+```bash
+git diff HEAD~5 -- '*.tsx' '*.ts' | grep -E "^\+" | grep -E "(wa\.me|082 487|contactus@circletel)" | grep -v "contact\.ts" | grep -v "^+++"
+```
+**Violation:** Any output line = hardcoded contact value outside constants file
+**Severity:** ❌
+
+---
+
+## C2 — TODO / placeholder code committed
+**Rule:** `anti-patterns.md`
+**Command:**
+```bash
+git diff HEAD~5 -- '*.tsx' '*.ts' | grep -E "^\+.*\b(TODO|FIXME|placeholder|stub function|// temp)\b" | grep -v "^+++"
+```
+**Violation:** Any output line = placeholder committed
+**Severity:** ❌
+
+---
+
+## C3 — createClient() used where getUser() is called
+**Rule:** `auth-patterns.md`
+**Command:**
+```bash
+git diff HEAD~5 -- 'app/api/**' | grep -E "^\+" | grep "getUser()" | grep -v "^+++"
+```
+Then for each changed file containing `getUser()`:
+```bash
+grep -n "createClient()" <file> | grep -v "createClientWithSession"
+```
+**Violation:** File uses `getUser()` but imports `createClient()` not `createClientWithSession()`
+**Severity:** ❌
+
+---
+
+## C4 — context.params not awaited (Next.js 15)
+**Rule:** `coding-standards.md`
+**Command:**
+```bash
+git diff HEAD~5 -- 'app/api/**/*.ts' 'app/**/*.tsx' | grep -E "^\+.*context\.params\." | grep -v "await" | grep -v "^+++"
+```
+**Violation:** Any output = params accessed synchronously
+**Severity:** ❌
+
+---
+
+## C5 — Files created in project root
+**Rule:** `file-organization.md`
+**Command:**
+```bash
+git diff HEAD~5 --name-only --diff-filter=A | grep -E "^[^/]+\.(md|txt|js|ts|json)$" | grep -vE "^(package\.json|package-lock\.json|tsconfig|next\.config|tailwind\.config|vercel\.json|CLAUDE\.md|README\.md|\.eslintrc|\.prettierrc)"
+```
+**Violation:** Any output = file created in root that should be in a subdirectory
+**Severity:** ❌
+
+---
+
+## C6 — StatusBadge missing status= prop
+**Rule:** `admin-shared-components.md`
+**Command:**
+```bash
+git diff HEAD~5 -- 'components/**/*.tsx' | grep -E "^\+.*<StatusBadge" | grep -v 'status=' | grep -v "^+++"
+```
+**Violation:** StatusBadge used without `status=` prop
+**Severity:** ❌
+
+---
+
+## C7 — StatCard icon passed as component ref not JSX element
+**Rule:** `admin-shared-components.md`
+**Command:**
+```bash
+git diff HEAD~5 -- 'components/**/*.tsx' | grep -E "^\+.*<StatCard" | grep -E 'icon=\{[A-Z][a-zA-Z]+\}' | grep -v "^+++"
+```
+**Violation:** StatCard icon is a component reference `{PiXxx}` not a JSX element `{<PiXxx />}`
+**Severity:** ❌
+
+---
+
+## C8 — Pipeline gates (session context check — no command)
+**Rule:** `workflow.md` / `anti-patterns.md`
+**Method:** Reflect on the current session. Ask yourself:
+- Did this session begin new feature/page/component work? → Was `brainstorming` invoked?
+- Did this session encounter a bug or error? → Was `systematic-debugging` invoked?
+- Did this session change 2+ files? → Was `writing-plans` invoked?
+- Did this session complete a feature? → Was `verification-before-completion` invoked?
+- Did this session complete a feature? → Was `requesting-code-review` invoked?
+
+**Violation:** Any gate that should have been invoked but wasn't
+**Severity:** ⚠️
+
+
+===== FILE: checks/currency.md =====
+# Currency Check Definitions
+
+Each check detects drift between the codebase and the rules. Run from project root.
+Severity: 🔴 stale | 🟡 missing | 🟢 minor
+
+---
+
+## U1 — Stale Vercel references in rules
+**Check:** Rules reference Vercel but project now deploys via Coolify.
+**Command:**
+```bash
+grep -rn "vercel" /home/circletel/.claude/rules/ --include="*.md" -i | grep -v "vercel-deployment.md" | grep -iv "vercel token\|vercel env"
+```
+**Also check:** Does `vercel-deployment.md` need updating to reflect Coolify as primary?
+```bash
+grep -c "Coolify" /home/circletel/.claude/rules/vercel-deployment.md
+```
+If output is `0`, the file is stale.
+**Severity:** 🔴 stale
+
+---
+
+## U2 — New lib/ directories with no rule coverage
+**Check:** A directory exists in `lib/` or `components/` that no rule file mentions.
+**Command:**
+```bash
+ls /home/circletel/lib/ 2>/dev/null
+```
+For each directory, check if any rule file references it:
+```bash
+grep -rl "<dirname>" /home/circletel/.claude/rules/ --include="*.md"
+```
+**Violation:** Directory with no rule coverage and 3+ files inside
+**Severity:** 🟡 missing
+
+---
+
+## U3 — Rule table in CLAUDE.md vs actual rule files
+**Check:** Every file in `.claude/rules/` should be listed in the CLAUDE.md rules table.
+**Command:**
+```bash
+ls /home/circletel/.claude/rules/*.md | xargs -I{} basename {} .md | sort > /tmp/actual-rules.txt
+grep "\.md" /home/circletel/CLAUDE.md | grep -oE "[a-z-]+\.md" | sed 's/\.md//' | sort > /tmp/listed-rules.txt
+diff /tmp/actual-rules.txt /tmp/listed-rules.txt
+```
+**Violation:** Files in diff output (in actual but not listed, or listed but not present)
+**Severity:** 🟢 minor (missing from table) or 🔴 stale (listed but file deleted)
+
+---
+
+## U4 — Uncaptured corrections in compound-learnings
+**Check:** Corrections older than 7 days with no matching rule file.
+**Command:**
+```bash
+find /home/circletel/.claude/skills/compound-learnings/corrections/ -name "*.md" -mtime +7 2>/dev/null
+```
+For each file found, check if a rule was extracted:
+```bash
+# Look for rule file created after the correction date
+ls -lt /home/circletel/.claude/rules/*.md | head -5
+```
+**Violation:** Correction file exists with no corresponding new rule
+**Severity:** 🟡 missing
+
+---
+
+## U5 — CLAUDE.md "Updated" date staleness
+**Check:** The "Updated" date in CLAUDE.md footer vs the most recently modified rule file.
+**Command:**
+```bash
+grep "Updated" /home/circletel/CLAUDE.md
+ls -lt /home/circletel/.claude/rules/*.md | head -1
+```
+If the most recent rule file is newer than the CLAUDE.md updated date, flag it.
+**Severity:** 🟢 minor
+
+---
+
+## U6 — Self-check: guardian assertions vs current rules
+**Check:** Every compliance check (C1–C8) should reference a rule file that still exists.
+**Command:**
+```bash
+grep -oE "\`[a-z-]+\.md\`" /home/circletel/.claude/skills/claude-md-guardian/checks/compliance.md | tr -d '`' | grep -v "accepted-debt" | sort -u | while read rule; do
+  [ -f "/home/circletel/.claude/rules/$rule" ] && echo "✅ $rule" || echo "MISSING: $rule"
+done
+```
+**Violation:** Any "MISSING" output = compliance check references a deleted rule file
+**Severity:** 🔴 stale
+
+
+===== FILE: templates/report.md =====
+# Report Format
+
+Output this exact structure. Replace [placeholders] with actual values.
+
+---
+
+## Claude.md Guardian — Audit Report
+Generated: [YYYY-MM-DD] | Commits scanned: last 5 | Rules checked: [N]
+
+### Compliance Audit
+[One line per check. Format:]
+[icon] [check-id] [rule-name]: [finding]
+[  → file:line  (only for ❌ violations with a specific location)]
+
+Icons:
+- ✅ = no violations found
+- ⚠️  = warning (pipeline gate, no specific file location)
+- ❌ = violation (specific file + line)
+
+### Currency Check
+[One line per check. Format:]
+[icon] [check-id]: [description]
+
+Icons:
+- 🔴 = stale (rule contradicts current reality)
+- 🟡 = missing (pattern exists, no rule covers it)
+- 🟢 = minor (metadata out of date)
+
+### Summary
+[N] violations | [N] warnings | [N] gaps ([N] stale, [N] missing) | [N] minor
+
+[If all clean:]
+✅ All checks passed. No violations or gaps found.

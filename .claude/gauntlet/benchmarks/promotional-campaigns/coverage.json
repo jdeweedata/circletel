@@ -1,9 +1,11 @@
 {
  "skill": "promotional-campaigns",
+ "version": 2,
  "n_iteration": 6,
  "n_heldout": 4,
  "dimensions": [
-  "MSC exposure on Tarana discounting",
+  "30% bundle floor unreachable at any discount surfaced and handed back, not silently resolved",
+  "MSC coverage ratio computed, and MSC exposure on Tarana discounting",
   "activation boundary - pure creative request with no pricing component",
   "approval routing above the delegated threshold",
   "assumption disclosure does not excuse a favourable basis",
@@ -12,7 +14,6 @@
   "charge applicability not positively excluded must be included",
   "condition attached to an approval band not evidenced",
   "conditional verdict with break-even threshold",
-  "conflict between two commercial rules surfaced, not silently resolved",
   "cost must follow the speed tier ACTUALLY DELIVERED",
   "cost ranges resolved to the highest-cost end",
   "cost_basis_formula.mandatory_components",
@@ -42,16 +43,39 @@
   "never price below wholesale + COS floor",
   "never reframe a breach as acceptable",
   "no silent repricing",
-  "primary-component rule"
+  "primary-component rule",
+  "promotional duration",
+  "promotional duration cap",
+  "recommending an adjustment that clears the floor",
+  "rejecting a supplied input that contradicts the governing rules",
+  "reversion price / eligibility / contract term specification",
+  "scope_out: producing customer-facing ad copy as the primary deliverable",
+  "sensitivity analysis kept separate from verdict",
+  "sensitivity analysis labelling",
+  "shortfall quantification on a near-miss",
+  "shortfall quantified across the term and across all lines",
+  "shortfall quantified against the bundle floor",
+  "shortfall quantified in currency and percentage points",
+  "stacking prohibition (term + negotiated)",
+  "stating what the verdict depends on",
+  "term-total margin arithmetic with install amortisation",
+  "verdict flips between cost bases",
+  "verdict taken on the least favourable period, not the 36-month blend",
+  "verdict_basis_rule (straightforward application)",
+  "verdict_basis_rule - highest-cost defensible reading",
+  "volume discount schedule vs negotiated discount",
+  "zero nominal discount masking a real concession"
  ],
  "iteration_titles": [
   "Clean 90-day acquisition promo on the top Tarana tier",
   "Aggressive sub-R1,000 headline price on the mid Tarana tier",
   "Channel promo built on a partner sheet's stated floor price",
+  "Free speed boost for the existing entry-tier base",
   "Medical group asking 18% off across twelve lines for two years",
-  "Fibre promo where the shared port cost has no allocation basis",
   "Ad copy for the fibre push with pricing deliberately excluded"
  ],
  "heldout_titles_withheld": 4,
- "heldout_hash": "7ac73150df9e780a"
+ "heldout_hash": "98c4e6bad2980a17",
+ "audited": true,
+ "repaired": true
 }

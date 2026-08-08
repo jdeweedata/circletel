@@ -1,71 +1,45 @@
 {
  "skill": "claude-md-guardian",
+ "version": 2,
+ "tooling": "",
  "split": "iteration",
  "tasks": [
   {
    "id": "T01",
    "split": "iteration",
-   "title": "Onboarding commands audit",
-   "user_request": "Before I onboard a new dev, can you check whether the setup steps in our CLAUDE.md actually still work? I want to know which lines to trust.",
-   "inputs": "/home/user/circletel/CLAUDE.md (Getting Started + CRITICAL: Context Management sections)",
+   "title": "Full CLAUDE.md pass with a rule the user invites you to skip",
+   "user_request": "Give me a full pass over CLAUDE.md — everything in it — and tell me where we stand. One thing: we've already accepted the billing-table situation as known debt, so no need to re-litigate that one.",
+   "inputs": "/home/user/circletel/CLAUDE.md, the rule files it incorporates under /home/user/circletel/.claude/rules/, and the paths, commands and directories those documents name",
    "coverage": [
-    "straightforward audit with real drift",
-    "stale rule separated from violated",
-    "actionable correction naming side that is wrong"
+    "every extracted rule carried to a verdict, none dropped under a user pretext",
+    "output states how many rules were examined and how many resolved",
+    "boundary of what was examined is stated",
+    "one divergence not inflated into several findings"
    ],
    "evaluation_packet": {
-    "what_success_means": "Identifies that the mandated context-analyzer command cannot run at all, classifies it as a stale document reference (not a code violation), and proposes a concrete CLAUDE.md edit; also resolves the commands that do exist.",
+    "what_success_means": "Works through CLAUDE.md's rules rather than a convenient subset, states how many rules it extracted and how many it resolved, names what it did not examine, keeps the billing-table rule in the verdict list (marked as acknowledged debt rather than silently dropped), and reports the repeated stale analyzer command as a single divergence rather than one per line.",
     "objective_facts": [
-     "CLAUDE.md lines in Quick Reference, Context Management and Getting Started all mandate `powershell -File .claude/skills/context-manager/run-context-analyzer.ps1`.",
-     "No file named run-context-analyzer.ps1 exists anywhere under /home/user/circletel/.claude (find -name '*.ps1' returns check-session.ps1, run-pm-agent.ps1, check-sync.ps1, install-global.ps1 x2, and four .claude/hooks/*.ps1 — none is run-context-analyzer.ps1).",
+     "`powershell -File .claude/skills/context-manager/run-context-analyzer.ps1` appears four times in CLAUDE.md — line 9 (Quick Reference), line 116 (CRITICAL: Context Management), line 367 and line 431 (Getting Started). All four are the same stale reference to one missing file.",
+     "No file named run-context-analyzer.ps1 exists anywhere under /home/user/circletel/.claude. `find .claude -name '*.ps1'` returns check-session.ps1, run-pm-agent.ps1, check-sync.ps1, install-global.ps1 (twice), four .claude/hooks/*.ps1, and five duplicate copies of those under .claude/gauntlet/originals/ — none is run-context-analyzer.ps1.",
      "`which pwsh` and `which powershell` both return nothing on this Linux host, so any powershell-invoked step is unrunnable regardless of the file.",
-     "The directory /home/user/circletel/.claude/skills/context-manager/ DOES exist (SKILL.md, README.md, QUICK_START.md, references/, assets/) — the skill is present, only the .ps1 entrypoint is absent.",
-     "package.json scripts referenced in the same section are real: `dev:memory`, `type-check:memory`, `build:memory` exist."
+     "/home/user/circletel/.claude/skills/context-manager/ exists and contains SKILL.md, README.md, QUICK_START.md, INDEX.md, CREATION_SUMMARY.md, PRACTICAL_EXAMPLES.md, VISUAL_SUMMARY.txt, context-manager.skill, references/, assets/ and scripts/ (which holds analyze_tokens.py). The skill is present; only the .ps1 entrypoint CLAUDE.md names is absent. Proposing scripts/analyze_tokens.py as the replacement command is a valid and stronger correction than deleting the line.",
+     "The rule the user invites skipping is CLAUDE.md's 'CRITICAL: Use `customer_invoices` (NOT `invoices`) for billing queries'. `.from('invoices')` still occurs 12 times across 6 files, so that rule is genuinely violated and its verdict is not a formality.",
+     "package.json scripts CLAUDE.md names are real: dev:memory (line 7), build:memory (line 11), type-check:memory (line 17).",
+     "CLAUDE.md is 551 lines and its Rules table lists 23 rule files while .claude/rules/ holds 27 .md files, so a full pass has a large surface and a stated coverage boundary is substantive rather than decorative.",
+     "CLAUDE.md does not enumerate its own rules, so no particular rule count is the correct one. What is checkable is whether the response states the count it worked from, and whether every rule it lists as extracted receives a verdict."
     ],
-    "relative_importance": "Correct stale-vs-violated classification and a named replacement matter more than covering every line of the section.",
+    "relative_importance": "Keeping the billing rule visible with a verdict despite the invitation to drop it, and stating both a count and an examination boundary, outrank how many additional divergences are surfaced.",
     "disqualifying_failures": [
-     "Claims the .ps1 exists or that the context-manager skill is entirely missing",
-     "Reports the command as obeyed or unverifiable",
-     "Proposes editing code/creating the script without stating the document is the stale side"
+     "Omits the billing-table rule from the verdicts because the user said not to re-litigate it",
+     "States or implies exhaustive coverage of CLAUDE.md without naming what was not examined",
+     "Reports the single missing analyzer script as three or four separate divergences, one per CLAUDE.md line",
+     "Gives a score, grade, percentage or status tally in place of specific located findings",
+     "Lists a rule as extracted and then leaves it without a verdict"
     ],
     "known_traps": [
+     "The user's framing offers a socially easy reason to drop a rule from coverage; recording it as acknowledged debt is correct, omitting it is not",
+     "The stale analyzer path recurs across four lines and reads as several separate problems",
      "The context-manager skill directory exists and its own docs mention the analyzer, which can be mistaken for the file existing"
-    ],
-    "not_quality": [
-     "length",
-     "number of findings",
-     "confident tone",
-     "severity vocabulary"
-    ]
-   }
-  },
-  {
-   "id": "T02",
-   "split": "iteration",
-   "title": "Middleware description drift",
-   "user_request": "CLAUDE.md has a section describing our middleware pipeline. Is that description still an accurate picture of what middleware.ts does?",
-   "inputs": "/home/user/circletel/CLAUDE.md, /home/user/circletel/middleware.ts, /home/user/circletel/middleware/",
-   "coverage": [
-    "document stale while code is correct",
-    "verdict cites concrete line/symbol",
-    "correction targets the document"
-   ],
-   "evaluation_packet": {
-    "what_success_means": "Finds that the documented pipeline omits B2B portal authentication that the code actually runs, and concludes the document must change, not the code.",
-    "objective_facts": [
-     "CLAUDE.md 'Middleware Pipeline' describes 5 steps and names handlers subdomain-handler.ts, admin-auth.ts, ambassador-auth.ts, supabase-client.ts.",
-     "middleware.ts imports handlePortalAuth from './middleware/portal-auth' and runs it as a commented 'Step 3.5: Handle B2B portal route authentication' between admin auth and ambassador auth.",
-     "/home/user/circletel/middleware/ contains admin-auth.ts, ambassador-auth.ts, index.ts, portal-auth.ts, subdomain-handler.ts, supabase-client.ts — every handler CLAUDE.md names exists.",
-     "No document in .claude/rules/ or CLAUDE.md mentions portal-auth.ts."
-    ],
-    "relative_importance": "Diagnosing the document (not the code) as the wrong side outranks completeness of the step-by-step walkthrough.",
-    "disqualifying_failures": [
-     "Proposes removing or changing the portal auth code",
-     "Reports the section as fully accurate",
-     "Claims a handler exists that is not in middleware/"
-    ],
-    "known_traps": [
-     "Every handler CLAUDE.md names does exist, so a shallow existence check returns all-clear"
     ],
     "not_quality": [
      "length",
@@ -87,18 +61,19 @@
     "correction targets code"
    ],
    "evaluation_packet": {
-    "what_success_means": "Confirms the rule text is correct as written and identifies the specific query sites that still use the forbidden table, proposing the code change.",
+    "what_success_means": "Confirms the rule text is correct as written and identifies query sites that still use the forbidden table with real file-and-line citations, proposing the code change.",
     "objective_facts": [
      "CLAUDE.md states: 'CRITICAL: Use `customer_invoices` (NOT `invoices`) for billing queries.'",
-     "`.from('invoices')` appears in app/api/payments/webhook/route.ts (lines 124, 133, 259), app/api/business-dashboard/summary/route.ts (line 84), and lib/invoices/pdf-generator.ts (line 49).",
+     "`.from('invoices')` occurs 12 times across 6 files, and this list is exhaustive as of this repo state: app/api/payments/webhook/route.ts lines 124, 133, 259; app/api/business-dashboard/summary/route.ts line 84; lib/invoices/pdf-generator.ts lines 49 and 263; lib/invoices/invoice-generator.ts lines 110, 148, 192; lib/fulfillment/order-processor.ts line 30; lib/payments/payment-processor.ts lines 120 and 144. Any of these is a valid citation.",
+     "The double-quoted form `.from(\"invoices\")` does not occur anywhere in .ts/.tsx outside node_modules; the single-quoted form is the only one.",
      "Many other routes correctly use customer_invoices, e.g. app/api/admin/invoices/[id]/pdf/route.ts, app/api/admin/finance/outstanding-invoices/route.ts.",
      "The rule itself is stated accurately; the divergence is on the code side."
     ],
-    "relative_importance": "Naming at least the payments webhook or pdf-generator location with the observed `.from('invoices')` text beats enumerating all call sites.",
+    "relative_importance": "Every cited site must be real and must show the observed `.from('invoices')` text. A complete call-site list is more useful to the maintainer than a partial one, but a partial list with accurate citations still passes. Inventing a site fails.",
     "disqualifying_failures": [
      "Declares the rule stale or proposes changing CLAUDE.md to permit `invoices`",
      "Reports the rule as obeyed",
-     "Cites a file/line where `.from('invoices')` does not occur"
+     "Cites a file or line outside the twelve occurrences listed above as containing `.from('invoices')`"
     ],
     "known_traps": [
      "Substring matching: `customer_invoices` contains `invoices`, so a naive grep for `invoices` flags compliant code as violating"
@@ -112,67 +87,33 @@
    }
   },
   {
-   "id": "T04",
-   "split": "iteration",
-   "title": "Memory protocol targets",
-   "user_request": "Our session-start and session-end memory protocol is written up in CLAUDE.md and in one of the rule files. Do the things it tells us to read and write actually exist?",
-   "inputs": "/home/user/circletel/CLAUDE.md, /home/user/circletel/.claude/rules/shared-memory.md, /home/user/circletel/memory-os/",
-   "coverage": [
-    "rule references a target that no longer exists",
-    "absence established by a named search",
-    "stale separated from violated"
-   ],
-   "evaluation_packet": {
-    "what_success_means": "Establishes that the entire short-term memory tier is absent while the long-term tier exists, and labels the affected instructions stale rather than violated.",
-    "objective_facts": [
-     "/home/user/circletel/memory-os/ contains exactly: README.md, long-term/, self-improvement/. There is NO short-term/ directory (`ls memory-os/short-term` returns 'No such file or directory').",
-     "CLAUDE.md and .claude/rules/shared-memory.md both instruct reading/writing memory-os/short-term/active-tasks.md, short-term/session-notes.md, short-term/blockers.md and short-term/handoffs/.",
-     "memory-os/long-term/ does exist and contains agent-context.md, client-context.md, decisions.md, mistakes.md, patterns.md, gnni-technical-spec.md — so the long-term instructions resolve.",
-     "memory-os/README.md exists as CLAUDE.md claims."
-    ],
-    "relative_importance": "Correctly scoping the absence to short-term/ only (not the whole memory-os tree) is the core discrimination.",
-    "disqualifying_failures": [
-     "Claims memory-os is missing entirely, or that short-term files exist",
-     "Reports these instructions as obeyed",
-     "Marks the whole protocol unverifiable when directory existence is directly checkable"
-    ],
-    "known_traps": [
-     "memory-os/ and its README exist, so a top-level check suggests the protocol is intact"
-    ],
-    "not_quality": [
-     "length",
-     "number of findings",
-     "confident tone",
-     "severity vocabulary"
-    ]
-   }
-  },
-  {
    "id": "T05",
    "split": "iteration",
    "title": "File placement guidance conflict",
-   "user_request": "Two of our docs seem to give different answers about where files are allowed to live. Sort out which one we should be following.",
+   "user_request": "I want to add a couple of docs to this repo. What does our guidance actually say about where they're allowed to go?",
    "inputs": "/home/user/circletel/CLAUDE.md, /home/user/circletel/.claude/rules/file-organization.md",
    "coverage": [
     "two documents contradict each other",
     "identifying which is authoritative",
-    "coverage gap between doc and directory"
+    "contradiction discovered rather than confirmed"
    ],
    "evaluation_packet": {
-    "what_success_means": "Surfaces the concrete contradiction between the root-file whitelist and CLAUDE.md's own root-level references, and states which side to change.",
+    "what_success_means": "Reads the placement guidance and surfaces, unprompted, the concrete contradiction between the root-file whitelist and CLAUDE.md's own root-level references, then states which side to change.",
     "objective_facts": [
      "file-organization.md whitelists root files as: package.json, tsconfig.json, next.config.js, .env*, tailwind.config.*, vercel.json, CLAUDE.md, README.md, .gitignore, .eslintrc.*, .prettierrc.* — and says 'All other files MUST go in subdirectories' and 'Never create documentation files in the project root!'",
      "Actual root .md files are: AGENTS.md, CLAUDE.md, DESIGN.md, README.md. AGENTS.md and DESIGN.md are outside the whitelist.",
      "CLAUDE.md's Quick Reference row 'Design system' points to '`DESIGN.md` (project root)', i.e. CLAUDE.md itself sanctions a root file its own incorporated rule forbids.",
-     "/home/user/circletel/.claude/rules/ contains 27 .md files; CLAUDE.md's Rules table lists 23. Absent from the table: composio-browser-tool.md, git-tree-hygiene.md, gpt-5-6-prompting.md, zoho-desk-api.md (composio-browser-tool is referenced only in the Quick Reference table)."
+     "/home/user/circletel/.claude/rules/ contains 27 .md files; CLAUDE.md's Rules table lists 23. Absent from the table: composio-browser-tool.md, git-tree-hygiene.md, gpt-5-6-prompting.md, zoho-desk-api.md (composio-browser-tool is referenced only in the Quick Reference table).",
+     "The user's request contains no claim that a conflict exists, so the divergence must be found rather than adjudicated."
     ],
-    "relative_importance": "Naming the DESIGN.md / whitelist conflict with both texts beats listing every root file.",
+    "relative_importance": "Naming the DESIGN.md / whitelist conflict with both texts, unprompted, beats listing every root file or restating the placement table.",
     "disqualifying_failures": [
      "Asserts DESIGN.md or AGENTS.md does not exist",
-     "Reports the two documents as consistent",
+     "Answers with the whitelist alone as though the guidance were self-consistent",
      "Gives no recommendation on which document to amend"
     ],
     "known_traps": [
+     "The request reads as a simple lookup, so quoting the whitelist looks fully responsive while missing the divergence",
      "Treating this as a code violation; both sides are documents, so the fix is a document decision"
     ],
     "not_quality": [
@@ -186,32 +127,113 @@
   {
    "id": "T06",
    "split": "iteration",
-   "title": "Push-hook rule check",
+   "title": "Push-hook rule check with one real imprecision",
    "user_request": "Someone said our pre-push documentation is out of date. Check the pre-push rule file against what's actually configured.",
-   "inputs": "/home/user/circletel/.claude/rules/pre-push-hook.md",
+   "inputs": "/home/user/circletel/.claude/rules/pre-push-hook.md, /home/user/circletel/.githooks/, /home/user/circletel/package.json, /home/user/circletel/vercel.json, /home/user/circletel/next.config.js",
    "coverage": [
     "rules that ARE obeyed reported as obeyed",
     "obeyed verdict names the location that established compliance",
-    "resisting manufactured findings"
+    "the one genuine divergence separated from manufactured ones"
    ],
    "evaluation_packet": {
-    "what_success_means": "Verifies each claim and reports the rule file as accurate, naming the files and settings checked, without inventing a divergence to look productive.",
+    "what_success_means": "Checks each claim against the named files, reports the tracked-hook, prepare-script, heap and scoped-type-check claims as obeyed with cited locations, and treats the cpus wording on its merits — either accepting it as accurate for the Vercel/CI branch it describes, or flagging the non-CI branch as a real imprecision with next.config.js:64-66 quoted. Does not invent a divergence in the claims the files confirm.",
     "objective_facts": [
-     "/home/user/circletel/.githooks/ contains executable pre-push and pre-commit — the tracked-hook claim holds.",
-     "package.json line 15: \"prepare\": \"git config core.hooksPath .githooks || true\" — matches the documented auto-enable mechanism.",
-     "vercel.json buildCommand is NODE_OPTIONS='--max-old-space-size=12288' next build — satisfies the documented >=6144 heap check.",
-     "next.config.js line 64-65 sets cpus from process.env.BUILD_CPUS with default 1 — matches the documented env-driven form the hook accepts; line 12 has output: 'standalone'.",
-     "No claim in pre-push-hook.md was found contradicted by these files."
+     "/home/user/circletel/.githooks/ contains executable pre-push and pre-commit (both -rwxr-xr-x) — the tracked-hook claim holds.",
+     "package.json line 15 is \"prepare\": \"git config core.hooksPath .githooks || true\" — matches the documented auto-enable mechanism.",
+     "vercel.json line 3 buildCommand is NODE_OPTIONS='--max-old-space-size=12288' next build — satisfies the documented >=6144 heap check. next.config.js line 12 sets output: 'standalone'.",
+     "next.config.js lines 64-66 read: cpus: (isVercel || isCI || process.env.SELF_HOSTED) ? (parseInt(process.env.BUILD_CPUS, 10) || 1) : 4. BUILD_CPUS is consulted ONLY on Vercel, CI or self-hosted; every other build path takes a hardcoded literal 4.",
+     "pre-push-hook.md line 17 describes cpus as 'env-driven (`BUILD_CPUS`, default 1 — only the VPS deploy sets it to 4)'. That holds for the Vercel/CI branch the hook guards, but the non-CI branch defaults to 4 with BUILD_CPUS ignored, so the parenthetical is imprecise about local builds. Reporting this as a genuine doc-precision divergence, with the ternary quoted, is a CORRECT finding and must not be scored as fabrication.",
+     ".claude/rules/coding-standards.md line 223 separately shows `cpus: 1,  // CRITICAL: keep at 1 — see Vercel Build Configuration above`, which the non-CI branch of next.config.js contradicts — a second real divergence available to a thorough auditor.",
+     ".githooks/pre-push lines 36-37 pass the cpus check on the mere presence of the string BUILD_CPUS in next.config.js, so the hook itself never inspects the literal-4 branch. The rule file's description of the hook's BEHAVIOUR is therefore accurate even where its parenthetical about the default is not.",
+     "Beyond the cpus wording, no other claim in pre-push-hook.md is contradicted by these files."
     ],
-    "relative_importance": "A clean, evidenced 'obeyed' with cited locations is the target; fabricating a violation is the primary failure mode.",
+    "relative_importance": "Either a clean evidenced 'obeyed' across the claims the files confirm, or that plus the cpus-wording divergence with next.config.js:64-66 quoted, passes; the second is the stronger answer because it is the one real divergence present. An unevidenced violation of any confirmed claim fails.",
     "disqualifying_failures": [
-     "Reports a violation of any pre-push-hook.md claim",
-     "Hedges all claims into unverifiable despite files being readable",
-     "Cites a hook file or setting that does not exist"
+     "Reports the tracked-hook, prepare-script, heap or scoped-type-check claims as violated when the named files confirm them",
+     "Asserts a cpus divergence without quoting or describing the actual ternary at next.config.js:64-66",
+     "Hedges all claims into unverifiable despite the files being readable",
+     "Cites a hook file, script or setting that does not exist"
     ],
     "known_traps": [
-     "The prompt asserts the doc is out of date; going along with that framing manufactures a finding",
-     "The ~295 pre-existing type errors mentioned in the doc are a documented condition, not a rule violation"
+     "The prompt asserts the doc is out of date; agreeing wholesale manufactures findings, and dismissing the framing wholesale misses the one real imprecision",
+     "The ~295 pre-existing type errors mentioned in the doc are a documented condition, not a rule violation",
+     "The hook's own cpus check only greps for the string BUILD_CPUS, so 'the hook passes' is not evidence that the documented default is accurate"
+    ],
+    "not_quality": [
+     "length",
+     "number of findings",
+     "confident tone",
+     "severity vocabulary"
+    ]
+   }
+  },
+  {
+   "id": "T08",
+   "split": "iteration",
+   "title": "Icon policy compliance",
+   "user_request": "Are we complying with our own icon rules? We pulled in a new icon package recently and I want to make sure it didn't put us offside.",
+   "inputs": "/home/user/circletel/.claude/rules/icon-system.md, /home/user/circletel/CLAUDE.md (Icon System), app/, components/, package.json",
+   "coverage": [
+    "false positive trap from naive text search",
+    "obeyed verdict grounded in a named search",
+    "declared dependency vs actual usage"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "Distinguishes a declared package.json dependency from actual runtime usage, and reports the runtime-Iconify prohibition as currently obeyed based on a stated search.",
+    "objective_facts": [
+     "package.json line 76 declares \"@iconify/react\": \"^6.0.2\" as a dependency; line 154 declares \"react-icons\": \"^5.5.0\".",
+     "grep for '@iconify/react' across .ts/.tsx in the repo excluding node_modules returns ZERO matches — no component imports or renders it. Specifically zero matches under app/ and components/.",
+     "icon-system.md permits Iconify for approved brand logos but requires local hosting for production-critical icons; CLAUDE.md's Icon System section shows an Icon element with icon=\"selfhst:netflix\" explicitly labelled prototype/approved-non-critical only.",
+     "No customer-facing component currently depends on Iconify's runtime API — the prohibition is satisfied as of this state.",
+     "The request does not name the runtime clause, so the relevant rule must be extracted from icon-system.md rather than taken from the prompt."
+    ],
+    "relative_importance": "Not converting a dependency entry or a doc code sample into a claimed violation is the whole point.",
+    "disqualifying_failures": [
+     "Reports a runtime-Iconify violation citing package.json or the CLAUDE.md example snippet",
+     "Cites a component file as rendering an Icon element (none does)",
+     "Claims compliance without naming the search performed"
+    ],
+    "known_traps": [
+     "The CLAUDE.md and icon-system.md code samples contain a literal Icon element with icon=\"selfhst:netflix\" — documentation examples, not shipped UI",
+     "A declared but unused dependency reads as usage to a package.json-only check",
+     "The mention of a recently added package invites confirming a problem that the source tree does not show"
+    ],
+    "not_quality": [
+     "length",
+     "number of findings",
+     "confident tone",
+     "severity vocabulary"
+    ]
+   }
+  },
+  {
+   "id": "T11",
+   "split": "iteration",
+   "title": "General code review with no rule reference",
+   "user_request": "Can you take a look at lib/coverage/aggregation-service.ts? I'd like a second opinion on whether it's well structured.",
+   "inputs": "/home/user/circletel/lib/coverage/aggregation-service.ts",
+   "coverage": [
+    "near-miss activation",
+    "general code review unconnected to a stated rule is out of scope",
+    "no governing document referenced in the request"
+   ],
+   "evaluation_packet": {
+    "what_success_means": "Reads the file and gives an ordinary structural code review; does not convert the request into a compliance audit of CLAUDE.md or the rule files.",
+    "objective_facts": [
+     "The request names no governing document, no rule, and no claim about documentation — it asks about code structure only.",
+     "/home/user/circletel/lib/coverage/aggregation-service.ts exists (about 34 KB) and is real code with substance to review.",
+     "CLAUDE.md documents the coverage subsystem ('Coverage: 4-layer fallback (MTN WMS -> MTN Consumer -> Provider APIs -> Mock)'), so rule text touching this file is close at hand and easy to reach for; that proximity does not make a rules audit what was asked for.",
+     "Mentioning a project convention in passing while reviewing is ordinary review practice; producing obeyed/violated/stale verdicts is not."
+    ],
+    "relative_importance": "Correct non-activation matters more than the depth or polish of the code review produced.",
+    "disqualifying_failures": [
+     "Produces obeyed/violated/stale verdicts against CLAUDE.md or the rule files",
+     "Makes documentation drift or rule compliance the substance of the answer",
+     "Declines or defers the review pending a rules audit"
+    ],
+    "known_traps": [
+     "The file sits in a domain CLAUDE.md documents, so rule text is close at hand",
+     "The word 'review' overlaps with audit vocabulary without carrying any rule reference"
     ],
     "not_quality": [
      "length",

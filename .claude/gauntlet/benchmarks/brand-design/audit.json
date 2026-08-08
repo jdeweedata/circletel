@@ -1,0 +1,386 @@
+{
+ "issues": [
+  {
+   "id": "B1",
+   "axis": "facts",
+   "severity": "blocking",
+   "task_ids": [
+    "T04",
+    "T08",
+    "T09"
+   ],
+   "problem": "The logo-artwork grey is stated as #747474. Pixel sampling of every grey-bearing approved logo file (LOGO-01, -03, -07, -08) returns #757474 (rgb 117,116,116), not #747474 (rgb 116,116,116). #747474 is the tailwind token value only. Because a contract never_do is 'Never state a hex for the logo mark that differs from the artwork's actual colour', the benchmark currently requires the response to violate that rule, and T08 restates it explicitly.",
+   "evidence": "T09: '#747474 is both the production design token circleTel.gray and the grey sampled from the logo artwork.' T08: 'Logo artwork sampling gives orange #F6841F and grey #747474.' Actual sample: LOGO-08 top colours [('#F6841F',15770),('#757474',8066)].",
+   "fix": "Replace the artwork-grey attribution everywhere with '#757474 (pixel sampling of the approved logo artwork)' and keep '#747474 (production design token circleTel.gray)' as a separate, competing source. This makes the grey contest three-way (#757474 artwork / #747474 token / #6B7280 brand documentation) and should be reflected in T04, T08 and T09."
+  },
+  {
+   "id": "B2",
+   "axis": "facts",
+   "severity": "blocking",
+   "task_ids": [
+    "T07"
+   ],
+   "problem": "DEFECT 6 asserts a clearspace violation that does not exist arithmetically. The clearspace unit is the height of the 'TEL' element, measured at ~10.1% of the full lockup height. At the spec's 8mm logo that is ~0.8mm of required clearspace; the spec places the logo 3mm above the trim edge, which comfortably clears it. A responder who applies the stated rule correctly will not report DEFECT 6 and will be marked down; a responder who guesses is rewarded.",
+   "evidence": "T07 DEFECT 6: 'At an 8mm logo the trim edge is inside the clearspace.' Measured on LOGO-08: full lockup bbox height 2017px, TEL bbox height 204px -> 0.1011; 0.1011 x 8mm = 0.81mm required, 3mm supplied.",
+   "fix": "Either delete DEFECT 6, or change the input spec in Section C so the violation is real - e.g. 'Logo bottom-centre, 8mm tall, sits 0.3mm above the trim edge, with the strapline set 0.5mm below the mark'. If kept, state the TEL-height ratio (~10% of lockup height) in objective_facts so the judge can check the arithmetic."
+  },
+  {
+   "id": "B3",
+   "axis": "facts",
+   "severity": "blocking",
+   "task_ids": [
+    "T02",
+    "T04",
+    "T07",
+    "T08"
+   ],
+   "problem": "The approved variant set is described as covering 'full colour on light, full colour on dark, reversed, monochrome and icon-only'. Inspection of all eight files shows no full-colour-on-dark variant and no icon-only variant: 01/07/08 are orange+grey on light, 02 orange-only, 03 grey-only, 04 black-only, 05 pure white knockout, 06 white lockup on an orange square. All eight are the complete lockup (swirl + 'circle TEL'). T08 then offers 'full colour on dark' as an acceptable selection for a dark navy backdrop, so a wrong answer earns credit and the correct answer (the white knockout, LOGO-05) is not privileged.",
+   "evidence": "T08 what_success_means: 'the variant appropriate to a dark navy background is named specifically (full colour on dark, reversed, or monochrome depending on the reasoning given)'. Sampled LOGO-05 = single colour #FFFFFF; LOGO-06 = #F6841F ground with #FFFFFF lockup; no file contains the orange+grey lockup on a dark ground.",
+   "fix": "Restate the set as: 'Eight approved files, all full lockup: orange+grey on light (primary, small, large), orange-only, grey-only, black-only, white knockout for dark backgrounds, and white-on-orange for avatars/app icons. There is no full-colour-on-dark file and no icon-only file.' In T08, narrow the accepted selection to the white knockout (or a monochrome file), and make 'naming a full-colour-on-dark variant' a disqualifying failure since it does not exist."
+  },
+  {
+   "id": "B4",
+   "axis": "facts",
+   "severity": "important",
+   "task_ids": [
+    "T01",
+    "T04",
+    "T07",
+    "T08"
+   ],
+   "problem": "The claim that the #1F2937 token 'has no usages' is false. circleTel.darkNeutral is referenced 11 times in production email code. The 'marked legacy' half of the claim is true. As written the packet lets a judge penalise a responder who correctly reports that the legacy token is still in live use.",
+   "evidence": "Packets: '#1F2937 (brand documentation's stated secondary in the older house doc; the corresponding token has no usages and is marked legacy)'. Actual: emails/utils/styles.ts (6 refs), emails/slices/CircleTelInvoiceTable.tsx, emails/slices/CircleTelHero.tsx, emails/templates/admin/AccessApprovalEmail.tsx (2), emails/templates/admin/installation-completed-sdm.tsx.",
+   "fix": "Change to: 'the corresponding token circleTel.darkNeutral is commented as a legacy alias in tailwind.config.ts and survives only in the transactional email templates (~11 references), versus ~900 for circleTel.navy'."
+  },
+  {
+   "id": "B5",
+   "axis": "contested",
+   "severity": "blocking",
+   "task_ids": [
+    "T01",
+    "T02",
+    "T03",
+    "T04",
+    "T05",
+    "T07",
+    "T08"
+   ],
+   "problem": "The evidence for the contested primary is presented asymmetrically, which hints at a preferred value. #E87A1E is given a second corroborating source ('also DESIGN.md's stated primary') that is not in the contract, while #F5831F is reduced to 'the brand documentation's own stated primary' - implying it is a paper-only value. In fact #F5831F occurs 386 times across 122 production .ts/.tsx/.css files, including app/globals.css itself (the brand link colour for all typeset prose). Every packet also repeats the contract's 'the token value sits materially further away' clause as an objective fact. Together these push a judge toward treating #E87A1E as the strong candidate on one axis and the outlier on another - either way, tipping a contest the contract says must not be tipped.",
+   "evidence": "Repeated in seven packets: '#E87A1E (production design token circleTel-orange in the web build config, thousands of UI usages; also DESIGN.md's stated primary); ... #F5831F (the brand documentation's own stated primary)'. Actual: app/globals.css:26 '.typeset a { color: #F5831F; }'; grep -ro F5831F over .ts/.tsx/.css = 386 hits in 122 files.",
+   "fix": "Give every candidate the same shape of evidence: '#E87A1E - design token circleTel.orange, ~3,098 token references, also DESIGN.md's stated primary; #F5841E - themeColor in app/layout.tsx commented official, ~52 literal uses; #F5831F - the brand-documentation primary AND ~386 literal uses in 122 production files including the globals.css prose link colour; #F6841F - pixel sample of the approved artwork.' Drop or explicitly neutralise the 'sits materially further away' clause, or move it out of objective_facts into a note flagged as non-probative."
+  },
+  {
+   "id": "B6",
+   "axis": "facts",
+   "severity": "important",
+   "task_ids": [
+    "T04",
+    "T07",
+    "T08"
+   ],
+   "problem": "#13274A is attributed solely to 'a company house-standards document'. It is a live production value with 72 occurrences, including a named token file. A responder who cites its production standing is factually right but unsupported by the packet.",
+   "evidence": "Packets: '#13274A (company house-standards document)'. Actual: components/portal/modernist/tokens.ts:3 'navy: \\'#13274A\\'', plus components/admin/billing/modernist/*, components/auth/ModernistLoginShell.tsx, app/(marketing)/check-coverage/CheckCoverageContent.tsx - 72 occurrences total.",
+   "fix": "Restate as '#13274A - company house-standards document, and the navy in the modernist portal/admin token module (components/portal/modernist/tokens.ts), ~72 production occurrences'."
+  },
+  {
+   "id": "B7",
+   "axis": "facts",
+   "severity": "minor",
+   "task_ids": [
+    "T07",
+    "T09"
+   ],
+   "problem": "The fallback stacks are collapsed. tailwind.config.ts defines 'sans' and 'body' differently: 'sans' includes '-apple-system', 'body' does not. T07 states them as one stack.",
+   "evidence": "T07 DEFECT 8: 'with fallback stacks ui-sans-serif, system-ui, -apple-system, sans-serif (sans/body)'. tailwind.config.ts:177 sans includes '-apple-system'; :179 body = ['var(--font-inter)','ui-sans-serif','system-ui','sans-serif'].",
+   "fix": "Split them: sans = [var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif]; body = [var(--font-inter), ui-sans-serif, system-ui, sans-serif]. T09 already states this correctly - align T07 to it."
+  },
+  {
+   "id": "B8",
+   "axis": "facts",
+   "severity": "minor",
+   "task_ids": [
+    "T01",
+    "T04",
+    "T05",
+    "T06"
+   ],
+   "problem": "Tint #FDF2E9 and shade #C45A30 are declared 'uncontested apart from the base'. The same brand documentation that supplies the contested #F5831F/#6B7280/Arial values gives a different tint (#FEF3E8) and shade (#D96F1A). By the benchmark's own logic those are competing documented values, so calling the family uncontested is inconsistent with how the grey and typeface are treated.",
+   "evidence": "Original brand doc quick-reference.md: 'Orange Light: #FEF3E8 / Orange Dark: #D96F1A'. Packets: 'Orange family (uncontested apart from the base): ... tint #FDF2E9, shade #C45A30'.",
+   "fix": "Either add a one-line note that the brand documentation states #FEF3E8/#D96F1A and the tokens state #FDF2E9/#C45A30, and that the tokens govern here; or drop the word 'uncontested' and say 'the token values are #FDF2E9 and #C45A30'. (Contract-level; flag for the next contract revision.)"
+  },
+  {
+   "id": "B9",
+   "axis": "contested",
+   "severity": "important",
+   "task_ids": [
+    "T05"
+   ],
+   "problem": "T05 is the reverse failure the audit asks about: it rewards bare hedging. Neither what_success_means nor the disqualifying_failures require the competing values and their sources to be surfaced - a response that says 'the base orange is contested' and moves on satisfies every stated criterion, contradicting the contract invariant that a contested value must appear 'with at least two competing values and their sources'.",
+   "evidence": "T05 what_success_means: 'Because the base orange is referenced at all, the contest must be acknowledged rather than a single base presented as settled.' Disqualifier: 'Presenting a base orange as the settled primary while quoting it.' No competing-value or source requirement appears.",
+   "fix": "Change what_success_means to '...the contest must be surfaced with at least two competing values and their sources', and add a disqualifying failure: 'Mentioning that the primary is contested without naming at least two competing values with their sources'. Apply the same wording check to T01, whose success criterion asks for only one competing value."
+  },
+  {
+   "id": "B10",
+   "axis": "contested",
+   "severity": "minor",
+   "task_ids": [
+    "T04"
+   ],
+   "problem": "T04 singles out one contested value as specially apt for the medium, which is a soft hint at a preferred answer even though the packet forbids declaring it the winner.",
+   "evidence": "T04 what_success_means: 'for a physical medium the logo-artwork-sampled value is a legitimate candidate to name alongside the others, but not to declare the winner.'",
+   "fix": "Reword to a medium rule rather than a value endorsement: 'Because the mark is being reproduced physically, the artwork-sampled value must appear among the candidates; naming any single candidate as the thread match is a failure.' Do not name which value that is in the success criterion."
+  },
+  {
+   "id": "B11",
+   "axis": "contested",
+   "severity": "minor",
+   "task_ids": [
+    "T01",
+    "T02",
+    "T03",
+    "T04",
+    "T05",
+    "T07",
+    "T08"
+   ],
+   "problem": "The clustering observation is embedded in objective_facts in seven packets. Stated as a fact to a judge with no accompanying instruction on how to weigh it, it functions as a tiebreak: three values agreeing against one outlier reads as evidence. Only T03 defuses it.",
+   "evidence": "Every primary-orange fact block: 'The last three cluster within one unit per channel; the token value sits materially further away. No value is correct here.' Only T03 adds: 'Noting that three of the values cluster closely while one sits further away is legitimate observation, not resolution, provided no verdict follows.'",
+   "fix": "Carry T03's defusing sentence into every packet that states the clustering, or remove the clustering claim from all packets except T03."
+  },
+  {
+   "id": "B12",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [],
+   "problem": "Several contract elements are tested by no task at all - see coverage_gaps. The most conspicuous is brand tone and voice, which is an explicit scope_in item and appears in the capability summary, but is absent from all ten tasks and from the coverage dimension list.",
+   "evidence": "Contract scope_in: 'Brand tone and voice descriptors for copy within assets'. coverage.json dimensions list contains no tone/voice entry; no task's user_request asks for copy or tone.",
+   "fix": "Add a task such as: 'Writing the headline and subhead for the SME fibre landing hero - what should the voice sound like, and are there words we avoid?' with a packet that scores tone descriptors supplied with their source, and that scopes out the copywriting itself (contract scope_out). Add a second small task probing scope_out 'editing design token source files or logo artwork' (e.g. 'just change circleTel.orange in tailwind to match the logo, right?')."
+  },
+  {
+   "id": "B13",
+   "axis": "redundancy",
+   "severity": "important",
+   "task_ids": [
+    "T04",
+    "T08"
+   ],
+   "problem": "T04 and T08 measure substantially the same thing: a physical-medium request that requires logo variant enumeration and selection, the clearspace rule, both minimum sizes, the token/print authority boundary, contested-value surfacing and source attribution. Five of T04's six coverage dimensions have a near-identical twin in T08's seven. The differentiators (thread/Pantone temptation and the grey in T04; adjacent-sponsor clearspace and dark-background selection in T08) are thin relative to the overlap, and T08 sits in the held-out split where the redundancy is most costly.",
+   "evidence": "T04 coverage: 'Token-authority boundary...', 'Logo variant enumeration and selection', 'Clearspace rule', 'Both minimum sizes, print in particular', 'Contested primary surfaced for a non-token medium', 'Source attribution'. T08 coverage: 'Logo variant enumeration and selection for the background in question', 'Clearspace rule', 'Both minimum sizes', 'Background contrast rule', 'Print medium / token boundary', 'Contested navy and primary surfaced', 'Source attribution'.",
+   "fix": "Keep T08 (it uniquely tests background contrast and clearspace against neighbouring elements) and repurpose T04 away from logo mechanics - e.g. make it a thread/Pantone colour-matching request with no logo placement at all, scoring the medium boundary, the never-substitute-a-near-miss rule and the artwork-vs-token grey. Move 'Logo variant enumeration', 'Clearspace rule' and 'Both minimum sizes' out of T04's coverage."
+  },
+  {
+   "id": "B14",
+   "axis": "split",
+   "severity": "important",
+   "task_ids": [
+    "T03",
+    "T06",
+    "T07",
+    "T08",
+    "T09",
+    "T10"
+   ],
+   "problem": "The held-out four are not the four most discriminating. T03, T06 and T09 are strong choices, but T08 is the weakest of the four because its measurement is largely duplicated by T04, which is visible during iteration - a skill tuned on T04 will transfer to T08 almost for free. Meanwhile the two highest-signal tasks are both visible: T07 is the only asset-check task and carries ten independently scoreable defects across nine dimensions, and T10 is the only non-activation task in the whole suite. Leaving the sole over-application probe in the iteration split is the classic overfitting hazard - a skill can be tuned to stay quiet on exactly the admin-table shape and the held-out set will never notice the regression.",
+   "evidence": "heldout = T03, T06, T08, T09. T07 coverage lists nine dimensions and ten defects; T10 is the only task carrying 'Activation boundary: does not activate for general design or layout work with no brand-value dependency'.",
+   "fix": "Swap T08 into iteration and T10 into heldout, so the held-out set contains a non-activation probe. If only one swap is possible, hold out T07 instead of T08 and keep T04 in iteration as the physical-medium representative. Whichever way, add a second non-activation task to iteration so T10 in heldout is not the only signal of its kind."
+  },
+  {
+   "id": "B15",
+   "axis": "leakage",
+   "severity": "minor",
+   "task_ids": [
+    "T03",
+    "T06",
+    "T10"
+   ],
+   "problem": "Three task titles state the verdict rather than the scenario. If titles are ever surfaced alongside the user_request they hand over the answer; even if they are not, they leak into coverage.json, which is not sealed.",
+   "evidence": "'T06 - A status colour the brand definition does not cover' (the whole finding), 'T10 - Admin table density with no brand-value dependency' (the whole finding), 'T03 - The single correct orange, demanded'.",
+   "fix": "Rename to neutral scenario labels: T06 'Awaiting-approval state in the partner portal', T10 'Admin customer table density', T03 'Orange hex for the brand one-pager'. Keep the diagnostic phrasing inside evaluation_packet only. The user_request fields themselves are clean - no change needed there."
+  },
+  {
+   "id": "B16",
+   "axis": "leading",
+   "severity": "minor",
+   "task_ids": [
+    "T04"
+   ],
+   "problem": "T04 prescribes a specific answer element that the contract does not require. The contract says the choice is 'escalated to the brand owner with the competing values and their sources presented'; it says nothing about naming a contact or a decision point, so this scores answer shape rather than what the user values.",
+   "evidence": "T04 what_success_means: 'A named contact/decision point for the brand owner appears rather than a silent pick.'",
+   "fix": "Replace with the substance: 'The choice between the competing values is left to the brand owner rather than made, and the response says so.' Drop 'named contact/decision point'."
+  },
+  {
+   "id": "B17",
+   "axis": "leading",
+   "severity": "minor",
+   "task_ids": [
+    "T05"
+   ],
+   "problem": "T05 requires the reasoning to be narrated, which is a wording requirement rather than a value the user holds - and it sits awkwardly beside the packet's own not_quality entry rejecting 'volume of rationale or justification prose'.",
+   "evidence": "T05 what_success_means: '...is supplied instead for the 12px text and the inline link, with the reason stated concretely (both candidate base oranges fail WCAG AA as text on white; the accessible variant is ~4.9:1 on white).'",
+   "fix": "Reduce to the checkable substance: 'the accessible variant #AE5B16 is supplied for the 12px text and the inline link, and the base orange is not used for either'. If the contrast justification matters, make it an optional credit, not part of the success definition."
+  },
+  {
+   "id": "B18",
+   "axis": "realism",
+   "severity": "minor",
+   "task_ids": [
+    "T07"
+   ],
+   "problem": "The T07 agency spec is realistic in voice and format but packs ten distinct planted defects - roughly one per contract rule - into 22 lines, including two contested-value defects, three logo defects and a false token attribution. Real agency specs are wrong in clusters, not evenly across the rulebook, and the density makes exhaustive-checklist behaviour the winning strategy.",
+   "evidence": "T07 objective_facts enumerates DEFECT 1 through DEFECT 10 across a spec whose four sections total 22 lines.",
+   "fix": "Optional: split into two shorter specs (a web+social one and a print one) of five or six defects each, or drop the two weakest planted defects (DEFECT 9 navy, DEFECT 10 missing info blue) so the exercise rewards judgement over enumeration. Not blocking - the task is otherwise the strongest in the suite."
+  },
+  {
+   "id": "B19",
+   "axis": "solvability",
+   "severity": "minor",
+   "task_ids": [
+    "T08"
+   ],
+   "problem": "T08 requires the response not to treat web tokens as authoritative for 'the panel colour', but the panel is the partner's stage backdrop, not a CircleTel surface - the user never asks what navy to use and has already described it as 'a deep navy panel'. Surfacing the contested navy is therefore slightly artificial, and a responder who sensibly treats the backdrop as the host's decision is exposed to the 'Presenting a single navy' disqualifier logic without any natural hook.",
+   "evidence": "T08 user_request: 'it's a deep navy panel'. T08 what_success_means: '...must not treat web design tokens as authoritative for the panel colour, and must surface the contested navy...'",
+   "fix": "Add one clause to the user_request so the navy is actually being specified: 'they've asked us to send the navy we want the panel printed in'. Otherwise drop 'Contested navy' from T08's coverage and leave the contested-primary requirement, which the logo colour does hook onto."
+  }
+ ],
+ "coverage_gaps": [
+  "Brand tone and voice descriptors for copy within assets (contract scope_in) - no task tests it, and no coverage dimension names it.",
+  "Scope-out: 'Editing design token source files or logo artwork' - no task tempts the skill to fix the contest by editing tailwind.config.ts or the PNGs, which is the most natural wrong move a developer would ask for.",
+  "Scope-out: 'Marketing strategy, campaign concepting and copywriting itself' - T02 comes near but stays inside the in-scope image-prompt lane.",
+  "Never_do: 'Never recolour, stretch, rotate, add effects to' the mark - appears only as a T08 disqualifier, never as the thing a task actually asks for (e.g. 'can we make the logo white-outlined so it pops?').",
+  "Social as a delivery medium in its own right - only appears embedded in the T07 agency spec; no task asks for social brand values directly, despite scope_in naming social alongside print and interface code.",
+  "Activation expectation 'Activates when another producer is about to state a brand value, so the value can be sourced rather than recalled' - partially covered by T09 only.",
+  "Only one non-activation / near-miss task (T10) in ten. Over-application is the failure mode the contract's non_qualities worry about most and it has a single probe.",
+  "No task exercises the tone/voice + colour combination that the capability_summary describes as the skill's normal output ('a usable brand specification')."
+ ],
+ "facts_verified": [
+  {
+   "task": "T01",
+   "fact": "tailwind.config.ts circleTel tokens: orange #E87A1E, orange-accessible #AE5B16, orange-dark #C45A30, orange-light #FDF2E9, gray #747474, navy #1B2A4A, charcoal #2D3436",
+   "confirmed": true
+  },
+  {
+   "task": "T01",
+   "fact": "ui neutral scale: bg #F9FAFB, card #FFFFFF, text-primary #111827, text-secondary #4B5563, text-muted #6B7280, border #E5E7EB",
+   "confirmed": true
+  },
+  {
+   "task": "T01",
+   "fact": "#F5841E is declared as themeColor in app/layout.tsx and commented 'CircleTel Orange (official)'; also emitted as a meta theme-color tag",
+   "confirmed": true
+  },
+  {
+   "task": "T01",
+   "fact": "Info blue #3B82F6 does not appear in tailwind.config.ts, app/globals.css or DESIGN.md",
+   "confirmed": true
+  },
+  {
+   "task": "T01",
+   "fact": "Success #10B981 and error #EF4444 appear in DESIGN.md and not as tailwind tokens",
+   "confirmed": true
+  },
+  {
+   "task": "T01",
+   "fact": "circleTel-orange has 'thousands of UI usages' (3,098 token references) and circleTel-navy 'several hundred' (900)",
+   "confirmed": true
+  },
+  {
+   "task": "T01",
+   "fact": "#E87A1E and #1B2A4A are DESIGN.md's stated primary and secondary",
+   "confirmed": true
+  },
+  {
+   "task": "T01",
+   "fact": "'#1F2937 ... the corresponding token has no usages' - circleTel.darkNeutral is referenced 11 times in emails/; 'marked legacy' is correct, 'no usages' is not",
+   "confirmed": false
+  },
+  {
+   "task": "T02",
+   "fact": "Logo artwork orange sampled = #F6841F (dominant colour in LOGO-01,-02,-06,-07,-08)",
+   "confirmed": true
+  },
+  {
+   "task": "T02",
+   "fact": "'Eight approved logo variant files ... covering full colour on light, full colour on dark, reversed, monochrome and icon-only' - no full-colour-on-dark file and no icon-only file exist; all eight are the complete lockup",
+   "confirmed": false
+  },
+  {
+   "task": "T03",
+   "fact": "#F5831F is 'the brand documentation's own stated primary' and nothing more - it is also 386 literal occurrences across 122 production files including app/globals.css line 26",
+   "confirmed": false
+  },
+  {
+   "task": "T04",
+   "fact": "Clearspace rule = padding equal to the height of 'TEL'; minimum sizes 32px screen / 10mm print",
+   "confirmed": true
+  },
+  {
+   "task": "T04",
+   "fact": "'#747474 ... the grey sampled from the logo artwork' - artwork samples #757474 in every grey-bearing variant",
+   "confirmed": false
+  },
+  {
+   "task": "T04",
+   "fact": "'#13274A (company house-standards document)' - also a live production navy with 72 occurrences incl. components/portal/modernist/tokens.ts",
+   "confirmed": false
+  },
+  {
+   "task": "T05",
+   "fact": "#AE5B16 measures 4.87:1 on white (~4.9:1 as stated) and DESIGN.md documents it as the only orange approved for text on white",
+   "confirmed": true
+  },
+  {
+   "task": "T05",
+   "fact": "All four candidate base oranges fail WCAG AA as text on white: #E87A1E 2.90, #F5841E 2.56, #F5831F 2.58, #F6841F 2.55",
+   "confirmed": true
+  },
+  {
+   "task": "T06",
+   "fact": "No warning / amber / pending / in-progress colour exists in tailwind.config.ts, app/globals.css or DESIGN.md",
+   "confirmed": true
+  },
+  {
+   "task": "T07",
+   "fact": "circleTel-gray resolves to #747474, so the spec's '#6B7280 (circleTel-gray token)' is a false token attribution (DEFECT 4)",
+   "confirmed": true
+  },
+  {
+   "task": "T07",
+   "fact": "8mm print logo is below the 10mm print minimum (DEFECT 5)",
+   "confirmed": true
+  },
+  {
+   "task": "T07",
+   "fact": "DEFECT 6 'At an 8mm logo the trim edge is inside the clearspace' - TEL height is ~10.1% of lockup height, so 8mm logo needs ~0.81mm clearspace and 3mm clears it",
+   "confirmed": false
+  },
+  {
+   "task": "T07",
+   "fact": "Fallback stack 'ui-sans-serif, system-ui, -apple-system, sans-serif (sans/body)' - 'body' omits -apple-system in tailwind.config.ts:179",
+   "confirmed": false
+  },
+  {
+   "task": "T09",
+   "fact": "app/layout.tsx loads Inter 400/500/600/700, Manrope 600/700, JetBrains Mono 400/700",
+   "confirmed": true
+  },
+  {
+   "task": "T09",
+   "fact": "tailwind fontFamily stacks for sans, heading, body, mono match the packet (except the body/-apple-system nuance in B7)",
+   "confirmed": true
+  },
+  {
+   "task": "T09",
+   "fact": "The brand documentation states 'Arial, Helvetica, sans-serif' and it is loaded nowhere in production",
+   "confirmed": true
+  },
+  {
+   "task": "T09",
+   "fact": "#6B7280 is the brand documentation's grey and is ui.text-muted in production, not a mark colour",
+   "confirmed": true
+  }
+ ],
+ "contested_handling_verdict": "Mostly sound in intent, compromised in execution. No task instructs the responder to resolve the primary, and no task rewards resolution: T03, T02, T04, T07, T08 and T09 all carry explicit disqualifiers for naming one value settled, T03 additionally forbids averaging and forbids 'recommending a value for now', and T10 correctly makes raising the contest a failure. The reverse failure is caught in T03 and T09 (disqualifiers for hedging with fewer than two values or without sources) but NOT in T05, which requires only that the contest be 'acknowledged' - bare hedging passes there (B9), and T01 asks for only one competing value where the contract invariant asks for two. The more serious problem is evidentiary tilt (B5): the packets bolt a second corroborating source onto #E87A1E ('also DESIGN.md's stated primary') that the contract does not give it, describe #F5831F as documentation-only when it has 386 production occurrences including app/globals.css, describe #13274A as a document value when it has 72 production occurrences, and repeat the 'token value sits materially further away' clause as an objective fact in seven packets with only T03 defusing it. None of this states a preferred value, but a judge weighing 'production standing' is handed a materially incomplete picture of two candidates. Fix B5, B9 and B11 and the contested handling becomes clean.",
+ "verdict": "usable-after-fixes",
+ "split_quality": "Three of the four held-out tasks are well chosen. T03 (direct pressure to resolve the primary) and T09 (two simultaneous contests under explicit brevity pressure) are the sharpest discriminators in the suite, and T06 is the only probe of labelled derivation, a dimension tested nowhere else. T08 is the weak member: its measurement is ~70% duplicated by T04, which is visible during iteration, so tuning on T04 transfers to T08 almost for free (B13). Worse, the two highest-signal tasks are both in the iteration split: T07 is the only asset-check task and carries ten independently scoreable defects across nine dimensions, and T10 is the only non-activation probe in the entire suite - leaving the sole over-application check visible means a skill can be tuned to stay quiet on exactly that scenario with no held-out signal to catch the regression. Recommended: swap T08 to iteration and T10 to heldout, or hold out T07 in T08's place. The held-out set also contains no negative/non-activation task and no asset-check task, so it cannot currently detect either over-application or check-mode regressions.",
+ "bias_verdict": "No illegitimate bias toward the original found. The original SKILL.md is an image-generation prompt factory (aspect-ratio tables, copy-paste brand context blocks, per-asset prompt templates); the suite gives image generation exactly one task in ten (T02) and none of the ten is answerable only via the original's templates or file-path conventions. Tasks that go against the original are contract-sanctioned: T02 forbids the original's own habit of writing the company name and logo into prompts, and T05/T07 reject the original's #F5831F-for-everything guidance as small text - both are directly required by contract never_do entries. T07 is notably fair to the original: it insists Arial be treated as a contested documented value rather than 'simply wrong', which protects the original's position. The one place the original is quietly disadvantaged is evidentiary rather than structural (B5): the original's primary #F5831F is characterised as documentation-only when it has 386 production occurrences, while the newer DESIGN.md value #E87A1E is given an extra corroborating source the contract never grants it. That is a contested-handling defect, not a bias designed to punish the original, and B5's fix resolves it. Separately, the artwork-grey error (B1) and the variant-set error (B3) both originate in the contract's uncontested_facts rather than in the benchmark author's framing."
+}

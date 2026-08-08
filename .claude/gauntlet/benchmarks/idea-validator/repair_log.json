@@ -1,0 +1,118 @@
+{
+ "audit_responses": [
+  {
+   "id": "B1",
+   "accepted": true,
+   "action": "Added top-level \"tooling\" field declaring no web access and no search tools, with the equal-standing rule: a recalled alternative explicitly labelled unverified AND an explicit 'grounding could not be verified' statement both fully satisfy the grounding invariant, and only an unlabelled specific figure presented as fact is a never_do violation. Mirrored a one-line statement of this into all 10 packets' relative_importance, and rewrote every packet line that made labelled recall the weaker route (T02/T03/T04/T05/T06/T09/T10 what_success_means and disqualifying_failures; 'no attribution' reworded to 'without labelling it as recalled and unverified'; 'could not be obtained' reworded to 'could not be verified').",
+   "reasoning": "Blocking and correct: without a declared environment the grounding invariant and the no-unattributed-claims rule were mutually unsatisfiable and judges had no consistent rule."
+  },
+  {
+   "id": "B2",
+   "accepted": true,
+   "action": "Rewrote T04 what_success_means to state what a good answer must establish (an obstacle that survives the 40 willing owners, elected as decisive, plus grounding, verdict and next test) rather than which conclusion it must reach; governance-layer and unit-economics obstacles are given as qualifying examples, not the required answer. Replaced relative_importance with the audit's wording and deleted the sentence failing 'obvious demand-side or trust-and-safety risks'.",
+   "reasoning": "The packet graded adherence to the designer's hypothesis rather than reasoning quality."
+  },
+  {
+   "id": "B3",
+   "accepted": true,
+   "action": "T05 what_success_means now reads 'pick one reading, say plainly which reading is being assessed and why that one, and deliver a verdict on it. Whether the discarded reading is discussed at all is the responder's call and must not affect the score.'",
+   "reasoning": "The counterfactual branch was a deliverable the contract does not contain and rewarded one essay shape."
+  },
+  {
+   "id": "B4",
+   "accepted": true,
+   "action": "T03 success criterion restated as a verdict coming down in favour with the deciding variable (reliable contracted evening/weekend vet cover inside NZ$450) named in checkable form, with 'how that is phrased or ordered is immaterial'.",
+   "reasoning": "The old wording prescribed the grammatical form of the verdict, which contract non_qualities disclaim."
+  },
+  {
+   "id": "B5",
+   "accepted": true,
+   "action": "Applied all four rewrites: T09 trap now 'the real finding is subordinated to reassurance, or the reader could finish unsure what the verdict was'; T10 'order is immaterial'; T02 'confronting the supplied throughput assumption rather than passing it through'; T06 'concrete enough that the reader could check it, by any means \u2014 arithmetic, a range, or a stated attach-rate threshold'.",
+   "reasoning": "Minor but real: these were form and show-your-work prescriptions, not what the user values."
+  },
+  {
+   "id": "B6",
+   "accepted": true,
+   "action": "Stated the discriminator explicitly in both packets. T08 what_success_means and a new objective_fact: the distinguishing feature is the artefacts requested, not capital already committed; spend, a signed lease or a resigned job never move a request out of scope. T09 relative_importance: the T08 boundary does not apply here, and declining as out-of-scope or deferring the verdict past launch is now a disqualifying failure, with a matching objective_fact.",
+   "reasoning": "Same activation boundary, opposite required outcomes, no stated discriminator \u2014 a contestant applying one task's lesson would be failed on the other."
+  },
+  {
+   "id": "B7",
+   "accepted": true,
+   "action": "Superseded by the B8/B18 replacement of T01: the contestable Garden Route provincial fact no longer exists in the suite. The new T01 carries no incidental-geography fact, and its packet contains no knowledge-trivia scoring hook.",
+   "reasoning": "Accepted in substance \u2014 the disputed fact is gone rather than reworded, which removes the risk entirely."
+  },
+  {
+   "id": "B8",
+   "accepted": true,
+   "action": "Applied within the fixed 10-task budget using the audit's own route (B18: 'cut T01 and use its slot for one of the software tasks in B8'). T01 is now an ordinary software idea \u2014 a practice-management/booking web app with medical-aid claim submission for small SA physio practices, R750/month, six weeks of evenings \u2014 with a real priced incumbent category and a genuine hard-vs-routine build split. A competent conventional answer can score well on it on its own terms. The suite now runs roughly 3 software/platform (T01, T05, T10 plus T04 partly), 5 service/trade, 2 boundary.",
+   "reasoning": "Partially applied: the fix's 'add one or two tasks' was not possible under the mandated 6/4 split, so one slot was converted rather than added. Full rebalance to 4 software/4 service/2 boundary would require an 11th\u201312th task and is flagged for the next version."
+  },
+  {
+   "id": "B9",
+   "accepted": true,
+   "action": "T07 and T08 moved to heldout; T04 and T10 demoted to iteration. Final heldout: T03, T06, T07, T08.",
+   "reasoning": "Accepted, with a stronger variant than the audit's suggested single swap: moving both tunable-failure-mode tasks gives held-out a fabrication-resistance test and a scope-boundary test."
+  },
+  {
+   "id": "B10",
+   "accepted": true,
+   "action": "Demoted the two contrarian-reframing tasks the audit called most tunable/most graded-shaped (T10 reject-then-reshape, T04 find-the-hidden-obstacle). Held-out now spans four distinct shapes: positive verdict against expected negativity (T03), decisive variable buried in pasted operational data plus runway realism (T06), fabrication resistance with no obtainable grounding (T07), scope-boundary refusal (T08).",
+   "reasoning": "Held-out no longer over-weights contrarian re-framing; T06 is also the only task with an inputs payload, so held-out keeps that shape."
+  },
+  {
+   "id": "B11",
+   "accepted": false,
+   "action": "Rejected the fix as written (adding an eleventh task where asking clarifying questions is the correct move). Mitigated instead: T02's trap and T05's disqualifying failure now say the failure is asking IN PLACE OF an assessment that could have been given, explicitly noting that asking is not wrong in general. The permissive arm remains untested and is recorded as an open gap for the next version.",
+   "reasoning": "The repair brief fixes the suite at 6 iteration / 4 heldout, so no slot exists. Adding it would have required cutting a task the audit did not fault. Flagged rather than silently dropped."
+  },
+  {
+   "id": "B12",
+   "accepted": true,
+   "action": "Added 'Restating the requester's own situation at length before, or instead of, evaluating it \u2014 a summary is not an assessment' to T09 and T06 disqualifying_failures, and to T03 (the third detail-rich prompt that invites it).",
+   "reasoning": "The never_do had zero enforcement anywhere in the suite."
+  },
+  {
+   "id": "B13",
+   "accepted": true,
+   "action": "Added the audit's anti-bloat disqualifier to T02 and T05 ('an assessment this requester plainly would not read \u2014 exhaustive equal-depth coverage of every area in reply to three/four lines'), and per the repair brief rewrote the anti-length not_quality line in ALL 10 packets to carry a counterweight: brevity is still never punished, but padding, restatement and unrelated generic advice are defects in their own right, and an answer failing to cover the ground the task requires is incomplete regardless of length.",
+   "reasoning": "Bloat was literally unpunishable; the asymmetry (brevity safe, padding penalised) is preserved."
+  },
+  {
+   "id": "B14",
+   "accepted": true,
+   "action": "Added the audit's day-ahead-prediction disqualifier to T10, promoted the hard-vs-routine split into T10's what_success_means, objective_facts and coverage, and built the same element into the new software task T01 (claim submission via accredited switching intermediaries vs routine booking/calendar/SMS), including a disqualifying failure for treating it as routine. Also carried into T03's what_success_means (dispatch and vet availability vs bookings and aftercare).",
+   "reasoning": "The success_looks_like element was listed but enforced nowhere."
+  },
+  {
+   "id": "B15",
+   "accepted": true,
+   "action": "Applied the audit's extend-don't-add route for the legal/tax arm: T03's request now also asks for registration costs and tax structuring, and its packet requires declining that portion while still delivering the viability verdict, with supplying it as a disqualifying failure. The operating-business activation arm (a) and the skip-an-inapplicable-area constraint (c) depended on the new tasks in B8/B11 and remain untested \u2014 recorded as open gaps.",
+   "reasoning": "Partially applied; the untestable-without-new-tasks arms are flagged, not silently dropped."
+  },
+  {
+   "id": "B16",
+   "accepted": true,
+   "action": "Neutralised all four verdict-leaking titles to the audit's wording (T03 'Mobile at-home pet end-of-life service, Auckland'; T07 'Nutrient-sachet subscription for carnivorous plant growers'; T08 'Same-day pharmacy delivery, Johannesburg'; T10 'Consumer load-shedding schedule app'). Also retitled the new T01 and T06 neutrally.",
+   "reasoning": "Titles are judge-visible and pre-announced verdict polarity; the expectations survive in what_success_means."
+  },
+  {
+   "id": "B17",
+   "accepted": true,
+   "action": "T04's request softened to leave the pre-emption implicit ('People keep telling me supply is the hard part, but I've already got 40 owners... Is this worth building?'), with the matching disqualifying failure reworded. T06's snapshot padded with four non-load-bearing lines (uptime, NPS, top-selling package, install lead time), and an objective_fact plus a trap added making selection of the decisive figures part of the task.",
+   "reasoning": "Both requests were shaped to be graded rather than answered; the discrimination now comes from the response, not the prompt."
+  },
+  {
+   "id": "B18",
+   "accepted": true,
+   "action": "Took the audit's first option: T01 was cut and its slot used for the software task from B8. T02 retains the owner-operator/supplied-arithmetic signal without duplication.",
+   "reasoning": "T01 duplicated T02's bundle and discriminated on nothing in particular; reusing the slot resolves B7, B8 and B18 at once."
+  },
+  {
+   "id": "B19",
+   "accepted": true,
+   "action": "T06's snapshot is now 'Meridian Connect' with cash R74 000 and burn R211 000; the runway objective_fact reads 'roughly ten days', and what_success_means updated to match.",
+   "reasoning": "The old figures were this repository's own CLAUDE.md numbers, so a contestant with repo context could answer partly from memory rather than from the supplied input."
+  }
+ ]
+}

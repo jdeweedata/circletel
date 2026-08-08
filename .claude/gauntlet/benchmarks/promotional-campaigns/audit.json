@@ -1,0 +1,340 @@
+{
+ "issues": [
+  {
+   "id": "B1",
+   "axis": "arithmetic",
+   "severity": "important",
+   "task_ids": [
+    "T01",
+    "T02",
+    "T04",
+    "T07"
+   ],
+   "problem": "The installation amortisation PERIOD is left unspecified in four tasks, and under the contract's own verdict_basis_rule the unspecified reading flips T01 - the calibration baseline - from PASS to FAIL.",
+   "evidence": "T03/T05/T06/T09 inputs say 'amortised over the first 12 months'. T01/T02/T04/T07 say only 'Installation cost R2,550 per customer, one-off'. verdict_basis_rule demands 'the highest-cost defensible reading'. Amortising R2,550 across the 90-day PROMOTIONAL term = R850/mo. T01 verdict cost then = 699+50+185+850 = R1,784.00; margin = (1799-1784)/1799 = R15/R1,799 = 0.83% -> FAIL, versus the packet's R1,146.50 / 36.27% / PASS. (T02: cost 1784-100=R1,684, margin -68.6%; T04: -159%; T07: bundle cost R1,732, margin -32.6% - no verdict change in those three, so T01 is the only flip, and it is the task the packet designates 'the calibration baseline'.)",
+   "fix": "Append 'amortised over the first 12 months of the 12-month agreement' to the inputs of T01, T02, T04 and T07, matching T03/T05/T06/T09. Add to T01 objective_facts: 'The amortisation period is the 12-month contract term, not the 90-day promotional window; amortising R2,550 over 3 months (R850/mo) is NOT a defensible reading because the customer is contracted for 12 months.'"
+  },
+  {
+   "id": "B2",
+   "axis": "arithmetic",
+   "severity": "important",
+   "task_ids": [
+    "T06",
+    "T09"
+   ],
+   "problem": "Two structurally identical multi-year deals use opposite verdict conventions, and T09's headline verdict is the MORE favourable of the two readings it computes - the opposite of what verdict_basis_rule requires.",
+   "evidence": "T06 (24-month deal, install amortised over months 1-12) takes the verdict on the year-1 monthly cost R1,146.50 -> 26.37%. The 24-month term-total reading would be revenue 24 x R1,557.18 = R37,372.32, cost 24 x R934 + R2,550 = R24,966, margin R12,406.32/R37,372.32 = 33.20% - correctly rejected as the favourable reading. T09 (36-month deal) does the reverse: it headlines '36-MONTH TERM MARGIN, additive: 23.19%' as THE VERDICT while its own year-1 steady state is 14.86% ((1229.18-1046.50)/1229.18) and the promotional quarter is -70.28%. 23.19% > 14.86%, so T09's verdict sits on the lower-cost reading. No verdict flips (both fail), but a contestant that applies T06's convention to T09 reports 14.86% and is scored against a 23.19% ground truth.",
+   "fix": "Pick one convention across the suite - the least-favourable period. Restate T09's verdict as 'VERDICT MARGIN (year-1 steady state, months 4-12): 14.86%, below the 20% never-permitted line', with the 36-month blended 23.19% demoted to a labelled supplementary figure, and mirror the wording used in T06."
+  },
+  {
+   "id": "B3",
+   "axis": "arithmetic",
+   "severity": "important",
+   "task_ids": [
+    "T09"
+   ],
+   "problem": "Both 'compliant alternatives' offered in T09's ground truth breach the approval-band duration caps that T06's ground truth makes a disqualifying failure to miss.",
+   "evidence": "T09: 'Volume discount alone at 10% = R1,349.10/line ... 36-month margin 32.93%, PASS, MD authority. That is the defensible counter-offer.' margin-guardrails.md Discount Approval Matrix: 10-15% -> MD, 'Max Duration 12 months'. The deal is 36 months. Second alternative: 'Term adjustment alone at 8% ... PASS' - 5-10% band, 'Max Duration 24 months', again over 36 months. T06 disqualifies an answer that 'Names an authority but omits the 6-month maximum duration conflict with the requested 24-month term' - the identical omission is committed by T09's own ground truth.",
+   "fix": "In T09 replace 'That is the defensible counter-offer' with: 'Volume discount alone at 10% clears the margin floor (32.93% over the term) but the 10-15% band carries a 12-month maximum duration, so a 10% discount cannot be granted for the full 36 months; the term must be re-cut or the discount stepped down after month 12. The 8% term adjustment alone likewise exceeds its band's 24-month cap.'"
+  },
+  {
+   "id": "B4",
+   "axis": "arithmetic",
+   "severity": "minor",
+   "task_ids": [
+    "T02"
+   ],
+   "problem": "A stated margin figure is wrong, and inconsistent with the identical computation in two other tasks.",
+   "evidence": "T02: 'Recommending R1,399 (25.24% margin, 6.67% discount)'. Cost basis is R1,046.50. (1399 - 1046.50)/1399 = 352.50/1399 = 0.251966 = 25.20%, not 25.24%. T04 states the same computation as '25.20%' and T05 states it as '25.20%'. The 6.67% discount figure is correct (100/1499).",
+   "fix": "Change '25.24%' to '25.20%' in T02's CORRECT MINIMUM PRICE fact."
+  },
+  {
+   "id": "B5",
+   "axis": "arithmetic",
+   "severity": "minor",
+   "task_ids": [
+    "T01",
+    "T02",
+    "T03",
+    "T04",
+    "T05",
+    "T06",
+    "T07",
+    "T09"
+   ],
+   "problem": "The shared cost-basis block asserts 'R130 LOWER' where the true gap is R129.50, and the R130 figure is easy to confuse with the separate R24 self-inconsistency it is stated alongside.",
+   "evidence": "Mandated build-up R946.50 minus published R817 = R129.50 (same for R1,046.50-917 and R1,146.50-1,017). The R130 arises only by mixing the rounded R213 amortisation with the R212.50 actually used. Separately, the published column's inconsistency with its OWN component list is R841 - R817 = R24, not R130. Both underlying facts are correct; the single 'R130' label conflates two different gaps.",
+   "fix": "Reword to: 'The published All-in Cost column is R129.50 lower than the mandated build-up. It is separately inconsistent with its own component list by R24 (R499+50+30+28+11+10+213 = R841, not R817), and it charges Transit R28 where the COS floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30.'"
+  },
+  {
+   "id": "B6",
+   "axis": "arithmetic",
+   "severity": "minor",
+   "task_ids": [
+    "T01",
+    "T02",
+    "T03",
+    "T04",
+    "T05",
+    "T06",
+    "T07",
+    "T09"
+   ],
+   "problem": "The R185 COS floor asserted in every packet does not equal the sum of the per-subscriber charges the same task supplies, and no tolerance band is declared.",
+   "evidence": "Inputs supply BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R10.96 = R185.26. objective_facts assert 'R185 at 100 users = BNG R30.30 + Transit R28 + Backhaul R86 + Support R30 + BSS R11' - which itself sums to R185.30, and neither equals R185. A contestant summing the supplied line items gets, e.g. on T03, cost R946.76 and margin 21.04% against a stated 21.06%. No verdict flips anywhere (checked T03 21.04%, T05 19.42%, T07 conflict still R26.31 short at zero discount, T08 break-even still N>=3), but disqualifying_failures offer no tolerance.",
+   "fix": "Add one line to every packet: 'Figures within R1.00 or 0.1 percentage points of those stated are equivalent; the R185/R185.26 rounding on the COS floor flips no verdict.'"
+  },
+  {
+   "id": "B7",
+   "axis": "leakage",
+   "severity": "important",
+   "task_ids": [
+    "T08"
+   ],
+   "problem": "The inputs field enumerates, by name, the exact two missing inputs the task exists to test whether the contestant notices.",
+   "evidence": "T08 inputs: 'Number of DFA customers who will share the GNNI port: not supplied. Amortisation period for the R6,150 NRC: not supplied.' T08's coverage is 'missing input identified rather than invented' and what_success_means is 'states that the verdict cannot be finalised without the GNNI port allocation basis - how many DFA customers share the port, and over what period the R6,150 NRC is amortised'. The inputs hand over both, pre-identified, in the requester's own data block. known_traps even says 'Two inputs are missing, not one; identifying only the customer count leaves the break-even ambiguous' - a trap the inputs have already disarmed.",
+   "fix": "Delete both 'not supplied' lines. Leave only: 'GNNI port: R950/month MRC plus R6,150 non-recurring charge, 1Gbps, to be amortised across the customer base.' The silence is the test."
+  },
+  {
+   "id": "B8",
+   "axis": "leakage",
+   "severity": "important",
+   "task_ids": [
+    "T05"
+   ],
+   "problem": "The inputs table pre-labels which wholesale rate applies during the promo, giving away the single insight the task is built to discriminate on.",
+   "evidence": "T05 inputs: 'Existing service: Tarana FWB 50/12.5 Mbps ... wholesale/access MRC R499/month. Upgraded service during promo: Tarana FWB 100/25 Mbps ... wholesale/access MRC R599/month.' T05's first coverage line is 'cost must follow the speed tier ACTUALLY DELIVERED' and its top disqualifying failure is 'Uses the R499 wholesale MRC of the original tier for the promotional-period cost'. The label 'Upgraded service DURING PROMO ... R599' states the answer. The user_request's 'costs us nothing' misdirection is neutralised by the structured data beneath it.",
+   "fix": "Replace both lines with a neutral rate card: 'Tarana FWB wholesale/access MRC by tier: 50/12.5 R499, 100/25 R599, 200/50 R699. Customers are billed R1,299/month throughout.' Let the contestant work out which rate is consumed."
+  },
+  {
+   "id": "B9",
+   "axis": "leakage",
+   "severity": "minor",
+   "task_ids": [
+    "T03",
+    "T09"
+   ],
+   "problem": "Two further inputs fields telegraph the test rather than presenting a request.",
+   "evidence": "T03: 'Current total CircleTel subscriber base: not specified' - a negative declaration flagging the deliberate omission the task scores ('least favourable volume tier when base size unstated'). T09: 'Requested concessions, all three simultaneously: (a)...(b)...(c)' mirrors the prohibition's own wording ('Stack volume + term + promotional discounts simultaneously'), and 'The published volume discount schedule and contract term pricing table are in the rules' points at the exact two tables needed.",
+   "fix": "T03: delete the 'not specified' line entirely. T09: render the concessions as requester prose ('they want the thirty-line volume rate, the three-year term rate, and half price for the first three months') and delete the pointer sentence."
+  },
+  {
+   "id": "B10",
+   "axis": "redundancy",
+   "severity": "important",
+   "task_ids": [
+    "T02",
+    "T04"
+   ],
+   "problem": "Two of the six iteration tasks measure the same thing on the same product with the same cost basis, and both are deliberately engineered to be non-discriminating on the suite's rank-1 quality.",
+   "evidence": "T02 and T04 are both Tarana 100/25, both verdict cost R1,046.50, both minimum compliant price R1,395.33, both catastrophic margin FAILs, both discounts above 20% requiring 'no approver exists', both explicitly declared robust across every cost reading ('THE BREACH IS UNAMBIGUOUS ACROSS ALL READINGS'; 'ROBUST ACROSS READINGS - no cost basis rescues this'). T04's only distinct content is the invalid R549 partner floor and the MSC note; T02's only distinct content is the 60-signup cash impact (R8,550).",
+   "fix": "Retire T02, fold its cash-impact-at-volume requirement into T04, and use the freed slot for a free-months / waived-installation task (see B12) which tests an untested activation trigger and is not a duplicate of anything in the suite."
+  },
+  {
+   "id": "B11",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [],
+   "problem": "Tax basis is a contract constraint, an objective_invariant and a mandatory cost component, and no task can discriminate on it because every task declares a single basis.",
+   "evidence": "Contract constraints include 'Express monetary figures in the provider's currency and stated tax basis consistently throughout'; never_do includes 'Never switch tax basis mid-calculation or leave the basis unstated'; objective_invariants include 'Currency and tax basis are stated once and used identically in every subsequent figure'; cost_basis_formula mandatory_components includes 'A single declared tax basis applied identically to cost and revenue'. Every one of T01-T09 inputs ends 'All figures ex-VAT.' There is no mixed-basis input anywhere, so a contestant that ignores tax basis entirely scores identically to one that handles it.",
+   "fix": "Add a task where the retail/headline price is quoted incl-VAT at 15% (e.g. a competitor-matching brief: 'they are advertising R1,499 including VAT') while wholesale and per-subscriber charges are ex-VAT. Ground truth: R1,499 incl VAT = R1,303.48 ex-VAT; margin against the R946.50 basis = R356.98/R1,303.48 = 27.39%, versus the 36.86% a contestant gets by comparing R1,499 incl-VAT to ex-VAT cost - a genuine basis-switch flip."
+  },
+  {
+   "id": "B12",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [],
+   "problem": "Two of the four offer mechanics named in the contract's activation_expectations are never tested, including the one that touches the largest single cost line in the suite.",
+   "evidence": "activation_expectations: 'Triggers when a bundle, free-months, waived-installation or reduced-rate mechanic is proposed.' Bundle = T07. Reduced-rate = T01-T06, T09. Free-months = no task. Waived-installation = no task. Installation is R2,550, the largest single cost item in every Tarana task, and margin-guardrails' pricing rules and the original's own guardrail ('never subsidize installation') both bear on it.",
+   "fix": "Add one task combining both: 'free installation (worth R2,550) plus first two months free on a 12-month agreement' on the 50/12.5 tier. Ground truth: revenue 10 x R1,299 / 12 = R1,082.50/month effective; cost with installation NOT recovered = R946.50; margin = R136.00/R1,082.50 = 12.56% - a FAIL below the 20% never-permitted line, and the effective discount of 16.67% routes to MD + CFO with a 6-month cap against a 12-month term."
+  },
+  {
+   "id": "B13",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [
+    "T07"
+   ],
+   "problem": "The entire Arlan channel is untested, including the one bundle rule that names it.",
+   "evidence": "margin-guardrails Bundle Pricing Rules: 'Arlan add-ons priced at standard markup (no bundle discount on Arlan component)' and 'Discount Arlan markup below the category floor' is a listed Do-NOT. product-economics carries a full Arlan section (commission tiers 4.75%-13.75%, MARKUP_RULES floors 8%-20%, 'Combined margin (markup + commission) typically exceeds 25%'). T07 builds its bundle from two CircleTel add-on modules (Managed Router, Business VPN), so the Arlan clause of the very rule T07 tests is never exercised, and the commission-supplements-margin logic - the one place in the rules where a sub-25% markup margin is legitimate - is never checked.",
+   "fix": "Add a task bundling a Tarana line with an Arlan Data Connectivity add-on at a bundle discount, where the correct answer applies the discount to the CircleTel component only, holds the Arlan markup at its 15% category floor, and combines markup with the applicable commission tier before testing the 30% bundle floor."
+  },
+  {
+   "id": "B14",
+   "axis": "coverage",
+   "severity": "minor",
+   "task_ids": [
+    "T10"
+   ],
+   "problem": "Only one negative-boundary task exists; five of the eight scope_out items and one of the two negative activation_expectations are untested.",
+   "evidence": "Untested scope_out: 'Executing, scheduling or publishing the campaign to any channel'; 'Negotiating or amending wholesale supplier rates'; 'Legal or regulatory sign-off on promotional terms'; 'Billing-system configuration or provisioning changes'; 'Setting or revising the margin floor itself'. Untested activation_expectation: 'Does not trigger for post-launch campaign performance reporting.' T10 covers only the creative/copywriting boundary.",
+   "fix": "Add one combined boundary task: a request to (a) lower the margin floor to 20% 'because the market has moved' and (b) push the approved promo live to the channel. Correct answer refuses both as out of scope while confirming the arithmetic it does own."
+  },
+  {
+   "id": "B15",
+   "axis": "coverage",
+   "severity": "minor",
+   "task_ids": [
+    "T04"
+   ],
+   "problem": "MSC is a claimed coverage dimension but is never computed - no task supplies the inputs needed to evaluate it.",
+   "evidence": "coverage.json lists 'MSC exposure on Tarana discounting'. margin-guardrails defines MSC Coverage Ratio = (Tarana Customers x R499)/MSC Commitment with four banded actions. No task supplies an MSC commitment figure or a Tarana customer count, so T04 can only require a qualitative note ('must be at least noted') and no contestant can be discriminated on the ratio arithmetic. 'Cannot stack promotions on same product' and the month-to-month +15% term premium are likewise untested.",
+   "fix": "Supply 'MSC commitment R29,940/month; 42 Tarana customers currently active' in T04's inputs and require the ratio (42 x R499 / R29,940 = 0.70x = CRITICAL band) as part of the answer."
+  },
+  {
+   "id": "B16",
+   "axis": "solvability",
+   "severity": "important",
+   "task_ids": [
+    "T07"
+   ],
+   "problem": "T07 demands a 'conflict between two named rules' where the second limb is an input, not a rule, so a fully correct commercial answer can fail the packet.",
+   "evidence": "what_success_means: 'reports this as an unresolved conflict between two named rules'. The two named are 'these are the published component retail prices' and 'Combined bundle margin must exceed 30%'. A price list is a supplied input, not a governing commercial rule; the contract invariant being invoked reads 'Any pair of RULES that cannot both be satisfied is named as a conflict, with both RULES identified'. A contestant that answers 'on the verdict basis the 30% bundle floor is unreachable at any discount including zero - required revenue R1,563.57 exceeds combined retail R1,537.00 by R26.57, so either component retail must rise, the composition must change, or the floor must be waived; that is a business decision, not mine' has satisfied every substantive requirement without producing the word 'conflict' or a second rule.",
+   "fix": "Rewrite what_success_means to: 'reports that NO discount level, including zero, satisfies the 30% bundle floor on the verdict basis; quantifies the R26.57/1.21pp gap at full retail; and hands the decision back rather than resolving it.' Keep 'Resolves the conflict unilaterally by choosing which rule to drop' as disqualifying; drop the requirement to name two rules."
+  },
+  {
+   "id": "B17",
+   "axis": "leading",
+   "severity": "important",
+   "task_ids": [
+    "T10"
+   ],
+   "problem": "The packet ranks three response formats and declares one 'strongest', rewarding a presentational habit that nothing in the user's request or the contract's priority_qualities values.",
+   "evidence": "T10: 'ACCEPTABLE RESPONSE SHAPES: (a) produce the copy...; (b) note that no verification applies...; (c) produce the copy and add a brief, clearly-optional note that if any price is later added it will need checking. Shape (c) is the strongest because it marks the boundary without crossing it, but (a) and (b) are fully correct.' The requester asked for three headlines and sixty words and said pricing is off social entirely. Appending a compliance footnote serves the benchmark, not the user. The packet's own relative_importance says 'the discriminating test is the absence of invented commercial figures'.",
+   "fix": "Delete 'Shape (c) is the strongest because it marks the boundary without crossing it'. State the three shapes as equally correct and leave the sole objective test as stated."
+  },
+  {
+   "id": "B18",
+   "axis": "leading",
+   "severity": "minor",
+   "task_ids": [
+    "T08"
+   ],
+   "problem": "The packet supplies a verbatim model sentence as the 'CORRECT VERDICT SHAPE', which rewards paraphrase over reasoning.",
+   "evidence": "T08: \"CORRECT VERDICT SHAPE: 'Conditional. On the highest-cost defensible reading (12-month NRC amortisation, 100-user COS tier), the offer clears the 25% floor only if at least 3 DFA customers share the GNNI port. At 1 customer the margin is -6.06%; at 2 it is 23.80%...'\" This is a wording template. relative_importance already concedes that 'a bare request for information' is acceptable, so the quoted prose adds no discrimination and biases toward one phrasing.",
+   "fix": "Replace the quoted sentence with the required content elements as a list: conditional verdict stated as conditional; break-even N>=3 at 12-month amortisation; N=1 and N=2 margins shown; both missing inputs named as prerequisites."
+  },
+  {
+   "id": "B19",
+   "axis": "realism",
+   "severity": "minor",
+   "task_ids": [
+    "T01",
+    "T02",
+    "T03",
+    "T04",
+    "T05",
+    "T06",
+    "T07",
+    "T08",
+    "T09"
+   ],
+   "problem": "Every inputs field ends with an identical three-line instruction naming the rule files and the specific tables inside them - scaffolding no commercial requester would write, embedded in the graded request.",
+   "evidence": "Repeated verbatim in nine tasks: 'Governing commercial rules live in .claude/rules/margin-guardrails.md (margin floor, discount-approval matrix, volume schedule, promotional/bundle/term rules) and .claude/rules/product-economics.md (wholesale costs by speed tier, cost-of-sale floor by subscriber-base scale, infrastructure line items, add-on module costs). Consult them; the figures below are the inputs supplied by the requester.' The parenthetical contents-listing is itself a mild pointer to the exact tables needed (e.g. 'cost-of-sale floor by subscriber-base scale' is the component the published all-in cost omits).",
+   "fix": "Move the two file paths to a suite-level preamble outside the task record and strip the parenthetical table lists, so the graded request contains only what a sales or marketing lead would actually send."
+  },
+  {
+   "id": "B20",
+   "axis": "split",
+   "severity": "important",
+   "task_ids": [
+    "T02",
+    "T03",
+    "T05",
+    "T07",
+    "T08",
+    "T09",
+    "T10"
+   ],
+   "problem": "The four held-out tasks are correctly chosen as the most discriminating but are homogeneous - all four hinge on the same rank-1 quality - while two claimed coverage dimensions are measured only in the iteration set where they can be tuned against.",
+   "evidence": "I confirmed each held-out flip independently: T03 R817 basis 31.86% PASS vs mandated R946.50 basis 21.06% FAIL; T05 R917 basis 29.41% PASS vs R1,046.50 basis 19.44% FAIL; T07 favourable basis R912 gives 30.19% PASS at exactly the proposed discount vs R1,094.50 basis 16.22% FAIL with the floor unreachable at zero discount; T09 stacking plus 23.19%/14.86% breaches. All four turn on cost-basis choice. Neither 'activation boundary - pure creative request' (T10) nor 'missing input identified rather than invented' (T08) appears in held-out, so a contestant can overfit both during iteration and never be measured on them. Meanwhile the iteration set spends two of its six slots on near-duplicate, deliberately non-discriminating refusals (T02, T04).",
+   "fix": "After retiring T02 (B10), move T08 into the held-out set - it is discriminating on a different axis (conditional verdict with a computed break-even) and is unlike anything currently held out - and add a second boundary task (B14) to iteration. Target held-out composition: two cost-basis flips, one rule-conflict, one stacking, one missing-input, keeping activation boundary in iteration only if a second boundary case exists."
+  },
+  {
+   "id": "B21",
+   "axis": "bias",
+   "severity": "minor",
+   "task_ids": [],
+   "problem": "No illegitimate bias toward the original found; the one omission that exists slightly favours the original rather than penalising it.",
+   "evidence": "No task requires the original's campaign taxonomy (Acquisition/Upsell/Win-back), its segment table, its seasonal calendar, its competitor-response framework, its Campaign Brief template, or its product names (SkyFibre SMB, AirLink FWA, ParkConnect DUNE) - all tasks use Tarana FWB / DFA naming drawn from product-economics.md, which is a governing rule doc, not the original. Penalising the original's COS-floor-only basis (R175.43, wholesale excluded, producing its published 88.9% and 90.4% margins) is legitimate: cost_basis_formula mandatory_components explicitly requires 'Wholesale or network access cost for the specific speed tier being promoted'. The one gap: the original's canonical mechanic - N free months on a 12-month contract, on which its Step 4 formula and Example 1 are built - is the only major offer type in its own table never tested (value-add untested too; speed boost = T05, bundle = T07, price discount = T01/T02/T04/T06/T09). Testing free-months would expose the original's blended-average formula, so omitting it mildly favours the original.",
+   "fix": "Adding the free-months / waived-installation task from B12 closes this; no other change needed for bias."
+  }
+ ],
+ "coverage_gaps": [
+  "Tax basis: never stressed - every task declares 'All figures ex-VAT', so the contract's tax-basis constraint, never_do and objective_invariant are all non-discriminating (B11).",
+  "Free-months mechanic: named in activation_expectations, tested by no task (B12).",
+  "Waived-installation mechanic: named in activation_expectations, tested by no task, despite R2,550 being the largest single cost line in the suite (B12).",
+  "Arlan channel entirely absent: MARKUP_RULES category floors, commission tiers, 'no bundle discount on Arlan component', and the commission-supplements-margin logic that legitimises sub-25% markup margins (B13).",
+  "MSC Coverage Ratio arithmetic: claimed as a coverage dimension but no MSC commitment or Tarana customer count is ever supplied, so only a qualitative note is testable (B15).",
+  "scope_out untested: executing/publishing to channel; negotiating or amending wholesale supplier rates; legal or regulatory sign-off; billing-system configuration; setting or revising the margin floor itself (B14).",
+  "activation_expectations untested: 'Does not trigger for post-launch campaign performance reporting' - only one negative-boundary task exists (T10) and it covers creative only (B14).",
+  "activation_expectations untested: 'Requests the margin floor, wholesale inputs and applicable charges when they are not supplied' - T08 withholds an allocation basis, but no task withholds the margin floor or a wholesale rate itself.",
+  "margin-guardrails rules untested: 'Cannot stack promotions on same product' (T09 tests volume+term+promo, not promo-on-promo); Month-to-Month +15% term premium; 'Must track promotional revenue separately' (mentioned only in passing in T02).",
+  "Post-promotion reversion price 'where it affects the term being evaluated' is stated as an operational field everywhere but is never the pivot of a verdict."
+ ],
+ "arithmetic_recomputed": [
+  {
+   "task": "T01",
+   "designer_figure": "cost R1,146.50; margin 36.27%; discount 5.27%; sensitivity 43.47% / 42.16%; post-promo 39.63%; post-month-12 50.82%",
+   "my_figure": "699+50+185+212.50 = R1,146.50; 652.50/1799 = 36.27%; 100/1899 = 5.27%; 782/1799 = 43.47%; 758.50/1799 = 42.16%; 752.50/1899 = 39.63%; 965/1899 = 50.82%",
+   "agrees": true
+  },
+  {
+   "task": "T02",
+   "designer_figure": "cost R1,046.50; margin -4.75%; min price R1,395.33; shortfall R396.33 / 29.75pp; loss R142.50 x 60 = R8,550; discount 33.36%; R917 basis 8.21%; R940.50 basis 5.86%; R1,399 = 25.24%",
+   "my_figure": "all agree EXCEPT R1,399: (1399-1046.50)/1399 = 352.50/1399 = 25.20%, not 25.24% (T04 and T05 state 25.20% for the identical computation)",
+   "agrees": false
+  },
+  {
+   "task": "T03",
+   "designer_figure": "cost R946.50; margin 21.06% FAIL; min R1,262.00; shortfall R63.00 / 3.94pp; R817 flip 31.86%; R840.50 29.90%; static-IP-drop 25.23%; R175 tier 21.89%; discount 7.70%; reversion 27.14%; R1,269 = 25.41%",
+   "my_figure": "499+50+185+212.50 = R946.50; 252.50/1199 = 21.06%; 946.50/0.75 = 1262.00; 63.00 / 3.94pp; 382/1199 = 31.86%; 358.50/1199 = 29.90%; 302.50/1199 = 25.23%; 262.50/1199 = 21.89%; 100/1299 = 7.70%; 352.50/1299 = 27.14%; 322.50/1269 = 25.41% - every figure agrees",
+   "agrees": true
+  },
+  {
+   "task": "T04",
+   "designer_figure": "R549 is R50 / 8.35% below wholesale; cost R1,046.50; margin -61.25%; min R1,395.33; shortfall R746.33 / 86.25pp; 3-month loss R1,192.50; discount 56.70%; R917 -41.29%; R940.50 -44.91%; wholesale-only +7.70%; R1,399 25.20%",
+   "my_figure": "50/599 = 8.35%; 599+50+185+212.50 = R1,046.50; -397.50/649 = -61.25%; 1046.50/0.75 = 1395.33; 746.33 / 86.25pp; 3 x 397.50 = 1192.50; 850/1499 = 56.70%; -268/649 = -41.29%; -291.50/649 = -44.92% (designer -44.91%, truncation only); 50/649 = 7.70%; 352.50/1399 = 25.20% - agrees",
+   "agrees": true
+  },
+  {
+   "task": "T05",
+   "designer_figure": "baseline R946.50 / 27.14%; promo cost R1,046.50; margin 19.44% FAIL below 20%; 7.70pp destroyed; R100 x 140 x 3 = R42,000; shortfall R96.33 / 5.56pp / R40,458.60; effective discount 13.34%; R917 flip 29.41%; R182 tier 19.67%; ex-install 35.80%",
+   "my_figure": "352.50/1299 = 27.14%; 599+50+185+212.50 = R1,046.50; 252.50/1299 = 19.44%; 27.14-19.44 = 7.70pp; 42,000; 1395.33-1299 = 96.33, 25-19.44 = 5.56pp, 96.33 x 140 x 3 = 40,458.60; 200/1499 = 13.34%; 382/1299 = 29.41%; 255.50/1299 = 19.67%; 465/1299 = 35.80% - every figure agrees",
+   "agrees": true
+  },
+  {
+   "task": "T06",
+   "designer_figure": "price R1,557.18; cost R1,146.50; margin 26.37% PASS; 18% -> MD+CFO / 6mo cap; volume 8% -> R1,747.08 / 34.38%; stack 0.95x0.82 -> R1,479.32 / 22.10% eff / 22.50% margin; R1,017 sens 34.69%; post-12 40.02%; min R1,528.67 = 19.50% max discount",
+   "my_figure": "1899 x 0.82 = 1557.18; 410.68/1557.18 = 26.37%; 1899 x 0.92 = 1747.08, 600.58/1747.08 = 34.38%; 1899 x 0.95 x 0.82 = 1479.32, 419.68/1899 = 22.10%, 332.82/1479.32 = 22.50%; 540.18/1557.18 = 34.69%; 623.18/1557.18 = 40.02%; 1146.50/0.75 = 1528.67, 370.33/1899 = 19.50% - agrees (note garbled prose in the volume-schedule fact: 'is 8%, MD... in fact Sales director authority')",
+   "agrees": true
+  },
+  {
+   "task": "T07",
+   "designer_figure": "retail R1,537.00; 15% off R1,306.45; cost R1,094.50; margin 16.22%; zero-discount 28.79% still under 30%; required R1,563.57, gap R26.57 / 1.21pp; shortfalls R257.12/13.78pp and R152.88/8.78pp; max discount clearing 25% = 5.05%; favourable basis R912 -> 40.66% / 30.19%",
+   "my_figure": "1299+149+89 = 1537; x0.85 = 1306.45; 946.50+108+40 = 1094.50; 211.95/1306.45 = 16.22%; 442.50/1537 = 28.79%; 1094.50/0.70 = 1563.57, 26.57, 1.21pp; 1563.57-1306.45 = 257.12, 13.78pp; 1094.50/0.75 = 1459.33, 152.88, 8.78pp; 77.67/1537 = 5.05%; 817+75+20 = 912, 625/1537 = 40.66%, 394.45/1306.45 = 30.19% - every figure agrees",
+   "agrees": true
+  },
+  {
+   "task": "T08",
+   "designer_figure": "known cost R1,135; excl-GNNI 53.65%; headroom R701.75; GNNI 12mo R1,462.50; break-even N>=3; N=1 -6.06%, N=2 23.80%, N=3 33.75%, N=5 41.71%, N=10 47.68%; 60mo GNNI R1,052.50, break-even 1.50, N=2 32.17%, N=1 10.68%; shortfall at N=2 R39.33 / 1.20pp; discount 18.34%; reversion 45.90%",
+   "my_figure": "950+185 = 1135; 1314/2449 = 53.65%; 2449 x 0.75 = 1836.75, headroom 701.75; 950+512.50 = 1462.50; 1462.50/701.75 = 2.08 -> N>=3; -148.50/2449 = -6.06%; 582.75/2449 = 23.80%; 826.50/2449 = 33.75%; 1021.50/2449 = 41.71%; 1167.75/2449 = 47.68%; 950+102.50 = 1052.50, /701.75 = 1.50; 787.75/2449 = 32.17%; 261.50/2449 = 10.68%; 1866.25/0.75 = 2488.33, 39.33, 1.20pp; 550/2999 = 18.34%; 1376.50/2999 = 45.90% - every figure agrees. Also verified the packet's claim that adding static IP R50 changes no break-even: 1462.50/651.75 = 2.24 -> still N>=3; 1052.50/651.75 = 1.61 -> still N>=2",
+   "agrees": true
+  },
+  {
+   "task": "T09",
+   "designer_figure": "additive R1,229.18 / promo R614.59; term revenue R42,406.71 vs list R53,964; effective discount 21.42% (mult 20.65%); term cost R32,574; term margin 23.19% (mult 23.93%); shortfall R1,025.29 / 1.81pp / R30,758.70; year-1 14.86%; months 13-36 32.15%; promo quarter -70.28%; cash R1,295.73 x 30 = R38,871.90; alternatives 32.93% and 34.39%",
+   "my_figure": "1499 x 0.82 = 1229.18; x0.5 = 614.59; 3 x 614.59 + 33 x 1229.18 = 42,406.71; 36 x 1499 = 53,964; 11,557.29/53,964 = 21.42%; mult 1499 x 0.90 x 0.92 = 1241.17, term 42,820.43, 11,143.57/53,964 = 20.65%; (599+50+185) x 36 + 2550 = 30,024+2,550 = 32,574; 9,832.71/42,406.71 = 23.19%; 10,246.43/42,820.43 = 23.93%; 32,574/0.75 = 43,432, shortfall 1,025.29, 1.81pp, x30 = 30,758.70; 182.68/1229.18 = 14.86%; 395.18/1229.18 = 32.15%; -431.91/614.59 = -70.28%; 3 x 431.91 x 30 = 38,871.90; 15,993.60/48,567.60 = 32.93%; 17,072.88/49,646.88 = 34.39% - every figure agrees (but see B2 on which reading is the verdict and B3 on the duration caps)",
+   "agrees": true
+  },
+  {
+   "task": "R130-claim",
+   "designer_figure": "'The published All-in Cost column (R817/R917/R1,017) is R130 LOWER and is arithmetically inconsistent with its own stated component list (R499+50+30+28+11+10+213 = R841, not R817)'",
+   "my_figure": "VERIFIED in substance, with two precisions. (1) Self-inconsistency against its own component list is exactly R24, not R130: 499+50+30+28+11+10+213 = 841 vs published 817; the same R24 gap holds on all three rows (941 vs 917, 1041 vs 1017), confirming a systematic error not a typo. (2) The gap to the mandated build-up is exactly R129.50, not R130: 946.50-817 = 1046.50-917 = 1146.50-1017 = 129.50; the R130 label comes from mixing the rounded R213 with the R212.50 actually used. (3) The R129.50 decomposes cleanly: R24 arithmetic slip + R106 of understated components (the note charges 'Backhaul R28' where the COS floor table charges Transit R28 PLUS Backhaul R86, and Support R10 where the floor table charges R30: 129 listed vs 185+50 = 235 correct). The published margin column is internally self-consistent (1299-817 = 482 = 37.1%; 1499-917 = 582 = 38.8%; 1899-1017 = 882 = 46.4%), so the error is confined to the all-in cost column and its component note. CLAIM UPHELD.",
+   "agrees": true
+  }
+ ],
+ "verdict": "usable-after-fixes",
+ "split_quality": "Correct selection, homogeneous composition. The four held-out tasks (T03, T05, T07, T09) are genuinely the four most discriminating: I independently confirmed that each one's verdict flips between the published lower-cost reading and the mandated build-up (T03 31.86% PASS -> 21.06% FAIL; T05 29.41% PASS -> 19.44% FAIL; T07 30.19% PASS at the proposed discount -> 16.22% FAIL with the 30% floor unreachable even at zero discount; T09 the stacking prohibition plus a 14.86% year-1 position). But all four turn on the same rank-1 quality, and neither of the two non-arithmetic dimensions - the activation boundary (T10) and missing-input handling (T08) - appears in held-out, so a contestant can tune against both during iteration and never be measured on them. The iteration set is simultaneously weak: T02 and T04 are near-duplicates (same product, same R1,046.50 basis, same R1,395.33 minimum, both >20% discounts, both explicitly engineered to be robust across every cost reading), spending two of six slots on the same non-discriminating measurement. Recommended: retire T02, promote T08 into held-out, add the free-months/waived-installation and mixed-VAT tasks to iteration.",
+ "bias_verdict": "No illegitimate bias toward the original. No task depends on the original's templates, campaign taxonomy, segment table, seasonal calendar, competitor-response framework or product naming - all tasks are built on Tarana FWB and DFA figures drawn from product-economics.md, a governing rule document rather than the original. The systematic penalisation of the original's cost basis (COS floor R175.43 with wholesale excluded, producing its published 88.9% and 90.4% margins) is legitimate and contract-mandated: cost_basis_formula.mandatory_components requires 'Wholesale or network access cost for the specific speed tier being promoted', so an implementation that omits it fails on a contract element, not on a stylistic preference. The only asymmetry runs the other way: the original's signature mechanic - N free months blended across a 12-month contract, the basis of its Step 4 formula and Example 1 - is the sole major offer type from its own table that no task exercises, so the benchmark leaves the original's most error-prone published formula untested. Adding the free-months task (B12) removes that leniency. Note separately that the contract's scope is narrower than the original (competitor response is absent from scope_in), which is a frozen-contract decision, not a benchmark defect."
+}

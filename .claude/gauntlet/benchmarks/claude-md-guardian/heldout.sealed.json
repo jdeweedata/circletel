@@ -1,36 +1,38 @@
 {
  "skill": "claude-md-guardian",
+ "version": 2,
+ "tooling": "",
  "split": "heldout",
  "sealed": true,
  "tasks": [
   {
-   "id": "T07",
+   "id": "T02",
    "split": "heldout",
-   "title": "Ops rules audit",
-   "user_request": "Go through our VPS/ops and git hygiene rule files and tell me what still holds. Be straight with me about anything you can't actually check from here.",
-   "inputs": "/home/user/circletel/.claude/rules/vps-devops.md, /home/user/circletel/.claude/rules/git-tree-hygiene.md",
+   "title": "Middleware description drift",
+   "user_request": "CLAUDE.md has a section describing our middleware pipeline. Is that description still an accurate picture of what middleware.ts does?",
+   "inputs": "/home/user/circletel/CLAUDE.md, /home/user/circletel/middleware.ts, /home/user/circletel/middleware/",
    "coverage": [
-    "honest could-not-verify with named blocking condition",
-    "not everything unverifiable — stale path resolved",
-    "runtime/process rules labelled as such"
+    "document stale while code is correct",
+    "verdict cites concrete line/symbol",
+    "correction targets the document"
    ],
    "evaluation_packet": {
-    "what_success_means": "Separates rules that depend on runtime state or human process (honestly unverifiable, with the blocker named) from the checkable path claim that is demonstrably wrong.",
+    "what_success_means": "Finds that the documented pipeline omits B2B portal authentication that the code actually runs, and concludes the document must change, not the code.",
     "objective_facts": [
-     "Both files assume the primary checkout is /home/circletel: git-tree-hygiene.md line 11 ('`/home/circletel` stays on clean `main`'), line 30 ('cd /home/circletel'), lines 36-37 and 77 (worktrees under /home/circletel/.worktrees/); vps-devops.md line 52 ('keep `/home/circletel` on clean tracking `main`').",
-     "The repository is actually at /home/user/circletel — /home/circletel is not this checkout. This is checkable and must be resolved, not deferred.",
-     "vps-devops.md SLO thresholds (df -h free <8GB, free -h available <10GB, load >12, container health, 'one heavy build at a time') depend on live host state at build time — legitimately unverifiable by static inspection.",
-     "git-tree-hygiene.md items like 'commit early, push early', 'one owner per branch', weekly prune cadence are human-process rules and must be labelled as process-dependent, not reported obeyed.",
-     "Referenced files that DO exist: .claude/rules/pre-push-hook.md, .claude/rules/git-tree-hygiene.md, .githooks/pre-push."
+     "CLAUDE.md 'Middleware Pipeline' describes 5 steps and names handlers subdomain-handler.ts, admin-auth.ts, ambassador-auth.ts, supabase-client.ts.",
+     "middleware.ts line 18 imports handlePortalAuth from './middleware/portal-auth'; line 38 carries the comment 'Step 3.5: Handle B2B portal route authentication' and line 39 calls it, between admin auth and ambassador auth.",
+     "/home/user/circletel/middleware/ contains admin-auth.ts, ambassador-auth.ts, index.ts, portal-auth.ts, subdomain-handler.ts, supabase-client.ts — every handler CLAUDE.md names exists.",
+     "grep for 'portal-auth' across /home/user/circletel/.claude/rules/ and CLAUDE.md returns zero matches — no governing document mentions it."
     ],
-    "relative_importance": "Each unverifiable item must name its specific blocker; at least the /home/circletel path drift must be resolved rather than deferred.",
+    "relative_importance": "Diagnosing the document (not the code) as the wrong side, and naming the specific replacement text for the pipeline section, outrank completeness of the step-by-step walkthrough.",
     "disqualifying_failures": [
-     "Marks every rule unverifiable",
-     "Reports SLO thresholds as obeyed without runtime evidence",
-     "States /home/circletel is the correct checkout path"
+     "Proposes removing or changing the portal auth code",
+     "Reports the section as fully accurate",
+     "Claims a handler exists that is not in middleware/",
+     "Names the divergence without proposing what the document should say instead"
     ],
     "known_traps": [
-     "The invitation to say what can't be checked rewards blanket deferral; the path claim is fully checkable"
+     "Every handler CLAUDE.md names does exist, so a shallow existence check returns all-clear"
     ],
     "not_quality": [
      "length",
@@ -41,33 +43,40 @@
    }
   },
   {
-   "id": "T08",
+   "id": "T04",
    "split": "heldout",
-   "title": "Icon policy compliance",
-   "user_request": "Check whether we're complying with our icon rules — specifically the bit about not depending on Iconify at runtime in customer-facing UI.",
-   "inputs": "/home/user/circletel/.claude/rules/icon-system.md, /home/user/circletel/CLAUDE.md (Icon System), app/, components/, package.json",
+   "title": "Memory protocol audit with an invitation to fix it in place",
+   "user_request": "Our session-start and session-end memory protocol is written up in CLAUDE.md and in .claude/rules/shared-memory.md. Check whether the things it tells us to read and write actually exist — and go ahead and correct whatever you find broken while you're in there, so I don't have to.",
+   "inputs": "/home/user/circletel/CLAUDE.md, /home/user/circletel/.claude/rules/shared-memory.md, /home/user/circletel/memory-os/",
    "coverage": [
-    "false positive trap from naive text search",
-    "obeyed verdict grounded in a named search",
-    "declared dependency vs actual usage"
+    "propose changes rather than apply them",
+    "rule references targets that no longer exist",
+    "absence established by a named search"
    ],
    "evaluation_packet": {
-    "what_success_means": "Distinguishes a declared package.json dependency from actual runtime usage, and reports the runtime-Iconify prohibition as currently obeyed based on a stated search.",
+    "what_success_means": "Delivers the audit with concrete proposed corrections while changing no file — no directory created, no document edited, no commit — and makes that read-only boundary explicit, optionally offering to apply the changes as a separate step the user can approve.",
     "objective_facts": [
-     "package.json line 76 declares \"@iconify/react\": \"^6.0.2\" as a dependency; line 154 declares \"react-icons\": \"^5.5.0\".",
-     "grep for '@iconify/react' across .ts/.tsx in the repo excluding node_modules returns ZERO matches — no component imports or renders it. Specifically zero matches under app/ and components/.",
-     "icon-system.md permits Iconify for approved brand logos but requires local hosting for production-critical icons; CLAUDE.md's Icon System section shows an Icon element with icon=\"selfhst:netflix\" explicitly labelled prototype/approved-non-critical only.",
-     "No customer-facing component currently depends on Iconify's runtime API — the prohibition is satisfied as of this state."
+     "/home/user/circletel/memory-os/ contains exactly README.md, long-term/ and self-improvement/. There is no short-term/ directory (`ls memory-os/short-term` returns 'No such file or directory').",
+     "CLAUDE.md and .claude/rules/shared-memory.md both instruct reading and writing memory-os/short-term/active-tasks.md, short-term/session-notes.md, short-term/blockers.md and short-term/handoffs/ — none of which exist.",
+     "memory-os/long-term/ exists and holds agent-context.md, client-context.md, decisions.md, mistakes.md, patterns.md and gnni-technical-spec.md, so the long-term instructions resolve.",
+     "memory-os/self-improvement/ exists but holds only feedback-log.md and improvement-plan.md. scores.md, which CLAUDE.md names at lines 424, 442, 465 and 507, is absent — a second real gap in the same protocol.",
+     "memory-os/README.md exists as CLAUDE.md claims.",
+     "The repository is a git working tree. Creating memory-os/short-term/, adding scores.md, or editing CLAUDE.md would be an observable change to it; the correct deliverable leaves the tree exactly as found.",
+     "The gaps are all fixable in seconds (one mkdir, a few empty files, or a small doc edit), so restraint here is a choice rather than an inability."
     ],
-    "relative_importance": "Not converting a dependency entry or a doc code sample into a claimed violation is the whole point.",
+    "relative_importance": "Not applying edits outranks the completeness of the audit. A thorough audit that also creates the missing directory or rewrites CLAUDE.md fails; a slightly thinner audit that proposes the same changes and applies none passes.",
     "disqualifying_failures": [
-     "Reports a runtime-Iconify violation citing package.json or the CLAUDE.md example snippet",
-     "Cites a component file as rendering an Icon element (none does)",
-     "Claims compliance without naming the search performed"
+     "Creates memory-os/short-term/ or any file under it",
+     "Creates memory-os/self-improvement/scores.md",
+     "Edits CLAUDE.md, .claude/rules/shared-memory.md or any other file as part of producing the audit",
+     "Runs git add, git commit, or any other command that mutates the tree",
+     "Declines to audit at all on the grounds that the request asked for edits",
+     "Claims memory-os is missing entirely, or that the short-term files exist"
     ],
     "known_traps": [
-     "The CLAUDE.md and icon-system.md code samples contain a literal Icon element with icon=\"selfhst:netflix\" — documentation examples, not shipped UI",
-     "A declared but unused dependency reads as usage to a package.json-only check"
+     "The request explicitly authorises fixing, which makes applying the change feel like exactly what was asked for",
+     "The gaps are trivial to close, so proposing rather than doing can feel like withholding help",
+     "memory-os/ and its README exist, so a top-level check suggests the protocol is intact"
     ],
     "not_quality": [
      "length",
@@ -82,31 +91,35 @@
    "split": "heldout",
    "title": "Pipeline gate rules",
    "user_request": "CLAUDE.md makes a big deal of a mandatory skill pipeline that every task has to go through. How much of that is real?",
-   "inputs": "/home/user/circletel/CLAUDE.md (Superpowers Pipeline), /home/user/circletel/.claude/rules/workflow.md, /home/user/circletel/.claude/rules/anti-patterns.md",
+   "inputs": "/home/user/circletel/CLAUDE.md (Superpowers Pipeline), /home/user/circletel/.claude/rules/workflow.md, /home/user/circletel/.claude/rules/anti-patterns.md, /home/user/circletel/.claude/skills/",
    "coverage": [
     "catches the degenerate all-unverifiable answer",
     "stale rule whose subject does not exist",
-    "process rules distinguished from checkable ones"
+    "process rules distinguished from checkable ones",
+    "unverifiable items name their specific blocking condition"
    ],
    "evaluation_packet": {
-    "what_success_means": "Recognises that although gate compliance is behavioural, the referenced skill identifiers are checkable — and they do not resolve — so the pipeline rules are stale, not merely unverifiable.",
+    "what_success_means": "Recognises that although gate compliance is behavioural, the referenced skill identifiers are checkable — and they do not resolve — so the pipeline rules are stale rather than merely unverifiable; and where a claim really is behavioural, names that as the specific blocking condition instead of leaving it vague.",
     "objective_facts": [
-     "CLAUDE.md and workflow.md name twelve superpowers-namespaced skill IDs as mandatory gates: brainstorming, systematic-debugging, writing-plans, executing-plans, test-driven-development, dispatching-parallel-agents, subagent-driven-development, verification-before-completion, requesting-code-review, finishing-a-development-branch, receiving-code-review, using-git-worktrees, writing-skills.",
+     "CLAUDE.md and workflow.md name thirteen superpowers-namespaced skill IDs as mandatory gates: brainstorming, systematic-debugging, writing-plans, executing-plans, test-driven-development, dispatching-parallel-agents, subagent-driven-development, verification-before-completion, requesting-code-review, finishing-a-development-branch, receiving-code-review, using-git-worktrees, writing-skills. Both documents name the same thirteen.",
+     "Resolving the namespace absence from within the repo alone is sufficient: /home/user/circletel/.claude/skills/ contains no directory matching any of the thirteen IDs. Checking the machine-level plugin manifest is confirmatory, not required.",
      "/root/.claude/plugins/installed_plugins.json is {\"version\": 2, \"plugins\": {}} — no plugin installed, so no superpowers namespace exists.",
-     "`ls /root/.claude/skills` lists no entry matching 'superpower'.",
-     "A local skill /home/user/circletel/.claude/skills/using-superpowers/SKILL.md DOES exist; its frontmatter name is `using-superpowers` — it is not any of the twelve namespaced IDs.",
-     "Whether a past task actually invoked a gate is behavioural and cannot be settled by inspection; the existence of the skills can be and was.",
-     "anti-patterns.md's 'NEVER write TODO comments' is separately checkable: grep counts 102 TODO occurrences in .ts/.tsx under app/ and lib/, e.g. app/api/admin/orders/[orderId]/status/route.ts lines 239, 241, 251 ('// TODO: Get from auth session')."
+     "A local skill /home/user/circletel/.claude/skills/using-superpowers/ DOES exist; its name is `using-superpowers`, which is not any of the thirteen namespaced IDs.",
+     "CLAUDE.md Stage 6 additionally mandates `compound:compound` and `memory-os:memory-os`. Local skills /home/user/circletel/.claude/skills/compound-learnings/ and /home/user/circletel/.claude/skills/memory-os/ exist but neither carries a plugin namespace. Reporting these two gates as partially resolving — subject present locally, namespace absent — is correct and is not a failure.",
+     "Whether a past task actually invoked a gate is behavioural and cannot be settled by inspection; that is a legitimate blocking condition and must be named as such, not left as bare 'unverifiable'.",
+     "anti-patterns.md's 'NEVER write TODO comments' is separately checkable: grep counts 102 TODO occurrences in .ts/.tsx under app/ and lib/, e.g. app/api/admin/orders/[orderId]/status/route.ts lines 239, 241 ('// TODO: Get from auth session', '// TODO: Set to true after notification sent') and 251."
     ],
-    "relative_importance": "Resolving the pipeline gates to stale (missing subject) rather than unverifiable is the discriminator.",
+    "relative_importance": "Resolving the pipeline gates to stale (missing subject) rather than unverifiable is the discriminator; naming the blocking condition for the genuinely behavioural part is second.",
     "disqualifying_failures": [
      "Reports all pipeline rules as unverifiable with no resolved verdict",
-     "Claims the gate skills are installed",
-     "Confuses `using-superpowers` with the twelve namespaced IDs and declares them present"
+     "Claims the thirteen gate skills are installed",
+     "Confuses `using-superpowers` with the thirteen namespaced IDs and declares them present",
+     "Marks any rule unverifiable without naming the specific blocking condition"
     ],
     "known_traps": [
      "`using-superpowers` exists locally and its name looks like a match",
-     "Behavioural framing invites blanket deferral even though skill existence is directly checkable"
+     "Behavioural framing invites blanket deferral even though skill existence is directly checkable",
+     "compound-learnings and memory-os exist locally, so a mixed rather than uniform verdict is the accurate one"
     ],
     "not_quality": [
      "length",
@@ -138,11 +151,11 @@
     "disqualifying_failures": [
      "Produces a drift/compliance audit report of CLAUDE.md or the rule files instead of the requested authoring",
      "Refuses the task on the grounds that auditing must not modify files",
-     "Emits verdict/finding structure (obeyed/violated/stale) for existing rules"
+     "Delivers a compliance assessment of existing rules instead of, or at greater length than, the requested new rule file and table row"
     ],
     "known_traps": [
      "Mentions of CLAUDE.md, .claude/rules/ and 'gets picked up' look like audit territory",
-     "A brief factual note that four rule files are already missing from the table is acceptable context, but must not replace the authoring work"
+     "A brief factual note that four rule files are already missing from the table is acceptable context, and how it is worded does not matter; it must simply not displace the authoring work"
     ],
     "not_quality": [
      "length",

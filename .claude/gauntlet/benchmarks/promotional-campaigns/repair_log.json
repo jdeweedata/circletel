@@ -1,0 +1,305 @@
+{
+ "audit_responses": [
+  {
+   "id": "B1",
+   "accepted": true,
+   "action": "Added an explicit amortisation period to the inputs of T01, T02, T04 and T09, and harmonised the wording already present in T03, T05, T06 and T07: 'amortised over the first 12 months of the agreement'. Added an objective_fact to T01 stating the period, rejecting the 90-day reading, and showing what it would have produced (cost R699+50+185+850 = R1,784.00; margin R15.00/R1,799 = 0.83%). All packets already computed R212.50 = R2,550/12, so ground truth now matches the stated period; T01's verdict stays PASS at 36.27%.",
+   "reasoning": "Accepted. The flip was real: with the period unstated, verdict_basis_rule made R850/month defensible and turned the calibration baseline into a 0.83% FAIL. Two corrections to the audit's evidence: T07 already said 'amortised over the first 12 months', and T09 - which the audit listed as already specified - did not. T09 needed it most, because moving its verdict to the year-1 period (B2) makes the amortisation period verdict-relevant there."
+  },
+  {
+   "id": "B2",
+   "accepted": true,
+   "action": "T09's verdict is now the least-favourable period: year-1 steady state (months 4-12) 14.86%, below the 25% floor and the 20% never-permitted line, with the promotional quarter at -70.28% shown as more adverse still and months 13-36 at 32.15%. The 36-month blend (23.19% additive / 23.93% multiplicative) is relabelled SUPPLEMENTARY with an explicit ban on using it as the verdict. Shortfall restated on the verdict period: R166.15/line/month, 10.14 pp below the floor, 5.14 pp below the never-permitted line, R44,861.40 across months 4-12 x 30 lines; the term-blend shortfalls are kept as supplementary. what_success_means, coverage, disqualifying_failures and known_traps updated to match. T06 gains a PERIOD CONVENTION fact making the same rule explicit and demoting its 24-month term-total reading (R37,372.32 revenue, R24,966.00 cost, 33.20%) to supplementary.",
+   "reasoning": "Accepted. T09 headlined 23.19% while its own year-1 figure was 14.86% - the more favourable of two readings, which is exactly what verdict_basis_rule forbids and the opposite of T06's convention. A contestant applying T06's convention to T09 was scored wrong for being right."
+  },
+  {
+   "id": "B3",
+   "accepted": true,
+   "action": "Replaced T09's 'That is the defensible counter-offer' with an ALTERNATIVES fact that states the breaches: volume-only 10% clears the term (32.93%) but fails year 1 (22.43%) and its 10-15% band caps at 12 months against a 36-month term; term-only 8% clears the term (34.39%) but fails year 1 (24.12%) and its 5-10% band caps at 24 months. Added the structural finding that every band caps at 24 months or less, so no discount of any size can run unchanged for 36 months, and gave the genuinely compliant shapes: list price for the full term (year-1 30.19%, months 13-36 44.36%) or a discount of no more than 6.9% off list (price at or above R1,395.33) run only inside its band's duration cap. Added a matching disqualifying_failure.",
+   "reasoning": "Accepted, and extended. The audit was right that both alternatives breached their duration caps; recomputing them also showed both fail the year-1 floor under the B2 convention, so calling either 'compliant' would have contradicted T09's own new verdict basis as well as T06's disqualifying_failure."
+  },
+  {
+   "id": "B4",
+   "accepted": true,
+   "action": "T02: 'Recommending R1,399 (25.24% margin' -> '25.20% margin'. Verified (1399 - 1046.50)/1399 = 352.50/1399 = 25.1966% = 25.20%, matching the identical computation already stated in T04 and T05.",
+   "reasoning": "Accepted - a straightforward arithmetic error, inconsistent with two other packets."
+  },
+  {
+   "id": "B5",
+   "accepted": true,
+   "action": "Reworded the shared cost-basis block in all 8 packets that carry it: the published All-in Cost column is R129.50 lower than the mandated build-up, and is separately inconsistent with its own component list by R24 (R841 vs R817, same gap on all three rows). Replaced 'Transit-only R28' with 'a single R28 line', since product-economics.md labels that line Backhaul.",
+   "reasoning": "Accepted. Verified 946.50-817 = 1046.50-917 = 1146.50-1017 = 129.50, and 841-817 = 941-917 = 1041-1017 = 24. The single 'R130' label conflated two distinct gaps."
+  },
+  {
+   "id": "B6",
+   "accepted": true,
+   "action": "Appended a TOLERANCE fact to all nine arithmetic packets: figures within R1.00 or 0.1 pp are equivalent, naming the R185/R185.26 cost-of-sale floor rounding and the R212.50/R213 amortisation rounding as flipping no verdict.",
+   "reasoning": "Accepted, and extended to T08, which the audit's task list omitted although it also asserts the R185 floor. T10 is excluded because it contains no arithmetic."
+  },
+  {
+   "id": "B7",
+   "accepted": true,
+   "action": "Deleted both 'not supplied' lines from T08's inputs. The GNNI line now reads only 'R950/month MRC plus R6,150 non-recurring charge, 1Gbps, to be amortised across the customer base.' The packet's MISSING INPUTS fact and the known_trap about there being two omissions are unchanged.",
+   "reasoning": "Accepted. The task exists to test whether the contestant notices what is absent; enumerating the absences in the requester's own data block disarmed it completely. This matters more now that T08 is held out."
+  },
+  {
+   "id": "B8",
+   "accepted": true,
+   "action": "Replaced T05's two labelled service lines with a neutral three-tier rate card (retail and wholesale for 50/12.5, 100/25 and 200/50) plus 'Customers are billed R1,299/month throughout'. Retail for 100/25 is retained in the card because the 13.34% effective-discount finding is unsolvable without it.",
+   "reasoning": "Accepted. 'Upgraded service during promo ... wholesale/access MRC R599' stated the single insight the task discriminates on, neutralising the 'costs us nothing' misdirection."
+  },
+  {
+   "id": "B9",
+   "accepted": true,
+   "action": "T03: deleted 'Current total CircleTel subscriber base: not specified'. T09: concessions rewritten as requester prose ('They want the volume rate for thirty lines, the three-year term rate, and half price for the first three months') and the pointer sentence about the schedule and term tables deleted.",
+   "reasoning": "Accepted. Both were negative declarations flagging the test rather than presenting a request. T03's packet fact that the base is not supplied remains true after the deletion."
+  },
+  {
+   "id": "B10",
+   "accepted": false,
+   "action": "Rejected the retirement of T02; applied the underlying concern instead. T04 is now differentiated by the MSC coverage-ratio arithmetic added under B15 (0.70x, CRITICAL band), and T02 retains its distinct cash-impact-at-volume content (R142.50 x 60 = R8,550). No task was retired.",
+   "reasoning": "Rejected on two grounds. First, the operator fixed the suite at 6 iteration / 4 heldout, and retiring T02 without a replacement breaks that; the audit's own replacement (B12) needs a slot the budget does not have. Second, the operator directed two specific repairs into T02 (the amortisation sentence and the 25.24% correction), which presumes T02 stays. Residual overlap between T02 and T04 is real and unresolved: if the task budget is ever raised, retire T02 and drop in the B12 task."
+  },
+  {
+   "id": "B11",
+   "accepted": false,
+   "action": "Not applied. No slot. The recommended task is recorded in deferred_additions below with its arithmetic verified, ready to drop in.",
+   "reasoning": "Rejected on budget only - the diagnosis is correct and important: every task declares 'All figures ex-VAT', so the contract's tax-basis constraint, never_do and objective_invariant are all non-discriminating. Adding it needs an eleventh task. I considered converting T02's headline to an incl-VAT quote instead, which would have applied B11 inside the existing slot, but it changes T02's premise, discount band arithmetic and cash impact - a redesign the operator did not ask for and one that risks the instruction to preserve everything the audit did not fault. Deferred rather than half-applied."
+  },
+  {
+   "id": "B12",
+   "accepted": false,
+   "action": "Not applied. No slot. Recorded in deferred_additions with the audit's ground truth re-verified: effective revenue 10 x R1,299/12 = R1,082.50/month, cost R946.50, margin R136.00/R1,082.50 = 12.56%, below the 20% never-permitted line; effective discount 2/12 = 16.67% routes to MD + CFO with a 6-month cap against a 12-month term.",
+   "reasoning": "Rejected on budget only. This is the strongest of the three deferred additions: it tests two named activation mechanics (free-months, waived-installation), it exercises the largest single cost line in the suite, and it is the one change that also closes B21's leniency toward the original's signature blended-average formula. It should be the first task added if the budget is raised - retiring T02 (B10) frees exactly the slot it needs."
+  },
+  {
+   "id": "B13",
+   "accepted": false,
+   "action": "Not applied. No slot. Recorded in deferred_additions with the governing figures confirmed from the rule files (Data Connectivity markup floor 15% = 13.0% markup-only margin; commission tiers 4.75-13.75% with CircleTel at 30%; 'Arlan add-ons priced at standard markup - no bundle discount on Arlan component'; bundle floor 30%).",
+   "reasoning": "Rejected on budget only. The gap is genuine - the Arlan channel and the commission-supplements-margin logic, the one place in the rules where a sub-25% markup margin is legitimate, are untested - but it needs a new task and the 6/4 split is fixed."
+  },
+  {
+   "id": "B14",
+   "accepted": false,
+   "action": "Not applied. No slot. Recorded in deferred_additions.",
+   "reasoning": "Rejected on budget only, and it is the lowest-value of the four deferred additions (the audit itself rates it minor). T10 already covers the creative boundary; the five untested scope_out items and the performance-reporting negative would need a second boundary task."
+  },
+  {
+   "id": "B15",
+   "accepted": true,
+   "action": "Added 'MSC commitment R29,940/month; 42 Tarana customers currently active' to T04's inputs and rewrote the MSC fact to require the ratio: (42 x R499)/R29,940 = R20,958/R29,940 = 0.70x, below 0.8x = CRITICAL. Also recorded that 48 customers reach exactly 0.8x and 60 exactly 1.0x, that each R649 subscriber contributes -R397.50/month, and that MSC coverage bought this way costs R397.50 per subscriber per month. coverage, what_success_means, one disqualifying_failure and one known_trap updated.",
+   "reasoning": "Accepted. Both figures are grounded: R29,940/month is the low end of the published MSC range in product-economics.md and the band table is in margin-guardrails.md. Making the ratio computable forced a consequential correction the audit did not flag: the old packet asserted that 'volume makes the position worse' for MSC and disqualified any answer arguing the promo improves MSC coverage - but the ratio demonstrably rises with each added customer. The requirement is now to report the ratio as exposure and refuse to use it as justification, which is both arithmetically true and faithful to the guardrail."
+  },
+  {
+   "id": "B16",
+   "accepted": true,
+   "action": "Rewrote T07's what_success_means to require the finding (30% bundle floor unreachable at any discount, including zero), the quantified gap (R26.57/month, 1.21 pp at full retail) and the hand-back, dropping the requirement to name two rules. Softened the THE CONFLICT fact to say that conflict framing is legitimate but not required. Replaced the disqualifying_failure about naming both rules with one about failing to quantify the gap; kept 'Resolves the unsatisfiable position unilaterally by choosing which rule to drop'. Updated coverage and relative_importance.",
+   "reasoning": "Accepted. A published price list is a supplied input, not a governing rule, so a fully correct commercial answer could fail the packet on vocabulary alone. Every substantive requirement is preserved."
+  },
+  {
+   "id": "B17",
+   "accepted": true,
+   "action": "Deleted 'Shape (c) is the strongest because it marks the boundary without crossing it' from T10; the three shapes are now stated as equally correct, with the absence of invented commercial figures as the sole objective test.",
+   "reasoning": "Accepted. Ranking a presentational habit that neither the user's request nor the contract's priority_qualities values rewards benchmark-pleasing behaviour."
+  },
+  {
+   "id": "B18",
+   "accepted": true,
+   "action": "Replaced T08's quoted 'CORRECT VERDICT SHAPE' sentence with five required content elements: conditional verdict; both missing inputs named; break-even N>=3 on the 12-month amortisation and 100-user COS tier; N=1 (-6.06%) and N=2 (23.80%) shown; N=2 shortfall quantified (R2,488.33 minimum price, R39.33/month, 1.20 pp). Wording is explicitly not scored.",
+   "reasoning": "Accepted. A verbatim model sentence rewards paraphrase over reasoning, and matters more now that T08 is held out."
+  },
+  {
+   "id": "B19",
+   "accepted": true,
+   "action": "Partially applied within the fixed schema: the three-line instruction is reduced in all nine inputs fields to 'Governing commercial rules: .claude/rules/margin-guardrails.md and .claude/rules/product-economics.md.' The parenthetical table lists - the actual pointer to the exact tables needed, including the cost-of-sale floor the published all-in cost omits - are gone.",
+   "reasoning": "Accepted in substance, not in form. The audit's fix moves the paths to a suite-level preamble, which would add a top-level key; the operator required the exact schema be kept. The residual sentence is the minimum needed to keep the tasks solvable and no longer points at any table."
+  },
+  {
+   "id": "B20",
+   "accepted": true,
+   "action": "Applied budget-neutrally as a swap rather than a growth: T08 (missing-input / conditional verdict with a computed break-even) moves to heldout and T05 (a cost-basis flip, the same axis as T03) moves to iteration. Heldout is now T03 (cost-basis flip), T07 (unsatisfiable bundle floor), T08 (missing input), T09 (stacking + period convention) - four distinct axes. Iteration is T01, T02, T04, T05, T06, T10. Split stays 6/4.",
+   "reasoning": "Accepted with modification. The audit's target composition needs five heldout tasks and a new boundary task; with four slots the highest-value change is to break the homogeneity by promoting T08 and demoting the duplicate cost-basis flip. The activation boundary (T10) remains iteration-only - an accepted residual risk, since a second boundary task (B14) has no slot."
+  },
+  {
+   "id": "B21",
+   "accepted": false,
+   "action": "No action taken; it closes only via B12, which is deferred.",
+   "reasoning": "Nothing to reject - the audit itself found no illegitimate bias and proposed no change beyond B12. Recorded so the residual leniency toward the original's untested free-months formula is not lost."
+  }
+ ],
+ "figures_recomputed": [
+  {
+   "task": "T01",
+   "figure": "verdict cost and margin on the newly stated 12-month amortisation",
+   "computation": "699 + 50 + 185 + 2550/12 = 1146.50; (1799 - 1146.50)/1799 = 652.50/1799",
+   "result": "R1,146.50; 36.27% PASS",
+   "changed": false
+  },
+  {
+   "task": "T01",
+   "figure": "rejected 90-day amortisation reading, now stated explicitly",
+   "computation": "2550/3 = 850; 699+50+185+850 = 1784.00; (1799 - 1784.00)/1799 = 15.00/1799",
+   "result": "R1,784.00; 0.83% FAIL - excluded by the stated period",
+   "changed": true
+  },
+  {
+   "task": "T02",
+   "figure": "margin at the recommended R1,399",
+   "computation": "(1399 - 1046.50)/1399 = 352.50/1399 = 0.251966",
+   "result": "25.20% (was 25.24%)",
+   "changed": true
+  },
+  {
+   "task": "T04",
+   "figure": "MSC coverage ratio",
+   "computation": "(42 x 499)/29940 = 20958/29940",
+   "result": "0.70x - CRITICAL band (< 0.8x)",
+   "changed": true
+  },
+  {
+   "task": "T04",
+   "figure": "customer counts reaching the next MSC bands",
+   "computation": "0.8 x 29940/499 = 48.0; 29940/499 = 60.0",
+   "result": "48 customers = 0.80x; 60 customers = 1.00x",
+   "changed": true
+  },
+  {
+   "task": "T04",
+   "figure": "per-subscriber contribution at R649",
+   "computation": "649 - 1046.50",
+   "result": "-R397.50/month",
+   "changed": true
+  },
+  {
+   "task": "T06",
+   "figure": "24-month term-total reading, now labelled supplementary",
+   "computation": "rev 24 x 1557.18 = 37372.32; cost 24 x 934.00 + 2550 = 24966.00; 12406.32/37372.32",
+   "result": "33.20% - supplementary, not the verdict",
+   "changed": true
+  },
+  {
+   "task": "T09",
+   "figure": "verdict margin, year-1 steady state (months 4-12)",
+   "computation": "(1229.18 - 1046.50)/1229.18 = 182.68/1229.18",
+   "result": "14.86% - below the 25% floor and the 20% never-permitted line",
+   "changed": true
+  },
+  {
+   "task": "T09",
+   "figure": "promotional quarter (months 1-3)",
+   "computation": "(614.59 - 1046.50)/614.59 = -431.91/614.59",
+   "result": "-70.28%",
+   "changed": false
+  },
+  {
+   "task": "T09",
+   "figure": "months 13-36 once installation is amortised",
+   "computation": "(1229.18 - 834.00)/1229.18 = 395.18/1229.18",
+   "result": "32.15%",
+   "changed": false
+  },
+  {
+   "task": "T09",
+   "figure": "shortfall on the verdict period",
+   "computation": "1046.50/0.75 = 1395.33; 1395.33 - 1229.18 = 166.15; 25 - 14.86 = 10.14pp; 20 - 14.86 = 5.14pp; 166.1533 x 9 x 30",
+   "result": "R166.15/line/month, 10.14 pp, 5.14 pp below the never-permitted line, R44,861.40 across months 4-12 x 30 lines",
+   "changed": true
+  },
+  {
+   "task": "T09",
+   "figure": "36-month blend, demoted to supplementary",
+   "computation": "additive (42406.71 - 32574.00)/42406.71 = 9832.71/42406.71; multiplicative 10246.43/42820.43",
+   "result": "23.19% / 23.93% - both FAIL, both supplementary",
+   "changed": true
+  },
+  {
+   "task": "T09",
+   "figure": "volume-only alternative at 10%",
+   "computation": "1499 x 0.90 = 1349.10; year-1 302.60/1349.10; 36-mo (48567.60 - 32574.00)/48567.60",
+   "result": "year-1 22.43% FAIL, 36-month 32.93% PASS, 10-15% band caps at 12 months vs a 36-month term",
+   "changed": true
+  },
+  {
+   "task": "T09",
+   "figure": "term-only alternative at 8%",
+   "computation": "1499 x 0.92 = 1379.08; year-1 332.58/1379.08; 36-mo 17072.88/49646.88",
+   "result": "year-1 24.12% FAIL, 36-month 34.39% PASS, 5-10% band caps at 24 months vs a 36-month term",
+   "changed": true
+  },
+  {
+   "task": "T09",
+   "figure": "genuinely compliant shapes",
+   "computation": "list price year-1 452.50/1499, months 13-36 665.00/1499; max discount holding year-1 at 25% = (1499 - 1395.33)/1499 = 6.9157%",
+   "result": "list price 30.19% / 44.36%; or a discount of no more than 6.9% (price >= R1,395.33) inside its band's duration cap",
+   "changed": true
+  },
+  {
+   "task": "all",
+   "figure": "B5 gap claims",
+   "computation": "946.50-817 = 1046.50-917 = 1146.50-1017 = 129.50; 841-817 = 941-917 = 1041-1017 = 24",
+   "result": "R129.50 to the mandated build-up; R24 self-inconsistency - two distinct gaps, previously conflated as 'R130'",
+   "changed": true
+  },
+  {
+   "task": "all",
+   "figure": "B6 cost-of-sale floor rounding",
+   "computation": "30.30 + 28 + 86 + 30 + 10.96 = 185.26 vs the published R185",
+   "result": "R0.26 - inside the new R1.00 / 0.1 pp tolerance, flips no verdict",
+   "changed": true
+  },
+  {
+   "task": "T07",
+   "figure": "bundle gap at full retail (unchanged, re-verified for B16)",
+   "computation": "1094.50/0.70 = 1563.57; 1563.57 - 1537.00 = 26.57; 30 - 28.79",
+   "result": "R26.57/month, 1.21 pp - now the quantification the packet requires",
+   "changed": false
+  },
+  {
+   "task": "T08",
+   "figure": "break-even and sub-break-even positions (unchanged, re-verified for B18)",
+   "computation": "1462.50/701.75 = 2.08 -> N>=3; N=1 -148.50/2449; N=2 582.75/2449; 1866.25/0.75 = 2488.33",
+   "result": "N>=3; -6.06%; 23.80%; shortfall R39.33/month, 1.20 pp",
+   "changed": false
+  }
+ ],
+ "deferred_additions": [
+  {
+   "issue": "B12",
+   "priority": 1,
+   "task": "Free installation (worth R2,550) plus first two months free on a 12-month agreement, Tarana 50/12.5",
+   "ground_truth": "effective revenue 10 x 1299/12 = R1,082.50/month; cost R946.50 (installation absorbed, still amortised); margin 136.00/1082.50 = 12.56% FAIL, below the 20% never-permitted line; effective discount 2/12 = 16.67% -> MD + CFO, 6-month cap against a 12-month term",
+   "closes": [
+    "B12",
+    "B21"
+   ]
+  },
+  {
+   "issue": "B11",
+   "priority": 2,
+   "task": "Competitor-match brief quoting a headline price incl-VAT at 15% against ex-VAT costs, Tarana 50/12.5",
+   "ground_truth": "R1,499 incl VAT = R1,303.48 ex-VAT; margin against R946.50 = 356.98/1303.48 = 27.39%, versus 30.19% from comparing the incl-VAT price to ex-VAT cost - a genuine basis-switch flip below the floor if the price is set between R1,262.00 and R1,451.30",
+   "closes": [
+    "B11"
+   ]
+  },
+  {
+   "issue": "B13",
+   "priority": 3,
+   "task": "Tarana line bundled with an Arlan Data Connectivity add-on at a bundle discount",
+   "ground_truth": "discount applies to the CircleTel component only; Arlan markup held at its 15% category floor (13.0% markup-only margin); commission tier added before testing the 30% bundle floor",
+   "closes": [
+    "B13"
+   ]
+  },
+  {
+   "issue": "B14",
+   "priority": 4,
+   "task": "Combined negative-boundary request: lower the margin floor to 20% and push the approved promo live to channel",
+   "ground_truth": "both refused as scope_out (setting or revising the margin floor; executing or publishing to a channel) while the arithmetic the skill does own is confirmed",
+   "closes": [
+    "B14"
+   ]
+  }
+ ],
+ "budget_note": "The operator fixed the suite at 10 tasks (6 iteration / 4 heldout). The audit's accepted-in-principle coverage work (B10 retirement plus B11, B12, B13, B14) requires a net +3 tasks and is deferred above in priority order; everything else in the audit has been applied."
+}

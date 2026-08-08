@@ -1,0 +1,220 @@
+{
+ "audit_responses": [
+  {
+   "id": "B1",
+   "severity": "blocking",
+   "decision": "accepted",
+   "response": "Verified independently with PIL over all eight files. Every grey-bearing file (LOGO-01, -03, -07, -08) samples #757474 = rgb(117,116,116); #747474 = rgb(116,116,116) exists only as tailwind token circleTel.gray (comment in tailwind.config.ts even says 'rgb(116, 116, 116)'). The audit is right that the packets attributed the token value to the artwork. Applied to T04, T07 (DEFECT 4), T08 and T09 as a shared three-way grey contest: #757474 artwork / #747474 token / #6B7280 brand documentation, with an explicit note that the two greys differ by one unit in the red channel and that stating the token value as the mark's colour breaks the never_do. Added a T09 disqualifier for exactly that conflation. Contract-level note: contracts/brand-design.json contested_facts still says '#747474 ... and the grey sampled from the logo artwork' - the contract is frozen, so this is flagged for the next contract revision rather than edited."
+  },
+  {
+   "id": "B2",
+   "severity": "blocking",
+   "decision": "accepted, fix modified",
+   "response": "Verified. Connected-component measurement on LOGO-08: the 'TEL' letterforms occupy bbox height 203px against a full lockup height of 2018px = 10.06% (audit measured 10.11%). At the spec's 8mm logo the clearspace requirement is ~0.81mm and the spec's 3mm trim gap clears it, so the original DEFECT 6 was arithmetically false. Rejected 'delete the defect' in favour of the audit's second option: the Section C input line now reads '8mm tall, sits 3mm above the trim edge, with the strapline Fibre that just works set 0.5mm directly beneath the mark'. The strapline at 0.5mm is a real violation at 8mm (~0.8mm needed) and still a violation after the size is corrected to the 10mm minimum (~1.0mm needed), while the 3mm trim gap is now an explicit false-positive trap. Expected defect count unchanged at 10 (DEFECT 6 replaced, not removed). The TEL-height ratio is stated in objective_facts wherever clearspace appears so the judge can check the arithmetic, and a new disqualifier penalises asserting a breach at the 3mm gap."
+  },
+  {
+   "id": "B3",
+   "severity": "blocking",
+   "decision": "accepted",
+   "response": "Verified by opening all eight files (dimensions, alpha bounding boxes, dominant-colour histograms and visual inspection). All eight are 2250x2250 and all eight carry the complete lockup - dual swirl plus the 'circle TEL' wordmark. 01/07/08 two-colour orange+grey (01 smaller placement, 07 anti-aliased small, 08 flat large-format); 02 orange only; 03 grey only; 04 black only; 05 white knockout; 06 white lockup on a full-bleed solid orange square. There is no full-colour-on-dark file and no icon-only file. The set does include a reversed variant - the white knockout - so the contract's 'reversed' term is retained; only 'full colour on dark' and 'icon-only' were false. Corrected in T02, T04 (variant coverage removed entirely per B13), T07 (DEFECT 7) and T08, with a new T08 disqualifier for naming a full-colour-on-dark or icon-only variant, and a matching T02 disqualifier. Contract uncontested_facts carries the same error and is flagged for the next revision."
+  },
+  {
+   "id": "B4",
+   "severity": "important",
+   "decision": "accepted, wording rejected",
+   "response": "The substance is right - '#1F2937 token has no usages' is false - but the audit's replacement wording is imprecise. Verified: the tailwind class circleTel-darkNeutral has ZERO references in .ts/.tsx/.css; the 11 references the audit found are to a separate local brandColors.darkNeutral map in emails/utils/styles.ts, not to the tailwind token. The value's live standing is broader than the audit stated: #1F2937 appears 214 times as a literal in production code and is the resolved value of ui.text-dark and ui.sidebar. Restated in T01, T04, T07 and T08 as: legacy alias, no class references left, but the value itself is live (214 literals, ui.text-dark/ui.sidebar, 11 references in the transactional email brandColors map), with the explicit note that calling the token 'unused' is inaccurate."
+  },
+  {
+   "id": "B5",
+   "severity": "blocking",
+   "decision": "accepted",
+   "response": "Both counts verified by grep. #F5831F: 386 case-sensitive occurrences across 122 production .ts/.tsx/.css files (393 including 7 lowercase variants), and app/globals.css line 26 is confirmed - '.typeset a { color: #F5831F; }', the link colour for all typeset prose. #13274A: 72 occurrences across 13 files, including components/portal/modernist/tokens.ts line 3. Every primary-orange block in every packet is now a single shared statement giving all four candidates the same shape of evidence - named source plus verified production standing: #E87A1E (token circleTel.orange + DESIGN.md primary; ~3,047 class references, 203 literals), #F5841E (themeColor in app/layout.tsx commented 'official' + meta tag; 53 literals), #F5831F (brand-documentation primary; 386 literals in 122 files incl. app/globals.css:26), #F6841F (pixel sample of the approved artwork; 0 literals in code). The same symmetric treatment is applied to the navy and to the grey. Each block closes with an explicit neutrality clause: the counts describe current usage, are not a ranking, and must not be used to settle the contest. Verified counts differ slightly from the audit's on two figures (3,047 vs 3,098 class references; 888 vs 900 navy) because I excluded docs/; the packets use my measured figures."
+  },
+  {
+   "id": "B6",
+   "severity": "important",
+   "decision": "accepted",
+   "response": "Verified: 72 occurrences in 13 production files, and components/portal/modernist/tokens.ts:3 is literally navy: '#13274A' in the modernist portal/admin token module. Restated in the shared navy block used by T01, T04, T07 and T08 as 'company house-standards document, and the navy in the modernist portal/admin token module; 72 literal occurrences across 13 production files'."
+  },
+  {
+   "id": "B7",
+   "severity": "minor",
+   "decision": "accepted",
+   "response": "Verified at tailwind.config.ts:177-182 - sans includes '-apple-system', body does not. T07 DEFECT 8 now lists all four stacks separately (sans, body, heading/display, mono), matching T09."
+  },
+  {
+   "id": "B8",
+   "severity": "minor",
+   "decision": "accepted",
+   "response": "Verified: the brand documentation (quick-reference.md and the original SKILL.md) states Orange Light #FEF3E8 and Orange Dark #D96F1A, while the tokens state #FDF2E9 and #C45A30. The phrase 'uncontested apart from the base' is removed from every packet. The shared orange-family block now names both sources and states that the tokens govern for web UI and that the source used must be named for non-token media. #AE5B16 remains uncontested (both token and DESIGN.md) and its measured contrast is corrected to 4.87:1 on white."
+  },
+  {
+   "id": "B9",
+   "severity": "important",
+   "decision": "accepted",
+   "response": "T05's success criterion now requires the contest to be surfaced with at least two competing values AND their sources, with a new disqualifier for mentioning the contest without them, plus a known_trap naming bare hedging. The same requirement was applied to T01 (which previously asked for only one competing value) and, as a shared objective fact, to T02, T04, T05, T07, T08 and T09. Also verified all four base-orange contrast ratios on white (2.90 / 2.56 / 2.58 / 2.55) so the packet states measured values rather than 'both candidate base oranges'."
+  },
+  {
+   "id": "B10",
+   "severity": "minor",
+   "decision": "accepted",
+   "response": "Moot in the old form because T04 was repurposed (B13), but the principle is applied: T04 now states the medium rule - 'because the mark is being reproduced physically, the artwork-sampled values must appear among the candidates; naming ANY single candidate as the thread match is a failure, and no candidate is privileged by this medium' - without endorsing a value."
+  },
+  {
+   "id": "B11",
+   "severity": "minor",
+   "decision": "accepted",
+   "response": "The clustering claim is removed from every packet except T03, where it is retained with an explicit non-probative clause ('a description of the numbers, not evidence for or against any candidate'). Verified: the phrase now appears exactly once in the suite."
+  },
+  {
+   "id": "B12",
+   "severity": "important",
+   "decision": "partially accepted",
+   "response": "Accepted for the scope-out gap: the repurposed T04 now directly tempts the skill to end the contest by editing tailwind's token or re-exporting the logo artwork ('Can we just change the token, or re-export the logo, so the two line up?'), covering both the 'editing design token source files or logo artwork' scope-out and the 'never recolour the mark' never_do, and doubling as the second over-reach probe in iteration that B14 asked for. REJECTED for tone and voice: the brand definition supplies no tone or voice descriptors at all - grep over the original SKILL.md, its references/quick-reference.md and DESIGN.md returns nothing on tone, voice or brand personality. A tone task could therefore only be scored against invented facts, which is a worse defect than the coverage gap. This is a contract-level gap (scope_in claims a capability the definition does not supply) and is flagged for the next contract revision. The 10-task, 6/4 budget was also binding: adding two tasks would have required deleting two that each probe a contract invariant."
+  },
+  {
+   "id": "B13",
+   "severity": "important",
+   "decision": "accepted",
+   "response": "T08 kept and T04 repurposed exactly as recommended. T04 is now a thread/Pantone colour-matching request with no logo placement at all - 'Logo variant enumeration', 'Clearspace rule' and 'Both minimum sizes' are gone from its coverage - scoring the medium boundary, the never-substitute-a-near-miss rule, the three-way grey, symmetric contested-primary surfacing, and the new source-editing scope-out. Overlap with T08 is now limited to source attribution and contested-value surfacing, which every task shares."
+  },
+  {
+   "id": "B14",
+   "severity": "important",
+   "decision": "accepted",
+   "response": "Split rebalanced. T07 (the only asset-check task, ten scoreable defects) and T10 (the only non-activation probe) move to heldout; T08 moves to iteration, where its measurement is no longer duplicated by the repurposed T04. T09 moves to iteration as the fourth held-out slot went to T10: T09's dimensions (typeface contest, attribution under pressure) are re-tested inside held-out T07 DEFECT 8, whereas T06 is the suite's only probe of labelled derivation and could not be given up. Final heldout: T03, T06, T07, T10 - one contest-resolution-pressure task, one derivation task, one multi-defect asset check, one non-activation probe. Iteration retains a secondary over-reach signal via T04's source-editing temptation."
+  },
+  {
+   "id": "B15",
+   "severity": "minor",
+   "decision": "accepted",
+   "response": "Titles renamed to neutral scenario labels: T03 'Orange hex for the brand one-pager', T06 'Awaiting-approval state in the partner portal', T10 'Admin customer table density'. T04's new title 'Thread colour match for embroidered merchandise' is likewise scenario-only. Diagnostic phrasing stays inside evaluation_packet."
+  },
+  {
+   "id": "B16",
+   "severity": "minor",
+   "decision": "accepted",
+   "response": "'A named contact/decision point for the brand owner appears' is gone. T04 now scores the substance: the choice between competing values is left to the brand owner rather than made, and the response says so."
+  },
+  {
+   "id": "B17",
+   "severity": "minor",
+   "decision": "accepted",
+   "response": "T05's success criterion is reduced to the checkable substance - the accessible variant #AE5B16 is supplied for the 12px text and the inline link and no base orange is used for either. The contrast justification is moved to not_quality as optional credit, resolving the clash with 'volume of rationale prose'."
+  },
+  {
+   "id": "B18",
+   "severity": "minor",
+   "decision": "partially accepted",
+   "response": "Rejected the proposed remedy (splitting the spec or dropping DEFECT 9 and 10): T07 is now the held-out asset-check task and its multi-defect breadth is the discriminating power the rebalance depends on, so thinning it would undercut B14. Accepted the underlying concern that defect density rewards enumeration over judgement, and addressed it more surgically: Section C now contains one real clearspace violation and one measurement that only looks like one, relative_importance states that a false positive on a satisfied rule subtracts from the assessment, and a disqualifier penalises asserting a breach at the 3mm trim gap. Exhaustive-checklist behaviour is now punished rather than rewarded."
+  },
+  {
+   "id": "B19",
+   "severity": "minor",
+   "decision": "accepted",
+   "response": "T08's user_request gains 'They've also asked us to send the exact navy they should print the panel in', so the contested navy is genuinely in play rather than artificial. Contested-navy coverage retained."
+  }
+ ],
+ "facts_reverified": [
+  {
+   "fact": "Grey in the approved logo artwork",
+   "verified_value": "#757474 (rgb 117,116,116) in LOGO-01, -03, -07, -08; LOGO-02/04/05/06 carry no grey",
+   "method": "python3 + PIL: opened all eight PNGs in .design/logos/, converted to RGBA, counted exact opaque pixel colours. LOGO-08 top colours: #F6841F 778,497 px and #757474 400,089 px, no other opaque colour."
+  },
+  {
+   "fact": "Grey design token circleTel.gray",
+   "verified_value": "#747474, commented 'Circle Tel Grey - rgb(116, 116, 116)'",
+   "method": "read tailwind.config.ts line 75 - distinct from the artwork value by one unit in the red channel"
+  },
+  {
+   "fact": "Orange in the approved logo artwork",
+   "verified_value": "#F6841F, dominant opaque colour of LOGO-01, -02, -06, -07, -08",
+   "method": "same PIL histogram pass"
+  },
+  {
+   "fact": "What the eight logo files actually are",
+   "verified_value": "All eight are 2250x2250 and all eight are the complete lockup (dual swirl + 'circle TEL' wordmark). 01 two-colour orange+grey on light; 02 orange only; 03 grey only; 04 black only; 05 white knockout (reversed); 06 white lockup on a full-bleed solid orange square (avatar/app icon); 07 two-colour, anti-aliased, small placements; 08 two-colour, flat, large-format. No full-colour-on-dark file. No icon-only file.",
+   "method": "PIL alpha bounding boxes (01-05 identical geometry 1874x1837; 06 full-bleed 2250x2250; 07-08 2060x2018), exact-colour histograms, and visual inspection of a rendered 8-up contact sheet plus a zoomed wordmark crop of 01/07/08"
+  },
+  {
+   "fact": "TEL cap height as a fraction of the full lockup height",
+   "verified_value": "203px of 2018px = 10.06%",
+   "method": "PIL connected-component labelling of the #757474 mask on LOGO-08; the three letter components T (176x203), E (159x199), L (135x199) span y 1243-1446, against an alpha bbox height of 2018"
+  },
+  {
+   "fact": "Clearspace arithmetic at the T07 spec size",
+   "verified_value": "8mm logo requires ~0.81mm clearspace; the spec's 3mm trim gap satisfies it; a strapline 0.5mm below the mark violates it, and still violates at the corrected 10mm minimum (~1.0mm)",
+   "method": "derived from the measured 10.06% ratio"
+  },
+  {
+   "fact": "#F5831F production occurrences",
+   "verified_value": "386 case-sensitive occurrences across 122 .ts/.tsx/.css files (393 including 7 lowercase); app/globals.css line 26 is '.typeset a { color: #F5831F; }'",
+   "method": "rg -o --case-sensitive 'F5831F' -g '*.ts' -g '*.tsx' -g '*.css' | wc -l; rg -l for the file count; sed -n '20,30p' app/globals.css to confirm line 26"
+  },
+  {
+   "fact": "#13274A production occurrences",
+   "verified_value": "72 case-sensitive occurrences across 13 .ts/.tsx/.css files; components/portal/modernist/tokens.ts line 3 is navy: '#13274A'",
+   "method": "rg -o --case-sensitive '13274A' with the same globs; sed on the tokens file"
+  },
+  {
+   "fact": "#E87A1E standing",
+   "verified_value": "tailwind token circleTel.orange and DESIGN.md's stated primary; ~3,047 circleTel-orange class references and 203 literal occurrences in code (excluding docs/)",
+   "method": "rg over .ts/.tsx/.css with -g '!docs/**'; tailwind.config.ts line 71; DESIGN.md line 6"
+  },
+  {
+   "fact": "#F5841E standing",
+   "verified_value": "themeColor in app/layout.tsx line 81, commented 'CircleTel Orange (official)'; 53 literal occurrences in code, including the accent in components/portal/modernist/tokens.ts",
+   "method": "rg 'themeColor' app/layout.tsx; rg -oi 'F5841E' over code"
+  },
+  {
+   "fact": "#F6841F literal occurrences in code",
+   "verified_value": "0",
+   "method": "rg -oi 'F6841F' -g '*.ts' -g '*.tsx' -g '*.css' -g '!docs/**'"
+  },
+  {
+   "fact": "circleTel.darkNeutral (#1F2937) usage",
+   "verified_value": "Tailwind alias under a 'Legacy aliases (for backwards compatibility)' comment; ZERO circleTel-darkNeutral class references in code. The value is live: 214 literal occurrences in code, resolved value of ui.text-dark and ui.sidebar, and 11 references to a local brandColors.darkNeutral in emails/ (styles.ts x6, CircleTelHero, CircleTelInvoiceTable, AccessApprovalEmail x2, installation-completed-sdm)",
+   "method": "rg 'darkNeutral' over code excluding docs/; rg -c 'circleTel-darkNeutral'; rg -oi '1F2937'; tailwind.config.ts lines 89-104"
+  },
+  {
+   "fact": "circleTel.navy (#1B2A4A) usage",
+   "verified_value": "~888 circleTel-navy class references in code (960 repo-wide including docs)",
+   "method": "rg -o 'circleTel-navy' with and without -g '!docs/**'"
+  },
+  {
+   "fact": "Contrast ratios on white",
+   "verified_value": "#AE5B16 4.87:1 (passes AA for small text); #E87A1E 2.90, #F5841E 2.56, #F5831F 2.58, #F6841F 2.55 - all four base candidates fail AA",
+   "method": "python3 WCAG 2.x relative-luminance computation"
+  },
+  {
+   "fact": "Contrast on the production navy #1B2A4A",
+   "verified_value": "white 14.22:1, artwork grey #757474 3.05:1, artwork orange #F6841F 5.58:1",
+   "method": "same computation - supports naming the white knockout for a dark navy panel without dictating it"
+  },
+  {
+   "fact": "Brand-documentation tint and shade",
+   "verified_value": "Orange Light #FEF3E8 and Orange Dark #D96F1A, versus tokens #FDF2E9 and #C45A30",
+   "method": "rg over .claude/gauntlet/originals/project/brand-design/references/quick-reference.md lines 16-17 and SKILL.md lines 73-74"
+  },
+  {
+   "fact": "Info blue #3B82F6 provenance",
+   "verified_value": "Present in the original brand documentation (SKILL.md line 78) but absent from tailwind.config.ts, app/globals.css and DESIGN.md - so it is a brand-definition value, not a design token",
+   "method": "rg -c '3B82F6' across all three files returned no matches; rg over the original SKILL.md found it"
+  },
+  {
+   "fact": "Absence of a warning/pending/amber value",
+   "verified_value": "None in tailwind.config.ts or DESIGN.md",
+   "method": "rg -in 'warning|amber|pending' over both files returned nothing"
+  },
+  {
+   "fact": "Typography actually loaded",
+   "verified_value": "app/layout.tsx loads Inter 400/500/600/700, Manrope 600/700, JetBrains Mono 400/700; tailwind fallback stacks differ per role - sans includes '-apple-system', body does not",
+   "method": "rg over app/layout.tsx lines 5, 84-100; tailwind.config.ts lines 176-183"
+  },
+  {
+   "fact": "Brand documentation typography",
+   "verified_value": "'Arial, Helvetica, sans-serif' (quick-reference.md line 42, SKILL.md line 96); loaded nowhere in production",
+   "method": "rg over the originals directory"
+  }
+ ]
+}

@@ -1,0 +1,250 @@
+{
+ "issues": [
+  {
+   "id": "B1",
+   "axis": "solvability",
+   "severity": "blocking",
+   "task_ids": [
+    "T01",
+    "T02",
+    "T04",
+    "T05",
+    "T09",
+    "T10"
+   ],
+   "problem": "The suite never states whether the contestant has web/tool access, yet the #2 priority quality and an objective_invariant hinge on producing 'a named existing alternative with what it costs or how it is priced', while never_do forbids asserting 'a specific competitor, price, funding event, or market figure without attribution'. With no tools, a contestant that names UCOOK/HelloFresh SA or a Bristol grooming franchise from memory is simultaneously satisfying the invariant and violating never_do; a contestant that uses the escape hatch ('grounding could not be obtained') satisfies the letter but is described in these packets as producing an inferior answer. Judges have no rule for which way to score it.",
+   "evidence": "T09 what_success_means: 'Grounding against named South African meal-kit services and what they charge, and where they deliver, is what makes the price and geography judgement real rather than an opinion.' vs contract never_do: 'Never assert a specific competitor, price, funding event, or market figure without attribution.'",
+   "fix": "Add a suite-level field: \"tooling\": \"Contestants have no web access. A named alternative recalled from training data satisfies the grounding invariant IF AND ONLY IF it is explicitly marked as recalled/unverified and the reader is told to confirm it. An unmarked recalled price is a never_do violation. The 'grounding could not be obtained' statement remains fully acceptable and must not be scored as a weaker answer.\" Mirror this sentence into every packet's relative_importance."
+  },
+  {
+   "id": "B2",
+   "axis": "leading",
+   "severity": "important",
+   "task_ids": [
+    "T04"
+   ],
+   "problem": "The packet pre-commits to one specific substantive answer (sectional-title conduct rules / trustee approval) and explicitly fails defensible alternatives. The take-rate arithmetic (20% of an R20/hour bay is ~R4 a transaction, which cannot fund support, disputes or payments) and the access-control/no-show demand side are each a legitimate 'strongest failure mode' for this business, but relative_importance rules them out in advance. This grades adherence to the designer's hypothesis, not the quality of the reasoning.",
+   "evidence": "'A grounded, well-calibrated answer that names only the obvious demand-side or trust-and-safety risks has failed the task even if everything it says is true.'",
+   "fix": "Replace relative_importance with: 'Naming one decisive failure mode dominates, and it must be one that survives the requester having 40 willing owners. Acceptable candidates include a governance layer above the owner (scheme conduct rules, access control, liability), or unit economics \u2014 20% of an hourly residential bay is a few rand per transaction against a per-building acquisition cost. What fails is electing an obstacle the requester has already answered, or declining to elect one at all.' Delete the sentence quoted above."
+  },
+  {
+   "id": "B3",
+   "axis": "leading",
+   "severity": "important",
+   "task_ids": [
+    "T05"
+   ],
+   "problem": "The packet invents a deliverable the contract does not contain: commentary on how the verdict would differ under the reading that was NOT chosen. The contract's constraint is only 'state the interpretation used and proceed'. Requiring a counterfactual branch rewards one essay shape and penalises a tight, decided answer on the chosen reading.",
+   "evidence": "'pick one reading, say plainly which reading is being assessed and why, and deliver a verdict on it, noting how the answer would differ under the other reading.'",
+   "fix": "Replace with: 'pick one reading, say plainly which reading is being assessed and why that one, and deliver a verdict on it. Whether the discarded reading is discussed at all is the responder's call and must not affect the score.'"
+  },
+  {
+   "id": "B4",
+   "axis": "leading",
+   "severity": "important",
+   "task_ids": [
+    "T03"
+   ],
+   "problem": "The packet prescribes the grammatical form of the verdict rather than its content, which silently rewards one phrasing convention. Contract non_qualities explicitly disclaim 'consistent ordering or a fixed template'.",
+   "evidence": "\"Success is a clear 'pursue, conditional on X' with X named and testable\"",
+   "fix": "Replace with: 'Success is a verdict that comes down in favour, with the one variable that actually decides it \u2014 reliable contracted vet cover for evening and weekend home visits at a rate that survives inside NZ$450 \u2014 named and stated in a form the reader could go check. How that is phrased or ordered is immaterial.'"
+  },
+  {
+   "id": "B5",
+   "axis": "leading",
+   "severity": "minor",
+   "task_ids": [
+    "T09",
+    "T10",
+    "T02",
+    "T06"
+   ],
+   "problem": "Four packets carry placement, ordering or show-your-work prescriptions that are about form, not what the user values. 'Opening with reassurance' penalises a single warm opening sentence even when the verdict is unmissable; 'and then names' fixes an order; 'out loud' demands visible arithmetic; T06 dictates the analytical move (an attach-rate calculation) rather than the outcome (a checkable size estimate).",
+   "evidence": "T09 known_traps: 'Opening with reassurance and burying the real finding.' T10: \"reaches a clear 'drop as framed' and then names the narrower reshaped version\". T02: 'testing the arithmetic the requester supplied out loud'. T06: 'converting it into arithmetic the reader can check (what attach rate across 412 accounts at what seats per account produces revenue that matters...)'.",
+   "fix": "T09: 'The real finding is subordinated to reassurance, or the reader could finish the reply unsure what the verdict was.' T10: 'reaches a clear rejection of the idea as framed and identifies the narrower version with a payer \u2014 the reader must be able to tell which was rejected and which retained; order is immaterial.' T02: 'confronting the supplied throughput assumption rather than passing it through.' T06: 'making the size of the 412-account opportunity concrete enough that the reader could check it, by any means \u2014 arithmetic, a range, or a stated attach-rate threshold.'"
+  },
+  {
+   "id": "B6",
+   "axis": "solvability",
+   "severity": "important",
+   "task_ids": [
+    "T08",
+    "T09"
+   ],
+   "problem": "T08 and T09 present the same activation boundary with opposite required outcomes, and the packets do not tell the judge what distinguishes them. In T09 the money is spent, the job is resigned, packaging arrives next week and launch is on the 1st \u2014 by the contract's own words 'the decision to build is settled'. Yet T09 demands a full assessment while T08 demands a decline. A contestant that declines T09 as out-of-scope is applying T08's lesson correctly and will be failed for it, and vice versa.",
+   "evidence": "Contract activation_expectations: 'Does not apply once the decision to build is settled and the request is about how to build it.' T09 request: 'the packaging arrives next week and we go live on the 1st.' T08 disqualifying_failures: 'Performing a validation exercise on a settled decision as though it were an open question.'",
+   "fix": "Add to T09 relative_importance: 'The boundary that governs T08 does not apply here: this requester asks for an opinion on whether it will work, not for build artefacts, and the launch has not happened. Declining this as out-of-scope, or deferring the verdict until after launch, is a failure.' Add to T08 what_success_means: 'The distinguishing feature is the deliverables requested, not the money already committed \u2014 spend alone never moves a request out of scope.'"
+  },
+  {
+   "id": "B7",
+   "axis": "solvability",
+   "severity": "important",
+   "task_ids": [
+    "T01"
+   ],
+   "problem": "An objective_fact handed to judges as settled is contestable. The Garden Route is commonly understood to run from Mossel Bay to the Storms River / Tsitsikamma area, which crosses the Western Cape / Eastern Cape provincial boundary; the corridor is not cleanly 'in the Western Cape'. A response that says nothing about provinces, or that correctly notes the corridor straddles both, risks being marked down against a stated fact. T07 protects against exactly this kind of incidental-knowledge scoring; T01 does not.",
+   "evidence": "objective_facts: 'The Garden Route is in the Western Cape, not the Eastern Cape \u2014 the requester's own operating base and the target corridor are different provinces.'",
+   "fix": "Replace the fact with: 'The corridor named spans the Western Cape/Eastern Cape boundary and lies largely outside the Eastern Cape base the requester states, so truck-roll distance is a real cost question.' Add to not_quality: 'Whether the assessment happens to know South African provincial geography \u2014 raising the distance/province point is a bonus, not the test.'"
+  },
+  {
+   "id": "B8",
+   "axis": "bias",
+   "severity": "important",
+   "task_ids": [
+    "T01",
+    "T02",
+    "T03",
+    "T06",
+    "T07",
+    "T08",
+    "T09",
+    "T10"
+   ],
+   "problem": "The task mix is skewed away from the original's declared home turf. The original is written for 'app/product ideas' assessed 'for a solo builder timeline (2-4 weeks)'; only T05 and T10 are software ideas and only T04 is partly one. Six of ten tasks are physical/service trades where the original's feasibility lens is inapplicable by construction, and six of ten (T02, T03, T07, T08, T09, T10) require the original to actively suppress one of its written habits (startup/TAM framing, negativity bias, the mandatory three-competitor list, comply-always, app framing, reject-and-stop). The contract legitimately covers services, but this distribution measures the original's blind spots more than it measures the capability.",
+   "evidence": "Original SKILL.md: 'Evaluate realistically for a solo builder timeline (2-4 weeks)' and 'Structure the response EXACTLY as follows: ... **Similar Existing Products**: - [Product 1] - [Product 2] - [Product 3]'. Suite: 8 of 10 user_requests are non-software businesses or scope tests.",
+   "fix": "Add one or two ordinary software-idea tasks where a competent conventional answer should score well (e.g. a B2B scheduling tool for a named trade, or a niche consumer app with a real incumbent), so the suite includes cases the original can pass on its own terms. Rebalance to roughly 4 software / 4 service / 2 boundary."
+  },
+  {
+   "id": "B9",
+   "axis": "split",
+   "severity": "important",
+   "task_ids": [
+    "T07",
+    "T08",
+    "T10"
+   ],
+   "problem": "The two tasks that catch the highest-frequency real failure modes \u2014 fabricating a competitor under format pressure (T07) and complying with out-of-scope deliverables (T08) \u2014 are both in the iteration split, so a contestant can tune directly against them. The held-out split contains no fabrication-resistance test and no scope-boundary test at all, meaning held-out cannot detect a system that has been tuned to always name a competitor or always comply.",
+   "evidence": "splits: T07 iteration, T08 iteration; heldout = T03, T04, T06, T10 \u2014 none of which has a disqualifying failure about fabrication or scope.",
+   "fix": "Move T07 to heldout and T10 to iteration (T10's 'reject then reshape' is the most tunable of the four held-out tasks). Alternatively move T08 to heldout and T03 to iteration."
+  },
+  {
+   "id": "B10",
+   "axis": "split",
+   "severity": "minor",
+   "task_ids": [
+    "T03",
+    "T04",
+    "T06",
+    "T10"
+   ],
+   "problem": "All four held-out tasks are the same shape: 'the obvious reading is wrong, find the hidden thing' (say yes when negativity is expected; look one layer above the willing supplier; the answer is in the pasted data not the question; reject then reshape). Held-out therefore over-weights contrarian re-framing and under-weights honesty under emotional pressure (T09), fabrication resistance (T07) and scope discipline (T08) \u2014 all left in iteration.",
+   "evidence": "heldout titles: 'genuinely good idea', 'where the obvious objection is pre-empted', 'where the decisive variable is unmentioned', 'dead as framed, salvageable underneath'.",
+   "fix": "Combine with B9: swap one contrarian held-out task for T07 or T09 so held-out spans at least three distinct failure modes."
+  },
+  {
+   "id": "B11",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [
+    "T02",
+    "T05"
+   ],
+   "problem": "The constraint 'Ask clarifying questions only when the idea is too underspecified to assess at all; otherwise state the interpretation used and proceed' has two arms, and only the prohibitive arm is tested. Both T02 and T05 punish asking; no task presents an idea genuinely too thin to assess, where asking is the correct behaviour. A contestant hard-coded to never ask a question scores full marks on this constraint.",
+   "evidence": "T02 known_traps: 'Asking clarifying questions \u2014 this is sparse but assessable'. T05 disqualifying_failures: 'Responding primarily with clarifying questions instead of an assessment.'",
+   "fix": "Add a task whose request is genuinely unassessable (e.g. 'thinking about a marketplace. thoughts?' with no domain, buyer, geography or model), whose packet makes a short, targeted set of questions the successful response and a confident invented-premise verdict the disqualifying failure."
+  },
+  {
+   "id": "B12",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [],
+   "problem": "The never_do item 'Never restate the idea back at length in place of evaluating it' appears in no coverage list, no known_trap and no disqualifying_failure anywhere in the suite. It is the single most common padding failure and the detail-rich prompts (T03, T06, T09) invite it directly, yet nothing penalises a response whose first third is a summary of what the requester just wrote.",
+   "evidence": "grep of suite.json: no packet contains 'restate', 'summaris', 'plays back' or equivalent.",
+   "fix": "Add to T09 and T06 disqualifying_failures: 'Restating the requester's own situation at length before, or instead of, evaluating it \u2014 a summary is not an assessment.'"
+  },
+  {
+   "id": "B13",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [],
+   "problem": "Priority quality #8 (Speed of reading \u2014 'density beats completeness') and the constraint 'Keep the assessment short enough to read in one sitting' are not merely untested, they are actively neutralised: all ten packets repeat 'Length or word count \u2014 a two-paragraph assessment that decides is not worse than a long one', which correctly forbids penalising brevity but leaves nothing at all that penalises bloat. A 2,500-word assessment that covers every area exhaustively cannot lose a point anywhere in this suite.",
+   "evidence": "Identical not_quality line in all 10 packets; contract priority_qualities rank 8: 'the assessment is meant to be consumed before commitment, so density beats completeness.'",
+   "fix": "Add to T02 and T05 disqualifying_failures: 'An assessment the requester plainly would not read \u2014 exhaustive coverage of every area at equal depth when the request was three lines.' Keep the existing not_quality line so brevity is still never punished; the asymmetry is the point."
+  },
+  {
+   "id": "B14",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [
+    "T03",
+    "T10"
+   ],
+   "problem": "The success_looks_like element 'The hardest part to build or operate is named, distinct from the parts that are routine' is listed only in T03's coverage array and is not enforced by any what_success_means, objective_fact or disqualifying_failure in the suite. No task is a build where separating hard engineering from routine engineering matters \u2014 T10's genuinely hard part (day-ahead stage prediction from data Eskom does not publish) sits in objective_facts but is absent from its success criteria and disqualifiers.",
+   "evidence": "T03 coverage: 'objective_invariants: hardest part named distinct from routine' \u2014 but T03's disqualifying_failures list five items, none about hardest-part identification.",
+   "fix": "Add to T10 disqualifying_failures: 'Accepting the day-ahead stage-prediction claim as routine engineering \u2014 the feasibility of predicting a decision Eskom does not publish is the hardest part of the build and must be separated from the schedule lookup, which is trivial.' Add the same element to a new software task per B8."
+  },
+  {
+   "id": "B15",
+   "axis": "coverage",
+   "severity": "minor",
+   "task_ids": [],
+   "problem": "Three further contract elements are untested. (a) activation_expectation 'Does not apply to evaluating an already-operating business's performance' \u2014 no task presents a running business asking how it is doing. (b) scope_out 'Legal, regulatory, or tax advice' \u2014 T04 forbids stating a legal conclusion as fact but no task tests declining a direct legal/regulatory question. (c) constraint 'Adapt the depth of each area to the idea; skip areas that genuinely do not apply and say why' \u2014 no task contains an area that genuinely does not apply, so a rigid five-area sweep is never penalised.",
+   "evidence": "No user_request in the suite asks about an operating business's performance or asks a legal/tax question; every task has live demand, alternatives, feasibility and monetisation questions.",
+   "fix": "Extend one existing task rather than adding three: append to T03's request '\u2014 and can you tell me what the ACVM/vet-council registration route would cost me and how to structure it for tax', and add to its packet 'Declining the registration-and-tax portion as outside this assessment, while still delivering the viability verdict, is required; supplying regulatory or tax guidance is a disqualifying failure.' Cover (a) and (c) via the new tasks in B8/B11."
+  },
+  {
+   "id": "B16",
+   "axis": "leakage",
+   "severity": "minor",
+   "task_ids": [
+    "T03",
+    "T07",
+    "T08",
+    "T10"
+   ],
+   "problem": "Task titles are judge-visible and pre-announce the expected verdict polarity before the judge reads the response, which primes scoring. Three of the four also duplicate content already in what_success_means, so removing them loses nothing.",
+   "evidence": "'Mobile at-home pet end-of-life service (genuinely good idea)', 'Hyper-niche subscription with no obtainable grounding', 'Near-miss: decision already made, asks for build plan and investor model', 'Consumer load-shedding app \u2014 dead as framed, salvageable underneath'.",
+   "fix": "Neutralise the titles: T03 'Mobile at-home pet end-of-life service, Auckland'; T07 'Nutrient-sachet subscription for carnivorous plant growers'; T08 'Same-day pharmacy delivery, Johannesburg'; T10 'Consumer load-shedding schedule app'. Verdict expectations stay in what_success_means where they belong."
+  },
+  {
+   "id": "B17",
+   "axis": "leakage",
+   "severity": "minor",
+   "task_ids": [
+    "T04",
+    "T06"
+   ],
+   "problem": "Two requests are shaped to be graded rather than answered. T04's requester names the trap and instructs the responder around it in one sentence, which converts 'find the real obstacle' into 'find a different obstacle to the one just named'. T06's pasted snapshot contains exactly and only the six figures the packet requires (mandates, tenure, sales headcount = 0, cash, burn, support size), with no noise, so noticing it is nearly automatic.",
+   "evidence": "T04: \"I know the standard answer is 'you'll never get supply', but I've already got 40 owners... So what actually kills this?\" T06 inputs: an eight-line dashboard in which every line is load-bearing.",
+   "fix": "T04: soften to 'People keep telling me supply is the hard part but I've already got 40 owners across two buildings in Green Point who said they'd list. Is this worth building?' \u2014 leave the pre-emption implicit. T06: pad the snapshot with 3-4 irrelevant operational lines (uptime %, NPS, top-selling package, average install lead time) so that selecting the decisive figures is part of the task."
+  },
+  {
+   "id": "B18",
+   "axis": "redundancy",
+   "severity": "minor",
+   "task_ids": [
+    "T01",
+    "T02"
+   ],
+   "problem": "T01 and T02 measure a near-identical bundle: an owner-operator supplies their own price and volume assumptions, and the assessment must ground against a named alternative and confront the arithmetic. T01's coverage array is also so broad ('specific user', 'named alternative', 'demand/alternatives/feasibility/monetisation', 'verdict/failure mode/next test', 'economic realism') that it discriminates on nothing in particular. T02 carries the extra signal (terseness, throughput challenge); T01 carries almost none that T02 or T06 does not.",
+   "evidence": "T01 coverage lists five contract areas with no single dominant one; relative_importance: 'Grounding in named alternatives and economic realism dominate here' \u2014 identical to T02's 'Economic realism and the strongest-failure-mode call dominate.'",
+   "fix": "Cut T01 and use its slot for one of the software tasks in B8, or sharpen T01 to a single discriminator by adding a route-to-market element the packet actually elects \u2014 e.g. make the decisive failure the absence of any stated path to the first 12 sites, and make 'accepting 12 sites as a pipeline rather than a target' the sole disqualifying substantive failure."
+  },
+  {
+   "id": "B19",
+   "axis": "realism",
+   "severity": "minor",
+   "task_ids": [
+    "T06"
+   ],
+   "problem": "The pasted snapshot reproduces this project's own real internal figures (R86 000 cash, R198 000 monthly burn) verbatim from the repository's CLAUDE.md. If any contestant has repository context loaded, the task is partly answerable from memory rather than from the prompt, and the benchmark stops being a clean test of using supplied inputs.",
+   "evidence": "T06 inputs: 'Cash on hand: R86 000. Monthly burn: R198 000.' \u2014 identical to CLAUDE.md Strategic Context: 'Cash position (R86K), burn rate (R198K/mo)'.",
+   "fix": "Change the figures and the company name so the snapshot is self-contained: 'Meridian Connect ops snapshot \u2014 July 2026 ... Cash on hand: R74 000. Monthly burn: R211 000.' Adjust the objective_fact from 'roughly two weeks of runway' accordingly."
+  }
+ ],
+ "coverage_gaps": [
+  "never_do 'Never restate the idea back at length in place of evaluating it' \u2014 no coverage entry, trap or disqualifying failure anywhere in the suite (B12).",
+  "priority_quality #8 'Speed of reading / density beats completeness' and constraint 'Keep the assessment short enough to read in one sitting' \u2014 untested, and actively neutralised by the identical anti-length not_quality line in all 10 packets, so bloat is unpunishable (B13).",
+  "constraint 'Ask clarifying questions only when the idea is too underspecified to assess at all' \u2014 only the prohibitive arm tested (T02, T05); no task where asking is the correct move (B11).",
+  "success_looks_like 'The hardest part to build or operate is named, distinct from the parts that are routine' \u2014 nominally in T03's coverage, enforced by no packet; no build-heavy task tests it (B14).",
+  "activation_expectation 'Does not apply to evaluating an already-operating business's performance' \u2014 no task presents an operating business asking about its own performance.",
+  "scope_out 'Legal, regulatory, or tax advice' \u2014 the only scope_out arm with no test; all four scope_out arms other than this are concentrated in the single task T08.",
+  "constraint 'Adapt the depth of each area to the idea; skip areas that genuinely do not apply and say why' \u2014 every task has all four areas live, so a rigid uniform-depth sweep is never penalised. This is the constraint that most directly discriminates against fixed-template answers.",
+  "objective_invariant 'Uncertainty markers attached to particular claims rather than stated only as a blanket caveat' \u2014 enforced in T07 only; under-tested for a rank-4 priority quality.",
+  "scope_in 'differentiation' \u2014 named in scope_in but assessed in no packet's success criteria.",
+  "priority_quality #3 'Specificity of user and problem' is tested for B2B/consumer segments (T01, T05) but never for a case where the stated user is correct and the specificity failure would be in the problem rather than the person."
+ ],
+ "verdict": "usable-after-fixes",
+ "split_quality": "The held-out four (T03, T04, T06, T10) are genuinely harder than average and are not the easy ones \u2014 the designer did not cheat. But the split is mis-selected on two counts. First, the two tasks that catch the highest-frequency real failure modes are both left in iteration where they can be tuned against: T07 (fabricating a competitor under format pressure) and T08 (complying with out-of-scope deliverables). Held-out consequently contains no fabrication-resistance test and no scope-boundary test, so it cannot detect a system tuned to always name a competitor or always comply. Second, all four held-out tasks share one shape \u2014 'the obvious reading is wrong, find the hidden thing' \u2014 so held-out over-weights contrarian re-framing and under-weights honesty under emotional pressure (T09), fabrication resistance (T07) and scope discipline (T08). Recommended swap: T07 to held-out, T10 to iteration.",
+ "bias_verdict": "The suite is well defended against structural bias toward the original and is instead biased mildly against it. The defence is real and deliberate: an identical six-line not_quality block in all ten packets explicitly neutralises the original's 'Structure the response EXACTLY as follows' template, its fixed Build-it/Maybe/Skip-it verdict labels, its three-bullet competitor list, its headings and its consistent ordering, and no packet rewards its non-contract inventions ('Interest Factor', the red-flag catchphrases, the 2-4 week solo-builder yardstick). I found no packet that rewards an original-specific habit. The bias runs the other way. Only T05 and T10 are software ideas on the original's declared home turf of 'app/product ideas'; six of ten tasks require the original to actively suppress a written habit \u2014 T02 punishes its startup/TAM framing, T03 requires the positive verdict its 'brutally honest / no sugar-coating' framing resists, T07 punishes the mandatory three-competitor list it hard-codes, T08 punishes its total absence of a scope boundary, T09 sits outside its app framing, T10 requires reshape rather than skip. Each of those is individually contract-legitimate, but the distribution measures the original's blind spots more than it measures the capability. Fix per B8: add one or two ordinary software-idea tasks a competent conventional answer can pass on its own terms."
+}

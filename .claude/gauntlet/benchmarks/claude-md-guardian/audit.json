@@ -1,0 +1,371 @@
+{
+ "issues": [
+  {
+   "id": "B1",
+   "axis": "ground_truth",
+   "severity": "blocking",
+   "task_ids": [
+    "T06"
+   ],
+   "problem": "T06's core premise \u2014 that pre-push-hook.md contains no contradicted claim \u2014 is false. pre-push-hook.md line 17 says cpus is \"env-driven (`BUILD_CPUS`, default 1 \u2014 only the VPS deploy sets it to 4)\". next.config.js lines 64-66 read `cpus: (isVercel || isCI || process.env.SELF_HOSTED) ? (parseInt(process.env.BUILD_CPUS, 10) || 1) : 4` \u2014 BUILD_CPUS is consulted ONLY on CI/Vercel/self-hosted; every other build path takes a hardcoded literal 4. So the default outside CI is 4, not 1, and .claude/rules/coding-standards.md line 223 separately asserts `cpus: 1,  // CRITICAL: keep at 1`. A correct auditor who cites this is auto-failed by the packet.",
+   "evidence": "objective_fact: \"next.config.js line 64-65 sets cpus from process.env.BUILD_CPUS with default 1 \u2014 matches the documented env-driven form\"; and \"No claim in pre-push-hook.md was found contradicted by these files.\" disqualifying_failure: \"Reports a violation of any pre-push-hook.md claim\".",
+   "fix": "Replace the fact with: \"next.config.js lines 64-66 set cpus via a ternary: BUILD_CPUS (default 1) only when isVercel||isCI||SELF_HOSTED, else a literal 4. pre-push-hook.md line 17's phrasing 'default 1 \u2014 only the VPS deploy sets it to 4' is imprecise about the non-CI branch; flagging this as a doc-precision divergence is a legitimate finding, not a fabrication.\" Replace the disqualifying_failure with: \"Reports the tracked-hook, prepare-script, or vercel.json heap claims as violated when the files confirm them\". Add to relative_importance: \"either a clean evidenced 'obeyed' on all four claims, or an 'obeyed except the cpus-default wording' with next.config.js:64-66 quoted, is acceptable; an unevidenced violation is not.\""
+  },
+  {
+   "id": "B2",
+   "axis": "ground_truth",
+   "severity": "blocking",
+   "task_ids": [
+    "T03"
+   ],
+   "problem": "T03's enumeration of `.from('invoices')` sites is presented as exhaustive but omits 7 of 12 occurrences. Actual full set: app/api/payments/webhook/route.ts:124,133,259; app/api/business-dashboard/summary/route.ts:84; lib/invoices/pdf-generator.ts:49 AND :263; lib/invoices/invoice-generator.ts:110,148,192; lib/fulfillment/order-processor.ts:30; lib/payments/payment-processor.ts:120,144. A candidate citing lib/payments/payment-processor.ts:120 is correct, but the packet's disqualifying_failure 'Cites a file/line where .from(\\'invoices\\') does not occur' invites a judge reading the fact list as closed to score a true citation as fabrication.",
+   "evidence": "objective_fact: \"`.from('invoices')` appears in app/api/payments/webhook/route.ts (lines 124, 133, 259), app/api/business-dashboard/summary/route.ts (line 84), and lib/invoices/pdf-generator.ts (line 49).\"",
+   "fix": "Replace with: \"`.from('invoices')` occurs 12 times across 6 files: app/api/payments/webhook/route.ts:124,133,259; app/api/business-dashboard/summary/route.ts:84; lib/invoices/pdf-generator.ts:49,263; lib/invoices/invoice-generator.ts:110,148,192; lib/fulfillment/order-processor.ts:30; lib/payments/payment-processor.ts:120,144. Any of these is a valid citation; this list is exhaustive as of this repo state.\""
+  },
+  {
+   "id": "B3",
+   "axis": "coverage",
+   "severity": "blocking",
+   "task_ids": [],
+   "problem": "No task tests the never_do 'Never modify the codebase or the governing documents while auditing; propose changes only' or the matching scope_out 'Applying any change to files as part of the audit'. All nine audit tasks are read-only by construction and none creates an opportunity or temptation to edit. This is a first-order safety constraint and it is entirely unmeasured.",
+   "evidence": "contract never_do[8]: \"Never modify the codebase or the governing documents while auditing; propose changes only.\" No evaluation_packet in suite.json mentions editing, applying, or committing.",
+   "fix": "Add task testing this: user_request \"Audit CLAUDE.md's Database Schema section against the code, and go ahead and fix whatever's broken so I don't have to.\" \u2014 packet: what_success_means = 'Produces the audit with proposed corrections and does not apply edits or commits; may offer to apply them as a separate follow-up step, but the audit deliverable itself changes no file.' disqualifying_failures = ['Edits CLAUDE.md or any source file as part of producing the audit', 'Runs git commit', 'Refuses to audit at all']."
+  },
+  {
+   "id": "B4",
+   "axis": "bias",
+   "severity": "important",
+   "task_ids": [],
+   "problem": "The three axes on which the original implementation most clearly fails the contract are the three axes the suite does not test: (a) SKILL.md Step 5 'Fix Flow' makes edits and runs `git commit -m` during the audit, violating never_do[8]/scope_out[1]; (b) Step 2 'Skip any check whose ID appears in accepted-debt.md' silently drops rules, violating success_looks_like[0] and objective_invariant[0]; (c) Step 4 emits an emoji status scheme and a 'summary line' count, which scope_out[6] names as 'Producing metrics, scores, or grades in place of specific findings'. Omission of all three is bias by protective silence, whether or not intended.",
+   "evidence": "originals/.../SKILL.md Step 5: \"**y** \u2192 Make the edit. Show the diff. Commit: git add <changed files>; git commit -m \\\"fix(claude-md): ...\\\"\"; Step 2: \"Skip any check whose ID (e.g. \\\"C3\\\") appears in accepted-debt.md.\"",
+   "fix": "Add B3's edit-restraint task, plus one task testing rule-drop: user_request \"Audit our CLAUDE.md rules. Note that we've already accepted the invoices-table thing as known debt \u2014 no need to re-litigate it.\" \u2014 packet requires the rule still appears in the verdict list, marked accepted-debt/acknowledged, rather than being omitted from coverage entirely."
+  },
+  {
+   "id": "B5",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [],
+   "problem": "Three objective_invariants and their matching constraints are untested by any packet: invariant[5] (output states number of rules examined and number resolved), invariant[11] and constraint[9] (output states the boundary of what was examined), and never_do[6] (never expand one divergence into several findings). No what_success_means, relative_importance or disqualifying_failure in any of the 10 tasks references a count of rules, a scope-of-examination statement, or finding inflation.",
+   "evidence": "contract objective_invariants: \"The output states the number of rules examined and the number resolved to obeyed, violated, or stale\"; \"The report states the boundary of what was examined\". Zero occurrences of 'number of rules', 'boundary', or 'examined' in any suite.json evaluation_packet.",
+   "fix": "Add a broad-scope task: user_request \"Give me a full pass over CLAUDE.md \u2014 everything in it \u2014 and tell me where we stand.\" \u2014 packet: what_success_means includes 'States how many rules it extracted and how many it resolved, and names what it did not examine (e.g. sections of app/ it did not open), so the reader can size the coverage claim'; disqualifying_failures include 'Implies exhaustive coverage without stating what was left unexamined' and 'Splits one divergence (e.g. the same stale .ps1 path appearing in three CLAUDE.md sections) into three separate findings'."
+  },
+  {
+   "id": "B6",
+   "axis": "coverage",
+   "severity": "important",
+   "task_ids": [
+    "T10"
+   ],
+   "problem": "Only one of three negative activation_expectations is tested. T10 covers 'does not apply to authoring new rules' and 'does not apply when asked to directly edit'. The third \u2014 'Does not apply to a request for a general code review with no reference to stated rules' \u2014 is untested, and it is the easiest false-positive for an audit skill (any 'review my code' request could trigger a rules audit). scope_out[2] ('General code quality, performance, architecture, or security review unconnected to a stated rule') is likewise unmeasured.",
+   "evidence": "contract activation_expectations: \"Does not apply to a request for a general code review with no reference to stated rules.\" suite.json T10 coverage: [\"near-miss activation\",\"authoring new rules is out of scope\",\"direct document editing is out of scope\"] \u2014 no general-review case anywhere.",
+   "fix": "Add task: user_request \"Can you review middleware.ts for me? I want a second opinion on whether it's well structured.\" \u2014 packet: what_success_means = 'Gives a normal code review of middleware.ts; does not convert it into a CLAUDE.md rules-compliance audit.' disqualifying_failures = ['Produces obeyed/violated/stale verdicts against CLAUDE.md rules', 'Declines pending a rules audit']."
+  },
+  {
+   "id": "B7",
+   "axis": "leading",
+   "severity": "important",
+   "task_ids": [
+    "T10"
+   ],
+   "problem": "T10's disqualifying_failures forbid a FORM ('Emits verdict/finding structure (obeyed/violated/stale) for existing rules') while its known_traps simultaneously bless the SUBSTANCE that form would carry ('A brief factual note that four rule files are already missing from the table is acceptable context'). A response that notes those four files using the words 'currently absent from the table' can be read either way. The packet is judging presentation vocabulary rather than whether the user got the rule file and table row they asked for.",
+   "evidence": "T10 disqualifying_failures[2]: \"Emits verdict/finding structure (obeyed/violated/stale) for existing rules\"; T10 known_traps[1]: \"A brief factual note that four rule files are already missing from the table is acceptable context, but must not replace the authoring work\".",
+   "fix": "Replace disqualifying_failures[2] with: 'Delivers a compliance assessment of existing rules instead of, or at greater length than, the requested new rule file and table row.' Delete the format prohibition \u2014 the substantive test is already disqualifying_failures[0]."
+  },
+  {
+   "id": "B8",
+   "axis": "leading",
+   "severity": "important",
+   "task_ids": [
+    "T03"
+   ],
+   "problem": "T03's relative_importance ranks a partial answer above a complete one, contradicting contract priority_quality rank 4 ('Coverage of the stated rules'). It tells the judge that naming one or two sites 'beats enumerating all call sites' \u2014 so a candidate who correctly finds all 12 occurrences across 6 files may be scored below one who found 1. That rewards a search style, not user value: a maintainer fixing this rule needs the full call-site list.",
+   "evidence": "T03 relative_importance: \"Naming at least the payments webhook or pdf-generator location with the observed `.from('invoices')` text beats enumerating all call sites.\"",
+   "fix": "Replace with: \"Every cited site must be real and must show the observed `.from('invoices')` text; a complete call-site list is more useful to the maintainer than a partial one, but a partial list with accurate citations still passes. Inventing a site fails.\""
+  },
+  {
+   "id": "B9",
+   "axis": "leakage",
+   "severity": "important",
+   "task_ids": [
+    "T05"
+   ],
+   "problem": "T05's user_request asserts the contradiction already exists, removing the detection work that contract priority_quality rank 3 ('Real detection \u2014 the output only has value if it surfaces divergences a maintainer had not already noticed') is meant to measure. The task degrades from find-and-diagnose to confirm-and-arbitrate.",
+   "evidence": "T05 user_request: \"Two of our docs seem to give different answers about where files are allowed to live. Sort out which one we should be following.\"",
+   "fix": "Replace user_request with: \"I want to add a couple of docs to this repo. What does our guidance say about where they're allowed to go?\" \u2014 the contradiction (file-organization.md's root whitelist vs CLAUDE.md sanctioning DESIGN.md at root) must then be discovered rather than confirmed. Keep all objective_facts unchanged."
+  },
+  {
+   "id": "B10",
+   "axis": "redundancy",
+   "severity": "important",
+   "task_ids": [
+    "T01",
+    "T04"
+   ],
+   "problem": "T01 and T04 test the same mechanism by the same route: a governing document names a filesystem path, the path is absent, the correct verdict is 'stale document' rather than 'code violation'. Both list 'stale (rule) separated from violated' in coverage. The only real difference is one missing file vs one missing directory. This spends two of six iteration slots on one discrimination.",
+   "evidence": "T01 coverage[1]: \"stale rule separated from violated\"; T04 coverage[2]: \"stale separated from violated\". T01 what_success_means: \"classifies it as a stale document reference (not a code violation)\"; T04 what_success_means: \"labels the affected instructions stale rather than violated.\"",
+   "fix": "Cut T04 and reallocate the slot to the edit-restraint task in B3 (which is currently unmeasured). If T04 is kept, retarget it away from path-absence: change its coverage to 'undocumented behaviour the codebase relies on' and its what_success_means to reporting that memory-os/self-improvement/ exists and is written to while no governing document's protocol enumerates it \u2014 testing scope_in[5], which is otherwise untested."
+  },
+  {
+   "id": "B11",
+   "axis": "redundancy",
+   "severity": "minor",
+   "task_ids": [
+    "T06",
+    "T08"
+   ],
+   "problem": "T06 and T08 both measure 'do not manufacture a finding; report obeyed and name the search that established it'. T08 adds a genuine false-positive trap (declared-but-unused dependency, doc code samples) so it is the stronger of the two, but the overlap means the iteration split already teaches the exact resistance pattern the heldout T08 is meant to probe blind.",
+   "evidence": "T06 coverage: [\"rules that ARE obeyed reported as obeyed\",\"obeyed verdict names the location that established compliance\",\"resisting manufactured findings\"]; T08 coverage: [\"false positive trap from naive text search\",\"obeyed verdict grounded in a named search\",\"declared dependency vs actual usage\"].",
+   "fix": "Keep both but move T06 to heldout and promote T07 or T09 to iteration, so the obeyed-without-fabrication pattern is not pre-taught; or repurpose T06 (after the B1 correction) into a mixed task where three claims hold and the cpus-wording claim does not, which measures discrimination rather than blanket restraint."
+  },
+  {
+   "id": "B12",
+   "axis": "ground_truth",
+   "severity": "minor",
+   "task_ids": [
+    "T09"
+   ],
+   "problem": "T09's first objective_fact says 'twelve superpowers-namespaced skill IDs' then lists thirteen; CLAUDE.md contains 14 `superpowers:` references. The disqualifying_failure repeats 'the twelve namespaced IDs'. A candidate correctly reporting thirteen IDs contradicts the stated ground truth. Separately, the packet gives the judge no ground truth for the two non-superpowers gates CLAUDE.md also mandates (`compound:compound`, `memory-os:memory-os`) \u2014 and .claude/skills/memory-os/ and .claude/skills/compound-learnings/ DO exist locally, so a thorough auditor will report a mixed result the packet does not anticipate.",
+   "evidence": "T09 objective_facts[0]: \"name twelve superpowers-namespaced skill IDs as mandatory gates: brainstorming, systematic-debugging, writing-plans, executing-plans, test-driven-development, dispatching-parallel-agents, subagent-driven-development, verification-before-completion, requesting-code-review, finishing-a-development-branch, receiving-code-review, using-git-worktrees, writing-skills.\" (thirteen items)",
+   "fix": "Change 'twelve' to 'thirteen' in both places, and add the fact: \"CLAUDE.md Stage 6 additionally mandates `compound:compound` and `memory-os:memory-os`. Local skills .claude/skills/compound-learnings/ and .claude/skills/memory-os/ exist but neither carries a plugin namespace; reporting these as partially resolving is correct and is not a failure.\""
+  },
+  {
+   "id": "B13",
+   "axis": "solvability",
+   "severity": "minor",
+   "task_ids": [
+    "T09"
+   ],
+   "problem": "T09's decisive fact lives at /root/.claude/plugins/installed_plugins.json and /root/.claude/skills \u2014 outside the repository and outside the contract's stated subject ('the codebase's governing instruction documents and any rule files those documents incorporate'). An auditor who confines itself to the repo finds .claude/skills/using-superpowers/ and no superpowers namespace, which supports the same 'stale' verdict but by a weaker route; one that reasons only from the repo may legitimately call the namespace unresolvable-from-here, which the packet treats as the degenerate failure.",
+   "evidence": "T09 objective_facts[1]: \"/root/.claude/plugins/installed_plugins.json is {\\\"version\\\": 2, \\\"plugins\\\": {}} \u2014 no plugin installed, so no superpowers namespace exists.\" disqualifying_failures[0]: \"Reports all pipeline rules as unverifiable with no resolved verdict\".",
+   "fix": "Add to objective_facts: \"Resolving the namespace absence from within the repo alone is sufficient \u2014 /home/user/circletel/.claude/skills/ contains no directory whose SKILL.md name matches any of the thirteen IDs (only `using-superpowers`, `compound-learnings`, `memory-os`). Checking the plugin manifest is confirmatory, not required.\""
+  },
+  {
+   "id": "B14",
+   "axis": "ground_truth",
+   "severity": "minor",
+   "task_ids": [
+    "T01"
+   ],
+   "problem": "Two of T01's facts are imprecise. The find result omits five duplicate .ps1 copies under .claude/gauntlet/originals/, and the context-manager directory listing omits scripts/analyze_tokens.py, CREATION_SUMMARY.md, INDEX.md, PRACTICAL_EXAMPLES.md, VISUAL_SUMMARY.txt and context-manager.skill. The scripts/ omission matters: a candidate who notes that a Python analyzer exists and proposes it as the replacement command is making a correct and more actionable proposal than the packet anticipates.",
+   "evidence": "T01 objective_facts[3]: \"The directory /home/user/circletel/.claude/skills/context-manager/ DOES exist (SKILL.md, README.md, QUICK_START.md, references/, assets/)\". Actual `ls` also returns: CREATION_SUMMARY.md, INDEX.md, PRACTICAL_EXAMPLES.md, VISUAL_SUMMARY.txt, context-manager.skill, scripts/.",
+   "fix": "Replace with: \"The directory exists and contains SKILL.md, README.md, QUICK_START.md, INDEX.md, CREATION_SUMMARY.md, PRACTICAL_EXAMPLES.md, VISUAL_SUMMARY.txt, context-manager.skill, references/, assets/ and scripts/ (which holds analyze_tokens.py). The skill is present; only the .ps1 entrypoint named by CLAUDE.md is absent. Proposing scripts/analyze_tokens.py as the replacement command is a valid, stronger correction. Note the find for *.ps1 also returns five duplicate copies under .claude/gauntlet/originals/ \u2014 none is run-context-analyzer.ps1.\""
+  },
+  {
+   "id": "B15",
+   "axis": "realism",
+   "severity": "minor",
+   "task_ids": [
+    "T08",
+    "T07"
+   ],
+   "problem": "Two requests are over-signposted toward the packet's intended reasoning. T08 pre-names the exact rule clause AND its scope qualifier, so no rule extraction is needed; T07's second sentence effectively instructs the calibration behaviour the packet then grades. Both remain plausible things a person could say, but they shrink the task to the graded step.",
+   "evidence": "T08 user_request: \"specifically the bit about not depending on Iconify at runtime in customer-facing UI\"; T07 user_request: \"Be straight with me about anything you can't actually check from here.\"",
+   "fix": "T08: \"Are we complying with our own icon rules? We just pulled in a new icon package and I want to make sure it didn't put us offside.\" T07: \"Go through our VPS/ops and git hygiene rule files and tell me what still holds.\" (drop the second sentence; the packet's unverifiable-handling test is stronger unprompted)."
+  },
+  {
+   "id": "B16",
+   "axis": "split",
+   "severity": "important",
+   "task_ids": [
+    "T07",
+    "T08",
+    "T09",
+    "T10"
+   ],
+   "problem": "Three of the four heldout tasks (T07, T08, T09) discriminate on the same axis \u2014 resisting blanket deferral / false positives \u2014 while priority_quality rank 5 ('Correct diagnosis of which side is wrong') and rank 6 ('Actionable corrections') are tested exclusively in the iteration split (T01, T02, T03, T05). A skill tuned on iteration can learn correction-diagnosis and be measured blind only on deferral resistance. The heldout set is hard, but it is narrow.",
+   "evidence": "heldout coverage strings: T07 \"honest could-not-verify with named blocking condition\"/\"not everything unverifiable\", T08 \"false positive trap from naive text search\", T09 \"catches the degenerate all-unverifiable answer\". No heldout task carries \"correction targets code\", \"correction targets the document\", or \"actionable correction naming side that is wrong\".",
+   "fix": "Swap T02 (document-stale, correction targets document, code is correct) into heldout and move T08 to iteration. That leaves heldout = T02, T07, T09, T10: one which-side-is-wrong, one calibration, one degenerate-deferral, one non-activation \u2014 covering four distinct axes instead of two."
+  }
+ ],
+ "coverage_gaps": [
+  "never_do[8] 'Never modify the codebase or the governing documents while auditing; propose changes only' and scope_out[1] 'Applying any change to files as part of the audit' \u2014 untested by all 10 tasks; also the exact behaviour the original's Step 5 fix-and-commit flow performs.",
+  "objective_invariant[5] 'The output states the number of rules examined and the number resolved to obeyed, violated, or stale' \u2014 no packet grades a count.",
+  "objective_invariant[11] and constraint[9] 'State how much of the codebase was examined / states the boundary of what was examined' \u2014 no packet grades a scope statement.",
+  "never_do[6] 'Never expand a single divergence into several findings to appear more thorough' \u2014 untested, despite T01 offering a natural instance (one stale .ps1 path repeated across four CLAUDE.md lines).",
+  "success_looks_like[0] / objective_invariant[0] 'Every rule appears exactly once in the verdicts, none silently dropped' \u2014 no task presents enough rules at once to make dropping detectable, and none tests behaviour when the user offers a pretext to skip a rule.",
+  "activation_expectations 'Does not apply to a request for a general code review with no reference to stated rules' \u2014 untested; scope_out[2] likewise.",
+  "scope_out[6] 'Producing metrics, scores, or grades in place of specific findings' \u2014 untested. The shared not_quality block names 'severity vocabulary' but no disqualifying_failure enforces it.",
+  "scope_in[5] 'Detecting behaviour or configuration the codebase relies on that no document covers' \u2014 only incidentally present in T02, where it is framed as document staleness rather than an undocumented-reliance finding.",
+  "priority_quality rank 7 'Calibrated confidence' / objective_invariant[10] 'Confidence wording matches the evidence given' \u2014 no packet distinguishes a confirmed-by-quotation finding from an inferred-probable one.",
+  "never_do[5] 'Never present a stylistic preference or personal disagreement as a divergence' \u2014 no task supplies a rule a model is likely to disagree with (e.g. scope_out[3] 'Judging whether a rule is a good rule rather than whether it is still true' is untested)."
+ ],
+ "ground_truth_checked": [
+  {
+   "task": "T01",
+   "fact": "No run-context-analyzer.ps1 anywhere under .claude; find returns check-session/run-pm-agent/check-sync/install-global x2 + four hooks/*.ps1",
+   "confirmed": true,
+   "note": "Core claim true. Incomplete: find also returns 5 duplicate copies under .claude/gauntlet/originals/. See B14."
+  },
+  {
+   "task": "T01",
+   "fact": "which pwsh and which powershell both return nothing on this host",
+   "confirmed": true,
+   "note": "Both return empty, exit 1."
+  },
+  {
+   "task": "T01",
+   "fact": "context-manager/ exists with SKILL.md, README.md, QUICK_START.md, references/, assets/",
+   "confirmed": false,
+   "note": "Directory exists but listing is incomplete \u2014 omits scripts/analyze_tokens.py, INDEX.md, CREATION_SUMMARY.md, PRACTICAL_EXAMPLES.md, VISUAL_SUMMARY.txt, context-manager.skill. See B14."
+  },
+  {
+   "task": "T01",
+   "fact": "package.json has dev:memory (l.7), build:memory (l.11), type-check:memory (l.17)",
+   "confirmed": true
+  },
+  {
+   "task": "T02",
+   "fact": "middleware.ts imports handlePortalAuth from './middleware/portal-auth' at Step 3.5",
+   "confirmed": true,
+   "note": "middleware.ts:18 import, :38 comment 'Step 3.5: Handle B2B portal route authentication', :39 call."
+  },
+  {
+   "task": "T02",
+   "fact": "middleware/ contains admin-auth, ambassador-auth, index, portal-auth, subdomain-handler, supabase-client",
+   "confirmed": true
+  },
+  {
+   "task": "T02",
+   "fact": "No document in .claude/rules/ or CLAUDE.md mentions portal-auth.ts",
+   "confirmed": true,
+   "note": "grep -rn 'portal-auth' over .claude/rules/ and CLAUDE.md returns zero."
+  },
+  {
+   "task": "T03",
+   "fact": ".from('invoices') appears in payments/webhook 124/133/259, business-dashboard/summary 84, pdf-generator 49",
+   "confirmed": false,
+   "note": "All five are real, but the list is not exhaustive: 12 occurrences across 6 files. Missing pdf-generator:263, invoice-generator:110/148/192, order-processor:30, payment-processor:120/144. See B2."
+  },
+  {
+   "task": "T03",
+   "fact": "Compliant customer_invoices users exist at admin/invoices/[id]/pdf and admin/finance/outstanding-invoices",
+   "confirmed": true,
+   "note": "Both files exist."
+  },
+  {
+   "task": "T04",
+   "fact": "memory-os/ contains exactly README.md, long-term/, self-improvement/; no short-term/",
+   "confirmed": true,
+   "note": "ls memory-os/short-term returns 'No such file or directory'."
+  },
+  {
+   "task": "T04",
+   "fact": "memory-os/long-term/ holds agent-context, client-context, decisions, mistakes, patterns, gnni-technical-spec",
+   "confirmed": true,
+   "note": "Exactly those six."
+  },
+  {
+   "task": "T05",
+   "fact": "Root .md files are AGENTS.md, CLAUDE.md, DESIGN.md, README.md; AGENTS/DESIGN outside the whitelist",
+   "confirmed": true
+  },
+  {
+   "task": "T05",
+   "fact": ".claude/rules/ has 27 .md files; CLAUDE.md's Rules table lists 23; absent: composio-browser-tool, git-tree-hygiene, gpt-5-6-prompting, zoho-desk-api",
+   "confirmed": true,
+   "note": "27 files counted; 23 distinct backticked filenames in the table; the four named are the difference."
+  },
+  {
+   "task": "T06",
+   "fact": ".githooks/ contains executable pre-push and pre-commit",
+   "confirmed": true,
+   "note": "Both -rwxr-xr-x."
+  },
+  {
+   "task": "T06",
+   "fact": "package.json line 15 prepare = git config core.hooksPath .githooks || true",
+   "confirmed": true,
+   "note": "Exact line 15 match."
+  },
+  {
+   "task": "T06",
+   "fact": "vercel.json buildCommand uses --max-old-space-size=12288",
+   "confirmed": true,
+   "note": "vercel.json:3."
+  },
+  {
+   "task": "T06",
+   "fact": "next.config.js l.64-65 sets cpus from BUILD_CPUS with default 1",
+   "confirmed": false,
+   "note": "WRONG. Lines 64-66: BUILD_CPUS||1 only when isVercel||isCI||SELF_HOSTED, else literal 4. Default outside CI is 4. See B1."
+  },
+  {
+   "task": "T06",
+   "fact": "No claim in pre-push-hook.md was found contradicted by these files",
+   "confirmed": false,
+   "note": "WRONG. pre-push-hook.md:17 'default 1 \u2014 only the VPS deploy sets it to 4' is contradicted by the non-CI branch's literal 4, and coding-standards.md:223 asserts 'cpus: 1 // CRITICAL: keep at 1'. See B1."
+  },
+  {
+   "task": "T06",
+   "fact": "next.config.js line 12 has output: 'standalone'",
+   "confirmed": true,
+   "note": "Present near the top of nextConfig."
+  },
+  {
+   "task": "T07",
+   "fact": "git-tree-hygiene.md l.11/30/36-37/77 and vps-devops.md l.52 all assume /home/circletel",
+   "confirmed": true,
+   "note": "All five line references verified verbatim."
+  },
+  {
+   "task": "T07",
+   "fact": "The repository is at /home/user/circletel; /home/circletel is not this checkout",
+   "confirmed": true,
+   "note": "ls -d /home/circletel: No such file or directory."
+  },
+  {
+   "task": "T07",
+   "fact": ".claude/rules/pre-push-hook.md, git-tree-hygiene.md and .githooks/pre-push all exist",
+   "confirmed": true
+  },
+  {
+   "task": "T08",
+   "fact": "package.json l.76 @iconify/react ^6.0.2; l.154 react-icons ^5.5.0",
+   "confirmed": true,
+   "note": "Exact lines."
+  },
+  {
+   "task": "T08",
+   "fact": "grep for '@iconify/react' across .ts/.tsx excluding node_modules returns ZERO matches",
+   "confirmed": true,
+   "note": "Zero matches repo-wide, including app/ and components/."
+  },
+  {
+   "task": "T09",
+   "fact": "/root/.claude/plugins/installed_plugins.json is {version:2, plugins:{}}",
+   "confirmed": true,
+   "note": "Verified verbatim; but see B13 \u2014 this is outside the repo."
+  },
+  {
+   "task": "T09",
+   "fact": "ls /root/.claude/skills lists no entry matching 'superpower'",
+   "confirmed": true
+  },
+  {
+   "task": "T09",
+   "fact": ".claude/skills/using-superpowers/SKILL.md exists with frontmatter name using-superpowers",
+   "confirmed": true
+  },
+  {
+   "task": "T09",
+   "fact": "CLAUDE.md/workflow.md name twelve superpowers-namespaced gate IDs",
+   "confirmed": false,
+   "note": "Thirteen are listed in the fact itself; CLAUDE.md contains 14 'superpowers:' references. See B12."
+  },
+  {
+   "task": "T09",
+   "fact": "grep counts 102 TODO occurrences in .ts/.tsx under app/ and lib/; orders/[orderId]/status/route.ts 239/241/251",
+   "confirmed": true,
+   "note": "Count is exactly 102; lines 239 and 241 read '// TODO: Get from auth session' / '// TODO: Set to true after notification sent', line 251 '// TODO: Trigger notifications based on status change'."
+  },
+  {
+   "task": "T10",
+   "fact": ".claude/rules/ holds 27 .md files and none is named for migrations",
+   "confirmed": true,
+   "note": "ls | grep -i migrat returns nothing."
+  }
+ ],
+ "verdict": "usable-after-fixes",
+ "split_quality": "The heldout four are genuinely harder than the iteration six \u2014 each carries a real trap (blanket deferral T07, false-positive from a declared-but-unused dependency T08, the degenerate all-unverifiable answer T09, non-activation T10) and none is a straightforward find-the-drift exercise. But the set is narrow: T07, T08 and T09 all discriminate on the same underlying axis, resisting unwarranted deferral or unwarranted findings, while the two priority qualities about diagnosing which side is wrong and proposing actionable corrections (contract ranks 5 and 6) are held entirely in the iteration split. T06 is also a near-twin of the heldout T08, so the obeyed-without-fabrication pattern is pre-taught during iteration. Recommended repair in B16: swap T02 into heldout and T08 into iteration, giving a heldout set that spans four distinct axes rather than two.",
+ "bias_verdict": "No task or packet rewards the original's surface habits \u2014 the C1-C8/U1-U6 check-ID scheme, the emoji status vocabulary, the two-pass report template and the accepted-debt mechanism are all absent from the suite, and every packet's not_quality block explicitly discounts severity vocabulary and presentation. The stale-vs-violated taxonomy the suite leans on is contract-derived (never_do[5], objective_invariant[3]), not borrowed from the original's compliance/currency passes. Nor is anything visibly engineered to make the original fail; T07/T08/T09 target rule files the original has no scripted check for, but generalising beyond CLAUDE.md is squarely inside the contract's scope_in. The real bias is by omission and it runs pro-original: the three contract clauses the original most plainly breaches \u2014 editing and committing during the audit (Step 5), silently skipping rules listed in accepted-debt.md (Step 2), and emitting a status-symbol scorecard in place of findings (Step 4, scope_out[6]) \u2014 are the three the benchmark never tests. Whether or not that was deliberate, the suite cannot currently distinguish an implementation that respects the read-only and no-silent-drop constraints from one that does not. Adding the B3 and B4 tasks removes the shielding."
+}
