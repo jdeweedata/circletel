@@ -1,0 +1,26 @@
+{
+ "idea-validator.T02.j1": {
+  "response_1": "C",
+  "response_2": "B"
+ },
+ "idea-validator.T02.j2": {
+  "response_1": "B",
+  "response_2": "C"
+ },
+ "idea-validator.T05.j1": {
+  "response_1": "C",
+  "response_2": "B"
+ },
+ "idea-validator.T05.j2": {
+  "response_1": "B",
+  "response_2": "C"
+ },
+ "idea-validator.T09.j1": {
+  "response_1": "C",
+  "response_2": "B"
+ },
+ "idea-validator.T09.j2": {
+  "response_1": "B",
+  "response_2": "C"
+ }
+}

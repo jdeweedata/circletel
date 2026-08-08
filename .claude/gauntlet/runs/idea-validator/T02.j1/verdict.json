@@ -1,0 +1,10 @@
+{
+ "trial_id": "idea-validator.T02.j1",
+ "task_id": "T02",
+ "model_id": "claude-opus-5 (contestants) / claude-opus-5 (judge, fresh independent run)",
+ "condition": "B vs C, blind, counterbalanced",
+ "winner": "B bare frontier (opus-5, no skill)",
+ "confidence": "high",
+ "margin": "clear",
+ "why": "Named the buyer segment and attached price points to every named alternative, all labelled recalled-not-verified; attacked the throughput assumption with a physical mechanism rather than only an hours count."
+}

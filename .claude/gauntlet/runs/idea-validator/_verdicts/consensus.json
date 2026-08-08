@@ -1,0 +1,35 @@
+{
+ "T02": {
+  "orderings": [
+   "B",
+   "B"
+  ],
+  "consensus": "B",
+  "margins": [
+   "clear",
+   "narrow"
+  ]
+ },
+ "T05": {
+  "orderings": [
+   "B",
+   "tie"
+  ],
+  "consensus": "B",
+  "margins": [
+   "narrow",
+   "narrow"
+  ]
+ },
+ "T09": {
+  "orderings": [
+   "C",
+   "C"
+  ],
+  "consensus": "C",
+  "margins": [
+   "narrow",
+   "clear"
+  ]
+ }
+}

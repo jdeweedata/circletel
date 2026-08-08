@@ -1,0 +1,10 @@
+{
+ "trial_id": "idea-validator.T05.j1",
+ "task_id": "T05",
+ "model_id": "claude-opus-5 (contestants) / claude-opus-5 (judge, fresh independent run)",
+ "condition": "B vs C, blind, counterbalanced",
+ "winner": "B bare frontier (opus-5, no skill)",
+ "confidence": "medium",
+ "margin": "narrow",
+ "why": "Flagged what it could not verify without web access, stated the two-different-products invariant outright, and converged on one relocated buyer rather than five unranked directions."
+}

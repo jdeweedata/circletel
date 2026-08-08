@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "run_id": "gauntlet-2026-08-07",
-  "phase": "benchmark-audit",
+  "phase": "trials \u2014 baseline complete for idea-validator; 3 skills awaiting trials",
   "phase_history": [
     {
       "phase": "discovery",
@@ -37,6 +37,16 @@
       "phase": "benchmark-design",
       "status": "complete",
       "note": "4 suites x 10 tasks (6 iteration / 4 sealed held-out). Ground truth verified by each designer. Held-out sets chmod 400 and never rendered."
+    },
+    {
+      "phase": "benchmark-audit+repair",
+      "status": "complete",
+      "note": "4 independent audits (75 issues, 8 blocking) then 4 repairs; suites at v2, held-out re-sealed"
+    },
+    {
+      "phase": "trials",
+      "status": "in_progress",
+      "note": "idea-validator: B vs C on 3 iteration tasks, 6 blind counterbalanced judge runs. Both orderings agreed on every task (no position bias). No-skill 2, original-skill 1."
     }
   ],
   "models_verified": {
@@ -60,25 +70,35 @@
   ],
   "skills": {
     "idea-validator": {
-      "status": "benchmark-audit",
+      "status": "baseline-complete",
       "iteration": 0,
       "contract_frozen": true,
-      "benchmark_built": true
+      "benchmark_built": true,
+      "baseline_B_vs_C": {
+        "tasks": 3,
+        "no_skill_wins": 2,
+        "original_skill_wins": 1,
+        "ties": 0,
+        "position_bias_detected": false,
+        "reading": "Original skill is not uniformly worse. Loses on ordinary grounding/specificity tasks; wins where the request is emotionally loaded and the hard part is refusing to reassure. Retirement not supported on this evidence."
+      },
+      "samples_per_cell": 1,
+      "sampling_caveat": "1 sample per (task,condition) cell, not the 3 the protocol specifies. Counterbalanced judging (2 orderings) was run in full. Margins are therefore directional, not yet repeatable-verified."
     },
     "claude-md-guardian": {
-      "status": "benchmark-audit",
+      "status": "benchmark-frozen \u2014 trials not started",
       "iteration": 0,
       "contract_frozen": true,
       "benchmark_built": true
     },
     "promotional-campaigns": {
-      "status": "benchmark-audit",
+      "status": "benchmark-frozen \u2014 trials not started",
       "iteration": 0,
       "contract_frozen": true,
       "benchmark_built": true
     },
     "brand-design": {
-      "status": "benchmark-audit",
+      "status": "benchmark-frozen \u2014 trials not started",
       "iteration": 0,
       "contract_frozen": true,
       "benchmark_built": true
@@ -135,6 +155,12 @@
       "what": "Subagent write-hang recurred on 2 of 4 benchmark designers and cost ~2h across retries",
       "mitigation": "Established two reliable paths: write via Bash+python heredoc, or return JSON as reply text for the lead to write. Both now in use.",
       "status": "mitigated"
+    },
+    {
+      "id": "INC-004",
+      "what": "Contestant/judge agents hang intermittently on their FIRST tool call under concurrency, not specifically on writes",
+      "mitigation": "Launch in batches of ~3, detect via flat transcript mtime, TaskStop and relaunch. Roughly 40% of runs needed one retry.",
+      "status": "ongoing"
     }
   ]
 }

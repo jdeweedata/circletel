@@ -1,0 +1,10 @@
+{
+ "trial_id": "idea-validator.T02.j2",
+ "task_id": "T02",
+ "model_id": "claude-opus-5 (contestants) / claude-opus-5 (judge, fresh independent run)",
+ "condition": "B vs C, blind, counterbalanced",
+ "winner": "B bare frontier (opus-5, no skill)",
+ "confidence": "medium",
+ "margin": "narrow",
+ "why": "Named who actually buys and gave rough prices for every incumbent under an up-front recalled-not-searched label; the other named the same categories but attached no charges and never identified the buyer."
+}

@@ -1,0 +1,10 @@
+{
+ "trial_id": "idea-validator.T05.j2",
+ "task_id": "T05",
+ "model_id": "claude-opus-5 (contestants) / claude-opus-5 (judge, fresh independent run)",
+ "condition": "B vs C, blind, counterbalanced",
+ "winner": "tie",
+ "confidence": "medium",
+ "margin": "narrow",
+ "why": "Advantages cancel: one states the different-buyers invariant and labels an unverifiable claim, the other locates the buyer better and gives the second product a real decision. Both commit the same unlabelled-price lapse."
+}

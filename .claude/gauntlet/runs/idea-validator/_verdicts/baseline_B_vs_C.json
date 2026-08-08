@@ -1,0 +1,104 @@
+[
+ {
+  "trial_id": "idea-validator.T02.j1",
+  "skill": "idea-validator",
+  "task_id": "T02",
+  "judge_run": "j1",
+  "presentation_order": {
+   "response_1": "C",
+   "response_2": "B"
+  },
+  "winner_condition": "B",
+  "confidence": "high",
+  "margin": "clear",
+  "why": "Named the buyer segment and attached price points to every named alternative, all labelled recalled-not-verified; attacked the throughput assumption with a physical mechanism rather than only an hours count.",
+  "judge_model_id": "claude-opus-5",
+  "judge_blind": true,
+  "shared_model_caveat": "Both contestants and this judge ran on claude-opus-5; judge was a fresh independent run with no access to skill files, model identity, or condition labels."
+ },
+ {
+  "trial_id": "idea-validator.T02.j2",
+  "skill": "idea-validator",
+  "task_id": "T02",
+  "judge_run": "j2",
+  "presentation_order": {
+   "response_1": "B",
+   "response_2": "C"
+  },
+  "winner_condition": "B",
+  "confidence": "medium",
+  "margin": "narrow",
+  "why": "Named who actually buys and gave rough prices for every incumbent under an up-front recalled-not-searched label; the other named the same categories but attached no charges and never identified the buyer.",
+  "judge_model_id": "claude-opus-5",
+  "judge_blind": true,
+  "shared_model_caveat": "Both contestants and this judge ran on claude-opus-5; judge was a fresh independent run with no access to skill files, model identity, or condition labels."
+ },
+ {
+  "trial_id": "idea-validator.T05.j1",
+  "skill": "idea-validator",
+  "task_id": "T05",
+  "judge_run": "j1",
+  "presentation_order": {
+   "response_1": "C",
+   "response_2": "B"
+  },
+  "winner_condition": "B",
+  "confidence": "medium",
+  "margin": "narrow",
+  "why": "Flagged what it could not verify without web access, stated the two-different-products invariant outright, and converged on one relocated buyer rather than five unranked directions.",
+  "judge_model_id": "claude-opus-5",
+  "judge_blind": true,
+  "shared_model_caveat": "Both contestants and this judge ran on claude-opus-5; judge was a fresh independent run with no access to skill files, model identity, or condition labels."
+ },
+ {
+  "trial_id": "idea-validator.T05.j2",
+  "skill": "idea-validator",
+  "task_id": "T05",
+  "judge_run": "j2",
+  "presentation_order": {
+   "response_1": "B",
+   "response_2": "C"
+  },
+  "winner_condition": "tie",
+  "confidence": "medium",
+  "margin": "narrow",
+  "why": "Advantages cancel: one states the different-buyers invariant and labels an unverifiable claim, the other locates the buyer better and gives the second product a real decision. Both commit the same unlabelled-price lapse.",
+  "judge_model_id": "claude-opus-5",
+  "judge_blind": true,
+  "shared_model_caveat": "Both contestants and this judge ran on claude-opus-5; judge was a fresh independent run with no access to skill files, model identity, or condition labels."
+ },
+ {
+  "trial_id": "idea-validator.T09.j1",
+  "skill": "idea-validator",
+  "task_id": "T09",
+  "judge_run": "j1",
+  "presentation_order": {
+   "response_1": "C",
+   "response_2": "B"
+  },
+  "winner_condition": "C",
+  "confidence": "medium",
+  "margin": "narrow",
+  "why": "Named six concrete alternatives under an explicit no-web-access label and engaged incumbent delivery footprint; the other asserted competitors as unlabelled fact and never touched incumbent pricing.",
+  "judge_model_id": "claude-opus-5",
+  "judge_blind": true,
+  "shared_model_caveat": "Both contestants and this judge ran on claude-opus-5; judge was a fresh independent run with no access to skill files, model identity, or condition labels."
+ },
+ {
+  "trial_id": "idea-validator.T09.j2",
+  "skill": "idea-validator",
+  "task_id": "T09",
+  "judge_run": "j2",
+  "presentation_order": {
+   "response_1": "B",
+   "response_2": "C"
+  },
+  "winner_condition": "C",
+  "confidence": "high",
+  "margin": "clear",
+  "why": "Delivered the labelled grounding block naming real alternatives plus the price-against-what-a-household-already-spends comparison; the other dropped competitor claims as unlabelled fact and carried the larger arithmetic error.",
+  "judge_model_id": "claude-opus-5",
+  "judge_blind": true,
+  "shared_model_caveat": "Both contestants and this judge ran on claude-opus-5; judge was a fresh independent run with no access to skill files, model identity, or condition labels."
+ }
+]

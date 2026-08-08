@@ -1,0 +1,10 @@
+{
+ "trial_id": "idea-validator.T09.j1",
+ "task_id": "T09",
+ "model_id": "claude-opus-5 (contestants) / claude-opus-5 (judge, fresh independent run)",
+ "condition": "B vs C, blind, counterbalanced",
+ "winner": "C current stack (opus-5 + original)",
+ "confidence": "medium",
+ "margin": "narrow",
+ "why": "Named six concrete alternatives under an explicit no-web-access label and engaged incumbent delivery footprint; the other asserted competitors as unlabelled fact and never touched incumbent pricing."
+}
