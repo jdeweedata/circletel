@@ -396,20 +396,22 @@ export async function handleInboundWhatsAppToDesk(
     const firstName =
       nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : undefined;
 
-    const agentInstructions =
-      'AGENT REPLY (WhatsApp bridge)\n' +
-      '1. Best: add a Public Comment with reply text only (no quotes) — synced to WhatsApp ~1 min.\n' +
-      '2. Or click Send — reply text is synced to WhatsApp via Cloud API (~1 min). The contact email is only a Desk placeholder.\n' +
-      '3. Prefer a short reply without CSAT / quoted history.\n' +
-      '4. Ignore mailer-daemon bounces if any — WhatsApp delivery is via the bridge, not email.';
-
     const channelLabel = isSales
       ? 'WhatsApp Cloud API bridge (Sales 084)'
       : 'WhatsApp Cloud API bridge';
 
+    const agentInstructionsPrivateNote =
+      'AGENT REPLY (WhatsApp bridge)\n' +
+      '1. Best: add a Public Comment with reply text only (no quotes) — synced to WhatsApp ~1 min.\n' +
+      '2. Or click Send — reply text is synced to WhatsApp via Cloud API (~1 min). The contact email is only a Desk placeholder.\n' +
+      '3. Prefer a short reply without CSAT / quoted history.\n' +
+      '4. Ignore mailer-daemon bounces if any — WhatsApp delivery is via the bridge, not email.\n\n' +
+      `Channel: ${channelLabel}\nWA ID: ${waFrom}`;
+
     const ticketPayload: Record<string, unknown> = {
       subject: `${subjectPrefix} ${displayPhone}`,
-      description: `${inboundComment}\n\n---\n${agentInstructions}\n---\nChannel: ${channelLabel}\nWA ID: ${waFrom}`,
+      // Customer-visible body only — instructions go in a private note after create
+      description: inboundComment,
       departmentId,
       priority: 'Medium',
       status: 'Open',
@@ -449,6 +451,23 @@ export async function handleInboundWhatsAppToDesk(
 
     const ticketId = createResult.data.id;
     const ticketNumber = createResult.data.ticketNumber ?? null;
+
+    const instructionsNote = await deskRequest(
+      accessToken,
+      `/tickets/${ticketId}/comments`,
+      'POST',
+      {
+        content: agentInstructionsPrivateNote,
+        contentType: 'plainText',
+        isPublic: false,
+      }
+    );
+    if (!instructionsNote.success) {
+      zohoLogger.warn('[WA Desk Bridge] agent instructions private note failed', {
+        ticketId,
+        error: instructionsNote.error,
+      });
+    }
 
     const { error: insertError } = await supabase
       .from('whatsapp_desk_threads')
@@ -516,10 +535,17 @@ type OutboundCandidate = {
 /** Strip Desk email quoted history / CSAT chrome so only the agent reply goes to WhatsApp. */
 export function extractAgentReplyBody(raw: string): string {
   let text = stripHtml(raw || '');
-  // Cut quoted history common in Desk email Send
-  text = text.split(/\n---\s*on\s+/i)[0];
+  // Normalize en/em dashes so Zoho/WhatsApp quote markers match consistently
+  text = text.replace(/[\u2013\u2014]/g, '-');
+
+  // Cut quoted history. Zoho uses "---- on Mon, … wrote ----"; WhatsApp may show
+  // a single dash/em-dash line. Require a weekday+date-like "on Mon, 10 …" to avoid
+  // cutting legitimate agent text that merely contains "on".
+  text = text.split(
+    /\n?-+\s*on\s+[A-Za-z]{3},?\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/i
+  )[0];
   text = text.split(/\nOn .+ wrote:/i)[0];
-  text = text.split(/\n\[WA-IN\]/)[0];
+  text = text.split(/\n?\[WA-IN\]/)[0];
   text = text.split(/\nChannel:\s*WhatsApp Cloud API bridge/i)[0];
   // Drop CSAT prompt blocks agents often leave in
   text = text.replace(/How would you rate our customer service\?[\s\S]*$/i, '');

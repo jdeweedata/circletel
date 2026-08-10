@@ -134,6 +134,24 @@ describe('extractAgentReplyBody', () => {
     );
   });
 
+  it('strips same-line Zoho 4-dash quote trailer (prod #898)', () => {
+    const raw =
+      'hi ---- on Mon, 10 Aug 2026 22:33:22 +0200 Jeffrey NewGen wrote ----';
+    expect(extractAgentReplyBody(raw)).toBe('hi');
+  });
+
+  it('strips em-dash quote trailer shown in WhatsApp', () => {
+    const raw =
+      'hi\n— on Mon, 10 Aug 2026 22:33:22 +0200 Jeffrey NewGen wrote —';
+    expect(extractAgentReplyBody(raw)).toBe('hi');
+  });
+
+  it('strips HTML email replies down to agent text', () => {
+    const raw =
+      '<div>Thanks, we will call shortly.</div><br/>---- on Mon, 10 Aug 2026 Jeffrey wrote ----<p>[WA-IN] Hi</p>';
+    expect(extractAgentReplyBody(raw)).toBe('Thanks, we will call shortly.');
+  });
+
   it('strips CSAT chrome', () => {
     const raw =
       'Thanks for contacting us.\n\nHow would you rate our customer service?\nGood\nBad';
