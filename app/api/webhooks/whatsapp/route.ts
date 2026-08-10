@@ -98,7 +98,11 @@ export async function POST(request: NextRequest) {
               contactNameByWaId.set(contact.wa_id, contact.profile.name);
             }
           }
-          await processInboundMessages(value.messages, contactNameByWaId);
+          await processInboundMessages(
+            value.messages,
+            contactNameByWaId,
+            value.metadata?.phone_number_id
+          );
         }
       }
     }
@@ -139,9 +143,12 @@ function isNfmReplyMessage(message: WebhookMessage): boolean {
  */
 async function processInboundMessages(
   messages: WebhookMessage[],
-  contactNameByWaId: Map<string, string> = new Map()
+  contactNameByWaId: Map<string, string> = new Map(),
+  phoneNumberId?: string
 ): Promise<void> {
-  console.log('[WhatsApp Webhook] Received messages:', messages.length);
+  console.log('[WhatsApp Webhook] Received messages:', messages.length, {
+    phoneNumberId,
+  });
 
   for (const message of messages) {
     if (!isNfmReplyMessage(message)) {
@@ -149,6 +156,7 @@ async function processInboundMessages(
         type: message.type,
         from: message.from,
         id: message.id,
+        phoneNumberId,
       });
       try {
         const contactName =
@@ -156,10 +164,12 @@ async function processInboundMessages(
           contactNameByWaId.get(message.from.replace(/\D/g, ''));
         const bridgeResult = await handleInboundWhatsAppToDesk(message, {
           contactName,
+          phoneNumberId,
         });
         console.log('[WhatsApp Webhook] Desk bridge result', {
           messageId: message.id,
           from: message.from,
+          phoneNumberId,
           success: bridgeResult.success,
           ticketId: bridgeResult.ticketId,
           reason: bridgeResult.reason,

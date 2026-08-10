@@ -8,8 +8,10 @@
 
 const GRAPH = 'https://graph.facebook.com/v21.0'
 const TOKEN = process.env.WHATSAPP_ACCESS_TOKEN || ''
-const PROD_PHONE_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || '1224273540758405' // +27 84 773 9467
-const PROD_WABA_ID = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || '2030687664240306'
+const PROD_PHONE_ID =
+  process.env.WHATSAPP_PHONE_NUMBER_ID || '1198404656682736' // +27 84 773 9467
+const PROD_WABA_ID =
+  process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || '2030687664240306'
 
 async function get(url: string) {
   const res = await fetch(url)

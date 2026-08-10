@@ -17,7 +17,45 @@ import { zohoLogger } from '@/lib/logging';
 export const WA_IN_PREFIX = '[WA-IN]';
 export const WA_OUT_MARKER = '[WA-OUT-SYNCED]';
 
-const SUBJECT_PREFIX = 'WhatsApp support from';
+const SUBJECT_PREFIX_SUPPORT = 'WhatsApp support from';
+const SUBJECT_PREFIX_SALES = 'WhatsApp sales from';
+
+/** True when inbound Cloud API phone is the sales/marketing line (084). */
+export function isSalesPhoneNumberId(
+  phoneNumberId: string | undefined | null
+): boolean {
+  if (!phoneNumberId) return false;
+  const salesId =
+    process.env.WHATSAPP_SALES_PHONE_NUMBER_ID ||
+    process.env.WHATSAPP_PHONE_NUMBER_ID ||
+    '';
+  return !!salesId && phoneNumberId.trim() === salesId.trim();
+}
+
+/**
+ * Desk department for bridge tickets.
+ * Sales 084 → ZOHO_DESK_SALES_DEPARTMENT_ID (CircleTel Sales); else support dept.
+ */
+export function resolveBridgeDepartmentId(
+  phoneNumberId?: string | null
+): string | undefined {
+  if (isSalesPhoneNumberId(phoneNumberId)) {
+    return (
+      process.env.ZOHO_DESK_SALES_DEPARTMENT_ID ||
+      process.env.ZOHO_DESK_DEPARTMENT_ID ||
+      undefined
+    );
+  }
+  return process.env.ZOHO_DESK_DEPARTMENT_ID || undefined;
+}
+
+export function resolveBridgeSubjectPrefix(
+  phoneNumberId?: string | null
+): string {
+  return isSalesPhoneNumberId(phoneNumberId)
+    ? SUBJECT_PREFIX_SALES
+    : SUBJECT_PREFIX_SUPPORT;
+}
 
 type DeskThreadRow = {
   id: string;
@@ -45,6 +83,38 @@ function isBridgeEnabled(): boolean {
   if (flag === 'false' || flag === '0') return false;
   // Default ON for urgent support restoration; set WHATSAPP_DESK_BRIDGE_ENABLED=false to disable
   return true;
+}
+
+/**
+ * Phone number IDs that use Zoho Desk native Instant Messaging (not this bridge).
+ * Default: sales 084 when WHATSAPP_SALES_NATIVE_IM=true.
+ */
+export function getNativeDeskImPhoneNumberIds(): Set<string> {
+  const ids = new Set<string>();
+  const explicit = process.env.WHATSAPP_NATIVE_DESK_IM_PHONE_NUMBER_IDS || '';
+  for (const part of explicit.split(',')) {
+    const id = part.trim();
+    if (id) ids.add(id);
+  }
+  const salesNative =
+    process.env.WHATSAPP_SALES_NATIVE_IM === 'true' ||
+    process.env.WHATSAPP_SALES_NATIVE_IM === '1';
+  if (salesNative) {
+    const salesId =
+      process.env.WHATSAPP_SALES_PHONE_NUMBER_ID ||
+      process.env.WHATSAPP_PHONE_NUMBER_ID ||
+      '';
+    if (salesId) ids.add(salesId);
+  }
+  return ids;
+}
+
+/** Skip CircleTel desk-bridge when Zoho Desk IM owns this Cloud API phone. */
+export function shouldSkipDeskBridgeForPhone(
+  phoneNumberId: string | undefined | null
+): boolean {
+  if (!phoneNumberId) return false;
+  return getNativeDeskImPhoneNumberIds().has(phoneNumberId.trim());
 }
 
 function getServiceSupabase(): SupabaseClient {
@@ -229,7 +299,7 @@ async function findOpenThread(
  */
 export async function handleInboundWhatsAppToDesk(
   message: WebhookMessage,
-  options?: { contactName?: string }
+  options?: { contactName?: string; phoneNumberId?: string }
 ): Promise<{
   success: boolean;
   ticketId?: string;
@@ -239,11 +309,23 @@ export async function handleInboundWhatsAppToDesk(
     return { success: false, reason: 'bridge_disabled' };
   }
 
-  const departmentId = process.env.ZOHO_DESK_DEPARTMENT_ID;
+  if (shouldSkipDeskBridgeForPhone(options?.phoneNumberId)) {
+    zohoLogger.info(
+      '[WA Desk Bridge] Skipping — phone uses Zoho Desk native IM',
+      { phoneNumberId: options?.phoneNumberId }
+    );
+    return { success: false, reason: 'native_desk_im' };
+  }
+
+  const departmentId = resolveBridgeDepartmentId(options?.phoneNumberId);
   if (!departmentId) {
-    zohoLogger.error('[WA Desk Bridge] ZOHO_DESK_DEPARTMENT_ID not set');
+    zohoLogger.error(
+      '[WA Desk Bridge] ZOHO_DESK_DEPARTMENT_ID / ZOHO_DESK_SALES_DEPARTMENT_ID not set'
+    );
     return { success: false, reason: 'missing_department' };
   }
+  const subjectPrefix = resolveBridgeSubjectPrefix(options?.phoneNumberId);
+  const isSales = isSalesPhoneNumberId(options?.phoneNumberId);
 
   const waFrom = normalizeWaFrom(message.from);
   const supabase = getServiceSupabase();
@@ -321,9 +403,13 @@ export async function handleInboundWhatsAppToDesk(
       '3. Prefer a short reply without CSAT / quoted history.\n' +
       '4. Ignore mailer-daemon bounces if any — WhatsApp delivery is via the bridge, not email.';
 
+    const channelLabel = isSales
+      ? 'WhatsApp Cloud API bridge (Sales 084)'
+      : 'WhatsApp Cloud API bridge';
+
     const ticketPayload: Record<string, unknown> = {
-      subject: `${SUBJECT_PREFIX} ${displayPhone}`,
-      description: `${inboundComment}\n\n---\n${agentInstructions}\n---\nChannel: WhatsApp Cloud API bridge\nWA ID: ${waFrom}`,
+      subject: `${subjectPrefix} ${displayPhone}`,
+      description: `${inboundComment}\n\n---\n${agentInstructions}\n---\nChannel: ${channelLabel}\nWA ID: ${waFrom}`,
       departmentId,
       priority: 'Medium',
       status: 'Open',

@@ -2,7 +2,14 @@
  * Unit tests for WhatsApp Desk bridge comment filtering / reply extraction.
  */
 
-import { extractAgentReplyBody } from '../desk-bridge';
+import {
+  extractAgentReplyBody,
+  getNativeDeskImPhoneNumberIds,
+  isSalesPhoneNumberId,
+  resolveBridgeDepartmentId,
+  resolveBridgeSubjectPrefix,
+  shouldSkipDeskBridgeForPhone,
+} from '../desk-bridge';
 
 const WA_IN_PREFIX = '[WA-IN]';
 const WA_OUT_MARKER = '[WA-OUT-SYNCED]';
@@ -60,6 +67,57 @@ describe('WhatsApp Desk bridge comment sync filter', () => {
     expect(shouldSyncCommentToWhatsApp({ isPublic: true, content: '   ' })).toBe(
       false
     );
+  });
+});
+
+describe('native Desk IM phone skip', () => {
+  const prev = { ...process.env };
+
+  afterEach(() => {
+    process.env.WHATSAPP_SALES_NATIVE_IM = prev.WHATSAPP_SALES_NATIVE_IM;
+    process.env.WHATSAPP_SALES_PHONE_NUMBER_ID =
+      prev.WHATSAPP_SALES_PHONE_NUMBER_ID;
+    process.env.WHATSAPP_PHONE_NUMBER_ID = prev.WHATSAPP_PHONE_NUMBER_ID;
+    process.env.WHATSAPP_NATIVE_DESK_IM_PHONE_NUMBER_IDS =
+      prev.WHATSAPP_NATIVE_DESK_IM_PHONE_NUMBER_IDS;
+    process.env.ZOHO_DESK_DEPARTMENT_ID = prev.ZOHO_DESK_DEPARTMENT_ID;
+    process.env.ZOHO_DESK_SALES_DEPARTMENT_ID =
+      prev.ZOHO_DESK_SALES_DEPARTMENT_ID;
+  });
+
+  it('skips sales phone when WHATSAPP_SALES_NATIVE_IM is true', () => {
+    process.env.WHATSAPP_SALES_NATIVE_IM = 'true';
+    process.env.WHATSAPP_SALES_PHONE_NUMBER_ID = '1198404656682736';
+    expect(shouldSkipDeskBridgeForPhone('1198404656682736')).toBe(true);
+    expect(shouldSkipDeskBridgeForPhone('1158601880661029')).toBe(false);
+    expect(getNativeDeskImPhoneNumberIds().has('1198404656682736')).toBe(true);
+  });
+
+  it('does not skip when native IM flag is off', () => {
+    process.env.WHATSAPP_SALES_NATIVE_IM = 'false';
+    process.env.WHATSAPP_SALES_PHONE_NUMBER_ID = '1198404656682736';
+    expect(shouldSkipDeskBridgeForPhone('1198404656682736')).toBe(false);
+  });
+
+  it('honours explicit WHATSAPP_NATIVE_DESK_IM_PHONE_NUMBER_IDS', () => {
+    process.env.WHATSAPP_SALES_NATIVE_IM = 'false';
+    process.env.WHATSAPP_NATIVE_DESK_IM_PHONE_NUMBER_IDS =
+      '111, 222 ,1198404656682736';
+    expect(shouldSkipDeskBridgeForPhone('222')).toBe(true);
+    expect(shouldSkipDeskBridgeForPhone('1198404656682736')).toBe(true);
+  });
+
+  it('routes sales phone to Sales department and sales subject', () => {
+    process.env.WHATSAPP_SALES_PHONE_NUMBER_ID = '1198404656682736';
+    process.env.ZOHO_DESK_DEPARTMENT_ID = 'support-dept';
+    process.env.ZOHO_DESK_SALES_DEPARTMENT_ID = 'sales-dept';
+    expect(isSalesPhoneNumberId('1198404656682736')).toBe(true);
+    expect(resolveBridgeDepartmentId('1198404656682736')).toBe('sales-dept');
+    expect(resolveBridgeSubjectPrefix('1198404656682736')).toBe(
+      'WhatsApp sales from'
+    );
+    expect(resolveBridgeDepartmentId('other')).toBe('support-dept');
+    expect(resolveBridgeSubjectPrefix('other')).toBe('WhatsApp support from');
   });
 });
 
