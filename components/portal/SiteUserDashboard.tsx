@@ -5,26 +5,27 @@ import Link from 'next/link';
 import { PiHeartbeatBold, PiWifiHighBold, PiWarningBold, PiCalendarBold } from 'react-icons/pi';
 import type { PortalUser } from '@/lib/portal/portal-auth-provider';
 
+import { formatSiteStreet, formatTechnology } from '@/lib/portal/site-format';
+
 interface SiteDetail {
   site: {
     id: string;
     site_name: string;
     site_code: string | null;
-    address_line1: string | null;
-    city: string | null;
+    installation_address: unknown;
     province: string | null;
     status: string | null;
-    technology_type: string | null;
-    contact_name: string | null;
-    contact_phone: string | null;
-    contact_email: string | null;
+    technology: string | null;
+    site_contact_name: string | null;
+    site_contact_phone: string | null;
+    site_contact_email: string | null;
   };
   health: {
     health_score: number;
-    connected_clients: number;
+    online_clients: number;
     cpu_usage: number | null;
     memory_usage: number | null;
-    created_at: string;
+    captured_at: string;
   } | null;
   alerts: Array<{
     id: string;
@@ -32,7 +33,8 @@ interface SiteDetail {
     severity: string;
     message: string;
     created_at: string;
-    resolved_at: string | null;
+    acknowledged: boolean;
+    acknowledged_at: string | null;
   }>;
 }
 
@@ -91,14 +93,14 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
   }
 
   const { site, health, alerts } = siteData;
-  const activeAlerts = alerts.filter((a) => !a.resolved_at);
+  const activeAlerts = alerts.filter((a) => !a.acknowledged);
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">{site.site_name}</h1>
         <p className="text-gray-500 mt-1">
-          {[site.address_line1, site.city, site.province].filter(Boolean).join(', ')}
+          {formatSiteStreet(site)}
         </p>
       </div>
 
@@ -139,7 +141,7 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
             <div>
               <p className="text-sm text-gray-500">Connected Clients</p>
               <p className="text-xl font-bold text-gray-900">
-                {health?.connected_clients ?? '—'}
+                {health?.online_clients ?? '—'}
               </p>
             </div>
           </div>
@@ -199,22 +201,22 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
           <div>
             <dt className="text-gray-500">Technology</dt>
-            <dd className="font-medium text-gray-900">{site.technology_type ?? '—'}</dd>
+            <dd className="font-medium text-gray-900">{formatTechnology(site.technology)}</dd>
           </div>
           <div>
             <dt className="text-gray-500">Site Code</dt>
             <dd className="font-medium text-gray-900">{site.site_code ?? '—'}</dd>
           </div>
-          {site.contact_name && (
+          {site.site_contact_name && (
             <div>
               <dt className="text-gray-500">Contact</dt>
-              <dd className="font-medium text-gray-900">{site.contact_name}</dd>
+              <dd className="font-medium text-gray-900">{site.site_contact_name}</dd>
             </div>
           )}
-          {site.contact_phone && (
+          {site.site_contact_phone && (
             <div>
               <dt className="text-gray-500">Phone</dt>
-              <dd className="font-medium text-gray-900">{site.contact_phone}</dd>
+              <dd className="font-medium text-gray-900">{site.site_contact_phone}</dd>
             </div>
           )}
         </dl>
