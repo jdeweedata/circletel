@@ -19,6 +19,12 @@ import {
   formatZar,
 } from '@/lib/portal/site-format';
 import HealthTrendChart from '@/components/portal/HealthTrendChart';
+import { PortalModernistShell } from '@/components/portal/modernist/PortalModernistShell';
+import {
+  StageBadge,
+  OnboardingProgress,
+} from '@/components/portal/modernist/StageIndicators';
+import type { StageKey } from '@/lib/portal/onboarding-stage';
 
 interface SiteDetail {
   site: {
@@ -46,6 +52,8 @@ interface SiteDetail {
     lat: number | null;
     lng: number | null;
     created_at: string;
+    customer_id: string | null;
+    stage: StageKey;
   };
   health: {
     health_score: number;
@@ -108,7 +116,7 @@ export default function PortalSiteDetailPage() {
   const address = formatSiteStreet(site);
 
   return (
-    <div className="space-y-6">
+    <PortalModernistShell className="space-y-6">
       {isAdmin && (
         <Link
           href="/portal/sites"
@@ -122,17 +130,7 @@ export default function PortalSiteDetailPage() {
       <div>
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">{site.site_name}</h1>
-          <span
-            className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-              site.status === 'active'
-                ? 'bg-green-100 text-green-700'
-                : site.status === 'pending'
-                  ? 'bg-yellow-100 text-yellow-700'
-                  : 'bg-gray-100 text-gray-600'
-            }`}
-          >
-            {site.status ?? 'unknown'}
-          </span>
+          <StageBadge stage={site.stage} />
         </div>
         {address && (
           <p className="text-gray-500 mt-1 flex items-center gap-1">
@@ -141,6 +139,17 @@ export default function PortalSiteDetailPage() {
           </p>
         )}
       </div>
+
+      <section aria-labelledby="onboarding-progress-heading">
+        <h2
+          id="onboarding-progress-heading"
+          className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+          style={{ color: '#13274A' }}
+        >
+          Onboarding progress
+        </h2>
+        <OnboardingProgress stage={site.stage} />
+      </section>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -273,7 +282,7 @@ export default function PortalSiteDetailPage() {
           Raise support ticket for this site
         </Link>
       </div>
-    </div>
+    </PortalModernistShell>
   );
 }
 

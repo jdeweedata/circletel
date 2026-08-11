@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePortalUser } from '@/lib/portal/require-portal-user';
+import { deriveStage, submissionRank } from '@/lib/portal/onboarding-stage';
 
 /** Columns that exist on corporate_sites — verified against information_schema. */
 const SITE_DETAIL_COLUMNS = `
@@ -61,6 +62,48 @@ export async function GET(
     return NextResponse.json({ error: 'Site not found' }, { status: 404 });
   }
 
+  // Stages 1-4 are evidenced on the customer side; customers holds the link.
+  const { data: customer } = await adminDb
+    .from('customers')
+    .select('id')
+    .eq('corporate_site_id', id)
+    .maybeSingle();
+
+  let submissionStatus: string | null = null;
+  let submissionRejectionReason: string | null = null;
+  let onboardingLinkSent = false;
+
+  if (customer) {
+    const [{ data: submissions }, { count: tokenCount }] = await Promise.all([
+      adminDb
+        .from('onboarding_submissions')
+        .select('status, rejection_reason')
+        .eq('customer_id', customer.id),
+      adminDb
+        .from('onboarding_tokens')
+        .select('id', { count: 'exact', head: true })
+        .eq('customer_id', customer.id)
+        .not('sent_at', 'is', null),
+    ]);
+
+    // A customer can hold several submissions — keep the most advanced.
+    for (const s of submissions ?? []) {
+      if (submissionRank(s.status) > submissionRank(submissionStatus)) {
+        submissionStatus = s.status;
+        submissionRejectionReason = s.rejection_reason;
+      }
+    }
+    onboardingLinkSent = (tokenCount ?? 0) > 0;
+  }
+
+  const stage = deriveStage({
+    siteStatus: site.status,
+    installedAt: site.installed_at,
+    submissionStatus,
+    submissionRejectionReason,
+    onboardingLinkSent,
+  });
+
   let latestHealth = null;
   let recentAlerts: unknown[] = [];
 
@@ -86,7 +129,7 @@ export async function GET(
   }
 
   return NextResponse.json({
-    site,
+    site: { ...site, customer_id: customer?.id ?? null, stage },
     health: latestHealth,
     alerts: recentAlerts,
   });

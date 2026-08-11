@@ -1,112 +1,122 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-
+import {
+  FilterChips,
+  RuledTable,
+} from '@/components/portal/modernist/PortalModernistShell';
+import { StageBadge } from '@/components/portal/modernist/StageIndicators';
 import {
   formatSiteLocation,
   formatTechnology,
+  formatZar,
   type PortalSite,
 } from '@/lib/portal/site-format';
 
+type Filter = 'all' | 'onboarding' | 'live';
+
 export default function SiteListTable() {
   const [sites, setSites] = useState<PortalSite[]>([]);
+  const [filter, setFilter] = useState<Filter>('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     fetch('/api/portal/sites')
       .then((r) => r.json())
-      .then((data) => setSites(data.sites ?? []))
+      .then((data) => {
+        if (mounted) setSites(data.sites ?? []);
+      })
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
   }, []);
+
+  const counts = useMemo(
+    () => ({
+      all: sites.length,
+      onboarding: sites.filter((s) => s.stage !== 'live').length,
+      live: sites.filter((s) => s.stage === 'live').length,
+    }),
+    [sites]
+  );
+
+  const visible = useMemo(() => {
+    if (filter === 'live') return sites.filter((s) => s.stage === 'live');
+    if (filter === 'onboarding') return sites.filter((s) => s.stage !== 'live');
+    return sites;
+  }, [sites, filter]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="w-10 h-10 border-4 border-circleTel-orange border-t-transparent rounded-full animate-spin" />
+      <div className="py-16 text-center text-sm" style={{ color: 'var(--pm-body)' }}>
+        Loading sites…
       </div>
     );
   }
 
   if (sites.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-500">
+      <div className="py-16 text-center text-sm" style={{ color: 'var(--pm-body)' }}>
         No sites found for your organisation.
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border overflow-hidden">
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 border-b">
-          <tr>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Site</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600 hidden sm:table-cell">Location</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600 hidden md:table-cell">Technology</th>
-            <th className="text-center px-4 py-3 font-medium text-gray-600">Status</th>
-            <th className="text-center px-4 py-3 font-medium text-gray-600">Health</th>
-            <th className="text-center px-4 py-3 font-medium text-gray-600 hidden sm:table-cell">Clients</th>
+    <>
+      <FilterChips
+        value={filter}
+        onChange={(value) => setFilter(value as Filter)}
+        options={[
+          { value: 'all', label: `All ${counts.all}` },
+          { value: 'onboarding', label: `In onboarding ${counts.onboarding}` },
+          { value: 'live', label: `Live ${counts.live}` },
+        ]}
+      />
+
+      <RuledTable
+        headers={['Site', 'Location', 'Technology', 'Stage', 'Monthly']}
+      >
+        {visible.map((site) => (
+          <tr key={site.id} style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+            <td className="px-4 py-3">
+              <Link
+                href={`/portal/sites/${site.id}`}
+                className="font-extrabold hover:opacity-80"
+                style={{ color: 'var(--pm-navy)' }}
+              >
+                {site.site_name}
+              </Link>
+              {site.site_code && (
+                <p className="text-xs opacity-70" style={{ color: 'var(--pm-body)' }}>
+                  {site.site_code}
+                </p>
+              )}
+            </td>
+            <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
+              {formatSiteLocation(site)}
+            </td>
+            <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
+              {formatTechnology(site.technology)}
+            </td>
+            <td className="px-4 py-3">
+              <StageBadge stage={site.stage} size="sm" />
+            </td>
+            <td
+              className="px-4 py-3 text-right tabular-nums"
+              style={{ color: 'var(--pm-body)' }}
+            >
+              {site.stage === 'live' ? formatZar(site.monthly_fee) : '—'}
+            </td>
           </tr>
-        </thead>
-        <tbody className="divide-y">
-          {sites.map((site) => (
-            <tr key={site.id} className="hover:bg-gray-50">
-              <td className="px-4 py-3">
-                <Link
-                  href={`/portal/sites/${site.id}`}
-                  className="font-medium text-gray-900 hover:text-circleTel-orange"
-                >
-                  {site.site_name}
-                </Link>
-                {site.site_code && (
-                  <p className="text-xs text-gray-400">{site.site_code}</p>
-                )}
-              </td>
-              <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">
-                {formatSiteLocation(site)}
-              </td>
-              <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
-                {formatTechnology(site.technology)}
-              </td>
-              <td className="px-4 py-3 text-center">
-                <span
-                  className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                    site.status === 'active'
-                      ? 'bg-green-100 text-green-700'
-                      : site.status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {site.status ?? 'unknown'}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-center">
-                {site.health ? (
-                  <span
-                    className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                      site.health.health_score >= 80
-                        ? 'bg-green-100 text-green-700'
-                        : site.health.health_score >= 50
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-red-100 text-red-700'
-                    }`}
-                  >
-                    {site.health.health_score}%
-                  </span>
-                ) : (
-                  <span className="text-xs text-gray-400">N/A</span>
-                )}
-              </td>
-              <td className="px-4 py-3 text-center text-gray-600 hidden sm:table-cell">
-                {site.health?.online_clients ?? '—'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </RuledTable>
+    </>
   );
 }

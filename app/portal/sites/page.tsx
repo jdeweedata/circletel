@@ -2,13 +2,15 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
-import { PiBuildings } from 'react-icons/pi';
+import {
+  PortalModernistShell,
+  PageHeader,
+} from '@/components/portal/modernist/PortalModernistShell';
 import SiteListTable from '@/components/portal/SiteListTable';
 
 export default function PortalSitesPage() {
-  const { user, isAdmin, isSiteUser } = usePortalAuth();
+  const { user, isSiteUser } = usePortalAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -21,22 +23,20 @@ export default function PortalSitesPage() {
 
   if (isSiteUser) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-10 h-10 border-4 border-circleTel-orange border-t-transparent rounded-full animate-spin" />
+      <div className="py-20 text-center text-sm" style={{ color: '#13274A' }}>
+        Loading your site…
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <PiBuildings className="w-7 h-7 text-gray-400" />
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Sites</h1>
-          <p className="text-gray-500 mt-0.5">All sites for {user.organisation_name}</p>
-        </div>
-      </div>
+    <PortalModernistShell>
+      <PageHeader
+        eyebrow={`${user.organisation_name} · Network`}
+        title="Sites"
+        subtitle="Every clinic from nomination through to go-live."
+      />
       <SiteListTable />
-    </div>
+    </PortalModernistShell>
   );
 }
