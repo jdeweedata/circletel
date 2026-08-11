@@ -18,7 +18,6 @@ export async function GET() {
       period_end,
       subtotal,
       vat_rate,
-      vat_amount,
       tax_amount,
       total_amount,
       amount_paid,
@@ -26,10 +25,7 @@ export async function GET() {
       line_items,
       invoice_type,
       status,
-      paid_at,
-      payment_method,
-      pdf_url,
-      pdf_generated_at
+      paid_at
     `)
     .eq('corporate_account_id', portalUser.organisation_id)
     .order('invoice_date', { ascending: false });
@@ -39,9 +35,10 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to load invoices' }, { status: 500 });
   }
 
+  // customer_invoices stores VAT in tax_amount; the portal reads vat_amount.
   const normalised = (invoices ?? []).map((inv) => ({
     ...inv,
-    vat_amount: inv.vat_amount ?? inv.tax_amount ?? 0,
+    vat_amount: inv.tax_amount ?? 0,
   }));
 
   return NextResponse.json({ invoices: normalised });
