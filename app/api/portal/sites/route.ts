@@ -8,7 +8,6 @@ const SITE_COLUMNS = `
   site_number,
   site_name,
   site_code,
-  customer_id,
   installation_address,
   province,
   status,
@@ -86,11 +85,25 @@ export async function GET() {
     }
   }
 
-  // Onboarding stages 1-4 are evidenced on the customer side; join them in so
-  // each site carries its position in the six-stage journey.
-  const customerIds = siteList
-    .map((s) => s.customer_id)
-    .filter((id): id is string => !!id);
+  // Onboarding stages 1-4 are evidenced on the customer side. customers holds
+  // the link (customers.corporate_site_id), so resolve site -> customer first.
+  const { data: linkedCustomers } = await adminDb
+    .from('customers')
+    .select('id, corporate_site_id')
+    .in(
+      'corporate_site_id',
+      siteList.map((s) => s.id)
+    )
+    .not('corporate_site_id', 'is', null);
+
+  const customerBySite = new Map<string, string>();
+  for (const c of linkedCustomers ?? []) {
+    if (c.corporate_site_id && !customerBySite.has(c.corporate_site_id)) {
+      customerBySite.set(c.corporate_site_id, c.id);
+    }
+  }
+
+  const customerIds = Array.from(customerBySite.values());
 
   const bestSubmission: Record<
     string,
@@ -127,16 +140,18 @@ export async function GET() {
   }
 
   const enriched = siteList.map((site) => {
-    const submission = site.customer_id ? bestSubmission[site.customer_id] : undefined;
+    const customerId = customerBySite.get(site.id) ?? null;
+    const submission = customerId ? bestSubmission[customerId] : undefined;
     return {
       ...site,
+      customer_id: customerId,
       health: site.ruijie_device_sn ? healthMap[site.ruijie_device_sn] ?? null : null,
       stage: deriveStage({
         siteStatus: site.status,
         installedAt: site.installed_at,
         submissionStatus: submission?.status,
         submissionRejectionReason: submission?.rejection_reason,
-        onboardingLinkSent: site.customer_id ? linkSent.has(site.customer_id) : false,
+        onboardingLinkSent: customerId ? linkSent.has(customerId) : false,
       }),
     };
   });
