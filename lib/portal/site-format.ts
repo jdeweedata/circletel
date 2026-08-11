@@ -6,6 +6,8 @@
  * `device_health_snapshots` (`online_clients`, not `connected_clients`).
  */
 
+import type { StageKey } from '@/lib/portal/onboarding-stage';
+
 export interface SiteAddress {
   street?: string;
   area?: string;
@@ -25,6 +27,8 @@ export interface PortalSite {
   site_number: number | null;
   site_name: string;
   site_code: string | null;
+  customer_id: string | null;
+  stage: StageKey;
   installation_address: SiteAddress | null;
   province: string | null;
   status: string | null;

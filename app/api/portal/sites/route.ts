@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requirePortalUser } from '@/lib/portal/require-portal-user';
+import { deriveStage, submissionRank } from '@/lib/portal/onboarding-stage';
 
 /** Columns that exist on corporate_sites — verified against information_schema. */
 const SITE_COLUMNS = `
@@ -7,6 +8,7 @@ const SITE_COLUMNS = `
   site_number,
   site_name,
   site_code,
+  customer_id,
   installation_address,
   province,
   status,
@@ -84,12 +86,60 @@ export async function GET() {
     }
   }
 
-  const enriched = siteList.map((site) => ({
-    ...site,
-    health: site.ruijie_device_sn
-      ? healthMap[site.ruijie_device_sn] ?? null
-      : null,
-  }));
+  // Onboarding stages 1-4 are evidenced on the customer side; join them in so
+  // each site carries its position in the six-stage journey.
+  const customerIds = siteList
+    .map((s) => s.customer_id)
+    .filter((id): id is string => !!id);
+
+  const bestSubmission: Record<
+    string,
+    { status: string | null; rejection_reason: string | null }
+  > = {};
+  const linkSent = new Set<string>();
+
+  if (customerIds.length > 0) {
+    const [{ data: submissions }, { data: tokens }] = await Promise.all([
+      adminDb
+        .from('onboarding_submissions')
+        .select('customer_id, status, rejection_reason, submitted_at')
+        .in('customer_id', customerIds),
+      adminDb
+        .from('onboarding_tokens')
+        .select('customer_id, sent_at')
+        .in('customer_id', customerIds)
+        .not('sent_at', 'is', null),
+    ]);
+
+    // A customer can hold several submissions (drafts plus an approved one) —
+    // keep the most advanced, breaking ties on the later submitted_at.
+    for (const s of submissions ?? []) {
+      const current = bestSubmission[s.customer_id];
+      if (!current || submissionRank(s.status) > submissionRank(current.status)) {
+        bestSubmission[s.customer_id] = {
+          status: s.status,
+          rejection_reason: s.rejection_reason,
+        };
+      }
+    }
+
+    for (const t of tokens ?? []) linkSent.add(t.customer_id);
+  }
+
+  const enriched = siteList.map((site) => {
+    const submission = site.customer_id ? bestSubmission[site.customer_id] : undefined;
+    return {
+      ...site,
+      health: site.ruijie_device_sn ? healthMap[site.ruijie_device_sn] ?? null : null,
+      stage: deriveStage({
+        siteStatus: site.status,
+        installedAt: site.installed_at,
+        submissionStatus: submission?.status,
+        submissionRejectionReason: submission?.rejection_reason,
+        onboardingLinkSent: site.customer_id ? linkSent.has(site.customer_id) : false,
+      }),
+    };
+  });
 
   return NextResponse.json({ sites: enriched });
 }
