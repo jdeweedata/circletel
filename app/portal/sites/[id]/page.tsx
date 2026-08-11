@@ -13,33 +13,47 @@ import {
   PiCalendarBold,
 } from 'react-icons/pi';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import {
+  formatSiteStreet,
+  formatTechnology,
+  formatZar,
+} from '@/lib/portal/site-format';
 import HealthTrendChart from '@/components/portal/HealthTrendChart';
 
 interface SiteDetail {
   site: {
     id: string;
+    site_number: number | null;
     site_name: string;
     site_code: string | null;
-    address_line1: string | null;
-    address_line2: string | null;
-    city: string | null;
+    installation_address: unknown;
     province: string | null;
-    postal_code: string | null;
     status: string | null;
-    technology_type: string | null;
+    technology: string | null;
+    monthly_fee: number | string | null;
+    installed_at: string | null;
+    job_card_number: string | null;
+    access_type: string | null;
+    access_instructions: string | null;
+    rfi_status: string | null;
+    rfi_notes: string | null;
+    router_model: string | null;
+    router_serial: string | null;
     ruijie_device_sn: string | null;
-    contact_name: string | null;
-    contact_phone: string | null;
-    contact_email: string | null;
-    notes: string | null;
+    site_contact_name: string | null;
+    site_contact_phone: string | null;
+    site_contact_email: string | null;
+    lat: number | null;
+    lng: number | null;
     created_at: string;
   };
   health: {
     health_score: number;
-    connected_clients: number;
+    online_clients: number;
     cpu_usage: number | null;
     memory_usage: number | null;
-    created_at: string;
+    status: string | null;
+    captured_at: string;
   } | null;
   alerts: Array<{
     id: string;
@@ -47,7 +61,8 @@ interface SiteDetail {
     severity: string;
     message: string;
     created_at: string;
-    resolved_at: string | null;
+    acknowledged: boolean;
+    acknowledged_at: string | null;
   }>;
 }
 
@@ -88,11 +103,9 @@ export default function PortalSiteDetailPage() {
   }
 
   const { site, health, alerts } = data;
-  const activeAlerts = alerts.filter((a) => !a.resolved_at);
+  const activeAlerts = alerts.filter((a) => !a.acknowledged);
   const hasMonitoring = !!site.ruijie_device_sn;
-  const address = [site.address_line1, site.address_line2, site.city, site.province, site.postal_code]
-    .filter(Boolean)
-    .join(', ');
+  const address = formatSiteStreet(site);
 
   return (
     <div className="space-y-6">
@@ -139,7 +152,7 @@ export default function PortalSiteDetailPage() {
         <StatCard
           icon={<PiWifiHighBold className="w-6 h-6" />}
           label="Connected Clients"
-          value={health?.connected_clients ?? '—'}
+          value={health?.online_clients ?? '—'}
           color="blue"
         />
         <StatCard
@@ -157,7 +170,7 @@ export default function PortalSiteDetailPage() {
           label="Last Updated"
           value={
             health
-              ? new Date(health.created_at).toLocaleString('en-ZA', {
+              ? new Date(health.captured_at).toLocaleString('en-ZA', {
                   day: '2-digit',
                   month: 'short',
                   hour: '2-digit',
@@ -209,25 +222,28 @@ export default function PortalSiteDetailPage() {
         </div>
       )}
 
-      {alerts.length > 0 && alerts.some((a) => a.resolved_at) && (
+      {alerts.length > 0 && alerts.some((a) => a.acknowledged) && (
         <div className="bg-white rounded-xl border">
           <div className="px-4 py-3 border-b">
-            <h2 className="font-semibold text-gray-900">Recent Resolved Alerts</h2>
+            <h2 className="font-semibold text-gray-900">Recently Acknowledged Alerts</h2>
           </div>
           <ul className="divide-y">
             {alerts
-              .filter((a) => a.resolved_at)
+              .filter((a) => a.acknowledged)
               .slice(0, 5)
               .map((alert) => (
                 <li key={alert.id} className="px-4 py-3 flex items-center justify-between text-gray-500">
                   <div>
                     <p className="text-sm">{alert.message}</p>
                     <p className="text-xs">
-                      Resolved {new Date(alert.resolved_at!).toLocaleString('en-ZA')}
+                      Acknowledged{' '}
+                      {alert.acknowledged_at
+                        ? new Date(alert.acknowledged_at).toLocaleString('en-ZA')
+                        : '—'}
                     </p>
                   </div>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                    resolved
+                    acknowledged
                   </span>
                 </li>
               ))}
@@ -238,12 +254,14 @@ export default function PortalSiteDetailPage() {
       <div className="bg-white rounded-xl border p-4">
         <h2 className="font-semibold text-gray-900 mb-3">Site Information</h2>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
-          <InfoRow label="Technology" value={site.technology_type} />
+          <InfoRow label="Technology" value={formatTechnology(site.technology)} />
           <InfoRow label="Site Code" value={site.site_code} />
-          <InfoRow label="Contact" value={site.contact_name} />
-          <InfoRow label="Phone" value={site.contact_phone} />
-          <InfoRow label="Email" value={site.contact_email} />
-          {site.notes && <InfoRow label="Notes" value={site.notes} />}
+          <InfoRow label="Monthly fee" value={formatZar(site.monthly_fee)} />
+          <InfoRow label="Contact" value={site.site_contact_name} />
+          <InfoRow label="Phone" value={site.site_contact_phone} />
+          <InfoRow label="Email" value={site.site_contact_email} />
+          <InfoRow label="Job card" value={site.job_card_number} />
+          {site.rfi_notes && <InfoRow label="Notes" value={site.rfi_notes} />}
         </dl>
       </div>
 

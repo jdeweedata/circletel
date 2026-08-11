@@ -14,8 +14,8 @@ import {
 
 interface HealthPoint {
   health_score: number;
-  connected_clients: number;
-  created_at: string;
+  online_clients: number;
+  captured_at: string;
 }
 
 interface HealthTrendChartProps {
@@ -54,14 +54,14 @@ export default function HealthTrendChart({ siteId }: HealthTrendChartProps) {
   }
 
   const chartData = data.map((point) => ({
-    time: new Date(point.created_at).toLocaleDateString('en-ZA', {
+    time: new Date(point.captured_at).toLocaleDateString('en-ZA', {
       day: '2-digit',
       month: 'short',
       hour: '2-digit',
       minute: '2-digit',
     }),
     'Health Score': point.health_score,
-    Clients: point.connected_clients,
+    Clients: point.online_clients,
   }));
 
   return (

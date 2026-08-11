@@ -13,22 +13,11 @@ import {
   PmButton,
 } from '@/components/portal/modernist/PortalModernistShell';
 
-interface SiteHealth {
-  health_score: number;
-  connected_clients: number;
-}
-
-interface Site {
-  id: string;
-  site_name: string;
-  site_code: string | null;
-  city: string | null;
-  province: string | null;
-  status: string | null;
-  technology_type: string | null;
-  ruijie_device_sn: string | null;
-  health: SiteHealth | null;
-}
+import {
+  formatSiteLocation,
+  formatTechnology,
+  type PortalSite,
+} from '@/lib/portal/site-format';
 
 interface Invoice {
   id: string;
@@ -40,7 +29,7 @@ interface Invoice {
 }
 
 export default function AdminDashboard({ user }: { user: PortalUser }) {
-  const [sites, setSites] = useState<Site[]>([]);
+  const [sites, setSites] = useState<PortalSite[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -70,7 +59,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
     sites.reduce((sum, s) => sum + (s.health?.health_score ?? 0), 0) /
     (onlineSites || 1);
   const totalClients = sites.reduce(
-    (sum, s) => sum + (s.health?.connected_clients ?? 0),
+    (sum, s) => sum + (s.health?.online_clients ?? 0),
     0
   );
   const overdueInvoices = invoices.filter((i) => i.status === 'overdue');
@@ -151,16 +140,16 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
               </Link>
             </td>
             <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-              {[site.city, site.province].filter(Boolean).join(', ') || '—'}
+              {formatSiteLocation(site)}
             </td>
             <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-              {site.technology_type ?? '—'}
+              {formatTechnology(site.technology)}
             </td>
             <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
               {site.health ? `${site.health.health_score}%` : 'N/A'}
             </td>
             <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-              {site.health?.connected_clients ?? '—'}
+              {site.health?.online_clients ?? '—'}
             </td>
           </tr>
         ))}

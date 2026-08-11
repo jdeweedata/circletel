@@ -3,22 +3,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-interface Site {
-  id: string;
-  site_name: string;
-  site_code: string | null;
-  city: string | null;
-  province: string | null;
-  status: string | null;
-  technology_type: string | null;
-  health: {
-    health_score: number;
-    connected_clients: number;
-  } | null;
-}
+import {
+  formatSiteLocation,
+  formatTechnology,
+  type PortalSite,
+} from '@/lib/portal/site-format';
 
 export default function SiteListTable() {
-  const [sites, setSites] = useState<Site[]>([]);
+  const [sites, setSites] = useState<PortalSite[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -73,10 +65,10 @@ export default function SiteListTable() {
                 )}
               </td>
               <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">
-                {[site.city, site.province].filter(Boolean).join(', ') || '—'}
+                {formatSiteLocation(site)}
               </td>
               <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
-                {site.technology_type ?? '—'}
+                {formatTechnology(site.technology)}
               </td>
               <td className="px-4 py-3 text-center">
                 <span
@@ -109,7 +101,7 @@ export default function SiteListTable() {
                 )}
               </td>
               <td className="px-4 py-3 text-center text-gray-600 hidden sm:table-cell">
-                {site.health?.connected_clients ?? '—'}
+                {site.health?.online_clients ?? '—'}
               </td>
             </tr>
           ))}

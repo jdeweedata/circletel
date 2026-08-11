@@ -1,33 +1,49 @@
 import { NextResponse } from 'next/server';
-import { createClientWithSession } from '@/lib/supabase/server';
+import { requirePortalUser } from '@/lib/portal/require-portal-user';
+
+/** Columns that exist on corporate_sites — verified against information_schema. */
+const SITE_COLUMNS = `
+  id,
+  site_number,
+  site_name,
+  site_code,
+  installation_address,
+  province,
+  status,
+  technology,
+  monthly_fee,
+  installed_at,
+  job_card_number,
+  ruijie_device_sn,
+  site_contact_name,
+  site_contact_email,
+  site_contact_phone,
+  lat,
+  lng,
+  created_at
+`;
 
 export async function GET() {
-  const supabase = await createClientWithSession();
+  const auth = await requirePortalUser();
+  if (!auth.ok) return auth.response;
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { portalUser, adminDb } = auth;
+
+  let query = adminDb
+    .from('corporate_sites')
+    .select(SITE_COLUMNS)
+    .eq('corporate_id', portalUser.organisation_id)
+    .order('site_name');
+
+  // Site users only ever see their own site.
+  if (portalUser.role === 'site_user') {
+    if (!portalUser.site_id) {
+      return NextResponse.json({ sites: [] });
+    }
+    query = query.eq('id', portalUser.site_id);
   }
 
-  const { data: sites, error } = await supabase
-    .from('corporate_sites')
-    .select(`
-      id,
-      site_name,
-      site_code,
-      address_line1,
-      address_line2,
-      city,
-      province,
-      postal_code,
-      status,
-      technology_type,
-      ruijie_device_sn,
-      contact_name,
-      contact_phone,
-      contact_email
-    `)
-    .order('site_name');
+  const { data: sites, error } = await query;
 
   if (error) {
     console.error('[Portal /sites] Query error:', error.message);
@@ -40,23 +56,30 @@ export async function GET() {
     .map((s) => s.ruijie_device_sn)
     .filter((sn): sn is string => !!sn);
 
-  let healthMap: Record<string, { health_score: number; connected_clients: number }> = {};
+  const healthMap: Record<
+    string,
+    { health_score: number; online_clients: number; captured_at: string }
+  > = {};
 
   if (deviceSns.length > 0) {
-    const { data: healthData } = await supabase
+    const { data: healthData, error: healthError } = await adminDb
       .from('device_health_snapshots')
-      .select('device_sn, health_score, connected_clients')
+      .select('device_sn, health_score, online_clients, captured_at')
       .in('device_sn', deviceSns)
-      .order('created_at', { ascending: false });
+      .order('captured_at', { ascending: false });
 
-    if (healthData) {
-      for (const h of healthData) {
-        if (!healthMap[h.device_sn]) {
-          healthMap[h.device_sn] = {
-            health_score: h.health_score,
-            connected_clients: h.connected_clients,
-          };
-        }
+    if (healthError) {
+      console.error('[Portal /sites] Health query error:', healthError.message);
+    }
+
+    // Rows arrive newest-first, so the first hit per device is the latest snapshot.
+    for (const h of healthData ?? []) {
+      if (!healthMap[h.device_sn]) {
+        healthMap[h.device_sn] = {
+          health_score: h.health_score,
+          online_clients: h.online_clients,
+          captured_at: h.captured_at,
+        };
       }
     }
   }
