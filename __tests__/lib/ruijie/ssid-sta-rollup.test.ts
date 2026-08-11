@@ -58,6 +58,7 @@ describe('computeSsidHourDeltas', () => {
     });
 
     expect(result.hourDeltas).toEqual([]);
+    expect(result.clientHourDeltas).toEqual([]);
     expect(result.skippedNonAllowlisted).toBe(1);
     expect(result.skippedIncomplete).toBe(1);
     expect(result.nextState).toEqual([
@@ -120,6 +121,19 @@ describe('computeSsidHourDeltas', () => {
         tx_bytes: 200,
       },
     ]);
+    expect(result.clientHourDeltas).toEqual([
+      {
+        device_sn: 'AP1',
+        mac: 'aa:bb:cc:dd:ee:01',
+        ssid: 'Unjani Clinic Free WiFi',
+        hour_bucket: hour,
+        rx_bytes: 300,
+        tx_bytes: 200,
+        hostname: null,
+        manufacture: null,
+        band: null,
+      },
+    ]);
   });
 
   it('sums Staff deltas into the UTC hour bucket', () => {
@@ -167,7 +181,110 @@ describe('computeSsidHourDeltas', () => {
         tx_bytes: 500,
       },
     ]);
+    // Only the STA with a previous checkpoint contributes bytes; new MAC is baseline.
+    expect(result.clientHourDeltas).toEqual([
+      {
+        device_sn: 'AP1',
+        mac: 'aa:bb:cc:dd:ee:02',
+        ssid: 'Unjani Clinic Staff',
+        hour_bucket: hour,
+        rx_bytes: 600,
+        tx_bytes: 500,
+        hostname: null,
+        manufacture: null,
+        band: null,
+      },
+    ]);
     expect(result.nextState).toHaveLength(2);
+  });
+
+  it('keeps per-MAC rows separate when two clients share an AP+SSID hour', () => {
+    const previous = new Map([
+      [
+        sampleStateKey('AP1', 'aa:bb:cc:dd:ee:01', 'Unjani Clinic Staff'),
+        {
+          device_sn: 'AP1',
+          mac: 'aa:bb:cc:dd:ee:01',
+          ssid: 'Unjani Clinic Staff',
+          last_wifi_up: 100,
+          last_wifi_down: 200,
+        },
+      ],
+      [
+        sampleStateKey('AP1', 'aa:bb:cc:dd:ee:02', 'Unjani Clinic Staff'),
+        {
+          device_sn: 'AP1',
+          mac: 'aa:bb:cc:dd:ee:02',
+          ssid: 'Unjani Clinic Staff',
+          last_wifi_up: 50,
+          last_wifi_down: 80,
+        },
+      ],
+    ]);
+
+    const result = computeSsidHourDeltas({
+      samples: [
+        {
+          sn: 'AP1',
+          mac: 'AA:BB:CC:DD:EE:01',
+          ssid: 'Unjani Clinic Staff',
+          wifiUp: 150,
+          wifiDown: 300,
+          hostname: 'nurse-tablet',
+          manufacture: 'Apple',
+          band: '5G',
+        },
+        {
+          sn: 'AP1',
+          mac: 'AA:BB:CC:DD:EE:02',
+          ssid: 'Unjani Clinic Staff',
+          wifiUp: 90,
+          wifiDown: 100,
+          hostname: 'reception-pc',
+          manufacture: 'Dell',
+          band: '2.4G',
+        },
+      ],
+      previous,
+      sampledAtMs,
+    });
+
+    expect(result.hourDeltas).toEqual([
+      {
+        device_sn: 'AP1',
+        ssid: 'Unjani Clinic Staff',
+        hour_bucket: hour,
+        rx_bytes: 120,
+        tx_bytes: 90,
+      },
+    ]);
+    expect(result.clientHourDeltas).toEqual(
+      expect.arrayContaining([
+        {
+          device_sn: 'AP1',
+          mac: 'aa:bb:cc:dd:ee:01',
+          ssid: 'Unjani Clinic Staff',
+          hour_bucket: hour,
+          rx_bytes: 100,
+          tx_bytes: 50,
+          hostname: 'nurse-tablet',
+          manufacture: 'Apple',
+          band: '5G',
+        },
+        {
+          device_sn: 'AP1',
+          mac: 'aa:bb:cc:dd:ee:02',
+          ssid: 'Unjani Clinic Staff',
+          hour_bucket: hour,
+          rx_bytes: 20,
+          tx_bytes: 40,
+          hostname: 'reception-pc',
+          manufacture: 'Dell',
+          band: '2.4G',
+        },
+      ])
+    );
+    expect(result.clientHourDeltas).toHaveLength(2);
   });
 
   it('credits fresh cumulative after counter reset', () => {

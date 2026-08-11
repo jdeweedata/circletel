@@ -154,6 +154,21 @@ Same numeric fields as the PDF for the selected site/period; companion download,
 
 Parallel map #672 closed: migration + Inngest `ruijie-ssid-sta-sampler` writing Staff-only allow-list rows.
 
+### Per-client STA collection (2026-08-11)
+
+| Decision | Choice |
+|----------|--------|
+| Table | `ruijie_ssid_sta_traffic_rollups` (AP + **MAC** + SSID + hour) |
+| Scope | Same allowlist: `Unjani Clinic Staff`, `Unjani Clinic Free WiFi` |
+| Writer | Same Inngest `ruijie-ssid-sta-sampler` (additive; SSID aggregates unchanged) |
+| Retention | 90 days (pruned with SSID rollups) |
+| Access | Admin RLS + service_role; MAC/hostname are personal telemetry (POPIA) |
+| Helpers | `lib/ruijie/sta-client-rollups.ts` — `loadClientHourRows`, `summarizeTopClients` |
+| Forward-only | No backfill; data starts at deploy / sampler go-live for this table |
+| Not yet | Admin top-clients UI; Ruth PDF per-device tables; customer-facing MAC export |
+
+SSID totals in Usage Reports remain `ruijie_ssid_traffic_rollups`. Per-client rows are for ops / future reports only. Sampled STA telemetry is **not** accounting-grade.
+
 ---
 
 ## 7. Unjani Patient Free Wi-Fi ([#671](https://github.com/jdeweedata/circletel/issues/671), research [#664](https://github.com/jdeweedata/circletel/issues/664))

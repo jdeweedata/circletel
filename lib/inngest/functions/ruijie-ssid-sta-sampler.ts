@@ -3,7 +3,8 @@
  *
  * Every 5 minutes: pull `/sta/sta_users` per group, credit allow-listed SSIDs
  * (`Unjani Clinic Staff`, `Unjani Clinic Free WiFi`) session-byte deltas into
- * UTC hour buckets on `ruijie_ssid_traffic_rollups`, maintain
+ * UTC hour buckets on `ruijie_ssid_traffic_rollups` (AP+SSID) and
+ * `ruijie_ssid_sta_traffic_rollups` (AP+MAC+SSID), maintain
  * `ruijie_ssid_sta_sample_state`.
  *
  * Wayfinder #679 / #672. Retention: 90d rollups, ~36h sample-state.
@@ -21,18 +22,22 @@ import {
   SSID_SAMPLE_STATE_RETENTION_HOURS,
   computeSsidHourDeltas,
   sampleStateKey,
+  type StaSampleInput,
   type StaSampleStateSnapshot,
 } from '@/lib/ruijie/ssid-sta-rollup';
 
 type GroupRow = { group_id: string };
 
-function toSampleInput(sta: StaUserRaw) {
+function toSampleInput(sta: StaUserRaw): StaSampleInput {
   return {
     sn: String(sta.sn ?? ''),
     mac: String(sta.mac ?? ''),
     ssid: String(sta.ssid ?? ''),
     wifiUp: Number(sta.wifiUp),
     wifiDown: Number(sta.wifiDown),
+    hostname: sta.userName ?? null,
+    manufacture: sta.manufacture ?? null,
+    band: sta.band != null ? String(sta.band) : null,
   };
 }
 
@@ -104,7 +109,12 @@ export const ruijieSsidStaSamplerFunction = inngest.createFunction(
 
     if (groups.length === 0) {
       console.warn('[SsidStaSampler] No groups in device cache');
-      return { groupsProcessed: 0, hourRowsTouched: 0, stasSeen: 0 };
+      return {
+        groupsProcessed: 0,
+        hourRowsTouched: 0,
+        clientHourRowsTouched: 0,
+        stasSeen: 0,
+      };
     }
 
     const previous = await step.run('load-sample-state', async () => {
@@ -128,7 +138,7 @@ export const ruijieSsidStaSamplerFunction = inngest.createFunction(
     const sampleResult = await step.run('sample-groups-and-delta', async () => {
       const sampledAtMs = Date.now();
       const sampledAtIso = new Date(sampledAtMs).toISOString();
-      const allStas: ReturnType<typeof toSampleInput>[] = [];
+      const allStas: StaSampleInput[] = [];
 
       for (let i = 0; i < groups.length; i += 1) {
         const group = groups[i];
@@ -210,6 +220,66 @@ export const ruijieSsidStaSamplerFunction = inngest.createFunction(
       return touched;
     });
 
+    const clientHourRowsTouched = await step.run('upsert-client-hour-rollups', async () => {
+      if (sampleResult.clientHourDeltas.length === 0) return 0;
+
+      const supabase = await createClient();
+      const siteBySn = await loadSiteIdBySn(supabase);
+      const nowIso = new Date().toISOString();
+      let touched = 0;
+
+      for (const delta of sampleResult.clientHourDeltas) {
+        const { data: existing, error: readError } = await supabase
+          .from('ruijie_ssid_sta_traffic_rollups')
+          .select('rx_bytes, tx_bytes, corporate_site_id, hostname, manufacture, band')
+          .eq('device_sn', delta.device_sn)
+          .eq('mac', delta.mac)
+          .eq('ssid', delta.ssid)
+          .eq('hour_bucket', delta.hour_bucket)
+          .maybeSingle();
+
+        if (readError) {
+          console.error('[SsidStaSampler] Read client hour row failed:', readError);
+          continue;
+        }
+
+        const siteId =
+          siteBySn.get(delta.device_sn) ??
+          (existing?.corporate_site_id as string | null) ??
+          null;
+
+        const row = {
+          device_sn: delta.device_sn,
+          mac: delta.mac,
+          ssid: delta.ssid,
+          hour_bucket: delta.hour_bucket,
+          hours_window: 1,
+          corporate_site_id: siteId,
+          rx_bytes: Number(existing?.rx_bytes ?? 0) + delta.rx_bytes,
+          tx_bytes: Number(existing?.tx_bytes ?? 0) + delta.tx_bytes,
+          hostname: delta.hostname ?? (existing?.hostname as string | null) ?? null,
+          manufacture:
+            delta.manufacture ?? (existing?.manufacture as string | null) ?? null,
+          band: delta.band ?? (existing?.band as string | null) ?? null,
+          updated_at: nowIso,
+        };
+
+        const { error } = await supabase
+          .from('ruijie_ssid_sta_traffic_rollups')
+          .upsert(row, {
+            onConflict: 'device_sn,mac,ssid,hour_bucket',
+          });
+
+        if (error) {
+          console.error('[SsidStaSampler] Client hour upsert failed:', error, row);
+        } else {
+          touched += 1;
+        }
+      }
+
+      return touched;
+    });
+
     await step.run('upsert-sample-state', async () => {
       if (sampleResult.nextState.length === 0) return;
 
@@ -255,6 +325,14 @@ export const ruijieSsidStaSamplerFunction = inngest.createFunction(
         console.error('[SsidStaSampler] Rollup prune failed:', rollupErr);
       }
 
+      const { error: clientRollupErr } = await supabase
+        .from('ruijie_ssid_sta_traffic_rollups')
+        .delete()
+        .lt('hour_bucket', rollupCutoff);
+      if (clientRollupErr) {
+        console.error('[SsidStaSampler] Client rollup prune failed:', clientRollupErr);
+      }
+
       const { error: stateErr } = await supabase
         .from('ruijie_ssid_sta_sample_state')
         .delete()
@@ -265,13 +343,14 @@ export const ruijieSsidStaSamplerFunction = inngest.createFunction(
     });
 
     console.log(
-      `[SsidStaSampler] done groups=${groups.length} stas=${sampleResult.stasSeen} hourRows=${hourRowsTouched} skippedFree=${sampleResult.skippedNonAllowlisted}`
+      `[SsidStaSampler] done groups=${groups.length} stas=${sampleResult.stasSeen} hourRows=${hourRowsTouched} clientHourRows=${clientHourRowsTouched} skippedFree=${sampleResult.skippedNonAllowlisted}`
     );
 
     return {
       groupsProcessed: groups.length,
       stasSeen: sampleResult.stasSeen,
       hourRowsTouched,
+      clientHourRowsTouched,
       skippedNonAllowlisted: sampleResult.skippedNonAllowlisted,
       skippedIncomplete: sampleResult.skippedIncomplete,
     };

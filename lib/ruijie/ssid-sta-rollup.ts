@@ -1,9 +1,10 @@
 /**
- * Ruijie STA session-byte → hourly SSID rollup helpers.
+ * Ruijie STA session-byte → hourly SSID + per-client rollup helpers.
  *
  * Wayfinder #672 / #673 / #675 / #679: sample STA wifiUp/wifiDown, credit
  * positive deltas into UTC hour buckets for allow-listed SSIDs only
- * (Staff + Free Clinic WiFi).
+ * (Staff + Free Clinic WiFi). Also emits per-MAC hour deltas for
+ * `ruijie_ssid_sta_traffic_rollups` (additive; SSID aggregates unchanged).
  */
 
 import { hourBucketIso } from '@/lib/network/analytics-aggregates';
@@ -19,6 +20,9 @@ export type StaSampleInput = {
   ssid: string;
   wifiUp: number;
   wifiDown: number;
+  hostname?: string | null;
+  manufacture?: string | null;
+  band?: string | null;
 };
 
 export type StaSampleStateSnapshot = {
@@ -37,12 +41,34 @@ export type HourBucketDelta = {
   tx_bytes: number;
 };
 
+/** Per-client hour credit (AP + MAC + SSID). */
+export type ClientHourBucketDelta = {
+  device_sn: string;
+  mac: string;
+  ssid: string;
+  hour_bucket: string;
+  rx_bytes: number;
+  tx_bytes: number;
+  hostname: string | null;
+  manufacture: string | null;
+  band: string | null;
+};
+
 export function sampleStateKey(deviceSn: string, mac: string, ssid: string): string {
   return `${deviceSn}\0${mac}\0${ssid}`;
 }
 
 export function hourBucketKey(deviceSn: string, ssid: string, hourBucket: string): string {
   return `${deviceSn}\0${ssid}\0${hourBucket}`;
+}
+
+export function clientHourBucketKey(
+  deviceSn: string,
+  mac: string,
+  ssid: string,
+  hourBucket: string
+): string {
+  return `${deviceSn}\0${mac}\0${ssid}\0${hourBucket}`;
 }
 
 export function isAllowlistedSsid(
@@ -65,8 +91,15 @@ export function positiveCounterDelta(current: number, previous: number | undefin
   return current;
 }
 
+function normalizeMeta(value: string | null | undefined): string | null {
+  if (value == null) return null;
+  const trimmed = String(value).trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 /**
  * Compute hour-bucket byte credits and next checkpoint state from a STA sample.
+ * Returns SSID aggregates (`hourDeltas`) and per-MAC rows (`clientHourDeltas`).
  */
 export function computeSsidHourDeltas(params: {
   samples: StaSampleInput[];
@@ -75,6 +108,7 @@ export function computeSsidHourDeltas(params: {
   allowlist?: readonly string[];
 }): {
   hourDeltas: HourBucketDelta[];
+  clientHourDeltas: ClientHourBucketDelta[];
   nextState: StaSampleStateSnapshot[];
   skippedNonAllowlisted: number;
   skippedIncomplete: number;
@@ -82,6 +116,7 @@ export function computeSsidHourDeltas(params: {
   const allowlist = params.allowlist ?? RUIJIE_SSID_ROLLUP_ALLOWLIST;
   const hourIso = hourBucketIso(params.sampledAtMs);
   const byHour = new Map<string, HourBucketDelta>();
+  const byClientHour = new Map<string, ClientHourBucketDelta>();
   const nextState: StaSampleStateSnapshot[] = [];
   let skippedNonAllowlisted = 0;
   let skippedIncomplete = 0;
@@ -106,6 +141,10 @@ export function computeSsidHourDeltas(params: {
       continue;
     }
 
+    const hostname = normalizeMeta(sample.hostname);
+    const manufacture = normalizeMeta(sample.manufacture);
+    const band = normalizeMeta(sample.band != null ? String(sample.band) : null);
+
     const key = sampleStateKey(sn, mac, ssid);
     const prev = params.previous.get(key);
     const txDelta = positiveCounterDelta(wifiUp, prev?.last_wifi_up);
@@ -126,6 +165,28 @@ export function computeSsidHourDeltas(params: {
           tx_bytes: txDelta,
         });
       }
+
+      const cKey = clientHourBucketKey(sn, mac, ssid, hourIso);
+      const existingClient = byClientHour.get(cKey);
+      if (existingClient) {
+        existingClient.rx_bytes += rxDelta;
+        existingClient.tx_bytes += txDelta;
+        if (hostname) existingClient.hostname = hostname;
+        if (manufacture) existingClient.manufacture = manufacture;
+        if (band) existingClient.band = band;
+      } else {
+        byClientHour.set(cKey, {
+          device_sn: sn,
+          mac,
+          ssid,
+          hour_bucket: hourIso,
+          rx_bytes: rxDelta,
+          tx_bytes: txDelta,
+          hostname,
+          manufacture,
+          band,
+        });
+      }
     }
 
     nextState.push({
@@ -139,6 +200,7 @@ export function computeSsidHourDeltas(params: {
 
   return {
     hourDeltas: Array.from(byHour.values()),
+    clientHourDeltas: Array.from(byClientHour.values()),
     nextState,
     skippedNonAllowlisted,
     skippedIncomplete,

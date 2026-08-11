@@ -194,6 +194,24 @@ export interface RuijieSsidTrafficRollupRow {
   updated_at: string;
 }
 
+/** Hourly STA session-byte deltas per AP + client MAC + allow-listed SSID. */
+export interface RuijieSsidStaTrafficRollupRow {
+  id: string;
+  device_sn: string;
+  mac: string;
+  ssid: string;
+  hour_bucket: string;
+  hours_window: number;
+  corporate_site_id: string | null;
+  rx_bytes: number;
+  tx_bytes: number;
+  hostname: string | null;
+  manufacture: string | null;
+  band: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 /** Last-seen STA counters for positive-delta sampling between 5-min polls. */
 export interface RuijieSsidStaSampleStateRow {
   device_sn: string;
@@ -207,7 +225,8 @@ export interface RuijieSsidStaSampleStateRow {
 }
 
 /**
- * SSIDs credited by the 5-min STA sampler into `ruijie_ssid_traffic_rollups`.
+ * SSIDs credited by the 5-min STA sampler into `ruijie_ssid_traffic_rollups`
+ * and per-MAC `ruijie_ssid_sta_traffic_rollups`.
  * Exact broadcast names as returned by Ruijie `/sta/sta_users`.
  * (#676 Staff; Free Clinic enabled 2026-08-05 — same delta sampling path.)
  */
