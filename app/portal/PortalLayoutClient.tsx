@@ -2,8 +2,10 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { Archivo } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { PortalAuthProvider, usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import '@/components/portal/modernist/tokens.css';
 import {
   PiSquaresFourBold,
   PiBuildings,
@@ -17,6 +19,17 @@ import {
   PiMapPinAreaBold,
 } from 'react-icons/pi';
 import { useState } from 'react';
+
+/**
+ * The portal is set in Archivo, matching the modernist mockups. Loaded as the
+ * variable font so the 500/700 weights the screens use render as themselves
+ * rather than being substituted from a pinned subset.
+ */
+const archivo = Archivo({
+  subsets: ['latin'],
+  variable: '--font-archivo',
+  display: 'swap',
+});
 
 const adminNavItems = [
   { href: '/portal', label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
@@ -265,7 +278,9 @@ function PortalContent({ children }: { children: React.ReactNode }) {
 export default function PortalLayoutClient({ children }: { children: React.ReactNode }) {
   return (
     <PortalAuthProvider>
-      <PortalContent>{children}</PortalContent>
+      <div className={cn('portal-root', archivo.variable)}>
+        <PortalContent>{children}</PortalContent>
+      </div>
     </PortalAuthProvider>
   );
 }
