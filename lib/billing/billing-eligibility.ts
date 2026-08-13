@@ -37,3 +37,17 @@ export function isBeforeBillingStart(
 
   return start > run;
 }
+
+/** True when this service would be included in a recurring billing run today. */
+export function isCustomerServiceBilledNow(
+  service: {
+    billing_start_date?: string | null;
+    status?: string | null;
+    active?: boolean | null;
+  },
+  runDate: Date = new Date()
+): boolean {
+  if (service.active === false) return false;
+  if (service.status && service.status !== 'active') return false;
+  return !isBeforeBillingStart(service.billing_start_date, runDate);
+}

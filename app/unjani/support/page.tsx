@@ -206,7 +206,12 @@ export default function PortalSupportPage() {
       )}
 
       <div className="bg-white rounded-xl border p-6">
-        <h2 className="font-semibold text-gray-900 mb-4">New Request</h2>
+        <h2
+          className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-4"
+          style={{ color: 'var(--pm-navy)' }}
+        >
+          New Request
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Task 2.1: Ticket type selector */}
           <div>
@@ -385,7 +390,12 @@ export default function PortalSupportPage() {
       <div className="bg-white rounded-xl border">
         <div className="px-4 py-3 border-b flex items-center gap-2">
           <PiClockBold className="w-5 h-5 text-gray-400" />
-          <h2 className="font-semibold text-gray-900">Ticket History</h2>
+          <h2
+            className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+            style={{ color: 'var(--pm-navy)' }}
+          >
+            Ticket History
+          </h2>
           <span className="text-xs text-gray-400 ml-auto">{tickets.length} ticket{tickets.length !== 1 ? 's' : ''}</span>
         </div>
         {tickets.length === 0 ? (

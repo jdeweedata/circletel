@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { isUnjaniCorporateCode } from '@/lib/portal/paths';
 
 export interface PortalUserRow {
   id: string;
@@ -94,6 +95,16 @@ export async function requirePortalUser(): Promise<PortalAuthResult> {
     return {
       ok: false,
       response: NextResponse.json({ error: 'No portal access' }, { status: 403 }),
+    };
+  }
+
+  if (!isUnjaniCorporateCode(portalUser.organisation_code)) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: 'Unjani Connect access required' },
+        { status: 403 }
+      ),
     };
   }
 

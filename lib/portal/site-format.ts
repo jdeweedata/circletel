@@ -55,6 +55,23 @@ export function siteAddress(site: {
   return raw as SiteAddress;
 }
 
+/** "Unjani Clinic - Alexandra" → "Alexandra". Leaves unrelated names intact. */
+export function formatClinicShortName(siteName: string | null | undefined): string {
+  if (!siteName) return '—';
+  const trimmed = siteName.replace(/^.*[Uu]njani [Cc]linic\s*[-–—]?\s*/, '').trim();
+  return trimmed || siteName;
+}
+
+/** Prefer the site code, otherwise UNJ-032-style from the numeric site number. */
+export function formatSiteCode(site: {
+  site_code?: string | null;
+  site_number?: number | null;
+}): string | null {
+  if (site.site_code?.trim()) return site.site_code.trim();
+  if (site.site_number == null) return null;
+  return `UNJ-${String(site.site_number).padStart(3, '0')}`;
+}
+
 /** "Sandton, Gauteng" — falls back to the site's own province column. */
 export function formatSiteLocation(site: {
   installation_address?: unknown;

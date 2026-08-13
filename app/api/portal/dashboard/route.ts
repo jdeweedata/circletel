@@ -3,9 +3,9 @@ import { requirePortalUser } from '@/lib/portal/require-portal-user';
 import {
   deriveStage,
   submissionRank,
-  isInFreeFirstMonth,
   type StageKey,
 } from '@/lib/portal/onboarding-stage';
+import { isCustomerServiceBilledNow } from '@/lib/billing/billing-eligibility';
 
 /**
  * Organisation-level rollup for the portal dashboard.
@@ -52,6 +52,48 @@ export async function GET() {
 
   const siteList = sites ?? [];
   const siteIds = new Set(siteList.map((s) => s.id));
+
+  const { data: siteCustomers } = siteIds.size
+    ? await adminDb
+        .from('customers')
+        .select('id, corporate_site_id')
+        .in('corporate_site_id', [...siteIds])
+    : { data: [] as Array<{ id: string; corporate_site_id: string }> };
+
+  type SiteServiceRow = {
+    customer_id: string;
+    billing_start_date: string | null;
+    status: string | null;
+    active: boolean | null;
+  };
+
+  const siteCustomerIds = (siteCustomers ?? []).map((c) => c.id);
+  const { data: siteServices } = siteCustomerIds.length
+    ? await adminDb
+        .from('customer_services')
+        .select('customer_id, billing_start_date, status, active')
+        .in('customer_id', siteCustomerIds)
+    : { data: [] as SiteServiceRow[] };
+
+  const servicesByCustomer = new Map<string, SiteServiceRow[]>();
+  for (const svc of (siteServices ?? []) as SiteServiceRow[]) {
+    const list = servicesByCustomer.get(svc.customer_id) ?? [];
+    list.push(svc);
+    servicesByCustomer.set(svc.customer_id, list);
+  }
+
+  const billedCustomerBySite = new Map<string, string>();
+  for (const c of siteCustomers ?? []) {
+    if (c.corporate_site_id) billedCustomerBySite.set(c.corporate_site_id, c.id);
+  }
+
+  const now = new Date();
+  const isSiteBilled = (siteId: string): boolean => {
+    const customerId = billedCustomerBySite.get(siteId);
+    if (!customerId) return false;
+    const services = servicesByCustomer.get(customerId) ?? [];
+    return services.some((svc) => isCustomerServiceBilledNow(svc, now));
+  };
 
   // Coverage checks define which clinics belong to this organisation, so they
   // also scope the clinics that are onboarding without a site record yet.
@@ -118,6 +160,7 @@ export async function GET() {
   };
 
   let sitesLive = 0;
+  let billedSites = 0;
   let monthlySpend = 0;
 
   for (const site of siteList) {
@@ -134,9 +177,10 @@ export async function GET() {
 
     if (stage === 'live') {
       sitesLive++;
-      // The guide: the first month from go-live is free, so a site only starts
-      // contributing to monthly spend once that month has elapsed.
-      if (!isInFreeFirstMonth(site.installed_at)) {
+      // Recurring spend follows the invoice generator: an active service whose
+      // billing_start_date has been reached. Live but deferred (e.g. 1 Sep) is excluded.
+      if (isSiteBilled(site.id)) {
+        billedSites++;
         monthlySpend += Number(site.monthly_fee ?? 0);
       }
     }
@@ -180,6 +224,7 @@ export async function GET() {
 
   return NextResponse.json({
     sitesLive,
+    billedSites,
     inOnboarding,
     preQualified: preQualifiedChecks.length,
     monthlySpend,

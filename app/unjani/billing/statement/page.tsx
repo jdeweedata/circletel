@@ -75,7 +75,7 @@ export default function PortalStatementPage() {
         subtitle={`Consolidated statement for ${user.organisation_name}`}
         actions={
           <>
-            <Link href="/portal/billing">
+            <Link href="/unjani/billing">
               <PmButton variant="ghost">Back to invoices</PmButton>
             </Link>
             <PmButton onClick={downloadPdf} disabled={downloading || !statement}>

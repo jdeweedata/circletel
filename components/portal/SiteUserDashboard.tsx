@@ -5,7 +5,16 @@ import Link from 'next/link';
 import { PiHeartbeatBold, PiWifiHighBold, PiWarningBold, PiCalendarBold } from 'react-icons/pi';
 import type { PortalUser } from '@/lib/portal/portal-auth-provider';
 
-import { formatSiteStreet, formatTechnology } from '@/lib/portal/site-format';
+import {
+  formatClinicShortName,
+  formatSiteCode,
+  formatSiteStreet,
+  formatTechnology,
+} from '@/lib/portal/site-format';
+import {
+  PageHeader,
+  PortalModernistShell,
+} from '@/components/portal/modernist/PortalModernistShell';
 
 interface SiteDetail {
   site: {
@@ -96,13 +105,16 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
   const activeAlerts = alerts.filter((a) => !a.acknowledged);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{site.site_name}</h1>
-        <p className="text-gray-500 mt-1">
-          {formatSiteStreet(site)}
-        </p>
-      </div>
+    <PortalModernistShell className="space-y-6">
+      <PageHeader
+        eyebrow={
+          formatSiteCode(site)
+            ? `${user.organisation_name} · ${formatSiteCode(site)}`
+            : `${user.organisation_name} · Site`
+        }
+        title={formatClinicShortName(site.site_name)}
+        subtitle={formatSiteStreet(site) || undefined}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border p-4">
@@ -174,7 +186,12 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
         <div className="bg-white rounded-xl border">
           <div className="px-4 py-3 border-b flex items-center gap-2">
             <PiWarningBold className="w-5 h-5 text-amber-500" />
-            <h2 className="font-semibold text-gray-900">Active Alerts</h2>
+            <h2
+              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Active Alerts
+            </h2>
           </div>
           <ul className="divide-y">
             {activeAlerts.map((alert) => (
@@ -197,7 +214,12 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
       )}
 
       <div className="bg-white rounded-xl border p-4">
-        <h2 className="font-semibold text-gray-900 mb-3">Site Information</h2>
+        <h2
+          className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-3"
+          style={{ color: 'var(--pm-navy)' }}
+        >
+          Site Information
+        </h2>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
           <div>
             <dt className="text-gray-500">Technology</dt>
@@ -224,18 +246,18 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
 
       <div className="flex gap-4">
         <Link
-          href={`/portal/sites/${site.id}`}
+          href={`/unjani/sites/${site.id}`}
           className="text-sm text-circleTel-orange hover:underline"
         >
           View full site details →
         </Link>
         <Link
-          href="/portal/support"
+          href="/unjani/support"
           className="text-sm text-circleTel-orange hover:underline"
         >
           Raise support ticket →
         </Link>
       </div>
-    </div>
+    </PortalModernistShell>
   );
 }

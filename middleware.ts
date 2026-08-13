@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
     return adminAuthResult.redirectResponse;
   }
 
-  // Step 3.5: Handle B2B portal route authentication
+  // Step 3.5: Unjani Connect (/unjani) authentication
   const portalAuthResult = await handlePortalAuth(request, supabase);
   if (portalAuthResult.shouldRedirect && portalAuthResult.redirectResponse) {
     return portalAuthResult.redirectResponse;
