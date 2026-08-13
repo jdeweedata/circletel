@@ -19,15 +19,15 @@ import { CONTACT } from '@/lib/constants/contact';
 // CircleTel Company Details (SARS requirement: supplier info)
 // Address sourced from lib/constants/contact.ts — update there to propagate everywhere.
 export const COMPANY_DETAILS = {
-  name: CONTACT.PHYSICAL_ADDRESS.name,
+  name: CONTACT.PHYSICAL_ADDRESS.name ?? 'Circle Tel SA (Pty) Ltd',
   vatNumber: '4380269318',
   registrationNumber: '2008/026404/07',
   address: {
     line1: `${CONTACT.PHYSICAL_ADDRESS.building}, ${CONTACT.PHYSICAL_ADDRESS.street}`,
     line2: CONTACT.PHYSICAL_ADDRESS.suburb,
-    province: CONTACT.PHYSICAL_ADDRESS.province,
+    province: CONTACT.PHYSICAL_ADDRESS.province ?? 'Gauteng',
     postalCode: CONTACT.PHYSICAL_ADDRESS.postalCode,
-    country: CONTACT.PHYSICAL_ADDRESS.country,
+    country: CONTACT.PHYSICAL_ADDRESS.country ?? 'South Africa',
   },
   contact: {
     email: CONTACT.EMAIL_SUPPORT,
@@ -36,7 +36,7 @@ export const COMPANY_DETAILS = {
   },
   banking: {
     bankName: 'Standard Bank',
-    accountName: CONTACT.PHYSICAL_ADDRESS.name,
+    accountName: CONTACT.PHYSICAL_ADDRESS.name ?? 'Circle Tel SA (Pty) Ltd',
     accountNumber: '202413993',
     accountType: 'Current',
     branchCode: '051001',
