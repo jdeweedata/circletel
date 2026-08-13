@@ -101,7 +101,7 @@ export default function PortalBillingPage() {
         title="Invoices"
         subtitle={`Itemised Unjani Connect billing for ${user.organisation_name}`}
         actions={
-          <Link href="/portal/billing/statement">
+          <Link href="/unjani/billing/statement">
             <PmButton variant="secondary">Account statement</PmButton>
           </Link>
         }

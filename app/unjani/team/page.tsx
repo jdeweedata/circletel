@@ -42,7 +42,7 @@ export default function PortalTeamPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!isAdmin) {
-      router.replace('/portal');
+      router.replace('/unjani');
       return;
     }
 

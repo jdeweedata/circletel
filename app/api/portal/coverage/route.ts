@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requirePortalSuperUser } from '@/lib/portal/require-portal-user';
 import { mtnCspClient } from '@/lib/coverage/skyfibre/csp-client';
 import { MTNConsumerClient } from '@/lib/coverage/mtn/consumer-client';
+import {
+  clinicKey,
+  contactForClinic,
+  mergeClinicContact,
+} from '@/lib/portal/coverage-summary';
+import { allRegisterContactsByClinicKey } from '@/lib/portal/unjani-register-contact';
 
 export async function GET() {
   const auth = await requirePortalSuperUser();
@@ -9,18 +15,48 @@ export async function GET() {
 
   const { portalUser, adminDb } = auth;
 
-  const { data, error } = await adminDb
-    .from('b2b_coverage_checks')
-    .select('id, clinic_name, address, latitude, longitude, results, created_at')
-    .eq('organisation_id', portalUser.organisation_id)
-    .order('created_at', { ascending: false })
-    .limit(50);
+  const [{ data, error }, { data: sites }] = await Promise.all([
+    adminDb
+      .from('b2b_coverage_checks')
+      .select('id, clinic_name, address, latitude, longitude, results, created_at')
+      .eq('organisation_id', portalUser.organisation_id)
+      .order('clinic_name', { ascending: true }),
+    adminDb
+      .from('corporate_sites')
+      .select('site_name, site_contact_name, site_contact_phone, site_contact_email')
+      .eq('corporate_id', portalUser.organisation_id),
+  ]);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ checks: data ?? [] });
+  const pipelineClinicKeys: string[] = [];
+  const pipelineContacts = { ...allRegisterContactsByClinicKey() };
+
+  for (const site of sites ?? []) {
+    const key = clinicKey(site.site_name);
+    if (!key) continue;
+    pipelineClinicKeys.push(key);
+    pipelineContacts[key] = mergeClinicContact(pipelineContacts[key], {
+      name: site.site_contact_name ?? '',
+      phone: site.site_contact_phone ?? '',
+      email: site.site_contact_email ?? '',
+    });
+  }
+
+  for (const check of data ?? []) {
+    const key = clinicKey(check.clinic_name);
+    if (!key || pipelineContacts[key]) continue;
+    const found = contactForClinic(check.clinic_name, pipelineContacts);
+    if (found) pipelineContacts[key] = found;
+  }
+
+  return NextResponse.json({
+    checks: data ?? [],
+    pipelineClinicKeys: [...new Set(pipelineClinicKeys)],
+    pipelineContacts,
+  });
 }
 
 export async function POST(request: NextRequest) {

@@ -91,6 +91,8 @@ const nextConfig = {
   redirects: async () => [
     { source: '/get-connected', destination: '/check-coverage', permanent: true },
     { source: '/order/coverage', destination: '/check-coverage', permanent: true },
+    { source: '/portal', destination: '/unjani', permanent: false },
+    { source: '/portal/:path*', destination: '/unjani/:path*', permanent: false },
   ],
   images: {
     remotePatterns: [

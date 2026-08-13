@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Archivo } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { PortalAuthProvider, usePortalAuth } from '@/lib/portal/portal-auth-provider';
@@ -32,18 +33,18 @@ const archivo = Archivo({
 });
 
 const adminNavItems = [
-  { href: '/portal', label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
-  { href: '/portal/sites', label: 'Sites', icon: PiBuildings },
-  { href: '/portal/coverage', label: 'Coverage', icon: PiMapPinAreaBold },
-  { href: '/portal/billing', label: 'Billing', icon: PiCurrencyDollarBold },
-  { href: '/portal/support', label: 'Support', icon: PiLifebuoyBold },
-  { href: '/portal/team', label: 'Team', icon: PiUsersThreeBold },
+  { href: '/unjani', label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
+  { href: '/unjani/sites', label: 'Sites', icon: PiBuildings },
+  { href: '/unjani/coverage', label: 'Coverage', icon: PiMapPinAreaBold },
+  { href: '/unjani/billing', label: 'Billing', icon: PiCurrencyDollarBold },
+  { href: '/unjani/support', label: 'Support', icon: PiLifebuoyBold },
+  { href: '/unjani/team', label: 'Team', icon: PiUsersThreeBold },
 ];
 
 const siteUserNavItems = [
-  { href: '/portal', label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
-  { href: '/portal/billing', label: 'Billing', icon: PiCurrencyDollarBold },
-  { href: '/portal/support', label: 'Support', icon: PiLifebuoyBold },
+  { href: '/unjani', label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
+  { href: '/unjani/billing', label: 'Billing', icon: PiCurrencyDollarBold },
+  { href: '/unjani/support', label: 'Support', icon: PiLifebuoyBold },
 ];
 
 function PortalNav() {
@@ -59,16 +60,20 @@ function PortalNav() {
   return (
     <header
       className="sticky top-0 z-50 bg-white"
-      style={{ borderBottom: '2px solid color-mix(in srgb, #13274A 28%, transparent)' }}
+      style={{ borderBottom: '1px solid #E5E7EB' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/portal" className="flex items-center gap-2">
-            <span className="text-xl font-extrabold" style={{ color: '#F5841E' }}>
-              CircleTel
-            </span>
-            <span className="text-sm font-medium" style={{ color: '#13274A' }}>
-              Portal
+          <Link href="/unjani" className="flex items-center gap-2.5">
+            <Image
+              src="/images/circletel-enclosed-logo.svg"
+              alt="CircleTel"
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain"
+            />
+            <span className="text-base font-semibold" style={{ color: '#13274A' }}>
+              Unjani Connect
             </span>
           </Link>
 
@@ -82,8 +87,8 @@ function PortalNav() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'px-3 py-2 text-sm font-extrabold transition-colors flex items-center gap-2',
-                    isActive ? 'text-white' : 'hover:opacity-80'
+                    'rounded-full px-3 py-2 text-sm font-semibold transition-colors flex items-center gap-2',
+                    isActive ? 'text-white' : 'hover:bg-black/[0.04]'
                   )}
                   style={
                     isActive
@@ -102,19 +107,19 @@ function PortalNav() {
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 px-3 py-2"
-                style={{ border: '1px solid color-mix(in srgb, #13274A 28%, transparent)' }}
+                className="flex items-center gap-2 rounded-full px-2 py-1.5 hover:bg-black/[0.03]"
+                style={{ border: '1px solid #E5E7EB' }}
               >
                 <div
-                  className="w-8 h-8 flex items-center justify-center"
-                  style={{ background: 'color-mix(in srgb, #F5841E 18%, #FFFFFF)' }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: '#FBEEDA' }}
                 >
                   <span className="text-sm font-extrabold" style={{ color: '#13274A' }}>
                     {user.display_name.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-sm font-extrabold truncate max-w-[140px]" style={{ color: '#13274A' }}>
+                  <p className="text-sm font-semibold truncate max-w-[140px]" style={{ color: '#13274A' }}>
                     {user.display_name}
                   </p>
                   <p className="text-xs truncate max-w-[140px]" style={{ color: '#1F2937' }}>
@@ -128,7 +133,7 @@ function PortalNav() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
                   <div
-                    className="absolute right-0 mt-2 w-56 bg-white z-50"
+                    className="rounded-xl absolute right-0 mt-2 w-56 bg-white z-50"
                     style={{ border: '2px solid color-mix(in srgb, #13274A 28%, transparent)' }}
                   >
                     <div
@@ -211,7 +216,7 @@ function PortalNav() {
 function PortalContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = usePortalAuth();
   const pathname = usePathname();
-  const isLoginPage = pathname === '/portal/login';
+  const isLoginPage = pathname === '/unjani/login';
 
   if (isLoginPage) {
     return <>{children}</>;

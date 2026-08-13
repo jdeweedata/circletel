@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { PiCaretRightBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
 
@@ -36,16 +38,18 @@ export function PageHeader({
   title,
   subtitle,
   actions,
+  showRule = true,
 }: {
   eyebrow?: string;
   title: string;
   subtitle?: string;
   actions?: ReactNode;
+  showRule?: boolean;
 }) {
   return (
     <div
       className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 mb-0"
-      style={{ borderBottom: '2px solid var(--pm-divider)' }}
+      style={showRule ? { borderBottom: '2px solid var(--pm-divider)' } : undefined}
     >
       <div>
         {eyebrow && (
@@ -76,14 +80,21 @@ export function PageHeader({
 export function AlertBand({
   children,
   action,
+  tone = 'navy',
 }: {
   children: ReactNode;
   action?: ReactNode;
+  tone?: 'navy' | 'peach';
 }) {
+  const peach = tone === 'peach';
   return (
     <div
-      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 mt-6"
-      style={{ background: 'var(--pm-navy)', color: '#FFFFFF' }}
+      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 mt-6 rounded-xl"
+      style={
+        peach
+          ? { background: '#FBEEDA', color: 'var(--pm-navy)' }
+          : { background: 'var(--pm-navy)', color: '#FFFFFF' }
+      }
     >
       <div className="text-sm font-medium">{children}</div>
       {action}
@@ -93,9 +104,70 @@ export function AlertBand({
 
 export function KpiStrip({
   items,
+  variant = 'ruled',
 }: {
-  items: Array<{ label: string; value: string; note?: string }>;
+  items: Array<{
+    label: string;
+    value: string;
+    note?: string;
+    href?: string;
+    accent?: string;
+    valueColor?: string;
+  }>;
+  variant?: 'ruled' | 'cards';
 }) {
+  if (variant === 'cards') {
+    return (
+      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {items.map((item) => {
+          const body = (
+            <div
+              className="relative h-full rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-black/[0.06]"
+              style={
+                item.accent
+                  ? { borderBottom: `3px solid ${item.accent}` }
+                  : undefined
+              }
+            >
+              {item.href && (
+                <PiCaretRightBold
+                  className="absolute right-3 top-3 h-4 w-4 opacity-40"
+                  style={{ color: 'var(--pm-navy)' }}
+                  aria-hidden="true"
+                />
+              )}
+              <p
+                className="text-[10px] font-extrabold tracking-[0.08em] uppercase pr-6"
+                style={{ color: 'var(--pm-navy)' }}
+              >
+                {item.label}
+              </p>
+              <p
+                className="mt-1 text-2xl font-extrabold tabular-nums"
+                style={{ color: item.valueColor ?? 'var(--pm-navy)' }}
+              >
+                {item.value}
+              </p>
+              {item.note && (
+                <p className="mt-1 text-xs" style={{ color: '#6B7280' }}>
+                  {item.note}
+                </p>
+              )}
+            </div>
+          );
+
+          return item.href ? (
+            <Link key={item.label} href={item.href} className="block hover:opacity-90">
+              {body}
+            </Link>
+          ) : (
+            <div key={item.label}>{body}</div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div
       className="grid grid-cols-2 lg:grid-cols-4 mt-6"
@@ -176,14 +248,16 @@ export function FilterChips({
 export function RuledTable({
   headers,
   children,
+  className,
 }: {
   headers: string[];
   children: ReactNode;
+  className?: string;
 }) {
   return (
     <div
-      className="mt-6 overflow-x-auto bg-white"
-      style={{ border: '2px solid var(--pm-divider)' }}
+      className={cn('mt-6 overflow-x-auto bg-white', className)}
+      style={{ border: className ? undefined : '2px solid var(--pm-divider)' }}
     >
       <table className="w-full text-sm">
         <thead>
@@ -211,7 +285,7 @@ export function PmButton({
   className,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'cta';
 }) {
   const styles: Record<string, React.CSSProperties> = {
     primary: {
@@ -219,10 +293,15 @@ export function PmButton({
       color: 'var(--pm-navy)',
       border: 'none',
     },
+    cta: {
+      background: 'var(--pm-accent)',
+      color: '#FFFFFF',
+      border: 'none',
+    },
     secondary: {
       background: '#FFFFFF',
       color: 'var(--pm-navy)',
-      border: '2px solid var(--pm-divider)',
+      border: '1px solid #E5E7EB',
     },
     ghost: {
       background: 'transparent',
@@ -237,7 +316,7 @@ export function PmButton({
     <button
       type={type}
       className={cn(
-        'px-4 py-2 text-sm font-extrabold disabled:opacity-50',
+        'rounded-lg px-4 py-2 text-sm font-extrabold disabled:opacity-50',
         className
       )}
       style={styles[variant]}

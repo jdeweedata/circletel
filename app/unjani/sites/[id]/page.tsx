@@ -7,19 +7,23 @@ import {
   PiHeartbeatBold,
   PiWifiHighBold,
   PiWarningBold,
-  PiArrowLeftBold,
-  PiMapPinBold,
   PiCpuBold,
   PiCalendarBold,
 } from 'react-icons/pi';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
 import {
+  formatClinicShortName,
+  formatSiteCode,
   formatSiteStreet,
   formatTechnology,
   formatZar,
 } from '@/lib/portal/site-format';
 import HealthTrendChart from '@/components/portal/HealthTrendChart';
-import { PortalModernistShell } from '@/components/portal/modernist/PortalModernistShell';
+import {
+  PageHeader,
+  PmButton,
+  PortalModernistShell,
+} from '@/components/portal/modernist/PortalModernistShell';
 import {
   StageBadge,
   OnboardingProgress,
@@ -102,7 +106,7 @@ export default function PortalSiteDetailPage() {
       <div className="text-center py-20">
         <p className="text-gray-500">Site not found.</p>
         {isAdmin && (
-          <Link href="/portal/sites" className="text-sm text-circleTel-orange hover:underline mt-2 inline-block">
+          <Link href="/unjani/sites" className="text-sm text-circleTel-orange hover:underline mt-2 inline-block">
             Back to sites
           </Link>
         )}
@@ -117,28 +121,23 @@ export default function PortalSiteDetailPage() {
 
   return (
     <PortalModernistShell className="space-y-6">
-      {isAdmin && (
-        <Link
-          href="/portal/sites"
-          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-circleTel-orange"
-        >
-          <PiArrowLeftBold className="w-4 h-4" />
-          Back to sites
-        </Link>
-      )}
-
-      <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">{site.site_name}</h1>
-          <StageBadge stage={site.stage} />
-        </div>
-        {address && (
-          <p className="text-gray-500 mt-1 flex items-center gap-1">
-            <PiMapPinBold className="w-4 h-4 shrink-0" />
-            {address}
-          </p>
-        )}
-      </div>
+      <PageHeader
+        eyebrow={
+          formatSiteCode(site) ? `Network · ${formatSiteCode(site)}` : 'Network · Site'
+        }
+        title={formatClinicShortName(site.site_name)}
+        subtitle={address || undefined}
+        actions={
+          <>
+            <StageBadge stage={site.stage} />
+            {isAdmin && (
+              <Link href="/unjani/sites">
+                <PmButton variant="ghost">Back to sites</PmButton>
+              </Link>
+            )}
+          </>
+        }
+      />
 
       <section aria-labelledby="onboarding-progress-heading">
         <h2
@@ -203,7 +202,12 @@ export default function PortalSiteDetailPage() {
         <div className="bg-white rounded-xl border">
           <div className="px-4 py-3 border-b flex items-center gap-2">
             <PiWarningBold className="w-5 h-5 text-amber-500" />
-            <h2 className="font-semibold text-gray-900">Active Alerts ({activeAlerts.length})</h2>
+            <h2
+              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Active Alerts ({activeAlerts.length})
+            </h2>
           </div>
           <ul className="divide-y">
             {activeAlerts.map((alert) => (
@@ -234,7 +238,12 @@ export default function PortalSiteDetailPage() {
       {alerts.length > 0 && alerts.some((a) => a.acknowledged) && (
         <div className="bg-white rounded-xl border">
           <div className="px-4 py-3 border-b">
-            <h2 className="font-semibold text-gray-900">Recently Acknowledged Alerts</h2>
+            <h2
+              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Recently Acknowledged Alerts
+            </h2>
           </div>
           <ul className="divide-y">
             {alerts
@@ -261,7 +270,12 @@ export default function PortalSiteDetailPage() {
       )}
 
       <div className="bg-white rounded-xl border p-4">
-        <h2 className="font-semibold text-gray-900 mb-3">Site Information</h2>
+        <h2
+          className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-3"
+          style={{ color: 'var(--pm-navy)' }}
+        >
+          Site Information
+        </h2>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
           <InfoRow label="Technology" value={formatTechnology(site.technology)} />
           <InfoRow label="Site Code" value={site.site_code} />
@@ -276,7 +290,7 @@ export default function PortalSiteDetailPage() {
 
       <div className="flex gap-4">
         <Link
-          href="/portal/support"
+          href="/unjani/support"
           className="text-sm text-circleTel-orange hover:underline"
         >
           Raise support ticket for this site

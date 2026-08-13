@@ -3,9 +3,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import Link from 'next/link';
 import {
   PortalModernistShell,
   PageHeader,
+  PmButton,
 } from '@/components/portal/modernist/PortalModernistShell';
 import SiteListTable from '@/components/portal/SiteListTable';
 
@@ -15,7 +17,7 @@ export default function PortalSitesPage() {
 
   useEffect(() => {
     if (isSiteUser && user?.site_id) {
-      router.replace(`/portal/sites/${user.site_id}`);
+      router.replace(`/unjani/sites/${user.site_id}`);
     }
   }, [isSiteUser, user?.site_id, router]);
 
@@ -35,6 +37,16 @@ export default function PortalSitesPage() {
         eyebrow={`${user.organisation_name} · Network`}
         title="Sites"
         subtitle="Every clinic from nomination through to go-live."
+        actions={
+          <>
+            <Link href="/unjani/coverage">
+              <PmButton variant="secondary">Coverage check</PmButton>
+            </Link>
+            <Link href="/unjani/coverage">
+              <PmButton variant="cta">+ Onboard a clinic</PmButton>
+            </Link>
+          </>
+        }
       />
       <SiteListTable />
     </PortalModernistShell>

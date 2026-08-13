@@ -31,13 +31,69 @@ export function StageBadge({
     <span
       className={
         size === 'sm'
-          ? 'inline-block px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide whitespace-nowrap'
-          : 'inline-block px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide whitespace-nowrap'
+          ? 'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap'
+          : 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap'
       }
       style={{ color: colour.fg, background: colour.bg }}
     >
+      <span
+        className="h-1.5 w-1.5 rounded-full shrink-0"
+        style={{ background: colour.fg }}
+        aria-hidden="true"
+      />
       {definition.label}
     </span>
+  );
+}
+
+/** Horizontal count-per-stage strip. Click a stage to filter the site list. */
+export function StageStrip({
+  counts,
+  selected,
+  onSelect,
+}: {
+  counts: Record<StageKey, number>;
+  selected?: StageKey | null;
+  onSelect?: (key: StageKey | null) => void;
+}) {
+  return (
+    <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+      {ONBOARDING_STAGES.map((definition) => {
+        const count = counts[definition.key] ?? 0;
+        const colour = STAGE_COLOURS[definition.key];
+        const active = selected === definition.key;
+
+        return (
+          <button
+            key={definition.key}
+            type="button"
+            onClick={() =>
+              onSelect?.(active ? null : definition.key)
+            }
+            className="rounded-lg bg-white px-3 py-3 text-left shadow-sm ring-1 ring-black/[0.06] transition-opacity hover:opacity-90"
+            style={{
+              borderBottom: `3px solid ${colour.fg}`,
+              outline: active ? `2px solid ${colour.fg}` : undefined,
+              outlineOffset: 0,
+            }}
+            aria-pressed={active}
+          >
+            <p
+              className="text-2xl font-extrabold tabular-nums leading-none"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              {count}
+            </p>
+            <p
+              className="mt-2 text-[11px] font-semibold leading-snug"
+              style={{ color: '#4B5563' }}
+            >
+              {definition.key === 'live' ? 'Site Live' : definition.label}
+            </p>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 

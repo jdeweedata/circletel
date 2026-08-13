@@ -3,6 +3,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import {
+  isUnjaniAppPath,
+  UNJANI_LOGIN_HREF,
+} from '@/lib/portal/paths';
 
 export interface PortalUser {
   id: string;
@@ -69,7 +73,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
       return;
     }
 
-    if (!pathname?.startsWith('/portal') || pathname === '/portal/login') {
+    if (!isUnjaniAppPath(pathname) || pathname === '/unjani/login') {
       setLoading(false);
       return;
     }
@@ -81,7 +85,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
-    router.push('/portal/login');
+    router.push(UNJANI_LOGIN_HREF);
   }, [router]);
 
   const value: PortalAuthContextType = {

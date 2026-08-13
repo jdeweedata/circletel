@@ -12,7 +12,7 @@ const archivo = Archivo({
   display: 'swap',
 });
 
-export type AccountLane = 'personal' | 'business';
+export type AccountLane = 'personal' | 'unjani';
 
 const SIDE_COPY: Record<
   AccountLane,
@@ -29,15 +29,15 @@ const SIDE_COPY: Record<
       'Change package or debit-order date without a call centre queue',
     ],
   },
-  business: {
-    kicker: 'Business account',
-    title: 'Every site on one statement.',
+  unjani: {
+    kicker: 'Unjani Connect',
+    title: 'Every clinic on one network.',
     blurb:
-      'Add sites, invite users, set PO references and pull VAT invoices — your team runs the account without logging a ticket.',
+      'See coverage, nominate a clinic, follow installation, and pull the NPC statement — without a ticket to CircleTel.',
     points: [
-      'One consolidated statement across every branch and circuit',
-      'Users and roles: who can view invoices, who can pay, who can log faults',
-      'VAT invoices, PO references and SLA credits on the account',
+      'Coverage and nomination for clinics not yet on the network',
+      'Live and onboarding sites in one list, with on-site contacts',
+      'Monthly statement and invoices for Unjani Clinics NPC',
     ],
   },
 };

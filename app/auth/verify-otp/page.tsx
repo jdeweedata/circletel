@@ -8,15 +8,21 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import {
+  parsePortalAccountLane,
+  safeUnjaniRedirect,
+  UNJANI_LOGIN_HREF,
+  isUnjaniCorporateCode,
+} from '@/lib/portal/paths';
 
 export default function VerifyOTPLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') || '';
-  const account = searchParams.get('account') === 'business' ? 'business' : 'personal';
+  const account = parsePortalAccountLane(searchParams.get('account'));
   const redirectPath =
     searchParams.get('redirect') ||
-    (account === 'business' ? '/portal' : '/dashboard');
+    (account === 'unjani' ? '/unjani' : '/dashboard');
 
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -39,9 +45,7 @@ export default function VerifyOTPLoginPage() {
     if (!phone) {
       toast.error('Phone number is required');
       router.push(
-        account === 'business'
-          ? '/auth/login?account=business'
-          : '/auth/login'
+        account === 'unjani' ? UNJANI_LOGIN_HREF : '/auth/login'
       );
     }
   }, [phone, router, account]);
@@ -87,35 +91,38 @@ export default function VerifyOTPLoginPage() {
         return;
       }
 
-      if (account === 'business') {
+      if (account === 'unjani') {
         const {
           data: { user },
         } = await supabase.auth.getUser();
         const { data: portalUser } = user
           ? await supabase
               .from('b2b_portal_users')
-              .select('id')
+              .select('id, corporate_accounts!inner (corporate_code)')
               .eq('auth_user_id', user.id)
               .maybeSingle()
           : { data: null };
 
-        if (!portalUser) {
+        const org = portalUser?.corporate_accounts as
+          | { corporate_code?: string }
+          | { corporate_code?: string }[]
+          | null
+          | undefined;
+        const code = Array.isArray(org) ? org[0]?.corporate_code : org?.corporate_code;
+
+        if (!portalUser || !isUnjaniCorporateCode(code)) {
           await supabase.auth.signOut();
           toast.error(
-            'No business portal access for this account. Ask your Super User to invite you.'
+            'No Unjani Connect access for this account. Ask your Super User to invite you.'
           );
-          router.push('/auth/login?account=business&error=no_portal_access');
+          router.push(`${UNJANI_LOGIN_HREF}&error=no_portal_access`);
           return;
         }
       }
 
       toast.success('Successfully signed in!');
       router.push(
-        account === 'business'
-          ? redirectPath.startsWith('/portal')
-            ? redirectPath
-            : '/portal'
-          : redirectPath
+        account === 'unjani' ? safeUnjaniRedirect(redirectPath) : redirectPath
       );
     } catch (error) {
       console.error('Error verifying OTP:', error);
