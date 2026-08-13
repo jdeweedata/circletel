@@ -13,6 +13,7 @@ import {
 } from '@/lib/invoices/invoice-pdf-generator';
 import {
   UNJANI_CORPORATE_CODE,
+  UNJANI_NPC_BILL_TO,
   isLastMondayOfMonth,
   npcPackDates,
 } from './unjani-connect-rules';
@@ -64,28 +65,20 @@ export async function buildNpcInvoicePdf(
     throw new Error(`Invoice ${invoiceId} not found`);
   }
 
-  const { data: customer } = await supabase
-    .from('customers')
-    .select(
-      'first_name, last_name, email, phone, account_number, business_name, business_registration, tax_number'
-    )
-    .eq('id', invoice.customer_id)
-    .maybeSingle();
-
   const invoiceData = buildInvoiceData({
     invoice: {
       ...invoice,
       vat_amount: invoice.tax_amount,
     },
     customer: {
-      first_name: customer?.first_name ?? 'Unjani',
-      last_name: customer?.last_name ?? 'Clinics NPC',
-      email: customer?.email ?? '',
-      phone: customer?.phone,
-      account_number: customer?.account_number ?? UNJANI_CORPORATE_CODE,
-      business_name: customer?.business_name ?? 'Unjani Clinics NPC',
-      business_registration: customer?.business_registration,
-      tax_number: customer?.tax_number,
+      first_name: 'Unjani',
+      last_name: 'Clinics NPC',
+      email: UNJANI_NPC_BILL_TO.billingEmail,
+      account_number: UNJANI_NPC_BILL_TO.accountCode,
+      business_name: UNJANI_NPC_BILL_TO.legalName,
+      business_registration: UNJANI_NPC_BILL_TO.registrationNumber,
+      tax_number: UNJANI_NPC_BILL_TO.vatNumber,
+      address: { ...UNJANI_NPC_BILL_TO.address },
     },
   });
   invoiceData.amountPaid = Number(invoice.amount_paid ?? 0);
@@ -229,7 +222,7 @@ export async function issueUnjaniNpcMonthlyPack(
   const to =
     account.billing_contact_email ||
     account.primary_contact_email ||
-    'accounts@unjani.co.za';
+    UNJANI_NPC_BILL_TO.billingEmail;
 
   const emailed = await emailNpcPack({
     to,

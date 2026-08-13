@@ -2,6 +2,7 @@ import {
   UNJANI_NPC_BILLING_START,
   UNJANI_CONNECT_SKU,
   UNJANI_CONNECT_PRODUCT_NAME,
+  UNJANI_NPC_BILL_TO,
   lastMondayOfMonth,
   fridayOfSameWeek,
   isLastMondayOfMonth,
@@ -227,6 +228,19 @@ describe('Unjani Connect RFS gate', () => {
         jobCardApprovedAt: '2026-09-12T10:00:00Z',
       })
     ).toBe(true);
+  });
+});
+
+describe('Unjani NPC bill-to (onboarding form CT-COF-2026-001)', () => {
+  it('uses CIPC, VAT and Midrand head office from the signed onboarding form', () => {
+    expect(UNJANI_NPC_BILL_TO.legalName).toBe('Unjani Clinics NPC');
+    expect(UNJANI_NPC_BILL_TO.registrationNumber).toBe('2014/089277/08');
+    expect(UNJANI_NPC_BILL_TO.vatNumber).toBe('4220266250');
+    expect(UNJANI_NPC_BILL_TO.accountCode).toBe('UNJ');
+    expect(UNJANI_NPC_BILL_TO.billingEmail).toBe('finance@unjani.org');
+    expect(UNJANI_NPC_BILL_TO.address.city).toBe('Midrand');
+    expect(UNJANI_NPC_BILL_TO.address.postalCode).toBe('1685');
+    expect(UNJANI_NPC_BILL_TO.address.line1).toContain('Central Park');
   });
 });
 

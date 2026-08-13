@@ -10,6 +10,7 @@ import type {
   AgingBuckets,
 } from './statement-pdf-generator';
 import type { StatementOptions } from './statement-data';
+import { UNJANI_CORPORATE_CODE, UNJANI_NPC_BILL_TO } from './unjani-connect-rules';
 
 function toYMD(date: Date): string {
   return date.toISOString().split('T')[0];
@@ -86,7 +87,7 @@ export async function assembleCorporateStatementData(
   const { data: account, error: accountError } = await supabase
     .from('corporate_accounts')
     .select(
-      'id, company_name, corporate_code, primary_contact_email, primary_contact_phone'
+      'id, company_name, corporate_code, primary_contact_email, primary_contact_phone, billing_contact_email, vat_number, registration_number, physical_address'
     )
     .eq('id', organisationId)
     .single();
@@ -146,14 +147,44 @@ export async function assembleCorporateStatementData(
     0
   );
 
+  const npcBillTo =
+    account.corporate_code === UNJANI_CORPORATE_CODE ? UNJANI_NPC_BILL_TO : null;
+  const physical =
+    account.physical_address && typeof account.physical_address === 'object'
+      ? (account.physical_address as Record<string, string | undefined>)
+      : null;
+
   const statement: StatementData = {
     statementDate: toYMD(today),
-    customer: {
-      name: account.company_name,
-      accountNumber: account.corporate_code ?? `ORG-${organisationId.slice(0, 8)}`,
-      email: account.primary_contact_email ?? undefined,
-      phone: account.primary_contact_phone ?? undefined,
-    },
+    customer: npcBillTo
+      ? {
+          name: npcBillTo.legalName,
+          accountNumber: npcBillTo.accountCode,
+          email: npcBillTo.billingEmail,
+          vatNumber: npcBillTo.vatNumber,
+          registrationNumber: npcBillTo.registrationNumber,
+          address: { ...npcBillTo.address },
+        }
+      : {
+          name: account.company_name,
+          accountNumber: account.corporate_code ?? `ORG-${organisationId.slice(0, 8)}`,
+          email:
+            account.billing_contact_email ??
+            account.primary_contact_email ??
+            undefined,
+          phone: account.primary_contact_phone ?? undefined,
+          vatNumber: account.vat_number ?? undefined,
+          registrationNumber: account.registration_number ?? undefined,
+          address: physical
+            ? {
+                line1: physical.line1 ?? physical.street,
+                line2: physical.line2,
+                city: physical.city,
+                province: physical.province,
+                postalCode: physical.postalCode ?? physical.postal_code,
+              }
+            : undefined,
+        },
     transactions,
     aging,
     totalDue,

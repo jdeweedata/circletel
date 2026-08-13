@@ -53,6 +53,7 @@ export interface StatementCustomer {
     postalCode?: string;
   };
   vatNumber?: string;
+  registrationNumber?: string;
 }
 
 export interface AgingBuckets {
@@ -244,6 +245,9 @@ export function generateStatementPDF(statement: StatementData): jsPDF {
   doc.setTextColor(COLORS.gray);
   doc.text(`Account: ${statement.customer.accountNumber}`, col2X, col2Y);  col2Y += 4;
 
+  if (statement.customer.registrationNumber) {
+    doc.text(`Reg No: ${statement.customer.registrationNumber}`, col2X, col2Y);  col2Y += 4;
+  }
   if (statement.customer.email) {
     doc.text(statement.customer.email, col2X, col2Y);  col2Y += 4;
   }

@@ -71,8 +71,8 @@
 - Resource Plan: `data/resources/CircleTel_Resource_Plan_v1_0.md`
 - Survival Plan: `docs/plans/receivables-collection-plan.md`
 - Lead Tracking: `docs/plans/lead-tracking-march-2026.md`
-- Unjani Financial Model: `docs/clients/unjani-clinics/UNJANI_FINANCIAL_MODEL.md`
-- TDX Agreement Terms: `docs/clients/unjani-clinics/TDX_CIRCLE_TEL_MSA_KEY_COMMERCIAL_TERMS.md`
+- Unjani Financial Model: `docs/clients/unjani-clinics/financial/UNJANI_FINANCIAL_MODEL.md`
+- TDX Agreement Terms: `docs/clients/unjani-clinics/contracts/TDX_CIRCLE_TEL_MSA_KEY_COMMERCIAL_TERMS.md`
 
 ---
 

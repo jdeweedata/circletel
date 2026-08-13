@@ -14,6 +14,26 @@ export const UNJANI_CONNECT_SKU = 'UNJ-MC-001';
 export const UNJANI_CONNECT_PRODUCT_NAME = 'Unjani Connect';
 export const UNJANI_CORPORATE_CODE = 'UNJ';
 export const UNJANI_MONTHLY_EX_VAT = 450;
+
+/** Bill-to from CircleTel Customer Onboarding Form CT-COF-2026-001 (v1.1). */
+export const UNJANI_NPC_BILL_TO = {
+  legalName: 'Unjani Clinics NPC',
+  tradingName: 'Unjani Clinics NPC',
+  entityType: 'Non-Profit Company',
+  registrationNumber: '2014/089277/08',
+  vatNumber: '4220266250',
+  accountCode: UNJANI_CORPORATE_CODE,
+  billingEmail: 'finance@unjani.org',
+  primaryEmail: 'ltoussaint@unjani.org',
+  primaryContact: 'Lynda Toussaint',
+  address: {
+    line1: 'Central Park Office Block N, Ground Floor',
+    line2: '400 16th Road, Randjespark',
+    city: 'Midrand',
+    province: 'Gauteng',
+    postalCode: '1685',
+  },
+} as const;
 export const UNJANI_FREE_CALENDAR_DAYS = 30;
 export const UNJANI_CONTRACT_MONTHS = 25;
 export const UNJANI_M2M_NOTICE_DAYS = 30;

@@ -186,7 +186,7 @@ Where: Net Ad Revenue = Gross × (1 − 0.15 platform fee − commissions)
 
 ### Network-Level Monthly Trajectory
 
-Source: `Unjani_ThinkWiFi_Venue_Performance_v5_0.json` (corrected dashboard data)
+Source: `../thinkwifi/UNJANI_THINKWIFI_VENUE_PERFORMANCE_V5_0.json` (corrected dashboard data)
 
 | Month | Days | Gross Rev | Net Rev | TW Share | CT Share (MP) | CPM |
 |-------|------|-----------|---------|----------|---------------|-----|

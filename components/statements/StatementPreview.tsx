@@ -391,6 +391,9 @@ export default function StatementPreview({
             <div className="text-sm space-y-0.5">
               <p className="font-bold text-gray-900">{customer.name}</p>
               <p className="text-gray-600">Account: {customer.accountNumber}</p>
+              {customer.registrationNumber && (
+                <p className="text-gray-600">Reg No: {customer.registrationNumber}</p>
+              )}
               {customer.email && <p className="text-gray-600">{customer.email}</p>}
               {customer.phone && <p className="text-gray-600">{customer.phone}</p>}
               {customer.vatNumber && (

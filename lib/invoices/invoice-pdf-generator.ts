@@ -61,6 +61,8 @@ export interface InvoiceLineItem {
   vat_percent: number; // Usually 15%
   excl_total: number;
   incl_total: number;
+  /** Customer-facing clinic site ID (e.g. CT-UNJ-013). Shown only when set. */
+  siteId?: string;
 }
 
 export interface InvoiceCustomer {
@@ -293,6 +295,12 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   if (invoice.customer.accountNumber) {
     doc.text(`Account: ${invoice.customer.accountNumber}`, col2X, col2Y);  col2Y += 4;
   }
+  if (invoice.customer.businessRegistration) {
+    doc.text(`Reg No: ${invoice.customer.businessRegistration}`, col2X, col2Y);  col2Y += 4;
+  }
+  if (invoice.customer.businessVatNumber) {
+    doc.text(`VAT No: ${invoice.customer.businessVatNumber}`, col2X, col2Y);  col2Y += 4;
+  }
   if (invoice.customer.email) {
     doc.text(invoice.customer.email, col2X, col2Y);  col2Y += 4;
   }
@@ -303,9 +311,11 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
     const addr = invoice.customer.address;
     if (addr.line1)      { doc.text(addr.line1,      col2X, col2Y);  col2Y += 4; }
     if (addr.line2)      { doc.text(addr.line2,      col2X, col2Y);  col2Y += 4; }
-    if (addr.city)       { doc.text(addr.city,       col2X, col2Y);  col2Y += 4; }
-    if (addr.province)   { doc.text(addr.province,   col2X, col2Y);  col2Y += 4; }
-    if (addr.postalCode) { doc.text(addr.postalCode, col2X, col2Y);  col2Y += 4; }
+    if (addr.city || addr.province || addr.postalCode) {
+      const cityLine = [addr.city, addr.province].filter(Boolean).join(', ');
+      const withPostal = addr.postalCode ? `${cityLine} ${addr.postalCode}`.trim() : cityLine;
+      if (withPostal) { doc.text(withPostal, col2X, col2Y);  col2Y += 4; }
+    }
   }
 
   yPos = Math.max(leftY, col2Y) + 8;
@@ -319,28 +329,48 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   doc.text('LINE ITEMS', margin, yPos);
   yPos += 4;
 
+  const showSiteId = invoice.lineItems.some((item) => Boolean(item.siteId));
+
   const tableRows = invoice.lineItems.length > 0
-    ? invoice.lineItems.map(item => [
-        item.description,
-        item.quantity.toString(),
-        formatCurrency(item.unit_price),
-        `${item.vat_percent}%`,
-        formatCurrency(item.excl_total),
-        formatCurrency(item.incl_total),
-      ])
-    : [['Service Invoice', '', '', '', '', '']];
+    ? invoice.lineItems.map(item =>
+        showSiteId
+          ? [
+              item.siteId ?? '',
+              item.description,
+              item.quantity.toString(),
+              formatCurrency(item.unit_price),
+              `${item.vat_percent}%`,
+              formatCurrency(item.excl_total),
+              formatCurrency(item.incl_total),
+            ]
+          : [
+              item.description,
+              item.quantity.toString(),
+              formatCurrency(item.unit_price),
+              `${item.vat_percent}%`,
+              formatCurrency(item.excl_total),
+              formatCurrency(item.incl_total),
+            ]
+      )
+    : [showSiteId ? ['', 'Service Invoice', '', '', '', '', ''] : ['Service Invoice', '', '', '', '', '']];
 
   autoTable(doc, {
     startY: yPos,
-    head: [['DESCRIPTION', 'QTY', 'UNIT PRICE (EXCL)', 'VAT %', 'AMOUNT (EXCL)', 'AMOUNT (INCL)']],
+    head: [
+      showSiteId
+        ? ['SITE ID', 'DESCRIPTION', 'QTY', 'UNIT PRICE (EXCL)', 'VAT %', 'AMOUNT (EXCL)', 'AMOUNT (INCL)']
+        : ['DESCRIPTION', 'QTY', 'UNIT PRICE (EXCL)', 'VAT %', 'AMOUNT (EXCL)', 'AMOUNT (INCL)'],
+    ],
     body: tableRows,
     theme: 'plain',
+    tableWidth: 180,
     styles: {
-      fontSize: 8,
+      fontSize: showSiteId ? 7.5 : 8,
       cellPadding: 2.5,
       textColor: COLORS.dark,
       lineColor: '#E5E7EB',
       lineWidth: 0.2,
+      overflow: 'linebreak',
     },
     headStyles: {
       fillColor: '#F9FAFB',
@@ -348,14 +378,24 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
       fontStyle: 'bold',
       fontSize: 7,
     },
-    columnStyles: {
-      0: { cellWidth: 65 },
-      1: { cellWidth: 12, halign: 'center' },
-      2: { cellWidth: 30, halign: 'right' },
-      3: { cellWidth: 15, halign: 'center' },
-      4: { cellWidth: 28, halign: 'right' },
-      5: { cellWidth: 28, halign: 'right' },
-    },
+    columnStyles: showSiteId
+      ? {
+          0: { cellWidth: 22, fontSize: 7 },
+          1: { cellWidth: 48 },
+          2: { cellWidth: 10, halign: 'center' },
+          3: { cellWidth: 25, halign: 'right' },
+          4: { cellWidth: 13, halign: 'center' },
+          5: { cellWidth: 25, halign: 'right' },
+          6: { cellWidth: 25, halign: 'right' },
+        }
+      : {
+          0: { cellWidth: 65 },
+          1: { cellWidth: 12, halign: 'center' },
+          2: { cellWidth: 30, halign: 'right' },
+          3: { cellWidth: 15, halign: 'center' },
+          4: { cellWidth: 28, halign: 'right' },
+          5: { cellWidth: 28, halign: 'right' },
+        },
     margin: { left: margin, right: margin },
     didDrawPage: () => { drawFooter(); },
   });
@@ -594,6 +634,7 @@ export function buildInvoiceData(params: {
     business_name?: string;
     business_registration?: string;
     tax_number?: string;
+    address?: InvoiceCustomer['address'];
   };
   order?: {
     installation_address?: string;
@@ -624,6 +665,12 @@ export function buildInvoiceData(params: {
       vat_percent: vatPercent,
       excl_total: exclTotal,
       incl_total: inclTotal,
+      siteId:
+        typeof item.site_code === 'string' && item.site_code.trim()
+          ? item.site_code.trim()
+          : typeof item.siteId === 'string' && item.siteId.trim()
+            ? item.siteId.trim()
+            : undefined,
     };
   });
 
@@ -642,12 +689,12 @@ export function buildInvoiceData(params: {
       businessName: customer.business_name,
       businessRegistration: customer.business_registration,
       businessVatNumber: customer.tax_number,
-      address: order ? {
+      address: customer.address ?? (order ? {
         line1: order.installation_address,
         city: order.city,
         province: order.province,
         postalCode: order.postal_code
-      } : undefined
+      } : undefined)
     },
     lineItems,
     subtotal: invoice.subtotal,
