@@ -1,0 +1,12 @@
+﻿ActionDate,ServiceType,BatchName,BatchDebitId,Volume,Amount,Volume2,Amount2,UnpaidRetentionAmount,UnpaidReleaseDate,SuretyAmount,SuretyReleaseDate,VolumeTotal,AmountTotal,VolumeTotal2,AmountTotal2,Textbox18,Textbox29
+05 Aug 2026,Two Day,Debit batch for 2026-08-05,2517272,7,"R 4,104.00",0,R 0.00,R 0.00,07 Sep 2026,R 410.40,07 Sep 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+05 Aug 2026,Two Day,Debit batch for 2026-08-05,2517290,1,R 517.50,0,R 0.00,R 0.00,07 Sep 2026,R 517.50,07 Sep 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+15 Jul 2026,Two Day,Debit batch for 2026-07-15,2493933,1,R 174.00,0,R 0.00,R 0.00,17 Aug 2026,R 174.00,17 Aug 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+15 Jul 2026,Two Day,Debit batch for 2026-07-15,2494004,1,R 276.00,0,R 0.00,R 0.00,17 Aug 2026,R 276.00,17 Aug 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+15 Jul 2026,Two Day,Debit batch for 2026-07-15,2494005,2,R 900.00,0,R 0.00,R 0.00,17 Aug 2026,R 90.00,17 Aug 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+01 Jul 2026,Same Day,Debit batch for 2026-07-01,2365138,1,R 999.00,0,R 0.00,R 0.00,31 Jul 2026,R 999.00,31 Jul 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+01 Jul 2026,Two Day,Debit batch for 2026-07-01,2477056,1,R 276.00,0,R 0.00,R 0.00,31 Jul 2026,R 276.00,31 Jul 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+01 Jul 2026,Two Day,Debit batch for 2026-07-01,2477078,1,R 276.00,0,R 0.00,R 0.00,31 Jul 2026,R 276.00,31 Jul 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+29 Jun 2026,Two Day,Debit batch for 2026-06-29,2476890,1,R 276.00,0,R 0.00,R 0.00,29 Jul 2026,R 276.00,29 Jul 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+26 Jun 2026,Two Day,Debit batch for 2026-06-26,2472552,2,R 552.00,0,R 0.00,R 55.20,28 Jul 2026,R 55.20,28 Jul 2026,18,"R 8,350.50",0,R 0.00,R 55.20,"R 3,350.10"
+
