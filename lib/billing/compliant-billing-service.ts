@@ -379,6 +379,10 @@ export class CompliantBillingService {
     // Update original invoice - add credit to amount_paid
     const originalInvoice = creditNote.original_invoice;
     const newAmountPaid = (originalInvoice.amount_paid || 0) + creditNote.total_amount;
+    const newAmountDue = Math.max(
+      0,
+      Math.round((originalInvoice.total_amount - newAmountPaid) * 100) / 100
+    );
     const newStatus = newAmountPaid >= originalInvoice.total_amount ? 'paid' : 
                       newAmountPaid > 0 ? 'partial' : originalInvoice.status;
 
@@ -386,6 +390,7 @@ export class CompliantBillingService {
       .from('customer_invoices')
       .update({
         amount_paid: newAmountPaid,
+        amount_due: newAmountDue,
         status: newStatus
       })
       .eq('id', originalInvoice.id);

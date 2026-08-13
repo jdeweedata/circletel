@@ -18,6 +18,16 @@ export const b2bSiteActivationInvoice = inngest.createFunction(
       return { skipped: true, reason: 'no_monthly_fee' };
     }
 
+    const { shouldSkipActivationProRata, UNJANI_CONNECT_SKU } = await import(
+      '@/lib/billing/unjani-connect-rules'
+    );
+    if (shouldSkipActivationProRata(activated_at, UNJANI_CONNECT_SKU)) {
+      console.log(
+        `[B2B Invoice] Skipping Unjani Connect activation invoice for ${site_id} — billed on NPC pack after RFS`
+      );
+      return { skipped: true, reason: 'unjani_npc_monthly_pack' };
+    }
+
     try {
       const supabase = await createClient();
 

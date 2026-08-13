@@ -151,6 +151,8 @@ export default function InvoicePreview({ invoiceId, apiEndpoint, pdfEndpoint }: 
     );
   }
 
+  const showSiteId = invoice.lineItems.some((item) => Boolean(item.siteId));
+
   return (
     <div className="min-h-screen bg-gray-100 py-8">
 
@@ -233,9 +235,15 @@ export default function InvoicePreview({ invoiceId, apiEndpoint, pdfEndpoint }: 
           </div>
           <div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">To</p>
-            <p className="font-bold text-gray-900">{invoice.customer.name}</p>
+            <p className="font-bold text-gray-900">{invoice.customer.businessName || invoice.customer.name}</p>
             {invoice.customer.accountNumber && (
               <p className="text-sm text-gray-600">Account: {invoice.customer.accountNumber}</p>
+            )}
+            {invoice.customer.businessRegistration && (
+              <p className="text-sm text-gray-600">Reg No: {invoice.customer.businessRegistration}</p>
+            )}
+            {invoice.customer.businessVatNumber && (
+              <p className="text-sm text-gray-600">VAT No: {invoice.customer.businessVatNumber}</p>
             )}
             {invoice.customer.email && (
               <p className="text-sm text-gray-600">{invoice.customer.email}</p>
@@ -249,8 +257,17 @@ export default function InvoicePreview({ invoiceId, apiEndpoint, pdfEndpoint }: 
                 {invoice.customer.address.line2 && (
                   <p className="text-sm text-gray-600">{invoice.customer.address.line2}</p>
                 )}
-                {invoice.customer.address.city && (
-                  <p className="text-sm text-gray-600">{invoice.customer.address.city}</p>
+                {(invoice.customer.address.city ||
+                  invoice.customer.address.province ||
+                  invoice.customer.address.postalCode) && (
+                  <p className="text-sm text-gray-600">
+                    {[invoice.customer.address.city, invoice.customer.address.province]
+                      .filter(Boolean)
+                      .join(', ')}
+                    {invoice.customer.address.postalCode
+                      ? ` ${invoice.customer.address.postalCode}`
+                      : ''}
+                  </p>
                 )}
               </>
             )}
@@ -265,6 +282,11 @@ export default function InvoicePreview({ invoiceId, apiEndpoint, pdfEndpoint }: 
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-50">
+                {showSiteId && (
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600 border border-gray-200 w-28">
+                    Site ID
+                  </th>
+                )}
                 <th className="text-left py-2 px-3 font-semibold text-gray-600 border border-gray-200">
                   Description
                 </th>
@@ -289,6 +311,11 @@ export default function InvoicePreview({ invoiceId, apiEndpoint, pdfEndpoint }: 
               {invoice.lineItems.length > 0 ? (
                 invoice.lineItems.map((item, i) => (
                   <tr key={i} className="border-b border-gray-100">
+                    {showSiteId && (
+                      <td className="py-2 px-3 font-mono text-xs text-gray-700 border border-gray-200">
+                        {item.siteId ?? ''}
+                      </td>
+                    )}
                     <td className="py-2 px-3 text-gray-900 border border-gray-200">
                       {item.description}
                     </td>
@@ -312,7 +339,7 @@ export default function InvoicePreview({ invoiceId, apiEndpoint, pdfEndpoint }: 
               ) : (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={showSiteId ? 7 : 6}
                     className="py-3 px-3 text-center text-gray-400 border border-gray-200"
                   >
                     Service Invoice

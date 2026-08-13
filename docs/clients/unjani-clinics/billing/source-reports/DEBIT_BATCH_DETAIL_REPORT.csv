@@ -1,0 +1,6 @@
+﻿ClientName,AccountNumber,ServiceType,ActionDate,PaymentAmount2,CreationDate,ServiceType2,LastUpdatedOn,LastUpdatedBy,UnauthorisedDate,UnauthorisedBy,Status,SendEmail,FromAddress,FromName,SendSMS,FromAddress3
+,,Dated,18 Aug 2026,R1035.00,13 Aug 2026 06:00,2,13 Aug 2026 06:00,,,,Authorised,No,,,No,No
+
+AuthorisedBy,AuthorisedDate
+Jeffrey  De Wee,13 Aug 2026 16:07
+

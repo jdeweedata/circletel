@@ -109,6 +109,12 @@ export async function assembleInvoicePreviewData(
       vat_percent: 15,
       excl_total: exclTotal,
       incl_total: inclTotal,
+      siteId:
+        typeof item.site_code === 'string' && item.site_code.trim()
+          ? item.site_code.trim()
+          : typeof item.siteId === 'string' && item.siteId.trim()
+            ? item.siteId.trim()
+            : undefined,
     };
   });
 

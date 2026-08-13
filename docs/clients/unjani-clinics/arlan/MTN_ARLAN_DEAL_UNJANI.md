@@ -117,7 +117,7 @@ Deal Code `202503EBU2809` at R607,83 excl. / R699 incl. VAT — gives 1 TB FUP i
 
 ### Volume Context
 
-- **Phase 2 sites**: 28 clinics (see `revised-projections.csv`)
+- **Phase 2 sites**: 28 clinics (see `../financial/REVISED_PROJECTIONS.csv`)
 - **Total target**: 50 sites across Unjani network
 - **Provinces**: Primarily Eastern Cape (18 sites), Free State (6 sites), Gauteng, others
 
@@ -161,8 +161,8 @@ The negotiated Arlan rates (R499–R579) undercut most incumbent ISPs, strengthe
 
 | Agreement | File |
 |-----------|------|
-| Circle Tel – Unjani MSA | `UNJANI_MSA_KEY_COMMERCIAL_TERMS.md` |
-| TDX – Circle Tel WiFi Monetisation | `TDX_CIRCLE_TEL_MSA_KEY_COMMERCIAL_TERMS.md` |
-| Phase 2 Priority Analysis | `Unjani_ThinkWiFi_Phase2_Priority_Analysis_v3_0.xlsx` |
-| Per-Site Actuals | `per-site-actuals-corrected.csv` |
-| 50-Site Projections | `revised-projections.csv` |
+| Circle Tel – Unjani MSA | `../contracts/UNJANI_MSA_KEY_COMMERCIAL_TERMS.md` |
+| TDX – Circle Tel WiFi Monetisation | `../contracts/TDX_CIRCLE_TEL_MSA_KEY_COMMERCIAL_TERMS.md` |
+| Phase 2 Priority Analysis | `../thinkwifi/UNJANI_THINKWIFI_PHASE2_PRIORITY_ANALYSIS_V3_0.xlsx` |
+| Per-Site Actuals | `../financial/PER_SITE_ACTUALS_CORRECTED.csv` |
+| 50-Site Projections | `../financial/REVISED_PROJECTIONS.csv` |

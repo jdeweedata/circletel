@@ -153,6 +153,10 @@ export {
 } from './functions/b2b-site-activation-invoice';
 
 export {
+  unjaniNpcMonthlyPackFunction,
+} from './functions/unjani-npc-monthly-pack';
+
+export {
   clinicVettingSlaFunction,
 } from './functions/clinic-vetting-sla';
 
@@ -318,6 +322,10 @@ import {
 } from './functions/b2b-site-activation-invoice';
 
 import {
+  unjaniNpcMonthlyPackFunction,
+} from './functions/unjani-npc-monthly-pack';
+
+import {
   clinicVettingSlaFunction,
 } from './functions/clinic-vetting-sla';
 
@@ -424,6 +432,8 @@ export const functions = [
   whatsappDeskBridgeSyncFunction,
   // B2B site activation pro-rata invoice
   b2bSiteActivationInvoice,
+  // Unjani NPC last-Monday itemized invoice + statement pack
+  unjaniNpcMonthlyPackFunction,
   // Clinic vetting SLA reminder (daily at 09:00 SAST)
   // NOTE: This cron must be wired in Coolify; vercel.json crons are inactive
   clinicVettingSlaFunction,

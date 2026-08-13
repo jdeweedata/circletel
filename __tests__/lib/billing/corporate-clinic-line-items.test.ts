@@ -1,5 +1,6 @@
 import {
   formatClinicLineDescription,
+  formatSiteDisplayId,
   buildClinicLineItem,
 } from '@/lib/billing/corporate-clinic-line-items';
 
@@ -50,5 +51,49 @@ describe('corporate-clinic-line-items', () => {
     expect(line.amount).toBe(145.16);
     expect(line.description).toContain('Daggakraal');
     expect(line.description).toContain('pro-rata');
+  });
+
+  it('uses the clinic account number as the invoice SITE ID', () => {
+    expect(
+      formatSiteDisplayId({
+        account_number: 'CT-UNJ-013',
+        site_code: null,
+        site_number: 13,
+      })
+    ).toBe('CT-UNJ-013');
+    expect(
+      formatSiteDisplayId({
+        account_number: null,
+        site_code: 'UNJ-BAR',
+        site_number: 13,
+      })
+    ).toBe('UNJ-BAR');
+    expect(
+      formatSiteDisplayId({
+        account_number: null,
+        site_code: null,
+        site_number: 2,
+      })
+    ).toBe('UNJ-002');
+  });
+
+  it('puts the display SITE ID on each clinic line item', () => {
+    const line = buildClinicLineItem({
+      id: 'uuid-barcelona',
+      site_name: 'Unjani Clinic - Barcelona',
+      account_number: 'CT-UNJ-013',
+      site_code: null,
+      site_number: 13,
+      monthly_fee: 450,
+      package_id: 'pkg-1',
+      service_packages: {
+        name: 'Unjani Managed Connectivity',
+        sku: 'UNJ-MC-001',
+        price: 450,
+      },
+    });
+
+    expect(line.site_code).toBe('CT-UNJ-013');
+    expect(line.site_id).toBe('uuid-barcelona');
   });
 });

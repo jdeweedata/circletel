@@ -1,6 +1,6 @@
 # TDX – Circle Tel: Key Commercial Terms
 
-**Source**: TDX_Circle_Tel_MSA_Final.pdf (WiFi Monetisation Partnership MSA v5.0)
+**Source**: `TDX_CIRCLE_TEL_MSA_FINAL.pdf` (WiFi Monetisation Partnership MSA v5.0)
 **Extracted**: 2026-05-07
 
 ---

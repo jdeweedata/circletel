@@ -9,6 +9,8 @@ export interface CorporateClinicLineItem {
   description: string;
   site_name: string;
   site_id: string;
+  /** Customer-facing site ID printed on the NPC invoice (e.g. CT-UNJ-013). */
+  site_code: string;
   service: string;
   sku: string | null;
   quantity: number;
@@ -20,6 +22,9 @@ export interface CorporateClinicLineItem {
 export interface ActiveCorporateSite {
   id: string;
   site_name: string;
+  account_number?: string | null;
+  site_code?: string | null;
+  site_number?: number | null;
   monthly_fee: number | null;
   package_id: string | null;
   service_packages?: {
@@ -40,6 +45,21 @@ export function formatClinicLineDescription(
 ): string {
   const base = `${productName} — ${siteName}`;
   return suffix ? `${base} (${suffix})` : base;
+}
+
+export function formatSiteDisplayId(site: {
+  account_number?: string | null;
+  site_code?: string | null;
+  site_number?: number | null;
+}): string {
+  const account = site.account_number?.trim();
+  if (account) return account;
+  const code = site.site_code?.trim();
+  if (code) return code;
+  if (typeof site.site_number === 'number' && Number.isFinite(site.site_number)) {
+    return `UNJ-${String(site.site_number).padStart(3, '0')}`;
+  }
+  return '';
 }
 
 export function buildClinicLineItem(
@@ -69,6 +89,7 @@ export function buildClinicLineItem(
     ),
     site_name: site.site_name,
     site_id: site.id,
+    site_code: formatSiteDisplayId(site),
     service: productName,
     sku,
     quantity: 1,
@@ -88,6 +109,9 @@ export async function fetchActiveCorporateSites(
       `
       id,
       site_name,
+      account_number,
+      site_code,
+      site_number,
       monthly_fee,
       package_id,
       service_packages (
