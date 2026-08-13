@@ -367,6 +367,14 @@ export type InvoiceGeneratedEvent = {
   };
 };
 
+export type UnjaniNpcPackRequestedEvent = {
+  name: 'billing/unjani-npc-pack.requested';
+  data: {
+    force?: boolean;
+    dryRun?: boolean;
+  };
+};
+
 export type ZohoSyncRequestedEvent = {
   name: 'zoho/sync.requested';
   data: {
@@ -855,6 +863,7 @@ export type InngestEvents = {
   'billing/day.cancelled': BillingDayCancelledEvent;
   // Invoice notification events
   'billing/invoice.generated': InvoiceGeneratedEvent;
+  'billing/unjani-npc-pack.requested': UnjaniNpcPackRequestedEvent;
   // Zoho sync events
   'zoho/sync.requested': ZohoSyncRequestedEvent;
   'zoho/sync.completed': ZohoSyncCompletedEvent;

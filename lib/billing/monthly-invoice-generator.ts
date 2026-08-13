@@ -36,6 +36,7 @@ import { computeProRata } from '@/lib/onboarding/prorata';
 import { shouldEmitRecurringInvoice } from '@/lib/billing/new-clinic-billing-helper';
 import { isBeforeBillingStart } from '@/lib/billing/billing-eligibility';
 import { billingLogger } from '@/lib/logging';
+import { shouldSkipPerClinicInvoice } from '@/lib/billing/unjani-connect-rules';
 
 // =============================================================================
 // TYPES
@@ -69,6 +70,7 @@ export interface ServiceToBill {
   package: {
     id: string;
     name: string;
+    sku?: string | null;
   } | null;
 }
 
@@ -286,7 +288,8 @@ export class MonthlyInvoiceGenerator {
         ),
         package:service_packages(
           id,
-          name
+          name,
+          sku
         )
       `
       )
@@ -370,6 +373,25 @@ export class MonthlyInvoiceGenerator {
     const errors: string[] = [];
 
     try {
+      const invoiceDate = nowISO().slice(0, 10);
+      const sku = service.package?.sku ?? null;
+      if (shouldSkipPerClinicInvoice({ sku, invoiceDate })) {
+        const skipReason =
+          'Unjani Connect billed via Unjani NPC itemized invoice from 1 September 2026';
+        billingLogger.info('MonthlyInvoice: Skipping Unjani clinic — NPC billing', {
+          serviceId: service.id,
+          sku,
+        });
+        return {
+          serviceId: service.id,
+          customerId: service.customer_id,
+          success: true,
+          skipped: true,
+          skipReason,
+          errors: [],
+        };
+      }
+
       // 1. Check for duplicate invoice
       const existingInvoice = await this.checkExistingInvoice(service.id);
       if (existingInvoice) {
