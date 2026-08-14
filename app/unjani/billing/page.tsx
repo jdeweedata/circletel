@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
   PortalModernistShell,
   PageHeader,
@@ -51,6 +52,7 @@ function formatZar(n: number) {
 
 export default function PortalBillingPage() {
   const { user } = usePortalAuth();
+  const { href, isUnjani } = usePortalApp();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -99,9 +101,13 @@ export default function PortalBillingPage() {
       <PageHeader
         eyebrow="Billing · Receivables"
         title="Invoices"
-        subtitle={`Itemised Unjani Connect billing for ${user.organisation_name}`}
+        subtitle={
+          isUnjani
+            ? `Itemised Unjani Connect billing for ${user.organisation_name}`
+            : `Itemised billing for ${user.organisation_name}`
+        }
         actions={
-          <Link href="/unjani/billing/statement">
+          <Link href={href('/billing/statement')}>
             <PmButton variant="secondary">Account statement</PmButton>
           </Link>
         }
@@ -132,7 +138,7 @@ export default function PortalBillingPage() {
             note: 'Need attention',
           },
           {
-            label: 'Clinic lines',
+            label: isUnjani ? 'Clinic lines' : 'Line items',
             value: String(clinicLines),
             note: 'Itemised services',
           },
@@ -190,7 +196,7 @@ export default function PortalBillingPage() {
                           setExpandedId(expanded ? null : inv.id)
                         }
                       >
-                        {expanded ? 'Hide lines' : 'Clinics'}
+                        {expanded ? 'Hide lines' : isUnjani ? 'Clinics' : 'Lines'}
                       </PmButton>
                       <PmButton
                         variant="secondary"

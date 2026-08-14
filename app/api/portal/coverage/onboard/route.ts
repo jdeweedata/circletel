@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { requirePortalSuperUser } from '@/lib/portal/require-portal-user';
+import { requireUnjaniSuperUser } from '@/lib/portal/require-portal-user';
 
 /**
  * Proceed to onboard after a coverage check (PDF steps 1–3).
  * Creates an activation_request ticket (no site_id) and emails onboarding@.
  */
 export async function POST(request: NextRequest) {
-  const auth = await requirePortalSuperUser();
+  const auth = await requireUnjaniSuperUser();
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;

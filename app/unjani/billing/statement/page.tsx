@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
   PortalModernistShell,
   PageHeader,
@@ -22,6 +23,7 @@ function formatZar(n: number) {
 
 export default function PortalStatementPage() {
   const { user } = usePortalAuth();
+  const { href } = usePortalApp();
   const [period, setPeriod] = useState('12m');
   const [statement, setStatement] = useState<StatementData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,7 +77,7 @@ export default function PortalStatementPage() {
         subtitle={`Consolidated statement for ${user.organisation_name}`}
         actions={
           <>
-            <Link href="/unjani/billing">
+            <Link href={href('/billing')}>
               <PmButton variant="ghost">Back to invoices</PmButton>
             </Link>
             <PmButton onClick={downloadPdf} disabled={downloading || !statement}>

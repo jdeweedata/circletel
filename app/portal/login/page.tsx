@@ -1,17 +1,19 @@
 import { redirect } from 'next/navigation';
-import { safeUnjaniRedirect } from '@/lib/portal/paths';
+import { safeBusinessRedirect } from '@/lib/portal/paths';
 
 /**
- * Unjani Connect login — unified into /auth/login (Business tab).
+ * Generic business login — unified into /auth/login (Business tab).
  */
-export default async function UnjaniLoginPage({
+export default async function PortalLoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ redirect?: string; error?: string }>;
 }) {
   const params = await searchParams;
   const qs = new URLSearchParams({ account: 'business' });
-  if (params.redirect) qs.set('redirect', safeUnjaniRedirect(params.redirect));
+  if (params.redirect) {
+    qs.set('redirect', safeBusinessRedirect(params.redirect, null));
+  }
   if (params.error) qs.set('error', params.error);
   redirect(`/auth/login?${qs.toString()}`);
 }

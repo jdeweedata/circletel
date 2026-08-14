@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requirePortalSuperUser } from '@/lib/portal/require-portal-user';
+import { requireUnjaniSuperUser } from '@/lib/portal/require-portal-user';
 import { mtnCspClient } from '@/lib/coverage/skyfibre/csp-client';
 import { MTNConsumerClient } from '@/lib/coverage/mtn/consumer-client';
 import {
@@ -10,7 +10,7 @@ import {
 import { allRegisterContactsByClinicKey } from '@/lib/portal/unjani-register-contact';
 
 export async function GET() {
-  const auth = await requirePortalSuperUser();
+  const auth = await requireUnjaniSuperUser();
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;
@@ -60,7 +60,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requirePortalSuperUser();
+  const auth = await requireUnjaniSuperUser();
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;

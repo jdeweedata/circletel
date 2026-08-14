@@ -11,6 +11,7 @@ import {
   PiCalendarBold,
 } from 'react-icons/pi';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
   formatClinicShortName,
   formatSiteCode,
@@ -82,6 +83,7 @@ export default function PortalSiteDetailPage() {
   const params = useParams();
   const siteId = params.id as string;
   const { isAdmin } = usePortalAuth();
+  const { href, isUnjani } = usePortalApp();
   const [data, setData] = useState<SiteDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -106,7 +108,7 @@ export default function PortalSiteDetailPage() {
       <div className="text-center py-20">
         <p className="text-gray-500">Site not found.</p>
         {isAdmin && (
-          <Link href="/unjani/sites" className="text-sm text-circleTel-orange hover:underline mt-2 inline-block">
+          <Link href={href('/sites')} className="text-sm text-circleTel-orange hover:underline mt-2 inline-block">
             Back to sites
           </Link>
         )}
@@ -129,9 +131,9 @@ export default function PortalSiteDetailPage() {
         subtitle={address || undefined}
         actions={
           <>
-            <StageBadge stage={site.stage} />
+            {isUnjani && <StageBadge stage={site.stage} />}
             {isAdmin && (
-              <Link href="/unjani/sites">
+              <Link href={href('/sites')}>
                 <PmButton variant="ghost">Back to sites</PmButton>
               </Link>
             )}
@@ -139,16 +141,18 @@ export default function PortalSiteDetailPage() {
         }
       />
 
-      <section aria-labelledby="onboarding-progress-heading">
-        <h2
-          id="onboarding-progress-heading"
-          className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
-          style={{ color: '#13274A' }}
-        >
-          Onboarding progress
-        </h2>
-        <OnboardingProgress stage={site.stage} />
-      </section>
+      {isUnjani && (
+        <section aria-labelledby="onboarding-progress-heading">
+          <h2
+            id="onboarding-progress-heading"
+            className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+            style={{ color: '#13274A' }}
+          >
+            Onboarding progress
+          </h2>
+          <OnboardingProgress stage={site.stage} />
+        </section>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -290,7 +294,7 @@ export default function PortalSiteDetailPage() {
 
       <div className="flex gap-4">
         <Link
-          href="/unjani/support"
+          href={href('/support')}
           className="text-sm text-circleTel-orange hover:underline"
         >
           Raise support ticket for this site

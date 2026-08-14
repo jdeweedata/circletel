@@ -7,6 +7,7 @@ import {
   PiClockBold,
 } from 'react-icons/pi';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
   PortalModernistShell,
   PageHeader,
@@ -41,6 +42,7 @@ interface Ticket {
 
 export default function PortalSupportPage() {
   const { user, isAdmin } = usePortalAuth();
+  const { isUnjani } = usePortalApp();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(true);
@@ -185,7 +187,11 @@ export default function PortalSupportPage() {
       <PageHeader
         eyebrow="Support · Helpdesk"
         title="Support"
-        subtitle="Log queries and tickets — or use Coverage to nominate a new clinic"
+        subtitle={
+          isUnjani
+            ? 'Log queries and tickets — or use Coverage to nominate a new clinic'
+            : 'Log queries and tickets for your sites'
+        }
       />
 
       <div className="space-y-6 mt-6">

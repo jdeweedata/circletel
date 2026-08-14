@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PiHeartbeatBold, PiWifiHighBold, PiWarningBold, PiCalendarBold } from 'react-icons/pi';
 import type { PortalUser } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 
 import {
   formatClinicShortName,
@@ -57,6 +58,7 @@ interface Invoice {
 }
 
 export default function SiteUserDashboard({ user }: { user: PortalUser }) {
+  const { href } = usePortalApp();
   const [siteData, setSiteData] = useState<SiteDetail | null>(null);
   const [nextInvoice, setNextInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
@@ -246,13 +248,13 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
 
       <div className="flex gap-4">
         <Link
-          href={`/unjani/sites/${site.id}`}
+          href={href(`/sites/${site.id}`)}
           className="text-sm text-circleTel-orange hover:underline"
         >
           View full site details →
         </Link>
         <Link
-          href="/unjani/support"
+          href={href('/support')}
           className="text-sm text-circleTel-orange hover:underline"
         >
           Raise support ticket →

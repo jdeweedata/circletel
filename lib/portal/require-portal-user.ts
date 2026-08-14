@@ -98,16 +98,6 @@ export async function requirePortalUser(): Promise<PortalAuthResult> {
     };
   }
 
-  if (!isUnjaniCorporateCode(portalUser.organisation_code)) {
-    return {
-      ok: false,
-      response: NextResponse.json(
-        { error: 'Unjani Connect access required' },
-        { status: 403 }
-      ),
-    };
-  }
-
   return {
     ok: true,
     authUserId: user.id,
@@ -117,9 +107,43 @@ export async function requirePortalUser(): Promise<PortalAuthResult> {
   };
 }
 
+export async function requireUnjaniPortalUser(): Promise<PortalAuthResult> {
+  const result = await requirePortalUser();
+  if (!result.ok) return result;
+
+  if (!isUnjaniCorporateCode(result.portalUser.organisation_code)) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: 'Unjani Connect access required' },
+        { status: 403 }
+      ),
+    };
+  }
+
+  return result;
+}
+
 /** Super User = DB role `admin` (max one per organisation). */
 export async function requirePortalSuperUser(): Promise<PortalAuthResult> {
   const result = await requirePortalUser();
+  if (!result.ok) return result;
+
+  if (result.portalUser.role !== 'admin') {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: 'Super User access required' },
+        { status: 403 }
+      ),
+    };
+  }
+
+  return result;
+}
+
+export async function requireUnjaniSuperUser(): Promise<PortalAuthResult> {
+  const result = await requireUnjaniPortalUser();
   if (!result.ok) return result;
 
   if (result.portalUser.role !== 'admin') {

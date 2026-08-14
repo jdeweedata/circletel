@@ -1,21 +1,45 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
-import { isUnjaniAppPath, isUnjaniCorporateCode } from '@/lib/portal/paths';
+import {
+  BUSINESS_LOGIN_HREF,
+  isBusinessAppPath,
+  isPortalAppPath,
+  isUnjaniAppPath,
+  isUnjaniCorporateCode,
+  mapBusinessAppPath,
+  PORTAL_APP_BASE,
+  UNJANI_APP_BASE,
+} from '@/lib/portal/paths';
 
-const PUBLIC_UNJANI_ROUTES = ['/unjani/login'] as const;
+const PUBLIC_PORTAL_ROUTES = ['/unjani/login', '/portal/login'] as const;
 
 export function isPublicPortalRoute(pathname: string): boolean {
-  return PUBLIC_UNJANI_ROUTES.some((route) => pathname.startsWith(route));
+  return PUBLIC_PORTAL_ROUTES.some((route) => pathname.startsWith(route));
 }
 
 export function isPortalRoute(pathname: string): boolean {
-  return isUnjaniAppPath(pathname);
+  return isBusinessAppPath(pathname);
 }
 
 export interface PortalAuthResult {
   shouldRedirect: boolean;
   redirectResponse?: NextResponse;
   user: User | null;
+}
+
+function loginRedirect(
+  request: NextRequest,
+  extra?: { redirect?: string; error?: string }
+): NextResponse {
+  const redirectUrl = request.nextUrl.clone();
+  const [path, query] = BUSINESS_LOGIN_HREF.split('?');
+  redirectUrl.pathname = path;
+  redirectUrl.search = '';
+  const params = new URLSearchParams(query);
+  if (extra?.redirect) params.set('redirect', extra.redirect);
+  if (extra?.error) params.set('error', extra.error);
+  redirectUrl.search = params.toString();
+  return NextResponse.redirect(redirectUrl);
 }
 
 export async function handlePortalAuth(
@@ -44,14 +68,9 @@ export async function handlePortalAuth(
   const user = session?.user || null;
 
   if (!user) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/auth/login';
-    redirectUrl.searchParams.set('account', 'unjani');
-    redirectUrl.searchParams.set('redirect', pathname);
-
     return {
       shouldRedirect: true,
-      redirectResponse: NextResponse.redirect(redirectUrl),
+      redirectResponse: loginRedirect(request, { redirect: pathname }),
       user: null,
     };
   }
@@ -73,16 +92,35 @@ export async function handlePortalAuth(
     | undefined;
   const code = Array.isArray(org) ? org[0]?.corporate_code : org?.corporate_code;
 
-  if (!portalUser || !isUnjaniCorporateCode(code)) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/auth/login';
-    redirectUrl.searchParams.set('account', 'unjani');
-    redirectUrl.searchParams.set('error', 'no_portal_access');
-
+  if (!portalUser) {
     return {
       shouldRedirect: true,
-      redirectResponse: NextResponse.redirect(redirectUrl),
+      redirectResponse: loginRedirect(request, { error: 'no_portal_access' }),
       user: null,
+    };
+  }
+
+  if (isUnjaniCorporateCode(code)) {
+    if (isPortalAppPath(pathname)) {
+      const target = request.nextUrl.clone();
+      target.pathname = mapBusinessAppPath(pathname, UNJANI_APP_BASE);
+      return {
+        shouldRedirect: true,
+        redirectResponse: NextResponse.redirect(target),
+        user,
+      };
+    }
+    return { shouldRedirect: false, user };
+  }
+
+  if (isUnjaniAppPath(pathname)) {
+    const target = request.nextUrl.clone();
+    target.pathname = PORTAL_APP_BASE;
+    target.search = '';
+    return {
+      shouldRedirect: true,
+      redirectResponse: NextResponse.redirect(target),
+      user,
     };
   }
 

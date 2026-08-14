@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createClientWithSession } from '@/lib/supabase/server';
-import { isUnjaniCorporateCode } from '@/lib/portal/paths';
 
 export async function GET() {
   const supabase = await createClientWithSession();
@@ -46,13 +45,6 @@ export async function GET() {
     company_name?: string;
     corporate_code?: string;
   } | null;
-
-  if (!isUnjaniCorporateCode(org?.corporate_code)) {
-    return NextResponse.json(
-      { error: 'Unjani Connect access required' },
-      { status: 403 }
-    );
-  }
 
   const site = portalUser.corporate_sites as { id?: string; site_name?: string } | null;
 

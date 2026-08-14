@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@/lib/supabase/server';
-import { isUnjaniCorporateCode } from '@/lib/portal/paths';
 
 /**
- * Unjani Connect login — sets SSR auth cookies so middleware can authorize /unjani/*.
- * Browser CustomerAuth uses localStorage; Unjani middleware reads cookies only.
+ * Business portal login — sets SSR auth cookies so middleware can authorize
+ * /portal/* and /unjani/*. Browser CustomerAuth uses localStorage; portal
+ * middleware reads cookies only.
  */
 export async function POST(request: NextRequest) {
   const cookiesToSet: Array<{
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error:
-            'No Unjani Connect access for this account. Ask your Super User to invite you.',
+            'No business portal access for this account. Ask your Super User to invite you.',
         },
         { status: 403 }
       );
@@ -77,17 +77,7 @@ export async function POST(request: NextRequest) {
       .eq('id', portalUser.organisation_id)
       .maybeSingle();
 
-    if (!isUnjaniCorporateCode(org?.corporate_code)) {
-      await supabaseSSR.auth.signOut();
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            'This sign-in is for Unjani Connect. Other business accounts cannot use this portal.',
-        },
-        { status: 403 }
-      );
-    }
+    const organisationCode = org?.corporate_code ?? '';
 
     const successResponse = NextResponse.json({
       success: true,
@@ -100,6 +90,7 @@ export async function POST(request: NextRequest) {
         role: portalUser.role,
         organisation_id: portalUser.organisation_id,
         display_name: portalUser.display_name,
+        organisation_code: organisationCode,
       },
       session: {
         access_token: authData.session.access_token,
