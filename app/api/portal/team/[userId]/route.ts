@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePortalSuperUser } from '@/lib/portal/require-portal-user';
+import { customerMayRemovePortalUser } from '@/lib/portal/internal-users';
 
 export async function DELETE(
   _request: NextRequest,
@@ -13,12 +14,12 @@ export async function DELETE(
 
   const { data: target } = await adminDb
     .from('b2b_portal_users')
-    .select('id, role, auth_user_id')
+    .select('id, role, auth_user_id, is_internal')
     .eq('id', userId)
     .eq('organisation_id', portalUser.organisation_id)
     .maybeSingle();
 
-  if (!target) {
+  if (!target || !customerMayRemovePortalUser(target)) {
     return NextResponse.json({ error: 'Portal user not found' }, { status: 404 });
   }
 

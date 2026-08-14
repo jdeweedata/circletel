@@ -42,6 +42,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Account {
   id: string;
@@ -68,6 +69,7 @@ interface PortalUser {
   role: string;
   site_id: string | null;
   created_at: string;
+  is_internal?: boolean;
   corporate_sites: { id: string; site_name: string } | null;
 }
 
@@ -112,6 +114,7 @@ export default function AdminB2BAccountDetailPage() {
   const [inviteDisplayName, setInviteDisplayName] = useState('');
   const [inviteRole, setInviteRole] = useState('admin');
   const [inviteSiteId, setInviteSiteId] = useState('');
+  const [inviteIsInternal, setInviteIsInternal] = useState(false);
 
   useEffect(() => {
     fetch(`/api/admin/b2b-customers?search=${accountId}`)
@@ -170,6 +173,7 @@ export default function AdminB2BAccountDetailPage() {
           display_name: inviteDisplayName,
           role: inviteRole,
           site_id: inviteRole === 'site_user' ? inviteSiteId : undefined,
+          is_internal: inviteIsInternal,
         }),
       });
 
@@ -267,6 +271,7 @@ export default function AdminB2BAccountDetailPage() {
     setInviteDisplayName('');
     setInviteRole('admin');
     setInviteSiteId('');
+    setInviteIsInternal(false);
     setError('');
   }
 
@@ -502,9 +507,14 @@ export default function AdminB2BAccountDetailPage() {
                     <TableCell className="font-medium">{pu.display_name}</TableCell>
                     <TableCell>{pu.email}</TableCell>
                     <TableCell>
-                      <Badge variant={pu.role === 'admin' ? 'default' : 'secondary'}>
-                        {pu.role === 'admin' ? 'Admin' : 'Site User'}
-                      </Badge>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Badge variant={pu.role === 'admin' ? 'default' : 'secondary'}>
+                          {pu.role === 'admin' ? 'Admin' : 'Site User'}
+                        </Badge>
+                        {pu.is_internal && (
+                          <Badge variant="outline">CircleTel support</Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {pu.corporate_sites?.site_name ?? (pu.role === 'admin' ? 'All sites' : '—')}
@@ -588,6 +598,19 @@ export default function AdminB2BAccountDetailPage() {
                 </Select>
               </div>
             )}
+            <div className="flex items-start gap-2">
+              <Checkbox
+                id="invite-is-internal"
+                checked={inviteIsInternal}
+                onCheckedChange={(checked) => setInviteIsInternal(checked === true)}
+              />
+              <label htmlFor="invite-is-internal" className="text-sm leading-snug">
+                <span className="font-medium">CircleTel support</span>
+                <span className="block text-gray-500">
+                  Hidden from the customer Team page. Does not occupy the Super User seat.
+                </span>
+              </label>
+            </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setInviteOpen(false)}>
                 Cancel

@@ -33,13 +33,35 @@ export interface GeocodingResult {
   };
 }
 
+/**
+ * `loading=async` fires script.onload before google.maps.Map is a constructor.
+ * importLibrary('maps') is required; constructing Map earlier throws and the
+ * Unjani coverage page shows "Map could not load".
+ */
+export async function waitForGoogleMapsApi(timeoutMs = 8000): Promise<typeof google> {
+  const root = globalThis as unknown as Window;
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const maps = root.google?.maps;
+    if (typeof maps?.importLibrary === 'function') {
+      await maps.importLibrary('maps');
+      await maps.importLibrary('places');
+    }
+    if (typeof root.google?.maps?.Map === 'function') {
+      return root.google;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error('Google Maps API did not become ready after script load');
+}
+
 export class GoogleMapsService {
   private isLoaded = false;
   private loadingPromise: Promise<typeof google> | null = null;
 
   async loadGoogleMaps(): Promise<typeof google> {
     // Return if already loaded
-    if (this.isLoaded && window.google) {
+    if (this.isLoaded && typeof window.google?.maps?.Map === 'function') {
       console.log('[GoogleMaps] Already loaded, returning existing instance');
       return window.google;
     }
@@ -55,7 +77,8 @@ export class GoogleMapsService {
       'script[src*="maps.googleapis.com/maps/api/js"]'
     );
     if (existingScript && window.google) {
-      console.log('[GoogleMaps] Script exists in DOM, marking as loaded');
+      console.log('[GoogleMaps] Script exists in DOM, waiting until Map is ready');
+      await waitForGoogleMapsApi();
       this.isLoaded = true;
       return window.google;
     }
@@ -95,9 +118,16 @@ export class GoogleMapsService {
 
       script.onload = () => {
         console.log('[GoogleMaps] Script loaded successfully');
-        this.isLoaded = true;
-        this.loadingPromise = null;
-        resolve(window.google);
+        waitForGoogleMapsApi()
+          .then((googleApi) => {
+            this.isLoaded = true;
+            this.loadingPromise = null;
+            resolve(googleApi);
+          })
+          .catch((readyError) => {
+            this.loadingPromise = null;
+            reject(readyError);
+          });
       };
       script.onerror = (error) => {
         console.error('[GoogleMaps] Failed to load Google Maps script:', error);
