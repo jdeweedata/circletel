@@ -14,6 +14,7 @@ import {
   buildAdminClaimProfile,
   ADMIN_CLAIM_VERSION,
   ADMIN_CLAIM_API_TTL_MS,
+  ADMIN_CLAIM_OUTAGE_TTL_MS,
   ADMIN_CLAIM_PROFILE_FIELDS,
 } from '@/lib/auth/admin-claims';
 
@@ -59,6 +60,14 @@ describe('getAdminClaim', () => {
   it('rejects a claim older than the TTL', () => {
     const claim = validClaim({ stamped_at: new Date(Date.now() - TTL - 1000).toISOString() });
     expect(getAdminClaim(userWithClaim(claim), TTL)).toBeNull();
+  });
+
+  it('accepts a stale but active claim when using the outage TTL', () => {
+    const claim = validClaim({
+      stamped_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+    });
+    expect(getAdminClaim(userWithClaim(claim), TTL)).toBeNull();
+    expect(getAdminClaim(userWithClaim(claim), ADMIN_CLAIM_OUTAGE_TTL_MS)).not.toBeNull();
   });
 
   it('rejects a claim stamped in the future', () => {

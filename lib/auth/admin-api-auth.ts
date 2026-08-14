@@ -19,7 +19,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import type { User } from '@supabase/supabase-js';
-import { getAdminClaim, stampAdminClaim, ADMIN_CLAIM_API_TTL_MS } from '@/lib/auth/admin-claims';
+import { getAdminClaim, stampAdminClaim, ADMIN_CLAIM_API_TTL_MS, ADMIN_CLAIM_OUTAGE_TTL_MS } from '@/lib/auth/admin-claims';
+import {
+  DATA_API_UNAVAILABLE_CODE,
+  DATA_API_UNAVAILABLE_MESSAGE,
+  isSupabaseDataApiUnavailable,
+} from '@/lib/auth/data-api-errors';
 
 export interface AdminUser {
   id: string;
@@ -121,6 +126,31 @@ export async function authenticateAdmin(request: NextRequest): Promise<AuthResul
       .single();
 
     if (adminError || !adminUser) {
+      if (isSupabaseDataApiUnavailable(adminError)) {
+        const staleClaim = getAdminClaim(user, ADMIN_CLAIM_OUTAGE_TTL_MS);
+        if (staleClaim) {
+          await stampAdminClaim(supabaseAdmin, user.id, staleClaim.profile);
+          return {
+            success: true,
+            user,
+            adminUser: staleClaim.profile,
+          };
+        }
+
+        return {
+          success: false,
+          response: NextResponse.json(
+            {
+              success: false,
+              error: DATA_API_UNAVAILABLE_MESSAGE,
+              technical_error: DATA_API_UNAVAILABLE_CODE,
+            },
+            { status: 503 }
+          ),
+          error: 'Admin directory unavailable',
+        };
+      }
+
       console.error('[Admin API Auth] User not in admin_users table:', user.email);
       return {
         success: false,
