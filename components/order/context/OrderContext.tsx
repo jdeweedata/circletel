@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 import { OrderData, OrderStage, ValidationErrors } from '@/lib/order/types';
+import { shouldSkipOrderContext } from '@/lib/order/skip-order-context';
 
 const STORAGE_KEY = 'circletel_order_state';
 
@@ -95,11 +96,8 @@ export function OrderContextProvider({ children }: { children: React.ReactNode }
   const [state, dispatch] = useReducer(orderReducer, initialState);
   const [isHydrated, setIsHydrated] = React.useState(false);
 
-  // Skip order context on admin, partner, and auth pages
-  const isAdminPage = pathname?.startsWith('/admin');
-  const isPartnerPage = pathname?.startsWith('/partners');
-  const isAuthPage = pathname?.startsWith('/auth');
-  const shouldSkipContext = isAdminPage || isPartnerPage || isAuthPage;
+  // Skip on admin, partner, auth, and B2B portal shells (Unjani / portal)
+  const shouldSkipContext = shouldSkipOrderContext(pathname);
 
   // Load order state from localStorage on mount
   useEffect(() => {
