@@ -107,7 +107,7 @@ export default function AdminLoginPage() {
 
       if (!response.ok || !result.success) {
         // Check for auth timeout error
-        if (result.technical_error === 'AUTH_TIMEOUT') {
+        if (result.technical_error === 'AUTH_TIMEOUT' || result.technical_error === 'DATA_API_UNAVAILABLE') {
           throw new Error(result.error || 'Authentication service timeout. Please wait a moment and try again.');
         }
         throw new Error(result.error || 'Login failed');
