@@ -33,6 +33,7 @@ import {
 } from '@/lib/admin/feature-registry';
 import type { AdminRole } from '@/lib/auth/constants';
 import { getTenantConfig } from '@/lib/tenant';
+import { coerceWorkspaceRole, extraWorkspacesForRole } from '@/lib/admin/workspace-access';
 
 interface User {
   full_name?: string;
@@ -44,8 +45,6 @@ interface SidebarProps {
   onToggle: () => void;
   user: User;
 }
-
-const ADMIN_ROLES: AdminRole[] = ['super_admin', 'product_manager', 'editor', 'viewer'];
 
 const WORKSPACE_ICON: Record<WorkspaceId, IconType> = {
   executive: PiTrendUpBold,
@@ -169,13 +168,13 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
   const pathname = usePathname();
 
   // Real admin roles are super_admin | product_manager | editor | viewer.
-  // Unknown/absent role falls back to least privilege.
-  const role: AdminRole = ADMIN_ROLES.includes(user?.role as AdminRole)
-    ? (user!.role as AdminRole)
-    : 'viewer';
+  // Unknown RBAC templates (e.g. accountant) coerce to viewer, then extra
+  // workspaces restore Finance/Support so the nav matches middleware.
+  const role: AdminRole = coerceWorkspaceRole(user?.role);
+  const extraWorkspaces = extraWorkspacesForRole(user?.role);
 
   // Role-scoped, workspace-grouped nav (feature-registry, PR #613).
-  const workspaces = getWorkspaceNav({ role, modules: getTenantConfig().modules });
+  const workspaces = getWorkspaceNav({ role, extraWorkspaces, modules: getTenantConfig().modules });
 
   const [activeWs, setActiveWs] = useState<WorkspaceId>(
     () => workspaceForPath(pathname) ?? workspaces[0]?.id ?? 'executive'

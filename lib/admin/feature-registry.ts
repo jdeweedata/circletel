@@ -614,10 +614,11 @@ function moduleItemVisible(item: NavItem, role: AdminRole): boolean {
 export function getWorkspaceNav(opts: {
   role: AdminRole;
   modules?: ModuleId[];
+  extraWorkspaces?: WorkspaceId[];
 }): WorkspaceNav[] {
-  const { role, modules } = opts;
+  const { role, modules, extraWorkspaces } = opts;
   const allItems: NavItem[] = [...featureSections, ...bottomSections].flatMap((s) => s.items);
-  return WORKSPACES.filter((w) => w.roles.includes(role))
+  return WORKSPACES.filter((w) => w.roles.includes(role) || extraWorkspaces?.includes(w.id))
     .sort((a, b) => a.order - b.order)
     .map((w) => ({
       id: w.id,
