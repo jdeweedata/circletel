@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePortalSuperUser } from '@/lib/portal/require-portal-user';
+import { customerFacingPortalUsers } from '@/lib/portal/internal-users';
 
 export async function GET() {
   const auth = await requirePortalSuperUser();
@@ -10,16 +11,19 @@ export async function GET() {
   const { data: portalUsers, error } = await adminDb
     .from('b2b_portal_users')
     .select(
-      'id, auth_user_id, display_name, email, role, site_id, created_at, corporate_sites(id, site_name)'
+      'id, auth_user_id, display_name, email, role, site_id, created_at, is_internal, corporate_sites(id, site_name)'
     )
     .eq('organisation_id', portalUser.organisation_id)
+    .eq('is_internal', false)
     .order('created_at', { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ portalUsers: portalUsers ?? [] });
+  return NextResponse.json({
+    portalUsers: customerFacingPortalUsers(portalUsers ?? []),
+  });
 }
 
 export async function POST(request: NextRequest) {

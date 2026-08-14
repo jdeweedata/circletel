@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { occupiesCustomerSuperUserSlot } from '@/lib/portal/internal-users';
 
 export async function GET(
   request: NextRequest,
@@ -17,7 +18,7 @@ export async function GET(
 
     const { data: portalUsers, error } = await supabase
       .from('b2b_portal_users')
-      .select('id, auth_user_id, display_name, email, role, site_id, created_at, corporate_sites(id, site_name)')
+      .select('id, auth_user_id, display_name, email, role, site_id, created_at, is_internal, corporate_sites(id, site_name)')
       .eq('organisation_id', accountId)
       .order('created_at', { ascending: false });
 
@@ -47,7 +48,8 @@ export async function POST(
     const admin = authResult.user;
 
     const body = await request.json();
-    const { email, display_name, role, site_id } = body;
+    const { email, display_name, role, site_id, is_internal } = body;
+    const isInternal = is_internal === true;
 
     if (!email || !display_name || !role) {
       return NextResponse.json({ error: 'email, display_name, and role are required' }, { status: 400 });
@@ -61,13 +63,14 @@ export async function POST(
       return NextResponse.json({ error: 'site_id is required for site_user role' }, { status: 400 });
     }
 
-    // Max one Super User (admin) per organisation
-    if (role === 'admin') {
+    // Max one customer Super User (admin) per organisation; hidden support admins do not occupy the slot
+    if (occupiesCustomerSuperUserSlot({ role, is_internal: isInternal })) {
       const { data: existingAdmin } = await supabase
         .from('b2b_portal_users')
         .select('id')
         .eq('organisation_id', accountId)
         .eq('role', 'admin')
+        .eq('is_internal', false)
         .maybeSingle();
 
       if (existingAdmin) {
@@ -111,8 +114,9 @@ export async function POST(
             role,
             site_id: role === 'site_user' ? site_id : null,
             created_by: admin.id,
+            is_internal: isInternal,
           })
-          .select('id, auth_user_id, display_name, email, role, site_id, created_at, corporate_sites(id, site_name)')
+          .select('id, auth_user_id, display_name, email, role, site_id, created_at, is_internal, corporate_sites(id, site_name)')
           .single();
 
         if (insertError) {
@@ -139,8 +143,9 @@ export async function POST(
         role,
         site_id: role === 'site_user' ? site_id : null,
         created_by: admin.id,
+        is_internal: isInternal,
       })
-      .select('id, auth_user_id, display_name, email, role, site_id, created_at, corporate_sites(id, site_name)')
+      .select('id, auth_user_id, display_name, email, role, site_id, created_at, is_internal, corporate_sites(id, site_name)')
       .single();
 
     if (insertError) {
