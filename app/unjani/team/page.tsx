@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
   PortalModernistShell,
   PageHeader,
@@ -27,6 +28,7 @@ interface TeamMember {
 
 export default function PortalTeamPage() {
   const { user, isAdmin, loading: authLoading } = usePortalAuth();
+  const { href } = usePortalApp();
   const router = useRouter();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
@@ -42,7 +44,7 @@ export default function PortalTeamPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!isAdmin) {
-      router.replace('/unjani');
+      router.replace(href('/'));
       return;
     }
 
@@ -57,7 +59,7 @@ export default function PortalTeamPage() {
       })
       .catch(() => setError('Failed to load team'))
       .finally(() => setLoading(false));
-  }, [authLoading, isAdmin, router]);
+  }, [authLoading, isAdmin, router, href]);
 
   if (!user || !isAdmin) return null;
 

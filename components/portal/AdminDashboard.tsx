@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { PiInfoBold, PiWarningBold } from 'react-icons/pi';
 import type { PortalUser } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
   PortalModernistShell,
   PageHeader,
@@ -54,6 +55,7 @@ function spendNote(billedCount: number, spend: number): string {
 }
 
 export default function AdminDashboard({ user }: { user: PortalUser }) {
+  const { href, isUnjani } = usePortalApp();
   const [sites, setSites] = useState<PortalSite[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -111,14 +113,16 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
         title="Dashboard"
         subtitle={`Welcome back, ${user.display_name} — ${user.organisation_name}`}
         actions={
-          <>
-            <Link href="/unjani/coverage">
-              <PmButton variant="secondary">Coverage check</PmButton>
-            </Link>
-            <Link href="/unjani/coverage">
-              <PmButton variant="cta">+ Onboard a clinic</PmButton>
-            </Link>
-          </>
+          isUnjani ? (
+            <>
+              <Link href={href('/coverage')}>
+                <PmButton variant="secondary">Coverage check</PmButton>
+              </Link>
+              <Link href={href('/coverage')}>
+                <PmButton variant="cta">+ Onboard a clinic</PmButton>
+              </Link>
+            </>
+          ) : undefined
         }
       />
 
@@ -128,7 +132,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
           {
             label: 'Sites live',
             value: String(summary?.sitesLive ?? 0),
-            href: '/unjani/sites',
+            href: href('/sites'),
             accent: '#2F9E5E',
             valueColor: '#2F9E5E',
           },
@@ -136,21 +140,25 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
             label: 'In onboarding',
             value: String(summary?.inOnboarding ?? 0),
             note: 'Across 5 stages',
-            href: '/unjani/sites',
+            href: href('/sites'),
             accent: '#13274A',
           },
-          {
-            label: 'Pre-qualified',
-            value: String(summary?.preQualified ?? 0),
-            note: 'Ready to add to the pipeline',
-            href: '/unjani/coverage',
-            accent: '#F5841E',
-          },
+          ...(isUnjani
+            ? [
+                {
+                  label: 'Pre-qualified',
+                  value: String(summary?.preQualified ?? 0),
+                  note: 'Ready to add to the pipeline',
+                  href: href('/coverage'),
+                  accent: '#F5841E',
+                },
+              ]
+            : []),
           {
             label: 'Monthly spend',
             value: formatZar(summary?.monthlySpend ?? 0),
             note: spendNote(summary?.billedSites ?? 0, summary?.monthlySpend ?? 0),
-            href: '/unjani/billing',
+            href: href('/billing'),
             accent: '#13274A',
           },
         ]}
@@ -159,7 +167,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
       {overdueInvoices.length > 0 && (
         <AlertBand
           action={
-            <Link href="/unjani/billing">
+            <Link href={href('/billing')}>
               <PmButton variant="secondary">View billing</PmButton>
             </Link>
           }
@@ -172,11 +180,11 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
         </AlertBand>
       )}
 
-      {awaitingClinic > 0 && (
+      {isUnjani && awaitingClinic > 0 && (
         <AlertBand
           tone="peach"
           action={
-            <Link href="/unjani/sites">
+            <Link href={href('/sites')}>
               <PmButton variant="secondary">Review</PmButton>
             </Link>
           }
@@ -190,7 +198,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
         </AlertBand>
       )}
 
-      {summary && (
+      {isUnjani && summary && (
         <section className="mt-8">
           <div className="flex items-center justify-between gap-3">
             <p
@@ -220,7 +228,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
             >
               Site overview
             </p>
-            <Link href="/unjani/sites">
+            <Link href={href('/sites')}>
               <PmButton
                 variant="secondary"
                 className="transition-colors hover:!bg-[#13274A] hover:!text-white"
@@ -243,7 +251,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
                 >
                   <td className="px-4 py-3">
                     <Link
-                      href={`/unjani/sites/${site.id}`}
+                      href={href(`/sites/${site.id}`)}
                       className="block hover:opacity-80"
                     >
                       <span
@@ -274,7 +282,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
           </RuledTable>
         </section>
 
-        {summary && summary.provinces.length > 0 && (
+        {isUnjani && summary && summary.provinces.length > 0 && (
           <section>
             <p
               className="text-[10px] font-extrabold tracking-[0.08em] uppercase"

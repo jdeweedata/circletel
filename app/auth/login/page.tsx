@@ -16,7 +16,7 @@ import {
 } from '@/components/auth/ModernistLoginShell';
 import {
   parsePortalAccountLane,
-  safeUnjaniRedirect,
+  safeBusinessRedirect,
 } from '@/lib/portal/paths';
 
 const emailLoginSchema = z.object({
@@ -79,7 +79,6 @@ export default function LoginPage() {
 
   const redirectParam = searchParams.get('redirect');
   const personalRedirect = safePersonalRedirect(redirectParam);
-  const unjaniRedirect = safeUnjaniRedirect(redirectParam);
 
   React.useEffect(() => {
     const next = parseAccount(searchParams.get('account'));
@@ -94,10 +93,9 @@ export default function LoginPage() {
       } = await supabase.auth.getSession();
       if (!session?.user) return;
 
-      if (account === 'unjani') {
+      if (account === 'business') {
         const ok = await assertPortalAccess(session.user.id);
         if (ok && session.access_token && session.refresh_token) {
-          // Mirror localStorage session into cookies before entering /unjani
           const sync = await fetch('/api/portal/session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -108,13 +106,20 @@ export default function LoginPage() {
             }),
           });
           if (sync.ok) {
-            window.location.assign(unjaniRedirect);
+            const me = await fetch('/api/portal/me', { credentials: 'same-origin' });
+            const meData = me.ok ? await me.json() : null;
+            window.location.assign(
+              safeBusinessRedirect(
+                redirectParam,
+                meData?.user?.organisation_code
+              )
+            );
             return;
           }
         }
         await supabase.auth.signOut();
         setFormError(
-          'No Unjani Connect access for this account. Ask your Super User to invite you.'
+          'No business portal access for this account. Ask your Super User to invite you, or request business access.'
         );
         return;
       }
@@ -122,7 +127,7 @@ export default function LoginPage() {
       router.replace(personalRedirect);
     };
     checkExistingSession();
-  }, [router, account, personalRedirect, unjaniRedirect]);
+  }, [router, account, personalRedirect, redirectParam]);
 
   React.useEffect(() => {
     const authError =
@@ -131,7 +136,7 @@ export default function LoginPage() {
       clearSupabaseSession();
       if (authError === 'no_portal_access') {
         setFormError(
-          'No Unjani Connect access found for this account. Please contact your administrator.'
+          'No business portal access found for this account. Please contact your administrator.'
         );
       }
     }
@@ -152,7 +157,7 @@ export default function LoginPage() {
     setFormError(null);
     setMethod('password');
     const url = new URL(window.location.href);
-    if (next === 'unjani') url.searchParams.set('account', 'unjani');
+    if (next === 'business') url.searchParams.set('account', 'business');
     else url.searchParams.delete('account');
     window.history.replaceState({}, '', url.toString());
   }
@@ -162,9 +167,8 @@ export default function LoginPage() {
     setFormError(null);
 
     try {
-      // Unjani Connect: middleware only sees cookie sessions (not localStorage).
-      // Use the portal login API so SSR auth cookies are set before /unjani.
-      if (account === 'unjani') {
+      // Business portal: middleware only sees cookie sessions (not localStorage).
+      if (account === 'business') {
         const res = await fetch('/api/portal/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -178,18 +182,18 @@ export default function LoginPage() {
           success?: boolean;
           error?: string;
           session?: { access_token: string; refresh_token: string };
+          portalUser?: { organisation_code?: string };
         };
 
         if (!res.ok || !payload.success) {
           const msg =
             payload.error ||
-            'No Unjani Connect access for this account. Ask your Super User to invite you.';
+            'No business portal access for this account. Ask your Super User to invite you.';
           setFormError(msg);
           toast.error(msg);
           return;
         }
 
-        // Keep browser client in sync for any client-side portal UI
         if (payload.session?.access_token && payload.session?.refresh_token) {
           const supabase = createClient();
           await supabase.auth.setSession({
@@ -199,7 +203,12 @@ export default function LoginPage() {
         }
 
         toast.success('Welcome back');
-        window.location.assign(unjaniRedirect);
+        window.location.assign(
+          safeBusinessRedirect(
+            redirectParam,
+            payload.portalUser?.organisation_code
+          )
+        );
         return;
       }
 
@@ -240,13 +249,15 @@ export default function LoginPage() {
       }
 
       toast.success('Verification code sent to your phone!');
-      const dest =
-        account === 'unjani' ? unjaniRedirect : personalRedirect;
       const params = new URLSearchParams({
         phone: data.phone,
-        redirect: dest,
         account,
       });
+      if (account === 'business') {
+        if (redirectParam) params.set('redirect', redirectParam);
+      } else {
+        params.set('redirect', personalRedirect);
+      }
       router.push(`/auth/verify-otp?${params.toString()}`);
     } catch (error) {
       console.error('Error sending OTP:', error);
@@ -257,7 +268,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (account === 'unjani') return;
+    if (account === 'business') return;
     setIsGoogleLoading(true);
     try {
       const result = await signInWithGoogle({ redirectTo: personalRedirect });
@@ -272,17 +283,17 @@ export default function LoginPage() {
     }
   };
 
-  const emailLabel = account === 'unjani' ? 'Work email' : 'Email';
+  const emailLabel = account === 'business' ? 'Work email' : 'Email';
   const emailPlaceholder =
-    account === 'unjani' ? 'you@unjani.org' : 'you@example.co.za';
+    account === 'business' ? 'you@company.co.za' : 'you@example.co.za';
   const passwordHint =
-    account === 'unjani'
-      ? 'Use the address your Unjani Super User invited.'
+    account === 'business'
+      ? 'Use the address your account admin invited.'
       : '';
   const cta =
-    account === 'unjani' ? 'Sign in to Unjani Connect' : 'Sign in';
+    account === 'business' ? 'Sign in to business portal' : 'Sign in';
   const methodPasswordLabel =
-    account === 'unjani' ? 'Work email & password' : 'Email & password';
+    account === 'business' ? 'Work email & password' : 'Email & password';
 
   return (
     <ModernistLoginShell account={account}>
@@ -319,9 +330,9 @@ export default function LoginPage() {
               sub: 'Home fibre, LTE and mobile',
             },
             {
-              key: 'unjani' as const,
-              title: 'Unjani Connect',
-              sub: 'Clinics, coverage and NPC billing',
+              key: 'business' as const,
+              title: 'Business',
+              sub: 'Companies, NPOs and multi-site',
             },
           ] as const
         ).map((tab, i) => {
@@ -568,8 +579,8 @@ export default function LoginPage() {
                 color: 'color-mix(in srgb, #1F2937 52%, transparent)',
               }}
             >
-              {account === 'unjani'
-                ? 'The number registered against your user on the Unjani account.'
+              {account === 'business'
+                ? 'The number registered against your user on the account.'
                 : 'We send a six-digit code, valid for five minutes.'}
             </p>
             {otpForm.formState.errors.phone && (
@@ -653,7 +664,7 @@ export default function LoginPage() {
           ← circletel.co.za
         </Link>
         <div className="min-[480px]:text-right">
-          {account === 'unjani' ? (
+          {account === 'business' ? (
             <>
               No login yet?{' '}
               <Link
@@ -665,7 +676,7 @@ export default function LoginPage() {
                   fontWeight: 800,
                 }}
               >
-                Request Unjani Connect access
+                Request business access
               </Link>
             </>
           ) : (

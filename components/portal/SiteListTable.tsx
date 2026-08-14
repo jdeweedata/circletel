@@ -16,6 +16,7 @@ import {
   siteAddress,
   type PortalSite,
 } from '@/lib/portal/site-format';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 
 type Filter = 'all' | 'onboarding' | 'live';
 
@@ -26,6 +27,7 @@ function siteProvince(site: PortalSite): string | null {
 }
 
 export default function SiteListTable() {
+  const { href } = usePortalApp();
   const [sites, setSites] = useState<PortalSite[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
   const [query, setQuery] = useState('');
@@ -194,7 +196,7 @@ export default function SiteListTable() {
             </button>
           );
         })}
-        <Link href="/unjani/billing" className="block hover:opacity-90">
+        <Link href={href('/billing')} className="block hover:opacity-90">
           <div
             className="relative h-full rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-black/[0.06]"
             style={{ borderBottom: '3px solid #13274A' }}
@@ -310,7 +312,7 @@ export default function SiteListTable() {
                   </td>
                   <td className="px-4 py-3">
                     <Link
-                      href={`/unjani/sites/${site.id}`}
+                      href={href(`/sites/${site.id}`)}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <PmButton variant="cta" className="whitespace-nowrap">
@@ -391,7 +393,7 @@ export default function SiteListTable() {
                 )}
               </ul>
               <div className="mt-4">
-                <Link href={`/unjani/sites/${selected.id}`}>
+                <Link href={href(`/sites/${selected.id}`)}>
                   <PmButton variant="cta">View site</PmButton>
                 </Link>
               </div>
@@ -400,7 +402,7 @@ export default function SiteListTable() {
             <div className="rounded-xl bg-white p-4 text-sm shadow-sm ring-1 ring-black/[0.06]"
               style={{ color: 'var(--pm-body)' }}
             >
-              Select a clinic to see its details.
+              Select a site to see its details.
             </div>
           )}
         </aside>

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 import Link from 'next/link';
 import {
   PortalModernistShell,
@@ -13,13 +14,14 @@ import SiteListTable from '@/components/portal/SiteListTable';
 
 export default function PortalSitesPage() {
   const { user, isSiteUser } = usePortalAuth();
+  const { href, isUnjani } = usePortalApp();
   const router = useRouter();
 
   useEffect(() => {
     if (isSiteUser && user?.site_id) {
-      router.replace(`/unjani/sites/${user.site_id}`);
+      router.replace(href(`/sites/${user.site_id}`));
     }
-  }, [isSiteUser, user?.site_id, router]);
+  }, [isSiteUser, user?.site_id, router, href]);
 
   if (!user) return null;
 
@@ -36,16 +38,22 @@ export default function PortalSitesPage() {
       <PageHeader
         eyebrow={`${user.organisation_name} · Network`}
         title="Sites"
-        subtitle="Every clinic from nomination through to go-live."
+        subtitle={
+          isUnjani
+            ? 'Every clinic from nomination through to go-live.'
+            : 'Every site on the account.'
+        }
         actions={
-          <>
-            <Link href="/unjani/coverage">
-              <PmButton variant="secondary">Coverage check</PmButton>
-            </Link>
-            <Link href="/unjani/coverage">
-              <PmButton variant="cta">+ Onboard a clinic</PmButton>
-            </Link>
-          </>
+          isUnjani ? (
+            <>
+              <Link href={href('/coverage')}>
+                <PmButton variant="secondary">Coverage check</PmButton>
+              </Link>
+              <Link href={href('/coverage')}>
+                <PmButton variant="cta">+ Onboard a clinic</PmButton>
+              </Link>
+            </>
+          ) : undefined
         }
       />
       <SiteListTable />

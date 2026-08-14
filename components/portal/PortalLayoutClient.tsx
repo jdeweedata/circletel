@@ -6,6 +6,11 @@ import Image from 'next/image';
 import { Archivo } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { PortalAuthProvider, usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import {
+  PortalAppProvider,
+  usePortalApp,
+  type PortalAppVariant,
+} from '@/lib/portal/portal-app-context';
 import '@/components/portal/modernist/tokens.css';
 import {
   PiSquaresFourBold,
@@ -32,26 +37,29 @@ const archivo = Archivo({
   display: 'swap',
 });
 
-const adminNavItems = [
-  { href: '/unjani', label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
-  { href: '/unjani/sites', label: 'Sites', icon: PiBuildings },
-  { href: '/unjani/coverage', label: 'Coverage', icon: PiMapPinAreaBold },
-  { href: '/unjani/billing', label: 'Billing', icon: PiCurrencyDollarBold },
-  { href: '/unjani/support', label: 'Support', icon: PiLifebuoyBold },
-  { href: '/unjani/team', label: 'Team', icon: PiUsersThreeBold },
-];
-
-const siteUserNavItems = [
-  { href: '/unjani', label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
-  { href: '/unjani/billing', label: 'Billing', icon: PiCurrencyDollarBold },
-  { href: '/unjani/support', label: 'Support', icon: PiLifebuoyBold },
-];
-
 function PortalNav() {
   const { user, isAdmin, signOut } = usePortalAuth();
+  const { href, isUnjani } = usePortalApp();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const adminNavItems = [
+    { href: href('/'), label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
+    { href: href('/sites'), label: 'Sites', icon: PiBuildings },
+    ...(isUnjani
+      ? [{ href: href('/coverage'), label: 'Coverage', icon: PiMapPinAreaBold }]
+      : []),
+    { href: href('/billing'), label: 'Billing', icon: PiCurrencyDollarBold },
+    { href: href('/support'), label: 'Support', icon: PiLifebuoyBold },
+    { href: href('/team'), label: 'Team', icon: PiUsersThreeBold },
+  ];
+
+  const siteUserNavItems = [
+    { href: href('/'), label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
+    { href: href('/billing'), label: 'Billing', icon: PiCurrencyDollarBold },
+    { href: href('/support'), label: 'Support', icon: PiLifebuoyBold },
+  ];
 
   const navItems = isAdmin ? adminNavItems : siteUserNavItems;
 
@@ -64,7 +72,7 @@ function PortalNav() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/unjani" className="flex items-center gap-2.5">
+          <Link href={href('/')} className="flex items-center gap-2.5">
             <Image
               src="/images/circletel-enclosed-logo.svg"
               alt="CircleTel"
@@ -73,7 +81,7 @@ function PortalNav() {
               className="h-9 w-9 object-contain"
             />
             <span className="text-base font-semibold" style={{ color: '#13274A' }}>
-              Unjani Connect
+              {isUnjani ? 'Unjani Connect' : 'Business portal'}
             </span>
           </Link>
 
@@ -215,8 +223,9 @@ function PortalNav() {
 
 function PortalContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = usePortalAuth();
+  const { href } = usePortalApp();
   const pathname = usePathname();
-  const isLoginPage = pathname === '/unjani/login';
+  const isLoginPage = pathname === href('/login');
 
   if (isLoginPage) {
     return <>{children}</>;
@@ -280,12 +289,20 @@ function PortalContent({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function PortalLayoutClient({ children }: { children: React.ReactNode }) {
+export default function PortalLayoutClient({
+  children,
+  variant,
+}: {
+  children: React.ReactNode;
+  variant: PortalAppVariant;
+}) {
   return (
-    <PortalAuthProvider>
-      <div className={cn('portal-root', archivo.variable)}>
-        <PortalContent>{children}</PortalContent>
-      </div>
-    </PortalAuthProvider>
+    <PortalAppProvider variant={variant}>
+      <PortalAuthProvider>
+        <div className={cn('portal-root', archivo.variable)}>
+          <PortalContent>{children}</PortalContent>
+        </div>
+      </PortalAuthProvider>
+    </PortalAppProvider>
   );
 }

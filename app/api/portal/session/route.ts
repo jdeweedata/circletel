@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 
 /**
  * Sync an existing browser (localStorage) session into SSR cookies
- * so /unjani middleware can authorize the user.
+ * so /portal and /unjani middleware can authorize the user.
  */
 export async function POST(request: NextRequest) {
   const cookiesToSet: Array<{

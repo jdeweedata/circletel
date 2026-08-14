@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
   PortalModernistShell,
   PageHeader,
@@ -11,12 +12,13 @@ import CoverageExplorer from '@/components/portal/coverage/CoverageExplorer';
 
 export default function PortalCoveragePage() {
   const { user, isAdmin, loading: authLoading } = usePortalAuth();
+  const { href } = usePortalApp();
   const router = useRouter();
 
   useEffect(() => {
     if (authLoading) return;
-    if (!isAdmin) router.replace('/unjani');
-  }, [authLoading, isAdmin, router]);
+    if (!isAdmin) router.replace(href('/'));
+  }, [authLoading, isAdmin, router, href]);
 
   if (!user || !isAdmin) return null;
 
