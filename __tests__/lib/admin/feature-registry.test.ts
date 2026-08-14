@@ -106,6 +106,18 @@ describe('module + workspace axes', () => {
     }
   });
 
+  it('accountant extras unlock Finance without Administration', () => {
+    const ws = getWorkspaceNav({
+      role: 'viewer',
+      extraWorkspaces: ['executive', 'finance', 'support'],
+    }).map((w) => w.id);
+    expect(ws).toContain('executive');
+    expect(ws).toContain('finance');
+    expect(ws).toContain('support');
+    expect(ws).not.toContain('admin');
+    expect(ws).not.toContain('sales');
+  });
+
   it('module entitlement hides a disabled module’s items', () => {
     const withoutBilling = getWorkspaceNav({ role: 'super_admin', modules: ['core'] });
     const finance = withoutBilling.find((w) => w.id === 'finance');

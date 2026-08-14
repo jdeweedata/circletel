@@ -7,7 +7,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
-import { canAccessAdminPath, workspaceForPathname } from '@/lib/admin/workspace-access';
+import { canAccessAdminPath, workspaceForPathname, workspaceDenyLanding } from '@/lib/admin/workspace-access';
 import type { AdminRole } from '@/lib/auth/constants';
 import { getAdminClaim, ADMIN_CLAIM_PAGE_TTL_MS, ADMIN_CLAIM_OUTAGE_TTL_MS } from '@/lib/auth/admin-claims';
 import { isSupabaseDataApiUnavailable } from '@/lib/auth/data-api-errors';
@@ -125,8 +125,10 @@ export async function handleAdminAuth(
     };
   }
 
-  // Authenticated. Authorize by workspace (PR5). Dashboard/Executive is open to
-  // every admin role, so it is always a safe, loop-free landing on denial.
+  // Authenticated. Authorize by workspace (PR5). Dashboard/Executive is the
+  // deny-landing: unknown RBAC templates coerce to viewer (same as Sidebar),
+  // and finance templates (accountant, …) also get Finance. Never redirect
+  // dashboard to itself — that caused ERR_TOO_MANY_REDIRECTS.
   //
   // Fast path (audit H3): a fresh JWT admin claim (stamped at login and
   // refreshed by authenticateAdmin) authorizes with zero DB reads. The
@@ -167,8 +169,12 @@ export async function handleAdminAuth(
   if (!canAccessAdminPath(role, pathname, getTenantConfig().modules)) {
     const ws = workspaceForPathname(pathname);
     console.warn('[admin-auth] workspace denied', { pathname, role, ws });
+    const landing = workspaceDenyLanding(pathname);
+    if (!landing) {
+      return { shouldRedirect: false, user };
+    }
     const url = request.nextUrl.clone();
-    url.pathname = '/admin/dashboard';
+    url.pathname = landing;
     url.searchParams.set('denied', ws ?? 'unknown');
     return { shouldRedirect: true, redirectResponse: NextResponse.redirect(url), user };
   }

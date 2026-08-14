@@ -1,4 +1,4 @@
-import { canAccessAdminPath, workspaceForPathname } from '@/lib/admin/workspace-access';
+import { canAccessAdminPath, workspaceForPathname, workspaceDenyLanding } from '@/lib/admin/workspace-access';
 
 describe('canAccessAdminPath (PR5 route guard)', () => {
   it('viewer is blocked from operational + admin routes', () => {
@@ -47,6 +47,39 @@ describe('canAccessAdminPath (PR5 route guard)', () => {
   it('unmapped admin routes fail open (returns null workspace)', () => {
     expect(workspaceForPathname('/admin/some-unmapped-route')).toBeNull();
     expect(canAccessAdminPath('viewer', '/admin/some-unmapped-route')).toBe(true);
+  });
+});
+
+describe('RBAC template roles (accountant) vs 4-value AdminRole union', () => {
+  it('accountant reaches dashboard, finance, and customers — not admin/sales', () => {
+    expect(canAccessAdminPath('accountant', '/admin')).toBe(true);
+    expect(canAccessAdminPath('accountant', '/admin/dashboard')).toBe(true);
+    expect(canAccessAdminPath('accountant', '/admin/billing')).toBe(true);
+    expect(canAccessAdminPath('accountant', '/admin/finance/outstanding')).toBe(true);
+    expect(canAccessAdminPath('accountant', '/admin/payments')).toBe(true);
+    expect(canAccessAdminPath('accountant', '/admin/customers')).toBe(true);
+    expect(canAccessAdminPath('accountant', '/admin/settings')).toBe(false);
+    expect(canAccessAdminPath('accountant', '/admin/users')).toBe(false);
+    expect(canAccessAdminPath('accountant', '/admin/quotes')).toBe(false);
+    expect(canAccessAdminPath('accountant', '/admin/network/health')).toBe(false);
+  });
+
+  it('unknown templates coerce to viewer (dashboard yes, billing no)', () => {
+    expect(canAccessAdminPath('not_a_real_role', '/admin/dashboard')).toBe(true);
+    expect(canAccessAdminPath('not_a_real_role', '/admin/billing')).toBe(false);
+  });
+});
+
+describe('workspaceDenyLanding', () => {
+  it('does not redirect executive paths (breaks ?denied=executive loops)', () => {
+    expect(workspaceDenyLanding('/admin/dashboard')).toBeNull();
+    expect(workspaceDenyLanding('/admin')).toBeNull();
+    expect(workspaceDenyLanding('/admin/dashboard?denied=executive')).toBeNull();
+  });
+
+  it('sends other denied workspaces to the dashboard', () => {
+    expect(workspaceDenyLanding('/admin/quotes')).toBe('/admin/dashboard');
+    expect(workspaceDenyLanding('/admin/settings')).toBe('/admin/dashboard');
   });
 });
 
