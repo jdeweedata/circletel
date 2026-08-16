@@ -405,7 +405,7 @@ export default function UnjaniOnboardingPipelinePage() {
   const [goLiveWholesaleRef, setGoLiveWholesaleRef] = useState('');
   const [goLiveNotes, setGoLiveNotes] = useState('');
   const [registerTicketId, setRegisterTicketId] = useState<string | null>(null);
-  const view = 'table' as const;
+  const [view, setView] = useState<'table' | 'kanban' | 'register'>('table');
   const [stageFilter, setStageFilter] = useState<StageKey | ''>('');
   const [provinceFilter, setProvinceFilter] = useState('');
   const [slaFilter, setSlaFilter] = useState('');
@@ -1057,6 +1057,23 @@ export default function UnjaniOnboardingPipelinePage() {
         eyebrow="Unjani Connect"
         title="Clinic Onboarding"
         subtitle={`${portalTotal} clinics on the Unjani guide stages · ${portalOps?.nominations.length ?? 0} nominations to register · ${portalOps?.activations.length ?? 0} ready to go live`}
+        actions={
+          <div className="inline-flex overflow-hidden rounded-md border border-gray-200 bg-white">
+            {(['table', 'kanban', 'register'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                className={cn(
+                  'px-4 py-2 text-sm font-semibold capitalize transition-colors',
+                  view === v ? 'bg-circleTel-navy text-white' : 'text-gray-500 hover:text-gray-900'
+                )}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        }
       />
 
       <div className="mb-6">
