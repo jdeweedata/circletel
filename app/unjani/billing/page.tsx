@@ -185,49 +185,46 @@ export default function PortalBillingPage() {
         </div>
       ) : (
         <>
-          <h2
-            className="mt-8 text-[10px] font-extrabold tracking-[0.08em] uppercase"
-            style={{ color: 'var(--pm-navy)' }}
-          >
-            Active services being billed
-          </h2>
-          <RuledTable headers={['Clinic', 'Monthly fee excl VAT', 'Billing start']}>
-            {billedServices.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="px-4 py-8 text-center" style={{ color: 'var(--pm-body)' }}>
-                  No clinics are on a collectable service this month.
-                </td>
-              </tr>
-            ) : (
-              billedServices.map((service) => (
-                <tr key={service.name} style={{ borderBottom: '1px solid var(--pm-divider)' }}>
-                  <td className="px-4 py-3 font-extrabold" style={{ color: 'var(--pm-navy)' }}>
-                    {formatClinicShortName(service.name)}
-                  </td>
-                  <td className="px-4 py-3 tabular-nums" style={{ color: 'var(--pm-body)' }}>
-                    {formatZar(service.monthlyFee)}
-                  </td>
-                  <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-                    {formatDay(service.billingStartDate)}
+          <section className="pt-12">
+            <h2
+              className="mb-6 py-2 text-[10px] font-extrabold tracking-[0.08em] uppercase"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Active services being billed
+            </h2>
+            <RuledTable headers={['Clinic', 'Monthly fee excl VAT', 'Billing start']}>
+              {billedServices.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="px-4 py-8 text-center" style={{ color: 'var(--pm-body)' }}>
+                    No clinics are on a collectable service this month.
                   </td>
                 </tr>
-              ))
-            )}
-          </RuledTable>
+              ) : (
+                billedServices.map((service) => (
+                  <tr key={service.name} style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                    <td className="px-4 py-3 font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                      {formatClinicShortName(service.name)}
+                    </td>
+                    <td className="px-4 py-3 tabular-nums" style={{ color: 'var(--pm-body)' }}>
+                      {formatZar(service.monthlyFee)}
+                    </td>
+                    <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
+                      {formatDay(service.billingStartDate)}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </RuledTable>
+          </section>
 
           {deferredLive.length > 0 && (
-            <>
+            <section className="pt-12">
               <h2
-                className="mt-8 text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                className="mb-6 py-2 text-[10px] font-extrabold tracking-[0.08em] uppercase"
                 style={{ color: 'var(--pm-navy)' }}
               >
                 Live — not billed this month
               </h2>
-              <p className="mt-2 text-sm" style={{ color: 'var(--pm-body)' }}>
-                These clinics stay live. Oukasie, Chloorkop, Phoenix, Alexandra and Sicelo move to
-                NPC billing on 1 September 2026; their clinic invoices were voided and are not
-                collectable.
-              </p>
               <RuledTable headers={['Clinic', 'Monthly fee excl VAT', 'Billing start']}>
                 {deferredLive.map((service) => (
                   <tr key={service.name} style={{ borderBottom: '1px solid var(--pm-divider)' }}>
@@ -243,10 +240,10 @@ export default function PortalBillingPage() {
                   </tr>
                 ))}
               </RuledTable>
-            </>
+            </section>
           )}
 
-          <div className="mt-8">
+          <div className="pt-10">
             <FilterChips
               value={invoiceFilter}
               onChange={(value) => setInvoiceFilter(value as 'unpaid' | 'paid')}
