@@ -75,6 +75,20 @@ function availability(ok: boolean | undefined): string {
   return ok ? 'Available' : 'Not available';
 }
 
+function LocationLink({ lat, lng }: { lat: number; lng: number }) {
+  return (
+    <a
+      href={`https://www.google.com/maps?q=${lat},${lng}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-2 inline-block text-xs underline underline-offset-2 hover:opacity-80"
+      style={{ color: '#059669' }}
+    >
+      Location: {lat.toFixed(6)}, {lng.toFixed(6)}
+    </a>
+  );
+}
+
 const PAGE_SIZE = 10;
 
 type SiteContact = { name: string; phone: string; email: string };
@@ -503,9 +517,7 @@ export default function CoverageExplorer() {
               <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
                 {selected.address}
               </p>
-              <p className="mt-2 text-xs" style={{ color: '#059669' }}>
-                Location: {selected.latitude.toFixed(6)}, {selected.longitude.toFixed(6)}
-              </p>
+              <LocationLink lat={selected.latitude} lng={selected.longitude} />
               <ul className="mt-4 space-y-1 text-sm" style={{ color: 'var(--pm-body)' }}>
                 <li>
                   Fixed wireless — {availability(selected.results?.tarana?.feasible)}
@@ -533,9 +545,7 @@ export default function CoverageExplorer() {
               <p className="text-sm" style={{ color: 'var(--pm-body)' }}>
                 {picked.address}
               </p>
-              <p className="mt-2 text-xs" style={{ color: '#059669' }}>
-                Location: {picked.lat.toFixed(6)}, {picked.lng.toFixed(6)}
-              </p>
+              <LocationLink lat={picked.lat} lng={picked.lng} />
               <input
                 value={clinicName}
                 onChange={(e) => setClinicName(e.target.value)}
