@@ -8,7 +8,6 @@ import {
   PiHandshakeBold,
   PiChartLineBold,
 } from 'react-icons/pi';
-import { cn } from '@/lib/utils';
 import {
   parseWorkspaceParams,
   type WorkspaceSection,
@@ -19,16 +18,15 @@ import { MTNToolsSection } from './MTNToolsSection';
 import { ProductGovernanceSection } from '@/components/admin/products/governance/ProductGovernanceSection';
 
 const SECTIONS: Array<{ id: WorkspaceSection; label: string; icon: React.ReactNode }> = [
-  { id: 'portfolio', label: 'Portfolio', icon: <PiChartLineBold className="h-4 w-4" /> },
-  { id: 'catalogue', label: 'Catalogue', icon: <PiSquaresFourBold className="h-4 w-4" /> },
-  { id: 'suppliers', label: 'Suppliers', icon: <PiTruckBold className="h-4 w-4" /> },
-  { id: 'mtn-tools', label: 'MTN Tools', icon: <PiHandshakeBold className="h-4 w-4" /> },
+  { id: 'portfolio', label: 'Portfolio', icon: <PiChartLineBold className="h-3.5 w-3.5" /> },
+  { id: 'catalogue', label: 'Catalogue', icon: <PiSquaresFourBold className="h-3.5 w-3.5" /> },
+  { id: 'suppliers', label: 'Suppliers', icon: <PiTruckBold className="h-3.5 w-3.5" /> },
+  { id: 'mtn-tools', label: 'MTN Tools', icon: <PiHandshakeBold className="h-3.5 w-3.5" /> },
 ];
 
 /**
  * Product Workspace — single home for product management.
- * Left rail switches sections; the catalogue section is the unified console.
- * Tokens come from AdminLayoutClient (Unjani --pm-* / Archivo).
+ * Section switcher is a Unjani-style ruled chip strip (not a nested sidebar).
  */
 export function ProductWorkspace() {
   const router = useRouter();
@@ -50,31 +48,34 @@ export function ProductWorkspace() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)]">
-      <aside
-        className="w-52 shrink-0 bg-white p-3"
-        style={{ borderRight: '2px solid var(--pm-divider)' }}
+    <div>
+      <nav
+        aria-label="Product workspace sections"
+        className="px-6 pt-1 pb-4"
+        style={{ borderBottom: '2px solid var(--pm-divider)' }}
       >
-        <p
-          className="px-2 pb-2 text-xs font-extrabold uppercase tracking-[0.08em]"
-          style={{ color: 'var(--pm-navy)' }}
+        <div
+          className="inline-flex max-w-full flex-wrap overflow-x-auto"
+          style={{ border: '2px solid var(--pm-divider)' }}
+          role="tablist"
         >
-          Product Workspace
-        </p>
-        <nav className="space-y-1">
-          {SECTIONS.map((s) => {
+          {SECTIONS.map((s, i) => {
             const active = section === s.id;
             return (
               <button
                 key={s.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-controls={`${s.id}-panel`}
+                id={`${s.id}-tab`}
                 onClick={() => switchSection(s.id)}
-                className={cn(
-                  'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors'
-                )}
+                className="inline-flex min-h-11 shrink-0 items-center gap-2 px-3.5 py-2 text-xs font-extrabold uppercase tracking-wide"
                 style={{
-                  background: active ? 'var(--pm-navy)' : 'transparent',
+                  background: active ? 'var(--pm-navy)' : '#FFFFFF',
                   color: active ? '#FFFFFF' : 'var(--pm-navy)',
-                  fontWeight: active ? 800 : 500,
+                  borderRight:
+                    i < SECTIONS.length - 1 ? '1px solid var(--pm-divider)' : undefined,
                 }}
               >
                 {s.icon}
@@ -82,14 +83,15 @@ export function ProductWorkspace() {
               </button>
             );
           })}
-        </nav>
-      </aside>
-      <main className="min-w-0 flex-1">
+        </div>
+      </nav>
+
+      <div id={`${section}-panel`} role="tabpanel" aria-labelledby={`${section}-tab`}>
         {section === 'portfolio' && <ProductGovernanceSection />}
         {section === 'catalogue' && <UnifiedProductConsole />}
         {section === 'suppliers' && <SuppliersSection />}
         {section === 'mtn-tools' && <MTNToolsSection />}
-      </main>
+      </div>
     </div>
   );
 }
