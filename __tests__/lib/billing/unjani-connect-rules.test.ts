@@ -227,6 +227,14 @@ describe('Unjani Connect RFS gate', () => {
         jobCardPath: 'unjani-connect/site/job-card.pdf',
         jobCardApprovedAt: '2026-09-12T10:00:00Z',
       })
+    ).toBe(false);
+    expect(
+      canIssueRfsCertificate({
+        jobCardPath: 'unjani-connect/site/job-card.pdf',
+        jobCardApprovedAt: '2026-09-12T10:00:00Z',
+        surveySpeedtestPath: 'unjani-connect/site/ookla-before.png',
+        commissionSpeedtestPath: 'unjani-connect/site/ookla-after.png',
+      })
     ).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
   AlertBand,
@@ -18,7 +18,11 @@ import {
   type CoverageCheckRow,
 } from '@/lib/portal/coverage-summary';
 import { formatClinicShortName } from '@/lib/portal/site-format';
-import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { useOptionalPortalAuth } from '@/lib/portal/portal-auth-provider';
+import {
+  coverageExplorerConfig,
+  type CoverageExplorerMode,
+} from '@/lib/portal/coverage-explorer-config';
 import type { CoverageLayer } from './PortalCoverageMap';
 
 const PortalCoverageMap = dynamic(() => import('./PortalCoverageMap'), {
@@ -93,8 +97,18 @@ const PAGE_SIZE = 10;
 
 type SiteContact = { name: string; phone: string; email: string };
 
-export default function CoverageExplorer() {
-  const { user } = usePortalAuth();
+export default function CoverageExplorer({
+  mode = 'portal',
+  getHeaders,
+  onOrderCreated,
+}: {
+  mode?: CoverageExplorerMode;
+  getHeaders?: () => Record<string, string>;
+  onOrderCreated?: () => void;
+} = {}) {
+  const config = coverageExplorerConfig(mode);
+  const portalAuth = useOptionalPortalAuth();
+  const user = portalAuth?.user ?? null;
   const [checks, setChecks] = useState<CoverageCheckRow[]>([]);
   const [pipelineKeys, setPipelineKeys] = useState<string[]>([]);
   const [pipelineContacts, setPipelineContacts] = useState<
@@ -107,7 +121,7 @@ export default function CoverageExplorer() {
   const [query, setQuery] = useState('');
   const [province, setProvince] = useState('all');
   const [techFilter, setTechFilter] = useState<AccessTech | 'all'>('all');
-  const [includePipeline, setIncludePipeline] = useState(false);
+  const [includePipeline, setIncludePipeline] = useState(mode === 'admin');
   const [page, setPage] = useState(1);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -127,9 +141,11 @@ export default function CoverageExplorer() {
   const [contactEmail, setContactEmail] = useState('');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const headersRef = useRef(getHeaders);
+  headersRef.current = getHeaders;
 
   useEffect(() => {
-    fetch('/api/portal/coverage')
+    fetch(config.apiBase, { headers: headersRef.current?.() })
       .then((r) => r.json())
       .then((data) => {
         if (data.error) throw new Error(data.error);
@@ -141,7 +157,7 @@ export default function CoverageExplorer() {
         setError(err instanceof Error ? err.message : 'Could not load coverage')
       )
       .finally(() => setLoading(false));
-  }, []);
+  }, [config.apiBase]);
 
   const provinces = useMemo(() => {
     const set = new Set<string>();
@@ -244,9 +260,9 @@ export default function CoverageExplorer() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/portal/coverage', {
+      const res = await fetch(config.apiBase, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...headersRef.current?.() },
         body: JSON.stringify({
           latitude: picked.lat,
           longitude: picked.lng,
@@ -273,9 +289,9 @@ export default function CoverageExplorer() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/portal/coverage/onboard', {
+      const res = await fetch(config.onboardPath, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...headersRef.current?.() },
         body: JSON.stringify({
           coverage_check_id: selected.id,
           clinic_name:
@@ -290,9 +306,14 @@ export default function CoverageExplorer() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to submit onboarding request');
       setSuccess(
-        `Onboarding request submitted (ticket ${String(data.ticket.id).slice(0, 8)}…). CircleTel will coordinate installation.`
+        mode === 'admin'
+          ? data.order?.stock_status === 'reserved'
+            ? 'Install order placed and kit reserved. Book the visit against technician workload below.'
+            : 'Install order placed. Kit is on order (5 business days). Booking stays blocked until stock is reserved.'
+          : `Onboarding request submitted (ticket ${String(data.ticket.id).slice(0, 8)}…). CircleTel will coordinate installation.`
       );
       setShowOnboard(false);
+      onOrderCreated?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Submit failed');
     } finally {
@@ -461,12 +482,13 @@ export default function CoverageExplorer() {
                     <PmButton
                       variant="cta"
                       className="whitespace-nowrap"
+                      disabled={rec === 'none'}
                       onClick={(e) => {
                         e.stopPropagation();
                         openNomination(check);
                       }}
                     >
-                      Nominate
+                      {config.ctaLabel}
                     </PmButton>
                   </td>
                 </tr>
@@ -529,8 +551,12 @@ export default function CoverageExplorer() {
                 Recommended: {recommendedLabel(recommendedAccess(selected.results))}
               </p>
               <div className="mt-4">
-                <PmButton variant="cta" onClick={() => openNomination(selected)}>
-                  Nominate clinic
+                <PmButton
+                  variant="cta"
+                  disabled={recommendedAccess(selected.results) === 'none'}
+                  onClick={() => openNomination(selected)}
+                >
+                  {mode === 'admin' ? 'Process install order' : 'Nominate clinic'}
                 </PmButton>
               </div>
             </div>
@@ -577,10 +603,10 @@ export default function CoverageExplorer() {
             className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
             style={{ color: 'var(--pm-navy)' }}
           >
-            Nominate clinic
+            {config.formTitle}
           </p>
           <p className="text-sm" style={{ color: 'var(--pm-body)' }}>
-            Sends an onboarding request to CircleTel with coverage findings. No banking details required. You can edit any field before submitting.
+            {config.formHelp}
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <input
@@ -633,7 +659,7 @@ export default function CoverageExplorer() {
           </div>
           <div className="flex flex-wrap gap-2">
             <PmButton type="submit" variant="cta" disabled={submitting}>
-              {submitting ? 'Submitting…' : 'Submit onboarding request'}
+              {submitting ? 'Submitting…' : config.submitLabel}
             </PmButton>
             <PmButton type="button" variant="ghost" onClick={() => setShowOnboard(false)}>
               Cancel

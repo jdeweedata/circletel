@@ -6,7 +6,7 @@ import { ONBOARDING_STAGES, type StageKey } from '@/lib/portal/onboarding-stage'
 
 describe('Unjani operator actions', () => {
   const expectedPrimary: Record<StageKey, string> = {
-    nominated: 'send_intro',
+    nominated: 'request_npc_acceptance',
     introduced: 'remind',
     details_confirmed: 'confirm_details',
     changes_requested: 'remind',
@@ -23,7 +23,7 @@ describe('Unjani operator actions', () => {
   );
 
   it('uses operator labels from the Unjani guide, not B2B vetting labels', () => {
-    expect(operatorAction('nominated').primary.label).toBe('Send introduction');
+    expect(operatorAction('nominated').primary.label).toBe('Awaiting Unjani NPC');
     expect(operatorAction('introduced').primary.label).toBe('Send reminder');
     expect(operatorAction('details_confirmed').primary.label).toBe('Confirm details');
     expect(operatorAction('visit_booked').primary.label).toBe('Book visit');

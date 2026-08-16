@@ -1,19 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
   PiBuildingsBold,
   PiCaretDownBold,
   PiChatCircleTextBold,
-  PiCheckCircleBold,
-  PiCurrencyCircleDollarBold,
-  PiDownloadSimpleBold,
   PiEnvelopeSimpleBold,
   PiFileTextBold,
   PiMagnifyingGlassBold,
-  PiPaperPlaneTiltBold,
   PiSpinnerBold,
   PiWarningBold,
   PiWhatsappLogoBold,
@@ -53,26 +49,33 @@ import {
   ErrorState,
   AdminPage,
   LoadingState,
-  PageHeader,
   SectionCard,
   StatCard,
 } from '@/components/backend';
+import { UnjaniAdminModernistShell } from '@/components/admin/unjani/UnjaniAdminModernistShell';
+import {
+  KpiStrip,
+  PageHeader as PortalPageHeader,
+} from '@/components/portal/modernist/PortalModernistShell';
 import { cn } from '@/lib/utils';
 import networkRegister from '@/lib/data/unjani-network-register.json';
 import { Input } from '@/components/ui/input';
 import { PortalOpsQueues } from '@/components/admin/unjani/PortalOpsQueues';
+import { UnjaniFulfilmentPanel } from '@/components/admin/unjani/UnjaniFulfilmentPanel';
 import type { ActivationRow, NominationRow } from '@/lib/admin/unjani-portal-ops';
 import { portalStageForClinic } from '@/lib/admin/unjani-portal-ops';
 import {
   isVisitWindowBlocked,
   operatorAction,
 } from '@/lib/admin/unjani-operator-actions';
-import { emptyStageCounts } from '@/lib/portal/count-onboarding-stages';
+import { emptyStageCounts, type StageClinicRef } from '@/lib/portal/count-onboarding-stages';
+import { spendNote, type UnjaniDashboardKpis } from '@/lib/portal/dashboard-kpis';
 import {
   ONBOARDING_STAGES,
   stageDefinition,
   type StageKey,
 } from '@/lib/portal/onboarding-stage';
+import { formatZar } from '@/lib/portal/site-format';
 
 // ---------- Types (mirror /api/admin/b2b/onboarding-pipeline) ----------
 
@@ -144,6 +147,8 @@ interface PortalOpsResponse {
   activations: ActivationRow[];
   pipelineStages: Record<string, { key: StageKey; label: string }>;
   stageCounts: Record<StageKey, number>;
+  stageClinics: StageClinicRef[];
+  kpis: UnjaniDashboardKpis;
 }
 
 // ---------- Stage model (portal guide stages only) ----------
@@ -188,12 +193,52 @@ const STAGE_INDEX = Object.fromEntries(ONBOARDING_STAGES.map((s, i) => [s.key, i
 >;
 const PROGRESS_STAGES = ONBOARDING_STAGES.filter((s) => !s.branch);
 
+function isSitePlaceholder(clinic: PipelineClinic): boolean {
+  return clinic.customer_id.startsWith('site:');
+}
+
+function placeholderPipelineClinic(ref: StageClinicRef): PipelineClinic {
+  return {
+    account_number: ref.coverageCheckId ? 'Coverage nominated' : 'Pending site',
+    customer_id: ref.customerId ?? (ref.coverageCheckId ? `check:${ref.coverageCheckId}` : `site:${ref.siteId ?? ref.name}`),
+    business_name: ref.name,
+    province: '',
+    nurse_name: null,
+    phone: null,
+    email: null,
+    stage: 'pending',
+    display_stage: ref.stage,
+    document_vetting_status: null,
+    mandate_status: null,
+    vetting_due_date: null,
+    submitted_at: null,
+    service_order_issued_at: null,
+    service_order_pdf_path: null,
+    sla: { dueDate: null, overdue: false, businessDaysLeft: null },
+    submission_id: null,
+    site_address: ref.address ?? (
+      ref.latitude != null && ref.longitude != null
+        ? `${ref.latitude}, ${ref.longitude}`
+        : null
+    ),
+    incumbent_isp: null,
+    incumbent_cost: null,
+    contract_status: 'unknown',
+    current_service: null,
+    latest_invoice: null,
+  };
+}
+
 function clinicPortalStage(
   clinic: PipelineClinic,
   pipelineStages?: Record<string, { key: StageKey; label: string }> | null
 ): StageKey {
+  const fromDisplay = ONBOARDING_STAGES.some((stage) => stage.key === clinic.display_stage)
+    ? (clinic.display_stage as StageKey)
+    : undefined;
   return (
     pipelineStages?.[clinic.customer_id]?.key ??
+    fromDisplay ??
     portalStageForClinic({
       billingStage: clinic.stage,
       documentVettingStatus: clinic.document_vetting_status,
@@ -219,7 +264,8 @@ function serviceIsActive(clinic: PipelineClinic): boolean {
 }
 
 function canRunPrimaryAction(stage: StageKey): boolean {
-  return operatorAction(stage).primary.id !== 'done';
+  const actionId = operatorAction(stage).primary.id;
+  return actionId !== 'done' && actionId !== 'request_npc_acceptance';
 }
 
 function displayDate(value: string | null | undefined): string {
@@ -359,7 +405,7 @@ export default function UnjaniOnboardingPipelinePage() {
   const [goLiveWholesaleRef, setGoLiveWholesaleRef] = useState('');
   const [goLiveNotes, setGoLiveNotes] = useState('');
   const [registerTicketId, setRegisterTicketId] = useState<string | null>(null);
-  const [view, setView] = useState<'table' | 'kanban' | 'register'>('table');
+  const view = 'table' as const;
   const [stageFilter, setStageFilter] = useState<StageKey | ''>('');
   const [provinceFilter, setProvinceFilter] = useState('');
   const [slaFilter, setSlaFilter] = useState('');
@@ -368,7 +414,6 @@ export default function UnjaniOnboardingPipelinePage() {
   const [sortDir, setSortDir] = useState<1 | -1>(1);
 
   const [actingOn, setActingOn] = useState<string | null>(null);
-  const [batchSending, setBatchSending] = useState(false);
   const [drawerClinic, setDrawerClinic] = useState<PipelineClinic | null>(null);
   const [openingServiceOrderId, setOpeningServiceOrderId] = useState<string | null>(null);
   const [registerDrawer, setRegisterDrawer] = useState<null | {
@@ -448,7 +493,18 @@ export default function UnjaniOnboardingPipelinePage() {
 
   // ---------- Derived data ----------
 
-  const clinics = useMemo(() => data?.clinics ?? [], [data]);
+  const tableRef = useRef<HTMLDivElement>(null);
+
+  const clinics = useMemo(() => {
+    const fromPipeline = data?.clinics ?? [];
+    const knownIds = new Set(fromPipeline.map((clinic) => clinic.customer_id));
+    const knownNames = new Set(fromPipeline.map((clinic) => normName(clinic.business_name)));
+    const extras = (portalOps?.stageClinics ?? [])
+      .filter((ref) => !ref.customerId || !knownIds.has(ref.customerId))
+      .filter((ref) => !knownNames.has(normName(ref.name)))
+      .map(placeholderPipelineClinic);
+    return [...fromPipeline, ...extras];
+  }, [data, portalOps]);
 
   const provinces = useMemo(
     () =>
@@ -662,51 +718,6 @@ export default function UnjaniOnboardingPipelinePage() {
     }
   };
 
-  const sendPendingInvites = async () => {
-    setBatchSending(true);
-    try {
-      // Dry run first so the confirm shows the real recipient count.
-      const dryResponse = await fetch('/api/admin/unjani/send-onboarding-batch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ dryRun: true }),
-      });
-      const dry = await dryResponse.json();
-      if (!dryResponse.ok || !dry.success) {
-        toast.error(dry.error || 'Failed to check eligible clinics');
-        return;
-      }
-      if (!dry.eligibleCount) {
-        toast.info('No clinics are awaiting an invite');
-        return;
-      }
-      if (
-        !window.confirm(
-          `Send WhatsApp onboarding invites to ${dry.eligibleCount} clinic(s)?`
-        )
-      ) {
-        return;
-      }
-      const response = await fetch('/api/admin/unjani/send-onboarding-batch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({}),
-      });
-      const result = await response.json();
-      if (response.ok && result.success) {
-        toast.success(`Invites sent: ${result.sent} of ${result.total}`);
-        await fetchPipeline();
-      } else {
-        toast.error(result.error || 'Batch invite failed');
-      }
-    } catch (error) {
-      console.error('Error sending batch invites:', error);
-      toast.error('Batch invite failed');
-    } finally {
-      setBatchSending(false);
-    }
-  };
-
   const openRegisterDialog = (clinic: RegisterClinic) => {
     setRegisterTicketId(null);
     setRegisterDialog(clinic);
@@ -731,6 +742,36 @@ export default function UnjaniOnboardingPipelinePage() {
     setRegPhone(row.contact.mobile ?? '');
     setRegEmail(row.contact.email ?? '');
     setRegAddress(row.contact.address ?? row.address ?? '');
+  };
+
+  const openNominatedClinic = (clinic: PipelineClinic) => {
+    if (clinic.customer_id.startsWith('check:')) {
+      toast.info(
+        `${clinic.business_name} is waiting for Unjani NPC to accept the nomination before we send the introduction.`
+      );
+      return;
+    }
+    if (!isSitePlaceholder(clinic)) {
+      setDrawerClinic(clinic);
+      return;
+    }
+    const fromRegister = REGISTER.clinics.find(
+      (row) => normName(row.name) === normName(clinic.business_name)
+    );
+    if (fromRegister) {
+      openRegisterDialog(fromRegister);
+      return;
+    }
+    openNominationRegister({
+      source: 'coverage_check',
+      clinicName: clinic.business_name,
+      address: null,
+      contact: {},
+      coverageSummary: null,
+      createdAt: new Date().toISOString(),
+      ticket: null,
+      coverageCheckId: null,
+    });
   };
 
   const sendLinkForNomination = (clinicName: string) => {
@@ -873,65 +914,6 @@ export default function UnjaniOnboardingPipelinePage() {
     }
   };
 
-  const exportCsv = () => {
-    if (view === 'register') {
-      const head =
-        'Clinic,Province,Nurse,Current ISP,Current cost p/m,CircleTel fee p/m,Monthly saving,Migration ready,Pipeline stage';
-      const lines = filteredRegister.map((c) =>
-        [
-          `"${c.name}"`,
-          c.province,
-          `"${c.nurse ?? ''}"`,
-          c.isp ?? '',
-          c.isp_cost ?? '',
-          450,
-          c.saving ?? '',
-          c.migration_ready ? 'Yes' : 'No',
-          pipelineStageByName.has(normName(c.name))
-            ? stageMeta(pipelineStageByName.get(normName(c.name))!).label
-            : 'Not started',
-        ].join(',')
-      );
-      const blob = new Blob([head + '\n' + lines.join('\n')], {
-        type: 'text/csv;charset=utf-8',
-      });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `unjani-network-register-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-      toast.success(`CSV exported — ${filteredRegister.length} register clinics`);
-      return;
-    }
-    const head =
-      'Account,Clinic,Province,Nurse,Stage,SLA status,Business days left,Submitted at,Service order issued';
-    const lines = sorted.map((c) => {
-      const st = slaStatus(c);
-      return [
-        c.account_number,
-        `"${c.business_name}"`,
-        c.province,
-        `"${c.nurse_name ?? ''}"`,
-        stageMeta(clinicPortalStage(c, portalOps?.pipelineStages)).label,
-        st === 'err' ? 'Overdue' : st === 'warn' ? 'At risk' : st === 'ok' ? 'On track' : '',
-        c.sla.businessDaysLeft ?? '',
-        c.submitted_at ? new Date(c.submitted_at).toLocaleDateString('en-ZA') : '',
-        c.service_order_issued_at
-          ? new Date(c.service_order_issued_at).toLocaleDateString('en-ZA')
-          : '',
-      ].join(',');
-    });
-    const blob = new Blob([head + '\n' + lines.join('\n')], {
-      type: 'text/csv;charset=utf-8',
-    });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `unjani-onboarding-pipeline-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast.success(`CSV exported — ${sorted.length} clinics`);
-  };
-
   const advanceStage = async (
     clinic: PipelineClinic,
     body: Record<string, unknown>,
@@ -964,6 +946,11 @@ export default function UnjaniOnboardingPipelinePage() {
   const runNextAction = (clinic: PipelineClinic) => {
     const stage = clinicPortalStage(clinic, portalOps?.pipelineStages);
     switch (operatorAction(stage).primary.id) {
+      case 'request_npc_acceptance':
+        toast.info(
+          `${clinic.business_name} is waiting for Unjani NPC to accept the nomination before we send the introduction.`
+        );
+        break;
       case 'send_intro':
         sendLink(clinic, 'Introduction');
         break;
@@ -1022,29 +1009,40 @@ export default function UnjaniOnboardingPipelinePage() {
 
   if (loading) {
     return (
-      <AdminPage>
-        <LoadingState message="Loading onboarding pipeline…" />
-      </AdminPage>
+      <UnjaniAdminModernistShell>
+        <AdminPage>
+          <LoadingState message="Loading onboarding pipeline…" />
+        </AdminPage>
+      </UnjaniAdminModernistShell>
     );
   }
 
   if (loadError || !data) {
     return (
-      <AdminPage>
-        <ErrorState
-          title="Failed to load pipeline"
-          message="The onboarding pipeline could not be loaded."
-          onRetry={() => {
-            setLoading(true);
-            fetchPipeline();
-          }}
-        />
-      </AdminPage>
+      <UnjaniAdminModernistShell>
+        <AdminPage>
+          <ErrorState
+            title="Failed to load pipeline"
+            message="The onboarding pipeline could not be loaded."
+            onRetry={() => {
+              setLoading(true);
+              fetchPipeline();
+            }}
+          />
+        </AdminPage>
+      </UnjaniAdminModernistShell>
     );
   }
 
   const total = clinics.length;
   const portalCounts = portalOps?.stageCounts ?? emptyStageCounts();
+  const dashboardKpis = portalOps?.kpis ?? {
+    sitesLive: 0,
+    inOnboarding: 0,
+    preQualified: 0,
+    billedSites: 0,
+    monthlySpend: 0,
+  };
   const portalTotal = ONBOARDING_STAGES.reduce(
     (sum, stage) => sum + (portalCounts[stage.key] ?? 0),
     0
@@ -1053,42 +1051,55 @@ export default function UnjaniOnboardingPipelinePage() {
   const maxProvinceCount = provinceCounts[0]?.[1] ?? 1;
 
   return (
+    <UnjaniAdminModernistShell>
     <AdminPage>
-      <PageHeader
-        title="Unjani Clinic Onboarding"
+      <PortalPageHeader
+        eyebrow="Unjani Connect"
+        title="Clinic Onboarding"
         subtitle={`${portalTotal} clinics on the Unjani guide stages · ${portalOps?.nominations.length ?? 0} nominations to register · ${portalOps?.activations.length ?? 0} ready to go live`}
-        actions={
-          <>
-            <div className="inline-flex rounded-md border border-gray-200 bg-white overflow-hidden">
-              {(['table', 'kanban', 'register'] as const).map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setView(v)}
-                  className={cn(
-                    'px-4 py-2 text-sm font-semibold capitalize transition-colors',
-                    view === v
-                      ? 'bg-circleTel-navy text-white'
-                      : 'text-gray-500 hover:text-gray-900'
-                  )}
-                >
-                  {v}
-                </button>
-              ))}
-            </div>
-            <Button variant="outline" onClick={exportCsv}>
-              <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
-              Export CSV
-            </Button>
-            <Button
-              onClick={sendPendingInvites}
-              disabled={batchSending}
-              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
-            >
-              <PiPaperPlaneTiltBold className="w-4 h-4 mr-2" />
-              {batchSending ? 'Sending…' : 'Send introductions'}
-            </Button>
-          </>
-        }
+      />
+
+      <div className="mb-6">
+        <KpiStrip
+          variant="cards"
+          items={[
+            {
+              label: 'Sites live',
+              value: String(dashboardKpis.sitesLive),
+              accent: '#2F9E5E',
+              valueColor: '#2F9E5E',
+              onClick: () => setStageFilter('live'),
+            },
+            {
+              label: 'In onboarding',
+              value: String(dashboardKpis.inOnboarding),
+              note: 'Across 5 stages',
+              accent: '#13274A',
+              onClick: () => setStageFilter(''),
+            },
+            {
+              label: 'Pre-qualified',
+              value: String(dashboardKpis.preQualified),
+              note: 'Ready to add to the pipeline',
+              accent: '#F5841E',
+              onClick: () => setStageFilter('nominated'),
+            },
+            {
+              label: 'Monthly spend',
+              value: formatZar(dashboardKpis.monthlySpend),
+              note: spendNote(dashboardKpis.billedSites, dashboardKpis.monthlySpend),
+              accent: '#13274A',
+              onClick: () => setStageFilter('live'),
+            },
+          ]}
+        />
+      </div>
+
+      <UnjaniFulfilmentPanel
+        authHeaders={authHeaders}
+        onRefresh={() => {
+          void Promise.all([fetchPipeline(), fetchPortalOps()]);
+        }}
       />
 
       {view !== 'register' && ((portalOps?.nominations.length ?? 0) > 0 || (portalOps?.activations.length ?? 0) > 0) && (
@@ -1139,41 +1150,6 @@ export default function UnjaniOnboardingPipelinePage() {
         </div>
       )}
 
-      {/* KPI row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        <StatCard
-          label="Active pipeline"
-          value={total}
-          icon={<PiBuildingsBold className="w-5 h-5" />}
-          description="clinics in onboarding"
-        />
-        <StatCard
-          label="Overdue SLA"
-          value={data.overdueCount}
-          icon={<PiWarningBold className="w-5 h-5" />}
-          description={`${portalCounts.nominated} still nominated`}
-          badge={
-            data.overdueCount > 0 ? (
-              <span className="text-[10px] font-bold uppercase tracking-wide bg-red-100 text-red-700 rounded-full px-2 py-0.5">
-                Attention
-              </span>
-            ) : undefined
-          }
-        />
-        <StatCard
-          label="Visit booked"
-          value={portalCounts.visit_booked}
-          icon={<PiCheckCircleBold className="w-5 h-5" />}
-          description="book the install to start survey"
-        />
-        <StatCard
-          label="Pipeline MRR at activation"
-          value={fmtRand(total * 450)}
-          icon={<PiCurrencyCircleDollarBold className="w-5 h-5" />}
-          description={`${total} × R450 p/m connectivity`}
-        />
-      </div>
-
       {/* Pipeline by stage funnel */}
       <SectionCard
         title="Pipeline by stage"
@@ -1192,7 +1168,13 @@ export default function UnjaniOnboardingPipelinePage() {
             return (
               <button
                 key={s.key}
-                onClick={() => setStageFilter(selected ? '' : s.key)}
+                onClick={() => {
+                  const next = selected ? '' : s.key;
+                  setStageFilter(next);
+                  if (next) {
+                    tableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
                 aria-pressed={selected}
                 className={cn(
                   'relative rounded-md border p-3 text-left transition-colors',
@@ -1372,7 +1354,10 @@ export default function UnjaniOnboardingPipelinePage() {
 
       {/* Table view */}
       {view === 'table' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div
+          ref={tableRef}
+          className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+        >
           {sorted.length === 0 ? (
             <EmptyState
               icon={<PiBuildingsBold />}
@@ -1415,12 +1400,13 @@ export default function UnjaniOnboardingPipelinePage() {
                     const stageIdx = STAGE_INDEX[portalStage] ?? 0;
                     const issued = !!clinic.service_order_issued_at;
                     const primaryId = operatorAction(portalStage).primary.id;
-                    const actionable = canRunPrimaryAction(portalStage);
+                    const actionable =
+                      canRunPrimaryAction(portalStage) && !isSitePlaceholder(clinic);
                     return (
                       <TableRow
                         key={clinic.customer_id}
                         className="cursor-pointer hover:bg-gray-50"
-                        onClick={() => setDrawerClinic(clinic)}
+                        onClick={() => openNominatedClinic(clinic)}
                       >
                         <TableCell>
                           <div className="font-semibold text-gray-900">
@@ -1430,6 +1416,7 @@ export default function UnjaniOnboardingPipelinePage() {
                             <span className="font-mono">{clinic.account_number}</span>
                             {clinic.province && <> · {clinic.province}</>}
                             {clinic.nurse_name && <> · {clinic.nurse_name}</>}
+                            {clinic.site_address && <> · {clinic.site_address}</>}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -1585,6 +1572,22 @@ export default function UnjaniOnboardingPipelinePage() {
                                 {actingOn === clinic.customer_id ? 'Working…' : meta.action}
                               </Button>
                             )
+                          ) : operatorAction(portalStage).primary.id === 'request_npc_acceptance' ? (
+                            <span className="text-xs font-semibold text-gray-600">
+                              Awaiting Unjani NPC
+                            </span>
+                          ) : isSitePlaceholder(clinic) ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openNominatedClinic(clinic);
+                              }}
+                              className="border-circleTel-orange text-circleTel-orange-accessible hover:bg-circleTel-orange hover:text-white whitespace-nowrap"
+                            >
+                              Register clinic
+                            </Button>
                           ) : (
                             <span className="text-xs text-gray-400">Live</span>
                           )}
@@ -1897,7 +1900,7 @@ export default function UnjaniOnboardingPipelinePage() {
             <DialogTitle>Start onboarding — {registerDialog?.name}</DialogTitle>
             <DialogDescription>
               Creates the clinic in the pipeline at &ldquo;Clinic nominated&rdquo;. Billing-safe:
-              no charges until go-live. Next operator step is Send introduction.
+              no charges until go-live. Next step is Unjani NPC acceptance, then introduction.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -2607,5 +2610,6 @@ export default function UnjaniOnboardingPipelinePage() {
       </Dialog>
 
     </AdminPage>
+    </UnjaniAdminModernistShell>
   );
 }

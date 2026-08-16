@@ -1,33 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireUnjaniSuperUser } from '@/lib/portal/require-portal-user';
 import {
   buildUnjaniCoverageResults,
   parseCoverageCheckBody,
 } from '@/lib/coverage/run-unjani-coverage-check';
+import { requireUnjaniAdmin } from '@/lib/admin/require-unjani-admin';
 import { listUnjaniCoverageFeed } from '@/lib/portal/unjani-coverage-feed';
+import { apiLogger } from '@/lib/logging/logger';
 
-export async function GET() {
-  const auth = await requireUnjaniSuperUser();
-  if (!auth.ok) return auth.response;
-
-  const { portalUser, adminDb } = auth;
-
+export async function GET(request: NextRequest) {
   try {
-    const payload = await listUnjaniCoverageFeed(adminDb, portalUser.organisation_id);
+    const auth = await requireUnjaniAdmin(request);
+    if (!auth.ok) return auth.response;
+
+    const payload = await listUnjaniCoverageFeed(auth.supabase, auth.org.id);
     return NextResponse.json(payload);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch (error: unknown) {
+    apiLogger.error('[Unjani coverage] GET failed', { error });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireUnjaniSuperUser();
-  if (!auth.ok) return auth.response;
-
-  const { portalUser, adminDb } = auth;
-
   try {
+    const auth = await requireUnjaniAdmin(request);
+    if (!auth.ok) return auth.response;
+
     const parsed = parseCoverageCheckBody(await request.json());
     if ('error' in parsed) {
       return NextResponse.json({ error: parsed.error }, { status: 400 });
@@ -35,11 +35,10 @@ export async function POST(request: NextRequest) {
 
     const results = await buildUnjaniCoverageResults(parsed.latitude, parsed.longitude);
 
-    const { data: check, error: insertError } = await adminDb
+    const { data: check, error: insertError } = await auth.supabase
       .from('b2b_coverage_checks')
       .insert({
-        organisation_id: portalUser.organisation_id,
-        created_by: portalUser.id,
+        organisation_id: auth.org.id,
         clinic_name: parsed.clinicName,
         address: parsed.address,
         latitude: parsed.latitude,
@@ -54,8 +53,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ check }, { status: 201 });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch (error: unknown) {
+    apiLogger.error('[Unjani coverage] POST failed', { error });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

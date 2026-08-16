@@ -110,8 +110,12 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
   );
 }
 
+export function useOptionalPortalAuth(): PortalAuthContextType | undefined {
+  return useContext(PortalAuthContext);
+}
+
 export function usePortalAuth() {
-  const context = useContext(PortalAuthContext);
+  const context = useOptionalPortalAuth();
   if (context === undefined) {
     throw new Error('usePortalAuth must be used within a PortalAuthProvider');
   }

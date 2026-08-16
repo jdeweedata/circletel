@@ -6,6 +6,7 @@
 import type { StageKey } from '@/lib/portal/onboarding-stage';
 
 export type PrimaryActionId =
+  | 'request_npc_acceptance'
   | 'send_intro'
   | 'remind'
   | 'confirm_details'
@@ -27,7 +28,7 @@ export interface OperatorActions {
 
 const ACTIONS: Record<StageKey, OperatorActions> = {
   nominated: {
-    primary: { id: 'send_intro', label: 'Send introduction' },
+    primary: { id: 'request_npc_acceptance', label: 'Awaiting Unjani NPC' },
     secondary: [],
   },
   introduced: {

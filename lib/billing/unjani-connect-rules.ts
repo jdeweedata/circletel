@@ -302,8 +302,15 @@ export function isLegacyLiveUnjaniSite(input: {
 export function canIssueRfsCertificate(input: {
   jobCardPath?: string | null;
   jobCardApprovedAt?: string | null;
+  surveySpeedtestPath?: string | null;
+  commissionSpeedtestPath?: string | null;
 }): boolean {
-  return Boolean(input.jobCardPath && input.jobCardApprovedAt);
+  return Boolean(
+    input.jobCardPath &&
+      input.jobCardApprovedAt &&
+      input.surveySpeedtestPath &&
+      input.commissionSpeedtestPath
+  );
 }
 
 export function includeOnNpcStatement(invoice: {

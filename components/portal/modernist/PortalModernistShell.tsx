@@ -111,6 +111,7 @@ export function KpiStrip({
     value: string;
     note?: string;
     href?: string;
+    onClick?: () => void;
     accent?: string;
     valueColor?: string;
   }>;
@@ -129,7 +130,7 @@ export function KpiStrip({
                   : undefined
               }
             >
-              {item.href && (
+              {(item.href || item.onClick) && (
                 <PiCaretRightBold
                   className="absolute right-3 top-3 h-4 w-4 opacity-40"
                   style={{ color: 'var(--pm-navy)' }}
@@ -155,6 +156,19 @@ export function KpiStrip({
               )}
             </div>
           );
+
+          if (item.onClick) {
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={item.onClick}
+                className="block w-full text-left hover:opacity-90"
+              >
+                {body}
+              </button>
+            );
+          }
 
           return item.href ? (
             <Link key={item.label} href={item.href} className="block hover:opacity-90">

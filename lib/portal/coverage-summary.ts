@@ -45,6 +45,12 @@ export function clinicKey(name: string | null | undefined): string {
     .replace(/[^a-z0-9]/g, '');
 }
 
+/** Coverage-checked clinic Unjani has nominated — still waiting for NPC acceptance. */
+export function isNominatedCoverageCheck(check: { results?: unknown }): boolean {
+  const results = check.results as { nominated?: boolean; nominated_at?: string | null } | null;
+  return Boolean(results?.nominated || results?.nominated_at);
+}
+
 /** Best available access, ignoring fibre / DFA. */
 export function recommendedAccess(
   results: CoverageCheckResults | null | undefined

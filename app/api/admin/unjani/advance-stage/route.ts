@@ -12,7 +12,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { CorporateSiteService } from '@/lib/corporate/site-service';
-import { UNJANI_CORPORATE_CODE } from '@/lib/billing/unjani-connect-rules';
+import {
+  UNJANI_CORPORATE_CODE,
+  canIssueRfsCertificate,
+} from '@/lib/billing/unjani-connect-rules';
+import { canGoLiveFromFulfilment } from '@/lib/admin/unjani-onsite';
 import { activationSteps } from '@/lib/admin/unjani-portal-ops';
 import { isVisitWindowBlocked } from '@/lib/admin/unjani-operator-actions';
 import {
@@ -142,6 +146,24 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'Customer not found' }, { status: 404 });
       }
 
+      const { data: stockOrder } = await supabase
+        .from('unjani_install_orders')
+        .select('id, stock_status')
+        .eq('customer_id', customerId)
+        .in('status', ['open', 'scheduled', 'in_progress'])
+        .order('ordered_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (stockOrder && stockOrder.stock_status !== 'reserved') {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Booking is blocked until the Unjani Connect kit is reserved',
+          },
+          { status: 400 }
+        );
+      }
+
       const notes = bookVisitNotes(visitDate, typeof body.notes === 'string' ? body.notes : undefined);
 
       if (customer.corporate_site_id) {
@@ -258,12 +280,50 @@ export async function POST(request: NextRequest) {
 
     const { data: site, error: siteError } = await supabase
       .from('corporate_sites')
-      .select('id, site_name, status, corporate_id, service_id, package_id, monthly_fee')
+      .select(
+        'id, site_name, status, corporate_id, service_id, package_id, monthly_fee, job_card_path, job_card_approved_at, survey_speedtest_path, commission_speedtest_path'
+      )
       .eq('id', resolvedSiteId)
       .single();
 
     if (siteError || !site) {
       return NextResponse.json({ success: false, error: 'Site not found' }, { status: 404 });
+    }
+
+    const { data: installOrder } = await supabase
+      .from('unjani_install_orders')
+      .select(
+        'id, stock_status, kit_issued_at, survey_speedtest_path, commission_speedtest_path, job_card_path, job_card_approved_at'
+      )
+      .eq('corporate_site_id', site.id)
+      .in('status', ['open', 'scheduled', 'in_progress', 'completed'])
+      .order('ordered_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const rfsInput = {
+      jobCardPath: installOrder?.job_card_path || site.job_card_path,
+      jobCardApprovedAt: installOrder?.job_card_approved_at || site.job_card_approved_at,
+      surveySpeedtestPath: installOrder?.survey_speedtest_path || site.survey_speedtest_path,
+      commissionSpeedtestPath:
+        installOrder?.commission_speedtest_path || site.commission_speedtest_path,
+    };
+    const fulfilmentReady = installOrder
+      ? canGoLiveFromFulfilment({
+          stockStatus: installOrder.stock_status,
+          kitIssuedAt: installOrder.kit_issued_at,
+          ...rfsInput,
+        })
+      : canIssueRfsCertificate(rfsInput);
+    if (!fulfilmentReady) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'Go live is blocked until the kit is issued, both Ookla screenshots are uploaded, and the job card is approved',
+        },
+        { status: 400 }
+      );
     }
 
     const activateFields = goLiveActivatePayload({
@@ -302,6 +362,7 @@ export async function POST(request: NextRequest) {
       }
       if (nextStatus === 'active') {
         updateFields.installed_at = activateFields.installed_at || new Date().toISOString();
+        updateFields.rfs_issued_at = updateFields.installed_at;
         if (activateFields.installed_by) updateFields.installed_by = activateFields.installed_by;
       }
 
@@ -327,6 +388,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (currentStatus === 'active') {
+      if (installOrder?.id) {
+        await supabase
+          .from('unjani_install_orders')
+          .update({ status: 'completed', updated_at: new Date().toISOString() })
+          .eq('id', installOrder.id);
+      }
       await inngest.send({
         name: 'b2b/site.activated',
         data: {

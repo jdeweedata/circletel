@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { requirePortalUser } from '@/lib/portal/require-portal-user';
-import { clinicKey } from '@/lib/portal/coverage-summary';
+import { clinicKey, isNominatedCoverageCheck } from '@/lib/portal/coverage-summary';
 import { countOnboardingStages, scopeOnboardingCustomers } from '@/lib/portal/count-onboarding-stages';
 import { submissionRank } from '@/lib/portal/onboarding-stage';
-import { isCustomerServiceBilledNow } from '@/lib/billing/billing-eligibility';
+import { billedSiteIdSet, unjaniDashboardKpis } from '@/lib/portal/dashboard-kpis';
 
 /**
  * Organisation-level rollup for the portal dashboard.
@@ -64,26 +64,6 @@ export async function GET() {
         .in('customer_id', siteCustomerIds)
     : { data: [] as SiteServiceRow[] };
 
-  const servicesByCustomer = new Map<string, SiteServiceRow[]>();
-  for (const svc of (siteServices ?? []) as SiteServiceRow[]) {
-    const list = servicesByCustomer.get(svc.customer_id) ?? [];
-    list.push(svc);
-    servicesByCustomer.set(svc.customer_id, list);
-  }
-
-  const billedCustomerBySite = new Map<string, string>();
-  for (const c of siteCustomers ?? []) {
-    if (c.corporate_site_id) billedCustomerBySite.set(c.corporate_site_id, c.id);
-  }
-
-  const now = new Date();
-  const isSiteBilled = (siteId: string): boolean => {
-    const customerId = billedCustomerBySite.get(siteId);
-    if (!customerId) return false;
-    const services = servicesByCustomer.get(customerId) ?? [];
-    return services.some((svc) => isCustomerServiceBilledNow(svc, now));
-  };
-
   // Coverage checks define which clinics belong to this organisation, so they
   // also scope the clinics that are onboarding without a site record yet.
   // Matching on the clinic key keeps this tenant-agnostic — no email domain.
@@ -132,35 +112,23 @@ export async function GET() {
     customers: customerList,
     bestSubmission,
     linkSent,
+    nominatedCheckKeys: (checks ?? [])
+      .filter(isNominatedCoverageCheck)
+      .map((check) => check.clinic_name ?? ''),
   });
 
-  let billedSites = 0;
-  let monthlySpend = 0;
-
-  for (const site of siteList) {
-    if (stageBySiteId[site.id] !== 'live') continue;
-    // Recurring spend follows the invoice generator: an active service whose
-    // billing_start_date has been reached. Live but deferred (e.g. 1 Sep) is excluded.
-    if (isSiteBilled(site.id)) {
-      billedSites++;
-      monthlySpend += Number(site.monthly_fee ?? 0);
-    }
-  }
-
-  const sitesLive = stageCounts.live;
-
-  const inOnboarding =
-    stageCounts.nominated +
-    stageCounts.introduced +
-    stageCounts.details_confirmed +
-    stageCounts.changes_requested +
-    stageCounts.visit_booked +
-    stageCounts.installing;
+  const kpis = unjaniDashboardKpis({
+    stageCounts,
+    sites: siteList,
+    coverageChecks: checks ?? [],
+    stageBySiteId,
+    billedSiteIds: billedSiteIdSet(siteCustomers ?? [], siteServices ?? []),
+  });
 
   // Pre-qualified: coverage-checked clinics with no site record.
   const siteKeys = new Set(siteList.map((s) => clinicKey(s.site_name)));
   const preQualifiedChecks = (checks ?? []).filter(
-    (c) => !siteKeys.has(clinicKey(c.clinic_name))
+    (c) => !siteKeys.has(clinicKey(c.clinic_name)) && !isNominatedCoverageCheck(c)
   );
 
   const provinceCounts: Record<string, number> = {};
@@ -171,11 +139,7 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    sitesLive,
-    billedSites,
-    inOnboarding,
-    preQualified: preQualifiedChecks.length,
-    monthlySpend,
+    ...kpis,
     stageCounts,
     provinces: Object.entries(provinceCounts)
       .map(([province, count]) => ({ province, count }))
