@@ -50,11 +50,6 @@ const SA_BOUNDS = {
   west: 16.0,
 };
 
-function enabledLayers(active: CoverageLayer): Array<Exclude<CoverageLayer, 'all'>> {
-  if (active === 'all') return ['fixed_wireless', '5g', '4g'];
-  return [active];
-}
-
 export default function PortalCoverageMap({
   selected,
   clinics,
@@ -205,29 +200,27 @@ export default function PortalCoverageMap({
       const projection = map.getProjection();
       if (!projection) return;
 
-      enabledLayers(activeLayer).forEach((id) => {
-        const spec = PORTAL_COVERAGE_WMS[id];
-        const wmsUrl = portalWmsProxyPath(spec);
-        const imageMapType = new window.google.maps.ImageMapType({
-          getTileUrl: (coord, zoom) => {
-            const scale = 1 << zoom;
-            const topLeft = projection.fromPointToLatLng(
-              new window.google.maps.Point((coord.x / scale) * 256, (coord.y / scale) * 256)
-            );
-            const bottomRight = projection.fromPointToLatLng(
-              new window.google.maps.Point(((coord.x + 1) / scale) * 256, ((coord.y + 1) / scale) * 256)
-            );
-            if (!topLeft || !bottomRight) return '';
-            const bbox = `${topLeft.lng()},${bottomRight.lat()},${bottomRight.lng()},${topLeft.lat()}`;
-            return wmsUrl.replace('{bbox}', bbox);
-          },
-          tileSize: new window.google.maps.Size(256, 256),
-          opacity: 0.55,
-          name: id,
-        });
-        map.overlayMapTypes.push(imageMapType);
-        overlaysRef.current.push(imageMapType);
+      const spec = PORTAL_COVERAGE_WMS[activeLayer];
+      const wmsUrl = portalWmsProxyPath(spec);
+      const imageMapType = new window.google.maps.ImageMapType({
+        getTileUrl: (coord, zoom) => {
+          const scale = 1 << zoom;
+          const topLeft = projection.fromPointToLatLng(
+            new window.google.maps.Point((coord.x / scale) * 256, (coord.y / scale) * 256)
+          );
+          const bottomRight = projection.fromPointToLatLng(
+            new window.google.maps.Point(((coord.x + 1) / scale) * 256, ((coord.y + 1) / scale) * 256)
+          );
+          if (!topLeft || !bottomRight) return '';
+          const bbox = `${topLeft.lng()},${bottomRight.lat()},${bottomRight.lng()},${topLeft.lat()}`;
+          return wmsUrl.replace('{bbox}', bbox);
+        },
+        tileSize: new window.google.maps.Size(256, 256),
+        opacity: 0.55,
+        name: activeLayer,
       });
+      map.overlayMapTypes.push(imageMapType);
+      overlaysRef.current.push(imageMapType);
     };
 
     applyOverlays();

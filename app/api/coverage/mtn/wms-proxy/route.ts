@@ -1,6 +1,10 @@
 // MTN WMS Proxy for Map Tiles
 import { NextRequest, NextResponse } from 'next/server';
 import { MTN_CONFIGS } from '@/lib/coverage/mtn/types';
+import {
+  areWmsLayersAllowed,
+  wmsServiceUrl,
+} from '@/lib/coverage/mtn/wms-proxy-helpers';
 import { apiLogger } from '@/lib/logging';
 
 interface WMSProxyRequest {
@@ -43,9 +47,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }, { status: 400 });
     }
 
-    // Validate layer exists in config
-    const layerExists = Object.values(config.layers).includes(layer);
-    if (!layerExists) {
+    if (!areWmsLayersAllowed(Object.values(config.layers), layer)) {
       return NextResponse.json({
         error: `Layer '${layer}' not available in ${configId} configuration`
       }, { status: 400 });
@@ -75,13 +77,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       EXCEPTIONS: 'application/json'
     });
 
-    const wmsUrl = `${config.wmsEndpoint}/wms?${wmsParams.toString()}`;
+    const wmsUrl = `${wmsServiceUrl(config.wmsEndpoint)}?${wmsParams.toString()}`;
 
-    // Fetch from MTN WMS service
     const wmsResponse = await fetch(wmsUrl, {
       headers: {
         'User-Agent': 'CircleTel-Coverage-Map/1.0'
-      }
+      },
+      next: { revalidate: 1800 },
     });
 
     if (!wmsResponse.ok) {

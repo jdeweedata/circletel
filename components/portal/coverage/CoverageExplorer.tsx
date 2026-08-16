@@ -286,14 +286,6 @@ export default function CoverageExplorer() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="py-16 text-center text-sm" style={{ color: 'var(--pm-body)' }}>
-        Loading coverage…
-      </div>
-    );
-  }
-
   return (
     <div>
       {error && (
@@ -396,8 +388,10 @@ export default function CoverageExplorer() {
             className="mt-6 text-[10px] font-extrabold tracking-[0.08em] uppercase"
             style={{ color: 'var(--pm-navy)' }}
           >
-            {visible.length} clinic{visible.length === 1 ? '' : 's'}
-            {visible.length > 0 && (
+            {loading
+              ? 'Loading clinics'
+              : `${visible.length} clinic${visible.length === 1 ? '' : 's'}`}
+            {!loading && visible.length > 0 && (
               <span className="ml-2 font-semibold normal-case tracking-normal opacity-70">
                 · {currentPage} of {totalPages}
               </span>
@@ -408,7 +402,17 @@ export default function CoverageExplorer() {
             headers={['Clinic', 'Location', 'Recommended', '']}
             className="mt-3 rounded-xl shadow-sm ring-1 ring-black/[0.06]"
           >
-            {paged.map((check) => {
+            {loading ? (
+              <tr>
+                <td
+                  colSpan={4}
+                  className="px-4 py-8 text-center text-sm"
+                  style={{ color: 'var(--pm-body)' }}
+                >
+                  Loading clinics…
+                </td>
+              </tr>
+            ) : paged.map((check) => {
               const rec = recommendedAccess(check.results);
               const on = check.id === selectedId;
               return (
@@ -456,7 +460,7 @@ export default function CoverageExplorer() {
             })}
           </RuledTable>
 
-          {totalPages > 1 && (
+          {!loading && totalPages > 1 && (
             <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs" style={{ color: '#6B7280' }}>
                 Showing {(currentPage - 1) * PAGE_SIZE + 1}–

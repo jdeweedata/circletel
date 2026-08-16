@@ -82,51 +82,62 @@ export async function POST(request: NextRequest) {
 
     let taranaFeasible = false;
     let taranaDetail: Record<string, unknown> = {};
-    try {
-      const fwb = await mtnCspClient.checkFwbFeasibility({
-        latitude,
-        longitude,
-        capacityMbps: 100,
-      });
-      taranaFeasible = Boolean(fwb.feasible);
-      taranaDetail = {
-        feasible: fwb.feasible,
-        medium: fwb.medium,
-        region: fwb.region,
-        capacityMbps: fwb.capacityMbps,
-        reference: fwb.reference,
-      };
-    } catch (e) {
-      taranaDetail = {
-        error: e instanceof Error ? e.message : String(e),
-      };
-    }
-
     let lteAvailable = false;
     let fiveGAvailable = false;
     let mobileDetail: Record<string, unknown> = {};
-    try {
-      const mobile = await MTNConsumerClient.checkMobileCoverage(
+
+    const [fwbResult, mobileResult] = await Promise.all([
+      mtnCspClient
+        .checkFwbFeasibility({
+          latitude,
+          longitude,
+          capacityMbps: 100,
+        })
+        .then((fwb) => ({ ok: true as const, fwb }))
+        .catch((e) => ({
+          ok: false as const,
+          error: e instanceof Error ? e.message : String(e),
+        })),
+      MTNConsumerClient.checkMobileCoverage(
         { lat: latitude, lng: longitude },
         ['lte', '5g']
-      );
+      )
+        .then((mobile) => ({ ok: true as const, mobile }))
+        .catch((e) => ({
+          ok: false as const,
+          error: e instanceof Error ? e.message : String(e),
+        })),
+    ]);
+
+    if (fwbResult.ok) {
+      taranaFeasible = Boolean(fwbResult.fwb.feasible);
+      taranaDetail = {
+        feasible: fwbResult.fwb.feasible,
+        medium: fwbResult.fwb.medium,
+        region: fwbResult.fwb.region,
+        capacityMbps: fwbResult.fwb.capacityMbps,
+        reference: fwbResult.fwb.reference,
+      };
+    } else {
+      taranaDetail = { error: fwbResult.error };
+    }
+
+    if (mobileResult.ok) {
       lteAvailable = Boolean(
-        mobile.services.find((s) => s.type === 'lte')?.available
+        mobileResult.mobile.services.find((s) => s.type === 'lte')?.available
       );
       fiveGAvailable = Boolean(
-        mobile.services.find((s) => s.type === '5g')?.available
+        mobileResult.mobile.services.find((s) => s.type === '5g')?.available
       );
       mobileDetail = {
-        services: mobile.services.map((s) => ({
+        services: mobileResult.mobile.services.map((s) => ({
           type: s.type,
           available: s.available,
           technology: s.technology,
         })),
       };
-    } catch (e) {
-      mobileDetail = {
-        error: e instanceof Error ? e.message : String(e),
-      };
+    } else {
+      mobileDetail = { error: mobileResult.error };
     }
 
     const results = {
