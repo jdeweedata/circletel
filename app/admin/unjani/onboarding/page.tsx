@@ -1085,28 +1085,28 @@ export default function UnjaniOnboardingPipelinePage() {
               value: String(dashboardKpis.sitesLive),
               accent: '#2F9E5E',
               valueColor: '#2F9E5E',
-              onClick: () => setStageFilter('live'),
+              href: '/admin/unjani/sites-live',
             },
             {
               label: 'In onboarding',
               value: String(dashboardKpis.inOnboarding),
               note: 'Across 5 stages',
               accent: '#13274A',
-              onClick: () => setStageFilter(''),
+              href: '/admin/unjani/in-onboarding',
             },
             {
               label: 'Pre-qualified',
               value: String(dashboardKpis.preQualified),
               note: 'Ready to add to the pipeline',
               accent: '#F5841E',
-              onClick: () => setStageFilter('nominated'),
+              href: '/admin/unjani/pre-qualified',
             },
             {
               label: 'Monthly spend',
               value: formatZar(dashboardKpis.monthlySpend),
               note: spendNote(dashboardKpis.billedSites, dashboardKpis.monthlySpend),
               accent: '#13274A',
-              onClick: () => setStageFilter('live'),
+              href: '/admin/unjani/monthly-spend',
             },
           ]}
         />
