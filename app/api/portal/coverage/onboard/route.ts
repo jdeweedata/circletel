@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { requireUnjaniSuperUser } from '@/lib/portal/require-portal-user';
+import { openDeskTicketForPortal } from '@/lib/portal/create-desk-ticket';
 
 /**
  * Proceed to onboard after a coverage check (PDF steps 1–3).
@@ -110,8 +111,31 @@ export async function POST(request: NextRequest) {
       .select('id, subject, status, ticket_type, created_at')
       .single();
 
-    if (insertError) {
-      return NextResponse.json({ error: insertError.message }, { status: 500 });
+    if (insertError || !ticket) {
+      return NextResponse.json({ error: insertError?.message || 'Failed to create ticket' }, { status: 500 });
+    }
+
+    try {
+      const deskTicket = await openDeskTicketForPortal({
+        subject: `[${portalUser.organisation_name}] ${subject}`,
+        description: `${description}\n\n---\nPortal ticket: ${ticket.id}`,
+        customerEmail: portalUser.email,
+        customerName: portalUser.display_name,
+        priority: 'medium',
+        ticketType: 'activation_request',
+      });
+      if (deskTicket) {
+        await adminDb
+          .from('b2b_support_tickets')
+          .update({
+            zoho_ticket_id: deskTicket.id,
+            zoho_ticket_number: deskTicket.ticketNumber,
+            desk_status_synced_at: new Date().toISOString(),
+          })
+          .eq('id', ticket.id);
+      }
+    } catch (deskError) {
+      console.error('[Portal /coverage/onboard] Zoho Desk create failed:', deskError);
     }
 
     if (process.env.RESEND_API_KEY) {

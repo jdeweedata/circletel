@@ -37,6 +37,7 @@ interface Ticket {
   ticket_type: TicketType | null;
   created_at: string;
   resolved_at: string | null;
+  zoho_ticket_number?: string | null;
   corporate_sites: { id: string; site_name: string } | null;
 }
 
@@ -414,7 +415,10 @@ export default function PortalSupportPage() {
               <li key={t.id} className="px-4 py-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900 truncate">{t.subject}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {t.zoho_ticket_number ? `#${t.zoho_ticket_number} · ` : ''}
+                      {t.subject}
+                    </p>
                     <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{t.description}</p>
                     <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                       {/* Task 2.5: Ticket type badge */}
