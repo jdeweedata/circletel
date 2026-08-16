@@ -9,7 +9,7 @@ import type {
   UnifiedProductStatus,
 } from '@/lib/types/unified-product';
 
-export type WorkspaceSection = 'catalogue' | 'suppliers' | 'mtn-tools';
+export type WorkspaceSection = 'catalogue' | 'suppliers' | 'mtn-tools' | 'portfolio';
 
 export interface WorkspaceParams {
   section: WorkspaceSection;
@@ -29,7 +29,7 @@ export const WORKSPACE_DEFAULTS: WorkspaceParams = {
   page: 1,
 };
 
-const SECTIONS: WorkspaceSection[] = ['catalogue', 'suppliers', 'mtn-tools'];
+const SECTIONS: WorkspaceSection[] = ['catalogue', 'suppliers', 'mtn-tools', 'portfolio'];
 const STATUSES: Array<UnifiedProductStatus> = ['active', 'draft', 'pending', 'archived', 'inactive'];
 const SORTS: WorkspaceParams['sort'][] = ['updated_desc', 'created_desc', 'name_asc', 'price_desc', 'price_asc'];
 

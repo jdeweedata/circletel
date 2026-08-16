@@ -26,7 +26,7 @@ export default function AdminQuotesPage() {
   const [quotes, setQuotes] = useState<QuoteWithDetails[]>([]);
   const [filteredQuotes, setFilteredQuotes] = useState<QuoteWithDetails[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('open');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -53,9 +53,7 @@ export default function AdminQuotesPage() {
 
     try {
       const params = new URLSearchParams();
-      if (statusFilter !== 'all') {
-        params.append('status', statusFilter);
-      }
+      params.append('status', statusFilter);
       params.append('limit', '50');
 
       const controller = new AbortController();

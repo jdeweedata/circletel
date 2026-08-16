@@ -36,6 +36,7 @@ export function QuotesFilters({
         onChange={(e) => onStatusFilterChange(e.target.value)}
         className="h-10 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary focus:bg-white outline-none sm:w-48 transition-colors cursor-pointer"
       >
+        <option value="open">Active (hide expired)</option>
         <option value="all">All Statuses</option>
         <option value="draft">Draft</option>
         <option value="pending_approval">Pending Approval</option>

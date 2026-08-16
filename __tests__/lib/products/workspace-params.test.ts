@@ -29,6 +29,9 @@ describe('parseWorkspaceParams', () => {
     expect(parseWorkspaceParams(new URLSearchParams('section=suppliers'))).toMatchObject({
       section: 'suppliers',
     });
+    expect(parseWorkspaceParams(new URLSearchParams('section=portfolio'))).toMatchObject({
+      section: 'portfolio',
+    });
   });
 
   it('ignores invalid values', () => {
