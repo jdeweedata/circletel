@@ -165,7 +165,7 @@ export default function PortalSiteDetailPage() {
 
           {hasMonitoring && <HealthTrendChart siteId={siteId} />}
 
-          {isUnjani && <StaffWifiUsageChart currentSiteId={siteId} />}
+          {isUnjani && <StaffWifiUsageChart siteId={siteId} />}
         </>
       )}
 

@@ -3,50 +3,46 @@
 import { useEffect, useState } from 'react';
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Cell,
 } from 'recharts';
-import { formatClinicShortName } from '@/lib/portal/site-format';
 import { bytesToGb, formatBytesAsGb } from '@/lib/usage-reports/bytes';
 
-interface ClinicUsage {
-  siteId: string;
-  siteName: string;
+interface StaffPoint {
+  date: string;
   totalBytes: number;
-  rxBytes: number;
-  txBytes: number;
 }
 
 interface StaffWifiUsageChartProps {
-  currentSiteId: string;
+  siteId: string;
 }
 
-export default function StaffWifiUsageChart({ currentSiteId }: StaffWifiUsageChartProps) {
+export default function StaffWifiUsageChart({ siteId }: StaffWifiUsageChartProps) {
   const [range, setRange] = useState<'7d' | '30d'>('7d');
-  const [clinics, setClinics] = useState<ClinicUsage[]>([]);
+  const [data, setData] = useState<StaffPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/portal/sites/staff-wifi?range=${range}`)
+    fetch(`/api/portal/sites/${siteId}/staff-wifi?range=${range}`)
       .then((r) => r.json())
-      .then((res) => setClinics(res.clinics ?? []))
+      .then((res) => setData(res.timeseries ?? []))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [range]);
+  }, [siteId, range]);
 
-  const chartData = clinics.map((clinic) => ({
-    ...clinic,
-    name: formatClinicShortName(clinic.siteName),
-    gb: Number(bytesToGb(clinic.totalBytes).toFixed(2)),
+  const chartData = data.map((point) => ({
+    time: new Date(`${point.date}T12:00:00+02:00`).toLocaleDateString('en-ZA', {
+      day: '2-digit',
+      month: 'short',
+    }),
+    gb: Number(bytesToGb(point.totalBytes).toFixed(2)),
+    totalBytes: point.totalBytes,
   }));
-  const hasSamples = clinics.some((clinic) => clinic.totalBytes > 0);
-  const chartHeight = Math.max(250, chartData.length * 32);
 
   return (
     <div className="bg-white rounded-xl border">
@@ -78,47 +74,45 @@ export default function StaffWifiUsageChart({ currentSiteId }: StaffWifiUsageCha
           <div className="flex items-center justify-center h-[250px]">
             <div className="w-8 h-8 border-4 border-circleTel-orange border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : !hasSamples ? (
+        ) : chartData.length === 0 ? (
           <div className="flex items-center justify-center h-[250px] text-sm text-gray-500">
             No Staff Wi-Fi samples in this period.
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={chartHeight}>
-            <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 16 }}>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis
-                type="number"
+                dataKey="time"
                 tick={{ fontSize: 11 }}
                 tickLine={false}
-                axisLine={false}
-                label={{ value: 'GB', position: 'insideBottom', offset: -2, style: { fontSize: 11 } }}
+                interval="preserveStartEnd"
               />
               <YAxis
-                type="category"
-                dataKey="name"
-                width={110}
                 tick={{ fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
+                label={{ value: 'GB', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
               />
               <Tooltip
                 formatter={(value: number, _name, item) => {
-                  const payload = item?.payload as ClinicUsage | undefined;
+                  const payload = item?.payload as { totalBytes?: number } | undefined;
                   return [
-                    payload ? formatBytesAsGb(payload.totalBytes) : `${value} GB`,
+                    payload?.totalBytes != null
+                      ? formatBytesAsGb(payload.totalBytes)
+                      : `${value} GB`,
                     'Staff Wi-Fi',
                   ];
                 }}
               />
-              <Bar dataKey="gb" radius={[0, 4, 4, 0]}>
-                {chartData.map((clinic) => (
-                  <Cell
-                    key={clinic.siteId}
-                    fill={clinic.siteId === currentSiteId ? '#E87A1E' : '#13274A'}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
+              <Line
+                type="monotone"
+                dataKey="gb"
+                stroke="#E87A1E"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
           </ResponsiveContainer>
         )}
       </div>
