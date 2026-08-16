@@ -1,4 +1,11 @@
-import { evaluateDraftToActive, evaluateTransition, isSalesQuotePackLine } from '@/lib/products/product-line-gates';
+import {
+  computeSkuContribution,
+  evaluateDocsSellability,
+  evaluateDraftToActive,
+  evaluateTransition,
+  isSalesQuotePackLine,
+  monthlyCostAmount,
+} from '@/lib/products/product-line-gates';
 import type { ProductLine } from '@/lib/types/product-lines';
 
 function line(overrides: Partial<ProductLine> = {}): ProductLine {
@@ -84,6 +91,69 @@ describe('evaluateTransition', () => {
       openQuotes: 2,
     });
     expect(result.allowed).toBe(false);
+  });
+});
+
+describe('evaluateDocsSellability', () => {
+  it('blocks an unlinked SKU', () => {
+    const result = evaluateDocsSellability(null);
+    expect(result.allowed).toBe(false);
+    expect(result.items[0]?.label).toBe('On a portfolio line');
+  });
+
+  it('allows SkyFibre SMB when CPS and required BRD are current without finance', () => {
+    const result = evaluateDocsSellability(line({ finance_approved_at: null, fsd_status: 'current' }));
+    expect(result.allowed).toBe(true);
+  });
+
+  it('blocks stale CPS even when BRD is current', () => {
+    const result = evaluateDocsSellability(line({ cps_status: 'stale' }));
+    expect(result.allowed).toBe(false);
+  });
+
+  it('blocks missing BRD when brd_required', () => {
+    const result = evaluateDocsSellability(line({ brd_status: 'missing', brd_path: null }));
+    expect(result.allowed).toBe(false);
+  });
+
+  it('blocks missing FSD only when fsd_required', () => {
+    const optional = evaluateDocsSellability(line({ fsd_required: false, fsd_status: 'missing' }));
+    expect(optional.allowed).toBe(true);
+    const required = evaluateDocsSellability(line({ fsd_required: true, fsd_status: 'missing' }));
+    expect(required.allowed).toBe(false);
+  });
+});
+
+describe('monthlyCostAmount', () => {
+  it('uses amortised monthly for install and raw amount for monthly rows', () => {
+    expect(monthlyCostAmount({ recurrence: 'monthly', cost_amount: 599, amortised_monthly_cost: 599 })).toBe(599);
+    expect(monthlyCostAmount({ recurrence: 'amortised', cost_amount: 2550, amortised_monthly_cost: 212.5 })).toBe(212.5);
+    expect(monthlyCostAmount({ recurrence: 'once_off', cost_amount: 300, amortised_monthly_cost: 300 })).toBe(0);
+  });
+});
+
+describe('computeSkuContribution', () => {
+  it('returns contribution from summed monthly COS', () => {
+    const result = computeSkuContribution(1499, [
+      { recurrence: 'monthly', cost_amount: 599, amortised_monthly_cost: 599 },
+      { recurrence: 'monthly', cost_amount: 50, amortised_monthly_cost: 50 },
+      { recurrence: 'monthly', cost_amount: 45, amortised_monthly_cost: 45 },
+      { recurrence: 'monthly', cost_amount: 10.96, amortised_monthly_cost: 10.96 },
+      { recurrence: 'amortised', cost_amount: 2550, amortised_monthly_cost: 212.5 },
+      { recurrence: 'monthly', cost_amount: 10, amortised_monthly_cost: 10 },
+    ]);
+    expect(result.cost_missing).toBe(false);
+    expect(result.monthly_cos).toBe(927.46);
+    expect(result.contribution).toBe(571.54);
+    expect(result.margin_pct).toBe(38.1);
+  });
+
+  it('does not report 100% margin when COS is missing', () => {
+    const result = computeSkuContribution(1899, [], null);
+    expect(result.cost_missing).toBe(true);
+    expect(result.monthly_cos).toBeNull();
+    expect(result.contribution).toBeNull();
+    expect(result.margin_pct).toBeNull();
   });
 });
 

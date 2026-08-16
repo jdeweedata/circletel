@@ -97,6 +97,27 @@ export function computeMarginPct(price: number, cost: number): number {
   return Math.round(((price - cost) / price) * 100);
 }
 
+export type SkuCostComponent = {
+  id: string;
+  name: string;
+  category: string;
+  cost_amount: number;
+  recurrence: string;
+  amortisation_months: number | null;
+  amortised_monthly_cost: number | null;
+  monthly_amount: number;
+  sort_order: number;
+};
+
+export type SkuContributionView = {
+  retail: number;
+  monthly_cos: number | null;
+  contribution: number | null;
+  margin_pct: number | null;
+  cost_missing: boolean;
+  redacted?: boolean;
+};
+
 /** Strip cost-of-sale fields for viewers without `products:view_costs`. */
 export function redactUnifiedProductCosts(product: UnifiedProduct): UnifiedProduct {
   const raw: Record<string, unknown> = { ...product.raw };

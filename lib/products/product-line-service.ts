@@ -10,7 +10,11 @@ import type {
   ProductLineWithRelations,
   ProductDocStatus,
 } from '@/lib/types/product-lines';
-import { evaluateDraftToActive, evaluateTransition } from '@/lib/products/product-line-gates';
+import {
+  evaluateDocsSellability,
+  evaluateDraftToActive,
+  evaluateTransition,
+} from '@/lib/products/product-line-gates';
 
 function num(v: unknown): number | null {
   if (v == null) return null;
@@ -297,7 +301,11 @@ export async function getProductLineForSource(
 export async function getPublishGateForSku(
   supabase: SupabaseClient,
   skuOrPackageId: string
-): Promise<{ line: ProductLine | null; gate: LifecycleGateResult | null }> {
+): Promise<{
+  line: ProductLine | null;
+  gate: LifecycleGateResult | null;
+  docs_gate: LifecycleGateResult;
+}> {
   const { data: link } = await supabase
     .from('product_line_skus')
     .select('product_line_id')
@@ -305,14 +313,32 @@ export async function getPublishGateForSku(
     .limit(1)
     .maybeSingle();
 
-  if (!link) return { line: null, gate: null };
+  if (!link) {
+    return { line: null, gate: null, docs_gate: evaluateDocsSellability(null) };
+  }
 
   const line = await getProductLine(supabase, link.product_line_id);
-  if (!line) return { line: null, gate: null };
+  if (!line) {
+    return { line: null, gate: null, docs_gate: evaluateDocsSellability(null) };
+  }
+
+  const docs_gate = evaluateDocsSellability(line);
 
   if (line.lifecycle_stage === 'archived') {
     return {
       line,
+      docs_gate: {
+        allowed: false,
+        items: [
+          ...docs_gate.items,
+          {
+            label: 'Parent line archived',
+            ok: false,
+            blocking: true,
+            detail: 'Restore the product line before quoting this SKU',
+          },
+        ],
+      },
       gate: {
         allowed: false,
         items: [
@@ -327,6 +353,6 @@ export async function getPublishGateForSku(
     };
   }
 
-  // Linked SKUs stay blocked until CPS/BRD/FSD/finance are current — even if the line is already ACTIVE.
-  return { line, gate: evaluateDraftToActive(line) };
+  // Editorial Publish to Catalogue still requires finance; quotes use docs_gate.
+  return { line, gate: evaluateDraftToActive(line), docs_gate };
 }
