@@ -14,12 +14,14 @@ import {
   markNominationTicketInProgress,
   resolveActivationTicket,
 } from '@/lib/admin/unjani-ticket-sync';
-import { clinicKey } from '@/lib/portal/coverage-summary';
+import { clinicKey, isNominatedCoverageCheck } from '@/lib/portal/coverage-summary';
 import {
   countOnboardingStages,
   scopeOnboardingCustomers,
+  stageClinicRefs,
 } from '@/lib/portal/count-onboarding-stages';
 import { fetchDeskStatusUpdates } from '@/lib/portal/create-desk-ticket';
+import { billedSiteIdSet, unjaniDashboardKpis } from '@/lib/portal/dashboard-kpis';
 import { submissionRank, stageDefinition } from '@/lib/portal/onboarding-stage';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -58,12 +60,12 @@ export async function GET(request: NextRequest) {
           .order('created_at', { ascending: false }),
         supabase
           .from('b2b_coverage_checks')
-          .select('id, clinic_name, address, results, created_at')
+          .select('id, clinic_name, address, latitude, longitude, results, created_at')
           .eq('organisation_id', org.id)
           .order('created_at', { ascending: false }),
         supabase
           .from('corporate_sites')
-          .select('id, site_name, status, installed_at')
+          .select('id, site_name, status, installed_at, monthly_fee')
           .eq('corporate_id', org.id),
         supabase.from('customers').select('id, business_name, corporate_site_id'),
       ]);
@@ -126,16 +128,51 @@ export async function GET(request: NextRequest) {
       for (const token of tokens ?? []) linkSent.add(token.customer_id);
     }
 
-    const { stageCounts, stageByCustomerId } = countOnboardingStages({
+    const nominatedChecks = (checks ?? []).filter(isNominatedCoverageCheck);
+    const { stageCounts, stageByCustomerId, stageBySiteId } = countOnboardingStages({
       sites: siteList,
       customers: customerList,
       bestSubmission,
       linkSent,
+      nominatedCheckKeys: nominatedChecks.map((check) => check.clinic_name ?? ''),
+    });
+
+    const siteCustomerIds = customerList
+      .filter((customer) => customer.corporate_site_id && siteIds.has(customer.corporate_site_id))
+      .map((customer) => customer.id);
+    const { data: siteServices } = siteCustomerIds.length
+      ? await supabase
+          .from('customer_services')
+          .select('customer_id, billing_start_date, status, active')
+          .in('customer_id', siteCustomerIds)
+      : { data: [] };
+
+    const kpis = unjaniDashboardKpis({
+      stageCounts,
+      sites: siteList,
+      coverageChecks: checks ?? [],
+      stageBySiteId,
+      billedSiteIds: billedSiteIdSet(customerList, siteServices ?? []),
+    });
+
+    const stageClinics = stageClinicRefs({
+      sites: siteList,
+      customers: customerList,
+      stageBySiteId,
+      stageByCustomerId,
+      nominatedChecks,
     });
 
     const pipelineStages: Record<string, { key: string; label: string }> = {};
     for (const [customerId, key] of Object.entries(stageByCustomerId)) {
       pipelineStages[customerId] = { key, label: stageDefinition(key).label };
+    }
+    for (const ref of stageClinics) {
+      if (ref.customerId || !ref.siteId) continue;
+      pipelineStages[`site:${ref.siteId}`] = {
+        key: ref.stage,
+        label: stageDefinition(ref.stage).label,
+      };
     }
 
     const existingClinicNames = [
@@ -156,6 +193,8 @@ export async function GET(request: NextRequest) {
       }),
       pipelineStages,
       stageCounts,
+      stageClinics,
+      kpis,
     });
   } catch (error: unknown) {
     apiLogger.error('[Unjani portal-ops] GET failed', { error });

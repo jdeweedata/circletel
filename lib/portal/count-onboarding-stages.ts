@@ -13,6 +13,7 @@ import { deriveStage, type StageKey } from '@/lib/portal/onboarding-stage';
 
 export interface CountableSite {
   id: string;
+  site_name?: string | null;
   status?: string | null;
   installed_at?: string | null;
 }
@@ -62,6 +63,7 @@ export function countOnboardingStages(input: {
   customers: CountableCustomer[];
   bestSubmission: Record<string, CountableSubmission | undefined>;
   linkSent: Set<string> | Iterable<string>;
+  nominatedCheckKeys?: Iterable<string>;
 }): {
   stageCounts: Record<StageKey, number>;
   stageByCustomerId: Record<string, StageKey>;
@@ -71,6 +73,9 @@ export function countOnboardingStages(input: {
   const siteIds = new Set(sites.map((site) => site.id));
   const linkSent =
     input.linkSent instanceof Set ? input.linkSent : new Set(input.linkSent);
+  const nominatedKeys = new Set(
+    [...(input.nominatedCheckKeys ?? [])].map((key) => clinicKey(key)).filter(Boolean)
+  );
 
   const customerBySite = new Map<string, string>();
   for (const customer of input.customers) {
@@ -82,6 +87,7 @@ export function countOnboardingStages(input: {
   const stageCounts = emptyStageCounts();
   const stageByCustomerId: Record<string, StageKey> = {};
   const stageBySiteId: Record<string, StageKey> = {};
+  const countedKeys = new Set<string>();
 
   for (const site of sites) {
     const customerId = customerBySite.get(site.id);
@@ -93,9 +99,14 @@ export function countOnboardingStages(input: {
       submissionRejectionReason: submission?.rejection_reason,
       onboardingLinkSent: customerId ? linkSent.has(customerId) : false,
     });
+    if (stage === 'nominated' && !customerId && !nominatedKeys.has(clinicKey(site.site_name))) {
+      continue;
+    }
     stageCounts[stage]++;
     stageBySiteId[site.id] = stage;
     if (customerId) stageByCustomerId[customerId] = stage;
+    const key = clinicKey(site.site_name);
+    if (key) countedKeys.add(key);
   }
 
   const countedCustomers = new Set(customerBySite.values());
@@ -110,7 +121,92 @@ export function countOnboardingStages(input: {
     });
     stageCounts[stage]++;
     stageByCustomerId[customer.id] = stage;
+    const key = clinicKey(customer.business_name);
+    if (key) countedKeys.add(key);
+  }
+
+  for (const rawKey of nominatedKeys) {
+    if (countedKeys.has(rawKey)) continue;
+    stageCounts.nominated += 1;
+    countedKeys.add(rawKey);
   }
 
   return { stageCounts, stageByCustomerId, stageBySiteId };
+}
+
+export interface StageClinicRef {
+  stage: StageKey;
+  siteId?: string;
+  customerId: string | null;
+  coverageCheckId?: string | null;
+  name: string;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}
+
+/** Named clinics behind each guide-stage count, including nominated coverage checks. */
+export function stageClinicRefs(input: {
+  sites: Array<{ id: string; site_name?: string | null }>;
+  customers: CountableCustomer[];
+  stageBySiteId: Record<string, StageKey>;
+  stageByCustomerId: Record<string, StageKey>;
+  nominatedChecks?: Array<{
+    id?: string;
+    clinic_name?: string | null;
+    address?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+  }>;
+}): StageClinicRef[] {
+  const customerBySite = new Map<string, CountableCustomer>();
+  for (const customer of input.customers) {
+    if (customer.corporate_site_id) customerBySite.set(customer.corporate_site_id, customer);
+  }
+
+  const refs: StageClinicRef[] = [];
+  const countedCustomers = new Set<string>();
+
+  for (const site of input.sites) {
+    const stage = input.stageBySiteId[site.id];
+    if (!stage) continue;
+    const customer = customerBySite.get(site.id);
+    if (customer) countedCustomers.add(customer.id);
+    refs.push({
+      stage,
+      siteId: site.id,
+      customerId: customer?.id ?? null,
+      name: site.site_name || customer?.business_name || 'Clinic',
+    });
+  }
+
+  for (const customer of input.customers) {
+    if (countedCustomers.has(customer.id)) continue;
+    const stage = input.stageByCustomerId[customer.id];
+    if (!stage) continue;
+    refs.push({
+      stage,
+      customerId: customer.id,
+      name: customer.business_name || 'Clinic',
+    });
+  }
+
+  const namedKeys = new Set(refs.map((ref) => clinicKey(ref.name)).filter(Boolean));
+  for (const check of input.nominatedChecks ?? []) {
+    const name = check.clinic_name?.trim();
+    const key = clinicKey(name);
+    if (!name || !key || namedKeys.has(key)) continue;
+    namedKeys.add(key);
+    refs.push({
+      stage: 'nominated',
+      customerId: null,
+      coverageCheckId: check.id ?? null,
+      name,
+      address: check.address ?? null,
+      latitude: check.latitude ?? null,
+      longitude: check.longitude ?? null,
+    });
+  }
+
+  return refs;
 }

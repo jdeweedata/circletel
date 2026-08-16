@@ -25,6 +25,7 @@ import {
   formatZar,
   type PortalSite,
 } from '@/lib/portal/site-format';
+import { spendNote } from '@/lib/portal/dashboard-kpis';
 import type { StageKey } from '@/lib/portal/onboarding-stage';
 
 interface Invoice {
@@ -44,14 +45,6 @@ interface DashboardSummary {
   monthlySpend: number;
   stageCounts: Record<StageKey, number>;
   provinces: Array<{ province: string; count: number }>;
-}
-
-function spendNote(billedCount: number, spend: number): string {
-  if (billedCount > 0 && spend > 0) {
-    const unit = spend / billedCount;
-    return `${billedCount} × ${formatZar(unit)} excl VAT`;
-  }
-  return 'Excl VAT';
 }
 
 export default function AdminDashboard({ user }: { user: PortalUser }) {

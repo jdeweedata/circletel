@@ -2,6 +2,7 @@ import {
   countOnboardingStages,
   emptyStageCounts,
   scopeOnboardingCustomers,
+  stageClinicRefs,
 } from '@/lib/portal/count-onboarding-stages';
 import { clinicKey } from '@/lib/portal/coverage-summary';
 
@@ -68,7 +69,7 @@ describe('countOnboardingStages', () => {
     expect(result.stageByCustomerId).toEqual({});
   });
 
-  it('still counts a site that has no customer row', () => {
+  it('does not count a pending site with no customer as nominated', () => {
     const result = countOnboardingStages({
       sites: [{ id: 'site-orphan', status: 'pending', installed_at: null }],
       customers: [],
@@ -76,9 +77,47 @@ describe('countOnboardingStages', () => {
       linkSent: new Set(),
     });
 
-    expect(result.stageCounts.nominated).toBe(1);
-    expect(result.stageBySiteId['site-orphan']).toBe('nominated');
+    expect(result.stageCounts.nominated).toBe(0);
+    expect(result.stageBySiteId).toEqual({});
     expect(result.stageByCustomerId).toEqual({});
+  });
+
+  it('counts coverage-nominated clinics and lists them for the nominated card', () => {
+    const nominatedChecks = [
+      {
+        id: 'chk-suurman',
+        clinic_name: 'Suurman',
+        address: 'Suurman Village',
+        latitude: -25.392895046174004,
+        longitude: 28.2096702,
+      },
+    ];
+    const counted = countOnboardingStages({
+      sites: [{ id: 'site-orphan', site_name: 'Umlazi', status: 'pending', installed_at: null }],
+      customers: [],
+      bestSubmission: {},
+      linkSent: new Set(),
+      nominatedCheckKeys: nominatedChecks.map((check) => check.clinic_name),
+    });
+
+    expect(counted.stageCounts.nominated).toBe(1);
+    expect(stageClinicRefs({
+      sites: [{ id: 'site-orphan', site_name: 'Umlazi' }],
+      customers: [],
+      stageBySiteId: counted.stageBySiteId,
+      stageByCustomerId: counted.stageByCustomerId,
+      nominatedChecks,
+    })).toEqual([
+      {
+        stage: 'nominated',
+        customerId: null,
+        coverageCheckId: 'chk-suurman',
+        name: 'Suurman',
+        address: 'Suurman Village',
+        latitude: -25.392895046174004,
+        longitude: 28.2096702,
+      },
+    ]);
   });
 });
 
