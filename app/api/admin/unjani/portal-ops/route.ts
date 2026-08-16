@@ -9,15 +9,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { createClient } from '@/lib/supabase/server';
 import { UNJANI_CORPORATE_CODE } from '@/lib/billing/unjani-connect-rules';
-import {
-  buildActivationQueue,
-  buildNominationQueue,
-  portalStageForClinic,
-} from '@/lib/admin/unjani-portal-ops';
+import { buildActivationQueue, buildNominationQueue } from '@/lib/admin/unjani-portal-ops';
 import {
   markNominationTicketInProgress,
   resolveActivationTicket,
 } from '@/lib/admin/unjani-ticket-sync';
+import { clinicKey } from '@/lib/portal/coverage-summary';
+import {
+  countOnboardingStages,
+  scopeOnboardingCustomers,
+} from '@/lib/portal/count-onboarding-stages';
 import { fetchDeskStatusUpdates } from '@/lib/portal/create-desk-ticket';
 import { submissionRank, stageDefinition } from '@/lib/portal/onboarding-stage';
 import { apiLogger } from '@/lib/logging/logger';
@@ -64,10 +65,7 @@ export async function GET(request: NextRequest) {
           .from('corporate_sites')
           .select('id, site_name, status, installed_at')
           .eq('corporate_id', org.id),
-        supabase
-          .from('customers')
-          .select('id, business_name, corporate_site_id, onboarding_status')
-          .ilike('business_name', '%unjani%'),
+        supabase.from('customers').select('id, business_name, corporate_site_id'),
       ]);
 
     const ticketRows = tickets ?? [];
@@ -92,7 +90,11 @@ export async function GET(request: NextRequest) {
       apiLogger.warn('[Unjani portal-ops] Desk status sync failed', { error: syncError });
     }
 
-    const customerIds = (customers ?? []).map((customer) => customer.id);
+    const siteList = sites ?? [];
+    const siteIds = new Set(siteList.map((site) => site.id));
+    const checkKeys = new Set((checks ?? []).map((check) => clinicKey(check.clinic_name)));
+    const customerList = scopeOnboardingCustomers(customers ?? [], siteIds, checkKeys);
+    const customerIds = customerList.map((customer) => customer.id);
     const bestSubmission: Record<
       string,
       { status: string | null; rejection_reason: string | null }
@@ -124,28 +126,21 @@ export async function GET(request: NextRequest) {
       for (const token of tokens ?? []) linkSent.add(token.customer_id);
     }
 
-    const siteById = new Map((sites ?? []).map((site) => [site.id, site]));
-    const pipelineStages: Record<string, { key: string; label: string }> = {};
+    const { stageCounts, stageByCustomerId } = countOnboardingStages({
+      sites: siteList,
+      customers: customerList,
+      bestSubmission,
+      linkSent,
+    });
 
-    for (const customer of customers ?? []) {
-      const site = customer.corporate_site_id
-        ? siteById.get(customer.corporate_site_id)
-        : undefined;
-      const submission = bestSubmission[customer.id];
-      const key = portalStageForClinic({
-        billingStage: customer.onboarding_status === 'in_progress' ? 'invited' : 'pending',
-        siteStatus: site?.status ?? null,
-        installedAt: site?.installed_at ?? null,
-        submissionStatus: submission?.status ?? null,
-        submissionRejectionReason: submission?.rejection_reason ?? null,
-        onboardingLinkSent: linkSent.has(customer.id),
-      });
-      pipelineStages[customer.id] = { key, label: stageDefinition(key).label };
+    const pipelineStages: Record<string, { key: string; label: string }> = {};
+    for (const [customerId, key] of Object.entries(stageByCustomerId)) {
+      pipelineStages[customerId] = { key, label: stageDefinition(key).label };
     }
 
     const existingClinicNames = [
-      ...(sites ?? []).map((site) => site.site_name),
-      ...(customers ?? []).map((customer) => customer.business_name),
+      ...siteList.map((site) => site.site_name),
+      ...customerList.map((customer) => customer.business_name),
     ];
 
     return NextResponse.json({
@@ -157,9 +152,10 @@ export async function GET(request: NextRequest) {
       }),
       activations: buildActivationQueue({
         tickets: ticketRows,
-        sites: sites ?? [],
+        sites: siteList,
       }),
       pipelineStages,
+      stageCounts,
     });
   } catch (error: unknown) {
     apiLogger.error('[Unjani portal-ops] GET failed', { error });
