@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { UploadDocumentModal } from '@/components/admin/onboarding/UploadDocumentModal';
 import {
   PiBuildingsBold,
   PiCaretDownBold,
@@ -60,8 +59,14 @@ import {
 } from '@/components/backend';
 import { cn } from '@/lib/utils';
 import networkRegister from '@/lib/data/unjani-network-register.json';
+import { Input } from '@/components/ui/input';
 import { PortalOpsQueues } from '@/components/admin/unjani/PortalOpsQueues';
 import type { ActivationRow, NominationRow } from '@/lib/admin/unjani-portal-ops';
+import { portalStageForClinic } from '@/lib/admin/unjani-portal-ops';
+import {
+  isVisitWindowBlocked,
+  operatorAction,
+} from '@/lib/admin/unjani-operator-actions';
 import { emptyStageCounts } from '@/lib/portal/count-onboarding-stages';
 import {
   ONBOARDING_STAGES,
@@ -141,31 +146,18 @@ interface PortalOpsResponse {
   stageCounts: Record<StageKey, number>;
 }
 
-type OpsTab = 'nominations' | 'setup' | 'activations';
-
-// ---------- Stage model ----------
+// ---------- Stage model (portal guide stages only) ----------
 
 interface StageMeta {
-  id: keyof PipelineResponse['stageCounts'];
+  id: StageKey;
   label: string;
-  /** Pill colours (bg / fg) and the solid accent used in charts + kanban. */
   pillBg: string;
   pillFg: string;
   color: string;
   action: string;
 }
 
-const STAGES: StageMeta[] = [
-  { id: 'pending', label: 'Awaiting invite', pillBg: '#F6F7F9', pillFg: '#606261', color: '#8B8B8B', action: 'Send invite' },
-  { id: 'invited', label: 'Invited', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#2563EB', action: 'Send reminder' },
-  { id: 'submitted', label: 'Docs submitted', pillBg: '#FDF2E9', pillFg: '#D76026', color: '#E87A1E', action: 'Vet documents' },
-  { id: 'changes_requested', label: 'Changes requested', pillBg: '#FCF6E5', pillFg: '#CA8A04', color: '#CA8A04', action: 'Review changes' },
-  { id: 'docs_approved', label: 'Docs approved', pillBg: '#EBF1FE', pillFg: '#2563EB', color: '#5B8DEF', action: 'Issue service order' },
-  { id: 'billing_ready', label: 'Ready to install', pillBg: '#16A34A', pillFg: '#FFFFFF', color: '#16A34A', action: 'Issue service order' },
-  { id: 'service_active', label: 'Billing active', pillBg: '#DFF7EA', pillFg: '#0F7A3D', color: '#0F7A3D', action: 'Billing active' },
-];
-
-/** Same accents as /unjani StageStrip — used by the admin funnel and donut. */
+/** Same accents as /unjani StageStrip — used by the admin funnel, pills, and kanban. */
 const PORTAL_STAGE_COLORS: Record<StageKey, string> = {
   nominated: '#4A5568',
   introduced: '#2563C9',
@@ -176,37 +168,58 @@ const PORTAL_STAGE_COLORS: Record<StageKey, string> = {
   live: '#2F9E5E',
 };
 
+const PORTAL_STAGE_PILLS: Record<StageKey, { pillBg: string; pillFg: string }> = {
+  nominated: { pillBg: '#F6F7F9', pillFg: '#4A5568' },
+  introduced: { pillBg: '#EBF1FE', pillFg: '#2563C9' },
+  details_confirmed: { pillBg: '#FDF2E9', pillFg: '#C2700C' },
+  changes_requested: { pillBg: '#FDECEC', pillFg: '#D14343' },
+  visit_booked: { pillBg: '#EBF1FE', pillFg: '#2563C9' },
+  installing: { pillBg: '#E7F6EE', pillFg: '#2F9E5E' },
+  live: { pillBg: '#DFF7EA', pillFg: '#0F7A3D' },
+};
+
 function portalStageLabel(key: StageKey): string {
   return key === 'live' ? 'Site Live' : stageDefinition(key).label;
 }
 
-const STAGE_INDEX = Object.fromEntries(STAGES.map((s, i) => [s.id, i]));
-const PROGRESS_STAGES = STAGES.filter((s) => s.id !== 'service_active');
+const STAGE_INDEX = Object.fromEntries(ONBOARDING_STAGES.map((s, i) => [s.key, i])) as Record<
+  StageKey,
+  number
+>;
+const PROGRESS_STAGES = ONBOARDING_STAGES.filter((s) => !s.branch);
 
-function stageMeta(stage: string): StageMeta {
-  return STAGES[STAGE_INDEX[stage]] ?? STAGES[0];
+function clinicPortalStage(
+  clinic: PipelineClinic,
+  pipelineStages?: Record<string, { key: StageKey; label: string }> | null
+): StageKey {
+  return (
+    pipelineStages?.[clinic.customer_id]?.key ??
+    portalStageForClinic({
+      billingStage: clinic.stage,
+      documentVettingStatus: clinic.document_vetting_status,
+      onboardingLinkSent: clinic.stage !== 'pending',
+    })
+  );
+}
+
+function stageMeta(stage: StageKey): StageMeta {
+  const pills = PORTAL_STAGE_PILLS[stage];
+  return {
+    id: stage,
+    label: portalStageLabel(stage),
+    pillBg: pills.pillBg,
+    pillFg: pills.pillFg,
+    color: PORTAL_STAGE_COLORS[stage],
+    action: operatorAction(stage).primary.label,
+  };
 }
 
 function serviceIsActive(clinic: PipelineClinic): boolean {
   return clinic.current_service?.status === 'active' || clinic.current_service?.active === true;
 }
 
-function displayStageId(clinic: PipelineClinic): string {
-  return clinic.display_stage || clinic.stage;
-}
-
-function billingIsActive(clinic: PipelineClinic): boolean {
-  return displayStageId(clinic) === 'service_active';
-}
-
-function displayStageMeta(clinic: PipelineClinic): StageMeta {
-  return stageMeta(displayStageId(clinic));
-}
-
-function canRunPrimaryAction(clinic: PipelineClinic): boolean {
-  if (billingIsActive(clinic)) return false;
-  if (clinic.stage === 'billing_ready' && clinic.service_order_issued_at) return false;
-  return true;
+function canRunPrimaryAction(stage: StageKey): boolean {
+  return operatorAction(stage).primary.id !== 'done';
 }
 
 function displayDate(value: string | null | undefined): string {
@@ -333,8 +346,18 @@ export default function UnjaniOnboardingPipelinePage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
-  const [opsTab, setOpsTab] = useState<OpsTab>('setup');
   const [portalOps, setPortalOps] = useState<PortalOpsResponse | null>(null);
+  const [confirmClinic, setConfirmClinic] = useState<PipelineClinic | null>(null);
+  const [changesClinic, setChangesClinic] = useState<PipelineClinic | null>(null);
+  const [changesReason, setChangesReason] = useState('');
+  const [bookClinic, setBookClinic] = useState<PipelineClinic | null>(null);
+  const [bookVisitDate, setBookVisitDate] = useState('');
+  const [bookVisitNotes, setBookVisitNotes] = useState('');
+  const [goLiveClinic, setGoLiveClinic] = useState<PipelineClinic | null>(null);
+  const [goLiveDate, setGoLiveDate] = useState('');
+  const [goLiveInstaller, setGoLiveInstaller] = useState('');
+  const [goLiveWholesaleRef, setGoLiveWholesaleRef] = useState('');
+  const [goLiveNotes, setGoLiveNotes] = useState('');
   const [registerTicketId, setRegisterTicketId] = useState<string | null>(null);
   const [view, setView] = useState<'table' | 'kanban' | 'register'>('table');
   const [stageFilter, setStageFilter] = useState<StageKey | ''>('');
@@ -348,7 +371,6 @@ export default function UnjaniOnboardingPipelinePage() {
   const [batchSending, setBatchSending] = useState(false);
   const [drawerClinic, setDrawerClinic] = useState<PipelineClinic | null>(null);
   const [openingServiceOrderId, setOpeningServiceOrderId] = useState<string | null>(null);
-  const [uploadFor, setUploadFor] = useState<PipelineClinic | null>(null);
   const [registerDrawer, setRegisterDrawer] = useState<null | {
     registerName: string;
     businessName: string;
@@ -441,8 +463,11 @@ export default function UnjaniOnboardingPipelinePage() {
 
   /** Pipeline stage by normalised clinic name — cross-references the register view. */
   const pipelineStageByName = useMemo(
-    () => new Map(clinics.map((c) => [normName(c.business_name), displayStageId(c)])),
-    [clinics]
+    () =>
+      new Map(
+        clinics.map((c) => [normName(c.business_name), clinicPortalStage(c, portalOps?.pipelineStages)])
+      ),
+    [clinics, portalOps]
   );
 
   const filteredRegister = useMemo(() => {
@@ -460,7 +485,7 @@ export default function UnjaniOnboardingPipelinePage() {
     const q = query.trim().toLowerCase();
     return clinics.filter(
       (c) =>
-        (!stageFilter || portalOps?.pipelineStages[c.customer_id]?.key === stageFilter) &&
+        (!stageFilter || clinicPortalStage(c, portalOps?.pipelineStages) === stageFilter) &&
         (!provinceFilter || c.province === provinceFilter) &&
         (!slaFilter || slaStatus(c) === slaFilter) &&
         (!q ||
@@ -477,8 +502,8 @@ export default function UnjaniOnboardingPipelinePage() {
       let vb: string | number;
       switch (sortKey) {
         case 'stage':
-          va = STAGE_INDEX[displayStageId(a)] ?? 0;
-          vb = STAGE_INDEX[displayStageId(b)] ?? 0;
+          va = STAGE_INDEX[clinicPortalStage(a, portalOps?.pipelineStages)] ?? 0;
+          vb = STAGE_INDEX[clinicPortalStage(b, portalOps?.pipelineStages)] ?? 0;
           break;
         case 'sla':
           va = a.sla.businessDaysLeft ?? 999;
@@ -495,7 +520,7 @@ export default function UnjaniOnboardingPipelinePage() {
       return (va < vb ? -1 : va > vb ? 1 : 0) * sortDir;
     });
     return list;
-  }, [filtered, sortKey, sortDir]);
+  }, [filtered, sortKey, sortDir, portalOps]);
 
   const provinceCounts = useMemo(() => {
     const map = new Map<string, number>();
@@ -887,7 +912,7 @@ export default function UnjaniOnboardingPipelinePage() {
         `"${c.business_name}"`,
         c.province,
         `"${c.nurse_name ?? ''}"`,
-        displayStageMeta(c).label,
+        stageMeta(clinicPortalStage(c, portalOps?.pipelineStages)).label,
         st === 'err' ? 'Overdue' : st === 'warn' ? 'At risk' : st === 'ok' ? 'On track' : '',
         c.sla.businessDaysLeft ?? '',
         c.submitted_at ? new Date(c.submitted_at).toLocaleDateString('en-ZA') : '',
@@ -907,26 +932,80 @@ export default function UnjaniOnboardingPipelinePage() {
     toast.success(`CSV exported — ${sorted.length} clinics`);
   };
 
+  const advanceStage = async (
+    clinic: PipelineClinic,
+    body: Record<string, unknown>,
+    successMessage: string
+  ) => {
+    setActingOn(clinic.customer_id);
+    try {
+      const response = await fetch('/api/admin/unjani/advance-stage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ customerId: clinic.customer_id, ...body }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        toast.error(result.error || 'Failed to advance stage');
+        return false;
+      }
+      toast.success(successMessage);
+      await Promise.all([fetchPipeline(), fetchPortalOps()]);
+      return true;
+    } catch (error) {
+      console.error('Error advancing stage:', error);
+      toast.error('Failed to advance stage');
+      return false;
+    } finally {
+      setActingOn(null);
+    }
+  };
+
   const runNextAction = (clinic: PipelineClinic) => {
-    switch (clinic.stage) {
-      case 'pending':
-        sendLink(clinic, 'Invite');
+    const stage = clinicPortalStage(clinic, portalOps?.pipelineStages);
+    switch (operatorAction(stage).primary.id) {
+      case 'send_intro':
+        sendLink(clinic, 'Introduction');
         break;
-      case 'invited':
+      case 'remind':
         sendLink(clinic, 'Reminder');
         break;
-      case 'submitted':
-      case 'changes_requested':
-        if (clinic.submission_id) {
-          router.push(`/admin/b2b/vetting/${clinic.submission_id}`);
-        } else {
-          toast.info('No submission to review yet');
-        }
+      case 'confirm_details':
+        setConfirmClinic(clinic);
         break;
-      case 'docs_approved':
-      case 'billing_ready':
-        issueServiceOrder(clinic);
+      case 'book_visit':
+        setBookClinic(clinic);
+        setBookVisitDate('');
+        setBookVisitNotes('');
         break;
+      case 'go_live':
+        setGoLiveClinic(clinic);
+        setGoLiveDate('');
+        setGoLiveInstaller('');
+        setGoLiveWholesaleRef('');
+        setGoLiveNotes('');
+        break;
+      case 'done':
+        break;
+    }
+  };
+
+  const runSecondaryAction = (clinic: PipelineClinic, actionId: string) => {
+    if (actionId === 'request_changes') {
+      setChangesClinic(clinic);
+      setChangesReason('');
+      return;
+    }
+    if (actionId === 'open_kyc') {
+      if (clinic.submission_id) {
+        router.push(`/admin/b2b/vetting/${clinic.submission_id}`);
+      } else {
+        toast.info('No submission to review yet');
+      }
+      return;
+    }
+    if (actionId === 'issue_service_order') {
+      issueServiceOrder(clinic);
     }
   };
 
@@ -965,8 +1044,6 @@ export default function UnjaniOnboardingPipelinePage() {
   }
 
   const total = clinics.length;
-  const readyCount = data.stageCounts.billing_ready ?? 0;
-  const awaitingInvite = data.stageCounts.pending ?? 0;
   const portalCounts = portalOps?.stageCounts ?? emptyStageCounts();
   const portalTotal = ONBOARDING_STAGES.reduce(
     (sum, stage) => sum + (portalCounts[stage.key] ?? 0),
@@ -979,9 +1056,8 @@ export default function UnjaniOnboardingPipelinePage() {
     <AdminPage>
       <PageHeader
         title="Unjani Clinic Onboarding"
-        subtitle={`${total} clinics in pipeline · ${portalOps?.nominations.length ?? 0} nominations · ${portalOps?.activations.length ?? 0} activations · vetting target 2 business days`}
+        subtitle={`${portalTotal} clinics on the Unjani guide stages · ${portalOps?.nominations.length ?? 0} nominations to register · ${portalOps?.activations.length ?? 0} ready to go live`}
         actions={
-          opsTab === 'setup' ? (
           <>
             <div className="inline-flex rounded-md border border-gray-200 bg-white overflow-hidden">
               {(['table', 'kanban', 'register'] as const).map((v) => (
@@ -1009,48 +1085,49 @@ export default function UnjaniOnboardingPipelinePage() {
               className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
             >
               <PiPaperPlaneTiltBold className="w-4 h-4 mr-2" />
-              {batchSending ? 'Sending…' : 'Send pending invites'}
+              {batchSending ? 'Sending…' : 'Send introductions'}
             </Button>
           </>
-          ) : undefined
         }
       />
 
-      <div className="inline-flex rounded-md border border-gray-200 bg-white overflow-hidden mb-6">
-        {([
-          ['nominations', 'Nominations', portalOps?.nominations.length ?? 0],
-          ['setup', 'Setup', total],
-          ['activations', 'Activations', portalOps?.activations.length ?? 0],
-        ] as const).map(([id, label, count]) => (
-          <button
-            key={id}
-            onClick={() => setOpsTab(id)}
-            className={cn(
-              'px-4 py-2 text-sm font-semibold transition-colors inline-flex items-center gap-2',
-              opsTab === id
-                ? 'bg-circleTel-navy text-white'
-                : 'text-gray-500 hover:text-gray-900'
-            )}
-          >
-            {label}
-            <span
+      {view !== 'register' && ((portalOps?.nominations.length ?? 0) > 0 || (portalOps?.activations.length ?? 0) > 0) && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {(portalOps?.nominations.length ?? 0) > 0 && (
+            <button
+              onClick={() => setStageFilter(stageFilter === 'nominated' ? '' : 'nominated')}
               className={cn(
-                'rounded-full px-1.5 py-0.5 text-[11px] tabular-nums',
-                opsTab === id ? 'bg-white/15 text-white' : 'bg-gray-100 text-gray-600'
+                'rounded-full border px-3 py-1.5 text-xs font-semibold',
+                stageFilter === 'nominated'
+                  ? 'border-circleTel-orange bg-circleTel-orange-light text-circleTel-orange-accessible'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-circleTel-orange'
               )}
             >
-              {count}
-            </span>
-          </button>
-        ))}
-      </div>
+              {portalOps?.nominations.length} nominations to register
+            </button>
+          )}
+          {(portalOps?.activations.length ?? 0) > 0 && (
+            <button
+              onClick={() => setStageFilter(stageFilter === 'installing' ? '' : 'installing')}
+              className={cn(
+                'rounded-full border px-3 py-1.5 text-xs font-semibold',
+                stageFilter === 'installing'
+                  ? 'border-circleTel-orange bg-circleTel-orange-light text-circleTel-orange-accessible'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-circleTel-orange'
+              )}
+            >
+              {portalOps?.activations.length} sites ready to go live
+            </button>
+          )}
+        </div>
+      )}
 
-      {opsTab !== 'setup' && (
+      {view === 'table' && (stageFilter === 'nominated' || stageFilter === '') && (portalOps?.nominations.length ?? 0) > 0 && (
         <div className="mb-6">
           <PortalOpsQueues
-            tab={opsTab}
+            tab="nominations"
             nominations={portalOps?.nominations ?? []}
-            activations={portalOps?.activations ?? []}
+            activations={[]}
             organisationId={portalOps?.organisationId ?? null}
             authHeaders={authHeaders}
             onRegisterNomination={openNominationRegister}
@@ -1062,8 +1139,6 @@ export default function UnjaniOnboardingPipelinePage() {
         </div>
       )}
 
-      {opsTab === 'setup' && (
-      <>
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <StatCard
@@ -1076,7 +1151,7 @@ export default function UnjaniOnboardingPipelinePage() {
           label="Overdue SLA"
           value={data.overdueCount}
           icon={<PiWarningBold className="w-5 h-5" />}
-          description={`${awaitingInvite} still awaiting invite`}
+          description={`${portalCounts.nominated} still nominated`}
           badge={
             data.overdueCount > 0 ? (
               <span className="text-[10px] font-bold uppercase tracking-wide bg-red-100 text-red-700 rounded-full px-2 py-0.5">
@@ -1086,10 +1161,10 @@ export default function UnjaniOnboardingPipelinePage() {
           }
         />
         <StatCard
-          label="Ready to install"
-          value={readyCount}
+          label="Visit booked"
+          value={portalCounts.visit_booked}
           icon={<PiCheckCircleBold className="w-5 h-5" />}
-          description="service orders can be raised"
+          description="book the install to start survey"
         />
         <StatCard
           label="Pipeline MRR at activation"
@@ -1110,7 +1185,7 @@ export default function UnjaniOnboardingPipelinePage() {
             const count = portalCounts[s.key] ?? 0;
             const overdueInStage = clinics.filter(
               (c) =>
-                portalOps?.pipelineStages[c.customer_id]?.key === s.key &&
+                clinicPortalStage(c, portalOps?.pipelineStages) === s.key &&
                 slaStatus(c) === 'err'
             ).length;
             const selected = stageFilter === s.key;
@@ -1334,15 +1409,13 @@ export default function UnjaniOnboardingPipelinePage() {
                 </TableHeader>
                 <TableBody>
                   {sorted.map((clinic) => {
-                    const meta = displayStageMeta(clinic);
+                    const portalStage = clinicPortalStage(clinic, portalOps?.pipelineStages);
+                    const meta = stageMeta(portalStage);
                     const st = slaStatus(clinic);
-                    const stageIdx =
-                      displayStageId(clinic) === 'service_active'
-                        ? PROGRESS_STAGES.length
-                        : STAGE_INDEX[clinic.stage] ?? 0;
+                    const stageIdx = STAGE_INDEX[portalStage] ?? 0;
                     const issued = !!clinic.service_order_issued_at;
-                    const actionable = canRunPrimaryAction(clinic) &&
-                      (!issued || !['billing_ready'].includes(clinic.stage));
+                    const primaryId = operatorAction(portalStage).primary.id;
+                    const actionable = canRunPrimaryAction(portalStage);
                     return (
                       <TableRow
                         key={clinic.customer_id}
@@ -1367,22 +1440,17 @@ export default function UnjaniOnboardingPipelinePage() {
                             <span className="w-1.5 h-1.5 rounded-full bg-current" />
                             {meta.label}
                           </span>
-                          {portalOps?.pipelineStages[clinic.customer_id] && (
-                            <div className="text-[11px] text-gray-500 mt-1">
-                              {portalOps.pipelineStages[clinic.customer_id].label}
-                            </div>
-                          )}
                           <div className="flex gap-0.5 mt-1.5">
-                            {PROGRESS_STAGES.map((_, i) => (
+                            {PROGRESS_STAGES.map((s, i) => (
                               <span
-                                key={i}
+                                key={s.key}
                                 className={cn(
                                   'w-3 h-1 rounded-full',
-                                  i < stageIdx ||
-                                    clinic.stage === 'billing_ready' ||
-                                    displayStageId(clinic) === 'service_active'
+                                  i <= stageIdx && portalStage !== 'changes_requested'
                                     ? 'bg-circleTel-orange'
-                                    : 'bg-gray-200'
+                                    : portalStage === 'changes_requested' && i <= 2
+                                      ? 'bg-circleTel-orange'
+                                      : 'bg-gray-200'
                                 )}
                               />
                             ))}
@@ -1449,7 +1517,7 @@ export default function UnjaniOnboardingPipelinePage() {
                         </TableCell>
                         <TableCell className="text-right">
                           {actionable ? (
-                            clinic.stage === 'pending' || clinic.stage === 'invited' ? (
+                            primaryId === 'send_intro' || primaryId === 'remind' ? (
                               // Invite/reminder stages: split button — default WhatsApp +
                               // a caret to pick the channel (WhatsApp · Email · SMS).
                               <div className="inline-flex" onClick={(e) => e.stopPropagation()}>
@@ -1518,9 +1586,7 @@ export default function UnjaniOnboardingPipelinePage() {
                               </Button>
                             )
                           ) : (
-                            <span className="text-xs text-gray-400">
-                              {billingIsActive(clinic) ? 'Billing active' : 'Handed over'}
-                            </span>
+                            <span className="text-xs text-gray-400">Live</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -1534,28 +1600,56 @@ export default function UnjaniOnboardingPipelinePage() {
             <span>
               Showing {sorted.length} of {total} clinics
             </span>
-            <span>Vetting SLA target: 2 business days from submission</span>
+            <span>Execute the same six stages as /unjani</span>
           </div>
         </div>
       )}
 
-      {/* Kanban view (read-only — clinics move via actions) */}
+      {/* Kanban view — clinics move via operator actions that write deriveStage evidence */}
       {view === 'kanban' && (
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2 items-start">
-          {STAGES.map((s) => {
-            const cards = filtered.filter((c) => displayStageId(c) === s.id);
+          {ONBOARDING_STAGES.map((s) => {
+            const cards = filtered.filter(
+              (c) => clinicPortalStage(c, portalOps?.pipelineStages) === s.key
+            );
+            const inbox =
+              s.key === 'nominated' && (stageFilter === '' || stageFilter === 'nominated')
+                ? portalOps?.nominations ?? []
+                : [];
+            const goLiveInbox =
+              s.key === 'installing' && (stageFilter === '' || stageFilter === 'installing')
+                ? portalOps?.activations ?? []
+                : [];
             return (
               <div
-                key={s.id}
+                key={s.key}
                 className="bg-gray-50 border border-gray-200 rounded-lg p-2 min-h-[200px]"
               >
                 <div className="flex items-center justify-between px-1.5 pb-2 text-xs font-semibold text-gray-600">
-                  {s.label}
+                  {portalStageLabel(s.key)}
                   <span className="bg-white border border-gray-200 rounded-full px-2 py-0.5 tabular-nums">
-                    {cards.length}
+                    {cards.length + inbox.length + goLiveInbox.length}
                   </span>
                 </div>
                 <div className="space-y-1.5">
+                  {inbox.map((row) => (
+                    <button
+                      key={row.ticket?.id || row.coverageCheckId}
+                      onClick={() => openNominationRegister(row)}
+                      className="w-full text-left bg-white rounded-md shadow-sm p-2.5 border-l-2 hover:shadow transition-shadow"
+                      style={{ borderLeftColor: PORTAL_STAGE_COLORS.nominated }}
+                    >
+                      <div className="text-xs font-semibold text-gray-900 truncate">
+                        {row.clinicName}
+                      </div>
+                      <div className="text-[11px] text-gray-400 truncate">
+                        {row.address || 'Register clinic'}
+                      </div>
+                      <div className="text-[11px] font-semibold text-circleTel-orange-accessible mt-1">
+                        Register clinic
+                      </div>
+                    </button>
+                  ))}
                   {cards.map((clinic) => {
                     const st = slaStatus(clinic);
                     return (
@@ -1565,7 +1659,7 @@ export default function UnjaniOnboardingPipelinePage() {
                         className="w-full text-left bg-white rounded-md shadow-sm p-2.5 border-l-2 hover:shadow transition-shadow"
                         style={{
                           borderLeftColor:
-                            st === 'err' ? '#DC2626' : st === 'warn' ? '#CA8A04' : s.color,
+                            st === 'err' ? '#DC2626' : st === 'warn' ? '#CA8A04' : PORTAL_STAGE_COLORS[s.key],
                         }}
                       >
                         <div className="text-xs font-semibold text-gray-900 truncate">
@@ -1575,11 +1669,14 @@ export default function UnjaniOnboardingPipelinePage() {
                           {clinic.province || '—'}
                           {clinic.nurse_name && <> · {clinic.nurse_name}</>}
                         </div>
-                        {s.id !== 'service_active' && serviceIsActive(clinic) && (
+                        {s.key !== 'live' && serviceIsActive(clinic) && (
                           <div className="text-[11px] font-semibold text-green-600 mt-1">
                             Pilot service active
                           </div>
                         )}
+                        <div className="text-[11px] font-semibold text-circleTel-orange-accessible mt-1">
+                          {operatorAction(s.key).primary.label}
+                        </div>
                         {st !== null && (
                           <div className={cn('text-[11px] font-semibold mt-1', SLA_TEXT[st])}>
                             {slaLabel(clinic)}
@@ -1588,6 +1685,21 @@ export default function UnjaniOnboardingPipelinePage() {
                       </button>
                     );
                   })}
+                  {goLiveInbox.map((row) => (
+                    <div
+                      key={row.ticket.id}
+                      className="w-full text-left bg-white rounded-md shadow-sm p-2.5 border-l-2"
+                      style={{ borderLeftColor: PORTAL_STAGE_COLORS.installing }}
+                    >
+                      <div className="text-xs font-semibold text-gray-900 truncate">
+                        {row.clinicName}
+                      </div>
+                      <div className="text-[11px] text-gray-400 truncate">{row.siteName}</div>
+                      <div className="text-[11px] font-semibold text-circleTel-orange-accessible mt-1">
+                        Go live · {row.siteStatus}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             );
@@ -1753,7 +1865,21 @@ export default function UnjaniOnboardingPipelinePage() {
         </div>
       )}
 
-      </>
+      {view === 'table' && (stageFilter === 'installing' || stageFilter === '') && (portalOps?.activations.length ?? 0) > 0 && (
+        <div className="mt-6">
+          <PortalOpsQueues
+            tab="activations"
+            nominations={[]}
+            activations={portalOps?.activations ?? []}
+            organisationId={portalOps?.organisationId ?? null}
+            authHeaders={authHeaders}
+            onRegisterNomination={openNominationRegister}
+            onSendLink={sendLinkForNomination}
+            onRefresh={async () => {
+              await Promise.all([fetchPipeline(), fetchPortalOps()]);
+            }}
+          />
+        </div>
       )}
 
       {/* Start-onboarding dialog (Register view) */}
@@ -1770,9 +1896,8 @@ export default function UnjaniOnboardingPipelinePage() {
           <DialogHeader>
             <DialogTitle>Start onboarding — {registerDialog?.name}</DialogTitle>
             <DialogDescription>
-              Creates the clinic in the pipeline at &ldquo;Awaiting invite&rdquo;. Billing-safe:
-              no charges until the service is activated. New clinics still need coverage check →
-              install → activate before billing.
+              Creates the clinic in the pipeline at &ldquo;Clinic nominated&rdquo;. Billing-safe:
+              no charges until go-live. Next operator step is Send introduction.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -1878,13 +2003,8 @@ export default function UnjaniOnboardingPipelinePage() {
                   className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/15 text-white"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                  {displayStageMeta(drawerClinic).label}
+                  {stageMeta(clinicPortalStage(drawerClinic, portalOps?.pipelineStages)).label}
                 </span>
-                {portalOps?.pipelineStages[drawerClinic.customer_id] && (
-                  <div className="text-xs text-white/70">
-                    Portal: {portalOps.pipelineStages[drawerClinic.customer_id].label}
-                  </div>
-                )}
               </SheetHeader>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div>
@@ -2146,11 +2266,12 @@ export default function UnjaniOnboardingPipelinePage() {
                     Onboarding timeline
                   </h4>
                   <ul>
-                    {STAGES.map((s, i) => {
-                      const idx = STAGE_INDEX[displayStageId(drawerClinic)] ?? 0;
-                      const state = i < idx ? 'done' : i === idx ? 'now' : 'todo';
+                    {ONBOARDING_STAGES.map((s, i) => {
+                      const current = clinicPortalStage(drawerClinic, portalOps?.pipelineStages);
+                      const idx = STAGE_INDEX[current] ?? 0;
+                      const state = s.key === current ? 'now' : i < idx ? 'done' : 'todo';
                       return (
-                        <li key={s.id} className="relative pl-6 pb-4 text-sm last:pb-0">
+                        <li key={s.key} className="relative pl-6 pb-4 text-sm last:pb-0">
                           <span
                             className={cn(
                               'absolute left-0 top-1 w-2.5 h-2.5 rounded-full',
@@ -2160,7 +2281,7 @@ export default function UnjaniOnboardingPipelinePage() {
                               state === 'todo' && 'bg-gray-200'
                             )}
                           />
-                          {i < STAGES.length - 1 && (
+                          {i < ONBOARDING_STAGES.length - 1 && (
                             <span className="absolute left-[4.5px] top-4 bottom-0 w-px bg-gray-200" />
                           )}
                           <span
@@ -2170,15 +2291,12 @@ export default function UnjaniOnboardingPipelinePage() {
                                 : 'text-gray-600'
                             )}
                           >
-                            {s.label}
+                            {portalStageLabel(s.key)}
                           </span>
-                          {state === 'now' && drawerClinic.sla.dueDate && (
+                          {state === 'now' && (
                             <div className="text-xs text-gray-400 mt-0.5">
-                              Vetting due{' '}
-                              {new Date(drawerClinic.sla.dueDate).toLocaleDateString('en-ZA')}
-                              {drawerClinic.sla.overdue && (
-                                <span className="text-red-600 font-semibold"> · SLA breached</span>
-                              )}
+                              {operatorAction(s.key).primary.label}
+                              {s.description ? ` · ${s.description}` : ''}
                             </div>
                           )}
                         </li>
@@ -2188,8 +2306,23 @@ export default function UnjaniOnboardingPipelinePage() {
                 </div>
               </div>
               <div className="border-t border-gray-100 p-4 flex flex-col gap-2">
+                {operatorAction(clinicPortalStage(drawerClinic, portalOps?.pipelineStages)).secondary.map(
+                  (action) => (
+                    <Button
+                      key={action.id}
+                      variant="outline"
+                      className="w-full"
+                      disabled={actingOn === drawerClinic.customer_id}
+                      onClick={() => runSecondaryAction(drawerClinic, action.id)}
+                    >
+                      {action.label}
+                    </Button>
+                  )
+                )}
                 {drawerClinic.email &&
-                  !['docs_approved', 'billing_ready'].includes(drawerClinic.stage) && (
+                  ['nominated', 'introduced', 'changes_requested'].includes(
+                    clinicPortalStage(drawerClinic, portalOps?.pipelineStages)
+                  ) && (
                     <Button
                       variant="outline"
                       className="w-full"
@@ -2199,46 +2332,26 @@ export default function UnjaniOnboardingPipelinePage() {
                     >
                       {actingOn === drawerClinic.customer_id
                         ? 'Working…'
-                        : '✉️ Email onboarding link'}
+                        : 'Email onboarding link'}
                     </Button>
                   )}
-                {!['mandate_active', 'billing_ready'].includes(drawerClinic.stage) && (
+                {canRunPrimaryAction(clinicPortalStage(drawerClinic, portalOps?.pipelineStages)) ? (
                   <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setUploadFor(drawerClinic)}
+                    className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+                    disabled={actingOn === drawerClinic.customer_id}
+                    onClick={() => runNextAction(drawerClinic)}
                   >
-                    📎 Upload documents
+                    {actingOn === drawerClinic.customer_id
+                      ? 'Working…'
+                      : operatorAction(
+                          clinicPortalStage(drawerClinic, portalOps?.pipelineStages)
+                        ).primary.label}
                   </Button>
+                ) : (
+                  <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-center text-sm font-semibold text-green-700">
+                    Site live
+                  </div>
                 )}
-                <div className="flex gap-2">
-                  {drawerClinic.submission_id && (
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() =>
-                        router.push(`/admin/b2b/vetting/${drawerClinic.submission_id}`)
-                      }
-                    >
-                      View submission
-                    </Button>
-                  )}
-                  {canRunPrimaryAction(drawerClinic) ? (
-                    <Button
-                      className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
-                      disabled={actingOn === drawerClinic.customer_id}
-                      onClick={() => runNextAction(drawerClinic)}
-                    >
-                      {actingOn === drawerClinic.customer_id
-                        ? 'Working…'
-                        : stageMeta(drawerClinic.stage).action}
-                    </Button>
-                  ) : (
-                    <div className="flex-1 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-center text-sm font-semibold text-green-700">
-                      {billingIsActive(drawerClinic) ? 'Billing active' : 'Service order issued'}
-                    </div>
-                  )}
-                </div>
               </div>
             </>
           )}
@@ -2297,17 +2410,202 @@ export default function UnjaniOnboardingPipelinePage() {
         </SheetContent>
       </Sheet>
 
-      {uploadFor && (
-        <UploadDocumentModal
-          open={!!uploadFor}
-          onOpenChange={(o) => { if (!o) setUploadFor(null); }}
-          customerId={uploadFor.customer_id}
-          clinicName={uploadFor.business_name}
-          submissionId={uploadFor.submission_id ?? undefined}
-          authHeaders={authHeaders}
-          onUploaded={(count) => { if (count > 0) fetchPipeline(); }}
-        />
-      )}
+      <Dialog open={!!confirmClinic} onOpenChange={(open) => { if (!open) setConfirmClinic(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm clinic details</DialogTitle>
+            <DialogDescription>
+              Marks {confirmClinic?.business_name} as details confirmed. This books the
+              installation-visit step on /unjani.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmClinic(null)}>Cancel</Button>
+            <Button
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+              disabled={!!confirmClinic && actingOn === confirmClinic.customer_id}
+              onClick={async () => {
+                if (!confirmClinic) return;
+                const ok = await advanceStage(
+                  confirmClinic,
+                  { action: 'confirm_details' },
+                  `Details confirmed for ${confirmClinic.business_name}`
+                );
+                if (ok) setConfirmClinic(null);
+              }}
+            >
+              Confirm details
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!changesClinic} onOpenChange={(open) => { if (!open) setChangesClinic(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request changes</DialogTitle>
+            <DialogDescription>
+              The clinic stays on step 3 until they resubmit corrected details.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">What needs correcting?</label>
+            <Input
+              value={changesReason}
+              onChange={(e) => setChangesReason(e.target.value)}
+              placeholder="e.g. Street number is wrong"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setChangesClinic(null)}>Cancel</Button>
+            <Button
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+              disabled={!changesReason.trim() || (!!changesClinic && actingOn === changesClinic.customer_id)}
+              onClick={async () => {
+                if (!changesClinic) return;
+                const ok = await advanceStage(
+                  changesClinic,
+                  { action: 'request_changes', reason: changesReason },
+                  `Changes requested for ${changesClinic.business_name}`
+                );
+                if (ok) setChangesClinic(null);
+              }}
+            >
+              Request changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!bookClinic} onOpenChange={(open) => { if (!open) setBookClinic(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Book installation visit</DialogTitle>
+            <DialogDescription>
+              Agree a date with the on-site contact. Avoid the 25th to the 7th. This creates the
+              pending site and moves the clinic to survey, install and test.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium text-gray-700">Visit date</label>
+              <Input
+                type="date"
+                value={bookVisitDate}
+                onChange={(e) => setBookVisitDate(e.target.value)}
+                className="mt-1"
+              />
+              {bookVisitDate && isVisitWindowBlocked(bookVisitDate) && (
+                <p className="text-xs text-red-600 mt-1">
+                  Choose a date outside the 25th–7th window.
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Notes</label>
+              <Input
+                value={bookVisitNotes}
+                onChange={(e) => setBookVisitNotes(e.target.value)}
+                placeholder="Access instructions, contact on the day…"
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBookClinic(null)}>Cancel</Button>
+            <Button
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+              disabled={
+                !bookVisitDate ||
+                isVisitWindowBlocked(bookVisitDate) ||
+                (!!bookClinic && actingOn === bookClinic.customer_id)
+              }
+              onClick={async () => {
+                if (!bookClinic) return;
+                const ok = await advanceStage(
+                  bookClinic,
+                  { action: 'book_visit', visitDate: bookVisitDate, notes: bookVisitNotes },
+                  `Visit booked for ${bookClinic.business_name}`
+                );
+                if (ok) setBookClinic(null);
+              }}
+            >
+              Book visit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!goLiveClinic} onOpenChange={(open) => { if (!open) setGoLiveClinic(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Go live</DialogTitle>
+            <DialogDescription>
+              Issues the Ready for Service date. The free first month starts on go-live.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium text-gray-700">Go-live date</label>
+              <Input
+                type="date"
+                value={goLiveDate}
+                onChange={(e) => setGoLiveDate(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Installer</label>
+              <Input
+                value={goLiveInstaller}
+                onChange={(e) => setGoLiveInstaller(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Wholesale order ref</label>
+              <Input
+                value={goLiveWholesaleRef}
+                onChange={(e) => setGoLiveWholesaleRef(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Notes</label>
+              <Input
+                value={goLiveNotes}
+                onChange={(e) => setGoLiveNotes(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setGoLiveClinic(null)}>Cancel</Button>
+            <Button
+              className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
+              disabled={!!goLiveClinic && actingOn === goLiveClinic.customer_id}
+              onClick={async () => {
+                if (!goLiveClinic) return;
+                const ok = await advanceStage(
+                  goLiveClinic,
+                  {
+                    action: 'go_live',
+                    installedAt: goLiveDate || undefined,
+                    installedBy: goLiveInstaller || undefined,
+                    wholesaleOrderRef: goLiveWholesaleRef || undefined,
+                    notes: goLiveNotes || undefined,
+                  },
+                  `${goLiveClinic.business_name} is live`
+                );
+                if (ok) setGoLiveClinic(null);
+              }}
+            >
+              Go live
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </AdminPage>
   );
 }
