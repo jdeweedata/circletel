@@ -146,7 +146,7 @@ export default function PortalTeamPage() {
             placeholder="Display name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="px-3 py-2 text-sm bg-white"
+            className="min-h-11 px-3 py-2 text-sm bg-white"
             style={{ border: '1px solid var(--pm-divider)', color: 'var(--pm-body)' }}
           />
           <input
@@ -155,14 +155,14 @@ export default function PortalTeamPage() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="px-3 py-2 text-sm bg-white"
+            className="min-h-11 px-3 py-2 text-sm bg-white"
             style={{ border: '1px solid var(--pm-divider)', color: 'var(--pm-body)' }}
           />
           <select
             required
             value={siteId}
             onChange={(e) => setSiteId(e.target.value)}
-            className="px-3 py-2 text-sm bg-white"
+            className="min-h-11 px-3 py-2 text-sm bg-white"
             style={{ border: '1px solid var(--pm-divider)', color: 'var(--pm-body)' }}
           >
             <option value="">Select site…</option>

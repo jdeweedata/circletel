@@ -66,7 +66,7 @@ export default function PortalCoverageMap({
   onLayerChange,
   onSelectClinic,
   onPickLocation,
-  height = '520px',
+  height,
 }: PortalCoverageMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -161,6 +161,19 @@ export default function PortalCoverageMap({
 
   useEffect(() => {
     const map = mapRef.current;
+    const el = containerRef.current;
+    if (!map || !ready || !el || !window.google?.maps) return;
+    const triggerResize = () => {
+      window.google.maps.event.trigger(map, 'resize');
+    };
+    const observer = new ResizeObserver(triggerResize);
+    observer.observe(el);
+    triggerResize();
+    return () => observer.disconnect();
+  }, [ready]);
+
+  useEffect(() => {
+    const map = mapRef.current;
     if (!map || !window.google?.maps) return;
 
     markersRef.current.forEach((marker) => marker.setMap(null));
@@ -229,7 +242,7 @@ export default function PortalCoverageMap({
   if (error) {
     return (
       <div
-        className="flex items-center justify-center text-sm"
+        className="flex items-center justify-center text-sm h-[min(55dvh,380px)] sm:h-[480px] lg:h-[520px]"
         style={{ height, color: 'var(--pm-body)' }}
       >
         Map could not load. You can still use the clinic list.
@@ -237,60 +250,76 @@ export default function PortalCoverageMap({
     );
   }
 
-  return (
-    <div className="relative" style={{ height }}>
-      <div ref={containerRef} className="h-full w-full" />
-      {!ready && (
-        <div
-          className="absolute inset-0 flex items-center justify-center text-sm bg-white/80"
-          style={{ color: 'var(--pm-body)' }}
+  const layerButtons = (placement: 'mobile' | 'desktop') =>
+    LAYERS.map((layer) => {
+      const on = activeLayer === layer.id;
+      return (
+        <button
+          key={`${placement}-${layer.id}`}
+          type="button"
+          onClick={() => onLayerChange(layer.id)}
+          className={
+            placement === 'mobile'
+              ? 'min-h-11 shrink-0 rounded-md px-3 py-2 text-xs font-extrabold shadow-sm ring-1 ring-black/[0.08]'
+              : 'rounded-md px-3 py-1.5 text-xs font-extrabold shadow-sm ring-1 ring-black/[0.08]'
+          }
+          style={{
+            background: on ? layer.active : layer.idle,
+            color: on ? layer.text : '#2563C9',
+          }}
         >
-          Loading map…
-        </div>
-      )}
+          {layer.label}
+        </button>
+      );
+    });
 
-      <div className="absolute left-3 top-3 right-16 z-10">
-        <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 shadow-sm ring-1 ring-black/[0.08]">
-          <PiMagnifyingGlassBold className="h-4 w-4 shrink-0" style={{ color: '#6B7280' }} />
-          <input
-            ref={inputRef}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search for a clinic or new address"
-            className="w-full bg-transparent text-sm outline-none"
-            style={{ color: 'var(--pm-navy)' }}
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch('')}
-              className="shrink-0"
-              aria-label="Clear search"
-            >
-              <PiXBold className="h-4 w-4" style={{ color: '#6B7280' }} />
-            </button>
-          )}
+  return (
+    <div>
+      <div
+        className="relative h-[min(55dvh,380px)] sm:h-[480px] lg:h-[520px]"
+        style={height ? { height } : undefined}
+      >
+        <div ref={containerRef} className="h-full w-full" />
+        {!ready && (
+          <div
+            className="absolute inset-0 flex items-center justify-center text-sm bg-white/80"
+            style={{ color: 'var(--pm-body)' }}
+          >
+            Loading map…
+          </div>
+        )}
+
+        <div className="absolute left-3 top-3 right-3 z-10 sm:right-28">
+          <div className="flex min-h-11 items-center gap-2 rounded-lg bg-white px-3 py-2 shadow-sm ring-1 ring-black/[0.08]">
+            <PiMagnifyingGlassBold className="h-4 w-4 shrink-0" style={{ color: '#6B7280' }} />
+            <input
+              ref={inputRef}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search for a clinic or new address"
+              className="w-full min-w-0 bg-transparent text-sm outline-none"
+              style={{ color: 'var(--pm-navy)' }}
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center"
+                aria-label="Clear search"
+              >
+                <PiXBold className="h-4 w-4" style={{ color: '#6B7280' }} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="absolute right-3 top-3 z-10 hidden flex-col gap-1 sm:flex">
+          {layerButtons('desktop')}
         </div>
       </div>
 
-      <div className="absolute right-3 top-3 z-10 flex flex-col gap-1">
-        {LAYERS.map((layer) => {
-          const on = activeLayer === layer.id;
-          return (
-            <button
-              key={layer.id}
-              type="button"
-              onClick={() => onLayerChange(layer.id)}
-              className="rounded-md px-3 py-1.5 text-xs font-extrabold shadow-sm ring-1 ring-black/[0.08] transition-colors"
-              style={{
-                background: on ? layer.active : layer.idle,
-                color: on ? layer.text : '#2563C9',
-              }}
-            >
-              {layer.label}
-            </button>
-          );
-        })}
+      <div className="flex gap-1 overflow-x-auto px-3 py-2 sm:hidden">
+        {layerButtons('mobile')}
       </div>
     </div>
   );

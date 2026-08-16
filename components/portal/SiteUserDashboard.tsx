@@ -197,8 +197,8 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
           </div>
           <ul className="divide-y">
             {activeAlerts.map((alert) => (
-              <li key={alert.id} className="px-4 py-3 flex items-center justify-between">
-                <div>
+              <li key={alert.id} className="px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-900">{alert.message}</p>
                   <p className="text-xs text-gray-500">{new Date(alert.created_at).toLocaleString('en-ZA')}</p>
                 </div>

@@ -227,7 +227,7 @@ export default function SiteListTable() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search clinics"
-              className="flex-1 rounded-lg bg-white px-3 py-2 text-sm"
+              className="min-h-11 w-full flex-1 rounded-lg bg-white px-3 py-2 text-sm"
               style={{
                 border: '1px solid var(--pm-divider)',
                 color: 'var(--pm-navy)',
@@ -236,7 +236,7 @@ export default function SiteListTable() {
             <select
               value={province}
               onChange={(e) => setProvince(e.target.value)}
-              className="rounded-lg bg-white px-3 py-2 text-sm"
+              className="min-h-11 w-full rounded-lg bg-white px-3 py-2 text-sm sm:w-auto"
               style={{
                 border: '1px solid var(--pm-divider)',
                 color: 'var(--pm-navy)',
@@ -326,7 +326,7 @@ export default function SiteListTable() {
           </RuledTable>
 
           {totalPages > 1 && (
-            <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs" style={{ color: '#6B7280' }}>
                 Showing {(currentPage - 1) * PAGE_SIZE + 1}–
                 {Math.min(currentPage * PAGE_SIZE, visible.length)} of {visible.length}

@@ -221,7 +221,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
 
       <div className="pt-24 grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,1fr)]">
         <section>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p
               className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
               style={{ color: 'var(--pm-navy)' }}

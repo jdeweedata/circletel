@@ -78,7 +78,7 @@ export default function HealthTrendChart({ siteId }: HealthTrendChartProps) {
             <button
               key={r}
               onClick={() => setRange(r)}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+              className={`min-h-11 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 range === r
                   ? 'bg-circleTel-orange text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
