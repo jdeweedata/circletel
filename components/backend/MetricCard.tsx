@@ -32,13 +32,13 @@ export function MetricCard({
   className,
 }: MetricCardProps) {
   return (
-    <Card className={cn('border border-slate-200/80 shadow-sm rounded-xl bg-white', className)}>
+    <Card data-pm="metric-card" className={cn('border border-slate-200/80 shadow-sm rounded-xl bg-white', className)}>
       <CardHeader className="pb-2 space-y-0">
-        <CardTitle className="text-sm font-medium text-slate-500">{title}</CardTitle>
+        <CardTitle data-pm="metric-label" className="text-sm font-medium text-slate-500">{title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div>
-          <p className="text-3xl font-semibold tracking-tight text-slate-900">{value}</p>
+          <p data-pm="metric-value" className="text-3xl font-semibold tracking-tight text-slate-900">{value}</p>
           {subtitle ? <p className="text-xs text-slate-500 mt-1">{subtitle}</p> : null}
           {delta ? (
             <p

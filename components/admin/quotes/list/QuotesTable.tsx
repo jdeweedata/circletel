@@ -4,10 +4,11 @@ import {
   PiFileTextBold,
   PiCaretRightBold,
   PiBuildingsBold,
-  PiSpinnerBold
 } from 'react-icons/pi';
 import { StatusBadge } from '@/components/admin/shared';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState, LoadingState } from '@/components/backend';
+import { RuledTable } from '@/components/portal/modernist/PortalModernistShell';
 import type { BusinessQuote } from '@/lib/quotes/types';
 
 interface QuoteWithDetails extends BusinessQuote {
@@ -62,112 +63,92 @@ function formatDate(dateStr: string): string {
 
 export function QuotesTable({ quotes, loading, onRowClick }: QuotesTableProps) {
   if (loading) {
-    return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 py-24 flex flex-col items-center justify-center">
-        <PiSpinnerBold className="w-8 h-8 animate-spin text-primary mb-4" />
-        <p className="text-slate-500 font-medium">Loading quotes...</p>
-      </div>
-    );
+    return <LoadingState message="Loading quotes…" />;
   }
 
   if (quotes.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 py-16 flex flex-col items-center justify-center">
-        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
-          <PiFileTextBold className="w-8 h-8 text-slate-400" />
-        </div>
-        <p className="text-slate-600 font-medium text-lg">No quotes found</p>
-        <p className="text-slate-400 text-sm mt-1">Try adjusting your filters or search term</p>
-      </div>
+      <EmptyState
+        icon={<PiFileTextBold />}
+        title="No quotes found"
+        description="Try adjusting your filters or search term"
+      />
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50/80 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-              <th className="px-6 py-4">Quote Details</th>
-              <th className="px-6 py-4">Customer</th>
-              <th className="px-6 py-4">Status & Dates</th>
-              <th className="px-6 py-4 text-right">Value</th>
-              <th className="px-6 py-4 w-12 text-center text-slate-300">
-                <PiCaretRightBold className="w-4 h-4 mx-auto" />
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {quotes.map((quote) => {
-              const statusConfig = getStatusConfig(quote.status);
-              
-              return (
-                <tr
-                  key={quote.id}
-                  onClick={() => onRowClick(quote.id)}
-                  className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+    <RuledTable headers={['Quote details', 'Customer', 'Status & dates', 'Value', ' ']}>
+      {quotes.map((quote) => {
+        const statusConfig = getStatusConfig(quote.status);
+
+        return (
+          <tr
+            key={quote.id}
+            onClick={() => onRowClick(quote.id)}
+            className="cursor-pointer hover:bg-[color-mix(in_srgb,#13274A_4%,#FFFFFF)]"
+            style={{ borderBottom: '1px solid var(--pm-divider)' }}
+          >
+            <td className="px-4 py-3 align-top">
+              <p className="font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                {quote.quote_number}
+              </p>
+              <p className="mt-1 text-xs" style={{ color: '#6B7280' }}>
+                {quote.item_count} items • {quote.contract_term} mos
+              </p>
+            </td>
+
+            <td className="px-4 py-3 align-top">
+              <div className="mb-1 flex items-center gap-1.5">
+                <PiBuildingsBold className="h-3.5 w-3.5" style={{ color: '#9CA3AF' }} />
+                <span className="text-sm font-medium" style={{ color: 'var(--pm-navy)' }}>
+                  {quote.company_name}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs" style={{ color: '#6B7280' }}>
+                  {quote.contact_name}
+                </span>
+                <Badge
+                  variant="outline"
+                  className="h-5 text-[10px] font-medium uppercase shadow-none hover:bg-transparent"
                 >
-                  <td className="px-6 py-4 align-top">
-                    <div>
-                      <p className="font-bold text-slate-900 group-hover:text-primary transition-colors">
-                        {quote.quote_number}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {quote.item_count} items • {quote.contract_term} mos
-                      </p>
-                    </div>
-                  </td>
+                  {quote.customer_type}
+                </Badge>
+              </div>
+            </td>
 
-                  <td className="px-6 py-4 align-top">
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <PiBuildingsBold className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="font-medium text-slate-900 text-sm">{quote.company_name}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-500 text-xs">{quote.contact_name}</span>
-                        <Badge variant="outline" className="text-[10px] uppercase shadow-none font-medium h-5 hover:bg-transparent">
-                          {quote.customer_type}
-                        </Badge>
-                      </div>
-                    </div>
-                  </td>
+            <td className="px-4 py-3 align-top">
+              <div className="flex flex-col items-start gap-1.5">
+                <StatusBadge
+                  status={statusConfig.label}
+                  className={statusConfig.className}
+                />
+                <span className="text-xs font-medium" style={{ color: '#6B7280' }} title="Created date">
+                  {formatDate(quote.created_at)}
+                </span>
+              </div>
+            </td>
 
-                  <td className="px-6 py-4 align-top">
-                    <div className="flex flex-col items-start gap-1.5">
-                      <StatusBadge
-                        status={statusConfig.label}
-                        className={statusConfig.className}
-                      />
-                      <span className="text-xs text-slate-500 font-medium tooltip" title="Created date">
-                        {formatDate(quote.created_at)}
-                      </span>
-                    </div>
-                  </td>
+            <td className="px-4 py-3 align-top text-right">
+              <p className="font-extrabold tabular-nums" style={{ color: 'var(--pm-navy)' }}>
+                {formatCurrency(quote.total_monthly)}
+                <span className="ml-0.5 text-xs font-normal" style={{ color: '#6B7280' }}>
+                  /mo
+                </span>
+              </p>
+              {quote.total_installation > 0 && (
+                <p className="mt-1 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium" style={{ color: '#6B7280' }}>
+                  + {formatCurrency(quote.total_installation)} once-off
+                </p>
+              )}
+            </td>
 
-                  <td className="px-6 py-4 align-top text-right">
-                    <div>
-                      <p className="font-bold text-slate-900">
-                        {formatCurrency(quote.total_monthly)}
-                        <span className="text-xs text-slate-500 font-normal ml-0.5">/mo</span>
-                      </p>
-                      {quote.total_installation > 0 && (
-                        <p className="text-xs text-slate-500 mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded-full inline-block">
-                          + {formatCurrency(quote.total_installation)} once-off
-                        </p>
-                      )}
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4 align-middle text-center">
-                    <PiCaretRightBold className="w-5 h-5 text-slate-400 group-hover:text-primary transition-colors mx-auto" />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+            <td className="px-4 py-3 align-middle text-center">
+              <PiCaretRightBold className="mx-auto h-5 w-5" style={{ color: 'var(--pm-navy)', opacity: 0.4 }} />
+            </td>
+          </tr>
+        );
+      })}
+    </RuledTable>
   );
 }

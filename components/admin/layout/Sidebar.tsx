@@ -12,6 +12,7 @@ import {
   PiWrenchBold,
 } from 'react-icons/pi';
 import type { IconType } from 'react-icons';
+import type { CSSProperties } from 'react';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -71,6 +72,12 @@ const WORKSPACE_ICON: Record<WorkspaceId, IconType> = {
  * wrapper so the hover-bridge (icon→panel without a dead-zone) still works, and
  * it re-reads the rect on scroll/resize while open.
  */
+function pmNavStyle(active: boolean): CSSProperties {
+  return active
+    ? { background: 'var(--pm-navy)', color: '#FFFFFF', fontWeight: 800 }
+    : { color: 'var(--pm-navy)' };
+}
+
 function CollapsedFlyout({
   item,
   isActiveLink,
@@ -122,7 +129,7 @@ function CollapsedFlyout({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={item.name}
-        className="flex w-full items-center justify-center rounded-lg px-0 py-2.5 text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+        className="flex w-full items-center justify-center rounded-lg px-0 py-2.5 pm-nav-item transition-colors"
       >
         <item.icon className="h-5 w-5 flex-shrink-0" />
       </button>
@@ -138,8 +145,11 @@ function CollapsedFlyout({
             : 'pointer-events-none invisible -translate-x-1 opacity-0'
         )}
       >
-        <div className="rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
-          <p className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+        <div className="rounded-lg border bg-white p-1 shadow-lg" style={{ borderColor: 'var(--pm-divider)' }}>
+          <p
+            className="px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.08em]"
+            style={{ color: 'var(--pm-navy)' }}
+          >
             {item.name}
           </p>
           {item.children.map((child) => (
@@ -147,12 +157,9 @@ function CollapsedFlyout({
               key={child.href}
               href={child.href}
               role="menuitem"
-              className={cn(
-                'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-                isActiveLink(child.href)
-                  ? 'bg-gray-100 text-gray-900 font-medium'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              )}
+              data-active={isActiveLink(child.href) ? 'true' : undefined}
+              className="pm-nav-item flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
+              style={pmNavStyle(isActiveLink(child.href))}
             >
               <child.icon className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{child.name}</span>
@@ -249,16 +256,17 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
     <TooltipProvider delayDuration={300}>
       <div
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
+          'fixed inset-y-0 left-0 z-50 flex flex-col bg-white transition-all duration-300',
           'lg:relative lg:z-auto',
           isOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 lg:w-16',
           'lg:flex lg:flex-shrink-0',
           'print:hidden'
         )}
+        style={{ borderRight: '2px solid var(--pm-divider)' }}
         data-testid="sidebar"
       >
         {/* Header */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
+        <div className="flex h-16 items-center justify-between px-4" style={{ borderBottom: '2px solid var(--pm-divider)' }}>
           {isOpen && (
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 flex items-center justify-center">
@@ -270,7 +278,7 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                   className="h-full w-full object-contain"
                 />
               </div>
-              <span className="font-semibold text-gray-900">Admin Panel</span>
+              <span className="font-extrabold" style={{ color: 'var(--pm-navy)' }}>Admin Panel</span>
             </div>
           )}
           <button
@@ -287,16 +295,17 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
         </div>
 
         {/* Workspace switcher */}
-        <div className="relative border-b border-gray-200 px-2 py-2">
+        <div className="relative px-2 py-2" style={{ borderBottom: '2px solid var(--pm-divider)' }}>
           <button
             ref={switcherBtnRef}
             onClick={() => setSwitcherOpen((o) => !o)}
             aria-label="Switch workspace"
             aria-expanded={switcherOpen}
             className={cn(
-              'flex w-full items-center gap-2 rounded-lg py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50',
+              'pm-nav-item flex w-full items-center gap-2 rounded-lg py-2 text-sm font-medium transition-colors',
               isOpen ? 'px-3' : 'justify-center px-0'
             )}
+            style={{ color: 'var(--pm-navy)' }}
           >
             <ActiveIcon className="h-5 w-5 flex-shrink-0 text-[#F5841E]" />
             {isOpen && (
@@ -314,10 +323,14 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
               <div className="fixed inset-0 z-40" onClick={() => setSwitcherOpen(false)} aria-hidden />
               <div
                 className={cn(
-                  'rounded-lg border border-gray-200 bg-white p-1 shadow-lg',
+                  'rounded-lg border bg-white p-1 shadow-lg',
                   isOpen ? 'absolute z-50 inset-x-2 top-full mt-1' : 'fixed z-[60] ml-2 w-56'
                 )}
-                style={!isOpen ? { top: switcherCoords.top, left: switcherCoords.left } : undefined}
+                style={
+                  !isOpen
+                    ? { top: switcherCoords.top, left: switcherCoords.left, borderColor: 'var(--pm-divider)' }
+                    : { borderColor: 'var(--pm-divider)' }
+                }
                 role="menu"
               >
                 {workspaces.map((w) => {
@@ -330,12 +343,9 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                         setActiveWs(w.id);
                         setSwitcherOpen(false);
                       }}
-                      className={cn(
-                        'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-                        w.id === active?.id
-                          ? 'bg-gray-100 text-gray-900 font-medium'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      )}
+                      data-active={w.id === active?.id ? 'true' : undefined}
+                      className="pm-nav-item flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
+                      style={pmNavStyle(w.id === active?.id)}
                     >
                       <Icon className="h-4 w-4 flex-shrink-0" />
                       <span className="flex-1 text-left truncate">{w.label}</span>
@@ -358,7 +368,8 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                   <div className="space-y-1">
                     <button
                       onClick={() => toggleDropdown(item.name)}
-                      className="flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 cursor-pointer transition-all"
+                      className="pm-nav-item flex w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
+                      style={{ color: 'var(--pm-navy)' }}
                     >
                       <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
                       <span className="flex-1 text-left">{item.name}</span>
@@ -375,12 +386,9 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                           <Link
                             key={child.href}
                             href={child.href}
-                            className={cn(
-                              'flex items-center px-3 py-2 text-sm rounded-lg transition-all',
-                              isActiveLink(child.href)
-                                ? 'bg-gray-100 text-gray-900 font-medium'
-                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                            )}
+                            className="pm-nav-item flex items-center rounded-lg px-3 py-2 text-sm transition-all"
+                            data-active={isActiveLink(child.href) ? 'true' : undefined}
+                            style={pmNavStyle(isActiveLink(child.href))}
                           >
                             <child.icon className="mr-2 h-4 w-4" />
                             {child.name}
@@ -395,12 +403,9 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                   <TooltipTrigger asChild>
                     <Link
                       href={item.href}
-                      className={cn(
-                        'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                        isActiveLink(item.href, item.end)
-                          ? 'bg-gray-100 text-gray-900 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      )}
+                      className="pm-nav-item flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
+                      data-active={isActiveLink(item.href, item.end) ? 'true' : undefined}
+                      style={pmNavStyle(isActiveLink(item.href, item.end))}
                     >
                       <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
                       {isOpen && <span className="flex-1">{item.name}</span>}
@@ -419,16 +424,16 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
 
         {/* User info */}
         {isOpen && (
-          <div className="border-t border-gray-200 p-4">
+          <div className="p-4" style={{ borderTop: '2px solid var(--pm-divider)' }}>
             <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium text-gray-700">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: 'var(--pm-surface)' }}>
+                <span className="text-sm font-extrabold" style={{ color: 'var(--pm-navy)' }}>
                   {user?.full_name?.charAt(0) || 'U'}
                 </span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user?.full_name}</p>
-                <p className="text-xs text-gray-500 truncate">{user?.role?.replace('_', ' ')}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-extrabold" style={{ color: 'var(--pm-navy)' }}>{user?.full_name}</p>
+                <p className="truncate text-xs" style={{ color: 'var(--pm-body)' }}>{user?.role?.replace('_', ' ')}</p>
               </div>
             </div>
           </div>

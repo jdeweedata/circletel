@@ -28,6 +28,7 @@ const SECTIONS: Array<{ id: WorkspaceSection; label: string; icon: React.ReactNo
 /**
  * Product Workspace — single home for product management.
  * Left rail switches sections; the catalogue section is the unified console.
+ * Tokens come from AdminLayoutClient (Unjani --pm-* / Archivo).
  */
 export function ProductWorkspace() {
   const router = useRouter();
@@ -50,26 +51,37 @@ export function ProductWorkspace() {
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
-      <aside className="w-52 shrink-0 border-r border-ui-border bg-white p-3">
-        <p className="px-2 pb-2 text-xs font-bold uppercase tracking-wide text-ui-text-muted">
+      <aside
+        className="w-52 shrink-0 bg-white p-3"
+        style={{ borderRight: '2px solid var(--pm-divider)' }}
+      >
+        <p
+          className="px-2 pb-2 text-xs font-extrabold uppercase tracking-[0.08em]"
+          style={{ color: 'var(--pm-navy)' }}
+        >
           Product Workspace
         </p>
         <nav className="space-y-1">
-          {SECTIONS.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => switchSection(s.id)}
-              className={cn(
-                'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
-                section === s.id
-                  ? 'bg-circleTel-orange/10 text-circleTel-orange'
-                  : 'text-ui-text-secondary hover:bg-slate-50'
-              )}
-            >
-              {s.icon}
-              {s.label}
-            </button>
-          ))}
+          {SECTIONS.map((s) => {
+            const active = section === s.id;
+            return (
+              <button
+                key={s.id}
+                onClick={() => switchSection(s.id)}
+                className={cn(
+                  'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition-colors'
+                )}
+                style={{
+                  background: active ? 'var(--pm-navy)' : 'transparent',
+                  color: active ? '#FFFFFF' : 'var(--pm-navy)',
+                  fontWeight: active ? 800 : 500,
+                }}
+              >
+                {s.icon}
+                {s.label}
+              </button>
+            );
+          })}
         </nav>
       </aside>
       <main className="min-w-0 flex-1">
