@@ -53,13 +53,13 @@ const PLANS = [
     uploadSpeed: '25',
     price: 1499,
     popular: true,
-    features: [
-      'Static IP address',
-      'Truly uncapped — no FUP',
-      'Priority business support',
-      'Month-to-month',
-      'Wi-Fi 6 router included',
-    ],
+                features: [
+                  'Static IP address',
+                  'Truly uncapped — no FUP',
+                  'Priority business support',
+                  '24-month contract',
+                  'Managed router included',
+                ],
     href: '/order/coverage?product=skyfibre-smb&tier=100',
   },
   {

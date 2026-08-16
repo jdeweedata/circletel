@@ -107,6 +107,8 @@ export type SkuCostComponent = {
   amortised_monthly_cost: number | null;
   monthly_amount: number;
   sort_order: number;
+  is_optional: boolean;
+  hardware_model: string | null;
 };
 
 export type SkuContributionView = {

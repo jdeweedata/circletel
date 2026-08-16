@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       const { data } = await supabase
         .from('product_cost_components')
         .select(
-          'id, name, category, cost_amount, recurrence, amortisation_months, amortised_monthly_cost, sort_order'
+          'id, name, category, cost_amount, recurrence, amortisation_months, amortised_monthly_cost, sort_order, is_optional, hardware_model'
         )
         .eq('package_id', id)
         .order('sort_order');
@@ -99,8 +99,11 @@ export async function GET(request: NextRequest) {
             recurrence: String(row.recurrence),
             cost_amount,
             amortised_monthly_cost,
+            is_optional: Boolean(row.is_optional),
           }),
           sort_order: Number(row.sort_order ?? 0),
+          is_optional: Boolean(row.is_optional),
+          hardware_model: row.hardware_model == null ? null : String(row.hardware_model),
         };
       });
     }

@@ -41,6 +41,14 @@ const TABS: Array<{ value: DetailTab; label: string }> = [
 ];
 
 const CARD = 'rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-black/[0.06]';
+const HEADER_CHIP = 'h-6 py-0 text-xs font-medium leading-none';
+
+function contractMonths(product: UnifiedProduct): number | null {
+  const meta = product.raw.metadata;
+  if (!meta || typeof meta !== 'object') return null;
+  const n = Number((meta as { contract_months?: unknown }).contract_months);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
 
 function zar(n: number | null | undefined, digits = 0): string {
   if (n == null) return '—';
@@ -209,10 +217,10 @@ export function UnifiedProductDetailPage({
         title={product.name}
         subtitle={`${product.type}${product.technology ? ` · ${product.technology}` : ''} · ${product.status}`}
         actions={
-          <>
-            <ProductSourceChip source={product.source} />
+          <div className="flex flex-wrap items-center gap-2">
+            <ProductSourceChip source={product.source} className={HEADER_CHIP} />
             <SellabilityBadge gate={docsGate} />
-            {evaluation && <RuleHealthBadge summary={evaluation.summary} />}
+            {evaluation && <RuleHealthBadge summary={evaluation.summary} className={HEADER_CHIP} />}
             {product.sourceTable === 'admin_products' ? (
               <PmButton variant="secondary" onClick={() => router.push(`/admin/products/${product.id}/edit`)}>
                 Edit
@@ -231,7 +239,7 @@ export function UnifiedProductDetailPage({
                 {publishing ? 'Publishing…' : blocked ? 'Blocked by rules' : 'Publish'}
               </PmButton>
             )}
-          </>
+          </div>
         }
       />
 
@@ -317,6 +325,10 @@ function OverviewTab({
         <Row label="Type" value={product.type} />
         <Row label="Technology" value={product.technology ?? '—'} />
         <Row label="Category" value={product.category} />
+        <Row
+          label="Contract"
+          value={contractMonths(product) ? `${contractMonths(product)} months` : '—'}
+        />
         <Row label="Channels" value={product.channels.length ? product.channels.join(', ') : '—'} />
       </dl>
       {product.tags.length > 0 && (
@@ -340,11 +352,9 @@ function SellabilityBadge({ gate }: { gate: LifecycleGateResult | null }) {
   const allowed = gate?.allowed === true;
   return (
     <span
-      className="rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.08em]"
-      style={{
-        background: allowed ? '#ECFDF5' : '#FEF2F2',
-        color: allowed ? '#047857' : '#B91C1C',
-      }}
+      className={`inline-flex items-center rounded-full px-2 ${HEADER_CHIP} ${
+        allowed ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+      }`}
     >
       {allowed ? 'Sellable' : 'Not sellable'}
     </span>
@@ -364,6 +374,8 @@ function PricingTab({
   costComponents: SkuCostComponent[];
   contribution: SkuContributionView | null;
 }) {
+  const required = costComponents.filter((row) => !row.is_optional);
+  const optional = costComponents.filter((row) => row.is_optional);
   const floor = line?.min_margin_pct ?? 25;
   const costMissing = Boolean(showCosts && contribution?.cost_missing);
   const meetsFloor =
@@ -377,6 +389,10 @@ function PricingTab({
     <div className="space-y-6 text-sm">
       <dl className="space-y-4">
         <Row label="Retail price" value={formatPrice(product.price)} />
+        <Row
+          label="Contract term"
+          value={contractMonths(product) ? `${contractMonths(product)} months` : '—'}
+        />
         <Row
           label="Monthly COS"
           value={!showCosts || costMissing ? '—' : zar(contribution?.monthly_cos ?? null, 2)}
@@ -437,45 +453,89 @@ function PricingTab({
       )}
 
       {showCosts && costComponents.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b text-[10px] font-extrabold uppercase tracking-[0.08em] text-ui-text-muted">
-                <th className="py-2 pr-3">Component</th>
-                <th className="py-2 pr-3">Category</th>
-                <th className="py-2 text-right">Monthly</th>
-              </tr>
-            </thead>
-            <tbody>
-              {costComponents.map((row) => (
-                <tr key={row.id} className="border-b border-slate-100">
-                  <td className="py-2 pr-3">{row.name}</td>
-                  <td className="py-2 pr-3 capitalize text-ui-text-muted">
-                    {row.category.replace(/_/g, ' ')}
-                  </td>
-                  <td className="py-2 text-right font-medium">{zar(row.monthly_amount, 2)}</td>
+        <div className="space-y-4">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b text-[10px] font-extrabold uppercase tracking-[0.08em] text-ui-text-muted">
+                  <th className="py-2 pr-3">Component</th>
+                  <th className="py-2 pr-3">Category</th>
+                  <th className="py-2 text-right">Monthly</th>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="font-semibold">
-                <td className="pt-3" colSpan={2}>
-                  Total COS
-                </td>
-                <td className="pt-3 text-right">{zar(contribution?.monthly_cos ?? null, 2)}</td>
-              </tr>
-              <tr>
-                <td className="pt-1 text-ui-text-muted" colSpan={2}>
-                  Contribution
-                </td>
-                <td className="pt-1 text-right">
-                  {contribution?.contribution == null
-                    ? '—'
-                    : `${zar(contribution.contribution, 2)} (${contribution.margin_pct}%)`}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+              </thead>
+              <tbody>
+                {required.map((row) => (
+                  <tr key={row.id} className="border-b border-slate-100">
+                    <td className="py-2 pr-3">
+                      {row.name}
+                      {row.hardware_model && (
+                        <span className="block text-xs text-ui-text-muted">{row.hardware_model}</span>
+                      )}
+                      {row.recurrence === 'amortised' && row.amortisation_months ? (
+                        <span className="block text-xs text-ui-text-muted">
+                          Amortised {row.amortisation_months} months
+                        </span>
+                      ) : null}
+                    </td>
+                    <td className="py-2 pr-3 capitalize text-ui-text-muted">
+                      {row.category.replace(/_/g, ' ')}
+                    </td>
+                    <td className="py-2 text-right font-medium">{zar(row.monthly_amount, 2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="font-semibold">
+                  <td className="pt-3" colSpan={2}>
+                    Base COS
+                  </td>
+                  <td className="pt-3 text-right">{zar(contribution?.monthly_cos ?? null, 2)}</td>
+                </tr>
+                <tr>
+                  <td className="pt-1 text-ui-text-muted" colSpan={2}>
+                    Contribution
+                  </td>
+                  <td className="pt-1 text-right">
+                    {contribution?.contribution == null
+                      ? '—'
+                      : `${zar(contribution.contribution, 2)} (${contribution.margin_pct}%)`}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          {optional.length > 0 && (
+            <div>
+              <p
+                className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em]"
+                style={{ color: 'var(--pm-navy)' }}
+              >
+                Optional attach — not in base COS
+              </p>
+              <table className="w-full text-left text-sm">
+                <tbody>
+                  {optional.map((row) => (
+                    <tr key={row.id} className="border-b border-slate-100">
+                      <td className="py-2 pr-3">
+                        {row.name}
+                        {row.hardware_model && (
+                          <span className="block text-xs text-ui-text-muted">{row.hardware_model}</span>
+                        )}
+                      </td>
+                      <td className="py-2 pr-3 capitalize text-ui-text-muted">
+                        {row.category.replace(/_/g, ' ')}
+                      </td>
+                      <td className="py-2 text-right font-medium">{zar(row.monthly_amount, 2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-2 text-xs text-ui-text-muted">
+                CPS v2.0 excludes the router from the base tier. Attach Managed Router at R149/month
+                (FSD COS R75) or the customer brings their own device.
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
