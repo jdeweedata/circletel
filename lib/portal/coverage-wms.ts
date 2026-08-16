@@ -6,10 +6,7 @@ export type PortalWmsSpec = {
   style?: string;
 };
 
-export const PORTAL_COVERAGE_WMS: Record<
-  Exclude<PortalCoverageLayer, 'all'>,
-  PortalWmsSpec
-> = {
+export const PORTAL_COVERAGE_WMS: Record<PortalCoverageLayer, PortalWmsSpec> = {
   fixed_wireless: {
     source: 'consumer',
     layer: 'mtnsi:MTNSA-Coverage-Tarana',
@@ -17,6 +14,12 @@ export const PORTAL_COVERAGE_WMS: Record<
   },
   '5g': { source: 'consumer', layer: 'mtnsi:MTNSA-Coverage-5G-5G' },
   '4g': { source: 'consumer', layer: 'mtnsi:MTNSA-Coverage-LTE' },
+  all: {
+    source: 'consumer',
+    layer:
+      'mtnsi:MTNSA-Coverage-Tarana,mtnsi:MTNSA-Coverage-5G-5G,mtnsi:MTNSA-Coverage-LTE',
+    style: 'MTN-Coverage-UWA-EBU,,',
+  },
 };
 
 export function portalWmsProxyPath(spec: PortalWmsSpec): string {
