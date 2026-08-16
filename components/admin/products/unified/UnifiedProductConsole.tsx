@@ -5,7 +5,6 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { PiSlidersBold, PiCaretLeftBold, PiCaretRightBold, PiWarningBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import type {
-  UnifiedProduct,
   UnifiedProductSource,
   UnifiedProductStatus,
 } from '@/lib/types/unified-product';
@@ -19,8 +18,6 @@ import {
 } from '@/lib/products/workspace-params';
 import { UnifiedProductSearch, type UnifiedSort } from './UnifiedProductSearch';
 import { UnifiedProductGrid } from './UnifiedProductGrid';
-import { UnifiedProductDetailSidebar } from './UnifiedProductDetailSidebar';
-import { ProductEditDrawer } from './ProductEditDrawer';
 import { RulesStudio } from './RulesStudio';
 
 type SourceTab = UnifiedProductSource | 'all';
@@ -60,8 +57,6 @@ export function UnifiedProductConsole() {
   const [status, setStatus] = useState<UnifiedProductStatus | 'all'>(initial.status);
   const [sort, setSort] = useState<UnifiedSort>(initial.sort);
   const [page, setPage] = useState(initial.page);
-  const [selected, setSelected] = useState<UnifiedProduct | null>(null);
-  const [editing, setEditing] = useState<UnifiedProduct | null>(null);
   const [rulesOpen, setRulesOpen] = useState(false);
   // Rule threshold overrides (edited in Rules Studio); empty = engine defaults.
   const [ruleConfig, setRuleConfig] = useState<Partial<RuleConfig>>({});
@@ -107,7 +102,7 @@ export function UnifiedProductConsole() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [sourceTab, status, debouncedSearch, sort, page, pathname, router]);
 
-  const { products, total, totalPages, countsBySource, loading, error, refetch } = useUnifiedProducts({
+  const { products, total, totalPages, countsBySource, loading, error } = useUnifiedProducts({
     source: sourceTab === 'all' ? undefined : sourceTab,
     status: status === 'all' ? undefined : status,
     search: debouncedSearch,
@@ -230,8 +225,11 @@ export function UnifiedProductConsole() {
         products={products}
         isLoading={loading}
         ruleSummaries={ruleSummaries}
-        selectedUid={selected?.uid ?? null}
-        onSelect={setSelected}
+        onSelect={(product) => {
+          router.push(
+            `/admin/products/item/${encodeURIComponent(product.sourceTable)}/${encodeURIComponent(product.id)}`
+          );
+        }}
         emptyHint="No products match these filters."
       />
 
@@ -260,34 +258,13 @@ export function UnifiedProductConsole() {
         </div>
       )}
 
-      {/* detail slide-over */}
-      <UnifiedProductDetailSidebar
-        product={selected}
-        ruleConfig={ruleConfig}
-        onClose={() => setSelected(null)}
-        onEdit={(p) => {
-          setSelected(null);
-          setEditing(p);
-        }}
-      />
-
-      {/* edit drawer */}
-      <ProductEditDrawer
-        product={editing}
-        onClose={() => setEditing(null)}
-        onSaved={() => {
-          setEditing(null);
-          refetch();
-        }}
-      />
-
       {/* rules studio modal */}
       <RulesStudio
         open={rulesOpen}
         onClose={() => setRulesOpen(false)}
         config={ruleConfig}
         onConfigChange={setRuleConfig}
-        simulationProduct={selected ?? products[0] ?? null}
+        simulationProduct={products[0] ?? null}
       />
     </div>
   );
