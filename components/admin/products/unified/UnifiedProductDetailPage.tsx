@@ -12,8 +12,12 @@ import {
   PmButton,
 } from '@/components/portal/modernist/PortalModernistShell';
 import { formatPrice } from '@/lib/types/products';
-import type { UnifiedProduct } from '@/lib/types/unified-product';
-import type { ProductLineWithRelations } from '@/lib/types/product-lines';
+import type {
+  SkuContributionView,
+  SkuCostComponent,
+  UnifiedProduct,
+} from '@/lib/types/unified-product';
+import type { LifecycleGateResult, ProductLineWithRelations } from '@/lib/types/product-lines';
 import { rulesEngine, type ProductRuleEvaluation, type RuleConfig } from '@/lib/products/rules';
 import {
   MarginBar,
@@ -38,12 +42,13 @@ const TABS: Array<{ value: DetailTab; label: string }> = [
 
 const CARD = 'rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-black/[0.06]';
 
-function zar(n: number | null | undefined): string {
+function zar(n: number | null | undefined, digits = 0): string {
   if (n == null) return '—';
   return new Intl.NumberFormat('en-ZA', {
     style: 'currency',
     currency: 'ZAR',
-    maximumFractionDigits: 0,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(n);
 }
 
@@ -58,6 +63,9 @@ export function UnifiedProductDetailPage({
   const [product, setProduct] = useState<UnifiedProduct | null>(null);
   const [line, setLine] = useState<ProductLineWithRelations | null>(null);
   const [showCosts, setShowCosts] = useState(false);
+  const [costComponents, setCostComponents] = useState<SkuCostComponent[]>([]);
+  const [contribution, setContribution] = useState<SkuContributionView | null>(null);
+  const [docsGate, setDocsGate] = useState<LifecycleGateResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<DetailTab>('overview');
@@ -77,6 +85,9 @@ export function UnifiedProductDetailPage({
       setProduct(data.product);
       setLine(data.line ?? null);
       setShowCosts(Boolean(data.show_costs));
+      setCostComponents(data.cost_components ?? []);
+      setContribution(data.contribution ?? null);
+      setDocsGate(data.docs_gate ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load product');
     } finally {
@@ -162,10 +173,18 @@ export function UnifiedProductDetailPage({
     );
   }
 
+  const costMissing = Boolean(showCosts && contribution?.cost_missing);
+  const monthlyCos = contribution?.monthly_cos ?? null;
+  const marginPct = contribution?.margin_pct ?? null;
+  const kpiCost = !showCosts || contribution?.redacted || costMissing ? '—' : zar(monthlyCos, 2);
+  const kpiMargin = !showCosts || contribution?.redacted || costMissing || marginPct == null
+    ? '—'
+    : `${marginPct}%`;
+
   const kpiItems = [
     { label: 'Retail', value: formatPrice(product.price) },
-    { label: 'Cost', value: showCosts ? formatPrice(product.cost) : '—' },
-    { label: 'Margin', value: showCosts ? `${product.margin}%` : '—' },
+    { label: 'Cost', value: kpiCost },
+    { label: 'Margin', value: kpiMargin },
     ...(line
       ? [
           { label: 'List ARPU', value: zar(line.list_arpu_zar) },
@@ -192,6 +211,7 @@ export function UnifiedProductDetailPage({
         actions={
           <>
             <ProductSourceChip source={product.source} />
+            <SellabilityBadge gate={docsGate} />
             {evaluation && <RuleHealthBadge summary={evaluation.summary} />}
             {product.sourceTable === 'admin_products' ? (
               <PmButton variant="secondary" onClick={() => router.push(`/admin/products/${product.id}/edit`)}>
@@ -240,9 +260,15 @@ export function UnifiedProductDetailPage({
           <OverviewTab product={product} evaluation={evaluation} showCosts={showCosts} />
         )}
         {tab === 'pricing' && (
-          <PricingTab product={product} line={line} showCosts={showCosts} />
+          <PricingTab
+            product={product}
+            line={line}
+            showCosts={showCosts}
+            costComponents={costComponents}
+            contribution={contribution}
+          />
         )}
-        {tab === 'docs' && <DocsTab line={line} onSaved={load} />}
+        {tab === 'docs' && <DocsTab line={line} docsGate={docsGate} onSaved={load} />}
         {tab === 'rules' && <RulesTab evaluation={evaluation} />}
       </div>
 
@@ -310,78 +336,193 @@ function OverviewTab({
   );
 }
 
+function SellabilityBadge({ gate }: { gate: LifecycleGateResult | null }) {
+  const allowed = gate?.allowed === true;
+  return (
+    <span
+      className="rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.08em]"
+      style={{
+        background: allowed ? '#ECFDF5' : '#FEF2F2',
+        color: allowed ? '#047857' : '#B91C1C',
+      }}
+    >
+      {allowed ? 'Sellable' : 'Not sellable'}
+    </span>
+  );
+}
+
 function PricingTab({
   product,
   line,
   showCosts,
+  costComponents,
+  contribution,
 }: {
   product: UnifiedProduct;
   line: ProductLineWithRelations | null;
   showCosts: boolean;
+  costComponents: SkuCostComponent[];
+  contribution: SkuContributionView | null;
 }) {
+  const floor = line?.min_margin_pct ?? 25;
+  const costMissing = Boolean(showCosts && contribution?.cost_missing);
+  const meetsFloor =
+    contribution?.margin_pct != null ? contribution.margin_pct >= floor : null;
+  const marginForBar =
+    showCosts && !costMissing && contribution?.margin_pct != null
+      ? Math.round(contribution.margin_pct)
+      : null;
+
   return (
-    <dl className="space-y-4 text-sm">
-      <Row label="Retail price" value={formatPrice(product.price)} />
-      <Row label="Cost of sale" value={showCosts ? formatPrice(product.cost) : '—'} />
-      <div>
-        <dt
-          className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em]"
-          style={{ color: 'var(--pm-navy)' }}
-        >
-          Margin
-        </dt>
-        {showCosts ? <MarginBar margin={product.margin} /> : <dd>—</dd>}
-      </div>
-      {line && (
-        <>
-          <Row label="Line floor" value={`${line.min_margin_pct}%`} />
-          <Row label="List ARPU (excl VAT)" value={zar(line.list_arpu_zar)} />
-          {line.price_drift_notes && (
-            <div>
-              <dt
-                className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em]"
-                style={{ color: 'var(--pm-navy)' }}
-              >
-                Price drift
-              </dt>
-              <dd className="text-sm" style={{ color: 'var(--pm-body)' }}>
-                {line.price_drift_notes}
-              </dd>
-            </div>
-          )}
-        </>
+    <div className="space-y-6 text-sm">
+      <dl className="space-y-4">
+        <Row label="Retail price" value={formatPrice(product.price)} />
+        <Row
+          label="Monthly COS"
+          value={!showCosts || costMissing ? '—' : zar(contribution?.monthly_cos ?? null, 2)}
+        />
+        <Row
+          label="Contribution"
+          value={
+            !showCosts || costMissing || contribution?.contribution == null
+              ? '—'
+              : `${zar(contribution.contribution, 2)} (${contribution.margin_pct}%)`
+          }
+        />
+        <div>
+          <dt
+            className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em]"
+            style={{ color: 'var(--pm-navy)' }}
+          >
+            Margin
+          </dt>
+          {marginForBar != null ? <MarginBar margin={marginForBar} /> : <dd>—</dd>}
+        </div>
+        {line && (
+          <>
+            <Row label="Line floor" value={`${floor}%`} />
+            <Row
+              label="Vs floor"
+              value={
+                !showCosts || costMissing || meetsFloor == null
+                  ? '—'
+                  : meetsFloor
+                    ? `Meets ${floor}% floor`
+                    : `Below ${floor}% floor`
+              }
+            />
+            <Row label="List ARPU (excl VAT)" value={zar(line.list_arpu_zar)} />
+            {line.price_drift_notes && (
+              <div>
+                <dt
+                  className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em]"
+                  style={{ color: 'var(--pm-navy)' }}
+                >
+                  Price drift
+                </dt>
+                <dd className="text-sm" style={{ color: 'var(--pm-body)' }}>
+                  {line.price_drift_notes}
+                </dd>
+              </div>
+            )}
+          </>
+        )}
+      </dl>
+
+      {costMissing && (
+        <p className="rounded-md px-3 py-2 text-sm" style={{ background: '#FEF2F2', color: '#B91C1C' }}>
+          Cost of sale is not set. Do not treat this SKU as 100% margin — attach COS
+          components or a package cost before selling.
+        </p>
       )}
-    </dl>
+
+      {showCosts && costComponents.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b text-[10px] font-extrabold uppercase tracking-[0.08em] text-ui-text-muted">
+                <th className="py-2 pr-3">Component</th>
+                <th className="py-2 pr-3">Category</th>
+                <th className="py-2 text-right">Monthly</th>
+              </tr>
+            </thead>
+            <tbody>
+              {costComponents.map((row) => (
+                <tr key={row.id} className="border-b border-slate-100">
+                  <td className="py-2 pr-3">{row.name}</td>
+                  <td className="py-2 pr-3 capitalize text-ui-text-muted">
+                    {row.category.replace(/_/g, ' ')}
+                  </td>
+                  <td className="py-2 text-right font-medium">{zar(row.monthly_amount, 2)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="font-semibold">
+                <td className="pt-3" colSpan={2}>
+                  Total COS
+                </td>
+                <td className="pt-3 text-right">{zar(contribution?.monthly_cos ?? null, 2)}</td>
+              </tr>
+              <tr>
+                <td className="pt-1 text-ui-text-muted" colSpan={2}>
+                  Contribution
+                </td>
+                <td className="pt-1 text-right">
+                  {contribution?.contribution == null
+                    ? '—'
+                    : `${zar(contribution.contribution, 2)} (${contribution.margin_pct}%)`}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
 
 function DocsTab({
   line,
+  docsGate,
   onSaved,
 }: {
   line: ProductLineWithRelations | null;
+  docsGate: LifecycleGateResult | null;
   onSaved: () => Promise<void> | void;
 }) {
   if (!line) {
     return (
-      <EmptyState
-        icon={<PiFileTextBold />}
-        title="Not on a portfolio line — attach this SKU under Product portfolio"
-        description="CPS, BRD and FSD live on the parent product line."
-        action={
-          <Link
-            href="/admin/products?section=portfolio"
-            className="inline-flex min-h-11 items-center rounded-lg px-4 py-2 text-sm font-extrabold"
-            style={{ background: 'var(--pm-accent)', color: 'var(--pm-navy)' }}
-          >
-            Open Product portfolio
-          </Link>
-        }
-      />
+      <div className="space-y-4">
+        {docsGate && (
+          <PublishReadinessChecklist items={docsGate.items} heading="Docs sellability" />
+        )}
+        <EmptyState
+          icon={<PiFileTextBold />}
+          title="Not on a portfolio line — attach this SKU under Product portfolio"
+          description="CPS, BRD and FSD live on the parent product line."
+          action={
+            <Link
+              href="/admin/products?section=portfolio"
+              className="inline-flex min-h-11 items-center rounded-lg px-4 py-2 text-sm font-extrabold"
+              style={{ background: 'var(--pm-accent)', color: 'var(--pm-navy)' }}
+            >
+              Open Product portfolio
+            </Link>
+          }
+        />
+      </div>
     );
   }
 
-  return <DocRegistry line={line} onSaved={onSaved} />;
+  return (
+    <div className="space-y-4">
+      {docsGate && (
+        <PublishReadinessChecklist items={docsGate.items} heading="Docs sellability" />
+      )}
+      <DocRegistry line={line} onSaved={onSaved} />
+    </div>
+  );
 }
 
 function RulesTab({ evaluation }: { evaluation: ProductRuleEvaluation | null }) {

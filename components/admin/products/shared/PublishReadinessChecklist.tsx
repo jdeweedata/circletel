@@ -17,16 +17,18 @@ export interface ChecklistItem {
 export function PublishReadinessChecklist({
   items,
   className,
+  heading = 'Publish readiness',
 }: {
   items: ChecklistItem[];
   className?: string;
+  heading?: string;
 }) {
   const done = items.filter((i) => i.ok).length;
   return (
     <div className={cn('rounded-lg border border-ui-border bg-white p-3', className)}>
       <div className="mb-2 flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wide text-ui-text-muted">
-          Publish readiness
+          {heading}
         </span>
         <span className="text-xs font-medium text-ui-text-secondary">
           {done}/{items.length}
