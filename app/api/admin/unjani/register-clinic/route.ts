@@ -22,6 +22,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { svc } from '@/lib/onboarding/onboarding-service';
 import { incumbentForClinic } from '@/lib/onboarding/clinic-incumbent';
+import { markNominationTicketInProgress } from '@/lib/admin/unjani-ticket-sync';
 import { apiLogger } from '@/lib/logging/logger';
 // Server-side only: nurse contact details must not ship in the client bundle
 import registerContacts from '@/lib/data/unjani-register-contacts.json';
@@ -88,6 +89,8 @@ export async function POST(request: NextRequest) {
     // Optional override; otherwise seed the site address from the v3.1 register so the
     // nurse sees the real address prefilled in wizard Step 1.
     const siteAddress: string = (body.siteAddress || registerEntry?.address || '').trim();
+    const ticketId: string | null =
+      typeof body.ticketId === 'string' && body.ticketId.trim() ? body.ticketId.trim() : null;
 
     if (!phone || !email) {
       return NextResponse.json(
@@ -113,10 +116,15 @@ export async function POST(request: NextRequest) {
       .ilike('business_name', businessName)
       .maybeSingle();
     if (existingByName) {
+      if (ticketId) {
+        await markNominationTicketInProgress(ticketId);
+      }
       return NextResponse.json(
         {
           success: false,
           error: `${businessName} is already in the pipeline (${existingByName.account_number}).`,
+          customerId: existingByName.id,
+          accountNumber: existingByName.account_number,
         },
         { status: 409 }
       );
@@ -127,6 +135,9 @@ export async function POST(request: NextRequest) {
       .ilike('email', email)
       .maybeSingle();
     if (existingByEmail) {
+      if (ticketId) {
+        await markNominationTicketInProgress(ticketId);
+      }
       return NextResponse.json(
         {
           success: false,
@@ -197,11 +208,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (ticketId) {
+      await markNominationTicketInProgress(ticketId);
+    }
+
     apiLogger.info('[Register clinic] Clinic created', {
       clinicName,
       accountNumber,
       customerId: customer.id,
       createdBy: auth.adminUser.email,
+      ticketId,
     });
 
     return NextResponse.json({

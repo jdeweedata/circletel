@@ -2,6 +2,7 @@ import {
   mapDeskStatusToPortal,
   mapPortalPriorityToDesk,
   deskCategoryForTicketType,
+  deskStatusForPortalUpdate,
   splitContactName,
 } from '@/lib/portal/desk-tickets';
 
@@ -26,6 +27,13 @@ describe('portal Desk ticket mapping', () => {
     expect(deskCategoryForTicketType('activation_request')).toBe('Onboarding');
     expect(deskCategoryForTicketType('support')).toBe('Customer Support');
     expect(deskCategoryForTicketType('change_request')).toBe('Customer Support');
+  });
+
+  it('maps portal status updates onto Desk statuses the API accepts', () => {
+    expect(deskStatusForPortalUpdate('open')).toBe('Open');
+    expect(deskStatusForPortalUpdate('in_progress')).toBe('On Hold');
+    expect(deskStatusForPortalUpdate('resolved')).toBe('Closed');
+    expect(deskStatusForPortalUpdate('closed')).toBe('Closed');
   });
 
   it('splits a display name into Desk contact first/last name', () => {
