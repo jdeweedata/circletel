@@ -122,7 +122,7 @@ export const MTN_CONFIGS: Record<string, MTNMapConfig> = {
       '2g': 'mtnsi:MTNSA-Coverage-GSM',
       uncapped_wireless: 'UncappedWirelessEBU', // Cross-reference from business map
       tarana: 'mtnsi:MTNSA-Coverage-Tarana',
-    } as Record<ServiceType, string>,
+    } as unknown as Record<ServiceType, string>,
     wmsEndpoint: 'https://mtnsi.mtn.co.za/cache/geoserver/wms',
     queryLayers: ['mtnsi:MTNSA-Coverage-5G-5G', 'mtnsi:MTNSA-Coverage-FIXLTE-0', 'mtnsi:SUPERSONIC-CONSOLIDATED', 'mtnsi:MTNSA-Coverage-LTE', 'mtnsi:MTNSA-Coverage-UMTS-900', 'mtnsi:MTNSA-Coverage-UMTS-2100', 'mtnsi:MTNSA-Coverage-GSM', 'mtnsi:MTNSA-Coverage-Tarana']
   }
