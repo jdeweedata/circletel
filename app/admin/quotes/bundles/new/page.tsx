@@ -1,10 +1,16 @@
 import { Suspense } from 'react';
 import { BundleComposer } from '@/components/admin/quotes/BundleComposer';
+import { AdminModernistShell } from '@/components/admin/modernist/AdminModernistShell';
+import { AdminPage, LoadingState } from '@/components/backend';
 
 export default function NewBundleQuotePage() {
   return (
-    <Suspense fallback={<div className="p-6 text-sm text-ui-text-muted">Loading composer…</div>}>
-      <BundleComposer />
-    </Suspense>
+    <AdminModernistShell>
+      <AdminPage>
+        <Suspense fallback={<LoadingState message="Loading composer…" />}>
+          <BundleComposer />
+        </Suspense>
+      </AdminPage>
+    </AdminModernistShell>
   );
 }

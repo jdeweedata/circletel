@@ -1,0 +1,112 @@
+/**
+ * Admin kit restyle under `.portal-root`.
+ *
+ * AdminLayoutClient mounts Unjani/portal tokens (`--pm-*`, Archivo) on the
+ * authenticated /admin chrome. These rules only fire inside `.portal-root`, so
+ * consumer `/dashboard` pages that share `@/components/backend` stay on slate.
+ *
+ * Do not set heading size on bare `h1` — AdminHeader uses a compact h1.
+ * Page titles opt in with [data-pm="page-header"] / [data-pm="detail-header"].
+ */
+
+.portal-root [data-pm='page-header'] {
+  border-bottom: 2px solid var(--pm-divider);
+  padding-bottom: 1.5rem;
+  margin-bottom: 0;
+  align-items: flex-end;
+}
+
+.portal-root [data-pm='page-header'] h1,
+.portal-root [data-pm='detail-header'] h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--pm-navy);
+}
+
+@media (min-width: 640px) {
+  .portal-root [data-pm='page-header'] h1,
+  .portal-root [data-pm='detail-header'] h1 {
+    font-size: 40px;
+  }
+}
+
+.portal-root [data-pm='page-header'] p,
+.portal-root [data-pm='detail-header'] p {
+  color: var(--pm-body);
+}
+
+.portal-root [data-pm='section-card'] {
+  border-color: var(--pm-divider);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+
+.portal-root [data-pm='section-card'] > div:first-child {
+  border-bottom-color: var(--pm-divider);
+}
+
+.portal-root [data-pm='section-card'] h3 {
+  color: var(--pm-navy);
+  font-weight: 800;
+}
+
+.portal-root [data-pm='stat-card'],
+.portal-root [data-pm='metric-card'] {
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+
+.portal-root [data-pm='stat-card'] {
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+  outline: 1px solid rgb(0 0 0 / 0.06);
+}
+
+.portal-root [data-pm='metric-card'] [data-pm='metric-label'],
+.portal-root [data-pm='stat-label'] {
+  color: var(--pm-navy) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.portal-root [data-pm='stat-value'],
+.portal-root [data-pm='metric-value'] {
+  color: var(--pm-navy) !important;
+  font-weight: 800 !important;
+}
+
+.portal-root main table thead th {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pm-navy);
+}
+
+.portal-root main table thead tr {
+  border-bottom: 2px solid var(--pm-divider);
+}
+
+.portal-root [data-pm='admin-header'] {
+  border-bottom: 2px solid var(--pm-divider);
+}
+
+.portal-root [data-pm='admin-header'] h1 {
+  color: var(--pm-navy);
+  font-weight: 800;
+}
+
+.portal-root [data-testid='sidebar'] {
+  border-right: 2px solid var(--pm-divider);
+}
+
+.portal-root .pm-nav-item:hover {
+  background: var(--pm-surface);
+}
+
+.portal-root .pm-nav-item[data-active='true']:hover {
+  background: var(--pm-navy);
+  color: #fff;
+}

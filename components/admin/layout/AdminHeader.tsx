@@ -189,7 +189,11 @@ export function AdminHeader({ onMenuClick, user, onLogout, sidebarOpen }: AdminH
   const { title, description } = getPageInfo(pathname);
 
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-gray-200 w-full print:hidden">
+    <header
+      data-pm="admin-header"
+      className="sticky top-0 z-30 w-full bg-white print:hidden"
+      style={{ borderBottom: '2px solid var(--pm-divider)' }}
+    >
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
           <Button
@@ -203,10 +207,10 @@ export function AdminHeader({ onMenuClick, user, onLogout, sidebarOpen }: AdminH
           </Button>
 
           <div className="min-w-0 flex-1">
-            <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+            <h1 className="truncate text-base font-extrabold sm:text-lg" style={{ color: 'var(--pm-navy)' }}>
               {title}
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500 truncate hidden sm:block">
+            <p className="hidden truncate text-xs sm:block sm:text-sm" style={{ color: 'var(--pm-body)' }}>
               {description}
             </p>
           </div>

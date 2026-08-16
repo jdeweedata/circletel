@@ -3,7 +3,18 @@
 import Link from 'next/link';
 import { PiCaretRightBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
-import type { ReactNode } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
+
+/** Unjani / portal modernist colour + type tokens. Reused by the admin layout. */
+export const PORTAL_MODERNIST_STYLE: CSSProperties = {
+  ['--pm-navy' as string]: '#13274A',
+  ['--pm-body' as string]: '#1F2937',
+  ['--pm-accent' as string]: '#F5841E',
+  ['--pm-divider' as string]: 'color-mix(in srgb, #13274A 28%, transparent)',
+  ['--pm-ground' as string]: 'color-mix(in srgb, #13274A 7%, #FFFFFF)',
+  ['--pm-surface' as string]: 'color-mix(in srgb, #13274A 6%, #FFFFFF)',
+  fontFamily: 'var(--font-archivo, ui-sans-serif, system-ui, sans-serif)',
+};
 
 export function PortalModernistShell({
   children,
@@ -15,18 +26,7 @@ export function PortalModernistShell({
   return (
     <div
       className={cn('portal-modernist space-y-0', className)}
-      style={{
-        ['--pm-navy' as string]: '#13274A',
-        ['--pm-body' as string]: '#1F2937',
-        ['--pm-accent' as string]: '#F5841E',
-        ['--pm-divider' as string]:
-          'color-mix(in srgb, #13274A 28%, transparent)',
-        ['--pm-ground' as string]:
-          'color-mix(in srgb, #13274A 7%, #FFFFFF)',
-        ['--pm-surface' as string]:
-          'color-mix(in srgb, #13274A 6%, #FFFFFF)',
-        fontFamily: 'var(--font-archivo, ui-sans-serif, system-ui, sans-serif)',
-      }}
+      style={PORTAL_MODERNIST_STYLE}
     >
       {children}
     </div>
@@ -298,10 +298,10 @@ export function PmButton({
   variant = 'primary',
   className,
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'ghost' | 'cta';
 }) {
-  const styles: Record<string, React.CSSProperties> = {
+  const styles: Record<string, CSSProperties> = {
     primary: {
       background: 'var(--pm-accent)',
       color: 'var(--pm-navy)',

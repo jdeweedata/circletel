@@ -18,6 +18,7 @@ interface PageHeaderProps {
 export function PageHeader({ title, subtitle, actions, className }: PageHeaderProps) {
   return (
     <div
+      data-pm="page-header"
       className={cn(
         'mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
         className

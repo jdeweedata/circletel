@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -12,12 +11,29 @@ import {
   priceBundle,
   type BundlePriceResult,
 } from '@/lib/products/bundle-pricing';
+import {
+  PageHeader as PortalPageHeader,
+  PmButton,
+} from '@/components/portal/modernist/PortalModernistShell';
 
 interface CpeRow {
   sku: string;
   name: string;
   cost_price: number | null;
   manufacturer?: string | null;
+}
+
+const CARD = 'rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-black/[0.06]';
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Label
+      className="text-[10px] font-extrabold uppercase tracking-[0.08em]"
+      style={{ color: 'var(--pm-navy)' }}
+    >
+      {children}
+    </Label>
+  );
 }
 
 export function BundleComposer() {
@@ -112,20 +128,25 @@ export function BundleComposer() {
     }
   }
 
-  return (
-    <div className="mx-auto max-w-4xl space-y-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold">Compose bundle</h1>
-        <p className="text-sm text-ui-text-muted">
-          SkyTel SIM + curated Rectron CPE + optional Microsoft 365. Does not double-count a router already on the Helios deal.
-        </p>
-      </div>
+  const selectStyle = {
+    borderColor: 'var(--pm-divider)',
+    color: 'var(--pm-navy)',
+  };
 
-      <div className="grid gap-4 md:grid-cols-2">
+  return (
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PortalPageHeader
+        eyebrow="Sales"
+        title="Compose bundle"
+        subtitle="SkyTel SIM + curated Rectron CPE + optional Microsoft 365. Does not double-count a router already on the Helios deal."
+      />
+
+      <div className={`grid gap-4 md:grid-cols-2 ${CARD}`}>
         <div className="space-y-2">
-          <Label>Template</Label>
+          <FieldLabel>Template</FieldLabel>
           <select
-            className="h-10 w-full rounded-md border border-ui-border px-3 text-sm"
+            className="h-11 w-full rounded-lg border-2 bg-white px-3 text-sm"
+            style={selectStyle}
             value={template}
             onChange={(e) => setTemplate(e.target.value as BundleTemplateCode)}
           >
@@ -137,9 +158,10 @@ export function BundleComposer() {
           </select>
         </div>
         <div className="space-y-2">
-          <Label>Term (months)</Label>
+          <FieldLabel>Term (months)</FieldLabel>
           <select
-            className="h-10 w-full rounded-md border border-ui-border px-3 text-sm"
+            className="h-11 w-full rounded-lg border-2 bg-white px-3 text-sm"
+            style={selectStyle}
             value={termMonths}
             onChange={(e) => setTermMonths(Number(e.target.value) as 12 | 24)}
           >
@@ -148,19 +170,25 @@ export function BundleComposer() {
           </select>
         </div>
         <div className="space-y-2">
-          <Label>Helios deal code</Label>
+          <FieldLabel>Helios deal code</FieldLabel>
           <Input value={heliosDealCode} onChange={(e) => setHeliosDealCode(e.target.value)} placeholder="e.g. 202501EBU2013" />
         </div>
-        <div className="flex items-center justify-between rounded-md border border-ui-border px-3 py-2">
-          <Label>Helios deal includes CPE</Label>
+        <div
+          className="flex items-center justify-between rounded-lg px-3 py-2"
+          style={{ border: '2px solid var(--pm-divider)' }}
+        >
+          <FieldLabel>Helios deal includes CPE</FieldLabel>
           <Switch checked={heliosIncludesCpe} onCheckedChange={setHeliosIncludesCpe} />
         </div>
-        <div className="flex items-center justify-between rounded-md border border-ui-border px-3 py-2">
-          <Label>Add Rectron CPE as upgrade</Label>
+        <div
+          className="flex items-center justify-between rounded-lg px-3 py-2"
+          style={{ border: '2px solid var(--pm-divider)' }}
+        >
+          <FieldLabel>Add Rectron CPE as upgrade</FieldLabel>
           <Switch checked={addCpeUpgrade} onCheckedChange={setAddCpeUpgrade} />
         </div>
         <div className="space-y-2">
-          <Label>M365 Business Standard seats</Label>
+          <FieldLabel>M365 Business Standard seats</FieldLabel>
           <Input
             type="number"
             min={0}
@@ -171,17 +199,17 @@ export function BundleComposer() {
       </div>
 
       {(addCpeUpgrade || !heliosIncludesCpe) && (
-        <div className="space-y-2 rounded-lg border border-ui-border bg-white p-4">
-          <Label>Rectron CPE (MiFi / 5G / LTE only)</Label>
+        <div className={`space-y-2 ${CARD}`}>
+          <FieldLabel>Rectron CPE (MiFi / 5G / LTE only)</FieldLabel>
           {lastSynced && (
-            <p className="text-xs text-ui-text-muted">
+            <p className="text-xs" style={{ color: '#6B7280' }}>
               Catalogue last synced {new Date(lastSynced).toLocaleDateString('en-ZA')}
             </p>
           )}
           <Input placeholder="Search Huawei, Vida, Tozed…" value={cpeQuery} onChange={(e) => setCpeQuery(e.target.value)} />
-          <div className="max-h-40 overflow-y-auto text-sm">
+          <div className="max-h-40 overflow-y-auto text-sm" style={{ borderTop: '2px solid var(--pm-divider)' }}>
             {cpeRows.length === 0 && (
-              <p className="px-2 py-3 text-xs text-ui-text-muted">
+              <p className="px-2 py-3 text-xs" style={{ color: '#6B7280' }}>
                 No curated MiFi / 5G / LTE devices yet. Sync Rectron from Product Workspace → Suppliers.
               </p>
             )}
@@ -189,13 +217,18 @@ export function BundleComposer() {
               <button
                 key={row.sku}
                 type="button"
-                className={`flex w-full justify-between px-2 py-1 text-left hover:bg-slate-50 ${cpe?.sku === row.sku ? 'bg-orange-50' : ''}`}
+                className="flex w-full justify-between px-2 py-2 text-left"
+                style={{
+                  background: cpe?.sku === row.sku ? 'color-mix(in srgb, #F5841E 18%, #FFFFFF)' : 'transparent',
+                  color: 'var(--pm-navy)',
+                  borderBottom: '1px solid var(--pm-divider)',
+                }}
                 onClick={() => setCpe(row)}
               >
                 <span>
-                  {row.name} <span className="text-ui-text-muted">({row.sku})</span>
+                  {row.name} <span style={{ color: '#6B7280' }}>({row.sku})</span>
                 </span>
-                <span>R{Number(row.cost_price || 0).toFixed(0)} excl</span>
+                <span className="tabular-nums">R{Number(row.cost_price || 0).toFixed(0)} excl</span>
               </button>
             ))}
           </div>
@@ -203,9 +236,15 @@ export function BundleComposer() {
       )}
 
       {pricing && (
-        <div className="rounded-lg border border-ui-border bg-white p-4 text-sm space-y-1">
+        <div className={`${CARD} space-y-1 text-sm`} style={{ color: 'var(--pm-body)' }}>
+          <p
+            className="text-[10px] font-extrabold uppercase tracking-[0.08em]"
+            style={{ color: 'var(--pm-navy)' }}
+          >
+            Cash-out
+          </p>
           <p>
-            Billed <strong>R{pricing.billedInclVat} incl</strong> / R{pricing.billedExclVat.toFixed(2)} excl
+            Billed <strong style={{ color: 'var(--pm-navy)' }}>R{pricing.billedInclVat} incl</strong> / R{pricing.billedExclVat.toFixed(2)} excl
           </p>
           <p>Connectivity cost R{pricing.connectivityCostExcl.toFixed(2)} excl</p>
           <p>
@@ -226,34 +265,34 @@ export function BundleComposer() {
         </div>
       )}
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className={`grid gap-3 md:grid-cols-2 ${CARD}`}>
         <div className="space-y-1">
-          <Label>Company</Label>
+          <FieldLabel>Company</FieldLabel>
           <Input value={company} onChange={(e) => setCompany(e.target.value)} />
         </div>
         <div className="space-y-1">
-          <Label>Contact</Label>
+          <FieldLabel>Contact</FieldLabel>
           <Input value={contact} onChange={(e) => setContact(e.target.value)} />
         </div>
         <div className="space-y-1">
-          <Label>Email</Label>
+          <FieldLabel>Email</FieldLabel>
           <Input value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="space-y-1">
-          <Label>Phone</Label>
+          <FieldLabel>Phone</FieldLabel>
           <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+2782…" />
         </div>
         <div className="space-y-1 md:col-span-2">
-          <Label>Service address</Label>
+          <FieldLabel>Service address</FieldLabel>
           <Input value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
       </div>
 
       {error && <p className="text-sm text-red-700">{error}</p>}
 
-      <Button onClick={submit} disabled={busy || !company || !email}>
+      <PmButton onClick={submit} disabled={busy || !company || !email}>
         {busy ? 'Creating…' : 'Create draft quote'}
-      </Button>
+      </PmButton>
     </div>
   );
 }

@@ -36,7 +36,7 @@ export function DetailPageHeader({
   className,
 }: DetailPageHeaderProps) {
   return (
-    <div className={cn('mb-6', className)}>
+    <div data-pm="detail-header" className={cn('mb-6', className)}>
       {breadcrumbs.length > 0 && (
         <nav aria-label="Breadcrumb" className="mb-2">
           <ol className="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-500">

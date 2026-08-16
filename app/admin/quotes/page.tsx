@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PiWarningCircleBold, PiArrowCounterClockwiseBold } from 'react-icons/pi';
-import { Button } from '@/components/ui/button';
+import { AdminPage, ErrorState } from '@/components/backend';
+import { AdminModernistShell } from '@/components/admin/modernist/AdminModernistShell';
 import type { BusinessQuote } from '@/lib/quotes/types';
 
 import { QuotesListHeader } from '@/components/admin/quotes/list/QuotesListHeader';
@@ -94,17 +94,15 @@ export default function AdminQuotesPage() {
 
   if (error && quotes.length === 0) {
     return (
-      <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex flex-col items-center justify-center text-center max-w-md mx-auto mt-12">
-          <PiWarningCircleBold className="w-10 h-10 text-red-500 mb-3" />
-          <h3 className="text-lg font-bold text-red-900">Failed to Load Quotes</h3>
-          <p className="text-red-700 mt-2 mb-6">{error}</p>
-          <Button onClick={fetchQuotes} variant="outline" className="bg-white hover:bg-red-50 border-red-200 text-red-700">
-            <PiArrowCounterClockwiseBold className="w-4 h-4 mr-2" />
-            Try Again
-          </Button>
-        </div>
-      </div>
+      <AdminModernistShell>
+        <AdminPage>
+          <ErrorState
+            title="Failed to Load Quotes"
+            message={error}
+            onRetry={fetchQuotes}
+          />
+        </AdminPage>
+      </AdminModernistShell>
     );
   }
 
@@ -119,25 +117,22 @@ export default function AdminQuotesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <AdminModernistShell>
+      <AdminPage>
         <QuotesListHeader />
-        
         <QuotesListStatCards stats={stats} />
-        
         <QuotesFilters
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
         />
-        
-        <QuotesTable 
-          quotes={filteredQuotes} 
+        <QuotesTable
+          quotes={filteredQuotes}
           loading={loading}
           onRowClick={(id) => router.push(`/admin/quotes/${id}`)}
         />
-      </div>
-    </div>
+      </AdminPage>
+    </AdminModernistShell>
   );
 }
