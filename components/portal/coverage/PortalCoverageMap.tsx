@@ -3,8 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { PiMagnifyingGlassBold, PiXBold } from 'react-icons/pi';
 import { loadGoogleMapsService } from '@/lib/googleMapsLoader';
+import {
+  PORTAL_COVERAGE_WMS,
+  portalWmsProxyPath,
+  type PortalCoverageLayer,
+} from '@/lib/portal/coverage-wms';
 
-export type CoverageLayer = 'fixed_wireless' | '5g' | '4g' | 'all';
+export type CoverageLayer = PortalCoverageLayer;
 
 export interface MapClinic {
   id: string;
@@ -37,15 +42,6 @@ const LAYERS: Array<{
   { id: '4g', label: '4G', idle: '#FFFFFF', active: '#DC2626', text: '#FFFFFF' },
   { id: 'all', label: 'All', idle: '#FFFFFF', active: '#EAB308', text: '#13274A' },
 ];
-
-const WMS: Record<
-  Exclude<CoverageLayer, 'all'>,
-  { source: 'business' | 'consumer'; layer: string }
-> = {
-  fixed_wireless: { source: 'business', layer: 'PMPCoverage' },
-  '5g': { source: 'consumer', layer: 'mtnsi:MTNSA-Coverage-5G-5G' },
-  '4g': { source: 'consumer', layer: 'mtnsi:MTNSA-Coverage-LTE' },
-};
 
 const SA_BOUNDS = {
   north: -22.0,
@@ -210,8 +206,8 @@ export default function PortalCoverageMap({
       if (!projection) return;
 
       enabledLayers(activeLayer).forEach((id) => {
-        const spec = WMS[id];
-        const wmsUrl = `/api/coverage/mtn/wms-proxy?configId=${spec.source}&layer=${encodeURIComponent(spec.layer)}&bbox={bbox}&width=256&height=256&format=image/png&transparent=true`;
+        const spec = PORTAL_COVERAGE_WMS[id];
+        const wmsUrl = portalWmsProxyPath(spec);
         const imageMapType = new window.google.maps.ImageMapType({
           getTileUrl: (coord, zoom) => {
             const scale = 1 << zoom;
