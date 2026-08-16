@@ -34,6 +34,7 @@ export type MonthlyCostRow = {
   recurrence: string;
   cost_amount: number;
   amortised_monthly_cost: number | null;
+  is_optional?: boolean;
 };
 
 /** Monthly COS for a cost row. Once-off amounts are excluded from contribution. */
@@ -62,8 +63,9 @@ export function computeSkuContribution(
   components: MonthlyCostRow[],
   fallbackCost: number | null = null
 ): SkuContribution {
-  const fromComponents = components.reduce((sum, row) => sum + monthlyCostAmount(row), 0);
-  const hasComponents = components.length > 0;
+  const included = components.filter((row) => !row.is_optional);
+  const fromComponents = included.reduce((sum, row) => sum + monthlyCostAmount(row), 0);
+  const hasComponents = included.length > 0;
   const monthly_cos = hasComponents
     ? Math.round(fromComponents * 100) / 100
     : fallbackCost != null && fallbackCost > 0

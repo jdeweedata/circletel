@@ -155,6 +155,20 @@ describe('computeSkuContribution', () => {
     expect(result.contribution).toBeNull();
     expect(result.margin_pct).toBeNull();
   });
+
+  it('excludes optional attach modules from base COS', () => {
+    const result = computeSkuContribution(1499, [
+      { recurrence: 'monthly', cost_amount: 599, amortised_monthly_cost: 599 },
+      {
+        recurrence: 'monthly',
+        cost_amount: 75,
+        amortised_monthly_cost: 75,
+        is_optional: true,
+      },
+    ]);
+    expect(result.monthly_cos).toBe(599);
+    expect(result.contribution).toBe(900);
+  });
 });
 
 describe('isSalesQuotePackLine', () => {
