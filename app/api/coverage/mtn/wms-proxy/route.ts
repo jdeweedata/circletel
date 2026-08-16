@@ -12,6 +12,7 @@ interface WMSProxyRequest {
   format?: string;
   transparent?: boolean;
   opacity?: number;
+  styles?: string;
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const height = parseInt(searchParams.get('height') || '256');
     const format = searchParams.get('format') || 'image/png';
     const transparent = searchParams.get('transparent') !== 'false';
+    const styles = searchParams.get('styles') ?? '';
 
     // Validate required parameters
     if (!configId || !layer || !bbox) {
@@ -63,7 +65,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       VERSION: '1.3.0',
       REQUEST: 'GetMap',
       LAYERS: layer,
-      STYLES: '',
+      STYLES: styles,
       CRS: 'CRS:84', // WGS84 longitude/latitude
       BBOX: bbox,
       WIDTH: width.toString(),
@@ -146,7 +148,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       width: body.width?.toString() || '256',
       height: body.height?.toString() || '256',
       format: body.format || 'image/png',
-      transparent: (body.transparent !== false).toString()
+      transparent: (body.transparent !== false).toString(),
+      ...(body.styles ? { styles: body.styles } : {}),
     });
 
     // Create GET request URL
