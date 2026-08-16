@@ -62,7 +62,12 @@ import { cn } from '@/lib/utils';
 import networkRegister from '@/lib/data/unjani-network-register.json';
 import { PortalOpsQueues } from '@/components/admin/unjani/PortalOpsQueues';
 import type { ActivationRow, NominationRow } from '@/lib/admin/unjani-portal-ops';
-import type { StageKey } from '@/lib/portal/onboarding-stage';
+import { emptyStageCounts } from '@/lib/portal/count-onboarding-stages';
+import {
+  ONBOARDING_STAGES,
+  stageDefinition,
+  type StageKey,
+} from '@/lib/portal/onboarding-stage';
 
 // ---------- Types (mirror /api/admin/b2b/onboarding-pipeline) ----------
 
@@ -133,6 +138,7 @@ interface PortalOpsResponse {
   nominations: NominationRow[];
   activations: ActivationRow[];
   pipelineStages: Record<string, { key: StageKey; label: string }>;
+  stageCounts: Record<StageKey, number>;
 }
 
 type OpsTab = 'nominations' | 'setup' | 'activations';
@@ -159,6 +165,21 @@ const STAGES: StageMeta[] = [
   { id: 'service_active', label: 'Billing active', pillBg: '#DFF7EA', pillFg: '#0F7A3D', color: '#0F7A3D', action: 'Billing active' },
 ];
 
+/** Same accents as /unjani StageStrip — used by the admin funnel and donut. */
+const PORTAL_STAGE_COLORS: Record<StageKey, string> = {
+  nominated: '#4A5568',
+  introduced: '#2563C9',
+  details_confirmed: '#C2700C',
+  changes_requested: '#D14343',
+  visit_booked: '#2563C9',
+  installing: '#2F9E5E',
+  live: '#2F9E5E',
+};
+
+function portalStageLabel(key: StageKey): string {
+  return key === 'live' ? 'Site Live' : stageDefinition(key).label;
+}
+
 const STAGE_INDEX = Object.fromEntries(STAGES.map((s, i) => [s.id, i]));
 const PROGRESS_STAGES = STAGES.filter((s) => s.id !== 'service_active');
 
@@ -180,10 +201,6 @@ function billingIsActive(clinic: PipelineClinic): boolean {
 
 function displayStageMeta(clinic: PipelineClinic): StageMeta {
   return stageMeta(displayStageId(clinic));
-}
-
-function stageCount(data: PipelineResponse, stage: StageMeta['id']): number {
-  return data.stageCounts[stage] ?? 0;
 }
 
 function canRunPrimaryAction(clinic: PipelineClinic): boolean {
@@ -320,7 +337,7 @@ export default function UnjaniOnboardingPipelinePage() {
   const [portalOps, setPortalOps] = useState<PortalOpsResponse | null>(null);
   const [registerTicketId, setRegisterTicketId] = useState<string | null>(null);
   const [view, setView] = useState<'table' | 'kanban' | 'register'>('table');
-  const [stageFilter, setStageFilter] = useState('');
+  const [stageFilter, setStageFilter] = useState<StageKey | ''>('');
   const [provinceFilter, setProvinceFilter] = useState('');
   const [slaFilter, setSlaFilter] = useState('');
   const [query, setQuery] = useState('');
@@ -443,7 +460,7 @@ export default function UnjaniOnboardingPipelinePage() {
     const q = query.trim().toLowerCase();
     return clinics.filter(
       (c) =>
-        (!stageFilter || displayStageId(c) === stageFilter) &&
+        (!stageFilter || portalOps?.pipelineStages[c.customer_id]?.key === stageFilter) &&
         (!provinceFilter || c.province === provinceFilter) &&
         (!slaFilter || slaStatus(c) === slaFilter) &&
         (!q ||
@@ -451,7 +468,7 @@ export default function UnjaniOnboardingPipelinePage() {
             .toLowerCase()
             .includes(q))
     );
-  }, [clinics, stageFilter, provinceFilter, slaFilter, query]);
+  }, [clinics, stageFilter, provinceFilter, slaFilter, query, portalOps]);
 
   const sorted = useMemo(() => {
     const list = [...filtered];
@@ -950,7 +967,12 @@ export default function UnjaniOnboardingPipelinePage() {
   const total = clinics.length;
   const readyCount = data.stageCounts.billing_ready ?? 0;
   const awaitingInvite = data.stageCounts.pending ?? 0;
-  const maxStageCount = Math.max(...STAGES.map((s) => stageCount(data, s.id)), 1);
+  const portalCounts = portalOps?.stageCounts ?? emptyStageCounts();
+  const portalTotal = ONBOARDING_STAGES.reduce(
+    (sum, stage) => sum + (portalCounts[stage.key] ?? 0),
+    0
+  );
+  const maxStageCount = Math.max(...ONBOARDING_STAGES.map((s) => portalCounts[s.key] ?? 0), 1);
   const maxProvinceCount = provinceCounts[0]?.[1] ?? 1;
 
   return (
@@ -1084,16 +1106,18 @@ export default function UnjaniOnboardingPipelinePage() {
         className="mb-6"
       >
         <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2">
-          {STAGES.map((s) => {
-            const count = stageCount(data, s.id);
+          {ONBOARDING_STAGES.map((s) => {
+            const count = portalCounts[s.key] ?? 0;
             const overdueInStage = clinics.filter(
-              (c) => displayStageId(c) === s.id && slaStatus(c) === 'err'
+              (c) =>
+                portalOps?.pipelineStages[c.customer_id]?.key === s.key &&
+                slaStatus(c) === 'err'
             ).length;
-            const selected = stageFilter === s.id;
+            const selected = stageFilter === s.key;
             return (
               <button
-                key={s.id}
-                onClick={() => setStageFilter(selected ? '' : s.id)}
+                key={s.key}
+                onClick={() => setStageFilter(selected ? '' : s.key)}
                 aria-pressed={selected}
                 className={cn(
                   'relative rounded-md border p-3 text-left transition-colors',
@@ -1101,6 +1125,7 @@ export default function UnjaniOnboardingPipelinePage() {
                     ? 'border-circleTel-orange bg-circleTel-orange-light'
                     : 'border-gray-200 bg-white hover:border-circleTel-orange'
                 )}
+                style={{ borderBottomColor: PORTAL_STAGE_COLORS[s.key], borderBottomWidth: 3 }}
               >
                 {overdueInStage > 0 && (
                   <span className="absolute top-2 right-2 text-[10px] font-bold text-red-600 bg-red-50 rounded-full px-1.5 py-0.5">
@@ -1110,11 +1135,16 @@ export default function UnjaniOnboardingPipelinePage() {
                 <div className="text-2xl font-bold text-circleTel-navy tabular-nums">
                   {count}
                 </div>
-                <div className="text-xs font-medium text-gray-500 mt-0.5">{s.label}</div>
+                <div className="text-xs font-medium text-gray-500 mt-0.5">
+                  {portalStageLabel(s.key)}
+                </div>
                 <div className="h-1 rounded-full bg-gray-100 mt-2 overflow-hidden">
                   <div
-                    className="h-full bg-circleTel-orange rounded-full"
-                    style={{ width: `${Math.round((count / maxStageCount) * 100)}%` }}
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.round((count / maxStageCount) * 100)}%`,
+                      background: PORTAL_STAGE_COLORS[s.key],
+                    }}
                   />
                 </div>
               </button>
@@ -1126,7 +1156,7 @@ export default function UnjaniOnboardingPipelinePage() {
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <SectionCard title="Stage distribution" compact>
-          {total === 0 ? (
+          {portalTotal === 0 ? (
             <p className="text-sm text-gray-500">No clinics in pipeline.</p>
           ) : (
             <div className="flex items-center gap-6">
@@ -1140,24 +1170,26 @@ export default function UnjaniOnboardingPipelinePage() {
               >
                 {(() => {
                   let offset = 25;
-                  return STAGES.filter((s) => stageCount(data, s.id) > 0).map((s) => {
-                    const pct = (stageCount(data, s.id) / total) * 100;
-                    const seg = (
-                      <circle
-                        key={s.id}
-                        r="15.915"
-                        cx="21"
-                        cy="21"
-                        fill="none"
-                        stroke={s.color}
-                        strokeWidth="5.4"
-                        strokeDasharray={`${pct} ${100 - pct}`}
-                        strokeDashoffset={offset}
-                      />
-                    );
-                    offset -= pct;
-                    return seg;
-                  });
+                  return ONBOARDING_STAGES.filter((s) => (portalCounts[s.key] ?? 0) > 0).map(
+                    (s) => {
+                      const pct = ((portalCounts[s.key] ?? 0) / portalTotal) * 100;
+                      const seg = (
+                        <circle
+                          key={s.key}
+                          r="15.915"
+                          cx="21"
+                          cy="21"
+                          fill="none"
+                          stroke={PORTAL_STAGE_COLORS[s.key]}
+                          strokeWidth="5.4"
+                          strokeDasharray={`${pct} ${100 - pct}`}
+                          strokeDashoffset={offset}
+                        />
+                      );
+                      offset -= pct;
+                      return seg;
+                    }
+                  );
                 })()}
                 <text
                   x="21"
@@ -1167,22 +1199,22 @@ export default function UnjaniOnboardingPipelinePage() {
                   fontWeight="700"
                   fill="#1B2A4A"
                 >
-                  {total}
+                  {portalTotal}
                 </text>
                 <text x="21" y="26.5" textAnchor="middle" fontSize="3" fill="#8B8B8B">
                   clinics
                 </text>
               </svg>
               <div className="flex flex-col gap-1.5 text-xs min-w-0">
-                {STAGES.filter((s) => stageCount(data, s.id) > 0).map((s) => (
-                  <div key={s.id} className="flex items-center gap-2 text-gray-600">
+                {ONBOARDING_STAGES.filter((s) => (portalCounts[s.key] ?? 0) > 0).map((s) => (
+                  <div key={s.key} className="flex items-center gap-2 text-gray-600">
                     <span
                       className="w-2.5 h-2.5 rounded-sm shrink-0"
-                      style={{ background: s.color }}
+                      style={{ background: PORTAL_STAGE_COLORS[s.key] }}
                     />
-                    <span className="truncate">{s.label}</span>
+                    <span className="truncate">{portalStageLabel(s.key)}</span>
                     <span className="ml-auto pl-3 font-semibold text-gray-900 tabular-nums">
-                      {stageCount(data, s.id)}
+                      {portalCounts[s.key] ?? 0}
                     </span>
                   </div>
                 ))}
@@ -1257,7 +1289,7 @@ export default function UnjaniOnboardingPipelinePage() {
             onClick={() => setStageFilter('')}
             className="inline-flex items-center gap-1.5 rounded-full bg-circleTel-orange-light px-3 py-1.5 text-xs font-semibold text-circleTel-orange-accessible"
           >
-            Stage: {stageMeta(stageFilter).label}
+            Stage: {portalStageLabel(stageFilter)}
             <span aria-hidden>×</span>
           </button>
         )}

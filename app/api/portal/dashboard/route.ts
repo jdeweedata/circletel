@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
 import { requirePortalUser } from '@/lib/portal/require-portal-user';
-import {
-  deriveStage,
-  submissionRank,
-  type StageKey,
-} from '@/lib/portal/onboarding-stage';
+import { clinicKey } from '@/lib/portal/coverage-summary';
+import { countOnboardingStages, scopeOnboardingCustomers } from '@/lib/portal/count-onboarding-stages';
+import { submissionRank } from '@/lib/portal/onboarding-stage';
 import { isCustomerServiceBilledNow } from '@/lib/billing/billing-eligibility';
 
 /**
@@ -18,15 +16,6 @@ import { isCustomerServiceBilledNow } from '@/lib/billing/billing-eligibility';
  * Pre-qualified clinics are those CircleTel has coverage-checked that have no
  * site record — the population Unjani can still nominate.
  */
-
-/** "Unjani Clinic - Lens ext 10" and "Lens ext 10" both collapse to "lensext10". */
-function clinicKey(name: string | null | undefined): string {
-  if (!name) return '';
-  return name
-    .replace(/^.*[Uu]njani [Cc]linic[ -]*/, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '');
-}
 
 export async function GET() {
   const auth = await requirePortalUser();
@@ -104,11 +93,7 @@ export async function GET() {
     .from('customers')
     .select('id, business_name, corporate_site_id');
 
-  const customerList = (customers ?? []).filter((c) => {
-    if (/training/i.test(c.business_name ?? '')) return false;
-    if (c.corporate_site_id && siteIds.has(c.corporate_site_id)) return true;
-    return checkKeys.has(clinicKey(c.business_name));
-  });
+  const customerList = scopeOnboardingCustomers(customers ?? [], siteIds, checkKeys);
   const customerIds = customerList.map((c) => c.id);
 
   const bestSubmission: Record<
@@ -142,64 +127,27 @@ export async function GET() {
     for (const t of tokens ?? []) linkSent.add(t.customer_id);
   }
 
-  const customerBySite = new Map<string, string>();
-  for (const c of customerList) {
-    if (c.corporate_site_id && siteIds.has(c.corporate_site_id)) {
-      customerBySite.set(c.corporate_site_id, c.id);
-    }
-  }
+  const { stageCounts, stageBySiteId } = countOnboardingStages({
+    sites: siteList,
+    customers: customerList,
+    bestSubmission,
+    linkSent,
+  });
 
-  const stageCounts: Record<StageKey, number> = {
-    nominated: 0,
-    introduced: 0,
-    details_confirmed: 0,
-    changes_requested: 0,
-    visit_booked: 0,
-    installing: 0,
-    live: 0,
-  };
-
-  let sitesLive = 0;
   let billedSites = 0;
   let monthlySpend = 0;
 
   for (const site of siteList) {
-    const customerId = customerBySite.get(site.id);
-    const submission = customerId ? bestSubmission[customerId] : undefined;
-    const stage = deriveStage({
-      siteStatus: site.status,
-      installedAt: site.installed_at,
-      submissionStatus: submission?.status,
-      submissionRejectionReason: submission?.rejection_reason,
-      onboardingLinkSent: customerId ? linkSent.has(customerId) : false,
-    });
-    stageCounts[stage]++;
-
-    if (stage === 'live') {
-      sitesLive++;
-      // Recurring spend follows the invoice generator: an active service whose
-      // billing_start_date has been reached. Live but deferred (e.g. 1 Sep) is excluded.
-      if (isSiteBilled(site.id)) {
-        billedSites++;
-        monthlySpend += Number(site.monthly_fee ?? 0);
-      }
+    if (stageBySiteId[site.id] !== 'live') continue;
+    // Recurring spend follows the invoice generator: an active service whose
+    // billing_start_date has been reached. Live but deferred (e.g. 1 Sep) is excluded.
+    if (isSiteBilled(site.id)) {
+      billedSites++;
+      monthlySpend += Number(site.monthly_fee ?? 0);
     }
   }
 
-  // Clinics whose onboarding has started but that have no site record yet.
-  const countedCustomers = new Set(customerBySite.values());
-  for (const customer of customerList) {
-    if (countedCustomers.has(customer.id)) continue;
-    const submission = bestSubmission[customer.id];
-    if (!submission && !linkSent.has(customer.id)) continue;
-    stageCounts[
-      deriveStage({
-        submissionStatus: submission?.status,
-        submissionRejectionReason: submission?.rejection_reason,
-        onboardingLinkSent: linkSent.has(customer.id),
-      })
-    ]++;
-  }
+  const sitesLive = stageCounts.live;
 
   const inOnboarding =
     stageCounts.nominated +
