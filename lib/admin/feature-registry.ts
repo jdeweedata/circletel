@@ -184,6 +184,10 @@ export const featureSections: NavSection[] = [
         description: 'Business customer journey',
         children: [
           { name: 'Clinic Onboarding', href: '/admin/unjani/onboarding', icon: PiUserPlusBold },
+          { name: 'Sites live', href: '/admin/unjani/sites-live', icon: PiWifiHighBold },
+          { name: 'In onboarding', href: '/admin/unjani/in-onboarding', icon: PiUserPlusBold },
+          { name: 'Pre-qualified', href: '/admin/unjani/pre-qualified', icon: PiMapPinBold },
+          { name: 'Monthly spend', href: '/admin/unjani/monthly-spend', icon: PiReceiptBold },
           { name: 'Manual Onboarding', href: '/admin/b2b/manual-intake', icon: PiClipboardTextBold },
           { name: 'Document Vetting', href: '/admin/b2b/vetting', icon: PiUserCheckBold },
           { name: 'All B2B Customers', href: '/admin/b2b-customers', icon: PiBuildingsBold },

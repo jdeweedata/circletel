@@ -133,7 +133,7 @@ export function UnjaniFulfilmentPanel({
   }, [stock]);
 
   return (
-    <section className="mb-8 space-y-6">
+    <section id="coverage" className="mb-8 space-y-6">
       <div>
         <p
           className="text-[10px] font-extrabold tracking-[0.08em] uppercase"

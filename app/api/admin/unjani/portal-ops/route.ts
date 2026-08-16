@@ -22,6 +22,7 @@ import {
 } from '@/lib/portal/count-onboarding-stages';
 import { fetchDeskStatusUpdates } from '@/lib/portal/create-desk-ticket';
 import { billedSiteIdSet, unjaniDashboardKpis } from '@/lib/portal/dashboard-kpis';
+import { buildUnjaniKpiLists } from '@/lib/admin/unjani-kpi-lists';
 import { submissionRank, stageDefinition } from '@/lib/portal/onboarding-stage';
 import { apiLogger } from '@/lib/logging/logger';
 
@@ -147,20 +148,27 @@ export async function GET(request: NextRequest) {
           .in('customer_id', siteCustomerIds)
       : { data: [] };
 
-    const kpis = unjaniDashboardKpis({
-      stageCounts,
-      sites: siteList,
-      coverageChecks: checks ?? [],
-      stageBySiteId,
-      billedSiteIds: billedSiteIdSet(customerList, siteServices ?? []),
-    });
-
     const stageClinics = stageClinicRefs({
       sites: siteList,
       customers: customerList,
       stageBySiteId,
       stageByCustomerId,
       nominatedChecks,
+    });
+
+    const billedSiteIds = billedSiteIdSet(customerList, siteServices ?? []);
+    const kpis = unjaniDashboardKpis({
+      stageCounts,
+      sites: siteList,
+      coverageChecks: checks ?? [],
+      stageBySiteId,
+      billedSiteIds,
+    });
+    const kpiLists = buildUnjaniKpiLists({
+      stageClinics,
+      sites: siteList,
+      coverageChecks: checks ?? [],
+      billedSiteIds,
     });
 
     const pipelineStages: Record<string, { key: string; label: string }> = {};
@@ -195,6 +203,7 @@ export async function GET(request: NextRequest) {
       stageCounts,
       stageClinics,
       kpis,
+      kpiLists,
     });
   } catch (error: unknown) {
     apiLogger.error('[Unjani portal-ops] GET failed', { error });
