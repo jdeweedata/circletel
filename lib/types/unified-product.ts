@@ -97,6 +97,15 @@ export function computeMarginPct(price: number, cost: number): number {
   return Math.round(((price - cost) / price) * 100);
 }
 
+/** Strip cost-of-sale fields for viewers without `products:view_costs`. */
+export function redactUnifiedProductCosts(product: UnifiedProduct): UnifiedProduct {
+  const raw: Record<string, unknown> = { ...product.raw };
+  for (const key of Object.keys(raw)) {
+    if (/cost/i.test(key)) raw[key] = null;
+  }
+  return { ...product, cost: 0, margin: 0, raw };
+}
+
 function compact(values: Array<string | null | undefined>): string[] {
   return values.filter((v): v is string => typeof v === 'string' && v.trim().length > 0);
 }

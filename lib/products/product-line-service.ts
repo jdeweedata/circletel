@@ -250,6 +250,50 @@ export function redactProductLineCosts(
   };
 }
 
+/**
+ * Resolve a catalogue row (`source_table` + `source_id`, then SKU fallback)
+ * to a product_line_skus.product_line_id. Returns null when unlinked.
+ */
+export async function findProductLineIdForSource(
+  supabase: SupabaseClient,
+  sourceTable: string,
+  sourceId: string,
+  sku?: string | null
+): Promise<string | null> {
+  const { data: bySource } = await supabase
+    .from('product_line_skus')
+    .select('product_line_id')
+    .eq('source_table', sourceTable)
+    .eq('source_id', sourceId)
+    .limit(1)
+    .maybeSingle();
+
+  if (bySource?.product_line_id) return String(bySource.product_line_id);
+
+  if (sku) {
+    const { data: bySku } = await supabase
+      .from('product_line_skus')
+      .select('product_line_id')
+      .eq('sku', sku)
+      .limit(1)
+      .maybeSingle();
+    if (bySku?.product_line_id) return String(bySku.product_line_id);
+  }
+
+  return null;
+}
+
+export async function getProductLineForSource(
+  supabase: SupabaseClient,
+  sourceTable: string,
+  sourceId: string,
+  sku?: string | null
+): Promise<ProductLineWithRelations | null> {
+  const lineId = await findProductLineIdForSource(supabase, sourceTable, sourceId, sku);
+  if (!lineId) return null;
+  return getProductLine(supabase, lineId);
+}
+
 export async function getPublishGateForSku(
   supabase: SupabaseClient,
   skuOrPackageId: string
