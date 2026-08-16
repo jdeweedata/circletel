@@ -41,6 +41,15 @@ export function deskCategoryForTicketType(ticketType: string | undefined): strin
   return 'Customer Support';
 }
 
+/** Desk's update API has no Resolved status — close the ticket when the portal resolves it. */
+export function deskStatusForPortalUpdate(
+  status: PortalTicketStatus
+): 'Open' | 'On Hold' | 'Closed' {
+  if (status === 'resolved' || status === 'closed') return 'Closed';
+  if (status === 'in_progress') return 'On Hold';
+  return 'Open';
+}
+
 export function splitContactName(displayName: string): {
   firstName?: string;
   lastName: string;

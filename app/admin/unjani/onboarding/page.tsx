@@ -60,6 +60,9 @@ import {
 } from '@/components/backend';
 import { cn } from '@/lib/utils';
 import networkRegister from '@/lib/data/unjani-network-register.json';
+import { PortalOpsQueues } from '@/components/admin/unjani/PortalOpsQueues';
+import type { ActivationRow, NominationRow } from '@/lib/admin/unjani-portal-ops';
+import type { StageKey } from '@/lib/portal/onboarding-stage';
 
 // ---------- Types (mirror /api/admin/b2b/onboarding-pipeline) ----------
 
@@ -124,6 +127,15 @@ interface PipelineResponse {
   };
   overdueCount: number;
 }
+
+interface PortalOpsResponse {
+  organisationId: string;
+  nominations: NominationRow[];
+  activations: ActivationRow[];
+  pipelineStages: Record<string, { key: StageKey; label: string }>;
+}
+
+type OpsTab = 'nominations' | 'setup' | 'activations';
 
 // ---------- Stage model ----------
 
@@ -304,6 +316,9 @@ export default function UnjaniOnboardingPipelinePage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
+  const [opsTab, setOpsTab] = useState<OpsTab>('setup');
+  const [portalOps, setPortalOps] = useState<PortalOpsResponse | null>(null);
+  const [registerTicketId, setRegisterTicketId] = useState<string | null>(null);
   const [view, setView] = useState<'table' | 'kanban' | 'register'>('table');
   const [stageFilter, setStageFilter] = useState('');
   const [provinceFilter, setProvinceFilter] = useState('');
@@ -374,9 +389,23 @@ export default function UnjaniOnboardingPipelinePage() {
     }
   }, [authHeaders]);
 
+  const fetchPortalOps = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/unjani/portal-ops', {
+        headers: authHeaders(),
+      });
+      if (!response.ok) return;
+      const result: PortalOpsResponse = await response.json();
+      setPortalOps(result);
+    } catch (error) {
+      console.error('Error fetching portal ops:', error);
+    }
+  }, [authHeaders]);
+
   useEffect(() => {
     fetchPipeline();
-  }, [fetchPipeline]);
+    fetchPortalOps();
+  }, [fetchPipeline, fetchPortalOps]);
 
   // ---------- Derived data ----------
 
@@ -480,7 +509,7 @@ export default function UnjaniOnboardingPipelinePage() {
       } else {
         toast.error(result.error || `Failed to send ${label.toLowerCase()}`);
       }
-      await fetchPipeline();
+      await Promise.all([fetchPipeline(), fetchPortalOps()]);
     } catch (error) {
       console.error('Error sending link:', error);
       toast.error(`Failed to send ${label.toLowerCase()}`);
@@ -510,7 +539,7 @@ export default function UnjaniOnboardingPipelinePage() {
       } else {
         toast.error(result.error || 'Failed to send onboarding email');
       }
-      await fetchPipeline();
+      await Promise.all([fetchPipeline(), fetchPortalOps()]);
     } catch (error) {
       console.error('Error sending onboarding email:', error);
       toast.error('Failed to send onboarding email');
@@ -543,7 +572,7 @@ export default function UnjaniOnboardingPipelinePage() {
       } else {
         toast.error(result.error || `Failed to send via ${channelLabel}`);
       }
-      await fetchPipeline();
+      await Promise.all([fetchPipeline(), fetchPortalOps()]);
     } catch (error) {
       console.error('Error sending invite:', error);
       toast.error(`Failed to send via ${channelLabel}`);
@@ -637,11 +666,38 @@ export default function UnjaniOnboardingPipelinePage() {
   };
 
   const openRegisterDialog = (clinic: RegisterClinic) => {
+    setRegisterTicketId(null);
     setRegisterDialog(clinic);
     setRegNurse(clinic.nurse ?? '');
     setRegPhone('');
     setRegEmail('');
     setRegAddress('');
+  };
+
+  const openNominationRegister = (row: NominationRow) => {
+    setRegisterTicketId(row.ticket?.id ?? null);
+    setRegisterDialog({
+      name: row.clinicName,
+      province: '',
+      nurse: row.contact.contactName ?? null,
+      isp: null,
+      isp_cost: null,
+      saving: null,
+      migration_ready: true,
+    });
+    setRegNurse(row.contact.contactName ?? '');
+    setRegPhone(row.contact.mobile ?? '');
+    setRegEmail(row.contact.email ?? '');
+    setRegAddress(row.contact.address ?? row.address ?? '');
+  };
+
+  const sendLinkForNomination = (clinicName: string) => {
+    const clinic = clinics.find((c) => normName(c.business_name) === normName(clinicName));
+    if (!clinic) {
+      toast.info('Register the clinic first, then send the onboarding link.');
+      return;
+    }
+    sendLink(clinic, 'Invite');
   };
 
   const openRegisterClinic = async (clinic: RegisterClinic) => {
@@ -750,13 +806,20 @@ export default function UnjaniOnboardingPipelinePage() {
           phone: regPhone.trim() || undefined,
           email: regEmail.trim() || undefined,
           siteAddress: regAddress.trim() || undefined,
+          ticketId: registerTicketId || undefined,
         }),
       });
       const result = await response.json();
       if (response.ok && result.success) {
         toast.success(`${result.businessName} added to the pipeline (${result.accountNumber})`);
         setRegisterDialog(null);
-        await fetchPipeline();
+        setRegisterTicketId(null);
+        await Promise.all([fetchPipeline(), fetchPortalOps()]);
+      } else if (response.status === 409 && registerTicketId) {
+        toast.info(result.error || 'Clinic already in the pipeline — nomination marked in progress');
+        setRegisterDialog(null);
+        setRegisterTicketId(null);
+        await Promise.all([fetchPipeline(), fetchPortalOps()]);
       } else {
         toast.error(result.error || 'Failed to add clinic');
       }
@@ -894,8 +957,9 @@ export default function UnjaniOnboardingPipelinePage() {
     <AdminPage>
       <PageHeader
         title="Unjani Clinic Onboarding"
-        subtitle={`${total} clinics in pipeline · ${REGISTER.summary.total_clinics} in network register · vetting target 2 business days`}
+        subtitle={`${total} clinics in pipeline · ${portalOps?.nominations.length ?? 0} nominations · ${portalOps?.activations.length ?? 0} activations · vetting target 2 business days`}
         actions={
+          opsTab === 'setup' ? (
           <>
             <div className="inline-flex rounded-md border border-gray-200 bg-white overflow-hidden">
               {(['table', 'kanban', 'register'] as const).map((v) => (
@@ -926,9 +990,58 @@ export default function UnjaniOnboardingPipelinePage() {
               {batchSending ? 'Sending…' : 'Send pending invites'}
             </Button>
           </>
+          ) : undefined
         }
       />
 
+      <div className="inline-flex rounded-md border border-gray-200 bg-white overflow-hidden mb-6">
+        {([
+          ['nominations', 'Nominations', portalOps?.nominations.length ?? 0],
+          ['setup', 'Setup', total],
+          ['activations', 'Activations', portalOps?.activations.length ?? 0],
+        ] as const).map(([id, label, count]) => (
+          <button
+            key={id}
+            onClick={() => setOpsTab(id)}
+            className={cn(
+              'px-4 py-2 text-sm font-semibold transition-colors inline-flex items-center gap-2',
+              opsTab === id
+                ? 'bg-circleTel-navy text-white'
+                : 'text-gray-500 hover:text-gray-900'
+            )}
+          >
+            {label}
+            <span
+              className={cn(
+                'rounded-full px-1.5 py-0.5 text-[11px] tabular-nums',
+                opsTab === id ? 'bg-white/15 text-white' : 'bg-gray-100 text-gray-600'
+              )}
+            >
+              {count}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {opsTab !== 'setup' && (
+        <div className="mb-6">
+          <PortalOpsQueues
+            tab={opsTab}
+            nominations={portalOps?.nominations ?? []}
+            activations={portalOps?.activations ?? []}
+            organisationId={portalOps?.organisationId ?? null}
+            authHeaders={authHeaders}
+            onRegisterNomination={openNominationRegister}
+            onSendLink={sendLinkForNomination}
+            onRefresh={async () => {
+              await Promise.all([fetchPipeline(), fetchPortalOps()]);
+            }}
+          />
+        </div>
+      )}
+
+      {opsTab === 'setup' && (
+      <>
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <StatCard
@@ -1222,6 +1335,11 @@ export default function UnjaniOnboardingPipelinePage() {
                             <span className="w-1.5 h-1.5 rounded-full bg-current" />
                             {meta.label}
                           </span>
+                          {portalOps?.pipelineStages[clinic.customer_id] && (
+                            <div className="text-[11px] text-gray-500 mt-1">
+                              {portalOps.pipelineStages[clinic.customer_id].label}
+                            </div>
+                          )}
                           <div className="flex gap-0.5 mt-1.5">
                             {PROGRESS_STAGES.map((_, i) => (
                               <span
@@ -1603,11 +1721,17 @@ export default function UnjaniOnboardingPipelinePage() {
         </div>
       )}
 
+      </>
+      )}
+
       {/* Start-onboarding dialog (Register view) */}
       <Dialog
         open={!!registerDialog}
         onOpenChange={(open) => {
-          if (!open && !registering) setRegisterDialog(null);
+          if (!open && !registering) {
+            setRegisterDialog(null);
+            setRegisterTicketId(null);
+          }
         }}
       >
         <DialogContent className="sm:max-w-md">
@@ -1724,6 +1848,11 @@ export default function UnjaniOnboardingPipelinePage() {
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
                   {displayStageMeta(drawerClinic).label}
                 </span>
+                {portalOps?.pipelineStages[drawerClinic.customer_id] && (
+                  <div className="text-xs text-white/70">
+                    Portal: {portalOps.pipelineStages[drawerClinic.customer_id].label}
+                  </div>
+                )}
               </SheetHeader>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div>

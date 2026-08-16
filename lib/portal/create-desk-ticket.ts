@@ -1,6 +1,7 @@
 import { createMintedZohoDeskService } from '@/lib/integrations/zoho/desk-service';
 import {
   deskCategoryForTicketType,
+  deskStatusForPortalUpdate,
   mapDeskStatusToPortal,
   mapPortalPriorityToDesk,
   type PortalTicketStatus,
@@ -61,4 +62,13 @@ export async function fetchDeskStatusUpdates(
   }
 
   return updates;
+}
+
+export async function syncDeskTicketStatus(
+  zohoTicketId: string | null | undefined,
+  portalStatus: PortalTicketStatus
+): Promise<void> {
+  if (!zohoTicketId) return;
+  const desk = await createMintedZohoDeskService();
+  await desk.updateTicketStatus(zohoTicketId, deskStatusForPortalUpdate(portalStatus));
 }
