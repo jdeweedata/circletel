@@ -107,7 +107,7 @@ export async function GET(
   let latestHealth = null;
   let recentAlerts: unknown[] = [];
 
-  if (site.ruijie_device_sn) {
+  if (stage === 'live' && site.ruijie_device_sn) {
     const { data: healthData } = await adminDb
       .from('device_health_snapshots')
       .select('health_score, online_clients, cpu_usage, memory_usage, status, captured_at')

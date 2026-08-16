@@ -3,13 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import {
-  PiHeartbeatBold,
-  PiWifiHighBold,
-  PiWarningBold,
-  PiCpuBold,
-  PiCalendarBold,
-} from 'react-icons/pi';
+import { PiHeartbeatBold } from 'react-icons/pi';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
 import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
@@ -20,6 +14,7 @@ import {
   formatZar,
 } from '@/lib/portal/site-format';
 import HealthTrendChart from '@/components/portal/HealthTrendChart';
+import StaffWifiUsageChart from '@/components/portal/StaffWifiUsageChart';
 import {
   PageHeader,
   PmButton,
@@ -68,15 +63,6 @@ interface SiteDetail {
     status: string | null;
     captured_at: string;
   } | null;
-  alerts: Array<{
-    id: string;
-    alert_type: string;
-    severity: string;
-    message: string;
-    created_at: string;
-    acknowledged: boolean;
-    acknowledged_at: string | null;
-  }>;
 }
 
 export default function PortalSiteDetailPage() {
@@ -116,8 +102,8 @@ export default function PortalSiteDetailPage() {
     );
   }
 
-  const { site, health, alerts } = data;
-  const activeAlerts = alerts.filter((a) => !a.acknowledged);
+  const { site, health } = data;
+  const isLive = site.stage === 'live';
   const hasMonitoring = !!site.ruijie_device_sn;
   const address = formatSiteStreet(site);
 
@@ -154,123 +140,33 @@ export default function PortalSiteDetailPage() {
         </section>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={<PiHeartbeatBold className="w-6 h-6" />}
-          label="Health Score"
-          value={health ? `${health.health_score}%` : 'N/A'}
-          color={health && health.health_score >= 80 ? 'green' : health && health.health_score >= 50 ? 'orange' : 'gray'}
-        />
-        <StatCard
-          icon={<PiWifiHighBold className="w-6 h-6" />}
-          label="Connected Clients"
-          value={health?.online_clients ?? '—'}
-          color="blue"
-        />
-        <StatCard
-          icon={<PiCpuBold className="w-6 h-6" />}
-          label="CPU / Memory"
-          value={
-            health?.cpu_usage != null && health?.memory_usage != null
-              ? `${health.cpu_usage}% / ${health.memory_usage}%`
-              : '—'
-          }
-          color="purple"
-        />
-        <StatCard
-          icon={<PiCalendarBold className="w-6 h-6" />}
-          label="Last Updated"
-          value={
-            health
-              ? new Date(health.captured_at).toLocaleString('en-ZA', {
-                  day: '2-digit',
-                  month: 'short',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
-              : '—'
-          }
-          color="gray"
-        />
-      </div>
-
-      {!hasMonitoring && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
-          Automated monitoring is not available for this site (MTN LTE). Status is updated manually.
-        </div>
-      )}
-
-      {hasMonitoring && <HealthTrendChart siteId={siteId} />}
-
-      {activeAlerts.length > 0 && (
-        <div className="bg-white rounded-xl border">
-          <div className="px-4 py-3 border-b flex items-center gap-2">
-            <PiWarningBold className="w-5 h-5 text-amber-500" />
-            <h2
-              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
-              style={{ color: 'var(--pm-navy)' }}
-            >
-              Active Alerts ({activeAlerts.length})
-            </h2>
+      {isLive && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              icon={<PiHeartbeatBold className="w-6 h-6" />}
+              label="Health Score"
+              value={health ? `${health.health_score}%` : 'N/A'}
+              color={
+                health && health.health_score >= 80
+                  ? 'green'
+                  : health && health.health_score >= 50
+                    ? 'orange'
+                    : 'gray'
+              }
+            />
           </div>
-          <ul className="divide-y">
-            {activeAlerts.map((alert) => (
-              <li key={alert.id} className="px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{alert.message}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(alert.created_at).toLocaleString('en-ZA')}
-                  </p>
-                </div>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    alert.severity === 'critical'
-                      ? 'bg-red-100 text-red-700'
-                      : alert.severity === 'warning'
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'bg-blue-100 text-blue-700'
-                  }`}
-                >
-                  {alert.severity}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
-      {alerts.length > 0 && alerts.some((a) => a.acknowledged) && (
-        <div className="bg-white rounded-xl border">
-          <div className="px-4 py-3 border-b">
-            <h2
-              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
-              style={{ color: 'var(--pm-navy)' }}
-            >
-              Recently Acknowledged Alerts
-            </h2>
-          </div>
-          <ul className="divide-y">
-            {alerts
-              .filter((a) => a.acknowledged)
-              .slice(0, 5)
-              .map((alert) => (
-                <li key={alert.id} className="px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-gray-500">
-                  <div className="min-w-0">
-                    <p className="text-sm">{alert.message}</p>
-                    <p className="text-xs">
-                      Acknowledged{' '}
-                      {alert.acknowledged_at
-                        ? new Date(alert.acknowledged_at).toLocaleString('en-ZA')
-                        : '—'}
-                    </p>
-                  </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                    acknowledged
-                  </span>
-                </li>
-              ))}
-          </ul>
-        </div>
+          {!hasMonitoring && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
+              Automated monitoring is not available for this site (MTN LTE). Status is updated manually.
+            </div>
+          )}
+
+          {hasMonitoring && <HealthTrendChart siteId={siteId} />}
+
+          {isUnjani && <StaffWifiUsageChart currentSiteId={siteId} />}
+        </>
       )}
 
       <div className="bg-white rounded-xl border p-4">
@@ -318,8 +214,6 @@ function StatCard({
   const colorMap: Record<string, string> = {
     green: 'bg-green-50 text-green-600',
     orange: 'bg-orange-50 text-orange-600',
-    blue: 'bg-blue-50 text-blue-600',
-    purple: 'bg-purple-50 text-purple-600',
     gray: 'bg-gray-50 text-gray-600',
   };
 
