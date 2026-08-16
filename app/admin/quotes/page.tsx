@@ -26,7 +26,7 @@ export default function AdminQuotesPage() {
   const [quotes, setQuotes] = useState<QuoteWithDetails[]>([]);
   const [filteredQuotes, setFilteredQuotes] = useState<QuoteWithDetails[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('open');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -53,9 +53,7 @@ export default function AdminQuotesPage() {
 
     try {
       const params = new URLSearchParams();
-      if (statusFilter !== 'all') {
-        params.append('status', statusFilter);
-      }
+      params.append('status', statusFilter);
       params.append('limit', '50');
 
       const controller = new AbortController();
@@ -81,14 +79,14 @@ export default function AdminQuotesPage() {
         }
       } catch (fetchErr: unknown) {
         clearTimeout(timeoutId);
-        if (fetchErr.name === 'AbortError') {
+        if (fetchErr instanceof Error && fetchErr.name === 'AbortError') {
           throw new Error('Request timed out after 30 seconds. The server may be experiencing issues.');
         }
         throw fetchErr;
       }
     } catch (err: unknown) {
       console.error('Error fetching quotes:', err);
-      setError(err.message || 'Failed to load quotes');
+      setError(err instanceof Error ? err.message : 'Failed to load quotes');
     } finally {
       setLoading(false);
     }

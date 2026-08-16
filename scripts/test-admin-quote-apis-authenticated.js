@@ -20,6 +20,31 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000';
 const ADMIN_EMAIL = process.env.ADMIN_TEST_EMAIL || 'jeffrey.de.wee@circletel.co.za';
 const ADMIN_PASSWORD = process.env.ADMIN_TEST_PASSWORD || 'a35kK4qCc3sVfj2!';
 
+function assertSafeTestTarget() {
+  const allowProd = process.env.ALLOW_PROD_QUOTE_TESTS === '1';
+  const url = String(BASE_URL).toLowerCase();
+  const isLocal = url.includes('localhost') || url.includes('127.0.0.1');
+  const isProdHost =
+    url.includes('circletel.co.za') ||
+    url.includes('agyjovdugmtopasyvlng');
+
+  if (!isLocal && !allowProd) {
+    console.error(
+      'Refusing to run quote API tests against a non-local host.\n' +
+        'Set TEST_BASE_URL=http://localhost:3000, or ALLOW_PROD_QUOTE_TESTS=1 only for an explicit sandbox.'
+    );
+    process.exit(1);
+  }
+  if (isProdHost && !allowProd) {
+    console.error(
+      'Refusing to write test quotes to production. This script previously filled business_quotes with 382 automated drafts.'
+    );
+    process.exit(1);
+  }
+}
+
+assertSafeTestTarget();
+
 // Test state
 let sessionCookies = '';
 let testQuoteId = null;
@@ -437,7 +462,17 @@ async function runTests() {
   await testApproveQuote();
   await testPendingQuotes();
   await testAnalytics();
-  await testDeleteQuote();
+  try {
+    await testDeleteQuote();
+  } finally {
+    if (testQuoteId) {
+      try {
+        await makeRequest('DELETE', `/api/quotes/business/${testQuoteId}`);
+      } catch (cleanupErr) {
+        log(`Could not delete leftover test quote ${testQuoteId}: ${cleanupErr.message}`, 'yellow');
+      }
+    }
+  }
 
   // Print summary
   log('\n╔═══════════════════════════════════════════════════════════════╗', 'cyan');

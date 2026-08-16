@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { apiLogger } from '@/lib/logging';
+import {
+  expireStaleQuotes,
+  isOpenQuoteStatusFilter,
+} from '@/lib/quotes/expire-stale-quotes';
 
 // Vercel serverless function configuration
 export const runtime = 'nodejs'; // Use Node.js runtime (not Edge)
@@ -34,6 +38,13 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
+    const expireResult = await expireStaleQuotes(supabase);
+    if (expireResult.error) {
+      apiLogger.warn('[Quotes API] Stale-quote expiry skipped', { error: expireResult.error });
+    } else if (expireResult.expired > 0) {
+      apiLogger.info('[Quotes API] Expired stale quotes', { count: expireResult.expired });
+    }
+
     // Get query params
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20', 10);
@@ -51,8 +62,10 @@ export async function GET(request: NextRequest) {
       .from('business_quotes')
       .select('*', { count: 'exact' });
 
-    // Apply filters
-    if (status) {
+    // Apply filters. Default / `open` hides expired so Sujan sees a clean book.
+    if (isOpenQuoteStatusFilter(status)) {
+      query = query.neq('status', 'expired');
+    } else if (status && status !== 'all') {
       query = query.eq('status', status);
     }
     if (customer_type) {

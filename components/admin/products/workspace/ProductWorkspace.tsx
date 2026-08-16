@@ -6,6 +6,7 @@ import {
   PiSquaresFourBold,
   PiTruckBold,
   PiHandshakeBold,
+  PiChartLineBold,
 } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import {
@@ -15,8 +16,10 @@ import {
 import { UnifiedProductConsole } from '@/components/admin/products/unified/UnifiedProductConsole';
 import { SuppliersSection } from './SuppliersSection';
 import { MTNToolsSection } from './MTNToolsSection';
+import { ProductGovernanceSection } from '@/components/admin/products/governance/ProductGovernanceSection';
 
 const SECTIONS: Array<{ id: WorkspaceSection; label: string; icon: React.ReactNode }> = [
+  { id: 'portfolio', label: 'Portfolio', icon: <PiChartLineBold className="h-4 w-4" /> },
   { id: 'catalogue', label: 'Catalogue', icon: <PiSquaresFourBold className="h-4 w-4" /> },
   { id: 'suppliers', label: 'Suppliers', icon: <PiTruckBold className="h-4 w-4" /> },
   { id: 'mtn-tools', label: 'MTN Tools', icon: <PiHandshakeBold className="h-4 w-4" /> },
@@ -70,6 +73,7 @@ export function ProductWorkspace() {
         </nav>
       </aside>
       <main className="min-w-0 flex-1">
+        {section === 'portfolio' && <ProductGovernanceSection />}
         {section === 'catalogue' && <UnifiedProductConsole />}
         {section === 'suppliers' && <SuppliersSection />}
         {section === 'mtn-tools' && <MTNToolsSection />}

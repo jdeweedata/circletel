@@ -15,6 +15,7 @@ import {
   PiBuildingsBold,
   PiCalendarBold,
   PiChartBarBold,
+  PiChartLineBold,
   PiCheckCircleBold,
   PiClipboardTextBold,
   PiClockBold,
@@ -121,6 +122,7 @@ export const featureSections: NavSection[] = [
         icon: PiPackageBold,
         children: [
           { name: 'Product Workspace', href: '/admin/products', icon: PiSquaresFourBold },
+          { name: 'Portfolio', href: '/admin/products?section=portfolio', icon: PiChartLineBold },
           { name: 'Add Product', href: '/admin/products/new', icon: PiPlusBold },
         ],
       },
@@ -129,6 +131,7 @@ export const featureSections: NavSection[] = [
         icon: PiFileTextBold,
         children: [
           { name: 'All Quotes', href: '/admin/quotes', icon: PiListBold },
+          { name: 'Compose bundle', href: '/admin/quotes/bundles/new', icon: PiPackageBold },
           { name: 'Pending Approval', href: '/admin/quotes?status=pending_approval', icon: PiClockBold },
           { name: 'Accepted', href: '/admin/quotes?status=accepted', icon: PiCheckCircleBold },
         ],
