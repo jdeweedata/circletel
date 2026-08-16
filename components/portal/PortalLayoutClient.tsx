@@ -24,7 +24,7 @@ import {
   PiUsersThreeBold,
   PiMapPinAreaBold,
 } from 'react-icons/pi';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * The portal is set in Archivo, matching the modernist mockups. Loaded as the
@@ -63,29 +63,37 @@ function PortalNav() {
 
   const navItems = isAdmin ? adminNavItems : siteUserNavItems;
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setUserMenuOpen(false);
+  }, [pathname]);
+
   if (!user) return null;
 
   return (
     <header
-      className="sticky top-0 z-50 bg-white"
+      className="sticky top-0 z-50 bg-white pt-[env(safe-area-inset-top)]"
       style={{ borderBottom: '1px solid #E5E7EB' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href={href('/')} className="flex items-center gap-2.5">
+        <div className="flex items-center justify-between gap-2 h-16 min-w-0">
+          <Link href={href('/')} className="flex min-w-0 items-center gap-2 sm:gap-2.5">
             <Image
               src="/images/circletel-enclosed-logo.svg"
               alt="CircleTel"
               width={36}
               height={36}
-              className="h-9 w-9 object-contain"
+              className="h-8 w-8 sm:h-9 sm:w-9 object-contain shrink-0"
             />
-            <span className="text-base font-semibold" style={{ color: '#13274A' }}>
+            <span
+              className="hidden min-[380px]:inline truncate text-sm sm:text-base font-semibold"
+              style={{ color: '#13274A' }}
+            >
               {isUnjani ? 'Unjani Connect' : 'Business portal'}
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = item.exact
                 ? pathname === item.href
@@ -111,11 +119,14 @@ function PortalNav() {
             })}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 rounded-full px-2 py-1.5 hover:bg-black/[0.03]"
+                className="flex min-h-11 items-center gap-2 rounded-full px-2 py-1.5 hover:bg-black/[0.03]"
+                aria-expanded={userMenuOpen}
+                aria-haspopup="menu"
+                aria-label="Account menu"
                 style={{ border: '1px solid #E5E7EB' }}
               >
                 <div
@@ -151,7 +162,7 @@ function PortalNav() {
                       <p className="text-sm font-extrabold" style={{ color: '#13274A' }}>
                         {user.display_name}
                       </p>
-                      <p className="text-xs" style={{ color: '#1F2937' }}>
+                      <p className="text-xs break-all" style={{ color: '#1F2937' }}>
                         {user.email}
                       </p>
                       <span
@@ -178,7 +189,9 @@ function PortalNav() {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2"
+              className="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg"
+              aria-expanded={mobileMenuOpen}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
               style={{ border: '1px solid color-mix(in srgb, #13274A 28%, transparent)' }}
             >
               {mobileMenuOpen ? <PiXBold className="w-6 h-6" /> : <PiListBold className="w-6 h-6" />}
@@ -189,7 +202,7 @@ function PortalNav() {
 
       {mobileMenuOpen && (
         <nav
-          className="md:hidden bg-white p-4"
+          className="lg:hidden bg-white p-4"
           style={{ borderTop: '1px solid color-mix(in srgb, #13274A 28%, transparent)' }}
         >
           <div className="space-y-1">
@@ -202,7 +215,7 @@ function PortalNav() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-extrabold"
+                  className="flex min-h-11 items-center gap-3 px-4 py-3 text-sm font-extrabold"
                   style={
                     isActive
                       ? { background: '#13274A', color: '#FFFFFF' }
@@ -258,20 +271,20 @@ function PortalContent({ children }: { children: React.ReactNode }) {
       style={{ background: 'color-mix(in srgb, #13274A 7%, #FFFFFF)' }}
     >
       <PortalNav />
-      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+      <main className="max-w-7xl w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 flex-1">
         {children}
       </main>
       <footer
-        className="mt-auto bg-white"
+        className="mt-auto bg-white pb-[max(1.25rem,env(safe-area-inset-bottom))]"
         style={{ borderTop: '2px solid color-mix(in srgb, #13274A 28%, transparent)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div
-            className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm"
+            className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-center sm:text-left"
             style={{ color: '#1F2937' }}
           >
             <p>&copy; 2026 CircleTel. All rights reserved.</p>
-            <div className="flex gap-6">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
               <Link href="/privacy-policy" className="hover:opacity-70">
                 Privacy Policy
               </Link>

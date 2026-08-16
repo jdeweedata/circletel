@@ -25,8 +25,8 @@ const PortalCoverageMap = dynamic(() => import('./PortalCoverageMap'), {
   ssr: false,
   loading: () => (
     <div
-      className="flex items-center justify-center text-sm"
-      style={{ height: '520px', color: 'var(--pm-body)' }}
+      className="flex h-[min(55dvh,380px)] items-center justify-center text-sm sm:h-[480px] lg:h-[520px]"
+      style={{ color: 'var(--pm-body)' }}
     >
       Loading map…
     </div>
@@ -355,13 +355,13 @@ export default function CoverageExplorer() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search clinics"
-              className="flex-1 rounded-lg bg-white px-3 py-2 text-sm"
+              className="min-h-11 w-full flex-1 rounded-lg bg-white px-3 py-2 text-sm"
               style={{ border: '1px solid var(--pm-divider)', color: 'var(--pm-navy)' }}
             />
             <select
               value={province}
               onChange={(e) => setProvince(e.target.value)}
-              className="rounded-lg bg-white px-3 py-2 text-sm"
+              className="min-h-11 w-full rounded-lg bg-white px-3 py-2 text-sm sm:w-auto"
               style={{ border: '1px solid var(--pm-divider)', color: 'var(--pm-navy)' }}
             >
               <option value="all">All provinces</option>
@@ -374,7 +374,7 @@ export default function CoverageExplorer() {
             <select
               value={techFilter}
               onChange={(e) => setTechFilter(e.target.value as AccessTech | 'all')}
-              className="rounded-lg bg-white px-3 py-2 text-sm"
+              className="min-h-11 w-full rounded-lg bg-white px-3 py-2 text-sm sm:w-auto"
               style={{ border: '1px solid var(--pm-divider)', color: 'var(--pm-navy)' }}
             >
               <option value="all">All technologies</option>
@@ -457,7 +457,7 @@ export default function CoverageExplorer() {
           </RuledTable>
 
           {totalPages > 1 && (
-            <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs" style={{ color: '#6B7280' }}>
                 Showing {(currentPage - 1) * PAGE_SIZE + 1}–
                 {Math.min(currentPage * PAGE_SIZE, visible.length)} of {visible.length}
@@ -536,7 +536,7 @@ export default function CoverageExplorer() {
                 value={clinicName}
                 onChange={(e) => setClinicName(e.target.value)}
                 placeholder="Clinic name (optional)"
-                className="mt-3 w-full rounded-lg px-3 py-2 text-sm"
+                className="mt-3 min-h-11 w-full rounded-lg px-3 py-2 text-sm"
                 style={{ border: '1px solid var(--pm-divider)' }}
               />
               <div className="mt-3">
@@ -574,7 +574,7 @@ export default function CoverageExplorer() {
               placeholder="Clinic name"
               value={clinicName}
               onChange={(e) => setClinicName(e.target.value)}
-              className="px-3 py-2 text-sm"
+              className="min-h-11 px-3 py-2 text-sm"
               style={{ border: '1px solid var(--pm-divider)' }}
             />
             <input
@@ -582,7 +582,7 @@ export default function CoverageExplorer() {
               placeholder="Service address"
               value={nominatedAddress}
               onChange={(e) => setNominatedAddress(e.target.value)}
-              className="px-3 py-2 text-sm"
+              className="min-h-11 px-3 py-2 text-sm"
               style={{ border: '1px solid var(--pm-divider)' }}
             />
             <input
@@ -590,7 +590,7 @@ export default function CoverageExplorer() {
               placeholder="On-site contact name"
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
-              className="px-3 py-2 text-sm"
+              className="min-h-11 px-3 py-2 text-sm"
               style={{ border: '1px solid var(--pm-divider)' }}
             />
             <input
@@ -598,7 +598,7 @@ export default function CoverageExplorer() {
               placeholder="Contact mobile"
               value={contactMobile}
               onChange={(e) => setContactMobile(e.target.value)}
-              className="px-3 py-2 text-sm"
+              className="min-h-11 px-3 py-2 text-sm"
               style={{ border: '1px solid var(--pm-divider)' }}
             />
             <input
@@ -606,18 +606,18 @@ export default function CoverageExplorer() {
               placeholder="Contact email (optional)"
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
-              className="px-3 py-2 text-sm"
+              className="min-h-11 px-3 py-2 text-sm"
               style={{ border: '1px solid var(--pm-divider)' }}
             />
             <input
               placeholder="Notes (optional)"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="px-3 py-2 text-sm"
+              className="min-h-11 px-3 py-2 text-sm"
               style={{ border: '1px solid var(--pm-divider)' }}
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <PmButton type="submit" variant="cta" disabled={submitting}>
               {submitting ? 'Submitting…' : 'Submit onboarding request'}
             </PmButton>

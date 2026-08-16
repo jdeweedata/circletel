@@ -212,7 +212,7 @@ export default function PortalSupportPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border p-6">
+      <div className="bg-white rounded-xl border p-4 sm:p-6">
         <h2
           className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-4"
           style={{ color: 'var(--pm-navy)' }}
@@ -234,7 +234,7 @@ export default function PortalSupportPage() {
                     setTicketType(opt.value);
                     setSiteId('');
                   }}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                  className={`min-h-11 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                     ticketType === opt.value
                       ? 'border-circleTel-orange bg-circleTel-orange/10 text-circleTel-orange'
                       : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
@@ -263,7 +263,7 @@ export default function PortalSupportPage() {
                     id="activation-site"
                     value={siteId}
                     onChange={(e) => setSiteId(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none bg-white"
+                    className="min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none bg-white"
                   >
                     <option value="">— Select a site —</option>
                     {activationSites.map((s) => (
@@ -285,7 +285,7 @@ export default function PortalSupportPage() {
                   value={preferredDate}
                   onChange={(e) => setPreferredDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none bg-white"
+                  className="min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none bg-white"
                 />
               </div>
 
@@ -316,7 +316,7 @@ export default function PortalSupportPage() {
                   onChange={(e) => setSubject(e.target.value)}
                   required
                   placeholder="Brief description of the issue"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none"
+                  className="min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none"
                 />
               </div>
 
@@ -344,7 +344,7 @@ export default function PortalSupportPage() {
                     id="priority"
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none bg-white"
+                    className="min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none bg-white"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -362,7 +362,7 @@ export default function PortalSupportPage() {
                       id="site"
                       value={siteId}
                       onChange={(e) => setSiteId(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none bg-white"
+                      className="min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-circleTel-orange focus:ring-1 focus:ring-circleTel-orange outline-none bg-white"
                     >
                       <option value="">— General (no specific site) —</option>
                       {sites.map((s) => (
@@ -381,7 +381,7 @@ export default function PortalSupportPage() {
             <button
               type="submit"
               disabled={!canSubmit()}
-              className="inline-flex items-center gap-2 bg-circleTel-orange text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-circleTel-orange/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-circleTel-orange text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-circleTel-orange/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors sm:w-auto"
             >
               <PiPaperPlaneTiltBold className="w-4 h-4" />
               {submitting
@@ -438,7 +438,7 @@ export default function PortalSupportPage() {
                     </div>
                   </div>
                   {t.resolved_at && (
-                    <span className="text-xs text-green-600 whitespace-nowrap">
+                    <span className="text-xs text-green-600 shrink-0">
                       Resolved {new Date(t.resolved_at).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short' })}
                     </span>
                   )}

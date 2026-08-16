@@ -70,7 +70,7 @@ export function StageStrip({
             onClick={() =>
               onSelect?.(active ? null : definition.key)
             }
-            className="rounded-lg bg-white px-3 py-3 text-left shadow-sm ring-1 ring-black/[0.06] transition-opacity hover:opacity-90"
+            className="min-h-11 rounded-lg bg-white px-3 py-3 text-left shadow-sm ring-1 ring-black/[0.06] transition-opacity hover:opacity-90"
             style={{
               borderBottom: `3px solid ${colour.fg}`,
               outline: active ? `2px solid ${colour.fg}` : undefined,
@@ -130,7 +130,7 @@ export function StageBreakdown({
                 {definition.step ?? '↺'}
               </span>
               <span
-                className="flex-1 text-sm font-extrabold"
+                className="min-w-0 flex-1 text-sm font-extrabold"
                 style={{ color: 'var(--pm-navy)' }}
               >
                 {definition.label}
@@ -194,7 +194,7 @@ export function OnboardingProgress({ stage }: { stage: StageKey }) {
             >
               {done ? '✓' : stepNumber}
             </span>
-            <div>
+            <div className="min-w-0">
               <p
                 className="text-sm font-extrabold"
                 style={{ color: 'var(--pm-navy)' }}

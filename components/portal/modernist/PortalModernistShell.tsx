@@ -51,7 +51,7 @@ export function PageHeader({
       className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 mb-0"
       style={showRule ? { borderBottom: '2px solid var(--pm-divider)' } : undefined}
     >
-      <div>
+      <div className="min-w-0">
         {eyebrow && (
           <p
             className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-2"
@@ -61,7 +61,7 @@ export function PageHeader({
           </p>
         )}
         <h1
-          className="text-3xl sm:text-[40px] font-extrabold leading-tight"
+          className="text-[1.75rem] sm:text-[40px] font-extrabold leading-tight break-words"
           style={{ color: 'var(--pm-navy)' }}
         >
           {title}
@@ -143,7 +143,7 @@ export function KpiStrip({
                 {item.label}
               </p>
               <p
-                className="mt-1 text-2xl font-extrabold tabular-nums"
+                className="mt-1 break-words text-[1.375rem] font-extrabold tabular-nums sm:text-2xl"
                 style={{ color: item.valueColor ?? 'var(--pm-navy)' }}
               >
                 {item.value}
@@ -190,7 +190,7 @@ export function KpiStrip({
             {item.label}
           </p>
           <p
-            className="text-2xl font-extrabold mt-1"
+            className="mt-1 break-words text-[1.375rem] font-extrabold sm:text-2xl"
             style={{ color: 'var(--pm-navy)' }}
           >
             {item.value}
@@ -217,7 +217,7 @@ export function FilterChips({
 }) {
   return (
     <div
-      className="inline-flex flex-wrap"
+      className="inline-flex max-w-full flex-wrap overflow-x-auto"
       style={{ border: '2px solid var(--pm-divider)' }}
     >
       {options.map((opt, i) => {
@@ -227,7 +227,7 @@ export function FilterChips({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className="px-3 py-2 text-xs font-extrabold tracking-wide uppercase"
+            className="min-h-11 shrink-0 px-3 py-2 text-xs font-extrabold tracking-wide uppercase"
             style={{
               background: active ? 'var(--pm-navy)' : '#FFFFFF',
               color: active ? '#FFFFFF' : 'var(--pm-navy)',
@@ -256,10 +256,10 @@ export function RuledTable({
 }) {
   return (
     <div
-      className={cn('mt-6 overflow-x-auto bg-white', className)}
+      className={cn('mt-6 overflow-x-auto bg-white -mx-4 px-4 sm:mx-0 sm:px-0', className)}
       style={{ border: className ? undefined : '2px solid var(--pm-divider)' }}
     >
-      <table className="w-full text-sm">
+      <table className="w-full min-w-[36rem] text-sm">
         <thead>
           <tr style={{ borderBottom: '2px solid var(--pm-divider)' }}>
             {headers.map((h) => (
@@ -316,7 +316,7 @@ export function PmButton({
     <button
       type={type}
       className={cn(
-        'rounded-lg px-4 py-2 text-sm font-extrabold disabled:opacity-50',
+        'min-h-11 rounded-lg px-4 py-2 text-sm font-extrabold disabled:opacity-50',
         className
       )}
       style={styles[variant]}
