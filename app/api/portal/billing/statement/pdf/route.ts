@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requirePortalUser } from '@/lib/portal/require-portal-user';
+import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 import { assembleCorporateStatementData } from '@/lib/billing/corporate-statement-data';
 import { generateStatementPDFBuffer } from '@/lib/billing/statement-pdf-generator';
 import type { StatementOptions } from '@/lib/billing/statement-data';
 
 export async function GET(request: NextRequest) {
-  const auth = await requirePortalUser();
+  const auth = await requirePortalCapability('billing.read');
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;

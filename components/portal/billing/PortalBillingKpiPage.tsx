@@ -12,6 +12,7 @@ import {
   PmButton,
 } from '@/components/portal/modernist/PortalModernistShell';
 import { formatClinicShortName, formatZar } from '@/lib/portal/site-format';
+import { usePortalCapability } from '@/lib/portal/use-portal-capability';
 import type { InvoiceBucket } from '@/lib/portal/billing-summary';
 
 export type BillingKpiMetric = 'monthly-billed' | 'unpaid' | 'paid' | 'deferred-live';
@@ -92,6 +93,7 @@ function formatDay(iso: string | null | undefined) {
 export function PortalBillingKpiPage({ metric }: { metric: BillingKpiMetric }) {
   const { user } = usePortalAuth();
   const { href } = usePortalApp();
+  const { allowed } = usePortalCapability('billing.read');
   const meta = META[metric];
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [billedServices, setBilledServices] = useState<BilledService[]>([]);
@@ -114,7 +116,7 @@ export function PortalBillingKpiPage({ metric }: { metric: BillingKpiMetric }) {
       .finally(() => setLoading(false));
   }, []);
 
-  if (!user) return null;
+  if (!user || !allowed) return null;
 
   const value =
     metric === 'monthly-billed'

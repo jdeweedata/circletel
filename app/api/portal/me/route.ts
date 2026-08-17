@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClientWithSession } from '@/lib/supabase/server';
+import { isPortalRole } from '@/lib/portal/access-templates';
 
 export async function GET() {
   const supabase = await createClientWithSession();
@@ -54,7 +55,7 @@ export async function GET() {
       auth_user_id: portalUser.auth_user_id,
       organisation_id: portalUser.organisation_id,
       site_id: portalUser.site_id,
-      role: portalUser.role,
+      role: isPortalRole(portalUser.role) ? portalUser.role : 'viewer',
       display_name: portalUser.display_name,
       email: portalUser.email,
       organisation_name: org?.company_name ?? '',

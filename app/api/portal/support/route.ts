@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { requirePortalUser } from '@/lib/portal/require-portal-user';
+import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 import {
   fetchDeskStatusUpdates,
   openDeskTicketForPortal,
@@ -10,7 +10,7 @@ const TICKET_SELECT =
   'id, subject, description, priority, status, ticket_type, created_at, resolved_at, zoho_ticket_id, zoho_ticket_number, site_id, corporate_sites (id, site_name)';
 
 export async function GET() {
-  const auth = await requirePortalUser();
+  const auth = await requirePortalCapability('support.read');
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;
@@ -64,7 +64,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requirePortalUser();
+  const auth = await requirePortalCapability('support.write');
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;

@@ -11,10 +11,12 @@ import {
   PmButton,
 } from '@/components/portal/modernist/PortalModernistShell';
 import SiteListTable from '@/components/portal/SiteListTable';
+import { usePortalCapability } from '@/lib/portal/use-portal-capability';
 
 export default function PortalSitesPage() {
   const { user, isSiteUser } = usePortalAuth();
   const { href, isUnjani } = usePortalApp();
+  const { allowed } = usePortalCapability('sites.read');
   const router = useRouter();
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function PortalSitesPage() {
     }
   }, [isSiteUser, user?.site_id, router, href]);
 
-  if (!user) return null;
+  if (!user || !allowed) return null;
 
   if (isSiteUser) {
     return (

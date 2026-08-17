@@ -7,13 +7,19 @@ import {
   BUSINESS_LOGIN_HREF,
   isBusinessAppPath,
 } from '@/lib/portal/paths';
+import {
+  can,
+  isPortalRole,
+  type PortalCapability,
+  type PortalRole,
+} from '@/lib/portal/access-templates';
 
 export interface PortalUser {
   id: string;
   auth_user_id: string;
   organisation_id: string;
   site_id: string | null;
-  role: 'admin' | 'site_user';
+  role: PortalRole;
   display_name: string;
   email: string;
   organisation_name: string;
@@ -29,6 +35,7 @@ interface PortalAuthContextType {
   /** Alias: Super User = DB role admin (max one per org) */
   isSuperUser: boolean;
   isSiteUser: boolean;
+  canAccess: (capability: PortalCapability) => boolean;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -55,7 +62,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
         return;
       }
       const data = await response.json();
-      if (data.user) {
+      if (data.user && isPortalRole(data.user.role)) {
         setUser(data.user);
       } else {
         setUser(null);
@@ -99,6 +106,8 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     isAdmin: user?.role === 'admin',
     isSuperUser: user?.role === 'admin',
     isSiteUser: user?.role === 'site_user',
+    canAccess: (capability: PortalCapability) =>
+      user ? can(user.role, capability) : false,
     signOut,
     refresh: fetchPortalUser,
   };

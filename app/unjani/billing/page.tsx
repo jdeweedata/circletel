@@ -13,6 +13,7 @@ import {
   PmButton,
 } from '@/components/portal/modernist/PortalModernistShell';
 import { formatClinicShortName, formatZar } from '@/lib/portal/site-format';
+import { usePortalCapability } from '@/lib/portal/use-portal-capability';
 
 interface BilledService {
   name: string;
@@ -50,6 +51,7 @@ function matchesBilledService(service: BilledService, query: string) {
 export default function PortalBillingPage() {
   const { user } = usePortalAuth();
   const { href } = usePortalApp();
+  const { allowed } = usePortalCapability('billing.read');
   const [summary, setSummary] = useState<BillingSummary | null>(null);
   const [billedServices, setBilledServices] = useState<BilledService[]>([]);
   const [deferredCount, setDeferredCount] = useState(0);
@@ -91,7 +93,7 @@ export default function PortalBillingPage() {
     return visible.slice(start, start + PAGE_SIZE);
   }, [visible, currentPage]);
 
-  if (!user) return null;
+  if (!user || !allowed) return null;
 
   return (
     <PortalModernistShell>

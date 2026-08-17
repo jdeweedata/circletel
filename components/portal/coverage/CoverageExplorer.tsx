@@ -109,6 +109,7 @@ export default function CoverageExplorer({
   const config = coverageExplorerConfig(mode);
   const portalAuth = useOptionalPortalAuth();
   const user = portalAuth?.user ?? null;
+  const canOnboard = mode === 'admin' || (portalAuth?.canAccess('coverage.write') ?? false);
   const [checks, setChecks] = useState<CoverageCheckRow[]>([]);
   const [pipelineKeys, setPipelineKeys] = useState<string[]>([]);
   const [pipelineContacts, setPipelineContacts] = useState<
@@ -550,6 +551,7 @@ export default function CoverageExplorer({
               <p className="mt-3 text-sm font-extrabold" style={{ color: 'var(--pm-navy)' }}>
                 Recommended: {recommendedLabel(recommendedAccess(selected.results))}
               </p>
+              {canOnboard && (
               <div className="mt-4">
                 <PmButton
                   variant="cta"
@@ -559,6 +561,7 @@ export default function CoverageExplorer({
                   {mode === 'admin' ? 'Process install order' : 'Nominate clinic'}
                 </PmButton>
               </div>
+              )}
             </div>
           ) : selectedIsNew && picked ? (
             <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/[0.06]">
@@ -593,7 +596,7 @@ export default function CoverageExplorer({
         </aside>
       </div>
 
-      {showOnboard && selected && (
+      {canOnboard && showOnboard && selected && (
         <form
           onSubmit={proceedOnboard}
           className="mt-6 space-y-3 rounded-xl bg-white p-4"
