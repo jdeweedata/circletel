@@ -4,15 +4,20 @@ import Link from 'next/link';
 import { PiCaretRightBold } from 'react-icons/pi';
 import { cn } from '@/lib/utils';
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
+import { portalModernist } from './tokens';
 
 /** Unjani / portal modernist colour + type tokens. Reused by the admin layout. */
 export const PORTAL_MODERNIST_STYLE: CSSProperties = {
-  ['--pm-navy' as string]: '#13274A',
-  ['--pm-body' as string]: '#1F2937',
-  ['--pm-accent' as string]: '#F5841E',
-  ['--pm-divider' as string]: 'color-mix(in srgb, #13274A 28%, transparent)',
-  ['--pm-ground' as string]: 'color-mix(in srgb, #13274A 7%, #FFFFFF)',
-  ['--pm-surface' as string]: 'color-mix(in srgb, #13274A 6%, #FFFFFF)',
+  ['--pm-navy' as string]: portalModernist.navy,
+  ['--pm-body' as string]: portalModernist.body,
+  ['--pm-accent' as string]: portalModernist.accent,
+  ['--pm-accent-hover' as string]: portalModernist.accentPressed,
+  ['--pm-accent-active' as string]: portalModernist.accentDeep,
+  ['--pm-divider' as string]: portalModernist.divider,
+  ['--pm-ground' as string]: portalModernist.pageGround,
+  ['--pm-surface' as string]: portalModernist.surface,
+  ['--pm-muted' as string]: portalModernist.muted,
+  ['--pm-danger' as string]: portalModernist.danger,
   fontFamily: 'var(--font-archivo, ui-sans-serif, system-ui, sans-serif)',
 };
 

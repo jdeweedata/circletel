@@ -31,9 +31,27 @@
   }
 }
 
-.portal-root [data-pm='page-header'] p,
+.portal-root [data-pm='page-header'] p:not([data-pm='page-eyebrow']),
 .portal-root [data-pm='detail-header'] p {
   color: var(--pm-body);
+}
+
+.portal-root [data-pm='page-eyebrow'] {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--pm-navy);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.portal-root [data-pm='breadcrumb-current'] {
+  color: var(--pm-navy);
+}
+
+.portal-root [data-pm='breadcrumb-link'] {
+  color: var(--pm-accent-active);
 }
 
 .portal-root [data-pm='section-card'] {
@@ -50,16 +68,21 @@
   font-weight: 800;
 }
 
+.portal-root [data-pm='section-card'] > div:first-child svg {
+  color: var(--pm-navy);
+}
+
 .portal-root [data-pm='stat-card'],
 .portal-root [data-pm='metric-card'] {
   border-radius: 0.75rem;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+  border-color: transparent;
+  outline: 1px solid rgb(0 0 0 / 0.06);
 }
 
-.portal-root [data-pm='stat-card'] {
-  border-color: transparent;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
-  outline: 1px solid rgb(0 0 0 / 0.06);
+.portal-root [data-pm='stat-card'].ring-2 {
+  outline: 2px solid var(--pm-accent);
+  border-color: var(--pm-accent);
 }
 
 .portal-root [data-pm='metric-card'] [data-pm='metric-label'],
@@ -77,6 +100,23 @@
   font-weight: 800 !important;
 }
 
+.portal-root [data-pm='stat-subtitle'],
+.portal-root [data-pm='metric-subtitle'] {
+  color: var(--pm-muted);
+}
+
+.portal-root [data-pm='info-row'] {
+  border-bottom-color: var(--pm-divider);
+}
+
+.portal-root [data-pm='info-label'] {
+  color: var(--pm-muted);
+}
+
+.portal-root [data-pm='info-value'] {
+  color: var(--pm-navy);
+}
+
 .portal-root main table thead th {
   font-size: 11px;
   font-weight: 800;
@@ -87,6 +127,143 @@
 
 .portal-root main table thead tr {
   border-bottom: 2px solid var(--pm-divider);
+}
+
+.portal-root main table tbody td {
+  border-bottom: 1px solid var(--pm-divider);
+}
+
+.portal-root main table tbody tr:hover {
+  background: var(--pm-surface);
+}
+
+.portal-root main :is(button, a).bg-primary,
+.portal-root main :is(button, a).bg-circleTel-orange,
+.portal-root main :is(button, a).bg-gradient-cta {
+  background: var(--pm-accent);
+  color: var(--pm-navy);
+  font-weight: 800;
+  border-radius: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.portal-root main :is(button, a).bg-primary:hover,
+.portal-root main :is(button, a).bg-circleTel-orange:hover,
+.portal-root main :is(button, a).bg-gradient-cta:hover {
+  background: var(--pm-accent-hover);
+}
+
+.portal-root main :is(button, a).bg-primary:active,
+.portal-root main :is(button, a).bg-circleTel-orange:active,
+.portal-root main :is(button, a).bg-gradient-cta:active {
+  background: var(--pm-accent-active);
+}
+
+.portal-root main :is(button, a).border-input:not([role='combobox']),
+.portal-root main :is(button, a).border-circleTel-orange {
+  background: #FFFFFF;
+  color: var(--pm-navy);
+  border-color: var(--pm-divider);
+  font-weight: 800;
+  border-radius: 0.5rem;
+}
+
+.portal-root main :is(button, a).border-input:not([role='combobox']):hover,
+.portal-root main :is(button, a).border-circleTel-orange:hover,
+.portal-root main :is(button, a).bg-secondary:hover {
+  background: var(--pm-surface);
+}
+
+.portal-root main :is(button, a).bg-secondary {
+  background: #FFFFFF;
+  color: var(--pm-navy);
+  border: 1px solid var(--pm-divider);
+  font-weight: 800;
+  border-radius: 0.5rem;
+}
+
+.portal-root main :is(button, a).hover\:bg-accent:not(.border-input):not(.bg-primary) {
+  color: var(--pm-accent-active);
+}
+
+.portal-root main :is(button, a).hover\:bg-accent:not(.border-input):not(.bg-primary):hover {
+  background: color-mix(in srgb, var(--pm-accent) 10%, transparent);
+}
+
+.portal-root main :is(button, a).underline-offset-4 {
+  color: var(--pm-accent-active);
+}
+
+.portal-root main input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
+.portal-root main textarea,
+.portal-root main [role='combobox'] {
+  background: var(--pm-surface);
+  border-color: var(--pm-divider);
+  color: var(--pm-body);
+  caret-color: var(--pm-accent);
+}
+
+.portal-root main input:not([type='checkbox']):not([type='radio']):not([type='hidden']):focus-visible,
+.portal-root main textarea:focus-visible,
+.portal-root main [role='combobox']:focus-visible {
+  outline: 2px solid var(--pm-accent);
+  outline-offset: 2px;
+  border-color: var(--pm-accent);
+}
+
+.portal-root [data-pm='console-tabs'] {
+  background: var(--pm-surface);
+  border-color: var(--pm-divider);
+}
+
+.portal-root [data-pm='console-tabs'] [data-state='inactive'] {
+  color: var(--pm-navy);
+}
+
+.portal-root [data-pm='console-tabs'] [data-state='active'] {
+  background: var(--pm-navy) !important;
+  color: #FFFFFF !important;
+  border-color: var(--pm-navy) !important;
+  box-shadow: none;
+}
+
+.portal-root [data-pm='underline-tabs'] {
+  border-bottom-color: var(--pm-divider);
+}
+
+.portal-root [data-pm='underline-tabs'] [role='tab'][aria-selected='true'] {
+  color: var(--pm-navy);
+  border-bottom-color: var(--pm-navy);
+  font-weight: 800;
+}
+
+.portal-root [data-pm='underline-tabs'] [role='tab'][aria-selected='false'] {
+  color: var(--pm-muted);
+}
+
+.portal-root [data-pm='loading-state'] svg {
+  color: var(--pm-accent);
+}
+
+.portal-root [data-pm='empty-state'],
+.portal-root [data-pm='error-state'] {
+  color: inherit;
+}
+
+.portal-root [data-pm='empty-title'] {
+  color: var(--pm-navy);
+}
+
+.portal-root [data-pm='empty-copy'] {
+  color: var(--pm-muted);
+}
+
+.portal-root [data-pm='error-icon'] {
+  color: var(--pm-danger);
+}
+
+.portal-root [data-pm='error-title'] {
+  color: var(--pm-navy);
 }
 
 .portal-root [data-pm='admin-header'] {

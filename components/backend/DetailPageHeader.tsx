@@ -44,11 +44,11 @@ export function DetailPageHeader({
               <li key={index} className="flex items-center gap-2">
                 {index > 0 && <PiCaretRightBold className="w-3 h-3" aria-hidden="true" />}
                 {item.href ? (
-                  <Link href={item.href} className="hover:text-circleTel-orange">
+                  <Link href={item.href} data-pm="breadcrumb-link" className="hover:text-circleTel-orange">
                     {item.label}
                   </Link>
                 ) : (
-                  <span className="text-gray-900">{item.label}</span>
+                  <span data-pm="breadcrumb-current" className="text-gray-900">{item.label}</span>
                 )}
               </li>
             ))}

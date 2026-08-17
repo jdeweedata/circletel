@@ -21,7 +21,7 @@ export function UnderlineTabs({
   className,
 }: UnderlineTabsProps) {
   return (
-    <div className={cn('border-b border-slate-200', className)}>
+    <div data-pm="underline-tabs" className={cn('border-b border-slate-200', className)}>
       <div role="tablist" className="flex gap-8">
         {tabs.map((tab) => (
           <button

@@ -8,5 +8,6 @@ export const portalModernist = {
   divider: 'color-mix(in srgb, #13274A 28%, transparent)',
   pageGround: 'color-mix(in srgb, #13274A 7%, #FFFFFF)',
   surface: 'color-mix(in srgb, #13274A 6%, #FFFFFF)',
+  muted: '#6B7280',
   danger: '#DC2626',
 } as const;
