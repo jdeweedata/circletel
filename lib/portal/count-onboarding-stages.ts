@@ -210,3 +210,12 @@ export function stageClinicRefs(input: {
 
   return refs;
 }
+
+export function stageByClinicKey(refs: StageClinicRef[]): Record<string, StageKey> {
+  const map: Record<string, StageKey> = {};
+  for (const ref of refs) {
+    const key = clinicKey(ref.name);
+    if (key) map[key] = ref.stage;
+  }
+  return map;
+}

@@ -2,11 +2,13 @@ import { clinicKey } from '@/lib/portal/coverage-summary';
 import {
   UNJANI_CONNECT_KIT,
   canPlaceInstallOrder,
+  canProcessInstallOrder,
   canReserveKit,
   fulfilWindow,
   replenishmentDue,
   type WarehouseStockLine,
 } from '@/lib/admin/unjani-warehouse';
+import { deriveStage, submissionRank, type StageKey } from '@/lib/portal/onboarding-stage';
 
 type Db = {
   from: (table: string) => any;
@@ -22,6 +24,25 @@ export interface PlaceInstallOrderInput {
   contactEmail?: string;
   notes?: string;
   createdBy?: string;
+}
+
+export const INSTALL_ORDER_NPC_GATE_ERROR =
+  'Process install order after Unjani NPC confirms the nomination and coverage.';
+
+export function installOrderStageForClinic(input: {
+  site?: { status?: string | null; installed_at?: string | null } | null;
+  customer?: { id: string } | null;
+  submission?: { status: string | null; rejection_reason: string | null } | null;
+  onboardingLinkSent?: boolean;
+}): StageKey | null {
+  if (!input.site && !input.customer) return null;
+  return deriveStage({
+    siteStatus: input.site?.status,
+    installedAt: input.site?.installed_at,
+    submissionStatus: input.submission?.status,
+    submissionRejectionReason: input.submission?.rejection_reason,
+    onboardingLinkSent: Boolean(input.onboardingLinkSent),
+  });
 }
 
 async function loadStock(db: Db): Promise<WarehouseStockLine[]> {
@@ -225,7 +246,10 @@ export async function placeUnjaniInstallOrder(db: Db, input: PlaceInstallOrderIn
   const key = clinicKey(input.clinicName || check.clinic_name);
   const [{ data: customers }, { data: sites }] = await Promise.all([
     db.from('customers').select('id, business_name, corporate_site_id'),
-    db.from('corporate_sites').select('id, site_name').eq('corporate_id', input.organisationId),
+    db
+      .from('corporate_sites')
+      .select('id, site_name, status, installed_at')
+      .eq('corporate_id', input.organisationId),
   ]);
   const customer = (customers ?? []).find(
     (row: { business_name?: string | null }) => clinicKey(row.business_name) === key
@@ -233,8 +257,48 @@ export async function placeUnjaniInstallOrder(db: Db, input: PlaceInstallOrderIn
   const site =
     (sites ?? []).find((row: { site_name?: string | null }) => clinicKey(row.site_name) === key) ??
     (customer?.corporate_site_id
-      ? { id: customer.corporate_site_id, site_name: input.clinicName }
+      ? (sites ?? []).find(
+          (row: { id: string }) => row.id === customer.corporate_site_id
+        ) ?? { id: customer.corporate_site_id, site_name: input.clinicName }
       : null);
+
+  let submission: { status: string | null; rejection_reason: string | null } | null = null;
+  let onboardingLinkSent = false;
+  if (customer?.id) {
+    const [{ data: submissions }, { data: tokens }] = await Promise.all([
+      db
+        .from('onboarding_submissions')
+        .select('customer_id, status, rejection_reason')
+        .eq('customer_id', customer.id),
+      db
+        .from('onboarding_tokens')
+        .select('customer_id, sent_at')
+        .eq('customer_id', customer.id)
+        .not('sent_at', 'is', null),
+    ]);
+    for (const row of submissions ?? []) {
+      if (
+        !submission ||
+        submissionRank(row.status) > submissionRank(submission.status)
+      ) {
+        submission = {
+          status: row.status,
+          rejection_reason: row.rejection_reason,
+        };
+      }
+    }
+    onboardingLinkSent = (tokens ?? []).length > 0;
+  }
+
+  const stage = installOrderStageForClinic({
+    site,
+    customer,
+    submission,
+    onboardingLinkSent,
+  });
+  if (!canProcessInstallOrder({ results: check.results, stage })) {
+    throw new Error(INSTALL_ORDER_NPC_GATE_ERROR);
+  }
 
   const orderedAt = new Date();
   const window = fulfilWindow(orderedAt);

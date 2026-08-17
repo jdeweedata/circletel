@@ -1,6 +1,7 @@
 import { addBusinessDays } from '@/lib/dates/business-days';
 import { isVisitWindowBlocked } from '@/lib/admin/unjani-operator-actions';
 import { recommendedAccess, type CoverageCheckResults } from '@/lib/portal/coverage-summary';
+import type { StageKey } from '@/lib/portal/onboarding-stage';
 
 export const UNJANI_KIT_ROUTER_SKU = 'UNJ-KIT-ROUTER';
 export const UNJANI_KIT_AP_SKU = 'UNJ-KIT-AP';
@@ -52,6 +53,36 @@ export function canReserveKit(
 
 export function canPlaceInstallOrder(results: CoverageCheckResults | null | undefined): boolean {
   return recommendedAccess(results) !== 'none';
+}
+
+const INSTALL_ORDER_STAGES: ReadonlySet<StageKey> = new Set([
+  'introduced',
+  'details_confirmed',
+  'changes_requested',
+  'visit_booked',
+  'installing',
+]);
+
+/** Coverage feasible and Unjani NPC has confirmed nomination (past `nominated`, not live). */
+export function canProcessInstallOrder(input: {
+  results: CoverageCheckResults | null | undefined;
+  stage: StageKey | null | undefined;
+}): boolean {
+  if (!canPlaceInstallOrder(input.results)) return false;
+  if (!input.stage) return false;
+  return INSTALL_ORDER_STAGES.has(input.stage);
+}
+
+export type AdminInstallOrderPrompt = 'process' | 'await_npc' | 'no_coverage' | 'live';
+
+export function adminInstallOrderPrompt(input: {
+  results: CoverageCheckResults | null | undefined;
+  stage: StageKey | null | undefined;
+}): AdminInstallOrderPrompt {
+  if (input.stage === 'live') return 'live';
+  if (!canPlaceInstallOrder(input.results)) return 'no_coverage';
+  if (!canProcessInstallOrder(input)) return 'await_npc';
+  return 'process';
 }
 
 export function replenishmentDue(orderedAt: Date): string {

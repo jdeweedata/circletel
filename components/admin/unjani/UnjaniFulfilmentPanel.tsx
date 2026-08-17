@@ -195,7 +195,8 @@ export function UnjaniFulfilmentPanel({
           {orders.length === 0 ? (
             <tr>
               <td colSpan={5} className="px-4 py-6 text-sm" style={{ color: 'var(--pm-body)' }}>
-                No install orders yet. Use Process install order on a feasible clinic above.
+                No install orders yet. Process install order unlocks after Unjani NPC
+                confirms nomination and coverage.
               </td>
             </tr>
           ) : (
