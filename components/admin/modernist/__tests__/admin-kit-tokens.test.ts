@@ -144,3 +144,13 @@ describe('data-pm hooks in source', () => {
     }
   });
 });
+
+describe('PageHeader eyebrow', () => {
+  const src = read('components/backend/PageHeader.tsx');
+
+  it('accepts an optional eyebrow and marks it data-pm="page-eyebrow"', () => {
+    expect(src).toMatch(/eyebrow\?: string/);
+    expect(src).toContain('data-pm="page-eyebrow"');
+    expect(src).toContain('text-xs font-semibold uppercase text-gray-500');
+  });
+});
