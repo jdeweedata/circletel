@@ -41,6 +41,7 @@ const COLS: Record<number, string> = {
 export function ConsoleTabsList({ items, className }: ConsoleTabsListProps) {
   return (
     <TabsList
+      data-pm="console-tabs"
       className={cn(
         'grid w-full lg:w-auto lg:inline-flex h-auto p-1.5 bg-gray-100 border border-gray-200 rounded-xl gap-1',
         COLS[items.length] ?? 'grid-cols-3',

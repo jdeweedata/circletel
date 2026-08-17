@@ -91,7 +91,7 @@ export function StatCard({
           {indicator === 'pulse' && <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />}
         </div>
         {subtitle && (
-          <div className="mt-2 text-xs text-gray-500 font-medium flex items-center gap-1">
+          <div data-pm="stat-subtitle" className="mt-2 text-xs text-gray-500 font-medium flex items-center gap-1">
             {subtitleIcon}
             {subtitle}
           </div>
@@ -151,7 +151,7 @@ export function StatCard({
           </div>
           <p data-pm="stat-label" className="text-sm font-medium text-gray-500 mb-1">{heading}</p>
           <p data-pm="stat-value" className="text-3xl font-bold text-gray-900 tracking-tight tabular-nums">{value}</p>
-          {subtitle && <p className="text-xs text-gray-500 mt-2">{subtitle}</p>}
+          {subtitle && <p data-pm="stat-subtitle" className="text-xs text-gray-500 mt-2">{subtitle}</p>}
         </div>
       </div>
     );
@@ -191,7 +191,7 @@ export function StatCard({
         <p data-pm="stat-value" className="text-3xl font-bold text-gray-900 tracking-tight tabular-nums">{value}</p>
 
         {subtitle && (
-          <p className="text-sm font-medium text-gray-700 mt-1 flex items-center gap-1.5">
+          <p data-pm="stat-subtitle" className="text-sm font-medium text-gray-700 mt-1 flex items-center gap-1.5">
             {subtitleIcon}
             {subtitle}
           </p>

@@ -117,3 +117,30 @@ describe('admin-kit.css', () => {
     }
   });
 });
+
+describe('data-pm hooks in source', () => {
+  const files: Array<[string, string[]]> = [
+    ['components/backend/InfoRow.tsx', ["data-pm=\"info-row\"", "data-pm=\"info-label\"", "data-pm=\"info-value\""]],
+    ['components/backend/DetailPageHeader.tsx', ['data-pm="breadcrumb-current"', 'data-pm="breadcrumb-link"']],
+    ['components/backend/StatCard.tsx', ['data-pm="stat-subtitle"']],
+    ['components/backend/MetricCard.tsx', ['data-pm="metric-subtitle"']],
+    ['components/backend/states.tsx', [
+      'data-pm="loading-state"',
+      'data-pm="empty-state"',
+      'data-pm="empty-title"',
+      'data-pm="empty-copy"',
+      'data-pm="error-state"',
+      'data-pm="error-icon"',
+      'data-pm="error-title"',
+    ]],
+    ['components/backend/ConsoleTabs.tsx', ['data-pm="console-tabs"']],
+    ['components/admin/shared/UnderlineTabs.tsx', ['data-pm="underline-tabs"']],
+  ];
+
+  it.each(files)('%s contains %j', (rel, needles) => {
+    const src = read(rel);
+    for (const needle of needles) {
+      expect(src).toContain(needle);
+    }
+  });
+});

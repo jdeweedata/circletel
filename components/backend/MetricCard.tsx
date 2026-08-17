@@ -39,7 +39,7 @@ export function MetricCard({
       <CardContent className="space-y-3">
         <div>
           <p data-pm="metric-value" className="text-3xl font-semibold tracking-tight text-slate-900">{value}</p>
-          {subtitle ? <p className="text-xs text-slate-500 mt-1">{subtitle}</p> : null}
+          {subtitle ? <p data-pm="metric-subtitle" className="text-xs text-slate-500 mt-1">{subtitle}</p> : null}
           {delta ? (
             <p
               className={cn(
