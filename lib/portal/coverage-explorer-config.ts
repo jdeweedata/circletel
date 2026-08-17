@@ -8,7 +8,7 @@ export function coverageExplorerConfig(mode: CoverageExplorerMode) {
       ctaLabel: 'Process install order',
       formTitle: 'Process install order',
       formHelp:
-        'Places a CircleTel install order for this clinic. If the Unjani Connect kit is in the warehouse it is reserved; otherwise a stock order is raised (due in 5 business days). Fulfilment is 14–21 business days from the order date.',
+        'Places a CircleTel install order after Unjani NPC confirms the nomination and coverage. If the Unjani Connect kit is in the warehouse it is reserved; otherwise a stock order is raised (due in 5 business days). Fulfilment is 14–21 business days from the order date.',
       submitLabel: 'Place install order',
     };
   }

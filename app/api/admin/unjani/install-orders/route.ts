@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal server error';
-    const status = /not found|coverage is not confirmed|only when coverage/i.test(message)
+    const status = /not found|coverage is not confirmed|only when coverage|NPC confirms/i.test(message)
       ? 400
       : 500;
     apiLogger.error('[Unjani install-orders] POST failed', { error });

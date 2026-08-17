@@ -23,6 +23,8 @@ import {
   coverageExplorerConfig,
   type CoverageExplorerMode,
 } from '@/lib/portal/coverage-explorer-config';
+import { adminInstallOrderPrompt } from '@/lib/admin/unjani-warehouse';
+import type { StageKey } from '@/lib/portal/onboarding-stage';
 import type { CoverageLayer } from './PortalCoverageMap';
 
 const PortalCoverageMap = dynamic(() => import('./PortalCoverageMap'), {
@@ -115,6 +117,9 @@ export default function CoverageExplorer({
   const [pipelineContacts, setPipelineContacts] = useState<
     Record<string, SiteContact>
   >({});
+  const [stageByClinicKey, setStageByClinicKey] = useState<Record<string, StageKey>>(
+    {}
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -153,6 +158,7 @@ export default function CoverageExplorer({
         setChecks(data.checks ?? []);
         setPipelineKeys(data.pipelineClinicKeys ?? []);
         setPipelineContacts(data.pipelineContacts ?? {});
+        setStageByClinicKey(data.stageByClinicKey ?? {});
       })
       .catch((err) =>
         setError(err instanceof Error ? err.message : 'Could not load coverage')
@@ -197,6 +203,12 @@ export default function CoverageExplorer({
   const kpis = useMemo(() => coverageKpis(visible), [visible]);
   const selected = checks.find((c) => c.id === selectedId) ?? null;
   const selectedIsNew = Boolean(picked && !selected);
+  const selectedInstallPrompt = selected
+    ? adminInstallOrderPrompt({
+        results: selected.results,
+        stage: stageByClinicKey[clinicKey(selected.clinic_name)],
+      })
+    : null;
 
   const mapClinics = useMemo(
     () =>
@@ -275,7 +287,11 @@ export default function CoverageExplorer({
       if (!res.ok) throw new Error(data.error || 'Coverage check failed');
       setChecks((prev) => [data.check, ...prev]);
       setPicked(null);
-      openNomination(data.check);
+      setSelectedId(data.check.id);
+      setClinicName(data.check.clinic_name ?? clinicName);
+      if (mode !== 'admin') {
+        openNomination(data.check);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Coverage check failed');
     } finally {
@@ -451,6 +467,10 @@ export default function CoverageExplorer({
             ) : paged.map((check) => {
               const rec = recommendedAccess(check.results);
               const on = check.id === selectedId;
+              const rowPrompt = adminInstallOrderPrompt({
+                results: check.results,
+                stage: stageByClinicKey[clinicKey(check.clinic_name)],
+              });
               return (
                 <tr
                   key={check.id}
@@ -480,17 +500,36 @@ export default function CoverageExplorer({
                     {recommendedLabel(rec)}
                   </td>
                   <td className="px-4 py-3">
-                    <PmButton
-                      variant="cta"
-                      className="whitespace-nowrap"
-                      disabled={rec === 'none'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openNomination(check);
-                      }}
-                    >
-                      {config.ctaLabel}
-                    </PmButton>
+                    {mode === 'admin' ? (
+                      rowPrompt === 'process' && canOnboard ? (
+                        <PmButton
+                          variant="cta"
+                          className="whitespace-nowrap"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openNomination(check);
+                          }}
+                        >
+                          {config.ctaLabel}
+                        </PmButton>
+                      ) : rowPrompt === 'await_npc' ? (
+                        <span className="text-xs" style={{ color: '#6B7280' }}>
+                          Awaiting Unjani NPC
+                        </span>
+                      ) : null
+                    ) : (
+                      <PmButton
+                        variant="cta"
+                        className="whitespace-nowrap"
+                        disabled={rec === 'none'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openNomination(check);
+                        }}
+                      >
+                        {config.ctaLabel}
+                      </PmButton>
+                    )}
                   </td>
                 </tr>
               );
@@ -551,16 +590,32 @@ export default function CoverageExplorer({
               <p className="mt-3 text-sm font-extrabold" style={{ color: 'var(--pm-navy)' }}>
                 Recommended: {recommendedLabel(recommendedAccess(selected.results))}
               </p>
-              {canOnboard && (
+              {canOnboard && mode !== 'admin' && (
               <div className="mt-4">
                 <PmButton
                   variant="cta"
                   disabled={recommendedAccess(selected.results) === 'none'}
                   onClick={() => openNomination(selected)}
                 >
-                  {mode === 'admin' ? 'Process install order' : 'Nominate clinic'}
+                  Nominate clinic
                 </PmButton>
               </div>
+              )}
+              {mode === 'admin' && selectedInstallPrompt === 'process' && canOnboard && (
+              <div className="mt-4">
+                <PmButton
+                  variant="cta"
+                  onClick={() => openNomination(selected)}
+                >
+                  Process install order
+                </PmButton>
+              </div>
+              )}
+              {mode === 'admin' && selectedInstallPrompt === 'await_npc' && (
+                <p className="mt-4 text-sm" style={{ color: 'var(--pm-body)' }}>
+                  Awaiting Unjani NPC confirmation of nomination. Process install
+                  order unlocks from Introduction onward.
+                </p>
               )}
             </div>
           ) : selectedIsNew && picked ? (

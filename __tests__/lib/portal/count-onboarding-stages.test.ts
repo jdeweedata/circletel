@@ -2,6 +2,7 @@ import {
   countOnboardingStages,
   emptyStageCounts,
   scopeOnboardingCustomers,
+  stageByClinicKey,
   stageClinicRefs,
 } from '@/lib/portal/count-onboarding-stages';
 import { clinicKey } from '@/lib/portal/coverage-summary';
@@ -101,13 +102,14 @@ describe('countOnboardingStages', () => {
     });
 
     expect(counted.stageCounts.nominated).toBe(1);
-    expect(stageClinicRefs({
+    const refs = stageClinicRefs({
       sites: [{ id: 'site-orphan', site_name: 'Umlazi' }],
       customers: [],
       stageBySiteId: counted.stageBySiteId,
       stageByCustomerId: counted.stageByCustomerId,
       nominatedChecks,
-    })).toEqual([
+    });
+    expect(refs).toEqual([
       {
         stage: 'nominated',
         customerId: null,
@@ -118,6 +120,23 @@ describe('countOnboardingStages', () => {
         longitude: 28.2096702,
       },
     ]);
+    expect(stageByClinicKey(refs)).toEqual({ suurman: 'nominated' });
+  });
+
+  it('maps introduced clinics by clinic key for the coverage feed', () => {
+    const counted = countOnboardingStages({
+      sites: [],
+      customers: [{ id: 'cust-lens', business_name: 'Unjani Clinic - Lens', corporate_site_id: null }],
+      bestSubmission: {},
+      linkSent: new Set(['cust-lens']),
+    });
+    const refs = stageClinicRefs({
+      sites: [],
+      customers: [{ id: 'cust-lens', business_name: 'Unjani Clinic - Lens', corporate_site_id: null }],
+      stageBySiteId: counted.stageBySiteId,
+      stageByCustomerId: counted.stageByCustomerId,
+    });
+    expect(stageByClinicKey(refs)).toEqual({ lens: 'introduced' });
   });
 });
 
