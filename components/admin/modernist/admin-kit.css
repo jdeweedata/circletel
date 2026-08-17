@@ -31,7 +31,7 @@
   }
 }
 
-.portal-root [data-pm='page-header'] p,
+.portal-root [data-pm='page-header'] p:not([data-pm='page-eyebrow']),
 .portal-root [data-pm='detail-header'] p {
   color: var(--pm-body);
 }
@@ -68,7 +68,7 @@
   font-weight: 800;
 }
 
-.portal-root [data-pm='section-card'] svg {
+.portal-root [data-pm='section-card'] > div:first-child svg {
   color: var(--pm-navy);
 }
 
@@ -76,11 +76,7 @@
 .portal-root [data-pm='metric-card'] {
   border-radius: 0.75rem;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
-}
-
-.portal-root [data-pm='stat-card'] {
   border-color: transparent;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
   outline: 1px solid rgb(0 0 0 / 0.06);
 }
 
