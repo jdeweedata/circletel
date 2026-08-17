@@ -2,13 +2,19 @@ import { NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { isUnjaniCorporateCode } from '@/lib/portal/paths';
+import {
+  can,
+  isPortalRole,
+  type PortalCapability,
+  type PortalRole,
+} from '@/lib/portal/access-templates';
 
 export interface PortalUserRow {
   id: string;
   auth_user_id: string;
   organisation_id: string;
   site_id: string | null;
-  role: 'admin' | 'site_user';
+  role: PortalRole;
   display_name: string;
   email: string;
   organisation_name: string;
@@ -66,7 +72,7 @@ async function loadPortalUser(
     auth_user_id: data.auth_user_id,
     organisation_id: data.organisation_id,
     site_id: data.site_id,
-    role: data.role as 'admin' | 'site_user',
+    role: isPortalRole(data.role) ? data.role : 'viewer',
     display_name: data.display_name,
     email: data.email,
     organisation_name: org?.company_name ?? '',
@@ -153,6 +159,38 @@ export async function requireUnjaniSuperUser(): Promise<PortalAuthResult> {
         { error: 'Super User access required' },
         { status: 403 }
       ),
+    };
+  }
+
+  return result;
+}
+
+export async function requirePortalCapability(
+  capability: PortalCapability
+): Promise<PortalAuthResult> {
+  const result = await requirePortalUser();
+  if (!result.ok) return result;
+
+  if (!can(result.portalUser.role, capability)) {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }),
+    };
+  }
+
+  return result;
+}
+
+export async function requireUnjaniCapability(
+  capability: PortalCapability
+): Promise<PortalAuthResult> {
+  const result = await requireUnjaniPortalUser();
+  if (!result.ok) return result;
+
+  if (!can(result.portalUser.role, capability)) {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }),
     };
   }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isUnjaniCorporateCode } from '@/lib/portal/paths';
-import { requirePortalUser } from '@/lib/portal/require-portal-user';
+import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 import {
   aggregateStaffUsageByDay,
   loadStaffHourRows,
@@ -11,7 +11,7 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
-  const auth = await requirePortalUser();
+  const auth = await requirePortalCapability('sites.read');
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requirePortalUser } from '@/lib/portal/require-portal-user';
+import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 import {
   buildPortalBillingSummary,
   invoiceBucket,
@@ -7,7 +7,7 @@ import {
 } from '@/lib/portal/billing-summary';
 
 export async function GET() {
-  const auth = await requirePortalUser();
+  const auth = await requirePortalCapability('billing.read');
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;

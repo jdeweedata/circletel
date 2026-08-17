@@ -12,6 +12,7 @@ import {
   PortalModernistShell,
   PageHeader,
 } from '@/components/portal/modernist/PortalModernistShell';
+import { usePortalCapability } from '@/lib/portal/use-portal-capability';
 
 type TicketType = 'support' | 'fault_report' | 'activation_request' | 'change_request';
 
@@ -42,7 +43,9 @@ interface Ticket {
 }
 
 export default function PortalSupportPage() {
-  const { user, isAdmin } = usePortalAuth();
+  const { user, canAccess } = usePortalAuth();
+  const { allowed } = usePortalCapability('support.read');
+  const canWriteSupport = canAccess('support.write');
   const { isUnjani } = usePortalApp();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
@@ -79,7 +82,7 @@ export default function PortalSupportPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (!user) return null;
+  if (!user || !allowed) return null;
 
   function canSubmit() {
     if (submitting) return false;
@@ -212,7 +215,7 @@ export default function PortalSupportPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border p-4 sm:p-6">
+      {canWriteSupport && <div className="bg-white rounded-xl border p-4 sm:p-6">
         <h2
           className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-4"
           style={{ color: 'var(--pm-navy)' }}
@@ -353,7 +356,7 @@ export default function PortalSupportPage() {
                   </select>
                 </div>
 
-                {isAdmin && sites.length > 0 && (
+                {user.role !== 'site_user' && sites.length > 0 && (
                   <div>
                     <label htmlFor="site" className="block text-sm font-medium text-gray-700 mb-1">
                       Related Site (optional)
@@ -392,7 +395,7 @@ export default function PortalSupportPage() {
             </button>
           </div>
         </form>
-      </div>
+      </div>}
 
       <div className="bg-white rounded-xl border">
         <div className="px-4 py-3 border-b flex items-center gap-2">

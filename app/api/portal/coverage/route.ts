@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireUnjaniSuperUser } from '@/lib/portal/require-portal-user';
+import { requireUnjaniCapability } from '@/lib/portal/require-portal-user';
 import {
   buildUnjaniCoverageResults,
   parseCoverageCheckBody,
@@ -7,7 +7,7 @@ import {
 import { listUnjaniCoverageFeed } from '@/lib/portal/unjani-coverage-feed';
 
 export async function GET() {
-  const auth = await requireUnjaniSuperUser();
+  const auth = await requireUnjaniCapability('coverage.read');
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;
@@ -22,7 +22,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireUnjaniSuperUser();
+  const auth = await requireUnjaniCapability('coverage.read');
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;

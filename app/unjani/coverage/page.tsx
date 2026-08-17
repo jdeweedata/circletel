@@ -1,26 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
-import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
   PortalModernistShell,
   PageHeader,
 } from '@/components/portal/modernist/PortalModernistShell';
 import CoverageExplorer from '@/components/portal/coverage/CoverageExplorer';
+import { usePortalCapability } from '@/lib/portal/use-portal-capability';
 
 export default function PortalCoveragePage() {
-  const { user, isAdmin, loading: authLoading } = usePortalAuth();
-  const { href } = usePortalApp();
-  const router = useRouter();
+  const { user } = usePortalAuth();
+  const { allowed } = usePortalCapability('coverage.read');
 
-  useEffect(() => {
-    if (authLoading) return;
-    if (!isAdmin) router.replace(href('/'));
-  }, [authLoading, isAdmin, router, href]);
-
-  if (!user || !isAdmin) return null;
+  if (!user || !allowed) return null;
 
   return (
     <PortalModernistShell>

@@ -13,6 +13,7 @@ import {
   PmButton,
 } from '@/components/portal/modernist/PortalModernistShell';
 import type { StatementData } from '@/lib/billing/statement-pdf-generator';
+import { usePortalCapability } from '@/lib/portal/use-portal-capability';
 
 function formatZar(n: number) {
   return `R${Number(n || 0).toLocaleString('en-ZA', {
@@ -24,6 +25,7 @@ function formatZar(n: number) {
 export default function PortalStatementPage() {
   const { user } = usePortalAuth();
   const { href } = usePortalApp();
+  const { allowed } = usePortalCapability('billing.read');
   const [period, setPeriod] = useState('12m');
   const [statement, setStatement] = useState<StatementData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ export default function PortalStatementPage() {
       .finally(() => setLoading(false));
   }, [period]);
 
-  if (!user) return null;
+  if (!user || !allowed) return null;
 
   async function downloadPdf() {
     if (!user) return;

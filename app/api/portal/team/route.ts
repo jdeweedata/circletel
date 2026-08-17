@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePortalSuperUser } from '@/lib/portal/require-portal-user';
 import { customerFacingPortalUsers } from '@/lib/portal/internal-users';
+import { isInvitableHqRole } from '@/lib/portal/access-templates';
+import {
+  portalInviteRedirectUrl,
+  sendPortalAccessEmail,
+} from '@/lib/portal/invite-email';
 
 export async function GET() {
   const auth = await requirePortalSuperUser();
@@ -34,44 +39,32 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { email, display_name, site_id } = body as {
+    const { email, display_name, role } = body as {
       email?: string;
       display_name?: string;
-      site_id?: string;
+      role?: string;
     };
 
-    if (!email || !display_name || !site_id) {
+    if (!email || !display_name || !isInvitableHqRole(role)) {
       return NextResponse.json(
-        { error: 'email, display_name, and site_id are required' },
+        { error: 'email, display_name, and a Finance, Operations, or Viewer role are required' },
         { status: 400 }
       );
     }
 
-    // Portal Super Users may only invite site_users (never another Super User)
-    const role = 'site_user' as const;
-
-    const { data: site } = await adminDb
-      .from('corporate_sites')
-      .select('id')
-      .eq('id', site_id)
-      .eq('corporate_id', portalUser.organisation_id)
-      .maybeSingle();
-
-    if (!site) {
-      return NextResponse.json(
-        { error: 'Site not found for this organisation' },
-        { status: 400 }
-      );
-    }
+    const inviteEmail = email;
+    const inviteName = display_name;
+    const inviteRole = role;
 
     const {
       data: { user: invitedUser },
       error: inviteError,
-    } = await adminDb.auth.admin.inviteUserByEmail(email, {
+      } = await adminDb.auth.admin.inviteUserByEmail(inviteEmail, {
       data: {
-        portal_role: role,
+        portal_role: inviteRole,
         organisation_id: portalUser.organisation_id,
       },
+      redirectTo: portalInviteRedirectUrl(),
     });
 
     async function insertPortalUser(authUserIdToLink: string, invited: boolean) {
@@ -94,10 +87,10 @@ export async function POST(request: NextRequest) {
         .insert({
           auth_user_id: authUserIdToLink,
           organisation_id: portalUser.organisation_id,
-          display_name,
-          email,
-          role,
-          site_id,
+          display_name: inviteName,
+          email: inviteEmail,
+          role: inviteRole,
+          site_id: null,
           created_by: authUserId,
         })
         .select(
@@ -109,7 +102,19 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: insertError.message }, { status: 500 });
       }
 
-      return NextResponse.json({ portalUser: created, invited });
+      const emailResult = await sendPortalAccessEmail({
+        to: inviteEmail,
+        displayName: inviteName,
+        role: inviteRole,
+        organisationName: portalUser.organisation_name,
+        invited,
+      });
+
+      return NextResponse.json({
+        portalUser: created,
+        invited,
+        emailWarning: emailResult.warning,
+      });
     }
 
     if (inviteError) {
@@ -117,7 +122,7 @@ export async function POST(request: NextRequest) {
         const {
           data: { users },
         } = await adminDb.auth.admin.listUsers({ perPage: 1000 });
-        const existingUser = users?.find((u) => u.email === email);
+        const existingUser = users?.find((u) => u.email === inviteEmail);
         if (!existingUser) {
           return NextResponse.json(
             { error: 'User exists but could not be found' },

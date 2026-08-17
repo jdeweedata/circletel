@@ -10,20 +10,20 @@ import {
   RuledTable,
   PmButton,
 } from '@/components/portal/modernist/PortalModernistShell';
-
-interface Site {
-  id: string;
-  site_name: string;
-}
+import {
+  INVITABLE_HQ_ROLES,
+  isPortalRole,
+  roleLabel,
+  type InvitableHqRole,
+  type PortalRole,
+} from '@/lib/portal/access-templates';
 
 interface TeamMember {
   id: string;
   display_name: string;
   email: string;
-  role: 'admin' | 'site_user';
-  site_id: string | null;
+  role: PortalRole;
   created_at: string;
-  corporate_sites: { id: string; site_name: string } | null;
 }
 
 export default function PortalTeamPage() {
@@ -31,7 +31,6 @@ export default function PortalTeamPage() {
   const { href } = usePortalApp();
   const router = useRouter();
   const [members, setMembers] = useState<TeamMember[]>([]);
-  const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -39,7 +38,7 @@ export default function PortalTeamPage() {
 
   const [email, setEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [siteId, setSiteId] = useState('');
+  const [role, setRole] = useState<InvitableHqRole>('finance');
 
   useEffect(() => {
     if (authLoading) return;
@@ -48,14 +47,11 @@ export default function PortalTeamPage() {
       return;
     }
 
-    Promise.all([
-      fetch('/api/portal/team').then((r) => r.json()),
-      fetch('/api/portal/sites').then((r) => r.json()),
-    ])
-      .then(([teamData, siteData]) => {
+    fetch('/api/portal/team')
+      .then((r) => r.json())
+      .then((teamData) => {
         if (teamData.error) setError(teamData.error);
         setMembers(teamData.portalUsers ?? []);
-        setSites(siteData.sites ?? []);
       })
       .catch(() => setError('Failed to load team'))
       .finally(() => setLoading(false));
@@ -75,20 +71,19 @@ export default function PortalTeamPage() {
         body: JSON.stringify({
           email,
           display_name: displayName,
-          site_id: siteId,
+          role,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Invite failed');
       setMembers((prev) => [data.portalUser, ...prev]);
-      setSuccess(
-        data.invited
-          ? `Invite sent to ${email}`
-          : `${displayName} added to the portal`
-      );
+      const sentNote = data.invited
+        ? `Invite sent to ${email}`
+        : `${displayName} added to the portal`;
+      setSuccess(data.emailWarning ? `${sentNote}. ${data.emailWarning}` : sentNote);
       setEmail('');
       setDisplayName('');
-      setSiteId('');
+      setRole('finance');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invite failed');
     } finally {
@@ -114,7 +109,7 @@ export default function PortalTeamPage() {
       <PageHeader
         eyebrow="Organisation · Access"
         title="Team"
-        subtitle="One Super User per organisation. Invite site users (e.g. clinic nurses) for their assigned site."
+        subtitle="One Super User. Invite Unjani NPC colleagues with a Finance, Operations, or Viewer role. Portal access does not extend to clinic sites."
       />
 
       {error && (
@@ -137,7 +132,7 @@ export default function PortalTeamPage() {
           className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
           style={{ color: 'var(--pm-navy)' }}
         >
-          Invite site user
+          Invite HQ user
         </p>
         <div className="grid sm:grid-cols-3 gap-3">
           <input
@@ -160,15 +155,14 @@ export default function PortalTeamPage() {
           />
           <select
             required
-            value={siteId}
-            onChange={(e) => setSiteId(e.target.value)}
+            value={role}
+            onChange={(e) => setRole(e.target.value as InvitableHqRole)}
             className="min-h-11 px-3 py-2 text-sm bg-white"
             style={{ border: '1px solid var(--pm-divider)', color: 'var(--pm-body)' }}
           >
-            <option value="">Select site…</option>
-            {sites.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.site_name}
+            {INVITABLE_HQ_ROLES.map((value) => (
+              <option key={value} value={value}>
+                {roleLabel(value)}
               </option>
             ))}
           </select>
@@ -183,7 +177,7 @@ export default function PortalTeamPage() {
           Loading team…
         </div>
       ) : (
-        <RuledTable headers={['Name', 'Email', 'Role', 'Site', 'Actions']}>
+        <RuledTable headers={['Name', 'Email', 'Role', 'Actions']}>
           {members.map((m) => (
             <tr
               key={m.id}
@@ -196,13 +190,10 @@ export default function PortalTeamPage() {
                 {m.email}
               </td>
               <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-                {m.role === 'admin' ? 'Super User' : 'Site User'}
-              </td>
-              <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-                {m.corporate_sites?.site_name ?? '—'}
+                {isPortalRole(m.role) ? roleLabel(m.role) : m.role}
               </td>
               <td className="px-4 py-3">
-                {m.role === 'site_user' && (
+                {m.role !== 'admin' && (
                   <PmButton variant="ghost" onClick={() => handleRemove(m)}>
                     Remove
                   </PmButton>

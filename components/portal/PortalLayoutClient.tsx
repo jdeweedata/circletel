@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Archivo } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { PortalAuthProvider, usePortalAuth } from '@/lib/portal/portal-auth-provider';
+import { navItemsForRole, roleLabel } from '@/lib/portal/access-templates';
 import {
   PortalAppProvider,
   usePortalApp,
@@ -37,31 +38,29 @@ const archivo = Archivo({
   display: 'swap',
 });
 
+const NAV_ICONS = {
+  dashboard: PiSquaresFourBold,
+  sites: PiBuildings,
+  coverage: PiMapPinAreaBold,
+  billing: PiCurrencyDollarBold,
+  support: PiLifebuoyBold,
+  team: PiUsersThreeBold,
+} as const;
+
 function PortalNav() {
-  const { user, isAdmin, signOut } = usePortalAuth();
+  const { user, signOut } = usePortalAuth();
   const { href, isUnjani } = usePortalApp();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const adminNavItems = [
-    { href: href('/'), label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
-    { href: href('/sites'), label: 'Sites', icon: PiBuildings },
-    ...(isUnjani
-      ? [{ href: href('/coverage'), label: 'Coverage', icon: PiMapPinAreaBold }]
-      : []),
-    { href: href('/billing'), label: 'Billing', icon: PiCurrencyDollarBold },
-    { href: href('/support'), label: 'Support', icon: PiLifebuoyBold },
-    { href: href('/team'), label: 'Team', icon: PiUsersThreeBold },
-  ];
-
-  const siteUserNavItems = [
-    { href: href('/'), label: 'Dashboard', icon: PiSquaresFourBold, exact: true },
-    { href: href('/billing'), label: 'Billing', icon: PiCurrencyDollarBold },
-    { href: href('/support'), label: 'Support', icon: PiLifebuoyBold },
-  ];
-
-  const navItems = isAdmin ? adminNavItems : siteUserNavItems;
+  const navItems = user
+    ? navItemsForRole(user.role, isUnjani).map((item) => ({
+        ...item,
+        href: href(item.href),
+        icon: NAV_ICONS[item.key],
+      }))
+    : [];
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -169,7 +168,7 @@ function PortalNav() {
                         className="inline-block mt-1 text-xs px-2 py-0.5 font-extrabold"
                         style={{ background: '#13274A', color: '#FFFFFF' }}
                       >
-                        {user.role === 'admin' ? 'Super User' : 'Site User'}
+                        {roleLabel(user.role)}
                       </span>
                     </div>
                     <div className="p-2">

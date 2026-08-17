@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { requireUnjaniSuperUser } from '@/lib/portal/require-portal-user';
+import { requireUnjaniCapability } from '@/lib/portal/require-portal-user';
 import { openDeskTicketForPortal } from '@/lib/portal/create-desk-ticket';
 
 /**
@@ -8,7 +8,7 @@ import { openDeskTicketForPortal } from '@/lib/portal/create-desk-ticket';
  * Creates an activation_request ticket (no site_id) and emails onboarding@.
  */
 export async function POST(request: NextRequest) {
-  const auth = await requireUnjaniSuperUser();
+  const auth = await requireUnjaniCapability('coverage.write');
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;

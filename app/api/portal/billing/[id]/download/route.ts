@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession } from '@/lib/supabase/server';
+import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params;
-  const supabase = await createClientWithSession();
+  const auth = await requirePortalCapability('billing.read');
+  if (!auth.ok) return auth.response;
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const { adminDb } = auth;
 
-  const { data: invoice, error } = await supabase
+  const { data: invoice, error } = await adminDb
     .from('customer_invoices')
     .select('id, invoice_number, pdf_url')
     .eq('id', id)

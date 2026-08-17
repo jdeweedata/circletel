@@ -25,6 +25,7 @@ import {
   OnboardingProgress,
 } from '@/components/portal/modernist/StageIndicators';
 import type { StageKey } from '@/lib/portal/onboarding-stage';
+import { usePortalCapability } from '@/lib/portal/use-portal-capability';
 
 interface SiteDetail {
   site: {
@@ -68,8 +69,9 @@ interface SiteDetail {
 export default function PortalSiteDetailPage() {
   const params = useParams();
   const siteId = params.id as string;
-  const { isAdmin } = usePortalAuth();
+  const { isSiteUser } = usePortalAuth();
   const { href, isUnjani } = usePortalApp();
+  const { allowed } = usePortalCapability('sites.read');
   const [data, setData] = useState<SiteDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -80,6 +82,8 @@ export default function PortalSiteDetailPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [siteId]);
+
+  if (!allowed) return null;
 
   if (loading) {
     return (
@@ -93,7 +97,7 @@ export default function PortalSiteDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-gray-500">Site not found.</p>
-        {isAdmin && (
+        {allowed && (
           <Link href={href('/sites')} className="text-sm text-circleTel-orange hover:underline mt-2 inline-block">
             Back to sites
           </Link>
@@ -118,7 +122,7 @@ export default function PortalSiteDetailPage() {
         actions={
           <>
             {isUnjani && <StageBadge stage={site.stage} />}
-            {isAdmin && (
+            {!isSiteUser && (
               <Link href={href('/sites')}>
                 <PmButton variant="ghost">Back to sites</PmButton>
               </Link>

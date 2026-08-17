@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requirePortalUser } from '@/lib/portal/require-portal-user';
+import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 import { deriveStage, submissionRank } from '@/lib/portal/onboarding-stage';
 
 /** Columns that exist on corporate_sites — verified against information_schema. */
@@ -36,7 +36,7 @@ export async function GET(
 ) {
   const { id } = await context.params;
 
-  const auth = await requirePortalUser();
+  const auth = await requirePortalCapability('sites.read');
   if (!auth.ok) return auth.response;
 
   const { portalUser, adminDb } = auth;
