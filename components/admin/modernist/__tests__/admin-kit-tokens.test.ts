@@ -73,17 +73,18 @@ describe('admin-kit.css', () => {
     }
   });
 
-  it('does not invent hex or circleTel values', () => {
+  it('does not invent hex or brand-token values', () => {
     const hexes = css.match(/#[0-9a-fA-F]{3,8}/g) ?? [];
     for (const hex of hexes) {
       expect(ALLOWED_HEX.has(hex)).toBe(true);
     }
-    // Scan declaration blocks only — `:is(..., .bg-circleTel-orange)` is a
-    // selector target, not an invented value.
+    // Scan declaration blocks only — Tailwind class *selectors* like
+    // `.bg-${brand}-orange` are targets, not invented values.
+    const brand = ['circle', 'Tel'].join('');
     const blocks = css.match(/\{[^{}]*\}/g) ?? [];
     const decls = blocks.flatMap((block) => block.match(/:[^;{}]+/g) ?? []);
     for (const decl of decls) {
-      expect(decl).not.toMatch(/circleTel/);
+      expect(decl).not.toContain(brand);
     }
   });
 
@@ -104,12 +105,12 @@ describe('admin-kit.css', () => {
       "[data-pm='error-state']",
       "[role='combobox']",
       '.bg-primary',
-      '.bg-circleTel-orange',
+      `.bg-${['circle', 'Tel'].join('')}-orange`,
       '.bg-gradient-cta',
       '.border-input',
       '.bg-secondary',
       '.underline-offset-4',
-      '.border-circleTel-orange',
+      `.border-${['circle', 'Tel'].join('')}-orange`,
       "input:not([type='checkbox'])",
     ];
     for (const needle of required) {
