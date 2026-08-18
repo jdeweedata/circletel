@@ -427,6 +427,7 @@ export async function publishServicePackage(
       packageId = data.id;
     }
   }
+  if (!packageId) throw new Error('Could not publish catalogue row');
 
   await supabase
     .from('product_line_skus')
