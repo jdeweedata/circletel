@@ -274,11 +274,9 @@ export function ProductGovernanceSection() {
 
       <TabPanel id="sales" activeTab={tab}>
         <div className="mb-4 flex flex-wrap gap-2">
-          <PmLink href="/admin/quotes/bundles/new?template=circleconnect-5g-essential">
-            Compose CircleConnect 5G
-          </PmLink>
-          <PmLink href="/admin/quotes/bundles/new?template=otg" variant="secondary">
-            Compose OTG
+          <PmLink href="/admin/quotes/bundles">Flyers</PmLink>
+          <PmLink href="/admin/quotes/bundles/new" variant="secondary">
+            Build a quote
           </PmLink>
           <PmLink href="/admin/quotes/new" variant="secondary">
             Simple quote (SkyFibre / BizFibre)

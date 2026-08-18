@@ -6,10 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
-  BUNDLE_TEMPLATES,
-  type BundleTemplateCode,
   priceBundle,
   type BundlePriceResult,
+  type BundleTemplate,
 } from '@/lib/products/bundle-pricing';
 import {
   PageHeader as PortalPageHeader,
@@ -39,16 +38,15 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 export function BundleComposer() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initial = (searchParams.get('template') as BundleTemplateCode) || 'circleconnect-5g-essential';
+  const requestedCode = searchParams.get('template') || '';
 
-  const [template, setTemplate] = useState<BundleTemplateCode>(
-    initial in BUNDLE_TEMPLATES ? initial : 'circleconnect-5g-essential'
-  );
-  const spec = BUNDLE_TEMPLATES[template];
-  const [termMonths, setTermMonths] = useState<12 | 24>(spec.defaultTermMonths);
-  const [heliosIncludesCpe, setHeliosIncludesCpe] = useState(spec.defaultHeliosIncludesCpe);
+  const [flyers, setFlyers] = useState<BundleTemplate[]>([]);
+  const [templateCode, setTemplateCode] = useState(requestedCode);
+  const spec = flyers.find((f) => f.code === templateCode) ?? flyers[0] ?? null;
+  const [termMonths, setTermMonths] = useState<12 | 24 | 36>(12);
+  const [heliosIncludesCpe, setHeliosIncludesCpe] = useState(false);
   const [addCpeUpgrade, setAddCpeUpgrade] = useState(false);
-  const [m365Seats, setM365Seats] = useState(spec.defaultM365Seats);
+  const [m365Seats, setM365Seats] = useState(0);
   const [heliosDealCode, setHeliosDealCode] = useState('');
   const [cpeQuery, setCpeQuery] = useState('');
   const [cpeRows, setCpeRows] = useState<CpeRow[]>([]);
@@ -65,26 +63,46 @@ export function BundleComposer() {
   const [address, setAddress] = useState('');
 
   useEffect(() => {
-    setTermMonths(BUNDLE_TEMPLATES[template].defaultTermMonths);
-    setHeliosIncludesCpe(BUNDLE_TEMPLATES[template].defaultHeliosIncludesCpe);
-    setM365Seats(BUNDLE_TEMPLATES[template].defaultM365Seats);
+    let cancelled = false;
+    (async () => {
+      const res = await fetch('/api/admin/bundle-templates?sellable=1');
+      const data = await res.json();
+      if (cancelled || !res.ok || !data.success) return;
+      const list = (data.templates || []) as BundleTemplate[];
+      setFlyers(list);
+      const match = list.find((f) => f.code === requestedCode);
+      setTemplateCode(match?.code || list[0]?.code || '');
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [requestedCode]);
+
+  useEffect(() => {
+    if (!spec) return;
+    setTermMonths(spec.defaultTermMonths);
+    setHeliosIncludesCpe(spec.defaultHeliosIncludesCpe);
+    setM365Seats(spec.defaultM365Seats);
     setAddCpeUpgrade(false);
-  }, [template]);
+  }, [spec]);
 
   const input = useMemo(
-    () => ({
-      template,
-      termMonths,
-      heliosIncludesCpe,
-      cpeCostExcl: Number(cpe?.cost_price) || (template === 'otg' ? 360 : 0),
-      addCpeUpgrade,
-      m365Seats,
-    }),
-    [template, termMonths, heliosIncludesCpe, cpe, addCpeUpgrade, m365Seats]
+    () =>
+      spec
+        ? {
+            template: spec,
+            termMonths,
+            heliosIncludesCpe,
+            cpeCostExcl: Number(cpe?.cost_price) || (spec.code === 'otg' ? 360 : 0),
+            addCpeUpgrade,
+            m365Seats,
+          }
+        : null,
+    [spec, termMonths, heliosIncludesCpe, cpe, addCpeUpgrade, m365Seats]
   );
 
   useEffect(() => {
-    setPricing(priceBundle(input));
+    setPricing(input ? priceBundle(input) : null);
   }, [input]);
 
   useEffect(() => {
@@ -100,6 +118,7 @@ export function BundleComposer() {
   }, [cpeQuery]);
 
   async function submit() {
+    if (!input) return;
     setBusy(true);
     setError(null);
     try {
@@ -137,20 +156,22 @@ export function BundleComposer() {
     <div className="mx-auto max-w-4xl space-y-6">
       <PortalPageHeader
         eyebrow="Sales"
-        title="Compose bundle"
+        title="Build a quote"
         subtitle="SkyTel SIM + curated Rectron CPE + optional Microsoft 365. Does not double-count a router already on the Helios deal."
       />
 
       <div className={`grid gap-4 md:grid-cols-2 ${CARD}`}>
         <div className="space-y-2">
-          <FieldLabel>Template</FieldLabel>
+          <FieldLabel>Flyer</FieldLabel>
           <select
             className="h-11 w-full rounded-lg border-2 bg-white px-3 text-sm"
             style={selectStyle}
-            value={template}
-            onChange={(e) => setTemplate(e.target.value as BundleTemplateCode)}
+            value={templateCode}
+            onChange={(e) => setTemplateCode(e.target.value)}
+            disabled={flyers.length === 0}
           >
-            {Object.values(BUNDLE_TEMPLATES).map((t) => (
+            {flyers.length === 0 && <option value="">No live flyers yet</option>}
+            {flyers.map((t) => (
               <option key={t.code} value={t.code}>
                 {t.name} — R{t.billedInclVat} incl VAT / {t.defaultTermMonths} mo
               </option>
@@ -167,6 +188,7 @@ export function BundleComposer() {
           >
             <option value={12}>12</option>
             <option value={24}>24</option>
+            <option value={36}>36</option>
           </select>
         </div>
         <div className="space-y-2">
@@ -290,7 +312,7 @@ export function BundleComposer() {
 
       {error && <p className="text-sm text-red-700">{error}</p>}
 
-      <PmButton onClick={submit} disabled={busy || !company || !email}>
+      <PmButton onClick={submit} disabled={busy || !input || !company || !email}>
         {busy ? 'Creating…' : 'Create draft quote'}
       </PmButton>
     </div>

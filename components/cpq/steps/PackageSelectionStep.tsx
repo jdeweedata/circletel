@@ -8,6 +8,8 @@ import { PiArrowsDownUpBold, PiCheckCircleBold, PiFunnelBold, PiPackageBold, PiS
  */
 
 import { useState, useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import type { BundleTemplate } from '@/lib/products/bundle-pricing';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +37,8 @@ export function PackageSelectionStep({
   const data = stepData.package_selection || { selected_packages: [], ai_recommendations_shown: false };
   const locations = stepData.location_coverage?.sites || [];
 
+  const router = useRouter();
+  const [flyers, setFlyers] = useState<BundleTemplate[]>([]);
   const [packages, setPackages] = useState<PackageWithRecommendation[]>([]);
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>(
     session?.ai_recommendations || []
@@ -46,6 +50,14 @@ export function PackageSelectionStep({
   // Filter state
   const [sortBy, setSortBy] = useState<'price' | 'speed' | 'recommendation'>('recommendation');
   const [filterSpeed, setFilterSpeed] = useState<string>('all');
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch('/api/admin/bundle-templates?sellable=1');
+      const data = await res.json();
+      if (res.ok && data.success) setFlyers(data.templates || []);
+    })();
+  }, []);
 
   // Load packages on mount
   useEffect(() => {
@@ -276,6 +288,28 @@ export function PackageSelectionStep({
           </Select>
         </div>
       </div>
+
+      {flyers.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-gray-900">Ready-to-sell flyers</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {flyers.map((flyer) => (
+              <button
+                key={flyer.code}
+                type="button"
+                className="rounded-lg border-2 border-gray-200 p-4 text-left hover:border-circleTel-orange"
+                onClick={() => router.push(`/admin/quotes/bundles/new?template=${encodeURIComponent(flyer.code)}`)}
+              >
+                <p className="font-semibold text-gray-900">{flyer.name}</p>
+                <p className="text-xl font-bold text-circleTel-orange mt-1">
+                  R{flyer.billedInclVat.toLocaleString('en-ZA')}
+                  <span className="text-sm font-normal text-gray-500"> incl. VAT / month</span>
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Packages Grid */}
       {isLoadingPackages ? (

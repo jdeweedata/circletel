@@ -131,7 +131,8 @@ export const featureSections: NavSection[] = [
         icon: PiFileTextBold,
         children: [
           { name: 'All Quotes', href: '/admin/quotes', icon: PiListBold },
-          { name: 'Compose bundle', href: '/admin/quotes/bundles/new', icon: PiPackageBold },
+          { name: 'Flyers', href: '/admin/quotes/bundles', icon: PiPackageBold },
+          { name: 'Build a quote', href: '/admin/quotes/bundles/new', icon: PiPackageBold },
           { name: 'Pending Approval', href: '/admin/quotes?status=pending_approval', icon: PiClockBold },
           { name: 'Accepted', href: '/admin/quotes?status=accepted', icon: PiCheckCircleBold },
         ],

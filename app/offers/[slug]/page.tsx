@@ -20,7 +20,7 @@ export default async function OfferDetailPage({ params }: { params: Promise<{ sl
   if (!offer) notFound();
 
   const jsonLd = offerProductJsonLd(offer);
-  const ctaHref = `/coverage-check?offer=${encodeURIComponent(offer.slug)}`;
+  const ctaHref = offer.ctaPath || `/coverage-check?offer=${encodeURIComponent(offer.slug)}`;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -40,7 +40,7 @@ export default async function OfferDetailPage({ params }: { params: Promise<{ sl
           href={ctaHref}
           className="mt-8 inline-block rounded-lg bg-circleTel-orange px-6 py-3 font-semibold text-white hover:bg-circleTel-orange-dark"
         >
-          Check availability
+          {offer.ctaPath ? 'Get started' : 'Check availability'}
         </Link>
       </main>
       <Footer />
