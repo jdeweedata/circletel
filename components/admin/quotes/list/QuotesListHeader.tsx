@@ -16,8 +16,11 @@ export function QuotesListHeader() {
       subtitle="Manage and track business quote requests."
       actions={
         <>
+          <PmButton variant="secondary" onClick={() => router.push('/admin/quotes/bundles')}>
+            Flyers
+          </PmButton>
           <PmButton variant="secondary" onClick={() => router.push('/admin/quotes/bundles/new')}>
-            Compose bundle
+            Build a quote
           </PmButton>
           <PmButton onClick={() => router.push('/admin/quotes/new')}>New Quote</PmButton>
         </>

@@ -31,13 +31,33 @@ export type ProductLineChannel =
 
 export type ProductDocStatus = 'missing' | 'draft' | 'current' | 'stale';
 
-export type BundleComponentRole = 'connectivity' | 'cpe' | 'licence';
+export type BundleComponentRole =
+  | 'connectivity'
+  | 'cpe'
+  | 'licence'
+  | 'access'
+  | 'labour'
+  | 'addon';
 
 export type BundleComponentSource =
   | 'skytel_helios'
   | 'rectron'
   | 'm365_csp'
-  | 'service_package';
+  | 'service_package'
+  | 'mtn_wholesale'
+  | 'dfa'
+  | 'supplier_product';
+
+export type FlyerTermMonths = 12 | 24 | 36;
+
+export interface PublishedFlyerDefaults {
+  termMonths: FlyerTermMonths;
+  heliosIncludesCpe: boolean;
+  m365Seats: number;
+  connectivityCostExcl: number;
+  billedInclVat: number;
+  packageSku?: string | null;
+}
 
 export interface ProductLine {
   id: string;
@@ -70,6 +90,16 @@ export interface ProductLine {
   live_mrr_match: string | null;
   price_drift_notes: string | null;
   notes: string | null;
+  submitted_for_approval_at: string | null;
+  submitted_for_approval_by: string | null;
+  default_term_months: FlyerTermMonths;
+  default_helios_includes_cpe: boolean;
+  default_m365_seats: number;
+  default_connectivity_cost_excl: number | null;
+  billed_incl_vat_zar: number | null;
+  published_package_id: string | null;
+  sales_blurb: string | null;
+  published_defaults: PublishedFlyerDefaults | null;
   created_at: string;
   updated_at: string;
 }
@@ -94,6 +124,7 @@ export interface ProductBundleComponent {
   amortise_months: number | null;
   package_sku: string | null;
   sort_order: number;
+  component_config: Record<string, unknown>;
 }
 
 export interface ProductLineWithRelations extends ProductLine {

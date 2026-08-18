@@ -54,8 +54,33 @@ function mapLine(row: Record<string, unknown>): ProductLine {
     live_mrr_match: (row.live_mrr_match as string) ?? null,
     price_drift_notes: (row.price_drift_notes as string) ?? null,
     notes: (row.notes as string) ?? null,
+    submitted_for_approval_at: (row.submitted_for_approval_at as string) ?? null,
+    submitted_for_approval_by: (row.submitted_for_approval_by as string) ?? null,
+    default_term_months: (num(row.default_term_months) as 12 | 24 | 36) || 12,
+    default_helios_includes_cpe: Boolean(row.default_helios_includes_cpe),
+    default_m365_seats: num(row.default_m365_seats) ?? 0,
+    default_connectivity_cost_excl: num(row.default_connectivity_cost_excl),
+    billed_incl_vat_zar: num(row.billed_incl_vat_zar),
+    published_package_id: (row.published_package_id as string) ?? null,
+    sales_blurb: (row.sales_blurb as string) ?? null,
+    published_defaults: parsePublishedDefaults(row.published_defaults),
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
+  };
+}
+
+function parsePublishedDefaults(raw: unknown): ProductLine['published_defaults'] {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  const term = num(o.termMonths);
+  if (term !== 12 && term !== 24 && term !== 36) return null;
+  return {
+    termMonths: term,
+    heliosIncludesCpe: Boolean(o.heliosIncludesCpe),
+    m365Seats: num(o.m365Seats) ?? 0,
+    connectivityCostExcl: num(o.connectivityCostExcl) ?? 0,
+    billedInclVat: num(o.billedInclVat) ?? 0,
+    packageSku: typeof o.packageSku === 'string' ? o.packageSku : null,
   };
 }
 
@@ -163,6 +188,14 @@ export type ProductLinePatch = Partial<
     | 'notes'
     | 'price_drift_notes'
     | 'finance_approval_notes'
+    | 'sales_blurb'
+    | 'billed_incl_vat_zar'
+    | 'default_term_months'
+    | 'default_helios_includes_cpe'
+    | 'default_m365_seats'
+    | 'default_connectivity_cost_excl'
+    | 'submitted_for_approval_at'
+    | 'published_defaults'
   >
 >;
 

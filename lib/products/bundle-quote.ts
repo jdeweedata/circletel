@@ -31,11 +31,38 @@ export async function createBundleQuote(
 ): Promise<{ quoteId: string; quoteNumber: string; pricing: BundlePriceResult }> {
   const pricing = priceBundle(request.pricing);
 
-  const { data: pkg } = await supabase
-    .from('service_packages')
-    .select('id, name, service_type, product_category, speed_down, speed_up, features')
-    .eq('sku', request.pricing.template === 'otg' ? 'CC-5G-CON-035' : 'CC-5G-CON-035')
-    .maybeSingle();
+  let pkg: {
+    id: string;
+    name: string;
+    service_type: string;
+    product_category: string;
+    speed_down: number;
+    speed_up: number;
+    features: unknown;
+  } | null = null;
+
+  if (request.pricing.template.publishedPackageId) {
+    const byId = await supabase
+      .from('service_packages')
+      .select('id, name, service_type, product_category, speed_down, speed_up, features')
+      .eq('id', request.pricing.template.publishedPackageId)
+      .maybeSingle();
+    pkg = byId.data;
+  }
+
+  if (!pkg) {
+    const sku =
+      request.pricing.template.packageSku ||
+      (request.pricing.template.code === 'circleconnect-5g-essential'
+        ? 'CC-5G-CON-035'
+        : request.pricing.template.code.toUpperCase());
+    const bySku = await supabase
+      .from('service_packages')
+      .select('id, name, service_type, product_category, speed_down, speed_up, features')
+      .eq('sku', sku)
+      .maybeSingle();
+    pkg = bySku.data;
+  }
 
   const fallback = await supabase
     .from('service_packages')
@@ -117,7 +144,7 @@ export async function createBundleQuote(
       service_name: `${pricing.template.name} connectivity`,
       service_type: '5G',
       product_category: 'connectivity',
-      speed_down: request.pricing.template === 'otg' ? 0 : 35,
+      speed_down: request.pricing.template.code === 'otg' ? 0 : 35,
       speed_up: 0,
       notes: request.heliosDealCode ? `Helios ${request.heliosDealCode}` : null,
       display_order: 0,

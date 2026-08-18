@@ -52,6 +52,8 @@ export function mapOfferRow(row: OfferReadRow): PublicOffer | null {
 
   const description = whitelistedString(row.media, 'description');
   const image = whitelistedString(row.media, 'image');
+  const rawCta = whitelistedString(row.media, 'cta_path');
+  const ctaPath = rawCta && rawCta.startsWith('/') && !rawCta.startsWith('//') ? rawCta : undefined;
 
   return {
     slug: row.slug,
@@ -62,6 +64,7 @@ export function mapOfferRow(row: OfferReadRow): PublicOffer | null {
     vatLabel: VAT_LABEL,
     ...(description ? { description } : {}),
     ...(image ? { image } : {}),
+    ...(ctaPath ? { ctaPath } : {}),
   };
 }
 
