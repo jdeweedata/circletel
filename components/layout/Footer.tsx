@@ -1,8 +1,31 @@
-import { PiEnvelopeBold, PiFacebookLogoBold, PiLinkedinLogoBold, PiMapPinBold, PiWhatsappLogoBold, PiXLogoBold } from 'react-icons/pi';
+import { PiEnvelopeBold, PiMapPinBold } from 'react-icons/pi';
 import React from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/navigation/Logo';
 import { CONTACT, getWhatsAppLink, formatAddressFooter } from '@/lib/constants/contact';
+
+const SOCIAL_LINKS = [
+  {
+    href: 'https://www.facebook.com/circletelsa',
+    label: 'CircleTel on Facebook',
+    src: '/images/social/social-facebook-orange.svg',
+  },
+  {
+    href: 'https://www.linkedin.com/company/circle-tel-sa',
+    label: 'CircleTel on LinkedIn',
+    src: '/images/social/social-linkedin-orange.svg',
+  },
+  {
+    href: 'https://x.com/CircleTel',
+    label: 'CircleTel on X',
+    src: '/images/social/social-x-orange.svg',
+  },
+  {
+    href: CONTACT.WHATSAPP_LINK,
+    label: 'Message CircleTel on WhatsApp',
+    src: '/images/social/social-whatsapp-orange.svg',
+  },
+] as const;
 
 export const Footer = () => {
   return (
@@ -17,7 +40,13 @@ export const Footer = () => {
               rel="noopener noreferrer"
               className="flex items-center hover:text-white transition-colors"
             >
-              <PiWhatsappLogoBold size={18} className="mr-2 text-[#25D366]" />
+              <img
+                src="/images/social/social-whatsapp-orange.svg"
+                alt=""
+                width={20}
+                height={20}
+                className="mr-2 h-5 w-5"
+              />
               <span className="text-circleTel-lightNeutral">{CONTACT.WHATSAPP_NUMBER}</span>
             </a>
             <div className="flex items-center">
@@ -39,16 +68,25 @@ export const Footer = () => {
             <p className="mt-4 text-circleTel-lightNeutral">
               Making IT simple and affordable for businesses of all sizes. We provide expert IT services with a recipe for success.
             </p>
-            <div className="mt-4 flex space-x-2">
-              <a href="https://www.facebook.com/circletelsa" target="_blank" rel="noopener noreferrer" aria-label="CircleTel on Facebook" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
-                <PiFacebookLogoBold size={18} />
-              </a>
-              <a href="https://www.linkedin.com/company/circle-tel-sa" target="_blank" rel="noopener noreferrer" aria-label="CircleTel on LinkedIn" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
-                <PiLinkedinLogoBold size={18} />
-              </a>
-              <a href="https://x.com/CircleTel" target="_blank" rel="noopener noreferrer" aria-label="CircleTel on X" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
-                <PiXLogoBold size={18} />
-              </a>
+            <div className="mt-4 flex items-center gap-2">
+              {SOCIAL_LINKS.map((social) => (
+                <a
+                  key={social.href}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="inline-flex rounded-full transition-opacity duration-300 hover:opacity-80"
+                >
+                  <img
+                    src={social.src}
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="h-8 w-8"
+                  />
+                </a>
+              ))}
             </div>
           </div>
 
