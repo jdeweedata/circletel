@@ -154,8 +154,31 @@ function accountsHost(): string {
   );
 }
 
+type DeskTokenCache =
+  | { ok: true; token: string; expiresAt: number }
+  | { ok: false; error: string; retryAt: number };
+
+let deskTokenCache: DeskTokenCache | null = null;
+let deskTokenInflight: Promise<string> | null = null;
+
 /** Mint Desk access token directly from Desk refresh token (bypass zoho_tokens). */
 export async function mintDeskAccessToken(): Promise<string> {
+  const now = Date.now();
+  if (deskTokenCache?.ok && deskTokenCache.expiresAt > now + 30_000) {
+    return deskTokenCache.token;
+  }
+  if (deskTokenCache && !deskTokenCache.ok && deskTokenCache.retryAt > now) {
+    throw new Error(deskTokenCache.error);
+  }
+  if (deskTokenInflight) return deskTokenInflight;
+
+  deskTokenInflight = refreshDeskAccessToken().finally(() => {
+    deskTokenInflight = null;
+  });
+  return deskTokenInflight;
+}
+
+async function refreshDeskAccessToken(): Promise<string> {
   const clientId = process.env.ZOHO_DESK_CLIENT_ID || process.env.ZOHO_CLIENT_ID;
   const clientSecret =
     process.env.ZOHO_DESK_CLIENT_SECRET || process.env.ZOHO_CLIENT_SECRET;
@@ -181,10 +204,29 @@ export async function mintDeskAccessToken(): Promise<string> {
     body: params.toString(),
   });
 
-  const data = (await res.json()) as { access_token?: string; error?: string };
+  const data = (await res.json()) as {
+    access_token?: string;
+    expires_in?: number;
+    error?: string;
+    error_description?: string;
+  };
   if (!data.access_token) {
-    throw new Error(`Desk token refresh failed: ${JSON.stringify(data)}`);
+    const message = `Desk token refresh failed: ${JSON.stringify(data)}`;
+    const denied = /access denied|too many requests/i.test(message);
+    deskTokenCache = {
+      ok: false,
+      error: message,
+      retryAt: Date.now() + (denied ? 45_000 : 10_000),
+    };
+    throw new Error(message);
   }
+
+  const ttlMs = Math.max(60_000, ((data.expires_in ?? 3600) - 120) * 1000);
+  deskTokenCache = {
+    ok: true,
+    token: data.access_token,
+    expiresAt: Date.now() + ttlMs,
+  };
   return data.access_token;
 }
 
