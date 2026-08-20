@@ -130,6 +130,8 @@ describe('module + workspace axes', () => {
     expect(workspaceForPath('/admin/billing/invoices')).toBe('finance');
     expect(workspaceForPath('/admin/settings')).toBe('admin');
     expect(workspaceForPath('/admin/inbox')).toBe('support');
+    expect(workspaceForPath('/admin/inbox/sales')).toBe('support');
+    expect(workspaceForPath('/admin/inbox/support')).toBe('support');
     expect(workspaceForPath('/admin/nonexistent')).toBeNull();
   });
 });

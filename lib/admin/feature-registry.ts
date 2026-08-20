@@ -26,6 +26,7 @@ import {
   PiGraphBold,
   PiHardDrivesBold,
   PiHandshakeBold,
+  PiHeadphonesBold,
   PiImageBold,
   PiLightningBold,
   PiLinkBold,
@@ -363,9 +364,12 @@ export const featureSections: NavSection[] = [
     items: [
       {
         name: 'WhatsApp Inbox',
-        href: '/admin/inbox',
         icon: PiWhatsappLogoBold,
         description: 'Support IM and Sales 084 conversations',
+        children: [
+          { name: 'Sales', href: '/admin/inbox/sales', icon: PiWhatsappLogoBold },
+          { name: 'Support', href: '/admin/inbox/support', icon: PiHeadphonesBold },
+        ],
       },
       {
         name: 'Customer Devices',
@@ -656,9 +660,17 @@ export function workspaceForPath(pathname: string): WorkspaceId | null {
   const allItems: NavItem[] = [...featureSections, ...bottomSections].flatMap((s) => s.items);
   for (const item of allItems) {
     const match = hasChildren(item)
-      ? item.children.some((c) => c.href.split('?')[0] === path)
+      ? item.children.some((c) => childHrefMatchesPath(c.href, path))
       : item.href.split('?')[0] === path;
     if (match) return ITEM_WORKSPACE[item.name] ?? null;
   }
   return null;
+}
+
+/** Exact child href, or the parent index of a nested child (e.g. /admin/inbox → /admin/inbox/sales). */
+function childHrefMatchesPath(href: string, path: string): boolean {
+  const base = href.split('?')[0];
+  if (path === base) return true;
+  const parent = base.slice(0, base.lastIndexOf('/'));
+  return parent.split('/').filter(Boolean).length >= 2 && path === parent;
 }
