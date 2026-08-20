@@ -6,13 +6,13 @@ import {
   WA_OUT_MARKER,
 } from '@/lib/integrations/whatsapp/desk-bridge';
 import {
-  asInboxText,
   classifySupportImSendProbe,
   decodeInboxThreadId,
   deskTicketWebUrl,
   encodeInboxThreadId,
   formatDisplayPhone,
   isInternalInboxMessage,
+  mergeDeskHistory,
   toCustomerFacingText,
   toInboxTimestamp,
   type InboxChannel,
@@ -403,59 +403,10 @@ async function loadDeskMessages(
     }>;
   }>(token, `/tickets/${ticketId}/conversations?limit=50`);
 
-  const commentRows = Array.isArray(comments.data?.data)
-    ? comments.data.data
-    : [];
-  const conversationRows = Array.isArray(conversations.data?.data)
-    ? conversations.data.data
-    : [];
-
-  const messages: InboxMessage[] = [];
-
-  for (const c of commentRows) {
-    const raw = asInboxText(c.content);
-    if (isInternalInboxMessage(raw)) continue;
-    const inbound = raw.trim().startsWith('[WA-IN]');
-    if (!inbound && c.isPublic === false) continue;
-    const text = toCustomerFacingText(raw);
-    if (!text) continue;
-    messages.push({
-      id: `comment:${c.id}`,
-      direction: inbound ? 'in' : 'out',
-      text,
-      timestamp: toInboxTimestamp(c.commentedTime || c.createdTime),
-      author: c.author?.name,
-    });
-  }
-
-  for (const item of conversationRows) {
-    const raw = asInboxText(item.summary || item.content);
-    if (isInternalInboxMessage(raw)) continue;
-    const text = toCustomerFacingText(raw);
-    if (!text) continue;
-    const direction = (item.direction || '').toUpperCase() === 'OUT' ? 'out' : 'in';
-    messages.push({
-      id: `conv:${item.id}`,
-      direction,
-      text,
-      timestamp: toInboxTimestamp(item.createdTime),
-      author: item.author?.name,
-    });
-  }
-
-  return dedupeInboxMessages(
-    messages.sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp))
+  return mergeDeskHistory(
+    Array.isArray(comments.data?.data) ? comments.data.data : [],
+    Array.isArray(conversations.data?.data) ? conversations.data.data : []
   );
-}
-
-function dedupeInboxMessages(messages: InboxMessage[]): InboxMessage[] {
-  const seen = new Set<string>();
-  return messages.filter((message) => {
-    const key = `${message.direction}|${message.text}|${message.timestamp}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
 }
 
 async function loadImMessages(

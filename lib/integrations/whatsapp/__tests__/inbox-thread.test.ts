@@ -4,6 +4,7 @@ import {
   encodeInboxThreadId,
   deskTicketWebUrl,
   isInternalInboxMessage,
+  mergeDeskHistory,
   toCustomerFacingText,
   toInboxTimestamp,
 } from '../inbox-thread';
@@ -56,6 +57,11 @@ describe('inbox message chrome', () => {
     expect(isInternalInboxMessage({ html: '<p>Hi</p>' } as never)).toBe(true);
     expect(toCustomerFacingText({ html: '<p>Hi</p>' } as never)).toBe('');
   });
+
+  it('strips the bridge From: name prefix from inbound WhatsApp comments', () => {
+    expect(toCustomerFacingText('[WA-IN] From: Jeffrey NewGen\nHi')).toBe('Hi');
+    expect(toCustomerFacingText('[WA-IN] From: Jeffrey NewGen\nHello')).toBe('Hello');
+  });
 });
 
 describe('deskTicketWebUrl', () => {
@@ -74,6 +80,50 @@ describe('toInboxTimestamp', () => {
     expect(toInboxTimestamp('2026-06-11T07:15:25.807Z')).toBe(
       '2026-06-11T07:15:25.807Z'
     );
+  });
+
+  it('does not stamp missing Desk times as now', () => {
+    expect(toInboxTimestamp(undefined)).toBe('');
+    expect(toInboxTimestamp('not-a-date')).toBe('');
+  });
+});
+
+describe('mergeDeskHistory', () => {
+  it('does not show a public agent comment again as an inbound conversation', () => {
+    const messages = mergeDeskHistory(
+      [
+        {
+          id: 'c-in',
+          content: '[WA-IN] From: Jeffrey NewGen\nHi',
+          isPublic: false,
+          createdTime: '2026-08-20T15:44:00.000Z',
+        },
+        {
+          id: 'c-out',
+          content: 'Hello Jeff',
+          isPublic: true,
+          createdTime: '2026-08-20T19:41:00.000Z',
+        },
+      ],
+      [
+        {
+          id: 'v-dup',
+          direction: 'in',
+          summary: 'Hello Jeff',
+          createdTime: '2026-08-20T19:41:00.000Z',
+        },
+        {
+          id: 'v-from',
+          direction: 'in',
+          summary: 'From: Jeffrey NewGen Hi',
+          createdTime: '2026-08-20T15:44:00.000Z',
+        },
+      ]
+    );
+    expect(messages.map((m) => `${m.direction}:${m.text}`)).toEqual([
+      'in:Hi',
+      'out:Hello Jeff',
+    ]);
   });
 });
 
