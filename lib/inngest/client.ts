@@ -486,7 +486,7 @@ export type NewSignupFollowupCompletedEvent = {
     candidates: number;
     ticketed: number;
     failed: number;
-    whatsapp_sent: boolean;
+    sales_alerted: boolean;
     duration_ms: number;
   };
 };

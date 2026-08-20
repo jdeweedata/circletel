@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.sales_followup_flags (
   reason text NOT NULL DEFAULT 'registered_no_order',
   desk_ticket_id text,
   desk_ticket_number text,
-  whatsapp_alerted_at timestamptz,
+  sales_alerted_at timestamptz,
   journey_snapshot jsonb,
   flagged_at timestamptz NOT NULL DEFAULT now(),
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -35,5 +35,7 @@ COMMENT ON TABLE public.sales_followup_flags IS
   'Registered customers already flagged to the Sales desk for follow-up. Idempotency guard for scripts/flag-new-signups-to-sales.ts and the new-signup-followup Inngest job.';
 COMMENT ON COLUMN public.sales_followup_flags.reason IS
   'Why they were flagged. Currently only registered_no_order.';
+COMMENT ON COLUMN public.sales_followup_flags.sales_alerted_at IS
+  'When the Sales team was notified about this flag (digest email to SALES_TEAM_EMAIL).';
 COMMENT ON COLUMN public.sales_followup_flags.journey_snapshot IS
   'The SignupJourney at flag time, for auditing what Sales was told.';

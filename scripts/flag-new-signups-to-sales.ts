@@ -7,10 +7,10 @@
  * For each customer who registered but never ordered, this:
  *   1. Creates a Zoho Desk ticket in the SALES department with their journey.
  *   2. Records the flag in sales_followup_flags (idempotency — re-runs create nothing).
- *   3. Sends ONE digest to the internal Sales WhatsApp number.
+ *   3. Emails ONE digest to the Sales team (SALES_TEAM_EMAIL).
  *
- * The WhatsApp digest goes to CircleTel's own sales number, never to customers —
- * none of them have opted in to WhatsApp.
+ * The digest goes to CircleTel's own sales inbox, never to customers — none of them
+ * have opted in to WhatsApp, so customer contact is Sales' job off the Desk ticket.
  *
  * Usage:
  *   set -a && source /home/circletel/.env.local && set +a
@@ -19,7 +19,7 @@
  *   DRY_RUN=true npx tsx scripts/flag-new-signups-to-sales.ts --from=2026-08-13 --to=2026-08-20
  *
  *   # create just the first ticket, to verify it lands in the Sales department
- *   ONLY_FIRST=true npx tsx scripts/flag-new-signups-to-sales.ts --from=2026-08-13 --to=2026-08-20
+ *   ONLY_FIRST=true SKIP_ALERT=true npx tsx scripts/flag-new-signups-to-sales.ts --from=2026-08-13 --to=2026-08-20
  *
  *   # full run
  *   npx tsx scripts/flag-new-signups-to-sales.ts --from=2026-08-13 --to=2026-08-20
@@ -28,17 +28,17 @@
  *   DRY_RUN=true     print what would happen, touch nothing
  *   ONLY_FIRST=true  process only the first candidate
  *   START_INDEX=N    skip the first N candidates (resume a partial run)
- *   SKIP_WHATSAPP=true  create tickets but send no digest
+ *   SKIP_ALERT=true  create tickets but send no digest email
  */
 
 import { createClient } from '@/lib/supabase/server';
 import { createMintedZohoDeskService } from '@/lib/integrations/zoho/desk-service';
-import { whatsAppService } from '@/lib/integrations/whatsapp/whatsapp-service';
 import {
   findUnflaggedSignups,
   buildTicketSubject,
   buildTicketDescription,
   buildSalesDigest,
+  sendSalesDigest,
   followUpPriority,
   DEFAULT_FOLLOWUP_REASON,
   type SignupJourney,
@@ -49,7 +49,7 @@ const DESK_CALL_DELAY_MS = 200;
 
 const DRY_RUN = process.env.DRY_RUN === 'true';
 const ONLY_FIRST = process.env.ONLY_FIRST === 'true';
-const SKIP_WHATSAPP = process.env.SKIP_WHATSAPP === 'true';
+const SKIP_ALERT = process.env.SKIP_ALERT === 'true';
 const START_INDEX = Number.parseInt(process.env.START_INDEX ?? '0', 10) || 0;
 
 function arg(name: string): string | undefined {
@@ -97,7 +97,7 @@ async function main() {
     console.log(`Priority: ${followUpPriority(candidates[0])}`);
     console.log('');
     console.log(buildTicketDescription(candidates[0]));
-    console.log('\n--- DRY RUN: WhatsApp digest ---\n');
+    console.log('\n--- DRY RUN: digest email body (plain-text preview) ---\n');
     console.log(buildSalesDigest(candidates, candidates.length));
     console.log('\nDry run complete. Nothing was created.');
     return;
@@ -165,28 +165,16 @@ async function main() {
     await sleep(DESK_CALL_DELAY_MS);
   }
 
-  // WhatsApp digest — internal sales number only.
-  if (flagged.length && !SKIP_WHATSAPP) {
-    const to = process.env.SALES_ALERT_WHATSAPP_TO;
-    if (!to) {
-      console.warn('\n! SALES_ALERT_WHATSAPP_TO is not set — skipping the WhatsApp digest.');
-    } else {
-      const digest = buildSalesDigest(flagged, flagged.length);
-      console.log('\nSending digest to Sales WhatsApp…');
-      // sendText needs an open 24h window: message the CircleTel business number first.
-      const send = await whatsAppService.sendText(to, digest);
-      if (send.success) {
-        console.log('   ✓ digest sent');
-        await supabase
-          .from('sales_followup_flags')
-          .update({ whatsapp_alerted_at: new Date().toISOString() })
-          .in('customer_id', flagged.map((j) => j.customerId))
-          .eq('reason', DEFAULT_FOLLOWUP_REASON);
-      } else {
-        console.warn(`   ! digest not sent: ${send.error}`);
-        console.warn('     (sendText needs an open 24h window — send any message to the CircleTel number, then re-run with SKIP_WHATSAPP unset.)');
-      }
-    }
+  // Digest email — internal Sales team only, never customers.
+  if (flagged.length && !SKIP_ALERT) {
+    const to = process.env.SALES_TEAM_EMAIL || 'sales@circletel.co.za';
+    console.log(`\nEmailing digest to ${to}…`);
+    const sent = await sendSalesDigest(
+      flagged,
+      flagged.map((j) => j.customerId),
+      DEFAULT_FOLLOWUP_REASON
+    );
+    console.log(sent ? '   ✓ digest sent' : '   ! digest not sent (see warning above)');
   }
 
   console.log('\n' + '='.repeat(72));

@@ -3,8 +3,7 @@
  *
  * Finds customers who registered a CircleTel account but never progressed — no
  * order, no service, no onboarding submission — opens one Zoho Desk ticket per
- * person in the SALES department, and sends one digest to the internal sales
- * WhatsApp number.
+ * person in the SALES department, and emails one digest to the Sales team.
  *
  * Why: a review of 13–20 Aug 2026 found six such accounts, none contacted by
  * anyone. Without this the gap reopens every week.
@@ -74,7 +73,7 @@ async function run(request: NextRequest): Promise<NextResponse> {
     if (dryRun) {
       const candidates = await findUnflaggedSignups({});
       if (logId) {
-        await supabase
+        const { error: closeError } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'completed',
@@ -83,6 +82,9 @@ async function run(request: NextRequest): Promise<NextResponse> {
             execution_details: { dry_run: true, candidates: candidates.length },
           })
           .eq('id', logId);
+        if (closeError) {
+          cronLogger.error(`[NewSignupFollowup] Close log failed: ${closeError.message}`);
+        }
       }
       return NextResponse.json({
         success: true,
@@ -100,16 +102,15 @@ async function run(request: NextRequest): Promise<NextResponse> {
 
     cronLogger.info(
       `[NewSignupFollowup] ${result.candidates} candidate(s), ${result.ticketed.length} ticketed, ` +
-        `${result.errors.length} failed, digest ${result.whatsappSent ? 'sent' : 'not sent'}`
+        `${result.errors.length} failed, digest ${result.salesAlerted ? 'sent' : 'not sent'}`
     );
 
     if (logId) {
-      await supabase
+      const { error: closeError } = await supabase
         .from('cron_execution_log')
         .update({
           status: result.errors.length ? 'partial' : 'completed',
           execution_end: new Date().toISOString(),
-          duration_seconds: Math.round(result.durationMs / 1000),
           records_processed: result.ticketed.length,
           records_failed: result.errors.length,
           error_message: result.errors.length
@@ -118,10 +119,13 @@ async function run(request: NextRequest): Promise<NextResponse> {
           execution_details: {
             candidates: result.candidates,
             ticketed: result.ticketed.length,
-            whatsapp_sent: result.whatsappSent,
+            sales_alerted: result.salesAlerted,
           },
         })
         .eq('id', logId);
+      if (closeError) {
+        cronLogger.error(`[NewSignupFollowup] Close log failed: ${closeError.message}`);
+      }
     }
 
     return NextResponse.json({
@@ -129,7 +133,7 @@ async function run(request: NextRequest): Promise<NextResponse> {
       candidates: result.candidates,
       ticketed: result.ticketed.length,
       failed: result.errors.length,
-      whatsappSent: result.whatsappSent,
+      salesAlerted: result.salesAlerted,
       errors: result.errors,
     });
   } catch (error) {

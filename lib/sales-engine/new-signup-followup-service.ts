@@ -352,7 +352,7 @@ function suggestedAction(journey: SignupJourney): string {
   return `Call ${journey.phone} — they registered but never returned. Confirm coverage and walk them through packages.`;
 }
 
-/** Digest sent to the internal Sales WhatsApp number. Never sent to customers. */
+/** Digest for the Sales team. Internal only — never sent to customers. */
 export function buildSalesDigest(
   journeys: SignupJourney[],
   ticketsCreated: number
@@ -372,16 +372,73 @@ export function buildSalesDigest(
     '',
   ];
 
-  for (const j of journeys.slice(0, 10)) {
+  for (const j of journeys) {
     lines.push(
       `• ${j.fullName} — ${j.phone ?? 'no phone'} — ${j.daysSinceSignup}d${j.isBusinessDomain ? ' (business)' : ''}`
     );
   }
-  if (journeys.length > 10) {
-    lines.push(`…and ${journeys.length - 10} more in Zoho Desk.`);
-  }
 
   return lines.join('\n');
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** HTML digest emailed to the Sales team. */
+export function buildSalesDigestHtml(
+  journeys: SignupJourney[],
+  ticketsCreated: number
+): string {
+  const rows = journeys
+    .map((j) => {
+      const ticketNote = j.isBusinessDomain
+        ? ' <span style="color:#E87A1E;font-weight:600">business</span>'
+        : '';
+      return `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee">
+          <strong>${escapeHtml(j.fullName)}</strong>${ticketNote}<br>
+          <span style="color:#666;font-size:13px">${escapeHtml(j.email)}</span>
+        </td>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(j.phone ?? 'no phone')}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center">${j.daysSinceSignup}d</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:13px;color:#444">
+          ${escapeHtml(j.hasLoggedIn ? 'signed in' : 'never signed in')},
+          ${escapeHtml(j.emailVerified ? 'email verified' : 'email unverified')}
+        </td>
+      </tr>`;
+    })
+    .join('');
+
+  return `
+<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:720px;color:#1B2A4A">
+  <h2 style="color:#1B2A4A;margin-bottom:4px">New signups needing follow-up</h2>
+  <p style="color:#444;margin-top:0">
+    ${journeys.length} customer(s) registered a CircleTel account but have no order,
+    no active service, and no onboarding submission.
+    <strong>${ticketsCreated}</strong> Zoho Desk ticket(s) were opened in the Sales queue.
+  </p>
+  <table style="border-collapse:collapse;width:100%;font-size:14px">
+    <thead>
+      <tr style="background:#f6f7f9;text-align:left">
+        <th style="padding:8px 12px">Customer</th>
+        <th style="padding:8px 12px">Phone</th>
+        <th style="padding:8px 12px;text-align:center">Age</th>
+        <th style="padding:8px 12px">Journey</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <p style="color:#888;font-size:12px;margin-top:20px">
+    None of these customers have opted in to WhatsApp — contact by phone or email only.
+    Work them from the Sales queue in Zoho Desk.
+  </p>
+</div>`.trim();
 }
 
 // =============================================================================
@@ -392,7 +449,7 @@ export interface FollowupRunResult {
   candidates: number;
   ticketed: string[];
   errors: string[];
-  whatsappSent: boolean;
+  salesAlerted: boolean;
   durationMs: number;
 }
 
@@ -403,14 +460,14 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
  * Full run: find unflagged signups, open one Sales ticket each, record the flags,
- * then send a single digest to the internal sales WhatsApp number.
+ * then email a single digest to the Sales team.
  *
  * Shared by the cron route (app/api/cron/new-signup-followup) and the Inngest
  * function, so the two cannot drift. The backfill script reuses the builders
  * directly because it needs DRY_RUN / ONLY_FIRST ergonomics.
  */
 export async function runNewSignupFollowup(
-  options: FindSignupsOptions & { skipWhatsApp?: boolean } = {}
+  options: FindSignupsOptions & { skipAlert?: boolean } = {}
 ): Promise<FollowupRunResult> {
   const startedAt = Date.now();
 
@@ -420,7 +477,7 @@ export async function runNewSignupFollowup(
       candidates: 0,
       ticketed: [],
       errors: [],
-      whatsappSent: false,
+      salesAlerted: false,
       durationMs: Date.now() - startedAt,
     };
   }
@@ -482,8 +539,8 @@ export async function runNewSignupFollowup(
     await sleep(DESK_CALL_DELAY_MS);
   }
 
-  const whatsappSent =
-    options.skipWhatsApp || !ticketed.length
+  const salesAlerted =
+    options.skipAlert || !ticketed.length
       ? false
       : await sendSalesDigest(
           candidates.filter((j) => ticketed.includes(j.customerId)),
@@ -495,69 +552,51 @@ export async function runNewSignupFollowup(
     candidates: candidates.length,
     ticketed,
     errors,
-    whatsappSent,
+    salesAlerted,
     durationMs: Date.now() - startedAt,
   };
 }
 
 /**
- * Digest to CircleTel's own sales number. Best effort — the Desk tickets are the
- * deliverable, so a failed nudge never fails the run.
+ * Digest emailed to the Sales team. Best effort — the Desk tickets are the
+ * deliverable, so a failed notification never fails the run.
+ *
+ * Email rather than WhatsApp: none of these customers opted in to WhatsApp, and an
+ * internal WhatsApp alert would need an open 24h window (unreliable on a schedule)
+ * plus a Meta-approved template. Email has neither constraint.
  */
-async function sendSalesDigest(
+export async function sendSalesDigest(
   flaggedJourneys: SignupJourney[],
   ticketedIds: string[],
   reason: string
 ): Promise<boolean> {
-  const to = process.env.SALES_ALERT_WHATSAPP_TO;
-  if (!to) {
-    console.warn('[NewSignupFollowup] SALES_ALERT_WHATSAPP_TO not set — digest skipped');
-    return false;
-  }
+  const to = process.env.SALES_TEAM_EMAIL || 'sales@circletel.co.za';
 
   try {
-    const { whatsAppService } = await import(
-      '@/lib/integrations/whatsapp/whatsapp-service'
+    const { EmailChannel } = await import('@/lib/notifications/channels/email-channel');
+
+    const oldest = flaggedJourneys.reduce((a, b) =>
+      a.daysSinceSignup >= b.daysSinceSignup ? a : b
     );
 
-    // A cron cannot assume an open 24h window, so prefer the approved template.
-    // Until it is approved, fall back to free-form text (only lands if a window
-    // happens to be open) — set SALES_ALERT_TEMPLATE_NAME to switch over.
-    const useApprovedTemplate = Boolean(process.env.SALES_ALERT_TEMPLATE_NAME);
-
-    const result = useApprovedTemplate
-      ? await (async () => {
-          const oldest = flaggedJourneys.reduce((a, b) =>
-            a.daysSinceSignup >= b.daysSinceSignup ? a : b
-          );
-          return whatsAppService.sendTemplate(to, 'circletel_sales_lead_alert', [
-            {
-              type: 'body',
-              parameters: [
-                { type: 'text', text: String(flaggedJourneys.length) },
-                {
-                  type: 'text',
-                  text: `${oldest.fullName}, ${oldest.daysSinceSignup} day(s)`,
-                },
-                { type: 'text', text: String(ticketedIds.length) },
-              ],
-            },
-          ]);
-        })()
-      : await whatsAppService.sendText(
-          to,
-          buildSalesDigest(flaggedJourneys, ticketedIds.length)
-        );
+    const result = await EmailChannel.send({
+      to,
+      subject: `[Sales] ${flaggedJourneys.length} new signup(s) with no order — oldest ${oldest.daysSinceSignup}d`,
+      html: buildSalesDigestHtml(flaggedJourneys, ticketedIds.length),
+      // notify.circletel.co.za is the only Resend-verified domain — do not change
+      // this to notifications.circletelsa.co.za, which is unverified and hard-fails.
+      from: 'CircleTel Alerts <alerts@notify.circletel.co.za>',
+    });
 
     if (!result.success) {
-      console.warn(`[NewSignupFollowup] Digest not sent: ${result.error}`);
+      console.warn(`[NewSignupFollowup] Digest email failed: ${result.error}`);
       return false;
     }
 
     const supabase = await createClient();
     await supabase
       .from('sales_followup_flags')
-      .update({ whatsapp_alerted_at: new Date().toISOString() })
+      .update({ sales_alerted_at: new Date().toISOString() })
       .in('customer_id', ticketedIds)
       .eq('reason', reason);
 

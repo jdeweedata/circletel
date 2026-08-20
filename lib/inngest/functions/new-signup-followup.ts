@@ -3,14 +3,14 @@
  *
  * Daily sweep for customers who registered a CircleTel account but never
  * progressed — no order, no service, no onboarding submission. Each one gets a
- * Zoho Desk ticket in the SALES department, and the sales team gets one WhatsApp
- * digest.
+ * Zoho Desk ticket in the SALES department, and the Sales team gets one digest
+ * email.
  *
  * Why: a review of 13–20 Aug 2026 found six such accounts, none of them contacted
  * by anyone. Without this job the gap reopens every week.
  *
- * The WhatsApp digest goes to CircleTel's own sales number (SALES_ALERT_WHATSAPP_TO),
- * never to customers — none of them have opted in to WhatsApp.
+ * The digest goes to SALES_TEAM_EMAIL, never to customers — none of them have
+ * opted in to WhatsApp, so customer contact is Sales' job off the Desk ticket.
  *
  * Trigger: event 'sales/new-signup-followup.requested' (manual / programmatic).
  * The daily schedule runs through /api/cron/new-signup-followup instead.
@@ -101,7 +101,7 @@ export const newSignupFollowupFunction = inngest.createFunction(
           candidates: candidates.length,
           ticketed: [] as string[],
           errors: [] as string[],
-          whatsappSent: false,
+          salesAlerted: false,
         };
       }
 
@@ -114,7 +114,7 @@ export const newSignupFollowupFunction = inngest.createFunction(
         candidates: run.candidates,
         ticketed: run.ticketed,
         errors: run.errors,
-        whatsappSent: run.whatsappSent,
+        salesAlerted: run.salesAlerted,
       };
     });
 
@@ -131,7 +131,6 @@ export const newSignupFollowupFunction = inngest.createFunction(
         .update({
           status: result.errors.length ? 'partial' : 'completed',
           execution_end: new Date().toISOString(),
-          duration_seconds: Math.round(durationMs / 1000),
           records_processed: result.ticketed.length,
           records_failed: result.errors.length,
           error_message: result.errors.length
@@ -140,7 +139,7 @@ export const newSignupFollowupFunction = inngest.createFunction(
           execution_details: {
             candidates: result.candidates,
             ticketed: result.ticketed.length,
-            whatsapp_sent: result.whatsappSent,
+            sales_alerted: result.salesAlerted,
           },
         })
         .eq('id', processLogId);
@@ -153,7 +152,7 @@ export const newSignupFollowupFunction = inngest.createFunction(
         candidates: result.candidates,
         ticketed: result.ticketed.length,
         failed: result.errors.length,
-        whatsapp_sent: result.whatsappSent,
+        sales_alerted: result.salesAlerted,
         duration_ms: durationMs,
       },
     });
@@ -162,7 +161,7 @@ export const newSignupFollowupFunction = inngest.createFunction(
       candidates: result.candidates,
       ticketed: result.ticketed.length,
       failed: result.errors.length,
-      whatsappSent: result.whatsappSent,
+      salesAlerted: result.salesAlerted,
     };
   }
 );
@@ -178,14 +177,14 @@ export const newSignupFollowupCompleted = inngest.createFunction(
     triggers: { event: 'sales/new-signup-followup.completed' },
   },
   async ({ event, step }) => {
-    const { process_log_id, candidates, ticketed, failed, whatsapp_sent, duration_ms } =
+    const { process_log_id, candidates, ticketed, failed, sales_alerted, duration_ms } =
       event.data;
 
     await step.run('log-completion', async () => {
       console.log(
         `[NewSignupFollowup] Run ${process_log_id} completed: ` +
           `${candidates} candidate(s), ${ticketed} ticketed, ${failed} failed, ` +
-          `digest ${whatsapp_sent ? 'sent' : 'not sent'} (${duration_ms}ms)`
+          `digest ${sales_alerted ? 'sent' : 'not sent'} (${duration_ms}ms)`
       );
     });
 
