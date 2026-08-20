@@ -55,6 +55,12 @@ export {
 } from './functions/whatsapp-notifications';
 
 export {
+  newSignupFollowupFunction,
+  newSignupFollowupCompleted,
+  newSignupFollowupFailed,
+} from './functions/new-signup-followup';
+
+export {
   supplierSyncFunction,
   supplierSyncCompletedFunction,
   supplierSyncFailedFunction,
@@ -224,6 +230,12 @@ import {
 } from './functions/whatsapp-notifications';
 
 import {
+  newSignupFollowupFunction,
+  newSignupFollowupCompleted,
+  newSignupFollowupFailed,
+} from './functions/new-signup-followup';
+
+import {
   supplierSyncFunction,
   supplierSyncCompletedFunction,
   supplierSyncFailedFunction,
@@ -376,6 +388,10 @@ export const functions = [
   whatsappBillingNotifications,
   whatsappNotificationsCompleted,
   whatsappNotificationsFailed,
+  // New signup follow-up to Sales (daily 08:30 SAST)
+  newSignupFollowupFunction,
+  newSignupFollowupCompleted,
+  newSignupFollowupFailed,
   // Supplier product sync (MiRO, Nology, Scoop)
   supplierSyncFunction,
   supplierSyncCompletedFunction,

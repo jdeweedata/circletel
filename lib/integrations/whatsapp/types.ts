@@ -93,7 +93,9 @@ export type CircleTelTemplate =
   | 'circletel_docs_received'
   | 'circletel_docs_approved'
   | 'circletel_docs_changes'
-  | 'circletel_debicheck_reminder';
+  | 'circletel_debicheck_reminder'
+  // Internal alert to CircleTel's own sales number — never sent to customers.
+  | 'circletel_sales_lead_alert';
 
 /**
  * Template parameter mappings for CircleTel templates

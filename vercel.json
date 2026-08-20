@@ -258,6 +258,10 @@
     {
       "path": "/api/cron/lead-followup-sla",
       "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/new-signup-followup",
+      "schedule": "30 6 * * *"
     }
   ]
 }
