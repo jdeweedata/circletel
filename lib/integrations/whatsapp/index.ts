@@ -87,6 +87,7 @@ export {
   syncDeskCommentsToWhatsApp,
   mintDeskAccessToken,
   WA_IN_PREFIX,
+  WA_INTERNAL_MARKER,
   WA_OUT_MARKER,
 } from './desk-bridge';
 

@@ -16,6 +16,8 @@ import { zohoLogger } from '@/lib/logging';
 
 export const WA_IN_PREFIX = '[WA-IN]';
 export const WA_OUT_MARKER = '[WA-OUT-SYNCED]';
+export const WA_INTERNAL_MARKER = '[WA-INTERNAL]';
+const AGENT_REPLY_HEADER = 'AGENT REPLY (WhatsApp bridge)';
 
 const SUBJECT_PREFIX_SUPPORT = 'WhatsApp support from';
 const SUBJECT_PREFIX_SALES = 'WhatsApp sales from';
@@ -401,7 +403,7 @@ export async function handleInboundWhatsAppToDesk(
       : 'WhatsApp Cloud API bridge';
 
     const agentInstructionsPrivateNote =
-      'AGENT REPLY (WhatsApp bridge)\n' +
+      `${WA_INTERNAL_MARKER} ${AGENT_REPLY_HEADER}\n` +
       '1. Best: add a Public Comment with reply text only (no quotes) — synced to WhatsApp ~1 min.\n' +
       '2. Or click Send — reply text is synced to WhatsApp via Cloud API (~1 min). The contact email is only a Desk placeholder.\n' +
       '3. Prefer a short reply without CSAT / quoted history.\n' +
@@ -516,13 +518,23 @@ function commentPlainText(comment: DeskComment): string {
   return raw.trim();
 }
 
-function shouldSyncCommentToWhatsApp(comment: DeskComment): boolean {
+function containsInternalBridgeChrome(text: string): boolean {
+  return (
+    text.includes(WA_INTERNAL_MARKER) ||
+    text.includes(AGENT_REPLY_HEADER) ||
+    text.includes(WA_OUT_MARKER) ||
+    text.startsWith(WA_IN_PREFIX)
+  );
+}
+
+export function shouldSyncCommentToWhatsApp(comment: DeskComment): boolean {
   if (comment.isPublic === false) return false;
   const text = commentPlainText(comment);
   if (!text) return false;
-  if (text.startsWith(WA_IN_PREFIX)) return false;
   if (text.includes(WA_OUT_MARKER)) return false;
-  return true;
+  if (text.startsWith(WA_IN_PREFIX)) return false;
+  // Instruction-only notes extract to empty; mixed Send/comment bodies keep the reply.
+  return !!extractAgentReplyBody(text);
 }
 
 type OutboundCandidate = {
@@ -546,6 +558,8 @@ export function extractAgentReplyBody(raw: string): string {
   )[0];
   text = text.split(/\nOn .+ wrote:/i)[0];
   text = text.split(/\n?\[WA-IN\]/)[0];
+  text = text.split(/\n?\[WA-INTERNAL\]/)[0];
+  text = text.split(/\n?AGENT REPLY \(WhatsApp bridge\)/i)[0];
   text = text.split(/\nChannel:\s*WhatsApp Cloud API bridge/i)[0];
   // Drop CSAT prompt blocks agents often leave in
   text = text.replace(/How would you rate our customer service\?[\s\S]*$/i, '');
@@ -621,7 +635,7 @@ async function fetchOutboundConversationCandidates(
 
     for (const b of bodies) {
       if (!b.text) continue;
-      if (b.text.startsWith(WA_IN_PREFIX) || b.text.includes(WA_OUT_MARKER)) continue;
+      if (containsInternalBridgeChrome(b.text)) continue;
       // Skip pure inbound description echoes
       if (b.text.includes('WhatsApp Cloud API bridge') && b.text.includes('[WA-IN]')) {
         continue;
