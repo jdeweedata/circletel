@@ -12,6 +12,7 @@ describe('feature registry data', () => {
     expect(names).toContain('Dashboard');
     expect(names).toContain('Products');
     expect(names).toContain('Quotes');
+    expect(names).toContain('WhatsApp Inbox');
   });
 
   it('every item has a name and an icon; every leaf has an /admin href', () => {
@@ -128,6 +129,7 @@ describe('module + workspace axes', () => {
     expect(workspaceForPath('/admin/quotes')).toBe('sales');
     expect(workspaceForPath('/admin/billing/invoices')).toBe('finance');
     expect(workspaceForPath('/admin/settings')).toBe('admin');
+    expect(workspaceForPath('/admin/inbox')).toBe('support');
     expect(workspaceForPath('/admin/nonexistent')).toBeNull();
   });
 });

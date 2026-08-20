@@ -116,6 +116,7 @@ export const ADMIN_WORKSPACE_ROUTES: ReadonlyArray<{
   { prefix: '/admin/kyc', workspace: 'ops', module: 'compliance' },
   { prefix: '/admin/workflow', workspace: 'ops', module: 'compliance' }, // "Approvals" item
   // support
+  { prefix: '/admin/inbox', workspace: 'support', module: 'crm' },
   { prefix: '/admin/support', workspace: 'support', module: 'crm' },
   { prefix: '/admin/customers', workspace: 'support', module: 'crm' },
   { prefix: '/admin/diagnostics', workspace: 'support', module: 'crm' },

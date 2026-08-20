@@ -55,6 +55,7 @@ import {
   PiWarningCircleBold,
   PiWifiHighBold,
   PiWrenchBold,
+  PiWhatsappLogoBold,
 } from 'react-icons/pi';
 import { RandSign } from '@/components/ui/icons/rand-sign';
 import type { AdminRole } from '@/lib/auth/constants';
@@ -361,6 +362,12 @@ export const featureSections: NavSection[] = [
     label: 'Support',
     items: [
       {
+        name: 'WhatsApp Inbox',
+        href: '/admin/inbox',
+        icon: PiWhatsappLogoBold,
+        description: 'Support IM and Sales 084 conversations',
+      },
+      {
         name: 'Customer Devices',
         href: '/admin/support/devices',
         icon: PiUsersBold,
@@ -548,6 +555,7 @@ export const ITEM_WORKSPACE: Record<string, WorkspaceId> = {
   'KYB Compliance': 'ops',
   'Document Reviews': 'ops',
   Customers: 'support',
+  'WhatsApp Inbox': 'support',
   'Customer Devices': 'support',
   Diagnostics: 'support',
   Coverage: 'platform',
@@ -583,6 +591,7 @@ export const ITEM_MODULE: Record<string, ModuleId> = {
   'Order Fulfillment': 'orders',
   'Field Operations': 'field',
   Customers: 'crm',
+  'WhatsApp Inbox': 'crm',
   'B2B Customers': 'crm',
   'Corporate Clients': 'crm',
   'Customer Devices': 'crm',
