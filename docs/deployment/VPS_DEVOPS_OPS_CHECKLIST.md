@@ -68,6 +68,7 @@ systemctl --failed --no-pager
 docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | head -20
 # Prod is Coolify-managed; name suffix changes — use labels:
 docker ps --filter 'label=coolify.name=b7ukn3c76rd46dsl19oqq59e' --format '{{.Names}} {{.Status}}'
+docker exec "$(docker ps -q --filter 'label=coolify.name=b7ukn3c76rd46dsl19oqq59e')" cat /app/COMMIT_SHA.txt
 docker ps --filter 'name=circletel-staging' --format '{{.Names}} {{.Status}}'
 
 # --- Runner ---
@@ -97,7 +98,7 @@ ps aux --sort=-%mem | head -8
 - [ ] `free -h` available ≥ 12 GB; `df -h /` free ≥ 10 GB
 - [ ] Avoid concurrent heavy work: full `npm run build:memory`, multiple agents, Playwright browser farms, large Docker builds
 - [ ] Staging validated if UI/API risky (add `deploy-staging` label only when needed)
-- [ ] Secrets/env changes applied in Coolify **before** expecting runtime to pick them up
+- [ ] Secrets/env changes applied in Coolify **then** `scripts/recreate-circletel-prod.sh` (never Coolify Restart)
 - [ ] Paths that only touch `docs/**`, `*.md`, `.claude/**` etc. do **not** need a prod deploy (`deploy.yml` paths-ignore)
 
 **Do not** set `BUILD_CPUS=4` on this host for prod build — measured thrash (27–34 min) vs ~21 min at `cpus:1`; Turbopack is the speedup, not more cores.
@@ -226,6 +227,20 @@ Re-register only with current GitHub runner token process; do not leave two runn
 2. Stop nonessential agent/browser processes.  
 3. One deploy at a time (prod concurrency group already `cancel-in-progress: false` — do not start staging build in parallel if RAM tight).
 
+### 6.6 Env-only or any prod container recreate (2026-08-20)
+
+Coolify Restart on this dockerimage app runs `docker compose pull` then `up --build`. GHCR `:latest` is stale by design (GHA builds locally and does not push). That bootstrapped a May 2026 image and Traefik 502’d when emergency routes still pointed at the old suffix.
+
+```bash
+# After Coolify has written the new env into the app .env:
+scripts/recreate-circletel-prod.sh
+# Optional: EXPECTED_SHA=$(git rev-parse origin/main) scripts/recreate-circletel-prod.sh
+```
+
+The script refuses to run if `/data/coolify/proxy/dynamic/emergency-apps.yaml` still has production CircleTel Host rules, recreates with `--no-build --pull never`, waits **healthy**, and requires `/app/COMMIT_SHA.txt` to be a 40-char git sha.
+
+**Do not** click Restart in Coolify. **Do not** `docker compose pull` in `/data/coolify/applications/b7ukn3c76rd46dsl19oqq59e`.
+
 ---
 
 ## 7. Workload rules (always)
@@ -244,7 +259,9 @@ Re-register only with current GitHub runner token process; do not leave two runn
 2. Never force `BUILD_CPUS=4` for prod on this box without a re-benchmark.  
 3. Never delete running Coolify DB/redis containers during “cleanup.”  
 4. Never `docker system prune -a` blindly without checking free space need and running set.  
-5. Container names from Coolify **change suffix** — always filter by `coolify.name` label for prod.
+5. Container names from Coolify **change suffix** — always filter by `coolify.name` label for prod.  
+6. Never Coolify **Restart** CircleTel to pick up env; never `docker compose pull` that app. Use `scripts/recreate-circletel-prod.sh`.  
+7. Never add production CircleTel hosts to `/data/coolify/proxy/dynamic/emergency-apps.yaml`.
 
 ---
 

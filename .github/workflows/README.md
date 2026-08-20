@@ -44,8 +44,8 @@ Scheduled (every 6h)
 2. `npm ci` / tar-cached `node_modules` + restore `.next` cache
 3. `NODE_OPTIONS=--max-old-space-size=12288` Turbopack production build
 4. Build Docker image locally (`ghcr.io/jdeweedata/circletel:latest` + SHA tag)
-5. Coolify app directory: `docker compose up -d --force-recreate --no-build --pull never`
-6. Wait until container health is `healthy` (discover via `coolify.name` label)
+5. `EXPECTED_SHA=$GITHUB_SHA bash scripts/recreate-circletel-prod.sh` (`--pull never`, Traefik emergency-file guard, health wait, `COMMIT_SHA.txt` must match)
+6. Re-register Inngest at `/api/inngest`
 
 **Cache**: `/home/actions-runner/node_modules.tar`, `/home/actions-runner/.next-cache` on VPS
 
