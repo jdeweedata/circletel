@@ -1,7 +1,5 @@
-import { WhatsAppInbox } from '@/components/admin/inbox/WhatsAppInbox';
+import { redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-export default function AdminInboxPage() {
-  return <WhatsAppInbox />;
+export default function AdminInboxIndexPage() {
+  redirect('/admin/inbox/sales');
 }
