@@ -11,7 +11,7 @@ describe('canAccessAdminPath (PR5 route guard)', () => {
   });
 
   it('viewer reaches read-oriented routes', () => {
-    for (const p of ['/admin', '/admin/dashboard', '/admin/customers', '/admin/support/devices', '/admin/diagnostics']) {
+    for (const p of ['/admin', '/admin/dashboard', '/admin/customers', '/admin/inbox', '/admin/support/devices', '/admin/diagnostics']) {
       expect(canAccessAdminPath('viewer', p)).toBe(true);
     }
   });
