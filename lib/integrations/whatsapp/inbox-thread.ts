@@ -55,16 +55,26 @@ export function isInternalInboxMessage(text: unknown): boolean {
 
 export function toCustomerFacingText(raw: unknown): string {
   const t = asInboxText(raw).trim();
-  if (t.startsWith(WA_IN_PREFIX)) {
-    return t.slice(WA_IN_PREFIX.length).trim();
-  }
-  return extractAgentReplyBody(t);
+  const text = t.startsWith(WA_IN_PREFIX)
+    ? t.slice(WA_IN_PREFIX.length).trim()
+    : extractAgentReplyBody(t);
+  return stripInboundFromPrefix(text);
+}
+
+/** Bridge inbound comments are `[WA-IN] From: Name\\nbody`. */
+export function stripInboundFromPrefix(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+  const twoLine = trimmed.replace(/^From:\s*[^\n]+\n/, '').trim();
+  return twoLine || trimmed;
 }
 
 export function deskTicketWebUrl(ticketId: string): string {
   const portal =
     process.env.ZOHO_DESK_PORTAL_NAME || 'circletelsaptyltd';
-  return `https://desk.zoho.com/support/${portal}/ShowHomePage.do#Cases/dv/${ticketId}`;
+  // Agent console, not /support/{portal} Help Center (that page is for
+  // customers and returns "Unauthorized access to this portal" for agents).
+  return `https://desk.zoho.com/agent/${portal}/all/tickets/details/${ticketId}`;
 }
 
 export function formatDisplayPhone(waFrom: string): string {
@@ -76,14 +86,102 @@ export function formatDisplayPhone(waFrom: string): string {
 }
 
 export function toInboxTimestamp(value: string | number | null | undefined): string {
-  if (value == null || value === '') return new Date().toISOString();
+  if (value == null || value === '') return '';
   if (typeof value === 'number' && Number.isFinite(value)) {
     return new Date(value).toISOString();
   }
-  const raw = String(value).trim();
+  let raw = String(value).trim();
   if (/^\d+$/.test(raw)) return new Date(Number(raw)).toISOString();
+  raw = raw.replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
   const parsed = Date.parse(raw);
-  return Number.isNaN(parsed) ? new Date().toISOString() : new Date(parsed).toISOString();
+  return Number.isNaN(parsed) ? '' : new Date(parsed).toISOString();
+}
+
+export interface DeskHistoryComment {
+  id: string;
+  content?: string;
+  isPublic?: boolean;
+  createdTime?: string;
+  commentedTime?: string;
+  author?: { name?: string };
+}
+
+export interface DeskHistoryConversation {
+  id: string;
+  direction?: string;
+  content?: string;
+  summary?: string;
+  createdTime?: string;
+  author?: { name?: string };
+}
+
+function displayKey(text: string): string {
+  return text.replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+/**
+ * Comments are the WhatsApp-bridge source of truth. Desk also creates email
+ * conversations from public comments; those often have the same body with
+ * direction defaulting to IN, which duplicated agent replies in the inbox.
+ */
+export function mergeDeskHistory(
+  comments: DeskHistoryComment[],
+  conversations: DeskHistoryConversation[]
+): InboxMessage[] {
+  const messages: InboxMessage[] = [];
+  const seen = new Set<string>();
+
+  const push = (message: InboxMessage) => {
+    const key = displayKey(message.text);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    messages.push(message);
+  };
+
+  for (const c of comments) {
+    const raw = asInboxText(c.content);
+    if (isInternalInboxMessage(raw)) continue;
+    const inbound = raw.trim().startsWith(WA_IN_PREFIX);
+    if (!inbound && c.isPublic === false) continue;
+    const text = toCustomerFacingText(raw);
+    if (!text) continue;
+    push({
+      id: `comment:${c.id}`,
+      direction: inbound ? 'in' : 'out',
+      text,
+      timestamp: toInboxTimestamp(c.commentedTime || c.createdTime),
+      author: c.author?.name,
+    });
+  }
+
+  for (const item of conversations) {
+    const raw = asInboxText(item.summary || item.content);
+    if (isInternalInboxMessage(raw)) continue;
+    const text = toCustomerFacingText(raw);
+    if (!text) continue;
+    const direction = (item.direction || '').toUpperCase() === 'OUT' ? 'out' : 'in';
+    if (direction === 'in' && /^From:\s/i.test(text)) continue;
+    push({
+      id: `conv:${item.id}`,
+      direction,
+      text,
+      timestamp: toInboxTimestamp(item.createdTime),
+      author: item.author?.name,
+    });
+  }
+
+  return messages
+    .map((message, index) => ({ message, index }))
+    .sort((a, b) => {
+      const ta = Date.parse(a.message.timestamp);
+      const tb = Date.parse(b.message.timestamp);
+      const aOk = Number.isFinite(ta);
+      const bOk = Number.isFinite(tb);
+      if (aOk && bOk && ta !== tb) return ta - tb;
+      if (aOk !== bOk) return aOk ? -1 : 1;
+      return a.index - b.index;
+    })
+    .map((row) => row.message);
 }
 
 /**
