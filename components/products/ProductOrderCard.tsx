@@ -5,6 +5,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { getFiveGOfferTerm } from '@/lib/products/five-g-offer-term';
 
 interface ProductOrderCardProps {
   product: {
@@ -26,6 +27,8 @@ interface ProductOrderCardProps {
       router_image?: string;
       delivery_days?: string;
       contract_months?: number;
+      contract_type?: string;
+      contract_duration?: string;
     };
   };
   className?: string;
@@ -48,7 +51,16 @@ export function ProductOrderCard({
   const finalPrice = hasPromo ? product.promotion_price : price;
   const dataLimit = product.metadata?.data_limit;
   const isUncapped = !dataLimit || dataLimit.toLowerCase() === 'unlimited' || dataLimit === '∞';
-  const contractMonths = product.metadata?.contract_months || 12;
+  const contractMonths = product.metadata?.contract_months;
+  const offerTerm = getFiveGOfferTerm(product.metadata);
+  const termPriceLine =
+    offerTerm.kind === 'mtm_sim'
+      ? 'month-to-month'
+      : offerTerm.kind === 'contract_router'
+        ? 'pm \u00d7 24'
+        : contractMonths
+          ? `pm\u00d7${contractMonths}`
+          : 'per month';
 
   return (
     <Card className={cn("overflow-hidden", className)}>
@@ -115,7 +127,7 @@ export function ProductOrderCard({
               <span className="text-2xl md:text-3xl font-bold text-gray-900">
                 R{Math.round(finalPrice!)}
               </span>
-              <p className="text-sm text-gray-500">pm×{contractMonths}</p>
+              <p className="text-sm text-gray-500">{termPriceLine}</p>
             </div>
           </div>
         </div>
@@ -167,7 +179,7 @@ export function ProductOrderCard({
               <span className="text-2xl md:text-3xl font-bold">
                 R{Math.round(finalPrice!)}
               </span>
-              <p className="text-sm text-gray-400">pm×{contractMonths}</p>
+              <p className="text-sm text-gray-400">{termPriceLine}</p>
             </div>
           </div>
         </div>
