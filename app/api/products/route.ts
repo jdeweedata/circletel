@@ -10,12 +10,14 @@ import { apiLogger } from '@/lib/logging/logger';
  * Query params:
  * - service_type: PiFunnelBold by service type (5G, Fibre, LTE, etc.)
  * - category: PiFunnelBold by product_category
+ * - sku / skus: comma-separated SKUs
  * - featured: Only featured products (true/false)
  * - limit: Max number of results
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const skuParam = searchParams.get('skus') || searchParams.get('sku');
     const serviceType = searchParams.get('service_type');
     const category = searchParams.get('category');
     const featured = searchParams.get('featured');
@@ -31,6 +33,16 @@ export async function GET(request: NextRequest) {
       .order('price', { ascending: true });
 
     // Apply filters
+    if (skuParam) {
+      const skus = skuParam
+        .split(',')
+        .map((sku) => sku.trim())
+        .filter(Boolean);
+      if (skus.length > 0) {
+        query = query.in('sku', skus);
+      }
+    }
+
     if (serviceType) {
       query = query.ilike('service_type', `%${serviceType}%`);
     }

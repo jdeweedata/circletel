@@ -4,6 +4,7 @@ import { PiHouseBold, PiWifiHighBold, PiXBold } from 'react-icons/pi';
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { getFiveGCardDataCap, getFiveGOfferTerm } from '@/lib/products/five-g-offer-term';
 
 interface ProductHeroProps {
   product: {
@@ -19,9 +20,14 @@ interface ProductHeroProps {
     description?: string;
     metadata?: {
       data_limit?: string;
+      data_cap?: string;
+      data_cap_gb?: number;
+      capped?: boolean;
       router_included?: boolean;
       router_model?: string;
       router_image?: string;
+      contract_type?: string;
+      contract_duration?: string;
     };
   };
   onClose?: () => void;
@@ -34,9 +40,8 @@ interface ProductHeroProps {
  * Features: Large data visual, router image, product branding
  */
 export function ProductHero({ product, onClose }: ProductHeroProps) {
-  const dataLimit = product.metadata?.data_limit;
-  const isUncapped = !dataLimit || dataLimit.toLowerCase() === 'unlimited' || dataLimit === '∞';
-  const displayData = isUncapped ? '∞' : dataLimit;
+  const dataCap = getFiveGCardDataCap(product.metadata);
+  const offerTerm = getFiveGOfferTerm(product.metadata);
 
   return (
     <section className="bg-white border-b relative">
@@ -75,21 +80,20 @@ export function ProductHero({ product, onClose }: ProductHeroProps) {
 
                 <div className="flex items-baseline">
                   <span className="text-8xl md:text-9xl font-bold text-circleTel-navy leading-none">
-                    {displayData}
+                    {dataCap.displayData}
                   </span>
-                  {!isUncapped && (
-                    <span className="text-3xl md:text-4xl font-bold text-gray-400 ml-2">GB</span>
+                  {dataCap.unit && (
+                    <span className="text-3xl md:text-4xl font-bold text-gray-400 ml-2">{dataCap.unit}</span>
                   )}
                 </div>
 
                 <p className="text-2xl md:text-3xl font-bold text-circleTel-orange italic mt-2">
-                  {isUncapped ? 'uncapped' : ''}
+                  {dataCap.caption.toLowerCase() === 'uncapped' ? 'uncapped' : dataCap.caption.toLowerCase()}
                 </p>
 
-                {product.metadata?.router_included && (
+                {offerTerm.label && (
                   <div className="mt-6 inline-block bg-circleTel-navy text-white px-5 py-2.5 rounded-lg">
-                    <span className="text-circleTel-orange font-bold">FREE</span>
-                    <span className="ml-2">to use {product.service_type || '5G'} router</span>
+                    <span className="text-circleTel-orange font-bold">{offerTerm.label}</span>
                   </div>
                 )}
               </div>
@@ -117,7 +121,7 @@ export function ProductHero({ product, onClose }: ProductHeroProps) {
           <div className="flex-1 pt-4 md:pt-0">
             <p className="text-gray-500 text-sm mb-1">{product.sku || product.name}</p>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-              {displayData} {!isUncapped ? 'GB' : 'Uncapped'}
+              {dataCap.unit ? `${dataCap.displayData} GB` : `${dataCap.displayData} Uncapped`}
             </h1>
             {product.description && (
               <p className="text-gray-600 text-sm max-w-md">

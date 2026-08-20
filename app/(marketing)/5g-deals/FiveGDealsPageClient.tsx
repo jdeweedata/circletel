@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { OP19627_PROMOS } from '@/lib/products/five-g-offer-term';
 
 type SortOption = 'price-asc' | 'price-desc' | 'speed-desc' | 'featured';
 
@@ -29,14 +30,23 @@ export default function FiveGDealsPageClient() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/products?service_type=5G');
+        const promoSkus = OP19627_PROMOS.map((row) => row.sku).join(',');
+        const [fiveGResponse, promoResponse] = await Promise.all([
+          fetch('/api/products?service_type=5G'),
+          fetch(`/api/products?skus=${encodeURIComponent(promoSkus)}`),
+        ]);
 
-        if (!response.ok) {
+        if (!fiveGResponse.ok) {
           throw new Error('Failed to fetch products');
         }
 
-        const data = await response.json();
-        setProducts(data.products || []);
+        const fiveGData = await fiveGResponse.json();
+        const promoData = promoResponse.ok ? await promoResponse.json() : { products: [] };
+        const byId = new Map<string, any>();
+        for (const product of [...(promoData.products || []), ...(fiveGData.products || [])]) {
+          byId.set(product.id || product.sku, product);
+        }
+        setProducts(Array.from(byId.values()));
       } catch (err) {
         console.error('Error fetching 5G deals:', err);
         setError('Failed to load 5G deals');
@@ -61,7 +71,9 @@ export default function FiveGDealsPageClient() {
       default:
         if (a.is_featured && !b.is_featured) return -1;
         if (!a.is_featured && b.is_featured) return 1;
-        return (a.sort_order || 999) - (b.sort_order || 999);
+        const aPrice = a.promotion_price || a.price || a.base_price_zar || 0;
+        const bPrice = b.promotion_price || b.price || b.base_price_zar || 0;
+        return (a.sort_order || 999) - (b.sort_order || 999) || aPrice - bPrice;
     }
   });
 
@@ -85,31 +97,31 @@ export default function FiveGDealsPageClient() {
         <div className="container mx-auto px-4 py-12 md:py-20 relative">
           <div className="max-w-3xl">
             <Badge className="bg-circleTel-orange text-white mb-4">
-              <PiCellSignalFullBold className="h-3 w-3 mr-1" />
-              5G Home Internet
+              <PiLightningBold className="h-3 w-3 mr-1" />
+              Promo to 30 Sep
             </Badge>
 
             <h1 className="text-3xl md:text-5xl font-bold mb-4">
-              Lightning Fast 5G Deals
+              5G 60 + router at R649
             </h1>
 
             <p className="text-lg md:text-xl text-gray-300 mb-6 max-w-2xl">
-              Experience the future of home internet with our blazing-fast 5G packages.
-              No landline required, just plug in and connect.
+              MTN shop is R699. Uncapped 20 Mbps + router is R549 (MTN 20 Mbps is R599).
+              24-month contract, router included. Month-to-month remains SIM only.
             </p>
 
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
                 <PiLightningBold className="h-5 w-5 text-circleTel-orange" />
-                <span className="text-sm">Up to 100Mbps</span>
+                <span className="text-sm">5G 60 + router R649</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
                 <PiWifiHighBold className="h-5 w-5 text-circleTel-orange" />
-                <span className="text-sm">Free Router</span>
+                <span className="text-sm">20 Mbps + router R549</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
                 <PiCellSignalFullBold className="h-5 w-5 text-circleTel-orange" />
-                <span className="text-sm">No Landline</span>
+                <span className="text-sm">Month-to-month SIM only</span>
               </div>
             </div>
           </div>
@@ -125,7 +137,7 @@ export default function FiveGDealsPageClient() {
               {loading ? 'Loading...' : `${products.length} 5G Packages Available`}
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              Choose the perfect plan for your home
+              Promo to 30 Sep: 5G 60 + router R649, 20 Mbps + router R549
             </p>
           </div>
 
