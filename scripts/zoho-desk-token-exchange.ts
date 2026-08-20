@@ -9,7 +9,8 @@
  * Generate the grant token first:
  *   1. https://api-console.zoho.com  → open the Self Client for the app matching ZOHO_CLIENT_ID
  *   2. "Generate Code" tab → Scope:
- *        Desk.tickets.ALL,Desk.contacts.ALL,Desk.settings.READ,Desk.basic.READ
+ *        Desk.tickets.ALL,Desk.contacts.ALL,Desk.settings.READ,Desk.basic.READ,
+ *        Desk.InstantMessages.READ,Desk.InstantMessages.CREATE
  *      → pick a duration (10 min is fine) → Create → copy the code.
  *   3. Run within that window:
  *        set -a && source .env.local && set +a && GRANT_TOKEN='1000.xxxx.yyyy' npx tsx scripts/zoho-desk-token-exchange.ts

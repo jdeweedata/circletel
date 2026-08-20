@@ -1,10 +1,18 @@
 import {
+  classifySupportImReadProbe,
   classifySupportImSendProbe,
   decodeInboxThreadId,
   encodeInboxThreadId,
+  deskCollection,
   deskTicketWebUrl,
   isInternalInboxMessage,
+  isWhatsAppSupportTicket,
   mergeDeskHistory,
+  shouldAutoShowClosedSupport,
+  SUPPORT_IM_SEND_SENTINEL_SESSION_ID,
+  supportImReplyBody,
+  supportImSendPath,
+  supportInboxEmptyCopy,
   toCustomerFacingText,
   toInboxTimestamp,
 } from '../inbox-thread';
@@ -127,6 +135,65 @@ describe('mergeDeskHistory', () => {
   });
 });
 
+describe('isWhatsAppSupportTicket', () => {
+  it('matches WhatsApp and Instant Messaging channels, not exact-only whatsapp', () => {
+    expect(isWhatsAppSupportTicket('WhatsApp', 'Line down')).toBe(true);
+    expect(isWhatsAppSupportTicket('WHATSAPP', '')).toBe(true);
+    expect(isWhatsAppSupportTicket('Instant Messaging', 'Hi')).toBe(true);
+    expect(isWhatsAppSupportTicket('Email', 'Fibre quote')).toBe(false);
+  });
+
+  it('matches tickets whose subject mentions WhatsApp even on another channel', () => {
+    expect(isWhatsAppSupportTicket('Circle Tel', 'WhatsApp support from Jeff')).toBe(
+      true
+    );
+    expect(isWhatsAppSupportTicket('Email', 'whatsapp lead')).toBe(true);
+  });
+});
+
+describe('deskCollection', () => {
+  it('treats HTTP 204 as an empty Desk list, not a parse failure', () => {
+    expect(deskCollection({ success: true, status: 204 })).toEqual([]);
+  });
+
+  it('returns data when Desk wraps the array', () => {
+    expect(
+      deskCollection({ success: true, status: 200, data: { data: [{ id: '1' }] } })
+    ).toEqual([{ id: '1' }]);
+  });
+});
+
+describe('classifySupportImReadProbe', () => {
+  it('treats SCOPE_MISMATCH 403 as missing InstantMessages.READ', () => {
+    const result = classifySupportImReadProbe(
+      403,
+      '{"errorCode":"SCOPE_MISMATCH"}'
+    );
+    expect(result.canRead).toBe(false);
+    expect(result.reason).toMatch(/Desk\.InstantMessages\.READ/);
+  });
+
+  it('treats 204 as readable empty IM list', () => {
+    expect(classifySupportImReadProbe(204).canRead).toBe(true);
+  });
+});
+
+describe('support inbox empty copy', () => {
+  it('points at Closed when Open is empty but closed WhatsApp tickets exist', () => {
+    expect(
+      shouldAutoShowClosedSupport(0, 7, 'open')
+    ).toBe(true);
+    expect(shouldAutoShowClosedSupport(1, 7, 'open')).toBe(false);
+    expect(
+      supportInboxEmptyCopy({
+        listFilter: 'open',
+        openCount: 0,
+        closedCount: 7,
+      })
+    ).toMatch(/Closed/i);
+  });
+});
+
 describe('classifySupportImSendProbe', () => {
   it('treats missing CREATE scope as read-only', () => {
     expect(classifySupportImSendProbe(401, 'OAUTH_SCOPE_MISMATCH').canSend).toBe(
@@ -145,5 +212,14 @@ describe('classifySupportImSendProbe', () => {
 
   it('keeps composer off when the IM send URL itself is missing', () => {
     expect(classifySupportImSendProbe(404, 'URL_NOT_FOUND').canSend).toBe(false);
+  });
+
+  it('probes send with an empty body on a well-formed sentinel id', () => {
+    expect(SUPPORT_IM_SEND_SENTINEL_SESSION_ID).toMatch(/^\d{16,19}$/);
+    expect(SUPPORT_IM_SEND_SENTINEL_SESSION_ID).not.toBe('0');
+    expect(supportImSendPath(SUPPORT_IM_SEND_SENTINEL_SESSION_ID)).toBe(
+      `/im/sessions/${SUPPORT_IM_SEND_SENTINEL_SESSION_ID}/messages`
+    );
+    expect(supportImReplyBody('Hello Jeff')).toEqual({ message: 'Hello Jeff' });
   });
 });
