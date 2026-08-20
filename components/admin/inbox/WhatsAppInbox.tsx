@@ -85,6 +85,7 @@ export function WhatsAppInbox() {
   const [detail, setDetail] = useState<InboxThreadSummary | null>(null);
   const [canReply, setCanReply] = useState(false);
   const [cannotReplyReason, setCannotReplyReason] = useState<string | undefined>();
+  const [historyWarning, setHistoryWarning] = useState<string | undefined>();
   const [detailLoading, setDetailLoading] = useState(false);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
@@ -127,6 +128,7 @@ export function WhatsAppInbox() {
       setMessages(data.messages || []);
       setCanReply(Boolean(data.canReply));
       setCannotReplyReason(data.cannotReplyReason);
+      setHistoryWarning(data.historyWarning);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to load thread');
     } finally {
@@ -306,6 +308,11 @@ export function WhatsAppInbox() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 bg-slate-50 space-y-2">
+                  {historyWarning && (
+                    <p className="text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                      Desk history could not be loaded. You can still reply on WhatsApp.
+                    </p>
+                  )}
                   {messages.length === 0 ? (
                     <p className="text-sm text-slate-400 italic py-2">No visible messages yet.</p>
                   ) : (

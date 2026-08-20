@@ -39,8 +39,12 @@ export function decodeInboxThreadId(raw: string): InboxThreadRef | null {
   return null;
 }
 
-export function isInternalInboxMessage(text: string): boolean {
-  const t = (text || '').trim();
+export function asInboxText(value: unknown): string {
+  return typeof value === 'string' ? value : '';
+}
+
+export function isInternalInboxMessage(text: unknown): boolean {
+  const t = asInboxText(text).trim();
   if (!t) return true;
   if (t.includes(WA_INTERNAL_MARKER)) return true;
   if (t.includes(WA_OUT_MARKER)) return true;
@@ -49,12 +53,12 @@ export function isInternalInboxMessage(text: string): boolean {
   return !extractAgentReplyBody(t);
 }
 
-export function toCustomerFacingText(raw: string): string {
-  const t = (raw || '').trim();
+export function toCustomerFacingText(raw: unknown): string {
+  const t = asInboxText(raw).trim();
   if (t.startsWith(WA_IN_PREFIX)) {
     return t.slice(WA_IN_PREFIX.length).trim();
   }
-  return extractAgentReplyBody(raw);
+  return extractAgentReplyBody(t);
 }
 
 export function deskTicketWebUrl(ticketId: string): string {

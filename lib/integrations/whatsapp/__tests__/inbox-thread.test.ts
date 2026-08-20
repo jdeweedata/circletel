@@ -52,10 +52,9 @@ describe('inbox message chrome', () => {
     );
   });
 
-  it('strips the inbound prefix for display', () => {
-    expect(toCustomerFacingText('[WA-IN] From: Jeffrey\nI need help')).toBe(
-      'From: Jeffrey\nI need help'
-    );
+  it('does not throw when Desk content is a non-string', () => {
+    expect(isInternalInboxMessage({ html: '<p>Hi</p>' } as never)).toBe(true);
+    expect(toCustomerFacingText({ html: '<p>Hi</p>' } as never)).toBe('');
   });
 });
 

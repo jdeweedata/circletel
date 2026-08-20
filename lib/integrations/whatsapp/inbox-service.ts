@@ -6,6 +6,7 @@ import {
   WA_OUT_MARKER,
 } from '@/lib/integrations/whatsapp/desk-bridge';
 import {
+  asInboxText,
   classifySupportImSendProbe,
   decodeInboxThreadId,
   deskTicketWebUrl,
@@ -36,6 +37,7 @@ export interface InboxThreadDetail {
   messages: InboxMessage[];
   canReply: boolean;
   cannotReplyReason?: string;
+  historyWarning?: string;
 }
 
 export interface InboxListResult {
@@ -350,9 +352,16 @@ export async function listInboxThreads(
     channel === 'sales'
       ? Promise.resolve([])
       : (async () => {
-          const token = await mintDeskAccessToken();
-          if (probe.canRead) return listSupportImSessions(token);
-          return listSupportTicketsFallback(token);
+          try {
+            const token = await mintDeskAccessToken();
+            if (probe.canRead) return listSupportImSessions(token);
+            return listSupportTicketsFallback(token);
+          } catch (error) {
+            zohoLogger.error('[WA Inbox] support list failed', {
+              error: error instanceof Error ? error.message : String(error),
+            });
+            return [];
+          }
         })(),
   ]);
 
@@ -394,10 +403,17 @@ async function loadDeskMessages(
     }>;
   }>(token, `/tickets/${ticketId}/conversations?limit=50`);
 
+  const commentRows = Array.isArray(comments.data?.data)
+    ? comments.data.data
+    : [];
+  const conversationRows = Array.isArray(conversations.data?.data)
+    ? conversations.data.data
+    : [];
+
   const messages: InboxMessage[] = [];
 
-  for (const c of comments.data?.data || []) {
-    const raw = c.content || '';
+  for (const c of commentRows) {
+    const raw = asInboxText(c.content);
     if (isInternalInboxMessage(raw)) continue;
     const inbound = raw.trim().startsWith('[WA-IN]');
     if (!inbound && c.isPublic === false) continue;
@@ -412,8 +428,8 @@ async function loadDeskMessages(
     });
   }
 
-  for (const item of conversations.data?.data || []) {
-    const raw = item.summary || item.content || '';
+  for (const item of conversationRows) {
+    const raw = asInboxText(item.summary || item.content);
     if (isInternalInboxMessage(raw)) continue;
     const text = toCustomerFacingText(raw);
     if (!text) continue;
@@ -459,7 +475,7 @@ async function loadImMessages(
   if (!result.success || !result.data?.data) return [];
   const messages: InboxMessage[] = [];
   for (const m of result.data.data) {
-    const text = toCustomerFacingText(m.displayMessage || m.message || '');
+    const text = toCustomerFacingText(m.displayMessage || m.message);
     if (!text || isInternalInboxMessage(text)) continue;
     const dir = (m.direction || '').toUpperCase();
     const actorType = (m.actor?.type || '').toUpperCase().replace(/_/g, '');
@@ -480,8 +496,6 @@ export async function getInboxThread(
 ): Promise<InboxThreadDetail | null> {
   const ref = decodeInboxThreadId(threadId);
   if (!ref) return null;
-  const token = await mintDeskAccessToken();
-  const probe = await probeSupportImCapability();
 
   if (ref.channel === 'sales') {
     const supabase = getServiceSupabase();
@@ -495,7 +509,19 @@ export async function getInboxThread(
     if (error || !data) return null;
     const row = data as DeskThreadRow;
     const phone = formatDisplayPhone(row.wa_from);
-    const messages = await loadDeskMessages(token, row.desk_ticket_id);
+    let messages: InboxMessage[] = [];
+    let historyWarning: string | undefined;
+    try {
+      const token = await mintDeskAccessToken();
+      messages = await loadDeskMessages(token, row.desk_ticket_id);
+    } catch (error) {
+      historyWarning =
+        error instanceof Error ? error.message : String(error);
+      zohoLogger.error('[WA Inbox] sales thread history failed', {
+        error: historyWarning,
+        threadId,
+      });
+    }
     return {
       thread: {
         id: threadId,
@@ -511,8 +537,35 @@ export async function getInboxThread(
       },
       messages,
       canReply: true,
+      historyWarning,
     };
   }
+
+  let token: string;
+  try {
+    token = await mintDeskAccessToken();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      thread: {
+        id: threadId,
+        channel: 'support',
+        title: 'WhatsApp support',
+        phone: null,
+        ticketId: ref.kind === 'ticket' ? ref.id : null,
+        ticketNumber: null,
+        deskUrl: ref.kind === 'ticket' ? deskTicketWebUrl(ref.id) : null,
+        preview: 'WhatsApp support',
+        updatedAt: new Date().toISOString(),
+        status: 'open',
+      },
+      messages: [],
+      canReply: false,
+      cannotReplyReason: message,
+    };
+  }
+
+  const probe = await probeSupportImCapability();
 
   if (ref.kind === 'session') {
     const sessionRes = await deskRequest<ImSession>(
