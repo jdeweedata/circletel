@@ -59,9 +59,9 @@ describe('inbox message chrome', () => {
 });
 
 describe('deskTicketWebUrl', () => {
-  it('builds a Desk ticket deep link', () => {
+  it('builds an agent-console ticket deep link, not the customer Help Center', () => {
     expect(deskTicketWebUrl('1100825000005243001')).toBe(
-      'https://desk.zoho.com/support/circletelsaptyltd/ShowHomePage.do#Cases/dv/1100825000005243001'
+      'https://desk.zoho.com/agent/circletelsaptyltd/all/tickets/details/1100825000005243001'
     );
   });
 });

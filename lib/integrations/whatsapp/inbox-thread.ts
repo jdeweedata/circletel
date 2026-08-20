@@ -64,7 +64,9 @@ export function toCustomerFacingText(raw: unknown): string {
 export function deskTicketWebUrl(ticketId: string): string {
   const portal =
     process.env.ZOHO_DESK_PORTAL_NAME || 'circletelsaptyltd';
-  return `https://desk.zoho.com/support/${portal}/ShowHomePage.do#Cases/dv/${ticketId}`;
+  // Agent console, not /support/{portal} Help Center (that page is for
+  // customers and returns "Unauthorized access to this portal" for agents).
+  return `https://desk.zoho.com/agent/${portal}/all/tickets/details/${ticketId}`;
 }
 
 export function formatDisplayPhone(waFrom: string): string {
