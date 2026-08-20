@@ -202,37 +202,13 @@ jobs:
             echo "Image commit $ACTUAL matches expected $EXPECTED ✓"
           fi
 
-      # Restart the Coolify-managed container with the new image.
-      # --no-build: skip build (we just built it) — saves time.
-      # --pull never: never pull from registry — ensures only our locally-built image is used.
+      # Recreate Coolify container from the image just built on this VPS.
+      # MUST use scripts/recreate-circletel-prod.sh (--pull never). Coolify UI
+      # Restart runs `docker compose pull` and can boot stale GHCR :latest.
       - name: Deploy container
         run: |
-          cd /data/coolify/applications/b7ukn3c76rd46dsl19oqq59e
-          docker compose up -d --force-recreate --no-build --pull never
-
-      - name: Wait for healthy container
-        run: |
-          # Resolve container name dynamically — Coolify regenerates the suffix on recreate.
-          CONTAINER=$(docker ps --filter "label=coolify.name=b7ukn3c76rd46dsl19oqq59e" --format '{{.Names}}' | head -1)
-          if [ -z "$CONTAINER" ]; then
-            echo "ERROR: No running container found with coolify.name=b7ukn3c76rd46dsl19oqq59e"
-            docker ps -a --filter "label=coolify.managed=true" --format '{{.Names}} {{.Status}}'
-            exit 1
-          fi
-          echo "Found container: $CONTAINER"
-          echo "Waiting for health check..."
-          for i in $(seq 1 40); do
-            STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$CONTAINER" 2>/dev/null || echo "not found")
-            echo "$(date +%H:%M:%S) — $STATUS"
-            if [ "$STATUS" = "healthy" ]; then
-              echo "Container is healthy!"
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "ERROR: Container did not become healthy within 200s"
-          docker logs --tail 50 "$CONTAINER"
-          exit 1
+          chmod +x scripts/recreate-circletel-prod.sh
+          EXPECTED_SHA="${{ github.sha }}" bash scripts/recreate-circletel-prod.sh
 
       - name: Re-register Inngest functions
         run: |

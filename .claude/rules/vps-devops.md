@@ -48,9 +48,10 @@ Target after cleanup for a deploy: **≥ 12–14 GB RAM available**, **≥ 10 GB
 3. **Keep staging label-gated** when editing `staging-deployment.yml` / deploy-staging triggers.
 4. **Free or identify memory hogs before build**: orphan `next dev` / host `next-server` outside Docker, headless Chrome, multi‑GB IDE servers — not the healthy Coolify prod app.
 5. **Disk before image build**: if free &lt; 8 GB, prune safely (`docker image prune`, builder prune, journals) before retry.
-6. **After deploy**: wait for container **healthy**; show logs on failure; do not claim success without health evidence.
+6. **After deploy**: wait for container **healthy**; show logs on failure; do not claim success without health evidence. Also verify `/app/COMMIT_SHA.txt` is a 40-char git sha matching `origin/main` (or `EXPECTED_SHA`).
 7. **Primary git checkout**: keep `/home/circletel` on clean tracking `main`; feature work in worktrees (`git-tree-hygiene.md`).
 8. **paths-ignore awareness**: docs/md-only changes may not trigger `deploy.yml` — do not assume every push deploys.
+9. **Env or container recreate**: use `scripts/recreate-circletel-prod.sh` only (`docker compose --no-build --pull never`). Coolify Restart for this dockerimage app runs `docker compose pull` and can boot stale GHCR `:latest`.
 
 ### NEVER
 
@@ -62,6 +63,8 @@ Target after cleanup for a deploy: **≥ 12–14 GB RAM available**, **≥ 10 GB
 6. **Never** set `BUILD_CPUS=4` on this host for prod workflow without re-measuring wall time + RAM.
 7. **Never** leave multi‑GB orphan Node/Next processes on the host overnight after agent sessions.
 8. **Never** use `git commit --no-verify` to skip secret scan when changing deploy secrets/scripts.
+9. **Never** click Coolify **Restart** on CircleTel (`b7ukn3c76rd46dsl19oqq59e`) to pick up env. Use `scripts/recreate-circletel-prod.sh`.
+10. **Never** add `circletel.co.za` / `www` / `studio` / `sanity` Host rules to `/data/coolify/proxy/dynamic/emergency-apps.yaml`. Those rules beat docker labels and 502 after a suffix change. Staging/CMS emergency routes only.
 
 ---
 
@@ -100,7 +103,7 @@ When changing `.github/workflows/deploy.yml` or `deploy-staging.yml`:
 - Keep disk preflight (≥ 4 GB fatal after cleanup; prefer acting at 8 GB).  
 - Keep memory free step intent (or improve it) — do not remove without replacement.  
 - Keep image commit verification if present.  
-- Keep health wait with **dynamic** container name resolution.  
+- Keep health wait with **dynamic** container name resolution via `scripts/recreate-circletel-prod.sh` (`--pull never` + `COMMIT_SHA.txt` gate). Do not inline a Coolify Restart or `docker compose pull`.  
 - Keep `concurrency` groups so prod deploys do not cancel each other carelessly (`cancel-in-progress: false` for prod).  
 - Document any runner label changes in `.github/workflows/README.md` + ops checklist.
 
@@ -126,8 +129,10 @@ Do not implement upgrade without user approval (cost + infra change).
 |------|------|
 | `docs/deployment/VPS_DEVOPS_OPS_CHECKLIST.md` | Full checklist + execution plan |
 | `.github/workflows/deploy.yml` | Prod pipeline |
+| `scripts/recreate-circletel-prod.sh` | Only allowed prod container recreate (env or GHA) |
 | `.github/workflows/deploy-staging.yml` | Staging pipeline |
 | `.github/workflows/README.md` | CI overview |
+| `scripts/recreate-circletel-prod.sh` | Prod recreate (env / GHA) |
 | `.claude/rules/git-tree-hygiene.md` | Checkout/worktrees |
 | `.claude/rules/vercel-deployment.md` | Vercel-specific (previews/legacy), not primary prod build |
 | `docs/architecture/CRON_SCHEDULE.md` | Crontab SoT |
@@ -140,6 +145,8 @@ Do not implement upgrade without user approval (cost + infra change).
 |----|--------|
 | Check disk/RAM/load before heavy builds | Start parallel full builds on one VPS |
 | Use Coolify labels for prod container | Hardcode Coolify name suffixes |
+| Recreate prod with `scripts/recreate-circletel-prod.sh` | Coolify Restart / `docker compose pull` on CircleTel |
+| Keep Traefik emergency file off prod hosts | Pin circletel.co.za to a container suffix |
 | Keep staging opt-in | Auto-build staging every PR |
 | Prune Docker when free space Yellow/Red | Prune DB volumes or running prod stack |
 | Point ops work at the checklist | Invent a new deploy topology casually |
