@@ -9,22 +9,19 @@ import {
   resolveBridgeDepartmentId,
   resolveBridgeSubjectPrefix,
   shouldSkipDeskBridgeForPhone,
+  shouldSyncCommentToWhatsApp,
+  WA_IN_PREFIX,
+  WA_INTERNAL_MARKER,
+  WA_OUT_MARKER,
 } from '../desk-bridge';
 
-const WA_IN_PREFIX = '[WA-IN]';
-const WA_OUT_MARKER = '[WA-OUT-SYNCED]';
-
-function shouldSyncCommentToWhatsApp(comment: {
-  content?: string;
-  isPublic?: boolean;
-}): boolean {
-  if (comment.isPublic === false) return false;
-  const text = (comment.content || '').trim();
-  if (!text) return false;
-  if (text.startsWith(WA_IN_PREFIX)) return false;
-  if (text.includes(WA_OUT_MARKER)) return false;
-  return true;
-}
+const AGENT_INSTRUCTIONS = [
+  'AGENT REPLY (WhatsApp bridge)',
+  '1. Best: add a Public Comment with reply text only (no quotes) — synced to WhatsApp ~1 min.',
+  '2. Or click Send — reply text is synced to WhatsApp via Cloud API (~1 min). The contact email is only a Desk placeholder.',
+  '3. Prefer a short reply without CSAT / quoted history.',
+  '4. Ignore mailer-daemon bounces if any — WhatsApp delivery is via the bridge, not email.',
+].join('\n');
 
 describe('WhatsApp Desk bridge comment sync filter', () => {
   it('syncs public agent replies', () => {
@@ -67,6 +64,33 @@ describe('WhatsApp Desk bridge comment sync filter', () => {
     expect(shouldSyncCommentToWhatsApp({ isPublic: true, content: '   ' })).toBe(
       false
     );
+  });
+
+  it('skips public AGENT REPLY instruction notes', () => {
+    expect(
+      shouldSyncCommentToWhatsApp({
+        isPublic: true,
+        content: AGENT_INSTRUCTIONS,
+      })
+    ).toBe(false);
+  });
+
+  it('skips public comments marked [WA-INTERNAL]', () => {
+    expect(
+      shouldSyncCommentToWhatsApp({
+        isPublic: true,
+        content: `${WA_INTERNAL_MARKER} AGENT REPLY (WhatsApp bridge)\n1. Best: Public Comment`,
+      })
+    ).toBe(false);
+  });
+
+  it('still syncs a public reply that quotes AGENT REPLY instructions', () => {
+    expect(
+      shouldSyncCommentToWhatsApp({
+        isPublic: true,
+        content: `Test message\n\n${AGENT_INSTRUCTIONS}`,
+      })
+    ).toBe(true);
   });
 });
 
@@ -156,5 +180,20 @@ describe('extractAgentReplyBody', () => {
     const raw =
       'Thanks for contacting us.\n\nHow would you rate our customer service?\nGood\nBad';
     expect(extractAgentReplyBody(raw)).toBe('Thanks for contacting us.');
+  });
+
+  it('keeps Test message and strips leaked AGENT REPLY instructions', () => {
+    const raw = `Test message\n\n${AGENT_INSTRUCTIONS}\n\nChannel: WhatsApp Cloud API bridge\nWA ID: 27821234567`;
+    expect(extractAgentReplyBody(raw)).toBe('Test message');
+  });
+
+  it('returns empty for instruction-only AGENT REPLY bodies', () => {
+    const raw = `${AGENT_INSTRUCTIONS}\n\nChannel: WhatsApp Cloud API bridge\nWA ID: 27821234567`;
+    expect(extractAgentReplyBody(raw)).toBe('');
+  });
+
+  it('strips [WA-INTERNAL] instruction blocks after the agent reply', () => {
+    const raw = `Thanks, we will call shortly.\n\n${WA_INTERNAL_MARKER} AGENT REPLY (WhatsApp bridge)\n1. Best: Public Comment`;
+    expect(extractAgentReplyBody(raw)).toBe('Thanks, we will call shortly.');
   });
 });
