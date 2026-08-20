@@ -6,6 +6,7 @@ import {
   ORDER_PROCESSING_FEE_DESCRIPTION,
   ORDER_PROCESSING_FEE_LABEL,
 } from '@/lib/payments/payment-amounts';
+import { customerExclVat, customerInclVat } from '@/lib/billing/vat';
 
 interface OrderSummarySidebarProps {
   packageName: string;
@@ -16,6 +17,7 @@ interface OrderSummarySidebarProps {
   installationFee?: number;
   isSimOnly?: boolean;
   address?: string;
+  priceIncludesVat?: boolean;
 }
 
 export function OrderSummarySidebar({
@@ -27,13 +29,11 @@ export function OrderSummarySidebar({
   installationFee = 0,
   isSimOnly = false,
   address,
+  priceIncludesVat = false,
 }: OrderSummarySidebarProps) {
-  // Prices arrive EX-VAT (raw service_packages.price), matching the package card's convention.
-  // The card displays incl-VAT via Math.round(price * 1.15) — mirror that here so the
-  // advertised price (e.g. R899) reconciles with checkout instead of being re-divided.
-  const VAT_RATE = 0.15;
-  const inclVAT = (exVat: number): number => Math.round(exVat * (1 + VAT_RATE));
-  const effectivePrice = promotionPrice ?? monthlyPrice; // ex-VAT
+  const effectivePrice = promotionPrice ?? monthlyPrice;
+  const excl = (amount: number) => customerExclVat(amount, priceIncludesVat);
+  const incl = (amount: number) => customerInclVat(amount, priceIncludesVat);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg shadow-gray-200/60 lg:sticky lg:top-6">
@@ -62,29 +62,29 @@ export function OrderSummarySidebar({
             <div className="text-right">
               {promotionPrice ? (
                 <>
-                  <span className="text-sm font-semibold text-gray-900">R{promotionPrice.toFixed(2)}</span>
-                  <span className="text-gray-400 line-through text-xs ml-1.5">R{monthlyPrice.toFixed(2)}</span>
+                  <span className="text-sm font-semibold text-gray-900">R{excl(promotionPrice).toFixed(2)}</span>
+                  <span className="text-gray-400 line-through text-xs ml-1.5">R{excl(monthlyPrice).toFixed(2)}</span>
                 </>
               ) : (
-                <span className="text-sm font-semibold text-gray-900">R{monthlyPrice.toFixed(2)}</span>
+                <span className="text-sm font-semibold text-gray-900">R{excl(monthlyPrice).toFixed(2)}</span>
               )}
               <span className="text-gray-400 text-xs">/mo</span>
             </div>
           </div>
           <div className="flex items-baseline justify-between text-sm text-gray-500">
             <span>VAT (15%)</span>
-            <span>R{(inclVAT(effectivePrice) - effectivePrice).toFixed(2)}</span>
+            <span>R{(incl(effectivePrice) - excl(effectivePrice)).toFixed(2)}</span>
           </div>
           <div className="flex items-baseline justify-between border-t border-gray-200 pt-3">
             <span className="text-sm font-medium text-gray-700">Monthly (incl. VAT)</span>
             <div className="text-right">
               {promotionPrice ? (
                 <>
-                  <span className="text-lg font-bold text-gray-900">R{inclVAT(promotionPrice).toFixed(2)}</span>
-                  <span className="text-gray-400 line-through text-xs ml-1.5">R{inclVAT(monthlyPrice).toFixed(2)}</span>
+                  <span className="text-lg font-bold text-gray-900">R{incl(promotionPrice).toFixed(2)}</span>
+                  <span className="text-gray-400 line-through text-xs ml-1.5">R{incl(monthlyPrice).toFixed(2)}</span>
                 </>
               ) : (
-                <span className="text-lg font-bold text-gray-900">R{inclVAT(monthlyPrice).toFixed(2)}</span>
+                <span className="text-lg font-bold text-gray-900">R{incl(monthlyPrice).toFixed(2)}</span>
               )}
               <span className="text-gray-400 text-xs">/mo</span>
             </div>

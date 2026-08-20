@@ -2,6 +2,7 @@ import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiMapPinBold, PiPackage
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/integrations/supabase/server';
+import { customerInclVat, packagePriceIncludesVat } from '@/lib/billing/vat';
 
 interface Props {
   params: Promise<{ orderId: string }>;
@@ -34,19 +35,20 @@ export default async function OrderConfirmationPage({ params }: Props) {
     .eq('order_id', orderId);
 
   // Monthly cost for display, INCLUSIVE of 15% VAT.
-  // consumer_orders.package_price has an inconsistent VAT basis across historical orders
-  // (some ex-VAT, some incl), so derive the figure from the catalog price (service_packages.price
-  // is consistently ex-VAT) and add VAT. Fall back to the stored package_price only if the
-  // catalog row is unavailable.
+  // Helios / CircleConnect catalogue rows are already incl-VAT (`metadata.price_includes_vat`).
+  // Other service_packages.price values are ex-VAT.
   let monthlyCostInclVat = order.package_price ? Number(order.package_price) : 0;
   if (order.service_package_id) {
     const { data: pkg } = await supabase
       .from('service_packages')
-      .select('price')
+      .select('price, promotion_price, metadata')
       .eq('id', order.service_package_id)
       .single();
     if (pkg?.price != null) {
-      monthlyCostInclVat = Math.round(Number(pkg.price) * 1.15 * 100) / 100;
+      monthlyCostInclVat = customerInclVat(
+        Number(pkg.promotion_price ?? pkg.price),
+        packagePriceIncludesVat((pkg.metadata ?? {}) as Record<string, unknown>)
+      );
     }
   }
 

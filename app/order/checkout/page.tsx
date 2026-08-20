@@ -27,6 +27,7 @@ import {
   ORDER_PROCESSING_FEE_LABEL,
 } from '@/lib/payments/payment-amounts';
 import type { PackageDetails } from '@/lib/order/types';
+import { customerInclVat } from '@/lib/billing/vat';
 import type {
   SkyFibreCapacityMbps,
   SkyFibreOrderabilityResult,
@@ -284,7 +285,7 @@ export default function CheckoutPage() {
         service_package_id: pkg.id,
         package_name: pkg.name,
         package_speed: pkg.speed,
-        package_price: pkg.monthlyPrice,
+        package_price: customerInclVat(pkg.monthlyPrice, pkg.price_includes_vat),
         service_type: pkg.service_type,
         product_category: pkg.product_category,
         speed_down: pkg.speed_down,
@@ -422,7 +423,20 @@ export default function CheckoutPage() {
     ? `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim()
     : '';
 
-  const monthlyPrice = pkg?.monthlyPrice ?? 0;
+  const listPrice = (() => {
+    if (pkg?.price == null || pkg.price === '') return pkg?.monthlyPrice ?? 0;
+    const parsed = typeof pkg.price === 'number' ? pkg.price : Number(pkg.price);
+    return Number.isFinite(parsed) ? parsed : pkg.monthlyPrice ?? 0;
+  })();
+  const promotionPrice = (() => {
+    if (pkg?.promotion_price == null || pkg.promotion_price === '') return undefined;
+    const parsed = typeof pkg.promotion_price === 'number' ? pkg.promotion_price : Number(pkg.promotion_price);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  })();
+  const monthlyInclVat = customerInclVat(
+    promotionPrice ?? listPrice,
+    pkg?.price_includes_vat
+  );
 
   const needsProfile = isAuthenticated && (!customer?.first_name || !customer?.phone);
   const profileComplete = !needsProfile || (
@@ -463,12 +477,13 @@ export default function CheckoutPage() {
           <OrderSummarySidebar
             packageName={pkg.name}
             speed={pkg.speed}
-            monthlyPrice={pkg.monthlyPrice}
-            promotionPrice={typeof pkg.promotion_price === 'number' ? pkg.promotion_price : undefined}
+            monthlyPrice={listPrice}
+            promotionPrice={promotionPrice}
             promotionMonths={pkg.promotion_months ?? undefined}
             installationFee={pkg.installation_fee ?? 0}
             isSimOnly={pkg.type === 'mobile'}
             address={coverage?.address}
+            priceIncludesVat={pkg.price_includes_vat}
           />
         </div>
       )}
@@ -637,7 +652,7 @@ export default function CheckoutPage() {
                   {submitLabel}
                 </button>
                 <p className="text-center text-xs text-gray-400 mt-3">
-                  R{monthlyPrice}/month billed after activation · No lock-in
+                  R{monthlyInclVat}/month billed after activation · No lock-in
                 </p>
 
                 {/* Back link */}
@@ -687,12 +702,13 @@ export default function CheckoutPage() {
             <OrderSummarySidebar
               packageName={pkg.name}
               speed={pkg.speed}
-              monthlyPrice={pkg.monthlyPrice}
-              promotionPrice={typeof pkg.promotion_price === 'number' ? pkg.promotion_price : undefined}
+              monthlyPrice={listPrice}
+              promotionPrice={promotionPrice}
               promotionMonths={pkg.promotion_months ?? undefined}
               installationFee={pkg.installation_fee ?? 0}
               isSimOnly={pkg.type === 'mobile'}
               address={coverage?.address}
+              priceIncludesVat={pkg.price_includes_vat}
             />
           )}
         </div>
@@ -705,7 +721,7 @@ export default function CheckoutPage() {
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-gray-900 truncate">{pkg.name}</p>
               <p className="text-xs text-gray-500">
-                R{monthlyPrice}/mo · {ORDER_PROCESSING_FEE_LABEL} R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}
+                R{monthlyInclVat}/mo · {ORDER_PROCESSING_FEE_LABEL} R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}
               </p>
             </div>
             <button

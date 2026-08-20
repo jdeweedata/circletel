@@ -17,3 +17,32 @@ export function addVat(excl: number): number {
 export function removeVat(incl: number): number {
   return Math.round((incl / (1 + VAT_RATE)) * 100) / 100;
 }
+
+/** Helios / CircleConnect catalogue rows stamp this on service_packages.metadata. */
+export function packagePriceIncludesVat(
+  metadata?: Record<string, unknown> | null
+): boolean {
+  return metadata?.price_includes_vat === true;
+}
+
+/**
+ * Customer-facing monthly price (incl. VAT).
+ * Helios pass-through SKUs are already incl-VAT — do not add 15% again.
+ * Other catalogue prices are ex-VAT and round to the nearest rand.
+ */
+export function customerInclVat(
+  price: number,
+  priceIncludesVat?: boolean | null
+): number {
+  if (priceIncludesVat) return Math.round(price);
+  return Math.round(price * (1 + VAT_RATE));
+}
+
+/** Customer-facing monthly price (excl. VAT) for checkout breakdowns. */
+export function customerExclVat(
+  price: number,
+  priceIncludesVat?: boolean | null
+): number {
+  if (priceIncludesVat) return removeVat(price);
+  return price;
+}

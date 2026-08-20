@@ -50,6 +50,40 @@ export interface PackageSelectionOptions {
   useMappedCategories: boolean;
 }
 
+/** Consumer SkyFibre SKUs sold on the public residential coverage page. */
+const CONSUMER_SKYFIBRE_PACKAGE_NAMES = new Set([
+  'SkyFibre Home Plus',
+  'SkyFibre Home Max',
+]);
+
+function isSkyFibrePackage(pkg: CachedServicePackage): boolean {
+  const serviceType = (pkg.service_type || '').toLowerCase();
+  const productCategory = (pkg.product_category || '').toLowerCase();
+  const name = (pkg.name || '').toLowerCase();
+  return (
+    serviceType.includes('skyfibre') ||
+    productCategory.includes('skyfibre') ||
+    name.includes('skyfibre')
+  );
+}
+
+function matchesCoverageCategory(
+  pkg: CachedServicePackage,
+  productCategories: string[],
+  useMappedCategories: boolean
+): boolean {
+  if (!useMappedCategories) {
+    return productCategories.includes(pkg.service_type);
+  }
+  if (pkg.product_category && productCategories.includes(pkg.product_category)) {
+    return true;
+  }
+  // OP19627 LTE promo (and similar) can ship with a null product_category.
+  // Match the technical service_type against mapped categories (LTE → lte).
+  const serviceType = (pkg.service_type || '').toLowerCase();
+  return productCategories.some((category) => category.toLowerCase() === serviceType);
+}
+
 /**
  * Select active packages matching the coverage result.
  *
@@ -57,15 +91,22 @@ export interface PackageSelectionOptions {
  * product_category match (mapped path) or a service_type match (legacy path).
  * The input list is assumed already active-only and price-ordered (as the
  * cached read provides), so ordering is preserved and no re-sort is done.
+ *
+ * Residential (consumer) SkyFibre is further restricted to Home Plus (50 Mbps)
+ * and Home Max (100 Mbps). Fibre, LTE, and 5G packages are left unchanged.
  */
 export function selectPackagesForCoverage(
   packages: CachedServicePackage[],
   { customerType, productCategories, useMappedCategories }: PackageSelectionOptions
 ): CachedServicePackage[] {
-  return packages.filter(pkg =>
-    pkg.customer_type === customerType &&
-    (useMappedCategories
-      ? !!pkg.product_category && productCategories.includes(pkg.product_category)
-      : productCategories.includes(pkg.service_type))
-  );
+  return packages.filter(pkg => {
+    if (pkg.customer_type !== customerType) return false;
+    if (!matchesCoverageCategory(pkg, productCategories, useMappedCategories)) {
+      return false;
+    }
+    if (customerType === 'consumer' && isSkyFibrePackage(pkg)) {
+      return CONSUMER_SKYFIBRE_PACKAGE_NAMES.has(pkg.name);
+    }
+    return true;
+  });
 }
