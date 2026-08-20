@@ -184,8 +184,30 @@ export function mergeDeskHistory(
     .map((row) => row.message);
 }
 
+export {
+  classifySupportImReadProbe,
+  deskCollection,
+  isWhatsAppSupportTicket,
+  shouldAutoShowClosedSupport,
+  supportInboxEmptyCopy,
+} from './inbox-list';
+
+/** Well-formed Desk id that is not a customer session. */
+export const SUPPORT_IM_SEND_SENTINEL_SESSION_ID = '1100825000000000001';
+
+export function supportImSendPath(sessionId: string): string {
+  return `/im/sessions/${sessionId}/messages`;
+}
+
+/** Desk rejects extra fields such as `type` on IM send. */
+export function supportImReplyBody(text: string): { message: string } {
+  return { message: text };
+}
+
 /**
  * Classify a POST to a sentinel IM session id (never a real customer).
+ * Probe with an empty body on a well-formed id: 422 means the send API exists.
+ * `{ message }` on a missing id returns URL_NOT_FOUND, which is not "no endpoint".
  * 401/403 or missing URL → composer off. Validation / resource-not-found → API exists.
  */
 export function classifySupportImSendProbe(

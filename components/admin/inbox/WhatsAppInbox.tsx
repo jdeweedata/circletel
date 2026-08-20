@@ -18,6 +18,10 @@ import { EmptyState, ErrorState, LoadingState, StatusBadge } from '@/components/
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  shouldAutoShowClosedSupport,
+  supportInboxEmptyCopy,
+} from '@/lib/integrations/whatsapp/inbox-list';
 import { cn } from '@/lib/utils';
 
 export type InboxChannel = 'sales' | 'support';
@@ -163,6 +167,7 @@ export function WhatsAppInbox({ channel }: { channel: InboxChannel }) {
   const [sending, setSending] = useState(false);
   const [composerTab, setComposerTab] = useState<ComposerTab>('reply');
   const threadEndRef = useRef<HTMLDivElement>(null);
+  const didAutoShowClosed = useRef(false);
 
   const isSales = channel === 'sales';
   const quickReplies = isSales ? SALES_QUICK_REPLIES : SUPPORT_QUICK_REPLIES;
@@ -216,8 +221,10 @@ export function WhatsAppInbox({ channel }: { channel: InboxChannel }) {
     setMessages([]);
     setDraft('');
     setComposerTab('reply');
+    setListFilter('open');
+    didAutoShowClosed.current = false;
     void loadThreads();
-  }, [loadThreads]);
+  }, [channel, loadThreads]);
 
   useEffect(() => {
     threadEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -231,6 +238,14 @@ export function WhatsAppInbox({ channel }: { channel: InboxChannel }) {
   const openCount = searched.filter((thread) => !isClosedStatus(thread.status)).length;
   const closedCount = searched.filter((thread) => isClosedStatus(thread.status)).length;
   const windowCount = searched.filter((thread) => isWindowClosing(thread.updatedAt)).length;
+
+  useEffect(() => {
+    if (isSales || listLoading || didAutoShowClosed.current) return;
+    if (shouldAutoShowClosedSupport(openCount, closedCount, listFilter)) {
+      didAutoShowClosed.current = true;
+      setListFilter('closed');
+    }
+  }, [isSales, listLoading, openCount, closedCount, listFilter]);
 
   const filtered = useMemo(() => {
     return searched.filter((thread) => {
@@ -389,11 +404,15 @@ export function WhatsAppInbox({ channel }: { channel: InboxChannel }) {
                 icon={<PiWhatsappLogoBold />}
                 title="No conversations"
                 description={
-                  listFilter === 'window'
-                    ? 'No threads are inside the last four hours of the estimated 24-hour window.'
-                    : isSales
-                      ? 'Inbound WhatsApp on Sales 084 will appear here.'
-                      : 'Inbound Support Instant Messaging will appear here.'
+                  isSales
+                    ? listFilter === 'window'
+                      ? 'No threads are inside the last four hours of the estimated 24-hour window.'
+                      : 'Inbound WhatsApp on Sales 084 will appear here.'
+                    : supportInboxEmptyCopy({
+                        listFilter,
+                        openCount,
+                        closedCount,
+                      })
                 }
               />
             ) : (

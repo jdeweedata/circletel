@@ -6,13 +6,19 @@ import {
   WA_OUT_MARKER,
 } from '@/lib/integrations/whatsapp/desk-bridge';
 import {
+  classifySupportImReadProbe,
   classifySupportImSendProbe,
   decodeInboxThreadId,
+  deskCollection,
   deskTicketWebUrl,
   encodeInboxThreadId,
   formatDisplayPhone,
   isInternalInboxMessage,
+  isWhatsAppSupportTicket,
   mergeDeskHistory,
+  SUPPORT_IM_SEND_SENTINEL_SESSION_ID,
+  supportImReplyBody,
+  supportImSendPath,
   toCustomerFacingText,
   toInboxTimestamp,
   type InboxChannel,
@@ -159,20 +165,23 @@ export async function probeSupportImCapability(): Promise<{
       '/im/sessions?limit=1'
     );
     if (!list.success) {
-      const reason =
-        list.status === 401 || list.status === 403
-          ? 'Desk token is missing Instant Messaging READ scope (Desk.InstantMessages.READ). Support threads stay in Zoho Desk.'
-          : `Desk IM sessions API unavailable (${list.status || 'error'}). Support replies stay in Zoho Desk.`;
-      imProbeCache = { at: now, canRead: false, canSend: false, reason };
+      const classified = classifySupportImReadProbe(list.status, list.error);
+      imProbeCache = {
+        at: now,
+        canRead: false,
+        canSend: false,
+        reason: classified.reason,
+      };
       return imProbeCache;
     }
 
-    // Sentinel id 0 is not a customer session. 400/404/422 means the send API exists.
+    // Empty POST to a well-formed fake id: 422 means send exists.
+    // `{ message }` on a missing id returns URL_NOT_FOUND (same as GET).
     const send = await deskRequest(
       token,
-      '/im/sessions/0/messages',
+      supportImSendPath(SUPPORT_IM_SEND_SENTINEL_SESSION_ID),
       'POST',
-      { message: 'circletel-inbox-probe' }
+      {}
     );
     const classified = classifySupportImSendProbe(send.status, send.error);
     imProbeCache = {
@@ -289,58 +298,68 @@ async function listSupportImSessions(
     });
 }
 
+type SupportDeskTicket = {
+  id: string;
+  ticketNumber?: string;
+  subject?: string;
+  channel?: string;
+  modifiedTime?: string;
+  createdTime?: string;
+  status?: string;
+  contact?: { lastName?: string; firstName?: string; phone?: string };
+};
+
+function mapSupportTicket(t: SupportDeskTicket): InboxThreadSummary {
+  const name = [t.contact?.firstName, t.contact?.lastName]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+  return {
+    id: encodeInboxThreadId({
+      channel: 'support',
+      id: t.id,
+      kind: 'ticket',
+    }),
+    channel: 'support' as const,
+    title: name || t.subject || 'WhatsApp support',
+    phone: t.contact?.phone || null,
+    ticketId: t.id,
+    ticketNumber: t.ticketNumber || null,
+    deskUrl: deskTicketWebUrl(t.id),
+    preview: t.subject || 'WhatsApp support',
+    updatedAt: toInboxTimestamp(t.modifiedTime || t.createdTime),
+    status: (t.status || 'Open').toLowerCase(),
+  };
+}
+
 async function listSupportTicketsFallback(
   token: string
 ): Promise<InboxThreadSummary[]> {
   const dept = supportDepartmentId();
-  const qs = new URLSearchParams({ limit: '50', status: 'Open' });
+  const qs = new URLSearchParams({ limit: '50' });
   if (dept) qs.set('departmentId', dept);
-  const result = await deskRequest<{
-    data?: Array<{
-      id: string;
-      ticketNumber?: string;
-      subject?: string;
-      channel?: string;
-      modifiedTime?: string;
-      createdTime?: string;
-      status?: string;
-      contact?: { lastName?: string; firstName?: string; phone?: string };
-    }>;
-  }>(token, `/tickets?${qs.toString()}`);
-  if (!result.success || !result.data?.data) return [];
-
-  return result.data.data
-    .filter((t) => {
-      const channel = (t.channel || '').toLowerCase();
-      const subject = (t.subject || '').toLowerCase();
-      return (
-        channel === 'whatsapp' ||
-        channel.includes('instant') ||
-        subject.includes('whatsapp support')
-      );
-    })
-    .map((t) => {
-      const name = [t.contact?.firstName, t.contact?.lastName]
-        .filter(Boolean)
-        .join(' ')
-        .trim();
-      return {
-        id: encodeInboxThreadId({
-          channel: 'support',
-          id: t.id,
-          kind: 'ticket',
-        }),
-        channel: 'support' as const,
-        title: name || t.subject || 'WhatsApp support',
-        phone: t.contact?.phone || null,
-        ticketId: t.id,
-        ticketNumber: t.ticketNumber || null,
-        deskUrl: deskTicketWebUrl(t.id),
-        preview: t.subject || 'WhatsApp support',
-        updatedAt: toInboxTimestamp(t.modifiedTime || t.createdTime),
-        status: (t.status || 'Open').toLowerCase(),
-      };
+  const result = await deskRequest<{ data?: SupportDeskTicket[] }>(
+    token,
+    `/tickets?${qs.toString()}`
+  );
+  const tickets = deskCollection<SupportDeskTicket>(result);
+  if (!result.success && result.status !== 204) {
+    zohoLogger.error('[WA Inbox] support ticket fallback failed', {
+      status: result.status,
     });
+    return [];
+  }
+
+  const matched = tickets
+    .filter((t) => isWhatsAppSupportTicket(t.channel, t.subject))
+    .map(mapSupportTicket);
+
+  zohoLogger.info('[WA Inbox] support ticket fallback', {
+    status: result.status || 200,
+    listed: tickets.length,
+    whatsapp: matched.length,
+  });
+  return matched;
 }
 
 export async function listInboxThreads(
@@ -640,9 +659,9 @@ export async function replyInboxThread(
   const token = await mintDeskAccessToken();
   const sent = await deskRequest(
     token,
-    `/im/sessions/${ref.id}/messages`,
+    supportImSendPath(ref.id),
     'POST',
-    { message: text }
+    supportImReplyBody(text)
   );
   if (!sent.success) {
     return {
