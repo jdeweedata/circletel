@@ -69,10 +69,10 @@ describe('resolveCoverageCategories', () => {
 
 describe('selectPackagesForCoverage', () => {
   const packages = [
-    pkg({ id: '1', service_type: 'SkyFibre', product_category: 'wireless', customer_type: 'consumer', price: 500 }),
-    pkg({ id: '2', service_type: 'SkyFibre', product_category: 'wireless', customer_type: 'business', price: 700 }),
+    pkg({ id: '1', name: 'SkyFibre Home Plus', service_type: 'SkyFibre', product_category: 'wireless', customer_type: 'consumer', price: 500 }),
+    pkg({ id: '2', name: 'SkyFibre SME Essential', service_type: 'SkyFibre', product_category: 'wireless', customer_type: 'business', price: 700 }),
     pkg({ id: '3', service_type: 'HomeFibre', product_category: 'fibre_consumer', customer_type: 'consumer', price: 900 }),
-    pkg({ id: '4', service_type: 'SkyFibre', product_category: undefined, customer_type: 'consumer', price: 400 }),
+    pkg({ id: '4', name: 'SkyFibre Home Max', service_type: 'SkyFibre', product_category: undefined, customer_type: 'consumer', price: 400 }),
   ];
 
   it('matches by product_category and customer_type on the mapped path', () => {
@@ -92,6 +92,36 @@ describe('selectPackagesForCoverage', () => {
       useMappedCategories: true,
     });
     expect(result.map(p => p.id)).toEqual(['1', '3']);
+  });
+
+  it('includes uncategorised LTE/5G packages when service_type matches a selected category', () => {
+    const mixed = [
+      pkg({
+        id: 'op20',
+        name: 'CircleConnect Uncapped 20 Mbps',
+        sku: 'CC-OP-UNC-20',
+        service_type: 'LTE',
+        product_category: undefined,
+        customer_type: 'consumer',
+        price: 599,
+        promotion_price: 549,
+      }),
+      pkg({
+        id: 'fiveg',
+        name: 'CircleConnect 5G 60 Mbps',
+        sku: 'CC-5G-CON-060',
+        service_type: '5G',
+        product_category: '5g',
+        customer_type: 'consumer',
+        price: 699,
+      }),
+    ];
+    const result = selectPackagesForCoverage(mixed, {
+      customerType: 'consumer',
+      productCategories: ['lte', '5g'],
+      useMappedCategories: true,
+    });
+    expect(result.map(p => p.id)).toEqual(['op20', 'fiveg']);
   });
 
   it('matches by service_type and customer_type on the legacy path', () => {
@@ -134,5 +164,51 @@ describe('selectPackagesForCoverage', () => {
       useMappedCategories: false,
     });
     expect(result.map(p => p.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('keeps only SkyFibre Home Plus and Home Max for consumer coverage', () => {
+    const mixed = [
+      pkg({ id: 'plus', name: 'SkyFibre Home Plus', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'consumer' }),
+      pkg({ id: 'max', name: 'SkyFibre Home Max', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'consumer' }),
+      pkg({ id: 'pro50', name: 'SkyFibre Home Pro 50', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'consumer' }),
+      pkg({ id: 'pro100', name: 'SkyFibre Home Pro 100', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'consumer' }),
+      pkg({ id: 'ultra', name: 'SkyFibre Home Ultra', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'consumer' }),
+      pkg({ id: 'biz', name: 'SkyFibre Business 100', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'consumer' }),
+    ];
+    const result = selectPackagesForCoverage(mixed, {
+      customerType: 'consumer',
+      productCategories: ['connectivity'],
+      useMappedCategories: true,
+    });
+    expect(result.map(p => p.id)).toEqual(['plus', 'max']);
+  });
+
+  it('keeps fibre, LTE, and 5G consumer packages when SkyFibre is filtered', () => {
+    const mixed = [
+      pkg({ id: 'plus', name: 'SkyFibre Home Plus', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'consumer' }),
+      pkg({ id: 'fibre', name: 'HomeFibre Plus 50Mbps', service_type: 'HomeFibreConnect', product_category: 'fibre_consumer', customer_type: 'consumer' }),
+      pkg({ id: 'lte', name: 'LTE Uncapped 50Mbps', service_type: 'LTE', product_category: 'lte', customer_type: 'consumer' }),
+      pkg({ id: 'fiveg', name: '5G Home Premium', service_type: '5G', product_category: '5g', customer_type: 'consumer' }),
+      pkg({ id: 'ultra', name: 'SkyFibre Home Ultra', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'consumer' }),
+    ];
+    const result = selectPackagesForCoverage(mixed, {
+      customerType: 'consumer',
+      productCategories: ['connectivity', 'fibre_consumer', 'lte', '5g'],
+      useMappedCategories: true,
+    });
+    expect(result.map(p => p.id)).toEqual(['plus', 'fibre', 'lte', 'fiveg']);
+  });
+
+  it('does not restrict business SkyFibre SKUs', () => {
+    const mixed = [
+      pkg({ id: 'sme', name: 'SkyFibre SME Essential', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'business' }),
+      pkg({ id: 'sme100', name: 'SkyFibre SME Professional', service_type: 'SkyFibre', product_category: 'connectivity', customer_type: 'business' }),
+    ];
+    const result = selectPackagesForCoverage(mixed, {
+      customerType: 'business',
+      productCategories: ['connectivity'],
+      useMappedCategories: true,
+    });
+    expect(result.map(p => p.id)).toEqual(['sme', 'sme100']);
   });
 });

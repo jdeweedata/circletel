@@ -39,6 +39,7 @@ export interface CachedServiceTypeMapping {
 export interface CachedServicePackage {
   id: string;
   name: string;
+  sku?: string;
   service_type: string;
   product_category?: string;
   customer_type?: string;

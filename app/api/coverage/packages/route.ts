@@ -45,6 +45,7 @@ interface ServiceTypeMapping {
 interface ServicePackage {
   id: string;
   name: string;
+  sku?: string;
   service_type: string;
   product_category?: string;
   speed_down?: number;
@@ -401,6 +402,7 @@ export async function GET(request: NextRequest) {
           return {
             id: pkg.id,
             name: pkg.name,
+            sku: pkg.sku,
             service_type: pkg.service_type,
             product_category: pkg.product_category,
             speed_down: pkg.speed_down,

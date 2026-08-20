@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { InfoTooltipModal } from '@/components/ui/info-tooltip-modal';
+import { appendTermsAndConditions } from '@/lib/products/terms-info';
 
 export interface BenefitItem {
   text: string;
@@ -14,6 +15,7 @@ export interface BenefitItem {
 
 export interface AdditionalInfoItem {
   text: string;
+  href?: string;
   tooltipTitle?: string;
   tooltipDescription?: string;
 }
@@ -49,6 +51,7 @@ export interface PackageDetailSidebarProps {
     title?: string;
     items?: (string | AdditionalInfoItem)[];
   };
+  additionalInfoDefaultExpanded?: boolean;
 
   // Promotional
   recommended?: boolean;
@@ -113,13 +116,15 @@ export function PackageDetailSidebar({
   providerLogo,
   benefits,
   additionalInfo,
+  additionalInfoDefaultExpanded = false,
   recommended = false,
   onOrderClick,
   onClose,
   className,
   isOpen = true,
 }: PackageDetailSidebarProps) {
-  const [isAdditionalInfoExpanded, setIsAdditionalInfoExpanded] = useState(false);
+  const [isAdditionalInfoExpanded, setIsAdditionalInfoExpanded] = useState(additionalInfoDefaultExpanded);
+  const additionalInfoItems = appendTermsAndConditions(additionalInfo?.items ?? []);
 
   if (!isOpen) return null;
 
@@ -266,7 +271,7 @@ export function PackageDetailSidebar({
         )}
 
         {/* Additional Information (Expandable, with optional tooltips) */}
-        {additionalInfo && additionalInfo.items && additionalInfo.items.length > 0 && (
+        {additionalInfoItems.length > 0 && (
           <div className="mb-6">
             <button
               onClick={() => setIsAdditionalInfoExpanded(!isAdditionalInfoExpanded)}
@@ -274,7 +279,7 @@ export function PackageDetailSidebar({
               aria-expanded={isAdditionalInfoExpanded}
             >
               <span className="text-sm uppercase tracking-wide text-pink-600">
-                {additionalInfo.title || 'What else you should know:'}
+                {additionalInfo?.title || 'What else you should know:'}
               </span>
               {isAdditionalInfoExpanded ? (
                 <PiCaretUpBold className="w-5 h-5 text-pink-600" />
@@ -284,18 +289,28 @@ export function PackageDetailSidebar({
             </button>
             {isAdditionalInfoExpanded && (
               <ul className="mt-3 space-y-2 list-none">
-                {additionalInfo.items.map((item, index) => {
-                  const itemText = typeof item === 'string' ? item : item.text;
-                  const hasTooltip = typeof item === 'object' && item.tooltipTitle && item.tooltipDescription;
+                {additionalInfoItems.map((item, index) => {
+                  const hasTooltip = Boolean(item.tooltipTitle && item.tooltipDescription);
 
                   return (
                     <li key={index} className="flex items-start gap-3">
                       <span className="text-circleTel-orange mt-1 flex-shrink-0">
                         <PiCheckBold className="w-4 h-4" />
                       </span>
-                      <span className="text-sm text-circleTel-secondaryNeutral flex-1">
-                        {itemText}
-                      </span>
+                      {item.href ? (
+                        <a
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-circleTel-orange hover:underline flex-1"
+                        >
+                          {item.text}
+                        </a>
+                      ) : (
+                        <span className="text-sm text-circleTel-secondaryNeutral flex-1">
+                          {item.text}
+                        </span>
+                      )}
                       {hasTooltip && (
                         <InfoTooltipModal
                           title={item.tooltipTitle!}

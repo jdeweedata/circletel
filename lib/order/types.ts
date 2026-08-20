@@ -148,6 +148,7 @@ export interface PackageDetails {
   activation_fee?: number;
   delivery_fee?: number;
   data_limit?: string;
+  price_includes_vat?: boolean;
 }
 
 export interface PricingDetails {

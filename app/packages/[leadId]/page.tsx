@@ -8,7 +8,7 @@ import { Footer } from '@/components/layout/Footer';
 import { ServiceToggle, ServiceType } from '@/components/ui/service-toggle';
 import { EnhancedPackageCard } from '@/components/ui/enhanced-package-card';
 import { CompactPackageCard } from '@/components/ui/compact-package-card';
-import { PackageDetailSidebar, MobilePackageDetailOverlay, type BenefitItem, type AdditionalInfoItem } from '@/components/ui/package-detail-sidebar';
+import { PackageDetailSidebar, MobilePackageDetailOverlay } from '@/components/ui/package-detail-sidebar';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -23,12 +23,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { extractBenefits, extractAdditionalInfo } from '@/lib/products/feature-formatter';
 import { ENTERTAINMENT_BUNDLES, type EntertainmentBundle } from '@/lib/data/entertainment-bundles';
+import { customerInclVat, packagePriceIncludesVat } from '@/lib/billing/vat';
+import { CONTACT } from '@/lib/constants/contact';
+import { OP19627_PROMOS, getFiveGCardDataCap, getFiveGOfferTerm, type FiveGOfferMetadata } from '@/lib/products/five-g-offer-term';
+import {
+  getCoveragePackageInclusions,
+  getCoveragePromoBadge,
+  groupCoveragePackagesByTerm,
+} from '@/lib/products/coverage-package-inclusions';
+import { appendTermsAndConditions } from '@/lib/products/terms-info';
 
 interface Package {
   id: string;
   name: string;
+  sku?: string;
   service_type: string;
   product_category?: string;
   speed_down: number;
@@ -42,6 +51,7 @@ interface Package {
     capped?: boolean;
     data_cap?: string;
     fup_limit_gb?: number;
+    price_includes_vat?: boolean;
     [key: string]: unknown;
   };
   provider?: {
@@ -55,13 +65,69 @@ interface Package {
   };
 }
 
-// South African VAT rate (15%)
-const VAT_RATE = 0.15;
+const OP19627_SKUS = new Set(OP19627_PROMOS.map((row) => row.sku));
 
-// Helper to add VAT to price and round to nearest Rand
-const addVAT = (price: number): number => {
-  return Math.round(price * (1 + VAT_RATE));
-};
+function isOp19627Promo(pkg: Package): boolean {
+  return !!pkg.sku && OP19627_SKUS.has(pkg.sku);
+}
+
+function displayInclVat(pkg: Package, amount?: number): number {
+  const raw = amount ?? pkg.promotion_price ?? pkg.price;
+  return customerInclVat(raw, packagePriceIncludesVat(pkg.metadata));
+}
+
+const PACKAGE_CARD_GRID_CLASS = cn(
+  'grid grid-cols-1',
+  'sm:grid-cols-2',
+  'md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2',
+  'gap-4 sm:gap-5 md:gap-6'
+);
+
+function packageTypeAndTooltip(pkg: Package): {
+  packageType: 'uncapped' | 'capped';
+  dataTooltip?: string;
+} {
+  const isCapped = pkg.metadata?.capped === true;
+  const dataCap = pkg.metadata?.data_cap;
+  const fupGb = pkg.metadata?.fup_limit_gb;
+  return {
+    packageType: isCapped ? 'capped' : 'uncapped',
+    dataTooltip: isCapped
+      ? `${dataCap || 'Fixed'} monthly data allowance`
+      : fupGb
+        ? `Uncapped data with ${fupGb >= 1000 ? `${(fupGb / 1000).toFixed(1).replace(/\.0$/, '')}TB` : `${fupGb}GB`} Fair Usage Policy`
+        : undefined,
+  };
+}
+
+function sidebarSpeedDisplay(pkg: Package): {
+  type: 'uncapped' | 'capped';
+  downloadSpeed?: number;
+  uploadSpeed?: number;
+  dataLimit?: string;
+} {
+  const type: 'uncapped' | 'capped' = pkg.metadata?.capped === true ? 'capped' : 'uncapped';
+  if (pkg.speed_down > 0) {
+    return {
+      type,
+      downloadSpeed: pkg.speed_down,
+      uploadSpeed: pkg.speed_up > 0 ? pkg.speed_up : undefined,
+    };
+  }
+  const cap = getFiveGCardDataCap(pkg.metadata);
+  return {
+    type,
+    dataLimit: cap.unit === 'GB' ? `${cap.displayData} GB` : undefined,
+  };
+}
+
+function sidebarPromoDescription(pkg: Package, addonCount: number): string | undefined {
+  const badge = getCoveragePromoBadge(pkg.sku, pkg.promotion_price, pkg.promotion_months);
+  if (badge && badge !== 'PROMO') return badge;
+  if (pkg.promotion_months) return `first ${pkg.promotion_months} months`;
+  if (addonCount > 0) return `incl. ${addonCount} add-on${addonCount > 1 ? 's' : ''}`;
+  return undefined;
+}
 
 function PackagesContent() {
   const params = useParams();
@@ -156,7 +222,7 @@ function PackagesContent() {
         const has5G = data.packages.some((p: Package) => {
           const serviceType = (p.service_type || '').toLowerCase();
           const productCategory = (p.product_category || '').toLowerCase();
-          return serviceType.includes('5g') || productCategory.includes('5g');
+          return serviceType.includes('5g') || productCategory.includes('5g') || isOp19627Promo(p);
         });
         const hasWireless = data.packages.some((p: Package) => {
           const serviceType = (p.service_type || '').toLowerCase();
@@ -173,17 +239,19 @@ function PackagesContent() {
           return isWireless && isNotMobile;
         });
 
-        // Select first available service type
+        // Select first available service type (Fibre > 5G > LTE > Wireless)
+        // 5G before LTE so /5g-deals coverage checks stay on the 5G grid,
+        // which also includes the OP19627 20 Mbps promo.
         let defaultService: ServiceType | null = null;
         if (hasFibre) {
           defaultService = 'fibre';
           setActiveService('fibre');
-        } else if (hasLTE) {
-          defaultService = 'lte';
-          setActiveService('lte');
         } else if (has5G) {
           defaultService = '5g';
           setActiveService('5g');
+        } else if (hasLTE) {
+          defaultService = 'lte';
+          setActiveService('lte');
         } else if (hasWireless) {
           defaultService = 'wireless';
           setActiveService('wireless');
@@ -196,7 +264,7 @@ function PackagesContent() {
             const pc = (p.product_category || '').toLowerCase();
             if (s === 'fibre') return (st.includes('fibre') || pc.includes('fibre')) && !st.includes('skyfibre');
             if (s === 'lte') return (st.includes('lte') || pc.includes('lte')) && !st.includes('5g') && !pc.includes('5g');
-            if (s === '5g') return st.includes('5g') || pc.includes('5g');
+            if (s === '5g') return st.includes('5g') || pc.includes('5g') || isOp19627Promo(p);
             if (s === 'wireless') {
               const isWireless = st.includes('wireless') || st.includes('skyfibre') || 
                                 pc.includes('wireless') || (st.includes('skyfibre') && pc === 'connectivity');
@@ -239,10 +307,11 @@ function PackagesContent() {
       features: pkg.features || [],
       monthlyPrice: pkg.promotion_price || pkg.price,
       speed: `${pkg.speed_down}/${pkg.speed_up} Mbps`,
+      price_includes_vat: packagePriceIncludesVat(pkg.metadata),
     };
 
-    // Save selected package to OrderContext (prices include VAT for customer display)
-    const priceInclVAT = addVAT(pkg.promotion_price || pkg.price);
+    // Save selected package to OrderContext (customer-facing monthly is always incl VAT)
+    const priceInclVAT = displayInclVat(pkg);
     actions.updateOrderData({
       package: {
         selectedPackage: packageDetails,
@@ -282,10 +351,11 @@ function PackagesContent() {
         features: selectedPackage.features || [],
         monthlyPrice: selectedPackage.promotion_price || selectedPackage.price,
         speed: `${selectedPackage.speed_down}/${selectedPackage.speed_up} Mbps`,
+        price_includes_vat: packagePriceIncludesVat(selectedPackage.metadata),
       };
 
       // Calculate pricing including add-ons
-      const basePriceInclVAT = addVAT(selectedPackage.promotion_price || selectedPackage.price);
+      const basePriceInclVAT = displayInclVat(selectedPackage);
       const addonsTotal = selectedAddons.reduce(
         (sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity,
         0
@@ -379,7 +449,7 @@ function PackagesContent() {
       return packages.filter(p => {
         const serviceType = (p.service_type || '').toLowerCase();
         const productCategory = (p.product_category || '').toLowerCase();
-        return serviceType.includes('5g') || productCategory.includes('5g');
+        return serviceType.includes('5g') || productCategory.includes('5g') || isOp19627Promo(p);
       });
     } else if (activeService === 'wireless') {
       return packages.filter(p => {
@@ -403,6 +473,16 @@ function PackagesContent() {
   };
 
   const filteredPackages = getFilteredPackages();
+  const useTermGroups = activeService === '5g' || activeService === 'lte';
+  const groupedPackages = useTermGroups
+    ? groupCoveragePackagesByTerm(filteredPackages)
+    : null;
+  const selectedInclusions = selectedPackage
+    ? useTermGroups
+      ? getCoveragePackageInclusions(selectedPackage)
+      : appendTermsAndConditions(selectedPackage.features || [])
+    : [];
+  const selectedSpeedDisplay = selectedPackage ? sidebarSpeedDisplay(selectedPackage) : null;
 
   // Auto-select first package for the current service
   useEffect(() => {
@@ -442,7 +522,7 @@ function PackagesContent() {
     '5g': packages.filter(p => {
       const serviceType = (p.service_type || '').toLowerCase();
       const productCategory = (p.product_category || '').toLowerCase();
-      return serviceType.includes('5g') || productCategory.includes('5g');
+      return serviceType.includes('5g') || productCategory.includes('5g') || isOp19627Promo(p);
     }).length,
     wireless: packages.filter(p => {
       const serviceType = (p.service_type || '').toLowerCase();
@@ -508,6 +588,49 @@ function PackagesContent() {
         ].filter(Boolean),
       },
     };
+  };
+
+  const renderCoveragePackageCard = (pkg: Package) => {
+    const serviceType = (pkg.service_type || pkg.product_category || '').toLowerCase();
+    const getBadgeColor = (): 'pink' | 'orange' | 'yellow' | 'blue' => {
+      if (serviceType.includes('homefibre') || serviceType.includes('fibre_consumer')) {
+        return 'pink';
+      }
+      if (serviceType.includes('bizfibre') || serviceType.includes('fibre_business')) {
+        return 'orange';
+      }
+      if (serviceType.includes('wireless') || serviceType.includes('lte')) {
+        return 'blue';
+      }
+      if (serviceType.includes('5g')) {
+        return 'yellow';
+      }
+      return 'pink';
+    };
+
+    const { packageType, dataTooltip } = packageTypeAndTooltip(pkg);
+    const termLabel = useTermGroups
+      ? getFiveGOfferTerm(pkg.metadata as FiveGOfferMetadata | undefined).label || undefined
+      : undefined;
+
+    return (
+      <CompactPackageCard
+        key={pkg.id}
+        promoPrice={displayInclVat(pkg)}
+        originalPrice={pkg.promotion_price ? displayInclVat(pkg, pkg.price) : undefined}
+        promoBadge={getCoveragePromoBadge(pkg.sku, pkg.promotion_price, pkg.promotion_months)}
+        badgeColor={getBadgeColor()}
+        name={pkg.name}
+        termLabel={termLabel}
+        type={packageType}
+        dataTooltip={dataTooltip}
+        downloadSpeed={pkg.speed_down}
+        uploadSpeed={pkg.speed_up}
+        provider={pkg.provider}
+        selected={selectedPackage?.id === pkg.id}
+        onClick={() => handlePackageSelect(pkg)}
+      />
+    );
   };
 
   if (loading) {
@@ -655,102 +778,85 @@ function PackagesContent() {
               {/* Left Column: Compact Package Cards Grid - MOBILE OPTIMIZED */}
               <div className="flex-1">
                 {filteredPackages.length > 0 ? (
-                  <>
-                    <div className={cn(
-                      // MOBILE: Single column with full width cards
-                      'grid grid-cols-1',
-                      // TABLET: 2 columns
-                      'sm:grid-cols-2',
-                      // DESKTOP: keep 2 columns even at xl+ to widen cards
-                      'md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2',
-                      // Spacing
-                      'gap-4 sm:gap-5 md:gap-6'
-                    )}>
-                      {visiblePackages.map((pkg) => {
-                        const serviceType = (pkg.service_type || pkg.product_category || '').toLowerCase();
-                        const getBadgeColor = (): 'pink' | 'orange' | 'yellow' | 'blue' => {
-                          if (serviceType.includes('homefibre') || serviceType.includes('fibre_consumer')) {
-                            return 'pink';
-                          } else if (serviceType.includes('bizfibre') || serviceType.includes('fibre_business')) {
-                            return 'orange';
-                          } else if (serviceType.includes('wireless') || serviceType.includes('lte')) {
-                            return 'blue';
-                          } else if (serviceType.includes('5g')) {
-                            return 'yellow';
-                          }
-                          return 'pink';
-                        };
-
-                        const isCapped = pkg.metadata?.capped === true;
-                        const dataCap = pkg.metadata?.data_cap;
-                        const fupGb = pkg.metadata?.fup_limit_gb;
-                        const packageType: 'uncapped' | 'capped' = isCapped ? 'capped' : 'uncapped';
-                        const dataTooltip = isCapped
-                          ? `${dataCap || 'Fixed'} monthly data allowance`
-                          : fupGb
-                          ? `Uncapped data with ${fupGb >= 1000 ? `${(fupGb / 1000).toFixed(1).replace(/\.0$/, '')}TB` : `${fupGb}GB`} Fair Usage Policy`
-                          : undefined;
-
-                        return (
-                          <CompactPackageCard
-                            key={pkg.id}
-                            promoPrice={addVAT(pkg.promotion_price || pkg.price)}
-                            originalPrice={pkg.promotion_price ? addVAT(pkg.price) : undefined}
-                            promoBadge={
-                              pkg.promotion_price
-                                ? pkg.promotion_months
-                                  ? `${pkg.promotion_months}-MONTH PROMO`
-                                  : 'PROMO'
-                                : undefined
-                            }
-                            badgeColor={getBadgeColor()}
-                            name={pkg.name}
-                            type={packageType}
-                            dataTooltip={dataTooltip}
-                            downloadSpeed={pkg.speed_down}
-                            uploadSpeed={pkg.speed_up}
-                            provider={pkg.provider}
-                            selected={selectedPackage?.id === pkg.id}
-                            onClick={() => handlePackageSelect(pkg)}
-                          />
-                        );
-                      })}
+                  groupedPackages ? (
+                    <div className="space-y-10">
+                      {groupedPackages.contractRouter.length > 0 && (
+                        <section>
+                          <div className="mb-4">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+                              24-month + router included
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Router included. 24-month contract.
+                            </p>
+                          </div>
+                          <div className={PACKAGE_CARD_GRID_CLASS}>
+                            {groupedPackages.contractRouter.map(renderCoveragePackageCard)}
+                          </div>
+                        </section>
+                      )}
+                      {groupedPackages.simOnly.length > 0 && (
+                        <section>
+                          <div className="mb-4">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+                              Month-to-month SIM only
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Bring your own router. No lock-in.
+                            </p>
+                          </div>
+                          <div className={PACKAGE_CARD_GRID_CLASS}>
+                            {groupedPackages.simOnly.map(renderCoveragePackageCard)}
+                          </div>
+                        </section>
+                      )}
+                      {groupedPackages.other.length > 0 && (
+                        <section>
+                          <div className={PACKAGE_CARD_GRID_CLASS}>
+                            {groupedPackages.other.map(renderCoveragePackageCard)}
+                          </div>
+                        </section>
+                      )}
                     </div>
-
-                    {/* Phase 3: Show More / Show Less Button */}
-                    {hasMorePackages && (
-                      <div className="mt-8 flex justify-center">
-                        <Button
-                          onClick={() => {
-                            setShowAllPackages(!showAllPackages);
-                            // Smooth scroll to top of packages when collapsing
-                            if (showAllPackages) {
-                              window.scrollTo({ top: 300, behavior: 'smooth' });
-                            }
-                          }}
-                          variant="outline"
-                          size="lg"
-                          className={cn(
-                            'min-w-[200px] border-2',
-                            'transition-all duration-200',
-                            'hover:bg-circleTel-orange hover:text-white hover:border-circleTel-orange'
-                          )}
-                        >
-                          {showAllPackages ? (
-                            <>
-                              <PiCaretUpBold className="w-5 h-5 mr-2" />
-                              Show Less
-                            </>
-                          ) : (
-                            <>
-                              <PiCaretDownBold className="w-5 h-5 mr-2" />
-                              Show {remainingCount} More {remainingCount === 1 ? 'Package' : 'Packages'}
-                            </>
-                          )}
-                        </Button>
+                  ) : (
+                    <>
+                      <div className={PACKAGE_CARD_GRID_CLASS}>
+                        {visiblePackages.map(renderCoveragePackageCard)}
                       </div>
-                    )}
-                  </>
+
+                      {hasMorePackages && (
+                        <div className="mt-8 flex justify-center">
+                          <Button
+                            onClick={() => {
+                              setShowAllPackages(!showAllPackages);
+                              if (showAllPackages) {
+                                window.scrollTo({ top: 300, behavior: 'smooth' });
+                              }
+                            }}
+                            variant="outline"
+                            size="lg"
+                            className={cn(
+                              'min-w-[200px] border-2',
+                              'transition-all duration-200',
+                              'hover:bg-circleTel-orange hover:text-white hover:border-circleTel-orange'
+                            )}
+                          >
+                            {showAllPackages ? (
+                              <>
+                                <PiCaretUpBold className="w-5 h-5 mr-2" />
+                                Show Less
+                              </>
+                            ) : (
+                              <>
+                                <PiCaretDownBold className="w-5 h-5 mr-2" />
+                                Show {remainingCount} More {remainingCount === 1 ? 'Package' : 'Packages'}
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )
                 ) : (
                   <div className="text-center py-16 bg-gray-50 rounded-xl">
                     <p className="text-gray-500">
@@ -764,22 +870,23 @@ function PackagesContent() {
               </div>
 
               {/* Right Column: Sticky Detail Sidebar (Desktop Only) */}
-              {selectedPackage && (
+              {selectedPackage && selectedSpeedDisplay && (
                 <div className="hidden lg:block lg:w-[400px] space-y-4">
                   <PackageDetailSidebar
-                    promoPrice={addVAT(selectedPackage.promotion_price || selectedPackage.price) + selectedAddons.reduce((sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity, 0)}
-                    originalPrice={selectedPackage.promotion_price ? addVAT(selectedPackage.price) : undefined}
-                    promoDescription={selectedPackage.promotion_months ? `first ${selectedPackage.promotion_months} months` : selectedAddons.length > 0 ? `incl. ${selectedAddons.length} add-on${selectedAddons.length > 1 ? 's' : ''}` : undefined}
+                    promoPrice={displayInclVat(selectedPackage) + selectedAddons.reduce((sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity, 0)}
+                    originalPrice={selectedPackage.promotion_price ? displayInclVat(selectedPackage, selectedPackage.price) : undefined}
+                    promoDescription={sidebarPromoDescription(selectedPackage, selectedAddons.length)}
                     name={selectedPackage.name}
-                    type={selectedPackage.description?.toLowerCase().includes('uncapped') || selectedPackage.name?.toLowerCase().includes('uncapped') ? 'uncapped' : undefined}
-                    downloadSpeed={selectedPackage.speed_down}
-                    uploadSpeed={selectedPackage.speed_up}
+                    type={selectedSpeedDisplay.type}
+                    dataLimit={selectedSpeedDisplay.dataLimit}
+                    downloadSpeed={selectedSpeedDisplay.downloadSpeed}
+                    uploadSpeed={selectedSpeedDisplay.uploadSpeed}
                     providerName={selectedPackage.provider?.name || selectedPackage.service_type}
-                    benefits={extractBenefits(selectedPackage.features || [])}
                     additionalInfo={{
                       title: 'What else you should know:',
-                      items: extractAdditionalInfo(selectedPackage.features || []) as (string | AdditionalInfoItem)[],
+                      items: selectedInclusions,
                     }}
+                    additionalInfoDefaultExpanded
                     recommended={filteredPackages.indexOf(selectedPackage) === 0}
                     onOrderClick={handleContinue}
                   />
@@ -840,32 +947,33 @@ function PackagesContent() {
               Contact Us
             </a>
             <a
-              href="https://wa.me/27824873900"
+              href={CONTACT.WHATSAPP_LINK}
               className="inline-flex items-center justify-center px-8 py-4 bg-orange-700 text-white font-semibold rounded-xl hover:bg-orange-800 transition-colors"
             >
-              WhatsApp 082 487 3900
+              WhatsApp {CONTACT.WHATSAPP_NUMBER}
             </a>
           </div>
         </div>
 
             {/* Mobile Package Detail Overlay */}
-      {selectedPackage && isMobileSidebarOpen && (
+      {selectedPackage && selectedSpeedDisplay && isMobileSidebarOpen && (
         <MobilePackageDetailOverlay
           isOpen={isMobileSidebarOpen}
           onClose={() => setIsMobileSidebarOpen(false)}
-          promoPrice={addVAT(selectedPackage.promotion_price || selectedPackage.price)}
-          originalPrice={selectedPackage.promotion_price ? addVAT(selectedPackage.price) : undefined}
-          promoDescription={selectedPackage.promotion_months ? `first ${selectedPackage.promotion_months} months` : undefined}
+          promoPrice={displayInclVat(selectedPackage)}
+          originalPrice={selectedPackage.promotion_price ? displayInclVat(selectedPackage, selectedPackage.price) : undefined}
+          promoDescription={sidebarPromoDescription(selectedPackage, 0)}
           name={selectedPackage.name}
-          type={selectedPackage.description?.toLowerCase().includes('uncapped') || selectedPackage.name?.toLowerCase().includes('uncapped') ? 'uncapped' : undefined}
-          downloadSpeed={selectedPackage.speed_down}
-          uploadSpeed={selectedPackage.speed_up}
+          type={selectedSpeedDisplay.type}
+          dataLimit={selectedSpeedDisplay.dataLimit}
+          downloadSpeed={selectedSpeedDisplay.downloadSpeed}
+          uploadSpeed={selectedSpeedDisplay.uploadSpeed}
           providerName={selectedPackage.provider?.name || selectedPackage.service_type}
-          benefits={extractBenefits(selectedPackage.features || [])}
           additionalInfo={{
             title: 'What else you should know:',
-            items: extractAdditionalInfo(selectedPackage.features || []) as (string | AdditionalInfoItem)[],
+            items: selectedInclusions,
           }}
+          additionalInfoDefaultExpanded
           recommended={filteredPackages.indexOf(selectedPackage) === 0}
           onOrderClick={handleContinue}
         />
@@ -882,7 +990,7 @@ function PackagesContent() {
               <div className="text-left flex-1">
                 <h3 className="font-bold text-base text-gray-900 truncate">{selectedPackage.name}</h3>
                 <p className="text-sm text-gray-600">
-                  R{(addVAT(selectedPackage.promotion_price || selectedPackage.price) + selectedAddons.reduce((sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity, 0)).toLocaleString()}/month
+                  R{(displayInclVat(selectedPackage) + selectedAddons.reduce((sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity, 0)).toLocaleString()}/month
                   {selectedAddons.length > 0 && <span className="text-circleTel-orange"> +{selectedAddons.length} add-on{selectedAddons.length > 1 ? 's' : ''}</span>}
                 </p>
               </div>
