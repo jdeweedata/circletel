@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ProductShowcaseCard } from '@/components/products';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
 import {
   Select,
   SelectContent,
@@ -84,8 +82,6 @@ export default function FiveGDealsPageClient() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
       {/* Hero Section */}
       <section className="bg-circleTel-navy text-white relative overflow-hidden">
         {/* Background Pattern */}
@@ -248,8 +244,6 @@ export default function FiveGDealsPageClient() {
           </div>
         </section>
       )}
-
-      <Footer />
     </div>
   );
 }
