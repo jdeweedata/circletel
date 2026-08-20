@@ -4,7 +4,7 @@ import FiveGDealsPageClient from './FiveGDealsPageClient';
 export const metadata: Metadata = {
   title: '5G Home Internet Deals | Fast Wireless Packages | CircleTel',
   description:
-    'Promo to 30 Sep: Uncapped 5G 60 + router R579 (MTN R699) and Uncapped 20 Mbps + router R499 (MTN R599). Month-to-month is SIM only.',
+    'Promo to 30 Sep: Uncapped 5G 60 + router R649 (MTN R699) and Uncapped 20 Mbps + router R549 (MTN R599). Month-to-month is SIM only.',
   keywords: [
     '5G deals South Africa',
     '5G home internet',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '5G Home Internet Deals | CircleTel',
     description:
-      'Promo: 5G 60 + router R579 vs MTN R699. 20 Mbps + router R499 vs MTN R599.',
+      'Promo: 5G 60 + router R649 vs MTN R699. 20 Mbps + router R549 vs MTN R599.',
     url: 'https://www.circletel.co.za/5g-deals',
     type: 'website',
     siteName: 'CircleTel',

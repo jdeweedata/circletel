@@ -102,22 +102,22 @@ export default function FiveGDealsPageClient() {
             </Badge>
 
             <h1 className="text-3xl md:text-5xl font-bold mb-4">
-              5G 60 + router at R579
+              5G 60 + router at R649
             </h1>
 
             <p className="text-lg md:text-xl text-gray-300 mb-6 max-w-2xl">
-              MTN shop is R699. Uncapped 20 Mbps + router is R499 (MTN 20 Mbps is R599).
+              MTN shop is R699. Uncapped 20 Mbps + router is R549 (MTN 20 Mbps is R599).
               24-month contract, router included. Month-to-month remains SIM only.
             </p>
 
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
                 <PiLightningBold className="h-5 w-5 text-circleTel-orange" />
-                <span className="text-sm">5G 60 + router R579</span>
+                <span className="text-sm">5G 60 + router R649</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
                 <PiWifiHighBold className="h-5 w-5 text-circleTel-orange" />
-                <span className="text-sm">20 Mbps + router R499</span>
+                <span className="text-sm">20 Mbps + router R549</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
                 <PiCellSignalFullBold className="h-5 w-5 text-circleTel-orange" />
@@ -137,7 +137,7 @@ export default function FiveGDealsPageClient() {
               {loading ? 'Loading...' : `${products.length} 5G Packages Available`}
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              Promo to 30 Sep: 5G 60 + router R579, 20 Mbps + router R499
+              Promo to 30 Sep: 5G 60 + router R649, 20 Mbps + router R549
             </p>
           </div>
 

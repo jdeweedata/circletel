@@ -82,11 +82,19 @@ describe('CircleConnect 5G catalogue vs August 2026 Helios', () => {
     ]);
   });
 
-  it('sells at Helios pass-through incl VAT so the storefront is not below cost', () => {
+  it('sells Helios book SKUs at pass-through and OP 5G 60 at the CTS promo', () => {
+    const opSkus = new Set(OP19627_PROMOS.map((row) => row.sku));
     for (const row of CIRCLECONNECT_5G_CATALOGUE) {
-      expect(row.sellInclVat).toBe(row.costInclVat);
       expect(row.sellInclVat).toBeGreaterThan(400);
-      expect(grossMarginPct(row.sellInclVat, row.costInclVat)).toBe(0);
+      expect(row.sellInclVat).toBeGreaterThanOrEqual(row.costInclVat);
+      if (opSkus.has(row.sku)) {
+        const promo = OP19627_PROMOS.find((item) => item.sku === row.sku);
+        expect(row.sellInclVat).toBe(promo?.promoSellInclVat);
+        expect(grossMarginPct(row.sellInclVat, row.costInclVat)).toBeGreaterThan(0);
+      } else {
+        expect(row.sellInclVat).toBe(row.costInclVat);
+        expect(grossMarginPct(row.sellInclVat, row.costInclVat)).toBe(0);
+      }
     }
   });
 
@@ -101,7 +109,7 @@ describe('CircleConnect 5G catalogue vs August 2026 Helios', () => {
 });
 
 describe('OP19627 public promos vs MTN retail', () => {
-  it('sells at SkyTel cost and undercuts MTN business shop', () => {
+  it('adds a cost-to-serve overlay and still undercuts MTN business shop', () => {
     expect(
       OP19627_PROMOS.map((row) => [
         row.sku,
@@ -112,15 +120,19 @@ describe('OP19627 public promos vs MTN retail', () => {
         grossMarginPct(row.promoSellInclVat, row.costInclVat),
       ])
     ).toEqual([
-      ['CC-OP-UNC-20', 'EBUOP:19627000', 499, 499, 599, 0],
-      ['CC-5G-CON-060', 'EBUOP:19627001', 579, 579, 699, 0],
+      ['CC-OP-UNC-20', 'EBUOP:19627000', 499, 549, 599, 9.1],
+      ['CC-5G-CON-060', 'EBUOP:19627001', 579, 649, 699, 10.8],
     ]);
   });
 
-  it('saves R100 / R120 vs MTN and stays below the 25% floor if sold at MTN', () => {
+  it('covers support/admin CTS, stays R50 under MTN, and does not hit the 25% floor', () => {
     const [twenty, sixty] = OP19627_PROMOS;
-    expect(twenty.mtnRetailInclVat - twenty.promoSellInclVat).toBe(100);
-    expect(sixty.mtnRetailInclVat - sixty.promoSellInclVat).toBe(120);
+    expect(twenty.promoSellInclVat - twenty.costInclVat).toBe(50);
+    expect(sixty.promoSellInclVat - sixty.costInclVat).toBe(70);
+    expect(twenty.mtnRetailInclVat - twenty.promoSellInclVat).toBe(50);
+    expect(sixty.mtnRetailInclVat - sixty.promoSellInclVat).toBe(50);
+    expect(grossMarginPct(twenty.promoSellInclVat, twenty.costInclVat)).toBeLessThan(25);
+    expect(grossMarginPct(sixty.promoSellInclVat, sixty.costInclVat)).toBeLessThan(25);
     expect(grossMarginPct(twenty.mtnRetailInclVat, twenty.costInclVat)).toBe(16.7);
     expect(grossMarginPct(sixty.mtnRetailInclVat, sixty.costInclVat)).toBe(17.2);
   });

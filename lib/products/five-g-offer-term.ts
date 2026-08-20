@@ -2,8 +2,8 @@
  * CircleConnect 5G storefront term labels and August 2026 Helios catalogue numbers.
  *
  * Public cards must show 24-month + router vs month-to-month SIM only.
- * Prices are VAT-inclusive Helios pass-through (commission_only). Product
- * gross margin is 0% — CircleTel earns dealer commission, not markup.
+ * Helios book SKUs are VAT-inclusive pass-through. OP19627 public promos add a
+ * cost-to-serve overlay (support + admin) and still undercut MTN shop.
  */
 
 export type FiveGOfferTermKind = 'contract_router' | 'mtm_sim' | 'unknown';
@@ -43,14 +43,18 @@ export interface Op19627Promo {
   ends: string;
 }
 
-/** CircleTel-only OP19627 promos. Sell at SkyTel cost; strike MTN business shop. Ends 30 Sep 2026. */
+/**
+ * CircleTel-only OP19627 promos. Ends 30 Sep 2026.
+ * Sell = SkyTel cost + CTS overlay (R50 / R70), still R50 under MTN shop.
+ * Combined take stays below the 25% floor — MD promo exception vs pass-through.
+ */
 export const OP19627_PROMOS: Op19627Promo[] = [
   {
     sku: 'CC-OP-UNC-20',
     dealId: 'EBUOP:19627000',
     kind: 'contract_router',
     costInclVat: 499,
-    promoSellInclVat: 499,
+    promoSellInclVat: 549,
     mtnRetailInclVat: 599,
     ends: '2026-09-30',
   },
@@ -59,7 +63,7 @@ export const OP19627_PROMOS: Op19627Promo[] = [
     dealId: 'EBUOP:19627001',
     kind: 'contract_router',
     costInclVat: 579,
-    promoSellInclVat: 579,
+    promoSellInclVat: 649,
     mtnRetailInclVat: 699,
     ends: '2026-09-30',
   },
@@ -93,7 +97,7 @@ export const CIRCLECONNECT_5G_CATALOGUE: CircleConnect5GCatalogueRow[] = [
     dealId: 'EBUOP:19627001',
     kind: 'contract_router',
     costInclVat: 579,
-    sellInclVat: 579,
+    sellInclVat: 649,
   },
   {
     sku: 'CC-5G-M2M-060',
