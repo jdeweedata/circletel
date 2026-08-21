@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { PiPlayBold, PiQueueBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,6 +27,20 @@ import type { CycleMatchWorkbench } from '@/lib/billing/cycle-match/load-workben
 
 type TabId = 'all' | 'matched_3' | 'matched_2' | 'unmatched' | 'resolved_today';
 
+const TAB_IDS: TabId[] = ['all', 'matched_3', 'matched_2', 'unmatched', 'resolved_today'];
+
+const LEAK_LABEL: Record<string, string> = {
+  any: 'Open leakage',
+  never_invoiced: 'Live but never invoiced',
+  under_contract: 'Invoiced below contract',
+  promo_expired: 'Promo expired, still discounted',
+  cancelled_still_billing: 'Cancelled but still billing',
+};
+
+function isYearMonth(value: string | null): value is string {
+  return !!value && /^\d{4}-\d{2}$/.test(value);
+}
+
 function monthOptions(): string[] {
   const out: string[] = [];
   const now = new Date(
@@ -47,8 +62,10 @@ function monthLabel(ym: string): string {
 }
 
 export default function ReconciliationWorkbenchPage() {
+  const searchParams = useSearchParams();
   const [month, setMonth] = useState(monthOptions()[0]);
   const [tab, setTab] = useState<TabId>('all');
+  const [leakFilter, setLeakFilter] = useState<string | null>(null);
   const [data, setData] = useState<CycleMatchWorkbench | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +88,17 @@ export default function ReconciliationWorkbenchPage() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    const monthParam = searchParams.get('month');
+    if (isYearMonth(monthParam)) setMonth(monthParam);
+    const leakParam = searchParams.get('leak');
+    setLeakFilter(leakParam);
+    const tabParam = searchParams.get('tab');
+    if (tabParam && TAB_IDS.includes(tabParam as TabId)) {
+      setTab(tabParam as TabId);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     void fetchData(month);
@@ -97,12 +125,16 @@ export default function ReconciliationWorkbenchPage() {
 
   const rows = useMemo(() => {
     if (!data) return [];
+    if (leakFilter && leakFilter !== 'all') {
+      if (leakFilter === 'any') return data.worklist.filter((r) => r.leakType);
+      return data.worklist.filter((r) => r.leakType === leakFilter);
+    }
     if (tab === 'all') return data.worklist;
     if (tab === 'resolved_today') {
       return data.worklist.filter((r) => r.exceptionId && data.tabs.resolved_today);
     }
     return data.worklist.filter((r) => r.matchState === tab);
-  }, [data, tab]);
+  }, [data, tab, leakFilter]);
 
   if (loading && !data) {
     return (
@@ -222,7 +254,10 @@ export default function ReconciliationWorkbenchPage() {
               type="button"
               role="tab"
               aria-selected={active}
-              onClick={() => setTab(t.id)}
+              onClick={() => {
+                setLeakFilter(null);
+                setTab(t.id);
+              }}
               className={
                 active
                   ? 'rounded-lg bg-circleTel-orange px-3 py-1.5 text-xs font-semibold text-white'
@@ -235,7 +270,14 @@ export default function ReconciliationWorkbenchPage() {
         })}
       </div>
 
-      <MatchWorklist rows={rows} title="Exceptions worklist" />
+      <MatchWorklist
+        rows={rows}
+        title={
+          leakFilter && LEAK_LABEL[leakFilter]
+            ? LEAK_LABEL[leakFilter]
+            : 'Exceptions worklist'
+        }
+      />
     </AdminPage>
   );
 }

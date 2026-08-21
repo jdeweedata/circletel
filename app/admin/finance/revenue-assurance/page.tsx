@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { PiDownloadSimpleBold, PiPlayBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import {
@@ -42,6 +43,11 @@ function monthLabel(ym: string): string {
     month: 'short',
     year: 'numeric',
   });
+}
+
+function reconHref(month: string, extra?: Record<string, string>): string {
+  const params = new URLSearchParams({ month, ...extra });
+  return `/admin/finance/reconciliation?${params.toString()}`;
 }
 
 const LEAK_CARDS: Array<{
@@ -244,35 +250,38 @@ export default function RevenueAssurancePage() {
           label="Active services on network"
           value={data.kpis.activeServices}
           subtitle={`${formatZar(data.kpis.contractedValue)} contracted value`}
+          href={reconHref(month)}
         />
         <StatCard
           label="Billed and collected"
           value={`${Number(data.kpis.billedAndCollectedPct).toFixed(1)}%`}
           subtitle={`${data.kpis.billedCount} services`}
+          href={reconHref(month, { tab: 'matched_3' })}
         />
         <StatCard
           label="Leakage this cycle"
           value={formatZar(data.kpis.leakage)}
           subtitle={`${data.kpis.leakServiceCount} services affected`}
+          href={reconHref(month, { leak: 'any' })}
         />
         <StatCard
           label="Recovered year to date"
           value={formatZar(data.kpis.recoveredYtd)}
           subtitle={`${data.kpis.recoveredCount} services returned to billing`}
+          href={reconHref(month, { tab: 'resolved_today' })}
         />
       </div>
 
-      <NetworkToCashFunnel funnel={data.funnel} />
+      <NetworkToCashFunnel funnel={data.funnel} month={month} />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {LEAK_CARDS.map((card) => {
           const leak = data.funnel.leaks[card.type];
           return (
-            <button
+            <Link
               key={card.type}
-              type="button"
-              onClick={() => setLeakFilter(card.type)}
-              className="rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-circleTel-orange"
+              href={reconHref(month, { leak: card.type })}
+              className="rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-circleTel-orange hover:shadow-sm"
             >
               <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-800">
                 <SourceDot tone={card.tone} />
@@ -282,7 +291,7 @@ export default function RevenueAssurancePage() {
               <p className="text-xs text-slate-500">
                 {leak.count} {card.hint}
               </p>
-            </button>
+            </Link>
           );
         })}
       </div>
