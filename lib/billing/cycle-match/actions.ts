@@ -1,10 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { billingEngine } from '@/lib/billing/engine';
 import { MonthlyInvoiceGenerator } from '@/lib/billing/monthly-invoice-generator';
-import {
-  formatInvoiceNumber,
-  nextInvoiceSequence,
-} from '@/lib/billing/invoice-amounts';
 import { roundMoney } from '@/lib/billing/invoice-vat-contract';
 import { whatsAppService } from '@/lib/integrations/whatsapp/whatsapp-service';
 import { billingLogger } from '@/lib/logging';
@@ -93,59 +89,35 @@ async function raiseDebitNote(
     .single();
   if (!service) throw new Error('Service not found');
 
-  const year = new Date().getFullYear();
-  const { data: yearInvoices } = await supabase
-    .from('customer_invoices')
-    .select('invoice_number')
-    .like('invoice_number', `INV-${year}-%`);
-  const invoiceNumber = formatInvoiceNumber(
-    year,
-    nextInvoiceSequence(
-      (yearInvoices || []).map((r) => r.invoice_number as string),
-      year
-    )
-  );
-
   const totalAmount = roundMoney(Math.abs(amountIncl));
-  const subtotal = roundMoney(totalAmount / 1.15);
-  const taxAmount = roundMoney(totalAmount - subtotal);
   const today = new Date().toISOString().slice(0, 10);
 
-  const { data: invoice, error } = await supabase
-    .from('customer_invoices')
-    .insert({
-      invoice_number: invoiceNumber,
+  const invoice = (await billingEngine.generateInvoice(
+    {
       customer_id: service.customer_id,
       service_id: service.id,
-      invoice_date: today,
-      due_date: today,
-      period_start: today.slice(0, 8) + '01',
-      period_end: today,
-      subtotal,
-      vat_rate: 15,
-      tax_amount: taxAmount,
-      total_amount: totalAmount,
-      amount_due: totalAmount,
-      amount_paid: 0,
       invoice_type: 'adjustment',
-      status: 'sent',
-      notes: originalInvoiceId
-        ? `Cycle-match debit note against ${originalInvoiceId}`
-        : 'Cycle-match catch-up debit note',
       line_items: [
         {
           description: `Contract catch-up — ${service.package_name}`,
           quantity: 1,
-          unit_price: subtotal,
-          amount: subtotal,
+          unit_price: totalAmount,
+          amount: totalAmount,
           type: 'adjustment',
         },
       ],
-    })
-    .select('invoice_number')
-    .single();
+      period_start: `${today.slice(0, 8)}01`,
+      period_end: today,
+      due_days: 0,
+      notes: originalInvoiceId
+        ? `Cycle-match debit note against ${originalInvoiceId}`
+        : 'Cycle-match catch-up debit note',
+      auto_send: true,
+    },
+    { source: 'admin', reason: 'cycle-match debit note' }
+  )) as { invoice_number?: string } | null;
 
-  if (error || !invoice) throw new Error(error?.message || 'Failed to create debit note');
+  if (!invoice?.invoice_number) throw new Error('Failed to create debit note');
   return invoice.invoice_number;
 }
 
