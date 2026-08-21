@@ -11,6 +11,11 @@ export const HUAWEI_H155_386 = {
   model: 'Huawei H155-386 5G CPE',
 } as const;
 
+export const CIRCLETEL_NANO_SIM = {
+  image: '/images/hardware/sim/circletel-nano-sim.png',
+  alt: 'CircleTel 5G nano SIM',
+} as const;
+
 export const FIVE_G_FEATURED_SKUS = ['CC-5G-CON-060', 'CC-OP-UNC-20'] as const;
 
 export const FIVE_G_PROMO_PAGES = {
