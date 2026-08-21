@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { groupCoveragePackagesByTerm } from '@/lib/products/coverage-package-inclusions';
 import {
   OP19627_PROMOS,
+  getFiveGCardDataCap,
+  getFiveGOfferTerm,
   type FiveGOfferMetadata,
 } from '@/lib/products/five-g-offer-term';
 
@@ -14,6 +16,11 @@ export const HUAWEI_H155_386 = {
 export const CIRCLETEL_NANO_SIM = {
   image: '/images/hardware/sim/circletel-nano-sim.png',
   alt: 'CircleTel 5G nano SIM',
+} as const;
+
+export const FIVE_G_HERO = {
+  image: '/images/hardware/cpe/huawei-h155-386-desk.png',
+  alt: 'Huawei H155-386 5G router on a home desk',
 } as const;
 
 export const FIVE_G_FEATURED_SKUS = ['CC-5G-CON-060', 'CC-OP-UNC-20'] as const;
@@ -64,6 +71,43 @@ export interface FiveGPriceSource {
 function toNumber(value: number | string | null | undefined): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+export function getFiveGListingTitle(
+  product: Pick<FiveGDealPackage, 'sku' | 'name' | 'speed_down'>,
+  variant: 'featured' | 'compact'
+): string {
+  if (variant === 'featured') {
+    if (product.sku === 'CC-5G-CON-060') return '5G 60 + Huawei CPE';
+    if (product.sku === 'CC-OP-UNC-20') return 'Uncapped 20 Mbps + Huawei CPE';
+  }
+
+  const raw = product.name.replace(/^CircleConnect\s+/i, '').replace(/\s+SIM Only$/i, '').trim();
+  if (/best effort/i.test(raw)) return 'Best Effort';
+  if (/fwa/i.test(raw)) {
+    const gb = raw.match(/(\d+)\s*GB/i);
+    return gb ? `FWA ${gb[1]}GB` : 'FWA';
+  }
+  if (product.speed_down && product.speed_down > 0) return `${product.speed_down} Mbps`;
+  return raw;
+}
+
+export function getFiveGSpecLabel(product: FiveGDealPackage): string {
+  const cap = getFiveGCardDataCap(product.metadata);
+  if (cap.unit === 'GB') return `${cap.displayData}GB`;
+  const fup = product.metadata?.fup_limit_gb;
+  if (fup && fup > 0) {
+    const label = fup >= 1000 ? `${(fup / 1000).toFixed(1).replace(/\.0$/, '')}TB` : `${fup}GB`;
+    return `FUP ${label}`;
+  }
+  return 'Uncapped';
+}
+
+export function getFiveGContractRouterCards(packages: FiveGDealPackage[]): FiveGDealPackage[] {
+  return packages
+    .filter((row) => getFiveGOfferTerm(row.metadata).kind === 'contract_router')
+    .filter((row) => row.sku !== 'CC-OP-UNC-20')
+    .sort((a, b) => (a.speed_down || 0) - (b.speed_down || 0) || getFiveGSellPrice(a) - getFiveGSellPrice(b));
 }
 
 export function formatFiveGPrice(amount: number): string {

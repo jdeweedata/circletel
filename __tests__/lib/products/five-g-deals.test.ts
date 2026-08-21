@@ -1,7 +1,9 @@
 import {
   FIVE_G_PROMO_PAGES,
   HUAWEI_H155_386,
+  getFiveGContractRouterCards,
   getFiveGListPrice,
+  getFiveGListingTitle,
   getFiveGPromoPage,
   getFiveGSellPrice,
   isFiveGPromoSlug,
@@ -91,5 +93,38 @@ describe('five-g listing prices and grouping', () => {
     expect(split.featured.map((row) => row.sku)).toEqual(['CC-5G-CON-060', 'CC-OP-UNC-20']);
     expect(split.contractRouter.map((row) => row.sku)).toEqual(['CC-5G-CON-035']);
     expect(split.simOnly.map((row) => row.sku)).toEqual(['CC-5G-M2M-035']);
+  });
+
+  it('shortens listing titles and keeps 5G 60 in the 24-month row', () => {
+    expect(
+      getFiveGListingTitle(
+        { sku: 'CC-5G-CON-060', name: 'CircleConnect 5G 60 Mbps', speed_down: 60 },
+        'featured'
+      )
+    ).toBe('5G 60 + Huawei CPE');
+    expect(
+      getFiveGListingTitle(
+        { sku: 'CC-5G-CON-035', name: 'CircleConnect 5G 35 Mbps', speed_down: 35 },
+        'compact'
+      )
+    ).toBe('35 Mbps');
+    expect(
+      getFiveGListingTitle(
+        { sku: 'CC-5G-M2M-FWA', name: 'CircleConnect 5G FWA 500 GB', speed_down: 0 },
+        'compact'
+      )
+    ).toBe('FWA 500GB');
+
+    const cards = getFiveGContractRouterCards([
+      pkg({ sku: 'CC-5G-CON-035', name: 'CircleConnect 5G 35 Mbps', speed_down: 35, price: 489 }),
+      pkg({
+        sku: 'CC-OP-UNC-20',
+        name: 'CircleConnect Uncapped 20 Mbps',
+        speed_down: 20,
+        price: 549,
+      }),
+      pkg({ sku: 'CC-5G-CON-060', name: 'CircleConnect 5G 60 Mbps', speed_down: 60, price: 649 }),
+    ]);
+    expect(cards.map((row) => row.sku)).toEqual(['CC-5G-CON-035', 'CC-5G-CON-060']);
   });
 });
