@@ -1,6 +1,7 @@
 import { ShopCta } from '@/components/home/shop/ShopCta';
 import { getCoveragePromoBadge } from '@/lib/products/coverage-package-inclusions';
 import {
+  CIRCLETEL_NANO_SIM,
   HUAWEI_H155_386,
   formatFiveGPrice,
   getFiveGListPrice,
@@ -27,6 +28,7 @@ export function FiveGDealCard({ product, cta }: FiveGDealCardProps) {
       : undefined;
   const badge = getCoveragePromoBadge(product.sku, promoPrice);
   const showCpe = term.kind === 'contract_router';
+  const showSim = term.kind === 'mtm_sim';
   const href =
     cta === 'view-deal' && product.slug ? `/5g-deals/${product.slug}` : '/coverage';
   const ctaLabel = cta === 'view-deal' ? 'View deal' : 'Check coverage';
@@ -38,6 +40,14 @@ export function FiveGDealCard({ product, cta }: FiveGDealCardProps) {
           <img
             src={HUAWEI_H155_386.image}
             alt={HUAWEI_H155_386.alt}
+            width={640}
+            height={480}
+            className="h-full w-full object-contain p-6"
+          />
+        ) : showSim ? (
+          <img
+            src={CIRCLETEL_NANO_SIM.image}
+            alt={CIRCLETEL_NANO_SIM.alt}
             width={640}
             height={480}
             className="h-full w-full object-contain p-6"

@@ -40,6 +40,8 @@ describe('FiveGDealsListing', () => {
     expect(serialized).toContain('R649');
     expect(serialized).toContain('R549');
     expect(serialized).toContain('Huawei H155-386');
+    expect(serialized).toContain('/images/hardware/sim/circletel-nano-sim.png');
+    expect(serialized).toContain('CircleTel 5G nano SIM');
     expect(serialized).toContain('/5g-deals/circleconnect-5g-60-mbps');
     expect(serialized).toContain('/5g-deals/circleconnect-uncapped-20-mbps');
     expect(serialized).toContain('View deal');
