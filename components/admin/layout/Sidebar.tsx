@@ -163,6 +163,11 @@ function CollapsedFlyout({
             >
               <child.icon className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{child.name}</span>
+              {child.badge && (
+                <span className="ml-auto rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+                  {child.badge}
+                </span>
+              )}
             </Link>
           ))}
         </div>
@@ -391,7 +396,12 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                             style={pmNavStyle(isActiveLink(child.href))}
                           >
                             <child.icon className="mr-2 h-4 w-4" />
-                            {child.name}
+                            <span className="flex-1">{child.name}</span>
+                            {child.badge && (
+                              <span className="rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+                                {child.badge}
+                              </span>
+                            )}
                           </Link>
                         ))}
                       </div>
