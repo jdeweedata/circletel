@@ -62,7 +62,7 @@ function toNumber(value: number | string | null | undefined): number {
 }
 
 export function formatFiveGPrice(amount: number): string {
-  return `R${Math.round(amount)}`;
+  return `R${Math.round(amount).toLocaleString('en-US')}`;
 }
 
 export function getFiveGListPrice(product: FiveGPriceSource): number {
