@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
-import FiveGDealsPageClient from './FiveGDealsPageClient';
+import { FiveGDealsListing } from '@/components/products/five-g/FiveGDealsListing';
+import { getFiveGDealsPackages } from '@/lib/products/five-g-deals';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: '5G Home Internet Deals | Fast Wireless Packages | CircleTel',
@@ -28,6 +31,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function FiveGDealsPage() {
-  return <FiveGDealsPageClient />;
+export default async function FiveGDealsPage() {
+  const packages = await getFiveGDealsPackages();
+  return <FiveGDealsListing packages={packages} />;
 }
