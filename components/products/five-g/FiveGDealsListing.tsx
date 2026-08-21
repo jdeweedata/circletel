@@ -47,15 +47,14 @@ export function FiveGDealsListing({ packages }: FiveGDealsListingProps) {
               Promo to 30 Sep
             </p>
             <h1 className="mt-3 font-heading text-4xl font-extrabold leading-[1.05] tracking-tight text-circleTel-navy sm:text-5xl">
-              R50 under MTN shop, router included
+              Home 5G with a router, from R549 a month
             </h1>
             <p className="mt-5 font-body text-lg leading-8 text-circleTel-grey600">
-              Uncapped 5G 60 plus a Huawei router for R649/month until 30 Sep. Same plan at
-              MTN shop is R699. Ts&Cs apply.
+              5G 60 plus a Huawei router is R649/month until 30 Sep, R50 less than MTN shop.
+              24-month contract. Ts&Cs apply.
             </p>
             <p className="mt-3 font-body text-base leading-7 text-circleTel-grey600">
-              Uncapped 20 Mbps plus a router is R549/month (MTN shop R599).
-              Month-to-month stays SIM only.
+              Uncapped 20 Mbps with a router is R549/month. Month-to-month plans do not include a router.
             </p>
             <ul className="mt-6 space-y-2 font-body text-sm text-circleTel-navy">
               <li>24-month plans include the router</li>
@@ -79,7 +78,7 @@ export function FiveGDealsListing({ packages }: FiveGDealsListingProps) {
       </section>
 
       <DealGrid
-        title="R50 under MTN shop"
+        title="Until 30 Sep"
         description="Uncapped 5G 60 at R649/month and Uncapped 20 Mbps at R549/month. Router included. 24-month contract. Ts&Cs apply."
         packages={featured}
         cta="view-deal"

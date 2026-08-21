@@ -32,9 +32,10 @@ describe('FiveGDealsListing', () => {
 
     const serialized = JSON.stringify(renderer!.toJSON());
 
-    expect(serialized).toContain('R50 under MTN shop, router included');
+    expect(serialized).toContain('Home 5G with a router, from R549 a month');
     expect(serialized).toContain('Ts&Cs apply');
     expect(serialized).not.toContain('OP19627');
+    expect(serialized).not.toContain('R50 under MTN shop, router included');
     expect(serialized).toContain('R649');
     expect(serialized).toContain('R549');
     expect(serialized).toContain('MTN shop R699');
