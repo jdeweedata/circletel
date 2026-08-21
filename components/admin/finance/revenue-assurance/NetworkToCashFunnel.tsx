@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { SourceDot, type SourceDotTone } from '@/components/admin/finance/cycle-match/SourceDot';
 import { formatZar } from '@/components/admin/finance/cycle-match/money';
 import type { CycleFunnel } from '@/lib/billing/cycle-match/types';
@@ -8,14 +9,41 @@ const STAGES: Array<{
   key: keyof CycleFunnel['stages'];
   label: string;
   tone: SourceDotTone;
+  href: (month: string) => string;
 }> = [
-  { key: 'activeOnNetwork', label: 'Active on the network', tone: 'platform' },
-  { key: 'contracted', label: 'Contracted in the platform', tone: 'platform' },
-  { key: 'invoiced', label: 'Invoiced in Zoho Books', tone: 'zoho' },
-  { key: 'collected', label: 'Collected via Netcash', tone: 'netcash' },
+  {
+    key: 'activeOnNetwork',
+    label: 'Active on the network',
+    tone: 'platform',
+    href: (month) => `/admin/finance/reconciliation?month=${month}`,
+  },
+  {
+    key: 'contracted',
+    label: 'Contracted in the platform',
+    tone: 'platform',
+    href: (month) => `/admin/finance/reconciliation?month=${month}`,
+  },
+  {
+    key: 'invoiced',
+    label: 'Invoiced in Zoho Books',
+    tone: 'zoho',
+    href: () => '/admin/billing/invoices',
+  },
+  {
+    key: 'collected',
+    label: 'Collected via Netcash',
+    tone: 'netcash',
+    href: () => '/admin/payments/transactions',
+  },
 ];
 
-export function NetworkToCashFunnel({ funnel }: { funnel: CycleFunnel }) {
+export function NetworkToCashFunnel({
+  funnel,
+  month,
+}: {
+  funnel: CycleFunnel;
+  month: string;
+}) {
   const max = Math.max(
     ...STAGES.map((s) => funnel.stages[s.key].count),
     1
@@ -29,7 +57,11 @@ export function NetworkToCashFunnel({ funnel }: { funnel: CycleFunnel }) {
           const data = funnel.stages[stage.key];
           const width = `${Math.max(8, (data.count / max) * 100)}%`;
           return (
-            <div key={stage.key}>
+            <Link
+              key={stage.key}
+              href={stage.href(month)}
+              className="block rounded-lg p-1 -mx-1 hover:bg-slate-50"
+            >
               <div className="mb-1 flex items-center justify-between text-sm">
                 <span className="inline-flex items-center gap-2 font-medium text-slate-800">
                   <SourceDot tone={stage.tone} />
@@ -56,7 +88,7 @@ export function NetworkToCashFunnel({ funnel }: { funnel: CycleFunnel }) {
                   style={{ width }}
                 />
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
