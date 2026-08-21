@@ -4,7 +4,22 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PiMapPin, PiX } from 'react-icons/pi';
-import { useIsMobile } from '@/hooks/use-mobile';
+
+const COMPACT_BREAKPOINT = 1024;
+
+function useIsCompactViewport() {
+  const [isCompact, setIsCompact] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${COMPACT_BREAKPOINT - 1}px)`);
+    const onChange = () => setIsCompact(window.innerWidth < COMPACT_BREAKPOINT);
+    onChange();
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+
+  return isCompact;
+}
 
 // Pages where sticky CTA should NOT appear
 const EXCLUDED_PATHS = [
@@ -20,7 +35,7 @@ const EXCLUDED_PATHS = [
 export function StickyMobileCTA() {
   const [isDismissed, setIsDismissed] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const isMobile = useIsMobile();
+  const isCompact = useIsCompactViewport();
   const pathname = usePathname();
 
   // Check if we should show on this page
@@ -28,7 +43,7 @@ export function StickyMobileCTA() {
 
   // Show after slight scroll to avoid immediate popup
   useEffect(() => {
-    if (!isMobile || !shouldShowOnPage) {
+    if (!isCompact || !shouldShowOnPage) {
       setIsVisible(false);
       return;
     }
@@ -43,10 +58,10 @@ export function StickyMobileCTA() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMobile, shouldShowOnPage]);
+  }, [isCompact, shouldShowOnPage]);
 
   // Don't render if not mobile, dismissed, or excluded page
-  if (!isMobile || isDismissed || !shouldShowOnPage || !isVisible) {
+  if (!isCompact || isDismissed || !shouldShowOnPage || !isVisible) {
     return null;
   }
 
