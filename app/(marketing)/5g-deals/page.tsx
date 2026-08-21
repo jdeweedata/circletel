@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Home 5G with a router from R549/month | CircleTel',
   description:
-    'Uncapped home 5G with a router from R549/month. 5G 60 is R649 until 30 Sep, R50 less than MTN shop. Check coverage. Ts&Cs apply.',
+    'Uncapped home 5G with a router from R549/month. 5G 60 is R649 until 30 Sep. Check coverage. Ts&Cs apply.',
   keywords: [
     '5G deals South Africa',
     '5G home internet',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Home 5G with a router from R549/month | CircleTel',
     description:
-      'Uncapped home 5G with a router from R549/month. 5G 60 is R649 until 30 Sep, R50 less than MTN shop. Ts&Cs apply.',
+      'Uncapped home 5G with a router from R549/month. 5G 60 is R649 until 30 Sep. Ts&Cs apply.',
     url: 'https://www.circletel.co.za/5g-deals',
     type: 'website',
     siteName: 'CircleTel',

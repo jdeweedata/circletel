@@ -37,7 +37,7 @@ describe('FiveGProductPage', () => {
     expect(serialized).toContain('CircleConnect 5G 60 Mbps');
     expect(serialized).toContain('R649');
     expect(serialized).toContain('R699');
-    expect(serialized).toContain('MTN shop R699');
+    expect(serialized).not.toContain('MTN shop');
     expect(serialized).toContain('Check coverage');
     expect(serialized).toContain('Huawei H155-386');
     expect(serialized).toContain('/5g-deals');
@@ -60,7 +60,7 @@ describe('FiveGProductPage', () => {
 
     expect(serialized).toContain('CircleConnect Uncapped 20 Mbps');
     expect(serialized).toContain('R549');
-    expect(serialized).toContain('MTN shop R599');
+    expect(serialized).not.toContain('MTN shop');
     expect(serialized).toContain('Check coverage');
     expect(serialized).toContain('Huawei H155-386');
   });
