@@ -586,6 +586,33 @@ export type MonthlySweepCancelledEvent = {
   };
 };
 
+export type BillingCycleMatchRequestedEvent = {
+  name: 'billing/cycle-match.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    yearMonth?: string;
+    admin_user_id?: string;
+  };
+};
+
+export type BillingCycleMatchCompletedEvent = {
+  name: 'billing/cycle-match.completed';
+  data: {
+    run_id: string;
+    yearMonth: string;
+    services_checked: number;
+    exception_count: number;
+  };
+};
+
+export type BillingCycleMatchFailedEvent = {
+  name: 'billing/cycle-match.failed';
+  data: {
+    yearMonth: string;
+    error: string;
+  };
+};
+
 // =============================================================================
 // SUPPLIER SYNC EVENTS
 // =============================================================================
@@ -891,6 +918,9 @@ export type InngestEvents = {
   'reconciliation/monthly-sweep.requested': MonthlySweepRequestedEvent;
   'reconciliation/monthly-sweep.completed': MonthlySweepCompletedEvent;
   'reconciliation/monthly-sweep.cancelled': MonthlySweepCancelledEvent;
+  'billing/cycle-match.requested': BillingCycleMatchRequestedEvent;
+  'billing/cycle-match.completed': BillingCycleMatchCompletedEvent;
+  'billing/cycle-match.failed': BillingCycleMatchFailedEvent;
   // Zone demographic enrichment events
   'zone/demographics.enrichment.requested': ZoneDemographicEnrichmentRequestedEvent;
   'zone/demographics.enrichment.completed': ZoneDemographicEnrichmentCompletedEvent;

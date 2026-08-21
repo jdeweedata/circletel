@@ -67,6 +67,7 @@ export interface NavChild {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
 }
 
 export interface NavItemWithHref {
@@ -387,7 +388,7 @@ export const featureSections: NavSection[] = [
         icon: PiCreditCardBold,
         children: [
           { name: 'Dashboard', href: '/admin/billing', icon: PiSquaresFourBold },
-          { name: 'Three-way recon', href: '/admin/billing/recon', icon: PiArrowsClockwiseBold },
+          { name: 'Cash day board', href: '/admin/billing/recon', icon: PiArrowsClockwiseBold },
           { name: 'Customers', href: '/admin/billing/customers', icon: PiUserCheckBold },
           { name: 'Invoices', href: '/admin/billing/invoices', icon: PiReceiptBold },
           { name: 'Outstanding', href: '/admin/finance/outstanding', icon: PiWarningCircleBold },
@@ -401,6 +402,7 @@ export const featureSections: NavSection[] = [
           { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: PiPulseBold },
           { name: 'Transactions', href: '/admin/payments/transactions', icon: PiReceiptBold },
           { name: 'Reconciliation', href: '/admin/finance/reconciliation', icon: PiArrowsClockwiseBold },
+          { name: 'Revenue Assurance', href: '/admin/finance/revenue-assurance', icon: PiShieldCheckBold, badge: 'NEW' },
           { name: 'Statement audit', href: '/admin/finance/statement-audit', icon: PiClipboardTextBold },
           { name: 'Webhooks', href: '/admin/payments/webhooks', icon: PiLightningBold },
           { name: 'Settings', href: '/admin/payments/settings', icon: PiGearBold },

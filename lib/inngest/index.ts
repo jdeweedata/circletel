@@ -111,6 +111,10 @@ export {
 } from './functions/reconciliation-monthly-sweep';
 
 export {
+  billingCycleMatchFunction,
+} from './functions/billing-cycle-match';
+
+export {
   marketingDfaLeadMatchFunction,
   marketingDemandThresholdFunction,
 } from './functions/marketing-triggers';
@@ -280,6 +284,10 @@ import {
 } from './functions/reconciliation-monthly-sweep';
 
 import {
+  billingCycleMatchFunction,
+} from './functions/billing-cycle-match';
+
+import {
   marketingDfaLeadMatchFunction,
   marketingDemandThresholdFunction,
 } from './functions/marketing-triggers';
@@ -408,6 +416,8 @@ export const functions = [
   eftReconciliationCompletedFunction,
   // Monthly reconciliation sweep (3rd of month, catches stragglers)
   reconciliationMonthlySweepFunction,
+  // Service × month three-way match (platform / Zoho / Netcash)
+  billingCycleMatchFunction,
   // Marketing campaign triggers
   marketingDfaLeadMatchFunction,
   marketingDemandThresholdFunction,
