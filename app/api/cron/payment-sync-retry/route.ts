@@ -118,12 +118,16 @@ export async function GET(request: NextRequest) {
 
       const { error: logError } = await supabase.from('cron_execution_log').insert({
         job_name: 'payment-sync-retry',
-        status: result.failed > 0 ? 'partial' : (result.processed === 0 ? 'skipped' : 'success'),
-        execution_time_ms: duration,
-        result_summary: {
+        status: result.failed > 0 ? 'partial' : 'completed',
+        execution_start: new Date(startTime).toISOString(),
+        execution_end: new Date().toISOString(),
+        records_processed: result.processed,
+        records_failed: result.failed,
+        execution_details: {
           processed: result.processed,
           succeeded: result.succeeded,
           failed: result.failed,
+          duration_ms: duration,
           beforeStats,
           afterStats,
         },
@@ -167,16 +171,26 @@ export async function GET(request: NextRequest) {
     // Try to log fatal error to database
     try {
       const supabase = await createClient();
-      await supabase.from('cron_execution_log').insert({
-        job_name: 'payment-sync-retry',
-        status: 'failed',
-        execution_time_ms: duration,
-        error_message: error.message,
-        result_summary: {
-          error: error.message,
-          stack: error.stack,
-        },
-      });
+      const { error: logInsertError } = await supabase
+        .from('cron_execution_log')
+        .insert({
+          job_name: 'payment-sync-retry',
+          status: 'failed',
+          execution_start: new Date(startTime).toISOString(),
+          execution_end: new Date().toISOString(),
+          error_message: error.message,
+          error_details: {
+            error: error.message,
+            stack: error.stack,
+          },
+          execution_details: { duration_ms: duration },
+        });
+
+      if (logInsertError) {
+        cronLogger.error('[Payment Sync Retry] Failed to write cron_execution_log', {
+          error: logInsertError.message,
+        });
+      }
     } catch (logError) {
       cronLogger.error('[Payment Sync Retry] Failed to log fatal error', { error: logError instanceof Error ? logError.message : String(logError) });
     }

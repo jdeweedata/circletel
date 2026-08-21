@@ -107,7 +107,7 @@ async function main() {
   }
 
   const durationMs = Date.now() - start;
-  const finalStatus = statement.success ? 'completed' : 'completed_with_errors';
+  const finalStatus = statement.success ? 'completed' : 'partial';
 
   // Critical: do NOT write duration_seconds (generated column)
   const { error: finErr } = await sb

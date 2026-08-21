@@ -419,7 +419,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
 
   if (itemsToSubmit.length === 0) {
     cronLogger.info('No submittable debit orders after applying collection limits');
-    await logExecution(supabase, result, result.errors.length > 0 ? 'completed_with_errors' : 'completed');
+    await logExecution(supabase, result, result.errors.length > 0 ? 'partial' : 'completed');
     return result;
   }
 
@@ -564,7 +564,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   }
 
   // Log execution
-  await logExecution(supabase, result, result.errors.length > 0 ? 'completed_with_errors' : 'completed');
+  await logExecution(supabase, result, result.errors.length > 0 ? 'partial' : 'completed');
 
   cronLogger.info(`Debit order submission complete: ${result.submitted} submitted, ${result.skipped} skipped, ${result.paynowSent} Pay Now sent`);
 
@@ -739,17 +739,17 @@ async function updateNextBillingDates(
 async function logExecution(
   supabase: Awaited<ReturnType<typeof createClient>>,
   result: SubmissionResult,
-  status: 'completed' | 'completed_with_errors' | 'failed'
+  status: 'completed' | 'partial' | 'failed'
 ) {
   try {
-    await supabase
+    const { error: cronLogError } = await supabase
       .from('cron_execution_log')
       .insert({
         job_name: 'submit-debit-orders',
         status,
-        started_at: new Date().toISOString(),
-        completed_at: new Date().toISOString(),
-        result: {
+        execution_start: new Date().toISOString(),
+        execution_end: new Date().toISOString(),
+        execution_details: {
           date: result.date,
           totalEligible: result.totalEligible,
           submitted: result.submitted,
@@ -760,6 +760,11 @@ async function logExecution(
           errors: result.errors,
         },
       });
+    if (cronLogError) {
+      cronLogger.error('[DebitOrders] Failed to write cron_execution_log', {
+        error: cronLogError.message,
+      });
+    }
   } catch (error) {
     cronLogger.error('Failed to log execution', { error: error instanceof Error ? error.message : String(error) });
   }

@@ -315,7 +315,7 @@ async function processBillingDay(customDate?: Date, dryRun = false): Promise<Pro
   // ============================================================================
 
   const status = result.failed > 0
-    ? (result.successful > 0 ? 'completed_with_errors' : 'failed')
+    ? (result.successful > 0 ? 'partial' : 'failed')
     : 'completed';
 
   await logExecution(supabase, result, status);
@@ -336,17 +336,17 @@ async function processBillingDay(customDate?: Date, dryRun = false): Promise<Pro
 async function logExecution(
   supabase: Awaited<ReturnType<typeof createClient>>,
   result: ProcessingResult,
-  status: 'completed' | 'completed_with_errors' | 'failed'
+  status: 'completed' | 'partial' | 'failed'
 ) {
   try {
-    await supabase
+    const { error: cronLogError } = await supabase
       .from('cron_execution_log')
       .insert({
         job_name: 'process-billing-day',
         status,
-        started_at: new Date().toISOString(),
-        completed_at: new Date().toISOString(),
-        result: {
+        execution_start: new Date().toISOString(),
+        execution_end: new Date().toISOString(),
+        execution_details: {
           date: result.date,
           totalInvoicesDue: result.totalInvoicesDue,
           skippedEmandate: result.skippedEmandate,
@@ -358,6 +358,11 @@ async function logExecution(
           errors: result.errors.slice(0, 10), // Limit error storage
         },
       });
+    if (cronLogError) {
+      cronLogger.error('[BillingDay] Failed to write cron_execution_log', {
+        error: cronLogError.message,
+      });
+    }
   } catch (error) {
     cronLogger.error('Failed to log execution', { error });
   }

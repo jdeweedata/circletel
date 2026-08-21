@@ -73,10 +73,15 @@ export const reconciliationMonthlySweepFunction = inngest.createFunction(
       const supabase = await createClient();
 
       if (eventData?.process_log_id) {
-        await supabase
+        const { error: cronLogError } = await supabase
           .from('cron_execution_log')
-          .update({ status: 'running', started_at: new Date().toISOString() })
+          .update({ status: 'running', execution_start: new Date().toISOString() })
           .eq('id', eventData.process_log_id);
+        if (cronLogError) {
+          cronLogger.error('[MonthlySweep] Failed to write cron_execution_log', {
+            error: cronLogError.message,
+          });
+        }
         return eventData.process_log_id;
       }
 
@@ -85,8 +90,8 @@ export const reconciliationMonthlySweepFunction = inngest.createFunction(
         .insert({
           job_name: 'reconciliation-monthly-sweep',
           status: 'running',
-          started_at: new Date().toISOString(),
-          result: {
+          execution_start: new Date().toISOString(),
+          execution_details: {
             triggered_by: triggeredBy,
             triggered_by_user_id: adminUserId || null,
             target_month: monthLabel,
@@ -125,14 +130,19 @@ export const reconciliationMonthlySweepFunction = inngest.createFunction(
 
       await step.run('finalize-log-failure', async () => {
         const supabase = await createClient();
-        await supabase
+        const { error: cronLogError2 } = await supabase
           .from('cron_execution_log')
           .update({
-            status: 'completed_with_errors',
-            completed_at: new Date().toISOString(),
-            result: { target_month: monthLabel, errors: [errorMsg], duration_ms: Date.now() - startTime },
+            status: 'partial',
+            execution_end: new Date().toISOString(),
+            execution_details: { target_month: monthLabel, errors: [errorMsg], duration_ms: Date.now() - startTime },
           })
           .eq('id', processLogId);
+        if (cronLogError2) {
+          cronLogger.error('[MonthlySweep] Failed to write cron_execution_log', {
+            error: cronLogError2.message,
+          });
+        }
       });
 
       return { success: false, processLogId, target_month: monthLabel, errors: [errorMsg] };
@@ -300,17 +310,17 @@ export const reconciliationMonthlySweepFunction = inngest.createFunction(
     // ── Step 4: Finalize ────────────────────────────────────────────────────
 
     const duration = Date.now() - startTime;
-    const finalStatus = processingResult.errors.length > 0 ? 'completed_with_errors' : 'completed';
+    const finalStatus = processingResult.errors.length > 0 ? 'partial' : 'completed';
 
     await step.run('update-final-log', async () => {
       const supabase = await createClient();
 
-      await supabase
+      const { error: cronLogError3 } = await supabase
         .from('cron_execution_log')
         .update({
           status: finalStatus,
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          execution_details: {
             target_month: monthLabel,
             dry_run: dryRun,
             ...processingResult,
@@ -318,6 +328,11 @@ export const reconciliationMonthlySweepFunction = inngest.createFunction(
           },
         })
         .eq('id', processLogId);
+      if (cronLogError3) {
+        cronLogger.error('[MonthlySweep] Failed to write cron_execution_log', {
+          error: cronLogError3.message,
+        });
+      }
 
       cronLogger.info('[MonthlySweep] Sweep complete', {
         month: monthLabel,
