@@ -584,11 +584,14 @@ export async function GET(request: NextRequest) {
     const failed = results.filter((r) => !r.success).length;
 
     try {
-      await supabase.from('cron_execution_log').insert({
+      const { error: cronLogError } = await supabase.from('cron_execution_log').insert({
         job_name: 'zoho-books-retry',
-        status: failed > 0 ? 'partial' : 'success',
-        execution_time_ms: duration,
-        result_summary: {
+        status: failed > 0 ? 'partial' : 'completed',
+        execution_start: new Date(startTime).toISOString(),
+        execution_end: new Date().toISOString(),
+        records_processed: results.length,
+        records_failed: failed,
+        execution_details: {
           processed: results.length,
           succeeded,
           failed,
@@ -597,6 +600,11 @@ export async function GET(request: NextRequest) {
         },
         error_message: failed > 0 ? `${failed} retries failed` : null,
       });
+      if (cronLogError) {
+        cronLogger.error('[ZohoBooks Retry] Failed to write cron_execution_log', {
+          error: cronLogError.message,
+        });
+      }
     } catch (logError) {
       cronLogger.warn('[ZohoBooks Retry] Failed to log execution', {
         error: logError instanceof Error ? logError.message : String(logError),
@@ -636,12 +644,19 @@ export async function GET(request: NextRequest) {
     // Log fatal error
     try {
       const supabase = await createClient();
-      await supabase.from('cron_execution_log').insert({
+      const { error: cronLogError2 } = await supabase.from('cron_execution_log').insert({
         job_name: 'zoho-books-retry',
         status: 'failed',
-        execution_time_ms: duration,
+        execution_start: new Date(startTime).toISOString(),
+        execution_end: new Date().toISOString(),
         error_message: message,
+        execution_details: { duration_ms: duration },
       });
+      if (cronLogError2) {
+        cronLogger.error('[ZohoBooks Retry] Failed to write cron_execution_log', {
+          error: cronLogError2.message,
+        });
+      }
     } catch {
       // Ignore logging error
     }

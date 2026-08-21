@@ -71,7 +71,7 @@ export const paynowReconciliationFunction = inngest.createFunction(
 
       try {
         const supabase = await createClient();
-        await supabase
+        const { error: cronLogError } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'failed',
@@ -85,6 +85,11 @@ export const paynowReconciliationFunction = inngest.createFunction(
           })
           .eq('id', processLogId)
           .eq('status', 'running');
+        if (cronLogError) {
+          cronLogger.error('[PayNowRecon] Failed to write cron_execution_log', {
+            error: cronLogError.message,
+          });
+        }
       } catch (logError) {
         cronLogger.error('[PayNowRecon] onFailure log update failed', {
           processLogId,
@@ -175,7 +180,7 @@ export const paynowReconciliationFunction = inngest.createFunction(
           job_name: 'paynow-reconciliation',
           status: 'running',
           execution_start: new Date().toISOString(),
-          trigger_source: triggeredBy === 'manual' ? 'manual' : 'cron',
+          trigger_source: triggeredBy === 'manual' ? 'manual' : 'scheduled',
           triggered_by: adminUserId || null,
           execution_details: {
             triggered_by: triggeredBy,
@@ -239,7 +244,7 @@ export const paynowReconciliationFunction = inngest.createFunction(
         const { error: finalizeError } = await supabase
           .from('cron_execution_log')
           .update({
-            status: 'completed_with_errors',
+            status: 'partial',
             execution_end: new Date().toISOString(),
             execution_details: {
               reconciliation_date: dateStr,
@@ -527,7 +532,7 @@ export const paynowReconciliationFunction = inngest.createFunction(
     const finalStatus =
       processingResult.errors.length > 0
         ? processingResult.newly_matched > 0
-          ? 'completed_with_errors'
+          ? 'partial'
           : 'failed'
         : 'completed';
 
@@ -673,7 +678,7 @@ export const paynowReconciliationFailedFunction = inngest.createFunction(
 
       const supabase = await createClient();
 
-      await supabase
+      const { error: cronLogError2 } = await supabase
         .from('cron_execution_log')
         .update({
           status: 'failed',
@@ -685,6 +690,11 @@ export const paynowReconciliationFailedFunction = inngest.createFunction(
           },
         })
         .eq('id', process_log_id);
+      if (cronLogError2) {
+        cronLogger.error('[PayNowRecon] Failed to write cron_execution_log', {
+          error: cronLogError2.message,
+        });
+      }
     });
 
     return { handled: true };

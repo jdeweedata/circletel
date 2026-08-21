@@ -103,20 +103,31 @@ export async function GET(request: NextRequest) {
         summary.invoices.failed +
         summary.payments.failed;
 
-      await supabase.from('cron_execution_log').insert({
-        job_name: 'zoho-books-sync',
-        status: totalFailed > 0 ? 'partial' : 'success',
-        execution_time_ms: duration,
-        result_summary: {
-          customers: summary.customers,
-          invoices: summary.invoices,
-          payments: summary.payments,
-          dryRun,
-        },
-        error_message: totalFailed > 0 ? `${totalFailed} entities failed to sync` : null,
-      });
+      const { error: logInsertError } = await supabase
+        .from('cron_execution_log')
+        .insert({
+          job_name: 'zoho-books-sync',
+          status: totalFailed > 0 ? 'partial' : 'completed',
+          execution_start: new Date(startTime).toISOString(),
+          execution_end: new Date().toISOString(),
+          records_failed: totalFailed,
+          execution_details: {
+            customers: summary.customers,
+            invoices: summary.invoices,
+            payments: summary.payments,
+            dryRun,
+            duration_ms: duration,
+          },
+          error_message: totalFailed > 0 ? `${totalFailed} entities failed to sync` : null,
+        });
 
-      cronLogger.info('[ZohoBooks Sync] ✅ Execution logged to database');
+      if (logInsertError) {
+        cronLogger.warn('[ZohoBooks Sync] Failed to log execution (non-fatal)', {
+          error: logInsertError.message,
+        });
+      } else {
+        cronLogger.info('[ZohoBooks Sync] ✅ Execution logged to database');
+      }
     } catch (logError: unknown) {
       cronLogger.warn('[ZohoBooks Sync] Failed to log execution (non-fatal)', {
         error: logError.message,
@@ -170,16 +181,26 @@ export async function GET(request: NextRequest) {
     // Log fatal error to database
     try {
       const supabase = await createClient();
-      await supabase.from('cron_execution_log').insert({
-        job_name: 'zoho-books-sync',
-        status: 'failed',
-        execution_time_ms: duration,
-        error_message: error.message,
-        result_summary: {
-          error: error.message,
-          isOAuthError,
-        },
-      });
+      const { error: logInsertError } = await supabase
+        .from('cron_execution_log')
+        .insert({
+          job_name: 'zoho-books-sync',
+          status: 'failed',
+          execution_start: new Date(startTime).toISOString(),
+          execution_end: new Date().toISOString(),
+          error_message: error.message,
+          error_details: {
+            error: error.message,
+            isOAuthError,
+          },
+          execution_details: { duration_ms: duration },
+        });
+
+      if (logInsertError) {
+        cronLogger.error('[ZohoBooks Sync] Failed to write cron_execution_log', {
+          error: logInsertError.message,
+        });
+      }
     } catch (logError) {
       cronLogger.error('[ZohoBooks Sync] Failed to log fatal error', {
         error: logError instanceof Error ? logError.message : String(logError),

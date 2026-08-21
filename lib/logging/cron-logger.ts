@@ -18,13 +18,22 @@ export async function withCronLogging<T extends CronResult>(
 
   const supabase = await createClient();
 
-  await supabase.from('cron_execution_log').insert({
-    id: logId,
-    job_name: cronName,
-    status: 'running',
-    trigger_source: triggerSource,
-    environment: process.env.VERCEL_ENV || process.env.NODE_ENV || 'production',
-  });
+  const { error: startLogError } = await supabase
+    .from('cron_execution_log')
+    .insert({
+      id: logId,
+      job_name: cronName,
+      status: 'running',
+      trigger_source: triggerSource,
+      environment: process.env.VERCEL_ENV || process.env.NODE_ENV || 'production',
+    });
+
+  if (startLogError) {
+    cronLogger.error(`[${cronName}] Failed to open cron_execution_log row`, {
+      logId,
+      error: startLogError.message,
+    });
+  }
 
   cronLogger.info(`[${cronName}] Started`, { logId, triggerSource });
 
@@ -32,7 +41,7 @@ export async function withCronLogging<T extends CronResult>(
     const result = await handler(logId);
     const durationMs = Date.now() - startedAt;
 
-    await supabase
+    const { error: finalizeError } = await supabase
       .from('cron_execution_log')
       .update({
         status: (result.records_failed ?? 0) > 0 ? 'partial' : 'completed',
@@ -43,6 +52,13 @@ export async function withCronLogging<T extends CronResult>(
         execution_details: result.execution_details ?? null,
       })
       .eq('id', logId);
+
+    if (finalizeError) {
+      cronLogger.error(`[${cronName}] Failed to finalize cron_execution_log row`, {
+        logId,
+        error: finalizeError.message,
+      });
+    }
 
     cronLogger.info(`[${cronName}] Completed`, {
       logId,
@@ -56,7 +72,7 @@ export async function withCronLogging<T extends CronResult>(
     const durationMs = Date.now() - startedAt;
     const errorMessage = error instanceof Error ? error.message : String(error);
 
-    await supabase
+    const { error: failLogError } = await supabase
       .from('cron_execution_log')
       .update({
         status: 'failed',
@@ -67,6 +83,13 @@ export async function withCronLogging<T extends CronResult>(
         },
       })
       .eq('id', logId);
+
+    if (failLogError) {
+      cronLogger.error(`[${cronName}] Failed to mark cron_execution_log row failed`, {
+        logId,
+        error: failLogError.message,
+      });
+    }
 
     cronLogger.error(`[${cronName}] Failed`, { logId, durationMs, error: errorMessage });
 

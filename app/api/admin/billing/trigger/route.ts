@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
         error: inngestError instanceof Error ? inngestError.message : String(inngestError),
       });
 
-      await supabase
+      const { error: cronLogError } = await supabase
         .from('cron_execution_log')
         .update({
           status: 'failed',
@@ -189,6 +189,12 @@ export async function POST(request: NextRequest) {
           error_message: 'Failed to send Inngest event',
         })
         .eq('id', logUuid);
+
+      if (cronLogError) {
+        apiLogger.error('[Billing Trigger API] Failed to write cron_execution_log', {
+          error: cronLogError.message,
+        });
+      }
 
       return NextResponse.json(
         {

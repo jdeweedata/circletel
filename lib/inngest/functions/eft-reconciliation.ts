@@ -77,7 +77,7 @@ export const eftReconciliationFunction = inngest.createFunction(
           .from('cron_execution_log')
           .update({
             status: 'running',
-            started_at: new Date().toISOString(),
+            execution_start: new Date().toISOString(),
           })
           .eq('id', eventData.process_log_id);
 
@@ -92,8 +92,8 @@ export const eftReconciliationFunction = inngest.createFunction(
         .insert({
           job_name: 'eft-reconciliation',
           status: 'running',
-          started_at: new Date().toISOString(),
-          result: {
+          execution_start: new Date().toISOString(),
+          execution_details: {
             triggered_by: triggeredBy,
             triggered_by_user_id: adminUserId || null,
             reconciliation_date: dateStr,
@@ -132,12 +132,12 @@ export const eftReconciliationFunction = inngest.createFunction(
 
       await step.run('finalize-log-no-deposits', async () => {
         const supabase = await createClient();
-        await supabase
+        const { error: cronLogError } = await supabase
           .from('cron_execution_log')
           .update({
-            status: 'completed_with_errors',
-            completed_at: new Date().toISOString(),
-            result: {
+            status: 'partial',
+            execution_end: new Date().toISOString(),
+            execution_details: {
               reconciliation_date: dateStr,
               cashbook_fetched: false,
               errors: [errorMsg],
@@ -145,6 +145,11 @@ export const eftReconciliationFunction = inngest.createFunction(
             },
           })
           .eq('id', processLogId);
+        if (cronLogError) {
+          cronLogger.error('[EFTRecon] Failed to write cron_execution_log', {
+            error: cronLogError.message,
+          });
+        }
       });
 
       await step.run('send-completion-event-no-deposits', async () => {
@@ -367,19 +372,19 @@ export const eftReconciliationFunction = inngest.createFunction(
     const finalStatus =
       processingResult.errors.length > 0
         ? processingResult.newly_matched > 0
-          ? 'completed_with_errors'
+          ? 'partial'
           : 'failed'
         : 'completed';
 
     await step.run('update-final-log', async () => {
       const supabase = await createClient();
 
-      await supabase
+      const { error: cronLogError2 } = await supabase
         .from('cron_execution_log')
         .update({
           status: finalStatus,
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          execution_details: {
             reconciliation_date: dateStr,
             cashbook_fetched: true,
             dry_run: dryRun,
@@ -388,6 +393,11 @@ export const eftReconciliationFunction = inngest.createFunction(
           },
         })
         .eq('id', processLogId);
+      if (cronLogError2) {
+        cronLogger.error('[EFTRecon] Failed to write cron_execution_log', {
+          error: cronLogError2.message,
+        });
+      }
 
       cronLogger.info('[EFTRecon] Reconciliation complete', {
         date: dateStr,

@@ -125,13 +125,16 @@ export const whatsappBillingNotifications = inngest.createFunction(
       const supabase = await createClient();
 
       if (eventData?.process_log_id) {
-        await supabase
+        const { error: cronLogError } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'running',
-            started_at: new Date().toISOString(),
+            execution_start: new Date().toISOString(),
           })
           .eq('id', eventData.process_log_id);
+        if (cronLogError) {
+          console.error('[WhatsApp] Failed to write cron_execution_log:', cronLogError.message);
+        }
         return eventData.process_log_id;
       }
 
@@ -140,8 +143,8 @@ export const whatsappBillingNotifications = inngest.createFunction(
         .insert({
           job_name: 'whatsapp-billing-notifications',
           status: 'running',
-          started_at: new Date().toISOString(),
-          result: {
+          execution_start: new Date().toISOString(),
+          execution_details: {
             triggered_by: triggeredBy,
             triggered_by_user_id: adminUserId || null,
             billing_date: dateStr,
@@ -208,17 +211,20 @@ export const whatsappBillingNotifications = inngest.createFunction(
 
       await step.run('update-empty-log', async () => {
         const supabase = await createClient();
-        await supabase
+        const { error: cronLogError2 } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'completed',
-            completed_at: new Date().toISOString(),
-            result: {
+            execution_end: new Date().toISOString(),
+            execution_details: {
               ...result,
               duration_ms: Date.now() - startTime,
             },
           })
           .eq('id', processLogId);
+        if (cronLogError2) {
+          console.error('[WhatsApp] Failed to write cron_execution_log:', cronLogError2.message);
+        }
       });
 
       await step.run('send-completion-event-empty', async () => {
@@ -348,17 +354,20 @@ export const whatsappBillingNotifications = inngest.createFunction(
 
       await step.run('update-no-eligible-log', async () => {
         const supabase = await createClient();
-        await supabase
+        const { error: cronLogError3 } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'completed',
-            completed_at: new Date().toISOString(),
-            result: {
+            execution_end: new Date().toISOString(),
+            execution_details: {
               ...result,
               duration_ms: Date.now() - startTime,
             },
           })
           .eq('id', processLogId);
+        if (cronLogError3) {
+          console.error('[WhatsApp] Failed to write cron_execution_log:', cronLogError3.message);
+        }
       });
 
       return { success: true, processLogId, result };
@@ -426,25 +435,28 @@ export const whatsappBillingNotifications = inngest.createFunction(
 
     // Step 6: Update final log
     const finalStatus = result.failed > 0
-      ? (result.sent > 0 ? 'completed_with_errors' : 'failed')
+      ? (result.sent > 0 ? 'partial' : 'failed')
       : 'completed';
     const duration = Date.now() - startTime;
 
     await step.run('update-final-log', async () => {
       const supabase = await createClient();
 
-      await supabase
+      const { error: cronLogError4 } = await supabase
         .from('cron_execution_log')
         .update({
           status: finalStatus,
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          execution_details: {
             ...result,
             dry_run: dryRun,
             duration_ms: duration,
           },
         })
         .eq('id', processLogId);
+      if (cronLogError4) {
+        console.error('[WhatsApp] Failed to write cron_execution_log:', cronLogError4.message);
+      }
 
       console.log(
         `[WhatsApp] Complete: ${result.sent} sent, ${result.failed} failed (${duration}ms)`
@@ -533,17 +545,21 @@ export const whatsappNotificationsFailed = inngest.createFunction(
 
       const supabase = await createClient();
 
-      await supabase
+      const { error: cronLogError5 } = await supabase
         .from('cron_execution_log')
         .update({
           status: 'failed',
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          error_message: typeof error === 'string' ? error : String(error),
+          execution_details: {
             error,
             failed_attempt: attempt,
           },
         })
         .eq('id', process_log_id);
+      if (cronLogError5) {
+        console.error('[WhatsApp] Failed to write cron_execution_log:', cronLogError5.message);
+      }
     });
 
     return { handled: true };

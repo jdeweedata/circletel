@@ -174,18 +174,23 @@ async function runSmsReminders(
 async function logCronExecution(
   supabase: Awaited<ReturnType<typeof createClient>>,
   result: CronResult,
-  status: 'completed' | 'completed_with_errors' | 'failed' = result.errors.length > 0
-    ? 'completed_with_errors'
+  status: 'completed' | 'partial' | 'failed' = result.errors.length > 0
+    ? 'partial'
     : 'completed'
 ) {
   try {
-    await supabase.from('cron_execution_log').insert({
+    const { error: cronLogError } = await supabase.from('cron_execution_log').insert({
       job_name: 'invoice-sms-reminders',
       status,
-      started_at: new Date().toISOString(),
-      completed_at: new Date().toISOString(),
-      result,
+      execution_start: new Date().toISOString(),
+      execution_end: new Date().toISOString(),
+      execution_details: result,
     });
+    if (cronLogError) {
+      cronLogger.error('[SmsReminders] Failed to write cron_execution_log', {
+        error: cronLogError.message,
+      });
+    }
   } catch (error) {
     cronLogger.error('Failed to log cron execution', { error: error instanceof Error ? error.message : String(error) });
   }
