@@ -462,6 +462,45 @@ export type WhatsAppNotificationCancelledEvent = {
 };
 
 // =============================================================================
+// NEW SIGNUP FOLLOW-UP EVENTS
+// =============================================================================
+
+export type NewSignupFollowupRequestedEvent = {
+  name: 'sales/new-signup-followup.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+    process_log_id?: string;
+    options?: {
+      dryRun?: boolean;
+      minAgeHours?: number;
+      maxAgeDays?: number;
+    };
+  };
+};
+
+export type NewSignupFollowupCompletedEvent = {
+  name: 'sales/new-signup-followup.completed';
+  data: {
+    process_log_id: string;
+    candidates: number;
+    ticketed: number;
+    failed: number;
+    sales_alerted: boolean;
+    duration_ms: number;
+  };
+};
+
+export type NewSignupFollowupFailedEvent = {
+  name: 'sales/new-signup-followup.failed';
+  data: {
+    process_log_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
+// =============================================================================
 // PAYNOW RECONCILIATION EVENTS
 // =============================================================================
 
@@ -873,6 +912,10 @@ export type InngestEvents = {
   'billing/whatsapp.completed': WhatsAppNotificationCompletedEvent;
   'billing/whatsapp.failed': WhatsAppNotificationFailedEvent;
   'billing/whatsapp.cancelled': WhatsAppNotificationCancelledEvent;
+  // New signup follow-up events
+  'sales/new-signup-followup.requested': NewSignupFollowupRequestedEvent;
+  'sales/new-signup-followup.completed': NewSignupFollowupCompletedEvent;
+  'sales/new-signup-followup.failed': NewSignupFollowupFailedEvent;
   // Supplier sync events
   'supplier/sync.requested': SupplierSyncRequestedEvent;
   'supplier/sync.completed': SupplierSyncCompletedEvent;
