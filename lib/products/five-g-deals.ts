@@ -40,8 +40,26 @@ export const FIVE_G_PROMO_PAGES = {
 
 export type FiveGPromoSlug = keyof typeof FIVE_G_PROMO_PAGES;
 
+export const FIVE_G_DEAL_SLUGS = [
+  'circleconnect-5g-35-mbps',
+  'circleconnect-5g-35-mbps-sim-only',
+  'circleconnect-uncapped-20-mbps',
+  'circleconnect-5g-60-mbps',
+  'circleconnect-5g-fwa-500-gb',
+  'circleconnect-5g-60-mbps-sim-only',
+  'circleconnect-5g-best-effort',
+  'circleconnect-5g-best-effort-sim-only',
+] as const;
+
+export const FIVE_G_ROUTER_SIBLING_SLUG: Record<string, string> = {
+  'CC-5G-M2M-035': 'circleconnect-5g-35-mbps',
+  'CC-5G-M2M-060': 'circleconnect-5g-60-mbps',
+  'CC-5G-M2M-BE': 'circleconnect-5g-best-effort',
+};
+
 export type FiveGDealMetadata = FiveGOfferMetadata & {
   router_model?: string;
+  typical_speed?: string;
 };
 
 export interface FiveGDealPackage {
@@ -187,6 +205,22 @@ export function splitFiveGDeals(packages: FiveGDealPackage[]) {
     simOnly: grouped.simOnly,
     other: grouped.other,
   };
+}
+
+export function getFiveGProductMedia(product: FiveGDealPackage) {
+  const term = getFiveGOfferTerm(product.metadata);
+  if (term.kind === 'mtm_sim') return CIRCLETEL_NANO_SIM;
+  return HUAWEI_H155_386;
+}
+
+export async function getFiveGDealBySlug(slug: string): Promise<FiveGDealPackage | null> {
+  const packages = await getFiveGDealsPackages();
+  return packages.find((row) => row.slug === slug) ?? null;
+}
+
+export function getFiveGRouterSiblingSlug(sku?: string | null): string | null {
+  if (!sku) return null;
+  return FIVE_G_ROUTER_SIBLING_SLUG[sku] ?? null;
 }
 
 export async function getFiveGDealsPackages(): Promise<FiveGDealPackage[]> {

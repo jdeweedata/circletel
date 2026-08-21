@@ -11,7 +11,6 @@ import {
   getFiveGSellPrice,
   getFiveGSpecLabel,
   getOp19627Promo,
-  isFiveGPromoSlug,
   type FiveGDealPackage,
 } from '@/lib/products/five-g-deals';
 import { getFiveGOfferTerm } from '@/lib/products/five-g-offer-term';
@@ -31,8 +30,7 @@ export function FiveGDealCard({ product, variant }: FiveGDealCardProps) {
   const showCpe = term.kind === 'contract_router';
   const showSim = term.kind === 'mtm_sim';
   const thumb = showCpe ? HUAWEI_H155_386 : showSim ? CIRCLETEL_NANO_SIM : null;
-  const href =
-    product.slug && isFiveGPromoSlug(product.slug) ? `/5g-deals/${product.slug}` : '/coverage';
+  const href = product.slug ? `/5g-deals/${product.slug}` : '/coverage';
 
   if (variant === 'featured') {
     return (

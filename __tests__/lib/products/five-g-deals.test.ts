@@ -1,10 +1,14 @@
 import {
+  CIRCLETEL_NANO_SIM,
+  FIVE_G_DEAL_SLUGS,
   FIVE_G_PROMO_PAGES,
   HUAWEI_H155_386,
   getFiveGContractRouterCards,
   getFiveGListPrice,
   getFiveGListingTitle,
+  getFiveGProductMedia,
   getFiveGPromoPage,
+  getFiveGRouterSiblingSlug,
   getFiveGSellPrice,
   isFiveGPromoSlug,
   splitFiveGDeals,
@@ -41,6 +45,22 @@ describe('five-g promo pages', () => {
     expect(getFiveGPromoPage('circleconnect-uncapped-20-mbps')?.cpeAlt).toContain('Huawei H155-386');
     expect(getFiveGPromoPage('circleconnect-5g-35-mbps')).toBeNull();
     expect(isFiveGPromoSlug('circleconnect-5g-best-effort')).toBe(false);
+  });
+
+  it('opens every listing slug and maps SIM-only plans to a router sibling', () => {
+    expect(FIVE_G_DEAL_SLUGS).toContain('circleconnect-5g-fwa-500-gb');
+    expect(FIVE_G_DEAL_SLUGS).toContain('circleconnect-5g-best-effort-sim-only');
+    expect(getFiveGRouterSiblingSlug('CC-5G-M2M-BE')).toBe('circleconnect-5g-best-effort');
+    expect(getFiveGRouterSiblingSlug('CC-5G-M2M-FWA')).toBeNull();
+    expect(
+      getFiveGProductMedia(
+        pkg({
+          sku: 'CC-5G-M2M-FWA',
+          name: 'CircleConnect 5G FWA 500 GB',
+          metadata: { router_included: false, contract_type: 'month-to-month' },
+        })
+      ).image
+    ).toBe(CIRCLETEL_NANO_SIM.image);
   });
 });
 
