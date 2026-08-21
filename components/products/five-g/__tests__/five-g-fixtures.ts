@@ -140,6 +140,7 @@ export const fiveGListingPackages: FiveGDealPackage[] = [
       contract_type: '24-month-contract',
       data_cap: 'Uncapped (1.5TB FUP)',
       fup_limit_gb: 1500,
+      typical_speed: '100-300 Mbps',
     },
   },
   {
@@ -159,9 +160,12 @@ export const fiveGListingPackages: FiveGDealPackage[] = [
       contract_type: 'month-to-month',
       data_cap: '1.5TB FUP',
       fup_limit_gb: 1500,
+      typical_speed: '100-300 Mbps',
     },
   },
 ];
 
 export const fiveG60Product = fiveGListingPackages.find((row) => row.sku === 'CC-5G-CON-060')!;
 export const uncapped20Product = fiveGListingPackages.find((row) => row.sku === 'CC-OP-UNC-20')!;
+export const fwa500Product = fiveGListingPackages.find((row) => row.sku === 'CC-5G-M2M-FWA')!;
+export const bestEffortSimProduct = fiveGListingPackages.find((row) => row.sku === 'CC-5G-M2M-BE')!;

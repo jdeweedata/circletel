@@ -50,6 +50,9 @@ describe('FiveGDealsListing', () => {
     expect(serialized).toContain('CircleTel 5G nano SIM');
     expect(serialized).toContain('/5g-deals/circleconnect-5g-60-mbps');
     expect(serialized).toContain('/5g-deals/circleconnect-uncapped-20-mbps');
+    expect(serialized).toContain('/5g-deals/circleconnect-5g-35-mbps');
+    expect(serialized).toContain('/5g-deals/circleconnect-5g-fwa-500-gb');
+    expect(serialized).toContain('/5g-deals/circleconnect-5g-best-effort-sim-only');
     expect(serialized).toContain('24-month + router');
     expect(serialized).toContain('Month-to-month SIM only');
     expect(serialized).toContain('Router included');
