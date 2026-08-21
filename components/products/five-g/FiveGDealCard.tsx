@@ -76,11 +76,6 @@ export function FiveGDealCard({ product, cta }: FiveGDealCardProps) {
             </span>
           ) : null}
         </div>
-        {promo ? (
-          <p className="mt-1 font-body text-sm text-circleTel-grey600">
-            {`MTN shop ${formatFiveGPrice(promo.mtnRetailInclVat)}/month`}
-          </p>
-        ) : null}
         <p className="mt-1 font-body text-sm text-circleTel-grey600">
           {term.priceHint || 'per month incl. VAT'}
         </p>

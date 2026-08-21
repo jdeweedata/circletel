@@ -35,11 +35,10 @@ describe('FiveGDealsListing', () => {
     expect(serialized).toContain('Home 5G with a router, from R549 a month');
     expect(serialized).toContain('Ts&Cs apply');
     expect(serialized).not.toContain('OP19627');
-    expect(serialized).not.toContain('R50 under MTN shop, router included');
+    expect(serialized).not.toContain('MTN shop');
+    expect(serialized).not.toContain('less than MTN');
     expect(serialized).toContain('R649');
     expect(serialized).toContain('R549');
-    expect(serialized).toContain('MTN shop R699');
-    expect(serialized).toContain('MTN shop R599');
     expect(serialized).toContain('Huawei H155-386');
     expect(serialized).toContain('/5g-deals/circleconnect-5g-60-mbps');
     expect(serialized).toContain('/5g-deals/circleconnect-uncapped-20-mbps');

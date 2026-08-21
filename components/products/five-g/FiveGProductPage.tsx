@@ -9,7 +9,6 @@ import {
   getFiveGListPrice,
   getFiveGPromoPage,
   getFiveGSellPrice,
-  getOp19627Promo,
   HUAWEI_H155_386,
   type FiveGDealPackage,
 } from '@/lib/products/five-g-deals';
@@ -38,7 +37,6 @@ export function FiveGProductPage({ product, slug }: FiveGProductPageProps) {
   const page = getFiveGPromoPage(slug);
   const sell = getFiveGSellPrice(product);
   const list = getFiveGListPrice(product);
-  const promo = getOp19627Promo(product.sku);
   const term = getFiveGOfferTerm(product.metadata);
   const badge = getCoveragePromoBadge(product.sku, sell);
   const routerModel = product.metadata?.router_model?.trim() || HUAWEI_H155_386.model;
@@ -93,11 +91,6 @@ export function FiveGProductPage({ product, slug }: FiveGProductPageProps) {
                 </span>
               ) : null}
             </div>
-            {promo ? (
-              <p className="mt-1 font-body text-sm text-circleTel-grey600">
-                {`MTN shop ${formatFiveGPrice(promo.mtnRetailInclVat)}`}
-              </p>
-            ) : null}
             <p className="mt-1 font-body text-sm text-circleTel-grey600">
               {term.priceHint || 'per month incl. VAT'}
             </p>

@@ -50,8 +50,7 @@ export function FiveGDealsListing({ packages }: FiveGDealsListingProps) {
               Home 5G with a router, from R549 a month
             </h1>
             <p className="mt-5 font-body text-lg leading-8 text-circleTel-grey600">
-              5G 60 plus a Huawei router is R649/month until 30 Sep, R50 less than MTN shop.
-              24-month contract. Ts&Cs apply.
+              5G 60 plus a Huawei router is R649/month until 30 Sep. 24-month contract. Ts&Cs apply.
             </p>
             <p className="mt-3 font-body text-base leading-7 text-circleTel-grey600">
               Uncapped 20 Mbps with a router is R549/month. Month-to-month plans do not include a router.
