@@ -47,12 +47,21 @@ export function FiveGDealsListing({ packages }: FiveGDealsListingProps) {
               Promo to 30 Sep
             </p>
             <h1 className="mt-3 font-heading text-4xl font-extrabold leading-[1.05] tracking-tight text-circleTel-navy sm:text-5xl">
-              5G 60 + router at R649
+              R50 under MTN shop, router included
             </h1>
             <p className="mt-5 font-body text-lg leading-8 text-circleTel-grey600">
-              MTN shop is R699. Uncapped 20 Mbps + router is R549 (MTN 20 Mbps is R599).
-              24-month contract, router included. Month-to-month remains SIM only.
+              Uncapped 5G 60 plus a Huawei router for R649/month until 30 Sep. Same plan at
+              MTN shop is R699. Ts&Cs apply.
             </p>
+            <p className="mt-3 font-body text-base leading-7 text-circleTel-grey600">
+              Uncapped 20 Mbps plus a router is R549/month (MTN shop R599).
+              Month-to-month stays SIM only.
+            </p>
+            <ul className="mt-6 space-y-2 font-body text-sm text-circleTel-navy">
+              <li>24-month plans include the router</li>
+              <li>Month-to-month is SIM only — use your own router</li>
+              <li>5G depends on coverage at your address</li>
+            </ul>
             <div className="mt-8">
               <ShopCta href="/coverage">Check coverage</ShopCta>
             </div>
@@ -70,22 +79,22 @@ export function FiveGDealsListing({ packages }: FiveGDealsListingProps) {
       </section>
 
       <DealGrid
-        title="Featured promo deals"
-        description="CircleTel-only OP19627 pricing until 30 Sep 2026. Router included on a 24-month contract."
+        title="R50 under MTN shop"
+        description="Uncapped 5G 60 at R649/month and Uncapped 20 Mbps at R549/month. Router included. 24-month contract. Ts&Cs apply."
         packages={featured}
         cta="view-deal"
       />
 
       <DealGrid
         title="24-month + router"
-        description="Contract deals with a router included. Check coverage to order."
+        description="These plans include a router. Check coverage at your address to order."
         packages={contractRouter}
         cta="coverage"
       />
 
       <DealGrid
         title="Month-to-month SIM only"
-        description="No contract. Bring your own compatible 5G router."
+        description="No contract. These plans do not include a router — bring a compatible 5G device."
         packages={simOnly}
         cta="coverage"
       />
@@ -95,10 +104,10 @@ export function FiveGDealsListing({ packages }: FiveGDealsListingProps) {
       <section className="border-t border-ui-border bg-white py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="font-heading text-2xl font-bold text-circleTel-navy md:text-3xl">
-            Need help choosing?
+            See if 5G covers your address
           </h2>
           <p className="mx-auto mt-3 max-w-2xl font-body text-base leading-7 text-circleTel-grey600">
-            Check coverage at your address, or WhatsApp us and we will help you pick the right 5G package.
+            Coverage depends on the signal at your premises. Check first. WhatsApp us if you want help choosing a plan.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <ShopCta href="/coverage">Check coverage</ShopCta>
