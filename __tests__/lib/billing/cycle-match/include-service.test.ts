@@ -60,7 +60,7 @@ describe('includeInCycleMatch', () => {
     ).toBe(false);
   });
 
-  it('drops Unjani clinics with no billing_start_date', () => {
+  it('keeps a live Unjani clinic with no billing_start_date after 15 June 2026', () => {
     expect(
       includeInCycleMatch(
         input({
@@ -71,6 +71,36 @@ describe('includeInCycleMatch', () => {
           billingStartDate: null,
         }),
         AUGUST_END
+      )
+    ).toBe(true);
+  });
+
+  it('keeps a live Unjani clinic for the June 2026 pro-rata month', () => {
+    expect(
+      includeInCycleMatch(
+        input({
+          packageName: 'Unjani Managed Connectivity',
+          productCategory: 'corporate',
+          monthlyPrice: 450,
+          customerName: 'Unjani Clinic - Bridge City KwaMashu',
+          billingStartDate: null,
+        }),
+        new Date('2026-06-30T12:00:00Z')
+      )
+    ).toBe(true);
+  });
+
+  it('drops Unjani clinics during the Feb–14 June pilot', () => {
+    expect(
+      includeInCycleMatch(
+        input({
+          packageName: 'Unjani Managed Connectivity',
+          productCategory: 'corporate',
+          monthlyPrice: 450,
+          customerName: 'Unjani Clinic - Bridge City KwaMashu',
+          billingStartDate: null,
+        }),
+        new Date('2026-05-31T12:00:00Z')
       )
     ).toBe(false);
   });
@@ -90,19 +120,25 @@ describe('includeInCycleMatch', () => {
     ).toBe(false);
   });
 
-  it('keeps Unjani clinics whose billing_start_date is on or before cycle end', () => {
+  it.each([
+    'Unjani Clinic - Alexandra',
+    'Unjani Clinic Sicelo',
+    'Unjani Clinic - Oukasie',
+    'Unjani Phoenix',
+    'Unjani Clinic - Chloorkop',
+  ])('drops hold-out clinic %s from the June 2026 billing cohort', (customerName) => {
     expect(
       includeInCycleMatch(
         input({
           packageName: 'Unjani Managed Connectivity',
           productCategory: 'corporate',
           monthlyPrice: 450,
-          customerName: 'Unjani Clinic - Oukasie',
-          billingStartDate: '2026-07-01',
+          customerName,
+          billingStartDate: null,
         }),
         AUGUST_END
       )
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('keeps a live consumer when billing_start_date is null', () => {

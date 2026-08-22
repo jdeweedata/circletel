@@ -15,6 +15,30 @@ export const UNJANI_CONNECT_PRODUCT_NAME = 'Unjani Connect';
 export const UNJANI_CORPORATE_CODE = 'UNJ';
 export const UNJANI_MONTHLY_EX_VAT = 450;
 
+/**
+ * Live-site cohort after the Feb–14 June 2026 pilot.
+ * Pro-rata from 15 June 2026; full months from July 2026.
+ */
+export const UNJANI_COHORT_BILLING_START = '2026-06-15';
+
+/** Still on hold — not in the 15 June 2026 billing cohort. */
+export const UNJANI_BILLING_HOLD_SITES = [
+  'Alexandra',
+  'Sicelo',
+  'Oukasie',
+  'Phoenix',
+  'Chloorkop',
+] as const;
+
+export function isUnjaniBillingHoldSite(
+  customerName: string | null | undefined
+): boolean {
+  const name = customerName || '';
+  return UNJANI_BILLING_HOLD_SITES.some((site) =>
+    new RegExp(`\\b${site}\\b`, 'i').test(name)
+  );
+}
+
 /** Bill-to from CircleTel Customer Onboarding Form CT-COF-2026-001 (v1.1). */
 export const UNJANI_NPC_BILL_TO = {
   legalName: 'Unjani Clinics NPC',
