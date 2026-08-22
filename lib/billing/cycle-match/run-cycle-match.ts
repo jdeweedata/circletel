@@ -6,6 +6,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { billingLogger } from '@/lib/logging';
 import { formatExceptionCode, formatServiceDisplayId } from './format';
+import {
+  customerDisplayName,
+  cycleMonthEndDate,
+  includeInCycleMatch,
+} from './include-service';
 import { monthBounds } from './period';
 import { normalizePlatformAmounts } from './normalize-amounts';
 import { scoreCycleMatch } from './score-match';
@@ -24,6 +29,13 @@ export interface RunCycleMatchResult {
   exceptionCount: number;
 }
 
+interface ServiceCustomerRow {
+  first_name: string | null;
+  last_name: string | null;
+  business_name: string | null;
+  account_number: string | null;
+}
+
 interface ServiceRow {
   id: string;
   customer_id: string;
@@ -35,6 +47,8 @@ interface ServiceRow {
   active: boolean | null;
   activation_date: string | null;
   cancelled_at: string | null;
+  billing_start_date: string | null;
+  customer: ServiceCustomerRow | ServiceCustomerRow[] | null;
 }
 
 interface InvoiceRow {
@@ -94,7 +108,25 @@ export async function runCycleMatch(
     const { data: services, error: svcError } = await supabase
       .from('customer_services')
       .select(
-        'id, customer_id, package_name, service_type, product_category, monthly_price, status, active, activation_date, cancelled_at'
+        `
+        id,
+        customer_id,
+        package_name,
+        service_type,
+        product_category,
+        monthly_price,
+        status,
+        active,
+        activation_date,
+        cancelled_at,
+        billing_start_date,
+        customer:customers(
+          first_name,
+          last_name,
+          business_name,
+          account_number
+        )
+      `
       );
 
     if (svcError) throw new Error(svcError.message);
@@ -148,13 +180,33 @@ export async function runCycleMatch(
     }
 
     const scored: Array<{ input: CycleMatchInput; result: ScoredCycleMatch }> = [];
+    const cycleEnd = cycleMonthEndDate(end);
     for (const svc of (services || []) as ServiceRow[]) {
+      const customer = Array.isArray(svc.customer) ? svc.customer[0] : svc.customer;
+      const invoice = invoicesByService.get(svc.id) ?? null;
+      if (
+        !includeInCycleMatch(
+          {
+            packageName: svc.package_name,
+            productCategory: svc.product_category,
+            monthlyPrice: Number(svc.monthly_price) || 0,
+            status: svc.status,
+            active: svc.active,
+            billingStartDate: svc.billing_start_date,
+            customerName: customerDisplayName(customer),
+            accountNumber: customer?.account_number ?? null,
+            hasInvoiceThisMonth: !!invoice,
+          },
+          cycleEnd
+        )
+      ) {
+        continue;
+      }
       const amounts = normalizePlatformAmounts(Number(svc.monthly_price) || 0, {
         package_name: svc.package_name,
         service_type: svc.service_type,
         product_category: svc.product_category,
       });
-      const invoice = invoicesByService.get(svc.id) ?? null;
       const collected = invoice ? collectedByInvoice.get(invoice.id) : undefined;
       const netcashFromPaynow =
         invoice?.paynow_transaction_ref && !collected

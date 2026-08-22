@@ -4,6 +4,11 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { buildFunnel } from './build-funnel';
+import {
+  customerDisplayName,
+  cycleMonthEndDate,
+  includeInCycleMatch,
+} from './include-service';
 import { monthBounds, parseYearMonth } from './period';
 import { runCycleMatch } from './run-cycle-match';
 import type { CycleFunnel, CycleMatchPairwise, FieldDiffRow, LeakType, RecommendedAction, ScoredCycleMatch, ServiceStatus } from './types';
@@ -230,42 +235,96 @@ export async function ensureLatestRun(yearMonth: string): Promise<CycleMatchRunS
   };
 }
 
-async function loadRunGraph(runId: string) {
+interface HydratedService {
+  id: string;
+  package_name: string;
+  provider_name: string | null;
+  status: string;
+  active: boolean | null;
+  product_category: string | null;
+  monthly_price: number | null;
+  billing_start_date: string | null;
+}
+
+interface HydratedCustomer {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  business_name: string | null;
+  account_number: string | null;
+}
+
+async function loadRunGraph(runId: string, yearMonth: string) {
   const supabase = await createClient();
-  const { data: matches, error: matchError } = await supabase
+  const { data: matchRows, error: matchError } = await supabase
     .from('billing_cycle_matches')
     .select('*')
     .eq('run_id', runId);
   if (matchError) throw new Error(matchError.message);
 
-  const { data: exceptions, error: excError } = await supabase
+  const { data: exceptionRows, error: excError } = await supabase
     .from('billing_cycle_exceptions')
     .select('*')
     .eq('run_id', runId);
   if (excError) throw new Error(excError.message);
 
-  const serviceIds = [...new Set((matches || []).map((m) => m.service_id))];
-  const customerIds = [...new Set((matches || []).map((m) => m.customer_id))];
+  const allMatches = (matchRows || []) as MatchRow[];
+  const serviceIds = [...new Set(allMatches.map((m) => m.service_id))];
+  const customerIds = [...new Set(allMatches.map((m) => m.customer_id))];
 
   const { data: services } = serviceIds.length
     ? await supabase
         .from('customer_services')
-        .select('id, package_name, provider_name, status, active')
+        .select(
+          'id, package_name, provider_name, status, active, product_category, monthly_price, billing_start_date'
+        )
         .in('id', serviceIds)
     : { data: [] as never[] };
 
   const { data: customers } = customerIds.length
     ? await supabase
         .from('customers')
-        .select('id, first_name, last_name, business_name')
+        .select('id, first_name, last_name, business_name, account_number')
         .in('id', customerIds)
     : { data: [] as never[] };
 
+  const serviceMap = Object.fromEntries(
+    ((services || []) as HydratedService[]).map((s) => [s.id, s])
+  );
+  const customerMap = Object.fromEntries(
+    ((customers || []) as HydratedCustomer[]).map((c) => [c.id, c])
+  );
+  const cycleEnd = cycleMonthEndDate(monthBounds(yearMonth).end);
+
+  const matches = allMatches.filter((m) => {
+    const svc = serviceMap[m.service_id];
+    if (!svc) return false;
+    const cust = customerMap[m.customer_id];
+    return includeInCycleMatch(
+      {
+        packageName: svc.package_name,
+        productCategory: svc.product_category,
+        monthlyPrice: Number(svc.monthly_price) || 0,
+        status: svc.status,
+        active: svc.active,
+        billingStartDate: svc.billing_start_date,
+        customerName: customerDisplayName(cust),
+        accountNumber: cust?.account_number ?? null,
+        hasInvoiceThisMonth: !!(m.zoho_invoice_id || m.zoho_amount_ex_vat != null),
+      },
+      cycleEnd
+    );
+  });
+  const includedMatchIds = new Set(matches.map((m) => m.id));
+  const exceptions = ((exceptionRows || []) as ExceptionRow[]).filter((e) =>
+    includedMatchIds.has(e.match_id)
+  );
+
   return {
-    matches: (matches || []) as MatchRow[],
-    exceptions: (exceptions || []) as ExceptionRow[],
-    services: Object.fromEntries((services || []).map((s) => [s.id, s])),
-    customers: Object.fromEntries((customers || []).map((c) => [c.id, c])),
+    matches,
+    exceptions,
+    services: serviceMap,
+    customers: customerMap,
   };
 }
 
@@ -348,7 +407,7 @@ export async function loadCycleMatchWorkbench(
   if (!run) {
     return emptyWorkbench(month, label);
   }
-  const graph = await loadRunGraph(run.id);
+  const graph = await loadRunGraph(run.id, month);
   const exceptionsByMatch = new Map(graph.exceptions.map((e) => [e.match_id, e]));
   const ctx = {
     exceptionsByMatch,
@@ -446,7 +505,7 @@ export async function loadRevenueAssurance(
       worklist: [],
     };
   }
-  const graph = await loadRunGraph(run.id);
+  const graph = await loadRunGraph(run.id, month);
   const exceptionsByMatch = new Map(graph.exceptions.map((e) => [e.match_id, e]));
   const ctx = {
     exceptionsByMatch,
