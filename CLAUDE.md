@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Type check | [Essential Commands](#essential-commands) | `npm run type-check:memory` |
 | Deploy | [Deployment](#deployment) | `git push origin feature/xyz:staging` |
 | Auth patterns | [Rules](#rules) | See `.claude/rules/auth-patterns.md` |
-| Database schema | [Database](#database-schema) | `customer_invoices` (not `invoices`) |
+| Database schema | [Database](#database-schema) | `customer_invoices` (not `invoices`); types: `npm run types:generate` |
 | File placement | [Rules](#rules) | See `.claude/rules/file-organization.md` |
 | Skills | [Superpowers Pipeline](#superpowers-pipeline-mandatory) | See mandatory pipeline stages |
 | Karpathy principles | [Karpathy Foundation](#-karpathy-foundation-4-guiding-principles) | Think → Simple → Surgical → Goal-Driven |
@@ -132,6 +132,8 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
 ```bash
 npm run dev:memory          # Dev server (8GB heap)
 npm run type-check:memory   # Type check (4GB heap) — MANDATORY before commit
+npm run types:generate      # Dump live Supabase schema → lib/types/database.generated.ts
+npm run types:check         # Fail if generated types are missing or still a placeholder
 npm run build:memory        # Production build (8GB heap)
 npm run build:ci            # CI build (6GB heap) — used by self-hosted runner
 npm run build:low           # Low-memory build (4GB heap)
@@ -159,14 +161,14 @@ pencil --in designs/filename.pen --export designs/filename.png  # Export preview
 
 ## Deployment
 
-**2-Branch Strategy**: Feature → Staging → Main
+**2-Branch Strategy**: Feature → Staging → Main. Staging is an optional Coolify **app** on the same VPS. It shares the live Supabase project — it is not a database replica. Opt in with the `deploy-staging` label; do not treat `staging.circletel.co.za` as a schema sandbox. See `.claude/rules/data-model.md`.
 
 ```bash
-git push origin feature/xyz:staging    # Test in staging first
+git push origin feature/xyz:staging    # Optional UI preview (same Supabase as prod)
 gh pr create --base main               # Then merge via PR
 ```
 
-**Pre-Deploy**: ✅ Type check ✅ Build ✅ Staging tests ✅ DB migrations ✅ ENV vars
+**Pre-Deploy**: ✅ Type check ✅ Build ✅ ENV vars. Staging UI check only when the change is UI/API-risky. Migrations apply to the one live Supabase — review SQL before apply.
 
 ---
 
@@ -184,6 +186,7 @@ All detailed patterns are in `.claude/rules/`:
 | `workflow.md` | Planning protocol, blast radius, confirmation gates |
 | `compound-learnings.md` | Learning capture triggers, RSI, pattern extraction |
 | `verify-schema-first.md` | Check DB schema before coding |
+| `data-model.md` | SoR vs working store, generated types, additive migrations, writer identity |
 | `type-guards-optionals.md` | Safe access to optional/nested properties |
 | `api-param-documentation.md` | Document API params with Wrong vs Correct tables |
 | `product-management.md` | Product skills triggers, suppliers, wholesale providers |
