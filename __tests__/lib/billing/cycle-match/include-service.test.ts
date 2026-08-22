@@ -126,17 +126,36 @@ describe('includeInCycleMatch', () => {
     'Unjani Clinic - Oukasie',
     'Unjani Phoenix',
     'Unjani Clinic - Chloorkop',
-  ])('drops hold-out clinic %s from the June 2026 billing cohort', (customerName) => {
+  ])('drops hold-out clinic %s until they cancel or bill from 1 October 2026', (customerName) => {
+    const clinic = input({
+      packageName: 'Unjani Managed Connectivity',
+      productCategory: 'corporate',
+      monthlyPrice: 450,
+      customerName,
+      billingStartDate: null,
+    });
+    expect(includeInCycleMatch(clinic, AUGUST_END)).toBe(false);
+    expect(includeInCycleMatch(clinic, new Date('2026-09-30T12:00:00Z'))).toBe(
+      false
+    );
+    expect(includeInCycleMatch(clinic, new Date('2026-10-31T12:00:00Z'))).toBe(
+      true
+    );
+  });
+
+  it('drops a cancelled hold-out clinic that was not billed', () => {
     expect(
       includeInCycleMatch(
         input({
           packageName: 'Unjani Managed Connectivity',
           productCategory: 'corporate',
           monthlyPrice: 450,
-          customerName,
-          billingStartDate: null,
+          customerName: 'Unjani Clinic - Oukasie',
+          status: 'cancelled',
+          active: false,
+          hasInvoiceThisMonth: false,
         }),
-        AUGUST_END
+        new Date('2026-10-31T12:00:00Z')
       )
     ).toBe(false);
   });

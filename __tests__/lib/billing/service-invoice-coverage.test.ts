@@ -74,8 +74,17 @@ describe('isDeferredForPeriod', () => {
     );
   });
 
-  it('does not defer Chloorkop for August 2026', () => {
+  it('defers Chloorkop through September 2026', () => {
     expect(isDeferredForPeriod('Unjani Clinic - Chloorkop', '2026-08')).toBe(
+      true
+    );
+    expect(isDeferredForPeriod('Unjani Clinic - Chloorkop', '2026-09')).toBe(
+      true
+    );
+  });
+
+  it('does not defer Chloorkop for October 2026', () => {
+    expect(isDeferredForPeriod('Unjani Clinic - Chloorkop', '2026-10')).toBe(
       false
     );
   });
