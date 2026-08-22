@@ -21,7 +21,9 @@ export const UNJANI_MONTHLY_EX_VAT = 450;
  */
 export const UNJANI_COHORT_BILLING_START = '2026-06-15';
 
-/** Still on hold — not in the 15 June 2026 billing cohort. */
+/**
+ * Still on hold after the June 2026 cohort: cancel, or first bill 1 October 2026.
+ */
 export const UNJANI_BILLING_HOLD_SITES = [
   'Alexandra',
   'Sicelo',
@@ -30,6 +32,8 @@ export const UNJANI_BILLING_HOLD_SITES = [
   'Chloorkop',
 ] as const;
 
+export const UNJANI_HOLD_SITE_BILLING_START = '2026-10-01';
+
 export function isUnjaniBillingHoldSite(
   customerName: string | null | undefined
 ): boolean {
@@ -37,6 +41,18 @@ export function isUnjaniBillingHoldSite(
   return UNJANI_BILLING_HOLD_SITES.some((site) =>
     new RegExp(`\\b${site}\\b`, 'i').test(name)
   );
+}
+
+/** Cohort start, or 1 October 2026 for hold sites. An explicit later date still wins. */
+export function unjaniEffectiveBillingStart(
+  customerName: string | null | undefined,
+  billingStartDate?: string | null
+): string {
+  const holdFloor = isUnjaniBillingHoldSite(customerName)
+    ? UNJANI_HOLD_SITE_BILLING_START
+    : UNJANI_COHORT_BILLING_START;
+  if (billingStartDate && billingStartDate > holdFloor) return billingStartDate;
+  return holdFloor;
 }
 
 /** Bill-to from CircleTel Customer Onboarding Form CT-COF-2026-001 (v1.1). */

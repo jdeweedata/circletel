@@ -4,7 +4,7 @@
  *
  * Ticket 03: billable = active + past start + clinic delay; voided-only ≠ covered.
  * Ticket 04: period hybrid range-first; SAST calendar months.
- * Deferrals: five Unjani sites first bill 2026-08-01.
+ * Deferrals: five Unjani sites first bill 2026-10-01 (or cancel).
  */
 
 import { isBeforeBillingStart } from '@/lib/billing/billing-eligibility';
@@ -27,11 +27,11 @@ export const BILLING_EFFECTIVE_FROM: Array<{
   businessNameIncludes: string;
   effectiveFrom: string; // YYYY-MM-DD
 }> = [
-  { businessNameIncludes: 'Alexandra', effectiveFrom: '2026-08-01' },
-  { businessNameIncludes: 'Chloorkop', effectiveFrom: '2026-08-01' },
-  { businessNameIncludes: 'Oukasie', effectiveFrom: '2026-08-01' },
-  { businessNameIncludes: 'Phoenix', effectiveFrom: '2026-08-01' },
-  { businessNameIncludes: 'Sicelo', effectiveFrom: '2026-08-01' },
+  { businessNameIncludes: 'Alexandra', effectiveFrom: '2026-10-01' },
+  { businessNameIncludes: 'Chloorkop', effectiveFrom: '2026-10-01' },
+  { businessNameIncludes: 'Oukasie', effectiveFrom: '2026-10-01' },
+  { businessNameIncludes: 'Phoenix', effectiveFrom: '2026-10-01' },
+  { businessNameIncludes: 'Sicelo', effectiveFrom: '2026-10-01' },
 ];
 
 export type GapReason =

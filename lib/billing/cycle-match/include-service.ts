@@ -5,10 +5,7 @@
 
 import { isBeforeBillingStart, isCustomerServiceBilledNow } from '@/lib/billing/billing-eligibility';
 import { isClinicBillingCategory } from '@/lib/billing/new-clinic-billing-helper';
-import {
-  UNJANI_COHORT_BILLING_START,
-  isUnjaniBillingHoldSite,
-} from '@/lib/billing/unjani-connect-rules';
+import { unjaniEffectiveBillingStart } from '@/lib/billing/unjani-connect-rules';
 
 const TEST_PACKAGE = /test package|training demo/i;
 const TEST_CUSTOMER = /^(amoeba user|test user)$/i;
@@ -88,8 +85,10 @@ export function includeInCycleMatch(
   if (cancelledStillBilled) return true;
 
   if (isClinicService(input)) {
-    if (isUnjaniBillingHoldSite(input.customerName)) return false;
-    const start = input.billingStartDate || UNJANI_COHORT_BILLING_START;
+    const start = unjaniEffectiveBillingStart(
+      input.customerName,
+      input.billingStartDate
+    );
     if (isBeforeBillingStart(start, cycleMonthEnd)) return false;
     return isCustomerServiceBilledNow(
       {
