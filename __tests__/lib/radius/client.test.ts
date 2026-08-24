@@ -1,4 +1,4 @@
-import { createRadiusClient, getRadiusClient } from '@/lib/radius'
+import { createRadiusClient, getRadiusClient } from '../../../lib/radius'
 
 describe('RadiusClient', () => {
   const baseUrl = 'https://radius.test'
@@ -86,6 +86,49 @@ describe('RadiusClient', () => {
     await expect(client.disableSubscriber('user/name')).resolves.toEqual(subscriber)
     expect(mockFetch).toHaveBeenCalledWith(
       `${baseUrl}/v1/subscribers/user%2Fname/disable`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      }
+    )
+  })
+
+  it('uses a listed session identifier to disconnect that session', async () => {
+    const mockFetch = jest.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ sessions: [{ sessionId: 'session-123' }] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ pod: true }),
+      })
+    const client = createRadiusClient({ baseUrl, token, fetch: mockFetch as typeof fetch })
+
+    const sessions = await client.listSessions('subscriber-1')
+    await expect(client.disconnectSession(sessions[0].sessionId)).resolves.toEqual({ pod: true })
+
+    expect(mockFetch).toHaveBeenNthCalledWith(
+      1,
+      `${baseUrl}/v1/subscribers/subscriber-1/sessions`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: undefined,
+      }
+    )
+    expect(mockFetch).toHaveBeenNthCalledWith(
+      2,
+      `${baseUrl}/v1/sessions/session-123/disconnect`,
       {
         method: 'POST',
         headers: {
