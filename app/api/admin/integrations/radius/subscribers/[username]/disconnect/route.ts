@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { getProviderForSite } from '@/lib/provisioning'
+import { isUuid } from '../../validation'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,20 +16,25 @@ export async function POST(
 
   try {
     const { siteId } = await request.json() as { siteId?: unknown }
-    if (typeof siteId !== 'string' || !siteId) {
-      return NextResponse.json({ error: 'siteId is required' }, { status: 400 })
+    if (!isUuid(siteId)) {
+      return NextResponse.json({ error: 'siteId must be a UUID' }, { status: 400 })
     }
 
     const { username } = await context.params
     const provider = await getProviderForSite(siteId)
     const sessions = await provider.listSessions(username)
-    await Promise.all(
+    const results = await Promise.allSettled(
       sessions.map((session) => provider.disconnectSession(session.sessionId))
     )
+    const successfulSessions = results.filter(
+      (result) => result.status === 'fulfilled'
+    ).length
 
     return NextResponse.json({
       success: true,
-      disconnectedSessions: sessions.length,
+      attemptedSessions: sessions.length,
+      successfulSessions,
+      failedSessions: sessions.length - successfulSessions,
     })
   } catch (error) {
     const status = error instanceof SyntaxError

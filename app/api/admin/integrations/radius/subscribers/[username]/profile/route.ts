@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { getProviderForSite } from '@/lib/provisioning'
+import { isUuid } from '../../validation'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,8 +19,8 @@ export async function POST(
       siteId?: unknown
       profileId?: unknown
     }
-    if (typeof siteId !== 'string' || !siteId) {
-      return NextResponse.json({ error: 'siteId is required' }, { status: 400 })
+    if (!isUuid(siteId)) {
+      return NextResponse.json({ error: 'siteId must be a UUID' }, { status: 400 })
     }
     if (typeof profileId !== 'string' || !profileId) {
       return NextResponse.json({ error: 'profileId is required' }, { status: 400 })

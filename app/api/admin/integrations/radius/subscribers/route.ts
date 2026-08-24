@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import {
   getProviderForSite,
-  type CreateSubscriber,
   type ListQuery,
 } from '@/lib/provisioning'
+import { isCreateSubscriber, isUuid } from './validation'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const siteId = searchParams.get('siteId')
-    if (!siteId) {
-      return NextResponse.json({ error: 'siteId is required' }, { status: 400 })
+    if (!isUuid(siteId)) {
+      return NextResponse.json({ error: 'siteId must be a UUID' }, { status: 400 })
     }
 
     const query: ListQuery = {
@@ -53,15 +53,25 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json() as Record<string, unknown>
-    const { siteId, ...subscriber } = body
-    if (typeof siteId !== 'string' || !siteId) {
-      return NextResponse.json({ error: 'siteId is required' }, { status: 400 })
+    const body: unknown = await request.json()
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid subscriber request' }, { status: 400 })
+    }
+
+    const { siteId, ...subscriber } = body as Record<string, unknown>
+    if (!isUuid(siteId)) {
+      return NextResponse.json({ error: 'siteId must be a UUID' }, { status: 400 })
+    }
+    if (!isCreateSubscriber(subscriber)) {
+      return NextResponse.json(
+        { error: 'Missing or invalid subscriber fields' },
+        { status: 400 }
+      )
     }
 
     const provider = await getProviderForSite(siteId)
     return NextResponse.json(
-      await provider.createSubscriber(subscriber as unknown as CreateSubscriber),
+      await provider.createSubscriber(subscriber),
       { status: 201 }
     )
   } catch (error) {
