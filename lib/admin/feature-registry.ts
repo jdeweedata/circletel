@@ -428,6 +428,7 @@ export const featureSections: NavSection[] = [
           { name: 'Zoho Sign', href: '/admin/integrations/zoho-sign', icon: PiFileTextBold },
           { name: 'WhatsApp Campaign', href: '/admin/integrations/whatsapp-campaign', icon: PiChartBarBold },
           { name: 'Interstellio RADIUS', href: '/admin/integrations/interstellio', icon: PiRadioBold },
+          { name: 'Owned RADIUS', href: '/admin/integrations/radius', icon: PiWifiHighBold },
           { name: 'OAuth Tokens', href: '/admin/integrations/oauth', icon: PiGearBold },
           { name: 'Webhooks', href: '/admin/integrations/webhooks', icon: PiLightningBold },
           { name: 'API Health', href: '/admin/integrations/apis', icon: PiPulseBold },
