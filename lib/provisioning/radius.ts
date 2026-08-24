@@ -21,10 +21,20 @@ type UnsupportedError = Error & {
   code: string
 }
 
+type NotFoundError = Error & {
+  status: number
+}
+
 function unsupported(message: string, code: string): UnsupportedError {
   const error = new Error(message) as UnsupportedError
   error.status = 501
   error.code = code
+  return error
+}
+
+function notFound(): NotFoundError {
+  const error = new Error('Subscriber not found') as NotFoundError
+  error.status = 404
   return error
 }
 
@@ -65,10 +75,17 @@ function mapUsage(id: string, usage: RadiusUsage): Usage {
 }
 
 export class RadiusSubscriberProvider implements SubscriberProvider {
-  constructor(private readonly client: RadiusClient) {}
+  readonly kind = 'radius' as const
+
+  constructor(
+    private readonly client: RadiusClient,
+    private readonly siteCode: string
+  ) {}
 
   async listSubscribers(_q?: ListQuery): Promise<Paginated<Subscriber>> {
-    const subscribers = await this.client.listSubscribers()
+    const subscribers = (await this.client.listSubscribers()).filter(
+      (subscriber) => subscriber.siteCode === this.siteCode
+    )
     return {
       items: subscribers.map(mapSubscriber),
       total: subscribers.length,
@@ -79,29 +96,32 @@ export class RadiusSubscriberProvider implements SubscriberProvider {
   }
 
   async getSubscriber(id: string): Promise<Subscriber> {
-    return mapSubscriber(await this.client.getSubscriber(id))
+    return mapSubscriber(await this.getOwnedSubscriber(id))
   }
 
   async createSubscriber(data: CreateSubscriber): Promise<Subscriber> {
     const subscriber = await this.client.createSubscriber({
       username: data.username,
       password: data.password,
-      siteCode: data.siteCode,
+      siteCode: this.siteCode,
       profile: data.profileId,
-      paidThrough: data.paidThrough,
+      paidThrough: data.paidThrough!,
     })
     return mapSubscriber(subscriber)
   }
 
   async enableSubscriber(id: string): Promise<Subscriber> {
+    await this.getOwnedSubscriber(id)
     return mapSubscriber(await this.client.enableSubscriber(id))
   }
 
   async disableSubscriber(id: string): Promise<Subscriber> {
+    await this.getOwnedSubscriber(id)
     return mapSubscriber(await this.client.disableSubscriber(id))
   }
 
   async changeProfile(id: string, profileId: string): Promise<Subscriber> {
+    await this.getOwnedSubscriber(id)
     return mapSubscriber(await this.client.changeProfile(id, profileId))
   }
 
@@ -112,19 +132,32 @@ export class RadiusSubscriberProvider implements SubscriberProvider {
   }
 
   async listSessions(id: string): Promise<Session[]> {
+    await this.getOwnedSubscriber(id)
     const sessions = await this.client.listSessions(id)
     return sessions.map(mapSession)
   }
 
   async disconnectSession(sessionId: string): Promise<void> {
-    await this.client.disconnectSession(sessionId)
+    const result = await this.client.disconnectSession(sessionId)
+    if (!result.pod) {
+      throw new Error('Packet-of-Disconnect failed')
+    }
   }
 
   async getUsage(id: string, range: DateRange): Promise<Usage> {
+    await this.getOwnedSubscriber(id)
     return mapUsage(id, await this.client.getUsage(id, range))
   }
 
   listProfiles(): Promise<Profile[]> {
     return this.client.listProfiles()
+  }
+
+  private async getOwnedSubscriber(id: string): Promise<RadiusSubscriber> {
+    const subscriber = await this.client.getSubscriber(id)
+    if (subscriber.siteCode !== this.siteCode) {
+      throw notFound()
+    }
+    return subscriber
   }
 }

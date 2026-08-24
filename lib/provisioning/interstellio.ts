@@ -68,6 +68,8 @@ function sumUsage(subscriberId: string, entries: DataUsageEntry[]): Usage {
 }
 
 export class InterstellioSubscriberProvider implements SubscriberProvider {
+  readonly kind = 'interstellio' as const
+
   constructor(private readonly client: InterstellioClient) {}
 
   async listSubscribers(q?: ListQuery): Promise<Paginated<Subscriber>> {
@@ -95,8 +97,8 @@ export class InterstellioSubscriberProvider implements SubscriberProvider {
       username: data.username,
       password: data.password,
       profile_id: data.profileId,
-      virtual_id: data.virtualId,
-      service_id: data.serviceId,
+      virtual_id: data.virtualId!,
+      service_id: data.serviceId!,
       ...(data.name === undefined ? {} : { name: data.name }),
       ...(data.enabled === undefined ? {} : { enabled: data.enabled }),
     })

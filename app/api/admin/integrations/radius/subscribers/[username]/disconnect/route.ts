@@ -22,7 +22,9 @@ export async function POST(
 
     const { username } = await context.params
     const provider = await getProviderForSite(siteId)
-    const sessions = await provider.listSessions(username)
+    const sessions = (await provider.listSessions(username)).filter(
+      (session) => !session.stoppedAt
+    )
     const results = await Promise.allSettled(
       sessions.map((session) => provider.disconnectSession(session.sessionId))
     )

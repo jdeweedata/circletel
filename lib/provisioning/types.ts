@@ -32,10 +32,9 @@ export interface CreateSubscriber {
   username: string
   password: string
   profileId: string
-  siteCode: string
-  paidThrough: string
-  virtualId: string
-  serviceId: string
+  paidThrough?: string
+  virtualId?: string
+  serviceId?: string
   name?: string
   enabled?: boolean
 }

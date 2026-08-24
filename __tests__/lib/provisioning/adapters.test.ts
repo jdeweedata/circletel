@@ -35,7 +35,7 @@ describe('RadiusSubscriberProvider', () => {
     const client = {
       listSubscribers: jest.fn().mockResolvedValue([subscriber]),
     }
-    const provider = new RadiusSubscriberProvider(client as never)
+    const provider = new RadiusSubscriberProvider(client as never, 'SITE-001')
 
     await expect(provider.listSubscribers()).resolves.toEqual({
       items: [{
@@ -58,7 +58,7 @@ describe('RadiusSubscriberProvider', () => {
     const client = {
       getSubscriber: jest.fn().mockResolvedValue(subscriber),
     }
-    const provider = new RadiusSubscriberProvider(client as never)
+    const provider = new RadiusSubscriberProvider(client as never, 'SITE-001')
 
     await expect(provider.getSubscriber(subscriber.username)).resolves.toMatchObject({
       id: subscriber.username,
@@ -66,5 +66,73 @@ describe('RadiusSubscriberProvider', () => {
       profileId: subscriber.profile,
     })
     expect(client.getSubscriber).toHaveBeenCalledWith(subscriber.username)
+  })
+
+  it('only lists subscribers belonging to the selected site', async () => {
+    const otherSiteSubscriber = {
+      ...subscriber,
+      username: 'subscriber-2',
+      siteCode: 'SITE-002',
+    }
+    const client = {
+      listSubscribers: jest.fn().mockResolvedValue([subscriber, otherSiteSubscriber]),
+    }
+    const provider = new RadiusSubscriberProvider(client as never, 'SITE-001')
+
+    const result = await provider.listSubscribers()
+
+    expect(result.items).toHaveLength(1)
+    expect(result.items[0]?.username).toBe(subscriber.username)
+  })
+
+  it('overwrites a client site code with the selected corporate site code', async () => {
+    const client = {
+      createSubscriber: jest.fn().mockResolvedValue(subscriber),
+    }
+    const provider = new RadiusSubscriberProvider(client as never, 'SITE-001')
+    const maliciousInput = {
+      username: subscriber.username,
+      password: 'secret',
+      profileId: subscriber.profile,
+      paidThrough: subscriber.paidThrough,
+      siteCode: 'SITE-999',
+    }
+
+    await provider.createSubscriber(maliciousInput)
+
+    expect(client.createSubscriber).toHaveBeenCalledWith({
+      username: subscriber.username,
+      password: 'secret',
+      profile: subscriber.profile,
+      paidThrough: subscriber.paidThrough,
+      siteCode: 'SITE-001',
+    })
+  })
+
+  it('rejects a mutation for a subscriber belonging to another site', async () => {
+    const client = {
+      getSubscriber: jest.fn().mockResolvedValue({
+        ...subscriber,
+        siteCode: 'SITE-002',
+      }),
+      enableSubscriber: jest.fn(),
+    }
+    const provider = new RadiusSubscriberProvider(client as never, 'SITE-001')
+
+    await expect(provider.enableSubscriber(subscriber.username)).rejects.toMatchObject({
+      status: 404,
+    })
+    expect(client.enableSubscriber).not.toHaveBeenCalled()
+  })
+
+  it('rejects when Packet-of-Disconnect is not delivered', async () => {
+    const client = {
+      disconnectSession: jest.fn().mockResolvedValue({ pod: false }),
+    }
+    const provider = new RadiusSubscriberProvider(client as never, 'SITE-001')
+
+    await expect(provider.disconnectSession('session-1')).rejects.toThrow(
+      'Packet-of-Disconnect failed'
+    )
   })
 })

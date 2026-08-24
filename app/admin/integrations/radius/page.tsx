@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { issuedCodesAfterAttempt } from './issued-codes';
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -38,6 +39,7 @@ interface Subscriber {
 }
 
 interface SubscriberList {
+  provider: 'interstellio' | 'radius';
   items: Subscriber[];
   total: number;
   page: number;
@@ -73,6 +75,9 @@ export default function RadiusAdminPage() {
   // Subscriber management
   const [siteId, setSiteId] = useState('');
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [subscriberProvider, setSubscriberProvider] = useState<
+    'interstellio' | 'radius' | null
+  >(null);
   const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(false);
   const [profileChangeTarget, setProfileChangeTarget] = useState<string | null>(null);
   const [newProfileId, setNewProfileId] = useState('');
@@ -81,7 +86,6 @@ export default function RadiusAdminPage() {
   const [provUsername, setProvUsername] = useState('');
   const [provPassword, setProvPassword] = useState('');
   const [provProfileId, setProvProfileId] = useState('');
-  const [provSiteCode, setProvSiteCode] = useState('');
   const [provPaidThrough, setProvPaidThrough] = useState('');
   const [provVirtualId, setProvVirtualId] = useState('');
   const [provServiceId, setProvServiceId] = useState('');
@@ -135,6 +139,7 @@ export default function RadiusAdminPage() {
       return;
     }
 
+    setIssuedCodes([]);
     setIsIssuing(true);
     try {
       const body: Record<string, unknown> = {
@@ -154,12 +159,13 @@ export default function RadiusAdminPage() {
 
       const data = (await res.json()) as { codes?: string[]; error?: string };
 
-      if (!res.ok || !Array.isArray(data.codes) || data.codes.length !== count) {
+      const nextCodes = issuedCodesAfterAttempt(data.codes, count);
+      if (!res.ok || nextCodes.length === 0) {
         toast.error(data.error ?? 'Voucher batch failed — incomplete or rejected');
         return;
       }
 
-      setIssuedCodes(data.codes);
+      setIssuedCodes(nextCodes);
     } catch {
       toast.error('Voucher batch request failed');
     } finally {
@@ -184,21 +190,25 @@ export default function RadiusAdminPage() {
       toast.error('Unable to open print window');
       return;
     }
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html><head><title>RADIUS Voucher Codes</title></head>
-      <body style="font-family: monospace; padding: 2rem;">
-        <h1>RADIUS Voucher Codes (${issuedCodes.length})</h1>
-        <pre>${issuedCodes.join('\n')}</pre>
-      </body></html>
-    `);
-    printWindow.document.close();
+    const printDocument = printWindow.document;
+    printDocument.title = 'RADIUS Voucher Codes';
+    printDocument.body.replaceChildren();
+    printDocument.body.style.fontFamily = 'monospace';
+    printDocument.body.style.padding = '2rem';
+
+    const heading = printDocument.createElement('h1');
+    heading.textContent = `RADIUS Voucher Codes (${issuedCodes.length})`;
+    const codes = printDocument.createElement('pre');
+    codes.textContent = issuedCodes.join('\n');
+    printDocument.body.append(heading, codes);
+    printDocument.close();
     printWindow.print();
   };
 
   const fetchSubscribers = useCallback(async () => {
     if (!isUuid(siteId)) return;
 
+    setSubscriberProvider(null);
     setIsLoadingSubscribers(true);
     try {
       const res = await fetch(
@@ -211,6 +221,7 @@ export default function RadiusAdminPage() {
       }
       const data = (await res.json()) as SubscriberList;
       setSubscribers(data.items ?? []);
+      setSubscriberProvider(data.provider);
     } catch {
       toast.error('Failed to load subscribers');
     } finally {
@@ -223,6 +234,7 @@ export default function RadiusAdminPage() {
       fetchSubscribers();
     } else {
       setSubscribers([]);
+      setSubscriberProvider(null);
     }
   }, [siteId, fetchSubscribers]);
 
@@ -237,23 +249,17 @@ export default function RadiusAdminPage() {
   const handleProvision = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!requireSiteId()) return;
+    if (!subscriberProvider) {
+      toast.error('Load the site before provisioning a home line');
+      return;
+    }
 
     if (
       !provUsername.trim() ||
       !provPassword ||
-      !provProfileId.trim() ||
-      !provSiteCode.trim() ||
-      !provPaidThrough ||
-      !provVirtualId.trim() ||
-      !provServiceId.trim()
+      !provProfileId.trim()
     ) {
       toast.error('All required provision fields must be filled');
-      return;
-    }
-
-    const paidThrough = new Date(provPaidThrough);
-    if (Number.isNaN(paidThrough.getTime())) {
-      toast.error('Paid-through date is invalid');
       return;
     }
 
@@ -264,11 +270,26 @@ export default function RadiusAdminPage() {
         username: provUsername.trim(),
         password: provPassword,
         profileId: provProfileId.trim(),
-        siteCode: provSiteCode.trim(),
-        paidThrough: paidThrough.toISOString(),
-        virtualId: provVirtualId.trim(),
-        serviceId: provServiceId.trim(),
       };
+      if (subscriberProvider === 'radius') {
+        if (!provPaidThrough) {
+          toast.error('Paid-through date is required');
+          return;
+        }
+        const paidThrough = new Date(provPaidThrough);
+        if (Number.isNaN(paidThrough.getTime())) {
+          toast.error('Paid-through date is invalid');
+          return;
+        }
+        body.paidThrough = paidThrough.toISOString();
+      } else {
+        if (!provVirtualId.trim() || !provServiceId.trim()) {
+          toast.error('Virtual ID and service ID are required');
+          return;
+        }
+        body.virtualId = provVirtualId.trim();
+        body.serviceId = provServiceId.trim();
+      }
       if (provName.trim()) body.name = provName.trim();
 
       const res = await fetch('/api/admin/integrations/radius/subscribers', {
@@ -287,7 +308,6 @@ export default function RadiusAdminPage() {
       setProvUsername('');
       setProvPassword('');
       setProvProfileId('');
-      setProvSiteCode('');
       setProvPaidThrough('');
       setProvVirtualId('');
       setProvServiceId('');
@@ -586,43 +606,40 @@ export default function RadiusAdminPage() {
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="prov-site-code">Site code</Label>
-                  <Input
-                    id="prov-site-code"
-                    value={provSiteCode}
-                    onChange={(e) => setProvSiteCode(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="prov-paid-through">Paid through</Label>
-                  <Input
-                    id="prov-paid-through"
-                    type="datetime-local"
-                    value={provPaidThrough}
-                    onChange={(e) => setProvPaidThrough(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="prov-virtual-id">Virtual ID</Label>
-                  <Input
-                    id="prov-virtual-id"
-                    value={provVirtualId}
-                    onChange={(e) => setProvVirtualId(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="prov-service-id">Service ID</Label>
-                  <Input
-                    id="prov-service-id"
-                    value={provServiceId}
-                    onChange={(e) => setProvServiceId(e.target.value)}
-                    required
-                  />
-                </div>
+                {subscriberProvider === 'radius' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="prov-paid-through">Paid through</Label>
+                    <Input
+                      id="prov-paid-through"
+                      type="datetime-local"
+                      value={provPaidThrough}
+                      onChange={(e) => setProvPaidThrough(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+                {subscriberProvider === 'interstellio' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="prov-virtual-id">Virtual ID</Label>
+                      <Input
+                        id="prov-virtual-id"
+                        value={provVirtualId}
+                        onChange={(e) => setProvVirtualId(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="prov-service-id">Service ID</Label>
+                      <Input
+                        id="prov-service-id"
+                        value={provServiceId}
+                        onChange={(e) => setProvServiceId(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="prov-name">Display name (optional)</Label>
                   <Input
@@ -632,7 +649,10 @@ export default function RadiusAdminPage() {
                   />
                 </div>
               </div>
-              <Button type="submit" disabled={isProvisioning || !isUuid(siteId)}>
+              <Button
+                type="submit"
+                disabled={isProvisioning || !isUuid(siteId) || !subscriberProvider}
+              >
                 {isProvisioning ? 'Provisioning…' : 'Provision home line'}
               </Button>
             </form>

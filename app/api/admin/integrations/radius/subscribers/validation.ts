@@ -1,4 +1,4 @@
-import type { CreateSubscriber } from '@/lib/provisioning'
+import type { CreateSubscriber, ProviderKind } from '@/lib/provisioning'
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -6,7 +6,10 @@ export function isUuid(value: unknown): value is string {
   return typeof value === 'string' && UUID_PATTERN.test(value)
 }
 
-export function isCreateSubscriber(value: unknown): value is CreateSubscriber {
+export function isCreateSubscriber(
+  value: unknown,
+  provider: ProviderKind
+): value is CreateSubscriber {
   if (!value || typeof value !== 'object') return false
 
   const subscriber = value as Partial<CreateSubscriber>
@@ -14,10 +17,9 @@ export function isCreateSubscriber(value: unknown): value is CreateSubscriber {
     'username',
     'password',
     'profileId',
-    'siteCode',
-    'paidThrough',
-    'virtualId',
-    'serviceId',
+    ...(provider === 'radius'
+      ? ['paidThrough' as const]
+      : ['virtualId' as const, 'serviceId' as const]),
   ]
 
   return requiredStrings.every(

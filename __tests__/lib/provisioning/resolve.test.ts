@@ -26,7 +26,10 @@ describe('getProviderForSite', () => {
     }
 
     const provider = await getProviderForSite('site-1', {
-      readSiteProvider: jest.fn().mockResolvedValue('interstellio'),
+      readSiteProvider: jest.fn().mockResolvedValue({
+        provider: 'interstellio',
+        siteCode: null,
+      }),
       interstellioClient: interstellioClient as never,
       radiusClient: radiusClient as never,
     })
@@ -59,7 +62,10 @@ describe('getProviderForSite', () => {
     }
 
     const provider = await getProviderForSite('site-1', {
-      readSiteProvider: jest.fn().mockResolvedValue('radius'),
+      readSiteProvider: jest.fn().mockResolvedValue({
+        provider: 'radius',
+        siteCode: '  CORPORATE-SITE-001  ',
+      }),
       interstellioClient: interstellioClient as never,
       radiusClient: radiusClient as never,
     })
@@ -69,10 +75,23 @@ describe('getProviderForSite', () => {
     expect(radiusClient.createSubscriber).toHaveBeenCalledWith({
       username: createInput.username,
       password: createInput.password,
-      siteCode: createInput.siteCode,
+      siteCode: 'CORPORATE-SITE-001',
       profile: createInput.profileId,
       paidThrough: createInput.paidThrough,
     })
     expect(interstellioClient.createSubscriber).not.toHaveBeenCalled()
+  })
+
+  it('rejects a RADIUS site without a corporate site code', async () => {
+    await expect(getProviderForSite('site-1', {
+      readSiteProvider: jest.fn().mockResolvedValue({
+        provider: 'radius',
+        siteCode: '   ',
+      }),
+      radiusClient: {} as never,
+    })).rejects.toMatchObject({
+      status: 409,
+      code: 'RADIUS_SITE_CODE_MISSING',
+    })
   })
 })

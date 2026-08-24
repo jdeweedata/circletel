@@ -7,9 +7,11 @@ import type {
   Session,
   Subscriber,
   Usage,
+  ProviderKind,
 } from './types'
 
 export interface SubscriberProvider {
+  readonly kind: ProviderKind
   listSubscribers(q?: ListQuery): Promise<Paginated<Subscriber>>
   getSubscriber(id: string): Promise<Subscriber>
   createSubscriber(data: CreateSubscriber): Promise<Subscriber>
