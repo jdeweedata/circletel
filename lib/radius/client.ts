@@ -1,6 +1,7 @@
 import type {
   CreateSubscriber,
   DateRange,
+  Estate,
   IssueVoucherBatch,
   Profile,
   RadiusClientOptions,
@@ -105,6 +106,10 @@ export class RadiusClient {
   async listProfiles(): Promise<Profile[]> {
     const response = await this.request<{ profiles: string[] }>('GET', '/v1/profiles')
     return response.profiles.map((profile) => ({ id: profile, name: profile }))
+  }
+
+  listEstate(): Promise<Estate> {
+    return this.request('GET', '/v1/estate')
   }
 
   private async request<T>(method: string, path: string, body?: unknown): Promise<T> {

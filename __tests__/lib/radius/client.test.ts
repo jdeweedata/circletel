@@ -140,6 +140,40 @@ describe('RadiusClient', () => {
     )
   })
 
+  it('lists the estate from GET /v1/estate', async () => {
+    const estate = {
+      voucherCount: 0,
+      voucherGrossCents: 0,
+      sites: [{
+        code: 'FWA-DELMAS-PILOT',
+        name: 'Delmas',
+        nasType: 'routeros',
+        tunnelType: 'direct',
+        overlayIp: null,
+        openSessions: 0,
+        voucherCount: 0,
+        voucherGrossCents: 0,
+        lastAcceptAt: null,
+      }],
+    }
+    const mockFetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => estate,
+    })
+    const client = createRadiusClient({ baseUrl, token, fetch: mockFetch as typeof fetch })
+
+    await expect(client.listEstate()).resolves.toEqual(estate)
+    expect(mockFetch).toHaveBeenCalledWith(`${baseUrl}/v1/estate`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: undefined,
+    })
+  })
+
   it('lists subscribers from the live API route', async () => {
     const subscribers = [{
       username: 'subscriber-1',

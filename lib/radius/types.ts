@@ -53,6 +53,24 @@ export interface Profile {
   name: string
 }
 
+export interface EstateSite {
+  code: string
+  name: string
+  nasType: 'routeros' | 'generic'
+  tunnelType: 'wireguard' | 'openvpn' | 'direct'
+  overlayIp: string | null
+  openSessions: number
+  voucherCount: number
+  voucherGrossCents: number
+  lastAcceptAt: string | null
+}
+
+export interface Estate {
+  sites: EstateSite[]
+  voucherCount: number
+  voucherGrossCents: number
+}
+
 export interface RadiusClientOptions {
   baseUrl: string
   token: string
