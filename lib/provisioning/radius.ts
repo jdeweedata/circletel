@@ -67,16 +67,19 @@ function mapUsage(id: string, usage: RadiusUsage): Usage {
 export class RadiusSubscriberProvider implements SubscriberProvider {
   constructor(private readonly client: RadiusClient) {}
 
-  listSubscribers(_q?: ListQuery): Promise<Paginated<Subscriber>> {
-    return Promise.reject(
-      unsupported('RADIUS subscriber listing is not supported', 'RADIUS_LIST_UNSUPPORTED')
-    )
+  async listSubscribers(_q?: ListQuery): Promise<Paginated<Subscriber>> {
+    const subscribers = await this.client.listSubscribers()
+    return {
+      items: subscribers.map(mapSubscriber),
+      total: subscribers.length,
+      page: 1,
+      pages: 1,
+      perPage: subscribers.length,
+    }
   }
 
-  getSubscriber(_id: string): Promise<Subscriber> {
-    return Promise.reject(
-      unsupported('RADIUS subscriber lookup is not supported', 'RADIUS_GET_UNSUPPORTED')
-    )
+  async getSubscriber(id: string): Promise<Subscriber> {
+    return mapSubscriber(await this.client.getSubscriber(id))
   }
 
   async createSubscriber(data: CreateSubscriber): Promise<Subscriber> {

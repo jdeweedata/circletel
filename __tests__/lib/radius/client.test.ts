@@ -139,4 +139,56 @@ describe('RadiusClient', () => {
       }
     )
   })
+
+  it('lists subscribers from the live API route', async () => {
+    const subscribers = [{
+      username: 'subscriber-1',
+      siteCode: 'SITE-1',
+      profile: 'basic',
+      paidThrough: '2026-08-31',
+      enabled: true,
+    }]
+    const mockFetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => subscribers,
+    })
+    const client = createRadiusClient({ baseUrl, token, fetch: mockFetch as typeof fetch })
+
+    await expect(client.listSubscribers()).resolves.toEqual(subscribers)
+    expect(mockFetch).toHaveBeenCalledWith(`${baseUrl}/v1/subscribers`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: undefined,
+    })
+  })
+
+  it('gets a subscriber by encoded username from the live API route', async () => {
+    const subscriber = {
+      username: 'user/name',
+      siteCode: 'SITE-1',
+      profile: 'basic',
+      paidThrough: '2026-08-31',
+      enabled: true,
+    }
+    const mockFetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => subscriber,
+    })
+    const client = createRadiusClient({ baseUrl, token, fetch: mockFetch as typeof fetch })
+
+    await expect(client.getSubscriber('user/name')).resolves.toEqual(subscriber)
+    expect(mockFetch).toHaveBeenCalledWith(`${baseUrl}/v1/subscribers/user%2Fname`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: undefined,
+    })
+  })
 })

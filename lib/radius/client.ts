@@ -46,6 +46,14 @@ export class RadiusClient {
     return this.request('POST', '/v1/vouchers/batches', input)
   }
 
+  listSubscribers(): Promise<Subscriber[]> {
+    return this.request('GET', '/v1/subscribers')
+  }
+
+  getSubscriber(username: string): Promise<Subscriber> {
+    return this.request('GET', `/v1/subscribers/${encodeURIComponent(username)}`)
+  }
+
   createSubscriber(input: CreateSubscriber): Promise<Subscriber> {
     return this.request('POST', '/v1/subscribers', input)
   }
