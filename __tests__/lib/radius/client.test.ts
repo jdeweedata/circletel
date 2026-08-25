@@ -150,6 +150,7 @@ describe('RadiusClient', () => {
         nasType: 'routeros',
         tunnelType: 'direct',
         overlayIp: null,
+        isSite: false,
         openSessions: 0,
         voucherCount: 0,
         voucherGrossCents: 0,

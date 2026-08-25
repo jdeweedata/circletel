@@ -8,9 +8,13 @@ jest.mock('@/lib/auth/admin-api-auth', () => ({
   authenticateAdmin: jest.fn(),
 }))
 
-jest.mock('@/lib/radius', () => ({
-  getRadiusClient: jest.fn(),
-}))
+jest.mock('@/lib/radius', () => {
+  const actual = jest.requireActual('@/lib/radius') as typeof import('@/lib/radius')
+  return {
+    ...actual,
+    getRadiusClient: jest.fn(),
+  }
+})
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
@@ -99,10 +103,81 @@ describe('GET /api/admin/integrations/radius/estate', () => {
           nasType: 'routeros',
           tunnelType: 'direct',
           overlayIp: '10.10.0.2',
+          isSite: true,
           openSessions: 0,
           voucherCount: 0,
           voucherGrossCents: 0,
           lastAcceptAt: null,
+        },
+      ],
+    })
+  })
+
+  it('marks a flipped clinic without overlay as a candidate and an overlay NAS as a Site', async () => {
+    mockAuthenticateAdmin.mockResolvedValue({ success: true } as never)
+    supabaseSites([
+      {
+        id: 'cfdccb00-9124-4eca-8080-9dbd90aa5059',
+        name: 'Unjani Clinic - Delmas',
+        site_code: 'FWA-DELMAS-PILOT',
+        radius_provider: 'radius',
+        status: 'pending',
+      },
+      {
+        id: '22222222-2222-4222-8222-222222222222',
+        name: 'Lab hEX',
+        site_code: 'LAB-HEX',
+        radius_provider: 'radius',
+        status: 'active',
+      },
+    ])
+    listEstate.mockResolvedValue({
+      voucherCount: 0,
+      voucherGrossCents: 0,
+      sites: [
+        {
+          code: 'FWA-DELMAS-PILOT',
+          name: 'Delmas',
+          nasType: 'routeros',
+          tunnelType: 'direct',
+          overlayIp: null,
+          isSite: false,
+          openSessions: 0,
+          voucherCount: 0,
+          voucherGrossCents: 0,
+          lastAcceptAt: null,
+        },
+        {
+          code: 'LAB-HEX',
+          name: 'Lab hEX',
+          nasType: 'routeros',
+          tunnelType: 'wireguard',
+          overlayIp: '10.10.0.2',
+          isSite: true,
+          openSessions: 1,
+          voucherCount: 0,
+          voucherGrossCents: 0,
+          lastAcceptAt: '2026-08-25T10:00:00.000Z',
+        },
+      ],
+    })
+
+    const response = await GET(request())
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      sites: [
+        {
+          id: 'cfdccb00-9124-4eca-8080-9dbd90aa5059',
+          siteCode: 'FWA-DELMAS-PILOT',
+          overlayIp: null,
+          isSite: false,
+        },
+        {
+          id: '22222222-2222-4222-8222-222222222222',
+          siteCode: 'LAB-HEX',
+          overlayIp: '10.10.0.2',
+          isSite: true,
         },
       ],
     })

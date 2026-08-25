@@ -59,6 +59,7 @@ export interface EstateSite {
   nasType: 'routeros' | 'generic'
   tunnelType: 'wireguard' | 'openvpn' | 'direct'
   overlayIp: string | null
+  isSite?: boolean
   openSessions: number
   voucherCount: number
   voucherGrossCents: number
