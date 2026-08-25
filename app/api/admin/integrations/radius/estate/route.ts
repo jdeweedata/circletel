@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth'
 import { getRadiusClient } from '@/lib/radius'
 import type { Estate } from '@/lib/radius'
+import { estateKind } from '@/lib/radius/estate-kind'
 import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
@@ -34,6 +35,7 @@ export async function GET(request: NextRequest) {
     const byCode = new Map((estate?.sites ?? []).map((site) => [site.code, site]))
     const sites = (data ?? []).map((row) => {
       const aaa = row.site_code ? byCode.get(row.site_code) : undefined
+      const overlayIp = aaa?.overlayIp ?? null
       return {
         id: row.id,
         name: row.name,
@@ -42,7 +44,8 @@ export async function GET(request: NextRequest) {
         radiusProvider: row.radius_provider === 'radius' ? 'radius' : 'interstellio',
         nasType: aaa?.nasType ?? null,
         tunnelType: aaa?.tunnelType ?? null,
-        overlayIp: aaa?.overlayIp ?? null,
+        overlayIp,
+        isSite: estateKind({ isSite: aaa?.isSite, overlayIp }) === 'site',
         openSessions: aaa?.openSessions ?? 0,
         voucherCount: estate?.voucherCount ?? 0,
         voucherGrossCents: estate?.voucherGrossCents ?? 0,

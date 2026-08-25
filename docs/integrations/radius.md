@@ -19,7 +19,10 @@ If either variable is missing, `getRadiusClient()` throws `RADIUS_NOT_CONFIGURED
 
 **Path:** `/admin/integrations/radius`
 
-Registered in the admin feature registry as **Owned RADIUS**. The page has two tabs:
+Registered in the admin feature registry as **Owned RADIUS**. The estate table
+above the tabs labels each corporate row as a **Site** (NAS can reach RADIUS over
+the Overlay) or a **Candidate** (flipped clinic or other row with no Overlay NAS).
+Clicking a name fills the site UUID used by Home Lines. The page has two tabs:
 
 - **Voucher Issuance** — batch issue prepaid voucher codes via `POST /api/admin/integrations/radius/vouchers`
 - **Home Lines** — list, provision, enable/disable, change profile, and disconnect subscribers for a selected corporate site via `/api/admin/integrations/radius/subscribers/*`

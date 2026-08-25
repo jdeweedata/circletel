@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { issuedCodesAfterAttempt } from './issued-codes';
+import { EstateTable, type EstateRow } from './EstateTable';
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -53,19 +54,6 @@ interface DisconnectResult {
   attemptedSessions: number;
   successfulSessions: number;
   failedSessions: number;
-}
-
-interface EstateRow {
-  id: string;
-  name: string;
-  siteCode: string | null;
-  status: string | null;
-  radiusProvider: 'interstellio' | 'radius';
-  nasType: string | null;
-  tunnelType: string | null;
-  overlayIp: string | null;
-  openSessions: number;
-  lastAcceptAt: string | null;
 }
 
 function isUuid(value: string): boolean {
@@ -468,56 +456,16 @@ export default function RadiusAdminPage() {
         <SectionCard icon={PiWifiHighBold} title="Estate">
           <p className="text-sm text-slate-500 mb-4">
             {estateVouchers} vouchers issued · R{(estateGrossCents / 100).toFixed(2)} gross.
-            Empty Home Lines on a RADIUS site is a valid success state.
+            A Site has a NAS on the Overlay. A flipped clinic without a NAS is a candidate.
+            Empty Home Lines on a RADIUS Site is a valid success state.
           </p>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left text-slate-500 border-b border-slate-200">
-                  <th className="py-2 pr-4 font-medium">Site</th>
-                  <th className="py-2 pr-4 font-medium">Provider</th>
-                  <th className="py-2 pr-4 font-medium">NAS</th>
-                  <th className="py-2 pr-4 font-medium">Tunnel</th>
-                  <th className="py-2 pr-4 font-medium">Overlay</th>
-                  <th className="py-2 pr-4 font-medium">Sessions</th>
-                  <th className="py-2 pr-4 font-medium">Last accept</th>
-                </tr>
-              </thead>
-              <tbody>
-                {estate.length === 0 ? (
-                  <tr>
-                    <td className="py-3 text-slate-500" colSpan={7}>
-                      No corporate sites found.
-                    </td>
-                  </tr>
-                ) : (
-                  estate.map((row) => (
-                    <tr key={row.id} className="border-b border-slate-100">
-                      <td className="py-2 pr-4">
-                        <button
-                          type="button"
-                          className="text-left text-primary hover:underline"
-                          onClick={() => {
-                            setSiteId(row.id);
-                            setActiveTab('subscribers');
-                          }}
-                        >
-                          {row.name}
-                        </button>
-                        <div className="text-xs text-slate-400">{row.siteCode ?? 'no site code'}</div>
-                      </td>
-                      <td className="py-2 pr-4">{row.radiusProvider}</td>
-                      <td className="py-2 pr-4">{row.nasType ?? '—'}</td>
-                      <td className="py-2 pr-4">{row.tunnelType ?? '—'}</td>
-                      <td className="py-2 pr-4">{row.overlayIp ?? '—'}</td>
-                      <td className="py-2 pr-4">{row.openSessions}</td>
-                      <td className="py-2 pr-4">{row.lastAcceptAt ?? '—'}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <EstateTable
+            rows={estate}
+            onSelectSite={(id) => {
+              setSiteId(id);
+              setActiveTab('subscribers');
+            }}
+          />
         </SectionCard>
 
         <UnderlineTabs
