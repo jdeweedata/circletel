@@ -12,12 +12,15 @@ interface InfoRowProps {
 /** Key/value row for detail panels. Promoted from components/admin/shared/InfoRow.tsx. */
 export function InfoRow({ label, value, icon: Icon, className }: InfoRowProps) {
   return (
-    <div className={cn('flex justify-between items-center py-3 border-b border-gray-50 last:border-0', className)}>
-      <span className="text-sm text-gray-500 flex items-center gap-2">
+    <div
+      data-pm="info-row"
+      className={cn('flex justify-between items-center py-3 border-b border-gray-50 last:border-0', className)}
+    >
+      <span data-pm="info-label" className="text-sm text-gray-500 flex items-center gap-2">
         {Icon && <Icon className="w-4 h-4" />}
         {label}
       </span>
-      <span className="text-sm font-medium text-gray-900 text-right">{value || '—'}</span>
+      <span data-pm="info-value" className="text-sm font-medium text-gray-900 text-right">{value || '—'}</span>
     </div>
   );
 }

@@ -17,16 +17,56 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { netcashStatementService } from '@/lib/payments/netcash-statement-service';
 import { matchInvoiceByReference } from '@/lib/billing/invoice-matcher';
+import { billingEngine } from '@/lib/billing/engine';
 import { syncPaymentToZohoBilling } from '@/lib/integrations/zoho/payment-sync-service';
 import { cronLogger } from '@/lib/logging';
 import { inngest } from '@/lib/inngest';
-import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
 // Vercel cron configuration
 export const runtime = 'nodejs';
 export const maxDuration = 60;
+
+/**
+ * Insert a real cron_execution_log row before handing off to Inngest.
+ * The previous bridge sent a randomUUID that was never inserted, so Inngest
+ * updates were no-ops and runs were invisible in cron_execution_log.
+ */
+async function createProcessLog(params: {
+  triggeredBy: 'cron' | 'manual';
+  reconciliationDate?: string;
+  dryRun?: boolean;
+}): Promise<string> {
+  const supabase = await createClient();
+  const dateStr =
+    params.reconciliationDate ??
+    new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+  const { data: newLog, error } = await supabase
+    .from('cron_execution_log')
+    .insert({
+      job_name: 'paynow-reconciliation',
+      status: 'running',
+      execution_start: new Date().toISOString(),
+      trigger_source: params.triggeredBy === 'manual' ? 'manual' : 'vercel_cron',
+      execution_details: {
+        triggered_by: params.triggeredBy,
+        reconciliation_date: dateStr,
+        dry_run: params.dryRun ?? false,
+      },
+    })
+    .select('id')
+    .single();
+
+  if (error || !newLog) {
+    throw new Error(
+      `Failed to create process log: ${error?.message || 'Unknown error'}`
+    );
+  }
+
+  return newLog.id as string;
+}
 
 // PayNow-relevant transaction codes from the NetCash statement
 // These are credit entries representing PayNow gateway collections
@@ -36,6 +76,8 @@ const PAYNOW_TRANSACTION_CODES = new Set([
   'OZW',  // Ozow instant EFT
   'INS',  // Instant payment
   'PNW',  // Pay Now generic
+  'PNA',  // Pay Now authorisation / initiate
+  'PNC',  // Pay Now completed collection
   'WEB',  // Web payment
   'ONL',  // Online payment
 ]);
@@ -72,7 +114,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const processLogId = uuidv4();
+    const processLogId = await createProcessLog({ triggeredBy: 'cron' });
 
     await inngest.send({
       name: 'paynow/reconciliation.requested',
@@ -121,7 +163,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .json()
       .catch(() => ({})) as { date?: string; dryRun?: boolean };
 
-    const processLogId = uuidv4();
+    const processLogId = await createProcessLog({
+      triggeredBy: 'manual',
+      reconciliationDate: body.date,
+      dryRun: body.dryRun,
+    });
 
     await inngest.send({
       name: 'paynow/reconciliation.requested',
@@ -257,7 +303,7 @@ export async function runPayNowReconciliation(
   // ── 3. Process each PayNow transaction ─────────────────────────────────────
 
   for (const tx of payNowTransactions) {
-    const reference = tx.accountReference ?? tx.reference ?? tx.description;
+    const reference = tx.accountReference || tx.reference || tx.description;
     if (!reference) {
       result.errors.push(`Transaction with no reference skipped: ${JSON.stringify(tx)}`);
       continue;
@@ -326,21 +372,23 @@ export async function runPayNowReconciliation(
         continue;
       }
 
-      // ── 3d. Update invoice status to paid ─────────────────────────────────
-      const { error: invoiceError } = await supabase
-        .from('customer_invoices')
-        .update({
-          status: 'paid',
-          amount_paid: tx.amount,
-          paid_at: now,
-          payment_method: 'paynow',
-          payment_reference: reference,
-          updated_at: now,
-        })
-        .eq('id', invoice.id);
-
-      if (invoiceError) {
-        const msg = `Failed to update invoice ${invoice.invoice_number}: ${invoiceError.message}`;
+      // ── 3d. Update invoice via billing engine (applyPayment) ───────────────
+      try {
+        await billingEngine.applyPayment(
+          {
+            invoiceId: invoice.id,
+            amount: Number(tx.amount),
+            amountIsAbsolute: true,
+            paymentReference: reference,
+            paymentMethod: 'paynow',
+            paidAt: now,
+          },
+          { source: 'cron' }
+        );
+      } catch (applyErr) {
+        const msg = `Failed to update invoice ${invoice.invoice_number}: ${
+          applyErr instanceof Error ? applyErr.message : String(applyErr)
+        }`;
         cronLogger.error('[PayNowRecon] ' + msg);
         result.errors.push(msg);
         continue;

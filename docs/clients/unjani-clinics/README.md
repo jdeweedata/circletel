@@ -240,14 +240,32 @@ Analysis of 252 sites shows diverse provider landscape:
 
 ---
 
+## Folder map
+
+| Folder | Contents |
+|--------|----------|
+| `contracts/` | MSA, TDX MSA, commercial terms, NPC billing addendum |
+| `billing/closeouts/` | Jul–Aug 2026 close-out packs and reconciliation |
+| `billing/examples/` | September NPC invoice and statement examples |
+| `billing/source-reports/` | Netcash debit, PayNow, and cancellation source files |
+| `billing/` | VAT deferred next-run policy |
+| `onboarding/` | Customer onboarding PDF |
+| `financial/` | Financial model, actuals, projections |
+| `network/` | Clinic and per-site registers |
+| `thinkwifi/` | ThinkWiFi workbooks; `ads/` venue screenshots and CSVs |
+| `arlan/` | MTN Arlan deal note and order letters |
+| `quotes/` | Supplier quotations |
+| `maps/` | Google Maps location screenshots |
+
 ## Contract Documents
 
 | Document | Location |
 |----------|----------|
-| Master Services Agreement | `files/contracts/Circle Tel Agreement 14 October 2025.docx` |
-| Acceptable Usage Policy | `files/contracts/Acceptable Usage Policy 14 Oct 2025.docx` |
-| Pilot Site Schedule | `files/sites/Unjani clinic Schedule V3.xlsx` |
-| Full Connectivity Analysis | `files/sites/Unjani_Connectivity_Analysis_Updated.xlsx` |
+| Master Services Agreement (execution PDF) | `contracts/UNJANI_MSA_EXECUTION_VERSION.pdf` |
+| MSA key commercial terms | `contracts/UNJANI_MSA_KEY_COMMERCIAL_TERMS.md` |
+| Unjani Connect NPC billing addendum | `contracts/UNJANI_CONNECT_NPC_BILLING_ADDENDUM.md` |
+| TDX Circle Tel MSA (final PDF) | `contracts/TDX_CIRCLE_TEL_MSA_FINAL.pdf` |
+| TDX MSA key commercial terms | `contracts/TDX_CIRCLE_TEL_MSA_KEY_COMMERCIAL_TERMS.md` |
 
 ---
 
@@ -271,4 +289,4 @@ This agreement includes special provisions for subsidised healthcare connectivit
 ---
 
 *Document created: 2026-02-10*
-*Last updated: 2026-02-10*
+*Last updated: 2026-08-13*

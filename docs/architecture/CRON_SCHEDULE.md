@@ -46,10 +46,51 @@ Keep Inngest functions as event-triggered step functions. Remove their cron sche
 | `0 21 * * *` | 23:00 | `ar-snapshot` | Finance | Accounts receivable snapshot |
 | `0 0,6,12,18 * * *` | 4x/day | `diagnostics-health-check` | Ops | System health |
 | `0 2,6,10,14,18,22 * * *` | 6x/day | `payment-sync-monitor` | Billing | Monitor payment sync |
+| `20 */4 * * *` | 6x/day | `ruijie-sync-health` | Ops | Alert before Ruijie flow data becomes unrecoverable (~3d source retention) |
 | `0 */4 * * *` | 6x/day | `payment-sync-retry` | Billing | Retry failed syncs |
 | `*/15 * * * *` | every 15m | `zoho-books-retry` | Integration | Retry failed Zoho syncs |
 | `*/30 * * * *` | every 30m | `integrations-health-check` | Ops | Integration health |
 | `0 3 * * 0` | Sun 05:00 | `cleanup-webhook-logs` | Ops | Weekly cleanup |
+
+## Vendor SQLite Staging → Supabase (VPS scripts)
+
+**Canonical path**: Coolify VPS crontab runs `tsx` sync scripts that pull vendor APIs → local SQLite (`VENDOR_CACHE_DB_PATH` / `data/vendor-cache/vendor-cache.db`) → upsert Supabase. Admin/UI reads Supabase only.
+
+```bash
+# Preferred (same path as crontab):
+ops/scheduler/run-vendor-cache.sh ruijie
+ops/scheduler/run-vendor-cache.sh tarana
+ops/scheduler/run-vendor-cache.sh interstellio
+
+# Or from app root:
+# Flags: --dry-run | --publish-only | --delete-stale | --usage-days=N
+npm run vendor-cache:sync:ruijie
+npm run vendor-cache:sync:tarana
+npm run vendor-cache:sync:interstellio
+
+# Regenerate host crontab (includes vendor-cache lines):
+ops/scheduler/generate-crontab.sh | crontab -
+```
+
+| Schedule (UTC) | SAST | Command | Domain | Notes |
+|----------------|------|---------|--------|-------|
+| `*/30 * * * *` | every 30m | `sync.ts --vendor=ruijie` | Network | Stages devices; publishes `ruijie_device_cache`; emits `ruijie/sync.completed` for Inngest fan-out |
+| `0 22 * * *` | 00:00+1 | `sync.ts --vendor=tarana` | Network | NQS BN inventory → `tarana_base_stations` / counts / logs |
+| `0 * * * *` | hourly | `sync.ts --vendor=interstellio` | Network | Subscriber cache + last-2-days usage → `usage_history` |
+
+**Cutover (2026-08-02)**: Inngest Cloud `cron:` removed from `ruijie-sync` and `tarana-sync` (event triggers + fan-out handlers retained). Canonical schedule is host-local via `ops/scheduler/generate-crontab.sh` → `ops/scheduler/run-vendor-cache.sh` (not `$APP_URL` curl — SQLite must stay on the VPS). Logs: `/var/log/circletel-vendor-cache.log`.
+
+**Verification**
+
+```bash
+npm run vendor-cache:sync:ruijie -- --dry-run
+npm run vendor-cache:sync:tarana -- --dry-run
+npm run vendor-cache:sync:interstellio -- --dry-run
+# Then live publish (requires credentials + migration for interstellio_subscriber_cache)
+npm run vendor-cache:sync:ruijie
+```
+
+Apply migration: `supabase/migrations/20260802160000_interstellio_subscriber_cache.sql`
 
 ## Inngest-Only Functions (Need Crontab Routes)
 
@@ -59,7 +100,7 @@ These functions currently only fire via Inngest Cloud cron. They need `/api/cron
 |----------------|------|------------------|--------|----------|
 | `*/15 * * * *` | every 15m | `tarana-metrics-collection` | Network | HIGH — monitoring |
 | `*/30 * * * *` | every 30m | `mikrotik-sync` | Network | HIGH — device sync |
-| `*/30 * * * *` | every 30m | `ruijie-sync` | Network | HIGH — device sync |
+| ~~`*/30 * * * *`~~ | — | `ruijie-sync` | Network | CUTOVER — Inngest cron removed; use host `run-vendor-cache.sh ruijie` |
 | `*/45 * * * *` | every 45m | `zoho-desk-token-refresh` | Integration | MEDIUM |
 | `0 * * * *` | hourly | `ruijie-tunnel-cleanup` | Network | MEDIUM |
 | `0 0 * * *` | 02:00 | `dfa-sync` | Network | MEDIUM |
@@ -67,7 +108,7 @@ These functions currently only fire via Inngest Cloud cron. They need `/api/cron
 | `0 3 */7 * *` | every 7d 05:00 | `ruijie-token-refresh` | Network | LOW |
 | `0 6 * * *` | 08:00 | `whatsapp-campaign-report` | Marketing | LOW |
 | `0 6 * * *` | 08:00 | `whatsapp-notifications` | Comms | LOW |
-| `0 22 * * *` | 00:00+1 | `tarana-sync` | Network | MEDIUM |
+| ~~`0 22 * * *`~~ | — | `tarana-sync` | Network | CUTOVER — Inngest cron removed; use host `run-vendor-cache.sh tarana` |
 | `30 3 * * *` | 05:30 | `sales-engine-orchestrator` | Sales | LOW |
 | `0 8 * * 1` | Mon 10:00 | `marketing-triggers` | Marketing | LOW |
 | `0 1 * * 0` | Sun 03:00 | `zone-demographic-enrichment` | Analytics | LOW |

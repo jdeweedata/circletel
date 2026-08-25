@@ -12,6 +12,7 @@ describe('feature registry data', () => {
     expect(names).toContain('Dashboard');
     expect(names).toContain('Products');
     expect(names).toContain('Quotes');
+    expect(names).toContain('WhatsApp Inbox');
   });
 
   it('every item has a name and an icon; every leaf has an /admin href', () => {
@@ -106,6 +107,18 @@ describe('module + workspace axes', () => {
     }
   });
 
+  it('accountant extras unlock Finance without Administration', () => {
+    const ws = getWorkspaceNav({
+      role: 'viewer',
+      extraWorkspaces: ['executive', 'finance', 'support'],
+    }).map((w) => w.id);
+    expect(ws).toContain('executive');
+    expect(ws).toContain('finance');
+    expect(ws).toContain('support');
+    expect(ws).not.toContain('admin');
+    expect(ws).not.toContain('sales');
+  });
+
   it('module entitlement hides a disabled module’s items', () => {
     const withoutBilling = getWorkspaceNav({ role: 'super_admin', modules: ['core'] });
     const finance = withoutBilling.find((w) => w.id === 'finance');
@@ -116,6 +129,9 @@ describe('module + workspace axes', () => {
     expect(workspaceForPath('/admin/quotes')).toBe('sales');
     expect(workspaceForPath('/admin/billing/invoices')).toBe('finance');
     expect(workspaceForPath('/admin/settings')).toBe('admin');
+    expect(workspaceForPath('/admin/inbox')).toBe('support');
+    expect(workspaceForPath('/admin/inbox/sales')).toBe('support');
+    expect(workspaceForPath('/admin/inbox/support')).toBe('support');
     expect(workspaceForPath('/admin/nonexistent')).toBeNull();
   });
 });

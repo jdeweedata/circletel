@@ -28,7 +28,9 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ManualPaymentDialog } from '@/components/admin/billing/ManualPaymentDialog';
+import { openKycDocument } from '@/lib/admin/open-kyc-document';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface Payment {
   id: string;
@@ -85,6 +87,10 @@ interface InvoiceData {
   invoice: Invoice;
   payments: Payment[];
   lineItems: LineItem[];
+  serviceOrder?: {
+    pdf_path: string | null;
+    issued_at: string | null;
+  } | null;
   summary: {
     totalPaid: number;
     paymentCount: number;
@@ -184,6 +190,7 @@ export default function InvoiceDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [openingServiceOrder, setOpeningServiceOrder] = useState(false);
 
   useEffect(() => {
     if (invoiceId) {
@@ -253,6 +260,17 @@ export default function InvoiceDetailPage() {
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
       setCopied(false);
+    }
+  };
+
+  const openServiceOrderPdf = async (path: string) => {
+    try {
+      setOpeningServiceOrder(true);
+      await openKycDocument(path);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to open Service Order');
+    } finally {
+      setOpeningServiceOrder(false);
     }
   };
 
@@ -358,7 +376,7 @@ export default function InvoiceDetailPage() {
     );
   }
 
-  const { invoice, payments, summary } = data;
+  const { invoice, payments, summary, serviceOrder } = data;
   const customerName = [invoice.customer?.first_name, invoice.customer?.last_name]
     .filter(Boolean)
     .join(' ') || 'Unknown customer';
@@ -451,6 +469,21 @@ export default function InvoiceDetailPage() {
               Download PDF
             </Link>
           </Button>
+          {serviceOrder?.pdf_path && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={openingServiceOrder}
+              onClick={() => openServiceOrderPdf(serviceOrder.pdf_path!)}
+            >
+              {openingServiceOrder ? (
+                <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <PiFileTextBold className="mr-2 h-4 w-4" />
+              )}
+              Service Order
+            </Button>
+          )}
         </div>
       </header>
 

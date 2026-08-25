@@ -5,7 +5,6 @@ import {
   PiArrowRightBold,
   PiCheckCircleBold,
   PiMapPinBold,
-  PiShieldCheckBold,
 } from 'react-icons/pi';
 import { FaWhatsapp } from 'react-icons/fa';
 
@@ -105,6 +104,12 @@ const BUSINESS_PROOF = [
     title: 'Fast install path',
     description: 'Coverage check, plan choice and installation expectations stay visible early.',
   },
+];
+
+const SEGMENT_TABS: Array<{ id: SegmentType; label: string }> = [
+  { id: 'home', label: 'My Home' },
+  { id: 'wfh', label: 'Work from Home' },
+  { id: 'business', label: 'My Business' },
 ];
 
 const CLOSING_CTA: Record<SegmentType, { headline: string; sub: string }> = {
@@ -289,13 +294,8 @@ export function HomeLanding20260607({
         <div className="absolute inset-0 z-10 bg-[linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] bg-[length:76px_76px] [mask-image:linear-gradient(90deg,rgba(0,0,0,.75),rgba(0,0,0,.1))]" />
         <div className="absolute -bottom-[22vw] -right-[18vw] z-10 h-[42vw] w-[42vw] rounded-full bg-circleTel-orange/35 blur-3xl" />
 
-        <div className="container relative z-20 mx-auto px-4 pb-20 pt-10 md:pb-20 md:pt-16">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 font-heading text-xs font-bold uppercase tracking-widest text-orange-100 backdrop-blur">
-            <PiShieldCheckBold className="h-4 w-4 text-circleTel-orange" />
-            Residential + business connectivity
-          </div>
-
-          <h1 className="mt-6 max-w-4xl font-heading text-[3rem] font-extrabold leading-[.96] tracking-[-0.04em] text-white sm:text-6xl lg:text-[5.375rem]">
+        <div className="container relative z-20 mx-auto px-4 pb-24 pt-10 md:pb-28 md:pt-16">
+          <h1 className="max-w-4xl font-heading text-[3rem] font-extrabold leading-[.96] tracking-[-0.04em] text-white sm:text-6xl lg:text-[5.375rem]">
             Internet that works as hard as you do.
           </h1>
 
@@ -304,14 +304,58 @@ export function HomeLanding20260607({
             R0 setup, and professional installation without the usual runaround.
           </p>
 
-          <form
-            id="coverage-checker"
-            className="mt-9 grid max-w-3xl gap-3 rounded-3xl border border-circleTel-lightNeutral bg-white p-4 shadow-2xl shadow-circleTel-midnight-navy/40 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end md:p-5"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void runCoverageCheck();
-            }}
-          >
+          <div className="mt-9 flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              size="xl"
+              className="rounded-full bg-white px-7 text-circleTel-navy hover:bg-white/90"
+              onClick={() => scrollToSection('plans')}
+            >
+              View packages
+            </Button>
+          </div>
+
+        </div>
+      </section>
+
+      {/* Coverage checker floats over the hero bottom edge */}
+      <div className="container relative z-30 mx-auto -mt-12 px-4 md:-mt-16">
+        <form
+          id="coverage-checker"
+          className="grid w-full gap-4 rounded-3xl border border-circleTel-lightNeutral bg-white p-4 shadow-2xl shadow-circleTel-midnight-navy/40 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end md:p-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void runCoverageCheck();
+          }}
+        >
+            <div className="md:col-span-3">
+              <div
+                role="tablist"
+                aria-label="Choose home or business connectivity"
+                className="inline-flex w-full max-w-md rounded-full bg-circleTel-lightNeutral/60 p-1 sm:w-auto"
+              >
+                {SEGMENT_TABS.map((tab) => {
+                  const isActive = activeSegment === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => onSegmentChange(tab.id)}
+                      className={`flex-1 whitespace-nowrap rounded-full px-2.5 py-2 font-heading text-[11px] font-extrabold uppercase tracking-tight transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-circleTel-orange sm:px-6 sm:text-sm sm:tracking-widest ${
+                        isActive
+                          ? 'bg-circleTel-orange text-white shadow-md'
+                          : 'text-circleTel-navy hover:text-circleTel-orange-accessible'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <label className="grid gap-2 font-heading text-xs font-extrabold uppercase tracking-widest text-circleTel-navy">
               Coverage check
               <span className="relative block">
@@ -360,21 +404,8 @@ export function HomeLanding20260607({
                 and we&apos;ll confirm coverage for you, or try again in a minute.
               </p>
             )}
-          </form>
-
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Button
-              type="button"
-              size="xl"
-              className="rounded-full bg-white px-7 text-circleTel-navy hover:bg-white/90"
-              onClick={() => scrollToSection('plans')}
-            >
-              View packages
-            </Button>
-          </div>
-
-        </div>
-      </section>
+        </form>
+      </div>
 
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">

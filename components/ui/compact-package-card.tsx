@@ -27,8 +27,9 @@ export interface CompactPackageCardProps {
   speedUnit?: string;
 
   // Promotional
-  promoBadge?: string; // e.g., "2-MONTH PROMO"
+  promoBadge?: string; // e.g., "Promo to 30 Sep"
   badgeColor?: 'pink' | 'orange' | 'yellow' | 'blue';
+  termLabel?: string;
 
   // Provider information
   provider?: {
@@ -110,12 +111,20 @@ export function CompactPackageCard({
   speedUnit = 'Mbps',
   promoBadge,
   badgeColor = 'pink',
+  termLabel,
   provider,
   onClick,
   selected = false,
   className,
 }: CompactPackageCardProps) {
   const hasPromo = !!promoBadge;
+  const hasZeroSpeeds = downloadSpeed === 0 && uploadSpeed === 0;
+  const showSpeeds =
+    downloadSpeed !== undefined &&
+    uploadSpeed !== undefined &&
+    !hasZeroSpeeds;
+  const dataCapMatch = dataTooltip?.match(/(\d+)\s*GB/i);
+  const dataCapLabel = hasZeroSpeeds && dataCapMatch ? `${dataCapMatch[1]} GB` : null;
 
   return (
     <div
@@ -209,7 +218,31 @@ export function CompactPackageCard({
         </div>
       )}
 
-      {/* Phase 3: PiPackageBold Type Label with Infinity Icon & Green Color + Tooltip */}
+      {/* Package name + contract/SIM term — required so cards are distinguishable */}
+      {(name || termLabel) && (
+        <div className="px-4 pt-3 text-center md:text-left">
+          {name && (
+            <p
+              className={cn(
+                'text-sm md:text-base font-semibold leading-tight',
+                selected ? 'text-gray-900' : 'text-white drop-shadow-sm'
+              )}
+            >
+              {name}
+            </p>
+          )}
+          {termLabel && (
+            <p
+              className={cn(
+                'mt-1 text-[11px] md:text-xs font-bold uppercase tracking-wide',
+                selected ? 'text-gray-600' : 'text-white/90'
+              )}
+            >
+              {termLabel}
+            </p>
+          )}
+        </div>
+      )}
       <div className="h-6 pt-2 px-4">
         <TooltipProvider>
           <Tooltip>
@@ -277,8 +310,8 @@ export function CompactPackageCard({
           )}
         </div>
 
-        {/* Speed Indicators - Larger & More Prominent */}
-        {downloadSpeed !== undefined && uploadSpeed !== undefined && (
+        {/* Speed Indicators — hide 0/0 (FWA) and show the data cap instead */}
+        {showSpeeds && (
           <div className={cn(
             'w-full text-center md:text-left px-2 mt-4',
             selected ? 'text-gray-900' : 'text-white'
@@ -296,6 +329,14 @@ export function CompactPackageCard({
                 <span className="text-sm md:text-base font-bold drop-shadow-sm">{uploadSpeed}{speedUnit}</span>
               </div>
             </div>
+          </div>
+        )}
+        {dataCapLabel && (
+          <div className={cn(
+            'w-full text-center md:text-left px-2 mt-4',
+            selected ? 'text-gray-900' : 'text-white'
+          )}>
+            <p className="text-sm md:text-base font-bold drop-shadow-sm">{dataCapLabel}</p>
           </div>
         )}
       </div>

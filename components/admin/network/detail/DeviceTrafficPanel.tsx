@@ -32,6 +32,8 @@ interface TrafficHistory {
 
 interface DeviceTrafficPanelProps {
   sn: string;
+  /** Reports window changes so the page can share the selection (e.g. with the export menu). */
+  onHoursChange?: (hours: number) => void;
 }
 
 const WINDOWS = [
@@ -65,7 +67,7 @@ function Tile({ label, value, hint }: { label: string; value: string; hint?: str
   );
 }
 
-export function DeviceTrafficPanel({ sn }: DeviceTrafficPanelProps) {
+export function DeviceTrafficPanel({ sn, onHoursChange }: DeviceTrafficPanelProps) {
   const [hours, setHours] = useState<number>(24);
   const [history, setHistory] = useState<TrafficHistory | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,7 +122,10 @@ export function DeviceTrafficPanel({ sn }: DeviceTrafficPanelProps) {
             <button
               key={w.hours}
               type="button"
-              onClick={() => setHours(w.hours)}
+              onClick={() => {
+                setHours(w.hours);
+                onHoursChange?.(w.hours);
+              }}
               aria-pressed={hours === w.hours}
               className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
                 hours === w.hours

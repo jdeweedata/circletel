@@ -183,6 +183,9 @@ export async function GET(request: NextRequest) {
       .select(
         'group_id, group_name, captured_at, avg_rx_bps, avg_tx_bps, peak_rx_bps, peak_tx_bps, total_rx_bytes, total_tx_bytes'
       )
+      // Exclude legacy group blobs so they do not double-count against
+      // per-device rows during the retention overlap (#702).
+      .neq('device_sn', '__legacy_group__')
       .gte('captured_at', twentyFourHoursAgo)
       .order('captured_at', { ascending: true });
 

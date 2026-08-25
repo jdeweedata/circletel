@@ -1,0 +1,186 @@
+/*
+ * Billing Modernist — CircleTel-branded token overrides + shared component
+ * classes. Scoped under `.billing-modernist` so nothing leaks onto other
+ * admin pages. Source: docs/superpowers/specs/2026-08-06-billing-modernist-
+ * redesign-design.md ("Visual system") + the approved mock `:root` overrides.
+ */
+
+.billing-modernist {
+  --bm-navy: #13274a;
+  --bm-accent: #f5841e;
+  --bm-accent-hover: #e97b26;
+  --bm-accent-active: #d76026;
+  --bm-accent-text: #d76026;
+
+  --bm-text: #1f2937;
+  --bm-text-muted: color-mix(in srgb, #1f2937 62%, transparent);
+  --bm-text-faint: color-mix(in srgb, #1f2937 50%, transparent);
+
+  --bm-divider: color-mix(in srgb, #13274a 28%, transparent);
+  --bm-ground: color-mix(in srgb, #13274a 7%, #ffffff);
+  --bm-surface: color-mix(in srgb, #13274a 6%, #ffffff);
+
+  --bm-red: #dc2626;
+  --bm-amber-bg: color-mix(in srgb, #ca8a04 18%, #ffffff);
+  --bm-amber-fg: color-mix(in srgb, #ca8a04 72%, #000000);
+  --bm-green-bg: color-mix(in srgb, #16a34a 14%, #ffffff);
+  --bm-green-fg: color-mix(in srgb, #16a34a 78%, #000000);
+  --bm-neutral-300: color-mix(in srgb, #8b8b8b 32%, #ffffff);
+  --bm-neutral-500: color-mix(in srgb, #8b8b8b 68%, #ffffff);
+
+  --font-heading: 'Archivo', system-ui, sans-serif;
+  --font-body: 'Archivo', system-ui, sans-serif;
+
+  color: var(--bm-text);
+  font-family: var(--font-body);
+}
+
+.billing-modernist *,
+.billing-modernist *::before,
+.billing-modernist *::after {
+  box-sizing: border-box;
+}
+
+.billing-modernist h1,
+.billing-modernist h2,
+.billing-modernist h3,
+.billing-modernist h4 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.billing-modernist :focus-visible {
+  outline: 2px solid var(--bm-accent);
+  outline-offset: 2px;
+}
+
+/* — buttons — */
+.billing-modernist .bm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--bm-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  padding: 10px 16px;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.billing-modernist .bm-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.billing-modernist .bm-btn-primary {
+  background: var(--bm-accent);
+  color: var(--bm-navy);
+}
+.billing-modernist .bm-btn-primary:hover:not(:disabled) {
+  background: var(--bm-accent-hover);
+}
+.billing-modernist .bm-btn-primary:active:not(:disabled) {
+  background: var(--bm-accent-active);
+}
+.billing-modernist .bm-btn-secondary {
+  border-color: var(--bm-divider);
+}
+.billing-modernist .bm-btn-secondary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bm-text) 7%, transparent);
+}
+.billing-modernist .bm-btn-secondary:active:not(:disabled) {
+  background: color-mix(in srgb, var(--bm-text) 14%, transparent);
+}
+.billing-modernist .bm-btn-ghost {
+  color: var(--bm-accent-text);
+  padding-inline: 4px;
+}
+.billing-modernist .bm-btn-ghost:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bm-accent) 10%, transparent);
+}
+.billing-modernist .bm-btn-ghost:active:not(:disabled) {
+  background: color-mix(in srgb, var(--bm-accent) 18%, transparent);
+}
+
+/* — filter chips — */
+.billing-modernist .bm-chip {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--bm-text);
+  background: transparent;
+  border: 1px solid var(--bm-divider);
+  border-left-width: 0;
+  padding: 7px 14px;
+  transition: background-color 0.15s ease;
+}
+.billing-modernist .bm-chip:first-child {
+  border-left-width: 1px;
+}
+.billing-modernist .bm-chip:hover:not(.bm-chip-active) {
+  background: color-mix(in srgb, var(--bm-text) 7%, transparent);
+}
+.billing-modernist .bm-chip-active {
+  background: var(--bm-navy);
+  color: #ffffff;
+}
+
+/* — forms — */
+.billing-modernist .bm-input {
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--bm-text);
+  caret-color: var(--bm-accent);
+  background: var(--bm-surface);
+  border: 1px solid var(--bm-divider);
+  border-radius: 0;
+}
+.billing-modernist .bm-input:hover {
+  border-color: color-mix(in srgb, var(--bm-text) 45%, transparent);
+}
+.billing-modernist .bm-input:focus-visible {
+  outline: none;
+  border-color: var(--bm-accent);
+}
+
+/* — table — */
+.billing-modernist .bm-table {
+  border-collapse: collapse;
+  font-family: var(--font-body);
+}
+.billing-modernist .bm-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bm-text-muted);
+  padding: 10px 8px;
+  border-bottom: 2px solid var(--bm-divider);
+}
+.billing-modernist .bm-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--bm-divider);
+  vertical-align: top;
+}
+.billing-modernist .bm-table tbody tr:hover {
+  background: color-mix(in srgb, var(--bm-text) 4%, transparent);
+}

@@ -34,6 +34,8 @@ const PAYNOW_TRANSACTION_CODES = new Set([
   'OZW', // Ozow instant EFT
   'INS', // Instant payment
   'PNW', // Pay Now generic
+  'PNA', // Pay Now authorisation / initiate
+  'PNC', // Pay Now completed collection
   'WEB', // Web payment
   'ONL', // Online payment
 ]);
@@ -60,6 +62,37 @@ export const paynowReconciliationFunction = inngest.createFunction(
         match: 'data.process_log_id',
       },
     ],
+    onFailure: async ({ error, event }) => {
+      const eventData = event?.data as
+        | { process_log_id?: string }
+        | undefined;
+      const processLogId = eventData?.process_log_id;
+      if (!processLogId) return;
+
+      try {
+        const supabase = await createClient();
+        await supabase
+          .from('cron_execution_log')
+          .update({
+            status: 'failed',
+            execution_end: new Date().toISOString(),
+            error_message:
+              error instanceof Error ? error.message : String(error),
+            execution_details: {
+              error: error instanceof Error ? error.message : String(error),
+              failed_via: 'inngest_onFailure',
+            },
+          })
+          .eq('id', processLogId)
+          .eq('status', 'running');
+      } catch (logError) {
+        cronLogger.error('[PayNowRecon] onFailure log update failed', {
+          processLogId,
+          error:
+            logError instanceof Error ? logError.message : String(logError),
+        });
+      }
+    },
   triggers: [
     // Cron trigger: daily at 07:00 UTC (09:00 SAST)
     { cron: '0 7 * * *' },
@@ -100,41 +133,58 @@ export const paynowReconciliationFunction = inngest.createFunction(
     const processLogId = await step.run('create-process-log', async () => {
       const supabase = await createClient();
 
-      // If process_log_id provided (from event), update existing log
+      // If process_log_id provided (from cron bridge / manual), update existing log.
+      // Fall back to insert when the id is a phantom UUID (legacy bridge bug).
       if (eventData?.process_log_id) {
-        const { error } = await supabase
+        const { data: updatedRows, error: updateError } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'running',
-            started_at: new Date().toISOString(),
+            execution_start: new Date().toISOString(),
           })
-          .eq('id', eventData.process_log_id);
+          .eq('id', eventData.process_log_id)
+          .select('id');
 
-        if (error) {
+        if (updateError) {
           cronLogger.error('[PayNowRecon] Failed to update process log', {
-            error: error.message,
+            error: updateError.message,
+            processLogId: eventData.process_log_id,
           });
-          throw new Error(`Failed to update process log: ${error.message}`);
+          throw new Error(
+            `Failed to update process log: ${updateError.message}`
+          );
         }
 
-        console.log(
-          `[PayNowRecon] Updated process log ${eventData.process_log_id} to running`
+        if (updatedRows && updatedRows.length > 0) {
+          console.log(
+            `[PayNowRecon] Updated process log ${eventData.process_log_id} to running`
+          );
+          return eventData.process_log_id;
+        }
+
+        cronLogger.warn(
+          '[PayNowRecon] process_log_id not found — creating new log',
+          { processLogId: eventData.process_log_id }
         );
-        return eventData.process_log_id;
       }
 
-      // Create new process log for cron trigger
+      // Create new process log (Inngest-native cron, or phantom-id fallback)
       const { data: newLog, error } = await supabase
         .from('cron_execution_log')
         .insert({
           job_name: 'paynow-reconciliation',
           status: 'running',
-          started_at: new Date().toISOString(),
-          result: {
+          execution_start: new Date().toISOString(),
+          trigger_source: triggeredBy === 'manual' ? 'manual' : 'cron',
+          triggered_by: adminUserId || null,
+          execution_details: {
             triggered_by: triggeredBy,
             triggered_by_user_id: adminUserId || null,
             reconciliation_date: dateStr,
             dry_run: dryRun,
+            ...(eventData?.process_log_id
+              ? { phantom_process_log_id: eventData.process_log_id }
+              : {}),
           },
         })
         .select('id')
@@ -185,19 +235,30 @@ export const paynowReconciliationFunction = inngest.createFunction(
 
       await step.run('finalize-log-no-statement', async () => {
         const supabase = await createClient();
-        await supabase
+        const durationMsNoStmt = Date.now() - startTime;
+        const { error: finalizeError } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'completed_with_errors',
-            completed_at: new Date().toISOString(),
-            result: {
+            execution_end: new Date().toISOString(),
+            execution_details: {
               reconciliation_date: dateStr,
               statement_fetched: false,
               errors: [errorMsg],
-              duration_ms: Date.now() - startTime,
+              duration_ms: durationMsNoStmt,
             },
           })
           .eq('id', processLogId);
+
+        if (finalizeError) {
+          cronLogger.error('[PayNowRecon] Failed to finalize process log', {
+            processLogId,
+            error: finalizeError.message,
+          });
+          throw new Error(
+            `Failed to finalize process log: ${finalizeError.message}`
+          );
+        }
       });
 
       await step.run('send-completion-event-no-statement', async () => {
@@ -269,8 +330,13 @@ export const paynowReconciliationFunction = inngest.createFunction(
       }
 
       for (const tx of payNowTransactions) {
+        // Skip authorisations / zero-value lines (e.g. PNA); only settle real credits
+        if (!(Number(tx.amount) > 0)) {
+          continue;
+        }
+
         const reference =
-          tx.accountReference ?? tx.reference ?? tx.description;
+          tx.accountReference || tx.reference || tx.description;
 
         if (!reference) {
           counters.errors.push(
@@ -468,20 +534,38 @@ export const paynowReconciliationFunction = inngest.createFunction(
     await step.run('update-final-log', async () => {
       const supabase = await createClient();
 
-      await supabase
+      const { error: finalizeError } = await supabase
         .from('cron_execution_log')
         .update({
           status: finalStatus,
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          records_processed: processingResult.total_transactions ?? null,
+          records_failed: processingResult.unmatched ?? null,
+          execution_details: {
             reconciliation_date: dateStr,
             statement_fetched: true,
             dry_run: dryRun,
             ...processingResult,
             duration_ms: duration,
+            // unmatchedDetails may be present at runtime on processingResult extras
+            unmatchedDetails:
+              (processingResult as { unmatched_details?: unknown; unmatchedDetails?: unknown })
+                .unmatched_details ??
+              (processingResult as { unmatchedDetails?: unknown }).unmatchedDetails ??
+              [],
           },
         })
         .eq('id', processLogId);
+
+      if (finalizeError) {
+        cronLogger.error('[PayNowRecon] Failed to finalize process log', {
+          processLogId,
+          error: finalizeError.message,
+        });
+        throw new Error(
+          `Failed to finalize process log: ${finalizeError.message}`
+        );
+      }
 
       cronLogger.info('[PayNowRecon] Reconciliation complete', {
         date: dateStr,
@@ -593,8 +677,9 @@ export const paynowReconciliationFailedFunction = inngest.createFunction(
         .from('cron_execution_log')
         .update({
           status: 'failed',
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          error_message: typeof error === 'string' ? error : String(error),
+          execution_details: {
             error,
             failed_attempt: attempt,
           },

@@ -37,6 +37,12 @@ export const ADMIN_CLAIM_API_TTL_MS = 15 * 60 * 1000;
  *  gated by the 15-min API window). Kept short so a direct-DB role change or
  *  deactivation revokes page-shell access within the hour. */
 export const ADMIN_CLAIM_PAGE_TTL_MS = 60 * 60 * 1000;
+/**
+ * Ignore claim age when the admin_users Data API is confirmed down.
+ * Still requires a versioned, active claim — password auth is the other gate.
+ * Deactivations cannot be seen until PostgREST recovers.
+ */
+export const ADMIN_CLAIM_OUTAGE_TTL_MS = Number.POSITIVE_INFINITY;
 
 export interface AdminClaim {
   v: number;

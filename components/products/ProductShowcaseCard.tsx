@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowDownBold, PiArrowUpBold, PiCheckBold, PiLightningBold} from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowUpBold, PiCheckBold, PiLightningBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { getFiveGCardDataCap, getFiveGOfferTerm } from '@/lib/products/five-g-offer-term';
 
 interface ProductShowcaseCardProps {
   product: {
@@ -22,7 +23,12 @@ interface ProductShowcaseCardProps {
     features?: string[];
     metadata?: {
       data_limit?: string;
+      data_cap?: string;
+      data_cap_gb?: number;
+      capped?: boolean;
       router_included?: boolean;
+      contract_type?: string;
+      contract_duration?: string;
     };
     is_featured?: boolean;
   };
@@ -38,9 +44,8 @@ interface ProductShowcaseCardProps {
 export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCardProps) {
   const price = product.price || parseFloat(String(product.base_price_zar || 0));
   const hasPromo = product.promotion_price && product.promotion_price < price;
-  const dataLimit = product.metadata?.data_limit;
-  const isUncapped = !dataLimit || dataLimit.toLowerCase() === 'unlimited' || dataLimit === '∞';
-  const displayData = isUncapped ? '∞' : dataLimit;
+  const dataCap = getFiveGCardDataCap(product.metadata);
+  const offerTerm = getFiveGOfferTerm(product.metadata);
 
   // Generate slug if not present
   const productSlug = product.slug || product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -48,11 +53,11 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group relative">
       {/* Featured Badge */}
-      {product.is_featured && (
+      {(product.is_featured || hasPromo) && (
         <div className="absolute top-4 right-4 z-10">
           <Badge className="bg-circleTel-orange text-white font-bold">
             <PiLightningBold className="h-3 w-3 mr-1" />
-            Popular
+            {hasPromo ? 'Promo' : 'Popular'}
           </Badge>
         </div>
       )}
@@ -68,12 +73,17 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
         <p className="text-sm text-gray-400 uppercase tracking-wider mb-2">
           {product.service_type || 'Internet'}
         </p>
+        {offerTerm.label && (
+          <p className="text-xs font-semibold uppercase tracking-wide text-circleTel-orange mb-3">
+            {offerTerm.label}
+          </p>
+        )}
         <div className="flex items-baseline justify-center gap-1">
-          <span className="text-7xl font-bold tracking-tight">{displayData}</span>
-          {!isUncapped && <span className="text-2xl font-bold text-gray-400">GB</span>}
+          <span className="text-7xl font-bold tracking-tight">{dataCap.displayData}</span>
+          {dataCap.unit && <span className="text-2xl font-bold text-gray-400">{dataCap.unit}</span>}
         </div>
         <p className="text-circleTel-orange font-semibold mt-2 text-lg">
-          {isUncapped ? 'Uncapped' : 'Monthly Data'}
+          {dataCap.caption}
         </p>
       </div>
 
@@ -125,7 +135,7 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
           ) : (
             <span className="text-3xl font-bold text-gray-900">R{Math.round(price)}</span>
           )}
-          <p className="text-sm text-gray-500 mt-1">per month</p>
+          <p className="text-sm text-gray-500 mt-1">{offerTerm.priceHint || 'per month incl. VAT'}</p>
         </div>
 
         {/* Key Features (max 3) */}
@@ -140,11 +150,22 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
           </ul>
         )}
 
-        {/* Router Included Badge */}
-        {product.metadata?.router_included && (
-          <div className="mb-4 p-2 bg-amber-50 border border-amber-200 rounded-lg text-center">
-            <span className="text-sm font-semibold text-amber-700">
-              FREE Router Included
+        {offerTerm.label && (
+          <div
+            className={cn(
+              'mb-4 p-2 rounded-lg text-center border',
+              offerTerm.kind === 'contract_router'
+                ? 'bg-amber-50 border-amber-200'
+                : 'bg-slate-50 border-slate-200'
+            )}
+          >
+            <span
+              className={cn(
+                'text-sm font-semibold',
+                offerTerm.kind === 'contract_router' ? 'text-amber-800' : 'text-slate-700'
+              )}
+            >
+              {offerTerm.label}
             </span>
           </div>
         )}

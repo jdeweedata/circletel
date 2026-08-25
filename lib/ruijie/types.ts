@@ -179,3 +179,60 @@ export interface RuijieTrafficRollupRow {
   raw_summary: Record<string, unknown> | null;
   created_at: string;
 }
+
+/** Hourly STA session-byte deltas per AP + allow-listed SSID (Usage Reports Staff GB). */
+export interface RuijieSsidTrafficRollupRow {
+  id: string;
+  device_sn: string;
+  ssid: string;
+  hour_bucket: string;
+  hours_window: number;
+  corporate_site_id: string | null;
+  rx_bytes: number;
+  tx_bytes: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Hourly STA session-byte deltas per AP + client MAC + allow-listed SSID. */
+export interface RuijieSsidStaTrafficRollupRow {
+  id: string;
+  device_sn: string;
+  mac: string;
+  ssid: string;
+  hour_bucket: string;
+  hours_window: number;
+  corporate_site_id: string | null;
+  rx_bytes: number;
+  tx_bytes: number;
+  hostname: string | null;
+  manufacture: string | null;
+  band: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Last-seen STA counters for positive-delta sampling between 5-min polls. */
+export interface RuijieSsidStaSampleStateRow {
+  device_sn: string;
+  mac: string;
+  ssid: string;
+  last_wifi_up: number;
+  last_wifi_down: number;
+  sampled_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * SSIDs credited by the 5-min STA sampler into `ruijie_ssid_traffic_rollups`
+ * and per-MAC `ruijie_ssid_sta_traffic_rollups`.
+ * Exact broadcast names as returned by Ruijie `/sta/sta_users`.
+ * (#676 Staff; Free Clinic enabled 2026-08-05 — same delta sampling path.)
+ */
+export const RUIJIE_SSID_ROLLUP_ALLOWLIST = [
+  'Unjani Clinic Staff',
+  'Unjani Clinic Free WiFi',
+] as const;
+export type RuijieSsidRollupAllowlistedSsid =
+  (typeof RUIJIE_SSID_ROLLUP_ALLOWLIST)[number];

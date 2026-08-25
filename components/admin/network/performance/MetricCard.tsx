@@ -1,52 +1,7 @@
-'use client';
-
-import { ReactNode } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-
-type MetricCardProps = {
-  title: string;
-  value: string;
-  subtitle?: string;
-  delta?: string | null;
-  deltaPositive?: boolean | null;
-  children?: ReactNode;
-  className?: string;
-};
-
-export function MetricCard({
-  title,
-  value,
-  subtitle,
-  delta,
-  deltaPositive,
-  children,
-  className,
-}: MetricCardProps) {
-  return (
-    <Card className={cn('border border-slate-200/80 shadow-sm rounded-xl bg-white', className)}>
-      <CardHeader className="pb-2 space-y-0">
-        <CardTitle className="text-sm font-medium text-slate-500">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div>
-          <p className="text-3xl font-semibold tracking-tight text-slate-900">{value}</p>
-          {subtitle ? <p className="text-xs text-slate-500 mt-1">{subtitle}</p> : null}
-          {delta ? (
-            <p
-              className={cn(
-                'text-xs mt-1 font-medium',
-                deltaPositive === true && 'text-blue-600',
-                deltaPositive === false && 'text-amber-600',
-                deltaPositive == null && 'text-slate-500'
-              )}
-            >
-              {delta}
-            </p>
-          ) : null}
-        </div>
-        {children}
-      </CardContent>
-    </Card>
-  );
-}
+/**
+ * Back-compat shim. MetricCard was promoted to the shared backend kit —
+ * see components/backend/MetricCard.tsx and docs/design/BACKEND_UI_KIT.md.
+ * Imports the file directly (not the @/components/backend barrel) to avoid a cycle.
+ */
+export { MetricCard } from '@/components/backend/MetricCard';
+export type { MetricCardProps } from '@/components/backend/MetricCard';

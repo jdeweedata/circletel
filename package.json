@@ -15,7 +15,9 @@
     "prepare": "git config core.hooksPath .githooks || true",
     "type-check": "tsc --noEmit",
     "type-check:memory": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc --noEmit",
-    "predeploy:check": "npm run type-check && npm run lint",
+    "types:generate": "bash scripts/generate-supabase-types.sh",
+    "types:check": "bash scripts/check-generated-types.sh",
+    "predeploy:check": "npm run types:check && npm run type-check && npm run lint",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -58,7 +60,11 @@
     "vscode:force-cleanup": "powershell -File scripts/force-cleanup-vscode.ps1",
     "clean": "powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\" && powershell -Command \"Remove-Item -Recurse -Force node_modules/.cache -ErrorAction SilentlyContinue\"",
     "analyze": "cross-env ANALYZE=true npm run build:memory",
-    "orchestrate": "npx tsx scripts/run-orchestrator.ts"
+    "orchestrate": "npx tsx scripts/run-orchestrator.ts",
+    "vendor-cache:sync": "npx tsx --tsconfig tsconfig.json scripts/vendor-cache/sync.ts",
+    "vendor-cache:sync:ruijie": "npx tsx --tsconfig tsconfig.json scripts/vendor-cache/sync.ts --vendor=ruijie",
+    "vendor-cache:sync:tarana": "npx tsx --tsconfig tsconfig.json scripts/vendor-cache/sync.ts --vendor=tarana",
+    "vendor-cache:sync:interstellio": "npx tsx --tsconfig tsconfig.json scripts/vendor-cache/sync.ts --vendor=interstellio"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -116,6 +122,7 @@
     "@vercel/analytics": "^1.5.0",
     "adm-zip": "^0.5.16",
     "axios": "^1.12.2",
+    "better-sqlite3": "^13.0.2",
     "buffer": "^6.0.3",
     "canvas-confetti": "^1.9.3",
     "cheerio": "^1.2.0",
@@ -168,6 +175,7 @@
     "@playwright/test": "^1.55.1",
     "@tailwindcss/typography": "^0.5.15",
     "@types/adm-zip": "^0.5.7",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/google.maps": "^3.58.1",
     "@types/jest": "^30.0.0",
@@ -183,11 +191,13 @@
     "node-mocks-http": "^1.17.2",
     "pg": "^8.16.3",
     "postcss": "^8.4.47",
+    "postcss-import": "^15.1.0",
     "react-test-renderer": "^19.2.6",
     "shadcn": "^3.3.1",
     "supabase": "^2.45.5",
     "tailwindcss": "^3.4.11",
     "ts-jest": "^29.4.5",
+    "tsx": "^4.23.4",
     "typescript": "~5.8.0"
   }
 }

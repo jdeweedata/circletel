@@ -1,6 +1,10 @@
 // MTN WMS Proxy for Map Tiles
 import { NextRequest, NextResponse } from 'next/server';
 import { MTN_CONFIGS } from '@/lib/coverage/mtn/types';
+import {
+  areWmsLayersAllowed,
+  wmsServiceUrl,
+} from '@/lib/coverage/mtn/wms-proxy-helpers';
 import { apiLogger } from '@/lib/logging';
 
 interface WMSProxyRequest {
@@ -12,6 +16,7 @@ interface WMSProxyRequest {
   format?: string;
   transparent?: boolean;
   opacity?: number;
+  styles?: string;
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -25,6 +30,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const height = parseInt(searchParams.get('height') || '256');
     const format = searchParams.get('format') || 'image/png';
     const transparent = searchParams.get('transparent') !== 'false';
+    const styles = searchParams.get('styles') ?? '';
 
     // Validate required parameters
     if (!configId || !layer || !bbox) {
@@ -41,9 +47,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }, { status: 400 });
     }
 
-    // Validate layer exists in config
-    const layerExists = Object.values(config.layers).includes(layer);
-    if (!layerExists) {
+    if (!areWmsLayersAllowed(Object.values(config.layers), layer)) {
       return NextResponse.json({
         error: `Layer '${layer}' not available in ${configId} configuration`
       }, { status: 400 });
@@ -63,7 +67,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       VERSION: '1.3.0',
       REQUEST: 'GetMap',
       LAYERS: layer,
-      STYLES: '',
+      STYLES: styles,
       CRS: 'CRS:84', // WGS84 longitude/latitude
       BBOX: bbox,
       WIDTH: width.toString(),
@@ -73,13 +77,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       EXCEPTIONS: 'application/json'
     });
 
-    const wmsUrl = `${config.wmsEndpoint}/wms?${wmsParams.toString()}`;
+    const wmsUrl = `${wmsServiceUrl(config.wmsEndpoint)}?${wmsParams.toString()}`;
 
-    // Fetch from MTN WMS service
     const wmsResponse = await fetch(wmsUrl, {
       headers: {
         'User-Agent': 'CircleTel-Coverage-Map/1.0'
-      }
+      },
+      next: { revalidate: 1800 },
     });
 
     if (!wmsResponse.ok) {
@@ -146,7 +150,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       width: body.width?.toString() || '256',
       height: body.height?.toString() || '256',
       format: body.format || 'image/png',
-      transparent: (body.transparent !== false).toString()
+      transparent: (body.transparent !== false).toString(),
+      ...(body.styles ? { styles: body.styles } : {}),
     });
 
     // Create GET request URL

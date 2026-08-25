@@ -6,7 +6,7 @@
  *   set -a && source .env.local && set +a && npx tsx scripts/sync-rectron.ts --write  # real upsert
  *   set -a && source .env.local && set +a && npx tsx scripts/sync-rectron.ts --all    # all suppliers (dry)
  */
-import { downloadRectronPricelist } from '../lib/suppliers/rectron/rectron-downloader'
+import { existsSync } from 'fs'
 
 async function main() {
   const write = process.argv.includes('--write')
@@ -19,19 +19,19 @@ async function main() {
     return
   }
 
-  // Rectron only: prove the download works, then run the sync.
-  const dl = await downloadRectronPricelist({
-    watchDir: '/home/circletel/products/pricelist',
-  })
-  console.log(
-    `Download: ${dl.filename} (downloaded=${dl.downloaded}) -> ${dl.filePath}`
-  )
+  const AUG11 =
+    '/home/circletel/products/rectron/RECTRON_PRICE_LIST_20260811_0811.xlsm'
+  const localAug11 = existsSync(AUG11) ? AUG11 : undefined
+  if (localAug11) {
+    console.log(`Using local 11 Aug 2026 price list: ${AUG11}`)
+  }
 
   const { syncRectronProducts } = await import('../lib/suppliers/rectron')
   const res = await syncRectronProducts({
     triggered_by: 'manual',
     dry_run: !write,
-    download: false, // already downloaded above
+    download: !localAug11,
+    file_path: localAug11,
   })
   console.log(JSON.stringify(res, null, 2))
 }

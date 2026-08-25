@@ -3,7 +3,13 @@
  * Unified types for all deployed hardware: Tarana routers, Tozed CPEs, Ruijie APs, SIM cards
  */
 
-export type DeviceType = 'tarana_router' | 'tozed_cpe' | 'ruijie_ap' | 'sim_card';
+export type DeviceType =
+  | 'tarana_router'
+  | 'tozed_cpe'
+  | 'ruijie_ap'
+  | 'sim_card'
+  | 'omada_gateway'
+  | 'omada_switch'
 export type DeviceChannel = 'mtn_wholesale' | 'arlan' | 'dfa' | 'internal';
 export type DeviceStatus = 'deployed' | 'active' | 'offline' | 'signal_issues' | 'pending' | 'reserved' | 'decommissioned';
 
@@ -53,6 +59,8 @@ export const DEVICE_TYPE_LABELS: Record<DeviceType, string> = {
   tozed_cpe: 'Tozed 5G CPE',
   ruijie_ap: 'Ruijie AP',
   sim_card: 'SIM Card',
+  omada_gateway: 'Omada Gateway',
+  omada_switch: 'Omada Switch',
 };
 
 export const DEVICE_TYPE_COLORS: Record<DeviceType, string> = {
@@ -60,6 +68,8 @@ export const DEVICE_TYPE_COLORS: Record<DeviceType, string> = {
   tozed_cpe: 'bg-blue-100 text-blue-700 border-blue-200',
   ruijie_ap: 'bg-purple-100 text-purple-700 border-purple-200',
   sim_card: 'bg-slate-100 text-slate-700 border-slate-200',
+  omada_gateway: 'bg-teal-100 text-teal-700 border-teal-200',
+  omada_switch: 'bg-cyan-100 text-cyan-700 border-cyan-200',
 };
 
 export const CHANNEL_LABELS: Record<DeviceChannel, string> = {

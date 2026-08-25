@@ -391,6 +391,12 @@ export class ZohoBooksClient extends ZohoAPIClient {
     due_date?: string;
     payment_terms?: number;
     payment_terms_label?: string;
+    /**
+     * When true, line item `rate` values are VAT-inclusive (gross).
+     * Required for CircleTel invoices so Books does not add 15% on top of
+     * collectible totals (see `buildZohoTaxInclusiveInvoicePayload`).
+     */
+    is_inclusive_tax?: boolean;
     line_items: Array<{
       item_id?: string;
       name: string;

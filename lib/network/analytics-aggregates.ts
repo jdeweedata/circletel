@@ -8,6 +8,104 @@ import { avgOrNull, roundPercent } from './performance-aggregates';
 /** Persist one row per Ruijie hourly flow sample (not a rolling 24h window total). */
 export const HOURLY_ROLLUP_WINDOW = 1;
 
+/** Longest preset analytics query window (UI offers up to 30d). */
+export const MAX_ANALYTICS_HOURS = 720;
+export const DEFAULT_ANALYTICS_HOURS = 24;
+/** Longest custom calendar range (matches ruijie_traffic_rollups retention). */
+export const MAX_ANALYTICS_CUSTOM_DAYS = 90;
+
+const SAST_OFFSET = '+02:00';
+
+/** Parse ?hours= for Network Analytics; invalid values fall back to 24h. */
+export function parseAnalyticsHours(raw: string | null): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_ANALYTICS_HOURS;
+  return Math.min(Math.floor(n), MAX_ANALYTICS_HOURS);
+}
+
+export type AnalyticsCustomRange = {
+  startDate: string;
+  endDate: string;
+  startUtc: Date;
+  endUtc: Date;
+  inclusiveDayCount: number;
+};
+
+type SastDateParts = { year: number; month: number; day: number };
+
+function pad2(n: number): string {
+  return String(n).padStart(2, '0');
+}
+
+function parseSastDateString(date: string): SastDateParts | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  // Reject non-existent calendar days (e.g. 2026-02-31).
+  const probe = new Date(`${year}-${pad2(month)}-${pad2(day)}T12:00:00${SAST_OFFSET}`);
+  if (Number.isNaN(probe.getTime())) return null;
+  const isoDay = probe.toLocaleDateString('en-CA', { timeZone: 'Africa/Johannesburg' });
+  if (isoDay !== `${year}-${pad2(month)}-${pad2(day)}`) return null;
+  return { year, month, day };
+}
+
+function sastCalendarMs({ year, month, day }: SastDateParts): number {
+  return new Date(`${year}-${pad2(month)}-${pad2(day)}T12:00:00${SAST_OFFSET}`).getTime();
+}
+
+/**
+ * Parse inclusive SAST calendar dates for Cached analytics.
+ * Returns null when missing, invalid, reversed, or longer than 90 days.
+ */
+export function parseAnalyticsCustomRange(
+  startDate: string | null | undefined,
+  endDate: string | null | undefined
+): AnalyticsCustomRange | null {
+  if (!startDate || !endDate) return null;
+  const start = parseSastDateString(startDate);
+  const end = parseSastDateString(endDate);
+  if (!start || !end) return null;
+
+  const startMs = sastCalendarMs(start);
+  const endMs = sastCalendarMs(end);
+  if (endMs < startMs) return null;
+
+  const inclusiveDayCount = Math.round((endMs - startMs) / 86_400_000) + 1;
+  if (inclusiveDayCount < 1 || inclusiveDayCount > MAX_ANALYTICS_CUSTOM_DAYS) {
+    return null;
+  }
+
+  const startUtc = new Date(
+    `${start.year}-${pad2(start.month)}-${pad2(start.day)}T00:00:00.000${SAST_OFFSET}`
+  );
+  const endUtc = new Date(
+    `${end.year}-${pad2(end.month)}-${pad2(end.day)}T23:59:59.999${SAST_OFFSET}`
+  );
+
+  return {
+    startDate: `${start.year}-${pad2(start.month)}-${pad2(start.day)}`,
+    endDate: `${end.year}-${pad2(end.month)}-${pad2(end.day)}`,
+    startUtc,
+    endUtc,
+    inclusiveDayCount,
+  };
+}
+
+/** Filter hourly rollups to one group, optionally one device. */
+export function filterRollupsForScope<
+  T extends { group_id: string; device_sn?: string | null },
+>(rows: T[], options: { groupId: string; deviceSn?: string | null }): T[] {
+  const deviceSn = options.deviceSn?.trim() || null;
+  return rows.filter((row) => {
+    if (row.group_id !== options.groupId) return false;
+    if (deviceSn) return row.device_sn === deviceSn;
+    return true;
+  });
+}
+
 export type GroupRollupRow = {
   group_id: string;
   group_name: string | null;
@@ -25,6 +123,8 @@ export type HourlyTrafficPoint = {
 export type HourlyRollupUpsert = {
   group_id: string;
   group_name: string | null;
+  /** Serial of the device this hour's flow came from — part of the unique key. */
+  device_sn: string;
   captured_at: string;
   hours_window: number;
   total_rx_bytes: number;
@@ -77,6 +177,9 @@ export function buildHourlyRollupUpserts(params: {
       return {
         group_id: params.groupId,
         group_name: params.groupName,
+        // The device this flow belongs to. Group totals are the SUM across
+        // device_sn — one AP's series is never the group's, nor a site's (#702).
+        device_sn: params.flowSn,
         captured_at,
         hours_window: HOURLY_ROLLUP_WINDOW,
         total_rx_bytes: Math.round(rx),

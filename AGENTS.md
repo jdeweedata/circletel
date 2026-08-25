@@ -18,7 +18,7 @@ For most code changes, start with:
 
 - `CLAUDE.md` for repository workflow and architecture.
 - `docs/architecture/SYSTEM_OVERVIEW.md` for system context when the task touches architecture, auth, coverage, admin, orders, payments, or data flow.
-- `.claude/rules/` for detailed local rules. Especially check `coding-standards.md`, `auth-patterns.md`, `file-organization.md`, `icon-system.md`, `verify-schema-first.md`, and `composio-browser-tool.md` when relevant (live browser automation).
+- `.claude/rules/` for detailed local rules. Especially check `coding-standards.md`, `auth-patterns.md`, `file-organization.md`, `icon-system.md`, `verify-schema-first.md`, `data-model.md`, and `composio-browser-tool.md` when relevant (live browser automation).
 - The files you intend to edit and their immediate callers.
 
 Do not invent file paths, APIs, table names, or component names. Search the repo first.

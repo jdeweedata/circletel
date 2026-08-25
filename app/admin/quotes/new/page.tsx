@@ -255,7 +255,33 @@ export default function NewQuotePage() {
     }
   };
 
-  const addServiceItem = (pkg: ServicePackage, itemType: 'primary' | 'secondary' | 'additional') => {
+  const addServiceItem = async (
+    pkg: ServicePackage,
+    itemType: 'primary' | 'secondary' | 'additional'
+  ) => {
+    try {
+      const res = await fetch(
+        `/api/admin/product-lines/publish-check?sku=${encodeURIComponent(pkg.id)}`
+      );
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        toast.error(data.error || 'Could not verify sellability');
+        return;
+      }
+      const docsGate = data.docs_gate as { allowed?: boolean; items?: Array<{ ok: boolean; blocking?: boolean; detail?: string; label: string }> } | undefined;
+      if (!docsGate?.allowed) {
+        const reason =
+          docsGate?.items?.find((item) => !item.ok && item.blocking)?.detail ||
+          docsGate?.items?.find((item) => !item.ok)?.label ||
+          'Parent product docs are not current';
+        toast.error(`Not sellable: ${reason}`);
+        return;
+      }
+    } catch {
+      toast.error('Could not verify sellability');
+      return;
+    }
+
     const newItem: QuoteItem = {
       package_id: pkg.id,
       package: pkg,

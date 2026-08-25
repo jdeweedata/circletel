@@ -1,0 +1,297 @@
+{
+  "version": "6.0",
+  "screens": [
+    {
+      "id": "CONTACT",
+      "title": "Your details",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "CircleTel enquiry"
+          },
+          {
+            "type": "TextBody",
+            "text": "Tell us who you are so we can help with coverage and packages."
+          },
+          {
+            "type": "Form",
+            "name": "contact_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "name": "first_name",
+                "label": "First name",
+                "required": true,
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "name": "last_name",
+                "label": "Last name",
+                "required": true,
+                "input-type": "text"
+              },
+              {
+                "type": "RadioButtonsGroup",
+                "name": "customer_type",
+                "label": "Customer type",
+                "required": true,
+                "data-source": [
+                  { "id": "consumer", "title": "Home / Consumer" },
+                  { "id": "business", "title": "Business" }
+                ]
+              },
+              {
+                "type": "TextInput",
+                "name": "email",
+                "label": "Email",
+                "required": false,
+                "input-type": "email",
+                "helper-text": "Optional"
+              },
+              {
+                "type": "TextInput",
+                "name": "phone",
+                "label": "Phone",
+                "required": false,
+                "input-type": "phone",
+                "helper-text": "Optional if WhatsApp number is correct"
+              },
+              {
+                "type": "TextInput",
+                "name": "company_name",
+                "label": "Company",
+                "required": false,
+                "input-type": "text",
+                "helper-text": "Optional (business)"
+              }
+            ]
+          },
+          {
+            "type": "Footer",
+            "label": "Continue",
+            "on-click-action": {
+              "name": "navigate",
+              "next": { "type": "screen", "name": "ADDRESS" },
+              "payload": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "ADDRESS",
+      "title": "Service address",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Where do you need service?"
+          },
+          {
+            "type": "Form",
+            "name": "address_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "name": "address",
+                "label": "Street address",
+                "required": true,
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "name": "suburb",
+                "label": "Suburb",
+                "required": true,
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "name": "city",
+                "label": "City",
+                "required": true,
+                "input-type": "text"
+              },
+              {
+                "type": "Dropdown",
+                "name": "province",
+                "label": "Province",
+                "required": false,
+                "data-source": [
+                  { "id": "Eastern Cape", "title": "Eastern Cape" },
+                  { "id": "Free State", "title": "Free State" },
+                  { "id": "Gauteng", "title": "Gauteng" },
+                  { "id": "KwaZulu-Natal", "title": "KwaZulu-Natal" },
+                  { "id": "Limpopo", "title": "Limpopo" },
+                  { "id": "Mpumalanga", "title": "Mpumalanga" },
+                  { "id": "North West", "title": "North West" },
+                  { "id": "Northern Cape", "title": "Northern Cape" },
+                  { "id": "Western Cape", "title": "Western Cape" }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Footer",
+            "label": "Continue",
+            "on-click-action": {
+              "name": "navigate",
+              "next": { "type": "screen", "name": "INTEREST" },
+              "payload": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "INTEREST",
+      "title": "What you need",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Service interest"
+          },
+          {
+            "type": "Form",
+            "name": "interest_form",
+            "children": [
+              {
+                "type": "Dropdown",
+                "name": "service_interest",
+                "label": "Service",
+                "required": true,
+                "data-source": [
+                  { "id": "fibre", "title": "Fibre" },
+                  { "id": "wireless", "title": "Fixed Wireless" },
+                  { "id": "5g_lte", "title": "5G / LTE" },
+                  { "id": "business_connectivity", "title": "Business connectivity" },
+                  { "id": "managed_it", "title": "Managed IT" },
+                  { "id": "unsure", "title": "Not sure yet" }
+                ]
+              },
+              {
+                "type": "Dropdown",
+                "name": "speed",
+                "label": "Speed need",
+                "required": false,
+                "data-source": [
+                  { "id": "up_to_50", "title": "Up to 50 Mbps" },
+                  { "id": "50_100", "title": "50–100 Mbps" },
+                  { "id": "100_200", "title": "100–200 Mbps" },
+                  { "id": "200_plus", "title": "200+ Mbps" },
+                  { "id": "unsure", "title": "Not sure" }
+                ]
+              },
+              {
+                "type": "Dropdown",
+                "name": "budget_range",
+                "label": "Budget / mo",
+                "required": false,
+                "data-source": [
+                  { "id": "under_500", "title": "Under R500" },
+                  { "id": "500_1000", "title": "R500–R1,000" },
+                  { "id": "1000_2000", "title": "R1,000–R2,000" },
+                  { "id": "2000_plus", "title": "R2,000+" },
+                  { "id": "unsure", "title": "Not sure" }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Footer",
+            "label": "Continue",
+            "on-click-action": {
+              "name": "navigate",
+              "next": { "type": "screen", "name": "PREF" },
+              "payload": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "PREF",
+      "title": "Contact & consent",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "How should we reach you?"
+          },
+          {
+            "type": "Form",
+            "name": "pref_form",
+            "children": [
+              {
+                "type": "Dropdown",
+                "name": "contact_preference",
+                "label": "Contact via",
+                "required": true,
+                "data-source": [
+                  { "id": "whatsapp", "title": "WhatsApp" },
+                  { "id": "phone", "title": "Phone call" },
+                  { "id": "email", "title": "Email" }
+                ]
+              },
+              {
+                "type": "Dropdown",
+                "name": "best_contact_time",
+                "label": "Best time",
+                "required": false,
+                "data-source": [
+                  { "id": "morning", "title": "Morning (8–12)" },
+                  { "id": "afternoon", "title": "Afternoon (12–17)" },
+                  { "id": "anytime", "title": "Anytime business hours" }
+                ]
+              },
+              {
+                "type": "OptIn",
+                "name": "popia_optin",
+                "label": "I agree to CircleTel contacting me about this enquiry (POPIA).",
+                "required": true
+              }
+            ]
+          },
+          {
+            "type": "Footer",
+            "label": "Submit enquiry",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "first_name": "${screen.CONTACT.form.first_name}",
+                "last_name": "${screen.CONTACT.form.last_name}",
+                "customer_type": "${screen.CONTACT.form.customer_type}",
+                "email": "${screen.CONTACT.form.email}",
+                "phone": "${screen.CONTACT.form.phone}",
+                "company_name": "${screen.CONTACT.form.company_name}",
+                "address": "${screen.ADDRESS.form.address}",
+                "suburb": "${screen.ADDRESS.form.suburb}",
+                "city": "${screen.ADDRESS.form.city}",
+                "province": "${screen.ADDRESS.form.province}",
+                "service_interest": "${screen.INTEREST.form.service_interest}",
+                "speed": "${screen.INTEREST.form.speed}",
+                "budget_range": "${screen.INTEREST.form.budget_range}",
+                "contact_preference": "${form.contact_preference}",
+                "best_contact_time": "${form.best_contact_time}",
+                "popia_optin": "${form.popia_optin}"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

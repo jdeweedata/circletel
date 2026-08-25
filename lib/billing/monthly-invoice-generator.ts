@@ -21,12 +21,22 @@ import { nowISO } from '@/lib/dates';
 
 import { createClient } from '@/lib/supabase/server';
 import { syncInvoiceToZohoBilling } from '@/lib/integrations/zoho/invoice-sync-service';
-import { computeVatInclusiveAmounts, formatInvoiceNumber, nextInvoiceSequence } from './invoice-amounts';
+import { formatInvoiceNumber, nextInvoiceSequence } from './invoice-amounts';
+import {
+  computeMonthlyInvoiceAmounts,
+  resolveServicePriceVatBasis,
+} from './invoice-vat-contract';
+import {
+  buildUnjaniVatCatchupPlan,
+  formatUnjaniCatchupAbsorbedNote,
+} from './unjani-vat-catchup';
 import { processPayNowForInvoice } from '@/lib/billing/paynow-billing-service';
+import { sendInvoiceGenerated } from '@/lib/emails/enhanced-notification-service';
 import { computeProRata } from '@/lib/onboarding/prorata';
 import { shouldEmitRecurringInvoice } from '@/lib/billing/new-clinic-billing-helper';
 import { isBeforeBillingStart } from '@/lib/billing/billing-eligibility';
 import { billingLogger } from '@/lib/logging';
+import { shouldSkipPerClinicInvoice } from '@/lib/billing/unjani-connect-rules';
 
 // =============================================================================
 // TYPES
@@ -60,6 +70,7 @@ export interface ServiceToBill {
   package: {
     id: string;
     name: string;
+    sku?: string | null;
   } | null;
 }
 
@@ -277,7 +288,8 @@ export class MonthlyInvoiceGenerator {
         ),
         package:service_packages(
           id,
-          name
+          name,
+          sku
         )
       `
       )
@@ -361,6 +373,25 @@ export class MonthlyInvoiceGenerator {
     const errors: string[] = [];
 
     try {
+      const invoiceDate = nowISO().slice(0, 10);
+      const sku = service.package?.sku ?? null;
+      if (shouldSkipPerClinicInvoice({ sku, invoiceDate })) {
+        const skipReason =
+          'Unjani Connect billed via Unjani NPC itemized invoice from 1 September 2026';
+        billingLogger.info('MonthlyInvoice: Skipping Unjani clinic — NPC billing', {
+          serviceId: service.id,
+          sku,
+        });
+        return {
+          serviceId: service.id,
+          customerId: service.customer_id,
+          success: true,
+          skipped: true,
+          skipReason,
+          errors: [],
+        };
+      }
+
       // 1. Check for duplicate invoice
       const existingInvoice = await this.checkExistingInvoice(service.id);
       if (existingInvoice) {
@@ -442,13 +473,61 @@ export class MonthlyInvoiceGenerator {
         }
       }
 
-      // 6. Send Pay Now notification (non-blocking, continue on failure)
+      // 6. Notify the customer (non-blocking, continue on failure)
+      //
+      // Debit-order (billing_ready) customers get a debit-order NOTICE email —
+      // never a Pay Now link: processPayNowForInvoice overwrites
+      // payment_collection_method to 'paynow', which hides the invoice from the
+      // submit-debit-orders cron (root cause of the missed July 2026 collections).
       let paynowSent = false;
-      if (!skipPayNow) {
+      const collectsByDebitOrder = service.customer?.onboarding_status === 'billing_ready';
+      if (collectsByDebitOrder) {
+        try {
+          if (service.customer?.email) {
+            const emailResult = await sendInvoiceGenerated({
+              invoice_id: invoice.id,
+              customer_id: service.customer_id,
+              email: service.customer.email,
+              customer_name:
+                `${service.customer.first_name ?? ''} ${service.customer.last_name ?? ''}`.trim() ||
+                service.customer.email,
+              invoice_number: invoice.invoice_number,
+              total_amount: Number(invoice.total_amount),
+              subtotal: Number(invoice.subtotal),
+              vat_amount: Number(invoice.tax_amount),
+              due_date: invoice.due_date,
+              account_number: service.customer.account_number ?? undefined,
+              mode: 'debit_order',
+              line_items: invoice.line_items ?? [],
+            });
+            if (emailResult.success) {
+              await (await this.getClient())
+                .from('customer_invoices')
+                .update({ emailed_at: new Date().toISOString() })
+                .eq('id', invoice.id);
+            } else {
+              errors.push(`Debit-order notice email failed: ${emailResult.error ?? 'unknown'}`);
+            }
+          } else {
+            billingLogger.warn('MonthlyInvoice: No email on file for debit-order notice', {
+              invoiceId: invoice.id,
+              customerId: service.customer_id,
+            });
+          }
+        } catch (noticeError) {
+          const msg = noticeError instanceof Error ? noticeError.message : 'Debit-order notice error';
+          errors.push(`Debit-order notice error: ${msg}`);
+          billingLogger.error('MonthlyInvoice: Debit-order notice failed', {
+            invoiceId: invoice.id,
+            error: msg,
+          });
+        }
+      } else if (!skipPayNow) {
         try {
           const paynowResult = await processPayNowForInvoice(invoice.id, {
             sendEmail: true,
             sendSms: true,
+            sendWhatsApp: true,
             smsTemplate: 'paymentDue',
           });
           paynowSent = paynowResult.success;
@@ -526,9 +605,15 @@ export class MonthlyInvoiceGenerator {
   /**
    * Create invoice for a service
    */
-  async createInvoice(
-    service: ServiceToBill
-  ): Promise<{ id: string; invoice_number: string } | null> {
+  async createInvoice(service: ServiceToBill): Promise<{
+    id: string;
+    invoice_number: string;
+    total_amount: number;
+    subtotal: number;
+    tax_amount: number;
+    due_date: string;
+    line_items: Array<{ description: string; quantity: number; unit_price: number; amount: number }>;
+  } | null> {
     const supabase = await this.getClient();
     const now = new Date();
     const invoiceDate = now.toISOString().split('T')[0];
@@ -544,20 +629,25 @@ export class MonthlyInvoiceGenerator {
       .toISOString()
       .split('T')[0];
 
-    // Amounts — consumer monthly_price is VAT-INCLUSIVE (gross); back VAT out so total === price.
-    // Matches every existing paid invoice (e.g. R899 -> net 781.74 + VAT 117.26 = 899).
+    // VAT basis by product (see invoice-vat-contract.ts):
+    // - Consumer SkyFibre: monthly_price INCL VAT → total = price
+    // - Unjani Managed Connectivity (MSA): monthly_price EXCL VAT → total = price × 1.15
+    //   e.g. R450 excl → R517.50 incl
     const vatRate = 15.0;
-
-    // Always compute full-month amounts from the existing function on the unchanged price.
-    const { subtotal: fullSubtotal, vatAmount: fullVat } = computeVatInclusiveAmounts(service.monthly_price);
+    const priceBasis = resolveServicePriceVatBasis(service);
+    const {
+      subtotal: fullSubtotal,
+      vatAmount: fullVat,
+      totalAmount: fullTotal,
+    } = computeMonthlyInvoiceAmounts(service.monthly_price, priceBasis);
 
     // Pro-rata first invoice: detect via last_invoice_date === null and apply fraction
-    // Only use computeProRata to get days/daysInMonth; ignore its amount fields (VAT base is already set above).
+    // Only use computeProRata to get days/daysInMonth; money comes from full* above.
     const isFirstInvoice = service.last_invoice_date === null;
     let fraction = 1;
     if (isFirstInvoice && service.activation_date) {
       const pr = computeProRata({
-        monthlyExVat: service.monthly_price, // only days/daysInMonth are used; VAT treatment irrelevant here
+        monthlyExVat: service.monthly_price,
         vatPct: 15,
         activationDate: service.activation_date,
         billingDay: service.billing_day,
@@ -566,6 +656,7 @@ export class MonthlyInvoiceGenerator {
       billingLogger.info('MonthlyInvoice: Pro-rata first invoice', {
         serviceId: service.id,
         activationDate: service.activation_date,
+        priceBasis,
         days: pr.days,
         daysInMonth: pr.daysInMonth,
         fraction,
@@ -573,9 +664,63 @@ export class MonthlyInvoiceGenerator {
     }
 
     const round2 = (n: number) => Math.round(n * 100) / 100;
-    const subtotal = round2(fullSubtotal * fraction);
-    const vatAmount = round2(fullVat * fraction);
-    const totalAmount = round2(subtotal + vatAmount);
+    let subtotal = round2(fullSubtotal * fraction);
+    let vatAmount = round2(fullVat * fraction);
+    let totalAmount = fraction === 1 ? fullTotal : round2(subtotal + vatAmount);
+
+    // Deferred Unjani VAT catch-up: do not amend history now — fold shortfalls
+    // into *this* next invoice so statements show current period + adjustments.
+    let catchupPlan = buildUnjaniVatCatchupPlan([]);
+    /** Existing notes for priors we absorb (preserve non-marker content). */
+    const priorNotesById = new Map<string, string | null>();
+    if (priceBasis === 'exclusive') {
+      // Include notes + line_items so catch-up is idempotent:
+      // - notes may carry [UNJANI_MSA_CATCHUP_ABSORBED]
+      // - sibling invoices may already reference prior_invoice_id on adjustment lines
+      // Voided/cancelled are excluded (cannot re-collect); paid/partial wrong rows stay.
+      const { data: priorInvoices, error: priorErr } = await supabase
+        .from('customer_invoices')
+        .select(
+          'id, invoice_number, status, subtotal, tax_amount, total_amount, amount_paid, period_start, period_end, notes, line_items'
+        )
+        .eq('service_id', service.id)
+        .not('status', 'in', '(voided,cancelled)');
+      if (priorErr) {
+        billingLogger.warn('MonthlyInvoice: could not load prior invoices for catch-up', {
+          serviceId: service.id,
+          error: priorErr.message,
+        });
+      } else {
+        for (const p of priorInvoices || []) {
+          priorNotesById.set(p.id, p.notes ?? null);
+        }
+        catchupPlan = buildUnjaniVatCatchupPlan(priorInvoices || []);
+        if (catchupPlan.totalIncl > 0) {
+          subtotal = round2(subtotal + catchupPlan.subtotalExcl);
+          vatAmount = round2(vatAmount + catchupPlan.vatAmount);
+          totalAmount = round2(totalAmount + catchupPlan.totalIncl);
+          billingLogger.info('MonthlyInvoice: Unjani VAT catch-up applied', {
+            serviceId: service.id,
+            catchupTotalIncl: catchupPlan.totalIncl,
+            catchupLines: catchupPlan.lineItems.length,
+            notes: catchupPlan.notes,
+            priorToVoid: catchupPlan.priorInvoiceIdsToVoid,
+          });
+        }
+      }
+    }
+
+    billingLogger.info('MonthlyInvoice: amounts', {
+      serviceId: service.id,
+      packageName: service.package_name,
+      priceBasis,
+      monthlyPrice: service.monthly_price,
+      subtotal,
+      vatAmount,
+      totalAmount,
+      fraction,
+      catchupIncl: catchupPlan.totalIncl,
+    });
 
     // Generate INV-YYYY-NNNNN — customer_invoices has NO DB sequence/trigger for invoice_number
     // (the legacy sequence was dropped in the baseline squash), so the app must supply it.
@@ -589,25 +734,42 @@ export class MonthlyInvoiceGenerator {
       nextInvoiceSequence((yearInvoices || []).map((r) => r.invoice_number as string), invoiceYear)
     );
 
-    // Build line items
+    // Build line items (current period + optional deferred catch-up adjustments)
     const periodName = now.toLocaleDateString('en-ZA', {
       month: 'long',
       year: 'numeric',
     });
-    const lineItems = [
+    const lineItems: Array<Record<string, unknown>> = [
       {
         description: `${service.package_name} - ${periodName}`,
         quantity: 1,
-        unit_price: subtotal,
-        amount: subtotal,
+        unit_price: round2(fullSubtotal * fraction),
+        amount: round2(fullSubtotal * fraction),
         type: 'recurring',
       },
+      ...catchupPlan.lineItems.map((l) => ({
+        description: l.description,
+        quantity: l.quantity,
+        unit_price: l.unit_price,
+        amount: l.amount,
+        type: l.type,
+        prior_invoice_id: l.prior_invoice_id,
+        prior_invoice_number: l.prior_invoice_number,
+      })),
     ];
 
     // Determine collection method: onboarding customers use debit_order, others default to existing behavior
     let paymentCollectionMethod: string | null = null;
     if (service.customer?.onboarding_status === 'billing_ready') {
       paymentCollectionMethod = 'debit_order';
+    }
+
+    const notesParts: string[] = [];
+    if (catchupPlan.notes.length) {
+      notesParts.push(
+        'Includes deferred Unjani MSA VAT/billing corrections from prior under-billed periods:',
+        ...catchupPlan.notes
+      );
     }
 
     // Insert invoice (invoice_number generated above — no DB trigger exists for customer_invoices)
@@ -630,6 +792,10 @@ export class MonthlyInvoiceGenerator {
       status: 'sent', // valid_invoice_status CHECK allows draft|sent|paid|partial|overdue|cancelled|voided ('unpaid' is invalid)
     };
 
+    if (notesParts.length) {
+      invoicePayload.notes = notesParts.join('\n');
+    }
+
     if (paymentCollectionMethod) {
       invoicePayload.payment_collection_method = paymentCollectionMethod;
     }
@@ -637,7 +803,7 @@ export class MonthlyInvoiceGenerator {
     const { data: invoice, error } = await supabase
       .from('customer_invoices')
       .insert(invoicePayload)
-      .select('id, invoice_number')
+      .select('id, invoice_number, total_amount, subtotal, tax_amount, due_date, line_items')
       .single();
 
     if (error) {
@@ -646,6 +812,64 @@ export class MonthlyInvoiceGenerator {
         error: error.message,
       });
       return null;
+    }
+
+    // Prevent double collection: absorb priors whose shortfall is on this invoice.
+    // Write [UNJANI_MSA_CATCHUP_ABSORBED] so later monthly runs skip these priors.
+    // Also durable via line_items[].prior_invoice_id on the new invoice.
+    if (invoice && catchupPlan.priorInvoiceIdsToVoid.length > 0) {
+      for (const priorId of catchupPlan.priorInvoiceIdsToVoid) {
+        const { error: voidErr } = await supabase
+          .from('customer_invoices')
+          .update({
+            status: 'voided',
+            amount_due: 0,
+            notes: formatUnjaniCatchupAbsorbedNote(
+              invoice.invoice_number,
+              'void',
+              priorNotesById.get(priorId)
+            ),
+          })
+          .eq('id', priorId)
+          .in('status', ['sent', 'overdue', 'draft', 'partial']);
+        if (voidErr) {
+          billingLogger.warn('MonthlyInvoice: failed to void superseded prior invoice', {
+            serviceId: service.id,
+            newInvoice: invoice.invoice_number,
+            priorId,
+            error: voidErr.message,
+          });
+        }
+      }
+      billingLogger.info('MonthlyInvoice: voided superseded under-billed priors', {
+        serviceId: service.id,
+        newInvoice: invoice.invoice_number,
+        voidedIds: catchupPlan.priorInvoiceIdsToVoid,
+      });
+    }
+
+    if (invoice && catchupPlan.priorInvoiceIdsToCloseDue.length > 0) {
+      for (const priorId of catchupPlan.priorInvoiceIdsToCloseDue) {
+        const { error: closeErr } = await supabase
+          .from('customer_invoices')
+          .update({
+            amount_due: 0,
+            notes: formatUnjaniCatchupAbsorbedNote(
+              invoice.invoice_number,
+              'close_due',
+              priorNotesById.get(priorId)
+            ),
+          })
+          .eq('id', priorId);
+        if (closeErr) {
+          billingLogger.warn('MonthlyInvoice: failed to close due on paid/partial prior', {
+            serviceId: service.id,
+            newInvoice: invoice.invoice_number,
+            priorId,
+            error: closeErr.message,
+          });
+        }
+      }
     }
 
     return invoice;

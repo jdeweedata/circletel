@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
+import { isRectronCatalogueFresh } from '@/lib/products/rectron-freshness'
 
 interface Supplier {
   id: string
@@ -325,6 +326,19 @@ export function SuppliersSection() {
                         <span className="ml-1 text-amber-600">
                           ⚠
                         </span>
+                      )}
+                      {s.code === 'RECTRON' && (
+                        <p
+                          className={`mt-1 ${
+                            isRectronCatalogueFresh(s.last_synced_at)
+                              ? 'text-emerald-700'
+                              : 'text-amber-700'
+                          }`}
+                        >
+                          {isRectronCatalogueFresh(s.last_synced_at)
+                            ? 'CPE catalogue current (11 Aug 2026+)'
+                            : 'Sync the 11 Aug 2026 price list for bundle CPE'}
+                        </p>
                       )}
                     </div>
                   </td>

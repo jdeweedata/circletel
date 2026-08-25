@@ -1,18 +1,20 @@
 'use client';
-import { PiArrowLeftBold, PiArrowsCounterClockwiseBold, PiBroadcastBold, PiBuildingsBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCurrencyDollarBold, PiCursorBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiGlobeBold, PiGridFourBold, PiLightningBold, PiListBold, PiMapPinBold, PiNavigationArrowBold, PiPackageBold, PiPhoneBold, PiShieldBold, PiShieldCheckBold, PiShieldWarningBold, PiSparkleBold, PiSpinnerBold, PiStackBold, PiUserBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
+import { PiBroadcastBold, PiBuildingsBold, PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiCursorBold, PiGlobeBold, PiLightningBold, PiMapPinBold, PiShieldBold, PiShieldCheckBold, PiShieldWarningBold, PiSparkleBold, PiSpinnerBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import {
+  FilterChips,
+  KpiStrip,
+  PmButton,
+} from '@/components/portal/modernist/PortalModernistShell';
 
-// Import Single Site Stepper (to be created)
 import { SingleSiteStepper } from './components/SingleSiteStepper';
 import { EmailParseModal } from './components/EmailParseModal';
 
@@ -209,6 +211,8 @@ export default function FeasibilityPage() {
     modeFromUrl === 'multiple' ? 'multiple' : 'single'
   );
 
+  const addressFromUrl = searchParams.get('address');
+
   // Update URL when tab changes
   const handleTabChange = (value: string) => {
     const newMode = value as 'single' | 'multiple';
@@ -237,6 +241,14 @@ export default function FeasibilityPage() {
 
   // UI state
   const [step, setStep] = useState<'form' | 'checking' | 'results'>('form');
+  const bulkStepOrder = ['form', 'checking', 'results'] as const;
+  const handleBulkStepChange = (value: string) => {
+    const targetIdx = bulkStepOrder.indexOf(value as (typeof bulkStepOrder)[number]);
+    const currentIdx = bulkStepOrder.indexOf(step);
+    if (targetIdx >= 0 && targetIdx <= currentIdx) {
+      setStep(value as typeof step);
+    }
+  };
   const [isChecking, setIsChecking] = useState(false);
   const [siteResults, setSiteResults] = useState<SiteResult[]>([]);
   const [selectedSite, setSelectedSite] = useState<number | null>(null);
@@ -740,78 +752,51 @@ export default function FeasibilityPage() {
   // Render
   // ============================================================================
 
-  // Progress steps for Multiple Sites mode
-  const progressSteps = [
-    { id: 'form', label: 'Enter Details', icon: PiFileTextBold },
-    { id: 'checking', label: 'Check Coverage', icon: PiCellSignalFullBold },
-    { id: 'results', label: 'Review & Quote', icon: PiPackageBold },
-  ];
+  const subtitle = addressFromUrl
+    ? decodeURIComponent(addressFromUrl)
+    : 'Check coverage and generate B2B quotes';
 
   return (
-    <div className="h-[calc(100vh-80px)] flex flex-col bg-slate-50 text-slate-900 selection:bg-circleTel-orange/30">
-      {/* Header with Tab Toggle */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <div className="p-2.5 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-xl shadow-lg shadow-orange-500/20">
-              <PiMapPinBold className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                  Sales Feasibility Portal
-                </h1>
-                <p className="text-sm text-slate-500 font-medium">
-                  Check coverage and generate B2B quotes
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Parse Email Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEmailParseOpen(true)}
-                className="gap-2 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange/10 hover:border-circleTel-orange"
-              >
-                <PiEnvelopeBold className="h-4 w-4" />
-                <span className="hidden sm:inline">Parse Email</span>
-              </Button>
-
-              {/* Mode indicator badge */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-100 border border-slate-300 rounded-full">
-                <div className={`w-2 h-2 rounded-full ${activeTab === 'single' ? 'bg-circleTel-orange animate-pulse' : 'bg-purple-500'}`} />
-                <span className="text-xs font-semibold text-slate-700">
-                  {activeTab === 'single' ? 'Single Site Mode' : 'Bulk Mode'}
-                </span>
-              </div>
-            </div>
+    <div
+      className="h-[calc(100vh-80px)] flex flex-col text-slate-900"
+      style={{ background: 'var(--pm-ground, transparent)' }}
+    >
+      <div
+        className="flex-shrink-0 px-6 py-4"
+        style={{ borderBottom: '2px solid var(--pm-divider)', background: '#FFFFFF' }}
+      >
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <p
+              className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-1"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Sales
+            </p>
+            <h1
+              className="text-[1.5rem] sm:text-[1.75rem] font-extrabold leading-tight break-words"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Feasibility
+            </h1>
+            <p className="mt-1 text-sm truncate" style={{ color: 'var(--pm-body)' }}>
+              {subtitle}
+            </p>
           </div>
-
-          {/* Tab Toggle - Enhanced */}
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid w-full max-w-lg grid-cols-2 h-12 p-1 bg-slate-100 border border-slate-300 rounded-xl">
-              <TabsTrigger
-                value="single"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm text-slate-600 transition-all duration-300"
-              >
-                <PiMapPinBold className="h-4 w-4" />
-                <span className="font-semibold uppercase tracking-wider text-[10px]">Single Site</span>
-                <span className="hidden sm:inline text-[8px] opacity-70 ml-1">Quick check</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="multiple"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm text-slate-600 transition-all duration-300"
-              >
-                <PiStackBold className="h-4 w-4" />
-                <span className="font-semibold uppercase tracking-wider text-[10px]">Multiple Sites</span>
-                <span className="hidden sm:inline text-[8px] opacity-70 ml-1">Bulk quotes</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex flex-wrap items-center gap-3">
+            <PmButton variant="secondary" onClick={() => setIsEmailParseOpen(true)}>
+              Parse email
+            </PmButton>
+            <FilterChips
+              options={[
+                { value: 'single', label: 'Single Site' },
+                { value: 'multiple', label: 'Multiple Sites' },
+              ]}
+              value={activeTab}
+              onChange={handleTabChange}
+            />
+          </div>
         </div>
-
       </div>
 
       {/* Tab Content */}
@@ -821,51 +806,41 @@ export default function FeasibilityPage() {
           <SingleSiteStepper />
         ) : (
           // Multiple Sites Mode - Split Map View (existing implementation)
-          <div className="h-full flex flex-col lg:flex-row bg-slate-50">
+          <div className="h-full flex flex-col lg:flex-row" style={{ background: 'var(--pm-ground, transparent)' }}>
             {/* Left Panel - Form (45%) */}
-            <div className="w-full lg:w-[45%] xl:w-[42%] h-full overflow-y-auto border-r border-slate-200 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+            <div className="w-full lg:w-[45%] xl:w-[42%] h-full overflow-y-auto border-r border-black/[0.06] scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
               <div className="p-6 space-y-5">
-                {/* Header with Progress */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h2 className="text-lg font-semibold text-slate-900">
-                      Bulk Feasibility Check
+                    <p
+                      className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                      style={{ color: 'var(--pm-navy)' }}
+                    >
+                      Multiple sites
+                    </p>
+                    <h2 className="mt-1 text-xl font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                      Bulk feasibility
                     </h2>
-                    <p className="text-sm text-slate-500">
+                    <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
                       Check coverage for multiple sites at once
                     </p>
                   </div>
                   {step !== 'form' && (
-                    <Button variant="outline" size="sm" onClick={resetForm} className="gap-1.5">
-                      <PiArrowLeftBold className="h-4 w-4" />
-                      Start Over
-                    </Button>
+                    <PmButton variant="secondary" onClick={resetForm}>
+                      Start over
+                    </PmButton>
                   )}
                 </div>
 
-                {/* Progress Stepper */}
-                <div className="flex items-center justify-between bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
-                  {progressSteps.map((s, idx) => {
-                    const Icon = s.icon;
-                    const isActive = step === s.id;
-                    const isComplete = (step === 'checking' && idx === 0) || (step === 'results' && idx < 2);
-                    return (
-                      <div key={s.id} className="flex items-center gap-2">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-500 ${isActive ? 'bg-circleTel-orange text-white shadow-md' :
-                          isComplete ? 'bg-green-100 text-green-700 border border-green-300' :
-                            'bg-slate-100 text-slate-500 border border-slate-300'
-                          }`}>
-                          {isComplete ? <PiCheckCircleBold className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
-                        </div>
-                        <span className={`text-[10px] font-bold uppercase tracking-tighter hidden sm:inline ${isActive ? 'text-slate-900' : isComplete ? 'text-green-700' : 'text-slate-500'
-                          }`}>{s.label}</span>
-                        {idx < progressSteps.length - 1 && (
-                          <PiCaretRightBold className="h-3 w-3 text-slate-300 mx-1" />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                <FilterChips
+                  options={[
+                    { value: 'form', label: 'Details' },
+                    { value: 'checking', label: 'Coverage' },
+                    { value: 'results', label: 'Review' },
+                  ]}
+                  value={step}
+                  onChange={handleBulkStepChange}
+                />
 
                 {/* Form Step */}
                 <AnimatePresence mode="wait">
@@ -878,11 +853,13 @@ export default function FeasibilityPage() {
                       className="space-y-4"
                     >
                       {/* Client Details Card */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                          <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <PiBuildingsBold className="h-3 w-3 text-circleTel-orange" />
-                            Client Details
+                      <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] overflow-hidden">
+                        <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                          <h3
+                            className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                            style={{ color: 'var(--pm-navy)' }}
+                          >
+                            Client details
                           </h3>
                         </div>
                         <div className="p-4 space-y-3">
@@ -918,17 +895,24 @@ export default function FeasibilityPage() {
                       </div>
 
                       {/* Service Requirements Card */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                          <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <PiWifiHighBold className="h-3 w-3 text-circleTel-orange" />
-                            Service Requirements
+                      <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] overflow-hidden">
+                        <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                          <h3
+                            className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                            style={{ color: 'var(--pm-navy)' }}
+                          >
+                            Service requirements
                           </h3>
                         </div>
                         <div className="p-4 space-y-4">
                           {/* Speed Options */}
                           <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest block mb-2">Minimum Speed</label>
+                            <label
+                              className="text-[10px] font-extrabold tracking-[0.08em] uppercase block mb-2"
+                              style={{ color: 'var(--pm-navy)' }}
+                            >
+                              Minimum speed
+                            </label>
                             <div className="grid grid-cols-2 gap-2">
                               {speedOptions.map((opt) => {
                                 const Icon = opt.icon;
@@ -936,16 +920,27 @@ export default function FeasibilityPage() {
                                 return (
                                   <button
                                     key={opt.value}
+                                    type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, speed: opt.value }))}
-                                    className={`p-3 rounded-lg border transition-all duration-300 flex items-center gap-3 ${isSelected
-                                      ? 'border-circleTel-orange bg-circleTel-orange/10'
-                                      : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'
-                                      }`}
+                                    className="p-3 rounded-lg border bg-white flex items-center gap-3"
+                                    style={{
+                                      borderColor: isSelected ? 'var(--pm-navy)' : '#E5E7EB',
+                                      borderBottom: isSelected ? '3px solid var(--pm-accent)' : undefined,
+                                    }}
                                   >
-                                    <div className={`p-2 rounded-md ${isSelected ? 'bg-circleTel-orange text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                    <div
+                                      className="p-2 rounded-md"
+                                      style={{
+                                        background: isSelected ? 'var(--pm-navy)' : '#F3F4F6',
+                                        color: isSelected ? '#FFFFFF' : '#4B5563',
+                                      }}
+                                    >
                                       <Icon className="h-4 w-4" />
                                     </div>
-                                    <span className={`text-sm font-bold ${isSelected ? 'text-slate-900' : 'text-slate-600'}`}>
+                                    <span
+                                      className="text-sm font-extrabold"
+                                      style={{ color: 'var(--pm-navy)' }}
+                                    >
                                       {opt.label}
                                     </span>
                                   </button>
@@ -956,23 +951,35 @@ export default function FeasibilityPage() {
 
                           {/* Contention Options */}
                           <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest block mb-2">Service Level</label>
+                            <label
+                              className="text-[10px] font-extrabold tracking-[0.08em] uppercase block mb-2"
+                              style={{ color: 'var(--pm-navy)' }}
+                            >
+                              Service level
+                            </label>
                             <div className="grid grid-cols-3 gap-2">
                               {contentionOptions.map((opt) => {
                                 const isSelected = formData.contention === opt.value;
                                 return (
                                   <button
                                     key={opt.value}
+                                    type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, contention: opt.value }))}
-                                    className={`p-2.5 rounded-lg border transition-all duration-300 text-center ${isSelected
-                                      ? 'border-circleTel-orange bg-circleTel-orange/10'
-                                      : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'
-                                      }`}
+                                    className="p-2.5 rounded-lg border bg-white text-center"
+                                    style={{
+                                      borderColor: isSelected ? 'var(--pm-navy)' : '#E5E7EB',
+                                      borderBottom: isSelected ? '3px solid var(--pm-accent)' : undefined,
+                                    }}
                                   >
-                                    <span className={`text-xs font-black block uppercase tracking-tight ${isSelected ? 'text-circleTel-orange' : 'text-slate-600'}`}>
+                                    <span
+                                      className="text-xs font-extrabold block uppercase tracking-wide"
+                                      style={{ color: 'var(--pm-navy)' }}
+                                    >
                                       {opt.label}
                                     </span>
-                                    <span className="text-[8px] text-slate-500 mt-0.5 block font-bold">{opt.description}</span>
+                                    <span className="text-[10px] mt-0.5 block" style={{ color: '#6B7280' }}>
+                                      {opt.description}
+                                    </span>
                                   </button>
                                 );
                               })}
@@ -980,10 +987,13 @@ export default function FeasibilityPage() {
                           </div>
 
                           {/* Budget & Failover */}
-                          <div className="flex gap-3 items-center pt-3 border-t border-slate-200">
+                          <div className="flex gap-3 items-center pt-3" style={{ borderTop: '1px solid var(--pm-divider)' }}>
                             <div className="flex-1">
-                              <label className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] block mb-1.5">
-                                Budget (Optional)
+                              <label
+                                className="text-[10px] font-extrabold tracking-[0.08em] uppercase block mb-1.5"
+                                style={{ color: 'var(--pm-navy)' }}
+                              >
+                                Budget (optional)
                               </label>
                               <div className="relative">
                                 <PiCurrencyDollarBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
@@ -997,20 +1007,26 @@ export default function FeasibilityPage() {
                               </div>
                             </div>
                             <div className="flex-1">
-                              <label className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] block mb-1.5 text-right px-4">
-                                Security
+                              <label
+                                className="text-[10px] font-extrabold tracking-[0.08em] uppercase block mb-1.5"
+                                style={{ color: 'var(--pm-navy)' }}
+                              >
+                                Failover
                               </label>
-                              <label className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all duration-300 border ${formData.failover
-                                ? 'bg-green-100 border-green-300 text-green-700'
-                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300'
-                                }`}>
+                              <label
+                                className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg cursor-pointer border bg-white"
+                                style={{
+                                  borderColor: formData.failover ? 'var(--pm-navy)' : '#E5E7EB',
+                                  borderBottom: formData.failover ? '3px solid var(--pm-accent)' : undefined,
+                                  color: 'var(--pm-navy)',
+                                }}
+                              >
                                 <Checkbox
                                   checked={formData.failover}
                                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, failover: !!checked }))}
-                                  className="border-slate-300 data-[state=checked]:bg-green-600"
                                 />
                                 <PiShieldBold className="h-3 w-3" />
-                                <span className="text-[10px] font-black uppercase">Failover</span>
+                                <span className="text-[10px] font-extrabold uppercase tracking-wide">Failover</span>
                               </label>
                             </div>
                           </div>
@@ -1018,15 +1034,19 @@ export default function FeasibilityPage() {
                       </div>
 
                       {/* Sites Card */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                          <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <PiMapPinBold className="h-3 w-3 text-circleTel-orange" />
-                            Sites to Check
+                      <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] overflow-hidden">
+                        <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                          <h3
+                            className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                            style={{ color: 'var(--pm-navy)' }}
+                          >
+                            Sites to check
                           </h3>
-                          <span className={`text-[10px] font-black px-3 py-1 rounded-full border ${siteCount > 0 ? 'bg-circleTel-orange/20 border-circleTel-orange/30 text-circleTel-orange' : 'bg-slate-100 border-slate-300 text-slate-600'
-                            }`}>
-                            {siteCount} SITE{siteCount !== 1 ? 'S' : ''}
+                          <span
+                            className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                            style={{ color: 'var(--pm-navy)' }}
+                          >
+                            {siteCount} site{siteCount !== 1 ? 's' : ''}
                           </span>
                         </div>
                         <div className="p-4">
@@ -1040,42 +1060,34 @@ export default function FeasibilityPage() {
                             />
                             {formData.sites && (
                               <button
+                                type="button"
                                 onClick={() => setFormData(prev => ({ ...prev, sites: '' }))}
-                                className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-md transition-all opacity-0 group-hover:opacity-100"
+                                className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md"
                                 title="Clear all"
                               >
                                 <PiXCircleBold className="h-4 w-4" />
                               </button>
                             )}
                           </div>
-                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-dashed border-slate-300">
-                            <div className="flex items-center gap-4">
-                              <p className="text-[10px] text-slate-600 font-bold flex items-center gap-1.5 uppercase tracking-wider">
-                                <PiCursorBold className="h-3 w-3" />
-                                Map Selection Enabled
-                              </p>
-                            </div>
-                            <p className="text-[10px] text-slate-600 font-bold italic">
-                              Bulk CSV supported
+                          <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px dashed var(--pm-divider)' }}>
+                            <p className="text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1.5" style={{ color: 'var(--pm-navy)' }}>
+                              <PiCursorBold className="h-3 w-3" />
+                              Click the map to add a site
+                            </p>
+                            <p className="text-[10px]" style={{ color: '#6B7280' }}>
+                              One address or GPS per line
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Submit Button - Enhanced */}
-                      <Button
+                      <PmButton
                         onClick={checkFeasibility}
                         disabled={siteCount === 0 || !formData.companyName}
-                        className="w-full bg-circleTel-orange hover:bg-circleTel-bright-orange text-white py-8 text-sm font-black uppercase tracking-[0.3em] rounded-xl shadow-md disabled:opacity-20 disabled:shadow-none transition-all duration-500 active:scale-[0.98] border-none"
+                        className="w-full"
                       >
-                        <PiSparkleBold className="h-4 w-4 mr-3 animate-pulse" />
-                        Initialize Scan
-                        {siteCount > 0 && (
-                          <span className="ml-4 px-2.5 py-1 bg-black/20 rounded font-bold text-[10px]">
-                            {siteCount} SITES
-                          </span>
-                        )}
-                      </Button>
+                        Check coverage{siteCount > 0 ? ` · ${siteCount} site${siteCount !== 1 ? 's' : ''}` : ''}
+                      </PmButton>
                     </motion.div>
                   )}
 
@@ -1088,46 +1100,47 @@ export default function FeasibilityPage() {
                       exit={{ opacity: 0, y: -10 }}
                       className="space-y-4"
                     >
-                      {/* Progress Header */}
-                      <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-8 text-center relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-30" />
-                        <div className="relative inline-flex mb-6">
-                          <div className="relative p-5 bg-circleTel-orange rounded-full shadow-md">
-                            <PiSpinnerBold className="h-10 w-10 animate-spin text-white" />
-                          </div>
-                        </div>
-                        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest mt-4">Analyzing Coverage</h2>
-                        <p className="text-slate-500 mt-2 font-medium tracking-wide">
-                          Optimizing routes for {siteResults.length} location{siteResults.length !== 1 ? 's' : ''}...
+                      <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] p-6">
+                        <p
+                          className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                          style={{ color: 'var(--pm-navy)' }}
+                        >
+                          Coverage
                         </p>
-                        {/* Progress Bar */}
-                        <div className="mt-8 h-1.5 bg-slate-200 rounded-full overflow-hidden border border-slate-300 max-w-sm mx-auto">
+                        <h2 className="mt-1 text-xl font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                          Checking coverage
+                        </h2>
+                        <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
+                          {siteResults.length} location{siteResults.length !== 1 ? 's' : ''}
+                        </p>
+                        <div className="mt-6 h-1.5 bg-slate-200 rounded-full overflow-hidden max-w-sm">
                           <motion.div
-                            className="h-full bg-gradient-to-r from-circleTel-orange to-orange-400"
+                            className="h-full"
+                            style={{ background: 'var(--pm-accent)' }}
                             initial={{ width: 0 }}
                             animate={{ width: `${((completedCount + errorCount) / siteResults.length) * 100}%` }}
                             transition={{ duration: 0.3 }}
                           />
                         </div>
-                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-4">
+                        <p className="text-[10px] font-extrabold tracking-[0.08em] uppercase mt-3" style={{ color: 'var(--pm-navy)' }}>
                           {completedCount + errorCount} of {siteResults.length} complete
                         </p>
                       </div>
 
                       {/* Site List */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                      <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] overflow-hidden">
                         <div className="max-h-[350px] overflow-y-auto divide-y divide-slate-200 scrollbar-thin scrollbar-thumb-slate-300">
                           {siteResults.map((result, index) => (
                             <div
                               key={index}
-                              className={`px-4 py-4 flex items-center gap-4 transition-all duration-300 ${result.status === 'checking' ? 'bg-circleTel-orange/5' :
-                                result.status === 'complete' ? 'bg-green-50' :
+                              className={`px-4 py-4 flex items-center gap-4 ${result.status === 'checking' ? 'bg-[color-mix(in_srgb,var(--pm-navy)_6%,white)]' :
+                                result.status === 'complete' ? 'bg-white' :
                                   result.status === 'error' ? 'bg-red-50' :
                                     'bg-white'
                                 }`}
                             >
-                              <span className="text-[10px] font-black text-slate-600 w-6 text-center">{index + 1}</span>
-                              <div className={`p-2 rounded-lg ${result.status === 'checking' ? 'bg-circleTel-orange/20 text-circleTel-orange animate-pulse' :
+                              <span className="text-[10px] font-extrabold w-6 text-center" style={{ color: 'var(--pm-navy)' }}>{index + 1}</span>
+                              <div className={`p-2 rounded-lg ${result.status === 'checking' ? 'text-[color:var(--pm-navy)]' :
                                 result.status === 'complete' ? 'bg-green-100 text-green-700' :
                                   result.status === 'error' ? 'bg-red-100 text-red-600' :
                                     'bg-slate-100 text-slate-600'
@@ -1159,53 +1172,53 @@ export default function FeasibilityPage() {
                       exit={{ opacity: 0, y: -10 }}
                       className="space-y-4"
                     >
-                      {/* Summary Cards */}
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="bg-green-50 rounded-xl border border-green-200 p-4 text-center shadow-sm group hover:border-green-300 transition-all duration-300">
-                          <div className="inline-flex p-2.5 bg-green-100 rounded-lg mb-2 group-hover:scale-110 transition-transform">
-                            <PiShieldCheckBold className="h-5 w-5 text-green-700" />
-                          </div>
-                          <span className="text-2xl font-black text-slate-900 block tracking-tighter">{completedCount}</span>
-                          <p className="text-[10px] text-green-700 font-bold uppercase tracking-widest mt-1">Fiber Found</p>
-                        </div>
-                        <div className="bg-red-50 rounded-xl border border-red-200 p-4 text-center shadow-sm group hover:border-red-300 transition-all duration-300">
-                          <div className="inline-flex p-2.5 bg-red-100 rounded-lg mb-2 group-hover:scale-110 transition-transform">
-                            <PiShieldWarningBold className="h-5 w-5 text-red-700" />
-                          </div>
-                          <span className="text-2xl font-black text-slate-900 block tracking-tighter">{errorCount}</span>
-                          <p className="text-[10px] text-red-700 font-bold uppercase tracking-widest mt-1">No Density</p>
-                        </div>
-                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 text-center shadow-sm group hover:border-slate-300 transition-all duration-300">
-                          <div className="inline-flex p-2.5 bg-slate-100 rounded-lg mb-2 group-hover:scale-110 transition-transform">
-                            <PiMapPinBold className="h-5 w-5 text-slate-600" />
-                          </div>
-                          <span className="text-2xl font-black text-slate-900 block tracking-tighter">{siteResults.length}</span>
-                          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Total Sites</p>
-                        </div>
-                      </div>
+                      <KpiStrip
+                        variant="cards"
+                        items={[
+                          {
+                            label: 'Covered',
+                            value: String(completedCount),
+                            accent: '#2F9E5E',
+                            valueColor: '#2F9E5E',
+                          },
+                          {
+                            label: 'Failed',
+                            value: String(errorCount),
+                            accent: '#DC2626',
+                            valueColor: '#DC2626',
+                          },
+                          {
+                            label: 'Total sites',
+                            value: String(siteResults.length),
+                            accent: '#13274A',
+                          },
+                        ]}
+                      />
 
-                      {/* Package Loading */}
                       {isLoadingPackages && (
-                        <div className="flex items-center gap-4 p-5 bg-circleTel-orange/10 border border-circleTel-orange/30 rounded-xl">
-                          <div className="p-2 bg-circleTel-orange rounded-lg">
-                            <PiSpinnerBold className="h-5 w-5 animate-spin text-white" />
-                          </div>
+                        <div className="flex items-center gap-4 p-5 rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06]">
+                          <PiSpinnerBold className="h-5 w-5 animate-spin" style={{ color: 'var(--pm-navy)' }} />
                           <div>
-                            <span className="text-sm font-bold text-slate-900 block uppercase tracking-wide">Optimizing Packages</span>
-                            <span className="text-[10px] text-circleTel-orange font-bold uppercase">Matching best available services to discovered sites</span>
+                            <span className="text-sm font-extrabold block" style={{ color: 'var(--pm-navy)' }}>Matching packages</span>
+                            <span className="text-xs" style={{ color: '#6B7280' }}>Best available services for covered sites</span>
                           </div>
                         </div>
                       )}
 
                       {/* Site Results List with Package Selection */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                          <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <PiMapPinBold className="h-3 w-3 text-circleTel-orange" />
-                            Site Results
+                      <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] overflow-hidden">
+                        <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                          <span
+                            className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                            style={{ color: 'var(--pm-navy)' }}
+                          >
+                            Site results
                           </span>
-                          <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
-                            {Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length}/{completedCount} SELECTED
+                          <span
+                            className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                            style={{ color: 'var(--pm-navy)' }}
+                          >
+                            {Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length}/{completedCount} selected
                           </span>
                         </div>
                         <div className="max-h-[320px] overflow-y-auto divide-y divide-slate-200 scrollbar-thin scrollbar-thumb-slate-300">
@@ -1213,7 +1226,7 @@ export default function FeasibilityPage() {
                             <div
                               key={index}
                               onClick={() => setSelectedSite(selectedSite === index ? null : index)}
-                              className={`p-4 cursor-pointer transition-all ${selectedSite === index ? 'bg-orange-50/50' :
+                              className={`p-4 cursor-pointer ${selectedSite === index ? 'bg-[color-mix(in_srgb,var(--pm-navy)_6%,white)]' :
                                 result.status === 'complete' ? 'hover:bg-slate-50' :
                                   result.status === 'error' ? 'bg-red-50/30 hover:bg-red-50/50' :
                                     'hover:bg-slate-50'
@@ -1251,10 +1264,11 @@ export default function FeasibilityPage() {
                                               [index]: e.target.value,
                                             }));
                                           }}
-                                          className={`w-full text-sm border-2 rounded-lg px-3 py-2 transition-all ${sitePackageSelections[index]
-                                            ? 'border-green-300 bg-green-50 focus:border-green-400'
-                                            : 'border-slate-200 bg-white hover:border-slate-300 focus:border-circleTel-orange'
-                                            } focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20`}
+                                          className="w-full text-sm border rounded-lg px-3 py-2 bg-white focus:outline-none"
+                                          style={{
+                                            borderColor: sitePackageSelections[index] ? 'var(--pm-navy)' : '#E5E7EB',
+                                            borderBottom: sitePackageSelections[index] ? '3px solid var(--pm-accent)' : undefined,
+                                          }}
                                         >
                                           <option value="">Select a package...</option>
                                           {availablePackages.map(pkg => (
@@ -1264,7 +1278,7 @@ export default function FeasibilityPage() {
                                           ))}
                                         </select>
                                         {sitePackageSelections[index] && (
-                                          <div className="flex items-center gap-1.5 mt-1.5 text-green-600">
+                                          <div className="flex items-center gap-1.5 mt-1.5" style={{ color: 'var(--pm-navy)' }}>
                                             <PiCheckCircleBold className="h-3.5 w-3.5" />
                                             <span className="text-xs font-medium">
                                               {availablePackages.find(p => p.id === sitePackageSelections[index])?.name}
@@ -1279,15 +1293,12 @@ export default function FeasibilityPage() {
                                   </div>
                                 </div>
                                 {result.status === 'error' && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
+                                  <PmButton
+                                    variant="secondary"
                                     onClick={(e) => { e.stopPropagation(); retrySite(index); }}
-                                    className="flex-shrink-0"
                                   >
-                                    <PiArrowsCounterClockwiseBold className="h-3.5 w-3.5 mr-1" />
                                     Retry
-                                  </Button>
+                                  </PmButton>
                                 )}
                               </div>
 
@@ -1330,49 +1341,32 @@ export default function FeasibilityPage() {
                       {/* Actions */}
                       <div className="space-y-3">
                         {generatedQuoteIds.length > 0 ? (
-                          <div className="bg-green-50 border border-green-200 rounded-xl p-5 text-center">
-                            <div className="inline-flex p-3 bg-green-100 rounded-full mb-3">
-                              <PiCheckCircleBold className="h-6 w-6 text-green-700" />
-                            </div>
-                            <h3 className="text-lg font-bold text-green-900">
-                              {generatedQuoteIds.length} Quote{generatedQuoteIds.length !== 1 ? 's' : ''} Created!
+                          <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] p-5 text-center">
+                            <PiCheckCircleBold className="h-8 w-8 mx-auto mb-3" style={{ color: '#2F9E5E' }} />
+                            <h3 className="text-lg font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                              {generatedQuoteIds.length} quote{generatedQuoteIds.length !== 1 ? 's' : ''} created
                             </h3>
-                            <p className="text-sm text-green-700 mt-1 mb-4">
+                            <p className="text-sm mt-1 mb-4" style={{ color: 'var(--pm-body)' }}>
                               Quotes are ready for review and sending
                             </p>
-                            <Button
-                              onClick={() => window.open('/admin/quotes', '_blank')}
-                              className="bg-green-700 hover:bg-green-800 text-white"
-                            >
-                              <PiEyeBold className="h-4 w-4 mr-2" />
-                              View Quotes
-                            </Button>
+                            <PmButton onClick={() => window.open('/admin/quotes', '_blank')}>
+                              View quotes
+                            </PmButton>
                           </div>
                         ) : (
-                          <Button
+                          <PmButton
                             onClick={generateQuotes}
                             disabled={
                               Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length === 0 ||
                               isGeneratingQuotes ||
                               isLoadingPackages
                             }
-                            className="w-full bg-gradient-to-r from-circleTel-orange to-orange-500 hover:from-circleTel-orange/90 hover:to-orange-500/90 text-white py-5 text-base font-semibold rounded-xl shadow-md disabled:opacity-50 disabled:shadow-none transition-all"
+                            className="w-full"
                           >
-                            {isGeneratingQuotes ? (
-                              <>
-                                <PiSpinnerBold className="h-5 w-5 animate-spin mr-2" />
-                                Generating Quotes...
-                              </>
-                            ) : (
-                              <>
-                                <PiFileTextBold className="h-5 w-5 mr-2" />
-                                Generate Quotes
-                                <span className="ml-2 px-2.5 py-0.5 bg-white/20 rounded-full text-sm">
-                                  {Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length} site{Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length !== 1 ? 's' : ''}
-                                </span>
-                              </>
-                            )}
-                          </Button>
+                            {isGeneratingQuotes
+                              ? 'Generating quotes…'
+                              : `Generate quotes · ${Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length} site${Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length !== 1 ? 's' : ''}`}
+                          </PmButton>
                         )}
                       </div>
                     </motion.div>
@@ -1383,10 +1377,10 @@ export default function FeasibilityPage() {
               {/* Right Panel - Map (55%) */}
               <div className="flex-1 h-full lg:h-full relative border-l border-slate-200">
                 {!isLoaded ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
+                  <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'var(--pm-ground, #fff)' }}>
                     <div className="text-center">
-                      <PiSpinnerBold className="h-10 w-10 animate-spin text-circleTel-orange mx-auto mb-3" />
-                      <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Initializing Map Engine</p>
+                      <PiSpinnerBold className="h-8 w-8 animate-spin mx-auto mb-3" style={{ color: 'var(--pm-navy)' }} />
+                      <p className="text-sm" style={{ color: 'var(--pm-body)' }}>Loading map</p>
                     </div>
                   </div>
                 ) : (
@@ -1424,44 +1418,45 @@ export default function FeasibilityPage() {
 
               {/* Map Control Overlays */}
               {/* Map Legend - Top Left */}
-              <div className="absolute top-4 left-4 bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
-                <div className="px-3 py-2 bg-slate-50 border-b border-slate-200">
-                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Map Legend</p>
+              <div className="absolute top-4 left-4 rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] overflow-hidden">
+                <div className="px-3 py-2" style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                  <p className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Map legend</p>
                 </div>
                 <div className="p-3 space-y-2">
-                  <div className="flex items-center gap-2 text-[10px] font-bold">
+                  <div className="flex items-center gap-2 text-[10px] font-extrabold">
                     <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                    <span className="text-slate-700">Coverage Found</span>
+                    <span style={{ color: 'var(--pm-navy)' }}>Covered</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] font-bold">
+                  <div className="flex items-center gap-2 text-[10px] font-extrabold">
                     <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                    <span className="text-slate-700">No Density</span>
+                    <span style={{ color: 'var(--pm-navy)' }}>Failed</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] font-bold">
-                    <div className="w-2.5 h-2.5 rounded-full bg-circleTel-orange animate-pulse" />
-                    <span className="text-slate-700">Scanning...</span>
+                  <div className="flex items-center gap-2 text-[10px] font-extrabold">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--pm-accent)' }} />
+                    <span style={{ color: 'var(--pm-navy)' }}>Checking</span>
                   </div>
                 </div>
               </div>
 
               {/* Status Badge - Top Right */}
               <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
-                <div className="bg-white rounded-xl shadow-md border border-slate-200 px-4 py-2.5 flex items-center gap-3">
-                  <div className="p-1.5 bg-circleTel-orange/20 rounded-lg">
-                    <PiMapPinBold className="h-4 w-4 text-circleTel-orange" />
-                  </div>
+                <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] px-4 py-2.5 flex items-center gap-3">
+                  <PiMapPinBold className="h-4 w-4" style={{ color: 'var(--pm-navy)' }} />
                   <div>
-                    <span className="text-lg font-black text-slate-900 tracking-tighter">
+                    <span className="text-lg font-extrabold tabular-nums" style={{ color: 'var(--pm-navy)' }}>
                       {markers.filter(m => m.status !== 'geocoding').length}
                     </span>
-                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">
+                    <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase ml-2" style={{ color: 'var(--pm-navy)' }}>
                       Mapped
                     </span>
                   </div>
                 </div>
               </div>
               {step === 'form' && (
-                <div className="bg-circleTel-orange text-white rounded-lg px-3 py-1.5 text-xs font-medium shadow-md flex items-center gap-1.5">
+                <div
+                  className="rounded-lg px-3 py-1.5 text-xs font-extrabold shadow-sm flex items-center gap-1.5"
+                  style={{ background: 'var(--pm-navy)', color: '#FFFFFF' }}
+                >
                   <PiCursorBold className="h-3 w-3" />
                   Click to add location
                 </div>
@@ -1470,18 +1465,21 @@ export default function FeasibilityPage() {
 
             {/* Company Name Badge - Bottom Right */}
             {formData.companyName && (
-              <div className="absolute bottom-4 right-4 bg-white rounded-xl shadow-md border border-slate-200 px-4 py-2.5 group hover:border-circleTel-orange transition-all">
+              <div className="absolute bottom-4 right-4 rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] px-4 py-2.5">
                 <div className="flex items-center gap-3">
-                  <div className="p-1.5 bg-slate-100 rounded-lg group-hover:bg-circleTel-orange/10 transition-colors">
-                    <PiBuildingsBold className="h-4 w-4 text-slate-600 group-hover:text-circleTel-orange" />
-                  </div>
-                  <span className="text-xs font-black text-slate-900 uppercase tracking-wider">{formData.companyName}</span>
+                  <PiBuildingsBold className="h-4 w-4" style={{ color: 'var(--pm-navy)' }} />
+                  <span className="text-xs font-extrabold" style={{ color: 'var(--pm-navy)' }}>{formData.companyName}</span>
                 </div>
               </div>
             )}
           </div>
         )}
       </div>
+      <EmailParseModal
+        open={isEmailParseOpen}
+        onOpenChange={setIsEmailParseOpen}
+        onApply={handleEmailParsed}
+      />
     </div>
   );
 }

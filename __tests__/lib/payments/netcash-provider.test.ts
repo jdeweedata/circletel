@@ -319,16 +319,17 @@ describe('NetCashProvider', () => {
       expect(isValid).toBe(false);
     });
 
-    it('should handle missing webhook secret gracefully', () => {
+    it('should reject webhooks when webhook secret is not configured (fail closed)', () => {
       delete process.env.NETCASH_WEBHOOK_SECRET;
 
       const testProvider = new NetCashProvider();
       const payload = JSON.stringify(mockNetCashWebhookPayload);
 
-      // Should skip verification if secret not configured (development mode)
+      // Fail closed: without a configured secret we cannot verify authenticity,
+      // so forged payment webhooks must be rejected.
       const isValid = testProvider.verifySignature(payload, 'any-signature');
 
-      expect(isValid).toBe(true);
+      expect(isValid).toBe(false);
     });
   });
 

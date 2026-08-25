@@ -14,8 +14,8 @@ import {
 
 interface HealthPoint {
   health_score: number;
-  connected_clients: number;
-  created_at: string;
+  online_clients: number;
+  captured_at: string;
 }
 
 interface HealthTrendChartProps {
@@ -54,26 +54,31 @@ export default function HealthTrendChart({ siteId }: HealthTrendChartProps) {
   }
 
   const chartData = data.map((point) => ({
-    time: new Date(point.created_at).toLocaleDateString('en-ZA', {
+    time: new Date(point.captured_at).toLocaleDateString('en-ZA', {
       day: '2-digit',
       month: 'short',
       hour: '2-digit',
       minute: '2-digit',
     }),
     'Health Score': point.health_score,
-    Clients: point.connected_clients,
+    Clients: point.online_clients,
   }));
 
   return (
     <div className="bg-white rounded-xl border">
       <div className="px-4 py-3 border-b flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900">Health Trend</h3>
+        <h3
+          className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+          style={{ color: '#13274A' }}
+        >
+          Health Trend
+        </h3>
         <div className="flex gap-1">
           {(['7d', '30d'] as const).map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+              className={`min-h-11 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 range === r
                   ? 'bg-circleTel-orange text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

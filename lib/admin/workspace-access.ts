@@ -34,6 +34,33 @@ const ELEVATED: AdminRole[] = ['super_admin', 'product_manager'];
 const OPERATIONAL: AdminRole[] = ['super_admin', 'product_manager', 'editor'];
 const READ_ALL: AdminRole[] = ['super_admin', 'product_manager', 'editor', 'viewer'];
 
+export const WORKSPACE_ADMIN_ROLES: AdminRole[] = READ_ALL;
+
+/**
+ * RBAC role_template ids that are not in the 4-value AdminRole union.
+ * Sidebar used to coerce these to `viewer` (dashboard OK). Middleware used the
+ * raw string, so `/admin/dashboard` was denied and redirected to itself
+ * (`ERR_TOO_MANY_REDIRECTS`, `?denied=executive`).
+ */
+export const TEMPLATE_EXTRA_WORKSPACES: Record<string, WorkspaceId[]> = {
+  accountant: ['executive', 'finance', 'support'],
+  billing_specialist: ['executive', 'finance', 'support'],
+  finance_manager: ['executive', 'finance', 'support'],
+  cfo: ['executive', 'finance', 'support'],
+};
+
+export function coerceWorkspaceRole(role: string | null | undefined): AdminRole {
+  if (role && (WORKSPACE_ADMIN_ROLES as string[]).includes(role)) {
+    return role as AdminRole;
+  }
+  return 'viewer';
+}
+
+export function extraWorkspacesForRole(role: string | null | undefined): WorkspaceId[] {
+  if (!role) return [];
+  return TEMPLATE_EXTRA_WORKSPACES[role] ?? [];
+}
+
 /** B1a mapping — must match feature-registry WORKSPACES (parity-tested). */
 export const WORKSPACE_ROLES: Record<WorkspaceId, AdminRole[]> = {
   executive: READ_ALL,
@@ -64,6 +91,7 @@ export const ADMIN_WORKSPACE_ROUTES: ReadonlyArray<{
   // sales (coverage/checker must beat platform's /admin/coverage — longest-first handles it)
   { prefix: '/admin/coverage/checker', workspace: 'sales', module: 'coverage' },
   { prefix: '/admin/sales-engine', workspace: 'sales', module: 'sales' },
+  { prefix: '/admin/leads', workspace: 'sales', module: 'sales' },
   { prefix: '/admin/sales/feasibility', workspace: 'sales', module: 'coverage' },
   { prefix: '/admin/competitor-analysis', workspace: 'sales', module: 'sales' },
   { prefix: '/admin/products', workspace: 'sales', module: 'offers' },
@@ -88,6 +116,7 @@ export const ADMIN_WORKSPACE_ROUTES: ReadonlyArray<{
   { prefix: '/admin/kyc', workspace: 'ops', module: 'compliance' },
   { prefix: '/admin/workflow', workspace: 'ops', module: 'compliance' }, // "Approvals" item
   // support
+  { prefix: '/admin/inbox', workspace: 'support', module: 'crm' },
   { prefix: '/admin/support', workspace: 'support', module: 'crm' },
   { prefix: '/admin/customers', workspace: 'support', module: 'crm' },
   { prefix: '/admin/diagnostics', workspace: 'support', module: 'crm' },
@@ -142,16 +171,27 @@ export function moduleForPathname(pathname: string): ModuleId | null {
  * ponytail: tighten to default-deny after a full admin-route audit (catch-all row).
  */
 export function canAccessAdminPath(
-  role: AdminRole,
+  role: string,
   pathname: string,
   modules?: ModuleId[]
 ): boolean {
   const ws = workspaceForPathname(pathname);
   if (!ws) return true;
-  if (!WORKSPACE_ROLES[ws].includes(role)) return false;
+  const coerced = coerceWorkspaceRole(role);
+  const extras = extraWorkspacesForRole(role);
+  if (!WORKSPACE_ROLES[ws].includes(coerced) && !extras.includes(ws)) return false;
   if (modules) {
     const m = moduleForPathname(pathname);
     if (m && !modules.includes(m)) return false;
   }
   return true;
+}
+
+/**
+ * Where to send a workspace-denied request. Null means render in place —
+ * never redirect `/admin/dashboard` to itself (redirect loop).
+ */
+export function workspaceDenyLanding(pathname: string): string | null {
+  if (isExecutivePath(pathname)) return null;
+  return '/admin/dashboard';
 }

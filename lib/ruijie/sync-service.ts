@@ -169,6 +169,13 @@ export async function upsertDevices(
 export async function pruneDevicesNotInSet(
   keepSns: string[]
 ): Promise<{ deleted: number; deletedSns: string[] }> {
+  // An empty keep-set would delete every cached device. That only happens when
+  // the upstream fetch failed, so refuse rather than destroy the cache.
+  if (keepSns.length === 0) {
+    console.error('[RuijieSync] Refusing to prune with empty keep-set — cache preserved');
+    return { deleted: 0, deletedSns: [] };
+  }
+
   const supabase = await createClient();
   const keep = new Set(keepSns);
 

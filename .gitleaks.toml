@@ -1,0 +1,17 @@
+# circletel gitleaks config. Used by .githooks/pre-commit AND the CI workflow.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "circletel false-positive allowlist"
+paths = [
+  '''(^|/)\.env\.example$''',
+  '''(^|/)\.env\.sample$''',
+  '''(^|/)\.env\.template$''',
+  '''(^|/)[^/]*\.example\.[^/]+$''',
+]
+regexes = [
+  '''(?i)your[_-]?(api[_-]?)?(key|token|secret)[_-]?here''',
+  '''(?i)^(changeme|placeholder|xxxxxxxx+)$''',
+  '''(?i)(sk|pk)_(test|live)_0{8,}''',
+]

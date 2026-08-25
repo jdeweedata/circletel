@@ -33,6 +33,9 @@ interface DeviceFiltersProps {
   onGroupChange: (value: string) => void;
   modelFilter: string;
   onModelChange: (value: string) => void;
+  /** "" | "linked" | "unlinked" */
+  linkedFilter: string;
+  onLinkedChange: (value: string) => void;
   groups: string[];
   models: string[];
   onExport: () => void;
@@ -47,20 +50,32 @@ export function DeviceFilters({
   onGroupChange,
   modelFilter,
   onModelChange,
+  linkedFilter,
+  onLinkedChange,
   groups,
   models,
   onExport,
 }: DeviceFiltersProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const hasFilters = statusFilter || groupFilter || modelFilter;
-  const activeFilterCount = [statusFilter, groupFilter, modelFilter].filter(Boolean).length;
+  const hasFilters = statusFilter || groupFilter || modelFilter || linkedFilter;
+  const activeFilterCount = [statusFilter, groupFilter, modelFilter, linkedFilter].filter(
+    Boolean
+  ).length;
 
   const clearAllFilters = () => {
     onStatusChange('');
     onGroupChange('');
     onModelChange('');
+    onLinkedChange('');
   };
+
+  const linkedLabel =
+    linkedFilter === 'unlinked'
+      ? 'Unlinked'
+      : linkedFilter === 'linked'
+        ? 'Linked'
+        : linkedFilter;
 
   return (
     <Card className="border border-slate-200/80 shadow-sm rounded-xl bg-white">
@@ -70,7 +85,7 @@ export function DeviceFilters({
             <div className="relative flex-1 min-w-[200px]">
               <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Search by SN, name, or IP..."
+                placeholder="Search by SN, name, IP, or customer..."
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
                 className="pl-9 border-slate-200"
@@ -101,6 +116,14 @@ export function DeviceFilters({
                 <Badge variant="secondary" className="gap-1 bg-slate-100 text-slate-700">
                   Status: {statusFilter}
                   <button onClick={() => onStatusChange('')} className="ml-1 hover:text-red-500">
+                    <PiXBold className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {linkedFilter && (
+                <Badge variant="secondary" className="gap-1 bg-amber-50 text-amber-800">
+                  Customer: {linkedLabel}
+                  <button onClick={() => onLinkedChange('')} className="ml-1 hover:text-red-500">
                     <PiXBold className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -139,6 +162,24 @@ export function DeviceFilters({
                     <SelectItem value="all">All</SelectItem>
                     <SelectItem value="online">Online</SelectItem>
                     <SelectItem value="offline">Offline</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-44">
+                <label className="text-xs font-medium text-slate-500 mb-1 block">
+                  Customer link
+                </label>
+                <Select
+                  value={linkedFilter || 'all'}
+                  onValueChange={(v) => onLinkedChange(v === 'all' ? '' : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="unlinked">Unlinked only</SelectItem>
+                    <SelectItem value="linked">Linked only</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

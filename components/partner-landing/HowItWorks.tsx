@@ -5,20 +5,20 @@ const steps = [
   {
     number: 1,
     icon: PiLinkBold,
-    title: 'Get your unique link',
-    description: 'Sign up and get your personal referral link that tracks every customer you bring in.',
+    title: 'Apply for the pilot',
+    description: 'Tell us about yourself and your network. Property managers, community admins and IT freelancers are a natural fit.',
   },
   {
     number: 2,
     icon: PiShareBold,
-    title: 'Share it everywhere',
-    description: 'WhatsApp, Facebook, in person—the more people who click, the more you earn.',
+    title: 'Refer people you know',
+    description: 'WhatsApp, notice boards, in person — we track every referral and handle the quotes, installation and support.',
   },
   {
     number: 3,
     icon: PiMoneyBold,
-    title: 'Earn monthly commission',
-    description: 'Get paid every month for as long as your referrals stay connected. Passive income, sorted.',
+    title: 'Earn 10% every month',
+    description: 'Paid by the 5th of each month for the previous month, for as long as your referrals stay connected.',
   },
 ];
 

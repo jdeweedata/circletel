@@ -1,0 +1,57 @@
+# Billing ledger writer allowlist (customer_invoices insert/update/upsert).
+# Whitelabel Phase 1 — sole-writer ratchet.
+# Paths must only shrink. Target sole home: lib/billing/engine/
+# See: docs/architecture/BILLING_ENGINE.md § Allowlist
+# Seeded 2026-07-30 from inventory at PR 1d.
+
+# ── Preferred write path (engine) ──────────────────────────────────────────
+lib/billing/engine/
+
+# ── Delegate-first implementation (still called via engine façade) ─────────
+lib/billing/monthly-invoice-generator.ts
+lib/billing/compliant-billing-service.ts
+lib/billing/billing-service.ts
+lib/billing/failed-debit-handler.ts
+lib/billing/paynow-billing-service.ts
+lib/billing/invoice-notification-service.ts
+lib/billing/invoice-reminder-service.ts
+lib/billing/invoice-sms-reminder-service.ts
+lib/billing/notification-tracking-service.ts
+lib/billing/whatsapp-paynow-service.ts
+lib/invoices/invoice-generator.ts
+
+# ── Payments / reconciliation (apply via engine over time) ─────────────────
+app/api/admin/billing/payments/manual/route.ts
+app/api/admin/billing/reconciliation/queue/[id]/approve/route.ts
+app/api/admin/payments/verify/route.ts
+app/api/cron/payment-reconciliation/route.ts
+app/api/payments/netcash/webhook/route.ts
+app/api/payments/webhook/route.ts
+lib/inngest/functions/eft-reconciliation.ts
+lib/inngest/functions/paynow-reconciliation.ts
+lib/inngest/functions/reconciliation-monthly-sweep.ts
+
+# ── Admin invoice / generate routes ────────────────────────────────────────
+app/api/admin/billing/generate-order-invoice/route.ts
+app/api/admin/invoices/[id]/send/route.ts
+app/api/admin/invoices/[id]/update-number/route.ts
+app/api/admin/invoices/sync-from-zoho/route.ts
+
+# ── Zoho sync ──────────────────────────────────────────────────────────────
+app/api/admin/zoho/books/retry-all/route.ts
+app/api/cron/zoho-books-retry/route.ts
+lib/integrations/zoho/books-sync-orchestrator.ts
+lib/integrations/zoho/invoice-sync-service.ts
+
+# ── Inngest (dormant / legacy paths) ───────────────────────────────────────
+lib/inngest/functions/b2b-site-activation-invoice.ts
+lib/inngest/functions/invoice-notification.ts
+
+# ── Edge / one-off scripts (migrate or delete; do not grow) ────────────────
+supabase/functions/billing-auto-generate/index.ts
+scripts/netcash/generate-june-prorata.ts
+scripts/netcash/notify-pilot-direct.ts
+scripts/send-invoice-paynow-shaun-apr2026.ts
+scripts/send-invoice-paynow-shaun-may2026.ts
+scripts/test-zoho-invoice-sync.js
+scripts/zoho-sync-shaun-inv006.ts

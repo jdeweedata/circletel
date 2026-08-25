@@ -15,6 +15,7 @@ import {
   PiBuildingsBold,
   PiCalendarBold,
   PiChartBarBold,
+  PiChartLineBold,
   PiCheckCircleBold,
   PiClipboardTextBold,
   PiClockBold,
@@ -23,7 +24,9 @@ import {
   PiGearBold,
   PiGlobeBold,
   PiGraphBold,
+  PiHardDrivesBold,
   PiHandshakeBold,
+  PiHeadphonesBold,
   PiImageBold,
   PiLightningBold,
   PiLinkBold,
@@ -53,6 +56,7 @@ import {
   PiWarningCircleBold,
   PiWifiHighBold,
   PiWrenchBold,
+  PiWhatsappLogoBold,
 } from 'react-icons/pi';
 import { RandSign } from '@/components/ui/icons/rand-sign';
 import type { AdminRole } from '@/lib/auth/constants';
@@ -63,6 +67,7 @@ export interface NavChild {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
 }
 
 export interface NavItemWithHref {
@@ -120,6 +125,7 @@ export const featureSections: NavSection[] = [
         icon: PiPackageBold,
         children: [
           { name: 'Product Workspace', href: '/admin/products', icon: PiSquaresFourBold },
+          { name: 'Portfolio', href: '/admin/products?section=portfolio', icon: PiChartLineBold },
           { name: 'Add Product', href: '/admin/products/new', icon: PiPlusBold },
         ],
       },
@@ -128,6 +134,8 @@ export const featureSections: NavSection[] = [
         icon: PiFileTextBold,
         children: [
           { name: 'All Quotes', href: '/admin/quotes', icon: PiListBold },
+          { name: 'Flyers', href: '/admin/quotes/bundles', icon: PiPackageBold },
+          { name: 'Build a quote', href: '/admin/quotes/bundles/new', icon: PiPackageBold },
           { name: 'Pending Approval', href: '/admin/quotes?status=pending_approval', icon: PiClockBold },
           { name: 'Accepted', href: '/admin/quotes?status=accepted', icon: PiCheckCircleBold },
         ],
@@ -180,6 +188,10 @@ export const featureSections: NavSection[] = [
         description: 'Business customer journey',
         children: [
           { name: 'Clinic Onboarding', href: '/admin/unjani/onboarding', icon: PiUserPlusBold },
+          { name: 'Sites live', href: '/admin/unjani/sites-live', icon: PiWifiHighBold },
+          { name: 'In onboarding', href: '/admin/unjani/in-onboarding', icon: PiUserPlusBold },
+          { name: 'Pre-qualified', href: '/admin/unjani/pre-qualified', icon: PiMapPinBold },
+          { name: 'Monthly spend', href: '/admin/unjani/monthly-spend', icon: PiReceiptBold },
           { name: 'Manual Onboarding', href: '/admin/b2b/manual-intake', icon: PiClipboardTextBold },
           { name: 'Document Vetting', href: '/admin/b2b/vetting', icon: PiUserCheckBold },
           { name: 'All B2B Customers', href: '/admin/b2b-customers', icon: PiBuildingsBold },
@@ -220,6 +232,12 @@ export const featureSections: NavSection[] = [
           { name: 'Heat Map', href: '/admin/sales-engine/map', icon: PiMapPinBold },
           { name: 'Execution Plan', href: '/admin/sales-engine/execution-plan', icon: PiRocketBold },
         ],
+      },
+      {
+        name: 'Leads',
+        href: '/admin/leads',
+        icon: PiUserPlusBold,
+        description: 'Coverage lead follow-up queue with first-response SLA',
       },
       {
         name: 'B2B Feasibility',
@@ -330,6 +348,11 @@ export const featureSections: NavSection[] = [
         icon: PiWifiHighBold,
         children: [
           { name: 'Devices', href: '/admin/network/devices', icon: PiWifiHighBold },
+          {
+            name: 'Hardware Installations',
+            href: '/admin/network/hardware',
+            icon: PiHardDrivesBold,
+          },
           { name: 'System Health', href: '/admin/network/health', icon: PiPulseBold },
           { name: 'Analytics', href: '/admin/network/analytics', icon: PiChartBarBold },
           { name: 'Network Map', href: '/admin/network/map', icon: PiMapTrifoldBold },
@@ -340,6 +363,15 @@ export const featureSections: NavSection[] = [
   {
     label: 'Support',
     items: [
+      {
+        name: 'WhatsApp Inbox',
+        icon: PiWhatsappLogoBold,
+        description: 'Support IM and Sales 084 conversations',
+        children: [
+          { name: 'Sales', href: '/admin/inbox/sales', icon: PiWhatsappLogoBold },
+          { name: 'Support', href: '/admin/inbox/support', icon: PiHeadphonesBold },
+        ],
+      },
       {
         name: 'Customer Devices',
         href: '/admin/support/devices',
@@ -356,6 +388,7 @@ export const featureSections: NavSection[] = [
         icon: PiCreditCardBold,
         children: [
           { name: 'Dashboard', href: '/admin/billing', icon: PiSquaresFourBold },
+          { name: 'Cash day board', href: '/admin/billing/recon', icon: PiArrowsClockwiseBold },
           { name: 'Customers', href: '/admin/billing/customers', icon: PiUserCheckBold },
           { name: 'Invoices', href: '/admin/billing/invoices', icon: PiReceiptBold },
           { name: 'Outstanding', href: '/admin/finance/outstanding', icon: PiWarningCircleBold },
@@ -369,6 +402,8 @@ export const featureSections: NavSection[] = [
           { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: PiPulseBold },
           { name: 'Transactions', href: '/admin/payments/transactions', icon: PiReceiptBold },
           { name: 'Reconciliation', href: '/admin/finance/reconciliation', icon: PiArrowsClockwiseBold },
+          { name: 'Revenue Assurance', href: '/admin/finance/revenue-assurance', icon: PiShieldCheckBold, badge: 'NEW' },
+          { name: 'Statement audit', href: '/admin/finance/statement-audit', icon: PiClipboardTextBold },
           { name: 'Webhooks', href: '/admin/payments/webhooks', icon: PiLightningBold },
           { name: 'Settings', href: '/admin/payments/settings', icon: PiGearBold },
         ],
@@ -393,6 +428,7 @@ export const featureSections: NavSection[] = [
           { name: 'Zoho Sign', href: '/admin/integrations/zoho-sign', icon: PiFileTextBold },
           { name: 'WhatsApp Campaign', href: '/admin/integrations/whatsapp-campaign', icon: PiChartBarBold },
           { name: 'Interstellio RADIUS', href: '/admin/integrations/interstellio', icon: PiRadioBold },
+          { name: 'Owned RADIUS', href: '/admin/integrations/radius', icon: PiWifiHighBold },
           { name: 'OAuth Tokens', href: '/admin/integrations/oauth', icon: PiGearBold },
           { name: 'Webhooks', href: '/admin/integrations/webhooks', icon: PiLightningBold },
           { name: 'API Health', href: '/admin/integrations/apis', icon: PiPulseBold },
@@ -507,6 +543,7 @@ export const ITEM_WORKSPACE: Record<string, WorkspaceId> = {
   Quotes: 'sales',
   Suppliers: 'sales',
   'Sales Engine': 'sales',
+  Leads: 'sales',
   'B2B Feasibility': 'sales',
   'Coverage Checker': 'sales',
   'CPQ Builder': 'sales',
@@ -525,6 +562,7 @@ export const ITEM_WORKSPACE: Record<string, WorkspaceId> = {
   'KYB Compliance': 'ops',
   'Document Reviews': 'ops',
   Customers: 'support',
+  'WhatsApp Inbox': 'support',
   'Customer Devices': 'support',
   Diagnostics: 'support',
   Coverage: 'platform',
@@ -546,6 +584,7 @@ export const ITEM_MODULE: Record<string, ModuleId> = {
   Suppliers: 'offers',
   'CPQ Builder': 'offers',
   'Sales Engine': 'sales',
+  Leads: 'sales',
   Partners: 'sales',
   'Competitor Analysis': 'sales',
   Marketing: 'sales',
@@ -559,6 +598,7 @@ export const ITEM_MODULE: Record<string, ModuleId> = {
   'Order Fulfillment': 'orders',
   'Field Operations': 'field',
   Customers: 'crm',
+  'WhatsApp Inbox': 'crm',
   'B2B Customers': 'crm',
   'Corporate Clients': 'crm',
   'Customer Devices': 'crm',
@@ -598,10 +638,11 @@ function moduleItemVisible(item: NavItem, role: AdminRole): boolean {
 export function getWorkspaceNav(opts: {
   role: AdminRole;
   modules?: ModuleId[];
+  extraWorkspaces?: WorkspaceId[];
 }): WorkspaceNav[] {
-  const { role, modules } = opts;
+  const { role, modules, extraWorkspaces } = opts;
   const allItems: NavItem[] = [...featureSections, ...bottomSections].flatMap((s) => s.items);
-  return WORKSPACES.filter((w) => w.roles.includes(role))
+  return WORKSPACES.filter((w) => w.roles.includes(role) || extraWorkspaces?.includes(w.id))
     .sort((a, b) => a.order - b.order)
     .map((w) => ({
       id: w.id,
@@ -622,9 +663,17 @@ export function workspaceForPath(pathname: string): WorkspaceId | null {
   const allItems: NavItem[] = [...featureSections, ...bottomSections].flatMap((s) => s.items);
   for (const item of allItems) {
     const match = hasChildren(item)
-      ? item.children.some((c) => c.href.split('?')[0] === path)
+      ? item.children.some((c) => childHrefMatchesPath(c.href, path))
       : item.href.split('?')[0] === path;
     if (match) return ITEM_WORKSPACE[item.name] ?? null;
   }
   return null;
+}
+
+/** Exact child href, or the parent index of a nested child (e.g. /admin/inbox → /admin/inbox/sales). */
+function childHrefMatchesPath(href: string, path: string): boolean {
+  const base = href.split('?')[0];
+  if (path === base) return true;
+  const parent = base.slice(0, base.lastIndexOf('/'));
+  return parent.split('/').filter(Boolean).length >= 2 && path === parent;
 }

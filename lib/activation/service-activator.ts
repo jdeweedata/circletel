@@ -17,7 +17,7 @@ import { activationLogger } from '@/lib/logging';
  * 2. Updates contracts.status to 'active'
  * 3. Creates billing_cycle for recurring billing
  * 4. Creates customer portal account
- * 5. Updates SLA tracking
+ * 5. Best-effort SLA tracking update (skipped with warn if table missing)
  *
  * @param orderId - UUID of consumer_orders record
  */
@@ -110,20 +110,76 @@ export async function activateService(orderId: string): Promise<void> {
     // Don't throw - account can be created manually
   }
 
-  // 6. Update SLA tracking
-  const { error: slaError } = await supabase
-    .from('sla_tracking')
-    .update({ service_activated_at: new Date().toISOString() })
-    .eq('order_id', orderId);
-
-  if (slaError) {
-    activationLogger.error('Failed to update SLA tracking', { error: slaError.message });
-    // Don't throw - SLA tracking is not critical
-  } else {
-    activationLogger.info('SLA tracking updated');
-  }
+  // 6. Update SLA tracking (optional — table may not exist in all environments)
+  // Live DB currently lacks public.sla_tracking (archived fulfillment migration).
+  // Guard: never fail activation on missing relation; log clearly and continue.
+  await updateSlaTrackingOnActivation(supabase, orderId);
 
   activationLogger.info('Service activation complete', { orderId });
+}
+
+/**
+ * Detect PostgREST / Postgres "relation missing" errors.
+ * PGRST205 = schema-cache miss (Supabase client); 42P01 = undefined_table.
+ */
+export function isMissingRelationError(error: {
+  code?: string;
+  message?: string;
+} | null | undefined): boolean {
+  if (!error) return false;
+  const code = error.code ?? '';
+  if (code === 'PGRST205' || code === '42P01') return true;
+  const message = (error.message ?? '').toLowerCase();
+  return (
+    message.includes('could not find the table') ||
+    message.includes('does not exist') ||
+    message.includes('schema cache')
+  );
+}
+
+/**
+ * Best-effort SLA milestone update. Activation must not depend on sla_tracking.
+ */
+export async function updateSlaTrackingOnActivation(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orderId: string
+): Promise<void> {
+  try {
+    const { error: slaError } = await supabase
+      .from('sla_tracking')
+      .update({ service_activated_at: new Date().toISOString() })
+      .eq('order_id', orderId);
+
+    if (slaError) {
+      if (isMissingRelationError(slaError)) {
+        activationLogger.warn(
+          'sla_tracking table missing — skipping SLA update; activation continues',
+          {
+            orderId,
+            code: slaError.code,
+            error: slaError.message,
+          }
+        );
+        return;
+      }
+
+      activationLogger.error('Failed to update SLA tracking', {
+        orderId,
+        code: slaError.code,
+        error: slaError.message,
+      });
+      // Don't throw — SLA tracking is not critical to activation
+      return;
+    }
+
+    activationLogger.info('SLA tracking updated', { orderId });
+  } catch (error) {
+    // Defensive: unexpected throws (network, client bugs) must not fail activation
+    activationLogger.error('SLA tracking update threw unexpectedly', {
+      orderId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 }
 
 /**

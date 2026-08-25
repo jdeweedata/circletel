@@ -367,6 +367,14 @@ export type InvoiceGeneratedEvent = {
   };
 };
 
+export type UnjaniNpcPackRequestedEvent = {
+  name: 'billing/unjani-npc-pack.requested';
+  data: {
+    force?: boolean;
+    dryRun?: boolean;
+  };
+};
+
 export type ZohoSyncRequestedEvent = {
   name: 'zoho/sync.requested';
   data: {
@@ -450,6 +458,45 @@ export type WhatsAppNotificationCancelledEvent = {
     process_log_id: string;
     cancelled_by?: string;
     reason?: string;
+  };
+};
+
+// =============================================================================
+// NEW SIGNUP FOLLOW-UP EVENTS
+// =============================================================================
+
+export type NewSignupFollowupRequestedEvent = {
+  name: 'sales/new-signup-followup.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+    process_log_id?: string;
+    options?: {
+      dryRun?: boolean;
+      minAgeHours?: number;
+      maxAgeDays?: number;
+    };
+  };
+};
+
+export type NewSignupFollowupCompletedEvent = {
+  name: 'sales/new-signup-followup.completed';
+  data: {
+    process_log_id: string;
+    candidates: number;
+    ticketed: number;
+    failed: number;
+    sales_alerted: boolean;
+    duration_ms: number;
+  };
+};
+
+export type NewSignupFollowupFailedEvent = {
+  name: 'sales/new-signup-followup.failed';
+  data: {
+    process_log_id: string;
+    error: string;
+    attempt: number;
   };
 };
 
@@ -575,6 +622,33 @@ export type MonthlySweepCancelledEvent = {
     process_log_id: string;
     cancelled_by?: string;
     reason?: string;
+  };
+};
+
+export type BillingCycleMatchRequestedEvent = {
+  name: 'billing/cycle-match.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    yearMonth?: string;
+    admin_user_id?: string;
+  };
+};
+
+export type BillingCycleMatchCompletedEvent = {
+  name: 'billing/cycle-match.completed';
+  data: {
+    run_id: string;
+    yearMonth: string;
+    services_checked: number;
+    exception_count: number;
+  };
+};
+
+export type BillingCycleMatchFailedEvent = {
+  name: 'billing/cycle-match.failed';
+  data: {
+    yearMonth: string;
+    error: string;
   };
 };
 
@@ -807,6 +881,19 @@ export type OfferPricingRecomputeCompletedEvent = {
   };
 };
 
+export type UsageReportZipRequestedEvent = {
+  name: 'usage-reports/zip.requested';
+  data: {
+    jobId: string;
+    patientRows?: Array<{
+      siteCode: string;
+      uniqueUsers: number;
+      loginSessions: number;
+      downloadGb: number;
+    }>;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -842,6 +929,7 @@ export type InngestEvents = {
   'billing/day.cancelled': BillingDayCancelledEvent;
   // Invoice notification events
   'billing/invoice.generated': InvoiceGeneratedEvent;
+  'billing/unjani-npc-pack.requested': UnjaniNpcPackRequestedEvent;
   // Zoho sync events
   'zoho/sync.requested': ZohoSyncRequestedEvent;
   'zoho/sync.completed': ZohoSyncCompletedEvent;
@@ -851,6 +939,10 @@ export type InngestEvents = {
   'billing/whatsapp.completed': WhatsAppNotificationCompletedEvent;
   'billing/whatsapp.failed': WhatsAppNotificationFailedEvent;
   'billing/whatsapp.cancelled': WhatsAppNotificationCancelledEvent;
+  // New signup follow-up events
+  'sales/new-signup-followup.requested': NewSignupFollowupRequestedEvent;
+  'sales/new-signup-followup.completed': NewSignupFollowupCompletedEvent;
+  'sales/new-signup-followup.failed': NewSignupFollowupFailedEvent;
   // Supplier sync events
   'supplier/sync.requested': SupplierSyncRequestedEvent;
   'supplier/sync.completed': SupplierSyncCompletedEvent;
@@ -869,6 +961,9 @@ export type InngestEvents = {
   'reconciliation/monthly-sweep.requested': MonthlySweepRequestedEvent;
   'reconciliation/monthly-sweep.completed': MonthlySweepCompletedEvent;
   'reconciliation/monthly-sweep.cancelled': MonthlySweepCancelledEvent;
+  'billing/cycle-match.requested': BillingCycleMatchRequestedEvent;
+  'billing/cycle-match.completed': BillingCycleMatchCompletedEvent;
+  'billing/cycle-match.failed': BillingCycleMatchFailedEvent;
   // Zone demographic enrichment events
   'zone/demographics.enrichment.requested': ZoneDemographicEnrichmentRequestedEvent;
   'zone/demographics.enrichment.completed': ZoneDemographicEnrichmentCompletedEvent;
@@ -888,4 +983,6 @@ export type InngestEvents = {
   // Offer pricing events
   'offer/pricing.recompute.requested': OfferPricingRecomputeRequestedEvent;
   'offer/pricing.recompute.completed': OfferPricingRecomputeCompletedEvent;
+  // Site usage report events
+  'usage-reports/zip.requested': UsageReportZipRequestedEvent;
 };

@@ -27,7 +27,10 @@ export function SectionCard({
   const headerPadding = compact ? 'p-4' : 'px-6 py-4';
 
   return (
-    <div className={cn('bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm', className)}>
+    <div
+      data-pm="section-card"
+      className={cn('bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm', className)}
+    >
       <div className={cn('border-b border-gray-100 flex justify-between items-center', headerPadding)}>
         <div className="flex items-center gap-2">
           {Icon && <Icon className="w-4 h-4 text-gray-500" />}

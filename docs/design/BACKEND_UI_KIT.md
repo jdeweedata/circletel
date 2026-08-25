@@ -1,15 +1,16 @@
 # Backend UI Kit
 
-Shared component primitives for the **admin** (`/admin/*`) and **consumer** (`/dashboard/*`) dashboards. One kit, one look — so both surfaces feel like the same product.
+Shared component primitives for the **admin** (`/admin/*`) and **consumer** (`/dashboard/*`) dashboards.
 
 - **Home:** `components/backend/` — import from `@/components/backend`.
-- **Reference look:** the consumer billing dashboard (`app/dashboard/billing/page.tsx`) and the migrated admin billing hub (`app/admin/billing/*`). — functional minimalism: white surfaces, soft gray borders, restrained orange accent, generous spacing, `tabular-nums` numbers.
-- **Tokens:** reuse `tailwind.config.ts` (`circleTel.*`), `app/globals.css`, `DESIGN.md`, `lib/design-system.ts`. Do not invent new tokens.
+- **Admin reference look:** `/admin/unjani/onboarding` — Archivo, `--pm-*` tokens (`#13274A` navy, `#F5841E` accent), 40px extrabold titles, 10px uppercase metric labels, `--pm-ground` page, `--pm-divider` rules. Applied automatically via `AdminModernistProvider` (`.portal-root`) + `components/admin/modernist/admin-kit.css`. Do not copy `--pm-*` into page files.
+- **Customer `/dashboard` look:** unchanged slate / gray Tailwind on the same JSX. Dashboard is not inside `.portal-root`, so `admin-kit.css` does not apply.
+- **Tokens:** admin chrome uses `components/portal/modernist/tokens.ts` (`portalModernist` → `--pm-*`). Dashboard keeps `tailwind.config.ts` (`circleTel.*`), `app/globals.css`, `DESIGN.md`. Do not invent new hex in either surface.
 
 ## Principles
 
-- **Function first** — clarity over decoration. White cards, `border-gray-200`, `shadow-sm`, `p-6`, `space-y-6/8`.
-- **Orange is an accent** — `circleTel-orange` only for active state, primary CTA, links, focus. Never body text on white.
+- **Function first** — clarity over decoration. Admin cards are white on `--pm-ground` with `--pm-divider` rules. Dashboard cards stay `border-gray-200`, `shadow-sm`, `p-6`.
+- **Orange is an accent** — admin primary CTA is `--pm-accent` fill with navy text. Accessible orange text is `--pm-accent-active` (`#D76026`), never `#F5841E` on white. Dashboard still uses `circleTel-orange` for CTA/active only. Never body text on white.
 - **One token, one meaning** — status colours come only from `StatusBadge`/`getStatusVariant`. No per-page status hex.
 - **Predictable states** — every list/data view uses `LoadingState` / `EmptyState` / `ErrorState`.
 
@@ -18,9 +19,10 @@ Shared component primitives for the **admin** (`/admin/*`) and **consumer** (`/d
 | Component | Use for |
 |-----------|---------|
 | `AdminPage` | Page body shell (`space-y-6`). No extra padding/min-h-screen — AdminLayout already shells. |
-| `PageHeader` | List/index page title + subtitle + actions. (Detail pages → `DetailPageHeader`.) |
+| `PageHeader` | List/index page title + subtitle + actions. Optional `eyebrow` (uppercase kicker). (Detail pages → `DetailPageHeader`.) |
 | `DetailPageHeader` | Detail title + optional breadcrumbs/status. Type scale matches `PageHeader`. |
-| `StatCard` | Metric cards. Replaces inline stat `<div>`s, admin `StatCard`, and `ModernStatCard`. |
+| `MetricCard` | **Preferred** metric card — network console look. Label above, big `font-semibold` value, optional `children` (icon or inline chart) below. |
+| `StatCard` | Legacy metric card (gray, three layout variants). Retained for unmigrated pages — prefer `MetricCard` for new work. |
 | `StatusBadge` + `getStatusVariant` | Every status pill. Map raw DB strings with `getStatusVariant()`. |
 | `SectionCard` | Card with a header for grouped content. |
 | `InfoRow` | Key/value rows in detail panels. |
@@ -68,7 +70,15 @@ import { PiFileTextBold } from 'react-icons/pi';
 4. Local `getStatusBadge()` → `StatusBadge` + `getStatusVariant`.
 5. Loading/empty/error blocks → `LoadingState` / `EmptyState` / `ErrorState`.
 6. Tabs → `ConsoleTabsList` / `ConsoleTabsContent` (where tabs exist).
-7. `npm run type-check:memory`; visual-diff against the billing hub / consumer billing reference.
+7. `npm run type-check:memory`; on admin, visual-diff against `/admin/unjani/onboarding`. On `/dashboard`, visual-diff against the consumer billing reference (slate).
+
+## Colour that carries meaning
+
+Status colour comes only from `StatusBadge`/`getStatusVariant`. Beyond that, some
+surfaces use colour as *data* — AR aging buckets (green→dark-red by age), notification
+channels (SMS blue / Email purple), cash-match day-done state (green/red), and exception
+severity (red/amber). Preserve those hues when restyling; do not flatten them into the
+chart palette. Consistency of *chrome* (grid, axes, tooltips, card shells), not of hue.
 
 ## Back-compat
 

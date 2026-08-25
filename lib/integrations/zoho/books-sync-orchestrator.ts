@@ -21,6 +21,10 @@ import { createClient } from '@/lib/supabase/server';
 import { getZohoBooksClient, ZohoBooksClient } from './books-api-client';
 import { logZohoSync } from './billing-sync-logger';
 import { zohoLogger } from '@/lib/logging';
+import {
+  assertInvoiceVatHeaders,
+  buildZohoTaxInclusiveInvoicePayload,
+} from '@/lib/billing/invoice-vat-contract';
 
 // ============================================================================
 // Types
@@ -316,7 +320,8 @@ export class ZohoBooksSyncOrchestrator {
     const stats = { processed: 0, succeeded: 0, failed: 0 };
 
     // Find invoices needing sync - ALL TYPES (no type filter!)
-    // This is the key change from Zoho Billing sync
+    // Include failed (e.g. previously blocked recurring via Billing path) so
+    // Books remains the canonical mirror for every CT invoice type.
     const { data: invoices, error } = await supabase
       .from('customer_invoices')
       .select(`
@@ -324,7 +329,10 @@ export class ZohoBooksSyncOrchestrator {
         customer:customers(id, email, zoho_books_contact_id)
       `)
       .is('zoho_books_invoice_id', null)
-      .or('zoho_sync_status.eq.pending,zoho_sync_status.is.null')
+      .or(
+        'zoho_sync_status.eq.pending,zoho_sync_status.is.null,zoho_sync_status.eq.failed'
+      )
+      .not('status', 'in', '(voided,cancelled)')
       .limit(options.maxInvoices || 40);
 
     if (error || !invoices) {
@@ -382,22 +390,24 @@ export class ZohoBooksSyncOrchestrator {
           .update({ zoho_sync_status: 'syncing' })
           .eq('id', invoice.id);
 
-        // Build invoice payload
-        const lineItems = Array.isArray(invoice.line_items)
-          ? invoice.line_items.map((item: any) => ({
-              name: item.name || item.description || 'Service',
-              description: item.description || undefined,
-              rate: parseFloat(item.price || item.rate || 0),
-              quantity: parseInt(item.quantity || 1),
-            }))
-          : [
-              {
-                name: this.getInvoiceDescription(invoice.invoice_type),
-                description: invoice.notes || undefined,
-                rate: parseFloat(invoice.total_amount || 0),
-                quantity: 1,
-              },
-            ];
+        // VAT: fail closed — never write 1.15× mismatches into Books.
+        const headerCheck = assertInvoiceVatHeaders(invoice);
+        if (!headerCheck.ok) {
+          throw new Error(
+            `VAT amount guard failed before Books create: ${headerCheck.error}`
+          );
+        }
+
+        const money = buildZohoTaxInclusiveInvoicePayload(
+          {
+            subtotal: invoice.subtotal,
+            tax_amount: invoice.tax_amount,
+            total_amount: invoice.total_amount,
+            line_items: invoice.line_items,
+            notes: invoice.notes,
+          },
+          this.getInvoiceDescription(invoice.invoice_type)
+        );
 
         const invoicePayload = {
           customer_id: invoice.customer.zoho_books_contact_id,
@@ -406,7 +416,8 @@ export class ZohoBooksSyncOrchestrator {
           due_date: invoice.due_date || undefined,
           payment_terms: invoice.payment_terms || 30,
           payment_terms_label: invoice.payment_terms_label || 'Net 30',
-          line_items: lineItems,
+          is_inclusive_tax: money.is_inclusive_tax,
+          line_items: money.line_items,
           notes: invoice.notes || undefined,
           terms: invoice.terms || undefined,
           // custom_fields omitted: 'CircleTel Invoice ID' etc. do not exist in the
@@ -416,6 +427,26 @@ export class ZohoBooksSyncOrchestrator {
 
         // Create invoice in Zoho Books
         const zohoInvoice = await this.client.createInvoice(invoicePayload);
+
+        const ctTotal = Math.round(Number(invoice.total_amount || 0) * 100) / 100;
+        const booksTotal = Math.round(Number(zohoInvoice.total || 0) * 100) / 100;
+        if (Math.abs(booksTotal - ctTotal) > 0.05) {
+          try {
+            await this.client.voidInvoice(zohoInvoice.invoice_id);
+          } catch (voidErr) {
+            zohoLogger.error(
+              '[BooksOrchestrator] Failed to void mismatched Books invoice',
+              {
+                books_invoice_id: zohoInvoice.invoice_id,
+                error:
+                  voidErr instanceof Error ? voidErr.message : String(voidErr),
+              }
+            );
+          }
+          throw new Error(
+            `VAT amount guard: Books total ${booksTotal} !== CT total_amount ${ctTotal}`
+          );
+        }
 
         // Mark as sent (so it shows as outstanding)
         try {
@@ -532,17 +563,18 @@ export class ZohoBooksSyncOrchestrator {
     const supabase = await createClient();
     const stats = { processed: 0, succeeded: 0, failed: 0 };
 
-    // Find completed payments needing sync
+    // Find completed payments needing sync (include failed for payment catch-up
+    // when CT is paid but Books payment was never recorded).
+    // NOTE: no nested customers join — payment_transactions has no FK to customers
+    // in PostgREST schema cache; resolve customer/invoice manually below.
     const { data: payments, error } = await supabase
       .from('payment_transactions')
-      .select(`
-        *,
-        customer:customers(id, email, zoho_books_contact_id),
-        invoice:customer_invoices(id, invoice_number, zoho_books_invoice_id)
-      `)
+      .select('*')
       .eq('status', 'completed')
       .is('zoho_books_payment_id', null)
-      .or('zoho_sync_status.eq.pending,zoho_sync_status.is.null')
+      .or(
+        'zoho_sync_status.eq.pending,zoho_sync_status.is.null,zoho_sync_status.eq.failed'
+      )
       .limit(options.maxPayments || 20);
 
     if (error || !payments) {
@@ -567,11 +599,40 @@ export class ZohoBooksSyncOrchestrator {
       try {
         stats.processed++;
 
+        // Resolve invoice via customer_invoice_id or legacy invoice_id
+        const invoiceId =
+          payment.customer_invoice_id || payment.invoice_id || null;
+        let invoice: {
+          id: string;
+          invoice_number: string | null;
+          zoho_books_invoice_id: string | null;
+          customer_id: string | null;
+        } | null = null;
+        if (invoiceId) {
+          const { data: inv } = await supabase
+            .from('customer_invoices')
+            .select('id, invoice_number, zoho_books_invoice_id, customer_id')
+            .eq('id', invoiceId)
+            .maybeSingle();
+          invoice = inv;
+        }
+
+        const customerId = payment.customer_id || invoice?.customer_id || null;
+        let booksContactId: string | null = null;
+        if (customerId) {
+          const { data: cust } = await supabase
+            .from('customers')
+            .select('id, email, zoho_books_contact_id')
+            .eq('id', customerId)
+            .maybeSingle();
+          booksContactId = cust?.zoho_books_contact_id ?? null;
+        }
+
         // Check if customer has Zoho Books contact ID
-        if (!payment.customer?.zoho_books_contact_id) {
+        if (!booksContactId) {
           zohoLogger.warn('[BooksOrchestrator] Payment customer not synced', {
             payment_id: payment.id,
-            customer_id: payment.customer_id,
+            customer_id: customerId,
           });
 
           await supabase
@@ -600,19 +661,22 @@ export class ZohoBooksSyncOrchestrator {
 
         // Build payment payload
         const paymentPayload = {
-          customer_id: payment.customer.zoho_books_contact_id,
+          customer_id: booksContactId,
           payment_mode: this.mapPaymentMethod(payment.payment_method || 'other'),
           amount: parseFloat(payment.amount || 0),
           date: payment.completed_at
             ? new Date(payment.completed_at).toISOString().split('T')[0]
             : new Date().toISOString().split('T')[0],
-          reference_number: payment.transaction_reference || payment.id.substring(0, 8),
+          reference_number:
+            payment.reference ||
+            payment.transaction_reference ||
+            payment.id.substring(0, 8),
           description: payment.description || `Payment via ${payment.payment_method}`,
           // Link to invoice if synced
-          invoices: payment.invoice?.zoho_books_invoice_id
+          invoices: invoice?.zoho_books_invoice_id
             ? [
                 {
-                  invoice_id: payment.invoice.zoho_books_invoice_id,
+                  invoice_id: invoice.zoho_books_invoice_id,
                   amount_applied: parseFloat(payment.amount || 0),
                 },
               ]

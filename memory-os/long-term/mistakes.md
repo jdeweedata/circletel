@@ -11,6 +11,12 @@ Prevention: How to avoid this forever
 
 ---
 
+### [2026-07-30] outstanding-invoices API joined non-existent schema relations (silent 500)
+**What happened**: `GET /api/admin/finance/outstanding-invoices` returned 500 for months; the old page swallowed the error and showed an empty table, so nobody noticed.
+**Root cause**: Query selected `payment_method` (column is `payment_collection_method`) and embedded `consumer_orders (order_number)` — `customer_invoices` has no FK to `consumer_orders` (PGRST200). Two invalid references in one select.
+**Fix**: Dropped the `consumer_orders` embed + `order_number` field, renamed to `payment_collection_method` (app/api/admin/finance/outstanding-invoices/route.ts).
+**Prevention**: PostgREST embeds silently break when FKs don't exist — test the raw query with service role before shipping; never let pages swallow API errors without an error state.
+
 ### [2025-10-24] Queried `invoices` table instead of `customer_invoices`
 **What happened**: Billing queries failed silently — returned empty results
 **Root cause**: Assumed standard naming. Didn't verify schema first.

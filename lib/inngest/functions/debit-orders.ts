@@ -19,6 +19,7 @@ import { inngest } from '../client';
 import { createClient } from '@/lib/supabase/server';
 import {
   netcashDebitBatchService,
+  partitionByLimits,
   DebitOrderItem,
 } from '@/lib/payments/netcash-debit-batch-service';
 import { PayNowBillingService } from '@/lib/billing/paynow-billing-service';
@@ -436,8 +437,31 @@ export const debitOrdersFunction = inngest.createFunction(
     result.totalEligible = eligibleItems.length + skippedInvoices.length;
     result.skipped = skippedInvoices.length;
 
-    // Handle empty batch
-    if (eligibleItems.length === 0) {
+    // Apply NetCash collection limits (mirror of the cron path — see
+    // app/api/cron/submit-debit-orders/route.ts and partitionByLimits()).
+    // Over-line items are skipped & flagged (NetCash would reject the line
+    // anyway); a daily-cap breach blocks the whole run. Both funnel through the
+    // empty-batch path below via itemsToSubmit.
+    const limits = partitionByLimits(eligibleItems);
+    for (const over of limits.overLine) {
+      result.skipped++;
+      result.errors.push(
+        `Skipped ${over.accountReference}: R${over.amount.toFixed(2)} exceeds the NetCash per-item line limit — cannot be debit-collected on this profile (collect via Pay Now or raise the NetCash line limit)`
+      );
+      console.warn(`[DebitOrders] Over line-limit, skipped: ${over.accountReference} R${over.amount.toFixed(2)} (customer ${over.customerId})`);
+    }
+    if (limits.dailyExceeded) {
+      result.errors.push(
+        `Submittable batch total R${limits.totalRands.toFixed(2)} exceeds the NetCash daily limit — batch not submitted. Raise the NetCash daily limit or split across action dates.`
+      );
+      console.error(`[DebitOrders] Daily limit exceeded — batch not submitted (submittable total R${limits.totalRands.toFixed(2)})`);
+    } else if (limits.warning) {
+      console.warn(`[DebitOrders] ${limits.warning}`);
+    }
+    const itemsToSubmit: DebitOrderItem[] = limits.dailyExceeded ? [] : limits.submittable;
+
+    // Handle empty batch (nothing eligible, or nothing submittable after limits)
+    if (itemsToSubmit.length === 0) {
       console.log('[DebitOrders] No eligible debit orders to submit');
 
       // Still need to process Pay Now fallback
@@ -473,7 +497,7 @@ export const debitOrdersFunction = inngest.createFunction(
         await supabase
           .from('cron_execution_log')
           .update({
-            status: 'completed',
+            status: result.errors.length > 0 ? 'completed_with_errors' : 'completed',
             completed_at: new Date().toISOString(),
             result: {
               ...result,
@@ -509,9 +533,9 @@ export const debitOrdersFunction = inngest.createFunction(
     if (!dryRun) {
       const batchResult = await step.run('submit-netcash-batch', async () => {
         const batchName = `CircleTel-${dateStr}-${Date.now()}`;
-        console.log(`[DebitOrders] Submitting batch with ${eligibleItems.length} items`);
+        console.log(`[DebitOrders] Submitting batch with ${itemsToSubmit.length} items`);
 
-        const res = await netcashDebitBatchService.submitBatch(eligibleItems, batchName);
+        const res = await netcashDebitBatchService.submitBatch(itemsToSubmit, batchName);
 
         if (!res.success) {
           console.error('[DebitOrders] Batch submission failed:', res.errors);
@@ -560,15 +584,15 @@ export const debitOrdersFunction = inngest.createFunction(
               .upsert({
                 batch_id: batchId,
                 batch_name: `CircleTel-${dateStr}-${Date.now()}`,
-                item_count: eligibleItems.length,
-                total_amount: eligibleItems.reduce((sum, item) => sum + item.amount, 0),
+                item_count: itemsToSubmit.length,
+                total_amount: itemsToSubmit.reduce((sum, item) => sum + item.amount, 0),
                 status: 'submitted',
                 submitted_at: new Date().toISOString(),
                 created_at: new Date().toISOString(),
               }, { onConflict: 'batch_id' });
 
             // Insert batch items
-            const batchItems = eligibleItems.map(item => ({
+            const batchItems = itemsToSubmit.map(item => ({
               batch_id: batchId,
               account_reference: item.accountReference,
               customer_id: item.customerId,
@@ -599,7 +623,7 @@ export const debitOrdersFunction = inngest.createFunction(
         nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
         const nextDateStr = nextBillingDate.toISOString().split('T')[0];
 
-        for (const item of eligibleItems) {
+        for (const item of itemsToSubmit) {
           try {
             if (item.orderId) {
               await supabase
@@ -659,7 +683,7 @@ export const debitOrdersFunction = inngest.createFunction(
       }
     } else {
       // Dry run - just log what would happen
-      console.log(`[DebitOrders] DRY RUN: Would submit ${eligibleItems.length} items`);
+      console.log(`[DebitOrders] DRY RUN: Would submit ${itemsToSubmit.length} items`);
       result.submitted = 0;
     }
 

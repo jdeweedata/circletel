@@ -8,12 +8,18 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import {
+  parsePortalAccountLane,
+  safeBusinessRedirect,
+  BUSINESS_LOGIN_HREF,
+} from '@/lib/portal/paths';
 
 export default function VerifyOTPLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') || '';
-  const redirectPath = searchParams.get('redirect') || '/dashboard';
+  const account = parsePortalAccountLane(searchParams.get('account'));
+  const redirectPath = searchParams.get('redirect');
 
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -35,9 +41,11 @@ export default function VerifyOTPLoginPage() {
   useEffect(() => {
     if (!phone) {
       toast.error('Phone number is required');
-      router.push('/auth/login');
+      router.push(
+        account === 'business' ? BUSINESS_LOGIN_HREF : '/auth/login'
+      );
     }
-  }, [phone, router]);
+  }, [phone, router, account]);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,9 +88,56 @@ export default function VerifyOTPLoginPage() {
         return;
       }
 
+      if (account === 'business') {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const { data: portalUser } = user
+          ? await supabase
+              .from('b2b_portal_users')
+              .select('id, corporate_accounts!inner (corporate_code)')
+              .eq('auth_user_id', user.id)
+              .maybeSingle()
+          : { data: null };
+
+        const org = portalUser?.corporate_accounts as
+          | { corporate_code?: string }
+          | { corporate_code?: string }[]
+          | null
+          | undefined;
+        const code = Array.isArray(org) ? org[0]?.corporate_code : org?.corporate_code;
+
+        if (!portalUser) {
+          await supabase.auth.signOut();
+          toast.error(
+            'No business portal access for this account. Ask your Super User to invite you.'
+          );
+          router.push(`${BUSINESS_LOGIN_HREF}&error=no_portal_access`);
+          return;
+        }
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session?.access_token && session.refresh_token) {
+          await fetch('/api/portal/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+            }),
+          });
+        }
+
+        toast.success('Successfully signed in!');
+        window.location.assign(safeBusinessRedirect(redirectPath, code));
+        return;
+      }
+
       toast.success('Successfully signed in!');
-      // Redirect to intended page or dashboard
-      router.push(redirectPath);
+      router.push(redirectPath || '/dashboard');
     } catch (error) {
       console.error('Error verifying OTP:', error);
       toast.error('Failed to verify code. Please try again.');

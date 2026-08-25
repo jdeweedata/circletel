@@ -1,30 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { PiCheckCircleBold, PiXCircleBold, PiArrowsClockwiseBold, PiMagnifyingGlassBold, PiFunnelBold, PiPlayBold } from 'react-icons/pi';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { PiPlayBold, PiQueueBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  AdminPage,
-  PageHeader,
-  DetailPageHeader,
-  StatCard,
-  SectionCard,
-  StatusBadge,
-  LoadingState,
-  EmptyState,
-  ErrorState,
-  type StatusVariant,
-} from '@/components/backend';
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
@@ -32,454 +12,272 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
+import {
+  AdminPage,
+  ErrorState,
+  LoadingState,
+  PageHeader,
+  StatCard,
+} from '@/components/backend';
+import { ThreeSourcePanel } from '@/components/admin/finance/cycle-match/ThreeSourcePanel';
+import { MatchWorklist } from '@/components/admin/finance/cycle-match/MatchWorklist';
+import { formatZar } from '@/components/admin/finance/cycle-match/money';
+import { SourceDot } from '@/components/admin/finance/cycle-match/SourceDot';
+import type { CycleMatchWorkbench } from '@/lib/billing/cycle-match/load-workbench';
 
-interface QueueItem {
-  id: string;
-  source: string;
-  source_reference: string;
-  source_date: string;
-  amount: number;
-  currency: string;
-  payment_method: string;
-  payer_reference: string | null;
-  payer_name: string | null;
-  match_confidence: number;
-  match_method: string | null;
-  status: 'pending' | 'approved' | 'rejected';
-  matched_invoice_id: string | null;
-  resolved_by: string | null;
-  resolved_at: string | null;
-  resolution_notes: string | null;
-  raw_data: Record<string, unknown> | null;
-  created_at: string;
+type TabId = 'all' | 'matched_3' | 'matched_2' | 'unmatched' | 'resolved_today';
+
+const TAB_IDS: TabId[] = ['all', 'matched_3', 'matched_2', 'unmatched', 'resolved_today'];
+
+const LEAK_LABEL: Record<string, string> = {
+  any: 'Open leakage',
+  never_invoiced: 'Live but never invoiced',
+  under_contract: 'Invoiced below contract',
+  promo_expired: 'Promo expired, still discounted',
+  cancelled_still_billing: 'Cancelled but still billing',
+};
+
+function isYearMonth(value: string | null): value is string {
+  return !!value && /^\d{4}-\d{2}$/.test(value);
 }
 
-interface Stats {
-  pending: number;
-  approved: number;
-  rejected: number;
-  total: number;
+function monthOptions(): string[] {
+  const out: string[] = [];
+  const now = new Date(
+    new Date().toLocaleString('en-US', { timeZone: 'Africa/Johannesburg' })
+  );
+  for (let i = 0; i < 8; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  }
+  return out;
 }
 
-interface InvoiceSearchResult {
-  id: string;
-  invoice_number: string;
-  total_amount: number;
-  status: string;
-  customer_name?: string;
-  due_date?: string;
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString('en-ZA', {
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
-export default function ReconciliationQueuePage() {
-  const [items, setItems] = useState<QueueItem[]>([]);
-  const [stats, setStats] = useState<Stats>({ pending: 0, approved: 0, rejected: 0, total: 0 });
+export default function ReconciliationWorkbenchPage() {
+  const searchParams = useSearchParams();
+  const [month, setMonth] = useState(monthOptions()[0]);
+  const [tab, setTab] = useState<TabId>('all');
+  const [leakFilter, setLeakFilter] = useState<string | null>(null);
+  const [data, setData] = useState<CycleMatchWorkbench | null>(null);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('pending');
-  const [sourceFilter, setSourceFilter] = useState('all');
-  const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
-  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [invoiceSearch, setInvoiceSearch] = useState('');
-  const [invoiceResults, setInvoiceResults] = useState<InvoiceSearchResult[]>([]);
-  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceSearchResult | null>(null);
-  const [rejectReason, setRejectReason] = useState('');
-  const [actionLoading, setActionLoading] = useState(false);
-  const [triggerLoading, setTriggerLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [running, setRunning] = useState(false);
 
-  const fetchQueue = useCallback(async () => {
+  const fetchData = useCallback(async (ym: string) => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      const params = new URLSearchParams({ status: statusFilter });
-      if (sourceFilter && sourceFilter !== 'all') params.set('source', sourceFilter);
-      const res = await fetch(`/api/admin/billing/reconciliation/queue?${params}`);
-      if (!res.ok) throw new Error('Failed to fetch queue');
-      const data = await res.json();
-      setItems(data.items || []);
-      setStats(data.stats || { pending: 0, approved: 0, rejected: 0, total: 0 });
-    } catch {
-      setItems([]);
+      const res = await fetch(
+        `/api/admin/finance/cycle-match?month=${encodeURIComponent(ym)}`
+      );
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || 'Failed to load cycle match');
+      setData(body as CycleMatchWorkbench);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load cycle match');
+      setData(null);
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, sourceFilter]);
+  }, []);
 
   useEffect(() => {
-    fetchQueue();
-  }, [fetchQueue]);
-
-  const searchInvoices = async (query: string) => {
-    if (query.length < 2) {
-      setInvoiceResults([]);
-      return;
+    const monthParam = searchParams.get('month');
+    if (isYearMonth(monthParam)) setMonth(monthParam);
+    const leakParam = searchParams.get('leak');
+    setLeakFilter(leakParam);
+    const tabParam = searchParams.get('tab');
+    if (tabParam && TAB_IDS.includes(tabParam as TabId)) {
+      setTab(tabParam as TabId);
     }
-    try {
-      const res = await fetch(`/api/admin/billing/invoices?search=${encodeURIComponent(query)}&status=sent,overdue&limit=10`);
-      if (!res.ok) return;
-      const data = await res.json();
-      setInvoiceResults(data.invoices || data.data || []);
-    } catch {
-      setInvoiceResults([]);
-    }
-  };
+  }, [searchParams]);
 
-  const handleApprove = async () => {
-    if (!selectedItem || !selectedInvoice) return;
-    setActionLoading(true);
+  useEffect(() => {
+    void fetchData(month);
+  }, [fetchData, month]);
+
+  const runMatch = async () => {
+    setRunning(true);
+    setError(null);
     try {
-      const res = await fetch(`/api/admin/billing/reconciliation/queue/${selectedItem.id}/approve`, {
+      const res = await fetch('/api/admin/finance/cycle-match/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invoice_id: selectedInvoice.id }),
+        body: JSON.stringify({ month, sync: true }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setApproveDialogOpen(false);
-      setSelectedItem(null);
-      setSelectedInvoice(null);
-      setInvoiceSearch('');
-      fetchQueue();
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || 'Failed to run match');
+      await fetchData(month);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to approve');
+      setError(err instanceof Error ? err.message : 'Failed to run match');
     } finally {
-      setActionLoading(false);
+      setRunning(false);
     }
   };
 
-  const handleReject = async () => {
-    if (!selectedItem) return;
-    setActionLoading(true);
-    try {
-      const res = await fetch(`/api/admin/billing/reconciliation/queue/${selectedItem.id}/reject`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: rejectReason }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setRejectDialogOpen(false);
-      setSelectedItem(null);
-      setRejectReason('');
-      fetchQueue();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to reject');
-    } finally {
-      setActionLoading(false);
+  const rows = useMemo(() => {
+    if (!data) return [];
+    if (leakFilter && leakFilter !== 'all') {
+      if (leakFilter === 'any') return data.worklist.filter((r) => r.leakType);
+      return data.worklist.filter((r) => r.leakType === leakFilter);
     }
-  };
-
-  const handleTrigger = async (type: 'eft' | 'paynow' | 'monthly-sweep') => {
-    setTriggerLoading(type);
-    try {
-      const res = await fetch('/api/admin/billing/reconciliation/trigger', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      alert(`${type} reconciliation triggered successfully`);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to trigger');
-    } finally {
-      setTriggerLoading(null);
+    if (tab === 'all') return data.worklist;
+    if (tab === 'resolved_today') {
+      return data.worklist.filter((r) => r.exceptionId && data.tabs.resolved_today);
     }
-  };
+    return data.worklist.filter((r) => r.matchState === tab);
+  }, [data, tab, leakFilter]);
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(amount);
+  if (loading && !data) {
+    return (
+      <AdminPage>
+        <LoadingState message="Loading reconciliation…" />
+      </AdminPage>
+    );
+  }
 
-  const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
+  if (error && !data) {
+    return (
+      <AdminPage>
+        <ErrorState title="Could not load reconciliation" message={error} onRetry={() => void fetchData(month)} />
+      </AdminPage>
+    );
+  }
+
+  if (!data) return null;
+
+  const tabs: Array<{ id: TabId; label: string; count: number }> = [
+    { id: 'all', label: 'All', count: data.tabs.all },
+    { id: 'matched_3', label: 'Matched', count: data.tabs.matched_3 },
+    { id: 'matched_2', label: '2 of 3', count: data.tabs.matched_2 },
+    { id: 'unmatched', label: 'Unmatched', count: data.tabs.unmatched },
+    { id: 'resolved_today', label: 'Resolved today', count: data.tabs.resolved_today },
+  ];
 
   return (
     <AdminPage>
       <PageHeader
-        title="Payment Reconciliation"
-        subtitle="Review and approve unmatched payments from EFT and PayNow"
+        eyebrow="Payments"
+        title="Reconciliation"
+        subtitle={`Cycle ${data.monthLabel}${data.run ? ` · ${data.run.servicesChecked} services` : ''}`}
         actions={
-          <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleTrigger('eft')}
-            disabled={!!triggerLoading}
-          >
-            <PiPlayBold className="mr-1 h-4 w-4" />
-            {triggerLoading === 'eft' ? 'Running...' : 'Run EFT'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleTrigger('paynow')}
-            disabled={!!triggerLoading}
-          >
-            <PiPlayBold className="mr-1 h-4 w-4" />
-            {triggerLoading === 'paynow' ? 'Running...' : 'Run PayNow'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleTrigger('monthly-sweep')}
-            disabled={!!triggerLoading}
-          >
-            <PiPlayBold className="mr-1 h-4 w-4" />
-            {triggerLoading === 'monthly-sweep' ? 'Running...' : 'Monthly Sweep'}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="mr-2 hidden items-center gap-3 text-xs text-slate-500 sm:flex">
+              <span className="inline-flex items-center gap-1.5">
+                <SourceDot tone="platform" /> ISP Platform
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <SourceDot tone="zoho" /> Zoho Books
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <SourceDot tone="netcash" /> Netcash
+              </span>
+            </div>
+            <Select value={month} onValueChange={setMonth}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Cycle" />
+              </SelectTrigger>
+              <SelectContent>
+                {monthOptions().map((ym) => (
+                  <SelectItem key={ym} value={ym}>
+                    Cycle: {monthLabel(ym)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/admin/finance/reconciliation/cash-queue">
+                <PiQueueBold className="mr-1.5 h-4 w-4" />
+                Cash queue
+              </Link>
+            </Button>
+            <Button
+              size="sm"
+              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              onClick={() => void runMatch()}
+              disabled={running}
+            >
+              <PiPlayBold className="mr-1.5 h-4 w-4" />
+              {running ? 'Running…' : 'Run match'}
+            </Button>
           </div>
         }
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div onClick={() => setStatusFilter('pending')} className="cursor-pointer">
-          <StatCard label="Pending" value={stats.pending} icon={<PiFunnelBold className="h-5 w-5" />} />
-        </div>
-        <div onClick={() => setStatusFilter('approved')} className="cursor-pointer">
-          <StatCard label="Approved" value={stats.approved} icon={<PiCheckCircleBold className="h-5 w-5" />} />
-        </div>
-        <div onClick={() => setStatusFilter('rejected')} className="cursor-pointer">
-          <StatCard label="Rejected" value={stats.rejected} icon={<PiXCircleBold className="h-5 w-5" />} />
-        </div>
-        <StatCard label="Total" value={stats.total} icon={<PiArrowsClockwiseBold className="h-5 w-5" />} />
+      {error && (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Matched 3 of 3"
+          value={data.kpis.matched3Count}
+          subtitle={`${formatZar(data.kpis.matched3Amount)} · ${data.kpis.matched3Pct}% of cycle`}
+        />
+        <StatCard
+          label="Matched 2 of 3"
+          value={data.kpis.matched2Count}
+          subtitle={`${formatZar(data.kpis.matched2Amount)} · needs review`}
+        />
+        <StatCard
+          label="Unmatched"
+          value={data.kpis.unmatchedCount}
+          subtitle={`${formatZar(data.kpis.unmatchedAmount)} · one source only`}
+        />
+        <StatCard
+          label="Net variance to clear"
+          value={formatZar(data.kpis.netVariance)}
+          subtitle={`${data.kpis.openExceptions} open exceptions${
+            data.kpis.oldestOpenDays != null ? ` · oldest ${data.kpis.oldestOpenDays}d` : ''
+          }`}
+        />
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3">
-        <PiFunnelBold className="h-4 w-4 text-gray-400" />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="all">All</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={sourceFilter} onValueChange={setSourceFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All sources" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All sources</SelectItem>
-            <SelectItem value="zoho_cashbook">EFT (Zoho Cashbook)</SelectItem>
-            <SelectItem value="netcash_paynow">PayNow (NetCash)</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button variant="ghost" size="sm" onClick={fetchQueue}>
-          <PiArrowsClockwiseBold className="h-4 w-4" />
-        </Button>
+      {data.selected && <ThreeSourcePanel panel={data.selected} />}
+
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Match state">
+        {tabs.map((t) => {
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => {
+                setLeakFilter(null);
+                setTab(t.id);
+              }}
+              className={
+                active
+                  ? 'rounded-lg bg-circleTel-orange px-3 py-1.5 text-xs font-semibold text-white'
+                  : 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50'
+              }
+            >
+              {t.label} {t.count}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Queue Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            Reconciliation Queue ({items.length} items)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <LoadingState message="Loading reconciliation queue..." />
-          ) : items.length === 0 ? (
-            <p className="text-sm text-gray-500 py-8 text-center">No items in queue</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-gray-500">
-                    <th className="pb-2 pr-4">Date</th>
-                    <th className="pb-2 pr-4">Source</th>
-                    <th className="pb-2 pr-4">Reference</th>
-                    <th className="pb-2 pr-4">Payer</th>
-                    <th className="pb-2 pr-4 text-right">Amount</th>
-                    <th className="pb-2 pr-4">Status</th>
-                    <th className="pb-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item) => (
-                    <tr key={item.id} className="border-b hover:bg-slate-50">
-                      <td className="py-3 pr-4 whitespace-nowrap">
-                        {item.source_date ? formatDate(item.source_date) : '—'}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <Badge variant="outline" className="text-xs">
-                          {item.source === 'zoho_cashbook' ? 'EFT' : 'PayNow'}
-                        </Badge>
-                      </td>
-                      <td className="py-3 pr-4 font-mono text-xs max-w-[200px] truncate">
-                        {item.payer_reference || item.source_reference}
-                      </td>
-                      <td className="py-3 pr-4 max-w-[150px] truncate">
-                        {item.payer_name || '—'}
-                      </td>
-                      <td className="py-3 pr-4 text-right font-medium">
-                        {formatCurrency(item.amount)}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <Badge
-                          variant={
-                            item.status === 'pending' ? 'secondary' :
-                            item.status === 'approved' ? 'default' : 'destructive'
-                          }
-                          className="text-xs"
-                        >
-                          {item.status}
-                        </Badge>
-                      </td>
-                      <td className="py-3">
-                        {item.status === 'pending' && (
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 text-green-600 hover:text-green-700 hover:bg-green-50"
-                              onClick={() => {
-                                setSelectedItem(item);
-                                setApproveDialogOpen(true);
-                              }}
-                            >
-                              <PiCheckCircleBold className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 text-red-600 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => {
-                                setSelectedItem(item);
-                                setRejectDialogOpen(true);
-                              }}
-                            >
-                              <PiXCircleBold className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-                        {item.status !== 'pending' && (
-                          <span className="text-xs text-gray-400">
-                            {item.resolved_at ? formatDate(item.resolved_at) : ''}
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Approve Dialog */}
-      <Dialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Approve Payment</DialogTitle>
-          </DialogHeader>
-          {selectedItem && (
-            <div className="space-y-4">
-              <div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm">
-                <p><span className="text-gray-500">Amount:</span> <strong>{formatCurrency(selectedItem.amount)}</strong></p>
-                <p><span className="text-gray-500">Reference:</span> {selectedItem.payer_reference}</p>
-                <p><span className="text-gray-500">Payer:</span> {selectedItem.payer_name || 'Unknown'}</p>
-                <p><span className="text-gray-500">Date:</span> {selectedItem.source_date ? formatDate(selectedItem.source_date) : '—'}</p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Search for invoice to match:</label>
-                <div className="relative">
-                  <PiMagnifyingGlassBold className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                  <Input
-                    className="pl-9"
-                    placeholder="Invoice number, customer name, or account..."
-                    value={invoiceSearch}
-                    onChange={(e) => {
-                      setInvoiceSearch(e.target.value);
-                      searchInvoices(e.target.value);
-                    }}
-                  />
-                </div>
-                {invoiceResults.length > 0 && (
-                  <div className="border rounded-lg max-h-[200px] overflow-y-auto">
-                    {invoiceResults.map((inv) => (
-                      <button
-                        key={inv.id}
-                        className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 border-b last:border-b-0 ${
-                          selectedInvoice?.id === inv.id ? 'bg-orange-50 border-orange-200' : ''
-                        }`}
-                        onClick={() => setSelectedInvoice(inv)}
-                      >
-                        <div className="flex justify-between">
-                          <span className="font-medium">{inv.invoice_number}</span>
-                          <span className="font-medium">{formatCurrency(inv.total_amount)}</span>
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {inv.customer_name} &middot; {inv.status} &middot; Due {inv.due_date ? formatDate(inv.due_date) : '—'}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {selectedInvoice && (
-                  <div className="bg-green-50 border border-green-200 p-2 rounded text-sm">
-                    Selected: <strong>{selectedInvoice.invoice_number}</strong> — {formatCurrency(selectedInvoice.total_amount)}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setApproveDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleApprove}
-              disabled={!selectedInvoice || actionLoading}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {actionLoading ? 'Approving...' : 'Approve & Match'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Reject Dialog */}
-      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reject Payment</DialogTitle>
-          </DialogHeader>
-          {selectedItem && (
-            <div className="space-y-4">
-              <div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm">
-                <p><span className="text-gray-500">Amount:</span> <strong>{formatCurrency(selectedItem.amount)}</strong></p>
-                <p><span className="text-gray-500">Reference:</span> {selectedItem.payer_reference}</p>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Reason for rejection (optional):</label>
-                <Input
-                  placeholder="e.g. Duplicate, not a customer payment, test transaction..."
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleReject}
-              disabled={actionLoading}
-            >
-              {actionLoading ? 'Rejecting...' : 'Reject'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <MatchWorklist
+        rows={rows}
+        title={
+          leakFilter && LEAK_LABEL[leakFilter]
+            ? LEAK_LABEL[leakFilter]
+            : 'Exceptions worklist'
+        }
+      />
     </AdminPage>
   );
 }

@@ -1,26 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { PiBuildings, PiWifiHighBold, PiHeartbeatBold, PiWarningBold } from 'react-icons/pi';
+import { PiInfoBold, PiWarningBold } from 'react-icons/pi';
 import type { PortalUser } from '@/lib/portal/portal-auth-provider';
-
-interface SiteHealth {
-  health_score: number;
-  connected_clients: number;
-}
-
-interface Site {
-  id: string;
-  site_name: string;
-  site_code: string | null;
-  city: string | null;
-  province: string | null;
-  status: string | null;
-  technology_type: string | null;
-  ruijie_device_sn: string | null;
-  health: SiteHealth | null;
-}
+import { usePortalApp } from '@/lib/portal/portal-app-context';
+import {
+  PortalModernistShell,
+  PageHeader,
+  AlertBand,
+  KpiStrip,
+  RuledTable,
+  PmButton,
+} from '@/components/portal/modernist/PortalModernistShell';
+import {
+  StageBadge,
+  StageStrip,
+} from '@/components/portal/modernist/StageIndicators';
+import {
+  formatClinicShortName,
+  formatSiteCode,
+  formatSiteLocation,
+  formatTechnology,
+  formatZar,
+  type PortalSite,
+} from '@/lib/portal/site-format';
+import { spendNote } from '@/lib/portal/dashboard-kpis';
+import type { StageKey } from '@/lib/portal/onboarding-stage';
 
 interface Invoice {
   id: string;
@@ -31,158 +37,295 @@ interface Invoice {
   due_date: string;
 }
 
+interface DashboardSummary {
+  sitesLive: number;
+  billedSites: number;
+  inOnboarding: number;
+  preQualified: number;
+  monthlySpend: number;
+  stageCounts: Record<StageKey, number>;
+  provinces: Array<{ province: string; count: number }>;
+}
+
 export default function AdminDashboard({ user }: { user: PortalUser }) {
-  const [sites, setSites] = useState<Site[]>([]);
+  const { href, isUnjani } = usePortalApp();
+  const [sites, setSites] = useState<PortalSite[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [stageFilter, setStageFilter] = useState<StageKey | null>(null);
 
   useEffect(() => {
     let mounted = true;
     Promise.all([
       fetch('/api/portal/sites').then((r) => r.json()),
       fetch('/api/portal/billing').then((r) => r.json()),
+      fetch('/api/portal/dashboard').then((r) => r.json()),
     ])
-      .then(([sitesData, billingData]) => {
+      .then(([sitesData, billingData, summaryData]) => {
         if (!mounted) return;
         setSites(sitesData.sites ?? []);
         setInvoices(billingData.invoices ?? []);
+        setSummary(summaryData?.error ? null : summaryData);
       })
       .catch(console.error)
-      .finally(() => { if (mounted) setLoading(false); });
-    return () => { mounted = false; };
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const totalSites = sites.length;
-  const onlineSites = sites.filter((s) => s.health && s.health.health_score > 0).length;
-  const avgHealth = sites.reduce((sum, s) => sum + (s.health?.health_score ?? 0), 0) / (onlineSites || 1);
-  const totalClients = sites.reduce((sum, s) => sum + (s.health?.connected_clients ?? 0), 0);
   const overdueInvoices = invoices.filter((i) => i.status === 'overdue');
+  const awaitingClinic = summary?.stageCounts.details_confirmed ?? 0;
+
+  const overviewSites = useMemo(() => {
+    const filtered = stageFilter
+      ? sites.filter((site) => site.stage === stageFilter)
+      : sites;
+    return filtered.slice(0, 8);
+  }, [sites, stageFilter]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-10 h-10 border-4 border-circleTel-orange border-t-transparent rounded-full animate-spin" />
+      <div
+        className="flex items-center justify-center py-20 text-sm"
+        style={{ color: '#13274A' }}
+      >
+        Loading dashboard…
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Welcome back, {user.display_name} — {user.organisation_name}</p>
-      </div>
+    <PortalModernistShell>
+      <PageHeader
+        showRule={false}
+        eyebrow="Organisation · Overview"
+        title="Dashboard"
+        subtitle={`Welcome back, ${user.display_name} — ${user.organisation_name}`}
+        actions={
+          isUnjani ? (
+            <>
+              <Link href={href('/coverage')}>
+                <PmButton variant="secondary">Coverage check</PmButton>
+              </Link>
+              <Link href={href('/coverage')}>
+                <PmButton variant="cta">+ Onboard a clinic</PmButton>
+              </Link>
+            </>
+          ) : undefined
+        }
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={<PiBuildings className="w-6 h-6" />} label="Total Sites" value={totalSites} color="blue" />
-        <StatCard icon={<PiWifiHighBold className="w-6 h-6" />} label="Online Sites" value={`${onlineSites}/${totalSites}`} color="green" />
-        <StatCard icon={<PiHeartbeatBold className="w-6 h-6" />} label="Avg Health Score" value={`${Math.round(avgHealth)}%`} color="orange" />
-        <StatCard icon={<PiWifiHighBold className="w-6 h-6" />} label="Connected Clients" value={totalClients} color="purple" />
-      </div>
+      <KpiStrip
+        variant="cards"
+        items={[
+          {
+            label: 'Sites live',
+            value: String(summary?.sitesLive ?? 0),
+            href: href('/sites'),
+            accent: '#2F9E5E',
+            valueColor: '#2F9E5E',
+          },
+          {
+            label: 'In onboarding',
+            value: String(summary?.inOnboarding ?? 0),
+            note: 'Across 5 stages',
+            href: href('/sites'),
+            accent: '#13274A',
+          },
+          ...(isUnjani
+            ? [
+                {
+                  label: 'Pre-qualified',
+                  value: String(summary?.preQualified ?? 0),
+                  note: 'Ready to add to the pipeline',
+                  href: href('/coverage'),
+                  accent: '#F5841E',
+                },
+              ]
+            : []),
+          {
+            label: 'Monthly spend',
+            value: formatZar(summary?.monthlySpend ?? 0),
+            note: spendNote(summary?.billedSites ?? 0, summary?.monthlySpend ?? 0),
+            href: href('/billing'),
+            accent: '#13274A',
+          },
+        ]}
+      />
 
       {overdueInvoices.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <PiWarningBold className="w-5 h-5 text-red-600" />
-            <h3 className="font-semibold text-red-900">Overdue Invoices</h3>
-          </div>
-          <ul className="space-y-1 text-sm text-red-800">
-            {overdueInvoices.map((inv) => (
-              <li key={inv.id}>
-                {inv.invoice_number} — R{inv.amount_due.toFixed(2)} due {new Date(inv.due_date).toLocaleDateString('en-ZA')}
-              </li>
-            ))}
-          </ul>
-          <Link href="/portal/billing" className="text-sm font-medium text-red-700 hover:underline mt-2 inline-block">
-            View billing →
-          </Link>
-        </div>
+        <AlertBand
+          action={
+            <Link href={href('/billing')}>
+              <PmButton variant="secondary">View billing</PmButton>
+            </Link>
+          }
+        >
+          <span className="inline-flex items-center gap-2">
+            <PiWarningBold className="w-4 h-4" aria-hidden="true" />
+            {overdueInvoices.length} overdue invoice
+            {overdueInvoices.length > 1 ? 's' : ''}
+          </span>
+        </AlertBand>
       )}
 
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Site Overview</h2>
-          <Link href="/portal/sites" className="text-sm text-circleTel-orange hover:underline">
-            View all sites →
-          </Link>
-        </div>
-        <div className="bg-white rounded-xl border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Site</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 hidden sm:table-cell">Location</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 hidden md:table-cell">Technology</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Health</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Clients</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {sites.slice(0, 10).map((site) => (
-                <tr key={site.id} className="hover:bg-gray-50">
+      {isUnjani && awaitingClinic > 0 && (
+        <AlertBand
+          tone="peach"
+          action={
+            <Link href={href('/sites')}>
+              <PmButton variant="secondary">Review</PmButton>
+            </Link>
+          }
+        >
+          <span className="inline-flex items-center gap-2">
+            <PiInfoBold className="w-4 h-4 shrink-0" aria-hidden="true" />
+            {awaitingClinic} clinic{awaitingClinic > 1 ? 's' : ''} at Clinic
+            details confirmed. Next is agreeing an installation date with the
+            on-site contact.
+          </span>
+        </AlertBand>
+      )}
+
+      {isUnjani && summary && (
+        <section className="mt-8">
+          <div className="flex items-center justify-between gap-3">
+            <p
+              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Pipeline by stage
+            </p>
+            <p className="text-xs" style={{ color: '#6B7280' }}>
+              Click a stage to filter
+            </p>
+          </div>
+          <StageStrip
+            counts={summary.stageCounts}
+            selected={stageFilter}
+            onSelect={setStageFilter}
+          />
+        </section>
+      )}
+
+      <div className="pt-24 grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,1fr)]">
+        <section>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p
+              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Site overview
+            </p>
+            <Link href={href('/sites')}>
+              <PmButton
+                variant="secondary"
+                className="transition-colors hover:!bg-[#13274A] hover:!text-white"
+              >
+                View all sites
+              </PmButton>
+            </Link>
+          </div>
+
+          <RuledTable
+            headers={['Site', 'Location', 'Technology', 'Stage']}
+            className="mt-3 rounded-xl shadow-sm ring-1 ring-black/[0.06]"
+          >
+            {overviewSites.map((site) => {
+              const code = formatSiteCode(site);
+              return (
+                <tr
+                  key={site.id}
+                  style={{ borderBottom: '1px solid var(--pm-divider)' }}
+                >
                   <td className="px-4 py-3">
-                    <Link href={`/portal/sites/${site.id}`} className="font-medium text-gray-900 hover:text-circleTel-orange">
-                      {site.site_name}
+                    <Link
+                      href={href(`/sites/${site.id}`)}
+                      className="block hover:opacity-80"
+                    >
+                      <span
+                        className="block font-extrabold"
+                        style={{ color: 'var(--pm-navy)' }}
+                      >
+                        {formatClinicShortName(site.site_name)}
+                      </span>
+                      {code && (
+                        <span className="block text-xs" style={{ color: '#6B7280' }}>
+                          {code}
+                        </span>
+                      )}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">
-                    {[site.city, site.province].filter(Boolean).join(', ') || '—'}
+                  <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
+                    {formatSiteLocation(site)}
                   </td>
-                  <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
-                    {site.technology_type ?? '—'}
+                  <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
+                    {formatTechnology(site.technology)}
                   </td>
-                  <td className="px-4 py-3 text-center">
-                    {site.health ? (
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                        site.health.health_score >= 80 ? 'bg-green-100 text-green-700' :
-                        site.health.health_score >= 50 ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>
-                        {site.health.health_score}%
-                      </span>
-                    ) : (
-                      <span className="text-xs text-gray-400">N/A</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-center text-gray-600">
-                    {site.health?.connected_clients ?? '—'}
+                  <td className="px-4 py-3">
+                    <StageBadge stage={site.stage} size="sm" />
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {sites.length > 10 && (
-            <div className="px-4 py-3 bg-gray-50 border-t text-center">
-              <Link href="/portal/sites" className="text-sm text-circleTel-orange hover:underline">
-                View all {sites.length} sites →
-              </Link>
+              );
+            })}
+          </RuledTable>
+        </section>
+
+        {isUnjani && summary && summary.provinces.length > 0 && (
+          <section>
+            <p
+              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Clinics in the pipeline by province
+            </p>
+            <div className="mt-3 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-black/[0.06]">
+              {summary.provinces.map((row, i) => {
+                const widest = summary.provinces[0]?.count || 1;
+                return (
+                  <div
+                    key={row.province}
+                    className="flex items-center gap-3 py-2"
+                    style={{
+                      borderTop: i > 0 ? '1px solid #F3F4F6' : undefined,
+                    }}
+                  >
+                    <span
+                      className="w-32 shrink-0 text-sm font-medium"
+                      style={{ color: 'var(--pm-navy)' }}
+                    >
+                      {row.province}
+                    </span>
+                    <div
+                      className="h-2.5 min-w-0 flex-1 rounded-full"
+                      style={{ background: '#EEF1F6' }}
+                      role="presentation"
+                    >
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${Math.round((row.count / widest) * 100)}%`,
+                          background: '#13274A',
+                        }}
+                      />
+                    </div>
+                    <span
+                      className="w-6 text-right text-sm font-extrabold tabular-nums"
+                      style={{ color: 'var(--pm-navy)' }}
+                    >
+                      {row.count}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </div>
+          </section>
+        )}
       </div>
-    </div>
-  );
-}
-
-function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string | number; color: string }) {
-  const colorMap: Record<string, string> = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    orange: 'bg-orange-50 text-orange-600',
-    purple: 'bg-purple-50 text-purple-600',
-  };
-
-  return (
-    <div className="bg-white rounded-xl border p-4">
-      <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorMap[color]}`}>
-          {icon}
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">{label}</p>
-          <p className="text-xl font-bold text-gray-900">{value}</p>
-        </div>
-      </div>
-    </div>
+    </PortalModernistShell>
   );
 }

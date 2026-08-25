@@ -4,27 +4,38 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PiHeartbeatBold, PiWifiHighBold, PiWarningBold, PiCalendarBold } from 'react-icons/pi';
 import type { PortalUser } from '@/lib/portal/portal-auth-provider';
+import { usePortalApp } from '@/lib/portal/portal-app-context';
+
+import {
+  formatClinicShortName,
+  formatSiteCode,
+  formatSiteStreet,
+  formatTechnology,
+} from '@/lib/portal/site-format';
+import {
+  PageHeader,
+  PortalModernistShell,
+} from '@/components/portal/modernist/PortalModernistShell';
 
 interface SiteDetail {
   site: {
     id: string;
     site_name: string;
     site_code: string | null;
-    address_line1: string | null;
-    city: string | null;
+    installation_address: unknown;
     province: string | null;
     status: string | null;
-    technology_type: string | null;
-    contact_name: string | null;
-    contact_phone: string | null;
-    contact_email: string | null;
+    technology: string | null;
+    site_contact_name: string | null;
+    site_contact_phone: string | null;
+    site_contact_email: string | null;
   };
   health: {
     health_score: number;
-    connected_clients: number;
+    online_clients: number;
     cpu_usage: number | null;
     memory_usage: number | null;
-    created_at: string;
+    captured_at: string;
   } | null;
   alerts: Array<{
     id: string;
@@ -32,7 +43,8 @@ interface SiteDetail {
     severity: string;
     message: string;
     created_at: string;
-    resolved_at: string | null;
+    acknowledged: boolean;
+    acknowledged_at: string | null;
   }>;
 }
 
@@ -46,6 +58,7 @@ interface Invoice {
 }
 
 export default function SiteUserDashboard({ user }: { user: PortalUser }) {
+  const { href } = usePortalApp();
   const [siteData, setSiteData] = useState<SiteDetail | null>(null);
   const [nextInvoice, setNextInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,16 +104,19 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
   }
 
   const { site, health, alerts } = siteData;
-  const activeAlerts = alerts.filter((a) => !a.resolved_at);
+  const activeAlerts = alerts.filter((a) => !a.acknowledged);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{site.site_name}</h1>
-        <p className="text-gray-500 mt-1">
-          {[site.address_line1, site.city, site.province].filter(Boolean).join(', ')}
-        </p>
-      </div>
+    <PortalModernistShell className="space-y-6">
+      <PageHeader
+        eyebrow={
+          formatSiteCode(site)
+            ? `${user.organisation_name} · ${formatSiteCode(site)}`
+            : `${user.organisation_name} · Site`
+        }
+        title={formatClinicShortName(site.site_name)}
+        subtitle={formatSiteStreet(site) || undefined}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border p-4">
@@ -139,7 +155,7 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
             <div>
               <p className="text-sm text-gray-500">Connected Clients</p>
               <p className="text-xl font-bold text-gray-900">
-                {health?.connected_clients ?? '—'}
+                {health?.online_clients ?? '—'}
               </p>
             </div>
           </div>
@@ -172,12 +188,17 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
         <div className="bg-white rounded-xl border">
           <div className="px-4 py-3 border-b flex items-center gap-2">
             <PiWarningBold className="w-5 h-5 text-amber-500" />
-            <h2 className="font-semibold text-gray-900">Active Alerts</h2>
+            <h2
+              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Active Alerts
+            </h2>
           </div>
           <ul className="divide-y">
             {activeAlerts.map((alert) => (
-              <li key={alert.id} className="px-4 py-3 flex items-center justify-between">
-                <div>
+              <li key={alert.id} className="px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-900">{alert.message}</p>
                   <p className="text-xs text-gray-500">{new Date(alert.created_at).toLocaleString('en-ZA')}</p>
                 </div>
@@ -195,26 +216,31 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
       )}
 
       <div className="bg-white rounded-xl border p-4">
-        <h2 className="font-semibold text-gray-900 mb-3">Site Information</h2>
+        <h2
+          className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-3"
+          style={{ color: 'var(--pm-navy)' }}
+        >
+          Site Information
+        </h2>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
           <div>
             <dt className="text-gray-500">Technology</dt>
-            <dd className="font-medium text-gray-900">{site.technology_type ?? '—'}</dd>
+            <dd className="font-medium text-gray-900">{formatTechnology(site.technology)}</dd>
           </div>
           <div>
             <dt className="text-gray-500">Site Code</dt>
             <dd className="font-medium text-gray-900">{site.site_code ?? '—'}</dd>
           </div>
-          {site.contact_name && (
+          {site.site_contact_name && (
             <div>
               <dt className="text-gray-500">Contact</dt>
-              <dd className="font-medium text-gray-900">{site.contact_name}</dd>
+              <dd className="font-medium text-gray-900">{site.site_contact_name}</dd>
             </div>
           )}
-          {site.contact_phone && (
+          {site.site_contact_phone && (
             <div>
               <dt className="text-gray-500">Phone</dt>
-              <dd className="font-medium text-gray-900">{site.contact_phone}</dd>
+              <dd className="font-medium text-gray-900">{site.site_contact_phone}</dd>
             </div>
           )}
         </dl>
@@ -222,18 +248,18 @@ export default function SiteUserDashboard({ user }: { user: PortalUser }) {
 
       <div className="flex gap-4">
         <Link
-          href={`/portal/sites/${site.id}`}
+          href={href(`/sites/${site.id}`)}
           className="text-sm text-circleTel-orange hover:underline"
         >
           View full site details →
         </Link>
         <Link
-          href="/portal/support"
+          href={href('/support')}
           className="text-sm text-circleTel-orange hover:underline"
         >
           Raise support ticket →
         </Link>
       </div>
-    </div>
+    </PortalModernistShell>
   );
 }

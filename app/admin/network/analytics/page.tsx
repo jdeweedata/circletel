@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import {
   PiArrowsClockwiseBold,
@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -34,6 +35,7 @@ import {
   ThroughputAreaChart,
 } from '@/components/admin/network/performance';
 import type { GroupTrafficCard, RadioUtilSummary, SsidActivityCard } from '@/lib/network/analytics-aggregates';
+import { AnalyticsExportMenu } from '@/components/admin/network/AnalyticsExportMenu';
 import { formatRelative } from '@/lib/dates';
 
 interface TrafficDataPoint {
@@ -69,10 +71,28 @@ interface AppFlowData {
   upDownFlow: number;
 }
 
+interface AnalyticsDevice {
+  sn: string;
+  device_name: string;
+  status: string;
+}
+
+type AnalyticsPeriod =
+  | { mode: 'hours'; hours: number }
+  | {
+      mode: 'custom';
+      startDate: string;
+      endDate: string;
+      inclusiveDayCount?: number;
+    };
+
 interface AnalyticsApiResponse {
   groups: Array<{ id: string; name: string }>;
   groupId: string | null;
+  deviceSn?: string | null;
+  devices?: AnalyticsDevice[];
   hours: number;
+  period?: AnalyticsPeriod;
   source: 'supabase' | 'live';
   traffic: TrafficSummary;
   appFlow?: AppFlowData[];
@@ -84,10 +104,42 @@ interface AnalyticsApiResponse {
   fetchedAt: string;
 }
 
+const ALL_DEVICES = 'all';
+
 function formatDuration(hours: number): string {
   if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''}`;
   const days = Math.floor(hours / 24);
   return `${days} day${days > 1 ? 's' : ''}`;
+}
+
+/** Yesterday and 6 days before that in SAST (7 inclusive calendar days). */
+function defaultCustomDates(now = new Date()): { startDate: string; endDate: string } {
+  const fmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Johannesburg',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  const end = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  return { startDate: fmt.format(start), endDate: fmt.format(end) };
+}
+
+function periodLabel(
+  periodMode: string,
+  selectedHours: string,
+  customStart: string,
+  customEnd: string,
+  period?: AnalyticsPeriod
+): string {
+  if (period?.mode === 'custom') {
+    return `${period.startDate} → ${period.endDate}`;
+  }
+  if (periodMode === 'custom') {
+    return `${customStart} → ${customEnd}`;
+  }
+  const hours = period?.mode === 'hours' ? period.hours : parseInt(selectedHours, 10);
+  return formatDuration(Number.isFinite(hours) ? hours : 24);
 }
 
 const emptyRadio: RadioUtilSummary = {
@@ -102,10 +154,15 @@ const emptyRadio: RadioUtilSummary = {
 };
 
 export default function NetworkAnalyticsPage() {
+  const defaults = useMemo(() => defaultCustomDates(), []);
   const [data, setData] = useState<AnalyticsApiResponse | null>(null);
   const [groups, setGroups] = useState<Array<{ id: string; name: string }>>([]);
+  const [devices, setDevices] = useState<AnalyticsDevice[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
-  const [selectedHours, setSelectedHours] = useState<string>('24');
+  const [selectedDeviceSn, setSelectedDeviceSn] = useState<string>(ALL_DEVICES);
+  const [periodMode, setPeriodMode] = useState<string>('24');
+  const [customStart, setCustomStart] = useState(defaults.startDate);
+  const [customEnd, setCustomEnd] = useState(defaults.endDate);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -117,23 +174,39 @@ export default function NetworkAnalyticsPage() {
       isRefresh?: boolean;
       live?: boolean;
       groupId?: string;
-      hours?: string;
+      deviceSn?: string;
+      periodMode?: string;
+      customStart?: string;
+      customEnd?: string;
     }) => {
       const isRefresh = options?.isRefresh ?? false;
       const live = options?.live ?? preferLive;
       const groupId = options?.groupId ?? selectedGroupId;
-      const hours = options?.hours ?? selectedHours;
+      const deviceSn = options?.deviceSn ?? selectedDeviceSn;
+      const mode = options?.periodMode ?? periodMode;
+      const startDate = options?.customStart ?? customStart;
+      const endDate = options?.customEnd ?? customEnd;
 
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
       try {
         const params = new URLSearchParams({
-          hours,
           includeApps: 'true',
         });
         if (groupId) params.set('groupId', groupId);
+        if (deviceSn && deviceSn !== ALL_DEVICES) params.set('deviceSn', deviceSn);
         if (live) params.set('live', 'true');
+
+        // Custom range is Cached-only; Live always uses hour presets.
+        if (!live && mode === 'custom') {
+          params.set('startDate', startDate);
+          params.set('endDate', endDate);
+          params.set('hours', '24'); // fallback if custom parse fails server-side
+        } else {
+          const hours = mode === 'custom' ? '24' : mode;
+          params.set('hours', hours);
+        }
 
         const response = await fetch(`/api/admin/network/analytics?${params}`, {
           credentials: 'include',
@@ -153,6 +226,17 @@ export default function NetworkAnalyticsPage() {
             setSelectedGroupId(String(result.groupId));
           }
         }
+        if (result.devices) {
+          setDevices(
+            result.devices
+              .map((d) => ({
+                sn: String(d.sn),
+                device_name: d.device_name || String(d.sn),
+                status: d.status || 'unknown',
+              }))
+              .filter((d) => d.sn.length > 0)
+          );
+        }
         setError(null);
       } catch (err) {
         setError('Failed to load traffic analytics');
@@ -162,7 +246,14 @@ export default function NetworkAnalyticsPage() {
         setRefreshing(false);
       }
     },
-    [selectedGroupId, selectedHours, preferLive]
+    [
+      selectedGroupId,
+      selectedDeviceSn,
+      periodMode,
+      customStart,
+      customEnd,
+      preferLive,
+    ]
   );
 
   useEffect(() => {
@@ -184,9 +275,42 @@ export default function NetworkAnalyticsPage() {
   const handleGroupChange = (groupId: string) => {
     if (!groupId || groupId === selectedGroupId) return;
     setSelectedGroupId(groupId);
+    setSelectedDeviceSn(ALL_DEVICES);
+  };
+
+  const handlePeriodChange = (value: string) => {
+    if (value === 'custom' && preferLive) {
+      // Custom is Cached-only — leave Live and switch to custom.
+      setPreferLive(false);
+    }
+    setPeriodMode(value);
+  };
+
+  const handleLiveToggle = () => {
+    const next = !preferLive;
+    setPreferLive(next);
+    if (next && periodMode === 'custom') {
+      setPeriodMode('24');
+      void fetchTrafficData({ isRefresh: true, live: true, periodMode: '24' });
+      return;
+    }
+    void fetchTrafficData({ isRefresh: true, live: next });
   };
 
   const selectedGroup = groups.find((g) => g.id === selectedGroupId);
+  const selectedDevice =
+    selectedDeviceSn !== ALL_DEVICES
+      ? devices.find((d) => d.sn === selectedDeviceSn)
+      : null;
+  const scopeLabel = selectedDevice?.device_name || 'All devices';
+  const chartScopeLabel = selectedDevice?.device_name || selectedGroup?.name || 'Network';
+  const activePeriodLabel = periodLabel(
+    periodMode,
+    periodMode === 'custom' ? '24' : periodMode,
+    customStart,
+    customEnd,
+    data?.period
+  );
 
   const bandwidthSeries =
     data?.traffic.dataPoints.map((p) => {
@@ -258,8 +382,21 @@ export default function NetworkAnalyticsPage() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={selectedHours} onValueChange={setSelectedHours}>
-            <SelectTrigger className="w-[140px] rounded-lg border-slate-200">
+          <Select value={selectedDeviceSn} onValueChange={setSelectedDeviceSn}>
+            <SelectTrigger className="w-[220px] rounded-lg border-slate-200">
+              <SelectValue placeholder="All devices in group" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_DEVICES}>All devices in group</SelectItem>
+              {devices.map((device) => (
+                <SelectItem key={device.sn} value={device.sn}>
+                  {device.device_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={periodMode} onValueChange={handlePeriodChange}>
+            <SelectTrigger className="w-[150px] rounded-lg border-slate-200">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -268,16 +405,40 @@ export default function NetworkAnalyticsPage() {
               <SelectItem value="24">Last 24 hours</SelectItem>
               <SelectItem value="48">Last 2 days</SelectItem>
               <SelectItem value="168">Last 7 days</SelectItem>
+              <SelectItem value="720">Last 30 days</SelectItem>
+              <SelectItem value="custom">Custom</SelectItem>
             </SelectContent>
           </Select>
+          {periodMode === 'custom' && !preferLive ? (
+            <>
+              <Input
+                type="date"
+                value={customStart}
+                onChange={(e) => setCustomStart(e.target.value)}
+                className="w-[150px] rounded-lg border-slate-200"
+                aria-label="Custom start date"
+              />
+              <Input
+                type="date"
+                value={customEnd}
+                onChange={(e) => setCustomEnd(e.target.value)}
+                className="w-[150px] rounded-lg border-slate-200"
+                aria-label="Custom end date"
+              />
+            </>
+          ) : null}
+          <AnalyticsExportMenu
+            groupId={selectedGroupId}
+            deviceSn={selectedDeviceSn === ALL_DEVICES ? null : selectedDeviceSn}
+            periodMode={preferLive && periodMode === 'custom' ? '24' : periodMode}
+            customStart={customStart}
+            customEnd={customEnd}
+            disabled={loading || refreshing}
+          />
           <Button
             variant={preferLive ? 'default' : 'outline'}
             size="sm"
-            onClick={() => {
-              const next = !preferLive;
-              setPreferLive(next);
-              void fetchTrafficData({ isRefresh: true, live: next });
-            }}
+            onClick={handleLiveToggle}
           >
             <PiBroadcastBold className="w-4 h-4 mr-2" />
             {preferLive ? 'Live' : 'Cached'}
@@ -328,7 +489,7 @@ export default function NetworkAnalyticsPage() {
               {data.source === 'live' ? 'Ruijie live' : 'Supabase rollups'}
             </Badge>
             <span className="text-xs text-slate-400">
-              {selectedGroup?.name || 'Network'} · {formatDuration(parseInt(selectedHours, 10))}
+              {selectedGroup?.name || 'Network'} · {scopeLabel} · {activePeriodLabel}
             </span>
             {data.lastRollupAt ? (
               <span className="text-xs text-slate-500">
@@ -362,7 +523,7 @@ export default function NetworkAnalyticsPage() {
             <MetricCard
               title="Peak Download / window"
               value={formatBytes(data.traffic.peakRxBytes)}
-              subtitle={formatDuration(parseInt(selectedHours, 10))}
+              subtitle={activePeriodLabel}
             >
               <PiLightningBold className="w-5 h-5 text-amber-600" />
             </MetricCard>
@@ -385,7 +546,7 @@ export default function NetworkAnalyticsPage() {
             <div className="xl:col-span-2">
               <TrafficVolumeAreaChart
                 dataPoints={data.traffic.dataPoints}
-                title={`Traffic volume — ${selectedGroup?.name || 'Network'}`}
+                title={`Traffic volume — ${chartScopeLabel}`}
                 description="Stacked download + upload by hour (shadcn area chart)"
               />
             </div>

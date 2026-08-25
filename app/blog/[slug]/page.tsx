@@ -112,14 +112,7 @@ export default async function BlogPostPage({ params }: Params) {
             {/* Body prose */}
             {post.contentHtml && (
               <div
-                className="prose prose-neutral max-w-none mb-12
-                  prose-a:text-[#F5831F] prose-a:no-underline hover:prose-a:underline
-                  prose-headings:text-neutral-900 prose-headings:font-heading prose-headings:font-bold
-                  prose-h2:text-2xl prose-h3:text-xl
-                  prose-img:rounded-lg prose-img:my-6
-                  prose-strong:text-neutral-900
-                  prose-blockquote:border-l-[#F5831F] prose-blockquote:italic
-                "
+                className="typeset typeset-docs max-w-none mb-12"
                 dangerouslySetInnerHTML={{ __html: post.contentHtml }}
               />
             )}

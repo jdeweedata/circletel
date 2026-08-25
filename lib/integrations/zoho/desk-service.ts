@@ -104,8 +104,10 @@ export class ZohoDeskService {
       const headers: Record<string, string> = {
         'Authorization': `Zoho-oauthtoken ${this.config.accessToken}`,
         'Content-Type': 'application/json',
-        'orgId': this.config.orgId,
       };
+      if (this.config.orgId) {
+        headers.orgId = this.config.orgId;
+      }
 
       const response = await fetch(url, {
         method,
@@ -145,18 +147,33 @@ export class ZohoDeskService {
     ticket?: ZohoDeskTicket;
     error?: string;
   }> {
-    const ticketData = {
+    const contactName = input.customerName || input.customerEmail.split('@')[0];
+    const nameParts = contactName.trim().split(/\s+/).filter(Boolean);
+    const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : nameParts[0] || contactName;
+    const firstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : undefined;
+    const departmentId =
+      input.departmentId ||
+      process.env.ZOHO_DESK_DEPARTMENT_ID ||
+      process.env.ZOHO_DESK_SALES_DEPARTMENT_ID;
+
+    const ticketData: Record<string, unknown> = {
       subject: input.subject,
       description: input.description,
       email: input.customerEmail,
-      contactName: input.customerName || input.customerEmail.split('@')[0],
       priority: input.priority || 'Medium',
       status: 'Open',
+      channel: 'Email',
       category: input.category,
       subCategory: input.subCategory,
-      departmentId: input.departmentId,
       phone: input.phone,
+      contact: {
+        ...(firstName ? { firstName } : {}),
+        lastName,
+        email: input.customerEmail,
+        ...(input.phone ? { phone: input.phone } : {}),
+      },
     };
+    if (departmentId) ticketData.departmentId = departmentId;
 
     const result = await this.makeRequest<ZohoDeskTicket>('/tickets', 'POST', ticketData);
 
@@ -336,17 +353,28 @@ export class ZohoDeskService {
  * Create ZOHO Desk service instance with environment config
  */
 export function createZohoDeskService(): ZohoDeskService {
-  const orgId = process.env.ZOHO_DESK_ORG_ID;
+  const orgId = process.env.ZOHO_DESK_ORG_ID || '';
   const accessToken = process.env.ZOHO_ACCESS_TOKEN || process.env.ZOHO_DESK_ACCESS_TOKEN;
 
-  if (!orgId || !accessToken) {
+  if (!accessToken) {
     throw new Error(
-      'Missing ZOHO Desk configuration. Required: ZOHO_DESK_ORG_ID and ZOHO_ACCESS_TOKEN'
+      'Missing ZOHO Desk configuration. Required: ZOHO_ACCESS_TOKEN or ZOHO_DESK_ACCESS_TOKEN'
     );
   }
 
   return new ZohoDeskService({
     orgId,
+    accessToken,
+    region: (process.env.ZOHO_REGION as 'US' | 'EU' | 'IN' | 'AU' | 'CN') || 'US',
+  });
+}
+
+/** Desk client with a freshly minted Desk-scoped token (not the CRM cache). */
+export async function createMintedZohoDeskService(): Promise<ZohoDeskService> {
+  const { mintDeskAccessToken } = await import('./desk-token');
+  const accessToken = await mintDeskAccessToken();
+  return new ZohoDeskService({
+    orgId: process.env.ZOHO_DESK_ORG_ID || '',
     accessToken,
     region: (process.env.ZOHO_REGION as 'US' | 'EU' | 'IN' | 'AU' | 'CN') || 'US',
   });

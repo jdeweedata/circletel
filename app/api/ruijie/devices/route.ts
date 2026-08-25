@@ -39,6 +39,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || '';
     const group = searchParams.get('group') || '';
     const model = searchParams.get('model') || '';
+    // linked=unlinked | linked — filter by customer assignment on ruijie_device_cache
+    const linked = searchParams.get('linked') || '';
 
     // Build query (use admin client to bypass RLS)
     let query = supabaseAdmin
@@ -50,7 +52,7 @@ export async function GET(request: NextRequest) {
     // Apply filters
     if (search) {
       query = query.or(
-        `sn.ilike.%${search}%,device_name.ilike.%${search}%,management_ip.ilike.%${search}%`
+        `sn.ilike.%${search}%,device_name.ilike.%${search}%,management_ip.ilike.%${search}%,customer_name.ilike.%${search}%`
       );
     }
     if (status) {
@@ -61,6 +63,12 @@ export async function GET(request: NextRequest) {
     }
     if (model) {
       query = query.eq('model', model);
+    }
+    if (linked === 'unlinked') {
+      // Both FKs null = not linked to consumer order or corporate site
+      query = query.is('customer_order_id', null).is('corporate_site_id', null);
+    } else if (linked === 'linked') {
+      query = query.or('customer_order_id.not.is.null,corporate_site_id.not.is.null');
     }
 
     const { data: devices, error } = await query;

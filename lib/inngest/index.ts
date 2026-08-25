@@ -55,6 +55,12 @@ export {
 } from './functions/whatsapp-notifications';
 
 export {
+  newSignupFollowupFunction,
+  newSignupFollowupCompleted,
+  newSignupFollowupFailed,
+} from './functions/new-signup-followup';
+
+export {
   supplierSyncFunction,
   supplierSyncCompletedFunction,
   supplierSyncFailedFunction,
@@ -87,6 +93,10 @@ export {
 } from './functions/ruijie-traffic-rollup';
 
 export {
+  ruijieSsidStaSamplerFunction,
+} from './functions/ruijie-ssid-sta-sampler';
+
+export {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -105,6 +115,10 @@ export {
 export {
   reconciliationMonthlySweepFunction,
 } from './functions/reconciliation-monthly-sweep';
+
+export {
+  billingCycleMatchFunction,
+} from './functions/billing-cycle-match';
 
 export {
   marketingDfaLeadMatchFunction,
@@ -141,8 +155,16 @@ export {
 } from './functions/zoho-desk-token-refresh';
 
 export {
+  whatsappDeskBridgeSyncFunction,
+} from './functions/whatsapp-desk-bridge-sync';
+
+export {
   b2bSiteActivationInvoice,
 } from './functions/b2b-site-activation-invoice';
+
+export {
+  unjaniNpcMonthlyPackFunction,
+} from './functions/unjani-npc-monthly-pack';
 
 export {
   clinicVettingSlaFunction,
@@ -155,6 +177,14 @@ export {
 export {
   recomputeOfferPricing,
 } from './functions/recompute-offer-pricing';
+
+export {
+  siteUsageReportPurgeFunction,
+} from './functions/site-usage-report-purge';
+
+export {
+  siteUsageReportZipFunction,
+} from './functions/site-usage-report-zip';
 
 // Collect all functions for the serve handler
 import {
@@ -204,6 +234,12 @@ import {
 } from './functions/whatsapp-notifications';
 
 import {
+  newSignupFollowupFunction,
+  newSignupFollowupCompleted,
+  newSignupFollowupFailed,
+} from './functions/new-signup-followup';
+
+import {
   supplierSyncFunction,
   supplierSyncCompletedFunction,
   supplierSyncFailedFunction,
@@ -236,6 +272,10 @@ import {
 } from './functions/ruijie-traffic-rollup';
 
 import {
+  ruijieSsidStaSamplerFunction,
+} from './functions/ruijie-ssid-sta-sampler';
+
+import {
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
 } from './functions/mikrotik-sync';
@@ -254,6 +294,10 @@ import {
 import {
   reconciliationMonthlySweepFunction,
 } from './functions/reconciliation-monthly-sweep';
+
+import {
+  billingCycleMatchFunction,
+} from './functions/billing-cycle-match';
 
 import {
   marketingDfaLeadMatchFunction,
@@ -290,8 +334,16 @@ import {
 } from './functions/zoho-desk-token-refresh';
 
 import {
+  whatsappDeskBridgeSyncFunction,
+} from './functions/whatsapp-desk-bridge-sync';
+
+import {
   b2bSiteActivationInvoice,
 } from './functions/b2b-site-activation-invoice';
+
+import {
+  unjaniNpcMonthlyPackFunction,
+} from './functions/unjani-npc-monthly-pack';
 
 import {
   clinicVettingSlaFunction,
@@ -304,6 +356,14 @@ import {
 import {
   recomputeOfferPricing,
 } from './functions/recompute-offer-pricing';
+
+import {
+  siteUsageReportPurgeFunction,
+} from './functions/site-usage-report-purge';
+
+import {
+  siteUsageReportZipFunction,
+} from './functions/site-usage-report-zip';
 
 export const functions = [
   // Competitor analysis
@@ -336,6 +396,10 @@ export const functions = [
   whatsappBillingNotifications,
   whatsappNotificationsCompleted,
   whatsappNotificationsFailed,
+  // New signup follow-up to Sales (daily 08:30 SAST)
+  newSignupFollowupFunction,
+  newSignupFollowupCompleted,
+  newSignupFollowupFailed,
   // Supplier product sync (MiRO, Nology, Scoop)
   supplierSyncFunction,
   supplierSyncCompletedFunction,
@@ -354,6 +418,8 @@ export const functions = [
   ruijieHealthMonitorFunction,
   // Ruijie traffic rollups for System Health / Analytics
   ruijieTrafficRollupFunction,
+  // Ruijie STA → SSID hour rollups (Usage Reports Staff GB)
+  ruijieSsidStaSamplerFunction,
   // MikroTik router sync
   mikrotikSyncFunction,
   mikrotikSyncCompletedFunction,
@@ -366,6 +432,8 @@ export const functions = [
   eftReconciliationCompletedFunction,
   // Monthly reconciliation sweep (3rd of month, catches stragglers)
   reconciliationMonthlySweepFunction,
+  // Service × month three-way match (platform / Zoho / Netcash)
+  billingCycleMatchFunction,
   // Marketing campaign triggers
   marketingDfaLeadMatchFunction,
   marketingDemandThresholdFunction,
@@ -386,8 +454,12 @@ export const functions = [
   // Zoho Desk token refresh (every 45 min, before 1-hour expiry)
   zohoDeskTokenRefreshFunction,
   zohoDeskTokenRefreshFailedFunction,
+  // WhatsApp ↔ Desk support bridge outbound sync (every minute)
+  whatsappDeskBridgeSyncFunction,
   // B2B site activation pro-rata invoice
   b2bSiteActivationInvoice,
+  // Unjani NPC last-Monday itemized invoice + statement pack
+  unjaniNpcMonthlyPackFunction,
   // Clinic vetting SLA reminder (daily at 09:00 SAST)
   // NOTE: This cron must be wired in Coolify; vercel.json crons are inactive
   clinicVettingSlaFunction,
@@ -396,6 +468,10 @@ export const functions = [
   clinicMandatePollFunction,
   // Offer pricing recomputation
   recomputeOfferPricing,
+  // Expired site usage report artifact purge (daily at 03:15 UTC)
+  siteUsageReportPurgeFunction,
+  // On-demand ZIP generation for usage report jobs with more than five sites
+  siteUsageReportZipFunction,
 ];
 
 export { ruijieSyncCompleted, ruijieSyncSessions } from './events/ruijie';

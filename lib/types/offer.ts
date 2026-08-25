@@ -74,6 +74,7 @@ export interface PublicOffer {
   vatLabel: string;       // "incl. VAT"
   description?: string;   // from media.description (string) only
   image?: string;         // from media.image (string) only
+  ctaPath?: string;       // from media.cta_path — must start with /
 }
 
 /** Detail-page shape — identical to PublicOffer in Plan 2. */

@@ -1,0 +1,30 @@
+/**
+ * Portal modernist typography.
+ *
+ * `globals.css` styles bare h1–h4 in `@layer base` with Manrope plus fixed
+ * sizes/weights. Those rules set font-family directly on the heading, so they
+ * beat any font inherited from an ancestor — which is why portal page titles
+ * rendered in Manrope while the body around them did not. An unlayered rule
+ * outranks `@layer base`, so scoping the reset to `.portal-root` hands the
+ * headings back to the family their surroundings use.
+ *
+ * Only font-family is reset. This rule is unlayered, so it would also outrank
+ * Tailwind's `@layer utilities` — resetting size or weight here silently beat
+ * the `text-[40px]`/`font-extrabold` classes the page headers rely on.
+ */
+.portal-root {
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: clip;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.portal-root main,
+.portal-root header,
+.portal-root footer {
+  min-width: 0;
+}
+
+.portal-root :is(h1, h2, h3, h4, h5, h6) {
+  font-family: inherit;
+}

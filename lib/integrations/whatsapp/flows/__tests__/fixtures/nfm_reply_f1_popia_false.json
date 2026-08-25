@@ -1,0 +1,14 @@
+{
+  "from": "27821234567",
+  "id": "wamid.HBgNMjc4MjEyMzQ1NjcVAgASGBQzQUFBQUFBQUFBQUFBQUFBQUE=",
+  "timestamp": "1753900800",
+  "type": "interactive",
+  "interactive": {
+    "type": "nfm_reply",
+    "nfm_reply": {
+      "name": "flow",
+      "body": "Sent",
+      "response_json": "{\"flow_token\":\"f1-token-popia-false-0002\",\"first_name\":\"Thabo\",\"last_name\":\"Molefe\",\"customer_type\":\"consumer\",\"email\":\"thabo.molefe@example.com\",\"address\":\"12 Main Road\",\"suburb\":\"Sandton\",\"city\":\"Johannesburg\",\"service_interest\":\"fibre\",\"contact_preference\":\"whatsapp\",\"popia_optin\":false}"
+    }
+  }
+}

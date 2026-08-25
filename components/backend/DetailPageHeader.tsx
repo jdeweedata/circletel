@@ -36,7 +36,7 @@ export function DetailPageHeader({
   className,
 }: DetailPageHeaderProps) {
   return (
-    <div className={cn('mb-6', className)}>
+    <div data-pm="detail-header" className={cn('mb-6', className)}>
       {breadcrumbs.length > 0 && (
         <nav aria-label="Breadcrumb" className="mb-2">
           <ol className="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-500">
@@ -44,11 +44,11 @@ export function DetailPageHeader({
               <li key={index} className="flex items-center gap-2">
                 {index > 0 && <PiCaretRightBold className="w-3 h-3" aria-hidden="true" />}
                 {item.href ? (
-                  <Link href={item.href} className="hover:text-circleTel-orange">
+                  <Link href={item.href} data-pm="breadcrumb-link" className="hover:text-circleTel-orange">
                     {item.label}
                   </Link>
                 ) : (
-                  <span className="text-gray-900">{item.label}</span>
+                  <span data-pm="breadcrumb-current" className="text-gray-900">{item.label}</span>
                 )}
               </li>
             ))}

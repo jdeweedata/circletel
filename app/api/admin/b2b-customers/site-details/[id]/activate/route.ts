@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { inngest } from '@/lib/inngest/client';
+import { resolveActivationTicketsForSite } from '@/lib/admin/unjani-ticket-sync';
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   pending: ['ready', 'provisioned'],
@@ -95,6 +96,12 @@ export async function PATCH(
         service_id: site.service_id,
       },
     });
+
+    try {
+      await resolveActivationTicketsForSite(siteId);
+    } catch (ticketError) {
+      console.error('[Admin Activate Site] Portal ticket close-loop failed:', ticketError);
+    }
   }
 
   return NextResponse.json({ success: true, status });

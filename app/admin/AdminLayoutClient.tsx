@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
+import { AdminModernistProvider } from '@/components/admin/modernist/AdminModernistShell';
 import { createClient } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
 
@@ -123,9 +124,9 @@ export default function AdminLayout({
   // Show loading while checking auth
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
-      </div>
+      <AdminModernistProvider className="flex min-h-screen items-center justify-center">
+        <PiSpinnerBold className="h-8 w-8 animate-spin" style={{ color: 'var(--pm-accent)' }} />
+      </AdminModernistProvider>
     );
   }
 
@@ -144,7 +145,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row print:block">
+    <AdminModernistProvider className="flex min-h-screen flex-col print:block lg:flex-row">
       {/* Sidebar - Hidden on mobile when closed, overlay when open */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -160,8 +161,8 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Main content - Full width on mobile, adjusted for sidebar on desktop */}
-      <div className="flex-1 flex flex-col min-h-screen w-full lg:ml-0">
+      {/* Main content - min-w-0 so wide tables scroll inside pages, not the viewport */}
+      <div className="flex min-h-screen w-full min-w-0 flex-1 flex-col lg:ml-0">
         <AdminHeader
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
           user={user}
@@ -169,8 +170,11 @@ export default function AdminLayout({
           sidebarOpen={sidebarOpen}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full">
-          <div className="max-w-full mx-auto">
+        <main
+          className="w-full min-w-0 flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8"
+          style={{ background: 'var(--pm-ground)' }}
+        >
+          <div className="mx-auto w-full min-w-0 max-w-full">
             {children}
           </div>
         </main>
@@ -178,6 +182,6 @@ export default function AdminLayout({
 
       {/* Agentation: Visual UI feedback for AI coding agents (dev-only) */}
       {process.env.NODE_ENV === 'development' && <Agentation />}
-    </div>
+    </AdminModernistProvider>
   );
 }

@@ -3,13 +3,23 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import {
+  BUSINESS_LOGIN_HREF,
+  isBusinessAppPath,
+} from '@/lib/portal/paths';
+import {
+  can,
+  isPortalRole,
+  type PortalCapability,
+  type PortalRole,
+} from '@/lib/portal/access-templates';
 
 export interface PortalUser {
   id: string;
   auth_user_id: string;
   organisation_id: string;
   site_id: string | null;
-  role: 'admin' | 'site_user';
+  role: PortalRole;
   display_name: string;
   email: string;
   organisation_name: string;
@@ -22,7 +32,10 @@ interface PortalAuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  /** Alias: Super User = DB role admin (max one per org) */
+  isSuperUser: boolean;
   isSiteUser: boolean;
+  canAccess: (capability: PortalCapability) => boolean;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -49,7 +62,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
         return;
       }
       const data = await response.json();
-      if (data.user) {
+      if (data.user && isPortalRole(data.user.role)) {
         setUser(data.user);
       } else {
         setUser(null);
@@ -67,7 +80,11 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
       return;
     }
 
-    if (!pathname?.startsWith('/portal') || pathname === '/portal/login') {
+    if (
+      !isBusinessAppPath(pathname) ||
+      pathname === '/unjani/login' ||
+      pathname === '/portal/login'
+    ) {
       setLoading(false);
       return;
     }
@@ -79,7 +96,7 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
-    router.push('/portal/login');
+    router.push(BUSINESS_LOGIN_HREF);
   }, [router]);
 
   const value: PortalAuthContextType = {
@@ -87,7 +104,10 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
     loading,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
+    isSuperUser: user?.role === 'admin',
     isSiteUser: user?.role === 'site_user',
+    canAccess: (capability: PortalCapability) =>
+      user ? can(user.role, capability) : false,
     signOut,
     refresh: fetchPortalUser,
   };
@@ -99,8 +119,12 @@ export function PortalAuthProvider({ children }: { children: React.ReactNode }) 
   );
 }
 
+export function useOptionalPortalAuth(): PortalAuthContextType | undefined {
+  return useContext(PortalAuthContext);
+}
+
 export function usePortalAuth() {
-  const context = useContext(PortalAuthContext);
+  const context = useOptionalPortalAuth();
   if (context === undefined) {
     throw new Error('usePortalAuth must be used within a PortalAuthProvider');
   }

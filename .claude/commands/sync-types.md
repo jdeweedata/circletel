@@ -22,7 +22,16 @@ This will return the complete TypeScript type definitions for all tables.
 
 Write the generated types to:
 ```
-types/supabase.ts
+lib/types/database.generated.ts
+```
+
+Then keep `lib/types/database.types.ts` as a re-export of that file. Do not write `types/supabase.ts` — that path is obsolete.
+
+Prefer the repo script when credentials are available:
+
+```
+npm run types:generate
+npm run types:check
 ```
 
 **Important**: This file should contain:
@@ -53,7 +62,7 @@ Report the following:
    Tables: XX
    Enums: XX
    Functions: XX
-   File: types/supabase.ts
+   File: lib/types/database.generated.ts
    Size: XX KB
 
 ✅ TYPE CHECK
@@ -73,7 +82,7 @@ Report the following:
 
 If there are type conflicts:
 
-1. **Identify affected files** that import from `types/supabase.ts`
+1. **Identify affected files** that import from `lib/types/database.types.ts`
 2. **List specific conflicts** (property type mismatches, missing fields)
 3. **Suggest fixes** based on the schema changes
 
@@ -101,7 +110,7 @@ Always run `/sync-types` after applying migrations to keep types in sync.
 
 ## Type File Structure
 
-The generated `types/supabase.ts` should follow this structure:
+The generated `lib/types/database.generated.ts` should follow this structure:
 
 ```typescript
 export type Json =

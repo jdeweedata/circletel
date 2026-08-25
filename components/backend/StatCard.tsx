@@ -76,6 +76,7 @@ export function StatCard({
   if (!icon) {
     return withLink(
       <div
+        data-pm="stat-card"
         onClick={onClick}
         className={cn(
           'bg-white p-5 rounded-xl border border-gray-200 shadow-sm',
@@ -84,13 +85,13 @@ export function StatCard({
           className
         )}
       >
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{heading}</p>
+        <p data-pm="stat-label" className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{heading}</p>
         <div className="flex items-center gap-2">
-          <p className="text-lg font-bold text-gray-900 tabular-nums">{value}</p>
+          <p data-pm="stat-value" className="text-lg font-bold text-gray-900 tabular-nums">{value}</p>
           {indicator === 'pulse' && <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />}
         </div>
         {subtitle && (
-          <div className="mt-2 text-xs text-gray-500 font-medium flex items-center gap-1">
+          <div data-pm="stat-subtitle" className="mt-2 text-xs text-gray-500 font-medium flex items-center gap-1">
             {subtitleIcon}
             {subtitle}
           </div>
@@ -122,6 +123,7 @@ export function StatCard({
   if (iconBgColor) {
     return withLink(
       <div
+        data-pm="stat-card"
         onClick={onClick}
         className={cn(
           'relative overflow-hidden border bg-white shadow-sm rounded-lg transition-all duration-200',
@@ -147,9 +149,9 @@ export function StatCard({
                   </div>
                 )}
           </div>
-          <p className="text-sm font-medium text-gray-500 mb-1">{heading}</p>
-          <p className="text-3xl font-bold text-gray-900 tracking-tight tabular-nums">{value}</p>
-          {subtitle && <p className="text-xs text-gray-500 mt-2">{subtitle}</p>}
+          <p data-pm="stat-label" className="text-sm font-medium text-gray-500 mb-1">{heading}</p>
+          <p data-pm="stat-value" className="text-3xl font-bold text-gray-900 tracking-tight tabular-nums">{value}</p>
+          {subtitle && <p data-pm="stat-subtitle" className="text-xs text-gray-500 mt-2">{subtitle}</p>}
         </div>
       </div>
     );
@@ -158,6 +160,7 @@ export function StatCard({
   // --- Variant 3: inline-icon card (icon, no box) — REFERENCE look (billing/consumer) ---
   return withLink(
     <div
+      data-pm="stat-card"
       onClick={onClick}
       className={cn(
         'relative overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-200 rounded-lg',
@@ -170,7 +173,7 @@ export function StatCard({
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="text-gray-400">{icon}</div>
-            <h3 className="text-sm font-medium text-gray-600">{heading}</h3>
+            <h3 data-pm="stat-label" className="text-sm font-medium text-gray-600">{heading}</h3>
           </div>
           {badge
             ? badge
@@ -185,10 +188,10 @@ export function StatCard({
               )}
         </div>
 
-        <p className="text-3xl font-bold text-gray-900 tracking-tight tabular-nums">{value}</p>
+        <p data-pm="stat-value" className="text-3xl font-bold text-gray-900 tracking-tight tabular-nums">{value}</p>
 
         {subtitle && (
-          <p className="text-sm font-medium text-gray-700 mt-1 flex items-center gap-1.5">
+          <p data-pm="stat-subtitle" className="text-sm font-medium text-gray-700 mt-1 flex items-center gap-1.5">
             {subtitleIcon}
             {subtitle}
           </p>

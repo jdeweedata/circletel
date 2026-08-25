@@ -6,3 +6,4 @@ export { DeviceClientList } from './DeviceClientList';
 export { DeviceActivityLog } from './DeviceActivityLog';
 export { DeviceSystemHealth, formatUptime } from './DeviceSystemHealth';
 export { DeviceTrafficPanel } from './DeviceTrafficPanel';
+export { DeviceExportMenu } from './DeviceExportMenu';

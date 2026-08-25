@@ -1,5 +1,8 @@
 # Production Environment Variables Setup Guide
 
+> **URL canon (2026-08-01):** Pay Now **Notify** = `/api/payments/netcash/webhook` (invoice settlement). **Accept / Decline / Redirect** = `/api/payments/netcash/redirect`. Singular `/api/payment/netcash/webhook` is legacy consumer-order only — see `NETCASH_URLS_QUICK_REFERENCE.md`.
+
+
 **Date:** 2025-10-22
 **Purpose:** Configure Vercel production environment for Netcash live payments
 
@@ -147,9 +150,9 @@ Notify: https://integration.agilitygis.com/api/paymentgateway/webhook/netcash/no
 | Field | Value |
 |-------|-------|
 | **Pre-defined URL group** | None |
-| **Accept URL** | `https://circletel.co.za/api/payment/netcash/webhook` |
-| **Decline URL** | `https://circletel.co.za/api/payment/netcash/webhook` |
-| **Notify URL** | `https://circletel.co.za/api/payment/netcash/webhook` |
+| **Accept URL** | `https://www.circletel.co.za/api/payments/netcash/redirect` |
+| **Decline URL** | `https://www.circletel.co.za/api/payments/netcash/redirect` |
+| **Notify URL** | `https://www.circletel.co.za/api/payments/netcash/webhook` |
 | **Re-direct URL** | *(leave empty)* |
 | **Notify my customers** | ☐ Unchecked |
 
@@ -184,7 +187,7 @@ grep -E "NETCASH|NODE_ENV|NEXT_PUBLIC_APP_URL" .env.production.verify
 
 ```bash
 # Test production webhook health
-curl -s https://circletel.co.za/api/payment/netcash/webhook
+curl -s https://www.circletel.co.za/api/payments/netcash/webhook
 
 # Should return:
 # {"status":"unhealthy","error":"No active payment configuration found"}
@@ -244,7 +247,7 @@ Before updating production webhook URLs, verify:
 
 - [ ] **All** environment variables updated in Vercel production
 - [ ] Production deployment successful with new variables
-- [ ] Webhook endpoint responding at https://circletel.co.za/api/payment/netcash/webhook
+- [ ] Webhook endpoint responding at https://www.circletel.co.za/api/payments/netcash/webhook
 - [ ] Netcash production account credentials retrieved
 - [ ] Test small transaction in staging first (if possible)
 - [ ] Rollback plan ready (old AgilityGIS URLs saved)
@@ -340,8 +343,8 @@ NEXT_PUBLIC_APP_URL=https://circletel.co.za
 ```
 
 **Webhook URLs:**
-- **Staging:** `https://circletel-staging.vercel.app/api/payment/netcash/webhook`
-- **Production:** `https://circletel.co.za/api/payment/netcash/webhook`
+- **Staging:** `https://circletel-staging.vercel.app/api/payments/netcash/webhook`
+- **Production:** `https://www.circletel.co.za/api/payments/netcash/webhook`
 
 ---
 

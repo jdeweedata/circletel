@@ -19,6 +19,13 @@ import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service
 import { formatPaymentMethod } from '@/lib/payments/types';
 import { webhookLogger } from '@/lib/logging';
 import { matchInvoiceByReference } from '@/lib/billing/invoice-matcher';
+import {
+  classifyPayNowNotify,
+  parseNotifyAmount,
+  parseTransactionAccepted,
+  shouldMarkInvoicePaid,
+  shouldReverseInvoicePaid,
+} from '@/lib/payments/netcash-paynow-notify';
 
 /**
  * Verify NetCash webhook signature
@@ -175,46 +182,18 @@ export async function POST(request: NextRequest) {
     const processingStartedAt = new Date().toISOString();
 
     // 6. Determine payment status from NetCash response
-    let paymentStatus = 'pending';
     const responseCode = bodyParsed.ResponseCode || bodyParsed.response_code;
-    const transactionAccepted = bodyParsed.TransactionAccepted || bodyParsed.transaction_accepted;
+    const transactionAccepted = parseTransactionAccepted(bodyParsed);
     const reason = String(bodyParsed.Reason || bodyParsed.reason || '');
-    const amount = parseFloat(String(bodyParsed.Amount || bodyParsed.amount || '0'));
-
-    // NetCash uses multiple status indicators:
-    // 1. TransactionAccepted: "true" / "false" (most common in Pay Now)
-    // 2. ResponseCode: 0=Success, 1=Declined, 2=Cancelled, 3=Pending
-    // 3. Reason: "Success", "Declined", etc.
-
-    // Check TransactionAccepted first (primary indicator for Pay Now)
-    if (transactionAccepted === 'true' || transactionAccepted === true) {
-      paymentStatus = 'completed';
-    } else if (transactionAccepted === 'false' || transactionAccepted === false) {
-      // Check reason for more detail
-      if (reason.toLowerCase().includes('cancel')) {
-        paymentStatus = 'cancelled';
-      } else {
-        paymentStatus = 'failed';
-      }
-    } else if (responseCode !== undefined) {
-      // Fallback to ResponseCode
-      if (responseCode === 0 || responseCode === '0') {
-        paymentStatus = 'completed';
-      } else if (responseCode === 1 || responseCode === '1') {
-        paymentStatus = 'failed';
-      } else if (responseCode === 2 || responseCode === '2') {
-        paymentStatus = 'cancelled';
-      }
-    } else if (reason.toLowerCase() === 'success') {
-      // Last resort: check Reason field
-      paymentStatus = 'completed';
-    }
+    const amount = parseNotifyAmount(bodyParsed);
+    const paymentStatus = classifyPayNowNotify(bodyParsed);
 
     webhookLogger.info('[NetCash Webhook] Payment status', {
       paymentStatus,
       transactionAccepted,
       responseCode,
-      reason
+      reason,
+      amount,
     });
 
     // 7. Check for existing webhook (idempotency)
@@ -369,8 +348,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Process completed payments
-    if (paymentStatus === 'completed') {
+    // Process completed payments that settle an amount (never R0 / Auth-only)
+    if (shouldMarkInvoicePaid(paymentStatus, amount)) {
       // Use the transaction we found or just created
       const paymentTransaction = existingTransaction || newTransaction;
 
@@ -593,6 +572,54 @@ export async function POST(request: NextRequest) {
 
         // Note: Customer notification is sent above for invoice payments
         // Order payments use the sendPaymentReceived flow in updateOrderFromPayment
+      }
+    } else if (
+      paymentStatus === 'completed' &&
+      amount <= 0
+    ) {
+      webhookLogger.warn(
+        '[NetCash Webhook] Completed notify with non-positive amount — invoice not marked paid',
+        { reference, transactionId, amount }
+      );
+    } else if (shouldReverseInvoicePaid(paymentStatus) && reference) {
+      // Success→Declined (same Pay Now reference): reverse false paid
+      const invoiceMatch = await matchInvoiceByReference(reference, supabase);
+      const invoice = invoiceMatch.matched ? invoiceMatch.invoice : null;
+      if (invoice && invoice.status === 'paid') {
+        const refMatches =
+          invoice.paynow_transaction_ref === reference ||
+          String(bodyParsed.Extra3 || '') === invoice.invoice_number ||
+          reference === invoice.invoice_number;
+
+        if (refMatches) {
+          const noteLine = `${new Date().toISOString().slice(0, 10)}: Reversed paid after Pay Now ${paymentStatus} notify (ref ${reference}, trace ${transactionId}).`;
+          const { error: reverseError } = await supabase
+            .from('customer_invoices')
+            .update({
+              status: 'sent',
+              amount_paid: 0,
+              amount_due: Number(invoice.total_amount) || 0,
+              paid_at: null,
+              notes: [invoice.notes, noteLine].filter(Boolean).join('\n'),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', invoice.id)
+            .eq('status', 'paid');
+
+          if (reverseError) {
+            webhookLogger.error('[Invoice Payment] Failed to reverse paid invoice', {
+              error: reverseError.message,
+              invoice_number: invoice.invoice_number,
+            });
+          } else {
+            webhookLogger.info('[Invoice Payment] Reversed paid invoice after decline', {
+              invoice_number: invoice.invoice_number,
+              reference,
+              transactionId,
+              paymentStatus,
+            });
+          }
+        }
       }
     }
 

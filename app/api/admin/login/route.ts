@@ -1,9 +1,20 @@
 import { PiCheckBold } from 'react-icons/pi';
 import { NextRequest, NextResponse } from 'next/server';
+import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
 import { apiLogger } from '@/lib/logging';
-import { stampAdminClaim } from '@/lib/auth/admin-claims';
+import type { AdminUser } from '@/lib/auth/admin-api-auth';
+import {
+  getAdminClaim,
+  stampAdminClaim,
+  ADMIN_CLAIM_OUTAGE_TTL_MS,
+} from '@/lib/auth/admin-claims';
+import {
+  DATA_API_UNAVAILABLE_CODE,
+  DATA_API_UNAVAILABLE_MESSAGE,
+  isSupabaseDataApiUnavailable,
+} from '@/lib/auth/data-api-errors';
 
 /**
  * Admin Login API with Audit Logging and Proper Cookie Management
@@ -12,6 +23,20 @@ import { stampAdminClaim } from '@/lib/auth/admin-claims';
 // Vercel configuration: Ensure function stays alive longer than our 10s timeout
 export const runtime = 'nodejs';
 export const maxDuration = 15; // Allow up to 15 seconds (our timeout is 10s)
+
+async function resolveAdminProfileDuringOutage(
+  supabaseAdmin: Awaited<ReturnType<typeof createClient>>,
+  authUser: User
+): Promise<AdminUser | null> {
+  const fromSignIn = getAdminClaim(authUser, ADMIN_CLAIM_OUTAGE_TTL_MS);
+  if (fromSignIn) return fromSignIn.profile;
+
+  // signInWithPassword payloads sometimes omit app_metadata; Auth Admin still works
+  // when PostgREST is down.
+  const { data } = await supabaseAdmin.auth.admin.getUserById(authUser.id);
+  if (!data?.user) return null;
+  return getAdminClaim(data.user, ADMIN_CLAIM_OUTAGE_TTL_MS)?.profile ?? null;
+}
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -73,14 +98,23 @@ export async function POST(request: NextRequest) {
     // allowlisted subset (ADMIN_CLAIM_PROFILE_FIELDS, applied by
     // stampAdminClaim → buildAdminClaimProfile) is embedded in the
     // client-readable JWT, so extra columns here are not leaked to the client.
-    const { data: adminUser, error: adminError } = await supabaseAdmin
+    const { data: directoryUser, error: adminError } = await supabaseAdmin
       .from('admin_users')
       .select('*')
       .eq('email', normalizedEmail)
       .maybeSingle();
     apiLogger.info('[Login API] Admin user lookup completed', { elapsed_ms: Date.now() - startTime });
 
-    if (adminError || !adminUser) {
+    const directoryUnavailable = isSupabaseDataApiUnavailable(adminError);
+    let adminUser: AdminUser | null = directoryUser as AdminUser | null;
+
+    if (directoryUnavailable) {
+      apiLogger.error('[Login API] Admin directory unavailable', {
+        elapsed_ms: Date.now() - startTime,
+        error: adminError?.message,
+      });
+      adminUser = null;
+    } else if (adminError || !adminUser) {
       await supabaseAdmin.from('admin_audit_logs').insert({
         user_email: normalizedEmail,
         action: 'login_failed_not_admin',
@@ -99,7 +133,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 2: PiCheckBold if account is active
-    if (!adminUser.is_active) {
+    if (adminUser && !adminUser.is_active) {
       await supabaseAdmin.from('admin_audit_logs').insert({
         user_email: normalizedEmail,
         admin_user_id: adminUser.id,
@@ -129,8 +163,9 @@ export async function POST(request: NextRequest) {
       password: password,
     });
     
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         reject(new Error('Authentication timeout - Supabase Auth service may be experiencing issues'));
       }, AUTH_TIMEOUT);
     });
@@ -138,16 +173,18 @@ export async function POST(request: NextRequest) {
     let authData, authError;
     try {
       const result = await Promise.race([authPromise, timeoutPromise]);
+      if (timeoutId) clearTimeout(timeoutId);
       authData = result.data;
       authError = result.error;
       apiLogger.info('[Login API] Supabase Auth completed', { elapsed_ms: Date.now() - startTime });
     } catch (timeoutError) {
+      if (timeoutId) clearTimeout(timeoutId);
       apiLogger.error('[Login API] Supabase Auth timeout', { elapsed_ms: Date.now() - startTime });
       
       // Log timeout issue
       await supabaseAdmin.from('admin_audit_logs').insert({
         user_email: normalizedEmail,
-        admin_user_id: adminUser.id,
+        admin_user_id: adminUser?.id,
         action: 'login_failed_auth_timeout',
         action_category: 'authentication',
         ip_address: ipAddress,
@@ -174,7 +211,7 @@ export async function POST(request: NextRequest) {
     if (authError || !authData.user) {
       await supabaseAdmin.from('admin_audit_logs').insert({
         user_email: normalizedEmail,
-        admin_user_id: adminUser.id,
+        admin_user_id: adminUser?.id,
         action: 'login_failed',
         action_category: 'authentication',
         ip_address: ipAddress,
@@ -190,11 +227,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (directoryUnavailable || !adminUser) {
+      adminUser = await resolveAdminProfileDuringOutage(supabaseAdmin, authData.user);
+      if (!adminUser) {
+        apiLogger.error('[Login API] Directory unavailable and no admin claim on auth user', {
+          elapsed_ms: Date.now() - startTime,
+        });
+        return NextResponse.json(
+          {
+            success: false,
+            error: DATA_API_UNAVAILABLE_MESSAGE,
+            technical_error: DATA_API_UNAVAILABLE_CODE,
+          },
+          { status: 503 }
+        );
+      }
+    }
+
     // Stamp the JWT admin claim (audit H3) so middleware and API routes can
     // authorize without a DB read. Non-fatal on failure — the DB fallback
     // path still works. Takes effect for API routes immediately (getUser
     // reads live metadata) and for middleware on the next token refresh.
     await stampAdminClaim(supabaseAdmin, authData.user.id, adminUser);
+
+    if (directoryUnavailable) {
+      try {
+        await supabaseSSR.auth.refreshSession();
+      } catch (refreshError) {
+        apiLogger.error('[Login API] Session refresh after outage stamp failed (non-blocking)', {
+          error: refreshError instanceof Error ? refreshError.message : String(refreshError),
+        });
+      }
+    }
 
     // Step 4: Log successful login with detailed session info
     const loginMetadata = {

@@ -1,5 +1,8 @@
 # Netcash Migration Checklist
 
+> **URL canon (2026-08-01):** Pay Now **Notify** = `/api/payments/netcash/webhook` (invoice settlement). **Accept / Decline / Redirect** = `/api/payments/netcash/redirect`. Singular `/api/payment/netcash/webhook` is legacy consumer-order only — see `NETCASH_URLS_QUICK_REFERENCE.md`.
+
+
 **Date Started:** 2025-10-22
 **Migration Type:** AgilityGIS Gateway → CircleTel Direct Integration
 
@@ -97,17 +100,17 @@ Notify: https://integration-staging.agilitygis.com/api/paymentgateway/webhook/ne
 
 **Accept URL:**
 ```
-https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook
+https://circletel-nextjs-staging.vercel.app/api/payments/netcash/webhook
 ```
 
 **Decline URL:**
 ```
-https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook
+https://circletel-nextjs-staging.vercel.app/api/payments/netcash/webhook
 ```
 
 **Notify URL:**
 ```
-https://circletel-nextjs-staging.vercel.app/api/payment/netcash/webhook
+https://circletel-nextjs-staging.vercel.app/api/payments/netcash/webhook
 ```
 
 **Re-direct URL:** *(leave empty)*
@@ -248,17 +251,17 @@ Notify: https://integration.agilitygis.com/api/paymentgateway/webhook/netcash/no
 
 **Accept URL:**
 ```
-https://circletel.co.za/api/payment/netcash/webhook
+https://www.circletel.co.za/api/payments/netcash/webhook
 ```
 
 **Decline URL:**
 ```
-https://circletel.co.za/api/payment/netcash/webhook
+https://www.circletel.co.za/api/payments/netcash/webhook
 ```
 
 **Notify URL:**
 ```
-https://circletel.co.za/api/payment/netcash/webhook
+https://www.circletel.co.za/api/payments/netcash/webhook
 ```
 
 **Re-direct URL:** *(leave empty)*
@@ -308,7 +311,7 @@ https://circletel.co.za/api/payment/netcash/webhook
 
 **Vercel Dashboard:**
 - URL: https://vercel.com/your-team/circletel-nextjs/logs
-- Filter: `/api/payment/netcash/webhook`
+- Filter: `/api/payments/netcash/webhook`
 - Check every 2-4 hours for first 24 hours
 
 **CircleTel Admin Dashboard:**

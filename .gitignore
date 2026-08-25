@@ -56,6 +56,8 @@ yarn-error.log*
 .env.production.latest
 .env.production.local
 .env.local.backup
+.env*.bak*
+.zip/
 
 # Vercel
 .vercel
@@ -66,6 +68,9 @@ next-env.d.ts
 
 # Code Review Graph (knowledge graph database)
 .code-review-graph/
+
+# VPS-local vendor SQLite staging (Ruijie / Tarana / Interstellio)
+data/vendor-cache/
 
 # Temporary files
 *.tmp

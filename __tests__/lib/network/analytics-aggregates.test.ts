@@ -3,8 +3,13 @@ import {
   buildHourlyRollupUpserts,
   computeGroupTrafficCards,
   computeRadioUtilSummary,
+  filterRollupsForScope,
   hourBucketIso,
   HOURLY_ROLLUP_WINDOW,
+  MAX_ANALYTICS_CUSTOM_DAYS,
+  MAX_ANALYTICS_HOURS,
+  parseAnalyticsCustomRange,
+  parseAnalyticsHours,
 } from '@/lib/network/analytics-aggregates';
 
 describe('computeGroupTrafficCards', () => {
@@ -135,5 +140,103 @@ describe('buildHourlyRollupUpserts', () => {
     expect(rows[0].avg_rx_bps).toBeCloseTo((15_000_000 * 8) / 3600);
     expect(rows[1].total_rx_bytes).toBe(2_000_000);
     expect(rows[0].raw_summary.flowSn).toBe('SN123');
+  });
+
+  it('keys every row to the device the flow came from', () => {
+    // device_sn is a real column now, not just raw_summary trivia — it is what
+    // lets one site be attributed its own AP instead of the group's (#702).
+    const rows = buildHourlyRollupUpserts({
+      groupId: '9058218',
+      groupName: 'Unjani',
+      flowSn: 'G1U52HL00261B',
+      dataPoints: [
+        {
+          timestamp: Date.parse('2026-07-25T20:15:00+02:00'),
+          rxBytes: 1_000,
+          txBytes: 100,
+        },
+      ],
+    });
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0].device_sn).toBe('G1U52HL00261B');
+  });
+
+  it('produces independent rows for two devices in the same group and hour', () => {
+    const at = Date.parse('2026-07-25T20:15:00+02:00');
+    const [first] = buildHourlyRollupUpserts({
+      groupId: '9058218',
+      groupName: 'Unjani',
+      flowSn: 'SN-A',
+      dataPoints: [{ timestamp: at, rxBytes: 1_000, txBytes: 100 }],
+    });
+    const [second] = buildHourlyRollupUpserts({
+      groupId: '9058218',
+      groupName: 'Unjani',
+      flowSn: 'SN-B',
+      dataPoints: [{ timestamp: at, rxBytes: 5_000, txBytes: 500 }],
+    });
+
+    // Same group, same hour, different device — previously impossible, because
+    // the unique key was (group_id, captured_at, hours_window).
+    expect(first.captured_at).toBe(second.captured_at);
+    expect(first.group_id).toBe(second.group_id);
+    expect(first.device_sn).not.toBe(second.device_sn);
+    expect(first.total_rx_bytes).toBe(1_000);
+    expect(second.total_rx_bytes).toBe(5_000);
+  });
+});
+
+describe('parseAnalyticsHours', () => {
+  it('allows a 30-day (720h) window and clamps above that', () => {
+    expect(MAX_ANALYTICS_HOURS).toBe(720);
+    expect(parseAnalyticsHours('720')).toBe(720);
+    expect(parseAnalyticsHours('168')).toBe(168);
+    expect(parseAnalyticsHours('721')).toBe(720);
+    expect(parseAnalyticsHours(null)).toBe(24);
+    expect(parseAnalyticsHours('0')).toBe(24);
+    expect(parseAnalyticsHours('abc')).toBe(24);
+  });
+});
+
+describe('parseAnalyticsCustomRange', () => {
+  it('parses an inclusive SAST range with UTC bounds', () => {
+    expect(MAX_ANALYTICS_CUSTOM_DAYS).toBe(90);
+    const range = parseAnalyticsCustomRange('2026-07-26', '2026-08-02');
+    expect(range).not.toBeNull();
+    expect(range!.startDate).toBe('2026-07-26');
+    expect(range!.endDate).toBe('2026-08-02');
+    expect(range!.inclusiveDayCount).toBe(8);
+    expect(range!.startUtc.toISOString()).toBe('2026-07-25T22:00:00.000Z');
+    expect(range!.endUtc.toISOString()).toBe('2026-08-02T21:59:59.999Z');
+  });
+
+  it('rejects invalid, reversed, or over-long ranges', () => {
+    expect(parseAnalyticsCustomRange(null, '2026-08-02')).toBeNull();
+    expect(parseAnalyticsCustomRange('2026-08-02', '2026-07-26')).toBeNull();
+    expect(parseAnalyticsCustomRange('not-a-date', '2026-08-02')).toBeNull();
+    // 91 inclusive days (1 Jul → 30 Sep)
+    expect(parseAnalyticsCustomRange('2026-07-01', '2026-09-29')).toBeNull();
+  });
+});
+
+describe('filterRollupsForScope', () => {
+  const rows = [
+    { group_id: 'g1', device_sn: 'SN-A', captured_at: '2026-08-01T10:00:00Z', total_rx_bytes: 100 },
+    { group_id: 'g1', device_sn: 'SN-B', captured_at: '2026-08-01T10:00:00Z', total_rx_bytes: 200 },
+    { group_id: 'g2', device_sn: 'SN-C', captured_at: '2026-08-01T10:00:00Z', total_rx_bytes: 50 },
+  ];
+
+  it('keeps all devices in the group when deviceSn is omitted', () => {
+    const filtered = filterRollupsForScope(rows, { groupId: 'g1' });
+    expect(filtered).toHaveLength(2);
+    expect(filtered.map((r) => r.device_sn).sort()).toEqual(['SN-A', 'SN-B']);
+  });
+
+  it('keeps only the matching device when deviceSn is set', () => {
+    const filtered = filterRollupsForScope(rows, { groupId: 'g1', deviceSn: 'SN-B' });
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].device_sn).toBe('SN-B');
+    expect(filtered[0].total_rx_bytes).toBe(200);
   });
 });

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiCopyBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMapPinBold, PiShieldBold, PiSparkleBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiCheckCircleBold, PiCopyBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMapPinBold, PiShieldBold, PiUserBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { PmButton } from '@/components/portal/modernist/PortalModernistShell';
 // ============================================================================
 // Types
 // ============================================================================
@@ -175,11 +176,8 @@ export function EmailParseModal({ open, onOpenChange, onApply }: EmailParseModal
     <Dialog open={open} onOpenChange={(val: boolean) => { if (!val) reset(); onOpenChange(val); }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <div className="p-2 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-lg">
-              <PiEnvelopeBold className="h-4 w-4 text-white" />
-            </div>
-            Parse Feasibility Email
+          <DialogTitle>
+            Parse feasibility email
           </DialogTitle>
           <DialogDescription>
             Paste a feasibility request email and AI will extract the locations, requirements, and contact details.
@@ -236,26 +234,15 @@ Acme Corp"`}
             )}
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => { reset(); onOpenChange(false); }}>
+              <PmButton variant="secondary" onClick={() => { reset(); onOpenChange(false); }}>
                 Cancel
-              </Button>
-              <Button
+              </PmButton>
+              <PmButton
                 onClick={handleParse}
                 disabled={!emailText.trim() || isParsing}
-                className="bg-gradient-to-r from-circleTel-orange to-orange-500 hover:from-circleTel-orange/90 hover:to-orange-500/90 text-white gap-2"
               >
-                {isParsing ? (
-                  <>
-                    <PiSpinnerBold className="h-4 w-4 animate-spin" />
-                    Parsing...
-                  </>
-                ) : (
-                  <>
-                    <PiSparkleBold className="h-4 w-4" />
-                    Parse Email
-                  </>
-                )}
-              </Button>
+                {isParsing ? 'Parsing…' : 'Parse email'}
+              </PmButton>
             </DialogFooter>
           </div>
         )}
@@ -264,26 +251,29 @@ Acme Corp"`}
         {parseResult && (
           <div className="space-y-4">
             {/* Summary */}
-            <div className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <PiCheckCircleBold className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06]">
+              <PiCheckCircleBold className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#2F9E5E' }} />
               <div>
-                <p className="text-sm font-medium text-green-800">Email parsed successfully</p>
-                <p className="text-sm text-green-600 mt-0.5">{parseResult.raw_summary}</p>
+                <p className="text-sm font-extrabold" style={{ color: 'var(--pm-navy)' }}>Email parsed</p>
+                <p className="text-sm mt-0.5" style={{ color: 'var(--pm-body)' }}>{parseResult.raw_summary}</p>
               </div>
             </div>
 
             {/* Locations */}
-            <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                <PiMapPinBold className="h-4 w-4 text-green-500" />
-                <span className="text-sm font-semibold text-slate-700">
-                  {parseResult.locations.length} Location{parseResult.locations.length !== 1 ? 's' : ''}
+            <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] overflow-hidden">
+              <div className="px-4 py-2.5 flex items-center gap-2" style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                <PiMapPinBold className="h-4 w-4" style={{ color: 'var(--pm-navy)' }} />
+                <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>
+                  {parseResult.locations.length} location{parseResult.locations.length !== 1 ? 's' : ''}
                 </span>
               </div>
               <div className="divide-y divide-slate-100">
                 {parseResult.locations.map((loc: ParsedLocation, idx: number) => (
                   <div key={idx} className="px-4 py-2.5 flex items-start gap-3">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex-shrink-0">
+                    <span
+                      className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-extrabold flex-shrink-0"
+                      style={{ background: 'var(--pm-navy)', color: '#FFFFFF' }}
+                    >
                       {idx + 1}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -305,10 +295,10 @@ Acme Corp"`}
             {/* Contact & Requirements in a grid */}
             <div className="grid grid-cols-2 gap-4">
               {/* Contact */}
-              <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                  <PiUserBold className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm font-semibold text-slate-700">Contact</span>
+              <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] overflow-hidden">
+                <div className="px-4 py-2.5 flex items-center gap-2" style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                  <PiUserBold className="h-4 w-4" style={{ color: 'var(--pm-navy)' }} />
+                  <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Contact</span>
                 </div>
                 <div className="p-4 space-y-2 text-sm">
                   {parseResult.contact.company && (
@@ -336,10 +326,10 @@ Acme Corp"`}
               </div>
 
               {/* Requirements */}
-              <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                  <PiWifiHighBold className="h-4 w-4 text-purple-500" />
-                  <span className="text-sm font-semibold text-slate-700">Requirements</span>
+              <div className="rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] overflow-hidden">
+                <div className="px-4 py-2.5 flex items-center gap-2" style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                  <PiWifiHighBold className="h-4 w-4" style={{ color: 'var(--pm-navy)' }} />
+                  <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Requirements</span>
                 </div>
                 <div className="p-4 space-y-2 text-sm">
                   {parseResult.requirements.bandwidth_mbps && (
@@ -381,16 +371,12 @@ Acme Corp"`}
             </div>
 
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => { setParseResult(null); setParseError(null); }}>
-                Back to Email
-              </Button>
-              <Button
-                onClick={handleApply}
-                className="bg-gradient-to-r from-circleTel-orange to-orange-500 hover:from-circleTel-orange/90 hover:to-orange-500/90 text-white gap-2"
-              >
-                Apply to Form
-                <PiArrowRightBold className="h-4 w-4" />
-              </Button>
+              <PmButton variant="secondary" onClick={() => { setParseResult(null); setParseError(null); }}>
+                Back to email
+              </PmButton>
+              <PmButton onClick={handleApply}>
+                Apply to form
+              </PmButton>
             </DialogFooter>
           </div>
         )}

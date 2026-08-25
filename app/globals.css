@@ -1,7 +1,34 @@
 
+/* shadcn/typeset — prose styling for rendered markdown/rich content.
+   Kept at the very top: @import must precede all other rules. postcss-import
+   (see postcss.config.js) inlines this before Tailwind runs, so typeset's
+   @layer components resolves against @tailwind components. */
+@import "./typeset.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* shadcn/typeset preset — mapped to CircleTel brand fonts
+   (Inter body / Manrope headings / JetBrains mono), not Geist.
+   Apply with: <div className="typeset typeset-docs max-w-[37em]"> */
+.typeset-docs {
+  --typeset-font-body: var(--font-inter);
+  --typeset-font-heading: var(--font-manrope);
+  --typeset-font-mono: var(--font-mono);
+  --typeset-size: 15px;
+  --typeset-leading: 1.75;
+  --typeset-flow: 1.25em;
+}
+
+/* CircleTel brand: orange links inside all typeset prose (no underline, underline on hover) */
+.typeset a {
+  color: #F5831F;
+  text-decoration: none;
+}
+.typeset a:hover {
+  text-decoration: underline;
+}
 
 /* Custom animation delays for cloud hosting */
 .animation-delay-2000 {

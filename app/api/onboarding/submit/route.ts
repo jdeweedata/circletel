@@ -142,7 +142,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 3) Create payment method (mandate pending, NOT verified yet)
+  // 3) Create payment method.
+  // The click-wrap Service Order acceptance below IS the signed debit order
+  // mandate (terms clause: "constitutes your signed debit order mandate", with
+  // IP/UA/terms-hash evidence captured) — so the mandate is ACTIVE from
+  // acceptance. A later NetCash DebiCheck signature only re-affirms it.
+  // bank-details `verified` stays false until eMandate/first collection.
+  const acceptedAt = new Date().toISOString();
   // Avoid duplicate payment methods on retry
   const { data: existingPm } = await supabase
     .from('customer_payment_methods')
@@ -170,7 +176,8 @@ export async function POST(request: NextRequest) {
           branch_code: s3.data.branchCode,
           verified: false,
         },
-        mandate_status: 'pending',
+        mandate_status: 'active',
+        mandate_approved_at: acceptedAt,
         is_primary: true,
         is_active: true,
       })
@@ -187,7 +194,6 @@ export async function POST(request: NextRequest) {
 
   // 4) Finalize submission
   const vettingDueDate = addBusinessDays(now(), 2); // 2 business days from now
-  const acceptedAt = new Date().toISOString();
 
   // Acceptance evidence: exactly which terms were accepted, when, and from where.
   // The snapshot + hash let us prove the accepted terms even after the live terms change.

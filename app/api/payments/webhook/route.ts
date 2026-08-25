@@ -132,10 +132,12 @@ export async function POST(request: NextRequest) {
           await supabase
             .from('invoices')
             .update({
-              payment_status: 'paid',
-              payment_method: metadata?.payment_method as string || 'unknown',
-              payment_reference: transactionId,
-              total_paid: amount,
+              // invoices (B2B) uses `status` + `amount_paid`; it has no
+              // payment_status / payment_method / payment_reference / total_paid
+              // columns — writing those made this update fail silently, leaving
+              // the invoice unpaid while the order was still created downstream.
+              status: 'paid',
+              amount_paid: amount,
               paid_at: completedAt?.toISOString() || new Date().toISOString(),
               updated_at: new Date().toISOString(),
             })
@@ -247,20 +249,16 @@ export async function POST(request: NextRequest) {
             }
           }
         } else if (status === 'failed') {
-          await supabase
-            .from('invoices')
-            .update({
-              payment_status: 'failed',
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', invoiceId);
-
-          webhookLogger.info('[Payment Webhook] Invoice marked as failed', { invoiceId });
+          // invoices has no payment_status column, and 'failed' is not a valid
+          // `status` value (CHECK allows draft/pending/sent/paid/partial/overdue/
+          // cancelled). Leave the invoice unchanged so the customer can retry —
+          // matches the Pay Now failure handling below.
+          webhookLogger.info('[Payment Webhook] B2B invoice payment failed (invoice left unchanged)', { invoiceId, failureReason });
         } else if (status === 'pending' || status === 'processing') {
           await supabase
             .from('invoices')
             .update({
-              payment_status: 'pending',
+              status: 'pending',
               updated_at: new Date().toISOString(),
             })
             .eq('id', invoiceId);
@@ -318,8 +316,10 @@ export async function POST(request: NextRequest) {
           .update({
             status: 'paid',
             paid_at: completedAt?.toISOString() || new Date().toISOString(),
+            // payment_collection_method exists on customer_invoices; payment_reference
+            // does not (writing it rejected the whole update). The transaction id is
+            // already stored as paynow_transaction_ref (used to locate this invoice above).
             payment_collection_method: 'paynow',
-            payment_reference: transactionId,
             amount_paid: amount,
             updated_at: new Date().toISOString(),
           })

@@ -1,23 +1,27 @@
 'use client';
-import { PiArrowCounterClockwiseBold, PiArrowSquareOutBold, PiArrowsDownUpBold, PiBroadcastBold, PiBuildingsBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckCircleBold, PiClipboardTextBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiFunnelBold, PiGaugeBold, PiGlobeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiShieldBold, PiShieldCheckBold, PiSlidersHorizontalBold, PiSparkleBold, PiSpinnerBold, PiUserBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsDownUpBold, PiBroadcastBold, PiBuildingsBold, PiCellSignalFullBold, PiCheckCircleBold, PiFunnelBold, PiGaugeBold, PiGlobeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiShieldBold, PiSlidersHorizontalBold, PiSparkleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import type { CoverageDetail, DetailedCoverage } from '../page';
+import type { DetailedCoverage } from '../page';
 import SkyFibreOrderabilityCard from '@/components/admin/skyfibre/SkyFibreOrderabilityCard';
 import {
   getAdminSkyFibreCapacity,
   isAdminSkyFibrePackage,
 } from '@/lib/coverage/skyfibre/admin-ui';
 import type { SkyFibreCapacityMbps } from '@/lib/coverage/skyfibre/types';
+import {
+  FilterChips,
+  KpiStrip,
+  PmButton,
+} from '@/components/portal/modernist/PortalModernistShell';
 // import { mapDarkStyle } from './MapStyles';  // Dark styles no longer used
 
 // ============================================================================
@@ -82,11 +86,11 @@ interface ServicePackage {
 // ============================================================================
 
 const steps = [
-  { id: 1, title: 'Address', icon: PiMapPinBold },
-  { id: 2, title: 'Coverage', icon: PiMagnifyingGlassBold },
-  { id: 3, title: 'Packages', icon: PiPackageBold },
-  { id: 4, title: 'Client', icon: PiUserBold },
-  { id: 5, title: 'Review', icon: PiClipboardTextBold },
+  { id: 1, title: 'Address' },
+  { id: 2, title: 'Coverage' },
+  { id: 3, title: 'Packages' },
+  { id: 4, title: 'Client' },
+  { id: 5, title: 'Review' },
 ];
 
 const contractTermOptions = [
@@ -156,7 +160,9 @@ const formatPrice = (amount: number) => {
 // ============================================================================
 
 export function SingleSiteStepper() {
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
+  const [maxReached, setMaxReached] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [availablePackages, setAvailablePackages] = useState<ServicePackage[]>([]);
   const [generatedQuoteId, setGeneratedQuoteId] = useState<string | null>(null);
@@ -195,6 +201,26 @@ export function SingleSiteStepper() {
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const lat = parseFloat(searchParams.get('lat') || '');
+    const lng = parseFloat(searchParams.get('lng') || '');
+    const addressParam = searchParams.get('address');
+    const address = addressParam ? decodeURIComponent(addressParam) : '';
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      const coords = { lat, lng };
+      setFormData((prev) => ({
+        ...prev,
+        coordinates: coords,
+        address: address || prev.address,
+        gpsInput: `${lat}, ${lng}`,
+      }));
+      setMarkerPosition(coords);
+      setMapCenter(coords);
+    } else if (address) {
+      setFormData((prev) => ({ ...prev, address }));
+    }
+  }, [searchParams]);
 
   // Filtered and sorted packages
   const filteredPackages = availablePackages
@@ -503,6 +529,7 @@ export function SingleSiteStepper() {
       if (hasCoverage) {
         toast.success('Coverage found! Proceed to select packages.');
         setCurrentStep(2);
+        setMaxReached((prev) => Math.max(prev, 2));
       } else {
         toast.error('No coverage available at this location');
       }
@@ -617,14 +644,17 @@ export function SingleSiteStepper() {
 
   // Navigate steps
   const nextStep = () => {
-    if (currentStep < 5) setCurrentStep(currentStep + 1);
+    if (currentStep < 5) {
+      const next = currentStep + 1;
+      setCurrentStep(next);
+      setMaxReached((prev) => Math.max(prev, next));
+    }
   };
 
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  // Validation for each step
   const canProceed = () => {
     switch (currentStep) {
       case 1:
@@ -637,6 +667,18 @@ export function SingleSiteStepper() {
         return formData.companyName.length > 0;
       default:
         return true;
+    }
+  };
+
+  const handleStepChange = (value: string) => {
+    const target = Number(value);
+    if (!Number.isFinite(target)) return;
+    if (target <= maxReached) {
+      setCurrentStep(target);
+      return;
+    }
+    if (target === currentStep + 1 && canProceed()) {
+      nextStep();
     }
   };
 
@@ -658,52 +700,16 @@ export function SingleSiteStepper() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-slate-50 text-slate-900">
-      {/* Progress Bar */}
-      <div className="bg-white border-b border-slate-200 px-6 py-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between">
-            {steps.map((step, index) => {
-              const Icon = step.icon;
-              const isActive = currentStep === step.id;
-              const isComplete = currentStep > step.id;
-              const isLast = index === steps.length - 1;
-
-              return (
-                <div key={step.id} className="flex items-center flex-1">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 shadow-lg ${isComplete
-                        ? 'bg-green-500 text-white shadow-green-500/20'
-                        : isActive
-                          ? 'bg-circleTel-orange text-white shadow-circleTel-orange/30 scale-110'
-                          : 'bg-slate-100 text-slate-500 border border-slate-200'
-                        }`}
-                    >
-                      {isComplete ? (
-                        <PiCheckCircleBold className="h-6 w-6" />
-                      ) : (
-                        <Icon className={`h-6 w-6 ${isActive ? 'animate-pulse' : ''}`} />
-                      )}
-                    </div>
-                    <span
-                      className={`text-[10px] mt-2 font-black uppercase tracking-widest ${isActive ? 'text-circleTel-orange' : isComplete ? 'text-green-500' : 'text-slate-600'
-                        }`}
-                    >
-                      {step.title}
-                    </span>
-                  </div>
-                  {!isLast && (
-                    <div
-                      className={`flex-1 h-0.5 mx-4 rounded-full transition-all duration-500 ${isComplete ? 'bg-gradient-to-r from-green-500 to-green-500' : 'bg-slate-200'
-                        }`}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+    <div className="h-full flex flex-col" style={{ background: 'var(--pm-ground, transparent)', color: 'var(--pm-body)' }}>
+      <div
+        className="px-6 py-4"
+        style={{ background: '#FFFFFF', borderBottom: '2px solid var(--pm-divider)' }}
+      >
+        <FilterChips
+          options={steps.map((step) => ({ value: String(step.id), label: step.title }))}
+          value={String(currentStep)}
+          onChange={handleStepChange}
+        />
       </div>
 
       {/* Step Content */}
@@ -719,46 +725,40 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-circleTel-orange opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
-                    <PiMapPinBold className="h-6 w-6 text-circleTel-orange" />
-                    Site Location
+                <div className="rounded-xl bg-white px-6 py-5 shadow-sm ring-1 ring-black/[0.06]">
+                  <p
+                    className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                    style={{ color: 'var(--pm-navy)' }}
+                  >
+                    Address
+                  </p>
+                  <h2 className="mt-1 text-xl font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                    Site location
                   </h2>
-                  <p className="text-slate-600 mt-2 font-medium tracking-wide">
-                    Define the target coordinates for feasibility analysis
+                  <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
+                    Set the coordinates for this feasibility check
                   </p>
                 </div>
 
-                {/* Toggle GPS/Address */}
-                <div className="flex items-center gap-6 bg-slate-100 p-2 rounded-xl border border-slate-200 w-fit">
-                  <button
-                    onClick={() => setFormData(prev => ({ ...prev, useGPS: false }))}
-                    className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${!formData.useGPS ? 'bg-circleTel-orange text-white shadow-lg shadow-circleTel-orange/20' : 'text-slate-600 hover:text-slate-700'
-                      }`}
-                  >
-                    Address
-                  </button>
-                  <button
-                    onClick={() => setFormData(prev => ({ ...prev, useGPS: true }))}
-                    className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${formData.useGPS ? 'bg-circleTel-orange text-white shadow-lg shadow-circleTel-orange/20' : 'text-slate-600 hover:text-slate-700'
-                      }`}
-                  >
-                    GPS
-                  </button>
-                </div>
+                <FilterChips
+                  options={[
+                    { value: 'address', label: 'Address' },
+                    { value: 'gps', label: 'GPS' },
+                  ]}
+                  value={formData.useGPS ? 'gps' : 'address'}
+                  onChange={(value) => setFormData((prev) => ({ ...prev, useGPS: value === 'gps' }))}
+                />
 
-                {/* Address/GPS Input */}
-                <div className="relative group">
+                <div className="relative">
                   <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                    <PiMagnifyingGlassBold className="h-4 w-4 text-slate-500 group-hover:text-circleTel-orange transition-colors" />
+                    <PiMagnifyingGlassBold className="h-4 w-4 text-slate-500" />
                   </div>
                   {formData.useGPS ? (
                     <Input
                       placeholder="Enter GPS coordinates (e.g., -26.2041, 28.0473)"
                       value={formData.gpsInput}
                       onChange={(e) => handleGPSInputChange(e.target.value)}
-                      className="pl-12 bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 focus:ring-1 focus:ring-circleTel-orange/30 font-mono h-14 rounded-xl"
+                      className="pl-12 h-12 rounded-xl font-mono"
                     />
                   ) : (
                     <Input
@@ -766,14 +766,13 @@ export function SingleSiteStepper() {
                       placeholder="Start typing an address..."
                       value={formData.address}
                       onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                      className="pl-12 bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 focus:ring-1 focus:ring-circleTel-orange/30 h-14 rounded-xl"
+                      className="pl-12 h-12 rounded-xl"
                     />
                   )}
                 </div>
 
-                {/* Map */}
                 {isLoaded && (
-                  <div className="rounded-lg overflow-hidden border">
+                  <div className="rounded-xl overflow-hidden ring-1 ring-black/[0.06]">
                     <GoogleMap
                       mapContainerStyle={mapContainerStyle}
                       center={mapCenter}
@@ -798,21 +797,16 @@ export function SingleSiteStepper() {
                     </GoogleMap>
                   </div>
                 )}
-                {/* Coverage Check Action */}
-                <div className="pt-4">
-                  <Button
-                    onClick={checkCoverage}
-                    disabled={(!formData.address && !formData.coordinates) || isLoading}
-                    className="w-full bg-circleTel-orange hover:bg-circleTel-bright-orange text-white py-8 text-sm font-black uppercase tracking-[0.3em] rounded-xl shadow-sm disabled:opacity-20 disabled:shadow-none transition-all duration-500 overflow-hidden relative group"
-                  >
-                    {isLoading ? (
-                      <PiSpinnerBold className="h-5 w-5 animate-spin mr-3" />
-                    ) : (
-                      <PiSparkleBold className="h-4 w-4 mr-3 animate-pulse text-white" />
-                    )}
-                    {isLoading ? 'Scanning Infrastructure...' : 'Initiate Scan'}
-                  </Button>
-                </div>
+                {!isLoaded && !loadError && (
+                  <p className="text-sm" style={{ color: 'var(--pm-body)' }}>Loading map</p>
+                )}
+                <PmButton
+                  onClick={checkCoverage}
+                  disabled={(!formData.address && !formData.coordinates) || isLoading}
+                  className="w-full"
+                >
+                  {isLoading ? 'Checking coverage…' : 'Check coverage'}
+                </PmButton>
               </motion.div>
             )}
 
@@ -825,28 +819,52 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-green-500 opacity-100" />
-                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
-                    <PiShieldCheckBold className="h-6 w-6 text-green-500" />
-                    Available Infrastructure
+                <div className="rounded-xl bg-white px-6 py-5 shadow-sm ring-1 ring-black/[0.06]">
+                  <p
+                    className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                    style={{ color: 'var(--pm-navy)' }}
+                  >
+                    Coverage
+                  </p>
+                  <h2 className="mt-1 text-xl font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                    Available infrastructure
                   </h2>
-                  <p className="text-slate-600 mt-2 font-medium tracking-wide">
-                    Select the optimal packages for this location
+                  <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
+                    Select packages for this location
                   </p>
                 </div>
 
-                {/* Specific Tech Badges */}
-                <div className="flex flex-wrap gap-2">
-                  {formData.coverage && Object.entries(formData.coverage).map(([tech, details]) => (
-                    details?.available && (
-                      <div key={tech} className="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-lg flex items-center gap-2">
-                        {getTechIcon(tech)}
-                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{tech} Ready</span>
-                      </div>
-                    )
-                  ))}
-                </div>
+                {formData.coverage && (
+                  <KpiStrip
+                    variant="cards"
+                    items={[
+                      {
+                        label: 'Fibre',
+                        value: formData.coverage.fibre?.available ? 'Available' : 'None',
+                        accent: formData.coverage.fibre?.available ? '#2F9E5E' : '#13274A',
+                        valueColor: formData.coverage.fibre?.available ? '#2F9E5E' : '#6B7280',
+                      },
+                      {
+                        label: 'LTE',
+                        value: formData.coverage.lte?.available ? 'Available' : 'None',
+                        accent: formData.coverage.lte?.available ? '#2F9E5E' : '#13274A',
+                        valueColor: formData.coverage.lte?.available ? '#2F9E5E' : '#6B7280',
+                      },
+                      {
+                        label: '5G',
+                        value: formData.coverage['5g']?.available ? 'Available' : 'None',
+                        accent: formData.coverage['5g']?.available ? '#2F9E5E' : '#13274A',
+                        valueColor: formData.coverage['5g']?.available ? '#2F9E5E' : '#6B7280',
+                      },
+                      {
+                        label: 'Wireless',
+                        value: formData.coverage.tarana?.available ? 'Available' : 'None',
+                        accent: formData.coverage.tarana?.available ? '#2F9E5E' : '#13274A',
+                        valueColor: formData.coverage.tarana?.available ? '#2F9E5E' : '#6B7280',
+                      },
+                    ]}
+                  />
+                )}
 
                 {/* Filters Row */}
                 <div className="flex flex-wrap items-center gap-3 py-2 px-1">
@@ -859,7 +877,7 @@ export function SingleSiteStepper() {
                   <select
                     value={filters.technology}
                     onChange={(e) => setFilters(f => ({ ...f, technology: e.target.value as typeof filters.technology }))}
-                    className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-900 focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                        className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white"
                   >
                     <option value="all">All Technologies</option>
                     <option value="fibre">Fibre</option>
@@ -872,7 +890,7 @@ export function SingleSiteStepper() {
                   <select
                     value={filters.minSpeed}
                     onChange={(e) => setFilters(f => ({ ...f, minSpeed: Number(e.target.value) }))}
-                    className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-900 focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                        className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white"
                   >
                     <option value="0">Any Speed</option>
                     <option value="50">50+ Mbps</option>
@@ -887,7 +905,7 @@ export function SingleSiteStepper() {
                     <select
                       value={filters.sortBy}
                       onChange={(e) => setFilters(f => ({ ...f, sortBy: e.target.value as typeof filters.sortBy }))}
-                      className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-900 focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                          className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white"
                     >
                       <option value="price">Price: Low to High</option>
                       <option value="speed">Speed: High to Low</option>
@@ -909,7 +927,8 @@ export function SingleSiteStepper() {
                       <p className="font-medium">No packages match your filters</p>
                       <button
                         onClick={() => setFilters({ technology: 'all', minSpeed: 0, maxPrice: 10000, sortBy: 'price' })}
-                        className="mt-2 text-sm text-circleTel-orange hover:underline"
+                        className="mt-2 text-sm font-extrabold hover:underline"
+                        style={{ color: 'var(--pm-navy)' }}
                       >
                         Clear filters
                       </button>
@@ -921,25 +940,30 @@ export function SingleSiteStepper() {
                         <div
                           key={pkg.id}
                           onClick={() => togglePackage(pkg, 'primary')}
-                          className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${isSelected
-                            ? 'border-circleTel-orange bg-gradient-to-br from-circleTel-orange/5 to-circleTel-orange/10 shadow-sm'
-                            : 'border-gray-200 bg-white hover:border-gray-300'
-                            }`}
+                          className="relative p-4 rounded-xl bg-white cursor-pointer shadow-sm ring-1 ring-black/[0.06]"
+                          style={
+                            isSelected
+                              ? { borderBottom: '3px solid var(--pm-accent)' }
+                              : undefined
+                          }
                         >
-                          {/* Selection indicator */}
-                          <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-circleTel-orange bg-circleTel-orange' : 'border-gray-300'
-                            }`}>
+                          <div
+                            className="absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                            style={{
+                              borderColor: isSelected ? 'var(--pm-navy)' : '#D1D5DB',
+                              background: isSelected ? 'var(--pm-navy)' : '#FFFFFF',
+                            }}
+                          >
                             {isSelected && <PiCheckCircleBold className="h-3 w-3 text-white" />}
                           </div>
 
-                          {/* Package Header */}
                           <div className="flex items-start gap-3 mb-3 pr-6">
-                            <div className={`p-2 rounded-lg ${isSelected ? 'bg-circleTel-orange/20' : 'bg-gray-100'}`}>
+                            <div className="p-2 rounded-lg bg-slate-100">
                               {getTechIcon(pkg.service_type || pkg.product_category)}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-gray-900 truncate">{pkg.name}</h4>
-                              <p className="text-xs text-gray-500 capitalize">
+                              <h4 className="font-extrabold truncate" style={{ color: 'var(--pm-navy)' }}>{pkg.name}</h4>
+                              <p className="text-xs capitalize" style={{ color: '#6B7280' }}>
                                 {pkg.service_type || pkg.product_category || 'Internet'}
                               </p>
                             </div>
@@ -983,10 +1007,15 @@ export function SingleSiteStepper() {
 
                 {/* Results count */}
                 {filteredPackages.length > 0 && (
-                  <p className="text-xs text-slate-500 text-center">
+                  <p className="text-xs text-center" style={{ color: '#6B7280' }}>
                     Showing {filteredPackages.length} of {availablePackages.length} packages
                   </p>
                 )}
+                <div className="flex justify-end pt-2">
+                  <PmButton onClick={nextStep} disabled={formData.selectedPackages.length === 0}>
+                    Continue to packages
+                  </PmButton>
+                </div>
               </motion.div>
             )}
 
@@ -999,35 +1028,39 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-circleTel-orange opacity-100" />
-                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
-                    <PiPackageBold className="h-6 w-6 text-circleTel-orange" />
-                    Review Selection
+                <div className="rounded-xl bg-white px-6 py-5 shadow-sm ring-1 ring-black/[0.06]">
+                  <p
+                    className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                    style={{ color: 'var(--pm-navy)' }}
+                  >
+                    Packages
+                  </p>
+                  <h2 className="mt-1 text-xl font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                    Review selection
                   </h2>
-                  <p className="text-slate-600 mt-2 font-medium tracking-wide">
-                    Verify the chosen infrastructure packages
+                  <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
+                    Verify the chosen packages
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   {formData.selectedPackages.map((pkg) => (
-                    <div key={pkg.id} className="relative p-6 rounded-xl bg-white border border-slate-200 group hover:border-slate-300 transition-all shadow-sm">
+                    <div key={pkg.id} className="relative p-6 rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06]">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-3 bg-slate-100 rounded-lg group-hover:bg-circleTel-orange/10 transition-colors">
+                          <div className="p-3 bg-slate-100 rounded-lg">
                             {getTechIcon(pkg.technology)}
                           </div>
                           <div>
-                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">{pkg.name}</h4>
-                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">
-                              {pkg.speed} Mbps • {pkg.provider}
+                            <h4 className="text-sm font-extrabold" style={{ color: 'var(--pm-navy)' }}>{pkg.name}</h4>
+                            <p className="text-[10px] font-extrabold tracking-[0.08em] uppercase mt-1" style={{ color: '#6B7280' }}>
+                              {pkg.speed} Mbps · {pkg.provider}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-black text-slate-900 tracking-widest leading-none">{formatPrice(pkg.price)}</p>
-                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">/ month</p>
+                          <p className="text-lg font-extrabold tabular-nums" style={{ color: 'var(--pm-navy)' }}>{formatPrice(pkg.price)}</p>
+                          <p className="text-[10px] font-extrabold tracking-[0.08em] uppercase mt-1" style={{ color: '#6B7280' }}>/ month</p>
                         </div>
                       </div>
                     </div>
@@ -1036,12 +1069,11 @@ export function SingleSiteStepper() {
 
                 {selectedSkyFibrePackages.length > 0 && formData.coordinates && (
                   <div className="space-y-4">
-                    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                        <PiBroadcastBold className="h-5 w-5 text-circleTel-orange" />
-                        SkyFibre CSP Validation
+                    <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/[0.06]">
+                      <h3 className="text-sm font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                        SkyFibre CSP validation
                       </h3>
-                      <p className="mt-2 text-sm text-slate-600">
+                      <p className="mt-2 text-sm" style={{ color: 'var(--pm-body)' }}>
                         Run CSP orderability for selected Tarana/SkyFibre packages before generating the business quote.
                       </p>
                     </div>
@@ -1060,32 +1092,30 @@ export function SingleSiteStepper() {
                 )}
 
                 {/* Totals Card */}
-                <div className="bg-slate-50 rounded-xl border border-slate-200 p-8 shadow-sm">
+                <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/[0.06]">
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Monthly Subtotal</span>
-                      <span className="text-sm font-black text-slate-900 tracking-widest">{formatPrice(totals.monthly)}</span>
+                      <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Monthly subtotal</span>
+                      <span className="text-sm font-extrabold tabular-nums" style={{ color: 'var(--pm-navy)' }}>{formatPrice(totals.monthly)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">VAT (15%)</span>
-                      <span className="text-sm font-black text-slate-900 tracking-widest">{formatPrice(totals.vat)}</span>
+                      <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>VAT (15%)</span>
+                      <span className="text-sm font-extrabold tabular-nums" style={{ color: 'var(--pm-navy)' }}>{formatPrice(totals.vat)}</span>
                     </div>
-                    <div className="pt-4 mt-2 border-t border-slate-200 flex justify-between items-center">
-                      <span className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">Monthly Total</span>
-                      <span className="text-2xl font-black text-circleTel-orange tracking-widest">{formatPrice(totals.total)}</span>
+                    <div className="pt-4 mt-2 flex justify-between items-center" style={{ borderTop: '1px solid var(--pm-divider)' }}>
+                      <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Monthly total</span>
+                      <span className="text-2xl font-extrabold tabular-nums" style={{ color: 'var(--pm-navy)' }}>{formatPrice(totals.total)}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-8">
-                  <Button variant="ghost" onClick={prevStep} className="text-slate-600 hover:text-slate-900 uppercase tracking-widest text-[10px] font-black">
-                    <PiCaretLeftBold className="h-4 w-4 mr-2" />
-                    Back to Selection
-                  </Button>
-                  <Button onClick={nextStep} className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-sm">
-                    Client Details
-                    <PiCaretRightBold className="h-4 w-4 ml-2" />
-                  </Button>
+                <div className="flex justify-between items-center pt-4">
+                  <PmButton variant="ghost" onClick={prevStep}>
+                    Back to selection
+                  </PmButton>
+                  <PmButton onClick={nextStep}>
+                    Client details
+                  </PmButton>
                 </div>
               </motion.div>
             )}
@@ -1099,62 +1129,66 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-circleTel-orange opacity-100" />
-                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
-                    <PiBuildingsBold className="h-6 w-6 text-circleTel-orange" />
-                    Client Profile
+                <div className="rounded-xl bg-white px-6 py-5 shadow-sm ring-1 ring-black/[0.06]">
+                  <p
+                    className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                    style={{ color: 'var(--pm-navy)' }}
+                  >
+                    Client
+                  </p>
+                  <h2 className="mt-1 text-xl font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                    Client profile
                   </h2>
-                  <p className="text-slate-600 mt-2 font-medium tracking-wide">
-                    Information for proposal generation
+                  <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
+                    Information for the quote
                   </p>
                 </div>
 
-                <div className="bg-white rounded-xl border border-slate-200 p-8 space-y-6 shadow-sm">
+                <div className="rounded-xl bg-white p-6 space-y-6 shadow-sm ring-1 ring-black/[0.06]">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2 group">
-                      <Label className="text-sm font-medium text-slate-700 mb-2 block group-focus-within:text-circleTel-orange transition-colors">Company Name *</Label>
+                    <div className="md:col-span-2">
+                      <Label className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-2 block" style={{ color: 'var(--pm-navy)' }}>Company name *</Label>
                       <Input
                         placeholder="e.g. Acme Corp"
                         value={formData.companyName}
                         onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-                        className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 h-14 rounded-xl font-bold tracking-wide"
+                        className="h-12 rounded-xl"
                       />
                     </div>
-                    <div className="group">
-                      <Label className="text-sm font-medium text-slate-700 mb-2 block group-focus-within:text-circleTel-orange transition-colors">Contact Person</Label>
+                    <div>
+                      <Label className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-2 block" style={{ color: 'var(--pm-navy)' }}>Contact person</Label>
                       <Input
                         placeholder="Contact Name"
                         value={formData.contactName}
                         onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                        className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 h-14 rounded-xl"
+                        className="h-12 rounded-xl"
                       />
                     </div>
-                    <div className="group">
-                      <Label className="text-sm font-medium text-slate-700 mb-2 block group-focus-within:text-circleTel-orange transition-colors">Email Address</Label>
+                    <div>
+                      <Label className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-2 block" style={{ color: 'var(--pm-navy)' }}>Email</Label>
                       <Input
                         type="email"
                         placeholder="client@company.com"
                         value={formData.email}
                         onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 h-14 rounded-xl"
+                        className="h-12 rounded-xl"
                       />
                     </div>
-                    <div className="group">
-                      <Label className="text-sm font-medium text-slate-700 mb-2 block group-focus-within:text-circleTel-orange transition-colors">Phone Number</Label>
+                    <div>
+                      <Label className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-2 block" style={{ color: 'var(--pm-navy)' }}>Phone</Label>
                       <Input
                         type="tel"
                         placeholder="+27..."
                         value={formData.phone}
                         onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        className="bg-white border-slate-200 text-slate-900 placeholder:text-slate-500 focus:border-circleTel-orange/50 h-14 rounded-xl"
+                        className="h-12 rounded-xl"
                       />
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-slate-200 space-y-6">
+                  <div className="pt-6 space-y-6" style={{ borderTop: '1px solid var(--pm-divider)' }}>
                     <div>
-                      <Label className="text-sm font-medium text-slate-700 mb-4 block">Preferred Contract Term</Label>
+                      <Label className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-4 block" style={{ color: 'var(--pm-navy)' }}>Contract term</Label>
                       <RadioGroup
                         value={formData.contractTerm.toString()}
                         onValueChange={(v) => setFormData(prev => ({ ...prev, contractTerm: parseInt(v) as 12 | 24 | 36 }))}
@@ -1163,46 +1197,43 @@ export function SingleSiteStepper() {
                         {contractTermOptions.map((opt) => (
                           <label
                             key={opt.value}
-                            className={`flex-1 flex items-center justify-center gap-3 p-4 border rounded-lg cursor-pointer transition-all duration-300 ${formData.contractTerm === opt.value
-                              ? 'border-circleTel-orange bg-circleTel-orange/10 text-slate-900'
-                              : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300'
-                              }`}
+                            className="flex-1 flex items-center justify-center gap-3 p-4 border rounded-lg cursor-pointer bg-white"
+                            style={{
+                              borderColor: formData.contractTerm === opt.value ? 'var(--pm-navy)' : '#E5E7EB',
+                              borderBottom: formData.contractTerm === opt.value ? '3px solid var(--pm-accent)' : undefined,
+                            }}
                           >
                             <RadioGroupItem value={opt.value.toString()} className="sr-only" />
-                            <span className="text-xs font-black uppercase tracking-widest">{opt.label}</span>
+                            <span className="text-xs font-extrabold uppercase tracking-wide" style={{ color: 'var(--pm-navy)' }}>{opt.label}</span>
                           </label>
                         ))}
                       </RadioGroup>
                     </div>
 
-                    <div className="flex items-center gap-4 p-4 bg-slate-100 rounded-lg border border-slate-200">
+                    <div className="flex items-center gap-4 p-4 rounded-lg bg-white ring-1 ring-black/[0.06]">
                       <Checkbox
                         id="failover"
                         checked={formData.failover}
                         onCheckedChange={(checked) => setFormData(prev => ({ ...prev, failover: !!checked }))}
-                        className="border-slate-300 data-[state=checked]:bg-circleTel-orange data-[state=checked]:border-circleTel-orange"
                       />
-                      <Label htmlFor="failover" className="text-sm font-medium text-slate-700 cursor-pointer flex items-center gap-2">
-                        <PiShieldBold className="h-4 w-4 text-green-500" />
-                        Redundant Failover Required
+                      <Label htmlFor="failover" className="text-sm font-medium cursor-pointer flex items-center gap-2" style={{ color: 'var(--pm-body)' }}>
+                        <PiShieldBold className="h-4 w-4" />
+                        Redundant failover required
                       </Label>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-8">
-                  <Button variant="ghost" onClick={prevStep} className="text-slate-600 hover:text-slate-900 uppercase tracking-widest text-[10px] font-black">
-                    <PiCaretLeftBold className="h-4 w-4 mr-2" />
+                <div className="flex justify-between items-center pt-4">
+                  <PmButton variant="ghost" onClick={prevStep}>
                     Back to review
-                  </Button>
-                  <Button
+                  </PmButton>
+                  <PmButton
                     onClick={nextStep}
                     disabled={!formData.companyName}
-                    className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-sm disabled:opacity-20 transition-all active:scale-95"
                   >
-                    Confirm Proposal
-                    <PiCaretRightBold className="h-4 w-4 ml-2" />
-                  </Button>
+                    Confirm proposal
+                  </PmButton>
                 </div>
               </motion.div>
             )}
@@ -1218,28 +1249,24 @@ export function SingleSiteStepper() {
               >
                 {generatedQuoteId ? (
                   // Success State
-                  <div className="text-center py-16 bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-green-500 opacity-100" />
-                    <div className="w-20 h-20 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                      <PiCheckCircleBold className="h-10 w-10 text-green-600" />
-                    </div>
-                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-widest leading-tight">Quote Generated</h2>
-                    <p className="text-slate-600 mt-3 font-medium tracking-wide max-w-sm mx-auto">
-                      Automated proposal has been created and synced with the sales pipeline
+                  <div className="text-center py-16 rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06]">
+                    <PiCheckCircleBold className="h-12 w-12 mx-auto mb-6" style={{ color: '#2F9E5E' }} />
+                    <h2 className="text-2xl font-extrabold" style={{ color: 'var(--pm-navy)' }}>Quote generated</h2>
+                    <p className="mt-3 max-w-sm mx-auto text-sm" style={{ color: 'var(--pm-body)' }}>
+                      The proposal is in the sales pipeline
                     </p>
 
                     <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center px-8">
-                      <Button
+                      <PmButton
                         onClick={() => window.open(`/admin/quotes/${generatedQuoteId}`, '_blank')}
-                        className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-sm"
                       >
-                        <PiArrowSquareOutBold className="h-4 w-4 mr-2" />
-                        View Document
-                      </Button>
-                      <Button
-                        variant="outline"
+                        View document
+                      </PmButton>
+                      <PmButton
+                        variant="secondary"
                         onClick={() => {
                           setCurrentStep(1);
+                          setMaxReached(1);
                           setFormData({
                             address: '',
                             coordinates: null,
@@ -1261,109 +1288,93 @@ export function SingleSiteStepper() {
                           setGeneratedQuoteId(null);
                           setMarkerPosition(null);
                         }}
-                        className="border-slate-200 hover:bg-slate-50 text-slate-700 h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px]"
                       >
-                        <PiArrowCounterClockwiseBold className="h-4 w-4 mr-2" />
-                        New Feasibility
-                      </Button>
+                        New feasibility
+                      </PmButton>
                     </div>
                   </div>
                 ) : (
                   // Review State
                   <>
-                    <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
-                      <div className="absolute top-0 left-0 w-full h-1 bg-circleTel-orange opacity-100" />
-                      <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
-                        <PiFileTextBold className="h-6 w-6 text-circleTel-orange" />
-                        Final Review
+                    <div className="rounded-xl bg-white px-6 py-5 shadow-sm ring-1 ring-black/[0.06]">
+                      <p
+                        className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+                        style={{ color: 'var(--pm-navy)' }}
+                      >
+                        Review
+                      </p>
+                      <h2 className="mt-1 text-xl font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                        Final review
                       </h2>
-                      <p className="text-slate-600 mt-2 font-medium tracking-wide">
-                        Validate installation parameters before finalizing
+                      <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
+                        Confirm details before generating the quote
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Summary Section */}
                       <div className="space-y-6">
-                        {/* Location */}
-                        <div className="p-6 bg-white rounded-xl border border-slate-200 flex gap-4 shadow-sm">
-                          <div className="p-2 bg-circleTel-orange/10 rounded-lg h-fit">
-                            <PiMapPinBold className="h-4 w-4 text-circleTel-orange" />
-                          </div>
+                        <div className="p-6 rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] flex gap-4">
+                          <PiMapPinBold className="h-4 w-4 mt-1" style={{ color: 'var(--pm-navy)' }} />
                           <div>
-                            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Site Address</span>
-                            <p className="text-sm font-bold text-slate-900 mt-1 leading-relaxed">{formData.address}</p>
+                            <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Site address</span>
+                            <p className="text-sm font-medium mt-1 leading-relaxed" style={{ color: 'var(--pm-body)' }}>{formData.address}</p>
                           </div>
                         </div>
 
-                        {/* Client */}
-                        <div className="p-6 bg-white rounded-xl border border-slate-200 flex gap-4 shadow-sm">
-                          <div className="p-2 bg-circleTel-orange/10 rounded-lg h-fit">
-                            <PiBuildingsBold className="h-4 w-4 text-circleTel-orange" />
-                          </div>
+                        <div className="p-6 rounded-xl bg-white shadow-sm ring-1 ring-black/[0.06] flex gap-4">
+                          <PiBuildingsBold className="h-4 w-4 mt-1" style={{ color: 'var(--pm-navy)' }} />
                           <div className="flex-1">
-                            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Client Account</span>
-                            <p className="text-sm font-black text-slate-900 mt-1 uppercase tracking-wider">{formData.companyName}</p>
-                            <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-slate-200">
+                            <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Client account</span>
+                            <p className="text-sm font-extrabold mt-1" style={{ color: 'var(--pm-navy)' }}>{formData.companyName}</p>
+                            <div className="grid grid-cols-2 gap-4 mt-3 pt-3" style={{ borderTop: '1px solid var(--pm-divider)' }}>
                               <div>
-                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Contact</span>
-                                <p className="text-[10px] text-slate-700 font-bold">{formData.contactName || 'N/A'}</p>
+                                <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Contact</span>
+                                <p className="text-xs mt-1" style={{ color: 'var(--pm-body)' }}>{formData.contactName || 'N/A'}</p>
                               </div>
                               <div>
-                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Term</span>
-                                <p className="text-[10px] text-slate-700 font-bold">{formData.contractTerm} Months</p>
+                                <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Term</span>
+                                <p className="text-xs mt-1" style={{ color: 'var(--pm-body)' }}>{formData.contractTerm} months</p>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Calculations Section */}
-                      <div className="bg-slate-50 rounded-xl border border-slate-200 p-8 flex flex-col shadow-sm">
-                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6">Commercial Summary</span>
+                      <div className="rounded-xl bg-white p-6 flex flex-col shadow-sm ring-1 ring-black/[0.06]">
+                        <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase mb-6" style={{ color: 'var(--pm-navy)' }}>Commercial summary</span>
 
                         <div className="space-y-4 flex-1">
                           {formData.selectedPackages.map(pkg => (
-                            <div key={pkg.id} className="flex justify-between items-center group">
-                              <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-circleTel-orange" />
-                                <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900 transition-colors capitalize">{pkg.name}</span>
-                              </div>
-                              <span className="text-xs font-black text-slate-900 tracking-widest">{formatPrice(pkg.price)}</span>
+                            <div key={pkg.id} className="flex justify-between items-center">
+                              <span className="text-xs font-medium capitalize" style={{ color: 'var(--pm-body)' }}>{pkg.name}</span>
+                              <span className="text-xs font-extrabold tabular-nums" style={{ color: 'var(--pm-navy)' }}>{formatPrice(pkg.price)}</span>
                             </div>
                           ))}
                         </div>
 
-                        <div className="pt-6 mt-6 border-t border-slate-200 space-y-4">
+                        <div className="pt-6 mt-6 space-y-4" style={{ borderTop: '1px solid var(--pm-divider)' }}>
                           <div className="flex justify-between items-center">
-                            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">VAT (15%)</span>
-                            <span className="text-xs font-black text-slate-700 tracking-widest">{formatPrice(totals.vat)}</span>
+                            <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>VAT (15%)</span>
+                            <span className="text-xs font-extrabold tabular-nums" style={{ color: 'var(--pm-navy)' }}>{formatPrice(totals.vat)}</span>
                           </div>
-                          <div className="flex justify-between items-center bg-white p-4 rounded-lg border border-slate-200">
-                            <span className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em]">Monthly Total</span>
-                            <span className="text-2xl font-black text-circleTel-orange tracking-tighter">{formatPrice(totals.total)}</span>
+                          <div className="flex justify-between items-center p-4 rounded-lg" style={{ background: 'var(--pm-surface)' }}>
+                            <span className="text-[10px] font-extrabold tracking-[0.08em] uppercase" style={{ color: 'var(--pm-navy)' }}>Monthly total</span>
+                            <span className="text-2xl font-extrabold tabular-nums" style={{ color: 'var(--pm-navy)' }}>{formatPrice(totals.total)}</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center pt-10">
-                      <Button variant="ghost" onClick={prevStep} className="text-slate-600 hover:text-slate-900 uppercase tracking-widest text-[10px] font-black">
-                        <PiCaretLeftBold className="h-4 w-4 mr-2" />
+                    <div className="flex justify-between items-center pt-6">
+                      <PmButton variant="ghost" onClick={prevStep}>
                         Edit details
-                      </Button>
-                      <Button
+                      </PmButton>
+                      <PmButton
                         onClick={generateQuote}
                         disabled={isLoading}
-                        className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-16 h-14 rounded-xl font-black uppercase tracking-[.3em] text-[10px] shadow-sm relative group transition-all active:scale-95"
                       >
-                        {isLoading ? (
-                          <PiSpinnerBold className="h-5 w-5 animate-spin mr-3" />
-                        ) : (
-                          <PiLightningBold className="h-4 w-4 mr-3 text-white" />
-                        )}
-                        Finalize Proposal
-                      </Button>
+                        {isLoading ? 'Generating quote…' : 'Generate quote'}
+                      </PmButton>
                     </div>
                   </>
                 )}

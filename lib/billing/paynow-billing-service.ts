@@ -11,13 +11,14 @@ import { nowISO } from '@/lib/dates';
  * Flow:
  * 1. Generate Pay Now URL via NetCash
  * 2. Store transaction reference in invoice for webhook reconciliation
- * 3. Send notification via email AND SMS
+ * 3. Send notification via email, SMS, and WhatsApp (when consented)
  * 4. Update invoice tracking fields
  */
 
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { netcashService } from '@/lib/payments/netcash-service';
 import { clickatellService } from '@/lib/integrations/clickatell/sms-service';
+import { WhatsAppPayNowService } from '@/lib/billing/whatsapp-paynow-service';
 import { billingLogger } from '@/lib/logging';
 import type { CustomerInvoice } from './types';
 
@@ -36,8 +37,10 @@ export interface PayNowNotificationResult {
   success: boolean;
   emailSent: boolean;
   smsSent: boolean;
+  whatsappSent?: boolean;
   emailMessageId?: string;
   smsMessageId?: string;
+  whatsappMessageId?: string;
   errors: string[];
 }
 
@@ -112,17 +115,25 @@ export class PayNowBillingService {
     options: {
       sendEmail?: boolean;
       sendSms?: boolean;
+      sendWhatsApp?: boolean;
       smsTemplate?: 'paymentDue' | 'paymentReminder' | 'debitFailed' | 'emandatePending';
       forceRegenerate?: boolean;
       includeEmandateReminder?: boolean; // Include CTA to complete eMandate setup
+      // A 'debit_order' invoice keeps its collection method unless the caller
+      // explicitly switches it to PayNow (failed debit / no usable mandate).
+      // Without this, sending a PayNow link silently removed invoices from the
+      // submit-debit-orders cron (missed July 2026 collections).
+      allowCollectionMethodOverride?: boolean;
     } = {}
   ): Promise<PayNowProcessResult> {
     const {
       sendEmail = true,
       sendSms = true,
+      sendWhatsApp = true,
       smsTemplate = 'paymentDue',
       forceRegenerate = false,
       includeEmandateReminder = false,
+      allowCollectionMethodOverride = false,
     } = options;
 
     const errors: string[] = [];
@@ -162,7 +173,8 @@ export class PayNowBillingService {
           customer_id,
           paynow_url,
           paynow_transaction_ref,
-          paynow_sent_at
+          paynow_sent_at,
+          payment_collection_method
         `)
         .eq('id', invoiceId)
         .single();
@@ -242,14 +254,20 @@ export class PayNowBillingService {
         paymentUrl = generateResult.paymentUrl;
         transactionRef = generateResult.transactionRef;
 
-        // 4. Store Pay Now details in invoice
+        // 4. Store Pay Now details in invoice.
+        // Never silently downgrade a debit_order invoice to paynow — that hides
+        // it from the debit-order cron. Only an explicit override (failed debit,
+        // unusable mandate, admin action) may switch the collection method.
+        const invoiceUpdate: Record<string, unknown> = {
+          paynow_url: paymentUrl,
+          paynow_transaction_ref: transactionRef,
+        };
+        if (invoiceData.payment_collection_method !== 'debit_order' || allowCollectionMethodOverride) {
+          invoiceUpdate.payment_collection_method = 'paynow';
+        }
         const { error: updateError } = await supabase
           .from('customer_invoices')
-          .update({
-            paynow_url: paymentUrl,
-            paynow_transaction_ref: transactionRef,
-            payment_collection_method: 'paynow',
-          })
+          .update(invoiceUpdate)
           .eq('id', invoiceId);
 
         if (updateError) {
@@ -258,8 +276,8 @@ export class PayNowBillingService {
         }
       }
 
-      // 5. Send notifications
-      if ((sendEmail || sendSms) && paymentUrl) {
+      // 5. Send notifications (email / SMS / WhatsApp)
+      if ((sendEmail || sendSms || sendWhatsApp) && paymentUrl) {
         // Handle Supabase join returning customer as array
         const customerData = Array.isArray(invoice.customer)
           ? invoice.customer[0]
@@ -282,10 +300,56 @@ export class PayNowBillingService {
           }
         );
 
+        // WhatsApp after Pay Now URL/ref is stored — soft-fail (consent/phone/config)
+        // so email/SMS success is not blocked.
+        let whatsappSent = false;
+        let whatsappMessageId: string | undefined;
+        if (sendWhatsApp && transactionRef) {
+          try {
+            const waResult = await WhatsAppPayNowService.sendPayNowWhatsApp(
+              invoiceId,
+              'invoice_payment',
+              { createdBy: 'paynow-billing' }
+            );
+            if (waResult.whatsappSent) {
+              whatsappSent = true;
+              whatsappMessageId = waResult.messageId;
+              billingLogger.info('PayNow: WhatsApp sent', {
+                invoiceId,
+                messageId: whatsappMessageId,
+              });
+            } else if (waResult.error) {
+              billingLogger.info('PayNow: WhatsApp skipped or failed (soft)', {
+                invoiceId,
+                error: waResult.error,
+              });
+              notificationResult.errors.push(`WhatsApp: ${waResult.error}`);
+            }
+          } catch (waError) {
+            const waMsg = waError instanceof Error ? waError.message : 'WhatsApp send failed';
+            billingLogger.error('PayNow: WhatsApp unexpected error (soft)', {
+              invoiceId,
+              error: waMsg,
+            });
+            notificationResult.errors.push(`WhatsApp error: ${waMsg}`);
+          }
+        }
+
+        notificationResult = {
+          ...notificationResult,
+          whatsappSent,
+          whatsappMessageId,
+          success:
+            notificationResult.emailSent ||
+            notificationResult.smsSent ||
+            whatsappSent,
+        };
+
         // Update invoice with notification tracking
         const sentVia: string[] = [];
         if (notificationResult.emailSent) sentVia.push('email');
         if (notificationResult.smsSent) sentVia.push('sms');
+        if (whatsappSent) sentVia.push('whatsapp');
 
         if (sentVia.length > 0) {
           await supabase
@@ -297,7 +361,10 @@ export class PayNowBillingService {
             .eq('id', invoiceId);
         }
 
-        errors.push(...notificationResult.errors);
+        // Hard failures only: email/SMS channel errors (not WhatsApp soft skips)
+        errors.push(
+          ...notificationResult.errors.filter((e) => !e.startsWith('WhatsApp'))
+        );
       }
 
       const success = errors.length === 0;
@@ -308,6 +375,7 @@ export class PayNowBillingService {
         success,
         emailSent: notificationResult?.emailSent,
         smsSent: notificationResult?.smsSent,
+        whatsappSent: notificationResult?.whatsappSent,
         errorsCount: errors.length,
       });
 

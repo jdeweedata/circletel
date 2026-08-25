@@ -31,7 +31,7 @@ const RELATIONSHIP_TYPES: ProductRelationshipType[] = [
 
 /**
  * Relationships panel for service_packages products.
- * Mounted in UnifiedProductDetailSidebar's detail tabs.
+ * Mounted on the unified product detail page for service_packages.
  */
 export function RelationshipsPanel({ productId }: { productId: string }) {
   const [relationships, setRelationships] = useState<{

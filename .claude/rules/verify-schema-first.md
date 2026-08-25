@@ -2,6 +2,9 @@
 
 **Trigger**: Starting any database or API integration work
 **Source**: 3+ sessions (cpq-schema-patterns, netcash-paynow, partner-package-display)
+**See also**: `data-model.md` — SoR vs working store, generated types, additive migrations
+
+The TypeScript contract is `lib/types/database.generated.ts` (re-exported from `lib/types/database.types.ts`). After a migration run `npm run types:generate`. Before committing schema work run `npm run types:check`.
 
 ## Pattern
 

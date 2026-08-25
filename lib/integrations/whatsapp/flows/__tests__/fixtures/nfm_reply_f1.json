@@ -1,0 +1,14 @@
+{
+  "from": "27821234567",
+  "id": "wamid.HBgNMjc4MjEyMzQ1NjcVAgASGBQzQUFBQUFBQUFBQUFBQUFBQUE=",
+  "timestamp": "1753900800",
+  "type": "interactive",
+  "interactive": {
+    "type": "nfm_reply",
+    "nfm_reply": {
+      "name": "flow",
+      "body": "Sent",
+      "response_json": "{\"flow_token\":\"f1-token-happy-path-0001\",\"first_name\":\"Thabo\",\"last_name\":\"Molefe\",\"customer_type\":\"consumer\",\"email\":\"thabo.molefe@example.com\",\"phone\":\"\",\"company_name\":\"\",\"address\":\"12 Main Road\",\"suburb\":\"Sandton\",\"city\":\"Johannesburg\",\"province\":\"Gauteng\",\"service_interest\":\"fibre\",\"speed\":\"100Mbps\",\"budget_range\":\"R500-R1000\",\"contact_preference\":\"whatsapp\",\"best_contact_time\":\"morning\",\"popia_optin\":true}"
+    }
+  }
+}

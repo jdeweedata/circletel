@@ -16,6 +16,7 @@ import {
   PiWifiHighBold,
   PiWarningCircleBold,
   PiCaretRightBold,
+  PiFileTextBold,
 } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -298,9 +299,19 @@ export default function SiteEditPage() {
               </Badge>
             )}
           </div>
-          {site.pppoeUsername && (
-            <span className="font-mono text-sm text-slate-500">{site.pppoeUsername}</span>
-          )}
+          <div className="flex items-center gap-3">
+            {site.pppoeUsername && (
+              <span className="font-mono text-sm text-slate-500">{site.pppoeUsername}</span>
+            )}
+            <Button asChild variant="outline">
+              <Link
+                href={`/admin/network/usage-reports?siteId=${encodeURIComponent(siteId)}&unjani=1`}
+              >
+                <PiFileTextBold className="mr-2 h-4 w-4" />
+                Generate usage report
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 

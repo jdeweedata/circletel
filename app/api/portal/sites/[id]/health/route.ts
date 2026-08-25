@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession } from '@/lib/supabase/server';
+import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 
 export async function GET(
   request: NextRequest,
@@ -7,17 +7,21 @@ export async function GET(
 ) {
   const { id } = await context.params;
   const range = request.nextUrl.searchParams.get('range') ?? '7d';
-  const supabase = await createClientWithSession();
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requirePortalCapability('sites.read');
+  if (!auth.ok) return auth.response;
+
+  const { portalUser, adminDb } = auth;
+
+  if (portalUser.role === 'site_user' && portalUser.site_id !== id) {
+    return NextResponse.json({ error: 'Site not found' }, { status: 404 });
   }
 
-  const { data: site, error: siteError } = await supabase
+  const { data: site, error: siteError } = await adminDb
     .from('corporate_sites')
     .select('ruijie_device_sn')
     .eq('id', id)
+    .eq('corporate_id', portalUser.organisation_id)
     .maybeSingle();
 
   if (siteError || !site) {
@@ -27,6 +31,8 @@ export async function GET(
   if (!site.ruijie_device_sn) {
     return NextResponse.json({
       timeseries: [],
+      range,
+      device_sn: null,
       message: 'Automated monitoring not available for this site',
     });
   }
@@ -35,12 +41,12 @@ export async function GET(
   const since = new Date();
   since.setDate(since.getDate() - days);
 
-  const { data: snapshots, error } = await supabase
+  const { data: snapshots, error } = await adminDb
     .from('device_health_snapshots')
-    .select('health_score, connected_clients, created_at')
+    .select('health_score, online_clients, captured_at')
     .eq('device_sn', site.ruijie_device_sn)
-    .gte('created_at', since.toISOString())
-    .order('created_at', { ascending: true });
+    .gte('captured_at', since.toISOString())
+    .order('captured_at', { ascending: true });
 
   if (error) {
     console.error('[Portal /sites/[id]/health] Query error:', error.message);

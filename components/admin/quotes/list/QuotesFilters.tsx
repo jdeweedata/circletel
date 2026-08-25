@@ -2,6 +2,7 @@
 
 import { PiMagnifyingGlassBold } from 'react-icons/pi';
 import { Input } from '@/components/ui/input';
+import { FilterChips } from '@/components/portal/modernist/PortalModernistShell';
 
 interface QuotesFiltersProps {
   searchTerm: string;
@@ -10,6 +11,19 @@ interface QuotesFiltersProps {
   onStatusFilterChange: (value: string) => void;
 }
 
+const STATUS_OPTIONS = [
+  { value: 'open', label: 'Active' },
+  { value: 'all', label: 'All' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'pending_approval', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'sent', label: 'Sent' },
+  { value: 'viewed', label: 'Viewed' },
+  { value: 'accepted', label: 'Accepted' },
+  { value: 'rejected', label: 'Rejected' },
+  { value: 'expired', label: 'Expired' },
+];
+
 export function QuotesFilters({
   searchTerm,
   onSearchChange,
@@ -17,35 +31,29 @@ export function QuotesFilters({
   onStatusFilterChange,
 }: QuotesFiltersProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
-      <div className="flex-1 relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <PiMagnifyingGlassBold className="h-5 w-5 text-slate-400" />
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <FilterChips
+        options={STATUS_OPTIONS}
+        value={statusFilter}
+        onChange={onStatusFilterChange}
+      />
+
+      <div className="relative w-full max-w-md">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <PiMagnifyingGlassBold className="h-4 w-4" style={{ color: '#9CA3AF' }} />
         </div>
         <Input
           type="text"
-          placeholder="Search quotes by company, email, or number..."
+          placeholder="Search company, email, or quote number…"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 h-10 border-slate-200 focus:ring-primary focus:border-primary shadow-sm rounded-lg w-full"
+          className="h-11 w-full rounded-none border-2 pl-10 shadow-none"
+          style={{
+            borderColor: 'var(--pm-divider)',
+            color: 'var(--pm-navy)',
+          }}
         />
       </div>
-
-      <select
-        value={statusFilter}
-        onChange={(e) => onStatusFilterChange(e.target.value)}
-        className="h-10 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary focus:bg-white outline-none sm:w-48 transition-colors cursor-pointer"
-      >
-        <option value="all">All Statuses</option>
-        <option value="draft">Draft</option>
-        <option value="pending_approval">Pending Approval</option>
-        <option value="approved">Approved</option>
-        <option value="sent">Sent</option>
-        <option value="viewed">Viewed</option>
-        <option value="accepted">Accepted</option>
-        <option value="rejected">Rejected</option>
-        <option value="expired">Expired</option>
-      </select>
     </div>
   );
 }

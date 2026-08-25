@@ -73,6 +73,10 @@
       "maxDuration": 120,
       "memory": 512
     },
+    "app/api/cron/ruijie-sync-health/route.ts": {
+      "maxDuration": 60,
+      "memory": 512
+    },
     "app/api/cron/payment-sync-monitor/route.ts": {
       "maxDuration": 60,
       "memory": 512
@@ -133,6 +137,10 @@
       "maxDuration": 300,
       "memory": 512
     },
+    "app/api/cron/three-way-bank-match/route.ts": {
+      "maxDuration": 600,
+      "memory": 1024
+    },
     "app/api/partners/feasibility/create/route.ts": {
       "maxDuration": 30,
       "memory": 512
@@ -144,13 +152,13 @@
     "app/api/partners/feasibility/history/route.ts": {
       "maxDuration": 15,
       "memory": 256
+    },
+    "app/api/cron/tarana-metrics/route.ts": {
+      "maxDuration": 120,
+      "memory": 512
     }
   },
   "crons": [
-    {
-      "path": "/api/cron/generate-invoices",
-      "schedule": "0 0 * * *"
-    },
     {
       "path": "/api/cron/supplier-sync",
       "schedule": "0 0 * * *"
@@ -188,6 +196,10 @@
       "schedule": "0 */4 * * *"
     },
     {
+      "path": "/api/cron/ruijie-sync-health",
+      "schedule": "20 */4 * * *"
+    },
+    {
       "path": "/api/cron/payment-sync-monitor",
       "schedule": "0 2,6,10,14,18,22 * * *"
     },
@@ -221,11 +233,7 @@
     },
     {
       "path": "/api/cron/generate-monthly-invoices",
-      "schedule": "0 4 1 * *"
-    },
-    {
-      "path": "/api/cron/generate-invoices-25th",
-      "schedule": "0 4 25 * *"
+      "schedule": "0 4 * * *"
     },
     {
       "path": "/api/cron/paynow-reconciliation",
@@ -238,6 +246,22 @@
     {
       "path": "/api/cron/zoho-books-retry",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/three-way-bank-match",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/tarana-metrics",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/lead-followup-sla",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/new-signup-followup",
+      "schedule": "30 6 * * *"
     }
   ]
 }

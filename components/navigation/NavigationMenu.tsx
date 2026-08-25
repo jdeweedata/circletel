@@ -122,7 +122,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
   };
 
   return (
-    <nav className={cn('hidden md:flex items-center gap-1', className)}>
+    <nav className={cn('hidden lg:flex items-center gap-1', className)}>
       <NavDropdown
         label="Managed IT"
         items={managedITItems}

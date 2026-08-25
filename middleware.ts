@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
     return adminAuthResult.redirectResponse;
   }
 
-  // Step 3.5: Handle B2B portal route authentication
+  // Step 3.5: Unjani Connect (/unjani) authentication
   const portalAuthResult = await handlePortalAuth(request, supabase);
   if (portalAuthResult.shouldRedirect && portalAuthResult.redirectResponse) {
     return portalAuthResult.redirectResponse;
@@ -61,9 +61,10 @@ export const config = {
      * Match all request paths except for:
      * - _next/static (static files)
      * - _next/image (image optimization files)
+     * - images (public/images assets)
      * - favicon.ico (favicon file)
      * - Static assets (svg, png, jpg, jpeg, gif, webp)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|images|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
+  /** Optional uppercase kicker above the title. Unused on /dashboard today. */
+  eyebrow?: string;
   /** Right-aligned actions (buttons, filters). Stacks below title on mobile. */
   actions?: React.ReactNode;
   className?: string;
@@ -15,15 +17,21 @@ interface PageHeaderProps {
  * every admin and consumer page opens the same way. For detail pages with
  * breadcrumbs + status, use DetailPageHeader instead.
  */
-export function PageHeader({ title, subtitle, actions, className }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, eyebrow, actions, className }: PageHeaderProps) {
   return (
     <div
+      data-pm="page-header"
       className={cn(
         'mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
         className
       )}
     >
       <div>
+        {eyebrow && (
+          <p data-pm="page-eyebrow" className="text-xs font-semibold uppercase text-gray-500 mb-2">
+            {eyebrow}
+          </p>
+        )}
         <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
         {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
       </div>

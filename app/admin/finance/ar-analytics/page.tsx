@@ -1,18 +1,26 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCalendarBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMinusBold, PiPulseBold, PiTargetBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
+import { useEffect, useState } from 'react';
+import { PiArrowsClockwiseBold, PiClockBold, PiCurrencyDollarBold, PiPulseBold, PiTargetBold } from 'react-icons/pi';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   AdminPage,
-  PageHeader,
-  StatCard,
-  SectionCard,
-  StatusBadge,
   LoadingState,
-  EmptyState,
   ErrorState,
-  type StatusVariant,
+  Tabs,
+  ConsoleTabsList,
+  ConsoleTabsContent,
 } from '@/components/backend';
-
+import { HealthCard, formatRand } from '@/components/admin/billing/health';
+import {
+  ArAgingPanel,
+  DsoMetricsPanel,
+  HistoryPanel,
+  NotificationsPanel,
+  type ARAnalyticsData,
+} from '@/components/admin/finance/ar';
 
 /**
  * AR Analytics Dashboard
@@ -24,121 +32,6 @@ import {
  * - Notification tracking and effectiveness
  * - Collection performance
  */
-
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  Legend,
-  AreaChart,
-  Area,
-} from 'recharts';
-
-// Types
-interface ARAnalyticsData {
-  ar_aging: {
-    total_outstanding_invoices: number;
-    total_outstanding_amount: number;
-    current_count: number;
-    current_amount: number;
-    overdue_1_30_count: number;
-    overdue_1_30_amount: number;
-    overdue_31_60_count: number;
-    overdue_31_60_amount: number;
-    overdue_61_90_count: number;
-    overdue_61_90_amount: number;
-    overdue_90_plus_count: number;
-    overdue_90_plus_amount: number;
-    avg_days_overdue: number;
-  };
-  dso: {
-    dso_current: number;
-    dso_30_day_avg: number;
-    dso_trend: 'improving' | 'stable' | 'worsening';
-    best_possible_dso: number;
-    collection_effectiveness_index: number;
-  };
-  collection: {
-    total_notifications_sent: number;
-    total_amount_collected: number;
-    collection_rate: number;
-    avg_days_to_payment: number;
-    response_rate: number;
-  };
-  notifications: {
-    total_sms: number;
-    total_email: number;
-    total_delivered: number;
-    total_failed: number;
-    delivery_rate: number;
-  };
-  daily_analytics: Array<{
-    date: string;
-    notification_type: string;
-    total_sent: number;
-    delivered: number;
-    failed: number;
-    total_amount_notified: number;
-  }>;
-  recent_notifications: Array<{
-    id: string;
-    invoice_number: string;
-    notification_type: string;
-    recipient: string;
-    status: string;
-    amount_due: number;
-    days_overdue: number;
-    created_at: string;
-  }>;
-  historical: Array<{
-    snapshot_date: string;
-    total_outstanding: number;
-    dso_current: number;
-    sms_sent_count: number;
-    email_sent_count: number;
-    payments_received_amount: number;
-  }> | null;
-}
-
-const COLORS = {
-  current: '#22c55e',
-  overdue_1_30: '#eab308',
-  overdue_31_60: '#f97316',
-  overdue_61_90: '#ef4444',
-  overdue_90_plus: '#991b1b',
-  sms: '#3b82f6',
-  email: '#8b5cf6',
-};
 
 export default function ARAnalyticsPage() {
   const [data, setData] = useState<ARAnalyticsData | null>(null);
@@ -170,49 +63,6 @@ export default function ARAnalyticsPage() {
     fetchData();
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-ZA', {
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'improving':
-        return <PiTrendDownBold className="h-4 w-4 text-green-500" />;
-      case 'worsening':
-        return <PiTrendUpBold className="h-4 w-4 text-red-500" />;
-      default:
-        return <PiMinusBold className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  const NOTIF_STATUS_VARIANT: Record<string, StatusVariant> = {
-    sent: 'success',
-    delivered: 'success',
-    failed: 'error',
-    bounced: 'error',
-    opened: 'info',
-    clicked: 'info',
-  };
-  const getStatusBadge = (status: string) => {
-    const label =
-      status === 'sent' || status === 'delivered'
-        ? 'Delivered'
-        : status.charAt(0).toUpperCase() + status.slice(1);
-    return <StatusBadge status={label} variant={NOTIF_STATUS_VARIANT[status] ?? 'neutral'} />;
-  };
-
   if (loading) {
     return (
       <AdminPage>
@@ -229,497 +79,123 @@ export default function ARAnalyticsPage() {
     );
   }
 
-  // Prepare chart data
-  const agingChartData = [
-    { name: 'Current', amount: data.ar_aging.current_amount, count: data.ar_aging.current_count, fill: COLORS.current },
-    { name: '1-30 Days', amount: data.ar_aging.overdue_1_30_amount, count: data.ar_aging.overdue_1_30_count, fill: COLORS.overdue_1_30 },
-    { name: '31-60 Days', amount: data.ar_aging.overdue_31_60_amount, count: data.ar_aging.overdue_31_60_count, fill: COLORS.overdue_31_60 },
-    { name: '61-90 Days', amount: data.ar_aging.overdue_61_90_amount, count: data.ar_aging.overdue_61_90_count, fill: COLORS.overdue_61_90 },
-    { name: '90+ Days', amount: data.ar_aging.overdue_90_plus_amount, count: data.ar_aging.overdue_90_plus_count, fill: COLORS.overdue_90_plus },
-  ];
-
-  const notificationPieData = [
-    { name: 'SMS', value: data.notifications.total_sms, fill: COLORS.sms },
-    { name: 'Email', value: data.notifications.total_email, fill: COLORS.email },
-  ];
-
   return (
     <AdminPage>
-      <PageHeader
-        title="AR Analytics & Collections"
-        subtitle="Accounts Receivable, DSO tracking, and notification effectiveness"
-        actions={
-          <div className="flex items-center gap-2">
-            <Select value={period} onValueChange={setPeriod}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7">7 Days</SelectItem>
-                <SelectItem value="30">30 Days</SelectItem>
-                <SelectItem value="60">60 Days</SelectItem>
-                <SelectItem value="90">90 Days</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="icon" onClick={handleRefresh} disabled={refreshing}>
-              <PiArrowsClockwiseBold className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            </Button>
-          </div>
-        }
-      />
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Outstanding */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <PiCurrencyDollarBold className="h-4 w-4" />
-              Total Outstanding
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {formatCurrency(data.ar_aging.total_outstanding_amount)}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {data.ar_aging.total_outstanding_invoices} invoices
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* DSO */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <PiClockBold className="h-4 w-4" />
-              Days Sales Outstanding
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">{data.dso.dso_current.toFixed(1)}</span>
-              {getTrendIcon(data.dso.dso_trend)}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              30-day avg: {data.dso.dso_30_day_avg.toFixed(1)} days
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Collection Rate */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <PiTargetBold className="h-4 w-4" />
-              Collection Rate
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {data.collection.collection_rate.toFixed(1)}%
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {formatCurrency(data.collection.total_amount_collected)} collected
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Notifications Sent */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-              <PiPulseBold className="h-4 w-4" />
-              Notifications Sent
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {data.notifications.total_sms + data.notifications.total_email}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {data.notifications.delivery_rate.toFixed(1)}% delivery rate
-            </p>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <p className="text-xs text-slate-400 mb-1">Finance / Receivables / AR Analytics</p>
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
+            AR Analytics &amp; Collections
+          </h1>
+          <p className="text-slate-500 mt-1 text-sm">
+            Accounts Receivable, DSO tracking, and notification effectiveness
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-[140px] rounded-lg border-slate-200" aria-label="Reporting period">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Last 7 days</SelectItem>
+              <SelectItem value="30">Last 30 days</SelectItem>
+              <SelectItem value="60">Last 60 days</SelectItem>
+              <SelectItem value="90">Last 90 days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
-      {/* Tabs */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
+          Supabase AR snapshot
+        </Badge>
+        <span className="text-xs text-slate-400">Last {period} days</span>
+        <span className="text-xs text-slate-500">
+          {data.ar_aging.total_outstanding_invoices} open invoices ·{' '}
+          {formatRand(data.ar_aging.total_outstanding_amount)} outstanding
+        </span>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <HealthCard
+          label="Total Outstanding"
+          value={formatRand(data.ar_aging.total_outstanding_amount)}
+          primaryLine={`${data.ar_aging.total_outstanding_invoices} open invoices`}
+          primaryClassName="text-orange-500"
+          secondaryLine="Accounts receivable balance"
+          icon={<PiCurrencyDollarBold className="h-5 w-5" />}
+          iconClassName="bg-orange-50 text-orange-500"
+        />
+        <HealthCard
+          label="Days Sales Outstanding"
+          value={data.dso.dso_current.toFixed(1)}
+          primaryLine={data.dso.dso_trend.charAt(0).toUpperCase() + data.dso.dso_trend.slice(1)}
+          primaryClassName={
+            data.dso.dso_trend === 'improving'
+              ? 'text-teal-600'
+              : data.dso.dso_trend === 'worsening'
+                ? 'text-red-600'
+                : undefined
+          }
+          secondaryLine={`30-day avg: ${data.dso.dso_30_day_avg.toFixed(1)} days`}
+          icon={<PiClockBold className="h-5 w-5" />}
+          iconClassName="bg-slate-100 text-slate-600"
+        />
+        <HealthCard
+          label="Collection Rate"
+          value={`${data.collection.collection_rate.toFixed(1)}%`}
+          primaryLine={`${formatRand(data.collection.total_amount_collected)} collected`}
+          primaryClassName="text-teal-600"
+          secondaryLine={`Last ${period} days`}
+          icon={<PiTargetBold className="h-5 w-5" />}
+          iconClassName="bg-teal-50 text-teal-600"
+        />
+        <HealthCard
+          label="Notifications Sent"
+          value={`${data.notifications.total_sms + data.notifications.total_email}`}
+          primaryLine={`${data.notifications.delivery_rate.toFixed(1)}% delivery rate`}
+          primaryClassName="text-blue-600"
+          secondaryLine="SMS & email reminders"
+          icon={<PiPulseBold className="h-5 w-5" />}
+          iconClassName="bg-blue-50 text-blue-600"
+        />
+      </div>
+
       <Tabs defaultValue="aging" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="aging">AR Aging</TabsTrigger>
-          <TabsTrigger value="dso">DSO & Metrics</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-        </TabsList>
-
-        {/* AR Aging Tab */}
-        <TabsContent value="aging" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Aging Bar Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>AR Aging Breakdown</CardTitle>
-                <CardDescription>Outstanding amounts by aging bucket</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={agingChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis tickFormatter={(v) => `R${(v / 1000).toFixed(0)}k`} />
-                    <Tooltip
-                      formatter={(value: number) => [formatCurrency(value), 'Amount']}
-                    />
-                    <Bar dataKey="amount" radius={[4, 4, 0, 0]}>
-                      {agingChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Aging Table */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Aging Summary</CardTitle>
-                <CardDescription>Invoice counts and amounts by bucket</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Bucket</TableHead>
-                      <TableHead className="text-right">Invoices</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
-                      <TableHead className="text-right">%</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {agingChartData.map((bucket) => (
-                      <TableRow key={bucket.name}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: bucket.fill }}
-                            />
-                            {bucket.name}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">{bucket.count}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(bucket.amount)}</TableCell>
-                        <TableCell className="text-right">
-                          {data.ar_aging.total_outstanding_amount > 0
-                            ? ((bucket.amount / data.ar_aging.total_outstanding_amount) * 100).toFixed(1)
-                            : 0}%
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow className="font-bold">
-                      <TableCell>Total</TableCell>
-                      <TableCell className="text-right">{data.ar_aging.total_outstanding_invoices}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(data.ar_aging.total_outstanding_amount)}</TableCell>
-                      <TableCell className="text-right">100%</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* DSO & Metrics Tab */}
-        <TabsContent value="dso" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Current DSO</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">{data.dso.dso_current.toFixed(1)}</div>
-                <p className="text-muted-foreground">days</p>
-                <div className="mt-4 flex items-center gap-2">
-                  {getTrendIcon(data.dso.dso_trend)}
-                  <span className="text-sm capitalize">{data.dso.dso_trend}</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Best Possible DSO</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-green-600">{data.dso.best_possible_dso.toFixed(1)}</div>
-                <p className="text-muted-foreground">days</p>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Gap: {(data.dso.dso_current - data.dso.best_possible_dso).toFixed(1)} days
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Collection Effectiveness</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-blue-600">{data.dso.collection_effectiveness_index.toFixed(1)}%</div>
-                <p className="text-muted-foreground">CEI</p>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Target: 80%+
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Collection Performance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold">{data.collection.total_notifications_sent}</div>
-                  <p className="text-sm text-muted-foreground">Notifications Sent</p>
-                </div>
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold">{formatCurrency(data.collection.total_amount_collected)}</div>
-                  <p className="text-sm text-muted-foreground">Amount Collected</p>
-                </div>
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold">{data.collection.avg_days_to_payment.toFixed(1)}</div>
-                  <p className="text-sm text-muted-foreground">Avg Days to Payment</p>
-                </div>
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold">{data.collection.response_rate.toFixed(1)}%</div>
-                  <p className="text-sm text-muted-foreground">Response Rate</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Notifications Tab */}
-        <TabsContent value="notifications" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Notification Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Channels</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={notificationPieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={40}
-                      outerRadius={80}
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ${value}`}
-                    >
-                      {notificationPieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="flex justify-center gap-4 mt-4">
-                  <div className="flex items-center gap-2">
-                    <PiChatBold className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm">SMS: {data.notifications.total_sms}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <PiEnvelopeBold className="h-4 w-4 text-purple-500" />
-                    <span className="text-sm">Email: {data.notifications.total_email}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Delivery Stats */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Delivery Statistics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                    <PiCheckCircleBold className="h-6 w-6 mx-auto text-green-500 mb-2" />
-                    <div className="text-xl font-bold">{data.notifications.total_delivered}</div>
-                    <p className="text-sm text-muted-foreground">Delivered</p>
-                  </div>
-                  <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
-                    <PiXCircleBold className="h-6 w-6 mx-auto text-red-500 mb-2" />
-                    <div className="text-xl font-bold">{data.notifications.total_failed}</div>
-                    <p className="text-sm text-muted-foreground">Failed</p>
-                  </div>
-                  <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                    <PiPulseBold className="h-6 w-6 mx-auto text-blue-500 mb-2" />
-                    <div className="text-xl font-bold">{data.notifications.delivery_rate.toFixed(1)}%</div>
-                    <p className="text-sm text-muted-foreground">Delivery Rate</p>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-                    <PiCalendarBold className="h-6 w-6 mx-auto text-purple-500 mb-2" />
-                    <div className="text-xl font-bold">{data.ar_aging.avg_days_overdue.toFixed(0)}</div>
-                    <p className="text-sm text-muted-foreground">Avg Days Overdue</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Notifications Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Notifications</CardTitle>
-              <CardDescription>Last 20 notifications sent</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Invoice</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Recipient</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Days Overdue</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Sent</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.recent_notifications.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                        No notifications sent yet
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    data.recent_notifications.map((notif) => (
-                      <TableRow key={notif.id}>
-                        <TableCell className="font-medium">{notif.invoice_number}</TableCell>
-                        <TableCell>
-                          {notif.notification_type === 'sms' ? (
-                            <Badge variant="outline" className="gap-1">
-                              <PiChatBold className="h-3 w-3" /> SMS
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="gap-1">
-                              <PiEnvelopeBold className="h-3 w-3" /> Email
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="max-w-[150px] truncate">{notif.recipient}</TableCell>
-                        <TableCell>{formatCurrency(notif.amount_due)}</TableCell>
-                        <TableCell>{notif.days_overdue} days</TableCell>
-                        <TableCell>{getStatusBadge(notif.status)}</TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {new Date(notif.created_at).toLocaleString('en-ZA')}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* History Tab */}
-        <TabsContent value="history" className="space-y-4">
-          {data.historical && data.historical.length > 0 ? (
-            <>
-              <Card>
-                <CardHeader>
-                  <CardTitle>AR & DSO Trend</CardTitle>
-                  <CardDescription>Historical outstanding amount and DSO</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={data.historical}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="snapshot_date" tickFormatter={formatDate} />
-                      <YAxis yAxisId="left" tickFormatter={(v) => `R${(v / 1000).toFixed(0)}k`} />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip
-                        formatter={(value: number, name: string) => [
-                          name === 'total_outstanding' ? formatCurrency(value) : value.toFixed(1),
-                          name === 'total_outstanding' ? 'Outstanding' : 'DSO',
-                        ]}
-                        labelFormatter={formatDate}
-                      />
-                      <Legend />
-                      <Area
-                        yAxisId="left"
-                        type="monotone"
-                        dataKey="total_outstanding"
-                        name="Outstanding"
-                        stroke="#F5831F"
-                        fill="#F5831F"
-                        fillOpacity={0.3}
-                      />
-                      <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="dso_current"
-                        name="DSO"
-                        stroke="#3b82f6"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notifications & Collections</CardTitle>
-                  <CardDescription>Daily notification activity and payments received</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={data.historical}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="snapshot_date" tickFormatter={formatDate} />
-                      <YAxis yAxisId="left" />
-                      <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `R${(v / 1000).toFixed(0)}k`} />
-                      <Tooltip labelFormatter={formatDate} />
-                      <Legend />
-                      <Bar yAxisId="left" dataKey="sms_sent_count" name="SMS" fill={COLORS.sms} />
-                      <Bar yAxisId="left" dataKey="email_sent_count" name="Email" fill={COLORS.email} />
-                      <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="payments_received_amount"
-                        name="Payments"
-                        stroke="#22c55e"
-                        strokeWidth={2}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </>
-          ) : (
-            <Card>
-              <CardContent className="py-10 text-center">
-                <PiCalendarBold className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No historical data available yet</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Historical snapshots are created daily by the system
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
+        <ConsoleTabsList
+          items={[
+            { value: 'aging', label: 'AR Aging' },
+            { value: 'dso', label: 'DSO & Metrics' },
+            { value: 'notifications', label: 'Notifications' },
+            { value: 'history', label: 'History' },
+          ]}
+        />
+        <ConsoleTabsContent value="aging">
+          <ArAgingPanel data={data} />
+        </ConsoleTabsContent>
+        <ConsoleTabsContent value="dso">
+          <DsoMetricsPanel data={data} />
+        </ConsoleTabsContent>
+        <ConsoleTabsContent value="notifications">
+          <NotificationsPanel data={data} />
+        </ConsoleTabsContent>
+        <ConsoleTabsContent value="history">
+          <HistoryPanel data={data} />
+        </ConsoleTabsContent>
       </Tabs>
+
+      <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-slate-500">
+        <span className="inline-flex items-center gap-2">
+          <PiClockBold className="w-4 h-4" aria-hidden="true" />
+          {refreshing ? 'Refreshing…' : `AR snapshot · last ${period} days`}
+        </span>
+      </div>
     </AdminPage>
   );
 }

@@ -204,7 +204,7 @@ export default function EditProductPage() {
         toast({
           variant: 'destructive',
           title: 'Error',
-          description: error.message || 'Failed to load product',
+          description: error instanceof Error ? error.message : 'Failed to load product',
         });
         router.push('/admin/products');
       } finally {
@@ -291,7 +291,7 @@ export default function EditProductPage() {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: error.message || 'Failed to update product',
+        description: error instanceof Error ? error.message : 'Failed to update product',
       });
     } finally {
       setSaving(false);

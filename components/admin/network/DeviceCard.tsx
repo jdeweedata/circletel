@@ -1,25 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { PiWifiHighBold, PiWifiSlashBold } from 'react-icons/pi';
+import { PiWifiHighBold, PiWifiSlashBold, PiUserPlusBold } from 'react-icons/pi';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { DeviceActionsMenu } from './DeviceActionsMenu';
-
-interface RuijieDevice {
-  sn: string;
-  device_name: string;
-  model: string | null;
-  group_name: string | null;
-  management_ip: string | null;
-  online_clients: number;
-  cpu_usage?: number | null;
-  memory_usage?: number | null;
-  status: string;
-  config_status: string | null;
-  synced_at: string;
-  mock_data: boolean;
-}
+import type { RuijieListDevice } from './DeviceTable';
 
 function formatPct(value: number | null | undefined): string {
   if (value == null || Number.isNaN(value)) return '—';
@@ -27,9 +14,10 @@ function formatPct(value: number | null | undefined): string {
 }
 
 interface DeviceCardProps {
-  device: RuijieDevice;
+  device: RuijieListDevice;
   tunnelLimitReached: boolean;
-  onReboot: (device: RuijieDevice) => void;
+  onReboot: (device: RuijieListDevice) => void;
+  onLinkCustomer?: (device: RuijieListDevice) => void;
   formatRelativeTime: (date: string) => string;
 }
 
@@ -37,10 +25,12 @@ export function DeviceCard({
   device,
   tunnelLimitReached,
   onReboot,
+  onLinkCustomer,
   formatRelativeTime,
 }: DeviceCardProps) {
   const isOnline = device.status === 'online';
   const StatusIcon = isOnline ? PiWifiHighBold : PiWifiSlashBold;
+  const unlinked = !device.customer_order_id && !device.corporate_site_id;
 
   return (
     <div
@@ -75,11 +65,40 @@ export function DeviceCard({
           deviceName={device.device_name}
           isOnline={isOnline}
           tunnelLimitReached={tunnelLimitReached}
+          isUnlinked={unlinked}
           onReboot={() => onReboot(device)}
+          onLinkCustomer={onLinkCustomer ? () => onLinkCustomer(device) : undefined}
         />
       </div>
       <div className="mt-2 text-sm text-slate-500">
         {device.model || 'Unknown'} · {device.group_name || 'No group'}
+      </div>
+      <div className="mt-1 flex items-center gap-2 flex-wrap">
+        {unlinked ? (
+          <>
+            <Badge
+              variant="outline"
+              className="bg-amber-50 text-amber-800 border-amber-200 text-xs"
+            >
+              Unlinked
+            </Badge>
+            {onLinkCustomer && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => onLinkCustomer(device)}
+              >
+                <PiUserPlusBold className="w-3.5 h-3.5 mr-1" />
+                Link
+              </Button>
+            )}
+          </>
+        ) : (
+          <span className="text-sm text-slate-600 truncate">
+            {device.customer_name || 'Linked customer'}
+          </span>
+        )}
       </div>
       <div className="mt-1 text-sm text-slate-500">
         CPU {formatPct(device.cpu_usage)} · Mem {formatPct(device.memory_usage)} ·{' '}

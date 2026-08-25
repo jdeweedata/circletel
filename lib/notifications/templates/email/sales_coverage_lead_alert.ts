@@ -82,16 +82,21 @@ export function renderSalesCoverageLeadAlert(data: Record<string, any>): string 
             </div>
             ` : ''}
 
-            ${data.zoho_lead_url ? `
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${data.zoho_lead_url}" class="button" style="background-color: #3B82F6;">
+              ${data.admin_lead_url ? `
+              <a href="${data.admin_lead_url}" class="button" style="background-color: #E87A1E; margin: 0 8px 12px;">
+                Open lead in admin
+              </a>
+              ` : ''}
+              ${data.zoho_lead_url ? `
+              <a href="${data.zoho_lead_url}" class="button" style="background-color: #3B82F6; margin: 0 8px 12px;">
                 🔗 Open in Zoho CRM
               </a>
+              ` : ''}
             </div>
-            ` : ''}
 
             <div style="background-color: #FEF3C7; padding: 15px; border-radius: 8px; border-left: 4px solid #F59E0B; margin: 20px 0;">
-              <p style="margin: 0;"><strong>⏰ ACTION REQUIRED:</strong> Contact this lead within 30 minutes for best conversion rate!</p>
+              <p style="margin: 0;"><strong>⏰ ACTION REQUIRED:</strong> Contact this lead within 2 business hours (first-response SLA)!</p>
             </div>
 
             <p style="font-size: 12px; color: #6B7280; margin-top: 30px;">
