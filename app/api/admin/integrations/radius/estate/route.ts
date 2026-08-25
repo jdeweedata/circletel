@@ -17,8 +17,8 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
     const { data, error } = await supabase
       .from('corporate_sites')
-      .select('id, name, site_code, radius_provider, status')
-      .order('name')
+      .select('id, site_name, site_code, radius_provider, status')
+      .order('site_name')
     if (error) throw error
 
     let estate: Estate | null = null
@@ -33,24 +33,28 @@ export async function GET(request: NextRequest) {
     }
 
     const byCode = new Map((estate?.sites ?? []).map((site) => [site.code, site]))
-    const sites = (data ?? []).map((row) => {
+    const sites = (data ?? []).flatMap((row) => {
       const aaa = row.site_code ? byCode.get(row.site_code) : undefined
       const overlayIp = aaa?.overlayIp ?? null
-      return {
-        id: row.id,
-        name: row.name,
-        siteCode: row.site_code,
-        status: row.status,
-        radiusProvider: row.radius_provider === 'radius' ? 'radius' : 'interstellio',
-        nasType: aaa?.nasType ?? null,
-        tunnelType: aaa?.tunnelType ?? null,
-        overlayIp,
-        isSite: estateKind({ isSite: aaa?.isSite, overlayIp }) === 'site',
-        openSessions: aaa?.openSessions ?? 0,
-        voucherCount: estate?.voucherCount ?? 0,
-        voucherGrossCents: estate?.voucherGrossCents ?? 0,
-        lastAcceptAt: aaa?.lastAcceptAt ?? null,
-      }
+      const radiusProvider = row.radius_provider === 'radius' ? 'radius' : 'interstellio'
+      if (radiusProvider !== 'radius' && !aaa) return []
+      return [
+        {
+          id: row.id,
+          name: row.site_name,
+          siteCode: row.site_code,
+          status: row.status,
+          radiusProvider,
+          nasType: aaa?.nasType ?? null,
+          tunnelType: aaa?.tunnelType ?? null,
+          overlayIp,
+          isSite: estateKind({ isSite: aaa?.isSite, overlayIp }) === 'site',
+          openSessions: aaa?.openSessions ?? 0,
+          voucherCount: estate?.voucherCount ?? 0,
+          voucherGrossCents: estate?.voucherGrossCents ?? 0,
+          lastAcceptAt: aaa?.lastAcceptAt ?? null,
+        },
+      ]
     })
 
     return NextResponse.json({
