@@ -54,8 +54,14 @@ export function renderSalesCoverageLeadAlert(data: Record<string, any>): string 
               </div>
               <div class="info-row">
                 <span class="label">Coverage Available:</span>
-                <span class="value"><strong style="color: ${data.coverage_available === 'Yes' ? '#10B981' : '#EF4444'};">${data.coverage_available} ${data.coverage_available === 'Yes' ? '✓' : '✗'}</strong></span>
+                <span class="value"><strong style="color: ${data.coverage_available === 'Yes' ? '#10B981' : data.coverage_available === 'No' ? '#EF4444' : '#6B7280'};">${data.coverage_available}${data.coverage_available === 'Yes' ? ' ✓' : data.coverage_available === 'No' ? ' ✗' : ''}</strong></span>
               </div>
+              ${data.follow_up_notes ? `
+              <div class="info-row">
+                <span class="label">Survey summary:</span>
+                <span class="value">${data.follow_up_notes}</span>
+              </div>
+              ` : ''}
             </div>
 
             <div class="info-box">
@@ -66,6 +72,13 @@ export function renderSalesCoverageLeadAlert(data: Record<string, any>): string 
               ${data.province ? `<p><strong>Province:</strong> ${data.province}</p>` : ''}
               ${data.postal_code ? `<p><strong>Postal Code:</strong> ${data.postal_code}</p>` : ''}
             </div>
+
+            ${data.follow_up_notes ? `
+            <div class="info-box" style="background-color: #FFF7ED; border-left: 4px solid #F5831F;">
+              <h3 style="margin-top: 0;">Survey notes</h3>
+              <p style="white-space: pre-wrap; margin: 0;">${data.follow_up_notes}</p>
+            </div>
+            ` : ''}
 
             ${data.source_campaign ? `
             <div class="info-box" style="background-color: #F3F4F6;">

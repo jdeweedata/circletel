@@ -56,6 +56,7 @@ export interface CreateTicketInput {
   subCategory?: string;
   departmentId?: string;
   phone?: string;
+  channel?: string;
 }
 
 export interface ZohoDeskConfig {
@@ -162,7 +163,7 @@ export class ZohoDeskService {
       email: input.customerEmail,
       priority: input.priority || 'Medium',
       status: 'Open',
-      channel: 'Email',
+      channel: input.channel || 'Email',
       category: input.category,
       subCategory: input.subCategory,
       phone: input.phone,
