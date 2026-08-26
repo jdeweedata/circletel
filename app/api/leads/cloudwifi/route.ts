@@ -22,7 +22,7 @@ const MAX_BODY_BYTES = 32 * 1024;
 const EMAIL_RATE_LIMIT_MAX = 5;
 const EMAIL_RATE_LIMIT_WINDOW_MINUTES = 60;
 const SELECTED_LEAD_COLUMNS =
-  "id, customer_type, first_name, last_name, email, phone, company_name, address, city, postal_code, requested_service_type, lead_source, follow_up_notes";
+  "id, customer_type, first_name, last_name, email, phone, company_name, address, city, postal_code, requested_service_type, lead_source, source_campaign, follow_up_notes";
 
 const invalidJsonResponse = () =>
   NextResponse.json(
@@ -136,11 +136,9 @@ export async function POST(request: Request) {
   }
 
   // Silent success for honeypot fills — do not teach bots the difference.
+  // Omit leadId so the wizard cannot treat this as a persisted survey.
   if (isHoneypotFilled(body)) {
-    return NextResponse.json(
-      { success: true, leadId: "received" },
-      { status: 201 },
-    );
+    return NextResponse.json({ success: true }, { status: 201 });
   }
 
   const parsed = cloudWifiSurveySchema.safeParse(body);
@@ -235,7 +233,7 @@ export async function POST(request: Request) {
       postal_code: lead.postal_code || undefined,
       requested_service_type: lead.requested_service_type || "cloudwifi",
       lead_source: lead.lead_source,
-      source_campaign: "cloudwifi_site_survey",
+      source_campaign: lead.source_campaign || "cloudwifi_site_survey",
       follow_up_notes: lead.follow_up_notes || undefined,
     };
 

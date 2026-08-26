@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { useCloudWifiSurvey } from "@/components/cloudwifi/CloudWifiSurveyProvider";
+import {
+  internetConnectionOptions,
+  venueSelectOptions,
+} from "@/components/cloudwifi/content";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,29 +17,20 @@ import {
   type CloudWifiVenueType,
 } from "@/lib/cloudwifi/types";
 
-const VENUE_OPTIONS: ReadonlyArray<{
-  value: CloudWifiVenueType;
-  label: string;
-}> = [
-  { value: "hospitality", label: "Hospitality" },
-  { value: "retail", label: "Retail" },
-  { value: "property", label: "Property" },
-  { value: "healthcare", label: "Healthcare" },
-  { value: "education", label: "Education" },
-  { value: "public_venue", label: "Public venue" },
-];
+export interface CloudWifiTierEstimateValues {
+  venueType: CloudWifiVenueType;
+  floorArea: number;
+  peakUsers: number;
+  backhaul: CloudWifiBackhaul;
+  city: string;
+}
 
-const BACKHAUL_OPTIONS: ReadonlyArray<{
-  value: CloudWifiBackhaul;
-  label: string;
-}> = [
-  { value: "fibre", label: "Fibre" },
-  { value: "licensed_wireless", label: "Licensed wireless" },
-  { value: "fixed_wireless", label: "Fixed wireless" },
-  { value: "5g", label: "5G" },
-  { value: "lte", label: "LTE" },
-  { value: "unknown", label: "Not sure" },
-];
+export interface CloudWifiTierEstimatorProps {
+  initialVenueType?: CloudWifiVenueType | "";
+  initialCity?: string;
+  continueLabel?: string;
+  onContinue?: (values: CloudWifiTierEstimateValues) => void;
+}
 
 const controlClassName =
   "h-11 w-full rounded-md border border-circleTel-navy/20 bg-white px-3 text-base text-circleTel-navy outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2";
@@ -65,12 +60,29 @@ function formatMonthlyPrice(price: number): string {
   return `R${price.toLocaleString("en-US")}`;
 }
 
-export function CloudWifiTierEstimator() {
+export function CloudWifiTierEstimator({
+  initialVenueType = "",
+  initialCity = "",
+  continueLabel = "Continue",
+  onContinue,
+}: CloudWifiTierEstimatorProps = {}) {
   const { requestSurvey } = useCloudWifiSurvey();
-  const [venueType, setVenueType] = useState<CloudWifiVenueType | "">("");
+  const [venueType, setVenueType] = useState<CloudWifiVenueType | "">(
+    initialVenueType,
+  );
   const [floorAreaInput, setFloorAreaInput] = useState("");
   const [peakUsersInput, setPeakUsersInput] = useState("");
   const [backhaul, setBackhaul] = useState<CloudWifiBackhaul | "">("");
+  const [city, setCity] = useState(initialCity);
+
+  useEffect(() => {
+    if (initialVenueType) setVenueType(initialVenueType);
+  }, [initialVenueType]);
+
+  useEffect(() => {
+    if (initialCity) setCity(initialCity);
+  }, [initialCity]);
+
   const floorArea = positiveNumber(
     floorAreaInput,
     CLOUDWIFI_SURVEY_NUMERIC_LIMITS.floorArea,
@@ -112,7 +124,7 @@ export function CloudWifiTierEstimator() {
           Estimate your tier
         </h2>
         <p className="mt-1 text-base text-circleTel-secondaryNeutral">
-          Answer four questions to see the right range for your site.
+          Answer a few questions to see the right range for your site.
         </p>
       </header>
 
@@ -134,7 +146,7 @@ export function CloudWifiTierEstimator() {
             }
           >
             <option value="">Select venue type</option>
-            {VENUE_OPTIONS.map((option) => (
+            {venueSelectOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -171,11 +183,11 @@ export function CloudWifiTierEstimator() {
             htmlFor="cloudwifi-estimator-users"
             className="text-circleTel-navy"
           >
-            Expected peak concurrent users
+            How many people online at once
           </Label>
           <Input
             id="cloudwifi-estimator-users"
-            aria-label="Expected peak concurrent users"
+            aria-label="How many people online at once"
             inputMode="numeric"
             min="1"
             max={CLOUDWIFI_SURVEY_NUMERIC_LIMITS.peakUsers}
@@ -192,24 +204,39 @@ export function CloudWifiTierEstimator() {
             htmlFor="cloudwifi-estimator-backhaul"
             className="text-circleTel-navy"
           >
-            Internet backhaul
+            What internet do you have today?
           </Label>
           <select
             id="cloudwifi-estimator-backhaul"
-            aria-label="Internet backhaul"
+            aria-label="What internet do you have today?"
             className={controlClassName}
             value={backhaul}
             onChange={(event) =>
               setBackhaul(event.target.value as CloudWifiBackhaul | "")
             }
           >
-            <option value="">Select backhaul</option>
-            {BACKHAUL_OPTIONS.map((option) => (
+            <option value="">Select your internet connection</option>
+            {internetConnectionOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="cloudwifi-estimator-city" className="text-circleTel-navy">
+            City
+          </Label>
+          <Input
+            id="cloudwifi-estimator-city"
+            aria-label="City"
+            type="text"
+            autoComplete="address-level2"
+            value={city}
+            onChange={(event) => setCity(event.target.value)}
+            className="h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange-accessible md:text-base"
+          />
         </div>
       </div>
 
@@ -263,20 +290,24 @@ export function CloudWifiTierEstimator() {
               data-cloudwifi-survey-opener="true"
               variant="cta"
               size="lg"
+              disabled={city.trim().length < 2}
               className="w-full bg-circleTel-orange-accessible hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2"
-              onClick={(event) =>
-                requestSurvey(
-                  {
-                    venueType: recommendation.venueType,
-                    floorArea: recommendation.floorArea,
-                    peakUsers: recommendation.peakUsers,
-                    backhaul: recommendation.backhaul,
-                  },
-                  event.currentTarget,
-                )
-              }
+              onClick={(event) => {
+                const values = {
+                  venueType: recommendation.venueType,
+                  floorArea: recommendation.floorArea,
+                  peakUsers: recommendation.peakUsers,
+                  backhaul: recommendation.backhaul,
+                  city: city.trim(),
+                };
+                if (onContinue) {
+                  onContinue(values);
+                  return;
+                }
+                requestSurvey(values, event.currentTarget);
+              }}
             >
-              Use this recommendation
+              {continueLabel}
             </Button>
             <p className="text-sm text-circleTel-secondaryNeutral">
               A site survey confirms the final tier and price.

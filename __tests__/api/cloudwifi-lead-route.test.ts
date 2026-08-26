@@ -30,7 +30,7 @@ const mockAfter = after as jest.MockedFunction<typeof after>;
 
 const MAX_BODY_BYTES = 32 * 1024;
 const SELECTED_LEAD_COLUMNS =
-  "id, customer_type, first_name, last_name, email, phone, company_name, address, city, postal_code, requested_service_type, lead_source, follow_up_notes";
+  "id, customer_type, first_name, last_name, email, phone, company_name, address, city, postal_code, requested_service_type, lead_source, source_campaign, follow_up_notes";
 
 const validRequest = {
   venue: {
@@ -77,6 +77,7 @@ const persistedLead = {
   postal_code: "8001",
   requested_service_type: "cloudwifi",
   lead_source: "website_form",
+  source_campaign: "cloudwifi_site_survey",
   follow_up_notes:
     "CloudWiFi site survey requested. Recommended tier: Professional. Venue: hospitality, 450 sqm, 120 peak users, fibre backhaul.",
 };
@@ -369,6 +370,7 @@ describe("POST /api/leads/cloudwifi", () => {
       expect.objectContaining({
         lead_source: "website_form",
         requested_service_type: "cloudwifi",
+        source_campaign: "cloudwifi_site_survey",
         metadata: expect.objectContaining({
           consented_at: "2026-07-14T10:30:00.000Z",
           client_consented_at: "2025-01-01T00:00:00.000Z",
@@ -408,24 +410,24 @@ describe("POST /api/leads/cloudwifi", () => {
     );
   });
 
-  it("returns a silent 201 when the honeypot field is filled", async () => {
-    const response = await POST(
-      makeRequest(
-        JSON.stringify({
-          ...validRequest,
-          website: "https://spam.example",
-        }),
-      ),
-    );
+  it.each(["website", "_hp"] as const)(
+    "returns a silent 201 without a client-accepted leadId when %s is filled",
+    async (field) => {
+      const response = await POST(
+        makeRequest(
+          JSON.stringify({
+            ...validRequest,
+            [field]: "https://spam.example",
+          }),
+        ),
+      );
 
-    expect(response.status).toBe(201);
-    await expect(response.json()).resolves.toEqual({
-      success: true,
-      leadId: "received",
-    });
-    expect(insert).not.toHaveBeenCalled();
-    expect(mockAfter).not.toHaveBeenCalled();
-  });
+      expect(response.status).toBe(201);
+      await expect(response.json()).resolves.toEqual({ success: true });
+      expect(insert).not.toHaveBeenCalled();
+      expect(mockAfter).not.toHaveBeenCalled();
+    },
+  );
 
   it("returns the cached lead for a repeated Idempotency-Key", async () => {
     const headers = { "idempotency-key": "cloudwifi-retry-key-001" };

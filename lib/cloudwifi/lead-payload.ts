@@ -18,6 +18,7 @@ export interface CloudWifiLeadPayload {
   readonly postal_code: string | null;
   readonly lead_source: "website_form";
   readonly requested_service_type: "cloudwifi";
+  readonly source_campaign: "cloudwifi_site_survey";
   readonly contact_preference: "phone";
   readonly best_contact_time: CloudWifiSurveyRequest["contact"]["preferredContactTime"];
   readonly status: "new";
@@ -98,10 +99,10 @@ export function buildCloudWifiLeadPayload(
       : {}),
   };
   const venueSummary = [
-    request.venue.venueType.replaceAll("_", " "),
+    request.venue.venueType.replace(/_/g, " "),
     `${request.venue.floorArea} sqm`,
     `${request.venue.peakUsers} peak users`,
-    `${request.venue.backhaul.replaceAll("_", " ")} backhaul`,
+    `${request.venue.backhaul.replace(/_/g, " ")} backhaul`,
   ].join(", ");
 
   return {
@@ -116,6 +117,7 @@ export function buildCloudWifiLeadPayload(
     postal_code: request.venue.postalCode || null,
     lead_source: "website_form" as const,
     requested_service_type: "cloudwifi" as const,
+    source_campaign: "cloudwifi_site_survey" as const,
     contact_preference: "phone" as const,
     best_contact_time: request.contact.preferredContactTime,
     status: "new" as const,

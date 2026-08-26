@@ -222,6 +222,16 @@ describe("CloudWifiSurveyWizard", () => {
     else delete (globalThis as { document?: unknown }).document;
   });
 
+  it("renders an off-screen _hp honeypot instead of an autofillable website field", () => {
+    renderWizard();
+
+    const honeypot = renderer.root.findByProps({ name: "_hp" });
+    expect(honeypot.props.autoComplete).toBe("off");
+    expect(honeypot.props.tabIndex).toBe(-1);
+    expect(textOf(renderer.root)).not.toContain("Company website");
+    expect(renderer.root.findAllByProps({ name: "website" })).toHaveLength(0);
+  });
+
   it("starts on Venue with text-labelled progress and one desktop form", () => {
     renderWizard();
 
@@ -481,7 +491,7 @@ describe("CloudWifiSurveyWizard", () => {
     );
     expect(JSON.parse(fetchCall[1].body)).toEqual({
       ...expectedDraft,
-      website: "",
+      _hp: "",
     });
     expect(textOf(renderer.root)).toContain("Sending request…");
     expect(button("Sending request…").props.disabled).toBe(true);
@@ -627,6 +637,12 @@ describe("CloudWifiSurveyWizard", () => {
     [
       "explicit failure with a lead reference",
       new Response(JSON.stringify({ success: false, leadId: "CW-NO" }), {
+        status: 201,
+      }),
+    ],
+    [
+      "reserved honeypot lead reference",
+      new Response(JSON.stringify({ success: true, leadId: "received" }), {
         status: 201,
       }),
     ],

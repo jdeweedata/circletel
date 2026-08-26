@@ -6,6 +6,7 @@
 import { ZohoAPIClient } from '@/lib/zoho-api-client';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { SmsChannel } from '@/lib/notifications/channels/sms-channel';
+import { createMintedZohoDeskService } from '@/lib/integrations/zoho/desk-service';
 import { createClient } from '@/lib/supabase/server';
 import { notificationLogger } from '@/lib/logging';
 
@@ -110,7 +111,69 @@ export interface SalesAlertResult {
   smsSent?: boolean;
   slackSent?: boolean;
   zohoLeadId?: string;
+  zohoDeskTicketId?: string;
   errors?: string[];
+}
+
+export async function createCloudWifiSalesDeskTicket(
+  leadData: CoverageLeadData,
+  zohoLeadId?: string
+): Promise<{ success: boolean; ticketId?: string; error?: string }> {
+  if (!isCloudWifiSurveyLead(leadData)) {
+    return { success: true };
+  }
+
+  const departmentId = process.env.ZOHO_DESK_SALES_DEPARTMENT_ID;
+  if (!departmentId) {
+    return {
+      success: false,
+      error: 'Sales Desk department is not configured.',
+    };
+  }
+
+  try {
+    const desk = await createMintedZohoDeskService();
+    const company =
+      leadData.company_name || `${leadData.first_name} ${leadData.last_name}`;
+    const city = leadData.city || 'venue TBD';
+    const result = await desk.createTicket({
+      subject: `CloudWiFi site survey — ${company} — ${city}`,
+      description: [
+        `Contact: ${leadData.first_name} ${leadData.last_name}`,
+        `Email: ${leadData.email}`,
+        `Phone: ${leadData.phone}`,
+        `Company: ${company}`,
+        `City: ${city}`,
+        `Address: ${leadData.address}`,
+        leadData.follow_up_notes ? `Notes: ${leadData.follow_up_notes}` : '',
+        `Admin: ${adminLeadUrl(leadData.id)}`,
+        zohoLeadId ? `CRM lead: ${zohoLeadId}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+      customerEmail: leadData.email,
+      customerName: `${leadData.first_name} ${leadData.last_name}`,
+      phone: leadData.phone,
+      priority: 'High',
+      category: 'CloudWiFi',
+      departmentId,
+      channel: 'Web',
+    });
+
+    if (!result.success || !result.ticket?.id) {
+      return {
+        success: false,
+        error: result.error || 'Desk ticket was not created.',
+      };
+    }
+
+    return { success: true, ticketId: result.ticket.id };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 /**
@@ -165,6 +228,21 @@ export async function sendCoverageLeadAlert(
         .eq('id', leadData.id);
 
       result.errors?.push(`Zoho CRM sync failed: ${zohoResult.error}`);
+    }
+
+    if (isCloudWifiSurveyLead(leadData)) {
+      const deskResult = await createCloudWifiSalesDeskTicket(
+        leadData,
+        result.zohoLeadId
+      );
+      result.zohoDeskTicketId = deskResult.ticketId;
+      if (!deskResult.success) {
+        result.errors?.push(`Zoho Desk sync failed: ${deskResult.error}`);
+        notificationLogger.error('CloudWiFi Sales Desk ticket failed', {
+          leadId: leadData.id,
+          error: deskResult.error,
+        });
+      }
     }
 
     // Step 2: Email Alert to Sales Team

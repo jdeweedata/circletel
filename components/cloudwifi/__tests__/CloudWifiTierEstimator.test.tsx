@@ -69,11 +69,14 @@ function setCompleteEstimator(
       .findByProps({ "aria-label": "Usable floor area" })
       .props.onChange({ target: { value: values.floorArea ?? "450" } });
     renderer.root
-      .findByProps({ "aria-label": "Expected peak concurrent users" })
+      .findByProps({ "aria-label": "How many people online at once" })
       .props.onChange({ target: { value: values.peakUsers ?? "120" } });
     renderer.root
-      .findByProps({ "aria-label": "Internet backhaul" })
+      .findByProps({ "aria-label": "What internet do you have today?" })
       .props.onChange({ target: { value: "lte" } });
+    renderer.root
+      .findByProps({ "aria-label": "City" })
+      .props.onChange({ target: { value: "Johannesburg" } });
   });
 }
 
@@ -138,14 +141,14 @@ describe("CloudWifiTierEstimator", () => {
 
     expect(serialized).toContain("Venue type");
     expect(serialized).toContain("Usable floor area");
-    expect(serialized).toContain("Expected peak concurrent users");
-    expect(serialized).toContain("Internet backhaul");
+    expect(serialized).toContain("How many people online at once");
+    expect(serialized).toContain("What internet do you have today?");
     expect(serialized).toContain("Select your details to see a recommendation");
     expect(serialized).toContain("Public venue");
-    expect(serialized).toContain("Licensed wireless");
-    expect(serialized).toContain("Fixed wireless");
-    expect(serialized).toContain("5G");
-    expect(serialized).toContain("LTE");
+    expect(serialized).toContain("Dedicated wireless");
+    expect(serialized).toContain("Wireless antenna");
+    expect(serialized).toContain("5G mobile");
+    expect(serialized).toContain("LTE (4G)");
     expect(serialized).toContain("Not sure");
   });
 
@@ -162,13 +165,13 @@ describe("CloudWifiTierEstimator", () => {
     expect(serialized).toContain(
       "Floor area and peak users both support the Professional tier.",
     );
-    expect(serialized).toContain("A site survey must confirm");
+    expect(serialized).toContain("A site survey will confirm");
     expect(serialized).toContain(
       "A site survey confirms the final tier and price.",
     );
     const recommendationCta = buttonWithText(
       renderer,
-      "Use this recommendation",
+      "Continue",
     );
     expect(recommendationCta.props.className).toContain(
       "bg-circleTel-orange-accessible",
@@ -195,6 +198,7 @@ describe("CloudWifiTierEstimator", () => {
       floorArea: 450,
       peakUsers: 120,
       backhaul: "lte",
+      city: "Johannesburg",
     });
     expect(surveyContext.mobileOpen).toBe(true);
     expect(surveyContext.restoreSurveyFocus()).toBe(true);
@@ -221,7 +225,7 @@ describe("CloudWifiTierEstimator", () => {
     expect(JSON.stringify(renderer.toJSON())).toContain("Essential");
 
     act(() =>
-      buttonWithText(renderer, "Use this recommendation").props.onClick({}),
+      buttonWithText(renderer, "Continue").props.onClick({}),
     );
     expect(surveyContext.draft.venue.floorArea).toBe(0.5);
   });
@@ -241,14 +245,14 @@ describe("CloudWifiTierEstimator", () => {
     expect(serialized).toContain("Select your details to see a recommendation");
     expect(serialized).not.toContain("Professional");
     expect(renderer.root.findAllByType("button").map(textOf)).not.toContain(
-      "Use this recommendation",
+      "Continue",
     );
 
     act(() => floorArea.props.onChange({ target: { value: "450" } }));
     expect(JSON.stringify(renderer.toJSON())).toContain("Professional");
 
     const peakUsers = renderer.root.findByProps({
-      "aria-label": "Expected peak concurrent users",
+      "aria-label": "How many people online at once",
     });
     act(() => peakUsers.props.onChange({ target: { value: "1.5" } }));
 
@@ -277,7 +281,7 @@ describe("CloudWifiTierEstimator", () => {
       "aria-label": "Usable floor area",
     });
     const peakUsers = renderer.root.findByProps({
-      "aria-label": "Expected peak concurrent users",
+      "aria-label": "How many people online at once",
     });
     expect(floorArea.props.max).toBe(100000);
     expect(peakUsers.props.max).toBe(100000);
@@ -290,35 +294,20 @@ describe("CloudWifiTierEstimator", () => {
     );
   });
 
-  it("scrolls smoothly on desktop and focuses the survey heading on the next frame", () => {
+  it("opens the survey modal and focuses the heading on the next frame", () => {
     renderHarness(<CloudWifiTierEstimator />);
 
     act(() => surveyContext.requestSurvey({ city: "Cape Town" }));
 
-    expect(scrollIntoView).toHaveBeenCalledWith({
-      behavior: "smooth",
-      block: "start",
-    });
-    expect(focus).not.toHaveBeenCalled();
+    expect(surveyContext.mobileOpen).toBe(true);
+    expect(scrollIntoView).not.toHaveBeenCalled();
     expect(surveyContext.draft.venue.city).toBe("Cape Town");
 
     act(() => animationFrames[0](0));
     expect(focus).toHaveBeenCalledTimes(1);
   });
 
-  it("uses automatic scrolling for reduced motion", () => {
-    reducedMotion = true;
-    renderHarness(<CloudWifiTierEstimator />);
-
-    act(() => surveyContext.requestSurvey());
-
-    expect(scrollIntoView).toHaveBeenCalledWith({
-      behavior: "auto",
-      block: "start",
-    });
-  });
-
-  it("opens the mobile survey instead of scrolling", () => {
+  it("opens the survey modal on every viewport", () => {
     mobile = true;
     renderHarness(<CloudWifiTierEstimator />);
 

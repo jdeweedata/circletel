@@ -48,6 +48,15 @@ jest.mock("@/components/cloudwifi/CloudWifiSurveyProvider", () => ({
   CloudWifiSurveyProvider: ({ children }: { children: React.ReactNode }) => (
     <>{children}</>
   ),
+  useCloudWifiSurvey: () => ({
+    requestSurvey: jest.fn(),
+    draft: { venue: { venueType: "" }, contact: {}, details: {}, attribution: {} },
+    setDraft: jest.fn(),
+    mobileOpen: false,
+    setMobileOpen: jest.fn(),
+    restoreSurveyFocus: jest.fn(),
+    resetSurvey: jest.fn(),
+  }),
 }));
 
 jest.mock("@/components/cloudwifi/CloudWifiSurveyCta", () => ({
@@ -61,12 +70,8 @@ jest.mock("@/components/cloudwifi/CloudWifiSurveyCta", () => ({
   ),
 }));
 
-jest.mock("@/components/cloudwifi/CloudWifiTierEstimator", () => ({
-  CloudWifiTierEstimator: () => <aside>Interactive tier estimator</aside>,
-}));
-
-jest.mock("@/components/cloudwifi/CloudWifiSurveyWizard", () => ({
-  CloudWifiSurveyWizard: () => <aside>Interactive site survey</aside>,
+jest.mock("@/components/cloudwifi/CloudWifiEstimateModal", () => ({
+  CloudWifiEstimateModal: () => null,
 }));
 
 function pageText(renderer: TestRenderer.ReactTestRenderer): string {
@@ -149,7 +154,12 @@ describe("CloudWiFi product page", () => {
     }
 
     expect(text).toContain("Request a site survey");
-    expect(text).toContain("Open connectivity guide");
+    expect(text).toContain("Read the CloudWiFi guide");
+    expect(text).toContain("Managed cloud platform");
+    expect(text).toContain("Your internet connection");
+    expect(text).not.toContain("Ruijie");
+    expect(text).not.toContain("Backhaul capacity");
+    expect(text).not.toContain("Open connectivity guide");
     expect(text).toContain("Let's get your venue's Wi-Fi right.");
     expect(text).toContain("Talk to an expert");
     expect(text).toContain("Production navigation");
@@ -178,9 +188,9 @@ describe("CloudWiFi product page", () => {
 
     const anchors = renderer!.root.findAllByType("a");
     const toolkit = anchors.find((anchor) =>
-      textOf(anchor).includes("Open connectivity guide"),
+      textOf(anchor).includes("Read the CloudWiFi guide"),
     );
-    expect(toolkit?.props.href).toBe("/resources/connectivity-guide");
+    expect(toolkit?.props.href).toBe("/resources/cloudwifi-guide");
 
     const expert = anchors.find((anchor) =>
       textOf(anchor).includes("Talk to an expert"),

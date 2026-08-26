@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getWhatsAppLink } from "@/lib/constants/contact";
+import { getTenantConfig } from "@/lib/tenant";
 import { recommendCloudWifiTier } from "@/lib/cloudwifi/tier-recommendation";
 import {
   CLOUDWIFI_BACKHAUL_TYPES,
@@ -41,6 +42,9 @@ const STEP_NAMES = ["Venue", "Details", "Contact", "Review"] as const;
 const MAX_API_RESPONSE_BYTES = 16 * 1024;
 const MAX_API_FIELDS = 20;
 const SAFE_LEAD_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
+const RESERVED_LEAD_IDS = new Set(["received"]);
+const COMPANY_NAME = getTenantConfig().branding.companyName;
+const CONSENT_REQUIRED_MESSAGE = `Consent is required so ${COMPANY_NAME} can arrange the survey.`;
 
 const API_FIELD_TARGETS: Readonly<Record<string, ApiFieldTarget>> =
   Object.freeze({
@@ -132,12 +136,12 @@ const API_FIELD_TARGETS: Readonly<Record<string, ApiFieldTarget>> =
     "contact.consent": {
       field: "consent",
       step: 3,
-      message: "Consent is required so CircleTel can arrange the survey.",
+      message: CONSENT_REQUIRED_MESSAGE,
     },
     "contact.consentedAt": {
       field: "consent",
       step: 3,
-      message: "Consent is required so CircleTel can arrange the survey.",
+      message: CONSENT_REQUIRED_MESSAGE,
     },
   });
 
@@ -329,7 +333,7 @@ function validateStep(
     }
     if (!draft.contact.consent || !draft.contact.consentedAt) {
       errors.consent =
-        "Consent is required so CircleTel can arrange the survey.";
+        CONSENT_REQUIRED_MESSAGE;
     }
   }
 
@@ -718,7 +722,7 @@ export function CloudWifiSurveyWizard() {
         },
         body: JSON.stringify({
           ...draft,
-          website: honeypot,
+          _hp: honeypot,
         }),
       });
 
@@ -750,7 +754,10 @@ export function CloudWifiSurveyWizard() {
           ? result.leadId.trim()
           : "";
 
-      if (!SAFE_LEAD_ID_PATTERN.test(responseLeadId)) {
+      if (
+        !SAFE_LEAD_ID_PATTERN.test(responseLeadId) ||
+        RESERVED_LEAD_IDS.has(responseLeadId)
+      ) {
         setSubmitError(
           "We could not confirm your request. Please try again, or contact us on WhatsApp.",
         );
@@ -1365,7 +1372,7 @@ export function CloudWifiSurveyWizard() {
                 if (consent) delete nextErrors.consent;
                 else {
                   nextErrors.consent =
-                    "Consent is required so CircleTel can arrange the survey.";
+                    CONSENT_REQUIRED_MESSAGE;
                 }
                 return nextErrors;
               });
@@ -1373,7 +1380,7 @@ export function CloudWifiSurveyWizard() {
             className="mt-0.5 h-5 w-5 shrink-0 accent-circleTel-orange"
           />
           <span>
-            I agree that CircleTel may contact me to arrange a site survey and
+            I agree that {COMPANY_NAME} may contact me to arrange a site survey and
             discuss this request.
           </span>
         </label>
@@ -1581,7 +1588,7 @@ export function CloudWifiSurveyWizard() {
     },
     4: {
       title: "Review your site survey request",
-      description: "Check the details before sending them to CircleTel.",
+      description: `Check the details before sending them to ${COMPANY_NAME}.`,
     },
   };
 
@@ -1596,14 +1603,14 @@ export function CloudWifiSurveyWizard() {
         Request received
       </h2>
       <p className="text-base text-circleTel-secondaryNeutral">
-        Thanks. A CircleTel specialist will contact you within one business day.
+        Thanks. A {COMPANY_NAME} specialist will contact you within one business day.
       </p>
       <p className="rounded-lg bg-circleTel-lightNeutral p-4 text-base text-circleTel-navy">
         Your lead reference is <strong>{leadId}</strong>.
       </p>
       <a
         href={getWhatsAppLink(
-          `Hi CircleTel, I need help with CloudWiFi survey request ${leadId}.`,
+          `Hi ${COMPANY_NAME}, I need help with CloudWiFi survey request ${leadId}.`,
         )}
         className="inline-flex min-h-11 w-full items-center justify-center rounded-md border-2 border-circleTel-orange px-4 text-base font-semibold text-circleTel-orange-accessible transition-colors hover:bg-circleTel-orange-light hover:text-circleTel-orange-accessible focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2"
         target="_blank"
@@ -1629,16 +1636,15 @@ export function CloudWifiSurveyWizard() {
       noValidate
       className="relative space-y-6 p-5 sm:p-6"
     >
-      {/* Honeypot: hidden from assistive tech; bots often autofill `website`. */}
+      {/* Honeypot: off-screen, unnamed to humans, `_hp` so browsers do not autofill. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-[10000px] h-px w-px overflow-hidden opacity-0"
       >
-        <label htmlFor="cloudwifi-website">Company website</label>
         <input
-          id="cloudwifi-website"
+          id="cloudwifi-hp"
           type="text"
-          name="website"
+          name="_hp"
           tabIndex={-1}
           autoComplete="off"
           value={honeypot}
@@ -1762,7 +1768,7 @@ export function CloudWifiSurveyWizard() {
           <SheetHeader className="sr-only">
             <SheetTitle>Request a CloudWiFi site survey</SheetTitle>
             <SheetDescription>
-              Complete four short steps so CircleTel can plan your venue survey.
+              Complete four short steps so {COMPANY_NAME} can plan your venue survey.
             </SheetDescription>
           </SheetHeader>
           {panel}

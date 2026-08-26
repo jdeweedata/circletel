@@ -70,6 +70,37 @@ function requestWith(path: string, value: unknown): Record<string, unknown> {
 }
 
 describe("CloudWiFi survey request schema", () => {
+  it("accepts a simple modal payload and fills survey defaults", () => {
+    const parsed = cloudWifiSurveySchema.parse({
+      venue: {
+        venueType: "hospitality",
+        floorArea: 450,
+        peakUsers: 120,
+        city: "Johannesburg",
+        backhaul: "fibre",
+      },
+      contact: {
+        fullName: "Naledi Mokoena",
+        companyName: "Mokoena Hospitality",
+        email: "naledi@example.co.za",
+        phone: "0821234567",
+        consent: true,
+        consentedAt: "2026-07-14T10:00:00.000Z",
+      },
+      attribution: {
+        pageSource: "cloudwifi_product_page",
+      },
+    });
+
+    expect(parsed.venue.siteAddress).toBe("To confirm during site survey");
+    expect(parsed.details).toMatchObject({
+      floors: 1,
+      wallMaterial: "unknown",
+      networks: ["guest"],
+    });
+    expect(parsed.contact.preferredContactTime).toBe("anytime");
+  });
+
   it("trims human text, normalizes contact details, and coerces numeric strings", () => {
     const request = structuredClone(validRequest) as Record<string, any>;
     request.venue.floorArea = "450";
@@ -212,7 +243,6 @@ describe("CloudWiFi survey request schema", () => {
   it.each([
     ["venue.city", undefined, "City is required."],
     ["venue.city", 123, "City must be text."],
-    ["venue.siteAddress", undefined, "Site address is required."],
     ["venue.siteAddress", 123, "Site address must be text."],
     ["venue.postalCode", 2196, "Postal code must be text."],
     ["details.requirements", 123, "Requirements must be text."],
@@ -338,11 +368,11 @@ describe("CloudWiFi survey request schema", () => {
     },
   );
 
-  it("requires at least one network", () => {
+  it("defaults an empty network list to guest Wi-Fi", () => {
     expect(
-      cloudWifiSurveySchema.safeParse(requestWith("details.networks", []))
-        .success,
-    ).toBe(false);
+      cloudWifiSurveySchema.parse(requestWith("details.networks", [])).details
+        .networks,
+    ).toEqual(["guest"]);
   });
 
   it("deduplicates networks and add-ons while preserving selection order", () => {
@@ -422,10 +452,6 @@ describe("CloudWiFi survey request schema", () => {
           field: "venue.city",
           message: "City must contain at least 2 characters.",
         },
-        {
-          field: "details.networks",
-          message: "Select at least one network.",
-        },
       ]);
     }
   });
@@ -486,6 +512,7 @@ describe("CloudWiFi coverage lead payload", () => {
       postal_code: "2196",
       lead_source: "website_form",
       requested_service_type: "cloudwifi",
+      source_campaign: "cloudwifi_site_survey",
       contact_preference: "phone",
       best_contact_time: "morning",
       status: "new",

@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,7 +12,7 @@ import {
 } from "react-icons/pi";
 
 import { CloudWifiSurveyCta } from "@/components/cloudwifi/CloudWifiSurveyCta";
-import { CloudWifiSurveyWizard } from "@/components/cloudwifi/CloudWifiSurveyWizard";
+import { useCloudWifiSurvey } from "@/components/cloudwifi/CloudWifiSurveyProvider";
 import {
   addOns,
   includedFeatures,
@@ -18,13 +20,13 @@ import {
   pricingTiers,
   processSteps,
   venueTypes,
-  whyCircleTel,
+  whyProvider,
 } from "@/components/cloudwifi/content";
 import { Button } from "@/components/ui/button";
 import { getWhatsAppLink } from "@/lib/constants/contact";
+import { getTenantConfig } from "@/lib/tenant";
 
-const expertMessage =
-  "Hi CircleTel, I would like to speak to an expert about CloudWiFi.";
+const expertMessage = `Hi ${getTenantConfig().branding.companyName}, I would like to speak to an expert about CloudWiFi.`;
 
 function SectionIntro({
   id,
@@ -74,6 +76,8 @@ function CheckList({ items }: { items: readonly string[] }) {
 }
 
 function VenueSection() {
+  const { requestSurvey } = useCloudWifiSurvey();
+
   return (
     <section
       aria-labelledby="cloudwifi-venues-heading"
@@ -86,13 +90,21 @@ function VenueSection() {
           title="Great Wi-Fi experiences for your visitors and teams."
         />
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div
+          id="venues"
+          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+        >
           {venueTypes.map((venue) => {
             const Icon = venue.icon;
             return (
-              <article
+              <button
                 key={venue.title}
-                className="overflow-hidden rounded-lg border border-ui-border bg-white"
+                type="button"
+                data-cloudwifi-survey-opener="true"
+                className="overflow-hidden rounded-lg border border-ui-border bg-white text-left outline-none transition hover:border-circleTel-orange-accessible hover:shadow-md focus-visible:ring-2 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2"
+                onClick={(event) =>
+                  requestSurvey({ venueType: venue.value }, event.currentTarget)
+                }
               >
                 <picture className="relative block aspect-[4/3] overflow-hidden bg-circleTel-lightNeutral">
                   <source
@@ -126,7 +138,7 @@ function VenueSection() {
                     {venue.description}
                   </p>
                 </div>
-              </article>
+              </button>
             );
           })}
         </div>
@@ -177,9 +189,12 @@ function PricingSection() {
                 {tier.capacity}
               </p>
               <CheckList items={tier.features} />
-              <p className="mt-auto border-t border-ui-border pt-6 text-base text-circleTel-secondaryNeutral">
+              <CloudWifiSurveyCta
+                variant="outline"
+                className="mt-auto min-h-11 border-circleTel-navy/20 pt-0 text-base font-semibold text-circleTel-navy hover:bg-circleTel-lightNeutral"
+              >
                 Survey required
-              </p>
+              </CloudWifiSurveyCta>
             </article>
           ))}
         </div>
@@ -232,9 +247,9 @@ function ManagedServiceDetail() {
         </div>
         <div className="border-t border-ui-border p-6 md:border-l xl:border-t-0 xl:p-7">
           <h3 className="font-heading text-lg font-bold text-circleTel-navy">
-            Why CircleTel?
+            {`Why ${getTenantConfig().branding.companyName.trim()}?`}
           </h3>
-          <CheckList items={whyCircleTel} />
+          <CheckList items={whyProvider} />
         </div>
       </div>
     </section>
@@ -299,7 +314,7 @@ function LowerInformationSection() {
       aria-labelledby="cloudwifi-price-drivers-heading"
       className="bg-circleTel-lightNeutral py-16 md:py-24"
     >
-      <div className="container mx-auto grid gap-12 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8 xl:grid-cols-[minmax(0,1fr)_420px]">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="min-w-0">
           <header>
             <h2
@@ -344,10 +359,6 @@ function LowerInformationSection() {
 
           <ManagedServiceDetail />
           <ProcessSection />
-        </div>
-
-        <div className="min-w-0 lg:pt-1">
-          <CloudWifiSurveyWizard />
         </div>
       </div>
     </section>

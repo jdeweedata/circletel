@@ -3,7 +3,6 @@ import Link from "next/link";
 import { PiArrowRightBold } from "react-icons/pi";
 
 import { CloudWifiSurveyCta } from "@/components/cloudwifi/CloudWifiSurveyCta";
-import { CloudWifiTierEstimator } from "@/components/cloudwifi/CloudWifiTierEstimator";
 import { serviceAssurances } from "@/components/cloudwifi/content";
 
 export function CloudWifiHero() {
@@ -37,10 +36,10 @@ export function CloudWifiHero() {
       <div className="absolute inset-0 -z-20 bg-circleTel-navy/80" />
       <div className="absolute inset-y-0 left-0 -z-10 w-2/3 bg-circleTel-navy/35" />
 
-      <div className="container mx-auto grid min-h-[720px] items-center gap-12 px-4 py-16 sm:px-6 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.78fr)] lg:px-8 lg:py-24">
+      <div className="container mx-auto min-h-[560px] px-4 py-16 sm:px-6 md:py-20 lg:px-8 lg:py-24">
         <div className="max-w-3xl">
           <p className="font-heading text-sm font-bold uppercase tracking-[0.16em] text-circleTel-orange-light">
-            Tier finder
+            Managed Wi-Fi
           </p>
           <h1
             id="cloudwifi-hero-heading"
@@ -64,10 +63,10 @@ export function CloudWifiHero() {
               <PiArrowRightBold aria-hidden="true" />
             </CloudWifiSurveyCta>
             <Link
-              href="/resources/connectivity-guide"
+              href="/resources/cloudwifi-guide"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-white/75 px-8 py-3 font-semibold text-white outline-none hover:bg-white hover:text-circleTel-navy focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-circleTel-navy"
             >
-              Open connectivity guide
+              Read the CloudWiFi guide
               <PiArrowRightBold aria-hidden="true" className="h-4 w-4" />
             </Link>
           </div>
@@ -88,10 +87,6 @@ export function CloudWifiHero() {
               );
             })}
           </ul>
-        </div>
-
-        <div className="relative z-10 w-full lg:justify-self-end">
-          <CloudWifiTierEstimator />
         </div>
       </div>
     </section>

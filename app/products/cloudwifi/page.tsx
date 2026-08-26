@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 
+import { CloudWifiEstimateModal } from "@/components/cloudwifi/CloudWifiEstimateModal";
 import { CloudWifiLandingPage } from "@/components/cloudwifi/CloudWifiLandingPage";
 import { CloudWifiSurveyProvider } from "@/components/cloudwifi/CloudWifiSurveyProvider";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
+import { getTenantConfig } from "@/lib/tenant";
 
-const title = "CloudWiFi Managed Wi-Fi as a Service | CircleTel";
-const description =
-  "Find the right managed CloudWiFi tier for your venue and request a survey-led Wi-Fi design from CircleTel.";
+const companyName = getTenantConfig().branding.companyName;
+const title = `CloudWiFi Managed Wi-Fi as a Service | ${companyName}`;
+const description = `Find the right managed CloudWiFi tier for your venue and request a survey-led Wi-Fi design from ${companyName}.`;
 const heroImage = "/images/cloudwifi/cloudwifi-hero.jpg";
 
 export const metadata: Metadata = {
@@ -41,6 +43,7 @@ export default function CloudWiFiPage() {
       <Navbar />
       <CloudWifiSurveyProvider>
         <CloudWifiLandingPage />
+        <CloudWifiEstimateModal />
       </CloudWifiSurveyProvider>
       <Footer />
     </div>

@@ -73,6 +73,13 @@ export function renderSalesCoverageLeadAlert(data: Record<string, any>): string 
               ${data.postal_code ? `<p><strong>Postal Code:</strong> ${data.postal_code}</p>` : ''}
             </div>
 
+            ${data.follow_up_notes ? `
+            <div class="info-box" style="background-color: #FFF7ED; border-left: 4px solid #F5831F;">
+              <h3 style="margin-top: 0;">Survey notes</h3>
+              <p style="white-space: pre-wrap; margin: 0;">${data.follow_up_notes}</p>
+            </div>
+            ` : ''}
+
             ${data.source_campaign ? `
             <div class="info-box" style="background-color: #F3F4F6;">
               <div class="info-row">

@@ -221,8 +221,8 @@ describe('CloudWiFi tier recommendation', () => {
     it.each([
       ['fibre', null],
       ['licensed_wireless', null],
-      ['fixed_wireless', /resilience|throughput/i],
-      ['5g', /resilience|throughput/i],
+      ['fixed_wireless', /internet connection|survey/i],
+      ['5g', /internet connection|survey/i],
       ['lte', /survey/i],
       ['unknown', /survey/i],
     ] as const)('adds the expected guidance for %s', (backhaul, expectedGuidance) => {

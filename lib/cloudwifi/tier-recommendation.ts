@@ -81,11 +81,11 @@ function promoteTier(tier: CloudWifiTierId): CloudWifiTierId {
 
 function backhaulGuidance(backhaul: CloudWifiBackhaul): string | null {
   if (backhaul === 'fixed_wireless' || backhaul === '5g') {
-    return 'Plan for resilience and confirm available backhaul throughput during the site survey.';
+    return 'We will check that your internet connection is strong and reliable enough during the site survey.';
   }
 
   if (backhaul === 'lte' || backhaul === 'unknown') {
-    return 'A site survey must confirm that the available backhaul can support the expected users.';
+    return 'A site survey will confirm that your internet connection can support the people you expect.';
   }
 
   return null;

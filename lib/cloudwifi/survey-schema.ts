@@ -129,7 +129,63 @@ const referrerSchema = z
   })
   .optional();
 
-export const cloudWifiSurveySchema = z.object({
+const DEFAULT_SITE_ADDRESS = "To confirm during site survey";
+
+function applySimpleSurveyDefaults(value: unknown): unknown {
+  if (!value || typeof value !== "object") return value;
+
+  const input = value as Record<string, unknown>;
+  const venueInput =
+    input.venue && typeof input.venue === "object"
+      ? (input.venue as Record<string, unknown>)
+      : {};
+  const detailsInput =
+    input.details && typeof input.details === "object"
+      ? (input.details as Record<string, unknown>)
+      : {};
+  const contactInput =
+    input.contact && typeof input.contact === "object"
+      ? (input.contact as Record<string, unknown>)
+      : {};
+
+  const siteAddress =
+    typeof venueInput.siteAddress === "string"
+      ? venueInput.siteAddress.trim()
+      : venueInput.siteAddress;
+  const networks = Array.isArray(detailsInput.networks)
+    ? detailsInput.networks
+    : [];
+
+  return {
+    ...input,
+    venue: {
+      ...venueInput,
+      siteAddress:
+        siteAddress === undefined || siteAddress === ""
+          ? DEFAULT_SITE_ADDRESS
+          : siteAddress,
+    },
+    details: {
+      ...detailsInput,
+      floors:
+        detailsInput.floors === undefined ||
+        detailsInput.floors === "" ||
+        detailsInput.floors === null
+          ? 1
+          : detailsInput.floors,
+      wallMaterial: detailsInput.wallMaterial || "unknown",
+      networks: networks.length > 0 ? networks : ["guest"],
+    },
+    contact: {
+      ...contactInput,
+      preferredContactTime: contactInput.preferredContactTime || "anytime",
+    },
+  };
+}
+
+export const cloudWifiSurveySchema = z.preprocess(
+  applySimpleSurveyDefaults,
+  z.object({
   venue: z.object({
     venueType: z.enum(CLOUDWIFI_VENUE_TYPES, {
       errorMap: () => ({ message: "Select a supported venue type." }),
@@ -242,7 +298,8 @@ export const cloudWifiSurveySchema = z.object({
     utmCampaign: optionalAttribution("UTM campaign", 200),
     referrer: referrerSchema,
   }),
-});
+}),
+);
 
 export type CloudWifiSurveyRequest = z.infer<typeof cloudWifiSurveySchema>;
 

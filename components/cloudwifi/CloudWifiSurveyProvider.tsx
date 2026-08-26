@@ -244,25 +244,19 @@ export function CloudWifiSurveyProvider({
         }));
       }
 
-      if (matchesMedia("(max-width: 767px)")) {
-        surveyOpenerRef.current = opener ?? null;
-        setMobileOpen(true);
-      } else if (typeof document !== "undefined") {
-        document.getElementById("cloudwifi-survey")?.scrollIntoView({
-          behavior: matchesMedia("(prefers-reduced-motion: reduce)")
-            ? "auto"
-            : "smooth",
-          block: "start",
-        });
-      }
+      surveyOpenerRef.current = opener ?? null;
+      setMobileOpen(true);
 
-      if (
-        typeof window !== "undefined" &&
-        typeof window.requestAnimationFrame === "function"
-      ) {
-        window.requestAnimationFrame(focusSurveyHeading);
-      } else if (typeof window !== "undefined") {
+      // Defer heading focus until after the opening pointer/click finishes.
+      // Immediate focus (or focusing a non-focusable title) lets Radix treat
+      // the same event as dismiss and snap the dialog shut.
+      if (typeof window === "undefined") {
+        return;
+      }
+      if (typeof window.setTimeout === "function") {
         window.setTimeout(focusSurveyHeading, 0);
+      } else if (typeof window.requestAnimationFrame === "function") {
+        window.requestAnimationFrame(focusSurveyHeading);
       }
     },
     [],
