@@ -28,6 +28,8 @@ interface OrderDevicesRedesignedProps {
     payment_method_mandate_status?: string;
     installation_scheduled_date?: string;
     status: string;
+    credit_decision?: string;
+    credit_review?: { hardware_prepaid?: boolean } | null;
   };
   onUpdate?: () => void;
 }
@@ -59,10 +61,19 @@ export function OrderDevicesRedesigned({
   const installationScheduled = !!order.installation_scheduled_date;
   const readyToDispatch = paymentVerified && devicesAssigned && installationScheduled;
 
+  const routerBlocked =
+    Boolean(order.router_included) &&
+    (order.credit_decision === 'HARD_FAIL' || order.credit_decision === 'FAIL') &&
+    !order.credit_review?.hardware_prepaid;
+
   const handleAssignDevice = async (
     type: 'sim' | 'router',
     serial: string
   ) => {
+    if (type === 'router' && routerBlocked) {
+      toast.error('Financed router is blocked until hardware is prepaid or credit is cleared.');
+      return;
+    }
     if (!serial.trim()) {
       toast.error(`Please enter a ${type === 'sim' ? 'SIM' : 'router'} serial number`);
       return;

@@ -17,6 +17,7 @@ interface DeviceAssignmentProps {
   initialSimSerial: string | null;
   initialRouterSerial: string | null;
   initialRouterModel: string | null;
+  routerBlocked?: boolean;
   onUpdate?: () => void;
 }
 
@@ -26,6 +27,7 @@ export function DeviceAssignment({
   initialSimSerial,
   initialRouterSerial,
   initialRouterModel,
+  routerBlocked = false,
   onUpdate,
 }: DeviceAssignmentProps) {
   const [editing, setEditing] = useState(false);
@@ -42,6 +44,10 @@ export function DeviceAssignment({
   const isPlaceholder = (v: string | null) => v?.startsWith('PENDING') || false;
 
   const handleSave = async () => {
+    if (routerBlocked && routerSerial) {
+      toast.error('Financed router is blocked until hardware is prepaid or credit is cleared.');
+      return;
+    }
     setSaving(true);
     try {
       const res = await fetch(`/api/admin/orders/${orderId}/devices`, {

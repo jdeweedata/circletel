@@ -8,6 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { financedHardwareBlockedReason } from '@/lib/credit-risk/decision';
+import { getOrderCreditReview } from '@/lib/credit-risk/review-store';
 
 export async function PATCH(
   request: NextRequest,
@@ -35,12 +37,27 @@ export async function PATCH(
     // 1. Verify order exists
     const { data: order, error: orderError } = await supabase
       .from('consumer_orders')
-      .select('id, order_number, sim_serial, router_serial')
+      .select('id, order_number, sim_serial, router_serial, router_included')
       .eq('id', orderId)
       .single();
 
     if (orderError || !order) {
       return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+    }
+
+    if (routerSerial) {
+      const creditReview = await getOrderCreditReview(supabase, orderId);
+      const hardwareBlock = financedHardwareBlockedReason({
+        decision: creditReview?.decision,
+        hardware_prepaid: creditReview?.hardware_prepaid,
+        router_included: true,
+      });
+      if (hardwareBlock) {
+        return NextResponse.json(
+          { success: false, error: hardwareBlock, credit_decision: creditReview?.decision },
+          { status: 422 }
+        );
+      }
     }
 
     // 2. Update consumer_orders quick-access fields

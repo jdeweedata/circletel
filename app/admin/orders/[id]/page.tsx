@@ -33,6 +33,8 @@ import { OrderDevicesRedesigned } from '@/components/admin/orders/detail/OrderDe
 import { OrderInstallationRedesigned } from '@/components/admin/orders/detail/OrderInstallationRedesigned';
 import { OrderFinancialsRedesigned } from '@/components/admin/orders/detail/OrderFinancialsRedesigned';
 import { OrderHistoryRedesigned } from '@/components/admin/orders/detail/OrderHistoryRedesigned';
+import { OrderCreditRiskTab } from '@/components/admin/orders/detail/OrderCreditRiskTab';
+import type { OrderCreditReview } from '@/lib/credit-risk/types';
 
 interface Order {
   id: string;
@@ -103,12 +105,15 @@ interface Order {
   router_model?: string | null;
   terms_accepted?: boolean;
   terms_accepted_at?: string;
+  credit_decision?: string;
+  credit_review?: OrderCreditReview | null;
 }
 
 const TAB_CONFIG = [
   { id: 'overview', label: 'Overview' },
   { id: 'devices', label: 'Devices' },
   { id: 'installation', label: 'Installation' },
+  { id: 'credit', label: 'Credit risk' },
   { id: 'financials', label: 'Financials' },
   { id: 'history', label: 'History' },
 ] as const;
@@ -236,6 +241,15 @@ export default function AdminOrderDetailPage() {
           <OrderInstallationRedesigned
             order={order}
             onNavigateToTab={handleNavigateToTab}
+          />
+        </TabPanel>
+
+        <TabPanel id="credit" activeTab={activeTab}>
+          <OrderCreditRiskTab
+            orderId={order.id}
+            routerIncluded={Boolean(order.router_included)}
+            initialReview={order.credit_review}
+            onSaved={fetchOrder}
           />
         </TabPanel>
 
