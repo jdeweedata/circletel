@@ -6,6 +6,16 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import {
+  decidePromote,
+  leadTimeLabel,
+  quotesFromShopFields,
+} from '@/lib/hardware-catalogue/promote-decision'
+import {
+  isBooleanSupplierStock,
+  isStorefrontPublished,
+  leadTimeFromPromote,
+} from '@/lib/hardware-catalogue/storefront'
 import type {
   CircleTelHardwareProduct,
   HardwareProductInsert,
@@ -72,12 +82,54 @@ export async function getHardwareProducts(
   if (error) throw new Error(`Failed to fetch products: ${error.message}`)
 
   return {
-    data: (data || []) as HardwareProductDetail[],
+    data: await attachStorefrontFields(
+      supabase,
+      (data || []) as HardwareProductDetail[]
+    ),
     total: count || 0,
     page,
     page_size: pageSize,
     has_more: (count || 0) > offset + pageSize,
   }
+}
+
+async function attachStorefrontFields(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  rows: HardwareProductDetail[]
+): Promise<HardwareProductDetail[]> {
+  if (rows.length === 0) return rows
+  const ids = rows.map((row) => row.id)
+  const { data: extras } = await supabase
+    .from('circletel_hardware_products')
+    .select('id, metadata, primary_supplier_code')
+    .in('id', ids)
+  const { data: termsRows } = await supabase
+    .from('hardware_product_terms')
+    .select('hardware_product_id, delivery_estimate')
+    .in('hardware_product_id', ids)
+
+  const extraById = new Map((extras || []).map((row) => [row.id, row]))
+  const termsById = new Map(
+    (termsRows || []).map((row) => [row.hardware_product_id, row.delivery_estimate])
+  )
+
+  return rows.map((row) => {
+    const extra = extraById.get(row.id)
+    const metadata =
+      (extra?.metadata as Record<string, unknown> | null) || row.metadata
+    const supplierCode =
+      extra?.primary_supplier_code || row.primary_supplier_code
+    return {
+      ...row,
+      metadata: metadata || {},
+      primary_supplier_code: supplierCode,
+      stock_is_boolean: isBooleanSupplierStock(supplierCode),
+      lead_time_label: leadTimeFromPromote({
+        metadata,
+        deliveryEstimate: termsById.get(row.id),
+      }),
+    }
+  })
 }
 
 /**
@@ -97,6 +149,7 @@ export async function getHardwareProductBySlug(
     .single()
 
   if (error || !product) return null
+  if (!isStorefrontPublished(product.status)) return null
 
   // Fetch supplier links
   const { data: supplierLinks } = await supabase
@@ -156,8 +209,13 @@ export async function getHardwareProductBySlug(
     stock_total: link.supplier_product?.stock_total || 0,
   }))
 
+  const preferred = suppliers.find((s) => s.is_preferred) || suppliers[0]
+  const stockIsBoolean = isBooleanSupplierStock(preferred?.supplier_code)
+  const [enriched] = await attachStorefrontFields(supabase, [detail])
+
   return {
     ...detail,
+    ...enriched,
     suppliers,
     terms: terms as HardwareProductTerms | null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -169,6 +227,12 @@ export async function getHardwareProductBySlug(
     })),
     total_stock: detail.total_stock || 0,
     has_stock: (detail.total_stock || 0) > 0,
+    stock_is_boolean: stockIsBoolean,
+    lead_time_label:
+      enriched?.lead_time_label ||
+      leadTimeFromPromote({
+        deliveryEstimate: (terms as HardwareProductTerms | null)?.delivery_estimate,
+      }),
   }
 }
 
@@ -341,27 +405,85 @@ export async function promoteFromSupplier(
   const sp = supplierProduct as any
   const supplierCode = sp.supplier?.code || 'UNKNOWN'
 
-  // Calculate retail price if not provided
-  const markup = input.default_markup_percent || 25
-  const retailPrice =
-    input.retail_price ||
-    Math.round((sp.cost_price || 0) * (1 + markup / 100) * 100) / 100
+  const quotes = quotesFromShopFields({
+    afrihostUrl: input.afrihost_url,
+    afrihostPrice: input.afrihost_price,
+    axxessUrl: input.axxess_url,
+    axxessPrice: input.axxess_price,
+  })
+  const decision = decidePromote({
+    costExclVat: Number(sp.cost_price) || 0,
+    quotes,
+    confirmUnbenchmarked: input.confirm_unbenchmarked,
+    streetNote: input.street_note,
+    leadTime:
+      input.lead_time_min_days && input.lead_time_max_days
+        ? {
+            min: input.lead_time_min_days,
+            max: input.lead_time_max_days,
+          }
+        : undefined,
+  })
+  if (!decision.allowed) {
+    return { success: false, error: decision.error }
+  }
 
-  // Create hardware product
+  const { data: existingLink } = await supabase
+    .from('hardware_product_suppliers')
+    .select('hardware_product_id')
+    .eq('supplier_product_id', input.supplier_product_id)
+    .maybeSingle()
+
+  const hardwareFields = {
+    name: input.name || sp.name,
+    description: input.description || sp.description,
+    category: input.category || sp.category,
+    retail_price: decision.listInclVat,
+    cost_price: sp.cost_price || 0,
+    metadata: decision.metadata as unknown as Record<string, unknown>,
+  }
+
+  if (existingLink?.hardware_product_id) {
+    const { data: product, error: updateError } = await supabase
+      .from('circletel_hardware_products')
+      .update(hardwareFields)
+      .eq('id', existingLink.hardware_product_id)
+      .select('*')
+      .single()
+
+    if (updateError || !product) {
+      return {
+        success: false,
+        error: `Failed to update product: ${updateError?.message}`,
+      }
+    }
+
+    await supabase
+      .from('hardware_product_suppliers')
+      .update({
+        supplier_cost: sp.cost_price || 0,
+        last_synced_cost: sp.cost_price || 0,
+        cost_updated_at: new Date().toISOString(),
+      })
+      .eq('supplier_product_id', input.supplier_product_id)
+
+    await refreshPreferredSupplier(product.id, supabase)
+    return {
+      success: true,
+      hardware_product_id: product.id,
+      slug: product.slug,
+    }
+  }
+
   const { data: product, error: createError } = await supabase
     .from('circletel_hardware_products')
     .insert({
-      name: input.name || sp.name,
+      ...hardwareFields,
       slug: input.slug,
-      description: input.description || sp.description,
-      category: input.category || sp.category,
-      retail_price: retailPrice,
-      cost_price: sp.cost_price || 0,
       status: 'draft',
       is_featured: input.is_featured || false,
       specifications: sp.specifications || {},
-      warranty_months:
-        sp.specifications?.warranty_months || null,
+      warranty_months: sp.specifications?.warranty_months || null,
       primary_supplier_code: supplierCode,
     } satisfies HardwareProductInsert)
     .select('*')
@@ -374,7 +496,6 @@ export async function promoteFromSupplier(
     }
   }
 
-  // Link to supplier
   await supabase.from('hardware_product_suppliers').insert({
     hardware_product_id: product.id,
     supplier_product_id: input.supplier_product_id,
@@ -384,7 +505,6 @@ export async function promoteFromSupplier(
     cost_updated_at: new Date().toISOString(),
   })
 
-  // Create default T&Cs (back-to-back with supplier)
   const warrantyMonths = sp.specifications?.warranty_months
   await supabase.from('hardware_product_terms').insert({
     hardware_product_id: product.id,
@@ -392,16 +512,68 @@ export async function promoteFromSupplier(
       ? `${warrantyMonths} months manufacturer warranty`
       : null,
     return_policy: '7-day return for defects',
+    delivery_estimate: leadTimeLabel(decision.metadata.lead_time_business_days),
     is_back_to_back: true,
     source_supplier_code: supplierCode,
     source_supplier_warranty_months: warrantyMonths || null,
     effective_from: new Date().toISOString(),
   })
 
+  await refreshPreferredSupplier(product.id, supabase)
+
   return {
     success: true,
     hardware_product_id: product.id,
     slug: product.slug,
+  }
+}
+
+async function refreshPreferredSupplier(
+  hardwareProductId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any
+) {
+  const { data: links } = await supabase
+    .from('hardware_product_suppliers')
+    .select('id, supplier_cost')
+    .eq('hardware_product_id', hardwareProductId)
+
+  if (!links?.length) return
+
+  const preferred = links.reduce(
+    (
+      best: { id: string; supplier_cost: number },
+      row: { id: string; supplier_cost: number }
+    ) => (row.supplier_cost < best.supplier_cost ? row : best),
+    links[0]
+  )
+
+  await supabase
+    .from('hardware_product_suppliers')
+    .update({ is_preferred: false })
+    .eq('hardware_product_id', hardwareProductId)
+
+  await supabase
+    .from('hardware_product_suppliers')
+    .update({ is_preferred: true })
+    .eq('id', preferred.id)
+
+  const { data: preferredLink } = await supabase
+    .from('hardware_product_suppliers')
+    .select('supplier_product:supplier_products(supplier:suppliers(code))')
+    .eq('id', preferred.id)
+    .maybeSingle()
+
+  const preferredCode =
+    preferredLink?.supplier_product?.supplier?.code
+  if (preferredCode) {
+    await supabase
+      .from('circletel_hardware_products')
+      .update({
+        primary_supplier_code: preferredCode,
+        cost_price: preferred.supplier_cost,
+      })
+      .eq('id', hardwareProductId)
   }
 }
 
