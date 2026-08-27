@@ -115,12 +115,25 @@ function flagsFromReportPayload(payload: string): CreditFlags {
   });
 }
 
+export function parseAvsToken(value: string): boolean | null {
+  const v = value.trim().toLowerCase();
+  if (/^(yes|true|1|valid)$/.test(v)) return true;
+  if (/^(no|false|0|invalid)$/.test(v)) return false;
+  return null;
+}
+
+export function parseAvsFlagsFromReport(raw: string): Pick<CreditFlags, 'avs_acc_exists' | 'avs_id_match'> {
+  const acc = /acc(?:ount)?\s*exists[^a-z0-9]*(yes|true|1|no|false|0|valid|invalid)/i.exec(raw);
+  const idMatch = /id\s*match[^a-z0-9]*(yes|true|1|no|false|0|valid|invalid)/i.exec(raw);
+  return {
+    avs_acc_exists: acc ? parseAvsToken(acc[1]) : null,
+    avs_id_match: idMatch ? parseAvsToken(idMatch[1]) : null,
+  };
+}
+
 function avsFlag(value: string | null): boolean | null {
   if (!value) return null;
-  const v = value.trim().toLowerCase();
-  if (v === 'valid' || v === 'yes' || v === 'true' || v === '1') return true;
-  if (v === 'invalid' || v === 'no' || v === 'false' || v === '0') return false;
-  return null;
+  return parseAvsToken(value);
 }
 
 async function sleepMs(ms: number, deps: NiwsClientDeps): Promise<void> {
@@ -299,6 +312,7 @@ export async function requestAvsRealtime(
     `<tem:IsIdNumber>${params.isIdNumber === false ? 'false' : 'true'}</tem:IsIdNumber>`,
   ].join('');
   const raw = await callNiws('AVSRealtimeQuery', inner, deps);
+  const fromText = parseAvsFlagsFromReport(raw);
   const acc = avsFlag(
     xmlTag(raw, 'BankAccountNumberValid') || xmlTag(raw, 'AccountActive')
   );
@@ -306,8 +320,8 @@ export async function requestAvsRealtime(
   return {
     raw,
     flags: {
-      avs_acc_exists: acc,
-      avs_id_match: idMatch,
+      avs_acc_exists: acc ?? fromText.avs_acc_exists,
+      avs_id_match: idMatch ?? fromText.avs_id_match,
     },
   };
 }

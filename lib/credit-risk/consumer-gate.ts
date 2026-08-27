@@ -1,4 +1,5 @@
 import { CIRCLECONNECT_5G_CATALOGUE, OP19627_PROMOS } from '@/lib/products/five-g-offer-term';
+import { hasHardLegalFlag } from './decision';
 import type { CreditDecision, CreditFlags } from './types';
 
 export type ConsumerDealKind = 'credit' | 'skip';
@@ -144,10 +145,14 @@ export function validateDualControlOverride(input: {
     return { ok: false, reason: 'MD and CFO sign-off must be two distinct admins.' };
   }
 
-  if (input.requestedDecision === 'PASS' && input.flags?.debt_review && !input.hardwarePrepaid) {
+  if (
+    input.requestedDecision === 'PASS' &&
+    hasHardLegalFlag(input.flags || {}) &&
+    !input.hardwarePrepaid
+  ) {
     return {
       ok: false,
-      reason: 'Cannot mark PASS while debt review is flagged unless hardware is prepaid.',
+      reason: 'Cannot mark PASS while a hard-fail flag is set unless hardware is prepaid.',
     };
   }
 

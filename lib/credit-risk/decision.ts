@@ -18,6 +18,14 @@ export function hasHardLegalFlag(flags: CreditFlags): boolean {
   );
 }
 
+export function passBlockedReason(
+  flags: CreditFlags | undefined,
+  hardwarePrepaid: boolean
+): string | null {
+  if (!hasHardLegalFlag(flags || {}) || hardwarePrepaid) return null;
+  return 'Cannot mark PASS while a hard-fail flag is set unless hardware is prepaid.';
+}
+
 export function deriveCreditDecision(flags: CreditFlags): CreditDecision {
   if (hasHardLegalFlag(flags)) return 'HARD_FAIL';
   if (typeof flags.score === 'number' && flags.score < 500) return 'FAIL';

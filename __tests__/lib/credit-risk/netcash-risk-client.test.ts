@@ -1,5 +1,10 @@
-import { parseCreditReportFlags, riskServiceKeyConfigured } from '@/lib/credit-risk/netcash-risk-client';
-import { deriveCreditDecision } from '@/lib/credit-risk/decision';
+import {
+  parseAvsFlagsFromReport,
+  parseCreditReportFlags,
+  riskServiceKeyConfigured,
+} from '@/lib/credit-risk/netcash-risk-client';
+import { deriveCreditDecision, passBlockedReason } from '@/lib/credit-risk/decision';
+import { adminFieldsToKeepOnPull } from '@/lib/credit-risk/review-store';
 
 describe('parseCreditReportFlags', () => {
   it('maps the Ishmael Netcash wording to debt review', () => {
@@ -22,6 +27,44 @@ describe('parseCreditReportFlags', () => {
     expect(flags.avs_acc_exists).toBe(true);
     expect(flags.avs_id_match).toBe(false);
     expect(deriveCreditDecision(flags)).toBe('HARD_FAIL');
+  });
+});
+
+describe('parseAvsFlagsFromReport', () => {
+  it('parses Acc Exists / Id Match = No as false, not unknown', () => {
+    const flags = parseAvsFlagsFromReport('Account exists: No\nID Match: No');
+    expect(flags.avs_acc_exists).toBe(false);
+    expect(flags.avs_id_match).toBe(false);
+    expect(deriveCreditDecision(flags)).toBe('HARD_FAIL');
+  });
+});
+
+describe('passBlockedReason and pull merge', () => {
+  it('blocks PASS on sequestration, not only debt review', () => {
+    expect(passBlockedReason({ sequestration: true }, false)).toMatch(/hard-fail/);
+    expect(passBlockedReason({ sequestration: true }, true)).toBeNull();
+  });
+
+  it('keeps prepaid and notes when a pull upserts', () => {
+    expect(
+      adminFieldsToKeepOnPull({
+        consumer_order_id: 'order-1',
+        decision: 'HARD_FAIL',
+        flags: {},
+        financed_router_allowed: false,
+        term_24_month_allowed: false,
+        hardware_prepaid: true,
+        alternatives: [],
+        private_note: 'Customer paid the G5C.',
+        override_reason: 'MD/CFO dual control',
+        override_by: 'admin-1',
+        override_signoffs: [{ role: 'md', adminId: 'admin-1' }],
+      })
+    ).toMatchObject({
+      hardware_prepaid: true,
+      private_note: 'Customer paid the G5C.',
+      override_reason: 'MD/CFO dual control',
+    });
   });
 });
 

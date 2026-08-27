@@ -184,5 +184,15 @@ describe('validateDualControlOverride', () => {
     });
     expect(noPrepaid.ok).toBe(false);
     expect(noPrepaid.reason).toMatch(/prepaid/i);
+
+    const sequestration = validateDualControlOverride({
+      actorRole: 'super_admin',
+      signoffs: [md, cfo],
+      reason: 'Clearance pending.',
+      requestedDecision: 'PASS',
+      flags: { sequestration: true },
+      hardwarePrepaid: false,
+    });
+    expect(sequestration.ok).toBe(false);
   });
 });

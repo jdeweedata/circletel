@@ -1,6 +1,21 @@
 import { buildCreditReview, buildQuoteCreditReview } from './decision';
 import type { CreditReviewInput, OrderCreditReview, QuoteCreditReview } from './types';
 
+export function adminFieldsToKeepOnPull(
+  existing?: OrderCreditReview | null
+): Pick<
+  CreditReviewInput,
+  'hardware_prepaid' | 'private_note' | 'override_reason' | 'override_by' | 'override_signoffs'
+> {
+  return {
+    hardware_prepaid: Boolean(existing?.hardware_prepaid),
+    private_note: existing?.private_note ?? null,
+    override_reason: existing?.override_reason ?? null,
+    override_by: existing?.override_by ?? null,
+    override_signoffs: existing?.override_signoffs ?? null,
+  };
+}
+
 type SupabaseLike = {
   from: (table: string) => any;
 };

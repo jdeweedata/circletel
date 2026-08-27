@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { CREDIT_DECISIONS } from '@/lib/credit-risk/types';
-import { getOrderCreditReview, upsertOrderCreditReview } from '@/lib/credit-risk/review-store';
+import { passBlockedReason } from '@/lib/credit-risk/decision';
+import {
+  adminFieldsToKeepOnPull,
+  getOrderCreditReview,
+  upsertOrderCreditReview,
+} from '@/lib/credit-risk/review-store';
 import {
   resolveConsumerDealKind,
   shouldPullConsumerCredit,
@@ -64,17 +69,20 @@ export async function PATCH(
     return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
   }
 
-  if (body.decision === 'PASS' && body.flags?.debt_review && !body.hardware_prepaid) {
-    const override = validateDualControlOverride({
-      actorRole: authResult.adminUser.role,
-      signoffs: body.override_signoffs,
-      reason: body.override_reason,
-      requestedDecision: body.decision,
-      flags: body.flags,
-      hardwarePrepaid: Boolean(body.hardware_prepaid),
-    });
-    if (!override.ok) {
-      return NextResponse.json({ success: false, error: override.reason }, { status: 422 });
+  if (body.decision === 'PASS') {
+    const passBlock = passBlockedReason(body.flags, Boolean(body.hardware_prepaid));
+    if (passBlock) {
+      const override = validateDualControlOverride({
+        actorRole: authResult.adminUser.role,
+        signoffs: body.override_signoffs,
+        reason: body.override_reason,
+        requestedDecision: body.decision,
+        flags: body.flags,
+        hardwarePrepaid: Boolean(body.hardware_prepaid),
+      });
+      if (!override.ok) {
+        return NextResponse.json({ success: false, error: override.reason }, { status: 422 });
+      }
     }
   }
 
@@ -175,6 +183,7 @@ export async function POST(
       flags = { ...flags, ...avs.flags };
     }
 
+    const existing = await getOrderCreditReview(supabase, orderId);
     const review = await upsertOrderCreditReview(supabase, {
       consumer_order_id: orderId,
       flags,
@@ -187,6 +196,7 @@ export async function POST(
       updated_by: authResult.adminUser.email,
       package_price: Number(order.package_price) || 0,
       router_included: Boolean(order.router_included),
+      ...adminFieldsToKeepOnPull(existing),
     });
 
     return NextResponse.json({ success: true, data: review });
